@@ -7,11 +7,6 @@ import net.jadoth.typing.TypeMapping;
 
 public final class BinaryValueTranslators
 {
-	/* (07.02.2019 TM)FIXME: JET-49: BinaryValueTranslators
-	 * All of them require a byte order reversing variant
-	 * (OMFG!)
-	 */
-	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
@@ -80,12 +75,10 @@ public final class BinaryValueTranslators
 	{
 		final TypeMapping<BinaryValueSetter> mapping = TypeMapping.New();
 		registerPrimitivesToPrimitivesSwitchingByteOrder(mapping);
-		
-		// (08.02.2019 TM)FIXME: JET-49: replicate remaining methods
-//		registerPrimitivesToWrappers(mapping);
-//		registerWrappersToPrimitives(mapping);
-//		registerWrappersToWrappers(mapping);
-//		registerCommonValueTypes(mapping);
+		registerPrimitivesToWrappersSwitchingByteOrder(mapping);
+		registerWrappersToPrimitivesSwitchingByteOrder(mapping);
+		registerWrappersToWrappersSwitchingByteOrder(mapping);
+		registerCommonValueTypesSwitchingByteOrder(mapping);
 		
 		return mapping;
 	}
@@ -1035,8 +1028,8 @@ public final class BinaryValueTranslators
 	)
 	{
 		mapping
-		.register(byte.class, byte   .class, BinaryValueTranslators::switchingCopy_byteTo_byte   )
-		.register(byte.class, boolean.class, BinaryValueTranslators::switchingCopy_byteTo_boolean)
+		.register(byte.class, byte   .class, BinaryValueTranslators::copy_byteTo_byte            )
+		.register(byte.class, boolean.class, BinaryValueTranslators::copy_byteTo_boolean         )
 		.register(byte.class, short  .class, BinaryValueTranslators::switchingCopy_byteTo_short  )
 		.register(byte.class, char   .class, BinaryValueTranslators::switchingCopy_byteTo_char   )
 		.register(byte.class, int    .class, BinaryValueTranslators::switchingCopy_byteTo_int    )
@@ -1044,8 +1037,8 @@ public final class BinaryValueTranslators
 		.register(byte.class, long   .class, BinaryValueTranslators::switchingCopy_byteTo_long   )
 		.register(byte.class, double .class, BinaryValueTranslators::switchingCopy_byteTo_double )
 		
-		.register(boolean.class, byte   .class, BinaryValueTranslators::switchingCopy_booleanTo_byte   )
-		.register(boolean.class, boolean.class, BinaryValueTranslators::switchingCopy_booleanTo_boolean)
+		.register(boolean.class, byte   .class, BinaryValueTranslators::copy_booleanTo_byte            )
+		.register(boolean.class, boolean.class, BinaryValueTranslators::copy_booleanTo_boolean         )
 		.register(boolean.class, short  .class, BinaryValueTranslators::switchingCopy_booleanTo_short  )
 		.register(boolean.class, char   .class, BinaryValueTranslators::switchingCopy_booleanTo_char   )
 		.register(boolean.class, int    .class, BinaryValueTranslators::switchingCopy_booleanTo_int    )
@@ -1055,7 +1048,7 @@ public final class BinaryValueTranslators
 		
 		.register(short.class, byte   .class, BinaryValueTranslators::switchingCopy_shortTo_byte   )
 		.register(short.class, boolean.class, BinaryValueTranslators::switchingCopy_shortTo_boolean)
-		.register(short.class, short  .class, BinaryValueTranslators::switchingCopy_shortTo_short  )
+		.register(short.class, short  .class, BinaryValueTranslators::copy_shortTo_short           )
 		.register(short.class, char   .class, BinaryValueTranslators::switchingCopy_shortTo_char   )
 		.register(short.class, int    .class, BinaryValueTranslators::switchingCopy_shortTo_int    )
 		.register(short.class, float  .class, BinaryValueTranslators::switchingCopy_shortTo_float  )
@@ -1065,7 +1058,7 @@ public final class BinaryValueTranslators
 		.register(char.class, byte   .class, BinaryValueTranslators::switchingCopy_charTo_byte   )
 		.register(char.class, boolean.class, BinaryValueTranslators::switchingCopy_charTo_boolean)
 		.register(char.class, short  .class, BinaryValueTranslators::switchingCopy_charTo_short  )
-		.register(char.class, char   .class, BinaryValueTranslators::switchingCopy_charTo_char   )
+		.register(char.class, char   .class, BinaryValueTranslators::copy_charTo_char            )
 		.register(char.class, int    .class, BinaryValueTranslators::switchingCopy_charTo_int    )
 		.register(char.class, float  .class, BinaryValueTranslators::switchingCopy_charTo_float  )
 		.register(char.class, long   .class, BinaryValueTranslators::switchingCopy_charTo_long   )
@@ -1075,7 +1068,7 @@ public final class BinaryValueTranslators
 		.register(int.class, boolean.class, BinaryValueTranslators::switchingCopy_intTo_boolean)
 		.register(int.class, short  .class, BinaryValueTranslators::switchingCopy_intTo_short  )
 		.register(int.class, char   .class, BinaryValueTranslators::switchingCopy_intTo_char   )
-		.register(int.class, int    .class, BinaryValueTranslators::switchingCopy_intTo_int    )
+		.register(int.class, int    .class, BinaryValueTranslators::copy_intTo_int             )
 		.register(int.class, float  .class, BinaryValueTranslators::switchingCopy_intTo_float  )
 		.register(int.class, long   .class, BinaryValueTranslators::switchingCopy_intTo_long   )
 		.register(int.class, double .class, BinaryValueTranslators::switchingCopy_intTo_double )
@@ -1085,7 +1078,7 @@ public final class BinaryValueTranslators
 		.register(float.class, short  .class, BinaryValueTranslators::switchingCopy_floatTo_short  )
 		.register(float.class, char   .class, BinaryValueTranslators::switchingCopy_floatTo_char   )
 		.register(float.class, int    .class, BinaryValueTranslators::switchingCopy_floatTo_int    )
-		.register(float.class, float  .class, BinaryValueTranslators::switchingCopy_floatTo_float  )
+		.register(float.class, float  .class, BinaryValueTranslators::copy_floatTo_float           )
 		.register(float.class, long   .class, BinaryValueTranslators::switchingCopy_floatTo_long   )
 		.register(float.class, double .class, BinaryValueTranslators::switchingCopy_floatTo_double )
 		
@@ -1095,7 +1088,7 @@ public final class BinaryValueTranslators
 		.register(long.class, char   .class, BinaryValueTranslators::switchingCopy_longTo_char   )
 		.register(long.class, int    .class, BinaryValueTranslators::switchingCopy_longTo_int    )
 		.register(long.class, float  .class, BinaryValueTranslators::switchingCopy_longTo_float  )
-		.register(long.class, long   .class, BinaryValueTranslators::switchingCopy_longTo_long   )
+		.register(long.class, long   .class, BinaryValueTranslators::copy_longTo_long            )
 		.register(long.class, double .class, BinaryValueTranslators::switchingCopy_longTo_double )
 		
 		.register(double.class, byte   .class, BinaryValueTranslators::switchingCopy_doubleTo_byte   )
@@ -1105,36 +1098,30 @@ public final class BinaryValueTranslators
 		.register(double.class, int    .class, BinaryValueTranslators::switchingCopy_doubleTo_int    )
 		.register(double.class, float  .class, BinaryValueTranslators::switchingCopy_doubleTo_float  )
 		.register(double.class, long   .class, BinaryValueTranslators::switchingCopy_doubleTo_long   )
-		.register(double.class, double .class, BinaryValueTranslators::switchingCopy_doubleTo_double )
+		.register(double.class, double .class, BinaryValueTranslators::copy_doubleTo_double          )
 		;
 	}
 	
-	// (08.02.2019 TM)FIXME: JET-49: setting switch is still missing for floats and doubles
-	
-	// (08.02.2019 TM)FIXME: remove generated switching variants for identical data types
-	
-	public static long switchingCopy_byteTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
-	)
+	private static void registerPrimitivesToWrappersSwitchingByteOrder(final TypeMapping<BinaryValueSetter> mapping)
 	{
-		XMemory.set_byte(target, targetOffset, XMemory.get_byte(sourceAddress));
-		return sourceAddress + XMemory.byteSize_byte();
+		// (10.02.2019 TM)TODO: copy from non-switching variant
 	}
-
-	public static long switchingCopy_byteTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
-	)
+	
+	private static void registerWrappersToPrimitivesSwitchingByteOrder(final TypeMapping<BinaryValueSetter> mapping)
 	{
-		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_byte(sourceAddress));
-		return sourceAddress + XMemory.byteSize_byte();
+		// (10.02.2019 TM)TODO: copy from non-switching variant
 	}
-
+	
+	private static void registerWrappersToWrappersSwitchingByteOrder(final TypeMapping<BinaryValueSetter> mapping)
+	{
+		// (10.02.2019 TM)TODO: copy from non-switching variant
+	}
+	
+	private static void registerCommonValueTypesSwitchingByteOrder(final TypeMapping<BinaryValueSetter> mapping)
+	{
+		// (10.02.2019 TM)TODO: copy from non-switching variant
+	}
+	
 	public static long switchingCopy_byteTo_short(
 		final long                        sourceAddress,
 		final Object                      target       ,
@@ -1175,7 +1162,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_float(target, targetOffset, XMemory.get_byte(sourceAddress));
+		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(XMemory.get_byte(sourceAddress))));
 		return sourceAddress + XMemory.byteSize_byte();
 	}
 
@@ -1197,34 +1184,12 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_double(target, targetOffset, XMemory.get_byte(sourceAddress));
+		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(XMemory.get_byte(sourceAddress))));
 		return sourceAddress + XMemory.byteSize_byte();
 	}
 
 
-
-	public static long switchingCopy_booleanTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		XMemory.set_byte(target, targetOffset, (byte)to_int(XMemory.get_boolean(sourceAddress)));
-		return sourceAddress + XMemory.byteSize_boolean();
-	}
-
-	public static long switchingCopy_booleanTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		XMemory.set_boolean(target, targetOffset, XMemory.get_boolean(sourceAddress));
-		return sourceAddress + XMemory.byteSize_boolean();
-	}
-
+	
 	public static long switchingCopy_booleanTo_short(
 		final long                        sourceAddress,
 		final Object                      target       ,
@@ -1265,7 +1230,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_float(target, targetOffset, to_int(XMemory.get_boolean(sourceAddress)));
+		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(to_int(XMemory.get_boolean(sourceAddress)))));
 		return sourceAddress + XMemory.byteSize_boolean();
 	}
 
@@ -1287,7 +1252,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_double(target, targetOffset, to_int(XMemory.get_boolean(sourceAddress)));
+		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(to_int(XMemory.get_boolean(sourceAddress)))));
 		return sourceAddress + XMemory.byteSize_boolean();
 	}
 
@@ -1312,17 +1277,6 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != Short.reverseBytes(XMemory.get_short(sourceAddress)));
-		return sourceAddress + XMemory.byteSize_short();
-	}
-
-	public static long switchingCopy_shortTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		XMemory.set_short(target, targetOffset, Short.reverseBytes(Short.reverseBytes(XMemory.get_short(sourceAddress))));
 		return sourceAddress + XMemory.byteSize_short();
 	}
 
@@ -1355,7 +1309,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_float(target, targetOffset, Short.reverseBytes(XMemory.get_short(sourceAddress)));
+		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(Short.reverseBytes(XMemory.get_short(sourceAddress)))));
 		return sourceAddress + XMemory.byteSize_short();
 	}
 
@@ -1377,7 +1331,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_double(target, targetOffset, Short.reverseBytes(XMemory.get_short(sourceAddress)));
+		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(Short.reverseBytes(XMemory.get_short(sourceAddress)))));
 		return sourceAddress + XMemory.byteSize_short();
 	}
 
@@ -1416,17 +1370,6 @@ public final class BinaryValueTranslators
 		return sourceAddress + XMemory.byteSize_char();
 	}
 
-	public static long switchingCopy_charTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		XMemory.set_char(target, targetOffset, Character.reverseBytes(Character.reverseBytes(XMemory.get_char(sourceAddress))));
-		return sourceAddress + XMemory.byteSize_char();
-	}
-
 	public static long switchingCopy_charTo_int(
 		final long                        sourceAddress,
 		final Object                      target       ,
@@ -1445,7 +1388,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_float(target, targetOffset, Character.reverseBytes(XMemory.get_char(sourceAddress)));
+		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(Character.reverseBytes(XMemory.get_char(sourceAddress)))));
 		return sourceAddress + XMemory.byteSize_char();
 	}
 
@@ -1467,7 +1410,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_double(target, targetOffset, Character.reverseBytes(XMemory.get_char(sourceAddress)));
+		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(Character.reverseBytes(XMemory.get_char(sourceAddress)))));
 		return sourceAddress + XMemory.byteSize_char();
 	}
 
@@ -1517,17 +1460,6 @@ public final class BinaryValueTranslators
 		return sourceAddress + XMemory.byteSize_int();
 	}
 
-	public static long switchingCopy_intTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Integer.reverseBytes(XMemory.get_int(sourceAddress))));
-		return sourceAddress + XMemory.byteSize_int();
-	}
-
 	public static long switchingCopy_intTo_float(
 		final long                        sourceAddress,
 		final Object                      target       ,
@@ -1535,7 +1467,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_float(target, targetOffset, Integer.reverseBytes(XMemory.get_int(sourceAddress)));
+		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(Integer.reverseBytes(XMemory.get_int(sourceAddress)))));
 		return sourceAddress + XMemory.byteSize_int();
 	}
 
@@ -1557,7 +1489,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_double(target, targetOffset, Integer.reverseBytes(XMemory.get_int(sourceAddress)));
+		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(Integer.reverseBytes(XMemory.get_int(sourceAddress)))));
 		return sourceAddress + XMemory.byteSize_int();
 	}
 
@@ -1618,17 +1550,6 @@ public final class BinaryValueTranslators
 		return sourceAddress + Float.BYTES;
 	}
 
-	public static long switchingCopy_floatTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		XMemory.set_float(target, targetOffset, Float.intBitsToFloat(Integer.reverseBytes(XMemory.get_int(sourceAddress))));
-		return sourceAddress + Float.BYTES;
-	}
-
 	public static long switchingCopy_floatTo_long(
 		final long                        sourceAddress,
 		final Object                      target       ,
@@ -1647,7 +1568,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_double(target, targetOffset, Float.intBitsToFloat(Integer.reverseBytes(XMemory.get_int(sourceAddress))));
+		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(Float.intBitsToFloat(Integer.reverseBytes(XMemory.get_int(sourceAddress))))));
 		return sourceAddress + Float.BYTES;
 	}
 
@@ -1715,18 +1636,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_float(target, targetOffset, Long.reverseBytes(XMemory.get_long(sourceAddress)));
-		return sourceAddress + XMemory.byteSize_long();
-	}
-
-	public static long switchingCopy_longTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		XMemory.set_long(target, targetOffset, Long.reverseBytes(Long.reverseBytes(XMemory.get_long(sourceAddress))));
+		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(Long.reverseBytes(XMemory.get_long(sourceAddress)))));
 		return sourceAddress + XMemory.byteSize_long();
 	}
 
@@ -1737,7 +1647,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_double(target, targetOffset, Long.reverseBytes(XMemory.get_long(sourceAddress)));
+		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(Long.reverseBytes(XMemory.get_long(sourceAddress)))));
 		return sourceAddress + XMemory.byteSize_long();
 	}
 
@@ -1805,7 +1715,7 @@ public final class BinaryValueTranslators
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		XMemory.set_float(target, targetOffset, (float)Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress))));
+		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits((float)Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress))))));
 		return sourceAddress + XMemory.byteSize_double();
 	}
 
@@ -1817,17 +1727,6 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes((long)Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress)))));
-		return sourceAddress + XMemory.byteSize_double();
-	}
-
-	public static long switchingCopy_doubleTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		XMemory.set_double(target, targetOffset, Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress))));
 		return sourceAddress + XMemory.byteSize_double();
 	}
 	
