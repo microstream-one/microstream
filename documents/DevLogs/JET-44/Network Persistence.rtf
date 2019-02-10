@@ -1982,5 +1982,42 @@ BinaryValueTranslators TODOs abarbeiten.\par
 \par
 So. Damit w\'e4ren alle JET-49 TODOs erledigt.\par
 Als n\'e4chstes testen, dann ist es fertig.\par
+\par
+\par
+\par
+2019-02-10\par
+\par
+Jetzt testen. Erst mal den simplen Corporate Test.\par
+Speichern klappt schon mal ohne Problem. Was nicht hei\'dft, dass nicht was inkonsistent sein k\'f6nnte durch einen Fl\'fcchtigkeitsfehler beim Logik umbauen.\par
+Mal Neustarten zum laden.\par
+Erster Fehler:\par
+Invalid list data: entityLength\par
+Beim object Root laden.\par
+Interessant. Mal anschauen.\par
+Da f\'e4llt mir auf: Ich hab gar keinen Hex Editor (mehr) installiert. Weil die alle irgendwie scheisse sind.\par
+Mal recherchieren, ob ich jetzt eigentlich f\'fcr irgendeinen eine Lizenz gekauft hab ...\par
+\par
+Ne, hab ich nicht. Also wieder Hexeditor recherchieren.\par
+Seltsam:\par
+All die, die dich damals gesehen hatte, find ich jetzt nicht mehr oder nur noch am Rande ("neo").\par
+Daf\'fcr ist \'fcberall der HxD (wobei mir der auch von fr\'fcher irgendwie bekannt vorkommt) und der scheint einwandfrei zu sein.\par
+Mal den runterladen und ausprobieren.\par
+Bissl Probleme mit Explorer Kontextmen\'fc (gegoogelt: Nat\'fcrlich als Admin starten) und omin\'f6sem "Stream read error" (gegoogelt: nix gefunden. Ausprobiert: Ah, der h\'e4lt sich an das FileLock! Nur die Meldung ist Schei\'dfe).\par
+Sieht sehr gut aus. Bissl konfigurieren.\par
+Hat echt alles, was ich so brauch. Es k\'f6nnte sein, dass der damals noch keinen Inspektor hatte, was ihn unbrauchbar machte. Aber der Inspektor jetzt sieht super aus.\par
+Passt.\par
+\par
+Jetzt Problem debuggen.\par
+Ach, tz, ich hab bei der neuen List Validierung die List Header L\'e4nge in der Validierung vergessen. Dazubauen. Passt.\par
+\par
+Hm, warum wird in getBinaryListElementCountValidating eigentlich getBinaryListByteLengthRawValue() aufgerufen? Das ist ein Bug ...\par
+\'c4ndern und alle Aufrufe der Methoden pr\'fcfen.\par
+Es gibt 4 weitere Stellen:\par
+Zwei f\'fcr explizite Funktionen mit und ohne ByteOrder Switching. Das passt.\par
+Zwei im Konverter, f\'fcr den ich erst mal die ByteOrder Switcherei ignoriere, weil sie bis auf weiteres niemals n\'f6tig werden wird.\par
+Also nur die eine Fehlverwendung umstellen, dann passts.\par
+\par
+Ah, interessant: Die andere Variante, getBinaryListByteLength, ruft sich selbst auf.\par
+Also diese Varianten sind alle noch Baustelle, da hab ich irgendwie nicht ganz fertig gebaut.\par
 }
  
