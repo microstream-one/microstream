@@ -290,24 +290,6 @@ public abstract class Binary implements Chunk
 		XMemory.set_long(entityAddress + OFFSET_TID, entityTypeId     );
 		XMemory.set_long(entityAddress + OFFSET_OID, entityObjectId   );
 	}
-	
-	public final void iterateKeyValueEntriesReferences(
-		final long                        offset  ,
-		final PersistenceObjectIdAcceptor iterator
-	)
-	{
-		// (29.01.2019 TM)FIXME: JET-64: offset validation
-		
-		final long elementCount = this.getBinaryListElementCountValidating(
-			offset,
-			keyValueBinaryLength()
-		);
-		
-		final long startAddress = this.binaryListElementsAddress(offset);
-		final long boundAddress = startAddress + keyValueReferenceCount(elementCount);
-		
-		this.iterateReferences(startAddress, boundAddress, iterator);
-	}
 		
 	public final long getListElementCountKeyValue(final long listStartOffset)
 	{
@@ -584,24 +566,6 @@ public abstract class Binary implements Chunk
 			X.checkArrayRange(this.getListElementCountReferences(headerOffset))
 		);
 	}
-
-	public final void iterateSizedArrayElementReferences(
-		final long                        offset  ,
-		final PersistenceObjectIdAcceptor iterator
-	)
-	{
-		// (29.01.2019 TM)FIXME: JET-64: offset validation
-		
-		final long elementCount = this.getBinaryListElementCountValidating(
-			offset + SIZED_ARRAY_OFFSET_ELEMENTS,
-			LENGTH_OID
-		);
-		
-		final long startAddress = this.binaryListElementsAddress(offset + SIZED_ARRAY_OFFSET_ELEMENTS);
-		final long boundAddress = startAddress + LENGTH_OID * elementCount;
-		
-		this.iterateReferences(startAddress, boundAddress, iterator);
-	}
 				
 	public final long getBinaryListTotalByteLength(final long listOffset)
 	{
@@ -750,20 +714,60 @@ public abstract class Binary implements Chunk
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
-		final long startAddress = this.binaryListElementsAddress(listOffset);
-		final long boundAddress = startAddress + LENGTH_OID * this.getListElementCountReferences(listOffset);
-		
-		this.iterateReferences(startAddress, boundAddress, iterator);
+		this.iterateListStructureReferenceRange(listOffset, 1, iterator);
 	}
 
-	public final void iterateReferences(
+	public final void iterateSizedArrayElementReferences(
+		final long                        offset  ,
+		final PersistenceObjectIdAcceptor iterator
+	)
+	{
+		this.iterateListStructureReferenceRange(offset + SIZED_ARRAY_OFFSET_ELEMENTS, 1, iterator);
+	}
+	
+	public final void iterateListStructureReferenceRange(
+		final long                        listOffset          ,
+		final int                         referencesPerElement,
+		final PersistenceObjectIdAcceptor iterator
+	)
+	{
+		// (29.01.2019 TM)FIXME: JET-64: offset validation
+		
+		final long elementCount = this.getBinaryListElementCountValidating(
+			listOffset,
+			referencesPerElement * LENGTH_OID
+		);
+		final long elementsStartOffset = toBinaryListElementsAddress(listOffset);
+		final long elementsBoundOffset = elementsStartOffset + elementCount * referencesPerElement * LENGTH_OID;
+		
+		// validations have already been done above.
+		this.iterateReferenceRangeUnvalidated(elementsStartOffset, elementsBoundOffset, iterator);
+	}
+	
+	public final void iterateKeyValueEntriesReferences(
+		final long                        listOffset,
+		final PersistenceObjectIdAcceptor iterator
+	)
+	{
+		this.iterateListStructureReferenceRange(listOffset, 2, iterator);
+	}
+
+	public final void iterateReferenceRange(
 		final long                        startOffset,
 		final long                        boundOffset,
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
 		// (01.02.2019 TM)FIXME: JET-64: offset validations
-		
+		this.iterateReferenceRangeUnvalidated(startOffset, boundOffset, iterator);
+	}
+	
+	public final void iterateReferenceRangeUnvalidated(
+		final long                        startOffset,
+		final long                        boundOffset,
+		final PersistenceObjectIdAcceptor iterator
+	)
+	{
 		final long startAddress = this.loadItemEntityContentAddress() + startOffset;
 		final long boundAddress = this.loadItemEntityContentAddress() + boundOffset;
 		
