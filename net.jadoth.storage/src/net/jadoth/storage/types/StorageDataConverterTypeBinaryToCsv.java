@@ -955,7 +955,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					final long bound = valueReadAddress + Binary.getBinaryListByteLengthRawValue(valueReadAddress);
+					final long bound = valueReadAddress + Binary.getBinaryListTotalByteLengthRawValue(valueReadAddress);
 					
 					ImplementationUTF8.this.write_chars(
 						Binary.toBinaryListElementsAddress(valueReadAddress),
@@ -974,7 +974,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					final long bound = valueReadAddress + Binary.getBinaryListByteLengthRawValue(valueReadAddress);
+					final long bound = valueReadAddress + Binary.getBinaryListTotalByteLengthRawValue(valueReadAddress);
 					
 					ImplementationUTF8.this.write_bytes(
 						Binary.toBinaryListElementsAddress(valueReadAddress),
