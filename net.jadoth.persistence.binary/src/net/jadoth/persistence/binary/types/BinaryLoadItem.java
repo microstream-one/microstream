@@ -85,31 +85,14 @@ public class BinaryLoadItem extends Binary
 		this.address = entityContentAddress;
 	}
 	
-
-		
-	/**
-	 * In rare cases (legacy type mapping), a direct byte buffer must be "anchored" in order to not get gc-collected
-	 * and cause its memory to be deallocated. Anchoring means it just has to be referenced by anything that lives
-	 * until the end of the entity loading/building process. It never has to be dereferenced again.
-	 * In order to not need another fixed field, which would needlessly occupy memory for EVERY entity in almost every
-	 * case, a "helper anchor" is used: a nifty instance that is clamped in between the actual load item and the actual
-	 * helper instance.
-	 * 
-	 * @author TM
-	 *
-	 */
-	static final class HelperAnchor
+	@Override
+	public String toString()
 	{
-		final Object anchorSubject;
-		      Object actualHelper;
-		
-		HelperAnchor(final Object anchorSubject, final Object actualHelper)
-		{
-			super();
-			this.anchorSubject = anchorSubject;
-			this.actualHelper  = actualHelper;
-		}
-		
+		return "LoadItem OID=" + this.getBuildItemObjectId()
+			+ (this.handler == null
+				? "[no handler]"
+				: this.handler.typeId() + " " + this.handler.typeName())
+		;
 	}
 			
 				
