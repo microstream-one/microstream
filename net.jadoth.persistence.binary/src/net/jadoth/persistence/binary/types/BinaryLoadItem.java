@@ -91,7 +91,7 @@ public class BinaryLoadItem extends Binary
 		return "LoadItem OID=" + this.getBuildItemObjectId()
 			+ (this.handler == null
 				? "[no handler]"
-				: this.handler.typeId() + " " + this.handler.typeName())
+				: ", Type=" + this.handler.typeId() + " " + this.handler.typeName())
 		;
 	}
 			
