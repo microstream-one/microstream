@@ -8,6 +8,10 @@ import net.jadoth.persistence.types.PersistenceIdStrategy;
 @FunctionalInterface
 public interface ComPersistenceAdaptorCreator<C>
 {
+	/* (11.02.2019 TM)FIXME: JET-49: specifying the host byteOrder is missing here.
+	 * Or maybe that is done via the protocol and the protocol provider (creator).
+	 */
+	
 	public ComPersistenceAdaptor<C> createPersistenceAdaptor(
 		PersistenceIdStrategy  hostIdStrategyInitialization,
 		XGettingEnum<Class<?>> entityTypes                 ,

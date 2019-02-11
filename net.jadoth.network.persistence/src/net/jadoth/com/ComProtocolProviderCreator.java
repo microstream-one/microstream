@@ -13,7 +13,7 @@ public interface ComProtocolProviderCreator<C>
 		String                                name                  ,
 		String                                version               ,
 		ByteOrder                             byteOrder             ,
-		PersistenceIdStrategy                     idStrategy            ,
+		PersistenceIdStrategy                 idStrategy            ,
 		PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 		ComProtocolCreator                    protocolCreator
 	);
@@ -47,7 +47,7 @@ public interface ComProtocolProviderCreator<C>
 			final String                                name                  ,
 			final String                                version               ,
 			final ByteOrder                             byteOrder             ,
-			final PersistenceIdStrategy                     idStrategy            ,
+			final PersistenceIdStrategy                 idStrategy            ,
 			final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 			final ComProtocolCreator                    protocolCreator
 		)

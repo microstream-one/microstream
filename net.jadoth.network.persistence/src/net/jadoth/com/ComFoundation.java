@@ -609,6 +609,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		@Override
 		public F setByteOrder(final ByteOrder byteOrder)
 		{
+			this.byteOrder = byteOrder;
 			return this.$();
 		}
 		

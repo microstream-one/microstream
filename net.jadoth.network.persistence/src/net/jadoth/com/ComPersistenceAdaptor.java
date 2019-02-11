@@ -107,7 +107,7 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	
 	public default ComPersistenceAdaptor<C> initializePersistenceFoundation(
 		final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
-		final PersistenceIdStrategy                     idStrategy
+		final PersistenceIdStrategy                 idStrategy
 	)
 	{
 		final PersistenceTypeDictionaryManager typeDictionaryManager =
@@ -124,6 +124,10 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		 * is not applicable here.
 		 * Also see descriptions in Issue JET-46. At some point in the future, a OGC-suitable type mapping
 		 * will probably become necessary. Until then, type mismatches are invalid.
+		 * The rationale behind this decission is that properly matching types on both sides must be established
+		 * at the time the connction is established, so BEFORE any data has been transmitted. On the fly type
+		 * mapping, be it dynamically new or legacy, can cause unresolvable problems if the other peer does not
+		 * have corresponding types (classes). Such a problem better be recognized sooner rather than later.
 		 */
 		foundation.setTypeMismatchValidator(Persistence.typeMismatchValidatorFailing());
 		
@@ -207,6 +211,8 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 			this.hostIdStrategy     = hostIdStrategy    ;
 		}
 
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////

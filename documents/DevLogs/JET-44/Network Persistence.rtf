@@ -2061,5 +2061,15 @@ Gefixt, mit bissl h\'e4sslichem sneaky Seiteneffekt.\par
 N\'e4chstes Problem: StorageEntityCache$Implementation#putEntity verwendet nat\'fcrlich lauter RawValue Getter und das umzubauen w\'fcrde nennenswert Performance kosten f\'fcr ein Feature,\par
 das auf OGS-Ebene soweit vorhersehbar nie verwendet werden wird.\par
 Das killt es f\'fcr mich bis auf weiteres. isByteOrderMismatch() zu Dummy  zusammenstutzen und erkl\'e4rende Kommentare schreiben.\par
+\par
+Dann bleibt jetzt noch, das ByteOrderSwitching f\'fcr den OGC Fall zu testen.\par
+\par
+\'c4hm, lol, die Methode ComFoundation#setByteOrder ist leer, obwohl es ein Feld byteOrder gibt. Einfach vergessen ... ^^.\par
+\par
+Irgendwie ... fehlt aber die Stelle, wo das dann verwendet wird. Bissl rumrecherchiert:\par
+ComPersistenceAdaptorCreator verwendet gar nicht die ByteOrder der Foundation.\par
+TODO machen, weiter recherchieren...\par
+\par
+Ach, oder l\'e4uft das \'fcber das Protocol. Das muss ich dann mal genauer checken.\par
 }
  
