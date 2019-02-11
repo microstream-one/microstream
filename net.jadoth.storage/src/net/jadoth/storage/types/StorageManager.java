@@ -73,7 +73,7 @@ public interface StorageManager extends StorageController
 		private final StorageRootOidSelector.Provider         rootOidSelectorProvider      ;
 		private final StorageOidMarkQueue.Creator             oidMarkQueueCreator          ;
 		private final StorageEntityMarkMonitor.Creator        entityMarkMonitorCreator     ;
-		private final boolean                                 switchByteOrder                 ;
+		private final boolean                                 switchByteOrder              ;
 
 
 		// state flags //

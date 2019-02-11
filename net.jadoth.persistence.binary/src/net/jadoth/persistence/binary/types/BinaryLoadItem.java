@@ -80,9 +80,20 @@ public class BinaryLoadItem extends Binary
 	}
 	
 	@Override
-	public final void setLoadItemEntityContentAddress(final long entityContentAddress)
+	public final void modifyLoadItem(
+		final long entityContentAddress,
+		final long entityTotalLength   ,
+		final long entityTypeId        ,
+		final long entityObjectId
+	)
 	{
 		this.address = entityContentAddress;
+		this.internalStoreEntityHeader(
+			this.loadItemEntityAddress(),
+			entityTotalLength,
+			entityTypeId,
+			entityObjectId
+		);
 	}
 	
 	@Override

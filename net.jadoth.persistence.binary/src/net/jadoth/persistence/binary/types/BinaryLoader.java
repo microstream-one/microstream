@@ -483,10 +483,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			 */
 			final ByteBuffer dbb = Binary.allocateEntityHeaderDirectBuffer();
 			final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
-			Binary.setEntityHeaderRawValues(dbbAddress, 0, 0, objectId);
 			
 			// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
 			final BinaryLoadItem skipItem = this.createLoadItem(dbbAddress + dbb.capacity());
+			skipItem.modifyLoadItem(dbbAddress + dbb.capacity(), 0, 0, objectId);
 			skipItem.contextInstance = instance;
 			
 			// skip items will never use the helper instance for anything, since they are skip dummies.

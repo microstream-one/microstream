@@ -598,6 +598,16 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		final StorageEntity.Implementation putEntity(final long entityAddress)
 		{
+			/* (11.02.2019 TM)NOTE: On byte order switching:
+			 * Theoreticaly, the storage engine (OGS) could also use the switchByteOrder mechanism implemented for
+			 * communication (OGC). However, there are a lot stumbling blocks in the details that are currently not
+			 * worth resolving for a feature that is most probably never required in the foreseeable future.
+			 * This method is one of them. Instead of reading the raw value, additional work (performance loss)
+			 * would have to be done to check if byte reversal is necessary. For now, this method here alons kills
+			 * the byte order switching for storage usage. Should the need arise in the future, additional
+			 * time can be invested to solve this.
+			 */
+			
 //			DEBUGStorage.println("looking for " + Binary.getEntityObjectId(entityAddress));
 			final StorageEntity.Implementation entry;
 			if((entry = this.getEntry(Binary.getEntityObjectIdRawValue(entityAddress))) != null)

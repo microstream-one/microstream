@@ -252,4 +252,20 @@ public class ChunksBufferByteReversing extends ChunksBuffer
 		}
 	}
 	
+	@Override
+	protected final void internalStoreEntityHeader(
+		final long entityAddress    ,
+		final long entityTotalLength,
+		final long entityTypeId     ,
+		final long entityObjectId
+	)
+	{
+		setEntityHeaderRawValues(
+			entityAddress,
+			Long.reverseBytes(entityTotalLength),
+			Long.reverseBytes(entityTypeId),
+			Long.reverseBytes(entityObjectId)
+		);
+	}
+	
 }
