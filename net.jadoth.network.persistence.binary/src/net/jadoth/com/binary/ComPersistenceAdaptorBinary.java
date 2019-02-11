@@ -172,7 +172,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			);
 			foundation.setPersistenceChannel(channel);
 						
-			/* (14.12.2018 TM)TODO: hostByteOrder used in two different places
+			/* (14.12.2018 TM)TODO: JET-49: hostByteOrder used in two different places
 			 * It's a little weird that the hostByteOrder is used in two different places.
 			 * Or in other words, that the Binary instances for loading and storing are created at different places.
 			 * Maybe that could/should be consolidated.
@@ -229,8 +229,8 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		final BinaryPersistenceFoundation<?> foundation
 	)
 	{
-		return new ComPersistenceAdaptorBinary.Creator.Default(
-			notNull(foundation),
+		return Creator(
+			foundation,
 			BufferSizeProvider.New()
 		);
 	}

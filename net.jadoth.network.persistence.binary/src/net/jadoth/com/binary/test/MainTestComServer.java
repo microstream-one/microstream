@@ -1,6 +1,7 @@
 package net.jadoth.com.binary.test;
 
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.com.Com;
@@ -55,6 +56,7 @@ public class MainTestComServer
 		final ComHost<?> host = ComBinary.Foundation()
 //			.setHostBindingAddress(new InetSocketAddress("www.myAddress.com", 1337))
 			.registerEntityTypes(Customer.class)
+			.setByteOrder(ByteOrder.BIG_ENDIAN)
 			.setHostChannelAcceptor(hostChannel ->
 			{
 				// sessionless / stateless greeting service.

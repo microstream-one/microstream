@@ -49,7 +49,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		private final String                                name                  ;
 		private final String                                version               ;
 		private final ByteOrder                             byteOrder             ;
-		private final PersistenceIdStrategy                     idStrategy            ;
+		private final PersistenceIdStrategy                 idStrategy            ;
 		private final PersistenceTypeDictionaryViewProvider typeDictionaryProvider;
 		private final ComProtocolCreator                    protocolCreator       ;
 		
@@ -63,7 +63,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 			final String                                name                  ,
 			final String                                version               ,
 			final ByteOrder                             byteOrder             ,
-			final PersistenceIdStrategy                     idStrategy            ,
+			final PersistenceIdStrategy                 idStrategy            ,
 			final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 			final ComProtocolCreator                    protocolCreator
 		)
