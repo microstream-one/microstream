@@ -209,8 +209,8 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		
 		final long entityTotalLength = Binary.entityTotalLength(entityContentLength);
 		this.ensureFreeStoreCapacity(entityTotalLength);
-		Binary.setEntityHeaderRawValues(this.currentAddress, entityTotalLength, entityTypeId, entityObjectId);
 		
+		this.internalStoreEntityHeader(this.currentAddress, entityTotalLength, entityTypeId, entityObjectId);
 		
 		// (02.02.2019 TM)XXX: keep the current entity content address internally instead of externally
 		
@@ -321,7 +321,12 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 	}
 	
 	@Override
-	public final void setLoadItemEntityContentAddress(final long entityContentAddress)
+	public final void modifyLoadItem(
+		final long entityContentAddress,
+		final long entityTotalLength   ,
+		final long entityTypeId        ,
+		final long entityObjectId
+	)
 	{
 		throw new UnsupportedOperationException();
 	}

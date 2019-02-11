@@ -2043,5 +2043,23 @@ Export bissl anschauen. Das ist noch ein sehr guter Check, ob irgendwo Bytes ink
 Ne, sieht alles einwandfrei aus.\par
 \par
 Also vom 0815 Standard Test her w\'e4rs fertig getestet.\par
+\par
+Jetzt mal weitere Tests ausdenken.\par
+Der einfachste, obviously: Einfach mal mit BigEndian TargetByteOrder laufen lassen.\par
+\par
+Erst mal HxD auch auf dem B\'fcrorechner installieren. Daf\'fcr das seltsame Neo wieder runter. Wieder kurz HxD bissl einrichten.\par
+\par
+Hm. Also die Entity header werden schon mal gar nicht geswitcht. Untersuchen.\par
+\par
+Umbauen, damit das RawValue Ding nur noch intern verwendet wird.\par
+Testen.\par
+Hm. Geht immer noch nicht. Debuggen.\par
+\par
+Achja, wieder mal das Problem, dass es bei Storage zwei Foundations gibt: eine f\'fcr das Storage Management an sich und die Embedded, die eine BinaryPersistenceFoundation ist.\par
+Gefixt, mit bissl h\'e4sslichem sneaky Seiteneffekt.\par
+\par
+N\'e4chstes Problem: StorageEntityCache$Implementation#putEntity verwendet nat\'fcrlich lauter RawValue Getter und das umzubauen w\'fcrde nennenswert Performance kosten f\'fcr ein Feature,\par
+das auf OGS-Ebene soweit vorhersehbar nie verwendet werden wird.\par
+Das killt es f\'fcr mich bis auf weiteres. isByteOrderMismatch() zu Dummy  zusammenstutzen und erkl\'e4rende Kommentare schreiben.\par
 }
  

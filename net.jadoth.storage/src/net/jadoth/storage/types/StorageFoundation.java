@@ -3,12 +3,11 @@ package net.jadoth.storage.types;
 import java.nio.ByteOrder;
 
 import net.jadoth.exceptions.MissingFoundationPartException;
-import net.jadoth.persistence.binary.types.BinaryByteOrderTargeting;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.storage.types.StorageFileWriter.Provider;
 import net.jadoth.util.InstanceDispatcher;
 
-public interface StorageFoundation<F extends StorageFoundation<?>> extends BinaryByteOrderTargeting<F>
+public interface StorageFoundation<F extends StorageFoundation<?>>
 {
 	public StorageInitialDataFileNumberProvider getInitialDataFileNumberProvider();
 
@@ -124,7 +123,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Binar
 		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageExceptionHandler               exceptionHandler             ;
-		private ByteOrder                             targetByteOrder              ;
 
 		
 		
@@ -469,17 +467,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Binar
 			}
 			return this.exceptionHandler;
 		}
-		
-		@Override
-		public ByteOrder getTargetByteOrder()
-		{
-			if(this.targetByteOrder == null)
-			{
-				this.targetByteOrder = this.dispatch(this.ensureTargetByteOrder());
-			}
-			
-			return this.targetByteOrder;
-		}
 
 		
 		
@@ -637,18 +624,29 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Binar
 			return this.$();
 		}
 		
-		@Override
-		public F setTargetByteOrder(final ByteOrder targetByteOrder)
-		{
-			this.targetByteOrder = targetByteOrder;
-			return this.$();
-		}
 		
+		public final boolean isByteOrderMismatch()
+		{
+			/* (11.02.2019 TM)NOTE: On byte order switching:
+			 * Theoreticaly, the storage engine (OGS) could also use the switchByteOrder mechanism implemented for
+			 * communication (OGC). However, there are a lot stumbling blocks in the details that are currently not
+			 * worth resolving for a feature that is most probably never required in the foreseeable future.
+			 * See StorageEntityCache$Implementation#putEntity
+			 */
+			return false;
+		}
 		
 
 		@Override
 		public StorageManager createStorageManager()
 		{
+			/* (11.02.2019 TM)NOTE: On byte order switching:
+			 * Theoreticaly, the storage engine (OGS) could use the switchByteOrder mechanism implemented for
+			 * communiction (OGC). However, there are a lot stumbling blocks involved in the details that
+			 * are currently not worth resolving for a feature that is most probably never required in the
+			 * foreseeable future.
+			 * See StorageEntityCache$Implementation#putEntity
+			 */
 			return new StorageManager.Implementation(
 				this.getConfiguration()                ,
 				this.getInitialDataFileNumberProvider(),

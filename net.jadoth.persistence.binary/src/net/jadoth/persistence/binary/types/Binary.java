@@ -269,6 +269,16 @@ public abstract class Binary implements Chunk
 		final long entityObjectId
 	);
 	
+	protected void internalStoreEntityHeader(
+		final long entityAddress    ,
+		final long entityTotalLength,
+		final long entityTypeId     ,
+		final long entityObjectId
+	)
+	{
+		setEntityHeaderRawValues(entityAddress, entityTotalLength, entityTypeId, entityObjectId);
+	}
+	
 	/**
 	 * "Raw" means without byte order transformation. This must be done in the calling context.
 	 * 
@@ -279,7 +289,7 @@ public abstract class Binary implements Chunk
 	 * 
 	 * @return
 	 */
-	public static final void setEntityHeaderRawValues(
+	protected static final void setEntityHeaderRawValues(
 		final long entityAddress    ,
 		final long entityTotalLength,
 		final long entityTypeId     ,
@@ -303,10 +313,14 @@ public abstract class Binary implements Chunk
 	
 	public abstract long loadItemEntityContentAddress();
 	
-	public abstract void setLoadItemEntityContentAddress(long entityContentAddress);
-	
 	public abstract long loadItemEntityAddress();
 	
+	public abstract void modifyLoadItem(
+		long entityContentAddress,
+		long entityTotalLength   ,
+		long entityTypeId        ,
+		long entityObjectId
+	);
 
 
 	public final byte get_byte(final long offset)

@@ -66,21 +66,17 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	protected T internalCreate(final Binary rawData)
 	{
 		final long entityContentLength = this.typeHandler().membersPersistedLengthMaximum();
+		
+		// kept and new header values
 		final long entityTotalLength   = Binary.entityTotalLength(entityContentLength);
+		final long entityTypeId   = this.typeHandler().typeId();
+		final long entityObjectId = rawData.getBuildItemObjectId();
 		
 		// so funny how the morons crippled their memory handling API to int just because there is a toArray somewhere.
 		final ByteBuffer directByteBuffer = ByteBuffer.allocateDirect(
 			X.checkArrayRange(entityTotalLength)
 		);
 		final long newEntityAddress = XMemory.getDirectByteBufferAddress(directByteBuffer);
-		
-		// header bytes for the mapped format (new length, new TID, same OID) at the newly allocated memory.
-		Binary.setEntityHeaderRawValues(
-			newEntityAddress              ,
-			entityTotalLength             ,
-			this.typeHandler().typeId()   ,
-			rawData.getBuildItemObjectId()
-		);
 		
 		// replacement binary content is filled and afterwards set as the productive content
 		final long targetContentAddress = Binary.entityContentAddress(newEntityAddress);
@@ -97,13 +93,13 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		}
 		
 		// replace the original rawData's content address with the new address, effectively rerouting to the new data
-		rawData.setLoadItemEntityContentAddress(targetContentAddress);
-
-		// the current type handler can now create a new instance with correctly rearranged raw values
-		final T instance = this.typeHandler().create(rawData);
+		rawData.modifyLoadItem(targetContentAddress, entityTotalLength, entityTypeId, entityObjectId);
 
 		// registered here to ensure deallocating raw memory at the end of the building process. Neither sooner nor later.
 		rawData.registerHelper(directByteBuffer, directByteBuffer);
+
+		// the current type handler can now create a new instance with correctly rearranged raw values
+		final T instance = this.typeHandler().create(rawData);
 		
 		return instance;
 	}
