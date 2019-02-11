@@ -9,7 +9,6 @@ import net.jadoth.collections.BulkList;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.math.XMath;
 import net.jadoth.memory.XMemory;
-import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import net.jadoth.persistence.types.PersistenceInstanceHandler;
 import net.jadoth.persistence.types.PersistenceLoadHandler;
@@ -297,7 +296,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				 * In any case, there should be a distinction between logic to initially restore persisted state
 				 * and logic for regular runtime uses. The latter might be the same thing, but not always.
 				 */
-				XDebug.println("Updating " + entry);
+//				XDebug.println("Updating " + entry);
 				entry.handler.update(
 					entry,
 					this.getEffectiveInstance(entry),

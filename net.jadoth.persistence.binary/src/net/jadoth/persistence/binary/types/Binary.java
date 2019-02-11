@@ -652,7 +652,7 @@ public abstract class Binary implements Chunk
 	{
 		return this.read_long(binaryListElementCountAddress(this.loadItemEntityContentAddress() + listOffset));
 	}
-
+	
 	public static final long getBinaryListElementCountRawValue(final long binaryListAddress)
 	{
 		return XMemory.get_long(binaryListElementCountAddress(binaryListAddress));
@@ -662,23 +662,23 @@ public abstract class Binary implements Chunk
 	{
 		return binaryListAddress + LIST_OFFSET_ELEMENT_COUNT;
 	}
-
+	
 	public static final long toBinaryListElementsAddress(final long binaryListAddress)
 	{
 		// works for both relative offsets and absolute addresses. It's just a sum.
 		return binaryListAddress + LIST_OFFSET_ELEMENTS;
 	}
-
+	
 	public final long binaryListElementsAddress(final long binaryListOffset)
 	{
 		return toBinaryListElementsAddress(this.loadItemEntityContentAddress() + binaryListOffset);
 	}
-		
+	
 	public final long getListElementCount(final long listStartOffset, final int elementLength)
 	{
 		return this.getBinaryListElementCountValidating(listStartOffset, elementLength);
 	}
-		
+	
 	public final long getListElementCountReferences(final long listStartOffset)
 	{
 		return this.getBinaryListElementCountValidating(
@@ -1169,7 +1169,7 @@ public abstract class Binary implements Chunk
 			throw new RuntimeException(); // (22.10.2013 TM)EXCP: proper exception
 		}
 
-		long stringsOffset = this.binaryListElementsAddress(stringsListOffset); // first element address
+		long stringsOffset = toBinaryListElementsAddress(stringsListOffset); // first element address
 		for(int i = 0; i < target.length; i++)
 		{
 			target[i] = XMemory.wrapCharsAsString(this.buildArray_char(stringsOffset)); // build string element
