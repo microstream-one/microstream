@@ -2071,5 +2071,35 @@ ComPersistenceAdaptorCreator verwendet gar nicht die ByteOrder der Foundation.\p
 TODO machen, weiter recherchieren...\par
 \par
 Ach, oder l\'e4uft das \'fcber das Protocol. Das muss ich dann mal genauer checken.\par
+\par
+\par
+2019-02-12\par
+\par
+Also es gibt zwei "Pfade" f\'fcr ByteOrder:\par
+\par
+1.)\par
+\'dcber ComBinary#DefaultPersistenceAdaptorCreator\par
+Dar\'fcber wird letztendlich eine BinaryPersistenceFoundation Instanz erzeugt und in der gibt es eine TargetByteOrder, die f\'fcr ByteSwitching abgepr\'fcft wird.\par
+Da die bisher nie gesetzt wird, ist die IMMER die Plattform-ByteOrder.\par
+\par
+Es gibt allerdings auch die methode ComPersistenceAdaptor#initializePersistenceFoundation\par
+In der werden in die vorhandene PersistenceFoundation Konfigurationsbestandteile gesetzt.\par
+Dort k\'f6nnte man auch die ByteOrder reinsetzen.\par
+\par
+2.)\par
+\'dcber das Protocol.\par
+Das wird aber nur beim Channel erzeugen gelesen und nicht bei der Foundation.\par
+\par
+Es gibt ComPersistenceAdaptorBinary#provideHostPersistenceFoundation.\par
+Dort wird f\'fcr den zu erzeugenden Channel pauschal switchByteOrder false verwendet mit dem Kommentar, dass sich der Host niemals um ByteOrder Switching k\'fcmmert.\par
+Das ist "meistens" richtig, aber ist nicht vollst\'e4ndig korrekt.\par
+Das einfachste und sauberste w\'e4re wohl, hier "foundation.isByteOrderMismatch()" weiterzureichen.\par
+Oder noch besser: nicht den aktuellen Wert davon als Konstante weitergeben, sondern eine Referenz auf das Ding, das die ByteOrder Switching Information hat. Wenn das alles sauber durchgeht, kann man theoretisch sogar im laufenden Betrieb die Ziel-ByteOrder \'e4ndern. Nicht, dass mir daf\'fcr momentan ein Anwendungsfall einfallen w\'fcrde oder dass ich darauf Zeit verwenden w\'fcrde, aber Objekte direkt miteinander verbinden ist immer eleganter (z.B. flexibler f\'fcr die Zukunft), als konstante Primitive-Werte herumzureichen.\par
+\par
+ComPersistenceAdaptorBinary#provideClientPersistenceFoundation:\line // (12.02.2019 TM)FIXME: JET-client-side PersistenceFoundation must have the target byteorder set. Or does it?\par
+\par
+Also ich muss mal schauen, wo die byteorder in der PersistenceFoundation \'fcberhaupt benutzt wird, d.h. ob das \'fcberhaupt n\'f6tig ist oder ob alles \'fcber die protocol instanz laufen kann.\par
+Evtl. muss die byteorder des protocols in die foundation \'fcbernommen werden. Oder noch besser. Das Protocol wird als byteorder-vorgabe in die foundation gesetzt.\par
+Irgendwie so in die richtung muss es laufen.\par
 }
  

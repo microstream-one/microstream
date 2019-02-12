@@ -25,7 +25,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		final String                                name                  ,
 		final String                                version               ,
 		final ByteOrder                             byteOrder             ,
-		final PersistenceIdStrategy                     idStrategy            ,
+		final PersistenceIdStrategy                 idStrategy            ,
 		final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 		final ComProtocolCreator                    protocolCreator
 	)
@@ -116,7 +116,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		@Override
 		public ComProtocol provideProtocol(final C connection)
 		{
-			// the default implementation assigns the same id range to every client
+			// the default implementation assigns the same id range to every client, hence no reference to connection
 			return this.protocolCreator.creatProtocol(
 				this.name()          ,
 				this.version()       ,

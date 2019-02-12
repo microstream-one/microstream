@@ -10,7 +10,6 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.com.ComPersistenceAdaptor;
 import net.jadoth.com.ComPersistenceAdaptorCreator;
 import net.jadoth.com.ComProtocol;
-import net.jadoth.persistence.binary.types.BinaryPersistence;
 import net.jadoth.persistence.binary.types.BinaryPersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceContextDispatcher;
 import net.jadoth.persistence.types.PersistenceFoundation;
@@ -145,7 +144,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 				final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 					connection,
 					this.bufferSizeProvider(),
-					false // host does not care about endianess, thus always using direct byte order.
+					foundation
 				);
 				foundation.setPersistenceChannel(channel);
 			}
@@ -163,12 +162,14 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			
 			final ByteOrder hostByteOrder = protocol.byteOrder();
 			
+			// (12.02.2019 TM)FIXME: JET-client-side PersistenceFoundation must have the target byteorder set. Or does it?
 			final BinaryPersistenceFoundation<?> foundation = this.persistenceFoundation();
 			
 			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 				connection,
 				this.bufferSizeProvider(),
-				BinaryPersistence.isByteOrderMismatch(hostByteOrder)
+				() ->
+					hostByteOrder
 			);
 			foundation.setPersistenceChannel(channel);
 						

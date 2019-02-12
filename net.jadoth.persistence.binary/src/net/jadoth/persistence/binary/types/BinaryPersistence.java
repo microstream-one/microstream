@@ -2,7 +2,6 @@ package net.jadoth.persistence.binary.types;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.nio.ByteOrder;
 
 import net.jadoth.collections.BinaryHandlerBulkList;
 import net.jadoth.collections.BinaryHandlerConstHashEnum;
@@ -75,11 +74,6 @@ public final class BinaryPersistence extends Persistence
 			.setInstanceDispatcher(dispatcher)
 		;
 		return foundation;
-	}
-	
-	public static boolean isByteOrderMismatch(final ByteOrder targetByteOrder)
-	{
-		return targetByteOrder != ByteOrder.nativeOrder();
 	}
 	
 	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
