@@ -1,12 +1,9 @@
 package net.jadoth.persistence.binary.types;
 
-import java.nio.ByteOrder;
-
 import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XTable;
-import net.jadoth.persistence.types.ByteOrderTargeting;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
@@ -21,7 +18,7 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
  * @author Thomas Muenz
  */
 public interface BinaryPersistenceFoundation<F extends BinaryPersistenceFoundation<?>>
-extends PersistenceFoundation<Binary, F>, ByteOrderTargeting.Mutable<F>
+extends PersistenceFoundation<Binary, F>
 {
 
 	@Override
@@ -75,7 +72,6 @@ extends PersistenceFoundation<Binary, F>, ByteOrderTargeting.Mutable<F>
 		private XEnum<BinaryValueTranslatorKeyBuilder> translatorKeyBuilders  ;
 		private BinaryValueTranslatorMappingProvider   valueTranslatorMapping ;
 		private BinaryValueTranslatorProvider          valueTranslatorProvider;
-		private ByteOrder                              targetByteOrder        ;
 		
 		
 		
@@ -150,17 +146,6 @@ extends PersistenceFoundation<Binary, F>, ByteOrderTargeting.Mutable<F>
 			return this.valueTranslatorProvider;
 		}
 		
-		@Override
-		public ByteOrder getTargetByteOrder()
-		{
-			if(this.targetByteOrder == null)
-			{
-				this.targetByteOrder = this.dispatch(this.ensureTargetByteOrder());
-			}
-			
-			return this.targetByteOrder;
-		}
-		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -192,13 +177,6 @@ extends PersistenceFoundation<Binary, F>, ByteOrderTargeting.Mutable<F>
 		public F setValueTranslatorMappingProvider(final BinaryValueTranslatorMappingProvider valueTranslatorMapping)
 		{
 			this.valueTranslatorMapping = valueTranslatorMapping;
-			return this.$();
-		}
-		
-		@Override
-		public F setTargetByteOrder(final ByteOrder targetByteOrder)
-		{
-			this.targetByteOrder = targetByteOrder;
 			return this.$();
 		}
 		
@@ -291,11 +269,6 @@ extends PersistenceFoundation<Binary, F>, ByteOrderTargeting.Mutable<F>
 				this.getValueTranslatorMappingProvider(),
 				this.isByteOrderMismatch()
 			);
-		}
-		
-		protected ByteOrder ensureTargetByteOrder()
-		{
-			return ByteOrder.nativeOrder();
 		}
 		
 	}

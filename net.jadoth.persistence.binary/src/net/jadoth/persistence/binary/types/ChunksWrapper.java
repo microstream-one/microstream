@@ -84,6 +84,12 @@ public class ChunksWrapper extends Binary
 		// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
 		for(long address = startAddress; address < boundAddress; address += this.read_long(address))
 		{
+//			XDebug.println(
+//				"Current entity to be read :@" + address + ": ["
+//					+ this.read_long(address) + "]["
+//					+ this.read_long(address + 8) + "]["
+//					+ this.read_long(address + 16) + "]"
+//			);
 			reader.readBinaryEntityData(address);
 		}
 	}

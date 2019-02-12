@@ -96,8 +96,8 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	private ChunksWrapper createChunksWrapper(final ByteBuffer[] byteBuffers)
 	{
 		return this.switchByteOrder
-			? ChunksWrapper.New(byteBuffers)
-			: ChunksWrapperByteReversing.New(byteBuffers)
+			? ChunksWrapperByteReversing.New(byteBuffers)
+			: ChunksWrapper.New(byteBuffers)
 		;
 	}
 	

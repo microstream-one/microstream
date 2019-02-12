@@ -1,5 +1,7 @@
 package net.jadoth.persistence.types;
 
+import java.nio.ByteOrder;
+
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.exceptions.MissingFoundationPartException;
 import net.jadoth.functional.InstanceDispatcherLogic;
@@ -24,7 +26,7 @@ import net.jadoth.util.InstanceDispatcher;
  * @param <M>
  */
 public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
-extends Cloneable<PersistenceFoundation<M, F>>
+extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 {
 	// the pseudo-self-type F is to avoid having to override every setter in every sub class (it was really tedious)
 	
@@ -370,6 +372,8 @@ extends Cloneable<PersistenceFoundation<M, F>>
 		private PersistenceLegacyTypeMappingResultor<M>  legacyTypeMappingResultor   ;
 		private PersistenceLegacyTypeHandlerCreator<M>   legacyTypeHandlerCreator    ;
 		private PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener  ;
+		
+		private ByteOrder targetByteOrder;
 		
 		
 		
@@ -998,6 +1002,17 @@ extends Cloneable<PersistenceFoundation<M, F>>
 			return this.rootsProvider;
 		}
 		
+		@Override
+		public ByteOrder getTargetByteOrder()
+		{
+			if(this.targetByteOrder == null)
+			{
+				this.targetByteOrder = this.dispatch(this.ensureTargetByteOrder());
+			}
+			
+			return this.targetByteOrder;
+		}
+		
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -1488,6 +1503,13 @@ extends Cloneable<PersistenceFoundation<M, F>>
 			this.legacyTypeHandlingListener = legacyTypeHandlingListener;
 			return this.$();
 		}
+		
+		@Override
+		public F setTargetByteOrder(final ByteOrder targetByteOrder)
+		{
+			this.targetByteOrder = targetByteOrder;
+			return this.$();
+		}
 
 
 		
@@ -1876,12 +1898,6 @@ extends Cloneable<PersistenceFoundation<M, F>>
 			throw new MissingFoundationPartException(PersistenceRootsProvider.class);
 		}
 
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods // (with logic worth mentioning)
-		////////////
-
 		protected PersistenceRootsProvider<M> ensureRootsProvider()
 		{
 			final PersistenceRootsProvider<M> rootsProvider = this.ensureRootsProviderInternal();
@@ -1892,6 +1908,19 @@ extends Cloneable<PersistenceFoundation<M, F>>
 			
 			return rootsProvider;
 		}
+		
+		protected ByteOrder ensureTargetByteOrder()
+		{
+			return ByteOrder.nativeOrder();
+		}
+
+
+
+		///////////////////////////////////////////////////////////////////////////
+		// methods // (with logic worth mentioning)
+		////////////
+		
+		
 		
 		@Override
 		public PersistenceManager<M> createPersistenceManager()

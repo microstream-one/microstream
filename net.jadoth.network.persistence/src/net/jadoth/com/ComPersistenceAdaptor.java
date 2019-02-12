@@ -1,5 +1,6 @@
 package net.jadoth.com;
 
+import java.nio.ByteOrder;
 import java.util.function.Consumer;
 
 import net.jadoth.collections.types.XGettingEnum;
@@ -54,6 +55,8 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	
 	public PersistenceIdStrategy hostIdStrategy();
 	
+	public ByteOrder hostByteOrder();
+	
 	public default PersistenceTypeDictionaryCompiler provideTypeDictionaryCompiler()
 	{
 		return this.provideHostPersistenceFoundation(null)
@@ -105,8 +108,9 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 
 	public PersistenceFoundation<?, ?> provideClientPersistenceFoundation(C connection, ComProtocol protocol);
 	
-	public default ComPersistenceAdaptor<C> initializePersistenceFoundation(
+	public default PersistenceFoundation<?, ?> initializePersistenceFoundation(
 		final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
+		final ByteOrder                             targetByteOrder       ,
 		final PersistenceIdStrategy                 idStrategy
 	)
 	{
@@ -116,6 +120,7 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		
 		final PersistenceFoundation<?, ?> foundation = this.persistenceFoundation();
 		foundation.setTypeDictionaryManager(typeDictionaryManager);
+		foundation.setTargetByteOrder      (targetByteOrder);
 		foundation.setObjectIdProvider     (idStrategy.createObjectIdProvider());
 		foundation.setTypeIdProvider       (idStrategy.createTypeIdProvider());
 		
@@ -131,7 +136,7 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		 */
 		foundation.setTypeMismatchValidator(Persistence.typeMismatchValidatorFailing());
 		
-		return this;
+		return foundation;
 	}
 	
 	public default ComHostChannel<C> createHostChannel(
@@ -158,13 +163,11 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	
 	public PersistenceFoundation<?, ?> persistenceFoundation();
 	
-	public default ComPersistenceAdaptor<C> initializeClientPersistenceFoundation(
+	public default PersistenceFoundation<?, ?> initializeClientPersistenceFoundation(
 		final ComProtocol protocol
 	)
 	{
-		this.initializePersistenceFoundation(protocol, protocol.idStrategy());
-		
-		return this;
+		return this.initializePersistenceFoundation(protocol, protocol.byteOrder(), protocol.idStrategy());
 	}
 	
 	public default ComPersistenceAdaptor<C> initializeHostPersistenceFoundation()
@@ -173,6 +176,7 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		
 		this.initializePersistenceFoundation(
 			PersistenceTypeDictionaryViewProvider.Wrapper(typeDictionary),
+			this.hostByteOrder(),
 			this.hostIdStrategy()
 		);
 		
@@ -188,10 +192,12 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		
 		private final PersistenceIdStrategy  hostInitIdStrategy;
 		private final XGettingEnum<Class<?>> entityTypes       ;
+		private final ByteOrder              hostByteOrder     ;
 		private final PersistenceIdStrategy  hostIdStrategy    ;
 		
 		private transient PersistenceTypeDictionaryView cachedTypeDictionary     ;
 		private transient boolean                       initializedHostFoundation;
+		
 		
 		
 		
@@ -202,12 +208,14 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		protected Abstract(
 			final PersistenceIdStrategy  hostInitIdStrategy,
 			final XGettingEnum<Class<?>> entityTypes       ,
+			final ByteOrder              hostByteOrder     ,
 			final PersistenceIdStrategy  hostIdStrategy
 		)
 		{
 			super();
 			this.hostInitIdStrategy = hostInitIdStrategy;
 			this.entityTypes        = entityTypes       ;
+			this.hostByteOrder      = hostByteOrder     ;
 			this.hostIdStrategy     = hostIdStrategy    ;
 		}
 
@@ -221,6 +229,12 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		public PersistenceIdStrategy hostIdStrategy()
 		{
 			return this.hostIdStrategy;
+		}
+		
+		@Override
+		public ByteOrder hostByteOrder()
+		{
+			return this.hostByteOrder;
 		}
 		
 		@Override
@@ -271,6 +285,7 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 			
 			return this;
 		}
+		
 	}
 		
 }

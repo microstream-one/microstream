@@ -21,13 +21,14 @@ import net.jadoth.util.BufferSizeProvider;
 public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 {
 	@Override
-	public default ComPersistenceAdaptorBinary<C> initializePersistenceFoundation(
+	public default BinaryPersistenceFoundation<?> initializePersistenceFoundation(
 		final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
+		final ByteOrder                             hostByteOrder,
 		final PersistenceIdStrategy                 idStrategy
 	)
 	{
-		ComPersistenceAdaptor.super.initializePersistenceFoundation(typeDictionaryProvider, idStrategy);
-		return this;
+		ComPersistenceAdaptor.super.initializePersistenceFoundation(typeDictionaryProvider, hostByteOrder, idStrategy);
+		return this.persistenceFoundation();
 	}
 	
 	@Override
@@ -40,6 +41,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		final BufferSizeProvider             bufferSizeProvider,
 		final PersistenceIdStrategy          hostInitIdStrategy,
 		final XGettingEnum<Class<?>>         entityTypes       ,
+		final ByteOrder                      hostByteOrder,
 		final PersistenceIdStrategy          hostIdStrategy
 	)
 	{
@@ -48,6 +50,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			notNull(bufferSizeProvider),
 			mayNull(hostInitIdStrategy), // null for client persistence. Checked for host persistence beforehand.
 			mayNull(entityTypes)       , // null for client persistence. Checked for host persistence beforehand.
+			mayNull(hostByteOrder)     , // null for client persistence. Checked for host persistence beforehand.
 			mayNull(hostIdStrategy)      // null for client persistence. Checked for host persistence beforehand.
 		);
 	}
@@ -74,10 +77,11 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			final BufferSizeProvider             bufferSizeProvider,
 			final PersistenceIdStrategy          hostInitIdStrategy,
 			final XGettingEnum<Class<?>>         entityTypes       ,
+			final ByteOrder                      hostByteOrder,
 			final PersistenceIdStrategy          hostIdStrategy
 		)
 		{
-			super(hostInitIdStrategy, entityTypes, hostIdStrategy);
+			super(hostInitIdStrategy, entityTypes, hostByteOrder, hostIdStrategy);
 			this.foundation         = foundation        ;
 			this.bufferSizeProvider = bufferSizeProvider;
 		}
@@ -118,10 +122,11 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			final BufferSizeProvider             bufferSizeProvider,
 			final PersistenceIdStrategy          hostInitIdStrategy,
 			final XGettingEnum<Class<?>>         entityTypes       ,
+			final ByteOrder                      hostByteOrder,
 			final PersistenceIdStrategy          hostIdStrategy
 		)
 		{
-			super(foundation, bufferSizeProvider, hostInitIdStrategy, entityTypes, hostIdStrategy);
+			super(foundation, bufferSizeProvider, hostInitIdStrategy, entityTypes, hostByteOrder, hostIdStrategy);
 		}
 		
 		
@@ -153,32 +158,21 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		}
 		
 		@Override
-		public PersistenceFoundation<?, ?> provideClientPersistenceFoundation(
+		public BinaryPersistenceFoundation<?> provideClientPersistenceFoundation(
 			final SocketChannel connection,
 			final ComProtocol   protocol
 		)
 		{
 			this.initializeClientPersistenceFoundation(protocol);
 			
-			final ByteOrder hostByteOrder = protocol.byteOrder();
-			
-			// (12.02.2019 TM)FIXME: JET-client-side PersistenceFoundation must have the target byteorder set. Or does it?
 			final BinaryPersistenceFoundation<?> foundation = this.persistenceFoundation();
 			
 			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 				connection,
 				this.bufferSizeProvider(),
-				() ->
-					hostByteOrder
+				foundation
 			);
 			foundation.setPersistenceChannel(channel);
-						
-			/* (14.12.2018 TM)TODO: JET-49: hostByteOrder used in two different places
-			 * It's a little weird that the hostByteOrder is used in two different places.
-			 * Or in other words, that the Binary instances for loading and storing are created at different places.
-			 * Maybe that could/should be consolidated.
-			 */
-			foundation.setTargetByteOrder(hostByteOrder);
 			
 			return foundation;
 		}
@@ -316,6 +310,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			public ComPersistenceAdaptor<SocketChannel> createPersistenceAdaptor(
 				final PersistenceIdStrategy  hostIdStrategyInitialization,
 				final XGettingEnum<Class<?>> entityTypes                 ,
+				final ByteOrder              hostByteOrder               ,
 				final PersistenceIdStrategy  hostIdStrategy
 			)
 			{
@@ -324,6 +319,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 					this.bufferSizeProvider()   ,
 					hostIdStrategyInitialization,
 					entityTypes                 ,
+					hostByteOrder               ,
 					hostIdStrategy
 				);
 			}

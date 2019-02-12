@@ -16,7 +16,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public String getProtocolVersion();
 	
-	public ByteOrder getByteOrder();
+	public ByteOrder getHostByteOrder();
 	
 	public PersistenceIdStrategy getClientIdStrategy();
 			
@@ -66,7 +66,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	
 	public F setProtocolVersion(String protocolVersion);
 	
-	public F setByteOrder(ByteOrder byteOrder);
+	public F setHostByteOrder(ByteOrder hostByteOrder);
 	
 	public F setClientIdStrategy(PersistenceIdStrategy idStrategy);
 	
@@ -140,7 +140,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		
 		private String                          protocolName             ;
 		private String                          protocolVersion          ;
-		private ByteOrder                       byteOrder                ;
+		private ByteOrder                       hostByteOrder                ;
 		private PersistenceIdStrategy           clientIdStrategy         ;
 		private ComProtocolCreator              protocolCreator          ;
 		private ComProtocolProvider<C>          protocolProvider         ;
@@ -188,14 +188,14 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 				
 		@Override
-		public ByteOrder getByteOrder()
+		public ByteOrder getHostByteOrder()
 		{
-			if(this.byteOrder == null)
+			if(this.hostByteOrder == null)
 			{
-				this.byteOrder = this.ensureByteOrder();
+				this.hostByteOrder = this.ensureHostByteOrder();
 			}
 			
-			return this.byteOrder;
+			return this.hostByteOrder;
 		}
 		
 		@Override
@@ -456,7 +456,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return ComProtocol.protocolVersion();
 		}
 		
-		protected ByteOrder ensureByteOrder()
+		protected ByteOrder ensureHostByteOrder()
 		{
 			return Com.byteOrder();
 		}
@@ -501,10 +501,10 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			final ComProtocolProviderCreator<C> providerCreator = this.getProtocolProviderCreator();
 			
 			return providerCreator.creatProtocolProvider(
-				this.getProtocolName()      ,
-				this.getProtocolVersion()   ,
-				this.getByteOrder()         ,
-				this.getClientIdStrategy()  ,
+				this.getProtocolName()          ,
+				this.getProtocolVersion()       ,
+				this.getHostByteOrder()         ,
+				this.getClientIdStrategy()      ,
 				this.getHostPersistenceAdaptor(),
 				this.getProtocolCreator()
 			);
@@ -532,6 +532,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 			return creator.createHostPersistenceAdaptor(
 				this.getHostInitializationIdStrategy(),
 				this.getEntityTypes()                 ,
+				this.getHostByteOrder()               ,
 				this.getHostIdStrategy()
 			);
 		}
@@ -607,9 +608,9 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 		}
 		
 		@Override
-		public F setByteOrder(final ByteOrder byteOrder)
+		public F setHostByteOrder(final ByteOrder hostByteOrder)
 		{
-			this.byteOrder = byteOrder;
+			this.hostByteOrder = hostByteOrder;
 			return this.$();
 		}
 		
