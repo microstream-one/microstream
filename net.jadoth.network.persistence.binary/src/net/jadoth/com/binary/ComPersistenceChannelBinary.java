@@ -6,10 +6,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import net.jadoth.X;
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.com.ComException;
 import net.jadoth.com.ComPersistenceChannel;
 import net.jadoth.com.XSockets;
+import net.jadoth.memory.XMemory;
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
@@ -119,7 +121,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		{
 			final ByteBuffer defaultBuffer = this.ensureDefaultBuffer();
 			
-			this.DEBUG_printTargetByteOrder();
+//			this.DEBUG_printTargetByteOrder();
 			
 			ByteBuffer filledContentBuffer;
 			try
@@ -140,6 +142,9 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 				 */
 				throw new PersistenceExceptionTransfer(e);
 			}
+			
+//			DEBUG_printBufferBinaryValues(filledContentBuffer);
+			
 			final ChunksWrapper chunks = this.switchByteOrder()
 				? ChunksWrapperByteReversing.New(filledContentBuffer)
 				: ChunksWrapper.New(filledContentBuffer)
@@ -147,28 +152,23 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 			
 			return X.<Binary>Constant(chunks);
 		}
-		
-		@Deprecated
-		private void DEBUG_printTargetByteOrder()
-		{
-			XDebug.println(
-				"TargetByteOrder = " + this.byteOrderTargeting.getTargetByteOrder()
-				+ " (requires switching: " + (this.byteOrderTargeting.isByteOrderMismatch() ?"yes" :"no")+")",
-				1
-			);
-		}
 
 		@Override
 		protected void internalWrite(final SocketChannel channel, final Binary chunk)
 			throws PersistenceExceptionTransfer
 		{
-			this.DEBUG_printTargetByteOrder();
+//			this.DEBUG_printTargetByteOrder();
 			
 			final ByteBuffer defaultBuffer = ComBinary.setChunkHeaderContentLength(
 				this.ensureDefaultBuffer(),
 				chunk.totalLength(),
 				this.switchByteOrder()
 			);
+			
+//			for(final ByteBuffer bb : chunk.buffers())
+//			{
+//				DEBUG_printBufferBinaryValues(bb);
+//			}
 			
 			try
 			{
@@ -209,6 +209,27 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		{
 			// SocketChannel#close is idempotent
 			this.close();
+		}
+		
+
+		
+		@Deprecated
+		static void DEBUG_printBufferBinaryValues(final ByteBuffer bb)
+		{
+			final byte[] bytes = new byte[bb.limit()];
+			XMemory.copyRangeToArray(XMemory.getDirectByteBufferAddress(bb), bytes);
+			final VarString vs = VarString.New().addHexDec(bytes);
+			XDebug.println(vs.toString(), 1);
+		}
+		
+		@Deprecated
+		void DEBUG_printTargetByteOrder()
+		{
+			XDebug.println(
+				"TargetByteOrder = " + this.byteOrderTargeting.getTargetByteOrder()
+				+ " (requires switching: " + (this.byteOrderTargeting.isByteOrderMismatch() ?"yes" :"no")+")",
+				1
+			);
 		}
 		
 	}
