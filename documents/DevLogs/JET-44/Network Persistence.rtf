@@ -2205,5 +2205,15 @@ Fixen. Testen. Passt.\par
 Jetzt mit anderer ByteOrder (buckliges Big Endian) testen.\par
 Finally ... ^^\par
 \par
+Hm. Scheint auf Anhieb zu passen. Beide Prozesse, Host und Client, sagen in read und write:\par
+TargetByteOrder = BIG_ENDIAN (requires switching: yes)\par
+Das f\'fchrt dazu, dass die switchenden Implementierungen verwendet werden und die switchen alles durch.\par
+Aber evtl. sollte ich da mal mit einem println checken, ob es wirklich der Fall ist.\par
+\par
+Nachgepr\'fcft. Passt alles aufs Byte genau.\par
+Issue JET-49 updaten.\par
+\par
+Fertig.\par
+\par
 }
  
