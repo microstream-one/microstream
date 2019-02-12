@@ -351,9 +351,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// build items map //
 		////////////////////
 
-		private final BinaryLoadItem   buildItemsHead      = this.createLoadItem(0); // dummy
-		private       BinaryLoadItem   buildItemsTail      = this.buildItemsHead   ;
-		private       int              buildItemsSize                              ;
+		private final BinaryLoadItem   buildItemsHead      = this.createLoadItemDummy();
+		private       BinaryLoadItem   buildItemsTail      = this.buildItemsHead       ;
+		private       int              buildItemsSize                                  ;
 		private       BinaryLoadItem[] buildItemsHashSlots = new BinaryLoadItem[DEFAULT_HASH_SLOTS_LENGTH];
 		private       int              buildItemsHashRange = this.buildItemsHashSlots.length - 1;
 
@@ -501,6 +501,12 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				? new BinaryLoadItemByteReversing(entityContentAddress)
 				: new BinaryLoadItem(entityContentAddress)
 			;
+		}
+		
+		private BinaryLoadItem createLoadItemDummy()
+		{
+			// tricky: dummies must have a valid memory address or else calling toString in the debugger crashes the JVM.
+			return new BinaryLoadItem(XMemory.allocate(Binary.entityHeaderLength()) + Binary.entityHeaderLength());
 		}
 
 		private void clearBuildItems()

@@ -85,7 +85,8 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 		public abstract void closeTarget();
 		
 		@Override
-		public XGettingCollection<? extends M> readByObjectIds(final PersistenceIdSet[] oids) throws PersistenceExceptionTransfer
+		public XGettingCollection<? extends M> readByObjectIds(final PersistenceIdSet[] oids)
+			throws PersistenceExceptionTransfer
 		{
 			/* (08.08.2018 TM)NOTE:
 			 * Makes sense in principle. One side of a network connection requests data specified by a set of OIDs.

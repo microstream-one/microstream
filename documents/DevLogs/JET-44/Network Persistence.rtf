@@ -2101,5 +2101,109 @@ ComPersistenceAdaptorBinary#provideClientPersistenceFoundation:\line // (12.02.2
 Also ich muss mal schauen, wo die byteorder in der PersistenceFoundation \'fcberhaupt benutzt wird, d.h. ob das \'fcberhaupt n\'f6tig ist oder ob alles \'fcber die protocol instanz laufen kann.\par
 Evtl. muss die byteorder des protocols in die foundation \'fcbernommen werden. Oder noch besser. Das Protocol wird als byteorder-vorgabe in die foundation gesetzt.\par
 Irgendwie so in die richtung muss es laufen.\par
+\par
+Also Foundation#isByteOrderMismatch wird gebraucht f\'fcr:\par
+- LegacyTypeHandlerCreator, TypeHandlerCreator, ValueTranslatorProvider.\par
+Diese drei spielen bei OGC schon mal kein Rolle.\par
+- BuilderCreator und StorerCreator\par
+Diese beiden spielen durchaus eine Rolle\par
+- Au\'dferdem bei ComPersistenceChannelBinary.\par
+Das spielt obviously nat\'fcrlich eine Rolle, weil es ja direkt in OGC ist.\par
+\par
+Also ich denke der Knackpunkt ist, dass die Foundations bei Host und bei Client passend initialisiert werden, ggf. \'fcber die ByteOrder aus der ProtocolInstanz.\par
+Ab dann darf eigentlich nur noch die ByteOrder der Foundation z\'e4hlen und nicht mehr die von der Instanz des \'dcbertragsvehikel-Typs Protocol.\par
+Mal daraufhin durchschauen.\par
+\par
+Also es gibt:\par
+ComPersistenceAdaptor#initializeClientPersistenceFoundation\par
+ComPersistenceAdaptor#initializeHostPersistenceFoundation\par
+Die rufen beide initializePersistenceFoundation() auf.\par
+\par
+Die w\'fcrden ja schon mal passen.\par
+Der Client bekommt das protocol eh schon \'fcbergeben und von dort wird das Zeug f\'fcr die initialisierung rausgelesen. Da kommt einfach noch die ByteOrder dazu, fertig.\par
+\par
+Ah, aber Problem beim host:\par
+Dabei wird in provideTypeDictionary() irgendwo 15 Aufrufe tief ja so ein TypeHandlerCreator erzeugt. Und der bekommt den Wert von isByteOrderMismatch() \'fcbergeben. Der ist zu diesem Zeitpunkt aber noch nicht gesetzt.\par
+Die L\'f6sung w\'e4re auch hier wieder: Nicht den Wert als Konstante \'fcbergeben, sondern eine Referenz auf das Ding, das die ByteOrder kennt (bzw. kennen wird). Also die erzeugende Foundation.\par
+Dummerweise ist das hier ein clone der eigentlichen Foundation Instanz. Also w\'fcrde das nix bringen. Hmpf.\par
+Jetzt w\'e4r wieder die Frage, warum es \'fcberhaupt ein Clone sein muss.\par
+Oder nat\'fcrlich, frei nach dem Motto "There is no problem that cannot be solved through one more level of indirection":\par
+Der Foundation nicht eine ByteOrder direkt setzen, sondern eine Instanz, die die TargetByteOrder kennt. Die w\'fcrde dann in den Clone mit \'fcbernommen werden.\par
+Dann w\'e4re aber wieder die Frage, wo/wann das gesetzt wird. Das ist ja alles im ComPersistenceAdaptor und nicht in irgendeiner Foundation.\par
+Hm.\par
+\par
+Oder muss die InitializationFoundation \'fcberhaupt die richtige ByteOrder haben? Da wird zwar riesig viel Zeug initialisiert, aber letztendlich wird daraus nur das TypeDictionary erzeugt und dann in der eigentlichen Foundation als unerweiterbares Typverzeichnis verwendet.\par
+(Das ist auch gleich die Existenzberechtigung f\'fcr die InitializationFoundation).\par
+Das hei\'dft aus der InitializationFoundation wird alles au\'dfer den blanken Typbeschreibungen sowieso wieder verworfen.\par
+Also w\'e4r die ByteOrder darin eigetlich egal.\par
+Wichtig ist sie nur bei der eigentlichen Foundation.\par
+Und die k\'f6nnte ja in ComPersistenceAdaptor#initializeHostPersistenceFoundation mit der n\'f6tigen ByteOrder versorgt werden.\par
+\par
+Puh. Das war jetzt eine gro\'dfe Runde Gehirnakrobatik ...\par
+\par
+\par
+Also konkret zum Client:\par
+ComPersistenceAdaptor#initializeClientPersistenceFoundation\par
+Dort wird die ByteOrder aus dem Protocol gesetzt. Dann passt das.\par
+\par
+Aber was ist jetzt mit der oben genannten ComPersistenceAdaptorBinary#provideClientPersistenceFoundation?\par
+Oh, interessant:\par
+- Die ruft ComPersistenceAdaptor#initializeClientPersistenceFoundation auf\par
+- Die w\'fcrde die ByteOrder eh schon in die Foundation setzten. Und zwar mit einem TODO von fr\'fcher, dass es seltsam ist, die ByteOrder doppelt zu setzen.\par
+\par
+Das hei\'dft, die super-saubere L\'f6sung ist ganz einfach:\par
+- provideClientPersistenceFoundation wird aufgerufen.\par
+- die ruft wiederum initializeClientPersistenceFoundation auf\par
+- die setzt intern die ByteOrder aus dem Protokoll in die Foundation. Das ist daf\'fcr genau der richtige Ort.\par
+- zur\'fcck in provideClientPersistenceFoundation wird die byteOrder nur noch aus der Foundation gelesen bzw. die Foundation als ByteOrder-Informationshalter weiterverlinkt.\par
+\par
+So mach ich das, dann ist die ByteOrder beim Client sauber gehandelt.\par
+\par
+Jetzt schauen wegen Host.\par
+\par
+Da muss die ByteOrder in der ComFoundation gesetzt werden.\par
+Dann muss die \'fcber ComPersistenceAdaptorCreator im Adaptor landen. Ein JET-49 TODO daf\'fcr gibts im Creator sogar schon.\par
+Dann muss der Adaptor die ByteOrder in der Methode initializeHostPersistenceFoundation f\'fcr die Initialisierung der BinaryFoundation \'fcbergeben. Genau wie beim Client.\par
+\par
+Also erst mal die #initializePersistenceFoundation um einen Paramter ByteOrder erweitern. Alles weitere ergibt sich dann aus dem Beheben der Compilerfehler.\par
+Jetzt hab ich nur ein Problem:\par
+Hier gibt es nur eine allgemeine PersistenceFoundation, ohne Binary~. D.h. die setTargetByteOrder Methode ist hier gar nicht verf\'fcgbar.\par
+\par
+M\'f6gliche L\'f6sungen:\par
+- Methode in die allgemeine Foundation hochziehen. Denn egal, welches Datenformat konkret verwendet wird, endianess gibt es immer. Im ComProtocol steht ja auch ganz allgemein die ByteOrder drin, ohne Bezug zu Binary.\par
+- Die PersistenceAdaptor Methode m\'fcsste in der Binary~ Ableitung \'fcberschrieben werden und diese m\'fcsste dann die ByteOrder nachtragen. Aber da gef\'e4llt mir die erste Variante besser. Ist einfacher und konsistenter.\par
+\par
+Erste Variante implementiert. Passt.\par
+\par
+Jetzt ByteOrder Handling implementieren wie geplant.\par
+Debugausgaben dazubauen f\'fcr ByteOrder Check.\par
+\par
+Jetzt testen.\par
+Erst mal ohne andere ByteOrder, ob nach dem Umbauen noch alles geht.\par
+\par
+L\'e4uft in eine not yet implemented Methode rein, die vorher nicht aufgerufen wurde.\par
+Da wird wohl eine OID nicht gefunden bzw. das hei\'dft: unsinnige OID.\par
+Debuggen.\par
+Dabei JVM crash.\par
+Kann derselbe Fehler sein, je nach Wert, der da falsch gelesen wird.\par
+\par
+JVM Crash log sagt, dass es im BinaryLoadItem#toString gekracht hat, genauer im getBuildItemObjectId() Aufruf.\par
+Komisch, der wurde vorhin beim debuggen ja schon mal gemacht.\par
+\par
+\line Aaach, ne. Das war der Dummy. Der Dummy hat contentAddress 0 und davon zieht die getBuildItemObjectId Logik noch was ab, um an die OID im Header zu kommen.\par
+Fixen.\par
+\par
+Weiter debuggen. Jetzt st\'fcrzt da immerhin die JVM nicht mehr beim Debuggen ab. Gro\'dfer Fortschritt :-D.\par
+\par
+Hm. Also das sind ja zwei Instanzen: Customer mit nur einer Referenz auf einen String. Und der String mit 8 Buchstaben. Sind rechnerisch genau die 88 Bytes, die auch vorliegen. Passt.\par
+Also findet der die String Instanz anhand der OID nicht.\par
+Chunk Iterierung debuggen.\par
+Ach, lol, ganz einfach: da wird ein ReversingChunksBuffer verwendet, obwohl die ByteOrder normal ist. Hab ich da irgendwo einen Dreher drin ... pr\'fcfen.\par
+Tats\'e4chlich. An zwei Stellen war die Fallunterscheidung verdreht.\par
+Fixen. Testen. Passt.\par
+\par
+Jetzt mit anderer ByteOrder (buckliges Big Endian) testen.\par
+Finally ... ^^\par
+\par
 }
  
