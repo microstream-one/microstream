@@ -32,7 +32,7 @@ public interface ComProtocol extends ComProtocolData
 		final String                        name          ,
 		final String                        version       ,
 		final ByteOrder                     byteOrder     ,
-		final PersistenceIdStrategy             idStrategy    ,
+		final PersistenceIdStrategy         idStrategy    ,
 		final PersistenceTypeDictionaryView typeDictionary
 	)
 	{
@@ -54,7 +54,7 @@ public interface ComProtocol extends ComProtocolData
 		private final String                        name          ;
 		private final String                        version       ;
 		private final ByteOrder                     byteOrder     ;
-		private final PersistenceIdStrategy             idStrategy    ;
+		private final PersistenceIdStrategy         idStrategy    ;
 		private final PersistenceTypeDictionaryView typeDictionary;
 		
 		
@@ -67,7 +67,7 @@ public interface ComProtocol extends ComProtocolData
 			final String                        name          ,
 			final String                        version       ,
 			final ByteOrder                     byteOrder     ,
-			final PersistenceIdStrategy             idStrategy    ,
+			final PersistenceIdStrategy         idStrategy    ,
 			final PersistenceTypeDictionaryView typeDictionary
 		)
 		{

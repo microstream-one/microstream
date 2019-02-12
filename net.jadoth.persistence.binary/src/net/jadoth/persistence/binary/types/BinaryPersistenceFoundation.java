@@ -6,6 +6,7 @@ import net.jadoth.collections.EqHashEnum;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XEnum;
 import net.jadoth.collections.types.XTable;
+import net.jadoth.persistence.types.ByteOrderTargeting;
 import net.jadoth.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import net.jadoth.persistence.types.PersistenceFoundation;
 import net.jadoth.persistence.types.PersistenceLegacyTypeHandlerCreator;
@@ -20,7 +21,7 @@ import net.jadoth.persistence.types.PersistenceTypeHandlerCreator;
  * @author Thomas Muenz
  */
 public interface BinaryPersistenceFoundation<F extends BinaryPersistenceFoundation<?>>
-extends PersistenceFoundation<Binary, F>, BinaryByteOrderTargeting<F>
+extends PersistenceFoundation<Binary, F>, ByteOrderTargeting.Mutable<F>
 {
 
 	@Override

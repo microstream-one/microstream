@@ -14,20 +14,21 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.persistence.binary.types.ChunksWrapper;
 import net.jadoth.persistence.binary.types.ChunksWrapperByteReversing;
 import net.jadoth.persistence.exceptions.PersistenceExceptionTransfer;
+import net.jadoth.persistence.types.ByteOrderTargeting;
 import net.jadoth.util.BufferSizeProvider;
 
 public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C, Binary>
 {
 	public static ComPersistenceChannelBinary.Default New(
-		final SocketChannel      channel           ,
-		final BufferSizeProvider bufferSizeProvider,
-		final boolean            switchByteOrder
+		final SocketChannel               channel           ,
+		final BufferSizeProvider          bufferSizeProvider,
+		final ByteOrderTargeting<?> byteOrderTargeting
 	)
 	{
 		return new ComPersistenceChannelBinary.Default(
 			notNull(channel)           ,
 			notNull(bufferSizeProvider),
-			        switchByteOrder
+			        byteOrderTargeting
 		);
 	}
 	
@@ -82,7 +83,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		// instance fields //
 		////////////////////
 
-		private final boolean switchByteOrder;
+		private final ByteOrderTargeting<?> byteOrderTargeting;
 		
 		
 		
@@ -91,13 +92,13 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		/////////////////
 
 		Default(
-			final SocketChannel      channel           ,
-			final BufferSizeProvider bufferSizeProvider,
-			final boolean            switchByteOrder
+			final SocketChannel               channel           ,
+			final BufferSizeProvider          bufferSizeProvider,
+			final ByteOrderTargeting<?> byteOrderTargeting
 		)
 		{
 			super(channel, bufferSizeProvider);
-			this.switchByteOrder = switchByteOrder;
+			this.byteOrderTargeting = byteOrderTargeting;
 		}
 		
 		
@@ -115,7 +116,11 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 			ByteBuffer filledContentBuffer;
 			try
 			{
-				filledContentBuffer = ComBinary.readChunk(channel, defaultBuffer, this.switchByteOrder);
+				filledContentBuffer = ComBinary.readChunk(
+					channel,
+					defaultBuffer,
+					this.switchByteOrder()
+				);
 			}
 			catch(final ComException e)
 			{
@@ -131,9 +136,14 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 			return X.<Binary>Constant(this.createChunksWrapper(filledContentBuffer));
 		}
 		
+		private boolean switchByteOrder()
+		{
+			return this.byteOrderTargeting.isByteOrderMismatch();
+		}
+		
 		private ChunksWrapper createChunksWrapper(final ByteBuffer... byteBuffers)
 		{
-			return this.switchByteOrder
+			return this.switchByteOrder()
 				? ChunksWrapper.New(byteBuffers)
 				: ChunksWrapperByteReversing.New(byteBuffers)
 			;
@@ -146,7 +156,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 			final ByteBuffer defaultBuffer = ComBinary.setChunkHeaderContentLength(
 				this.ensureDefaultBuffer(),
 				chunk.totalLength(),
-				this.switchByteOrder
+				this.switchByteOrder()
 			);
 			
 			try
