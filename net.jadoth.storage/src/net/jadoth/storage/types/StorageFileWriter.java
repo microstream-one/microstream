@@ -20,14 +20,52 @@ import net.jadoth.storage.exceptions.StorageExceptionIo;
  */
 public interface StorageFileWriter
 {
-	public default void write(final StorageLockedFile file, final ByteBuffer byteBuffer)
+	public static ByteBuffer determineLastNonEmpty(final ByteBuffer[] byteBuffers)
 	{
-//		DEBUGStorage.println("storage write single buffer");
+		for(int i = byteBuffers.length - 1; i >= 0; i--)
+		{
+			if(byteBuffers[i].hasRemaining())
+			{
+				return byteBuffers[i];
+			}
+		}
+		
+		// either the array is empty or only contains empty buffers. Either way, no suitable buffer found.
+		return null;
+	}
 
+	
+	// (13.02.2019 TM)NOTE: single ByteBuffer variant removed to keep implementations simple.
+	
+	public default long writeStore(final StorageDataFile<?> file, final ByteBuffer[] byteBuffers)
+	{
+		return this.write(file, byteBuffers);
+	}
+	
+	public default long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
+	{
+//		DEBUGStorage.println("storage write multiple buffers");
+
+		// determine last non-empty buffer to be used as a write-completion check point
+		final ByteBuffer lastNonEmpty = determineLastNonEmpty(byteBuffers);
+		if(lastNonEmpty == null)
+		{
+			return 0L;
+		}
+		
+		final FileChannel channel   = file.channel();
+		final long        oldLength = file.length();
 		try
 		{
-			file.channel().write(byteBuffer);
-//			file.fileChannel().force(false); // (12.02.2015 TM)NOTE: replaced by explicit flush() calls on all usesites
+			while(lastNonEmpty.hasRemaining())
+			{
+				channel.write(byteBuffers);
+			}
+			
+			// this is the right place for a data-safety-securing force/flush.
+			channel.force(false);
+			
+			return file.length() - oldLength;
 		}
 		catch(final IOException e)
 		{
@@ -47,28 +85,10 @@ public interface StorageFileWriter
 		}
 	}
 
-	public default void write(final StorageLockedFile file, final ByteBuffer... byteBuffers)
-	{
-//		DEBUGStorage.println("storage write multiple buffers");
-
-		final ByteBuffer  last    = byteBuffers[byteBuffers.length - 1];
-		final FileChannel channel = file.channel();
-
-		try
-		{
-			while(last.hasRemaining())
-			{
-				channel.write(byteBuffers);
-			}
-//			channel.force(false); // (12.02.2015 TM)NOTE: replaced by explicit flush() calls on all usesites
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
-		}
-	}
-
-	public default long copy(final StorageFile sourceFile, final StorageLockedFile targetfile)
+	public default long copy(
+		final StorageFile       sourceFile,
+		final StorageLockedFile targetfile
+	)
 	{
 		return this.copy(sourceFile, targetfile, 0, sourceFile.length());
 	}
@@ -84,6 +104,7 @@ public interface StorageFileWriter
 
 		try
 		{
+			// (13.02.2019 TM)FIXME: JET-55: What about flushing here?
 			return sourceFile.channel().transferTo(sourceOffset, length, targetfile.channel());
 		}
 		catch(final IOException e)
@@ -114,6 +135,7 @@ public interface StorageFileWriter
 		{
 			return;
 		}
+		
 		throw new RuntimeException("Could not delete file " + file); // (02.10.2014 TM)EXCP: proper exception
 	}
 
@@ -244,13 +266,7 @@ public interface StorageFileWriter
 	{
 
 		@Override
-		public final void write(final StorageLockedFile file, final ByteBuffer byteBuffer)
-		{
-			throw new UnsupportedOperationException(); // naive exception
-		}
-
-		@Override
-		public final void write(final StorageLockedFile file, final ByteBuffer... byteBuffers)
+		public final long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
 		{
 			throw new UnsupportedOperationException(); // naive exception
 		}
@@ -265,12 +281,6 @@ public interface StorageFileWriter
 		{
 			throw new UnsupportedOperationException(); // naive exception
 		}
-
-//		@Override
-//		public void copyFile(final StorageFile sourceFile, final File targetFile)
-//		{
-//			throw new UnsupportedOperationException(); // naive exception
-//		}
 
 		@Override
 		public final void truncate(final StorageLockedFile file, final long newLength)

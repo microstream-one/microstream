@@ -75,15 +75,9 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 
 		@Override
-		public void write(final StorageLockedFile file, final ByteBuffer byteBuffer)
+		public long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
 		{
-			this.fileWriter.write(file, byteBuffer);
-		}
-
-		@Override
-		public void write(final StorageLockedFile file, final ByteBuffer... byteBuffers)
-		{
-			this.fileWriter.write(file, byteBuffers);
+			return this.fileWriter.write(file, byteBuffers);
 		}
 
 		@Override
