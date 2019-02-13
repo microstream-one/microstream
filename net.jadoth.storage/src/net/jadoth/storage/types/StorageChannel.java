@@ -625,12 +625,11 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			StorageTimestampProvider             timestampProvider            ,
 			StorageFileReader.Provider           readerProvider               ,
 			StorageFileWriter.Provider           writerProvider               ,
-			StorageWriteListener                 writeListener                ,
 			StorageGCZombieOidHandler            zombieOidHandler             ,
 			StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
 			StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
 			StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
-			boolean                              switchByteOrder                 ,
+			boolean                              switchByteOrder              ,
 			long                                 rootTypeId
 		);
 
@@ -657,12 +656,11 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				final StorageTimestampProvider             timestampProvider            ,
 				final StorageFileReader.Provider           readerProvider               ,
 				final StorageFileWriter.Provider           writerProvider               ,
-				final StorageWriteListener                 writeListener                ,
 				final StorageGCZombieOidHandler            zombieOidHandler             ,
 				final StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
 				final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
 				final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
-				final boolean                              switchByteOrder                 ,
+				final boolean                              switchByteOrder              ,
 				final long                                 rootTypeId
 			)
 			{
@@ -711,7 +709,6 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 						entityCache                     ,
 						readerProvider.provideReader(i) ,
 						writerProvider.provideWriter(i) ,
-						writeListener                   ,
 						readingDefaultBufferSizeProvider
 					);
 

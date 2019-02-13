@@ -37,8 +37,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public StorageFileWriter.Provider getWriterProvider();
 
-	public StorageWriteListener.Provider getWriteListenerProvider();
-
 	public StorageGCZombieOidHandler getGCZombieOidHandler();
 
 	public StorageRootOidSelector.Provider getRootOidSelectorProvider();
@@ -79,8 +77,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setWriterProvider(StorageFileWriter.Provider writerProvider);
 
-	public F setWriteListenerProvider(StorageWriteListener.Provider writeListenerProvider);
-
 	public F setGCZombieOidHandler(StorageGCZombieOidHandler gCZombieOidHandler);
 
 	public F setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
@@ -117,7 +113,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageObjectIdRangeEvaluator         objectIdRangeEvaluator       ;
 		private StorageFileReader.Provider            readerProvider               ;
 		private StorageFileWriter.Provider            writerProvider               ;
-		private StorageWriteListener.Provider         writeListenerProvider        ;
 		private StorageGCZombieOidHandler             gCZombieOidHandler           ;
 		private StorageRootOidSelector.Provider       rootOidSelectorProvider      ;
 		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
@@ -234,11 +229,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		protected StorageFileWriter.Provider ensureWriterProvider()
 		{
 			return new StorageFileWriter.Provider.Implementation();
-		}
-
-		protected StorageWriteListener.Provider ensureWriteListenerProvider()
-		{
-			return new StorageWriteListener.Provider.Implementation();
 		}
 
 		protected StorageRootOidSelector.Provider ensureRootOidSelectorProvider()
@@ -409,16 +399,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 
 		@Override
-		public StorageWriteListener.Provider getWriteListenerProvider()
-		{
-			if(this.writeListenerProvider == null)
-			{
-				this.writeListenerProvider = this.dispatch(this.ensureWriteListenerProvider());
-			}
-			return this.writeListenerProvider;
-		}
-
-		@Override
 		public StorageGCZombieOidHandler getGCZombieOidHandler()
 		{
 			if(this.gCZombieOidHandler == null)
@@ -579,15 +559,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 
 		@Override
-		public F setWriteListenerProvider(
-			final StorageWriteListener.Provider writeListenerProvider
-		)
-		{
-			this.writeListenerProvider = writeListenerProvider;
-			return this.$();
-		}
-
-		@Override
 		public F setGCZombieOidHandler(final StorageGCZombieOidHandler gCZombieOidHandler)
 		{
 			this.gCZombieOidHandler = gCZombieOidHandler;
@@ -662,7 +633,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getObjectIdRangeEvaluator()       ,
 				this.getReaderProvider()               ,
 				this.getWriterProvider()               ,
-				this.getWriteListenerProvider()        ,
 				this.getGCZombieOidHandler()           ,
 				this.getRootOidSelectorProvider()      ,
 				this.getOidMarkQueueCreator()          ,

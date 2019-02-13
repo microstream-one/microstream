@@ -76,12 +76,6 @@ public interface StorageFileManager
 
 	public void resetFileCleanupCursor();
 
-	public void flush();
-
-
-
-
-
 
 
 	public final class Implementation implements StorageFileManager, StorageReaderCallback
@@ -156,22 +150,21 @@ public interface StorageFileManager
 		private final StorageEntityCache.Implementation    entityCache                  ;
 		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
-		private final StorageWriteListener                 writeListener                ;
 
-		private final ByteBuffer
-			entryBufferFileCreation   = ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())  ,
-			entryBufferStore          = ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthStore())         ,
-			entryBufferTransfer       = ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthTransfer())      ,
-			entryBufferFileDeletion   = ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())  ,
-			entryBufferFileTruncation = ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileTruncation())
+		private final ByteBuffer[]
+			entryBufferFileCreation   = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
+			entryBufferStore          = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthStore())}         ,
+			entryBufferTransfer       = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthTransfer())}      ,
+			entryBufferFileDeletion   = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
+			entryBufferFileTruncation = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileTruncation())}
 		;
 
 		private final long
-			entryBufferFileCreationAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileCreation)  ,
-			entryBufferStoreAddress          = XMemory.getDirectByteBufferAddress(this.entryBufferStore)         ,
-			entryBufferTransferAddress       = XMemory.getDirectByteBufferAddress(this.entryBufferTransfer)      ,
-			entryBufferFileDeletionAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileDeletion)  ,
-			entryBufferFileTruncationAddress = XMemory.getDirectByteBufferAddress(this.entryBufferFileTruncation)
+			entryBufferFileCreationAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileCreation[0])  ,
+			entryBufferStoreAddress          = XMemory.getDirectByteBufferAddress(this.entryBufferStore[0])         ,
+			entryBufferTransferAddress       = XMemory.getDirectByteBufferAddress(this.entryBufferTransfer[0])      ,
+			entryBufferFileDeletionAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileDeletion[0])  ,
+			entryBufferFileTruncationAddress = XMemory.getDirectByteBufferAddress(this.entryBufferFileTruncation[0])
 		;
 
 		{
@@ -209,7 +202,6 @@ public interface StorageFileManager
 			final StorageEntityCache.Implementation    entityCache                  ,
 			final StorageFileReader                    reader                       ,
 			final StorageFileWriter                    writer                       ,
-			final StorageWriteListener                 writeListener                ,
 			final BufferSizeProvider                   standardBufferSizeProvider
 		)
 		{
@@ -222,7 +214,6 @@ public interface StorageFileManager
 			this.entityCache                   =     notNull(entityCache)                  ;
 			this.reader                        =     notNull(reader)                       ;
 			this.writer                        =     notNull(writer)                       ;
-			this.writeListener                 =     notNull(writeListener)                ;
 			
 			/*
 			 * Of course a low-level byte buffer can only have a int capacity. Why should it be able to take a long?
@@ -378,6 +369,8 @@ public interface StorageFileManager
 
 			this.writer.write(this.headFile, dataBuffers);
 			
+			// (13.02.2019 TM)FIXME: JET-55: maybe restructure the writing method/logic for encapsulation.
+			
 			final long newTotalLength = currentTotalLength + this.uncommittedDataLength;
 			if(newTotalLength < 0)
 			{
@@ -385,7 +378,6 @@ public interface StorageFileManager
 			}
 			
 			this.writeTransactionsEntryStore(newTotalLength, timestamp);
-			this.flush();
 //			DEBUGStorage.println(this.channelIndex + " wrote " + this.uncommittedDataLength + " bytes");
 
 			this.resetFileCleanupCursor();
@@ -584,13 +576,6 @@ public interface StorageFileManager
 		}
 
 		@Override
-		public final void flush()
-		{
-			this.writer.flush(this.headFile);
-			this.writer.flush(this.fileTransactions);
-		}
-
-		@Override
 		public final int channelIndex()
 		{
 			return this.channelIndex;
@@ -625,7 +610,6 @@ public interface StorageFileManager
 
 		final void createNextStorageFile()
 		{
-			this.flush(); // final flush to current head file before replacing it with a new one
 			this.createNewStorageFile(this.headFile.number() + 1);
 		}
 
@@ -1071,7 +1055,7 @@ public interface StorageFileManager
 		{
 			// (07.09.2014)TODO: derive transaction file function to modify behavior (e.h. throw exception instead)
 			final XGettingSequence<StorageInventoryFile> files   = storageInventory.dataFiles()       ;
-			final ByteBuffer                             buffer  = this.entryBufferFileCreation       ;
+			final ByteBuffer[]                           buffer  = this.entryBufferFileCreation       ;
 			final long                                   address = this.entryBufferFileCreationAddress;
 			final StorageFileWriter                      writer  = this.writer                        ;
 
@@ -1081,7 +1065,7 @@ public interface StorageFileManager
 			{
 				for(final StorageInventoryFile file : files)
 				{
-					buffer.clear();
+					buffer[0].clear();
 					StorageTransactionsFileAnalysis.Logic.setEntryFileCreation(
 						address      ,
 						file.length(),
@@ -1107,7 +1091,7 @@ public interface StorageFileManager
 			final long number
 		)
 		{
-			this.entryBufferFileCreation.clear();
+			this.entryBufferFileCreation[0].clear();
 			StorageTransactionsFileAnalysis.Logic.setEntryFileCreation(
 				this.entryBufferFileCreationAddress,
 				length                             ,
@@ -1122,7 +1106,7 @@ public interface StorageFileManager
 			final long timestamp
 		)
 		{
-			this.entryBufferStore.clear();
+			this.entryBufferStore[0].clear();
 			StorageTransactionsFileAnalysis.Logic.setEntryStore(
 				this.entryBufferStoreAddress,
 				length                      ,
@@ -1144,7 +1128,7 @@ public interface StorageFileManager
 //				+length + "\t"
 //				+timestamp + "\t"
 //			);
-			this.entryBufferTransfer.clear();
+			this.entryBufferTransfer[0].clear();
 			StorageTransactionsFileAnalysis.Logic.setEntryTransfer(
 				this.entryBufferTransferAddress,
 				length                         ,
@@ -1162,7 +1146,7 @@ public interface StorageFileManager
 			final long number
 		)
 		{
-			this.entryBufferFileDeletion.clear();
+			this.entryBufferFileDeletion[0].clear();
 			StorageTransactionsFileAnalysis.Logic.setEntryFileDeletion(
 				this.entryBufferFileDeletionAddress,
 				length                             ,
@@ -1179,7 +1163,7 @@ public interface StorageFileManager
 			final long oldLength
 		)
 		{
-			this.entryBufferFileTruncation.clear();
+			this.entryBufferFileTruncation[0].clear();
 			StorageTransactionsFileAnalysis.Logic.setEntryFileTruncation(
 				this.entryBufferFileTruncationAddress,
 				newLength                            ,
@@ -1465,7 +1449,7 @@ public interface StorageFileManager
 			{
 //				DEBUGStorage.println(" * dissolved completely, deleting: " + file);
 
-				// decrement user count if all entities have been transferred.
+				// decrement user count to account for the no longer existing content
 				if(file.decrementUserCount())
 				{
 //					DEBUGStorage.println(this.channelIndex + " deleting right away: " + file);
@@ -1477,7 +1461,7 @@ public interface StorageFileManager
 
 //				DEBUGStorage.println(this.channelIndex + " scheduling for later deletion: " + file);
 
-				// file has no more content but can't be deleted yet. Schedule for later deletion..
+				// file has no more content but can't be deleted yet. Schedule for later deletion.
 				this.pendingFileDeletes++;
 				return false;
 			}
@@ -1519,24 +1503,13 @@ public interface StorageFileManager
 			// check for new head file in any case
 			this.checkForNewFile();
 
-			try
+			// dissolve file to as much head files as needed.
+			while(file.hasContent() && System.nanoTime() < nanoTimeBudgetBound)
 			{
-				// dissolve file to as much head files as needed.
-				while(file.hasContent() && System.nanoTime() < nanoTimeBudgetBound)
-				{
-//					DEBUGStorage.println("transferring one head chain of " + file);
-					this.transferOneChainToHeadFile(file);
-//					DEBUGStorage.println(" * result: " + file);
-				}
+//				DEBUGStorage.println("transferring one head chain of " + file);
+				this.transferOneChainToHeadFile(file);
+//				DEBUGStorage.println(" * result: " + file);
 			}
-			finally
-			{
-				/* this method only gets called if there is something to transfer, hence at least one entity must have
-				 * been transferred, hence a flush is always appropriate at the end. This also applies to exceptions.
-				 */
-				this.flush();
-			}
-
 
 //			DEBUGStorage.println(" * transfer returning (" + System.nanoTime() + " / " + nanoTimeBudgetBound + "): " + file);
 
@@ -1565,9 +1538,14 @@ public interface StorageFileManager
 		{
 //			DEBUGStorage.println(this.channelIndex + " processing import source file " + importFile);
 			importFile.iterateBatches(this.importHelper.setFile(importFile));
+			
+			/* (13.02.2019 TM)FIXME: JET-55: ImportHelper calls write.copy(), but that expresses a transfer.
+			 * Must further distinct between store, storingCopy (or importCopy?), transferCopy
+			 */
 
 			// batches have been written without flushing/forcing for performance reasons. Ensure that at the end.
-			this.flush();
+			// (13.02.2019 TM)FIXME: JET-55: w/should not be necessary if the copy flushed in the first place
+			this.writer.flush(this.headFile);
 		}
 
 		public void commitImport(final long taskTimestamp)
@@ -1600,7 +1578,6 @@ public interface StorageFileManager
 
 //			DEBUGStorage.println(this.channelIndex + " writing import store entry for " + this.headFile);
 			this.writeTransactionsEntryStore(loopFileLength, taskTimestamp);
-			this.flush(); // flush before reporting the store to the listener
 			this.writeListener.registerStore(headFile, currentTotalLength, copyLength);
 		}
 

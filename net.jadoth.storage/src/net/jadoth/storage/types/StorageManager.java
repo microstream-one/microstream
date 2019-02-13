@@ -65,7 +65,6 @@ public interface StorageManager extends StorageController
 		private final StorageChannelController.Implementation channelController            ;
 		private final StorageRootTypeIdProvider               rootTypeIdProvider           ;
 		private final StorageExceptionHandler                 exceptionHandler             ;
-		private final StorageWriteListener.Provider           writeListenerProvider        ;
 		private final StorageHousekeepingController           housekeepingController       ;
 		private final StorageTimestampProvider                timestampProvider            ;
 		private final StorageObjectIdRangeEvaluator           objectIdRangeEvaluator       ;
@@ -86,9 +85,8 @@ public interface StorageManager extends StorageController
 		private final    Object  stateLock        = new Object();
 
 		// running state members //
-		private volatile StorageTaskBroker    taskbroker   ;
-		private final    ChannelKeeper[]      keepers      ;
-		private          StorageWriteListener writeListener;
+		private volatile StorageTaskBroker taskbroker   ;
+		private final    ChannelKeeper[]   keepers      ;
 		
 		private StorageIdAnalysis initializationIdAnalysis;
 
@@ -113,12 +111,11 @@ public interface StorageManager extends StorageController
 			final StorageObjectIdRangeEvaluator         objectIdRangeEvaluator       ,
 			final StorageFileReader.Provider            readerProvider               ,
 			final StorageFileWriter.Provider            writerProvider               ,
-			final StorageWriteListener.Provider         writeListenerProvider        ,
 			final StorageGCZombieOidHandler             zombieOidHandler             ,
 			final StorageRootOidSelector.Provider       rootOidSelectorProvider      ,
 			final StorageOidMarkQueue.Creator           oidMarkQueueCreator          ,
 			final StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ,
-			final boolean                               switchByteOrder                 ,
+			final boolean                               switchByteOrder              ,
 			final StorageExceptionHandler               exceptionHandler
 		)
 		{
@@ -141,13 +138,12 @@ public interface StorageManager extends StorageController
 			this.objectIdRangeEvaluator        = notNull(objectIdRangeEvaluator)              ;
 			this.readerProvider                = notNull(readerProvider)                      ;
 			this.writerProvider                = notNull(writerProvider)                      ;
-			this.writeListenerProvider         = notNull(writeListenerProvider)               ;
 			this.zombieOidHandler              = notNull(zombieOidHandler)                    ;
 			this.rootOidSelectorProvider       = notNull(rootOidSelectorProvider)             ;
 			this.oidMarkQueueCreator           = notNull(oidMarkQueueCreator)                 ;
 			this.entityMarkMonitorCreator      = notNull(entityMarkMonitorCreator)            ;
 			this.exceptionHandler              = notNull(exceptionHandler)                    ;
-			this.switchByteOrder                  =         switchByteOrder                         ;
+			this.switchByteOrder               =         switchByteOrder                      ;
 
 			/* must not leave processing information implementation choice to outside context
 			 * as this implementation relys on an immutable thread count.
@@ -263,7 +259,6 @@ public interface StorageManager extends StorageController
 				this.timestampProvider                     ,
 				this.readerProvider                        ,
 				this.writerProvider                        ,
-				this.createWriteListener()                 ,
 				this.zombieOidHandler                      ,
 				this.rootOidSelectorProvider               ,
 				this.oidMarkQueueCreator                   ,
@@ -277,11 +272,6 @@ public interface StorageManager extends StorageController
 			{
 				keepers[i] = new ChannelKeeper(i, channels[i], this.threadProvider.provideStorageThread(channels[i]));
 			}
-		}
-
-		private StorageWriteListener createWriteListener()
-		{
-			return this.writeListener = this.writeListenerProvider.provideWriteListener(this.channelCount());
 		}
 
 		private int channelCount()
@@ -308,15 +298,12 @@ public interface StorageManager extends StorageController
 			this.objectIdRangeEvaluator.evaluateObjectIdRange(0, maxOid == null ? 0 : maxOid);
 			
 			this.initializationIdAnalysis = idAnalysis;
-
-			this.writeListener.start();
 		}
 
 		private void internalShutdown() throws InterruptedException
 		{
 //			DEBUGStorage.println("shutting down ...");
 			final StorageChannelTaskShutdown task = this.taskbroker.issueChannelShutdown(this.channelController);
-			this.writeListener.stop();
 			synchronized(task)
 			{
 				// (07.07.2016 TM)FIXME: OGS-23: shutdown doesn't wait for the shutdown to be completed.

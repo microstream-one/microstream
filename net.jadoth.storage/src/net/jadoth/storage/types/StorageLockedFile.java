@@ -18,6 +18,14 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 	
 
 
+	public int incrementUserCount();
+
+	public boolean decrementUserCount();
+
+	public boolean hasNoUsers();
+	
+
+
 	public static StorageLockedFile New(final File file, final FileLock lock)
 	{
 		return new StorageLockedFile.Implementation(file, lock);
@@ -79,6 +87,8 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		 */
 		final FileLock    lock       ;
 		final FileChannel fileChannel;
+		
+		private int users;
 
 
 
@@ -157,6 +167,26 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 					throw new RuntimeException(e);
 				}
 			}
+		}
+		
+
+
+		@Override
+		public synchronized int incrementUserCount()
+		{
+			return ++this.users;
+		}
+
+		@Override
+		public synchronized boolean decrementUserCount()
+		{
+			return --this.users == 0;
+		}
+
+		@Override
+		public synchronized boolean hasNoUsers()
+		{
+			return this.users == 0;
 		}
 
 		@Override

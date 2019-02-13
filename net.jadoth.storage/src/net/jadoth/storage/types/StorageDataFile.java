@@ -28,12 +28,6 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 	public long exportTo(StorageLockedFile file, long sourceOffset, long length);
 
-	public StorageDataFile<I> incrementUserCount();
-
-	public boolean decrementUserCount();
-
-	public boolean hasNoUsers();
-
 	public boolean isHeadFile();
 
 
@@ -88,7 +82,9 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		final StorageEntity.Implementation head = StorageEntity.Implementation.createDummy();
 		final StorageEntity.Implementation tail = StorageEntity.Implementation.createDummy();
 
-		private int  users           = 1; // data files always start with exactely one user, their parent channel.
+		// data files always start with exactely one user to account for their content.
+		private int users = 1;
+		
 		private long fileTotalLength;
 		private long fileDataLength ;
 
@@ -347,10 +343,9 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		}
 
 		@Override
-		public synchronized StorageDataFile.Implementation incrementUserCount()
+		public synchronized int incrementUserCount()
 		{
-			this.users++;
-			return this;
+			return ++this.users;
 		}
 
 		@Override
