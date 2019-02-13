@@ -1595,7 +1595,7 @@ public interface StorageFileManager
 			}
 
 			final long copyLength = loopFileLength - currentTotalLength;
-			this.headFile.increaseContentLength(copyLength);
+			headFile.increaseContentLength(copyLength);
 			this.cleanupImportHelper();
 
 //			DEBUGStorage.println(this.channelIndex + " writing import store entry for " + this.headFile);
