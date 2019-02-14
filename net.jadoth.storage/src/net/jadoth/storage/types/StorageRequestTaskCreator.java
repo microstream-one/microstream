@@ -69,11 +69,6 @@ public interface StorageRequestTaskCreator
 		StorageChannelController channelController
 	);
 
-	public StorageChannelTaskTruncateData createTruncateTask(
-		int                      channelCount     ,
-		StorageChannelController channelController
-	);
-
 
 
 	public final class Implementation implements StorageRequestTaskCreator
@@ -122,19 +117,6 @@ public interface StorageRequestTaskCreator
 		)
 		{
 			return new StorageChannelTaskShutdown.Implementation(
-				this.timestampProvider.currentNanoTimestamp(),
-				channelCount,
-				channelController
-			);
-		}
-
-		@Override
-		public StorageChannelTaskTruncateData createTruncateTask(
-			final int                      channelCount     ,
-			final StorageChannelController channelController
-		)
-		{
-			return new StorageChannelTaskTruncateData.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount,
 				channelController

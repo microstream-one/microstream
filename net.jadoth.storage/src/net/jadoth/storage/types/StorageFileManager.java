@@ -256,43 +256,44 @@ public interface StorageFileManager
 			return this.headFile == dataFile;
 		}
 
-		final void truncateFiles()
-		{
-			try
-			{
-				if(this.headFile != null)
-				{
-					this.writer.flush(this.headFile);
-					final StorageDataFile.Implementation currentFile = this.headFile;
-					for(StorageDataFile.Implementation file = currentFile.next; file != currentFile; file = file.next)
-					{
-						file.terminate(this.writer);
-					}
-					currentFile.terminate(this.writer);
-					this.headFile = null;
-				}
-
-				if(this.fileTransactions != null)
-				{
-					this.writer.flush(this.fileTransactions);
-				}
-				else
-				{
-					this.setTransactionsFile(this.createTransactionsFile());
-				}
-
-				this.writer.truncate(this.fileTransactions, 0);
-
-				// note: flush is done above on a per-case basis
-				this.writer.registerChannelTruncation(this.channelIndex());
-				this.addFirstFile();
-				this.resetFileCleanupCursor();
-			}
-			catch(final IOException e)
-			{
-				throw new RuntimeException(e); // (26.11.2014 TM)EXCP: proper exception
-			}
-		}
+		// (14.02.2019 TM)NOTE: removed because of conflict with backupping, but maybe it will be required for testing.
+//		final void truncateFiles()
+//		{
+//			try
+//			{
+//				if(this.headFile != null)
+//				{
+//					this.writer.flush(this.headFile);
+//					final StorageDataFile.Implementation currentFile = this.headFile;
+//					for(StorageDataFile.Implementation file = currentFile.next; file != currentFile; file = file.next)
+//					{
+//						file.terminate(this.writer);
+//					}
+//					currentFile.terminate(this.writer);
+//					this.headFile = null;
+//				}
+//
+//				if(this.fileTransactions != null)
+//				{
+//					this.writer.flush(this.fileTransactions);
+//				}
+//				else
+//				{
+//					this.setTransactionsFile(this.createTransactionsFile());
+//				}
+//
+//				this.writer.truncate(this.fileTransactions, 0);
+//
+//				// note: flush is done above on a per-case basis
+//				this.writer.registerChannelTruncation(this.channelIndex());
+//				this.addFirstFile();
+//				this.resetFileCleanupCursor();
+//			}
+//			catch(final IOException e)
+//			{
+//				throw new RuntimeException(e); // (26.11.2014 TM)EXCP: proper exception
+//			}
+//		}
 
 		private void addFirstFile()
 		{
@@ -477,7 +478,7 @@ public interface StorageFileManager
 //			);
 
 			// do the actual file-level copying in one go at the end and validate the byte count to be sure //
-			final long writeCount = this.writer.copy(sourceFile, this.headFile, copyStart, copyLength);
+			final long writeCount = this.writer.writeTransfer(sourceFile, this.headFile, copyStart, copyLength);
 
 			this.validateTransferLength(copyLength, writeCount);
 
@@ -1051,9 +1052,6 @@ public interface StorageFileManager
 					);
 					writer.write(tfile, buffer);
 				}
-
-				// flush out all changes in the end
-				writer.flush(tfile);
 			}
 			catch(final Exception e)
 			{
@@ -1202,7 +1200,6 @@ public interface StorageFileManager
 					lastFile.number()                            ,
 					lastFile.length()
 				);
-				this.writer.flush(this.fileTransactions);
 
 				// (20.06.2014 TM)TODO: truncator function to give a chance to evaluate / rescue the doomed data
 				this.writer.truncate(lastFile, lastFileLength);
@@ -1532,10 +1529,6 @@ public interface StorageFileManager
 			/* (13.02.2019 TM)FIXME: JET-55: ImportHelper calls write.copy(), but that expresses a transfer.
 			 * Must further distinct between store, storingCopy (or importCopy?), transferCopy
 			 */
-
-			// batches have been written without flushing/forcing for performance reasons. Ensure that at the end.
-			// (13.02.2019 TM)FIXME: JET-55: w/should not be necessary if the copy flushed in the first place
-			this.writer.flush(this.headFile);
 		}
 
 		public void commitImport(final long taskTimestamp)
