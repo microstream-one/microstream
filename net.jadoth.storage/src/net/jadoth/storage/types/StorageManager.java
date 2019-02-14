@@ -34,11 +34,6 @@ public interface StorageManager extends StorageController
 
 	public StorageObjectIdRangeEvaluator objectIdRangeEvaluator();
 
-	/**
-	 * Deletes all data in both memory and files and resets the storage into an empty pre-initialized state.
-	 */
-	public void truncateData();
-
 
 
 	public final class Implementation implements StorageManager, Unpersistable
@@ -376,24 +371,6 @@ public interface StorageManager extends StorageController
 					// interruption while waiting for shutdown means don't shut down
 					return false;
 				}
-			}
-		}
-
-		@Override
-		public void truncateData()
-		{
-			try
-			{
-				final StorageChannelTaskTruncateData task = this.taskbroker.issueTruncateData(this.channelController);
-				synchronized(task)
-				{
-					task.waitOnCompletion();
-				}
-			}
-			catch(final InterruptedException e)
-			{
-				// interrupted truncation, abort
-				return;
 			}
 		}
 

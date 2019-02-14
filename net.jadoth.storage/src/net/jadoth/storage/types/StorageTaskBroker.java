@@ -77,9 +77,6 @@ public interface StorageTaskBroker
 	)
 		throws InterruptedException;
 
-	public StorageChannelTaskTruncateData issueTruncateData(StorageChannelController channelController)
-		throws InterruptedException;
-
 
 
 	public final class Implementation implements StorageTaskBroker
@@ -417,19 +414,6 @@ public interface StorageTaskBroker
 			throws InterruptedException
 		{
 			final StorageChannelTaskShutdown task = this.taskCreator.createShutdownTask(
-				this.channelCount,
-				channelController
-			);
-			// special case: cannot wait on the task before the channel threads are started
-			this.enqueueTaskAndNotifyAll(task);
-			return task;
-		}
-
-		@Override
-		public StorageChannelTaskTruncateData issueTruncateData(final StorageChannelController channelController)
-			throws InterruptedException
-		{
-			final StorageChannelTaskTruncateData task = this.taskCreator.createTruncateTask(
 				this.channelCount,
 				channelController
 			);

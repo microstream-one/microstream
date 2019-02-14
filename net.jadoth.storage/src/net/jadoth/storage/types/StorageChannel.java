@@ -81,7 +81,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 	public void signalGarbageCollectionSweepCompleted();
 
-	public void truncateData();
+//	public void truncateData();
 
 	public void cleanupStore();
 
@@ -584,13 +584,6 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		{
 			this.fileManager.clearRegisteredFiles();
 			this.entityCache.clearState();
-		}
-
-		@Override
-		public void truncateData()
-		{
-			this.entityCache.clearState();
-			this.fileManager.truncateFiles();
 		}
 
 		@Override

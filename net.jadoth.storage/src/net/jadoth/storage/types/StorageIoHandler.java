@@ -11,7 +11,6 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 	{
 		final StorageInventoryFile targetFile = this.provideStorageFile(dataFile.channelIndex(), dataFile.number());
 		this.copy(dataFile, targetFile);
-		this.flush(targetFile); // for one whole file, always flushing is appropriate
 		return targetFile;
 	}
 
@@ -19,7 +18,6 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 	{
 		final StorageLockedChannelFile targetFile = this.provideTransactionsFile(transactionsFile.channelIndex());
 		this.copy(transactionsFile, targetFile);
-		this.flush(targetFile); // for one whole file, always flushing is appropriate
 		return targetFile;
 	}
 
@@ -96,12 +94,6 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		{
 			this.fileWriter.flush(targetfile);
 		}
-
-//		@Override
-//		public void copyFile(final StorageFile sourceFile, final File targetFile)
-//		{
-//			this.fileWriter.copyFile(sourceFile, targetFile);
-//		}
 
 		@Override
 		public void truncate(final StorageLockedFile file, final long newLength)

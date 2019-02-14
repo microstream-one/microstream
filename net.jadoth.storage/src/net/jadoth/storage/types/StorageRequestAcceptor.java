@@ -82,8 +82,6 @@ public interface StorageRequestAcceptor
 
 	public StorageRawFileStatistics createStatistics() throws InterruptedException;
 
-	public void issueTruncate(StorageChannelController channelController) throws InterruptedException;
-
 
 
 	public interface Creator
@@ -241,12 +239,6 @@ public interface StorageRequestAcceptor
 		public void importFiles(final XGettingEnum<File> importFiles) throws InterruptedException
 		{
 			waitOnTask(this.taskBroker.enqueueImportFromFilesTask(importFiles));
-		}
-
-		@Override
-		public void issueTruncate(final StorageChannelController channelController) throws InterruptedException
-		{
-			waitOnTask(this.taskBroker.issueTruncateData(channelController));
 		}
 
 	}

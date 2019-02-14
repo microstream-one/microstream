@@ -9,11 +9,11 @@ import java.util.function.Predicate;
 import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceManager;
 import net.jadoth.persistence.types.PersistenceRootResolver;
 import net.jadoth.persistence.types.PersistenceRoots;
 import net.jadoth.persistence.types.Storer;
-import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.Unpersistable;
 import net.jadoth.reference.Reference;
 
@@ -37,8 +37,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 	@Override
 	public boolean shutdown();
-
-	public void truncateData();
 	
 	/**
 	 * A reference to the application's explicit root. Potentially <code>null</code> if roots are resolved otherwise.
@@ -246,12 +244,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		public final boolean shutdown()
 		{
 			return this.storageManager.shutdown();
-		}
-
-		@Override
-		public final void truncateData()
-		{
-			this.storageManager.truncateData();
 		}
 
 		@Override
