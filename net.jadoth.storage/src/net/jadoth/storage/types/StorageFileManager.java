@@ -284,7 +284,7 @@ public interface StorageFileManager
 				this.writer.truncate(this.fileTransactions, 0);
 
 				// note: flush is done above on a per-case basis
-				this.writeListener.registerTruncate(this.channelIndex());
+				this.writer.registerChannelTruncation(this.channelIndex());
 				this.addFirstFile();
 				this.resetFileCleanupCursor();
 			}
@@ -365,19 +365,19 @@ public interface StorageFileManager
 				return; // nothing to write (empty chunk, only header for consistency)
 			}
 
-			final long currentTotalLength = this.headFile.totalLength();
+			final long oldTotalLength = this.headFile.totalLength();
 
-			this.writer.write(this.headFile, dataBuffers);
+			this.writer.writeStore(this.headFile, dataBuffers);
 			
 			// (13.02.2019 TM)FIXME: JET-55: maybe restructure the writing method/logic for encapsulation.
 			
-			final long newTotalLength = currentTotalLength + this.uncommittedDataLength;
+			final long newTotalLength = oldTotalLength + this.uncommittedDataLength;
 			if(newTotalLength < 0)
 			{
-				throwImpossibleStoreLengthException(timestamp, currentTotalLength, this.uncommittedDataLength, dataBuffers);
+				throwImpossibleStoreLengthException(timestamp, oldTotalLength, this.uncommittedDataLength, dataBuffers);
 			}
 			
-			this.writeTransactionsEntryStore(this.headFile, newTotalLength, timestamp);
+			this.writeTransactionsEntryStore(this.headFile, oldTotalLength, this.uncommittedDataLength, timestamp, newTotalLength);
 //			DEBUGStorage.println(this.channelIndex + " wrote " + this.uncommittedDataLength + " bytes");
 
 			this.resetFileCleanupCursor();
@@ -498,7 +498,8 @@ public interface StorageFileManager
 				sourceFile,
 				this.headFile.totalLength(),
 				this.timestampProvider.currentNanoTimestamp(),
-				copyStart
+				copyStart,
+				copyLength
 			);
 		}
 
@@ -1078,18 +1079,17 @@ public interface StorageFileManager
 		}
 
 		private void writeTransactionsEntryStore(
-			final StorageDataFile<?> dataFile       ,
-			final long               dataFileOffset ,
-			final long               storeLength    ,
-			final long               timestamp
+			final StorageDataFile<?> dataFile              ,
+			final long               dataFileOffset        ,
+			final long               storeLength           ,
+			final long               timestamp             ,
+			final long               headFileNewTotalLength
 		)
 		{
-			// (14.02.2019 TM)FIXME: JET-55: resulting total length?
-			
 			this.entryBufferStore[0].clear();
 			StorageTransactionsFileAnalysis.Logic.setEntryStore(
 				this.entryBufferStoreAddress,
-				storeLength                 ,
+				headFileNewTotalLength      ,
 				timestamp
 			);
 			this.writer.writeTransactionEntryStore(
@@ -1102,14 +1102,13 @@ public interface StorageFileManager
 		}
 
 		private void writeTransactionsEntryTransfer(
-			final StorageDataFile<?> sourceFile      ,
-			final long               length          ,
-			final long               timestamp       ,
-			final long               sourcefileOffset
+			final StorageDataFile<?> sourceFile            ,
+			final long               headNewFileTotalLength,
+			final long               timestamp             ,
+			final long               sourcefileOffset      ,
+			final long               copyLength
 		)
 		{
-			// (14.02.2019 TM)FIXME: JET-55: is length really the resulting head file total length?
-			
 //			DEBUGStorage.println(this.channelIndex + " writing transfer entry "
 //				+sourcefileNumber + " -> " + this.headFile.number() + "\t"
 //				+length + "\t"
@@ -1118,7 +1117,7 @@ public interface StorageFileManager
 			this.entryBufferTransfer[0].clear();
 			StorageTransactionsFileAnalysis.Logic.setEntryTransfer(
 				this.entryBufferTransferAddress,
-				length                         ,
+				headNewFileTotalLength         ,
 				timestamp                      ,
 				sourceFile.number()            ,
 				sourcefileOffset
@@ -1129,7 +1128,7 @@ public interface StorageFileManager
 				this.entryBufferTransfer,
 				sourceFile,
 				sourcefileOffset,
-				length
+				copyLength
 			);
 //			DEBUGStorage.println(this.channelIndex + " written transfer entry");
 		}
@@ -1547,8 +1546,8 @@ public interface StorageFileManager
 			final StorageEntityCache.Implementation entityCache = this.entityCache;
 			final StorageDataFile.Implementation    headFile    = this.headFile   ;
 
-			final long currentTotalLength = this.headFile.totalLength();
-			      long loopFileLength     = currentTotalLength;
+			final long oldTotalLength = this.headFile.totalLength();
+			      long loopFileLength = oldTotalLength;
 
 			// (05.01.2015)TODO: batch copying must ensure that entity position limit of 2 GB is not exceeded
 			for(final StorageChannelImportBatch batch : this.importHelper.importBatches)
@@ -1563,12 +1562,12 @@ public interface StorageFileManager
 				}
 			}
 
-			final long copyLength = loopFileLength - currentTotalLength;
+			final long copyLength = loopFileLength - oldTotalLength;
 			headFile.increaseContentLength(copyLength);
 			this.cleanupImportHelper();
 
 //			DEBUGStorage.println(this.channelIndex + " writing import store entry for " + this.headFile);
-			this.writeTransactionsEntryStore(this.headFile, currentTotalLength, loopFileLength, taskTimestamp);
+			this.writeTransactionsEntryStore(this.headFile, oldTotalLength, copyLength, taskTimestamp, loopFileLength);
 		}
 
 		final void cleanupImportHelper()
