@@ -37,10 +37,64 @@ public interface StorageFileWriter
 	
 	// (13.02.2019 TM)NOTE: single ByteBuffer variant removed to keep implementations simple.
 	
-	public default long writeStore(final StorageDataFile<?> file, final ByteBuffer[] byteBuffers)
+	public default long writeStore(
+		final StorageDataFile<?> targetFile ,
+		final ByteBuffer[]       byteBuffers
+	)
 	{
-		return this.write(file, byteBuffers);
+		return this.write(targetFile, byteBuffers);
 	}
+	
+	public default long writeTransactionEntryStore(
+		final StorageLockedChannelFile transactionFile,
+		final ByteBuffer[]             byteBuffers    ,
+		final StorageDataFile<?>       dataFile       ,
+		final long                     dataFileOffset ,
+		final long                     storeLength
+	)
+	{
+		return this.write(transactionFile, byteBuffers);
+	}
+	
+	public default long writeTransactionEntryTransfer(
+		final StorageLockedChannelFile transactionFile,
+		final ByteBuffer[]             byteBuffers    ,
+		final StorageDataFile<?>       dataFile       ,
+		final long                     dataFileOffset ,
+		final long                     storeLength
+	)
+	{
+		return this.write(transactionFile, byteBuffers);
+	}
+	
+	public default long writeTransactionEntryDelete(
+		final StorageLockedChannelFile transactionFile,
+		final ByteBuffer[]             byteBuffers    ,
+		final StorageDataFile<?>       dataFile
+	)
+	{
+		return this.write(transactionFile, byteBuffers);
+	}
+	
+	public default long writeTransactionEntryCreate(
+		final StorageLockedChannelFile transactionFile,
+		final ByteBuffer[]             byteBuffers    ,
+		final StorageDataFile<?>       dataFile
+	)
+	{
+		return this.write(transactionFile, byteBuffers);
+	}
+	
+	public default long writeTransactionEntryTruncate(
+		final StorageLockedChannelFile transactionFile,
+		final ByteBuffer[]             byteBuffers    ,
+		final int                      channelIndex
+	)
+	{
+		return this.write(transactionFile, byteBuffers);
+	}
+	
+	
 	
 	public default long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
 	{

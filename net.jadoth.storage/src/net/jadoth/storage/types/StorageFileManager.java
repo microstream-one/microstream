@@ -377,7 +377,7 @@ public interface StorageFileManager
 				throwImpossibleStoreLengthException(timestamp, currentTotalLength, this.uncommittedDataLength, dataBuffers);
 			}
 			
-			this.writeTransactionsEntryStore(newTotalLength, timestamp);
+			this.writeTransactionsEntryStore(this.headFile, newTotalLength, timestamp);
 //			DEBUGStorage.println(this.channelIndex + " wrote " + this.uncommittedDataLength + " bytes");
 
 			this.resetFileCleanupCursor();
@@ -479,7 +479,6 @@ public interface StorageFileManager
 			// do the actual file-level copying in one go at the end and validate the byte count to be sure //
 			final long writeCount = this.writer.copy(sourceFile, this.headFile, copyStart, copyLength);
 
-			// (12.02.2015 TM)TODO: what about flushing on length validation (or any other) exception?
 			this.validateTransferLength(copyLength, writeCount);
 
 			/*
@@ -496,23 +495,11 @@ public interface StorageFileManager
 			 */
 
 			this.writeTransactionsEntryTransfer(
+				sourceFile,
 				this.headFile.totalLength(),
 				this.timestampProvider.currentNanoTimestamp(),
-				sourceFile.number(),
 				copyStart
 			);
-
-			/* No flushing is required here for the following reason:
-			 * Only transfers from non-head-files (to the head-file) can happen here.
-			 * non-head-files (retired files) are guaranteed to having been flushed, completely written
-			 * and to never change again.
-			 * The head-file, on the other hand, is not retired yet and can therefore never be read from.
-			 * Any other action cannot be reported to the listener until the transferring is completed
-			 * and at the end of the transfer (timeout or file migration complete), a flush() is performed.
-			 */
-
-			// report write to the listener (e.g. for updating the backup accordingly later on)
-			this.writeListener.registerTransfer(sourceFile, copyStart, copyLength);
 		}
 
 		final void validateTransferLength(final long desiredLength, final long actualLength)
@@ -546,8 +533,6 @@ public interface StorageFileManager
 			// create and register StorageFile instance with an attached channel
 			this.registerHeadFile(file);
 			this.writeTransactionsEntryFileCreation(0, this.timestampProvider.currentNanoTimestamp(), fileNumber);
-			this.writer.flush(this.fileTransactions); // flush changes before reporting to the listener
-			this.writeListener.registerCreate(this.headFile);
 		}
 
 		private void registerHeadFile(final StorageInventoryFile file)
@@ -644,15 +629,6 @@ public interface StorageFileManager
 		{
 			// commit data length
 			this.headFile.increaseContentLength(this.uncommittedDataLength);
-
-			// note: flush already happened before in the actual writeChunks() method
-
-			// register after updating the content length but before resetting the length change
-			this.writeListener.registerStore(
-				this.headFile,
-				this.headFile.totalLength() - this.uncommittedDataLength,
-				this.uncommittedDataLength
-			);
 
 			// reset the length change helper field
 			this.uncommittedDataLength = 0;
@@ -1098,31 +1074,42 @@ public interface StorageFileManager
 				timestamp                          ,
 				number
 			);
-			this.writer.write(this.fileTransactions, this.entryBufferFileCreation);
+			this.writer.writeTransactionEntryCreate(this.fileTransactions, this.entryBufferFileCreation, this.headFile);
 		}
 
 		private void writeTransactionsEntryStore(
-			final long length   ,
-			final long timestamp
+			final StorageDataFile<?> dataFile       ,
+			final long               dataFileOffset ,
+			final long               storeLength    ,
+			final long               timestamp
 		)
 		{
+			// (14.02.2019 TM)FIXME: JET-55: resulting total length?
+			
 			this.entryBufferStore[0].clear();
 			StorageTransactionsFileAnalysis.Logic.setEntryStore(
 				this.entryBufferStoreAddress,
-				length                      ,
+				storeLength                 ,
 				timestamp
 			);
-			this.writer.write(this.fileTransactions, this.entryBufferStore);
-//			this.writer.flush(this.fileTransactions); // (12.02.2015 TM)NOTE: replaced by outside flush
+			this.writer.writeTransactionEntryStore(
+				this.fileTransactions,
+				this.entryBufferStore,
+				dataFile             ,
+				dataFileOffset       ,
+				storeLength
+			);
 		}
 
 		private void writeTransactionsEntryTransfer(
-			final long length          ,
-			final long timestamp       ,
-			final long sourcefileNumber,
-			final long sourcefileOffset
+			final StorageDataFile<?> sourceFile      ,
+			final long               length          ,
+			final long               timestamp       ,
+			final long               sourcefileOffset
 		)
 		{
+			// (14.02.2019 TM)FIXME: JET-55: is length really the resulting head file total length?
+			
 //			DEBUGStorage.println(this.channelIndex + " writing transfer entry "
 //				+sourcefileNumber + " -> " + this.headFile.number() + "\t"
 //				+length + "\t"
@@ -1133,27 +1120,33 @@ public interface StorageFileManager
 				this.entryBufferTransferAddress,
 				length                         ,
 				timestamp                      ,
-				sourcefileNumber               ,
+				sourceFile.number()            ,
 				sourcefileOffset
 			);
-			this.writer.write(this.fileTransactions, this.entryBufferTransfer);
+			
+			this.writer.writeTransactionEntryTransfer(
+				this.fileTransactions,
+				this.entryBufferTransfer,
+				sourceFile,
+				sourcefileOffset,
+				length
+			);
 //			DEBUGStorage.println(this.channelIndex + " written transfer entry");
 		}
 
 		private void writeTransactionsEntryFileDeletion(
-			final long length   ,
-			final long timestamp,
-			final long number
+			final StorageDataFile<?> dataFile ,
+			final long               timestamp
 		)
 		{
 			this.entryBufferFileDeletion[0].clear();
 			StorageTransactionsFileAnalysis.Logic.setEntryFileDeletion(
 				this.entryBufferFileDeletionAddress,
-				length                             ,
+				dataFile.totalLength()             ,
 				timestamp                          ,
-				number
+				dataFile.number()
 			);
-			this.writer.write(this.fileTransactions, this.entryBufferFileDeletion);
+			this.writer.writeTransactionEntryDelete(this.fileTransactions, this.entryBufferFileDeletion, dataFile);
 		}
 
 		private void writeTransactionsEntryFileTruncation(
@@ -1490,9 +1483,7 @@ public interface StorageFileManager
 			 * This way, the next startup validation know that the file is no longer needed and can react accrodingly
 			 * (keep it alive to re-evaluate it or delete it, etc.)
 			 */
-			this.writeTransactionsEntryFileDeletion(file.totalLength(), this.timestampProvider.currentNanoTimestamp(), file.number());
-			this.writer.flush(this.fileTransactions);
-			this.writeListener.registerDelete(file);
+			this.writeTransactionsEntryFileDeletion(file, this.timestampProvider.currentNanoTimestamp());
 
 			// physically delete file after the transactions entry is ensured
 			this.writer.delete(file);
@@ -1577,8 +1568,7 @@ public interface StorageFileManager
 			this.cleanupImportHelper();
 
 //			DEBUGStorage.println(this.channelIndex + " writing import store entry for " + this.headFile);
-			this.writeTransactionsEntryStore(loopFileLength, taskTimestamp);
-			this.writeListener.registerStore(headFile, currentTotalLength, copyLength);
+			this.writeTransactionsEntryStore(this.headFile, currentTotalLength, loopFileLength, taskTimestamp);
 		}
 
 		final void cleanupImportHelper()
