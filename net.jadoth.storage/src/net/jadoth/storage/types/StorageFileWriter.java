@@ -85,13 +85,10 @@ public interface StorageFileWriter
 		return this.write(transactionFile, byteBuffers);
 	}
 	
-	public default long writeTransactionEntryTruncate(
-		final StorageLockedChannelFile transactionFile,
-		final ByteBuffer[]             byteBuffers    ,
-		final int                      channelIndex
-	)
+	public default void registerChannelTruncation(final int channelIndex)
 	{
-		return this.write(transactionFile, byteBuffers);
+		// (14.02.2019 TM)FIXME: JET-55: This is a considerable conflict. See rationale in DevLog.
+		// no-op by default
 	}
 	
 	
