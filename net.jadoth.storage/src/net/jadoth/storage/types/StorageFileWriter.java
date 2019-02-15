@@ -13,6 +13,52 @@ import java.nio.channels.FileChannel;
  */
 public interface StorageFileWriter
 {
+	public static long validateIoByteCount(final long specifiedByteCount, final long actualByteCount)
+	{
+		if(specifiedByteCount == actualByteCount)
+		{
+			return actualByteCount; // validation successful
+		}
+
+		// (28.06.2013 TM)EXCP: proper exception
+		throw new RuntimeException(
+			"Inconsistent IO operation: actual byte count " + actualByteCount
+			+ " does not match the specified byte count if  " + specifiedByteCount + "."
+		);
+	}
+	
+	// (13.02.2019 TM)NOTE: single ByteBuffer variant removed to keep implementations simple.
+	public default long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
+	{
+//		DEBUGStorage.println("storage write multiple buffers");
+
+		// determine last non-empty buffer to be used as a write-completion check point
+		final ByteBuffer lastNonEmpty = determineLastNonEmpty(byteBuffers);
+		if(lastNonEmpty == null)
+		{
+			return 0L;
+		}
+		
+		final FileChannel channel   = file.channel();
+		final long        oldLength = file.length();
+		try
+		{
+			while(lastNonEmpty.hasRemaining())
+			{
+				channel.write(byteBuffers);
+			}
+			
+			// this is the right place for a data-safety-securing force/flush.
+			channel.force(false);
+			
+			return file.length() - oldLength;
+		}
+		catch(final IOException e)
+		{
+			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+		}
+	}
+
 	public static ByteBuffer determineLastNonEmpty(final ByteBuffer[] byteBuffers)
 	{
 		for(int i = byteBuffers.length - 1; i >= 0; i--)
@@ -27,8 +73,35 @@ public interface StorageFileWriter
 		return null;
 	}
 
-	
-	// (13.02.2019 TM)NOTE: single ByteBuffer variant removed to keep implementations simple.
+	public default long copy(
+		final StorageFile       sourceFile,
+		final StorageLockedFile targetfile
+	)
+	{
+		return this.copy(sourceFile, 0, sourceFile.length(), targetfile);
+	}
+
+	public default long copy(
+		final StorageFile       sourceFile  ,
+		final long              sourceOffset,
+		final long              length      ,
+		final StorageLockedFile targetfile
+	)
+	{
+//		DEBUGStorage.println("storage copy file range");
+
+		try
+		{
+			final long byteCount = sourceFile.channel().transferTo(sourceOffset, length, targetfile.channel());
+			targetfile.channel().force(false);
+			
+			return validateIoByteCount(length, byteCount);
+		}
+		catch(final IOException e)
+		{
+			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+		}
+	}
 	
 	public default long writeStore(
 		final StorageDataFile<?> targetFile ,
@@ -36,6 +109,35 @@ public interface StorageFileWriter
 	)
 	{
 		return this.write(targetFile, byteBuffers);
+	}
+	
+	/**
+	 * Logically the same as a store, but technically the same as a transfer with an external source file.
+	 * 
+	 * @param sourceFile
+	 * @param sourceOffset
+	 * @param length
+	 * @param targetfile
+	 * @return
+	 */
+	public default long writeImport(
+		final StorageFile        sourceFile  ,
+		final long               sourceOffset,
+		final long               length      ,
+		final StorageDataFile<?> targetfile
+	)
+	{
+		return this.copy(sourceFile, sourceOffset, length, targetfile);
+	}
+	
+	public default long writeTransfer(
+		final StorageDataFile<?> sourceFile  ,
+		final long               sourceOffset,
+		final long               length      ,
+		final StorageDataFile<?> targetfile
+	)
+	{
+		return this.copy(sourceFile, sourceOffset, length, targetfile);
 	}
 	
 	public default long writeTransactionEntryStore(
@@ -77,89 +179,6 @@ public interface StorageFileWriter
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
-	
-	
-	public default long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
-	{
-//		DEBUGStorage.println("storage write multiple buffers");
-
-		// determine last non-empty buffer to be used as a write-completion check point
-		final ByteBuffer lastNonEmpty = determineLastNonEmpty(byteBuffers);
-		if(lastNonEmpty == null)
-		{
-			return 0L;
-		}
-		
-		final FileChannel channel   = file.channel();
-		final long        oldLength = file.length();
-		try
-		{
-			while(lastNonEmpty.hasRemaining())
-			{
-				channel.write(byteBuffers);
-			}
-			
-			// this is the right place for a data-safety-securing force/flush.
-			channel.force(false);
-			
-			return file.length() - oldLength;
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
-		}
-	}
-
-	public default void flush(final StorageLockedFile targetfile)
-	{
-		try
-		{
-			targetfile.channel().force(false);
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
-		}
-	}
-
-	public default long copy(
-		final StorageFile       sourceFile,
-		final StorageLockedFile targetfile
-	)
-	{
-		return this.copy(sourceFile, targetfile, 0, sourceFile.length());
-	}
-
-	public default long copy(
-		final StorageFile       sourceFile  ,
-		final StorageLockedFile targetfile  ,
-		final long              sourceOffset,
-		final long              length
-	)
-	{
-//		DEBUGStorage.println("storage copy file range");
-
-		try
-		{
-			final long byteCount = sourceFile.channel().transferTo(sourceOffset, length, targetfile.channel());
-			targetfile.channel().force(false);
-			return byteCount;
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
-		}
-	}
-	
-	public default long writeTransfer(
-		final StorageDataFile<?> sourceFile  ,
-		final StorageDataFile<?> targetfile  ,
-		final long               sourceOffset,
-		final long               length
-	)
-	{
-		return this.copy(sourceFile, targetfile, sourceOffset, length);
-	}
 
 	public default void truncate(final StorageLockedFile file, final long newLength)
 	{
@@ -185,6 +204,18 @@ public interface StorageFileWriter
 		}
 		
 		throw new RuntimeException("Could not delete file " + file); // (02.10.2014 TM)EXCP: proper exception
+	}
+
+	public default void flush(final StorageLockedFile targetfile)
+	{
+		try
+		{
+			targetfile.channel().force(false);
+		}
+		catch(final IOException e)
+		{
+			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+		}
 	}
 
 	public final class Implementation implements StorageFileWriter
