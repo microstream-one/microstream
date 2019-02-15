@@ -61,7 +61,7 @@ public final class StorageFileWriterConserving implements StorageFileWriter
 	}
 	
 	@Override
-	public void truncate(final StorageLockedFile file, final long newLength)
+	public void truncate(final StorageLockedChannelFile file, final long newLength)
 	{
 		/* (04.09.2017 TM)NOTE:
 		 * truncation is the only possibility where data can be deleted.

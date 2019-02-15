@@ -309,9 +309,6 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			final StorageEntity.Implementation last
 		)
 		{
-			// increase content length by length of chain
-			this.increaseContentLength(last.storagePosition - first.storagePosition + last.length);
-
 			// enqueue whole chain
 			(this.tail.filePrev.fileNext = first).filePrev = this.tail.filePrev;
 			(this.tail.filePrev          = last ).fileNext = this.tail;

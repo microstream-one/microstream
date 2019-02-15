@@ -96,7 +96,7 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 
 		@Override
-		public void truncate(final StorageLockedFile file, final long newLength)
+		public void truncate(final StorageLockedChannelFile file, final long newLength)
 		{
 			this.fileWriter.truncate(file, newLength);
 		}
