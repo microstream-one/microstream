@@ -34,6 +34,8 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	// methods //
 	////////////
 	
+	// (15.02.2019 TM)FIXME: JET-55: must ensure consistent user in- and decrementing in all methods
+	
 	@Override
 	public final long writeStore(final StorageDataFile<?> targetFile, final ByteBuffer[] byteBuffers)
 	{
@@ -91,6 +93,29 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	}
 	
 	@Override
+	public final long writeTransactionEntryCreate(
+		final StorageLockedChannelFile transactionFile,
+		final ByteBuffer[]             byteBuffers    ,
+		final StorageDataFile<?>       dataFile
+	)
+	{
+		final long oldLength = transactionFile.length();
+		final long byteCount = this.delegate.writeTransactionEntryCreate(
+			transactionFile,
+			byteBuffers    ,
+			dataFile
+		);
+		
+		// every item increases the user count, even if its the same file multiple times.
+		transactionFile.incrementUserCount();
+		
+		// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
+		this.itemEnqueuer.enqueueCopyingItem(transactionFile, oldLength, byteCount, null);
+		
+		return byteCount;
+	}
+	
+	@Override
 	public final long writeTransactionEntryStore(
 		final StorageLockedChannelFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
@@ -127,7 +152,13 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	)
 	{
 		final long oldLength = transactionFile.length();
-		final long byteCount = this.delegate.writeTransactionEntryTransfer(transactionFile, byteBuffers, dataFile, dataFileOffset, storeLength);
+		final long byteCount = this.delegate.writeTransactionEntryTransfer(
+			transactionFile,
+			byteBuffers    ,
+			dataFile       ,
+			dataFileOffset ,
+			storeLength
+		);
 		
 		// every item increases the user count, even if its the same file multiple times.
 		transactionFile.incrementUserCount();
@@ -146,26 +177,7 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	)
 	{
 		final long oldLength = transactionFile.length();
-		final long byteCount = this.delegate.writeTransactionEntryDelete(transactionFile, byteBuffers, dataFile);
-		
-		// every item increases the user count, even if its the same file multiple times.
-		transactionFile.incrementUserCount();
-		
-		// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
-		this.itemEnqueuer.enqueueCopyingItem(transactionFile, oldLength, byteCount, null);
-		
-		return byteCount;
-	}
-	
-	@Override
-	public final long writeTransactionEntryCreate(
-		final StorageLockedChannelFile transactionFile,
-		final ByteBuffer[]             byteBuffers    ,
-		final StorageDataFile<?>       dataFile
-	)
-	{
-		final long oldLength = transactionFile.length();
-		final long byteCount = this.delegate.writeTransactionEntryCreate(
+		final long byteCount = this.delegate.writeTransactionEntryDelete(
 			transactionFile,
 			byteBuffers    ,
 			dataFile
@@ -179,9 +191,34 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 		
 		return byteCount;
 	}
+	
+	@Override
+	public final long writeTransactionEntryTruncate(
+		final StorageLockedChannelFile transactionFile,
+		final ByteBuffer[]             byteBuffers    ,
+		final StorageInventoryFile     file           ,
+		final long                     newFileLength
+	)
+	{
+		final long oldLength = transactionFile.length();
+		final long byteCount = this.delegate.writeTransactionEntryTruncate(
+			transactionFile,
+			byteBuffers    ,
+			file           ,
+			newFileLength
+		);
+		
+		// every item increases the user count, even if its the same file multiple times.
+		transactionFile.incrementUserCount();
+		
+		// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
+		this.itemEnqueuer.enqueueCopyingItem(transactionFile, oldLength, byteCount, null);
+		
+		return byteCount;
+	}
 
 	@Override
-	public final void truncate(final StorageLockedFile file, final long newLength)
+	public final void truncate(final StorageLockedChannelFile file, final long newLength)
 	{
 		this.delegate.truncate(file, newLength);
 		this.itemEnqueuer.enqueueTruncatingItem(file, newLength);

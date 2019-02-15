@@ -176,6 +176,9 @@ public interface StorageTaskBroker
 
 		private StorageTask enqueueTask(final StorageTask nextTask, final StorageTask newHeadTask)
 		{
+			/* (15.02.2019 TM)FIXME: That single-head queue is dangerous. Probably the source for some hangups.
+			 * Just build a proper queue with head and tail, ffs.
+			 */
 			final StorageTask currentHead;
 			(currentHead = this.currentHead).setNext(nextTask);
 			this.currentHead = newHeadTask;

@@ -454,7 +454,7 @@ public interface StorageFileManager
 	//		DEBUGStorage.println("Updating target file " + targetFile + " for content length " + transferLength);
 			headFile.addChainToTail(first, last);
 	//		DEBUGStorage.println("Updated target file: " + targetFile);
-
+			
 	//		DEBUGStorage.println(this.channelIndex + " transfering bytes, new length " + headFile.totalLength());
 
 			this.appendBytesToHeadFile(sourceFile, copyStart, copyLength);
@@ -476,10 +476,21 @@ public interface StorageFileManager
 //				this.channelIndex + " transerring " + copyLength + " bytes from position " + copyStart
 //				+ " from " + sourceFile + " to " + targetFile
 //			);
+			
+			final StorageDataFile.Implementation headFile = this.headFile;
 
-			// do the actual file-level copying in one go at the end and validate the byte count to be sure //
-			this.writer.writeTransfer(sourceFile, copyStart, copyLength, this.headFile);
+			// do the actual file-level copying in one go at the end and validate the byte count to be sure
+			this.writer.writeTransfer(sourceFile, copyStart, copyLength, headFile);
 
+			// increase content length by length of chain
+			// (15.02.2019 TM)NOTE: changed from arithmetic inside #addChainToTail to directly using copyLength in here.
+			headFile.increaseContentLength(copyLength);
+//			headFile.increaseContentLength(last.storagePosition - first.storagePosition + last.length);
+			
+			final long newHeadFileLength = headFile.totalLength();
+			final long timestamp         = this.timestampProvider.currentNanoTimestamp();
+			this.writeTransactionsEntryTransfer(sourceFile, copyStart, copyLength, timestamp, newHeadFileLength);
+			
 			/*
 			 * Note:
 			 * It can happen that a transfer is written completely but the process terminates right before the
@@ -492,14 +503,6 @@ public interface StorageFileManager
 			 * and gets registered as live data on the next initialization (and probably gets transferred then
 			 * once again).
 			 */
-
-			this.writeTransactionsEntryTransfer(
-				sourceFile,
-				this.headFile.totalLength(),
-				this.timestampProvider.currentNanoTimestamp(),
-				copyStart,
-				copyLength
-			);
 		}
 
 	
@@ -1088,10 +1091,10 @@ public interface StorageFileManager
 
 		private void writeTransactionsEntryTransfer(
 			final StorageDataFile<?> sourceFile            ,
-			final long               headNewFileTotalLength,
-			final long               timestamp             ,
 			final long               sourcefileOffset      ,
-			final long               copyLength
+			final long               copyLength            ,
+			final long               timestamp             ,
+			final long               headNewFileTotalLength
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " writing transfer entry "
@@ -1134,10 +1137,9 @@ public interface StorageFileManager
 		}
 
 		private void writeTransactionsEntryFileTruncation(
-			final long newLength,
-			final long timestamp,
-			final long number   ,
-			final long oldLength
+			final StorageInventoryFile lastFile ,
+			final long                 timestamp,
+			final long                 newLength
 		)
 		{
 			this.entryBufferFileTruncation[0].clear();
@@ -1145,10 +1147,10 @@ public interface StorageFileManager
 				this.entryBufferFileTruncationAddress,
 				newLength                            ,
 				timestamp                            ,
-				number                               ,
-				oldLength
+				lastFile.number()                    ,
+				lastFile.length()
 			);
-			this.writer.write(this.fileTransactions, this.entryBufferFileTruncation);
+			this.writer.writeTransactionEntryTruncate(this.fileTransactions, this.entryBufferFileTruncation, lastFile, newLength);
 		}
 
 		private void setTransactionsFile(final StorageLockedChannelFile transactionsFile)
@@ -1180,13 +1182,10 @@ public interface StorageFileManager
 //				DEBUGStorage.println(this.channelIndex + " truncating last file to " + lastFileLength + " " + lastFile);
 				// reaching here means in any case that the file has to be truncated and its header must be updated
 
+				final long timestamp = this.timestampProvider.currentNanoTimestamp();
+				
 				// write truncation entry (BEFORE the actual truncate)
-				this.writeTransactionsEntryFileTruncation(
-					lastFileLength                               ,
-					this.timestampProvider.currentNanoTimestamp(),
-					lastFile.number()                            ,
-					lastFile.length()
-				);
+				this.writeTransactionsEntryFileTruncation(lastFile, timestamp, lastFileLength);
 
 				// (20.06.2014 TM)TODO: truncator function to give a chance to evaluate / rescue the doomed data
 				this.writer.truncate(lastFile, lastFileLength);
@@ -1472,7 +1471,10 @@ public interface StorageFileManager
 			this.writer.delete(file);
 		}
 
-		private boolean incrementalTransferEntities(final StorageDataFile.Implementation file, final long nanoTimeBudgetBound)
+		private boolean incrementalTransferEntities(
+			final StorageDataFile.Implementation file               ,
+			final long                           nanoTimeBudgetBound
+		)
 		{
 			// check for new head file in any case
 			this.checkForNewFile();

@@ -140,6 +140,15 @@ public interface StorageFileWriter
 		return this.copy(sourceFile, sourceOffset, length, targetfile);
 	}
 	
+	public default long writeTransactionEntryCreate(
+		final StorageLockedChannelFile transactionFile,
+		final ByteBuffer[]             byteBuffers    ,
+		final StorageDataFile<?>       dataFile
+	)
+	{
+		return this.write(transactionFile, byteBuffers);
+	}
+	
 	public default long writeTransactionEntryStore(
 		final StorageLockedChannelFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
@@ -171,16 +180,17 @@ public interface StorageFileWriter
 		return this.write(transactionFile, byteBuffers);
 	}
 	
-	public default long writeTransactionEntryCreate(
+	public default long writeTransactionEntryTruncate(
 		final StorageLockedChannelFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
-		final StorageDataFile<?>       dataFile
+		final StorageInventoryFile     file           ,
+		final long                     newFileLength
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 
-	public default void truncate(final StorageLockedFile file, final long newLength)
+	public default void truncate(final StorageLockedChannelFile file, final long newLength)
 	{
 //		DEBUGStorage.println("storage file truncation");
 
