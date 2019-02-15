@@ -81,12 +81,12 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		@Override
 		public long copy(
 			final StorageFile       sourceFile  ,
-			final StorageLockedFile targetfile  ,
 			final long              sourceOffset,
-			final long              length
+			final long              length      ,
+			final StorageLockedFile targetfile
 		)
 		{
-			return this.fileWriter.copy(sourceFile, targetfile, sourceOffset, length);
+			return this.fileWriter.copy(sourceFile, sourceOffset, length, targetfile);
 		}
 
 		@Override

@@ -478,9 +478,7 @@ public interface StorageFileManager
 //			);
 
 			// do the actual file-level copying in one go at the end and validate the byte count to be sure //
-			final long writeCount = this.writer.writeTransfer(sourceFile, this.headFile, copyStart, copyLength);
-
-			this.validateTransferLength(copyLength, writeCount);
+			this.writer.writeTransfer(sourceFile, copyStart, copyLength, this.headFile);
 
 			/*
 			 * Note:
@@ -504,18 +502,7 @@ public interface StorageFileManager
 			);
 		}
 
-		final void validateTransferLength(final long desiredLength, final long actualLength)
-		{
-			if(desiredLength == actualLength)
-			{
-				return; // validation successful
-			}
-
-			// (28.06.2013 TM)EXCP: proper exception
-			throw new RuntimeException(
-				this + " Incomplete file channel transfer: " + actualLength + " != " + desiredLength
-			);
-		}
+	
 
 		private void createNewStorageFile(final long fileNumber)
 		{
@@ -1577,8 +1564,8 @@ public interface StorageFileManager
 			}
 
 			this.checkForNewFile();
-//			DEBUGStorage.println(this.channelIndex + " copying batch from source @" + position + "[" + length + "] to file #" + this.headFile.number());
-			this.writer.copy(file, this.headFile, position, length);
+//			DEBUGStorage.println(this.channelIndex + " importing batch from source @" + position + "[" + length + "] to file #" + this.headFile.number());
+			this.writer.writeImport(file, position, length, this.headFile);
 		}
 
 		final void rollbackImport()
