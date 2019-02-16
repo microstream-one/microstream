@@ -567,9 +567,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 		@Override
 		public final StorageIdAnalysis initializeStorage(
-			final long                  taskTimestamp           ,
-			final long                  consistentStoreTimestamp,
-			final StorageInventory      storageInventory
+			final long             taskTimestamp           ,
+			final long             consistentStoreTimestamp,
+			final StorageInventory storageInventory
 		)
 		{
 			return this.fileManager.initializeStorage(
