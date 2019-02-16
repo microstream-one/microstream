@@ -1,6 +1,5 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
-\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
 \b0\par
 2019-02-13\par
 \par
@@ -117,5 +116,12 @@ Hm. Oder eigentlich muss man bei einem Import das Quellfile gar nicht \'fcbergeb
 Auf jeden Fall ist das Quellfile f\'fcr die Backup-Kopieraktion IMMER ein ChannelFile. Das w\'fcrde passen. Mal so umbauen.\par
 \par
 \par
+\par
+2019-02-16\par
+\par
+Initialisierungsmethode bauen.\par
+Hm. F\'fcr die Initialisierung brauch ich sowieso eine Inventar-Map. Dann kann ich die gleich mitpflegen und damit die st\'e4ndigen (teuren) File Instanzierungen sparen.\par
+Also Inventarmethode bauen. Bzw. erst mal in Storage Initialisierung reinschauen, weil die dort auch schon drin sein muss.\par
+Hm. Und dann k\'f6nnt ich gleich eine Channel-Verwaltungsklasse bauen, bevor ich tausend sachen in einzelnen redundanten Channel-Arrays halte.\par
 }
  
