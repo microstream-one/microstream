@@ -2,8 +2,12 @@ package net.jadoth.storage.types;
 
 import java.io.File;
 
+import net.jadoth.collections.types.XGettingEnum;
+
 public interface StorageBackupHandler
 {
+	public void initialize(XGettingEnum<? extends StorageDataFile<?>> storageFiles);
+	
 	public void copyFile(
 		StorageLockedChannelFile sourceFile    ,
 		long                     sourcePosition,
@@ -87,6 +91,21 @@ public interface StorageBackupHandler
 			 * But is the slight performance gain worth the permanent memory occupation?
 			 */
 			return new File(this.channelTargetDirectories[sourceFile.channelIndex()], sourceFile.name());
+		}
+		
+		@Override
+		public void initialize(final XGettingEnum<? extends StorageDataFile<?>> storageFiles)
+		{
+			for(final StorageDataFile<?> storageFile : storageFiles)
+			{
+				final File backupTargetFile = this.resolveTargetFile(storageFile);
+				/* (16.02.2019 TM)FIXME: JET-55: check backup file
+				 * - existence
+				 * - length
+				 * - inconsistency in any non-last file is an error.
+				 * - inconsistency in last file gets compensated.
+				 */
+			}
 		}
 		
 		@Override
