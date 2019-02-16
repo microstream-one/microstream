@@ -13,7 +13,7 @@ import net.jadoth.files.XFiles;
 
 public interface StorageFileProvider
 {
-	public StorageInventoryFile     provideStorageFile(int channelIndex, long fileNumber);
+	public StorageInventoryFile provideStorageFile(int channelIndex, long fileNumber);
 
 	public StorageLockedChannelFile provideTransactionsFile(int channelIndex);
 
@@ -25,10 +25,10 @@ public interface StorageFileProvider
 	{
 		public static final void collectFile(
 			final Consumer<StorageInventoryFile> collector       ,
-			final int                             channelIndex    ,
-			final File                            storageDirectory,
-			final String                          fileBaseName    ,
-			final String                          dotSuffix
+			final int                            channelIndex    ,
+			final File                           storageDirectory,
+			final String                         fileBaseName    ,
+			final String                         dotSuffix
 		)
 		{
 			final File[] files = storageDirectory.listFiles();
@@ -45,10 +45,10 @@ public interface StorageFileProvider
 
 		private static final void internalCollectFile(
 			final Consumer<StorageInventoryFile> collector   ,
-			final int                             hashIndex   ,
-			final File                            file        ,
-			final String                          fileBaseName,
-			final String                          dotSuffix
+			final int                            hashIndex   ,
+			final File                           file        ,
+			final String                         fileBaseName,
+			final String                         dotSuffix
 		)
 		{
 			if(file.isDirectory())
