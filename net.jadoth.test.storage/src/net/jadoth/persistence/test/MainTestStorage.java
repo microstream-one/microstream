@@ -36,7 +36,6 @@ public class MainTestStorage extends TestStorage
 //		STORAGE.createConnection().storeFull(ROOT);
 
 		testBig2();
-//		testTruncate();
 //		testBigGraph();
 //		testExport();
 //		testCleanUp();
@@ -45,11 +44,6 @@ public class MainTestStorage extends TestStorage
 		System.exit(0);
 	}
 
-
-	static void testTruncate()
-	{
-		STORAGE.truncateData();
-	}
 
 
 	static void testBigGraph()

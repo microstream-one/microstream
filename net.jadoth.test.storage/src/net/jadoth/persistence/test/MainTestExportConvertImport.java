@@ -37,7 +37,7 @@ public class MainTestExportConvertImport extends TestStorage
 			XFunc.all()
 		);
 
-		STORAGE.truncateData();
+//		STORAGE.truncateData();
 		storageConnection.importFiles(EqHashEnum.New(bin2Dir.listFiles()));
 //		storageConnection.importFiles(EqHashEnum.New(new File("C:/Files/export/bin2/net.jadoth.persistence.types.PersistenceRoots$Implementation.dat")));
 
