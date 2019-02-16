@@ -2,6 +2,8 @@ package net.jadoth.storage.types;
 
 import java.io.File;
 
+import net.jadoth.X;
+import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
 
 public interface StorageBackupHandler
@@ -35,15 +37,17 @@ public interface StorageBackupHandler
 	public void setRunning(boolean running);
 	
 	
+	
 	public final class Implementation implements StorageBackupHandler, Runnable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final File[]                 channelTargetDirectories;
-		private final StorageBackupItemQueue itemQueue               ;
-		private       boolean                running                 ;
+		private final StorageFileProvider    backupFileProvider;
+		private final ChannelInventory[]     channelInventories;
+		private final StorageBackupItemQueue itemQueue         ;
+		private       boolean                running           ;
 		
 		/* (15.02.2019 TM)FIXME: JET-55: Backup Thread exception handling
 		 * Can't just throw exceptions since they would simply terminate the backup thread
@@ -58,13 +62,17 @@ public interface StorageBackupHandler
 		/////////////////
 		
 		Implementation(
-			final File[]                 channelTargetDirectories,
+			final int                    channelCount      ,
+			final StorageFileProvider    backupFileProvider,
 			final StorageBackupItemQueue itemQueue
 		)
 		{
 			super();
-			this.channelTargetDirectories = channelTargetDirectories;
-			this.itemQueue                = itemQueue               ;
+			this.backupFileProvider = backupFileProvider;
+			this.itemQueue          = itemQueue         ;
+			this.channelInventories = X.Array(ChannelInventory.class, channelCount, () ->
+				new ChannelInventory(channelCount, backupFileProvider)
+			);
 		}
 
 		
@@ -90,7 +98,7 @@ public interface StorageBackupHandler
 			/* (15.02.2019 TM)TODO: File instantiation is rather costly (see inside). Internal mapping instead?
 			 * But is the slight performance gain worth the permanent memory occupation?
 			 */
-			return new File(this.channelTargetDirectories[sourceFile.channelIndex()], sourceFile.name());
+			return this.channelInventories[sourceFile.channelIndex()].ensureBackupFile(sourceFile);
 		}
 		
 		@Override
@@ -146,6 +154,49 @@ public interface StorageBackupHandler
 					this.stop();
 				}
 			}
+		}
+		
+		static final class ChannelInventory implements StorageHashChannelPart
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private final int                                  channelIndex      ;
+			private final StorageFileProvider                  backupFileProvider;
+			private final EqHashTable<Long, StorageBackupFile> inventory          = EqHashTable.New();
+			private final StorageBackupFile                    transactionFile;
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			ChannelInventory(final int channelIndex, final StorageFileProvider backupFileProvider)
+			{
+				super();
+				this.channelIndex       = channelIndex;
+				this.backupFileProvider = backupFileProvider;
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
+			@Override
+			public final int channelIndex()
+			{
+				return this.channelIndex;
+			}
+			
+			final StorageBackupFile ensureBackupFile(final StorageDataFile<?> dataFile)
+			{
+				
+			}
+			
 		}
 		
 	}

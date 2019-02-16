@@ -3,11 +3,8 @@ package net.jadoth.storage.types;
 import java.io.File;
 import java.nio.channels.FileLock;
 
-public interface StorageInventoryFile extends StorageLockedChannelFile
+public interface StorageInventoryFile extends StorageLockedChannelFile, StorageNumberedFile
 {
-	public long number();
-
-
 	public static int orderByNumber(final StorageInventoryFile file1, final StorageInventoryFile file2)
 	{
 		return Long.compare(file1.number(), file2.number());
