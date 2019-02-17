@@ -3,8 +3,6 @@ package net.jadoth.storage.types;
 import static net.jadoth.X.notNull;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
@@ -115,29 +113,6 @@ public interface StorageFileProvider
 	public final class Implementation implements StorageFileProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-
-		static final FileLock openFileChannel(final File file)
-		{
-//			DEBUGStorage.println("Thread " + Thread.currentThread().getName() + " opening channel for " + file);
-			FileChannel channel = null;
-			try
-			{
-				final FileLock fileLock = StorageLockedFile.openFileChannel(file);
-				channel = fileLock.channel();
-				channel.position(channel.size());
-				return fileLock;
-			}
-			catch(final IOException e)
-			{
-				XFiles.closeSilent(channel);
-				throw new RuntimeException(e); // (04.05.2013)EXCP: proper exception
-			}
-		}
-
-
-		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
 
@@ -219,7 +194,7 @@ public interface StorageFileProvider
 				this.provideChannelDirectory(channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber) + this.dotFileSuffix()
 			);
-			return new StorageInventoryFile.Implementation(channelIndex, file, openFileChannel(file), fileNumber);
+			return new StorageInventoryFile.Implementation(channelIndex, file, openLockedFileChannel(file), fileNumber);
 		}
 
 		@Override
@@ -229,7 +204,7 @@ public interface StorageFileProvider
 				this.provideChannelDirectory(channelIndex),
 				this.transactionsFileBaseName + channelIndex + '.' + this.transactionsFileSuffix
 			);
-			return StorageLockedChannelFile.New(channelIndex, file, openFileChannel(file));
+			return StorageLockedChannelFile.New(channelIndex, file);
 		}
 
 		@Override
