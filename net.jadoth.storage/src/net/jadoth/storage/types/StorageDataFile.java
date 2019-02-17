@@ -8,7 +8,7 @@ import net.jadoth.storage.exceptions.StorageException;
 
 
 
-public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends StorageLockedChannelFile
+public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends StorageInventoryFile
 {
 	public void enqueueEntry(I entry);
 
@@ -21,9 +21,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 	public long dataLength();
 
 	public double dataFillRatio();
-
-	public long number();
-
+	
 	public long exportTo(StorageLockedFile file);
 
 	public long exportTo(StorageLockedFile file, long sourceOffset, long length);

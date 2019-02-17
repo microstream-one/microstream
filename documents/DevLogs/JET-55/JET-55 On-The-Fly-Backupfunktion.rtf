@@ -144,5 +144,14 @@ Ersteres w\'e4r mir lieber, mal recherchieren ...\par
 Das extern wrappen nicht, weil der provider direkt die FileTyp-Instanz zur\'fcckgibt, die gebraucht wird.\par
 Aber ich kann eine Implementierung ohne Lock machen, die dann mit einer lock() Methode eine Instanz einer Implementierung mit Lock zur\'fcckgibt.\par
 So gehts!\par
+\par
+\par
+Durch ein paar Umstrukturierungen ist StorageInventoryFile jetzt das gleiche wie StorageLockedChannelFile nur mit einem anderen Namen.\par
+Und der andere Name st\'f6rt bei den Methodensignaturen.\par
+Also muss ich das noch konsolidieren.\par
+\par
+So. Jetzt sieht das alles schon recht ordentlich aus. Noch ein paar TODOs in den neuen Backup-Klassen, und dann gehts an die eigentliche Backup-Logik.\par
+\par
+\par
 }
  

@@ -1,8 +1,6 @@
 package net.jadoth.storage.types;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 
 
 /**
@@ -45,7 +43,6 @@ public interface StorageFile
 	 * Why should they have to be?
 	 */
 	
-	public FileChannel channel();
 	
 	/**
 	 * Returns a string that give {@link #name()} a unique meaning.
@@ -73,17 +70,7 @@ public interface StorageFile
 	 */
 	public String name();
 	
-	public default long length()
-	{
-		try
-		{
-			return this.channel().size();
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // (08.12.2014)EXCP: proper exception
-		}
-	}
+	public long length();
 	
 	public default boolean isEmpty()
 	{
@@ -93,52 +80,5 @@ public interface StorageFile
 	public boolean delete();
 	
 	public boolean exists();
-	
-	public default boolean isOpen()
-	{
-		return this.channel().isOpen();
-	}
-	
-	public default StorageFile flush()
-	{
-		try
-		{
-			this.channel().force(false);
-			return this;
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // damn checked exception
-		}
-	}
-	
-	public default void close()
-	{
-		try
-		{
-			this.channel().close();
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // damn checked exception
-		}
-	}
-	
-	
-	public static void closeSilent(final StorageFile file)
-	{
-		if(file == null)
-		{
-			return;
-		}
-		try
-		{
-			file.close();
-		}
-		catch(final Exception t)
-		{
-			// sshhh, silence!
-		}
-	}
 
 }

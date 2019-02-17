@@ -22,27 +22,27 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 
 		@Override
 		public final void enqueueCopyingItem(
-			final StorageLockedChannelFile sourceFile    ,
+			final StorageInventoryFile sourceFile    ,
 			final long                     sourcePosition,
 			final long                     length        ,
-			final StorageLockedChannelFile targetFile
+			final StorageInventoryFile targetFile
 		)
 		{
 			this.internalEnqueueItem(sourceFile, sourcePosition, length, targetFile);
 		}
 
 		@Override
-		public final void enqueueTruncatingItem(final StorageLockedChannelFile file, final long newLength)
+		public final void enqueueTruncatingItem(final StorageInventoryFile file, final long newLength)
 		{
 			// signalling with a null sourceFile is a hack to avoid the complexity of multiple Item classes
 			this.internalEnqueueItem(null, 0, newLength, file);
 		}
 		
 		private void internalEnqueueItem(
-			final StorageLockedChannelFile sourceFile    ,
+			final StorageInventoryFile sourceFile    ,
 			final long                     sourcePosition,
 			final long                     length        ,
-			final StorageLockedChannelFile targetFile
+			final StorageInventoryFile targetFile
 		)
 		{
 			synchronized(this.head)
@@ -80,10 +80,10 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 			// instance fields //
 			////////////////////
 			
-			final StorageLockedChannelFile sourceFile    ;
+			final StorageInventoryFile sourceFile    ;
 			final long                     sourcePosition;
 			final long                     length        ;
-			final StorageLockedChannelFile targetFile    ;
+			final StorageInventoryFile targetFile    ;
 
 			Item next;
 
@@ -94,10 +94,10 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 			/////////////////
 			
 			Item(
-				final StorageLockedChannelFile sourceFile    ,
+				final StorageInventoryFile sourceFile    ,
 				final long                     sourcePosition,
 				final long                     length        ,
-				final StorageLockedChannelFile targetFile
+				final StorageInventoryFile targetFile
 			)
 			{
 				super();

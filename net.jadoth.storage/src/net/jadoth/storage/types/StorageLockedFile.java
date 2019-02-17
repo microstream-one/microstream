@@ -13,8 +13,68 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 {
 	// can't implement AutoCloseable because the naive resource warnings are idiotic.
 	
-	@Override
 	public FileChannel channel();
+	
+	@Override
+	public default long length()
+	{
+		try
+		{
+			return this.channel().size();
+		}
+		catch(final IOException e)
+		{
+			throw new RuntimeException(e); // (08.12.2014)EXCP: proper exception
+		}
+	}
+
+	public default boolean isOpen()
+	{
+		return this.channel().isOpen();
+	}
+	
+	public default StorageFile flush()
+	{
+		try
+		{
+			this.channel().force(false);
+			return this;
+		}
+		catch(final IOException e)
+		{
+			throw new RuntimeException(e); // damn checked exception
+		}
+	}
+
+	public default void close()
+	{
+		try
+		{
+			this.channel().close();
+		}
+		catch(final IOException e)
+		{
+			throw new RuntimeException(e); // damn checked exception
+		}
+	}
+	
+	
+	public static void closeSilent(final StorageLockedFile file)
+	{
+		if(file == null)
+		{
+			return;
+		}
+		
+		try
+		{
+			file.close();
+		}
+		catch(final Exception t)
+		{
+			// sshhh, silence!
+		}
+	}
 	
 
 

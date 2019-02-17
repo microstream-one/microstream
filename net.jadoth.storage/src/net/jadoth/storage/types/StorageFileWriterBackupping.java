@@ -53,7 +53,7 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	
 	@Override
 	public final long writeImport(
-		final StorageFile        sourceFile  ,
+		final StorageLockedFile  sourceFile  ,
 		final long               sourceOffset,
 		final long               length      ,
 		final StorageDataFile<?> targetFile
@@ -94,7 +94,7 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	
 	@Override
 	public final long writeTransactionEntryCreate(
-		final StorageLockedChannelFile transactionFile,
+		final StorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final StorageDataFile<?>       dataFile
 	)
@@ -117,7 +117,7 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	
 	@Override
 	public final long writeTransactionEntryStore(
-		final StorageLockedChannelFile transactionFile,
+		final StorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final StorageDataFile<?>       dataFile       ,
 		final long                     dataFileOffset ,
@@ -144,7 +144,7 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	
 	@Override
 	public final long writeTransactionEntryTransfer(
-		final StorageLockedChannelFile transactionFile,
+		final StorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final StorageDataFile<?>       dataFile       ,
 		final long                     dataFileOffset ,
@@ -171,7 +171,7 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	
 	@Override
 	public final long writeTransactionEntryDelete(
-		final StorageLockedChannelFile transactionFile,
+		final StorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final StorageDataFile<?>       dataFile
 	)
@@ -194,7 +194,7 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	
 	@Override
 	public final long writeTransactionEntryTruncate(
-		final StorageLockedChannelFile transactionFile,
+		final StorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final StorageInventoryFile     file           ,
 		final long                     newFileLength
@@ -218,7 +218,7 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	}
 
 	@Override
-	public final void truncate(final StorageLockedChannelFile file, final long newLength)
+	public final void truncate(final StorageInventoryFile file, final long newLength)
 	{
 		this.delegate.truncate(file, newLength);
 		this.itemEnqueuer.enqueueTruncatingItem(file, newLength);

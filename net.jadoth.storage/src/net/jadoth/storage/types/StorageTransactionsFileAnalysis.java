@@ -27,7 +27,7 @@ public interface StorageTransactionsFileAnalysis
 
 	public long headFileLatestTimestamp();
 
-	public StorageLockedChannelFile transactionsFile();
+	public StorageInventoryFile transactionsFile();
 
 	public XGettingTable<Long, ? extends StorageTransactionFile> transactionsFileEntries();
 
@@ -873,7 +873,7 @@ public interface StorageTransactionsFileAnalysis
 			return true;
 		}
 
-		final StorageTransactionsFileAnalysis yield(final StorageLockedChannelFile transactionsFile)
+		final StorageTransactionsFileAnalysis yield(final StorageInventoryFile transactionsFile)
 		{
 			// register latest file
 			this.registerCurrentFile();
@@ -896,7 +896,7 @@ public interface StorageTransactionsFileAnalysis
 
 	public final class Implementation implements StorageTransactionsFileAnalysis
 	{
-		private final StorageLockedChannelFile                              transactionsFile                    ;
+		private final StorageInventoryFile                              transactionsFile                    ;
 		private final XGettingTable<Long, ? extends StorageTransactionFile> transactionsFileEntries             ;
 		private final long                                                  headFileLastConsistentStoreLength   ;
 		private final long                                                  headFileLastConsistentStoreTimestamp;
@@ -906,7 +906,7 @@ public interface StorageTransactionsFileAnalysis
 
 
 		Implementation(
-			final StorageLockedChannelFile                              transactionsFile                    ,
+			final StorageInventoryFile                              transactionsFile                    ,
 			final XGettingTable<Long, ? extends StorageTransactionFile> transactionsFileEntries             ,
 			final long                                                  headFileLastConsistentStoreLength   ,
 			final long                                                  headFileLastConsistentStoreTimestamp,
@@ -930,7 +930,7 @@ public interface StorageTransactionsFileAnalysis
 		////////////
 
 		@Override
-		public final StorageLockedChannelFile transactionsFile()
+		public final StorageInventoryFile transactionsFile()
 		{
 			return this.transactionsFile;
 		}

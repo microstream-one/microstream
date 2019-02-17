@@ -3,7 +3,6 @@ package net.jadoth.storage.types;
 import static net.jadoth.X.notNull;
 
 import java.io.File;
-import java.nio.channels.FileLock;
 import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
@@ -11,9 +10,9 @@ import net.jadoth.files.XFiles;
 
 public interface StorageFileProvider
 {
-	public StorageInventoryFile provideStorageFile(int channelIndex, long fileNumber);
+	public StorageNumberedFile provideStorageFile(int channelIndex, long fileNumber);
 
-	public StorageLockedChannelFile provideTransactionsFile(int channelIndex);
+	public StorageNumberedFile provideTransactionsFile(int channelIndex);
 
 	public <P extends Consumer<StorageInventoryFile>> P collectStorageFiles(P collector, int channelIndex);
 
@@ -94,10 +93,8 @@ public interface StorageFileProvider
 				return; // not a strictly validly named file, ignore intentionally despite all previous matches.
 			}
 
-			final FileLock lock = StorageLockedFile.openFileChannel(file);
-
 			// strictly validly named file, collect.
-			collector.accept(new StorageInventoryFile.Implementation(hashIndex, file, lock, fileNumber));
+			collector.accept(StorageInventoryFile.New(hashIndex, fileNumber, file));
 		}
 
 
@@ -188,23 +185,25 @@ public interface StorageFileProvider
 		////////////
 
 		@Override
-		public final StorageInventoryFile provideStorageFile(final int channelIndex, final long fileNumber)
+		public final StorageNumberedFile provideStorageFile(final int channelIndex, final long fileNumber)
 		{
 			final File file = new File(
 				this.provideChannelDirectory(channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber) + this.dotFileSuffix()
 			);
-			return new StorageInventoryFile.Implementation(channelIndex, file, openLockedFileChannel(file), fileNumber);
+			
+			return StorageNumberedFile.New(channelIndex, fileNumber, file);
 		}
 
 		@Override
-		public StorageLockedChannelFile provideTransactionsFile(final int channelIndex)
+		public StorageNumberedFile provideTransactionsFile(final int channelIndex)
 		{
 			final File file = new File(
 				this.provideChannelDirectory(channelIndex),
 				this.transactionsFileBaseName + channelIndex + '.' + this.transactionsFileSuffix
 			);
-			return StorageLockedChannelFile.New(channelIndex, file);
+
+			return StorageNumberedFile.New(channelIndex, 0L, file);
 		}
 
 		@Override

@@ -9,15 +9,22 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 {
 	public default StorageInventoryFile copyData(final StorageDataFile<?> dataFile)
 	{
-		final StorageInventoryFile targetFile = this.provideStorageFile(dataFile.channelIndex(), dataFile.number());
+		final StorageInventoryFile targetFile = this.provideStorageFile(
+			dataFile.channelIndex(),
+			dataFile.number()
+		).inventorize();
 		this.copy(dataFile, targetFile);
+		
 		return targetFile;
 	}
 
-	public default StorageLockedChannelFile copyTransactions(final StorageLockedChannelFile transactionsFile)
+	public default StorageInventoryFile copyTransactions(final StorageInventoryFile transactionsFile)
 	{
-		final StorageLockedChannelFile targetFile = this.provideTransactionsFile(transactionsFile.channelIndex());
+		final StorageInventoryFile targetFile = this.provideTransactionsFile(
+			transactionsFile.channelIndex()
+		).inventorize();
 		this.copy(transactionsFile, targetFile);
+		
 		return targetFile;
 	}
 
@@ -52,13 +59,13 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		////////////
 
 		@Override
-		public StorageInventoryFile provideStorageFile(final int channelIndex, final long fileNumber)
+		public StorageNumberedFile provideStorageFile(final int channelIndex, final long fileNumber)
 		{
 			return this.fileProvider.provideStorageFile(channelIndex, fileNumber);
 		}
 
 		@Override
-		public StorageLockedChannelFile provideTransactionsFile(final int channelIndex)
+		public StorageNumberedFile provideTransactionsFile(final int channelIndex)
 		{
 			return this.fileProvider.provideTransactionsFile(channelIndex);
 		}
@@ -80,7 +87,7 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 
 		@Override
 		public long copy(
-			final StorageFile       sourceFile  ,
+			final StorageLockedFile sourceFile  ,
 			final long              sourceOffset,
 			final long              length      ,
 			final StorageLockedFile targetfile
@@ -96,13 +103,13 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 
 		@Override
-		public void truncate(final StorageLockedChannelFile file, final long newLength)
+		public void truncate(final StorageInventoryFile file, final long newLength)
 		{
 			this.fileWriter.truncate(file, newLength);
 		}
 
 		@Override
-		public void delete(final StorageLockedChannelFile file)
+		public void delete(final StorageInventoryFile file)
 		{
 			this.fileWriter.delete(file);
 		}
