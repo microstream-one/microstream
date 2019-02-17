@@ -74,7 +74,7 @@ public interface StorageFileWriter
 	}
 
 	public default long copy(
-		final StorageFile       sourceFile,
+		final StorageLockedFile sourceFile,
 		final StorageLockedFile targetfile
 	)
 	{
@@ -82,7 +82,7 @@ public interface StorageFileWriter
 	}
 
 	public default long copy(
-		final StorageFile       sourceFile  ,
+		final StorageLockedFile sourceFile  ,
 		final long              sourceOffset,
 		final long              length      ,
 		final StorageLockedFile targetfile
@@ -121,7 +121,7 @@ public interface StorageFileWriter
 	 * @return
 	 */
 	public default long writeImport(
-		final StorageFile        sourceFile  ,
+		final StorageLockedFile  sourceFile  ,
 		final long               sourceOffset,
 		final long               length      ,
 		final StorageDataFile<?> targetfile
@@ -141,7 +141,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryCreate(
-		final StorageLockedChannelFile transactionFile,
+		final StorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final StorageDataFile<?>       dataFile
 	)
@@ -150,7 +150,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryStore(
-		final StorageLockedChannelFile transactionFile,
+		final StorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final StorageDataFile<?>       dataFile       ,
 		final long                     dataFileOffset ,
@@ -161,7 +161,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryTransfer(
-		final StorageLockedChannelFile transactionFile,
+		final StorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final StorageDataFile<?>       dataFile       ,
 		final long                     dataFileOffset ,
@@ -172,7 +172,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryDelete(
-		final StorageLockedChannelFile transactionFile,
+		final StorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final StorageDataFile<?>       dataFile
 	)
@@ -181,7 +181,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryTruncate(
-		final StorageLockedChannelFile transactionFile,
+		final StorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final StorageInventoryFile     file           ,
 		final long                     newFileLength
@@ -190,7 +190,7 @@ public interface StorageFileWriter
 		return this.write(transactionFile, byteBuffers);
 	}
 
-	public default void truncate(final StorageLockedChannelFile file, final long newLength)
+	public default void truncate(final StorageInventoryFile file, final long newLength)
 	{
 //		DEBUGStorage.println("storage file truncation");
 
@@ -204,7 +204,7 @@ public interface StorageFileWriter
 		}
 	}
 
-	public default void delete(final StorageLockedChannelFile file)
+	public default void delete(final StorageInventoryFile file)
 	{
 //		DEBUGStorage.println("storage file deletion");
 

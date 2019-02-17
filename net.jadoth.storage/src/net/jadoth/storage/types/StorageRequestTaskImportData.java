@@ -444,7 +444,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 	}
 
 	static final class SourceFileSlice
-	extends StorageLockedChannelFile.Implementation
+	extends StorageInventoryFile.Implementation
 	implements StorageChannelImportSourceFile
 	{
 		final ImportBatch     headBatch   ;
@@ -457,7 +457,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			final ImportBatch headBatch
 		)
 		{
-			super(channelIndex, file, fileLock);
+			super(channelIndex, 0L, file, fileLock);
 			this.headBatch    = headBatch   ;
 		}
 
@@ -473,7 +473,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		@Override
 		public String toString()
 		{
-			return Integer.toString(this.channelIndex) + " "
+			return Integer.toString(this.channelIndex()) + " "
 				+ (this.file == null ? "<Dummy>"  : this.file.toString() + " " + this.headBatch)
 			;
 		}

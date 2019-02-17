@@ -40,7 +40,7 @@ import net.jadoth.util.csv.CsvConfiguration;
 
 public interface StorageDataConverterTypeBinaryToCsv
 {
-	public void convertDataFile(StorageFile file);
+	public void convertDataFile(StorageLockedFile file);
 
 
 
@@ -192,7 +192,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private final StorageEntityTypeConversionFileProvider fileProvider          ;
 		private final PersistenceTypeDictionary               typeDictionary        ;
-		private       StorageFile                             currentSourceFile     ;
+		private       StorageLockedFile                       currentSourceFile     ;
 
 		private final int                                     readBufferSize        ;
 		private final ByteBuffer                              readBufferNormal      ;
@@ -541,7 +541,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		////////////
 
 		@Override
-		public final void convertDataFile(final StorageFile file)
+		public final void convertDataFile(final StorageLockedFile file)
 		{
 			if(file.length() == 0)
 			{

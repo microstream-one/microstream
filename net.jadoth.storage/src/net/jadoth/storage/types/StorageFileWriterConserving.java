@@ -43,7 +43,7 @@ public final class StorageFileWriterConserving implements StorageFileWriter
 	////////////
 
 	@Override
-	public void delete(final StorageLockedChannelFile file)
+	public void delete(final StorageInventoryFile file)
 	{
 		// (13.10.2018 TM)NOTE: replacement to decouple concrete references to File.
 		final Path source = Paths.get(file.identifier());
@@ -61,7 +61,7 @@ public final class StorageFileWriterConserving implements StorageFileWriter
 	}
 	
 	@Override
-	public void truncate(final StorageLockedChannelFile file, final long newLength)
+	public void truncate(final StorageInventoryFile file, final long newLength)
 	{
 		/* (04.09.2017 TM)NOTE:
 		 * truncation is the only possibility where data can be deleted.

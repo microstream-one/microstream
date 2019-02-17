@@ -3,6 +3,7 @@ package net.jadoth.storage.types;
 import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
+import net.jadoth.storage.types.StorageBackupHandler.Implementation.ChannelInventory;
 
 public interface StorageBackupHandler
 {
@@ -39,13 +40,28 @@ public interface StorageBackupHandler
 	
 	
 	
+	public static StorageBackupHandler New(
+		final int                    channelCount      ,
+		final StorageFileProvider    backupFileProvider,
+		final StorageBackupItemQueue itemQueue
+	)
+	{
+		final ChannelInventory[] cis = X.Array(ChannelInventory.class, channelCount, i ->
+		{
+			final StorageNumberedFile transactionsFile = backupFileProvider.provideTransactionsFile(i);
+			final StorageBackupFile    backupFile       = StorageBackupFile.New(transactionsFile);
+			return new ChannelInventory(i, backupFileProvider, backupFile);
+		});
+		
+		return new StorageBackupHandler.Implementation(cis, itemQueue);
+	}
+	
 	public final class Implementation implements StorageBackupHandler, Runnable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final StorageFileProvider    backupFileProvider;
 		private final ChannelInventory[]     channelInventories;
 		private final StorageBackupItemQueue itemQueue         ;
 		private       boolean                running           ;
@@ -63,17 +79,13 @@ public interface StorageBackupHandler
 		/////////////////
 		
 		Implementation(
-			final int                    channelCount      ,
-			final StorageFileProvider    backupFileProvider,
+			final ChannelInventory[]     channelInventories,
 			final StorageBackupItemQueue itemQueue
 		)
 		{
 			super();
-			this.backupFileProvider = backupFileProvider;
 			this.itemQueue          = itemQueue         ;
-			this.channelInventories = X.Array(ChannelInventory.class, channelCount, i ->
-				new ChannelInventory(i, backupFileProvider, backupFileProvider.provideTransactionsFile(i))
-			);
+			this.channelInventories = channelInventories;
 		}
 
 		
@@ -96,6 +108,7 @@ public interface StorageBackupHandler
 		
 		private StorageBackupFile resolveTargetFile(final StorageNumberedFile sourceFile)
 		{
+			// (17.02.2019 TM)FIXME: JET-55: distinct transaction file
 			/* (15.02.2019 TM)TODO: File instantiation is rather costly (see inside). Internal mapping instead?
 			 * But is the slight performance gain worth the permanent memory occupation?
 			 */
@@ -201,9 +214,23 @@ public interface StorageBackupHandler
 				return this.channelIndex;
 			}
 			
-			final StorageBackupFile ensureBackupFile(final StorageNumberedFile dataFile)
+			final StorageBackupFile ensureBackupFile(final StorageNumberedFile file)
 			{
+				// (17.02.2019 TM)FIXME: JET-55: check length etc? Or is that done somewhere else? Comment accordingly.
+				StorageBackupFile bf = this.inventory.get(file.number());
+				if(bf == null)
+				{
+					// (17.02.2019 TM)FIXME: JET-55: distinct transaction file
+					
+					final StorageNumberedFile backupTargetFile = this.backupFileProvider.provideStorageFile(
+						this.channelIndex,
+						file.number()
+					);
+					bf = StorageBackupFile.New(backupTargetFile);
+					this.inventory.add(file.number(), bf);
+				}
 				
+				return bf;
 			}
 			
 		}

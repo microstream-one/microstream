@@ -3,14 +3,14 @@ package net.jadoth.storage.types;
 public interface StorageBackupItemEnqueuer
 {
 	public void enqueueCopyingItem(
-		StorageLockedChannelFile sourceFile    ,
+		StorageInventoryFile sourceFile    ,
 		long                     sourcePosition,
 		long                     length        ,
-		StorageLockedChannelFile targetFile
+		StorageInventoryFile targetFile
 	);
 	
 	public void enqueueTruncatingItem(
-		StorageLockedChannelFile file     ,
+		StorageInventoryFile file     ,
 		long                     newLength
 	);
 }

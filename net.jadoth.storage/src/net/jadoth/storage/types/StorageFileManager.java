@@ -175,7 +175,7 @@ public interface StorageFileManager
 			StorageTransactionsFileAnalysis.Logic.initializeEntryFileTruncation(this.entryBufferFileTruncationAddress);
 		}
 
-		private StorageLockedChannelFile fileTransactions;
+		private StorageInventoryFile fileTransactions;
 
 		private final ByteBuffer standardByteBuffer;
 
@@ -318,7 +318,7 @@ public interface StorageFileManager
 			 * Or better enhance StorageFileProvider to a StorageFileHandler
 			 * that handles both creation and closing.
 			 */
-			StorageFile.closeSilent(this.fileTransactions);
+			StorageLockedFile.closeSilent(this.fileTransactions);
 
 			if(this.headFile == null)
 			{
@@ -330,7 +330,7 @@ public interface StorageFileManager
 			StorageDataFile.Implementation file = headFile;
 			do
 			{
-				StorageFile.closeSilent(file);
+				StorageLockedFile.closeSilent(file);
 			}
 			while((file = file.next) != headFile);
 
@@ -369,8 +369,6 @@ public interface StorageFileManager
 			final long oldTotalLength = this.headFile.totalLength();
 
 			this.writer.writeStore(this.headFile, dataBuffers);
-			
-			// (13.02.2019 TM)FIXME: JET-55: maybe restructure the writing method/logic for encapsulation.
 			
 			final long newTotalLength = oldTotalLength + this.uncommittedDataLength;
 			if(newTotalLength < 0)
@@ -511,9 +509,13 @@ public interface StorageFileManager
 		{
 //			DEBUGStorage.println(this.channelIndex + " creating new head file " + fileNumber);
 
-			final StorageInventoryFile file = this.storageFileProvider.provideStorageFile(this.channelIndex(), fileNumber);
+			final StorageInventoryFile file = this.storageFileProvider.provideStorageFile(
+				this.channelIndex(),
+				fileNumber
+			).inventorize();
 
-			/* File#length is incredibly slow compared to FileChannel#size (although irrelevant here),
+			/*
+			 * File#length is incredibly slow compared to FileChannel#size (although irrelevant here),
 			 * but still the file length has to be checked before the channel is created, etc.
 			 */
 			if(file.length() != 0)
@@ -707,7 +709,7 @@ public interface StorageFileManager
 
 		final StorageTransactionsFileAnalysis readTransactionsFile()
 		{
-			final StorageLockedChannelFile file = this.createTransactionsFile();
+			final StorageInventoryFile file = this.createTransactionsFile();
 
 			if(!file.exists())
 			{
@@ -731,7 +733,7 @@ public interface StorageFileManager
 			}
 			catch(final IOException e)
 			{
-				StorageFile.closeSilent(file);
+				StorageLockedFile.closeSilent(file);
 				throw new RuntimeException(e); // (29.08.2014)EXCP: proper exception
 			}
 		}
@@ -976,7 +978,7 @@ public interface StorageFileManager
 		)
 		{
 			final StorageTransactionsFileAnalysis trFileAn = storageInventory.transactionsFileAnalysis();
-			final StorageLockedChannelFile transactionsFile;
+			final StorageInventoryFile transactionsFile;
 
 			if(trFileAn == null || trFileAn.isEmpty())
 			{
@@ -1010,15 +1012,15 @@ public interface StorageFileManager
 
 		}
 
-		private StorageLockedChannelFile createTransactionsFile()
+		private StorageInventoryFile createTransactionsFile()
 		{
-			return this.storageFileProvider.provideTransactionsFile(this.channelIndex());
+			return this.storageFileProvider.provideTransactionsFile(this.channelIndex()).inventorize();
 		}
 
 		private void deriveTransactionsFile(
 			final long                     taskTimestamp   ,
 			final StorageInventory         storageInventory,
-			final StorageLockedChannelFile tfile
+			final StorageInventoryFile tfile
 		)
 		{
 			// (07.09.2014)TODO: derive transaction file function to modify behavior (e.h. throw exception instead)
@@ -1045,7 +1047,7 @@ public interface StorageFileManager
 			}
 			catch(final Exception e)
 			{
-				StorageFile.closeSilent(tfile);
+				StorageLockedFile.closeSilent(tfile);
 				throw e;
 			}
 		}
@@ -1153,7 +1155,7 @@ public interface StorageFileManager
 			this.writer.writeTransactionEntryTruncate(this.fileTransactions, this.entryBufferFileTruncation, lastFile, newLength);
 		}
 
-		private void setTransactionsFile(final StorageLockedChannelFile transactionsFile)
+		private void setTransactionsFile(final StorageInventoryFile transactionsFile)
 		{
 			this.fileTransactions = transactionsFile;
 		}
@@ -1196,7 +1198,7 @@ public interface StorageFileManager
 		public void exportData(final StorageIoHandler fileHandler)
 		{
 			// copy transactions file first so that an incomplete data file transfer can be recognized later.
-			final StorageLockedChannelFile backupTrsFile = fileHandler.copyTransactions(this.fileTransactions);
+			final StorageInventoryFile backupTrsFile = fileHandler.copyTransactions(this.fileTransactions);
 			backupTrsFile.close();
 
 			this.iterateStorageFiles(file ->
@@ -1514,10 +1516,6 @@ public interface StorageFileManager
 		{
 //			DEBUGStorage.println(this.channelIndex + " processing import source file " + importFile);
 			importFile.iterateBatches(this.importHelper.setFile(importFile));
-			
-			/* (13.02.2019 TM)FIXME: JET-55: ImportHelper calls write.copy(), but that expresses a transfer.
-			 * Must further distinct between store, storingCopy (or importCopy?), transferCopy
-			 */
 		}
 
 		public void commitImport(final long taskTimestamp)
@@ -1557,7 +1555,7 @@ public interface StorageFileManager
 			this.importHelper = null;
 		}
 
-		final void importBatch(final StorageFile file, final long position, final long length)
+		final void importBatch(final StorageLockedFile file, final long position, final long length)
 		{
 			// ignore dummy batches (e.g. transfer file continuation head dummy) and no-op batches in general
 			if(length == 0)
@@ -1609,7 +1607,7 @@ public interface StorageFileManager
 		{
 			final StorageDataFile.Implementation      preImportHeadFile;
 			final BulkList<StorageChannelImportBatch> importBatches     = BulkList.New(1000);
-			      StorageFile                         file             ;
+			      StorageLockedFile                   file             ;
 
 
 			ImportHelper(final StorageDataFile.Implementation preImportHeadFile)
@@ -1625,7 +1623,7 @@ public interface StorageFileManager
 				Implementation.this.importBatch(this.file, batch.fileOffset(), batch.fileLength());
 			}
 
-			final ImportHelper setFile(final StorageFile file)
+			final ImportHelper setFile(final StorageLockedFile file)
 			{
 				this.file = file;
 				return this;
