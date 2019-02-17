@@ -80,9 +80,10 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		// instance fields //
 		////////////////////
 
-		final File        file       ;
+		final File file;
 
-		/* note that the channel's position is always implicitely at the end of the file
+		/*
+		 * note that the channel's position is always implicitely at the end of the file
 		 * as write and truncate automatically update it and transfer and read use a transient position value
 		 */
 		final FileLock    lock       ;

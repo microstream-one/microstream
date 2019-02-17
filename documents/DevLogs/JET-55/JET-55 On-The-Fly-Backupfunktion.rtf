@@ -140,5 +140,9 @@ Hm.\par
 Also muss ich das zerlegen:\par
 Entweder der Provider liefert ein schlichteres, f\'fcr beide F\'e4lle kompatibleres File und das wird dann f\'fcr die Storage-Verwendung nochmal gewrappt, oder es gibt einen wrappenden FileProvider, der den schlichteren wrappt.\par
 Ersteres w\'e4r mir lieber, mal recherchieren ...\par
+\par
+Das extern wrappen nicht, weil der provider direkt die FileTyp-Instanz zur\'fcckgibt, die gebraucht wird.\par
+Aber ich kann eine Implementierung ohne Lock machen, die dann mit einer lock() Methode eine Instanz einer Implementierung mit Lock zur\'fcckgibt.\par
+So gehts!\par
 }
  

@@ -72,7 +72,7 @@ public interface StorageBackupHandler
 			this.backupFileProvider = backupFileProvider;
 			this.itemQueue          = itemQueue         ;
 			this.channelInventories = X.Array(ChannelInventory.class, channelCount, i ->
-				new ChannelInventory(channelCount, backupFileProvider, backupFileProvider.provideTransactionsFile(i))
+				new ChannelInventory(i, backupFileProvider, backupFileProvider.provideTransactionsFile(i))
 			);
 		}
 
