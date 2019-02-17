@@ -14,7 +14,7 @@ import net.jadoth.collections.types.XSettingList;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.AggregateMax;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.functional.IsCustomEqual;
 import net.jadoth.functional.IsGreater;
 import net.jadoth.functional.IsSmaller;
@@ -165,7 +165,7 @@ public final class XUtilsArrayCollection
 	}
 
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
-	A rngIterate(final A a, final int offset, final int length, final IndexProcedure<? super E> procedure)
+	A rngIterate(final A a, final int offset, final int length, final IndexedAcceptor<? super E> procedure)
 	{
 		AbstractArrayStorage.rangedIterate(a.internalGetStorageArray(), XTypes.to_int(a.size()), offset, length, procedure);
 		return a;

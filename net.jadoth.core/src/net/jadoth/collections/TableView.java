@@ -14,7 +14,7 @@ import net.jadoth.collections.types.XGettingTable;
 import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.collections.types.XIterable;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing.XTypes;
 
@@ -39,7 +39,7 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 	}
 
 	@Override
-	public <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
+	public <P extends IndexedAcceptor<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
 		return this.subject.iterateIndexed(procedure);
 	}

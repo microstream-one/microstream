@@ -1,8 +1,8 @@
 package net.jadoth.collections.types;
 
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 
 public interface XIndexIterable<E> extends XIterable<E>
 {
-	public <IP extends IndexProcedure<? super E>> IP iterateIndexed(IP procedure);
+	public <IP extends IndexedAcceptor<? super E>> IP iterateIndexed(IP procedure);
 }

@@ -14,7 +14,7 @@ import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.equality.Equalator;
 import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
@@ -212,7 +212,7 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		AbstractArrayStorage.iterate((E[])this.data, this.data.length, procedure);
 		return procedure;

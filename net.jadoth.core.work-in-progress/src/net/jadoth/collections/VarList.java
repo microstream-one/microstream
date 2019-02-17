@@ -18,7 +18,7 @@ import net.jadoth.collections.types.XList;
 import net.jadoth.equality.Equalator;
 import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.hashing.XHashing;
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
@@ -1008,7 +1008,7 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	}
 
 	@Override
-	public final <IP extends IndexProcedure<? super E>> IP iterateIndexed(final IP procedure)
+	public final <IP extends IndexedAcceptor<? super E>> IP iterateIndexed(final IP procedure)
 	{
 		try
 		{

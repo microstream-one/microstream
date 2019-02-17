@@ -3,9 +3,9 @@ package net.jadoth.collections;
 import java.util.function.Predicate;
 
 import net.jadoth.X;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 
-final class Indexer<E> implements IndexProcedure<E>
+final class Indexer<E> implements IndexedAcceptor<E>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //

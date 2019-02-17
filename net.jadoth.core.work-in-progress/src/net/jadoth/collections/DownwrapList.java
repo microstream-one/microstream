@@ -37,7 +37,7 @@ import net.jadoth.collections.types.XRemovingCollection;
 import net.jadoth.collections.types.XSettingList;
 import net.jadoth.collections.types.XSortableSequence;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.Clearable;
 
 
@@ -791,7 +791,7 @@ public final class DownwrapList<E> implements XList<E>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		if(this.subject instanceof XGettingSequence<?>)
 		{

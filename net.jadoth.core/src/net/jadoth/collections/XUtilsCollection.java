@@ -26,7 +26,7 @@ import net.jadoth.functional.AggregateMax;
 import net.jadoth.functional.AggregateMin;
 import net.jadoth.functional.AggregateOffsetLength;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.functional.IsCustomEqual;
 import net.jadoth.functional.IsGreater;
 import net.jadoth.functional.IsSmaller;
@@ -582,7 +582,7 @@ public final class XUtilsCollection
 		final C                         sequence ,
 		final long                      offset   ,
 		final long                      length   ,
-		final IndexProcedure<? super E> procedure
+		final IndexedAcceptor<? super E> procedure
 	)
 	{
 		if(sequence instanceof AbstractSimpleArrayCollection<?>)

@@ -17,7 +17,7 @@ import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XSettingList;
 import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.functional.IsCustomEqual;
 import net.jadoth.typing.Composition;
 import net.jadoth.typing.XTypes;
@@ -218,7 +218,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		AbstractArrayStorage.iterate(this.data, this.data.length, procedure);
 		return procedure;

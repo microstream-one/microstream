@@ -5,7 +5,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
 
-public interface StorageLockedChannelFile extends StorageLockedFile, StorageHashChannelPart
+public interface StorageLockedChannelFile extends StorageLockedFile, StorageChannelFile
 {
 	@Override
 	public int channelIndex();
@@ -16,9 +16,9 @@ public interface StorageLockedChannelFile extends StorageLockedFile, StorageHash
 
 
 	public static StorageLockedChannelFile New(
-		final int         channelIndex,
-		final File        file        ,
-		final FileLock    lock
+		final int      channelIndex,
+		final File     file        ,
+		final FileLock lock
 	)
 	{
 		return new StorageLockedChannelFile.Implementation(channelIndex, file, lock);

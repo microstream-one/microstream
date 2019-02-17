@@ -20,7 +20,7 @@ import net.jadoth.collections.types.XList;
 import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.functional.IsCustomEqual;
 import net.jadoth.math.XMath;
 import net.jadoth.typing.Composition;
@@ -600,7 +600,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		AbstractArrayStorage.iterate(this.data, this.size, procedure);
 		return procedure;

@@ -5,7 +5,7 @@ package net.jadoth.functional;
  * @author Thomas Muenz
  *
  */
-public interface IndexAggregator<E, R> extends IndexProcedure<E>
+public interface IndexedAggregator<E, R> extends IndexedAcceptor<E>
 {
 	@Override
 	public void accept(E e, long index);
@@ -16,7 +16,7 @@ public interface IndexAggregator<E, R> extends IndexProcedure<E>
 
 	public interface Creator<E, R>
 	{
-		public IndexAggregator<E, R> createAggregator();
+		public IndexedAggregator<E, R> createAggregator();
 	}
 
 }

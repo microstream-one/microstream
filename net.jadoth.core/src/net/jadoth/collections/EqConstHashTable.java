@@ -26,7 +26,7 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.collections.types.XIterable;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.XHashing;
 import net.jadoth.typing.Composition;
@@ -1069,7 +1069,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
 		EqConstHashTable.this.chain.iterateIndexed(procedure);
 		return procedure;
@@ -1562,7 +1562,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
+		public final <P extends IndexedAcceptor<? super K>> P iterateIndexed(final P procedure)
 		{
 			EqConstHashTable.this.chain.keyIterateIndexed(procedure);
 			return procedure;
@@ -1746,7 +1746,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
+		public final <P extends IndexedAcceptor<? super V>> P iterateIndexed(final P procedure)
 		{
 			EqConstHashTable.this.chain.valuesIterateIndexed(procedure);
 			return procedure;

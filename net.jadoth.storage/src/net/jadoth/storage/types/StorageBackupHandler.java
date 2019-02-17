@@ -1,25 +1,26 @@
 package net.jadoth.storage.types;
 
-import java.io.File;
-
 import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.types.XGettingEnum;
 
 public interface StorageBackupHandler
 {
-	public void initialize(XGettingEnum<? extends StorageDataFile<?>> storageFiles);
+	public void initialize(
+		StorageChannelFile                          transactionFile,
+		XGettingEnum<? extends StorageNumberedFile> storageFiles
+	);
 	
 	public void copyFile(
-		StorageLockedChannelFile sourceFile    ,
-		long                     sourcePosition,
-		long                     length        ,
-		StorageLockedChannelFile targetFile
+		StorageNumberedFile sourceFile    ,
+		long                sourcePosition,
+		long                length        ,
+		StorageNumberedFile targetFile
 	);
 	
 	public void truncateFile(
-		StorageLockedChannelFile file     ,
-		long                     newLength
+		StorageNumberedFile file     ,
+		long                newLength
 	);
 	
 	public default void start()
@@ -70,8 +71,8 @@ public interface StorageBackupHandler
 			super();
 			this.backupFileProvider = backupFileProvider;
 			this.itemQueue          = itemQueue         ;
-			this.channelInventories = X.Array(ChannelInventory.class, channelCount, () ->
-				new ChannelInventory(channelCount, backupFileProvider)
+			this.channelInventories = X.Array(ChannelInventory.class, channelCount, i ->
+				new ChannelInventory(channelCount, backupFileProvider, backupFileProvider.provideTransactionsFile(i))
 			);
 		}
 
@@ -93,7 +94,7 @@ public interface StorageBackupHandler
 			this.running = running;
 		}
 		
-		private File resolveTargetFile(final StorageLockedChannelFile sourceFile)
+		private StorageBackupFile resolveTargetFile(final StorageNumberedFile sourceFile)
 		{
 			/* (15.02.2019 TM)TODO: File instantiation is rather costly (see inside). Internal mapping instead?
 			 * But is the slight performance gain worth the permanent memory occupation?
@@ -102,11 +103,14 @@ public interface StorageBackupHandler
 		}
 		
 		@Override
-		public void initialize(final XGettingEnum<? extends StorageDataFile<?>> storageFiles)
+		public void initialize(
+			final StorageChannelFile                          transactionFile,
+			final XGettingEnum<? extends StorageNumberedFile> storageFiles
+		)
 		{
-			for(final StorageDataFile<?> storageFile : storageFiles)
+			for(final StorageNumberedFile storageFile : storageFiles)
 			{
-				final File backupTargetFile = this.resolveTargetFile(storageFile);
+				final StorageBackupFile backupTargetFile = this.resolveTargetFile(storageFile);
 				/* (16.02.2019 TM)FIXME: JET-55: check backup file
 				 * - existence
 				 * - length
@@ -118,23 +122,23 @@ public interface StorageBackupHandler
 		
 		@Override
 		public void copyFile(
-			final StorageLockedChannelFile sourceFile    ,
-			final long                     sourcePosition,
-			final long                     length        ,
-			final StorageLockedChannelFile targetFile
+			final StorageNumberedFile sourceFile    ,
+			final long                sourcePosition,
+			final long                length        ,
+			final StorageNumberedFile targetFile
 		)
 		{
-			final File backupTargetFile = this.resolveTargetFile(sourceFile);
+			final StorageBackupFile backupTargetFile = this.resolveTargetFile(sourceFile);
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME JET-55: StorageBackupHandler#copyFile()
 		}
 
 		@Override
 		public void truncateFile(
-			final StorageLockedChannelFile file     ,
-			final long                     newLength
+			final StorageNumberedFile file     ,
+			final long                newLength
 		)
 		{
-			final File backupTargetFile = this.resolveTargetFile(file);
+			final StorageBackupFile backupTargetFile = this.resolveTargetFile(file);
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME JET-55: StorageBackupHandler#truncateFile()
 		}
 		
@@ -173,11 +177,16 @@ public interface StorageBackupHandler
 			// constructors //
 			/////////////////
 			
-			ChannelInventory(final int channelIndex, final StorageFileProvider backupFileProvider)
+			ChannelInventory(
+				final int                 channelIndex      ,
+				final StorageFileProvider backupFileProvider,
+				final StorageBackupFile   transactionFile
+			)
 			{
 				super();
-				this.channelIndex       = channelIndex;
+				this.channelIndex       = channelIndex      ;
 				this.backupFileProvider = backupFileProvider;
+				this.transactionFile    = transactionFile   ;
 			}
 			
 			
@@ -192,7 +201,7 @@ public interface StorageBackupHandler
 				return this.channelIndex;
 			}
 			
-			final StorageBackupFile ensureBackupFile(final StorageDataFile<?> dataFile)
+			final StorageBackupFile ensureBackupFile(final StorageNumberedFile dataFile)
 			{
 				
 			}

@@ -132,5 +132,13 @@ Dass es neben nummerierten Files auch noch das Transaction File gibt ist nervig 
 2019-02-17\par
 \par
 Angefangene Baustellen implementieren ...\par
+\par
+Der StorageFileProvider providet nat\'fcrlich LockedFiles f\'fcr die Verwendung im Storage Verzeichnis, die ich f\'fcr das Backup Verzeichnis aber nicht brauchen kann.\par
+Aber von der Logik her sollte es durchaus ein StorageFileProvider sein.\par
+\par
+Hm.\par
+Also muss ich das zerlegen:\par
+Entweder der Provider liefert ein schlichteres, f\'fcr beide F\'e4lle kompatibleres File und das wird dann f\'fcr die Storage-Verwendung nochmal gewrappt, oder es gibt einen wrappenden FileProvider, der den schlichteren wrappt.\par
+Ersteres w\'e4r mir lieber, mal recherchieren ...\par
 }
  

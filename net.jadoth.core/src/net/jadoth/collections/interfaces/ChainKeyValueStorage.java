@@ -12,7 +12,7 @@ import net.jadoth.chars.VarString;
 import net.jadoth.collections.AbstractChainEntry;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.reference.ReferenceType;
 import net.jadoth.typing.KeyValue;
 
@@ -269,9 +269,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public void keyRngIterate(int offset, int length, Consumer<? super K> procedure);
 
-	public void keyIterateIndexed(IndexProcedure<? super K> procedure);
+	public void keyIterateIndexed(IndexedAcceptor<? super K> procedure);
 
-	public void keyRngIterateIndexed(int offset, int length, IndexProcedure<? super K> procedure);
+	public void keyRngIterateIndexed(int offset, int length, IndexedAcceptor<? super K> procedure);
 
 	public void keyIterate(Predicate<? super K> predicate, Consumer<? super K> procedure);
 
@@ -786,9 +786,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	// executing - indexed procedure //
 
-	public void valuesIterateIndexed(IndexProcedure<? super V> procedure);
+	public void valuesIterateIndexed(IndexedAcceptor<? super V> procedure);
 
-	public void valuesRngIterateIndexed(int offset, int length, IndexProcedure<? super V> procedure);
+	public void valuesRngIterateIndexed(int offset, int length, IndexedAcceptor<? super V> procedure);
 
 	public <A> void valuesJoin(BiConsumer<? super V, A> joiner, A aggregate);
 

@@ -16,7 +16,7 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.concurrency.Synchronized;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.SynchronizedIterator;
 import net.jadoth.util.iterables.SynchronizedListIterator;
@@ -635,7 +635,7 @@ public final class LockedList<E> implements XList<E>, Synchronized
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		synchronized(this.lock)
 		{

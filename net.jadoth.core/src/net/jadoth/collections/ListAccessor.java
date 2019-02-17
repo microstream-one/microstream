@@ -16,7 +16,7 @@ import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XSettingList;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
@@ -213,7 +213,7 @@ public class ListAccessor<E> implements XSettingList<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		return this.subject.iterateIndexed(procedure);
 	}

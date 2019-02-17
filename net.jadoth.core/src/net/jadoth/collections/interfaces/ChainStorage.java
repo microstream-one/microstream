@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.reference.ReferenceType;
 import net.jadoth.typing.Composition;
 
@@ -288,9 +288,9 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	// executing - indexed procedure //
 
-	public void iterateIndexed(IndexProcedure<? super E> procedure);
+	public void iterateIndexed(IndexedAcceptor<? super E> procedure);
 
-	public void rngIterateIndexed(long offset, long length, IndexProcedure<? super E> procedure);
+	public void rngIterateIndexed(long offset, long length, IndexedAcceptor<? super E> procedure);
 
 	// executing - conditional //
 

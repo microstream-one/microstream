@@ -20,7 +20,7 @@ import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.reference.ReferenceType;
 import net.jadoth.typing.XTypes;
 import net.jadoth.typing.KeyValue;
@@ -1859,7 +1859,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	// executing - indexed procedure //
 
 	@Override
-	public final void keyIterateIndexed(final IndexProcedure<? super K> procedure)
+	public final void keyIterateIndexed(final IndexedAcceptor<? super K> procedure)
 	{
 		try
 		{
@@ -1879,7 +1879,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		      EN           entry ,
 		      int                       offset,
 		final int                       bound ,
-		final IndexProcedure<? super K> procedure
+		final IndexedAcceptor<? super K> procedure
 	)
 	{
 		try
@@ -1899,7 +1899,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		      EN           entry ,
 		      int                       offset,
 		final int                       bound ,
-		final IndexProcedure<? super K> procedure
+		final IndexedAcceptor<? super K> procedure
 	)
 	{
 		try
@@ -1916,7 +1916,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final void keyRngIterateIndexed(final int offset, final int length, final IndexProcedure<? super K> procedure)
+	public final void keyRngIterateIndexed(final int offset, final int length, final IndexedAcceptor<? super K> procedure)
 	{
 		if(length >= 0)
 		{
@@ -6408,7 +6408,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	// executing - indexed procedure //
 
 	@Override
-	public final void valuesIterateIndexed(final IndexProcedure<? super V> procedure)
+	public final void valuesIterateIndexed(final IndexedAcceptor<? super V> procedure)
 	{
 		try
 		{
@@ -6425,7 +6425,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final void valuesRngIterateIndexed(int offset, final int length, final IndexProcedure<? super V> procedure)
+	public final void valuesRngIterateIndexed(int offset, final int length, final IndexedAcceptor<? super V> procedure)
 	{
 		EN e;
 		if((e = this.getRangeChainEntry(offset, length)) == null)

@@ -18,7 +18,7 @@ import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XReferencing;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.TrivialIterator;
 
@@ -98,7 +98,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		procedure.accept(this.element, 0);
 		return procedure;

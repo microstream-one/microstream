@@ -19,7 +19,7 @@ import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.equality.Equalator;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.reference.ReferenceType;
 import net.jadoth.typing.XTypes;
 
@@ -2169,7 +2169,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	// executing - indexed procedure //
 
 	@Override
-	public final void iterateIndexed(final IndexProcedure<? super E> procedure)
+	public final void iterateIndexed(final IndexedAcceptor<? super E> procedure)
 	{
 		try
 		{
@@ -2189,7 +2189,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		      EN                        entry ,
 		      long                      offset,
 		final long                      bound ,
-		final IndexProcedure<? super E> procedure
+		final IndexedAcceptor<? super E> procedure
 	)
 	{
 		try
@@ -2209,7 +2209,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		      EN                        entry ,
 		      long                      offset,
 		final long                      bound ,
-		final IndexProcedure<? super E> procedure
+		final IndexedAcceptor<? super E> procedure
 	)
 	{
 		try
@@ -2226,7 +2226,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final void rngIterateIndexed(final long offset, final long length, final IndexProcedure<? super E> procedure)
+	public final void rngIterateIndexed(final long offset, final long length, final IndexedAcceptor<? super E> procedure)
 	{
 		if(length >= 0)
 		{
