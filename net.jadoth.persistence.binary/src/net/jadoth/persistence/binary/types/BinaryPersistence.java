@@ -19,7 +19,7 @@ import net.jadoth.collections.BinaryHandlerLimitList;
 import net.jadoth.collections.ConstList;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.exceptions.InstantiationRuntimeException;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.functional.InstanceDispatcherLogic;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.internal.BinaryHandlerArrayList;
@@ -234,7 +234,7 @@ public final class BinaryPersistence extends Persistence
 	public static int[] calculateBinarySizes(final XGettingSequence<Field> fields)
 	{
 		final int[] fieldOffsets = new int[XTypes.to_int(fields.size())];
-		fields.iterateIndexed(new IndexProcedure<Field>()
+		fields.iterateIndexed(new IndexedAcceptor<Field>()
 		{
 			@Override
 			public void accept(final Field e, final long index)

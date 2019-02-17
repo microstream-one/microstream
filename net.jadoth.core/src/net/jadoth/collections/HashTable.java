@@ -33,7 +33,7 @@ import net.jadoth.equality.Equalator;
 import net.jadoth.equality.IdentityEqualator;
 import net.jadoth.equality.IdentityEqualityLogic;
 import net.jadoth.exceptions.ArrayCapacityException;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.functional.XFunc;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.XHashing;
@@ -1681,7 +1681,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
 		HashTable.this.chain.iterateIndexed(procedure);
 		return procedure;
@@ -2751,7 +2751,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
+		public final <P extends IndexedAcceptor<? super K>> P iterateIndexed(final P procedure)
 		{
 			HashTable.this.chain.keyIterateIndexed(procedure);
 			return procedure;
@@ -3275,7 +3275,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
+		public final <P extends IndexedAcceptor<? super V>> P iterateIndexed(final P procedure)
 		{
 			HashTable.this.chain.valuesIterateIndexed(procedure);
 			return procedure;

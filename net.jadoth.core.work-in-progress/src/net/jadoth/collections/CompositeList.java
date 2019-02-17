@@ -13,7 +13,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 
 public final class CompositeList<E> implements XGettingList<E>
@@ -545,7 +545,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		// this will get really ugly... :-/
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#iterate()

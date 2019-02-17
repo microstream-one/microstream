@@ -1,6 +1,6 @@
 package net.jadoth.storage.types;
 
-public interface StorageNumberedFile extends StorageFile, StorageHashChannelPart
+public interface StorageNumberedFile extends StorageChannelFile
 {
 	public long number();
 }

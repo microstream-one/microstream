@@ -11,7 +11,7 @@ import net.jadoth.collections.Singleton.OldSingleton;
 import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XReferencing;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 
 public class SingletonView<E> implements XReferencing<E>
@@ -61,7 +61,7 @@ public class SingletonView<E> implements XReferencing<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		return this.subject.iterateIndexed(procedure);
 	}

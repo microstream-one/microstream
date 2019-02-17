@@ -25,7 +25,7 @@ import net.jadoth.equality.Equalator;
 import net.jadoth.functional.AggregateMax;
 import net.jadoth.functional.AggregateMin;
 import net.jadoth.functional.Aggregator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.functional.IsCustomEqual;
 import net.jadoth.functional.IsGreater;
 import net.jadoth.functional.IsNull;
@@ -1887,7 +1887,7 @@ public abstract class AbstractArrayStorage
 	//    executing     //
 	/////////////////////
 
-	public static final <E> void iterate(final E[] data, final int size, final IndexProcedure<? super E> procedure)
+	public static final <E> void iterate(final E[] data, final int size, final IndexedAcceptor<? super E> procedure)
 	{
 		try
 		{
@@ -1909,7 +1909,7 @@ public abstract class AbstractArrayStorage
 		final int size,
 		final int offset,
 		final int length,
-		final IndexProcedure<? super E> procedure
+		final IndexedAcceptor<? super E> procedure
 	)
 	{
 		final int d; // bi-directional index movement

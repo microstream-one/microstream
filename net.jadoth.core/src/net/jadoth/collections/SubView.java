@@ -11,7 +11,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XImmutableSequence;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 
 public class SubView<E> implements XGettingSequence<E>
 {
@@ -38,7 +38,7 @@ public class SubView<E> implements XGettingSequence<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME SubView#iterate()
 	}

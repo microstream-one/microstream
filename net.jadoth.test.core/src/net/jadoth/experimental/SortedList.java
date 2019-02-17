@@ -18,7 +18,7 @@ import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XProcessingList;
 import net.jadoth.collections.types.XPuttingList;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 
 /**
@@ -246,7 +246,7 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		return this.subject.iterateIndexed(procedure);
 	}

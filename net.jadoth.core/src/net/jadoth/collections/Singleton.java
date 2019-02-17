@@ -18,7 +18,7 @@ import net.jadoth.collections.types.XGettingCollection;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.collections.types.XReference;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.TrivialIterator;
 
@@ -100,7 +100,7 @@ public class Singleton<E> implements XReference<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		procedure.accept(this.element, 0);
 		return procedure;

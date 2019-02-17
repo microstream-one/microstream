@@ -12,7 +12,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XImmutableEnum;
 import net.jadoth.collections.types.XProcessingEnum;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 
 
@@ -218,7 +218,7 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		this.subject.iterateIndexed(procedure);
 		return procedure;

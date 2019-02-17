@@ -16,7 +16,7 @@ import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XImmutableTable;
 import net.jadoth.collections.types.XIterable;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.KeyValue;
 
 // (17.09.2013)FIXME: EmptyTable: implement all FIX-ME
@@ -458,7 +458,7 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 	}
 
 	@Override
-	public <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
+	public <P extends IndexedAcceptor<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
 		return procedure;
 	}
@@ -532,7 +532,7 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
+		public final <P extends IndexedAcceptor<? super V>> P iterateIndexed(final P procedure)
 		{
 			return X.<V>empty().iterateIndexed(procedure);
 		}
@@ -907,7 +907,7 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
+		public final <P extends IndexedAcceptor<? super K>> P iterateIndexed(final P procedure)
 		{
 			return X.<K>empty().iterateIndexed(procedure);
 		}

@@ -17,7 +17,7 @@ import net.jadoth.collections.types.XList;
 import net.jadoth.collections.types.XReference;
 import net.jadoth.collections.types.XReferencing;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 
 // (02.11.2012 TM)FIXME: Single: consolidate with Singleton<E>
@@ -1010,7 +1010,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XList<E>#iterate()
 	}

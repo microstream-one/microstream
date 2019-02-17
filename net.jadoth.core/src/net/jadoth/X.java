@@ -37,6 +37,7 @@ import net.jadoth.collections.types.XSet;
 import net.jadoth.concurrency.ThreadSafe;
 import net.jadoth.exceptions.ArrayCapacityException;
 import net.jadoth.exceptions.WrapperRuntimeException;
+import net.jadoth.functional._intIndexedSupplier;
 import net.jadoth.typing.KeyValue;
 import net.jadoth.typing._longKeyValue;
 import net.jadoth.util.UtilStackTrace;
@@ -791,6 +792,18 @@ public final class X
 		for(int i = 0; i < array.length; i++)
 		{
 			array[i] = supplier.get();
+		}
+
+		return array;
+	}
+	
+	public static <E> E[] Array(final Class<E> componentType, final int length, final _intIndexedSupplier<E> supplier)
+	{
+		final E[] array = X.Array(componentType, length);
+
+		for(int i = 0; i < array.length; i++)
+		{
+			array[i] = supplier.get(i);
 		}
 
 		return array;

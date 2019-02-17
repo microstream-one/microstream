@@ -16,7 +16,7 @@ import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.collections.types.XList;
 import net.jadoth.equality.Equalator;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 
 public class MappedList<E, S> implements XGettingList<E>
@@ -478,7 +478,7 @@ public class MappedList<E, S> implements XGettingList<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		throw new net.jadoth.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#iterate
 	}

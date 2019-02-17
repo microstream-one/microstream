@@ -33,7 +33,7 @@ import net.jadoth.collections.types.XProcessingCollection;
 import net.jadoth.collections.types.XTable;
 import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.ArrayCapacityException;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.XHashing;
 import net.jadoth.math.XMath;
@@ -1836,7 +1836,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super KeyValue<K, V>>> P iterateIndexed(final P procedure)
 	{
 		EqHashTable.this.chain.iterateIndexed(procedure);
 		return procedure;
@@ -2909,7 +2909,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super K>> P iterateIndexed(final P procedure)
+		public final <P extends IndexedAcceptor<? super K>> P iterateIndexed(final P procedure)
 		{
 			EqHashTable.this.chain.keyIterateIndexed(procedure);
 			return procedure;
@@ -3427,7 +3427,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		}
 
 		@Override
-		public final <P extends IndexProcedure<? super V>> P iterateIndexed(final P procedure)
+		public final <P extends IndexedAcceptor<? super V>> P iterateIndexed(final P procedure)
 		{
 			EqHashTable.this.chain.valuesIterateIndexed(procedure);
 			return procedure;

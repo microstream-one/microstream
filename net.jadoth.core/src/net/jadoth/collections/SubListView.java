@@ -14,7 +14,7 @@ import net.jadoth.collections.types.XGettingList;
 import net.jadoth.collections.types.XImmutableList;
 import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.IndexBoundsException;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.typing.XTypes;
 import net.jadoth.util.iterables.ReadOnlyListIterator;
 
@@ -24,14 +24,14 @@ public class SubListView<E> implements XGettingList<E>
 	//  static methods   //
 	/////////////////////
 
-	static final <E> IndexProcedure<E> offset(
-		final IndexProcedure<? super E> procedure,
+	static final <E> IndexedAcceptor<E> offset(
+		final IndexedAcceptor<? super E> procedure,
 		final long startIndex,
 		final int d
 	)
 	{
 		// tricky 8-)
-		return new IndexProcedure<E>()
+		return new IndexedAcceptor<E>()
 		{
 			@Override
 			public void accept(final E e, final long index)
@@ -568,7 +568,7 @@ public class SubListView<E> implements XGettingList<E>
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		XUtilsCollection.rngIterate(this.list, this.startIndex, this.length, offset(procedure, this.startIndex, this.d));
 		return procedure;

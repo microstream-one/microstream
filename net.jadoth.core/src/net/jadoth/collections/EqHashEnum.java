@@ -21,7 +21,7 @@ import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.equality.Equalator;
 import net.jadoth.exceptions.ArrayCapacityException;
-import net.jadoth.functional.IndexProcedure;
+import net.jadoth.functional.IndexedAcceptor;
 import net.jadoth.hashing.HashEqualator;
 import net.jadoth.hashing.XHashing;
 import net.jadoth.math.XMath;
@@ -1222,7 +1222,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 	}
 
 	@Override
-	public final <P extends IndexProcedure<? super E>> P iterateIndexed(final P procedure)
+	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
 		this.chain.iterateIndexed(procedure);
 		return procedure;

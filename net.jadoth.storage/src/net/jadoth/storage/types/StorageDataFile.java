@@ -75,7 +75,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		// instance fields  //
 		/////////////////////
 
-		private final StorageFileManager.Implementation parent ;
+		private final StorageFileManager.Implementation parent;
 
 		final StorageInventoryFile file;
 
