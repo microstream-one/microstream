@@ -1,11 +1,10 @@
 package net.jadoth.storage.types;
 
-import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.collections.types.XSequence;
+import net.jadoth.collections.types.XGettingTable;
 
-public interface StorageInventory
+public interface StorageInventory extends StorageHashChannelPart
 {
-	public XGettingSequence<StorageInventoryFile> dataFiles();
+	public XGettingTable<Long, StorageInventoryFile> dataFiles();
 
 	public StorageTransactionsFileAnalysis transactionsFileAnalysis();
 
@@ -17,8 +16,9 @@ public interface StorageInventory
 		// instance fields  //
 		/////////////////////
 
-		final XSequence<StorageInventoryFile> dataFiles       ;
-		final StorageTransactionsFileAnalysis transactionsFile;
+		final int                                       channelIndex    ;
+		final XGettingTable<Long, StorageInventoryFile> dataFiles       ;
+		final StorageTransactionsFileAnalysis           transactionsFile;
 
 
 
@@ -27,11 +27,13 @@ public interface StorageInventory
 		/////////////////////
 
 		public Implementation(
-			final XSequence<StorageInventoryFile> dataFiles       ,
-			final StorageTransactionsFileAnalysis transactionsFile
+			final int                                       channelIndex    ,
+			final XGettingTable<Long, StorageInventoryFile> dataFiles       ,
+			final StorageTransactionsFileAnalysis           transactionsFile
 		)
 		{
 			super();
+			this.channelIndex     = channelIndex    ;
 			this.dataFiles        = dataFiles       ;
 			this.transactionsFile = transactionsFile;
 		}
@@ -41,9 +43,15 @@ public interface StorageInventory
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final int channelIndex()
+		{
+			return this.channelIndex;
+		}
 
 		@Override
-		public final XGettingSequence<StorageInventoryFile> dataFiles()
+		public final XGettingTable<Long, StorageInventoryFile> dataFiles()
 		{
 			return this.dataFiles;
 		}

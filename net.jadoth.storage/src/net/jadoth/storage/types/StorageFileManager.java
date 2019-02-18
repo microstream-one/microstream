@@ -16,6 +16,7 @@ import net.jadoth.X;
 import net.jadoth.chars.VarString;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.XSort;
 import net.jadoth.collections.types.XGettingSequence;
 import net.jadoth.files.XFiles;
 import net.jadoth.memory.XMemory;
@@ -697,14 +698,16 @@ public interface StorageFileManager
 				throw new RuntimeException(this.channelIndex() + " already initialized");
 			}
 
-			final StorageTransactionsFileAnalysis transactionsFile = this.readTransactionsFile();
-			final BulkList<StorageInventoryFile>  storageFiles     = this.storageFileProvider.collectStorageFiles(
-				new BulkList<>(),
+			final StorageTransactionsFileAnalysis         transactionsFile = this.readTransactionsFile();
+			final EqHashTable<Long, StorageInventoryFile> storageFiles     = EqHashTable.New();
+			this.storageFileProvider.collectStorageFiles(
+				f ->
+					storageFiles.add(f.number(), f.inventorize()),
 				this.channelIndex()
-			)
-			.sort(StorageInventoryFile::orderByNumber);
+			);
+			storageFiles.keys().sort(XSort::compare);
 
-			return new StorageInventory.Implementation(storageFiles, transactionsFile);
+			return new StorageInventory.Implementation(this.channelIndex(), storageFiles, transactionsFile);
 		}
 
 		final StorageTransactionsFileAnalysis readTransactionsFile()
@@ -750,7 +753,7 @@ public interface StorageFileManager
 				return unregisteredEmptyLastFileNumber;
 			}
 
-			final XGettingSequence<StorageInventoryFile>    dataFiles = storageInventory.dataFiles();
+			final XGettingSequence<StorageInventoryFile>    dataFiles = storageInventory.dataFiles().values();
 			final EqHashTable<Long, StorageTransactionFile> fileEntries = EqHashTable.New(tFileAnalysis.transactionsFileEntries());
 			final StorageInventoryFile                      lastFile    = dataFiles.peek();
 
@@ -899,7 +902,7 @@ public interface StorageFileManager
 			 */
 			
 			// local variables for readability, debugging and (paranoid) consistency guarantee
-			final XGettingSequence<StorageInventoryFile> files = storageInventory.dataFiles();
+			final XGettingSequence<StorageInventoryFile> files = storageInventory.dataFiles().values();
 
 			// validate and determine length of last file before any file is processed to recognize errors early
 			final long lastFileLength = unregisteredEmptyLastFileNumber >= 0
@@ -943,7 +946,7 @@ public interface StorageFileManager
 				 * if no transactions file was present, it must be assumed that the last file is consistent
 				 * (e.g. user manually deleted the transactions file in a consistent database)
 				 */
-				return storageInventory.dataFiles().last().length();
+				return storageInventory.dataFiles().values().last().length();
 			}
 			else if(tFileAnalysis.headFileLatestTimestamp() == consistentStoreTimestamp)
 			{
@@ -1018,16 +1021,15 @@ public interface StorageFileManager
 		}
 
 		private void deriveTransactionsFile(
-			final long                     taskTimestamp   ,
-			final StorageInventory         storageInventory,
+			final long                 taskTimestamp   ,
+			final StorageInventory     storageInventory,
 			final StorageInventoryFile tfile
 		)
 		{
-			// (07.09.2014)TODO: derive transaction file function to modify behavior (e.h. throw exception instead)
-			final XGettingSequence<StorageInventoryFile> files   = storageInventory.dataFiles()       ;
-			final ByteBuffer[]                           buffer  = this.entryBufferFileCreation       ;
-			final long                                   address = this.entryBufferFileCreationAddress;
-			final StorageFileWriter                      writer  = this.writer                        ;
+			final XGettingSequence<StorageInventoryFile> files   = storageInventory.dataFiles().values();
+			final ByteBuffer[]                           buffer  = this.entryBufferFileCreation         ;
+			final long                                   address = this.entryBufferFileCreationAddress  ;
+			final StorageFileWriter                      writer  = this.writer                          ;
 
 			long timestamp = taskTimestamp - storageInventory.dataFiles().size() - 1;
 

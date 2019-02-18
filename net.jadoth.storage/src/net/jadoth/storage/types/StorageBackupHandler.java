@@ -1,16 +1,14 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.X.notNull;
+
 import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.types.XGettingEnum;
 import net.jadoth.storage.types.StorageBackupHandler.Implementation.ChannelInventory;
 
 public interface StorageBackupHandler
 {
-	public void initialize(
-		StorageChannelFile                          transactionFile,
-		XGettingEnum<? extends StorageNumberedFile> storageFiles
-	);
+	public void initialize(StorageInventory storageInventory);
 	
 	public void copyFile(
 		StorageNumberedFile sourceFile    ,
@@ -41,19 +39,24 @@ public interface StorageBackupHandler
 	
 	
 	public static StorageBackupHandler New(
-		final int                    channelCount      ,
-		final StorageFileProvider    backupFileProvider,
-		final StorageBackupItemQueue itemQueue
+		final int                         channelCount      ,
+		final StorageFileProvider         backupFileProvider,
+		final StorageBackupItemQueue      itemQueue         ,
+		final StorageBackupProblemHandler problemHandler
 	)
 	{
 		final ChannelInventory[] cis = X.Array(ChannelInventory.class, channelCount, i ->
 		{
 			final StorageNumberedFile transactionsFile = backupFileProvider.provideTransactionsFile(i);
-			final StorageBackupFile    backupFile       = StorageBackupFile.New(transactionsFile);
+			final StorageBackupFile   backupFile       = StorageBackupFile.New(transactionsFile);
 			return new ChannelInventory(i, backupFileProvider, backupFile);
 		});
 		
-		return new StorageBackupHandler.Implementation(cis, itemQueue);
+		return new StorageBackupHandler.Implementation(
+			cis                    ,
+			notNull(itemQueue)     ,
+			notNull(problemHandler)
+		);
 	}
 	
 	public final class Implementation implements StorageBackupHandler, Runnable
@@ -62,15 +65,11 @@ public interface StorageBackupHandler
 		// instance fields //
 		////////////////////
 		
-		private final ChannelInventory[]     channelInventories;
-		private final StorageBackupItemQueue itemQueue         ;
-		private       boolean                running           ;
+		private final ChannelInventory[]          channelInventories;
+		private final StorageBackupItemQueue      itemQueue         ;
+		private final StorageBackupProblemHandler problemHandler    ;
 		
-		/* (15.02.2019 TM)FIXME: JET-55: Backup Thread exception handling
-		 * Can't just throw exceptions since they would simply terminate the backup thread
-		 * and leave the rest (application and storage channel thrads) unaffected.
-		 * There must be a kind of exception callback to report exceptions to.
-		 */
+		private boolean running;
 		
 		
 		
@@ -79,13 +78,15 @@ public interface StorageBackupHandler
 		/////////////////
 		
 		Implementation(
-			final ChannelInventory[]     channelInventories,
-			final StorageBackupItemQueue itemQueue
+			final ChannelInventory[]          channelInventories,
+			final StorageBackupItemQueue      itemQueue         ,
+			final StorageBackupProblemHandler problemHandler
 		)
 		{
 			super();
 			this.itemQueue          = itemQueue         ;
 			this.channelInventories = channelInventories;
+			this.problemHandler     = problemHandler    ;
 		}
 
 		
@@ -106,7 +107,7 @@ public interface StorageBackupHandler
 			this.running = running;
 		}
 		
-		private StorageBackupFile resolveTargetFile(final StorageNumberedFile sourceFile)
+		private StorageBackupFile resolveBackupTargetFile(final StorageNumberedFile sourceFile)
 		{
 			// (17.02.2019 TM)FIXME: JET-55: distinct transaction file
 			/* (15.02.2019 TM)TODO: File instantiation is rather costly (see inside). Internal mapping instead?
@@ -116,14 +117,37 @@ public interface StorageBackupHandler
 		}
 		
 		@Override
-		public void initialize(
-			final StorageChannelFile                          transactionFile,
-			final XGettingEnum<? extends StorageNumberedFile> storageFiles
+		public void initialize(final StorageInventory storageInventory)
+		{
+			final ChannelInventory backupInventory = this.channelInventories[storageInventory.channelIndex()];
+			backupInventory.ensureInitialized();
+
+			if(backupInventory.inventory.isEmpty())
+			{
+				this.fillEmptyBackup(storageInventory, backupInventory);
+			}
+			else
+			{
+				this.updateExistingBackup(storageInventory, backupInventory);
+			}
+		}
+		
+		final void fillEmptyBackup(
+			final StorageInventory storageInventory,
+			final ChannelInventory backupInventory
 		)
 		{
-			for(final StorageNumberedFile storageFile : storageFiles)
+			// (18.02.2019 TM)FIXME: JET-55: copy from / consolidate with FileManager#readStorage
+		}
+		
+		final void updateExistingBackup(
+			final StorageInventory storageInventory,
+			final ChannelInventory backupInventory
+		)
+		{
+			for(final StorageNumberedFile storageFile : storageInventory.dataFiles().values())
 			{
-				final StorageBackupFile backupTargetFile = this.resolveTargetFile(storageFile);
+				final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
 				/* (16.02.2019 TM)FIXME: JET-55: check backup file
 				 * - existence
 				 * - length
@@ -141,7 +165,7 @@ public interface StorageBackupHandler
 			final StorageNumberedFile targetFile
 		)
 		{
-			final StorageBackupFile backupTargetFile = this.resolveTargetFile(sourceFile);
+			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME JET-55: StorageBackupHandler#copyFile()
 		}
 
@@ -151,7 +175,7 @@ public interface StorageBackupHandler
 			final long                newLength
 		)
 		{
-			final StorageBackupFile backupTargetFile = this.resolveTargetFile(file);
+			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
 			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME JET-55: StorageBackupHandler#truncateFile()
 		}
 		
@@ -179,10 +203,10 @@ public interface StorageBackupHandler
 			// instance fields //
 			////////////////////
 			
-			private final int                                  channelIndex      ;
-			private final StorageFileProvider                  backupFileProvider;
-			private final EqHashTable<Long, StorageBackupFile> inventory          = EqHashTable.New();
-			private final StorageBackupFile                    transactionFile;
+			final int                                  channelIndex      ;
+			final StorageFileProvider                  backupFileProvider;
+			      StorageBackupFile                    transactionFile   ;
+			final EqHashTable<Long, StorageBackupFile> inventory          = EqHashTable.New();
 			
 			
 			
@@ -214,14 +238,23 @@ public interface StorageBackupHandler
 				return this.channelIndex;
 			}
 			
+			final void ensureInitialized()
+			{
+				
+				// (18.02.2019 TM)FIXME: JET-55: read existing files in directory
+			}
+			
 			final StorageBackupFile ensureBackupFile(final StorageNumberedFile file)
 			{
+				if(file.number() == Storage.transactionsFileNumber())
+				{
+					return this.ensureTransactionsFile();
+				}
+				
 				// (17.02.2019 TM)FIXME: JET-55: check length etc? Or is that done somewhere else? Comment accordingly.
 				StorageBackupFile bf = this.inventory.get(file.number());
 				if(bf == null)
 				{
-					// (17.02.2019 TM)FIXME: JET-55: distinct transaction file
-					
 					final StorageNumberedFile backupTargetFile = this.backupFileProvider.provideStorageFile(
 						this.channelIndex,
 						file.number()
@@ -231,6 +264,18 @@ public interface StorageBackupHandler
 				}
 				
 				return bf;
+			}
+			
+			final StorageBackupFile ensureTransactionsFile()
+			{
+				if(this.transactionFile == null)
+				{
+					this.transactionFile = StorageBackupFile.New(
+						this.backupFileProvider.provideTransactionsFile(this.channelIndex)
+					);
+				}
+				
+				return this.transactionFile;
 			}
 			
 		}

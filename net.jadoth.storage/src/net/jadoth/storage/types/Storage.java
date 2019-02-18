@@ -33,11 +33,25 @@ public final class Storage
 	private static final double DEFAULT_DISSOLVE_RATIO              = 0.75           ; // 75 %
 
 	private static final long   ONE_MILLION                         = 1_000_000L;
+	
+	private static final long   TRANSACTIONS_FILE_NUMBER = -1;
+	
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
+	
+	/* (18.02.2019 TM)NOTE:
+	 * It's a rather hacky solution to make a transactions file have a file number in the first place,
+	 * but transaction files are bound to be replaced by inlined meta data in the future,
+	 * so in order to not overcomplicate API now that would have to be consolidated later,
+	 * transaction files are just numbered files with a specific fake number.
+	 */
+	public static final long transactionsFileNumber()
+	{
+		return TRANSACTIONS_FILE_NUMBER;
+	}
 
 	public static final String defaultDirectoryName()
 	{

@@ -17,18 +17,6 @@ public interface StorageInventoryFile extends StorageLockedFile, StorageNumbered
 	}
 	
 	
-	
-	///////////////////////////////////////////////////////////////////////////
-	// static methods //
-	///////////////////
-	
-	public static int orderByNumber(
-		final StorageInventoryFile file1,
-		final StorageInventoryFile file2
-	)
-	{
-		return Long.compare(file1.number(), file2.number());
-	}
 
 	public static StorageInventoryFile New(
 		final int  channelIndex,

@@ -10,6 +10,16 @@ public interface StorageNumberedFile extends StorageChannelFile
 	
 	public StorageInventoryFile inventorize();
 	
+
+	
+	public static int orderByNumber(
+		final StorageNumberedFile file1,
+		final StorageNumberedFile file2
+	)
+	{
+		return Long.compare(file1.number(), file2.number());
+	}
+	
 	
 	
 	public static StorageNumberedFile New(final int channelIndex, final long number, final File file)
