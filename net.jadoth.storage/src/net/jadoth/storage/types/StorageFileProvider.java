@@ -14,18 +14,18 @@ public interface StorageFileProvider
 
 	public StorageNumberedFile provideTransactionsFile(int channelIndex);
 
-	public <P extends Consumer<StorageInventoryFile>> P collectStorageFiles(P collector, int channelIndex);
+	public <P extends Consumer<StorageNumberedFile>> P collectStorageFiles(P collector, int channelIndex);
 
 
 
 	public final class Static
 	{
 		public static final void collectFile(
-			final Consumer<StorageInventoryFile> collector       ,
-			final int                            channelIndex    ,
-			final File                           storageDirectory,
-			final String                         fileBaseName    ,
-			final String                         dotSuffix
+			final Consumer<StorageNumberedFile> collector       ,
+			final int                           channelIndex    ,
+			final File                          storageDirectory,
+			final String                        fileBaseName    ,
+			final String                        dotSuffix
 		)
 		{
 			final File[] files = storageDirectory.listFiles();
@@ -41,11 +41,11 @@ public interface StorageFileProvider
 		}
 
 		private static final void internalCollectFile(
-			final Consumer<StorageInventoryFile> collector   ,
-			final int                            hashIndex   ,
-			final File                           file        ,
-			final String                         fileBaseName,
-			final String                         dotSuffix
+			final Consumer<StorageNumberedFile> collector   ,
+			final int                           hashIndex   ,
+			final File                          file        ,
+			final String                        fileBaseName,
+			final String                        dotSuffix
 		)
 		{
 			if(file.isDirectory())
@@ -203,11 +203,11 @@ public interface StorageFileProvider
 				this.transactionsFileBaseName + channelIndex + '.' + this.transactionsFileSuffix
 			);
 
-			return StorageNumberedFile.New(channelIndex, 0L, file);
+			return StorageNumberedFile.New(channelIndex, Storage.transactionsFileNumber(), file);
 		}
 
 		@Override
-		public <P extends Consumer<StorageInventoryFile>> P collectStorageFiles(
+		public <P extends Consumer<StorageNumberedFile>> P collectStorageFiles(
 			final P   collector   ,
 			final int channelIndex
 		)

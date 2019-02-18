@@ -71,7 +71,7 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 
 		@Override
-		public <P extends Consumer<StorageInventoryFile>> P collectStorageFiles(
+		public <P extends Consumer<StorageNumberedFile>> P collectStorageFiles(
 			final P   collector   ,
 			final int channelIndex
 		)
