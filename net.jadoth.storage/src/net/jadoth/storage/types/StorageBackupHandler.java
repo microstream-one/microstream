@@ -4,6 +4,7 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
+import net.jadoth.collections.XSort;
 import net.jadoth.storage.types.StorageBackupHandler.Implementation.ChannelInventory;
 
 public interface StorageBackupHandler
@@ -120,9 +121,9 @@ public interface StorageBackupHandler
 		public void initialize(final StorageInventory storageInventory)
 		{
 			final ChannelInventory backupInventory = this.channelInventories[storageInventory.channelIndex()];
-			backupInventory.ensureInitialized();
+			backupInventory.ensureRegisteredFiles();
 
-			if(backupInventory.inventory.isEmpty())
+			if(backupInventory.dataFiles.isEmpty())
 			{
 				this.fillEmptyBackup(storageInventory, backupInventory);
 			}
@@ -137,7 +138,6 @@ public interface StorageBackupHandler
 			final ChannelInventory backupInventory
 		)
 		{
-			// (18.02.2019 TM)FIXME: JET-55: copy from / consolidate with FileManager#readStorage
 		}
 		
 		final void updateExistingBackup(
@@ -206,7 +206,7 @@ public interface StorageBackupHandler
 			final int                                  channelIndex      ;
 			final StorageFileProvider                  backupFileProvider;
 			      StorageBackupFile                    transactionFile   ;
-			final EqHashTable<Long, StorageBackupFile> inventory          = EqHashTable.New();
+			      EqHashTable<Long, StorageBackupFile> dataFiles         ;
 			
 			
 			
@@ -238,10 +238,30 @@ public interface StorageBackupHandler
 				return this.channelIndex;
 			}
 			
-			final void ensureInitialized()
+			final void ensureRegisteredFiles()
 			{
+				if(this.dataFiles != null)
+				{
+					// files already registered
+					return;
+				}
 				
-				// (18.02.2019 TM)FIXME: JET-55: read existing files in directory
+				final EqHashTable<Long, StorageBackupFile> existingBackupFiles = EqHashTable.New();
+				this.backupFileProvider.collectDataFiles(
+					f ->
+					{
+						final StorageBackupFile backupFile = StorageBackupFile.New(f);
+						existingBackupFiles.add(f.number(), backupFile);
+					},
+					this.channelIndex()
+				);
+				existingBackupFiles.keys().sort(XSort::compare);
+				
+				this.dataFiles = existingBackupFiles;
+				
+				this.transactionFile = StorageBackupFile.New(
+					this.backupFileProvider.provideTransactionsFile(this.channelIndex)
+				);
 			}
 			
 			final StorageBackupFile ensureBackupFile(final StorageNumberedFile file)
@@ -252,15 +272,15 @@ public interface StorageBackupHandler
 				}
 				
 				// (17.02.2019 TM)FIXME: JET-55: check length etc? Or is that done somewhere else? Comment accordingly.
-				StorageBackupFile bf = this.inventory.get(file.number());
+				StorageBackupFile bf = this.dataFiles.get(file.number());
 				if(bf == null)
 				{
-					final StorageNumberedFile backupTargetFile = this.backupFileProvider.provideStorageFile(
+					final StorageNumberedFile backupTargetFile = this.backupFileProvider.provideDataFile(
 						this.channelIndex,
 						file.number()
 					);
 					bf = StorageBackupFile.New(backupTargetFile);
-					this.inventory.add(file.number(), bf);
+					this.dataFiles.add(file.number(), bf);
 				}
 				
 				return bf;

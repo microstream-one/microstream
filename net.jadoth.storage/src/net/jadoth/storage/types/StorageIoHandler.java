@@ -9,7 +9,7 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 {
 	public default StorageInventoryFile copyData(final StorageDataFile<?> dataFile)
 	{
-		final StorageInventoryFile targetFile = this.provideStorageFile(
+		final StorageInventoryFile targetFile = this.provideDataFile(
 			dataFile.channelIndex(),
 			dataFile.number()
 		).inventorize();
@@ -59,9 +59,9 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		////////////
 
 		@Override
-		public StorageNumberedFile provideStorageFile(final int channelIndex, final long fileNumber)
+		public StorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
 		{
-			return this.fileProvider.provideStorageFile(channelIndex, fileNumber);
+			return this.fileProvider.provideDataFile(channelIndex, fileNumber);
 		}
 
 		@Override
@@ -71,12 +71,12 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 
 		@Override
-		public <P extends Consumer<StorageNumberedFile>> P collectStorageFiles(
+		public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(
 			final P   collector   ,
 			final int channelIndex
 		)
 		{
-			return this.fileProvider.collectStorageFiles( collector, channelIndex);
+			return this.fileProvider.collectDataFiles( collector, channelIndex);
 		}
 
 		@Override

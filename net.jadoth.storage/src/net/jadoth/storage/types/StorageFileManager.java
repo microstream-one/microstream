@@ -510,7 +510,7 @@ public interface StorageFileManager
 		{
 //			DEBUGStorage.println(this.channelIndex + " creating new head file " + fileNumber);
 
-			final StorageInventoryFile file = this.storageFileProvider.provideStorageFile(
+			final StorageInventoryFile file = this.storageFileProvider.provideDataFile(
 				this.channelIndex(),
 				fileNumber
 			).inventorize();
@@ -700,7 +700,7 @@ public interface StorageFileManager
 
 			final StorageTransactionsFileAnalysis         transactionsFile = this.readTransactionsFile();
 			final EqHashTable<Long, StorageInventoryFile> storageFiles     = EqHashTable.New();
-			this.storageFileProvider.collectStorageFiles(
+			this.storageFileProvider.collectDataFiles(
 				f ->
 					storageFiles.add(f.number(), f.inventorize()),
 				this.channelIndex()
