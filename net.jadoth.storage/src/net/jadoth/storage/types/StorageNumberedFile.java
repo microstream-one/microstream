@@ -3,11 +3,13 @@ package net.jadoth.storage.types;
 import static net.jadoth.X.notNull;
 
 import java.io.File;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 
 public interface StorageNumberedFile extends StorageChannelFile
 {
 	public long number();
-	
+		
 	public StorageInventoryFile inventorize();
 	
 
@@ -37,10 +39,10 @@ public interface StorageNumberedFile extends StorageChannelFile
 		// instance fields //
 		////////////////////
 
-		final int  channelIndex;
-		final long number      ;
-		final File file        ;
-
+		final int      channelIndex;
+		final long     number      ;
+		final File     file        ;
+	          FileLock lock        ;
 
 
 		////////////////////////////////////////////////////////////////////////////
@@ -119,6 +121,24 @@ public interface StorageNumberedFile extends StorageChannelFile
 		{
 			return StorageInventoryFile.New(this.channelIndex, this.number, this.file);
 		}
+		
+		public final FileLock lock()
+		{
+			if(this.lock == null)
+			{
+				this.lock = StorageLockedFile.openLockedFileChannel(this.file);
+			}
+			
+			return this.lock;
+		}
+		
+		@Override
+		public FileChannel channel()
+		{
+			return this.lock().channel();
+		}
+		
+		// (19.02.2019 TM)FIXME: JET-55: channel methods.
 
 	}
 	

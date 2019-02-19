@@ -172,5 +172,11 @@ Achso, das geht nicht, wegen unterschiedlichen File Typen. Dann redundant bauen,
 \par
 16:30\par
 So, nach Glasschiebet\'fcr, Griffe der anderen T\'fcren durchgehen, Wasserwart, Rumtesten zu M\'e4ngeln der Glasschiebet\'fcr, Mangelmeldung Mail an Bautr\'e4ger, mach ich jetzt, 6 Stunden sp\'e4ter, wieder weiter.\par
+\par
+So ein BackupFile braucht irgendwoher ja dann auch mal einen Channel.\par
+Aber die deswegen jetzt doch wieder auf die normale StorageFile Implementierung mit permanent gelocktem und offenem Channel \'e4ndern, w\'e4r doof.\par
+Besser: FileChannel, bzw. FileLock, wird on demand ge\'f6ffnet und nach dem kopieren wieder geschlossen.\par
+Implementieren. Konsolidieren mit bisherigen File Implementierungen.\par
+\par
 }
  

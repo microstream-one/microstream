@@ -2,6 +2,8 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
 
+import java.nio.channels.FileChannel;
+
 public interface StorageBackupFile extends StorageNumberedFile
 {
 	// (16.02.2019 TM)FIXME: JET-55: StorageBackupFile
@@ -40,57 +42,87 @@ public interface StorageBackupFile extends StorageNumberedFile
 		////////////
 
 		@Override
-		public int channelIndex()
+		public final int channelIndex()
 		{
 			return this.delegate.channelIndex();
 		}
 
 		@Override
-		public long number()
+		public final long number()
 		{
 			return this.delegate.number();
 		}
 
 		@Override
-		public StorageInventoryFile inventorize()
+		public final StorageInventoryFile inventorize()
 		{
 			return this.delegate.inventorize();
 		}
 
 		@Override
-		public String qualifier()
+		public final String qualifier()
 		{
 			return this.delegate.qualifier();
 		}
 
 		@Override
-		public String identifier()
+		public final String identifier()
 		{
 			return this.delegate.identifier();
 		}
 
 		@Override
-		public String name()
+		public final String name()
 		{
 			return this.delegate.name();
 		}
 
 		@Override
-		public long length()
+		public final long length()
 		{
 			return this.delegate.length();
 		}
 
 		@Override
-		public boolean delete()
+		public final boolean delete()
 		{
 			return this.delegate.delete();
 		}
 
 		@Override
-		public boolean exists()
+		public final boolean exists()
 		{
 			return this.delegate.exists();
+		}
+
+		@Override
+		public final boolean isEmpty()
+		{
+			return this.delegate.isEmpty();
+		}
+
+		@Override
+		public FileChannel channel()
+		{
+			return this.delegate.channel();
+		}
+
+		@Override
+		public final boolean isOpen()
+		{
+			return this.delegate.isOpen();
+		}
+
+		@Override
+		public final StorageFile flush()
+		{
+			return this.delegate.flush();
+		}
+
+		@Override
+		public final void close()
+		{
+			this.delegate.close();
 		}
 		
 	}

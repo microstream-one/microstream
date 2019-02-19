@@ -114,7 +114,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				try
 				{
 					// channel must be closed by StorageChannel after copying has been completed.
-					final FileLock fileLock = StorageLockedFile.openFileChannel(file);
+					final FileLock fileLock = StorageLockedFile.openLockedFileChannel(file);
 					itemReader.setSourceFile(file, fileLock);
 					final FileChannel channel = fileLock.channel();
 					iterator.iterateStoredItems(channel, 0, channel.size());

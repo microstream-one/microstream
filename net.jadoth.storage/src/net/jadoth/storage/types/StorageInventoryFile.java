@@ -1,11 +1,7 @@
 package net.jadoth.storage.types;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-
-import net.jadoth.files.XFiles;
 
 
 public interface StorageInventoryFile extends StorageLockedFile, StorageNumberedFile
@@ -28,36 +24,12 @@ public interface StorageInventoryFile extends StorageLockedFile, StorageNumbered
 			channelIndex,
 			number,
 			file,
-			Implementation.openLockedFileChannel(file)
+			StorageLockedFile.openLockedFileChannel(file)
 		);
 	}
 
 	public class Implementation extends StorageLockedFile.Implementation implements StorageInventoryFile
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-				
-		public static final FileLock openLockedFileChannel(final File file)
-		{
-//			DEBUGStorage.println("Thread " + Thread.currentThread().getName() + " opening channel for " + file);
-			FileChannel channel = null;
-			try
-			{
-				final FileLock fileLock = StorageLockedFile.openFileChannel(file);
-				channel = fileLock.channel();
-				channel.position(channel.size());
-				return fileLock;
-			}
-			catch(final IOException e)
-			{
-				XFiles.closeSilent(channel);
-				throw new RuntimeException(e); // (04.05.2013)EXCP: proper exception
-			}
-		}
-		
-		
-		
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
