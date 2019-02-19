@@ -10,12 +10,12 @@ import net.jadoth.files.XFiles;
 
 public interface StorageFileProvider
 {
-	public StorageNumberedFile provideStorageFile(int channelIndex, long fileNumber);
+	public StorageNumberedFile provideDataFile(int channelIndex, long fileNumber);
 
 	public StorageNumberedFile provideTransactionsFile(int channelIndex);
 
-	public <P extends Consumer<StorageNumberedFile>> P collectStorageFiles(P collector, int channelIndex);
-
+	public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(P collector, int channelIndex);
+	
 
 
 	public final class Static
@@ -185,7 +185,7 @@ public interface StorageFileProvider
 		////////////
 
 		@Override
-		public final StorageNumberedFile provideStorageFile(final int channelIndex, final long fileNumber)
+		public final StorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
 		{
 			final File file = new File(
 				this.provideChannelDirectory(channelIndex),
@@ -207,7 +207,7 @@ public interface StorageFileProvider
 		}
 
 		@Override
-		public <P extends Consumer<StorageNumberedFile>> P collectStorageFiles(
+		public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(
 			final P   collector   ,
 			final int channelIndex
 		)
