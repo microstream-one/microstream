@@ -2,6 +2,8 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
 
+import java.io.IOException;
+
 import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
@@ -12,15 +14,15 @@ public interface StorageBackupHandler
 	public void initialize(StorageInventory storageInventory);
 	
 	public void copyFile(
-		StorageNumberedFile sourceFile    ,
-		long                sourcePosition,
-		long                length        ,
-		StorageNumberedFile targetFile
+		StorageInventoryFile sourceFile    ,
+		long                 sourcePosition,
+		long                 length        ,
+		StorageInventoryFile targetFile
 	);
 	
 	public void truncateFile(
-		StorageNumberedFile file     ,
-		long                newLength
+		StorageInventoryFile file     ,
+		long                 newLength
 	);
 	
 	public default void start()
@@ -110,15 +112,25 @@ public interface StorageBackupHandler
 		
 		private StorageBackupFile resolveBackupTargetFile(final StorageNumberedFile sourceFile)
 		{
-			// (17.02.2019 TM)FIXME: JET-55: distinct transaction file
-			/* (15.02.2019 TM)TODO: File instantiation is rather costly (see inside). Internal mapping instead?
-			 * But is the slight performance gain worth the permanent memory occupation?
-			 */
 			return this.channelInventories[sourceFile.channelIndex()].ensureBackupFile(sourceFile);
 		}
 		
 		@Override
-		public void initialize(final StorageInventory storageInventory)
+		public final void initialize(final StorageInventory storageInventory)
+		{
+			try
+			{
+				this.tryInitialize(storageInventory);
+			}
+			catch(final Exception e)
+			{
+				// (19.02.2019 TM)FIXME: JET-55: Problem Handling
+				this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
+				throw new Error(e); // reaching here means an error in the problem handler for not throwing an exception.
+			}
+		}
+		
+		private void tryInitialize(final StorageInventory storageInventory)
 		{
 			final ChannelInventory backupInventory = this.channelInventories[storageInventory.channelIndex()];
 			backupInventory.ensureRegisteredFiles();
@@ -141,12 +153,12 @@ public interface StorageBackupHandler
 			for(final StorageInventoryFile storageFile : storageInventory.dataFiles().values())
 			{
 				final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
-				storageFile.channel().transferTo(0, storageFile.length(), backupTargetFile.channel());
+				this.copyFile(storageFile, backupTargetFile);
 			}
 			
 			final StorageInventoryFile transactionFile = storageInventory.transactionsFileAnalysis().transactionsFile();
 			final StorageBackupFile backupTransactionFile = this.resolveBackupTargetFile(transactionFile);
-			transactionFile.channel().transferTo(0, transactionFile.length(), backupTransactionFile.channel());
+			this.copyFile(transactionFile, backupTransactionFile);
 		}
 		
 		final void updateExistingBackup(
@@ -154,38 +166,117 @@ public interface StorageBackupHandler
 			final ChannelInventory backupInventory
 		)
 		{
-			for(final StorageNumberedFile storageFile : storageInventory.dataFiles().values())
+			if(storageInventory.dataFiles().isEmpty())
+			{
+				// (19.02.2019 TM)FIXME: JET-55: Problem Handling
+				this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
+				throw new Error(); // reaching here means an error in the problem handler for not throwing an exception.
+			}
+			
+			final long lastStorageFileNumber = storageInventory.dataFiles().keys().last();
+			final long lastBackupFileNumber  = backupInventory.dataFiles().keys().last();
+			
+			if(lastBackupFileNumber > lastStorageFileNumber)
+			{
+				// (19.02.2019 TM)FIXME: JET-55: Problem Handling
+				this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
+				throw new Error(); // reaching here means an error in the problem handler for not throwing an exception.
+			}
+			
+			for(final StorageInventoryFile storageFile : storageInventory.dataFiles().values())
 			{
 				final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
-				/* (16.02.2019 TM)FIXME: JET-55: check backup file
-				 * - existence
-				 * - length
-				 * - inconsistency in any non-last file is an error.
-				 * - inconsistency in last file gets compensated.
-				 */
+				if(backupTargetFile.exists())
+				{
+					if(backupTargetFile.length() == storageFile.length())
+					{
+						// perfect match, everything is fine
+						continue;
+					}
+					
+					if(backupTargetFile.number() == lastBackupFileNumber)
+					{
+						this.copyFile(
+							storageFile,
+							backupTargetFile.length(),
+							storageFile.length() - backupTargetFile.length(),
+							backupTargetFile
+						);
+					}
+					
+					// (19.02.2019 TM)FIXME: JET-55: Problem Handling
+					this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
+					throw new Error(); // reaching here means an error in the problem handler for not throwing an exception.
+				}
+			}
+		}
+		
+		private void copyFile(
+			final StorageInventoryFile storageFile     ,
+			final StorageBackupFile    backupTargetFile
+		)
+		{
+			this.copyFile(storageFile, 0, storageFile.length(), backupTargetFile);
+		}
+		
+		private void copyFile(
+			final StorageInventoryFile storageFile     ,
+			final long                 sourcePosition  ,
+			final long                 length          ,
+			final StorageBackupFile    backupTargetFile
+		)
+		{
+			try
+			{
+				storageFile.channel().transferTo(sourcePosition, length, backupTargetFile.channel());
+				
+				// backup file always gets closed right away.
+				backupTargetFile.close();
+			}
+			catch(final IOException e)
+			{
+				// (19.02.2019 TM)FIXME: JET-55: Problem Handling
+				this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
+				throw new Error(e); // reaching here means an error in the problem handler for not throwing an exception.
 			}
 		}
 		
 		@Override
 		public void copyFile(
-			final StorageNumberedFile sourceFile    ,
-			final long                sourcePosition,
-			final long                length        ,
-			final StorageNumberedFile targetFile
+			final StorageInventoryFile sourceFile    ,
+			final long                 sourcePosition,
+			final long                 length        ,
+			final StorageInventoryFile targetFile
 		)
 		{
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME JET-55: StorageBackupHandler#copyFile()
+			
+			// (19.02.2019 TM)FIXME: JET-55: StorageBackupHandler#copyFile()
+			
+			if(sourceFile != null)
+			{
+				sourceFile.decrementUserCount();
+			}
+			if(targetFile != null)
+			{
+				targetFile.decrementUserCount();
+			}
 		}
 
 		@Override
 		public void truncateFile(
-			final StorageNumberedFile file     ,
-			final long                newLength
+			final StorageInventoryFile file     ,
+			final long                 newLength
 		)
 		{
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME JET-55: StorageBackupHandler#truncateFile()
+			
+			// FIXME JET-55: StorageBackupHandler#truncateFile()
+			
+			if(file != null)
+			{
+				file.decrementUserCount();
+			}
 		}
 		
 		@Override
@@ -202,6 +293,12 @@ public interface StorageBackupHandler
 				{
 					// still not sure about the viability of interruption handling in the general case.
 					this.stop();
+				}
+				catch(final Exception e)
+				{
+					// (19.02.2019 TM)FIXME: JET-55: Generic Problem Handling
+					this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
+					throw new Error(e); // reaching here means an error in the problem handler for not throwing an exception.
 				}
 			}
 		}
@@ -247,6 +344,11 @@ public interface StorageBackupHandler
 				return this.channelIndex;
 			}
 			
+			public final EqHashTable<Long, StorageBackupFile> dataFiles()
+			{
+				return this.dataFiles;
+			}
+			
 			final void ensureRegisteredFiles()
 			{
 				if(this.dataFiles != null)
@@ -280,7 +382,8 @@ public interface StorageBackupHandler
 					return this.ensureTransactionsFile();
 				}
 				
-				// (17.02.2019 TM)FIXME: JET-55: check length etc? Or is that done somewhere else? Comment accordingly.
+				// note: validation is done by the calling context, depending on its task.
+				
 				StorageBackupFile bf = this.dataFiles.get(file.number());
 				if(bf == null)
 				{
