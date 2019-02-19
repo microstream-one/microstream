@@ -383,7 +383,7 @@ public interface StorageTransactionsFileAnalysis
 			final FileChannel channel = null;
 			try
 			{
-				lock = StorageLockedFile.openFileChannel(file);
+				lock = StorageLockedFile.openLockedFileChannel(file);
 				return parseFile(lock.channel(), vs);
 			}
 			catch(final IOException e)

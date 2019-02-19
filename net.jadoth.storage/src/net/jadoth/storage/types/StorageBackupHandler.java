@@ -138,6 +138,15 @@ public interface StorageBackupHandler
 			final ChannelInventory backupInventory
 		)
 		{
+			for(final StorageInventoryFile storageFile : storageInventory.dataFiles().values())
+			{
+				final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
+				storageFile.channel().transferTo(0, storageFile.length(), backupTargetFile.channel());
+			}
+			
+			final StorageInventoryFile transactionFile = storageInventory.transactionsFileAnalysis().transactionsFile();
+			final StorageBackupFile backupTransactionFile = this.resolveBackupTargetFile(transactionFile);
+			transactionFile.channel().transferTo(0, transactionFile.length(), backupTransactionFile.channel());
 		}
 		
 		final void updateExistingBackup(

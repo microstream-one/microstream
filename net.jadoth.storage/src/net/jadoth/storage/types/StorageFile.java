@@ -1,6 +1,8 @@
 package net.jadoth.storage.types;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 
 /**
@@ -80,5 +82,54 @@ public interface StorageFile
 	public boolean delete();
 	
 	public boolean exists();
+	
+	public FileChannel channel();
 
+	public default boolean isOpen()
+	{
+		return this.channel().isOpen();
+	}
+	
+	public default StorageFile flush()
+	{
+		try
+		{
+			this.channel().force(false);
+			return this;
+		}
+		catch(final IOException e)
+		{
+			throw new RuntimeException(e); // damn checked exception
+		}
+	}
+
+	public default void close()
+	{
+		try
+		{
+			this.channel().close();
+		}
+		catch(final IOException e)
+		{
+			throw new RuntimeException(e); // damn checked exception
+		}
+	}
+	
+	
+	public static void closeSilent(final StorageLockedFile file)
+	{
+		if(file == null)
+		{
+			return;
+		}
+		
+		try
+		{
+			file.close();
+		}
+		catch(final Exception t)
+		{
+			// sshhh, silence!
+		}
+	}
 }

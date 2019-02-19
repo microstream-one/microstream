@@ -13,8 +13,6 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 {
 	// can't implement AutoCloseable because the naive resource warnings are idiotic.
 	
-	public FileChannel channel();
-	
 	@Override
 	public default long length()
 	{
@@ -27,57 +25,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 			throw new RuntimeException(e); // (08.12.2014)EXCP: proper exception
 		}
 	}
-
-	public default boolean isOpen()
-	{
-		return this.channel().isOpen();
-	}
 	
-	public default StorageFile flush()
-	{
-		try
-		{
-			this.channel().force(false);
-			return this;
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // damn checked exception
-		}
-	}
-
-	public default void close()
-	{
-		try
-		{
-			this.channel().close();
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // damn checked exception
-		}
-	}
-	
-	
-	public static void closeSilent(final StorageLockedFile file)
-	{
-		if(file == null)
-		{
-			return;
-		}
-		
-		try
-		{
-			file.close();
-		}
-		catch(final Exception t)
-		{
-			// sshhh, silence!
-		}
-	}
-	
-
-
 	public int incrementUserCount();
 
 	public boolean decrementUserCount();
@@ -92,7 +40,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 	}
 
 	@SuppressWarnings("resource") // resource closed internally by FileChannel (JDK tricking Java compiler ^^)
-	public static FileLock openFileChannel(final File file)
+	public static FileLock openLockedFileChannel(final File file)
 	{
 		// the file is always completely and unshared locked.
 		final FileLock lock;
@@ -112,6 +60,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 			 * As there is no alternative available and it at least works within Java, it is kept nevertheless.
 			 */
 			lock = channel.tryLock();
+			channel.position(channel.size());
 			if(lock == null)
 			{
 				throw new RuntimeException("File seems to be already locked: " + file);
@@ -129,7 +78,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 
 	public static StorageLockedFile openLockedFile(final File file)
 	{
-		return StorageLockedFile.New(file, openFileChannel(file));
+		return StorageLockedFile.New(file, openLockedFileChannel(file));
 	}
 
 
