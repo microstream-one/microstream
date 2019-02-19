@@ -6,8 +6,6 @@ import java.nio.channels.FileChannel;
 
 public interface StorageBackupFile extends StorageNumberedFile
 {
-	// (16.02.2019 TM)FIXME: JET-55: StorageBackupFile
-	
 	public static StorageBackupFile New(final StorageNumberedFile file)
 	{
 		return new StorageBackupFile.Implementation(

@@ -33,9 +33,7 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
-	// (15.02.2019 TM)FIXME: JET-55: must ensure consistent user in- and decrementing in all methods
-	
+		
 	@Override
 	public final long writeStore(final StorageDataFile<?> targetFile, final ByteBuffer[] byteBuffers)
 	{

@@ -62,6 +62,11 @@ public interface StorageNumberedFile extends StorageChannelFile
 		////////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		private boolean hasLock()
+		{
+			return this.lock != null;
+		}
 
 		@Override
 		public final int channelIndex()
@@ -81,50 +86,44 @@ public interface StorageNumberedFile extends StorageChannelFile
 		}
 		
 		@Override
-		public final long length()
-		{
-			return this.file.length();
-		}
-		
-		@Override
-		public String qualifier()
+		public final String qualifier()
 		{
 			return this.file.getParent();
 		}
 		
 		@Override
-		public String identifier()
+		public final String identifier()
 		{
 			return this.file.getPath();
 		}
 		
 		@Override
-		public String name()
+		public final String name()
 		{
 			return this.file.getName();
 		}
 		
 		@Override
-		public boolean delete()
+		public final boolean delete()
 		{
 			return this.file.delete();
 		}
 		
 		@Override
-		public boolean exists()
+		public final boolean exists()
 		{
 			return this.file.exists();
 		}
 		
 		@Override
-		public StorageInventoryFile inventorize()
+		public final StorageInventoryFile inventorize()
 		{
 			return StorageInventoryFile.New(this.channelIndex, this.number, this.file);
 		}
 		
 		public final FileLock lock()
 		{
-			if(this.lock == null)
+			if(!this.hasLock())
 			{
 				this.lock = StorageLockedFile.openLockedFileChannel(this.file);
 			}
@@ -133,12 +132,51 @@ public interface StorageNumberedFile extends StorageChannelFile
 		}
 		
 		@Override
-		public FileChannel channel()
+		public final FileChannel channel()
 		{
 			return this.lock().channel();
 		}
 		
-		// (19.02.2019 TM)FIXME: JET-55: channel methods.
+		@Override
+		public final long length()
+		{
+			// the slow File#length must be used because the channel might not be open. But with a proper check, first.
+			if(!this.exists())
+			{
+				// (19.02.2019 TM)EXCP: proper exception
+				throw new RuntimeException();
+			}
+			
+			return this.file.length();
+		}
+		
+		@Override
+		public final boolean isOpen()
+		{
+			return this.hasLock() && StorageNumberedFile.super.isOpen();
+		}
+		
+		@Override
+		public final StorageFile flush()
+		{
+			if(!this.hasLock())
+			{
+				return this;
+			}
+			
+			return StorageNumberedFile.super.flush();
+		}
+
+		@Override
+		public final void close()
+		{
+			if(!this.hasLock())
+			{
+				return;
+			}
+			
+			StorageNumberedFile.super.close();
+		}
 
 	}
 	
