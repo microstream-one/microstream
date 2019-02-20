@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
 \b0\par
 2019-02-13\par
 \par
@@ -183,5 +184,30 @@ API verbessern.\par
 FIXMEs aufr\'e4umen.\par
 Problem handling an allen Stellen einbauen.\par
 \par
+\par
+2018-02-20\par
+\par
+Jetzt bau ich mal so einen Problemhandler, damit die ganzen TODOs verschwinden.\par
+\par
+Hm. Eigentlich ist es ungeschickt bzw. sogar logisch falsch. so einen problem handler tief in die Logik reinzuweben.\par
+Beispiel:\par
+\par
+- \'e4u\'dferster Methodenaufruf (1)\par
+-- enthaltener Methodenaufruf (2)\par
+--- enthaltener Methodenaufruf (3)\par
+\par
+In (3) wird auf ein spezifisches Problem gepr\'fcft und an den Problemhandler gemeldet. Der oder sp\'e4testens eine Fallback-Logik danach muss eine Exception werfen, damit der Vorgang sauber abgebrochen wird.\par
+In 1, 2 und 3 k\'f6nnen aber auch noch andere Probleme auftreten. Also muss ganz au\'dfen in (1) sowieso ein allgemeines try-catch rein, das im catch jegliche Exception an den Problem Handler reportet.\par
+F\'fcr den beschriebenen spezifischen Fall hei\'dft das aber: Der Problem handler kriegt dasselbe Problem zweimal reportet, sogar seine eigene Exception.\par
+Das ist mindestens ungeschickt, streng genommen sogar logisch falsch.\par
+\par
+Die richtige L\'f6sung ist:\par
+- Problem Reporting nur in den "\'e4u\'dfersten" Methoden, die ansonsten m\'f6glichst klein ist und an innere Methoden delegiert.\par
+- Innere Methoden werfen bei Problemen Exceptions, in denen der relevante State (meist Refrenzen auf die problemausl\'f6senden Instanzen) vermerkt wird.\par
+- Das Problem Reporting zieht sich dann aus den Exceptions den n\'f6tigen state f\'fcr bestimmte Reporting-Methoden raus.\par
+\par
+Hm. Oder sollte einfach die blanke Exception weitergereicht werden? Der State ist ja mit drin. Dann m\'fcsste halt in der Empf\'e4nger-Logik ein instanceof-Baum oder ein Type-Mapping drin sein.\par
+Jup. So mach ich das.\par
+Entsprechend umbauen.\par
 }
  

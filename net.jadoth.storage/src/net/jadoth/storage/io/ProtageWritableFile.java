@@ -83,7 +83,7 @@ public interface ProtageWritableFile extends ProtageReadableFile
 		}
 		
 		@Override
-		public synchronized final boolean isDeleted()
+		public final synchronized boolean isDeleted()
 		{
 			return this.isDeleted;
 		}

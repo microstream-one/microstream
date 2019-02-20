@@ -1,34 +1,32 @@
 package net.jadoth.storage.exceptions;
 
-import net.jadoth.exceptions.BaseException;
-
-public class StorageException extends BaseException
+public class StorageExceptionBackup extends StorageException
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //
 	/////////////////////
 
-	public StorageException()
+	public StorageExceptionBackup()
 	{
 		super();
 	}
 
-	public StorageException(final String message)
+	public StorageExceptionBackup(final String message)
 	{
 		super(message);
 	}
 
-	public StorageException(final Throwable cause)
+	public StorageExceptionBackup(final Throwable cause)
 	{
 		super(cause);
 	}
 
-	public StorageException(final String message, final Throwable cause)
+	public StorageExceptionBackup(final String message, final Throwable cause)
 	{
 		super(message, cause);
 	}
 
-	public StorageException(
+	public StorageExceptionBackup(
 		final String    message           ,
 		final Throwable cause             ,
 		final boolean   enableSuppression ,
@@ -37,5 +35,5 @@ public class StorageException extends BaseException
 	{
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
-
+	
 }
