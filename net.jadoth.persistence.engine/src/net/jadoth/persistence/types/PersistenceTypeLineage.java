@@ -92,13 +92,13 @@ public interface PersistenceTypeLineage
 		}
 
 		@Override
-		public synchronized final PersistenceTypeDefinition runtimeDefinition()
+		public final synchronized PersistenceTypeDefinition runtimeDefinition()
 		{
 			return this.runtimeDefinition;
 		}
 		
 		@Override
-		public synchronized final PersistenceTypeDefinition latest()
+		public final synchronized PersistenceTypeDefinition latest()
 		{
 			return this.entries.values().peek();
 		}
@@ -156,7 +156,7 @@ public interface PersistenceTypeLineage
 		}
 				
 		@Override
-		public synchronized final boolean setRuntimeTypeDefinition(final PersistenceTypeDefinition runtimeDefinition)
+		public final synchronized boolean setRuntimeTypeDefinition(final PersistenceTypeDefinition runtimeDefinition)
 		{
 			// false indicates no-op, actual non-viability causes exceptions
 			if(!this.synchCheckViability(runtimeDefinition))

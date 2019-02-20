@@ -1,12 +1,12 @@
 package net.jadoth.storage.types;
 
+import net.jadoth.storage.exceptions.StorageExceptionBackup;
+
 public interface StorageBackupProblemHandler
 {
 	/**
-	 * Might throw an exception to stop the backup handling thread.
-	 * 
-	 * @param problemCount
-	 * @param problemacity
+	 * Throws an exception to stop the backup handling thread.
 	 */
-	public void reportAllKindsOfPeskyProblems(long problemCount, double problemacity);
+	public void handleException(RuntimeException exception) throws StorageExceptionBackup;
+	
 }

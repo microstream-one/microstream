@@ -2,11 +2,13 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
 
-import java.io.IOException;
-
 import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
+import net.jadoth.storage.exceptions.StorageExceptionBackupCopying;
+import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
+import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmptyBackup;
+import net.jadoth.storage.exceptions.StorageExceptionBackupInconsistentFileLength;
 import net.jadoth.storage.types.StorageBackupHandler.Implementation.ChannelInventory;
 
 public interface StorageBackupHandler
@@ -99,13 +101,13 @@ public interface StorageBackupHandler
 		////////////
 		
 		@Override
-		public synchronized final boolean isRunning()
+		public final synchronized boolean isRunning()
 		{
 			return this.running;
 		}
 		
 		@Override
-		public synchronized final void setRunning(final boolean running)
+		public final synchronized void setRunning(final boolean running)
 		{
 			this.running = running;
 		}
@@ -122,11 +124,37 @@ public interface StorageBackupHandler
 			{
 				this.tryInitialize(storageInventory);
 			}
-			catch(final Exception e)
+			catch(final RuntimeException e)
 			{
-				// (19.02.2019 TM)FIXME: JET-55: Problem Handling
-				this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
-				throw new Error(e); // reaching here means an error in the problem handler for not throwing an exception.
+				this.problemHandler.handleException(e);
+				
+				// reaching here is a problem handler error for not throwing an exception.
+				throw new Error(e);
+			}
+		}
+		
+		@Override
+		public void run()
+		{
+			// must be the method instead of the field to check the lock but don't conver the whole loop
+			while(this.isRunning())
+			{
+				try
+				{
+					this.itemQueue.processNextItem(this);
+				}
+				catch(final InterruptedException e)
+				{
+					// still not sure about the viability of interruption handling in the general case.
+					this.stop();
+				}
+				catch(final RuntimeException e)
+				{
+					this.problemHandler.handleException(e);
+					
+					// reaching here is a problem handler error for not throwing an exception.
+					throw new Error(e);
+				}
 			}
 		}
 		
@@ -161,56 +189,92 @@ public interface StorageBackupHandler
 			this.copyFile(transactionFile, backupTransactionFile);
 		}
 		
+		private void validateStorageInventoryForExistingBackup(
+			final StorageInventory storageInventory,
+			final ChannelInventory backupInventory
+		)
+		{
+			if(!storageInventory.dataFiles().isEmpty())
+			{
+				return;
+			}
+			
+			throw new StorageExceptionBackupEmptyStorageForNonEmptyBackup(
+				backupInventory.channelIndex(),
+				backupInventory.dataFiles()
+			);
+		}
+		
+		private void validateBackupFileProgress(
+			final StorageInventory storageInventory,
+			final ChannelInventory backupInventory
+		)
+		{
+			final long lastStorageFileNumber = storageInventory.dataFiles().keys().last();
+			final long lastBackupFileNumber  = backupInventory.dataFiles().keys().last();
+			
+			if(lastBackupFileNumber <= lastStorageFileNumber)
+			{
+				return;
+			}
+			
+			throw new StorageExceptionBackupEmptyStorageBackupAhead(
+				storageInventory,
+				backupInventory.dataFiles()
+			);
+		}
+		
 		final void updateExistingBackup(
 			final StorageInventory storageInventory,
 			final ChannelInventory backupInventory
 		)
 		{
-			if(storageInventory.dataFiles().isEmpty())
-			{
-				// (19.02.2019 TM)FIXME: JET-55: Problem Handling
-				this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
-				throw new Error(); // reaching here means an error in the problem handler for not throwing an exception.
-			}
-			
-			final long lastStorageFileNumber = storageInventory.dataFiles().keys().last();
-			final long lastBackupFileNumber  = backupInventory.dataFiles().keys().last();
-			
-			if(lastBackupFileNumber > lastStorageFileNumber)
-			{
-				// (19.02.2019 TM)FIXME: JET-55: Problem Handling
-				this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
-				throw new Error(); // reaching here means an error in the problem handler for not throwing an exception.
-			}
-			
+			this.validateStorageInventoryForExistingBackup(storageInventory, backupInventory);
+			this.validateBackupFileProgress(storageInventory, backupInventory);
+
+			final long lastBackupFileNumber = backupInventory.dataFiles().keys().last();
 			for(final StorageInventoryFile storageFile : storageInventory.dataFiles().values())
 			{
 				final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
-				if(backupTargetFile.exists())
+				
+				// non-existant files have either not been backupped, yet, or a "healable" error.
+				if(!backupTargetFile.exists())
 				{
-					if(backupTargetFile.length() == storageFile.length())
-					{
-						// perfect match, everything is fine
-						continue;
-					}
-					
-					if(backupTargetFile.number() == lastBackupFileNumber)
-					{
-						this.copyFile(
-							storageFile,
-							backupTargetFile.length(),
-							storageFile.length() - backupTargetFile.length(),
-							backupTargetFile
-						);
-					}
-					
-					// (19.02.2019 TM)FIXME: JET-55: Problem Handling
-					this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
-					throw new Error(); // reaching here means an error in the problem handler for not throwing an exception.
+					// in any case, the storage file is simply copied (backed up)
+					this.copyFile(storageFile, backupTargetFile);
+					continue;
 				}
+				
+				// existing file with matching length means everything is fine
+				if(backupTargetFile.length() == storageFile.length())
+				{
+					// continue with next file
+					continue;
+				}
+
+				// the last/latest/highest existing backup file can validly diverge in length.
+				if(backupTargetFile.number() == lastBackupFileNumber)
+				{
+					// missing length is copied to update the backup file
+					this.copyFile(
+						storageFile,
+						backupTargetFile.length(),
+						storageFile.length() - backupTargetFile.length(),
+						backupTargetFile
+					);
+					continue;
+				}
+				
+				// any existing non-last backup file with divergent length is a consistency error
+				throw new StorageExceptionBackupInconsistentFileLength(
+					storageInventory           ,
+					backupInventory.dataFiles(),
+					storageFile                ,
+					backupTargetFile
+				);
 			}
 		}
-		
+				
 		private void copyFile(
 			final StorageInventoryFile storageFile     ,
 			final StorageBackupFile    backupTargetFile
@@ -233,11 +297,9 @@ public interface StorageBackupHandler
 				// backup file always gets closed right away.
 				backupTargetFile.close();
 			}
-			catch(final IOException e)
+			catch(final Exception e)
 			{
-				// (19.02.2019 TM)FIXME: JET-55: Problem Handling
-				this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
-				throw new Error(e); // reaching here means an error in the problem handler for not throwing an exception.
+				throw new StorageExceptionBackupCopying(storageFile, sourcePosition, length, backupTargetFile, e);
 			}
 		}
 		
@@ -276,30 +338,6 @@ public interface StorageBackupHandler
 			if(file != null)
 			{
 				file.decrementUserCount();
-			}
-		}
-		
-		@Override
-		public void run()
-		{
-			// must be the method instead of the field to check the lock but don't conver the whole loop
-			while(this.isRunning())
-			{
-				try
-				{
-					this.itemQueue.processNextItem(this);
-				}
-				catch(final InterruptedException e)
-				{
-					// still not sure about the viability of interruption handling in the general case.
-					this.stop();
-				}
-				catch(final Exception e)
-				{
-					// (19.02.2019 TM)FIXME: JET-55: Generic Problem Handling
-					this.problemHandler.reportAllKindsOfPeskyProblems(0, 0);
-					throw new Error(e); // reaching here means an error in the problem handler for not throwing an exception.
-				}
 			}
 		}
 		
