@@ -209,5 +209,51 @@ Die richtige L\'f6sung ist:\par
 Hm. Oder sollte einfach die blanke Exception weitergereicht werden? Der State ist ja mit drin. Dann m\'fcsste halt in der Empf\'e4nger-Logik ein instanceof-Baum oder ein Type-Mapping drin sein.\par
 Jup. So mach ich das.\par
 Entsprechend umbauen.\par
+\par
+\par
+\par
+2018-02-21\par
+\par
+Jetzt fehlen noch:\par
+1.) ProblemHandler Implementierung bauen und entsprechend auf die Channel-Threads r\'fcckwirken lassen.\par
+2.) Foundation Klasse erweitern.\par
+3.) copy und truncate Methode implementieren.\par
+4.) Testen, nat\'fcrlich, wie \'fcblich.\par
+5.) Evtl. gleich so eine Validierungslogik bauen, die die frisch geschriebenen Teile der Backup Dateien validiert.\par
+\par
+Punkt #1 planen und implementieren.\par
+\par
+Daf\'fcr muss der StorageChannelController erweitert werden um eine Funktionalit\'e4t, fatale Exceptions zu registrieren und sobald die nicht leer sind, wirft der die in den ChannelThreads weiter.\par
+\par
+Achja und den Thread an sich muss ich ja auch noch irgendwo starten.\par
+Das ist der BackupHandler. Der muss dann aber noch anhand des ChannelControllers checken, ob er laufen soll.\par
+Hm... braucht es dann \'fcberhaupt den eingeschobene Mini-Typ ExceptionHandler? Der BackupHandler kann ja eigentlich gleich direkt dem ChannelController auftretende exceptions \'fcbergeben...\par
+Rausschmeissen.\par
+Passt.\par
+\par
+Jetzt mal zur Verkabelung des ganzen:\par
+Foundaten Erweiterung bauen.\par
+Es reicht eigentlich, einen StorageFileProvider backupFileProvider dort zu setzen. Wenn es einen gibt, werden die restlichen Teile referenziert bzw. bei Bedarf erstellt.\par
+So bau ich das mal.\par
+\par
+Paar Details:\par
+Der StorageBackupHandler braucht noch einen Threadnamen, nat\'fcrlich mit einem Defaultwert.\par
+Und es muss auch noch so einen "gravedigger" Mechanismus f\'fcr gel\'f6schte Dateien geben.\par
+Denn es muss doch m\'f6glich sein, im Backupverzeichnis Dateien zu l\'f6schen, sonst w\'fcrde eine kleine Datenbasis mit vielen stores eine gigantische Menge an Backupplatz belegen.\par
+Darum steuerbar \'fcber ein Verzeichnis:\par
+Selbes Verzeichnis -> lassen.\par
+Andere Verzeichnis -> verschieben.\par
+Kein Verzeichnis -> l\'f6schen.\par
+\par
+Bl\'f6d ist nur, dass ich das wieder direkt als File machen m\'fcsste, aber eigentlich will ich das ja abstrahieren.\par
+Hm, oder ich mach einen String Verzeichnisnamen f\'fcr das Unterverzeichnis.\par
+\par
+Mit den zus\'e4tzlichen Variablen muss aber ein neuer Typ "StorageBackupConfiguration" her, der das alles h\'e4lt.\par
+Dann f\'e4llt immerhin gleich die Zweideutigkeit mit dem normalen StorageFileProvider weg, nice.\par
+\par
+So. BackupConfiguration gebaut. Foundation erweitert. FIXMEs zum integrieren ins Starten der Storage Threads geschrieben, usw.\par
+\par
+Das w\'e4rs mal f\'fcr den Moment...\par
+\par
 }
  

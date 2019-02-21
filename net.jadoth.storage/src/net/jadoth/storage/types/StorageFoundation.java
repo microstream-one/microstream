@@ -9,6 +9,8 @@ import net.jadoth.util.InstanceDispatcher;
 
 public interface StorageFoundation<F extends StorageFoundation<?>>
 {
+	public StorageChannelController.Creator getChannelControllerCreator();
+	
 	public StorageInitialDataFileNumberProvider getInitialDataFileNumberProvider();
 
 	public StorageRequestAcceptor.Creator getRequestAcceptorCreator();
@@ -46,8 +48,11 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public StorageEntityMarkMonitor.Creator getEntityMarkMonitorCreator();
 
 	public StorageExceptionHandler getExceptionHandler();
+	
+	public StorageBackupConfiguration getBackupConfiguration();
 
 
+	public F setChannelControllerCreator(StorageChannelController.Creator channelControllerProvider);
 
 	public F setInitialDataFileNumberProvider(StorageInitialDataFileNumberProvider initDataFileNumberProvider);
 
@@ -86,6 +91,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public F setOidMarkQueueCreator(StorageOidMarkQueue.Creator oidMarkQueueCreator);
 
 	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
+	
+	public F setBackupConfiguration(StorageBackupConfiguration backupConfiguration);
 
 	public StorageManager createStorageManager();
 
@@ -100,6 +107,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		////////////////////
 
 		private StorageConfiguration                  configuration                ;
+		private StorageChannelController.Creator      channelControllerCreator     ;
 		private StorageInitialDataFileNumberProvider  initialDataFileNumberProvider;
 		private StorageRequestAcceptor.Creator        requestAcceptorCreator       ;
 		private StorageTaskBroker.Creator             taskBrokerCreator            ;
@@ -118,6 +126,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageExceptionHandler               exceptionHandler             ;
+		private StorageBackupConfiguration            backupConfiguration          ;
 
 		
 		
@@ -153,6 +162,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			return Storage.Configuration();
 		}
+		
+		protected StorageChannelController.Creator ensureChannelControllerCreator()
+		{
+			return StorageChannelController.Provider();
+		}
+		
+		
 
 		protected StorageInitialDataFileNumberProvider ensureInitialDataFileNumberProvider()
 		{
@@ -257,6 +273,17 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 		
 		
+		
+
+		@Override
+		public StorageChannelController.Creator getChannelControllerCreator()
+		{
+			if(this.channelControllerCreator == null)
+			{
+				this.channelControllerCreator = this.dispatch(this.ensureChannelControllerCreator());
+			}
+			return this.channelControllerCreator;
+		}
 
 		@Override
 		public StorageInitialDataFileNumberProvider getInitialDataFileNumberProvider()
@@ -447,8 +474,22 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			}
 			return this.exceptionHandler;
 		}
+		
+		@Override
+		public StorageBackupConfiguration getBackupConfiguration()
+		{
+			// no on-demand creation logic as this is an optional part
+			return this.backupConfiguration;
+		}
 
 		
+		
+		@Override
+		public F setChannelControllerCreator(final StorageChannelController.Creator channelControllerProvider)
+		{
+			this.channelControllerCreator = channelControllerProvider;
+			return this.$();
+		}
 		
 		@Override
 		public F setInitialDataFileNumberProvider(
@@ -595,6 +636,27 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return this.$();
 		}
 		
+		@Override
+		public F setBackupConfiguration(final StorageBackupConfiguration backupConfiguration)
+		{
+			this.backupConfiguration = backupConfiguration;
+			return this.$();
+		}
+		
+		protected StorageBackupHandler provideBackupHandler()
+		{
+			// (21.02.2019 TM)FIXME: JET-55: implement
+			throw new net.jadoth.meta.NotImplementedYetError();
+//			final StorageBackupConfiguration backupConfig = this.getBackupFileProvider();
+//			if(fileProvider == null)
+//			{
+//				// no automated backup mechanism configured / desired.
+//				return null;
+//			}
+//
+//			return StorageBackupHandler.New(null, null, 0, fileProvider, null, null)
+			
+		}
 		
 		public final boolean isByteOrderMismatch()
 		{
@@ -618,8 +680,16 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			 * foreseeable future.
 			 * See StorageEntityCache$Implementation#putEntity
 			 */
+			
+			final StorageConfiguration             configuration     = this.getConfiguration();
+			final StorageChannelController.Creator ccc               = this.getChannelControllerCreator();
+			final StorageChannelController         channelController = ccc.provideChannelController(
+				configuration.channelCountProvider()
+			);
+			
 			return new StorageManager.Implementation(
-				this.getConfiguration()                ,
+				configuration                          ,
+				channelController                      ,
 				this.getInitialDataFileNumberProvider(),
 				this.getRequestAcceptorCreator()       ,
 				this.getTaskBrokerCreator()            ,
@@ -638,7 +708,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getOidMarkQueueCreator()          ,
 				this.getEntityMarkMonitorCreator()     ,
 				this.isByteOrderMismatch()             ,
-				this.getExceptionHandler()
+				this.getExceptionHandler()             ,
+				this.provideBackupHandler()
 			);
 		}
 
