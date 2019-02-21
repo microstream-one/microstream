@@ -285,7 +285,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				 * Also may NOT check before task processing as the first task is initializing which in turn
 				 * enables channel processing on success. So no simple while condition possible.
 				 */
-				if(!channelController.isChannelProcessingEnabled())
+				if(!channelController.checkProcessingEnabled())
 				{
 					DEBUGStorage.println(this.channelIndex + " processing disabled.");
 					break;

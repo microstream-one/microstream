@@ -38,10 +38,17 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 			this.internalEnqueueItem(null, 0, newLength, file);
 		}
 		
+		@Override
+		public void enqueueDeletionItem(final StorageInventoryFile file)
+		{
+			// signalling with a negative length is a hack to avoid the complexity of multiple Item classes
+			this.internalEnqueueItem(null, 0, -1, file);
+		}
+		
 		private void internalEnqueueItem(
 			final StorageInventoryFile sourceFile    ,
-			final long                     sourcePosition,
-			final long                     length        ,
+			final long                 sourcePosition,
+			final long                 length        ,
 			final StorageInventoryFile targetFile
 		)
 		{
@@ -119,6 +126,10 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 				if(this.sourceFile != null)
 				{
 					handler.copyFile(this.sourceFile, this.sourcePosition, this.length, this.targetFile);
+				}
+				else if(this.length < 0)
+				{
+					handler.deleteFile(this.targetFile);
 				}
 				else
 				{

@@ -13,6 +13,8 @@ import net.jadoth.storage.types.StorageBackupHandler.Implementation.ChannelInven
 
 public interface StorageBackupHandler
 {
+	public StorageBackupConfiguration backupConfiguration();
+	
 	public void initialize(StorageInventory storageInventory);
 	
 	public void copyFile(
@@ -25,6 +27,10 @@ public interface StorageBackupHandler
 	public void truncateFile(
 		StorageInventoryFile file     ,
 		long                 newLength
+	);
+	
+	public void deleteFile(
+		StorageInventoryFile file
 	);
 	
 	public default void start()
@@ -44,23 +50,26 @@ public interface StorageBackupHandler
 	
 	
 	public static StorageBackupHandler New(
-		final int                         channelCount      ,
-		final StorageFileProvider         backupFileProvider,
-		final StorageBackupItemQueue      itemQueue         ,
-		final StorageBackupProblemHandler problemHandler
+		final StorageBackupConfiguration backupConfiguration,
+		final int                        channelCount       ,
+		final StorageBackupItemQueue     itemQueue          ,
+		final StorageChannelController   channelController
 	)
 	{
+		final StorageFileProvider backupFileProvider = backupConfiguration.backupFileProvider();
+		
 		final ChannelInventory[] cis = X.Array(ChannelInventory.class, channelCount, i ->
 		{
-			final StorageNumberedFile transactionsFile = backupFileProvider.provideTransactionsFile(i);
-			final StorageBackupFile   backupFile       = StorageBackupFile.New(transactionsFile);
-			return new ChannelInventory(i, backupFileProvider, backupFile);
+			final StorageNumberedFile rawTransactionsFile   = backupFileProvider.provideTransactionsFile(i);
+			final StorageBackupFile   backupTransactionFile = StorageBackupFile.New(rawTransactionsFile);
+			return new ChannelInventory(i, backupFileProvider, backupTransactionFile);
 		});
 		
 		return new StorageBackupHandler.Implementation(
-			cis                    ,
-			notNull(itemQueue)     ,
-			notNull(problemHandler)
+	                cis                 ,
+			notNull(backupConfiguration),
+			notNull(itemQueue)          ,
+			notNull(channelController)
 		);
 	}
 	
@@ -69,10 +78,10 @@ public interface StorageBackupHandler
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
-		private final ChannelInventory[]          channelInventories;
-		private final StorageBackupItemQueue      itemQueue         ;
-		private final StorageBackupProblemHandler problemHandler    ;
+		private final StorageBackupConfiguration backupConfiguration;
+		private final ChannelInventory[]         channelInventories ;
+		private final StorageBackupItemQueue     itemQueue          ;
+		private final StorageChannelController   channelController  ;
 		
 		private boolean running;
 		
@@ -83,15 +92,17 @@ public interface StorageBackupHandler
 		/////////////////
 		
 		Implementation(
-			final ChannelInventory[]          channelInventories,
-			final StorageBackupItemQueue      itemQueue         ,
-			final StorageBackupProblemHandler problemHandler
+			final ChannelInventory[]         channelInventories ,
+			final StorageBackupConfiguration backupConfiguration,
+			final StorageBackupItemQueue     itemQueue          ,
+			final StorageChannelController   channelController
 		)
 		{
 			super();
-			this.itemQueue          = itemQueue         ;
-			this.channelInventories = channelInventories;
-			this.problemHandler     = problemHandler    ;
+			this.channelInventories  = channelInventories ;
+			this.backupConfiguration = backupConfiguration;
+			this.itemQueue           = itemQueue          ;
+			this.channelController   = channelController  ;
 		}
 
 		
@@ -99,6 +110,12 @@ public interface StorageBackupHandler
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final StorageBackupConfiguration backupConfiguration()
+		{
+			return this.backupConfiguration;
+		}
 		
 		@Override
 		public final synchronized boolean isRunning()
@@ -126,10 +143,8 @@ public interface StorageBackupHandler
 			}
 			catch(final RuntimeException e)
 			{
-				this.problemHandler.handleException(e);
-				
-				// reaching here is a problem handler error for not throwing an exception.
-				throw new Error(e);
+				this.channelController.registerDisruptingProblem(e);
+				throw e;
 			}
 		}
 		
@@ -150,10 +165,8 @@ public interface StorageBackupHandler
 				}
 				catch(final RuntimeException e)
 				{
-					this.problemHandler.handleException(e);
-					
-					// reaching here is a problem handler error for not throwing an exception.
-					throw new Error(e);
+					this.channelController.registerDisruptingProblem(e);
+					throw e;
 				}
 			}
 		}
@@ -335,10 +348,18 @@ public interface StorageBackupHandler
 			
 			// FIXME JET-55: StorageBackupHandler#truncateFile()
 			
-			if(file != null)
-			{
-				file.decrementUserCount();
-			}
+			file.decrementUserCount();
+		}
+		
+		@Override
+		public void deleteFile(final StorageInventoryFile file)
+		{
+			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
+			
+			// FIXME JET-55: StorageBackupHandler.Implementation#deleteFile()
+			
+			file.decrementUserCount();
+			throw new net.jadoth.meta.NotImplementedYetError();
 		}
 		
 		static final class ChannelInventory implements StorageHashChannelPart

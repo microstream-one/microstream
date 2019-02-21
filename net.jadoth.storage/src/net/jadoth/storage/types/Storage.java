@@ -244,6 +244,9 @@ public final class Storage
 	{
 		return StorageDataFileEvaluator.New(minFileSize, maxFileSize, dissolveRatio, dissolveHeadfile);
 	}
+	
+	
+	// (21.02.2019 TM)FIXME: JET-55: StorageBackupConfiguration
 
 	/**
 	 * Calls {@link #consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)}

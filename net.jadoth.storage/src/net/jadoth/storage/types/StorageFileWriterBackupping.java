@@ -222,6 +222,13 @@ public final class StorageFileWriterBackupping implements StorageFileWriter
 		this.itemEnqueuer.enqueueTruncatingItem(file, newLength);
 	}
 	
+	@Override
+	public final void delete(final StorageInventoryFile file)
+	{
+		this.delegate.delete(file);
+		this.itemEnqueuer.enqueueDeletionItem(file);
+	}
+	
 	
 	
 	public static final class Provider implements StorageFileWriter.Provider

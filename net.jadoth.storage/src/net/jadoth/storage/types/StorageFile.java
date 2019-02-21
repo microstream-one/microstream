@@ -47,8 +47,8 @@ public interface StorageFile
 	
 	
 	/**
-	 * Returns a string that give {@link #name()} a unique meaning.
-	 * Example: The parent directory of a {@link File}.
+	 * Returns a string that gives {@link #name()} a unique identity.
+	 * Example: The parent directory path of a {@link File}.
 	 * 
 	 * @return
 	 */

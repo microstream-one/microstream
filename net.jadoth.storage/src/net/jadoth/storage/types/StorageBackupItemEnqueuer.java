@@ -4,13 +4,17 @@ public interface StorageBackupItemEnqueuer
 {
 	public void enqueueCopyingItem(
 		StorageInventoryFile sourceFile    ,
-		long                     sourcePosition,
-		long                     length        ,
+		long                 sourcePosition,
+		long                 length        ,
 		StorageInventoryFile targetFile
 	);
 	
 	public void enqueueTruncatingItem(
 		StorageInventoryFile file     ,
-		long                     newLength
+		long                 newLength
+	);
+	
+	public void enqueueDeletionItem(
+		StorageInventoryFile file
 	);
 }
