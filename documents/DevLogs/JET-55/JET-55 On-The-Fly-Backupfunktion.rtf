@@ -255,5 +255,24 @@ So. BackupConfiguration gebaut. Foundation erweitert. FIXMEs zum integrieren ins
 \par
 Das w\'e4rs mal f\'fcr den Moment...\par
 \par
+\par
+2019-02-22\par
+\par
+Besser als ein plain ThreadName mit hardgecodeter Thread Instanzierung w\'e4re ein ThreadProvider.\par
+Genauso l\'e4uft das ja bei den ChannelThreads auch.\par
+Also aktuellen ThreadProvider umbenennen zu ChannelThreadProvider und per copy&paste einen BackupThreadProvider bauen.\par
+Hm. Und damit die Zahl der Felder im StorageManager nicht unn\'f6tig explodiert wrap ich beides jetzt wieder in einem allgemeinen ThreadProvider.\par
+Hehe.\par
+\par
+Storage-Konstrukturmethoden f\'fcr BackupConfiguration bauen.\par
+\par
+BackupHandler Erstellung bauen.\par
+\par
+Einbauen in Storage Start.\par
+\par
+Das war jetzt alles bissl knifflig durch die verschiedenen Methoden und Instanzen, \'fcber die das verteilt ist.\par
+StorageBackupConfiguration umbenannt zu StorageBackupSetup und um ein paar entsprechende setup~ Methoden erweitert, um das sauber zu l\'f6sen.\par
+\par
+Damit w\'e4ren jetzt nur noch die drei Item-Handling-Logik Methoden \'fcbrig, dann ist das Backup (ohne Validierung) fertig zum testen.\par
 }
  

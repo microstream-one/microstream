@@ -1,31 +1,61 @@
 package net.jadoth.storage.types;
 
-@FunctionalInterface
-public interface StorageThreadProvider
+import static net.jadoth.X.notNull;
+
+public interface StorageThreadProvider extends StorageChannelThreadProvider, StorageBackupThreadProvider
 {
-	/**
-	 * Provides a newly created, yet unstarted {@link Thread} instance wrapping the passed
-	 * {@link StorageChannel} instance.
-	 * The thread will be used as an exclusive, permanent storage channel worker thread until the storage
-	 * is shut down.
-	 * Interfering with the thread from outside the storage compound has undefined and potentially
-	 * unpredictable and erronous behavior.
-	 *
-	 * @return a {@link Thread} instance ot be used as a storage channel worker thread.
-	 */
-	public Thread provideStorageThread(StorageChannel storageChannel);
-
-
-
-	public final class Implementation implements StorageThreadProvider
+	public static StorageThreadProvider New(
+		final StorageChannelThreadProvider channelThreadProvider,
+		final StorageBackupThreadProvider  backupThreadProvider
+	)
 	{
-		@Override
-		public Thread provideStorageThread(final StorageChannel storageChannel)
+		return new StorageThreadProvider.Wrapper(
+			notNull(channelThreadProvider),
+			notNull(backupThreadProvider)
+		);
+	}
+
+	public final class Wrapper implements StorageThreadProvider
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final StorageChannelThreadProvider channelThreadProvider;
+		private final StorageBackupThreadProvider  backupThreadProvider ;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Wrapper(
+			final StorageChannelThreadProvider channelThreadProvider,
+			final StorageBackupThreadProvider  backupThreadProvider
+		)
 		{
-			return new Thread(
-				storageChannel,
-				StorageChannel.class.getSimpleName() + "-" + storageChannel.channelIndex()
-			);
+			super();
+			this.channelThreadProvider = channelThreadProvider;
+			this.backupThreadProvider = backupThreadProvider;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final Thread provideStorageThread(final StorageChannel storageChannel)
+		{
+			return this.channelThreadProvider.provideStorageThread(storageChannel);
+		}
+
+		@Override
+		public final Thread provideBackupThread(final StorageBackupHandler backupHandler)
+		{
+			return this.backupThreadProvider.provideBackupThread(backupHandler);
 		}
 
 	}

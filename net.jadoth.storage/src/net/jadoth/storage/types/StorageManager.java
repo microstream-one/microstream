@@ -1,5 +1,6 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import net.jadoth.persistence.types.Persistence;
@@ -67,6 +68,7 @@ public interface StorageManager extends StorageController
 		private final StorageRootOidSelector.Provider      rootOidSelectorProvider      ;
 		private final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ;
 		private final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ;
+		private final StorageBackupSetup                   backupSetup                  ;
 		private final boolean                              switchByteOrder              ;
 
 
@@ -81,7 +83,8 @@ public interface StorageManager extends StorageController
 
 		// running state members //
 		private volatile StorageTaskBroker taskbroker   ;
-		private final    ChannelKeeper[]   keepers      ;
+		private final    ChannelKeeper[]   channelKeepers;
+		private          Thread            backupThread  ;
 		
 		private StorageIdAnalysis initializationIdAnalysis;
 
@@ -94,6 +97,9 @@ public interface StorageManager extends StorageController
 		public Implementation(
 			final StorageConfiguration                 storageConfiguration         ,
 			final StorageChannelController             channelController            ,
+			final StorageBackupSetup           backupSetup                  ,
+			final StorageFileWriter.Provider           writerProvider               ,
+			final StorageFileReader.Provider           readerProvider               ,
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
 			final StorageRequestAcceptor.Creator       requestAcceptorCreator       ,
 			final StorageTaskBroker.Creator            taskBrokerCreator            ,
@@ -105,15 +111,12 @@ public interface StorageManager extends StorageController
 			final StorageRootTypeIdProvider            rootTypeIdProvider           ,
 			final StorageTimestampProvider             timestampProvider            ,
 			final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator       ,
-			final StorageFileReader.Provider           readerProvider               ,
-			final StorageFileWriter.Provider           writerProvider               ,
 			final StorageGCZombieOidHandler            zombieOidHandler             ,
 			final StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
 			final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
 			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
 			final boolean                              switchByteOrder              ,
-			final StorageExceptionHandler              exceptionHandler             ,
-			final StorageBackupHandler                 backupHandler
+			final StorageExceptionHandler              exceptionHandler
 		)
 		{
 			super();
@@ -141,10 +144,11 @@ public interface StorageManager extends StorageController
 			this.oidMarkQueueCreator           = notNull(oidMarkQueueCreator)                 ;
 			this.entityMarkMonitorCreator      = notNull(entityMarkMonitorCreator)            ;
 			this.exceptionHandler              = notNull(exceptionHandler)                    ;
+			this.backupSetup                   = mayNull(backupSetup)                         ;
 			this.switchByteOrder               =         switchByteOrder                      ;
 			
 			final int channelCount = storageConfiguration.channelCountProvider().get();
-			this.keepers                       = new ChannelKeeper[channelCount];
+			this.channelKeepers                       = new ChannelKeeper[channelCount];
 		}
 
 
@@ -204,16 +208,26 @@ public interface StorageManager extends StorageController
 			// (07.07.2016 TM)TODO: StorageThreadStarter instead of hardcoded call
 			synchronized(initializingTask)
 			{
-				for(final ChannelKeeper keeper : this.keepers)
+				for(final ChannelKeeper keeper : this.channelKeepers)
 				{
 					keeper.thread.start();
 				}
 				initializingTask.waitOnCompletion();
 			}
-			
-			// (21.02.2019 TM)FIXME: JET-55: start backup handler thread
-			
+						
 			return initializingTask.idAnalysis();
+		}
+		
+		private void startBackupThread()
+		{
+			if(this.backupSetup == null)
+			{
+				return;
+			}
+			
+			final StorageBackupHandler backupHandler = this.backupSetup.setupHandler(this.channelController);
+			this.backupThread = this.threadProvider.provideBackupThread(backupHandler);
+			this.backupThread.start();
 		}
 
 
@@ -236,7 +250,7 @@ public interface StorageManager extends StorageController
 
 		private void createChannels()
 		{
-			// (21.02.2019 TM)FIXME: JET-55: wrap writerprovider with one adding the backup aspect
+			final StorageFileWriter.Provider effectiveWriterProvider = this.dispatchWriterProvider();
 			
 			/* (24.09.2014 TM)TODO: check channel directory consistency
 			 * run analysis on provided storage base directory to see if there exist any channel folders
@@ -257,7 +271,7 @@ public interface StorageManager extends StorageController
 				this.housekeepingController                ,
 				this.timestampProvider                     ,
 				this.readerProvider                        ,
-				this.writerProvider                        ,
+				effectiveWriterProvider                    ,
 				this.zombieOidHandler                      ,
 				this.rootOidSelectorProvider               ,
 				this.oidMarkQueueCreator                   ,
@@ -266,17 +280,27 @@ public interface StorageManager extends StorageController
 				this.rootTypeIdProvider.provideRootTypeId()
 			);
 
-			final ChannelKeeper[] keepers = this.keepers;
+			final ChannelKeeper[] keepers = this.channelKeepers;
 			for(int i = 0; i < channels.length; i++)
 			{
 				keepers[i] = new ChannelKeeper(i, channels[i], this.threadProvider.provideStorageThread(channels[i]));
 			}
 		}
+		
+		private StorageFileWriter.Provider dispatchWriterProvider()
+		{
+			if(this.backupSetup == null)
+			{
+				return this.writerProvider;
+			}
+			
+			return this.backupSetup.setupWriterProvider(this.writerProvider);
+		}
 
 		private int channelCount()
 		{
 			// once set, the channel count cannot be changed. Might be improved in the future.
-			return this.keepers.length;
+			return this.channelKeepers.length;
 		}
 
 		private void internalStartUp() throws InterruptedException
@@ -297,6 +321,9 @@ public interface StorageManager extends StorageController
 			this.objectIdRangeEvaluator.evaluateObjectIdRange(0, maxOid == null ? 0 : maxOid);
 			
 			this.initializationIdAnalysis = idAnalysis;
+			
+			// optional
+			this.startBackupThread();
 		}
 
 		private void internalShutdown() throws InterruptedException

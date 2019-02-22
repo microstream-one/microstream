@@ -11,9 +11,9 @@ import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmp
 import net.jadoth.storage.exceptions.StorageExceptionBackupInconsistentFileLength;
 import net.jadoth.storage.types.StorageBackupHandler.Implementation.ChannelInventory;
 
-public interface StorageBackupHandler
+public interface StorageBackupHandler extends Runnable
 {
-	public StorageBackupConfiguration backupConfiguration();
+	public StorageBackupSetup setup();
 	
 	public void initialize(StorageInventory storageInventory);
 	
@@ -50,13 +50,13 @@ public interface StorageBackupHandler
 	
 	
 	public static StorageBackupHandler New(
-		final StorageBackupConfiguration backupConfiguration,
-		final int                        channelCount       ,
-		final StorageBackupItemQueue     itemQueue          ,
-		final StorageChannelController   channelController
+		final StorageBackupSetup       backupSetup      ,
+		final int                      channelCount     ,
+		final StorageBackupItemQueue   itemQueue        ,
+		final StorageChannelController channelController
 	)
 	{
-		final StorageFileProvider backupFileProvider = backupConfiguration.backupFileProvider();
+		final StorageFileProvider backupFileProvider = backupSetup.backupFileProvider();
 		
 		final ChannelInventory[] cis = X.Array(ChannelInventory.class, channelCount, i ->
 		{
@@ -66,22 +66,22 @@ public interface StorageBackupHandler
 		});
 		
 		return new StorageBackupHandler.Implementation(
-	                cis                 ,
-			notNull(backupConfiguration),
-			notNull(itemQueue)          ,
+	                cis               ,
+			notNull(backupSetup)      ,
+			notNull(itemQueue)        ,
 			notNull(channelController)
 		);
 	}
 	
-	public final class Implementation implements StorageBackupHandler, Runnable
+	public final class Implementation implements StorageBackupHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		private final StorageBackupConfiguration backupConfiguration;
-		private final ChannelInventory[]         channelInventories ;
-		private final StorageBackupItemQueue     itemQueue          ;
-		private final StorageChannelController   channelController  ;
+		private final StorageBackupSetup       backupSetup       ;
+		private final ChannelInventory[]       channelInventories;
+		private final StorageBackupItemQueue   itemQueue         ;
+		private final StorageChannelController channelController ;
 		
 		private boolean running;
 		
@@ -92,17 +92,17 @@ public interface StorageBackupHandler
 		/////////////////
 		
 		Implementation(
-			final ChannelInventory[]         channelInventories ,
-			final StorageBackupConfiguration backupConfiguration,
-			final StorageBackupItemQueue     itemQueue          ,
-			final StorageChannelController   channelController
+			final ChannelInventory[]       channelInventories,
+			final StorageBackupSetup       backupSetup       ,
+			final StorageBackupItemQueue   itemQueue         ,
+			final StorageChannelController channelController
 		)
 		{
 			super();
-			this.channelInventories  = channelInventories ;
-			this.backupConfiguration = backupConfiguration;
-			this.itemQueue           = itemQueue          ;
-			this.channelController   = channelController  ;
+			this.channelInventories = channelInventories;
+			this.backupSetup        = backupSetup       ;
+			this.itemQueue          = itemQueue         ;
+			this.channelController  = channelController ;
 		}
 
 		
@@ -112,9 +112,9 @@ public interface StorageBackupHandler
 		////////////
 		
 		@Override
-		public final StorageBackupConfiguration backupConfiguration()
+		public final StorageBackupSetup setup()
 		{
-			return this.backupConfiguration;
+			return this.backupSetup;
 		}
 		
 		@Override
