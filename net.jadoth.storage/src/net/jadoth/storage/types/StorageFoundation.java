@@ -21,6 +21,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public StorageChannel.Creator getChannelCreator();
 
+	public StorageChannelThreadProvider getChannelThreadProvider();
+
+	public StorageBackupThreadProvider getBackupThreadProvider();
+	
 	public StorageThreadProvider getThreadProvider();
 
 	public StorageRequestTaskCreator getRequestTaskCreator();
@@ -49,7 +53,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public StorageExceptionHandler getExceptionHandler();
 	
-	public StorageBackupConfiguration getBackupConfiguration();
+	public StorageBackupSetup getBackupSetup();
 
 
 	public F setChannelControllerCreator(StorageChannelController.Creator channelControllerProvider);
@@ -64,6 +68,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setChannelCreator(StorageChannel.Creator channelCreator);
 
+	public F setChannelThreadProvider(StorageChannelThreadProvider channelThreadProvider);
+	
+	public F setBackupThreadProvider(StorageBackupThreadProvider backupThreadProvider);
+	
 	public F setThreadProvider(StorageThreadProvider threadProvider);
 
 	public F setTaskCreator(StorageRequestTaskCreator taskCreator);
@@ -92,7 +100,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
 	
-	public F setBackupConfiguration(StorageBackupConfiguration backupConfiguration);
+	public F setBackupSetup(StorageBackupSetup backupSetup);
 
 	public StorageManager createStorageManager();
 
@@ -113,6 +121,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageTaskBroker.Creator             taskBrokerCreator            ;
 		private StorageValidatorDataChunk.Provider    dataChunkValidatorProvider   ;
 		private StorageChannel.Creator                channelCreator               ;
+		private StorageChannelThreadProvider          channelThreadProvider        ;
+		private StorageBackupThreadProvider           backupThreadProvider         ;
 		private StorageThreadProvider                 threadProvider               ;
 		private StorageRequestTaskCreator             requestTaskCreator           ;
 		private StorageTypeDictionary                 typeDictionary               ;
@@ -126,7 +136,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageExceptionHandler               exceptionHandler             ;
-		private StorageBackupConfiguration            backupConfiguration          ;
+		private StorageBackupSetup                    backupSetup                  ;
 
 		
 		
@@ -200,9 +210,22 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return new StorageChannel.Creator.Implementation();
 		}
 
+		protected StorageChannelThreadProvider ensureChannelThreadProvider()
+		{
+			return new StorageChannelThreadProvider.Implementation();
+		}
+		
+		protected StorageBackupThreadProvider ensureBackupThreadProvider()
+		{
+			return StorageBackupThreadProvider.New();
+		}
+		
 		protected StorageThreadProvider ensureThreadProvider()
 		{
-			return new StorageThreadProvider.Implementation();
+			return StorageThreadProvider.New(
+				this.getChannelThreadProvider(),
+				this.getBackupThreadProvider()
+			);
 		}
 
 		protected StorageRequestTaskCreator ensureRequestTaskCreator()
@@ -335,6 +358,26 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return this.channelCreator;
 		}
 
+		@Override
+		public StorageChannelThreadProvider getChannelThreadProvider()
+		{
+			if(this.channelThreadProvider == null)
+			{
+				this.channelThreadProvider = this.dispatch(this.ensureChannelThreadProvider());
+			}
+			return this.channelThreadProvider;
+		}
+		
+		@Override
+		public StorageBackupThreadProvider getBackupThreadProvider()
+		{
+			if(this.backupThreadProvider == null)
+			{
+				this.backupThreadProvider = this.dispatch(this.ensureBackupThreadProvider());
+			}
+			return this.backupThreadProvider;
+		}
+		
 		@Override
 		public StorageThreadProvider getThreadProvider()
 		{
@@ -476,10 +519,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 		
 		@Override
-		public StorageBackupConfiguration getBackupConfiguration()
+		public StorageBackupSetup getBackupSetup()
 		{
 			// no on-demand creation logic as this is an optional part
-			return this.backupConfiguration;
+			return this.backupSetup;
 		}
 
 		
@@ -532,6 +575,20 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return this.$();
 		}
 
+		@Override
+		public F setChannelThreadProvider(final StorageChannelThreadProvider channelThreadProvider)
+		{
+			this.channelThreadProvider = channelThreadProvider;
+			return this.$();
+		}
+		
+		@Override
+		public F setBackupThreadProvider(final StorageBackupThreadProvider backupThreadProvider)
+		{
+			this.backupThreadProvider = backupThreadProvider;
+			return this.$();
+		}
+		
 		@Override
 		public F setThreadProvider(final StorageThreadProvider threadProvider)
 		{
@@ -637,25 +694,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 		
 		@Override
-		public F setBackupConfiguration(final StorageBackupConfiguration backupConfiguration)
+		public F setBackupSetup(final StorageBackupSetup backupSetup)
 		{
-			this.backupConfiguration = backupConfiguration;
+			this.backupSetup = backupSetup;
 			return this.$();
-		}
-		
-		protected StorageBackupHandler provideBackupHandler()
-		{
-			// (21.02.2019 TM)FIXME: JET-55: implement
-			throw new net.jadoth.meta.NotImplementedYetError();
-//			final StorageBackupConfiguration backupConfig = this.getBackupFileProvider();
-//			if(fileProvider == null)
-//			{
-//				// no automated backup mechanism configured / desired.
-//				return null;
-//			}
-//
-//			return StorageBackupHandler.New(null, null, 0, fileProvider, null, null)
-			
 		}
 		
 		public final boolean isByteOrderMismatch()
@@ -669,7 +711,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return false;
 		}
 		
-
 		@Override
 		public StorageManager createStorageManager()
 		{
@@ -681,15 +722,17 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			 * See StorageEntityCache$Implementation#putEntity
 			 */
 			
-			final StorageConfiguration             configuration     = this.getConfiguration();
-			final StorageChannelController.Creator ccc               = this.getChannelControllerCreator();
-			final StorageChannelController         channelController = ccc.provideChannelController(
-				configuration.channelCountProvider()
-			);
+			final StorageConfiguration               configuration = this.getConfiguration();
+			final StorageChannelController.Creator             ccc = this.getChannelControllerCreator();
+			final StorageChannelCountProvider channelCountProvider = configuration.channelCountProvider();
+			final StorageChannelController    channelController    = ccc.provideChannelController(channelCountProvider);
 			
 			return new StorageManager.Implementation(
 				configuration                          ,
 				channelController                      ,
+				this.getBackupSetup()                  ,
+				this.getWriterProvider()               ,
+				this.getReaderProvider()               ,
 				this.getInitialDataFileNumberProvider(),
 				this.getRequestAcceptorCreator()       ,
 				this.getTaskBrokerCreator()            ,
@@ -701,15 +744,12 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getRootTypeIdProvider()           ,
 				this.getTimestampProvider()            ,
 				this.getObjectIdRangeEvaluator()       ,
-				this.getReaderProvider()               ,
-				this.getWriterProvider()               ,
 				this.getGCZombieOidHandler()           ,
 				this.getRootOidSelectorProvider()      ,
 				this.getOidMarkQueueCreator()          ,
 				this.getEntityMarkMonitorCreator()     ,
 				this.isByteOrderMismatch()             ,
-				this.getExceptionHandler()             ,
-				this.provideBackupHandler()
+				this.getExceptionHandler()
 			);
 		}
 

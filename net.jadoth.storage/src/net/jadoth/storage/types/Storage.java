@@ -1,5 +1,8 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.X.mayNull;
+import static net.jadoth.X.notNull;
+
 import java.io.File;
 
 public final class Storage
@@ -245,8 +248,41 @@ public final class Storage
 		return StorageDataFileEvaluator.New(minFileSize, maxFileSize, dissolveRatio, dissolveHeadfile);
 	}
 	
+	public static final StorageBackupSetup BackupSetup(
+		final File backupDirectory
+	)
+	{
+		return BackupSetup(null, backupDirectory);
+	}
 	
-	// (21.02.2019 TM)FIXME: JET-55: StorageBackupConfiguration
+	public static final StorageBackupSetup BackupSetup(
+		final StorageFileProvider fileProvider
+	)
+	{
+		return BackupSetup(null, fileProvider);
+	}
+	
+	public static final StorageBackupSetup BackupSetup(
+		final String graveDirectoryName,
+		final File   backupDirectory
+	)
+	{
+		return StorageBackupSetup.New(
+			mayNull(graveDirectoryName),
+			Storage.FileProvider(backupDirectory)
+		);
+	}
+	
+	public static final StorageBackupSetup BackupSetup(
+		final String              graveDirectoryName,
+		final StorageFileProvider fileProvider
+	)
+	{
+		return StorageBackupSetup.New(
+			mayNull(graveDirectoryName),
+			notNull(fileProvider)
+		);
+	}
 
 	/**
 	 * Calls {@link #consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)}

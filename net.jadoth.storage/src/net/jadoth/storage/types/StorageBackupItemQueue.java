@@ -5,6 +5,12 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 	public void processNextItem(StorageBackupHandler handler) throws InterruptedException;
 	
 	
+	
+	public static StorageBackupItemQueue New()
+	{
+		return new StorageBackupItemQueue.Implementation();
+	}
+	
 	public final class Implementation implements StorageBackupItemQueue
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -17,14 +23,25 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 		
 		
 		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Implementation()
+		{
+			super();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
 
 		@Override
 		public final void enqueueCopyingItem(
 			final StorageInventoryFile sourceFile    ,
-			final long                     sourcePosition,
-			final long                     length        ,
+			final long                 sourcePosition,
+			final long                 length        ,
 			final StorageInventoryFile targetFile
 		)
 		{
@@ -32,7 +49,10 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 		}
 
 		@Override
-		public final void enqueueTruncatingItem(final StorageInventoryFile file, final long newLength)
+		public final void enqueueTruncatingItem(
+			final StorageInventoryFile file     ,
+			final long                 newLength
+		)
 		{
 			// signalling with a null sourceFile is a hack to avoid the complexity of multiple Item classes
 			this.internalEnqueueItem(null, 0, newLength, file);
@@ -88,8 +108,8 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 			////////////////////
 			
 			final StorageInventoryFile sourceFile    ;
-			final long                     sourcePosition;
-			final long                     length        ;
+			final long                 sourcePosition;
+			final long                 length        ;
 			final StorageInventoryFile targetFile    ;
 
 			Item next;
@@ -102,8 +122,8 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 			
 			Item(
 				final StorageInventoryFile sourceFile    ,
-				final long                     sourcePosition,
-				final long                     length        ,
+				final long                 sourcePosition,
+				final long                 length        ,
 				final StorageInventoryFile targetFile
 			)
 			{
