@@ -1,6 +1,5 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
-\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
 \b0\par
 2019-02-13\par
 \par
@@ -274,5 +273,16 @@ Das war jetzt alles bissl knifflig durch die verschiedenen Methoden und Instanze
 StorageBackupConfiguration umbenannt zu StorageBackupSetup und um ein paar entsprechende setup~ Methoden erweitert, um das sauber zu l\'f6sen.\par
 \par
 Damit w\'e4ren jetzt nur noch die drei Item-Handling-Logik Methoden \'fcbrig, dann ist das Backup (ohne Validierung) fertig zum testen.\par
+\par
+\par
+2019-02-23\par
+\par
+Item-Handling-Logik Methoden implementieren.\par
+\par
+Und gleich wieder was aufgefallen:\par
+Eigentlich ist es Quatsch, die Information f\'fcr das Deleted-Verzeichnis au\'dferhalb zum FileProvider zu halten und durch die Abstraktion st\'e4ndig Probleme zu haben.\par
+Viel simplere und elegantere L\'f6sung:\par
+Der FileProvider providet auch die DeletedFiles und dort kann man dann hin moven. Da Waaahnsinn. D\'e4mlich, dass ich da nicht gleich drauf gekommen bin.\par
+Mal so umbauen ...\par
 }
  
