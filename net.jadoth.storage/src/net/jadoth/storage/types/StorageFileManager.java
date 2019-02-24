@@ -1472,7 +1472,7 @@ public interface StorageFileManager
 			this.writeTransactionsEntryFileDeletion(file, this.timestampProvider.currentNanoTimestamp());
 
 			// physically delete file after the transactions entry is ensured
-			this.writer.delete(file);
+			this.writer.delete(file, this.storageFileProvider);
 		}
 
 		private boolean incrementalTransferEntities(
@@ -1583,14 +1583,14 @@ public interface StorageFileManager
 			this.headFile.next = null;
 			(first.prev = this.headFile = this.importHelper.preImportHeadFile).next = first;
 
-			final BulkList<IOException> exceptions = BulkList.New();
+			final BulkList<RuntimeException> exceptions = BulkList.New();
 			while(doomed != null)
 			{
 				try
 				{
-					doomed.terminate(this.writer);
+					this.terminateFile(doomed);
 				}
-				catch(final IOException e)
+				catch(final RuntimeException e)
 				{
 					exceptions.add(e);
 				}
@@ -1603,7 +1603,12 @@ public interface StorageFileManager
 				throw new RuntimeException(exceptions.first()); // (25.07.2014 TM)EXCP: proper exception
 			}
 		}
-
+		
+		private void terminateFile(final StorageDataFile.Implementation file)
+		{
+			file.close();
+			this.writer.delete(file, this.storageFileProvider);
+		}
 
 		final class ImportHelper implements Consumer<StorageChannelImportBatch>
 		{

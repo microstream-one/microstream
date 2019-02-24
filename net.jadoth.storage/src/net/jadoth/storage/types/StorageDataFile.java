@@ -194,12 +194,6 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			return this.fileDataLength != 0L;
 		}
 
-		final void terminate(final StorageFileWriter writer) throws IOException
-		{
-			this.close();
-			writer.delete(this);
-		}
-
 		final void increaseContentLength(final long byteCount)
 		{
 			this.fileTotalLength += byteCount;

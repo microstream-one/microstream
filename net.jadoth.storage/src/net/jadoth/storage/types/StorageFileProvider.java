@@ -1,5 +1,6 @@
 package net.jadoth.storage.types;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import java.io.File;
@@ -13,6 +14,8 @@ public interface StorageFileProvider
 	public StorageNumberedFile provideDataFile(int channelIndex, long fileNumber);
 
 	public StorageNumberedFile provideTransactionsFile(int channelIndex);
+	
+	public StorageNumberedFile provideDeletionTargetFile(StorageNumberedFile fileToBeDeleted);
 
 	public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(P collector, int channelIndex);
 	
@@ -114,6 +117,7 @@ public interface StorageFileProvider
 		/////////////////////
 
 		private final File   baseDirectory           ;
+		private final File   deletionDirectory          ;
 		private final String channelDirectoryBaseName;
 		private final String storageFileBaseName     ;
 		private final String storageFileSuffix       ;
@@ -128,6 +132,7 @@ public interface StorageFileProvider
 
 		public Implementation(
 			final File   baseDirectory           ,
+			final File   graveDirectory          ,
 			final String channelDirectoryBaseName,
 			final String storageFileBaseName     ,
 			final String storageFileSuffix       ,
@@ -136,7 +141,8 @@ public interface StorageFileProvider
 		)
 		{
 			super();
-			this.baseDirectory            =         baseDirectory            ; // may be null (working directory)
+			this.baseDirectory            = mayNull(baseDirectory)           ; // null means working directory
+			this.deletionDirectory           = mayNull(graveDirectory)          ; // null means actually delete files
 			this.channelDirectoryBaseName = notNull(channelDirectoryBaseName);
 			this.storageFileBaseName      = notNull(storageFileBaseName)     ;
 			this.storageFileSuffix        = notNull(storageFileSuffix)       ;
@@ -205,6 +211,26 @@ public interface StorageFileProvider
 
 			return StorageNumberedFile.New(channelIndex, Storage.transactionsFileNumber(), file);
 		}
+		
+
+		@Override
+		public StorageNumberedFile provideDeletionTargetFile(final StorageNumberedFile fileToBeDeleted)
+		{
+			if(this.deletionDirectory == null)
+			{
+				return null;
+			}
+			
+			final int  channelIndex = fileToBeDeleted.channelIndex();
+			final long fileNumber   = fileToBeDeleted.number();
+			
+			final File file = new File(
+				this.provideChannelDirectory(this.deletionDirectory, channelIndex)          ,
+				this.provideStorageFileName(channelIndex, fileNumber) + this.dotFileSuffix()
+			);
+			
+			return StorageNumberedFile.New(channelIndex, fileNumber, file);
+		}
 
 		@Override
 		public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(
@@ -228,6 +254,7 @@ public interface StorageFileProvider
 			return VarString.New()
 				.add(this.getClass().getName()).add(':').lf()
 				.blank().add("base directory"             ).tab().add('=').blank().add(this.baseDirectory           ).lf()
+				.blank().add("deletion directory"         ).tab().add('=').blank().add(this.deletionDirectory       ).lf()
 				.blank().add("channel directory base name").tab().add('=').blank().add(this.channelDirectoryBaseName).lf()
 				.blank().add("storage file base name"     ).tab().add('=').blank().add(this.storageFileBaseName     ).lf()
 				.blank().add("file suffix"                ).tab().add('=').blank().add(this.storageFileSuffix       )

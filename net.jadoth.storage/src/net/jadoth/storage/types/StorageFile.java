@@ -99,7 +99,7 @@ public interface StorageFile
 		}
 		catch(final IOException e)
 		{
-			throw new RuntimeException(e); // damn checked exception
+			throw new RuntimeException(e); // damned checked exception
 		}
 	}
 
@@ -111,7 +111,7 @@ public interface StorageFile
 		}
 		catch(final IOException e)
 		{
-			throw new RuntimeException(e); // damn checked exception
+			throw new RuntimeException(e); // damned checked exception
 		}
 	}
 	

@@ -284,5 +284,15 @@ Eigentlich ist es Quatsch, die Information f\'fcr das Deleted-Verzeichnis au\'df
 Viel simplere und elegantere L\'f6sung:\par
 Der FileProvider providet auch die DeletedFiles und dort kann man dann hin moven. Da Waaahnsinn. D\'e4mlich, dass ich da nicht gleich drauf gekommen bin.\par
 Mal so umbauen ...\par
+\par
+\par
+2019-02-24\par
+\par
+Util-Konstruktur-Methoden in Klasse Storage anpassen.\par
+\par
+Hm. Das hei\'dft aber auch, dass ich die StorageFileWriterConserving Logik komplett wo anders hinschieben muss.\par
+Fertig.\par
+Sehr sch\'f6n: Die Logik f\'fcr das "Retten" normaler Storage Dateien kann f\'fcr die Backup Files mitverwendet werden.\par
+Damit ist es jetzt weniger Code als zuvor, sauberer strukturiert und das Weitergeben von L\'f6schen in Backup Files ist auch gleich abgedeckt. Passt!\par
 }
  
