@@ -3,6 +3,11 @@ package net.jadoth.storage.types;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import net.jadoth.storage.exceptions.StorageExceptionIo;
 
 
 /**
@@ -204,10 +209,26 @@ public interface StorageFileWriter
 		}
 	}
 
-	public default void delete(final StorageInventoryFile file)
+	public default void delete(
+		final StorageInventoryFile file               ,
+		final StorageFileProvider  storageFileProvider
+	)
+	{
+		delete(file, storageFileProvider);
+	}
+	
+	public static void delete(
+		final StorageNumberedFile file               ,
+		final StorageFileProvider storageFileProvider
+	)
 	{
 //		DEBUGStorage.println("storage file deletion");
 
+		if(rescueFromDeletion(file, storageFileProvider))
+		{
+			return;
+		}
+		
 		if(file.delete())
 		{
 			return;
@@ -215,6 +236,62 @@ public interface StorageFileWriter
 		
 		throw new RuntimeException("Could not delete file " + file); // (02.10.2014 TM)EXCP: proper exception
 	}
+	
+	
+	public static boolean rescueFromDeletion(
+		final StorageNumberedFile file               ,
+		final StorageFileProvider storageFileProvider
+	)
+	{
+		final StorageNumberedFile deletionTargetFile = storageFileProvider.provideDeletionTargetFile(file);
+		if(deletionTargetFile == null)
+		{
+			return false;
+		}
+		
+		try
+		{
+			final Path source = Paths.get(file.identifier());
+			final Path target = Paths.get(deletionTargetFile.identifier());
+			Files.move(source, target);
+		}
+		catch(final Exception e)
+		{
+			throw new StorageExceptionIo(e); // (04.03.2015 TM)EXCP: proper exception
+		}
+		
+		return true;
+	}
+	
+	/* (25.02.2019 TM)NOTE:
+	 * No idea how to cleanly call it since the deletionDirectory concept changed. Maybe superfluous after all.
+	 */
+//	public static void createTruncationBak(
+//		final File        deletionDirectory,
+//		final StorageFile file             ,
+//		final long        newLength
+//	)
+//	{
+//		final File dirBak = new File(deletionDirectory, "bak");
+//
+//		final String bakFileName = file.name() + "_truncated_from_" + file.length() + "_to_" + newLength
+//			+ "_@" + System.currentTimeMillis() + ".bak"
+//		;
+////		XDebug.debugln("Creating truncation bak file: " + bakFileName);
+//		XFiles.ensureDirectory(dirBak);
+//		try
+//		{
+//			Files.copy(
+//				Paths.get(file.identifier()),
+//				dirBak.toPath().resolve(bakFileName)
+//			);
+////			XDebug.debugln("* bak file created: " + bakFileName);
+//		}
+//		catch(final IOException e)
+//		{
+//			throw new StorageExceptionIo(e); // (04.03.2015 TM)EXCP: proper exception
+//		}
+//	}
 
 	public default void flush(final StorageLockedFile targetfile)
 	{

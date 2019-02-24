@@ -69,6 +69,12 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		{
 			return this.fileProvider.provideTransactionsFile(channelIndex);
 		}
+		
+		@Override
+		public StorageNumberedFile provideDeletionTargetFile(final StorageNumberedFile fileToBeDeleted)
+		{
+			return this.fileProvider.provideDeletionTargetFile(fileToBeDeleted);
+		}
 
 		@Override
 		public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(
@@ -107,11 +113,11 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		{
 			this.fileWriter.truncate(file, newLength);
 		}
-
+		
 		@Override
-		public void delete(final StorageInventoryFile file)
+		public void delete(final StorageInventoryFile file, final StorageFileProvider storageFileProvider)
 		{
-			this.fileWriter.delete(file);
+			this.fileWriter.delete(file, storageFileProvider);
 		}
 
 	}

@@ -348,7 +348,7 @@ public interface StorageBackupHandler extends Runnable
 			
 			// FIXME JET-55: StorageBackupHandler#truncateFile()
 			
-			file.decrementUserCount();
+			// no user decrement since only the identifier is required and the actual file can well have been deleted.
 		}
 		
 		@Override
@@ -356,10 +356,9 @@ public interface StorageBackupHandler extends Runnable
 		{
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
 			
-			// FIXME JET-55: StorageBackupHandler.Implementation#deleteFile()
+			StorageFileWriter.delete(backupTargetFile, this.backupSetup.backupFileProvider());
 			
-			file.decrementUserCount();
-			throw new net.jadoth.meta.NotImplementedYetError();
+			// no user decrement since only the identifier is required and the actual file can well have been deleted.
 		}
 		
 		static final class ChannelInventory implements StorageHashChannelPart

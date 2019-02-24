@@ -61,6 +61,51 @@ public final class Storage
 		return DEFAULT_PARENT_DIRECTORY;
 	}
 
+	public static final StorageFileProvider FileProvider()
+	{
+		return FileProvider(
+			new File(DEFAULT_PARENT_DIRECTORY)
+		);
+	}
+
+	public static final StorageFileProvider FileProvider(final File parentDirectory)
+	{
+		return FileProvider(parentDirectory, null);
+	}
+	
+	public static final StorageFileProvider FileProvider(
+		final File parentDirectory ,
+		final File deletedDirectory
+	)
+	{
+		return FileProvider(
+			parentDirectory              ,
+			deletedDirectory             ,
+			DEFAULT_DIRECTORY_BASENAME   ,
+			DEFAULT_FILE_STORAGE_BASENAME,
+			DEFAULT_FILE_STORAGE_SUFFIX
+		);
+	}
+	
+	public static final StorageFileProvider FileProvider(
+		final File   parentDirectory         ,
+		final File   deletedDirectory        ,
+		final String channelDirectoryBaseName,
+		final String storageFileBaseName     ,
+		final String storageFileSuffix
+	)
+	{
+		return FileProvider(
+			parentDirectory                   ,
+			deletedDirectory                  ,
+			channelDirectoryBaseName          ,
+			storageFileBaseName               ,
+			storageFileSuffix                 ,
+			DEFAULT_FILE_TRANSACTIONS_BASENAME,
+			DEFAULT_FILE_TRANSACTIONS_SUFFIX
+		);
+	}
+
 	public static final StorageFileProvider FileProvider(
 		final File   parentDirectory    ,
 		final String storageFileBaseName,
@@ -68,12 +113,26 @@ public final class Storage
 	)
 	{
 		return FileProvider(
-			parentDirectory                   ,
-			storageFileBaseName               ,
-			storageFileBaseName               ,
-			storageFileSuffix                 ,
-			DEFAULT_FILE_TRANSACTIONS_BASENAME,
-			DEFAULT_FILE_TRANSACTIONS_SUFFIX
+			parentDirectory    ,
+			(File)null         ,
+			storageFileBaseName,
+			storageFileSuffix
+		);
+	}
+	
+	public static final StorageFileProvider FileProvider(
+		final File   parentDirectory    ,
+		final File   deletedDirectory   ,
+		final String storageFileBaseName,
+		final String storageFileSuffix
+	)
+	{
+		return FileProvider(
+			parentDirectory    ,
+			deletedDirectory   ,
+			storageFileBaseName,
+			storageFileBaseName,
+			storageFileSuffix
 		);
 	}
 
@@ -86,11 +145,10 @@ public final class Storage
 	{
 		return FileProvider(
 			parentDirectory                   ,
+			null                              ,
 			channelDirectoryBaseName          ,
 			storageFileBaseName               ,
-			storageFileSuffix                 ,
-			DEFAULT_FILE_TRANSACTIONS_BASENAME,
-			DEFAULT_FILE_TRANSACTIONS_SUFFIX
+			storageFileSuffix
 		);
 	}
 
@@ -105,6 +163,28 @@ public final class Storage
 	{
 		return new StorageFileProvider.Implementation(
 			parentDirectory         ,
+			null                    ,
+			channelDirectoryBaseName,
+			storageFileBaseName     ,
+			storageFileSuffix       ,
+			transactionsFileBaseName,
+			transactionsFileSuffix
+		);
+	}
+	
+	public static final StorageFileProvider FileProvider(
+		final File   parentDirectory         ,
+		final File   deletedDirectory        ,
+		final String channelDirectoryBaseName,
+		final String storageFileBaseName     ,
+		final String storageFileSuffix       ,
+		final String transactionsFileBaseName,
+		final String transactionsFileSuffix
+	)
+	{
+		return new StorageFileProvider.Implementation(
+			parentDirectory         ,
+			deletedDirectory        ,
 			channelDirectoryBaseName,
 			storageFileBaseName     ,
 			storageFileSuffix       ,
@@ -178,25 +258,6 @@ public final class Storage
 	public static final StorageEntityCacheEvaluator EntityCacheEvaluatorCustomTimeout(final long millisecondTimeout)
 	{
 		return EntityCacheEvaluator(DEFAULT_CACHE_THRESHOLD, millisecondTimeout);
-	}
-
-	public static final StorageFileProvider FileProvider(final File directory)
-	{
-		return FileProvider(
-			directory                         ,
-			DEFAULT_DIRECTORY_BASENAME        ,
-			DEFAULT_FILE_STORAGE_BASENAME     ,
-			DEFAULT_FILE_STORAGE_SUFFIX       ,
-			DEFAULT_FILE_TRANSACTIONS_BASENAME,
-			DEFAULT_FILE_TRANSACTIONS_SUFFIX
-		);
-	}
-
-	public static final StorageFileProvider FileProvider()
-	{
-		return FileProvider(
-			new File(DEFAULT_PARENT_DIRECTORY)
-		);
 	}
 
 	public static final StorageDataFileEvaluator DataFileEvaluator()
