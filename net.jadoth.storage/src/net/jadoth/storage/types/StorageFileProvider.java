@@ -16,39 +16,87 @@ public interface StorageFileProvider
 	public StorageNumberedFile provideTransactionsFile(int channelIndex);
 	
 	public StorageNumberedFile provideDeletionTargetFile(StorageNumberedFile fileToBeDeleted);
+	
+	public StorageNumberedFile provideTruncationBackupTargetFile(StorageNumberedFile fileToBeTruncated, long newLength);
 
 	public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(P collector, int channelIndex);
 	
+	
+	public interface Defaults
+	{
+
+		public static String defaultMainDirectory()
+		{
+			return "storage";
+		}
+		
+		public static String defaultDeletionDirectory()
+		{
+			return null;
+		}
+		
+		public static String defaultTruncationBackupDirectory()
+		{
+			return null;
+		}
+		
+		public static String defaultChannelDirectoryPrefix()
+		{
+			return "channel_";
+		}
+		
+		public static String defaultStorageFilePrefix()
+		{
+			return "channel_";
+		}
+		
+		public static String defaultStorageFileSuffix()
+		{
+			return ".dat";
+		}
+
+		public static String defaultTransactionFilePrefix()
+		{
+			return "transactions_";
+		}
+		
+		public static String defaultTransactionFileSuffix()
+		{
+			return "sft"; // "torage file transactions"
+		}
+		
+	}
 
 
 	public final class Static
 	{
-		public static final void collectFile(
-			final Consumer<StorageNumberedFile> collector       ,
-			final int                           channelIndex    ,
-			final File                          storageDirectory,
-			final String                        fileBaseName    ,
-			final String                        dotSuffix
+		public static final <C extends Consumer<? super StorageNumberedFile>>
+		C collectFile(
+			final C      collector       ,
+			final int    channelIndex    ,
+			final File   storageDirectory,
+			final String fileBaseName    ,
+			final String suffix
 		)
 		{
 			final File[] files = storageDirectory.listFiles();
-			if(files == null)
+			if(files != null)
 			{
-				return; // x_x @FindBugs
+				for(final File file : files)
+				{
+					internalCollectFile(collector, channelIndex, file, fileBaseName, suffix);
+				}
 			}
 
-			for(final File file : files)
-			{
-				internalCollectFile(collector, channelIndex, file, fileBaseName, dotSuffix);
-			}
+			return collector;
 		}
 
 		private static final void internalCollectFile(
-			final Consumer<StorageNumberedFile> collector   ,
-			final int                           hashIndex   ,
-			final File                          file        ,
-			final String                        fileBaseName,
-			final String                        dotSuffix
+			final Consumer<? super StorageNumberedFile> collector   ,
+			final int                                   hashIndex   ,
+			final File                                  file        ,
+			final String                                fileBaseName,
+			final String                                suffix
 		)
 		{
 			if(file.isDirectory())
@@ -61,17 +109,18 @@ public interface StorageFileProvider
 			{
 				return;
 			}
-			if(!filename.endsWith(dotSuffix))
+			if(!filename.endsWith(suffix))
 			{
 				return;
 			}
 
-			final String middlePart = filename.substring(fileBaseName.length(), filename.length() - dotSuffix.length());
+			final String middlePart = filename.substring(fileBaseName.length(), filename.length() - suffix.length());
 			final int separatorIndex = middlePart.indexOf('_');
 			if(separatorIndex < 0)
 			{
 				return;
 			}
+			
 			final String hashIndexString = middlePart.substring(0, separatorIndex);
 			try
 			{
@@ -108,21 +157,254 @@ public interface StorageFileProvider
 			throw new UnsupportedOperationException();
 		}
 	}
+	
+	
+	
+	public static Builder<?> Builder()
+	{
+		return new StorageFileProvider.Builder.Implementation<>();
+	}
+	
+	public interface Builder<B extends Builder<?>>
+	{
+		public String mainDirectory();
 
+		public B setMainDirectory(String mainDirectory);
 
-	public final class Implementation implements StorageFileProvider
+		public String deletionDirectory();
+
+		public B setDeletionDirectory(String deletionDirectory);
+
+		public String truncationDirectory();
+
+		public B setTruncationDirectory(String truncationDirectory);
+
+		public String channelDirectoryPrefix();
+
+		public B setChannelDirectoryPrefix(String channelDirectoryPrefix);
+
+		public String storageFilePrefix();
+
+		public B setStorageFilePrefix(String storageFilePrefix);
+
+		public String storageFileSuffix();
+
+		public B setStorageFileSuffix(String storageFileSuffix);
+
+		public String transactionsFilePrefix();
+
+		public B setTransactionsFilePrefix(String transactionsFilePrefix);
+
+		public String transactionsFileSuffix();
+
+		public B setTransactionsFileSuffix(String transactionsFileSuffix);
+		
+		public StorageFileProvider createFileProvider();
+		
+		
+		
+		public class Implementation<B extends Builder.Implementation<?>> implements StorageFileProvider.Builder<B>
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private String
+				mainDirectory       = StorageFileProvider.Defaults.defaultMainDirectory()         ,
+				deletionDirectory      = StorageFileProvider.Defaults.defaultDeletionDirectory()        ,
+				truncationDirectory    = StorageFileProvider.Defaults.defaultTruncationBackupDirectory(),
+				channelDirectoryPrefix = StorageFileProvider.Defaults.defaultChannelDirectoryPrefix()   ,
+				storageFilePrefix      = StorageFileProvider.Defaults.defaultStorageFilePrefix()        ,
+				storageFileSuffix      = StorageFileProvider.Defaults.defaultStorageFileSuffix()        ,
+				transactionsFilePrefix = StorageFileProvider.Defaults.defaultTransactionFilePrefix()    ,
+				transactionsFileSuffix = StorageFileProvider.Defaults.defaultTransactionFileSuffix()
+			;
+			
+			
+
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			Implementation()
+			{
+				super();
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
+			protected final B $()
+			{
+				return this.$();
+			}
+
+			@Override
+			public String mainDirectory()
+			{
+				return this.mainDirectory;
+			}
+
+			@Override
+			public B setMainDirectory(final String mainDirectory)
+			{
+				this.mainDirectory = mainDirectory;
+				return this.$();
+			}
+
+			@Override
+			public String deletionDirectory()
+			{
+				return this.deletionDirectory;
+			}
+
+			@Override
+			public B setDeletionDirectory(final String deletionDirectory)
+			{
+				this.deletionDirectory = deletionDirectory;
+				return this.$();
+			}
+
+			@Override
+			public String truncationDirectory()
+			{
+				return this.truncationDirectory;
+			}
+
+			@Override
+			public B setTruncationDirectory(final String truncationDirectory)
+			{
+				this.truncationDirectory = truncationDirectory;
+				return this.$();
+			}
+
+			@Override
+			public String channelDirectoryPrefix()
+			{
+				return this.channelDirectoryPrefix;
+			}
+
+			@Override
+			public B setChannelDirectoryPrefix(final String channelDirectoryPrefix)
+			{
+				this.channelDirectoryPrefix = channelDirectoryPrefix;
+				return this.$();
+			}
+
+			@Override
+			public String storageFilePrefix()
+			{
+				return this.storageFilePrefix;
+			}
+
+			@Override
+			public B setStorageFilePrefix(final String storageFilePrefix)
+			{
+				this.storageFilePrefix = storageFilePrefix;
+				return this.$();
+			}
+
+			@Override
+			public String storageFileSuffix()
+			{
+				return this.storageFileSuffix;
+			}
+
+			@Override
+			public B setStorageFileSuffix(final String storageFileSuffix)
+			{
+				this.storageFileSuffix = storageFileSuffix;
+				return this.$();
+			}
+
+			@Override
+			public String transactionsFilePrefix()
+			{
+				return this.transactionsFilePrefix;
+			}
+
+			@Override
+			public B setTransactionsFilePrefix(final String transactionsFilePrefix)
+			{
+				this.transactionsFilePrefix = transactionsFilePrefix;
+				return this.$();
+			}
+
+			@Override
+			public String transactionsFileSuffix()
+			{
+				return this.transactionsFileSuffix;
+			}
+
+			@Override
+			public B setTransactionsFileSuffix(final String transactionsFileSuffix)
+			{
+				this.transactionsFileSuffix = transactionsFileSuffix;
+				return this.$();
+			}
+			
+			@Override
+			public StorageFileProvider createFileProvider()
+			{
+				return StorageFileProvider.New(
+					this.mainDirectory      ,
+					this.deletionDirectory     ,
+					this.truncationDirectory   ,
+					this.channelDirectoryPrefix,
+					this.storageFilePrefix     ,
+					this.storageFileSuffix     ,
+					this.transactionsFilePrefix,
+					this.transactionsFileSuffix
+				);
+			}
+			
+		}
+		
+	}
+	
+	
+	public static StorageFileProvider.Implementation New(
+		final String baseDirectory           ,
+		final String deletionDirectory       ,
+		final String truncationDirectory     ,
+		final String channelDirectoryBaseName,
+		final String storageFileBaseName     ,
+		final String storageFileSuffix       ,
+		final String transactionsFileBaseName,
+		final String transactionsFileSuffix
+	)
+	{
+		return new StorageFileProvider.Implementation(
+			mayNull(baseDirectory)           , // null means working directory
+			mayNull(deletionDirectory)       , // null means actually delete files
+			mayNull(truncationDirectory)     , // null means actually delete files
+			notNull(channelDirectoryBaseName),
+			notNull(storageFileBaseName)     ,
+			notNull(storageFileSuffix)       ,
+			notNull(transactionsFileBaseName),
+			notNull(transactionsFileSuffix)
+		);
+	}
+
+	
+
+	public abstract class AbstractImplementation implements StorageFileProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
 
-		private final File   baseDirectory           ;
-		private final File   deletionDirectory          ;
-		private final String channelDirectoryBaseName;
-		private final String storageFileBaseName     ;
-		private final String storageFileSuffix       ;
-		private final String transactionsFileBaseName;
-		private final String transactionsFileSuffix  ;
+		private final String baseDirectory         ;
+		private final String deletionDirectory     ;
+		private final String truncationDirectory   ;
+		private final String channelDirectoryPrefix;
+		private final String storageFilePrefix     ;
+		private final String storageFileSuffix     ;
+		private final String transactionsFilePrefix;
+		private final String transactionsFileSuffix;
 
 
 
@@ -130,72 +412,139 @@ public interface StorageFileProvider
 		// constructors     //
 		/////////////////////
 
-		public Implementation(
-			final File   baseDirectory           ,
-			final File   graveDirectory          ,
-			final String channelDirectoryBaseName,
-			final String storageFileBaseName     ,
-			final String storageFileSuffix       ,
-			final String transactionsFileBaseName,
+		public AbstractImplementation(
+			final String baseDirectory         ,
+			final String deletionDirectory     ,
+			final String truncationDirectory   ,
+			final String channelDirectoryPrefix,
+			final String storageFilePrefix     ,
+			final String storageFileSuffix     ,
+			final String transactionsFilePrefix,
 			final String transactionsFileSuffix
 		)
 		{
 			super();
-			this.baseDirectory            = mayNull(baseDirectory)           ; // null means working directory
-			this.deletionDirectory           = mayNull(graveDirectory)          ; // null means actually delete files
-			this.channelDirectoryBaseName = notNull(channelDirectoryBaseName);
-			this.storageFileBaseName      = notNull(storageFileBaseName)     ;
-			this.storageFileSuffix        = notNull(storageFileSuffix)       ;
-			this.transactionsFileBaseName = notNull(transactionsFileBaseName);
-			this.transactionsFileSuffix   = notNull(transactionsFileSuffix)  ;
+			this.baseDirectory          = baseDirectory         ;
+			this.deletionDirectory      = deletionDirectory     ;
+			this.truncationDirectory    = truncationDirectory   ;
+			this.channelDirectoryPrefix = channelDirectoryPrefix;
+			this.storageFilePrefix      = storageFilePrefix     ;
+			this.storageFileSuffix      = storageFileSuffix     ;
+			this.transactionsFilePrefix = transactionsFilePrefix;
+			this.transactionsFileSuffix = transactionsFileSuffix;
 		}
 
-
-		private String dotFileSuffix()
-		{
-			// theoretical runtime inefficient, but hardly relevant regarding the file IO performance overhead
-			return '.' + this.provideStorageFileSuffix();
-		}
-
-		public final File provideBaseDirectory()
+		public String baseDirectory()
 		{
 			return this.baseDirectory;
 		}
 
-		public final File provideChannelDirectory(final File parentDirectory, final int hashIndex)
+		public String deletionDirectory()
 		{
-			return XFiles.ensureDirectory(
-				new File(parentDirectory, this.channelDirectoryBaseName + hashIndex)
-			);
+			return this.deletionDirectory;
 		}
 
-		public File provideChannelDirectory(final int channelIndex)
+		public String truncationDirectory()
 		{
-			return this.provideChannelDirectory(this.provideBaseDirectory(), channelIndex);
+			return this.truncationDirectory;
 		}
-
-		public final String provideStorageFileName(final int channelIndex, final long fileNumber)
+		
+		public String channelDirectoryPrefix()
 		{
-			return this.storageFileBaseName + channelIndex + '_' + fileNumber;
+			return this.channelDirectoryPrefix;
 		}
-
-		public final String provideStorageFileSuffix()
+		
+		public String storageFileSuffix()
 		{
 			return this.storageFileSuffix;
 		}
 
+		public final String provideStorageFileName(final int channelIndex, final long fileNumber)
+		{
+			return this.storageFilePrefix + channelIndex + '_' + fileNumber + this.storageFileSuffix;
+		}
+
+		public final String provideTransactionFileName(final int channelIndex)
+		{
+			return this.transactionsFilePrefix + channelIndex + '.' + this.transactionsFileSuffix;
+		}
+		
 
 
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
 
+
+
+		@Override
+		public String toString()
+		{
+			return VarString.New()
+				.add(this.getClass().getName()).add(':').lf()
+				.blank().add("base directory"          ).tab().add('=').blank().add(this.baseDirectory         ).lf()
+				.blank().add("deletion directory"      ).tab().add('=').blank().add(this.deletionDirectory     ).lf()
+				.blank().add("channel directory prefix").tab().add('=').blank().add(this.channelDirectoryPrefix).lf()
+				.blank().add("storage file prefix"     ).tab().add('=').blank().add(this.storageFilePrefix     ).lf()
+				.blank().add("file suffix"             ).tab().add('=').blank().add(this.storageFileSuffix     )
+				.toString()
+			;
+		}
+		
+	}
+	
+	public final class Implementation extends StorageFileProvider.AbstractImplementation
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		public Implementation(
+			final String baseDirectory         ,
+			final String deletionDirectory     ,
+			final String truncationDirectory   ,
+			final String channelDirectoryPrefix,
+			final String storageFilePrefix     ,
+			final String storageFileSuffix     ,
+			final String transactionsFilePrefix,
+			final String transactionsFileSuffix
+		)
+		{
+			super(
+				baseDirectory         ,
+				deletionDirectory     ,
+				truncationDirectory   ,
+				channelDirectoryPrefix,
+				storageFilePrefix     ,
+				storageFileSuffix     ,
+				transactionsFilePrefix,
+				transactionsFileSuffix
+			);
+		}
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+
+		public final File provideChannelDirectory(final String parentDirectory, final int hashIndex)
+		{
+			return XFiles.ensureDirectory(
+				new File(parentDirectory, this.channelDirectoryPrefix() + hashIndex)
+			);
+		}
+
+		public File provideChannelDirectory(final int channelIndex)
+		{
+			return this.provideChannelDirectory(this.baseDirectory(), channelIndex);
+		}
+		
 		@Override
 		public final StorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
 		{
 			final File file = new File(
 				this.provideChannelDirectory(channelIndex),
-				this.provideStorageFileName(channelIndex, fileNumber) + this.dotFileSuffix()
+				this.provideStorageFileName(channelIndex, fileNumber)
 			);
 			
 			return StorageNumberedFile.New(channelIndex, fileNumber, file);
@@ -206,17 +555,17 @@ public interface StorageFileProvider
 		{
 			final File file = new File(
 				this.provideChannelDirectory(channelIndex),
-				this.transactionsFileBaseName + channelIndex + '.' + this.transactionsFileSuffix
+				this.provideTransactionFileName(channelIndex)
 			);
 
 			return StorageNumberedFile.New(channelIndex, Storage.transactionsFileNumber(), file);
 		}
-		
 
 		@Override
 		public StorageNumberedFile provideDeletionTargetFile(final StorageNumberedFile fileToBeDeleted)
 		{
-			if(this.deletionDirectory == null)
+			final String deletionDirectory = this.deletionDirectory();
+			if(deletionDirectory == null)
 			{
 				return null;
 			}
@@ -225,8 +574,33 @@ public interface StorageFileProvider
 			final long fileNumber   = fileToBeDeleted.number();
 			
 			final File file = new File(
-				this.provideChannelDirectory(this.deletionDirectory, channelIndex)          ,
-				this.provideStorageFileName(channelIndex, fileNumber) + this.dotFileSuffix()
+				this.provideChannelDirectory(deletionDirectory, channelIndex),
+				this.provideStorageFileName(channelIndex, fileNumber)
+			);
+			
+			return StorageNumberedFile.New(channelIndex, fileNumber, file);
+		}
+		
+		@Override
+		public StorageNumberedFile provideTruncationBackupTargetFile(
+			final StorageNumberedFile fileToBeTruncated,
+			final long                newLength
+		)
+		{
+			final String truncationDirectory = this.truncationDirectory();
+			if(truncationDirectory == null)
+			{
+				return null;
+			}
+			
+			final int  channelIndex = fileToBeTruncated.channelIndex();
+			final long fileNumber   = fileToBeTruncated.number();
+			
+			final File file = new File(
+				this.provideChannelDirectory(truncationDirectory, channelIndex),
+				this.provideStorageFileName(channelIndex, fileNumber)
+				+ "_truncated_from_" + fileToBeTruncated.length() + "_to_" + newLength
+				+ "_@" + System.currentTimeMillis() + ".bak"
 			);
 			
 			return StorageNumberedFile.New(channelIndex, fileNumber, file);
@@ -238,30 +612,15 @@ public interface StorageFileProvider
 			final int channelIndex
 		)
 		{
-			Static.collectFile(
+			return Static.collectFile(
 				collector,
 				channelIndex,
 				this.provideChannelDirectory(channelIndex),
-				this.channelDirectoryBaseName,
-				this.dotFileSuffix()
+				this.channelDirectoryPrefix(),
+				this.storageFileSuffix()
 			);
-			return collector;
 		}
-
-		@Override
-		public String toString()
-		{
-			return VarString.New()
-				.add(this.getClass().getName()).add(':').lf()
-				.blank().add("base directory"             ).tab().add('=').blank().add(this.baseDirectory           ).lf()
-				.blank().add("deletion directory"         ).tab().add('=').blank().add(this.deletionDirectory       ).lf()
-				.blank().add("channel directory base name").tab().add('=').blank().add(this.channelDirectoryBaseName).lf()
-				.blank().add("storage file base name"     ).tab().add('=').blank().add(this.storageFileBaseName     ).lf()
-				.blank().add("file suffix"                ).tab().add('=').blank().add(this.storageFileSuffix       )
-				.toString()
-			;
-		}
-
+		
 	}
 
 }

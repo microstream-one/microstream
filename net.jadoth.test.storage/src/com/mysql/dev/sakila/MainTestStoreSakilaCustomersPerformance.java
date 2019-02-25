@@ -49,11 +49,12 @@ public class MainTestStoreSakilaCustomersPerformance
 	 */
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation(
-			DIRECTORY                                  , // location for the database files
-			Storage.ChannelCountProvider(CHANNEL_COUNT), // amount of storage channels (parallel database threads)
-			Storage.HousekeepingController()           , // housekeeping time config (file cleanup, cache checks, etc.)
-			Storage.DataFileEvaluator()                , // evaluator for dissolving data files to optimize disc usage.
-			Storage.EntityCacheEvaluator()               // evaluator for unloading entity data from the storage cache.
+			DIRECTORY, // location for the database files
+			Storage.ConfigurationBuilder()
+			.setChannelCountProvider  (Storage.ChannelCountProvider(CHANNEL_COUNT)) // amount of storage channels (parallel database threads)
+			.setHousekeepingController(Storage.HousekeepingController()           ) // housekeeping time config (file cleanup, cache checks, etc.)
+			.setFileEvaluator         (Storage.DataFileEvaluator()                ) // evaluator for dissolving data files to optimize disc usage.
+			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluator()             ) // evaluator for unloading entity data from the storage cache.
 		)
 		.setRoot(ROOT)
 		.start()

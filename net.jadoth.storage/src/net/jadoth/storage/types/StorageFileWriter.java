@@ -195,9 +195,30 @@ public interface StorageFileWriter
 		return this.write(transactionFile, byteBuffers);
 	}
 
-	public default void truncate(final StorageInventoryFile file, final long newLength)
+	public default void truncate(
+		final StorageInventoryFile file               ,
+		final long                 newLength          ,
+		final StorageFileProvider  storageFileProvider
+	)
+	{
+		truncate(file, newLength, storageFileProvider);
+	}
+	
+	public static void truncate(
+		final StorageNumberedFile file               ,
+		final long                newLength          ,
+		final StorageFileProvider storageFileProvider
+	)
 	{
 //		DEBUGStorage.println("storage file truncation");
+		final StorageNumberedFile truncationTargetFile = storageFileProvider.provideTruncationBackupTargetFile(
+			file,
+			newLength
+		);
+		if(truncationTargetFile != null)
+		{
+			copyFile(file, truncationTargetFile);
+		}
 
 		try
 		{
@@ -215,6 +236,33 @@ public interface StorageFileWriter
 	)
 	{
 		delete(file, storageFileProvider);
+	}
+	
+
+	public static void copyFile(
+		final StorageNumberedFile sourceFile,
+		final StorageNumberedFile targetFile
+	)
+	{
+		try
+		{
+			final Path source = Paths.get(sourceFile.identifier());
+			final Path target = Paths.get(targetFile.identifier());
+			if(!Files.exists(source))
+			{
+				throw new IOException("Copying source file does not exist: " + sourceFile.identifier());
+			}
+			if(Files.exists(target))
+			{
+				throw new IOException("Copying target already exist: " + targetFile.identifier());
+			}
+			
+			Files.copy(source, target);
+		}
+		catch(final Exception e)
+		{
+			throw new StorageExceptionIo(e); // (04.03.2015 TM)EXCP: proper exception
+		}
 	}
 	
 	public static void delete(
@@ -263,36 +311,6 @@ public interface StorageFileWriter
 		return true;
 	}
 	
-	/* (25.02.2019 TM)NOTE:
-	 * No idea how to cleanly call it since the deletionDirectory concept changed. Maybe superfluous after all.
-	 */
-//	public static void createTruncationBak(
-//		final File        deletionDirectory,
-//		final StorageFile file             ,
-//		final long        newLength
-//	)
-//	{
-//		final File dirBak = new File(deletionDirectory, "bak");
-//
-//		final String bakFileName = file.name() + "_truncated_from_" + file.length() + "_to_" + newLength
-//			+ "_@" + System.currentTimeMillis() + ".bak"
-//		;
-////		XDebug.debugln("Creating truncation bak file: " + bakFileName);
-//		XFiles.ensureDirectory(dirBak);
-//		try
-//		{
-//			Files.copy(
-//				Paths.get(file.identifier()),
-//				dirBak.toPath().resolve(bakFileName)
-//			);
-////			XDebug.debugln("* bak file created: " + bakFileName);
-//		}
-//		catch(final IOException e)
-//		{
-//			throw new StorageExceptionIo(e); // (04.03.2015 TM)EXCP: proper exception
-//		}
-//	}
-
 	public default void flush(final StorageLockedFile targetfile)
 	{
 		try

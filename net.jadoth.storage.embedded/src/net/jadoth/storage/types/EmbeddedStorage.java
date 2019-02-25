@@ -83,6 +83,8 @@ public final class EmbeddedStorage
 		;
 	}
 	
+	// (25.02.2019 TM)FIXME: JET-55: consolidate Foundation() util-constructors regarding new ConfigurationBuilder
+	
 	public static final EmbeddedStorageFoundation<?> Foundation(final File directory)
 	{
 		XFiles.ensureDirectory(notNull(directory));
@@ -95,27 +97,20 @@ public final class EmbeddedStorage
 
 	public static final EmbeddedStorageFoundation<?> Foundation()
 	{
-		return Foundation(new File(Storage.defaultDirectoryName()));
+		return Foundation(new File(StorageFileProvider.Defaults.defaultMainDirectory()));
 	}
 	
 	public static final EmbeddedStorageFoundation<?> Foundation(
-		final File                          directory             ,
-		final StorageChannelCountProvider   channelCountProvider  ,
-		final StorageHousekeepingController housekeepingController,
-		final StorageDataFileEvaluator      fileDissolver         ,
-		final StorageEntityCacheEvaluator   entityCacheEvaluator
+		final File                            directory    ,
+		final StorageConfiguration.Builder<?> configuration
 	)
 	{
 		XFiles.ensureDirectory(directory);
 
 		return Foundation(
-			Storage.Configuration(
-				Storage.FileProvider(directory),
-				channelCountProvider           ,
-				housekeepingController         ,
-				fileDissolver                  ,
-				entityCacheEvaluator
-			),
+			configuration
+			.setStorageFileProvider(Storage.FileProvider(directory))
+			.createConfiguration(),
 			ConnectionFoundation(directory)
 		);
 	}
@@ -201,21 +196,12 @@ public final class EmbeddedStorage
 	}
 	
 	public static final EmbeddedStorageManager start(
-		final Object                        explicitRoot          ,
-		final File                          directory             ,
-		final StorageChannelCountProvider   channelCountProvider  ,
-		final StorageHousekeepingController housekeepingController,
-		final StorageDataFileEvaluator      fileDissolver         ,
-		final StorageEntityCacheEvaluator   entityCacheEvaluator
+		final Object                          explicitRoot ,
+		final File                            directory    ,
+		final StorageConfiguration.Builder<?> configuration
 	)
 	{
-		final EmbeddedStorageManager esm = Foundation(
-			directory             ,
-			channelCountProvider  ,
-			housekeepingController,
-			fileDissolver         ,
-			entityCacheEvaluator
-		)
+		final EmbeddedStorageManager esm = Foundation(directory, configuration)
 		.createEmbeddedStorageManager(explicitRoot).start();
 		
 		return esm;

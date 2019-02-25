@@ -1,16 +1,33 @@
 package net.jadoth.test.corp.logic;
 
 import net.jadoth.collections.types.XGettingTable;
+import net.jadoth.concurrency.XThreads;
 import net.jadoth.hashing.HashStatistics;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
+import net.jadoth.storage.types.Storage;
+import net.jadoth.storage.types.StorageBackupSetup;
 
 
 public class MainTestStorageExample
 {
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.Foundation()
+		.Foundation(
+			Storage.ConfigurationBuilder()
+			.setBackupFileProvider(
+				StorageBackupSetup.New(
+					Storage
+					.FileProviderBuilder()
+					.setMainDirectory("Backup")
+					.setDeletionDirectory("Deleted")
+					.setDeletionDirectory("Truncated")
+					.createFileProvider()
+				)
+			)
+			.createConfiguration()
+			
+		)
 //		.setRefactoringMappingProvider(
 //			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
 //		)
@@ -50,6 +67,7 @@ public class MainTestStorageExample
 		}
 		
 //		STORAGE.shutdown();
+		XThreads.sleep(5000);
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
 	

@@ -75,6 +75,15 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		{
 			return this.fileProvider.provideDeletionTargetFile(fileToBeDeleted);
 		}
+		
+		@Override
+		public StorageNumberedFile provideTruncationBackupTargetFile(
+			final StorageNumberedFile fileToBeTruncated,
+			final long                newLength
+		)
+		{
+			return this.fileProvider.provideTruncationBackupTargetFile(fileToBeTruncated, newLength);
+		}
 
 		@Override
 		public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(
@@ -109,9 +118,13 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 
 		@Override
-		public void truncate(final StorageInventoryFile file, final long newLength)
+		public void truncate(
+			final StorageInventoryFile file               ,
+			final long                 newLength          ,
+			final StorageFileProvider  storageFileProvider
+		)
 		{
-			this.fileWriter.truncate(file, newLength);
+			this.fileWriter.truncate(file, newLength, storageFileProvider);
 		}
 		
 		@Override

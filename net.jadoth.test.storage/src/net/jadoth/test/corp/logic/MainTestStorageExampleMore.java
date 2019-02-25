@@ -18,11 +18,11 @@ public class MainTestStorageExampleMore
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation(
-			DIRECTORY                                        , // location for the database files
-			Storage.ChannelCountProvider(CHANNEl_COUNT)      , // amount of storage channels (parallel database threads)
-			Storage.HousekeepingController(1000, 10_000_000) , // housekeeping time config (file cleanup, cache checks, etc.)
-			Storage.DataFileEvaluator()                      , // evalutator for dissolving old files
-			Storage.EntityCacheEvaluatorCustomTimeout(10_000)  // evalutator for unloading entities from the cache
+			DIRECTORY, // location for the database files
+			Storage.ConfigurationBuilder()
+			.setChannelCountProvider  (Storage.ChannelCountProvider(CHANNEl_COUNT))        // storage channel/thread count (default 1)
+			.setHousekeepingController(Storage.HousekeepingController(100, 10_000_000))    // time configuration for housekeeping, caching, etc.
+			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluatorCustomTimeout(10_000)) // evalutator for removing entities from the cache
 		)
 		
 		// with registered refactorings

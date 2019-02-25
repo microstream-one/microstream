@@ -51,13 +51,13 @@ public class TestStorage extends TestComponentProvider
 	protected static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.createFoundation()
 		.setConfiguration(
-			Storage.Configuration(
-				createTestFileProvider()                        ,
-				Storage.ChannelCountProvider(channelCount)      , // storage channel/thread count (default 1)
-				Storage.HousekeepingController(100, 7_000_000)  , // time configuration for housekeeping, caching, etc.
-				Storage.DataFileEvaluator(100, 10_000_000, 0.75), // evalutator for dissolving old files
-				Storage.EntityCacheEvaluatorCustomTimeout(10_000) // evalutator for removing entities from the cache
-			)
+			Storage.ConfigurationBuilder()
+			.setStorageFileProvider   (createTestFileProvider())
+			.setChannelCountProvider  (Storage.ChannelCountProvider(channelCount))        // storage channel/thread count (default 1)
+			.setHousekeepingController(Storage.HousekeepingController(100, 7_000_000))    // time configuration for housekeeping, caching, etc.
+			.setFileEvaluator         (Storage.DataFileEvaluator(100, 10_000_000, 0.75))  // evalutator for dissolving old files
+			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluatorCustomTimeout(10_000)) // evalutator for removing entities from the cache
+			.createConfiguration()
 		)
 		.setConnectionFoundation(createTestConnectionFoundation()) // config and files for persistence layer
 		.createEmbeddedStorageManager(ROOT) // binding between the application graph's root  and the storage
@@ -77,10 +77,9 @@ public class TestStorage extends TestComponentProvider
 		System.out.println("done");
 	}
 
-
 	static final StorageFileProvider createTestFileProvider()
 	{
-		return Storage.FileProvider(TEST_DIRECTORY, "channel_", "dat");
+		return Storage.FileProvider(TEST_DIRECTORY);
 	}
 
 	static final EmbeddedStorageConnectionFoundation<?> createTestConnectionFoundation()
