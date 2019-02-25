@@ -616,7 +616,7 @@ public interface StorageFileManager
 //				+ "(length " + this.headFile.file().length()
 //				+ ") at " + this.headFile.totalLength()
 //			);
-			this.writer.truncate(this.headFile, this.headFile.totalLength());
+			this.writer.truncate(this.headFile, this.headFile.totalLength(), this.storageFileProvider);
 		}
 
 		@Override
@@ -1192,7 +1192,7 @@ public interface StorageFileManager
 				this.writeTransactionsEntryFileTruncation(lastFile, timestamp, lastFileLength);
 
 				// (20.06.2014 TM)TODO: truncator function to give a chance to evaluate / rescue the doomed data
-				this.writer.truncate(lastFile, lastFileLength);
+				this.writer.truncate(lastFile, lastFileLength, this.storageFileProvider);
 			}
 		}
 		

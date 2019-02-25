@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
 \b0\par
 2019-02-13\par
 \par
@@ -294,5 +295,38 @@ Hm. Das hei\'dft aber auch, dass ich die StorageFileWriterConserving Logik kompl
 Fertig.\par
 Sehr sch\'f6n: Die Logik f\'fcr das "Retten" normaler Storage Dateien kann f\'fcr die Backup Files mitverwendet werden.\par
 Damit ist es jetzt weniger Code als zuvor, sauberer strukturiert und das Weitergeben von L\'f6schen in Backup Files ist auch gleich abgedeckt. Passt!\par
+\par
+\par
+2019-02-05\par
+\par
+Die auskommentierte Sicherheitskopie eines truncateten Files k\'f6nnte ich eigentlich auch in den FileProvider rein machen.\par
+Wobei das bl\'f6d ist, weil das im normalen Betrieb keinen Sinn macht, nur beim backup.\par
+Hm, oder? Eigentlich machts im normalen Betrieb genauso viel Sinn wie das deletionDirectory.\par
+Ok, dann bau ich das so.\par
+\par
+Das werden jetzt aber so viele Konstruktur-Varianten, dass es besser wird, einen Builder zu bauen.\par
+Also bauen.\par
+\par
+So. Builder gebaut. Defaults umgezogen. Bestehende Util-Konstruktoren reduziert.\par
+Dann Truncation Logik gebaut analog zu deletion Logik, aber mit Copy statt Move.\par
+\par
+Und dann war die eigentlich copy Methode auch nicht mehr viel: Copy Logik bissl umbenennen und dort nochmal aufrufen.\par
+\par
+Damit sind alle TODOs erledigt.\par
+\par
+Jetzt fehlt noch testen.\par
+Und dann so eine Validierung der tats\'e4chlich geschriebenen Backup Daten.\par
+\par
+Test bauen.\par
+\par
+Hm. Dabei aufgefallen:\par
+- Das Backup Zeug muss in die StorageConfiguration rein\par
+- StorageConfiguration muss auch einen Builder haben. Ich seh das an mir selber: ich will m\'f6glichst keine eigene Configuration angeben, weil ich dann gleich alle Teile definieren m\'fcsste, anstatt nur den einen Teil, den ich brauch.\par
+\par
+Haha. Da gibts ein TODO von 2013 dazu.\par
+Bauen.\par
+\par
+Hm, toll. Irgendie ist das "BackupSetup" jetzt fast \'fcberfl\'fcssig ...\par
+Entweder das l\'f6schen oder, falls es doch beibehalten wird, muss das in die StorageConfiguartion rein.\par
 }
  

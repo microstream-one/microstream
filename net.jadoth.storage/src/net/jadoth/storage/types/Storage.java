@@ -1,6 +1,5 @@
 package net.jadoth.storage.types;
 
-import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import java.io.File;
@@ -15,12 +14,6 @@ public final class Storage
 	private static final int    DEFAULT_CHANNELCOUNT                = 1              ;
 
 	// file provider configuration
-	private static final String DEFAULT_PARENT_DIRECTORY            = "storage"      ;
-	private static final String DEFAULT_DIRECTORY_BASENAME          = "channel_"     ;
-	private static final String DEFAULT_FILE_STORAGE_BASENAME       = "channel_"     ;
-	private static final String DEFAULT_FILE_STORAGE_SUFFIX         = "dat"          ;
-	private static final String DEFAULT_FILE_TRANSACTIONS_BASENAME  = "transactions_";
-	private static final String DEFAULT_FILE_TRANSACTIONS_SUFFIX    = "sft"          ; // storage file transactions
 
 	// housekeeping time configuration (periodic time for garbage collection, cache and file consolidation)
 	private static final long   DEFAULT_HOUSEKEEPING_INTERVAL       = 1_000          ; // hk interval (ms)
@@ -55,184 +48,47 @@ public final class Storage
 	{
 		return TRANSACTIONS_FILE_NUMBER;
 	}
-
-	public static final String defaultDirectoryName()
-	{
-		return DEFAULT_PARENT_DIRECTORY;
-	}
-
+	
 	public static final StorageFileProvider FileProvider()
 	{
-		return FileProvider(
-			new File(DEFAULT_PARENT_DIRECTORY)
-		);
-	}
-
-	public static final StorageFileProvider FileProvider(final File parentDirectory)
-	{
-		return FileProvider(parentDirectory, null);
+		return Storage.FileProviderBuilder()
+			.createFileProvider()
+		;
 	}
 	
-	public static final StorageFileProvider FileProvider(
-		final File parentDirectory ,
-		final File deletedDirectory
-	)
+	public static final StorageFileProvider FileProvider(final File mainDirectory)
 	{
-		return FileProvider(
-			parentDirectory              ,
-			deletedDirectory             ,
-			DEFAULT_DIRECTORY_BASENAME   ,
-			DEFAULT_FILE_STORAGE_BASENAME,
-			DEFAULT_FILE_STORAGE_SUFFIX
-		);
+		return Storage.FileProviderBuilder()
+			.setMainDirectory(mainDirectory.getPath())
+			.createFileProvider()
+		;
 	}
 	
-	public static final StorageFileProvider FileProvider(
-		final File   parentDirectory         ,
-		final File   deletedDirectory        ,
-		final String channelDirectoryBaseName,
-		final String storageFileBaseName     ,
-		final String storageFileSuffix
-	)
+	public static final StorageFileProvider.Builder<?> FileProviderBuilder()
 	{
-		return FileProvider(
-			parentDirectory                   ,
-			deletedDirectory                  ,
-			channelDirectoryBaseName          ,
-			storageFileBaseName               ,
-			storageFileSuffix                 ,
-			DEFAULT_FILE_TRANSACTIONS_BASENAME,
-			DEFAULT_FILE_TRANSACTIONS_SUFFIX
-		);
+		return StorageFileProvider.Builder();
 	}
 
-	public static final StorageFileProvider FileProvider(
-		final File   parentDirectory    ,
-		final String storageFileBaseName,
-		final String storageFileSuffix
-	)
+	public static final StorageConfiguration Configuration()
 	{
-		return FileProvider(
-			parentDirectory    ,
-			(File)null         ,
-			storageFileBaseName,
-			storageFileSuffix
-		);
-	}
-	
-	public static final StorageFileProvider FileProvider(
-		final File   parentDirectory    ,
-		final File   deletedDirectory   ,
-		final String storageFileBaseName,
-		final String storageFileSuffix
-	)
-	{
-		return FileProvider(
-			parentDirectory    ,
-			deletedDirectory   ,
-			storageFileBaseName,
-			storageFileBaseName,
-			storageFileSuffix
-		);
-	}
-
-	public static final StorageFileProvider FileProvider(
-		final File   parentDirectory         ,
-		final String channelDirectoryBaseName,
-		final String storageFileBaseName     ,
-		final String storageFileSuffix
-	)
-	{
-		return FileProvider(
-			parentDirectory                   ,
-			null                              ,
-			channelDirectoryBaseName          ,
-			storageFileBaseName               ,
-			storageFileSuffix
-		);
-	}
-
-	public static final StorageFileProvider FileProvider(
-		final File   parentDirectory         ,
-		final String channelDirectoryBaseName,
-		final String storageFileBaseName     ,
-		final String storageFileSuffix       ,
-		final String transactionsFileBaseName,
-		final String transactionsFileSuffix
-	)
-	{
-		return new StorageFileProvider.Implementation(
-			parentDirectory         ,
-			null                    ,
-			channelDirectoryBaseName,
-			storageFileBaseName     ,
-			storageFileSuffix       ,
-			transactionsFileBaseName,
-			transactionsFileSuffix
-		);
-	}
-	
-	public static final StorageFileProvider FileProvider(
-		final File   parentDirectory         ,
-		final File   deletedDirectory        ,
-		final String channelDirectoryBaseName,
-		final String storageFileBaseName     ,
-		final String storageFileSuffix       ,
-		final String transactionsFileBaseName,
-		final String transactionsFileSuffix
-	)
-	{
-		return new StorageFileProvider.Implementation(
-			parentDirectory         ,
-			deletedDirectory        ,
-			channelDirectoryBaseName,
-			storageFileBaseName     ,
-			storageFileSuffix       ,
-			transactionsFileBaseName,
-			transactionsFileSuffix
-		);
-	}
-
-	// (25.11.2013 TM)TODO: StorageConfigurationBuilder
-	public static final StorageConfiguration Configuration(
-		final StorageFileProvider           fileProvider          ,
-		final StorageChannelCountProvider   channelCountProvider  ,
-		final StorageHousekeepingController housekeepingController,
-		final StorageDataFileEvaluator      fileDissolver         ,
-		final StorageEntityCacheEvaluator   entityCacheEvaluator
-	)
-	{
-		return new StorageConfiguration.Implementation(
-			channelCountProvider   != null ? channelCountProvider   : ChannelCountProvider()  ,
-			housekeepingController != null ? housekeepingController : HousekeepingController(),
-			fileProvider           != null ? fileProvider           : FileProvider()          ,
-			fileDissolver          != null ? fileDissolver          : DataFileEvaluator()     ,
-			entityCacheEvaluator   != null ? entityCacheEvaluator   : EntityCacheEvaluator()
-		);
+		return StorageConfiguration.Builder()
+			.createConfiguration()
+		;
 	}
 	
 	public static final StorageConfiguration Configuration(
 		final StorageFileProvider fileProvider
 	)
 	{
-		return new StorageConfiguration.Implementation(
-			Storage.ChannelCountProvider()  ,
-			Storage.HousekeepingController(),
-			fileProvider                    ,
-			Storage.DataFileEvaluator()     ,
-			Storage.EntityCacheEvaluator()
-		);
+		return StorageConfiguration.Builder()
+			.setStorageFileProvider(fileProvider)
+			.createConfiguration()
+		;
 	}
 
-	public static final StorageConfiguration Configuration()
+	public static final StorageConfiguration.Builder<?> ConfigurationBuilder()
 	{
-		return Configuration(
-			FileProvider()          ,
-			ChannelCountProvider()  ,
-			HousekeepingController(),
-			DataFileEvaluator()     ,
-			EntityCacheEvaluator()
-		);
+		return StorageConfiguration.Builder();
 	}
 
 	public static final StorageChannelCountProvider ChannelCountProvider()
@@ -313,34 +169,27 @@ public final class Storage
 		final File backupDirectory
 	)
 	{
-		return BackupSetup(null, backupDirectory);
+		return BackupSetup(backupDirectory.getPath());
 	}
+
 	
 	public static final StorageBackupSetup BackupSetup(
-		final StorageFileProvider fileProvider
-	)
-	{
-		return BackupSetup(null, fileProvider);
-	}
-	
-	public static final StorageBackupSetup BackupSetup(
-		final String graveDirectoryName,
-		final File   backupDirectory
+		final String backupDirectoryIdentifier
 	)
 	{
 		return StorageBackupSetup.New(
-			mayNull(graveDirectoryName),
-			Storage.FileProvider(backupDirectory)
+			Storage
+			.FileProviderBuilder()
+			.setMainDirectory(backupDirectoryIdentifier)
+			.createFileProvider()
 		);
 	}
 	
 	public static final StorageBackupSetup BackupSetup(
-		final String              graveDirectoryName,
 		final StorageFileProvider fileProvider
 	)
 	{
 		return StorageBackupSetup.New(
-			mayNull(graveDirectoryName),
 			notNull(fileProvider)
 		);
 	}

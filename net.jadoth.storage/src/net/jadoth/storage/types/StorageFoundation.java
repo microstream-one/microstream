@@ -52,8 +52,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public StorageEntityMarkMonitor.Creator getEntityMarkMonitorCreator();
 
 	public StorageExceptionHandler getExceptionHandler();
-	
-	public StorageBackupSetup getBackupSetup();
 
 
 	public F setChannelControllerCreator(StorageChannelController.Creator channelControllerProvider);
@@ -99,8 +97,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public F setOidMarkQueueCreator(StorageOidMarkQueue.Creator oidMarkQueueCreator);
 
 	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
-	
-	public F setBackupSetup(StorageBackupSetup backupSetup);
 
 	public StorageManager createStorageManager();
 
@@ -136,7 +132,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageExceptionHandler               exceptionHandler             ;
-		private StorageBackupSetup                    backupSetup                  ;
 
 		
 		
@@ -517,13 +512,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			}
 			return this.exceptionHandler;
 		}
-		
-		@Override
-		public StorageBackupSetup getBackupSetup()
-		{
-			// no on-demand creation logic as this is an optional part
-			return this.backupSetup;
-		}
 
 		
 		
@@ -693,13 +681,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return this.$();
 		}
 		
-		@Override
-		public F setBackupSetup(final StorageBackupSetup backupSetup)
-		{
-			this.backupSetup = backupSetup;
-			return this.$();
-		}
-		
 		public final boolean isByteOrderMismatch()
 		{
 			/* (11.02.2019 TM)NOTE: On byte order switching:
@@ -730,7 +711,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return new StorageManager.Implementation(
 				configuration                          ,
 				channelController                      ,
-				this.getBackupSetup()                  ,
+				configuration.backupFileProvider()     , // (25.02.2019 TM)FIXME: JET-55: decide on BackupSet
 				this.getWriterProvider()               ,
 				this.getReaderProvider()               ,
 				this.getInitialDataFileNumberProvider(),

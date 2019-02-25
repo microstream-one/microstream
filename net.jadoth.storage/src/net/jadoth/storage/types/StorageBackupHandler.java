@@ -326,16 +326,10 @@ public interface StorageBackupHandler extends Runnable
 		{
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
 			
-			// (19.02.2019 TM)FIXME: JET-55: StorageBackupHandler#copyFile()
-			
-			if(sourceFile != null)
-			{
-				sourceFile.decrementUserCount();
-			}
-			if(targetFile != null)
-			{
-				targetFile.decrementUserCount();
-			}
+			StorageFileWriter.copyFile(sourceFile, backupTargetFile);
+
+			sourceFile.decrementUserCount();
+			targetFile.decrementUserCount();
 		}
 
 		@Override
@@ -346,7 +340,7 @@ public interface StorageBackupHandler extends Runnable
 		{
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
 			
-			// FIXME JET-55: StorageBackupHandler#truncateFile()
+			StorageFileWriter.truncate(backupTargetFile, newLength, this.backupSetup.backupFileProvider());
 			
 			// no user decrement since only the identifier is required and the actual file can well have been deleted.
 		}
