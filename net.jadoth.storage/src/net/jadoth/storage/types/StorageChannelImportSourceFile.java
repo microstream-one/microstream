@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 public interface StorageChannelImportSourceFile extends StorageInventoryFile
 {
 	@Override
-	public FileChannel channel();
+	public FileChannel fileChannel();
 
 	public void iterateBatches(Consumer<? super StorageChannelImportBatch> iterator);
 

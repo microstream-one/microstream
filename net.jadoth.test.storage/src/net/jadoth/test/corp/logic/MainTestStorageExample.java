@@ -15,17 +15,16 @@ public class MainTestStorageExample
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation(
 			Storage.ConfigurationBuilder()
-			.setBackupFileProvider(
+			.setBackupSetup(
 				StorageBackupSetup.New(
 					Storage
 					.FileProviderBuilder()
-					.setMainDirectory("Backup")
-					.setDeletionDirectory("Deleted")
-					.setDeletionDirectory("Truncated")
+					.setStorageDirectory("storage/backup")
+					.setDeletionDirectory("storage/backup/deleted")
+					.setDeletionDirectory("storage/backup/truncated")
 					.createFileProvider()
 				)
 			)
-			.createConfiguration()
 			
 		)
 //		.setRefactoringMappingProvider(

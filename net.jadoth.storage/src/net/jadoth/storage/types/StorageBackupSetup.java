@@ -64,7 +64,9 @@ public interface StorageBackupSetup
 		}
 		
 		@Override
-		public StorageFileWriter.Provider setupWriterProvider(final StorageFileWriter.Provider writerProvider)
+		public StorageFileWriter.Provider setupWriterProvider(
+			final StorageFileWriter.Provider writerProvider
+		)
 		{
 			return StorageFileWriterBackupping.Provider(this.itemQueue, writerProvider);
 		}

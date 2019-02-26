@@ -86,7 +86,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 			{
 				while(this.head.next == null)
 				{
-					this.wait();
+					this.head.wait();
 				}
 				
 				final Item itemToBeProcessed = this.head.next;
@@ -145,7 +145,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 				// deciding on a null sourceFile is a hack to avoid the complexity of multiple Item classes
 				if(this.sourceFile != null)
 				{
-					handler.copyFile(this.sourceFile, this.sourcePosition, this.length, this.targetFile);
+					handler.copyFilePart(this.sourceFile, this.sourcePosition, this.length, this.targetFile);
 				}
 				else if(this.length < 0)
 				{

@@ -59,7 +59,7 @@ public final class Storage
 	public static final StorageFileProvider FileProvider(final File mainDirectory)
 	{
 		return Storage.FileProviderBuilder()
-			.setMainDirectory(mainDirectory.getPath())
+			.setStorageDirectory(mainDirectory.getPath())
 			.createFileProvider()
 		;
 	}
@@ -180,7 +180,7 @@ public final class Storage
 		return StorageBackupSetup.New(
 			Storage
 			.FileProviderBuilder()
-			.setMainDirectory(backupDirectoryIdentifier)
+			.setStorageDirectory(backupDirectoryIdentifier)
 			.createFileProvider()
 		);
 	}

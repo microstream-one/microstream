@@ -3,8 +3,11 @@ package net.jadoth.storage.types;
 import static net.jadoth.X.notNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+
+import net.jadoth.storage.exceptions.StorageExceptionIo;
 
 public interface StorageNumberedFile extends StorageChannelFile
 {
@@ -132,7 +135,7 @@ public interface StorageNumberedFile extends StorageChannelFile
 		}
 		
 		@Override
-		public final FileChannel channel()
+		public final FileChannel fileChannel()
 		{
 			return this.lock().channel();
 		}
@@ -175,7 +178,18 @@ public interface StorageNumberedFile extends StorageChannelFile
 				return;
 			}
 			
-			StorageNumberedFile.super.close();
+			try
+			{
+				@SuppressWarnings("resource") // moronic warning suppressed
+				final FileChannel fileChannel = this.lock.channel();
+				this.lock.release();
+				fileChannel.close();
+				this.lock = null;
+			}
+			catch(final IOException e)
+			{
+				throw new StorageExceptionIo(e);
+			}
 		}
 
 	}

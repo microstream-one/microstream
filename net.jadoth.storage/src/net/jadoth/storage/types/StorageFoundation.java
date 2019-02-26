@@ -19,7 +19,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public StorageValidatorDataChunk.Provider getDataChunkValidatorProvider();
 
-	public StorageChannel.Creator getChannelCreator();
+	public StorageChannelsCreator getChannelCreator();
 
 	public StorageChannelThreadProvider getChannelThreadProvider();
 
@@ -64,7 +64,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setDataChunkValidatorProvider(StorageValidatorDataChunk.Provider chunkValidatorProvider);
 
-	public F setChannelCreator(StorageChannel.Creator channelCreator);
+	public F setChannelCreator(StorageChannelsCreator channelCreator);
 
 	public F setChannelThreadProvider(StorageChannelThreadProvider channelThreadProvider);
 	
@@ -116,7 +116,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageRequestAcceptor.Creator        requestAcceptorCreator       ;
 		private StorageTaskBroker.Creator             taskBrokerCreator            ;
 		private StorageValidatorDataChunk.Provider    dataChunkValidatorProvider   ;
-		private StorageChannel.Creator                channelCreator               ;
+		private StorageChannelsCreator                channelCreator               ;
 		private StorageChannelThreadProvider          channelThreadProvider        ;
 		private StorageBackupThreadProvider           backupThreadProvider         ;
 		private StorageThreadProvider                 threadProvider               ;
@@ -200,9 +200,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return new StorageValidatorDataChunk.NoOp();
 		}
 
-		protected StorageChannel.Creator ensureChannelCreator()
+		protected StorageChannelsCreator ensureChannelCreator()
 		{
-			return new StorageChannel.Creator.Implementation();
+			return new StorageChannelsCreator.Implementation();
 		}
 
 		protected StorageChannelThreadProvider ensureChannelThreadProvider()
@@ -344,7 +344,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 
 		@Override
-		public StorageChannel.Creator getChannelCreator()
+		public StorageChannelsCreator getChannelCreator()
 		{
 			if(this.channelCreator == null)
 			{
@@ -557,7 +557,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 
 		@Override
-		public F setChannelCreator(final StorageChannel.Creator channelCreator)
+		public F setChannelCreator(final StorageChannelsCreator channelCreator)
 		{
 			this.channelCreator = channelCreator;
 			return this.$();
@@ -711,7 +711,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return new StorageManager.Implementation(
 				configuration                          ,
 				channelController                      ,
-				configuration.backupFileProvider()     , // (25.02.2019 TM)FIXME: JET-55: decide on BackupSet
+				configuration.backupSetup()            ,
 				this.getWriterProvider()               ,
 				this.getReaderProvider()               ,
 				this.getInitialDataFileNumberProvider(),

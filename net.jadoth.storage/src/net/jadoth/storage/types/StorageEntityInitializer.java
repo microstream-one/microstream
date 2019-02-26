@@ -255,7 +255,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		{
 			try
 			{
-				final FileChannel fileChannel = file.channel();
+				final FileChannel fileChannel = file.fileChannel();
 				fileChannel.position(0);
 
 				buffer.clear();

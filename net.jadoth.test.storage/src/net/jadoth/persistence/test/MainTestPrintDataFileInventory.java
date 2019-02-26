@@ -15,7 +15,7 @@ public class MainTestPrintDataFileInventory
 	{
 		final FileChannel fc = StorageLockedFile.openLockedFile(
 			new File("D:/Bonus25/storage_2015-03-19 ID Fehler lokal/graveyard1/channel_1_129.dat")
-		).channel();
+		).fileChannel();
 		StorageDataFileItemIterator.Implementation.processInputFile(fc, new DataFileInventoryPrinter());
 	}
 

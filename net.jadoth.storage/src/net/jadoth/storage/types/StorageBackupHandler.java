@@ -2,6 +2,8 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
 
+import java.nio.channels.FileChannel;
+
 import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
@@ -17,7 +19,7 @@ public interface StorageBackupHandler extends Runnable
 	
 	public void initialize(StorageInventory storageInventory);
 	
-	public void copyFile(
+	public void copyFilePart(
 		StorageInventoryFile sourceFile    ,
 		long                 sourcePosition,
 		long                 length        ,
@@ -33,19 +35,21 @@ public interface StorageBackupHandler extends Runnable
 		StorageInventoryFile file
 	);
 	
-	public default void start()
+	public default StorageBackupHandler start()
 	{
 		this.setRunning(true);
+		return this;
 	}
 	
-	public default void stop()
+	public default StorageBackupHandler stop()
 	{
 		this.setRunning(false);
+		return this;
 	}
 	
 	public boolean isRunning();
 	
-	public void setRunning(boolean running);
+	public StorageBackupHandler setRunning(boolean running);
 	
 	
 	
@@ -124,9 +128,10 @@ public interface StorageBackupHandler extends Runnable
 		}
 		
 		@Override
-		public final synchronized void setRunning(final boolean running)
+		public final synchronized StorageBackupHandler setRunning(final boolean running)
 		{
 			this.running = running;
+			return this;
 		}
 		
 		private StorageBackupFile resolveBackupTargetFile(final StorageNumberedFile sourceFile)
@@ -305,7 +310,7 @@ public interface StorageBackupHandler extends Runnable
 		{
 			try
 			{
-				storageFile.channel().transferTo(sourcePosition, length, backupTargetFile.channel());
+				storageFile.fileChannel().transferTo(sourcePosition, length, backupTargetFile.fileChannel());
 				
 				// backup file always gets closed right away.
 				backupTargetFile.close();
@@ -317,19 +322,37 @@ public interface StorageBackupHandler extends Runnable
 		}
 		
 		@Override
-		public void copyFile(
+		public void copyFilePart(
 			final StorageInventoryFile sourceFile    ,
 			final long                 sourcePosition,
 			final long                 length        ,
 			final StorageInventoryFile targetFile
 		)
 		{
+			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
 			
-			StorageFileWriter.copyFile(sourceFile, backupTargetFile);
+			final FileChannel sourceChannel = sourceFile.fileChannel();
+			final FileChannel targetChannel = backupTargetFile.fileChannel();
+			
+			try
+			{
+				final long byteCount = sourceChannel.transferTo(sourcePosition, length, targetChannel);
+				StorageFileWriter.validateIoByteCount(length, byteCount);
+				targetChannel.force(false);
+				backupTargetFile.close();
+			}
+			catch(final Exception e)
+			{
+				throw new StorageExceptionBackupCopying(sourceFile, sourcePosition, length, backupTargetFile);
+			}
 
 			sourceFile.decrementUserCount();
-			targetFile.decrementUserCount();
+			
+			if(targetFile != null)
+			{
+				targetFile.decrementUserCount();
+			}
 		}
 
 		@Override

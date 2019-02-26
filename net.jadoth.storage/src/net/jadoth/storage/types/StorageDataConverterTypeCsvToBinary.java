@@ -1042,7 +1042,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		private void setTargetFile()
 		{
 			this.targetFile        = this.fileProvider.provideConversionFile(this.currentType, this.sourceFile);
-			this.targetFileChannel = this.targetFile.channel();
+			this.targetFileChannel = this.targetFile.fileChannel();
 			try
 			{
 				this.targetFileActualLength = this.targetFileChannel.size();

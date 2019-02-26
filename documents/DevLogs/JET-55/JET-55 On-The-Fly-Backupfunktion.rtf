@@ -328,5 +328,63 @@ Bauen.\par
 \par
 Hm, toll. Irgendie ist das "BackupSetup" jetzt fast \'fcberfl\'fcssig ...\par
 Entweder das l\'f6schen oder, falls es doch beibehalten wird, muss das in die StorageConfiguartion rein.\par
+\par
+\par
+2019-02-26\par
+\par
+Interessante Anregung aus dem Bonus Sprint Retro:\par
+1.) Backup queue beim Shutdown abarbeiten (optional?)\par
+2.) Zippen? Alles auf einmal oder jede Datei f\'fcr sich?\par
+\par
+Punkt 1 wird knifflig:\par
+Es muss einen Zustand geben, in dem die Channels schon deaktiviert sind, d.h. keine neuen Tasks mehr annehmen, evtl. sogar schon die Threads beendet haben, aber die storage immer noch nicht ganz shutdown ist, sondern nur auf "interne Tasks", wie z.B. den Backup Thread, wartet.\par
+Die Unterscheidung zwischen shutting down und shutdown gibt es schon, aber erst mal nur als dumme flags.\par
+Was noch fehlt, w\'e4re so ein Registrierungssystem f\'fcr interne Tasks und an geeigneter Stelle eine Pr\'fcfung, ob noch einer von denen arbeitet.\par
+\par
+Aber erst mal die aktuelle Baustelle weitermachen:\par
+BackupSetup Entscheidung: Das ist ja schon mehr als ein Wrapper f\'fcr den FileProvider. Da ist z.B. auch Logik drin.\par
+Darum muss das beibehalten werden.\par
+Configuration darauf umstellen.\par
+\par
+Jetzt noch EmbeddedStorage.Foundation() Methoden \'fcberarbeiten bzgl. eingef\'fchrtem Configuration.Builder Konzept.\par
+\par
+Passt.\par
+Testen.\par
+\par
+Backup Verzeichnis legt er an.\par
+Dateien werden aber keine reinkopiert. Debuggen.\par
+\par
+Ehm ... momendamal. In der Methode, die St\'fccke von Dateien kopiert, einfach das Kopieren kompletter Dateien aufzurufen, ist ja Bl\'f6dsinn.\par
+Fixen. Bzw. das richtige Kopieren erst mal implementieren lol.\par
+\par
+So, fertig. Jetzt debuggen, warum da nix kopiert wird.\par
+\par
+Aha, der Backup Thread l\'e4uft ja gar nicht. \'c4hm lol.\par
+Ah. Hehe. Ich hab den BackupHandler bisher nirgends gestartet. D.h. der Thread wird erzeugt, l\'e4uft los, checkt auf running, das ist false, und beendet sich sofort wieder. Haha.\par
+Start Aufruf einbauen. Und gleich kommentieren, wieso es zwei start() gibt: Einmal state setzen, einmal den Thread starten.\par
+\par
+Jetzt weiter testen:\par
+Oh. IllegalMonitorState. Untersuchen.\par
+Achso: ich hab versehentlich statt "this.head.wait()" nur "this.wait()" aufgerufen. Sowas sind echt gef\'e4hrliche Fehler. Gut, dass das Monitoring Zeug das pr\'fcft.\par
+\par
+NPE: BackupHandler#dataFiles ist null. Evtl. wird der #ensureRegisteredFiles Aufruf nicht gemacht. Denn wenn, dann kann das nicht null sein.\par
+Jup: das \'e4u\'dfere #initialize wird nie aufgerufen.\par
+Entsprechend einbauen.\par
+Daf\'fcr muss der BackupHandler zum FileManager durchgereicht werden.\par
+Und daf\'fcr muss ich die Initialisierung des BackupHandlers umbauen.\par
+Aber wird schon.\par
+\par
+Testen.\par
+L\'e4uft durch.\par
+Dateien sind da.\par
+Aufs Byte genau gleich gro\'df.\par
+\par
+Also erster Test erfolgreich.\par
+\par
+Jetzt w\'fcrden dann noch viele weitere Tests fehlen f\'fcr weitere Headfiles, teilweises Kopieren, deletion, truncation, ...\par
+\par
+Prinzipiell ist es mal fertig implementiert.\par
+\par
+\par
 }
  

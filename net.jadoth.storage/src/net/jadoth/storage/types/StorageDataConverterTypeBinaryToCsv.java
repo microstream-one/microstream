@@ -357,7 +357,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			final StorageLockedFile file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
 			final File directory = new File(file.qualifier());
 			XFiles.ensureDirectory(directory);
-			this.fileChannel = file.channel();
+			this.fileChannel = file.fileChannel();
 		}
 
 		private ValueWriter deriveOtherValueWriter(final PersistenceTypeDescriptionMember field)
@@ -549,7 +549,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 
 			// (13.10.2018 TM)FIXME: /!\ replace autoclose by external closing
-			try(SeekableByteChannel inputChannel = (this.currentSourceFile = file).channel())
+			try(SeekableByteChannel inputChannel = (this.currentSourceFile = file).fileChannel())
 			{
 				try
 				{

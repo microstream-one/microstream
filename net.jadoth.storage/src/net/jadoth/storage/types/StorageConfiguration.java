@@ -21,7 +21,7 @@ public interface StorageConfiguration
 
 	public StorageDataFileEvaluator      fileEvaluator();
 	
-	public StorageFileProvider           backupFileProvider();
+	public StorageBackupSetup           backupSetup();
 
 	
 	public static StorageConfiguration New(
@@ -30,7 +30,7 @@ public interface StorageConfiguration
 		final StorageFileProvider           fileProvider          ,
 		final StorageDataFileEvaluator      dataFileEvaluator     ,
 		final StorageEntityCacheEvaluator   entityCacheEvaluator  ,
-		final StorageFileProvider           backupFileProvider
+		final StorageBackupSetup            backupSetup
 	)
 	{
 		return new StorageConfiguration.Implementation(
@@ -39,7 +39,7 @@ public interface StorageConfiguration
 			notNull(fileProvider)          ,
 			notNull(dataFileEvaluator)     ,
 			notNull(entityCacheEvaluator)  ,
-			mayNull(backupFileProvider)
+			mayNull(backupSetup)
 		);
 	}
 
@@ -54,7 +54,7 @@ public interface StorageConfiguration
 		private final StorageFileProvider           fileProvider          ;
 		private final StorageDataFileEvaluator      dataFileEvaluator     ;
 		private final StorageEntityCacheEvaluator   entityCacheEvaluator  ;
-		private final StorageFileProvider           backupFileProvider    ;
+		private final StorageBackupSetup            backupSetup           ;
 
 
 
@@ -67,8 +67,8 @@ public interface StorageConfiguration
 			final StorageHousekeepingController housekeepingController,
 			final StorageFileProvider           fileProvider          ,
 			final StorageDataFileEvaluator      dataFileEvaluator     ,
-			final StorageEntityCacheEvaluator   entityCacheEvaluator,
-			final StorageFileProvider           backupFileProvider
+			final StorageEntityCacheEvaluator   entityCacheEvaluator  ,
+			final StorageBackupSetup            backupSetup
 		)
 		{
 			super();
@@ -77,7 +77,7 @@ public interface StorageConfiguration
 			this.entityCacheEvaluator   = entityCacheEvaluator  ;
 			this.fileProvider           = fileProvider          ;
 			this.dataFileEvaluator      = dataFileEvaluator     ;
-			this.backupFileProvider     = backupFileProvider    ;
+			this.backupSetup            = backupSetup           ;
 		}
 
 
@@ -117,9 +117,9 @@ public interface StorageConfiguration
 		}
 		
 		@Override
-		public StorageFileProvider backupFileProvider()
+		public StorageBackupSetup backupSetup()
 		{
-			return this.backupFileProvider;
+			return this.backupSetup;
 		}
 
 		@Override
@@ -159,9 +159,9 @@ public interface StorageConfiguration
 		
 		public B setStorageFileProvider(StorageFileProvider storageFileProvider);
 		
-		public StorageFileProvider backupfileProvider();
+		public StorageBackupSetup backupSetup();
 		
-		public B setBackupFileProvider(StorageFileProvider backupFileProvider);
+		public B setBackupSetup(StorageBackupSetup backupSetup);
 		
 		public StorageDataFileEvaluator fileEvaluator();
 		
@@ -186,7 +186,7 @@ public interface StorageConfiguration
 			private StorageFileProvider           storageFileProvider    = Storage.FileProvider()          ;
 			private StorageDataFileEvaluator      fileEvaluator          = Storage.DataFileEvaluator()     ;
 			private StorageEntityCacheEvaluator   entityCacheEvaluator   = Storage.EntityCacheEvaluator()  ;
-			private StorageFileProvider           backupFileProvider    ; // optional
+			private StorageBackupSetup            backupSetup           ; // optional
 			
 			
 			
@@ -260,16 +260,16 @@ public interface StorageConfiguration
 			}
 			
 			@Override
-			public StorageFileProvider backupfileProvider()
+			public StorageBackupSetup backupSetup()
 			{
-				return this.backupFileProvider;
+				return this.backupSetup;
 			}
 			
 			@Override
-			public B setBackupFileProvider(final StorageFileProvider backupFileProvider)
+			public B setBackupSetup(final StorageBackupSetup backupSetup)
 			{
 				// may be null
-				this.backupFileProvider = backupFileProvider;
+				this.backupSetup = backupSetup;
 				return this.$();
 			}
 			
@@ -311,10 +311,10 @@ public interface StorageConfiguration
 				return StorageConfiguration.New(
 					this.channelCountProvider  ,
 					this.housekeepingController,
-					this.backupFileProvider    ,
+					this.storageFileProvider   ,
 					this.fileEvaluator         ,
 					this.entityCacheEvaluator  ,
-					this.backupFileProvider
+					this.backupSetup
 				);
 			}
 			
