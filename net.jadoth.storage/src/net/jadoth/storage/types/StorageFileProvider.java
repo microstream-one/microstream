@@ -25,7 +25,7 @@ public interface StorageFileProvider
 	public interface Defaults
 	{
 
-		public static String defaultMainDirectory()
+		public static String defaultStorageDirectory()
 		{
 			return "storage";
 		}
@@ -167,9 +167,9 @@ public interface StorageFileProvider
 	
 	public interface Builder<B extends Builder<?>>
 	{
-		public String mainDirectory();
+		public String storageDirectory();
 
-		public B setMainDirectory(String mainDirectory);
+		public B setStorageDirectory(String mainDirectory);
 
 		public String deletionDirectory();
 
@@ -210,7 +210,7 @@ public interface StorageFileProvider
 			////////////////////
 			
 			private String
-				mainDirectory       = StorageFileProvider.Defaults.defaultMainDirectory()         ,
+				storageDirectory       = StorageFileProvider.Defaults.defaultStorageDirectory()         ,
 				deletionDirectory      = StorageFileProvider.Defaults.defaultDeletionDirectory()        ,
 				truncationDirectory    = StorageFileProvider.Defaults.defaultTruncationBackupDirectory(),
 				channelDirectoryPrefix = StorageFileProvider.Defaults.defaultChannelDirectoryPrefix()   ,
@@ -237,21 +237,22 @@ public interface StorageFileProvider
 			// methods //
 			////////////
 			
+			@SuppressWarnings("unchecked")
 			protected final B $()
 			{
-				return this.$();
+				return (B)this;
 			}
 
 			@Override
-			public String mainDirectory()
+			public String storageDirectory()
 			{
-				return this.mainDirectory;
+				return this.storageDirectory;
 			}
 
 			@Override
-			public B setMainDirectory(final String mainDirectory)
+			public B setStorageDirectory(final String storageDirectory)
 			{
-				this.mainDirectory = mainDirectory;
+				this.storageDirectory = storageDirectory;
 				return this.$();
 			}
 
@@ -350,7 +351,7 @@ public interface StorageFileProvider
 			public StorageFileProvider createFileProvider()
 			{
 				return StorageFileProvider.New(
-					this.mainDirectory      ,
+					this.storageDirectory      ,
 					this.deletionDirectory     ,
 					this.truncationDirectory   ,
 					this.channelDirectoryPrefix,

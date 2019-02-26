@@ -2,6 +2,7 @@ package net.jadoth.storage.types;
 
 
 import static net.jadoth.X.coalesce;
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 import static net.jadoth.math.XMath.notNegative;
 
@@ -151,6 +152,7 @@ public interface StorageFileManager
 		private final StorageEntityCache.Implementation    entityCache                  ;
 		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
+		private final StorageBackupHandler                 backupHandler                ;
 
 		private final ByteBuffer[]
 			entryBufferFileCreation   = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
@@ -203,7 +205,8 @@ public interface StorageFileManager
 			final StorageEntityCache.Implementation    entityCache                  ,
 			final StorageFileReader                    reader                       ,
 			final StorageFileWriter                    writer                       ,
-			final BufferSizeProvider                   standardBufferSizeProvider
+			final BufferSizeProvider                   standardBufferSizeProvider   ,
+			final StorageBackupHandler                 backupHandler
 		)
 		{
 			super();
@@ -215,6 +218,7 @@ public interface StorageFileManager
 			this.entityCache                   =     notNull(entityCache)                  ;
 			this.reader                        =     notNull(reader)                       ;
 			this.writer                        =     notNull(writer)                       ;
+			this.backupHandler                 =     mayNull(backupHandler)                ;
 			
 			/*
 			 * Of course a low-level byte buffer can only have a int capacity. Why should it be able to take a long?
@@ -726,7 +730,7 @@ public interface StorageFileManager
 			FileChannel channel = null;
 			try
 			{
-				channel = file.channel();
+				channel = file.fileChannel();
 
 				final EntryAggregator aggregator = StorageTransactionsFileAnalysis.Logic.processInputFile(
 					channel,
@@ -867,6 +871,9 @@ public interface StorageFileManager
 				}
 
 				this.resetFileCleanupCursor();
+				
+				this.initializeBackupHandler(storageInventory);
+				
 //				DEBUGStorage.println(this.channelIndex + " initialization complete, maxOid = " + maxOid);
 				return idAnalysis;
 			}
@@ -884,6 +891,16 @@ public interface StorageFileManager
 					this.entityCache.clearPendingStoreUpdate();
 				}
 			}
+		}
+		
+		private void initializeBackupHandler(final StorageInventory storageInventory)
+		{
+			if(this.backupHandler == null)
+			{
+				return;
+			}
+			
+			this.backupHandler.initialize(storageInventory);
 		}
 
 		private StorageIdAnalysis initializeForExistingFiles(

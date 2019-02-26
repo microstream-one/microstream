@@ -53,51 +53,41 @@ public final class EmbeddedStorage
 		);
 	}
 
+
+
 	
-	
-	public static final EmbeddedStorageFoundation<?> Foundation(
-		final StorageConfiguration                   configuration       ,
-		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
-	)
+	public static File defaultStorageDirectory()
 	{
-		/* (24.09.2018 TM)NOTE:
-		 * Configuration and ConnectionFoundation both depend on a File (directory)
-		 * So this is the most elementary creator method possible.
-		 */
-		return createFoundation()
-			.setConfiguration(configuration)
-			.setConnectionFoundation(connectionFoundation)
-		;
+		return new File(StorageFileProvider.Defaults.defaultStorageDirectory());
+	}
+	
+	public static final EmbeddedStorageFoundation<?> Foundation()
+	{
+		return Foundation(EmbeddedStorage.defaultStorageDirectory());
 	}
 	
 	public static final EmbeddedStorageFoundation<?> Foundation(
-		final StorageFileProvider                    fileProvider        ,
-		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
+		final StorageConfiguration.Builder<?> configuration
 	)
 	{
-		return createFoundation()
-			.setConfiguration(
-				Storage.Configuration(fileProvider)
-			)
-			.setConnectionFoundation(connectionFoundation)
-		;
+		return Foundation(
+			EmbeddedStorage.defaultStorageDirectory(),
+			configuration
+		);
 	}
 	
-	// (25.02.2019 TM)FIXME: JET-55: consolidate Foundation() util-constructors regarding new ConfigurationBuilder
-	
-	public static final EmbeddedStorageFoundation<?> Foundation(final File directory)
+	public static final EmbeddedStorageFoundation<?> Foundation(
+		final File directory
+	)
 	{
 		XFiles.ensureDirectory(notNull(directory));
 
 		return Foundation(
-			Storage.FileProvider(directory),
+			Storage.Configuration(
+				Storage.FileProvider(directory)
+			),
 			ConnectionFoundation(directory)
 		);
-	}
-
-	public static final EmbeddedStorageFoundation<?> Foundation()
-	{
-		return Foundation(new File(StorageFileProvider.Defaults.defaultMainDirectory()));
 	}
 	
 	public static final EmbeddedStorageFoundation<?> Foundation(
@@ -115,6 +105,17 @@ public final class EmbeddedStorage
 		);
 	}
 		
+	public static final EmbeddedStorageFoundation<?> Foundation(
+		final StorageConfiguration                   storageConfiguration,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
+	)
+	{
+		return createFoundation()
+			.setConfiguration(storageConfiguration)
+			.setConnectionFoundation(connectionFoundation)
+		;
+	}
+			
 	public static final EmbeddedStorageManager start(
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
@@ -122,6 +123,7 @@ public final class EmbeddedStorage
 	{
 		return start(null, configuration, connectionFoundation);
 	}
+	
 
 	public static final EmbeddedStorageManager start(
 		final Object                                 explicitRoot        ,
@@ -151,7 +153,7 @@ public final class EmbeddedStorage
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
-		final EmbeddedStorageManager esm = Foundation(fileProvider, connectionFoundation)
+		final EmbeddedStorageManager esm = Foundation(Storage.Configuration(fileProvider), connectionFoundation)
 			.createEmbeddedStorageManager()
 		;
 		esm.start();

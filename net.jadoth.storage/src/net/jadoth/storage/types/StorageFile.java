@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import net.jadoth.storage.exceptions.StorageExceptionIo;
+
 
 /**
  * Type that symbolizes any entity that allows physically persisting and reading a randomly accessible sequence
@@ -83,23 +85,23 @@ public interface StorageFile
 	
 	public boolean exists();
 	
-	public FileChannel channel();
+	public FileChannel fileChannel();
 
 	public default boolean isOpen()
 	{
-		return this.channel().isOpen();
+		return this.fileChannel().isOpen();
 	}
 	
 	public default StorageFile flush()
 	{
 		try
 		{
-			this.channel().force(false);
+			this.fileChannel().force(false);
 			return this;
 		}
 		catch(final IOException e)
 		{
-			throw new RuntimeException(e); // damned checked exception
+			throw new StorageExceptionIo(e); // damned checked exception
 		}
 	}
 
@@ -107,11 +109,11 @@ public interface StorageFile
 	{
 		try
 		{
-			this.channel().close();
+			this.fileChannel().close();
 		}
 		catch(final IOException e)
 		{
-			throw new RuntimeException(e); // damned checked exception
+			throw new StorageExceptionIo(e); // damned checked exception
 		}
 	}
 	

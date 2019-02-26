@@ -181,7 +181,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		}
 
 		@Override
-		public F setChannelCreator(final StorageChannel.Creator channelCreator)
+		public F setChannelCreator(final StorageChannelsCreator channelCreator)
 		{
 			super.setChannelCreator(channelCreator);
 			return this.$();

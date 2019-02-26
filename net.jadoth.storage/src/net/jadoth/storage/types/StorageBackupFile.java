@@ -100,9 +100,9 @@ public interface StorageBackupFile extends StorageNumberedFile
 		}
 
 		@Override
-		public FileChannel channel()
+		public FileChannel fileChannel()
 		{
-			return this.delegate.channel();
+			return this.delegate.fileChannel();
 		}
 
 		@Override

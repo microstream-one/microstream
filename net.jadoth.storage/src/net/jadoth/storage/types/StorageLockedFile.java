@@ -18,7 +18,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 	{
 		try
 		{
-			return this.channel().size();
+			return this.fileChannel().size();
 		}
 		catch(final IOException e)
 		{
@@ -126,7 +126,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		}
 
 		@Override
-		public final FileChannel channel()
+		public final FileChannel fileChannel()
 		{
 			return this.fileChannel;
 		}

@@ -53,7 +53,7 @@ public interface StorageManager extends StorageController
 		private final StorageRequestAcceptor.Creator       requestAcceptorCreator       ;
 		private final StorageTaskBroker.Creator            taskBrokerCreator            ;
 		private final StorageValidatorDataChunk.Provider   dataChunkValidatorProvider   ;
-		private final StorageChannel.Creator               channelCreator               ;
+		private final StorageChannelsCreator               channelCreator               ;
 		private final StorageThreadProvider                threadProvider               ;
 		private final StorageEntityCacheEvaluator          entityCacheEvaluator         ;
 		private final StorageRequestTaskCreator            requestTaskCreator           ;
@@ -84,7 +84,9 @@ public interface StorageManager extends StorageController
 		// running state members //
 		private volatile StorageTaskBroker taskbroker   ;
 		private final    ChannelKeeper[]   channelKeepers;
-		private          Thread            backupThread  ;
+		
+		private          StorageBackupHandler backupHandler;
+		private          Thread               backupThread ;
 		
 		private StorageIdAnalysis initializationIdAnalysis;
 
@@ -104,7 +106,7 @@ public interface StorageManager extends StorageController
 			final StorageRequestAcceptor.Creator       requestAcceptorCreator       ,
 			final StorageTaskBroker.Creator            taskBrokerCreator            ,
 			final StorageValidatorDataChunk.Provider   dataChunkValidatorProvider   ,
-			final StorageChannel.Creator               channelCreator               ,
+			final StorageChannelsCreator               channelCreator               ,
 			final StorageThreadProvider                threadProvider               ,
 			final StorageRequestTaskCreator            requestTaskCreator           ,
 			final StorageTypeDictionary                typeDictionary               ,
@@ -218,14 +220,28 @@ public interface StorageManager extends StorageController
 			return initializingTask.idAnalysis();
 		}
 		
+		private StorageBackupHandler provideBackupHandler()
+		{
+			if(this.backupHandler == null && this.backupSetup != null)
+			{
+				this.backupHandler = this.backupSetup.setupHandler(this.channelController);
+			}
+			
+			return this.backupHandler;
+		}
+		
 		private void startBackupThread()
 		{
-			if(this.backupSetup == null)
+			final StorageBackupHandler backupHandler = this.provideBackupHandler();
+			if(backupHandler == null)
 			{
 				return;
 			}
+
+			// set backup handling state to being running
+			backupHandler.start();
 			
-			final StorageBackupHandler backupHandler = this.backupSetup.setupHandler(this.channelController);
+			// setup a backup thread and start it.
 			this.backupThread = this.threadProvider.provideBackupThread(backupHandler);
 			this.backupThread.start();
 		}
@@ -276,6 +292,7 @@ public interface StorageManager extends StorageController
 				this.rootOidSelectorProvider               ,
 				this.oidMarkQueueCreator                   ,
 				this.entityMarkMonitorCreator              ,
+				this.provideBackupHandler()                ,
 				this.switchByteOrder                       ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);

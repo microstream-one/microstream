@@ -44,7 +44,7 @@ public interface StorageFileWriter
 			return 0L;
 		}
 		
-		final FileChannel channel   = file.channel();
+		final FileChannel channel   = file.fileChannel();
 		final long        oldLength = file.length();
 		try
 		{
@@ -83,10 +83,10 @@ public interface StorageFileWriter
 		final StorageLockedFile targetfile
 	)
 	{
-		return this.copy(sourceFile, 0, sourceFile.length(), targetfile);
+		return this.copyFilePart(sourceFile, 0, sourceFile.length(), targetfile);
 	}
 
-	public default long copy(
+	public default long copyFilePart(
 		final StorageLockedFile sourceFile  ,
 		final long              sourceOffset,
 		final long              length      ,
@@ -97,8 +97,8 @@ public interface StorageFileWriter
 
 		try
 		{
-			final long byteCount = sourceFile.channel().transferTo(sourceOffset, length, targetfile.channel());
-			targetfile.channel().force(false);
+			final long byteCount = sourceFile.fileChannel().transferTo(sourceOffset, length, targetfile.fileChannel());
+			targetfile.fileChannel().force(false);
 			
 			return validateIoByteCount(length, byteCount);
 		}
@@ -132,7 +132,7 @@ public interface StorageFileWriter
 		final StorageDataFile<?> targetfile
 	)
 	{
-		return this.copy(sourceFile, sourceOffset, length, targetfile);
+		return this.copyFilePart(sourceFile, sourceOffset, length, targetfile);
 	}
 	
 	public default long writeTransfer(
@@ -142,7 +142,7 @@ public interface StorageFileWriter
 		final StorageDataFile<?> targetfile
 	)
 	{
-		return this.copy(sourceFile, sourceOffset, length, targetfile);
+		return this.copyFilePart(sourceFile, sourceOffset, length, targetfile);
 	}
 	
 	public default long writeTransactionEntryCreate(
@@ -217,12 +217,12 @@ public interface StorageFileWriter
 		);
 		if(truncationTargetFile != null)
 		{
-			copyFile(file, truncationTargetFile);
+			craeteFileFullCopy(file, truncationTargetFile);
 		}
 
 		try
 		{
-			file.channel().truncate(newLength);
+			file.fileChannel().truncate(newLength);
 		}
 		catch(final IOException e)
 		{
@@ -239,7 +239,7 @@ public interface StorageFileWriter
 	}
 	
 
-	public static void copyFile(
+	public static void craeteFileFullCopy(
 		final StorageNumberedFile sourceFile,
 		final StorageNumberedFile targetFile
 	)
@@ -315,7 +315,7 @@ public interface StorageFileWriter
 	{
 		try
 		{
-			targetfile.channel().force(false);
+			targetfile.fileChannel().force(false);
 		}
 		catch(final IOException e)
 		{

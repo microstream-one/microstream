@@ -224,7 +224,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			 */
 			try
 			{
-				return this.channel().transferTo(sourceOffset, length, file.channel());
+				return this.fileChannel().transferTo(sourceOffset, length, file.fileChannel());
 			}
 			catch(final IOException e)
 			{
@@ -393,9 +393,9 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		}
 
 		@Override
-		public FileChannel channel()
+		public FileChannel fileChannel()
 		{
-			return this.file.channel();
+			return this.file.fileChannel();
 		}
 
 		@Override
