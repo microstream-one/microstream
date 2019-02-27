@@ -386,5 +386,58 @@ Jetzt w\'fcrden dann noch viele weitere Tests fehlen f\'fcr weitere Headfiles, t
 Prinzipiell ist es mal fertig implementiert.\par
 \par
 \par
+2019-02-27\par
+\par
+Dann bau ich jetzt gleich mal die Validierung mit ein.\par
+\par
+Dazu im FileManager den Code zum Iterieren von Storage Dateien suchen.\par
+Evtl. sollt ich den dann sauber rausmodularisieren und wiederverwenden.\par
+Hm, ja, das m\'fcsst ich daf\'fcr alles ein wenig umgestalten.\par
+Mal einen Plan machen ...\par
+\par
+\par
+\par
+\par
+Vorbereitung:\par
+- Leseoffset feststellen (f\'fcr initialisierung 0, f\'fcr backup validierung bisherige file l\'e4nge)\par
+- Lesel\'e4nge feststellen (f\'fcr Initialisierung L\'e4nge des Files, f\'fcr backup validierung l\'e4nge der backup kopie)\par
+- Buffer vorbereiten mit lesel\'e4nge\par
+\par
+Einlesen:\par
+In:\par
+- File (Quelle der Daten)\par
+- FileOffset (Beginn der Daten im File)\par
+- Buffer (bereits mit richtiger L\'e4nge)\par
+Out:\par
+[nichts, \'fcbergebener Buffer ist gef\'fcllt]\par
+\par
+Iterieren:\par
+- von buffer startadresse bis buffer endadresse:\par
+- item l\'e4nge lesen und evaluieren (negativ ist kommentar, 0 ist Fehler, positiv ist L\'e4nge des Entities)\par
+- Adresse des n\'e4chsten Items berechnen: Aktuelle adresse plus item l\'e4nge. Validieren: darf nicht nach buffer endadresse liegen.\par
+- F\'fcr Entity Handling Logik aufrufen mit Entity Adresse (f\'fcr Storage Initialisierung Entity Index erweitern, f\'fcr backup Validierung TID und OID pr\'fcfen, evtl. auch die G\'fcltigkeit der L\'e4nge anhand des TypeHandlers)\par
+\par
+Nachbereitung:\par
+- File IO-Resource zur\'fcckgeben (bei Storage File Channel offen lassen, bei Backup File channel schlie\'dfen)\par
+- Evtl. buffer state resetten\par
+\par
+\par
+Dann mach ich eine Instanz, bei deren Erzeugung mitgegeben wird:\par
+- eine maximum Buffer Capacity\par
+- eine File Callback Logik, die am Ende der handling Methode aufgerufen wird.\par
+\par
+Und eine Methode, die \'fcbergeben bekommen:\par
+- File\par
+- offset\par
+- length (darauf wird der buffer gelimitet)\par
+- entity handler callback\par
+\par
+\par
+Hm, es g\'e4b schon den StorageDataFileItemIterator, aber der macht das ziemlich komplexe Konzept, \'fcber die Daten st\'fcckchenweise dr\'fcberzuiterieren. Theoretisch besser, falls mal ein File riesig sein sollte, aber auf absehbare Zeit nicht n\'f6tig.\par
+Ersetzen/l\'f6schen kann ich ihn nicht, weil der noch im Import verwendet wird.\par
+\par
+Ich denk ich bau neben dem einfach einen neuen, simpleren und eleganteren nach obigem Konzept.\par
+\par
+\par
 }
  
