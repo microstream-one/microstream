@@ -379,6 +379,11 @@ public interface StorageTransactionsFileAnalysis
 
 		public static VarString parseFile(final File file, final VarString vs)
 		{
+			if(!file.exists())
+			{
+				return vs;
+			}
+			
 			      FileLock    lock    = null;
 			final FileChannel channel = null;
 			try
