@@ -7,6 +7,7 @@ import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.types.Storage;
 import net.jadoth.storage.types.StorageBackupSetup;
+import net.jadoth.storage.types.StorageDataFileValidator;
 
 
 public class MainTestStorageExample
@@ -25,7 +26,9 @@ public class MainTestStorageExample
 					.createFileProvider()
 				)
 			)
-			
+		)
+		.setDataFileValidatorCreator(
+			StorageDataFileValidator.CreatorDebugLogging()
 		)
 //		.setRefactoringMappingProvider(
 //			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
@@ -66,7 +69,7 @@ public class MainTestStorageExample
 		}
 		
 //		STORAGE.shutdown();
-		XThreads.sleep(5000);
+		XThreads.sleep(2000);
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
 	

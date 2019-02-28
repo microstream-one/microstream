@@ -51,6 +51,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public StorageEntityMarkMonitor.Creator getEntityMarkMonitorCreator();
 
+	public StorageDataFileValidator.Creator getDataFileValidatorCreator();
+
 	public StorageExceptionHandler getExceptionHandler();
 
 
@@ -98,6 +100,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
 
+	public F setDataFileValidatorCreator(StorageDataFileValidator.Creator dataFileValidatorCreator);
+
 	public StorageManager createStorageManager();
 
 
@@ -131,6 +135,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageRootOidSelector.Provider       rootOidSelectorProvider      ;
 		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
+		private StorageDataFileValidator.Creator      dataFileValidatorCreator     ;
 		private StorageExceptionHandler               exceptionHandler             ;
 
 		
@@ -278,6 +283,11 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		protected StorageEntityMarkMonitor.Creator ensureEntityMarkMonitorCreator()
 		{
 			return new StorageEntityMarkMonitor.Creator.Implementation();
+		}
+
+		protected StorageDataFileValidator.Creator ensureDataFileValidatorCreator()
+		{
+			return StorageDataFileValidator.Creator();
 		}
 
 		protected StorageExceptionHandler ensureExceptionHandler()
@@ -502,6 +512,16 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			}
 			return this.entityMarkMonitorCreator;
 		}
+		
+		@Override
+		public StorageDataFileValidator.Creator getDataFileValidatorCreator()
+		{
+			if(this.dataFileValidatorCreator == null)
+			{
+				this.dataFileValidatorCreator = this.dispatch(this.ensureDataFileValidatorCreator());
+			}
+			return this.dataFileValidatorCreator;
+		}
 
 		@Override
 		public StorageExceptionHandler getExceptionHandler()
@@ -673,6 +693,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			this.entityMarkMonitorCreator = entityMarkMonitorCreator;
 			return this.$();
 		}
+		
+		@Override
+		public F setDataFileValidatorCreator(final StorageDataFileValidator.Creator dataFileValidatorCreator)
+		{
+			this.dataFileValidatorCreator = dataFileValidatorCreator;
+			return this.$();
+		}
 
 		@Override
 		public F setExceptionHandler(final StorageExceptionHandler exceptionHandler)
@@ -712,6 +739,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				configuration                          ,
 				channelController                      ,
 				configuration.backupSetup()            ,
+				this.getDataFileValidatorCreator()     ,
 				this.getWriterProvider()               ,
 				this.getReaderProvider()               ,
 				this.getInitialDataFileNumberProvider(),

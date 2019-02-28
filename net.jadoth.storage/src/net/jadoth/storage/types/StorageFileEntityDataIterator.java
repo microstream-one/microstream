@@ -79,6 +79,11 @@ public interface StorageFileEntityDataIterator
 	
 	
 	
+	public static StorageFileEntityDataIterator New()
+	{
+		return new StorageFileEntityDataIterator.Implementation();
+	}
+	
 	public final class Implementation implements StorageFileEntityDataIterator.Internal
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -252,32 +257,6 @@ public interface StorageFileEntityDataIterator
 	}
 	
 	
-	public static StorageFileEntityDataIterator.Creator Creator()
-	{
-		return new StorageFileEntityDataIterator.Creator.Implementation();
-	}
-	
-	@FunctionalInterface
-	public interface Creator
-	{
-		public StorageFileEntityDataIterator createStorageFileEntityIterator();
-		
-		
-		public final class Implementation implements StorageFileEntityDataIterator.Creator
-		{
-			Implementation()
-			{
-				super();
-			}
 
-			@Override
-			public StorageFileEntityDataIterator createStorageFileEntityIterator()
-			{
-				return new StorageFileEntityDataIterator.Implementation();
-			}
-			
-		}
 		
-	}
-	
 }
