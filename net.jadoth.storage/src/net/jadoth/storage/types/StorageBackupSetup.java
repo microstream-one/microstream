@@ -11,7 +11,8 @@ public interface StorageBackupSetup
 	);
 	
 	public StorageBackupHandler setupHandler(
-		StorageChannelController channelController
+		StorageChannelController channelController,
+		StorageDataFileValidator validator
 	);
 	
 	
@@ -21,7 +22,7 @@ public interface StorageBackupSetup
 	)
 	{
 		return new StorageBackupSetup.Implementation(
-			notNull(backupFileProvider),
+			notNull(backupFileProvider) ,
 			StorageBackupItemQueue.New()
 		);
 	}
@@ -73,11 +74,18 @@ public interface StorageBackupSetup
 		
 		@Override
 		public StorageBackupHandler setupHandler(
-			final StorageChannelController channelController
+			final StorageChannelController channelController,
+			final StorageDataFileValidator validator
 		)
 		{
 			final int channelCount = channelController.channelCountProvider().get();
-			return StorageBackupHandler.New(this, channelCount, this.itemQueue, channelController);
+			return StorageBackupHandler.New(
+				this             ,
+				channelCount     ,
+				this.itemQueue   ,
+				channelController,
+				validator
+			);
 		}
 		
 	}

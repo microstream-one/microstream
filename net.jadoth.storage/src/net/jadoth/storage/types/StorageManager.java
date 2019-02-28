@@ -44,32 +44,33 @@ public interface StorageManager extends StorageController
 		/////////////////////
 
 		// composite members //
-		private final StorageConfiguration                 configuration                ;
-		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider;
-		private final StorageDataFileEvaluator             fileDissolver                ;
-		private final StorageFileProvider                  fileProvider                 ;
-		private final StorageFileReader.Provider           readerProvider               ;
-		private final StorageFileWriter.Provider           writerProvider               ;
-		private final StorageRequestAcceptor.Creator       requestAcceptorCreator       ;
-		private final StorageTaskBroker.Creator            taskBrokerCreator            ;
-		private final StorageValidatorDataChunk.Provider   dataChunkValidatorProvider   ;
-		private final StorageChannelsCreator               channelCreator               ;
-		private final StorageThreadProvider                threadProvider               ;
-		private final StorageEntityCacheEvaluator          entityCacheEvaluator         ;
-		private final StorageRequestTaskCreator            requestTaskCreator           ;
-		private final StorageTypeDictionary                typeDictionary               ;
-		private final StorageChannelController             channelController            ;
-		private final StorageRootTypeIdProvider            rootTypeIdProvider           ;
-		private final StorageExceptionHandler              exceptionHandler             ;
-		private final StorageHousekeepingController        housekeepingController       ;
-		private final StorageTimestampProvider             timestampProvider            ;
-		private final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator       ;
-		private final StorageGCZombieOidHandler            zombieOidHandler             ;
-		private final StorageRootOidSelector.Provider      rootOidSelectorProvider      ;
-		private final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ;
-		private final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ;
-		private final StorageBackupSetup                   backupSetup                  ;
-		private final boolean                              switchByteOrder              ;
+		private final StorageConfiguration                 configuration                 ;
+		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider ;
+		private final StorageDataFileEvaluator             fileDissolver                 ;
+		private final StorageFileProvider                  fileProvider                  ;
+		private final StorageFileReader.Provider           readerProvider                ;
+		private final StorageFileWriter.Provider           writerProvider                ;
+		private final StorageRequestAcceptor.Creator       requestAcceptorCreator        ;
+		private final StorageTaskBroker.Creator            taskBrokerCreator             ;
+		private final StorageValidatorDataChunk.Provider   dataChunkValidatorProvider    ;
+		private final StorageChannelsCreator               channelCreator                ;
+		private final StorageThreadProvider                threadProvider                ;
+		private final StorageEntityCacheEvaluator          entityCacheEvaluator          ;
+		private final StorageRequestTaskCreator            requestTaskCreator            ;
+		private final StorageTypeDictionary                typeDictionary                ;
+		private final StorageChannelController             channelController             ;
+		private final StorageRootTypeIdProvider            rootTypeIdProvider            ;
+		private final StorageExceptionHandler              exceptionHandler              ;
+		private final StorageHousekeepingController        housekeepingController        ;
+		private final StorageTimestampProvider             timestampProvider             ;
+		private final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ;
+		private final StorageGCZombieOidHandler            zombieOidHandler              ;
+		private final StorageRootOidSelector.Provider      rootOidSelectorProvider       ;
+		private final StorageOidMarkQueue.Creator          oidMarkQueueCreator           ;
+		private final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ;
+		private final StorageDataFileValidator.Creator     backupDataFileValidatorCreator;
+		private final StorageBackupSetup                   backupSetup                   ;
+		private final boolean                              switchByteOrder               ;
 
 
 		// state flags //
@@ -97,57 +98,59 @@ public interface StorageManager extends StorageController
 		/////////////////////
 
 		public Implementation(
-			final StorageConfiguration                 storageConfiguration         ,
-			final StorageChannelController             channelController            ,
-			final StorageBackupSetup           backupSetup                  ,
-			final StorageFileWriter.Provider           writerProvider               ,
-			final StorageFileReader.Provider           readerProvider               ,
-			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
-			final StorageRequestAcceptor.Creator       requestAcceptorCreator       ,
-			final StorageTaskBroker.Creator            taskBrokerCreator            ,
-			final StorageValidatorDataChunk.Provider   dataChunkValidatorProvider   ,
-			final StorageChannelsCreator               channelCreator               ,
-			final StorageThreadProvider                threadProvider               ,
-			final StorageRequestTaskCreator            requestTaskCreator           ,
-			final StorageTypeDictionary                typeDictionary               ,
-			final StorageRootTypeIdProvider            rootTypeIdProvider           ,
-			final StorageTimestampProvider             timestampProvider            ,
-			final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator       ,
-			final StorageGCZombieOidHandler            zombieOidHandler             ,
-			final StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
-			final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
-			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
-			final boolean                              switchByteOrder              ,
+			final StorageConfiguration                 storageConfiguration          ,
+			final StorageChannelController             channelController             ,
+			final StorageBackupSetup                   backupSetup                   ,
+			final StorageDataFileValidator.Creator     backupDataFileValidatorCreator,
+			final StorageFileWriter.Provider           writerProvider                ,
+			final StorageFileReader.Provider           readerProvider                ,
+			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider ,
+			final StorageRequestAcceptor.Creator       requestAcceptorCreator        ,
+			final StorageTaskBroker.Creator            taskBrokerCreator             ,
+			final StorageValidatorDataChunk.Provider   dataChunkValidatorProvider    ,
+			final StorageChannelsCreator               channelCreator                ,
+			final StorageThreadProvider                threadProvider                ,
+			final StorageRequestTaskCreator            requestTaskCreator            ,
+			final StorageTypeDictionary                typeDictionary                ,
+			final StorageRootTypeIdProvider            rootTypeIdProvider            ,
+			final StorageTimestampProvider             timestampProvider             ,
+			final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ,
+			final StorageGCZombieOidHandler            zombieOidHandler              ,
+			final StorageRootOidSelector.Provider      rootOidSelectorProvider       ,
+			final StorageOidMarkQueue.Creator          oidMarkQueueCreator           ,
+			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ,
+			final boolean                              switchByteOrder               ,
 			final StorageExceptionHandler              exceptionHandler
 		)
 		{
 			super();
-			this.configuration                 = notNull(storageConfiguration)                ;
-			this.channelController             = notNull(channelController)                   ;
-			this.initialDataFileNumberProvider = notNull(initialDataFileNumberProvider)       ;
-			this.fileDissolver                 = storageConfiguration.fileEvaluator()         ;
-			this.fileProvider                  = storageConfiguration.fileProvider()          ;
-			this.entityCacheEvaluator          = storageConfiguration.entityCacheEvaluator()  ;
-			this.housekeepingController        = storageConfiguration.housekeepingController();
-			this.requestAcceptorCreator        = notNull(requestAcceptorCreator)              ;
-			this.taskBrokerCreator             = notNull(taskBrokerCreator)                   ;
-			this.dataChunkValidatorProvider    = notNull(dataChunkValidatorProvider)          ;
-			this.channelCreator                = notNull(channelCreator)                      ;
-			this.threadProvider                = notNull(threadProvider)                      ;
-			this.requestTaskCreator            = notNull(requestTaskCreator)                  ;
-			this.typeDictionary                = notNull(typeDictionary)                      ;
-			this.rootTypeIdProvider            = notNull(rootTypeIdProvider)                  ;
-			this.timestampProvider             = notNull(timestampProvider)                   ;
-			this.objectIdRangeEvaluator        = notNull(objectIdRangeEvaluator)              ;
-			this.readerProvider                = notNull(readerProvider)                      ;
-			this.writerProvider                = notNull(writerProvider)                      ;
-			this.zombieOidHandler              = notNull(zombieOidHandler)                    ;
-			this.rootOidSelectorProvider       = notNull(rootOidSelectorProvider)             ;
-			this.oidMarkQueueCreator           = notNull(oidMarkQueueCreator)                 ;
-			this.entityMarkMonitorCreator      = notNull(entityMarkMonitorCreator)            ;
-			this.exceptionHandler              = notNull(exceptionHandler)                    ;
-			this.backupSetup                   = mayNull(backupSetup)                         ;
-			this.switchByteOrder               =         switchByteOrder                      ;
+			this.configuration                  = notNull(storageConfiguration)                ;
+			this.channelController              = notNull(channelController)                   ;
+			this.initialDataFileNumberProvider  = notNull(initialDataFileNumberProvider)       ;
+			this.fileDissolver                  = storageConfiguration.fileEvaluator()         ;
+			this.fileProvider                   = storageConfiguration.fileProvider()          ;
+			this.entityCacheEvaluator           = storageConfiguration.entityCacheEvaluator()  ;
+			this.housekeepingController         = storageConfiguration.housekeepingController();
+			this.requestAcceptorCreator         = notNull(requestAcceptorCreator)              ;
+			this.taskBrokerCreator              = notNull(taskBrokerCreator)                   ;
+			this.dataChunkValidatorProvider     = notNull(dataChunkValidatorProvider)          ;
+			this.channelCreator                 = notNull(channelCreator)                      ;
+			this.threadProvider                 = notNull(threadProvider)                      ;
+			this.requestTaskCreator             = notNull(requestTaskCreator)                  ;
+			this.typeDictionary                 = notNull(typeDictionary)                      ;
+			this.rootTypeIdProvider             = notNull(rootTypeIdProvider)                  ;
+			this.timestampProvider              = notNull(timestampProvider)                   ;
+			this.objectIdRangeEvaluator         = notNull(objectIdRangeEvaluator)              ;
+			this.readerProvider                 = notNull(readerProvider)                      ;
+			this.writerProvider                 = notNull(writerProvider)                      ;
+			this.zombieOidHandler               = notNull(zombieOidHandler)                    ;
+			this.rootOidSelectorProvider        = notNull(rootOidSelectorProvider)             ;
+			this.oidMarkQueueCreator            = notNull(oidMarkQueueCreator)                 ;
+			this.entityMarkMonitorCreator       = notNull(entityMarkMonitorCreator)            ;
+			this.exceptionHandler               = notNull(exceptionHandler)                    ;
+			this.backupSetup                    = mayNull(backupSetup)                         ;
+			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
+			this.switchByteOrder                =         switchByteOrder                      ;
 			
 			final int channelCount = storageConfiguration.channelCountProvider().get();
 			this.channelKeepers                       = new ChannelKeeper[channelCount];
@@ -224,7 +227,11 @@ public interface StorageManager extends StorageController
 		{
 			if(this.backupHandler == null && this.backupSetup != null)
 			{
-				this.backupHandler = this.backupSetup.setupHandler(this.channelController);
+				final StorageDataFileValidator validator = this.backupDataFileValidatorCreator
+					.createDataFileValidator(this.typeDictionary)
+				;
+				
+				this.backupHandler = this.backupSetup.setupHandler(this.channelController, validator);
 			}
 			
 			return this.backupHandler;

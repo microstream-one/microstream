@@ -49,6 +49,16 @@ public final class Storage
 		return TRANSACTIONS_FILE_NUMBER;
 	}
 	
+	public static final boolean isTransactionFile(final StorageNumberedFile file)
+	{
+		return file.number() == TRANSACTIONS_FILE_NUMBER;
+	}
+	
+	public static final boolean isDataFile(final StorageNumberedFile file)
+	{
+		return file.number() > 0;
+	}
+	
 	public static final StorageFileProvider FileProvider()
 	{
 		return Storage.FileProviderBuilder()
