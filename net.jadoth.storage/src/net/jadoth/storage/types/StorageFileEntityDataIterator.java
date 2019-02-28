@@ -9,7 +9,7 @@ import net.jadoth.persistence.binary.types.Binary;
 import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 
-@FunctionalInterface
+
 public interface StorageFileEntityDataIterator
 {
 	public long iterateEntityData(
@@ -18,6 +18,12 @@ public interface StorageFileEntityDataIterator
 		long               iterationLength,
 		EntityDataAcceptor logic
 	);
+	
+	public long bufferCapacity();
+	
+	public StorageFileEntityDataIterator ensureBufferCapacity(long requiredBufferCapacity);
+	
+	public void removeBuffer();
 	
 	
 	public interface Internal extends StorageFileEntityDataIterator
@@ -79,7 +85,7 @@ public interface StorageFileEntityDataIterator
 		// instance fields //
 		////////////////////
 		
-		private final ByteBuffer directByteBuffer;
+		private ByteBuffer directByteBuffer;
 		
 		
 		
@@ -87,10 +93,9 @@ public interface StorageFileEntityDataIterator
 		// constructors //
 		/////////////////
 		
-		Implementation(final ByteBuffer directByteBuffer)
+		Implementation()
 		{
 			super();
-			this.directByteBuffer = directByteBuffer;
 		}
 
 
@@ -98,23 +103,50 @@ public interface StorageFileEntityDataIterator
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final long bufferCapacity()
+		{
+			return this.directByteBuffer != null
+				? this.directByteBuffer.capacity()
+				: 0L
+			;
+		}
+
+		@Override
+		public StorageFileEntityDataIterator ensureBufferCapacity(final long requiredBufferCapacity)
+		{
+			if(this.bufferCapacity() < requiredBufferCapacity)
+			{
+				XMemory.deallocateDirectByteBuffer(this.directByteBuffer);
+				this.directByteBuffer = ByteBuffer.allocateDirect(X.checkArrayRange(requiredBufferCapacity));
+			}
+			
+			return this;
+		}
+		
+		@Override
+		public void removeBuffer()
+		{
+			this.directByteBuffer = null;
+		}
 
 		@Override
 		public void fillBuffer(final StorageFile file, final long fileOffset, final long iterationLength)
 		{
-			final ByteBuffer buffer = this.directByteBuffer;
-			
 			try
 			{
 				this.prepareFile(file, fileOffset, iterationLength);
 				
 				final FileChannel fileChannel = file.fileChannel();
 				this.validateIterationRange(file, fileChannel.size(), fileOffset, iterationLength);
-				fileChannel.position(fileOffset);
-
+				
+				this.ensureBufferCapacity(iterationLength);
+				final ByteBuffer buffer = this.directByteBuffer;
 				buffer.clear();
 				buffer.limit(X.checkArrayRange(iterationLength));
 
+				fileChannel.position(fileOffset);
 				// loop is guaranteed to terminate as it depends on validated buffer size and the file length
 				do
 				{
@@ -220,12 +252,31 @@ public interface StorageFileEntityDataIterator
 	}
 	
 	
+	public static StorageFileEntityDataIterator.Creator Creator()
+	{
+		return new StorageFileEntityDataIterator.Creator.Implementation();
+	}
+	
 	@FunctionalInterface
 	public interface Creator
 	{
-		public StorageFileEntityDataIterator createStorageFileEntityIterator(
-			long requiredBufferCapacity
-		);
+		public StorageFileEntityDataIterator createStorageFileEntityIterator();
+		
+		
+		public final class Implementation implements StorageFileEntityDataIterator.Creator
+		{
+			Implementation()
+			{
+				super();
+			}
+
+			@Override
+			public StorageFileEntityDataIterator createStorageFileEntityIterator()
+			{
+				return new StorageFileEntityDataIterator.Implementation();
+			}
+			
+		}
 		
 	}
 	

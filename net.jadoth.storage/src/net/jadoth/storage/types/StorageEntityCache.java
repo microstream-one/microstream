@@ -327,12 +327,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				this.rebuildTidHashTable();
 			}
 			
-			final StorageEntityTypeHandler typeHandler = this.typeDictionary.lookupTypeHandler(typeId);
-			if(typeHandler == null)
-			{
-				// (09.06.2017 TM)EXCP: proper exception
-				throw new StorageException("TypeId not resolvable via type dictionary: " + typeId);
-			}
+			final StorageEntityTypeHandler typeHandler = this.typeDictionary.lookupTypeHandlerChecked(typeId);
 
 			// explicit hash index for debug purposes. Creating types is not performance critical.
 			final int hashIndex = tidHashIndex(typeId, this.tidModulo);

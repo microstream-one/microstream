@@ -2,7 +2,7 @@ package net.jadoth.storage.types;
 
 public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 {
-	public void processNextItem(StorageBackupHandler handler) throws InterruptedException;
+	public boolean processNextItem(StorageBackupHandler handler, long timeoutMs) throws InterruptedException;
 	
 	
 	
@@ -80,13 +80,25 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 		}
 
 		@Override
-		public final void processNextItem(final StorageBackupHandler handler) throws InterruptedException
+		public final boolean processNextItem(
+			final StorageBackupHandler handler  ,
+			final long                 timeoutMs
+		)
+			throws InterruptedException
 		{
+			final long timeBudgetBound = System.currentTimeMillis() + timeoutMs;
+			final long waitInterval    = timeoutMs / 16;
+			
 			synchronized(this.head)
 			{
 				while(this.head.next == null)
 				{
-					this.head.wait();
+					if(System.currentTimeMillis() >= timeBudgetBound)
+					{
+						return false;
+					}
+					
+					this.head.wait(waitInterval);
 				}
 				
 				final Item itemToBeProcessed = this.head.next;
@@ -98,6 +110,8 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 					// queue has been processed completely, reset to initial state of appending directly to the head.
 					this.tail = this.head;
 				}
+				
+				return true;
 			}
 		}
 		

@@ -161,11 +161,17 @@ public interface StorageBackupHandler extends Runnable
 			{
 				try
 				{
-					this.itemQueue.processNextItem(this);
+					if(!this.itemQueue.processNextItem(this, 10_000))
+					{
+						/* (28.02.2019 TM)FIXME: JET-55: make the validator time out after some time
+						 * Necessary to take the liberty of using a conveniently big buffer with
+						 * unnecessarily occupying a lot of memory.
+						 */
+					}
 				}
 				catch(final InterruptedException e)
 				{
-					// still not sure about the viability of interruption handling in the general case.
+					// still not sure about the viability of interruption handling in a case like this.
 					this.stop();
 				}
 				catch(final RuntimeException e)
@@ -340,11 +346,14 @@ public interface StorageBackupHandler extends Runnable
 				final long byteCount = sourceChannel.transferTo(sourcePosition, length, targetChannel);
 				StorageFileWriter.validateIoByteCount(length, byteCount);
 				targetChannel.force(false);
-				backupTargetFile.close();
 			}
 			catch(final Exception e)
 			{
 				throw new StorageExceptionBackupCopying(sourceFile, sourcePosition, length, backupTargetFile);
+			}
+			finally
+			{
+				backupTargetFile.close();
 			}
 
 			sourceFile.decrementUserCount();
