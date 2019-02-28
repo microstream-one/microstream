@@ -5,31 +5,13 @@ import net.jadoth.concurrency.XThreads;
 import net.jadoth.hashing.HashStatistics;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
-import net.jadoth.storage.types.Storage;
-import net.jadoth.storage.types.StorageBackupSetup;
-import net.jadoth.storage.types.StorageDataFileValidator;
 
 
 public class MainTestStorageExample
 {
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.Foundation(
-			Storage.ConfigurationBuilder()
-			.setBackupSetup(
-				StorageBackupSetup.New(
-					Storage
-					.FileProviderBuilder()
-					.setStorageDirectory("storage/backup")
-					.setDeletionDirectory("storage/backup/deleted")
-					.setDeletionDirectory("storage/backup/truncated")
-					.createFileProvider()
-				)
-			)
-		)
-		.setDataFileValidatorCreator(
-			StorageDataFileValidator.CreatorDebugLogging()
-		)
+//		.Foundation()
 //		.setRefactoringMappingProvider(
 //			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
 //		)

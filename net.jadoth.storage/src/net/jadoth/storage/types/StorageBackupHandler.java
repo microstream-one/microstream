@@ -7,6 +7,7 @@ import java.nio.channels.FileChannel;
 import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
+import net.jadoth.meta.XDebug;
 import net.jadoth.storage.exceptions.StorageExceptionBackupCopying;
 import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
 import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmptyBackup;
@@ -271,8 +272,11 @@ public interface StorageBackupHandler extends Runnable
 					continue;
 				}
 				
+				final long storageFileLength      = storageFile.length();
+				final long backupTargetFileLength = backupTargetFile.length();
+				
 				// existing file with matching length means everything is fine
-				if(backupTargetFile.length() == storageFile.length())
+				if(storageFileLength == backupTargetFileLength)
 				{
 					// continue with next file
 					continue;
@@ -284,8 +288,8 @@ public interface StorageBackupHandler extends Runnable
 					// missing length is copied to update the backup file
 					this.copyFilePart(
 						storageFile,
-						backupTargetFile.length(),
-						storageFile.length() - backupTargetFile.length(),
+						backupTargetFileLength,
+						storageFileLength - backupTargetFileLength,
 						backupTargetFile
 					);
 					continue;
@@ -296,7 +300,9 @@ public interface StorageBackupHandler extends Runnable
 					storageInventory           ,
 					backupInventory.dataFiles(),
 					storageFile                ,
-					backupTargetFile
+					storageFileLength          ,
+					backupTargetFile           ,
+					backupTargetFileLength
 				);
 			}
 		}
@@ -328,6 +334,19 @@ public interface StorageBackupHandler extends Runnable
 					final long byteCount = sourceChannel.transferTo(sourcePosition, length, targetChannel);
 					StorageFileWriter.validateIoByteCount(length, byteCount);
 					targetChannel.force(false);
+					
+					
+					// (28.02.2019 TM)FIXME: /!\ DEBUG (JET-55):
+					if(Storage.isDataFile(sourceFile) && sourceFile.number() == 1)
+					{
+						XDebug.println(
+							"\nBackup copy:\n"
+							+ "Source file: " + sourceFile.identifier() + "\n"
+							+ "sourcePosition: " + sourcePosition + "\n"
+							+ "length: " + length + "\n"
+							+ "backupTargetFile: " + backupTargetFile.identifier() + "(" + oldBackupFileLength + " -> " + targetChannel.size() + ")"
+						);
+					}
 					
 					this.validator.validateFile(backupTargetFile, oldBackupFileLength, length);
 				}

@@ -519,5 +519,22 @@ Oh, bug: Backup Data Files werden mit fileindex -1 (transaction file hack) erzeu
 \par
 Ach, dreher in der umgestalteten Identifizierungsmethode drin.\par
 Fixen. Testen. Passt.\par
+\par
+\par
+Jetzt noch die Testklasse ein bisschen verbessern bzw. \'fcberhaupt mal eine eigene bauen, die die g\'e4ngigen F\'e4lle abdeckt. Mehrfach storen, Neues Headfile, usw.\par
+\par
+Oh, StorageExceptionBackupInconsistentFileLength bei bestehender Storage. Muss ich mal untersuchen.\par
+Da f\'e4llt mir auf: Es fehlen bei den Backup Exceptions noch die assemble Methoden, damit die zugeh\'f6rigen Werte ausgegeben werden.\par
+Einbauen.\par
+Damit debuggen.\par
+Exception beim Exception assemblen, haha, weil length nicht geht, weil der channel schon geschlossen ist.\par
+Exception erweitern um felder f\'fcr die tats\'e4chlichen l\'e4ngen zum zeitpunkt der validierung.\par
+\par
+Damit testen.\par
+Weicht tats\'e4chlich ab.\par
+Debuggen / printen, warum.\par
+\par
+irgendwie scheint ab dem zweiten kopieren im sourcefile der source offset um ein entity zur\'fcck zu gehen oder so \'e4hnlich.\par
+Muss ich dann morgen checken.\par
 }
  
