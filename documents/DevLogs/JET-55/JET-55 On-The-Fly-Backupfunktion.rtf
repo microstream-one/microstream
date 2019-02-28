@@ -1,6 +1,5 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
-\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
 \b0\par
 2019-02-13\par
 \par
@@ -439,5 +438,25 @@ Ersetzen/l\'f6schen kann ich ihn nicht, weil der noch im Import verwendet wird.\
 Ich denk ich bau neben dem einfach einen neuen, simpleren und eleganteren nach obigem Konzept.\par
 \par
 \par
+\par
+2019-02-28\par
+\par
+EntityDataIterator fertig bauen.\par
+\par
+Wenn ich einen L\'e4ngenwert zur\'fcckgeb, um unvollst\'e4ndiges Lesen anzugeben, kann die Implementierung sogar so wie die alte zum iterativen durchschaufeln einer Datei verwendet werden.\par
+F\'fcr den konkreten Anwendungsfall, eine komplette Byte Range durchiterieren, kann ich bei einem Mismatch im \'e4u\'dferen Kontext immer noch eine Exception werfen.\par
+\par
+Die Frage ist jetzt nur, welchen Wert ich zur\'fcck geb. Gesamtl\'e4nge aller komplett gelesenen Items oder irgendwie ein lookahead Wert oder so, um gleich zum n\'e4chsten Item springen zu k\'f6nnen.\par
+Hm. Die erste Variante ist die einfachste und m\'fcsste trotzdem f\'fcr alle denkbaren Anwendungsf\'e4lle reichen.\par
+Beispiel:\par
+Buffer ist 1000 gro\'df aber bei Index 0 liegt ein Entity mit L\'e4nge 1200.\par
+Wenn nur header gescannt werden sollen (validierung und initialisierung), kann das ja gemacht werden und die Methode gibt dann als verarbeitete Gesamtl\'e4nge 1200 zur\'fcck. Auch wenn der Buffer nur 1000 lang ist, macht ja nix.\par
+Wenn das Entity komplett gelesen werden soll, wird 0 zur\'fcckgegeben, d.h. das entity konnte nicht verarbeitet werden.\par
+Es gibt dann verschiedene M\'f6glichkeiten, mitzukriegen, dass der Buffer erweitert werden soll:\par
+- In der Implementierung intern in so einem "incomplete" Fall die l\'e4nge des letzten Entities checken und die Buffer Capacity damit abgleichen und ggf. einen gr\'f6\'dferen Buffer allokieren.\par
+- Oder: R\'fcckgabewert 0 interpretieren als: Buffer Kapazit\'e4t ist zu klein. Als Sonderfallbehandlung entity(header) aus dem Buffer auslesen (die muss ja an index 0 stehen) und dann den Buffer im externen Kontext vergr\'f6\'dferen.\par
+\par
+So oder so, man hat M\'f6glichkeiten, ein "h\'e4ngenbleiben" an einem zu kleinen Buffer zu verhindern.\par
+Dann geb ich einfach die Gesamtl\'e4nge der verarbeiteten Items zur\'fcck. Passt.\par
 }
  
