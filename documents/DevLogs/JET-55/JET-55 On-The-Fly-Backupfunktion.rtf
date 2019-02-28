@@ -441,6 +441,15 @@ Ich denk ich bau neben dem einfach einen neuen, simpleren und eleganteren nach o
 \par
 2019-02-28\par
 \par
+09:00 OGS\tab\tab JET-55 weitermachen.\par
+09:45 ---\tab\tab Pause.\par
+10:55 Bonus\tab BON-830 Teamviewer Recherche. Vorher rumprobieren mit VPN, ob ich auf den EMV Bugtracker zugreifen kann.\par
+11:10 OGS\tab\tab JET-55 weitermachen.\par
+12:15 ---\tab\tab Pause.\par
+13:50 Bonus\tab Telefonat mit XH zu Perfacto Datei \'c4nderung und neu erzeugen lassen.\par
+14:05 OGS\tab\tab JET-55 weitermachen.\par
+\par
+\par
 EntityDataIterator fertig bauen.\par
 \par
 Wenn ich einen L\'e4ngenwert zur\'fcckgeb, um unvollst\'e4ndiges Lesen anzugeben, kann die Implementierung sogar so wie die alte zum iterativen durchschaufeln einer Datei verwendet werden.\par
@@ -458,5 +467,37 @@ Es gibt dann verschiedene M\'f6glichkeiten, mitzukriegen, dass der Buffer erweit
 \par
 So oder so, man hat M\'f6glichkeiten, ein "h\'e4ngenbleiben" an einem zu kleinen Buffer zu verhindern.\par
 Dann geb ich einfach die Gesamtl\'e4nge der verarbeiteten Items zur\'fcck. Passt.\par
+\par
+\par
+Einen Validator muss ich auch noch bauen. Den kann man dann gleich h\'fcbsch autark aufrufen, unabh\'e4ngig vom Backup.\par
+Die Logik kopier ich aus der Entity Registrierung raus. Macht schon Sinn, dass die ihre eigene hardgecodete Implementierung beh\'e4lt, um so schnell wie m\'f6glich zu sein.\par
+\par
+Hm.\par
+Die Validierung der TypeId erfolgt implizit \'fcber den Lookup des TypeHandlers, klar.\par
+Validierung der Entity L\'e4nge beim Einlesen find ich gar nicht. Muss ich rausgenommen haben. War das was wegen Legacy Type Mapping? Kanns eigentlich nicht sein ...\par
+Und ObjectId Validierung ... mal schauen.\par
+Aaach, L\'e4ngenvalidierung wird doch gemacht. Zusammen mit der OID Validierung in der extra Methode StorageEntityCache#validateEntities, mit der auch die ID Analyse gemacht wird.\par
+Nebenbei dort die Validierung einer OID als TID mit Kommentar auskommentieren, weil das seit dem LegacyTypeMapping nicht mehr stimmt.\par
+\par
+F\'fcr die blanke Validierung reicht aber eine viel simplere Methode. Die gibts auch schon, wird z.B. f\'fcr den Import verwendet:\par
+Persistence.validateObjectId(objectId);\par
+\par
+\par
+\par
+Hei\'dft:\par
+1.) TID Validierung \'fcber StorageEntityTypeHandler Lookup\par
+2.) Length Validierung \'fcber StorageEntityTypeHandler#validateEntityGuaranteedType\par
+3.) OID Validierung \'fcber Persistence#validateObjectId\par
+\par
+Das hei\'dft der EntityValidator muss den TypeHandlerLookup der Storage kennen.\par
+Und das geht \'fcber:\line final StorageEntityTypeHandler typeHandler = this.typeDictionary.lookupTypeHandlerChecked(typeId);\par
+(Checked Variante schnell eingebaut, damit das l\'e4stige if aus dem verwendenden Kontext raus und zentral ist)\par
+\par
+Mal so einbauen.\par
+\par
+Dabei aufgefallen:\par
+Der Validator muss timeouten und dann aufger\'e4umt werden, damit er nicht mit einem bequem riesig allokierten ByteBuffer permanent sinnlos Memory belegt.\par
+FIXME daf\'fcr geschrieben.\par
+\'c4h ... und gleich einbauen.\par
 }
  

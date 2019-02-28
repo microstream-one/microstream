@@ -11,6 +11,7 @@ import net.jadoth.persistence.types.PersistenceTypeDescription;
 import net.jadoth.persistence.types.PersistenceTypeDictionary;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryView;
 import net.jadoth.persistence.types.PersistenceTypeLineage;
+import net.jadoth.storage.exceptions.StorageException;
 
 
 public interface StorageTypeDictionary extends PersistenceTypeDictionary, PersistenceTypeDefinitionRegistrationObserver
@@ -18,6 +19,18 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 	public <P extends Consumer<? super StorageEntityTypeHandler>> P iterateTypeHandlers(P procedure);
 
 	public StorageEntityTypeHandler lookupTypeHandler(long typeId);
+	
+	public default StorageEntityTypeHandler lookupTypeHandlerChecked(final long typeId)
+	{
+		final StorageEntityTypeHandler typeHandler = this.lookupTypeHandler(typeId);
+		if(typeHandler != null)
+		{
+			return typeHandler;
+		}
+		
+		// (09.06.2017 TM)EXCP: proper exception
+		throw new StorageException("TypeId not resolvable via type dictionary: " + typeId);
+	}
 
 	public void validateEntityTypeId(long typeId);
 

@@ -227,7 +227,8 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		{
 			final StorageEntityTypeHandler typeHandler = this.typeHandler;
 
-			long maxOid = 0, maxCid = 0, maxTid = 0;
+			long maxOid = 0, maxCid = 0;
+			final long maxTid = 0;
 			for(StorageEntity.Implementation entity = this.head; (entity = entity.typeNext) != null;)
 			{
 				final long entityLength   = entity.length;
@@ -250,16 +251,18 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 						maxCid = oid;
 					}
 				}
-				else if(Persistence.IdType.TID.isInRange(oid))
-				{
-					/* note that a (storage) type describing a (Java) type (e.g. Class) has TIDs
-					 * as the entities' identifying object ID. Hence encountering a TID here is valid.
-					 */
-					if(oid >= maxTid)
-					{
-						maxTid = oid;
-					}
-				}
+				// (28.02.2019 TM)NOTE: this is no longer true since Legacy Type Mapping
+//				else if(Persistence.IdType.TID.isInRange(oid))
+//				{
+//					/*
+//					 * note that a (storage) type describing a (Java) type (e.g. Class) has TIDs
+//					 * as the entities' identifying object ID. Hence encountering a TID here is valid.
+//					 */
+//					if(oid >= maxTid)
+//					{
+//						maxTid = oid;
+//					}
+//				}
 				else
 				{
 					throw new StorageException("Invalid OID: " + oid);
