@@ -6,32 +6,50 @@ import java.nio.channels.FileChannel;
 import net.jadoth.X;
 import net.jadoth.memory.XMemory;
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.storage.exceptions.StorageException;
 import net.jadoth.storage.exceptions.StorageExceptionIoReading;
 
 @FunctionalInterface
 public interface StorageFileEntityDataIterator
 {
-	public <A extends EntityDataAcceptor> A iterateEntityData(
-		StorageFile file           ,
-		long        fileOffset     ,
-		long        iterationLength,
-		A           logic
+	public long iterateEntityData(
+		StorageFile        file           ,
+		long               fileOffset     ,
+		long               iterationLength,
+		EntityDataAcceptor logic
 	);
 	
 	
 	public interface Internal extends StorageFileEntityDataIterator
 	{
 		@Override
-		public default <A extends EntityDataAcceptor> A iterateEntityData(
-			final StorageFile file           ,
-			final long        fileOffset     ,
-			final long        iterationLength,
-			final A           logic
+		public default long iterateEntityData(
+			final StorageFile        file           ,
+			final long               fileOffset     ,
+			final long               iterationLength,
+			final EntityDataAcceptor logic
 		)
 		{
 			this.fillBuffer(file, fileOffset, iterationLength);
-			this.iterateFilledBuffer(logic);
-			return logic;
+			return this.iterateFilledBuffer(logic);
+		}
+		
+		public default void prepareFile(
+			final StorageFile file           ,
+			final long        fileOffset     ,
+			final long        iterationLength
+		)
+		{
+			// no-op by default
+		}
+		
+		public default void wrapUpFile(
+			final StorageFile file           ,
+			final long        fileOffset     ,
+			final long        iterationLength
+		)
+		{
+			// no-op by default
 		}
 		
 		public void fillBuffer(
@@ -40,7 +58,7 @@ public interface StorageFileEntityDataIterator
 			long        iterationLength
 		);
 		
-		public void iterateFilledBuffer(
+		public long iterateFilledBuffer(
 			EntityDataAcceptor logic
 		);
 		
@@ -88,12 +106,14 @@ public interface StorageFileEntityDataIterator
 			
 			try
 			{
+				this.prepareFile(file, fileOffset, iterationLength);
+				
 				final FileChannel fileChannel = file.fileChannel();
 				this.validateIterationRange(file, fileChannel.size(), fileOffset, iterationLength);
+				fileChannel.position(fileOffset);
 
 				buffer.clear();
 				buffer.limit(X.checkArrayRange(iterationLength));
-				fileChannel.position(fileOffset);
 
 				// loop is guaranteed to terminate as it depends on validated buffer size and the file length
 				do
@@ -105,6 +125,10 @@ public interface StorageFileEntityDataIterator
 			catch(final Exception e)
 			{
 				throw new StorageExceptionIoReading(e);
+			}
+			finally
+			{
+				this.wrapUpFile(file, fileOffset, iterationLength);
 			}
 		}
 		
@@ -146,35 +170,44 @@ public interface StorageFileEntityDataIterator
 			}
 		}
 		
-		private long calculateIterationBoundAddress(final long bufferBoundAddress)
-		{
-			/*
-			 * Explanation:
-			 * bufferBoundAddress points beyond the last byte to be read.
-			 * (bufferBoundAddress - headerLength) points at the last (possible) entity header start.
-			 * (bBA - hL + 1) points beyond the last (possible) entity header start.
-			 * Example:
-			 * The whole data to be read ist just the head header of a stateless entity.
-			 * So the buffer position equals 24.
-			 * Say bufferStartAddress equals 100, meaning bufferBoundAddress equals 124.
-			 * Then the iteration bound address (always checked with "<") must be 101:
-			 * 124 - 24 + 1.
-			 * It must be possible to read an entity as late as address 100, but not beyond that.
-			 */
-			return bufferBoundAddress - Binary.entityHeaderLength() + 1;
-		}
-
 		@Override
-		public void iterateFilledBuffer(final EntityDataAcceptor logic)
+		public long iterateFilledBuffer(final EntityDataAcceptor logic)
 		{
 			final long bufferStartAddress = XMemory.getDirectByteBufferAddress(this.directByteBuffer);
 			final long bufferBoundAddress = bufferStartAddress + this.directByteBuffer.position();
-			final long iterationBoundAddress = this.calculateIterationBoundAddress(bufferStartAddress);
 			
+			// the loop condition must be safe to read the item length
+			final long itemStartBoundAddress = bufferBoundAddress - Binary.lengthLength() + 1;
 			
+			long a = bufferStartAddress;
+			while(a < itemStartBoundAddress)
+			{
+				final long itemLength = XMemory.get_long(a);
+				if(itemLength > 0)
+				{
+					// if the logic did not accept the entity data, iteration is aborted at the start of that entity.
+					if(!logic.acceptEntityData(a, bufferBoundAddress))
+					{
+						break;
+					}
+					
+					// otherwise, the iteration advances to the next item (comment or entity)
+					a += itemLength;
+				}
+				else if(itemLength < 0)
+				{
+					// comments (indicated by negative length) just get skipped.
+					a -= itemLength;
+				}
+				else
+				{
+					// entity length may never be 0 or the iteration will hang forever
+					throw new StorageException("Zero length data item."); // (28.02.2019 TM)EXCP: proper exception
+				}
+			}
 			
-			
-			throw new net.jadoth.meta.NotImplementedYetError(); // FIXME StorageFileEntityDataIterator.Internal#iterateFilledBuffer()
+			// the total length of processed items is returned so the calling context can validate/advance/etc.
+			return a - bufferStartAddress;
 		}
 		
 	}
@@ -183,7 +216,7 @@ public interface StorageFileEntityDataIterator
 	
 	public interface EntityDataAcceptor
 	{
-		public void acceptEntityData(long entityStartAddress);
+		public boolean acceptEntityData(long entityStartAddress, long dataBoundAddress);
 	}
 	
 	
