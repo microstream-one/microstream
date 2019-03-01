@@ -1,5 +1,6 @@
 package net.jadoth.storage.exceptions;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.collections.types.XGettingSequence;
 
 public class StorageExceptionDisruptingExceptions extends StorageException
@@ -73,6 +74,18 @@ public class StorageExceptionDisruptingExceptions extends StorageException
 	public final XGettingSequence<Throwable> problems()
 	{
 		return this.problems;
+	}
+	
+	@Override
+	public String assembleOutputString()
+	{
+		final VarString vs = VarString.New("Disrupting Exceptions:");
+		for(final Throwable t : this.problems)
+		{
+			vs.lf().add(t.getMessage());
+		}
+		
+		return vs.toString();
 	}
 	
 }
