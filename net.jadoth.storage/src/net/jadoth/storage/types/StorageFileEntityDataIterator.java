@@ -26,6 +26,11 @@ public interface StorageFileEntityDataIterator
 	public void removeBuffer();
 	
 	
+	/* (01.03.2019 TM)NOTE:
+	 * Experimental concept to differentiate a type internally without inflating the external API.
+	 * In order to being able to use wrapping implementations with that, every method of the internal API
+	 * must pass the "actual instance" along to switch back to the wrapper instead of staying in the wrapped instance.
+	 */
 	public interface Internal extends StorageFileEntityDataIterator
 	{
 		@Override
@@ -36,43 +41,48 @@ public interface StorageFileEntityDataIterator
 			final EntityDataAcceptor logic
 		)
 		{
-			this.fillBuffer(file, fileOffset, iterationLength);
-			return this.iterateFilledBuffer(logic);
+			this.fillBuffer(this, file, fileOffset, iterationLength);
+			return this.iterateFilledBuffer(this, logic);
 		}
 		
 		public default void prepareFile(
-			final StorageFile file           ,
-			final long        fileOffset     ,
-			final long        iterationLength
+			final StorageFileEntityDataIterator.Internal self           ,
+			final StorageFile                            file           ,
+			final long                                   fileOffset     ,
+			final long                                   iterationLength
 		)
 		{
 			// no-op by default
 		}
 		
 		public default void wrapUpFile(
-			final StorageFile file           ,
-			final long        fileOffset     ,
-			final long        iterationLength
+			final StorageFileEntityDataIterator.Internal self           ,
+			final StorageFile                            file           ,
+			final long                                   fileOffset     ,
+			final long                                   iterationLength
 		)
 		{
 			// no-op by default
 		}
 		
 		public void fillBuffer(
-			StorageFile file           ,
-			long        fileOffset     ,
-			long        iterationLength
+			StorageFileEntityDataIterator.Internal self           ,
+			StorageFile                            file           ,
+			long                                   fileOffset     ,
+			long                                   iterationLength
 		);
 		
 		public long iterateFilledBuffer(
-			EntityDataAcceptor logic
+			StorageFileEntityDataIterator.Internal self ,
+			EntityDataAcceptor                     logic
 		);
 		
 		public void validateIterationRange(
-			StorageFile file            ,
-			long        actualFileLength,
-			long        fileOffset      ,
-			long        iterationLength
+			StorageFileEntityDataIterator.Internal self            ,
+			StorageFile                            file            ,
+			long                                   actualFileLength,
+			long                                   fileOffset      ,
+			long                                   iterationLength
 		);
 		
 	}
@@ -114,7 +124,7 @@ public interface StorageFileEntityDataIterator
 		{
 			return this.directByteBuffer != null
 				? this.directByteBuffer.capacity()
-				: 0L
+				: -1L // because 0L is a valid buffer capacity!
 			;
 		}
 
@@ -137,16 +147,21 @@ public interface StorageFileEntityDataIterator
 		}
 
 		@Override
-		public void fillBuffer(final StorageFile file, final long fileOffset, final long iterationLength)
+		public void fillBuffer(
+			final StorageFileEntityDataIterator.Internal self           ,
+			final StorageFile                            file           ,
+			final long                                   fileOffset     ,
+			final long                                   iterationLength
+		)
 		{
 			try
 			{
-				this.prepareFile(file, fileOffset, iterationLength);
+				this.prepareFile(self, file, fileOffset, iterationLength);
 				
 				final FileChannel fileChannel = file.fileChannel();
-				this.validateIterationRange(file, fileChannel.size(), fileOffset, iterationLength);
+				self.validateIterationRange(self, file, fileChannel.size(), fileOffset, iterationLength);
 				
-				this.ensureBufferCapacity(iterationLength);
+				self.ensureBufferCapacity(iterationLength);
 				final ByteBuffer buffer = this.directByteBuffer;
 				buffer.clear();
 				buffer.limit(X.checkArrayRange(iterationLength));
@@ -165,16 +180,17 @@ public interface StorageFileEntityDataIterator
 			}
 			finally
 			{
-				this.wrapUpFile(file, fileOffset, iterationLength);
+				self.wrapUpFile(self, file, fileOffset, iterationLength);
 			}
 		}
 		
 		@Override
 		public void validateIterationRange(
-			final StorageFile file            ,
-			final long        actualFileLength,
-			final long        fileOffset      ,
-			final long        iterationLength
+			final StorageFileEntityDataIterator.Internal self            ,
+			final StorageFile                            file            ,
+			final long                                   actualFileLength,
+			final long                                   fileOffset      ,
+			final long                                   iterationLength
 		)
 		{
 			if(fileOffset < 0 || fileOffset > actualFileLength)
@@ -208,7 +224,10 @@ public interface StorageFileEntityDataIterator
 		}
 		
 		@Override
-		public long iterateFilledBuffer(final EntityDataAcceptor logic)
+		public long iterateFilledBuffer(
+			final StorageFileEntityDataIterator.Internal self ,
+			final EntityDataAcceptor                     logic
+		)
 		{
 			final long bufferStartAddress = XMemory.getDirectByteBufferAddress(this.directByteBuffer);
 			final long bufferBoundAddress = bufferStartAddress + this.directByteBuffer.position();

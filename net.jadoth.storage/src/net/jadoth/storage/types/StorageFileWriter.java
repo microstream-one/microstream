@@ -201,10 +201,10 @@ public interface StorageFileWriter
 		final StorageFileProvider  storageFileProvider
 	)
 	{
-		truncate(file, newLength, storageFileProvider);
+		truncateFile(file, newLength, storageFileProvider);
 	}
 	
-	public static void truncate(
+	public static void truncateFile(
 		final StorageNumberedFile file               ,
 		final long                newLength          ,
 		final StorageFileProvider storageFileProvider
@@ -235,7 +235,27 @@ public interface StorageFileWriter
 		final StorageFileProvider  storageFileProvider
 	)
 	{
-		delete(file, storageFileProvider);
+		deleteFile(file, storageFileProvider);
+	}
+	
+	public static void deleteFile(
+		final StorageNumberedFile file               ,
+		final StorageFileProvider storageFileProvider
+	)
+	{
+//		DEBUGStorage.println("storage file deletion");
+
+		if(rescueFromDeletion(file, storageFileProvider))
+		{
+			return;
+		}
+		
+		if(file.delete())
+		{
+			return;
+		}
+		
+		throw new RuntimeException("Could not delete file " + file); // (02.10.2014 TM)EXCP: proper exception
 	}
 	
 
@@ -264,27 +284,6 @@ public interface StorageFileWriter
 			throw new StorageExceptionIo(e); // (04.03.2015 TM)EXCP: proper exception
 		}
 	}
-	
-	public static void delete(
-		final StorageNumberedFile file               ,
-		final StorageFileProvider storageFileProvider
-	)
-	{
-//		DEBUGStorage.println("storage file deletion");
-
-		if(rescueFromDeletion(file, storageFileProvider))
-		{
-			return;
-		}
-		
-		if(file.delete())
-		{
-			return;
-		}
-		
-		throw new RuntimeException("Could not delete file " + file); // (02.10.2014 TM)EXCP: proper exception
-	}
-	
 	
 	public static boolean rescueFromDeletion(
 		final StorageNumberedFile file               ,
