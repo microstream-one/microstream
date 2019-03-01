@@ -1,5 +1,6 @@
 package net.jadoth.storage.exceptions;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.storage.types.StorageBackupFile;
 import net.jadoth.storage.types.StorageInventoryFile;
 
@@ -123,6 +124,17 @@ extends StorageExceptionBackupChannelIndex
 	public final StorageBackupFile backupFile()
 	{
 		return this.backupFile;
+	}
+	
+	@Override
+	public String assembleDetailString()
+	{
+		return VarString.New()
+			.add(this.storageFile.identifier()).add('@').add(this.sourcePosition).add('+').add(this.length)
+			.add(" -> ")
+			.add(this.backupFile.identifier())
+			.toString()
+		;
 	}
 	
 }
