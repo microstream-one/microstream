@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import net.jadoth.chars.VarString;
 import net.jadoth.storage.exceptions.StorageExceptionIo;
 
 
@@ -134,4 +135,11 @@ public interface StorageFile
 			// sshhh, silence!
 		}
 	}
+	
+	
+	public static VarString assembleNameAndSize(final VarString vs, final StorageFile file)
+	{
+		return vs.add(file.identifier() + "[" + file.length() + "]");
+	}
+	
 }

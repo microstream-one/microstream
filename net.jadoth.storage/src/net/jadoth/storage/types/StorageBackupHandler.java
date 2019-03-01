@@ -7,6 +7,7 @@ import java.nio.channels.FileChannel;
 import net.jadoth.X;
 import net.jadoth.collections.EqHashTable;
 import net.jadoth.collections.XSort;
+import net.jadoth.meta.XDebug;
 import net.jadoth.storage.exceptions.StorageExceptionBackupCopying;
 import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
 import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmptyBackup;
@@ -57,7 +58,8 @@ public interface StorageBackupHandler extends Runnable
 		final StorageBackupSetup       backupSetup      ,
 		final int                      channelCount     ,
 		final StorageBackupItemQueue   itemQueue        ,
-		final StorageChannelController channelController
+		final StorageChannelController channelController,
+		final StorageDataFileValidator validator
 	)
 	{
 		final StorageFileProvider backupFileProvider = backupSetup.backupFileProvider();
@@ -73,7 +75,8 @@ public interface StorageBackupHandler extends Runnable
 	                cis               ,
 			notNull(backupSetup)      ,
 			notNull(itemQueue)        ,
-			notNull(channelController)
+			notNull(channelController),
+			notNull(validator)
 		);
 	}
 	
@@ -86,6 +89,7 @@ public interface StorageBackupHandler extends Runnable
 		private final ChannelInventory[]       channelInventories;
 		private final StorageBackupItemQueue   itemQueue         ;
 		private final StorageChannelController channelController ;
+		private final StorageDataFileValidator validator         ;
 		
 		private boolean running;
 		
@@ -99,7 +103,8 @@ public interface StorageBackupHandler extends Runnable
 			final ChannelInventory[]       channelInventories,
 			final StorageBackupSetup       backupSetup       ,
 			final StorageBackupItemQueue   itemQueue         ,
-			final StorageChannelController channelController
+			final StorageChannelController channelController ,
+			final StorageDataFileValidator validator
 		)
 		{
 			super();
@@ -107,6 +112,7 @@ public interface StorageBackupHandler extends Runnable
 			this.backupSetup        = backupSetup       ;
 			this.itemQueue          = itemQueue         ;
 			this.channelController  = channelController ;
+			this.validator          = validator         ;
 		}
 
 		
@@ -163,10 +169,7 @@ public interface StorageBackupHandler extends Runnable
 				{
 					if(!this.itemQueue.processNextItem(this, 10_000))
 					{
-						/* (28.02.2019 TM)FIXME: JET-55: make the validator time out after some time
-						 * Necessary to take the liberty of using a conveniently big buffer with
-						 * unnecessarily occupying a lot of memory.
-						 */
+						this.validator.freeMemory();
 					}
 				}
 				catch(final InterruptedException e)
@@ -269,8 +272,11 @@ public interface StorageBackupHandler extends Runnable
 					continue;
 				}
 				
+				final long storageFileLength      = storageFile.length();
+				final long backupTargetFileLength = backupTargetFile.length();
+				
 				// existing file with matching length means everything is fine
-				if(backupTargetFile.length() == storageFile.length())
+				if(storageFileLength == backupTargetFileLength)
 				{
 					// continue with next file
 					continue;
@@ -280,10 +286,10 @@ public interface StorageBackupHandler extends Runnable
 				if(backupTargetFile.number() == lastBackupFileNumber)
 				{
 					// missing length is copied to update the backup file
-					this.copyFile(
+					this.copyFilePart(
 						storageFile,
-						backupTargetFile.length(),
-						storageFile.length() - backupTargetFile.length(),
+						backupTargetFileLength,
+						storageFileLength - backupTargetFileLength,
 						backupTargetFile
 					);
 					continue;
@@ -294,7 +300,9 @@ public interface StorageBackupHandler extends Runnable
 					storageInventory           ,
 					backupInventory.dataFiles(),
 					storageFile                ,
-					backupTargetFile
+					storageFileLength          ,
+					backupTargetFile           ,
+					backupTargetFileLength
 				);
 			}
 		}
@@ -304,26 +312,56 @@ public interface StorageBackupHandler extends Runnable
 			final StorageBackupFile    backupTargetFile
 		)
 		{
-			this.copyFile(storageFile, 0, storageFile.length(), backupTargetFile);
+			this.copyFilePart(storageFile, 0, storageFile.length(), backupTargetFile);
 		}
 		
-		private void copyFile(
-			final StorageInventoryFile storageFile     ,
-			final long                 sourcePosition  ,
-			final long                 length          ,
-			final StorageBackupFile    backupTargetFile
+		private void copyFilePart(
+			final StorageInventoryFile     sourceFile      ,
+			final long                     sourcePosition  ,
+			final long                     length          ,
+			final StorageBackupFile        backupTargetFile
 		)
 		{
 			try
 			{
-				storageFile.fileChannel().transferTo(sourcePosition, length, backupTargetFile.fileChannel());
+				final FileChannel sourceChannel = sourceFile.fileChannel();
+				final FileChannel targetChannel = backupTargetFile.fileChannel();
 				
-				// backup file always gets closed right away.
-				backupTargetFile.close();
+				final long oldBackupFileLength = targetChannel.size();
+				
+				try
+				{
+					final long byteCount = sourceChannel.transferTo(sourcePosition, length, targetChannel);
+					StorageFileWriter.validateIoByteCount(length, byteCount);
+					targetChannel.force(false);
+					
+					
+					// (28.02.2019 TM)FIXME: /!\ DEBUG (JET-55):
+					if(Storage.isDataFile(sourceFile) && sourceFile.number() == 1)
+					{
+						XDebug.println(
+							"\nBackup copy:\n"
+							+ "Source file: " + sourceFile.identifier() + "\n"
+							+ "sourcePosition: " + sourcePosition + "\n"
+							+ "length: " + length + "\n"
+							+ "backupTargetFile: " + backupTargetFile.identifier() + "(" + oldBackupFileLength + " -> " + targetChannel.size() + ")"
+						);
+					}
+					
+					this.validator.validateFile(backupTargetFile, oldBackupFileLength, length);
+				}
+				catch(final Exception e)
+				{
+					throw new StorageExceptionBackupCopying(sourceFile, sourcePosition, length, backupTargetFile);
+				}
+				finally
+				{
+					backupTargetFile.close();
+				}
 			}
 			catch(final Exception e)
 			{
-				throw new StorageExceptionBackupCopying(storageFile, sourcePosition, length, backupTargetFile, e);
+				throw new StorageExceptionBackupCopying(sourceFile, sourcePosition, length, backupTargetFile, e);
 			}
 		}
 		
@@ -338,23 +376,7 @@ public interface StorageBackupHandler extends Runnable
 			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
 			
-			final FileChannel sourceChannel = sourceFile.fileChannel();
-			final FileChannel targetChannel = backupTargetFile.fileChannel();
-			
-			try
-			{
-				final long byteCount = sourceChannel.transferTo(sourcePosition, length, targetChannel);
-				StorageFileWriter.validateIoByteCount(length, byteCount);
-				targetChannel.force(false);
-			}
-			catch(final Exception e)
-			{
-				throw new StorageExceptionBackupCopying(sourceFile, sourcePosition, length, backupTargetFile);
-			}
-			finally
-			{
-				backupTargetFile.close();
-			}
+			copyFilePart(sourceFile, sourcePosition, length, backupTargetFile);
 
 			sourceFile.decrementUserCount();
 			
@@ -461,7 +483,7 @@ public interface StorageBackupHandler extends Runnable
 			
 			final StorageBackupFile ensureBackupFile(final StorageNumberedFile file)
 			{
-				if(file.number() == Storage.transactionsFileNumber())
+				if(Storage.isTransactionFile(file))
 				{
 					return this.ensureTransactionsFile();
 				}

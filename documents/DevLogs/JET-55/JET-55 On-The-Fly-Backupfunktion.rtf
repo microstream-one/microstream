@@ -499,5 +499,42 @@ Dabei aufgefallen:\par
 Der Validator muss timeouten und dann aufger\'e4umt werden, damit er nicht mit einem bequem riesig allokierten ByteBuffer permanent sinnlos Memory belegt.\par
 FIXME daf\'fcr geschrieben.\par
 \'c4h ... und gleich einbauen.\par
+\par
+Initialisierung durchreichen zu StorageManager.\par
+Creator Stuff usw. daf\'fcr bauen.\par
+Auch gleich mit optionalem DebugLogger, damit man das h\'fcbsch einfach sehen kann.\par
+\par
+StorageFoundation erweitern.\par
+\par
+Testen ...\par
+\par
+L\'e4uft auf Anhieb durch mit sauberen Loggingausgaben.\par
+Aber, hehe, ein Problem:\par
+Es wird nat\'fcrlich auch versucht, Transaction Files auf enthaltene Entities zu validieren. Das ist nat\'fcrlich Quatsch.\par
+Es macht jetzt auch keinen gro\'dfen Sinn mehr, die ganze API aufzublasen mit Fallunterscheidungen f\'fcr Data Files und Transaction Files.\par
+Die Transaction Files fliegen mittelfristig eh raus.\par
+Stattdessen hack ich eine Sonderfallabfrage rein: if transaction file, dann keine validierung.\par
+\par
+Oh, bug: Backup Data Files werden mit fileindex -1 (transaction file hack) erzeugt. Untersuchen.\par
+\par
+Ach, dreher in der umgestalteten Identifizierungsmethode drin.\par
+Fixen. Testen. Passt.\par
+\par
+\par
+Jetzt noch die Testklasse ein bisschen verbessern bzw. \'fcberhaupt mal eine eigene bauen, die die g\'e4ngigen F\'e4lle abdeckt. Mehrfach storen, Neues Headfile, usw.\par
+\par
+Oh, StorageExceptionBackupInconsistentFileLength bei bestehender Storage. Muss ich mal untersuchen.\par
+Da f\'e4llt mir auf: Es fehlen bei den Backup Exceptions noch die assemble Methoden, damit die zugeh\'f6rigen Werte ausgegeben werden.\par
+Einbauen.\par
+Damit debuggen.\par
+Exception beim Exception assemblen, haha, weil length nicht geht, weil der channel schon geschlossen ist.\par
+Exception erweitern um felder f\'fcr die tats\'e4chlichen l\'e4ngen zum zeitpunkt der validierung.\par
+\par
+Damit testen.\par
+Weicht tats\'e4chlich ab.\par
+Debuggen / printen, warum.\par
+\par
+irgendwie scheint ab dem zweiten kopieren im sourcefile der source offset um ein entity zur\'fcck zu gehen oder so \'e4hnlich.\par
+Muss ich dann morgen checken.\par
 }
  
