@@ -9,7 +9,6 @@ import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.types.Storage;
 import net.jadoth.storage.types.StorageBackupSetup;
-import net.jadoth.storage.types.StorageDataFileValidator;
 import net.jadoth.storage.types.StorageTransactionsFileAnalysis;
 
 
@@ -33,9 +32,9 @@ public class MainTestContinousStoring
 				)
 			)
 		)
-		.setDataFileValidatorCreator(
-			StorageDataFileValidator.CreatorDebugLogging()
-		)
+//		.setDataFileValidatorCreator(
+//			StorageDataFileValidator.CreatorDebugLogging()
+//		)
 		.start()
 	;
 	

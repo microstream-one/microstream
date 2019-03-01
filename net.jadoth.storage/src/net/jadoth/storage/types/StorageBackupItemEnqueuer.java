@@ -5,8 +5,7 @@ public interface StorageBackupItemEnqueuer
 	public void enqueueCopyingItem(
 		StorageInventoryFile sourceFile    ,
 		long                 sourcePosition,
-		long                 length        ,
-		StorageInventoryFile targetFile
+		long                 length
 	);
 	
 	public void enqueueTruncatingItem(

@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
 \b0\par
 2019-02-13\par
 \par
@@ -536,5 +537,30 @@ Debuggen / printen, warum.\par
 \par
 irgendwie scheint ab dem zweiten kopieren im sourcefile der source offset um ein entity zur\'fcck zu gehen oder so \'e4hnlich.\par
 Muss ich dann morgen checken.\par
+\par
+\par
+2019-03-01\par
+\par
+Erst mal die fehlgeschlagenen beiden Committs manuell mergen.\par
+\par
+Jetzt Fehlersuche. Debugausgaben verbessern, damit ich nicht immer manuell L\'e4ngen nachrechnen muss.\par
+Rumsuchen ...\par
+\par
+Ach! Ich bin ja ein Depp. Ich kopier bei einem Transfer vom richtigen source file, richtigem Offset, richtige L\'e4nge an das Ende des Backup File, das dem Source File entspricht anstatt dem Target File des Transfers.\par
+Dann bekommt die Backup Version des Source files nat\'fcrlich eine inkonsistente (zu gro\'dfe) L\'e4nge.\par
+\par
+Hm. Das w\'e4r ohnehin der einzige Fall, wo source- und target file \'fcbergeben werden.\par
+Eigentlich k\'f6nnte ich das konsolidieren auf nur source file und im transfer fall wird das target file als source f\'fcr die backup kopie angegeben.\par
+\par
+Umbauen.\par
+Testen.\par
+Jetzt siehts gut aus.\par
+\par
+Testen, ob beim Neustart wieder die Exception kommt.\par
+Nein. Backup Files sind konsistent.\par
+Aber daf\'fcr: ClosedChannelException.\par
+Seltsam. Die Backup Files sollten doch eigentlich den channel bzw. das lock beim closen vergessen und bei bedarf neu aufmachen.\par
+Muss ich dann untersuchen.\par
+\par
 }
  
