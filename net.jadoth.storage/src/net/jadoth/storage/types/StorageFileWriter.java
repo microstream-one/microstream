@@ -121,34 +121,34 @@ public interface StorageFileWriter
 	 * 
 	 * @param sourceFile
 	 * @param sourceOffset
-	 * @param length
+	 * @param copyLength
 	 * @param targetfile
 	 * @return
 	 */
 	public default long writeImport(
 		final StorageLockedFile  sourceFile  ,
 		final long               sourceOffset,
-		final long               length      ,
-		final StorageDataFile<?> targetfile
+		final long               copyLength  ,
+		final StorageDataFile<?> targetFile
 	)
 	{
-		return this.copyFilePart(sourceFile, sourceOffset, length, targetfile);
+		return this.copyFilePart(sourceFile, sourceOffset, copyLength, targetFile);
 	}
 	
 	public default long writeTransfer(
 		final StorageDataFile<?> sourceFile  ,
 		final long               sourceOffset,
-		final long               length      ,
-		final StorageDataFile<?> targetfile
+		final long               copyLength  ,
+		final StorageDataFile<?> targetFile
 	)
 	{
-		return this.copyFilePart(sourceFile, sourceOffset, length, targetfile);
+		return this.copyFilePart(sourceFile, sourceOffset, copyLength, targetFile);
 	}
 	
 	public default long writeTransactionEntryCreate(
 		final StorageInventoryFile transactionFile,
-		final ByteBuffer[]             byteBuffers    ,
-		final StorageDataFile<?>       dataFile
+		final ByteBuffer[]         byteBuffers    ,
+		final StorageDataFile<?>   dataFile
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
@@ -156,10 +156,10 @@ public interface StorageFileWriter
 	
 	public default long writeTransactionEntryStore(
 		final StorageInventoryFile transactionFile,
-		final ByteBuffer[]             byteBuffers    ,
-		final StorageDataFile<?>       dataFile       ,
-		final long                     dataFileOffset ,
-		final long                     storeLength
+		final ByteBuffer[]         byteBuffers    ,
+		final StorageDataFile<?>   dataFile       ,
+		final long                 dataFileOffset ,
+		final long                 storeLength
 	)
 	{
 		return this.write(transactionFile, byteBuffers);

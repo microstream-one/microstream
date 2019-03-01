@@ -23,8 +23,7 @@ public interface StorageBackupHandler extends Runnable
 	public void copyFilePart(
 		StorageInventoryFile sourceFile    ,
 		long                 sourcePosition,
-		long                 length        ,
-		StorageInventoryFile targetFile
+		long                 length
 	);
 	
 	public void truncateFile(
@@ -316,10 +315,10 @@ public interface StorageBackupHandler extends Runnable
 		}
 		
 		private void copyFilePart(
-			final StorageInventoryFile     sourceFile      ,
-			final long                     sourcePosition  ,
-			final long                     length          ,
-			final StorageBackupFile        backupTargetFile
+			final StorageInventoryFile sourceFile      ,
+			final long                 sourcePosition  ,
+			final long                 length          ,
+			final StorageBackupFile    backupTargetFile
 		)
 		{
 			try
@@ -337,14 +336,12 @@ public interface StorageBackupHandler extends Runnable
 					
 					
 					// (28.02.2019 TM)FIXME: /!\ DEBUG (JET-55):
-					if(Storage.isDataFile(sourceFile) && sourceFile.number() == 1)
+					if(Storage.isDataFile(sourceFile))
 					{
 						XDebug.println(
-							"\nBackup copy:\n"
-							+ "Source file: " + sourceFile.identifier() + "\n"
-							+ "sourcePosition: " + sourcePosition + "\n"
-							+ "length: " + length + "\n"
-							+ "backupTargetFile: " + backupTargetFile.identifier() + "(" + oldBackupFileLength + " -> " + targetChannel.size() + ")"
+							"\nBackup copy:"
+							+ "\nSource File: " + sourceFile.identifier()       + "(" + sourcePosition + " + " + length + " -> " + (sourcePosition + length) + ")"
+							+ "\nBackup File: " + backupTargetFile.identifier() + "(" + oldBackupFileLength + " -> " + targetChannel.size() + ")"
 						);
 					}
 					
@@ -369,21 +366,15 @@ public interface StorageBackupHandler extends Runnable
 		public void copyFilePart(
 			final StorageInventoryFile sourceFile    ,
 			final long                 sourcePosition,
-			final long                 length        ,
-			final StorageInventoryFile targetFile
+			final long                 copyLength
 		)
 		{
 			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
 			
-			copyFilePart(sourceFile, sourcePosition, length, backupTargetFile);
+			copyFilePart(sourceFile, sourcePosition, copyLength, backupTargetFile);
 
 			sourceFile.decrementUserCount();
-			
-			if(targetFile != null)
-			{
-				targetFile.decrementUserCount();
-			}
 		}
 
 		@Override
