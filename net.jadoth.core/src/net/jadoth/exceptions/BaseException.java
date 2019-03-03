@@ -21,7 +21,11 @@ public class BaseException extends RuntimeException
 
 	public BaseException(final Throwable cause)
 	{
-		super(cause);
+		// because the Throwable(cause) constructor with the hardcoded getMessage() is highly moronic.
+		super();
+		
+		// initialize the cause with a non-moronic workaround via the moronicly-named "initCause".
+		this.initCause(cause);
 	}
 
 	public BaseException(final String message)
@@ -31,6 +35,7 @@ public class BaseException extends RuntimeException
 
 	public BaseException(final String message, final Throwable cause)
 	{
+		// that constructor is not moronic (albeit inconsistent to Throwable(cause), lol)
 		super(message, cause);
 	}
 
@@ -41,7 +46,9 @@ public class BaseException extends RuntimeException
 		final boolean   writableStackTrace
 	)
 	{
+		// that constructor is not moronic (albeit inconsistent to Throwable(cause), lol)
 		super(message, cause, enableSuppression, writableStackTrace);
+		this.initCause(cause);
 	}
 	
 	

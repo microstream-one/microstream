@@ -146,7 +146,7 @@ public interface StorageFileProvider
 			}
 
 			// strictly validly named file, collect.
-			collector.accept(StorageInventoryFile.New(hashIndex, fileNumber, file));
+			collector.accept(StorageNumberedFile.New(hashIndex, fileNumber, file));
 		}
 
 

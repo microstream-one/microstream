@@ -5,9 +5,8 @@ import static net.jadoth.X.notNull;
 import java.nio.channels.FileChannel;
 
 import net.jadoth.X;
+import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
-import net.jadoth.collections.XSort;
-import net.jadoth.meta.XDebug;
 import net.jadoth.storage.exceptions.StorageExceptionBackupCopying;
 import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
 import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmptyBackup;
@@ -23,8 +22,7 @@ public interface StorageBackupHandler extends Runnable
 	public void copyFilePart(
 		StorageInventoryFile sourceFile    ,
 		long                 sourcePosition,
-		long                 length        ,
-		StorageInventoryFile targetFile
+		long                 length
 	);
 	
 	public void truncateFile(
@@ -66,9 +64,7 @@ public interface StorageBackupHandler extends Runnable
 		
 		final ChannelInventory[] cis = X.Array(ChannelInventory.class, channelCount, i ->
 		{
-			final StorageNumberedFile rawTransactionsFile   = backupFileProvider.provideTransactionsFile(i);
-			final StorageBackupFile   backupTransactionFile = StorageBackupFile.New(rawTransactionsFile);
-			return new ChannelInventory(i, backupFileProvider, backupTransactionFile);
+			return new ChannelInventory(i, backupFileProvider);
 		});
 		
 		return new StorageBackupHandler.Implementation(
@@ -316,10 +312,10 @@ public interface StorageBackupHandler extends Runnable
 		}
 		
 		private void copyFilePart(
-			final StorageInventoryFile     sourceFile      ,
-			final long                     sourcePosition  ,
-			final long                     length          ,
-			final StorageBackupFile        backupTargetFile
+			final StorageInventoryFile sourceFile      ,
+			final long                 sourcePosition  ,
+			final long                 length          ,
+			final StorageBackupFile    backupTargetFile
 		)
 		{
 			try
@@ -335,24 +331,20 @@ public interface StorageBackupHandler extends Runnable
 					StorageFileWriter.validateIoByteCount(length, byteCount);
 					targetChannel.force(false);
 					
-					
-					// (28.02.2019 TM)FIXME: /!\ DEBUG (JET-55):
-					if(Storage.isDataFile(sourceFile) && sourceFile.number() == 1)
-					{
-						XDebug.println(
-							"\nBackup copy:\n"
-							+ "Source file: " + sourceFile.identifier() + "\n"
-							+ "sourcePosition: " + sourcePosition + "\n"
-							+ "length: " + length + "\n"
-							+ "backupTargetFile: " + backupTargetFile.identifier() + "(" + oldBackupFileLength + " -> " + targetChannel.size() + ")"
-						);
-					}
+//					if(Storage.isDataFile(sourceFile))
+//					{
+//						XDebug.println(
+//							"\nBackup copy:"
+//							+ "\nSource File: " + sourceFile.identifier()       + "(" + sourcePosition + " + " + length + " -> " + (sourcePosition + length) + ")"
+//							+ "\nBackup File: " + backupTargetFile.identifier() + "(" + oldBackupFileLength + " -> " + targetChannel.size() + ")"
+//						);
+//					}
 					
 					this.validator.validateFile(backupTargetFile, oldBackupFileLength, length);
 				}
 				catch(final Exception e)
 				{
-					throw new StorageExceptionBackupCopying(sourceFile, sourcePosition, length, backupTargetFile);
+					throw new StorageExceptionBackupCopying(sourceFile, sourcePosition, length, backupTargetFile, e);
 				}
 				finally
 				{
@@ -369,21 +361,15 @@ public interface StorageBackupHandler extends Runnable
 		public void copyFilePart(
 			final StorageInventoryFile sourceFile    ,
 			final long                 sourcePosition,
-			final long                 length        ,
-			final StorageInventoryFile targetFile
+			final long                 copyLength
 		)
 		{
 			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
 			
-			copyFilePart(sourceFile, sourcePosition, length, backupTargetFile);
+			copyFilePart(sourceFile, sourcePosition, copyLength, backupTargetFile);
 
 			sourceFile.decrementUserCount();
-			
-			if(targetFile != null)
-			{
-				targetFile.decrementUserCount();
-			}
 		}
 
 		@Override
@@ -394,7 +380,7 @@ public interface StorageBackupHandler extends Runnable
 		{
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
 			
-			StorageFileWriter.truncate(backupTargetFile, newLength, this.backupSetup.backupFileProvider());
+			StorageFileWriter.truncateFile(backupTargetFile, newLength, this.backupSetup.backupFileProvider());
 			
 			// no user decrement since only the identifier is required and the actual file can well have been deleted.
 		}
@@ -404,7 +390,7 @@ public interface StorageBackupHandler extends Runnable
 		{
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
 			
-			StorageFileWriter.delete(backupTargetFile, this.backupSetup.backupFileProvider());
+			StorageFileWriter.deleteFile(backupTargetFile, this.backupSetup.backupFileProvider());
 			
 			// no user decrement since only the identifier is required and the actual file can well have been deleted.
 		}
@@ -428,14 +414,12 @@ public interface StorageBackupHandler extends Runnable
 			
 			ChannelInventory(
 				final int                 channelIndex      ,
-				final StorageFileProvider backupFileProvider,
-				final StorageBackupFile   transactionFile
+				final StorageFileProvider backupFileProvider
 			)
 			{
 				super();
 				this.channelIndex       = channelIndex      ;
 				this.backupFileProvider = backupFileProvider;
-				this.transactionFile    = transactionFile   ;
 			}
 			
 			
@@ -463,54 +447,60 @@ public interface StorageBackupHandler extends Runnable
 					return;
 				}
 				
-				final EqHashTable<Long, StorageBackupFile> existingBackupFiles = EqHashTable.New();
+//				final EqHashTable<Long, StorageBackupFile> existingBackupFiles =
+				
+				final BulkList<StorageNumberedFile> collectedFiles =
 				this.backupFileProvider.collectDataFiles(
-					f ->
-					{
-						final StorageBackupFile backupFile = StorageBackupFile.New(f);
-						existingBackupFiles.add(f.number(), backupFile);
-					},
+					BulkList.New(),
 					this.channelIndex()
-				);
-				existingBackupFiles.keys().sort(XSort::compare);
+				)
+				.sort(StorageNumberedFile::orderByNumber);
 				
-				this.dataFiles = existingBackupFiles;
+				this.dataFiles = EqHashTable.New();
 				
-				this.transactionFile = StorageBackupFile.New(
-					this.backupFileProvider.provideTransactionsFile(this.channelIndex)
-				);
+				collectedFiles.iterate(this::registerBackupFile);
+				
+				this.ensureTransactionsFile();
 			}
 			
-			final StorageBackupFile ensureBackupFile(final StorageNumberedFile file)
+			final StorageBackupFile ensureBackupFile(final StorageNumberedFile sourceFile)
 			{
-				if(Storage.isTransactionFile(file))
+				if(Storage.isTransactionFile(sourceFile))
 				{
 					return this.ensureTransactionsFile();
 				}
 				
 				// note: validation is done by the calling context, depending on its task.
 				
-				StorageBackupFile bf = this.dataFiles.get(file.number());
-				if(bf == null)
+				StorageBackupFile backupTargetFile = this.dataFiles.get(sourceFile.number());
+				if(backupTargetFile == null)
 				{
-					final StorageNumberedFile backupTargetFile = this.backupFileProvider.provideDataFile(
+					final StorageNumberedFile backupRawFile = this.backupFileProvider.provideDataFile(
 						this.channelIndex,
-						file.number()
+						sourceFile.number()
 					);
-					bf = StorageBackupFile.New(backupTargetFile);
-					this.dataFiles.add(file.number(), bf);
+					backupTargetFile = registerBackupFile(backupRawFile);
 				}
 				
-				return bf;
+				return backupTargetFile;
+			}
+			
+			private StorageBackupFile registerBackupFile(final StorageNumberedFile backupRawFile)
+			{
+				final StorageBackupFile backupTargetFile = StorageBackupFile.New(backupRawFile);
+				this.dataFiles.add(backupTargetFile.number(), backupTargetFile);
+				
+				return backupTargetFile;
 			}
 			
 			final StorageBackupFile ensureTransactionsFile()
 			{
 				if(this.transactionFile == null)
 				{
-					this.transactionFile = StorageBackupFile.New(
-						this.backupFileProvider.provideTransactionsFile(this.channelIndex)
+					final StorageNumberedFile rawFile = this.backupFileProvider.provideTransactionsFile(
+						this.channelIndex
 					);
+					this.transactionFile = StorageBackupFile.New(rawFile);
 				}
 				
 				return this.transactionFile;

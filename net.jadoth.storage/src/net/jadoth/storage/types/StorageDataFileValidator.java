@@ -4,6 +4,7 @@ import static net.jadoth.X.notNull;
 
 import net.jadoth.meta.XDebug;
 import net.jadoth.persistence.binary.types.Binary;
+import net.jadoth.storage.exceptions.StorageException;
 
 
 public interface StorageDataFileValidator
@@ -118,7 +119,16 @@ public interface StorageDataFileValidator
 				return;
 			}
 			
-			this.fileIterator.iterateEntityData(file, fileOffset, iterationLength, this);
+			final long processedLength = this.fileIterator.iterateEntityData(file, fileOffset, iterationLength, this);
+			if(processedLength !=  iterationLength)
+			{
+				 // (01.03.2019 TM)EXCP: proper exception
+				throw new StorageException(
+					"Invalid data file iteration length: "
+					+ "Processed length " + processedLength + " != specified length " + iterationLength
+					+ " in file " + file.identifier()
+				);
+			}
 		}
 
 		@Override
