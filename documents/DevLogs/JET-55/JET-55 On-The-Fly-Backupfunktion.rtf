@@ -645,6 +645,6 @@ Oh Mann!\par
 Also es w\'fcrde eigentlich schon reichen, einen PersistenceTypeDictionaryIoHandler.Provider zu bauen und den dann zu extenden.\par
 Das mach ich mal. Plus Kommentar dazu, wie man das eigentlich sauber abstrahieren m\'fcsste.\par
 \par
-\par
+Beim einbauen aufgefallen: Wenn im FileProviderBuilder null Werte gesetzt werden, sollten/m\'fcssen die ja noch mit defaults aufgef\'fcllt werden. Aber das mach ich nicht in Konstruktoren und Gettern, sondern beim createn. Damit kann man sauber abfragen, ob Werte null sind.\par
 }
  

@@ -105,7 +105,7 @@ public final class PersistenceTypeDictionaryFileHandler implements PersistenceTy
 	
 	
 	
-	public static PersistenceTypeDictionaryFileHandler.Provider ProviderInDirecoty(final File directory)
+	public static PersistenceTypeDictionaryFileHandler.Provider ProviderInDirecory(final File directory)
 	{
 		return new PersistenceTypeDictionaryFileHandler.Provider(
 			new File(directory, Persistence.defaultFilenameTypeDictionary())

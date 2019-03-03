@@ -5,6 +5,8 @@ import static net.jadoth.X.notNull;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import net.jadoth.persistence.types.PersistenceTypeDictionaryIoHandler;
+
 public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter, StorageFileReader
 {
 	public default StorageInventoryFile copyData(final StorageDataFile<?> dataFile)
@@ -57,6 +59,12 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler()
+		{
+			return this.fileProvider.provideTypeDictionaryIoHandler();
+		}
 
 		@Override
 		public StorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)

@@ -23,33 +23,35 @@ public final class EmbeddedStorage
 	}
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler
+		final PersistenceTypeDictionaryIoHandler.Provider typeDictionaryIoHandlerProvider
 	)
 	{
 		return ConnectionFoundation(
-			typeDictionaryIoHandler      ,
-			Persistence::isPersistable   ,
+			typeDictionaryIoHandlerProvider,
+			Persistence::isPersistable     ,
 			Persistence::isTypeIdMappable
 		);
 	}
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler    ,
-		final PersistenceTypeEvaluator           typeEvaluatorPersistable   ,
-		final PersistenceTypeEvaluator           typeEvaluatorTypeIdMappable
+		final PersistenceTypeDictionaryIoHandler.Provider typeDictionaryIoHandlerProvider,
+		final PersistenceTypeEvaluator                    typeEvaluatorPersistable       ,
+		final PersistenceTypeEvaluator                    typeEvaluatorTypeIdMappable
 	)
 	{
 		return EmbeddedStorageConnectionFoundation.New()
-			.setTypeDictionaryIoHandler    (typeDictionaryIoHandler    )
-			.setTypeEvaluatorPersistable   (typeEvaluatorPersistable   )
-			.setTypeEvaluatorTypeIdMappable(typeEvaluatorTypeIdMappable)
+			.setTypeDictionaryIoHandlerProvider(typeDictionaryIoHandlerProvider)
+			.setTypeEvaluatorPersistable       (typeEvaluatorPersistable)
+			.setTypeEvaluatorTypeIdMappable    (typeEvaluatorTypeIdMappable)
 		;
 	}
 	
-	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(final File directory)
+	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
+		final File directory
+	)
 	{
 		return ConnectionFoundation(
-			PersistenceTypeDictionaryFileHandler.NewInDirecoty(directory)
+			PersistenceTypeDictionaryFileHandler.ProviderInDirecory(directory)
 		);
 	}
 
@@ -96,12 +98,24 @@ public final class EmbeddedStorage
 	)
 	{
 		XFiles.ensureDirectory(directory);
+		final StorageFileProvider fileProvider = Storage.FileProvider(directory);
 
 		return Foundation(
 			configuration
-			.setStorageFileProvider(Storage.FileProvider(directory))
-			.createConfiguration(),
-			ConnectionFoundation(directory)
+			.setStorageFileProvider(fileProvider)
+			.createConfiguration()
+		);
+	}
+	
+	public static final EmbeddedStorageFoundation<?> Foundation(
+		final StorageConfiguration configuration
+	)
+	{
+		final StorageFileProvider fileProvider = configuration.fileProvider();
+
+		return Foundation(
+			configuration,
+			ConnectionFoundation(fileProvider)
 		);
 	}
 		
