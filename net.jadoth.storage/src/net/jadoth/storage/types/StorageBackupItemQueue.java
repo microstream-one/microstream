@@ -17,7 +17,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 		// instance fields //
 		////////////////////
 		
-		private final Item head = new Item(null, 0, 0, null);
+		private final Item head = new Item(null, 0, 0);
 		private       Item tail = this.head;
 		
 		
@@ -41,11 +41,10 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 		public final void enqueueCopyingItem(
 			final StorageInventoryFile sourceFile    ,
 			final long                 sourcePosition,
-			final long                 length        ,
-			final StorageInventoryFile targetFile
+			final long                 length
 		)
 		{
-			this.internalEnqueueItem(sourceFile, sourcePosition, length, targetFile);
+			this.internalEnqueueItem(sourceFile, sourcePosition, length);
 		}
 
 		@Override
@@ -55,26 +54,25 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 		)
 		{
 			// signalling with a null sourceFile is a hack to avoid the complexity of multiple Item classes
-			this.internalEnqueueItem(null, 0, newLength, file);
+			this.internalEnqueueItem(file, newLength, -1);
 		}
 		
 		@Override
 		public void enqueueDeletionItem(final StorageInventoryFile file)
 		{
 			// signalling with a negative length is a hack to avoid the complexity of multiple Item classes
-			this.internalEnqueueItem(null, 0, -1, file);
+			this.internalEnqueueItem(file, 0, -1);
 		}
 		
 		private void internalEnqueueItem(
 			final StorageInventoryFile sourceFile    ,
 			final long                 sourcePosition,
-			final long                 length        ,
-			final StorageInventoryFile targetFile
+			final long                 length
 		)
 		{
 			synchronized(this.head)
 			{
-				this.tail = this.tail.next = new Item(sourceFile, sourcePosition, length, targetFile);
+				this.tail = this.tail.next = new Item(sourceFile, sourcePosition, length);
 				this.head.notifyAll();
 			}
 		}
@@ -124,7 +122,6 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 			final StorageInventoryFile sourceFile    ;
 			final long                 sourcePosition;
 			final long                 length        ;
-			final StorageInventoryFile targetFile    ;
 
 			Item next;
 
@@ -137,15 +134,13 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 			Item(
 				final StorageInventoryFile sourceFile    ,
 				final long                 sourcePosition,
-				final long                 length        ,
-				final StorageInventoryFile targetFile
+				final long                 length
 			)
 			{
 				super();
 				this.sourceFile     = sourceFile    ;
 				this.sourcePosition = sourcePosition;
 				this.length         = length        ;
-				this.targetFile     = targetFile    ;
 			}
 			
 			
@@ -156,18 +151,23 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 			
 			public void processBy(final StorageBackupHandler handler)
 			{
-				// deciding on a null sourceFile is a hack to avoid the complexity of multiple Item classes
-				if(this.sourceFile != null)
+				// negative length used as a hack ("reduce file") to avoid the complexity of multiple Item classes
+				if(this.length < 0)
 				{
-					handler.copyFilePart(this.sourceFile, this.sourcePosition, this.length, this.targetFile);
-				}
-				else if(this.length < 0)
-				{
-					handler.deleteFile(this.targetFile);
+					if(this.sourcePosition == 0)
+					{
+						// reduce to 0 means deleting the file.
+						handler.deleteFile(this.sourceFile);
+					}
+					else
+					{
+						// reduce to a non-zero position means truncation.
+						handler.truncateFile(this.sourceFile, this.sourcePosition);
+					}
 				}
 				else
 				{
-					handler.truncateFile(this.targetFile, this.length);
+					handler.copyFilePart(this.sourceFile, this.sourcePosition, this.length);
 				}
 			}
 			

@@ -20,15 +20,16 @@ public class MainTestContinousStoring
 		.Foundation(
 			Storage.ConfigurationBuilder()
 			.setFileEvaluator(
-				Storage.DataFileEvaluator(1_000, 10_000, 0.5)
+				Storage.DataFileEvaluator(1_000, 10_000, 0.7)
 			)
+			// (01.03.2019 TM)FIXME: JET-55: build byte-wise comparison of storage files and backup files.
 			.setBackupSetup(
 				StorageBackupSetup.New(
 					Storage
 					.FileProviderBuilder()
 					.setStorageDirectory("storage/backup")
 					.setDeletionDirectory("storage/backup/deleted")
-					.setDeletionDirectory("storage/backup/truncated")
+					.setTruncationDirectory("storage/backup/truncated")
 					.createFileProvider()
 				)
 			)
@@ -38,6 +39,7 @@ public class MainTestContinousStoring
 		)
 		.start()
 	;
+	// (01.03.2019 TM)FIXME: JET-55: backup TypeDictionary on changes.
 	
 	static Object[] createArray(final int size)
 	{

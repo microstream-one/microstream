@@ -91,7 +91,7 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 			final int channelIndex
 		)
 		{
-			return this.fileProvider.collectDataFiles( collector, channelIndex);
+			return this.fileProvider.collectDataFiles(collector, channelIndex);
 		}
 
 		@Override
