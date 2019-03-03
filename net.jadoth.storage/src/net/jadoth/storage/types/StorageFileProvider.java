@@ -8,9 +8,23 @@ import java.util.function.Consumer;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.files.XFiles;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryIoHandler;
 
-public interface StorageFileProvider
+public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.Provider
 {
+	/* (03.03.2019 TM)TODO: proper file abstraction
+	 * An abstraction on the persistence layer is required with types like
+	 * - PersistenceDataItem (Folder or File)
+	 * - PersistenceDataLocation extends PersistenceDataItem (Folder, has n PersistenceDataItems, each with unique name)
+	 * - PersistenceDataFile extends PersistenceDataItem (File, must always be Folder + String name)
+	 * 
+	 * Then this type here will no longer extend PersistenceTypeDictionaryIoHandler.Provider,
+	 * but just a PersistenceTypeDictionaryDataFileProvider
+	 */
+	
+	@Override
+	public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler();
+	
 	public StorageNumberedFile provideDataFile(int channelIndex, long fileNumber);
 
 	public StorageNumberedFile provideTransactionsFile(int channelIndex);

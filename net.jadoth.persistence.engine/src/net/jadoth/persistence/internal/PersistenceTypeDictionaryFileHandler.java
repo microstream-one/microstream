@@ -102,5 +102,55 @@ public final class PersistenceTypeDictionaryFileHandler implements PersistenceTy
 	{
 		writeTypeDictionary(this.file, typeDictionaryString);
 	}
+	
+	
+	
+	public static PersistenceTypeDictionaryFileHandler.Provider ProviderInDirecoty(final File directory)
+	{
+		return new PersistenceTypeDictionaryFileHandler.Provider(
+			new File(directory, Persistence.defaultFilenameTypeDictionary())
+		);
+	}
+	
+	public static PersistenceTypeDictionaryFileHandler.Provider Provider(final File file)
+	{
+		return new PersistenceTypeDictionaryFileHandler.Provider(
+			notNull(file)
+		);
+	}
+	
+	public static final class Provider implements PersistenceTypeDictionaryIoHandler.Provider
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final File file;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		Provider(final File file)
+		{
+			super();
+			this.file = file;
+		}
+
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+
+		@Override
+		public PersistenceTypeDictionaryFileHandler provideTypeDictionaryIoHandler()
+		{
+			return PersistenceTypeDictionaryFileHandler.New(this.file);
+		}
+		
+	}
 
 }

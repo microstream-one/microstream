@@ -617,5 +617,34 @@ Okay, ist mal erfrischend unproblematisch gegangen ...\par
 Beim Issue Update schreiben war mir ja noch aufgefallen, dass ich mich noch um das Backuppen des Dictionaries k\'fcmmern muss.\par
 Am besten w\'e4re, wenn der Pfad daf\'fcr auch von einem FileProvider k\'e4me und der BackupFileProvider leitet dann dieses Interface auch einfach mit ab.\par
 Muss ich mal anschauen...\par
+\par
+Das w\'fcrde auch gleich die bisher recht l\'e4stige Notwendigkeit f\'fcr einen redundanten Pfad im Foundation instanzieren (einmal f\'fcr Storage, einmal f\'fcr Dictionary) eliminieren.\par
+\par
+Das Problem w\'e4r allerdings, dass es f\'fcr das TypeDictionary keine File Abstrahierung gibt, so wie f\'fcr Storage Dateien.\par
+Bzw. die gibts dort auch noch nicht, sind bisher nur plain strings, aber vorgesehen ist es schon.\par
+Naja gut, ich k\'f6nnt analog dazu f\'fcrs TypeDictionary auch so machen. Aber dann m\'fcsste das Ding, das bei der Storage nur ein FileProvider ist, beim Dictionary gleich der DictionaryProvider sein, das ist doof.\par
+Mal \'fcberlegen ..\par
+\par
+Also eigentlich ist es ja so:\par
+Wenn das Ding mal unabh\'e4ngig bzw. abstrahiert von einem konkreten Filesystem, also auch irgendwie \'fcber ein Cloud Store bla dings oder \'fcber ein RDBMS oder so laufen soll, dann m\'fcssen alle Dateien abstrahiert sein, nicht nur die Storage Dateien.\par
+D.h. es m\'fcsste eigentlich schon auf Persistence-Ebene eine Abstraktion geben wie etwa:\par
+- PersistenceDataItem (kann Folder oder File sein)\par
+- PersistenceDataLocation extends PersistenceDataItem (Folder, hat n PersistenceDataItems, jedes mit unique name)\par
+- PersistenceDataFile extends PersistenceDataItem (File, muss immer Folder + String name sein)\par
+\par
+Dann k\'f6nnte man einen PersistenceFileProvider machen, der sowohl f\'fcr Storage als auch f\'fcr Dictionary File Items providet. F\'fcr die Storage selbst und f\'fcrs Backup.\par
+\par
+Die Storagedateien k\'f6nnten diese Typen extenden.\par
+\par
+Problem ist, dass diese Dinger dann auch ihre spezifische, aber gekapselte IO-Logik mitbringen m\'fcssen.\par
+Und das bei\'dft sich dann ziemlich damit, dass \'fcberall FileChannel verwendet wird.\par
+Die Abstraktion daf\'fcr hab ich ja schon mal angefangen, aber nur f\'fcr die Storage Ebene und noch nicht fertig.\par
+Daran jetzt wieder rumzurei\'dfen w\'e4re zu viel Aufwand.\par
+Oh Mann!\par
+\par
+Also es w\'fcrde eigentlich schon reichen, einen PersistenceTypeDictionaryIoHandler.Provider zu bauen und den dann zu extenden.\par
+Das mach ich mal. Plus Kommentar dazu, wie man das eigentlich sauber abstrahieren m\'fcsste.\par
+\par
+\par
 }
  
