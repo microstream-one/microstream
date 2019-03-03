@@ -212,11 +212,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		H typeDictionaryStorage
 	);
 	
-	public default F setTypeDictionaryIoHandler(
-		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler
+	public default F setTypeDictionaryIoHandlerProvider(
+		final PersistenceTypeDictionaryIoHandler.Provider typeDictionaryIoHandlerProvider
 	)
 	{
-		return this.setTypeDictionaryIoHandling(typeDictionaryIoHandler);
+		// (03.03.2019 TM)TODO: providing at setup time doesn't make sense.
+		return this.setTypeDictionaryIoHandling(
+			typeDictionaryIoHandlerProvider.provideTypeDictionaryIoHandler()
+		);
 	}
 	
 	public F setTypeLineageCreator(PersistenceTypeLineageCreator typeLineageCreator);
