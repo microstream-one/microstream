@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import net.jadoth.persistence.types.PersistenceTypeDictionaryIoHandler;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 
 public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter, StorageFileReader
 {
@@ -61,9 +62,11 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		////////////
 		
 		@Override
-		public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler()
+		public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler(
+			final PersistenceTypeDictionaryStorer writeListener
+		)
 		{
-			return this.fileProvider.provideTypeDictionaryIoHandler();
+			return this.fileProvider.provideTypeDictionaryIoHandler(writeListener);
 		}
 
 		@Override

@@ -5,6 +5,7 @@ import java.io.File;
 import net.jadoth.X;
 import net.jadoth.chars.VarString;
 import net.jadoth.concurrency.XThreads;
+import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandlerArchiving;
 import net.jadoth.storage.types.EmbeddedStorage;
 import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.types.Storage;
@@ -30,6 +31,7 @@ public class MainTestContinousStoring
 					.setStorageDirectory("storage/backup")
 					.setDeletionDirectory("storage/backup/deleted")
 					.setTruncationDirectory("storage/backup/truncated")
+					.setFileHandlerCreator(PersistenceTypeDictionaryFileHandlerArchiving::New)
 					.createFileProvider()
 				)
 			)
@@ -39,7 +41,6 @@ public class MainTestContinousStoring
 		)
 		.start()
 	;
-	// (01.03.2019 TM)FIXME: JET-55: backup TypeDictionary on changes.
 	
 	static Object[] createArray(final int size)
 	{
@@ -58,6 +59,7 @@ public class MainTestContinousStoring
 		{
 			XThreads.sleep(1000);
 			STORAGE.store(array);
+			STORAGE.issueFullFileCheck();
 		}
 		XThreads.sleep(2000);
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe

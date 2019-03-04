@@ -20,7 +20,7 @@ public class MainTestParseProtocol
 	public static void main(final String[] args)
 	{
 		final BinaryPersistenceFoundation<?> pf = BinaryPersistence.Foundation()
-			.setTypeDictionaryIoHandlerProvider(PersistenceTypeDictionaryFileHandler.ProviderInDirecory(
+			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirectory(
 				XFiles.ensureDirectory(new File("TypeDictionary"))
 			))
 //			.setObjectIdProvider(PersistenceObjectIdProvider.Transient())
