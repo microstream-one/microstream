@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\b\f0\fs28 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\b\f0\fs28\lang7 Jetstream JET-55 On-The-Fly-Backupfunktion Entwicklertagebuch\par
 \b0\par
 2019-02-13\par
 \par
@@ -441,15 +442,6 @@ Ich denk ich bau neben dem einfach einen neuen, simpleren und eleganteren nach o
 \par
 2019-02-28\par
 \par
-09:00 OGS\tab\tab JET-55 weitermachen.\par
-09:45 ---\tab\tab Pause.\par
-10:55 Bonus\tab BON-830 Teamviewer Recherche. Vorher rumprobieren mit VPN, ob ich auf den EMV Bugtracker zugreifen kann.\par
-11:10 OGS\tab\tab JET-55 weitermachen.\par
-12:15 ---\tab\tab Pause.\par
-13:50 Bonus\tab Telefonat mit XH zu Perfacto Datei \'c4nderung und neu erzeugen lassen.\par
-14:05 OGS\tab\tab JET-55 weitermachen.\par
-\par
-\par
 EntityDataIterator fertig bauen.\par
 \par
 Wenn ich einen L\'e4ngenwert zur\'fcckgeb, um unvollst\'e4ndiges Lesen anzugeben, kann die Implementierung sogar so wie die alte zum iterativen durchschaufeln einer Datei verwendet werden.\par
@@ -646,5 +638,21 @@ Also es w\'fcrde eigentlich schon reichen, einen PersistenceTypeDictionaryIoHand
 Das mach ich mal. Plus Kommentar dazu, wie man das eigentlich sauber abstrahieren m\'fcsste.\par
 \par
 Beim einbauen aufgefallen: Wenn im FileProviderBuilder null Werte gesetzt werden, sollten/m\'fcssen die ja noch mit defaults aufgef\'fcllt werden. Aber das mach ich nicht in Konstruktoren und Gettern, sondern beim createn. Damit kann man sauber abfragen, ob Werte null sind.\par
+\par
+\par
+2019-03-04\par
+\par
+Jetzt fehlt noch eine Implementierung, die das eigentliche Backup-Wegschreiben unterbringt. \par
+Wrapperei daf\'fcr bauen.\par
+\par
+Eigentlich sollte das Backup Type Dictionary aber nicht einfach \'fcberschrieben werden, sondern es sollten alle Versionen aufgehoben werden, am besten mit Timestamp im Namen.\par
+Und ganz streng genommen eigentlich so:\par
+Die aktuelle Version ist in einem Timestamp-losen Dateinamen, der genau dem der live verwendeten Datei entspricht.\par
+Alle vorherigen Versionen werden in ein Archiv verschoben und dabei (erst) ge-time-stampt.\par
+Jetzt ist nur die Frage, wie ich diese Logik in die Wrapperei und FileProviderei rein bring.\par
+Oder ich bau die standardm\'e4\'dfig ein und lass es in dem FileProvider f\'fcr den Live Betrieb einfach abgeschaltet, so wie das beim deletion folder usw. ist.\par
+So mach ich das.\par
+\par
+Bissl testen. Verbessern.\par
 }
  

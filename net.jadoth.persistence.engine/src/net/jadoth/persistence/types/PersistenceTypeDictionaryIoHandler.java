@@ -7,17 +7,15 @@ extends PersistenceTypeDictionaryLoader, PersistenceTypeDictionaryStorer
 	
 	public interface Provider
 	{
-		public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler();
-		
-		public final class Implementation implements PersistenceTypeDictionaryIoHandler.Provider
+		public default PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler()
 		{
-
-			@Override
-			public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler()
-			{
-				throw new net.jadoth.meta.NotImplementedYetError(); // FIXME PersistenceTypeDictionaryIoHandler.Provider#provideTypeDictionaryIoHandler()
-			}
-			
+			return this.provideTypeDictionaryIoHandler(null);
 		}
+		
+		public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler(
+			PersistenceTypeDictionaryStorer writeListener
+		);
+		
 	}
+		
 }

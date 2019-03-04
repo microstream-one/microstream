@@ -23,26 +23,26 @@ public final class EmbeddedStorage
 	}
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final PersistenceTypeDictionaryIoHandler.Provider typeDictionaryIoHandlerProvider
+		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler
 	)
 	{
 		return ConnectionFoundation(
-			typeDictionaryIoHandlerProvider,
+			typeDictionaryIoHandler,
 			Persistence::isPersistable     ,
 			Persistence::isTypeIdMappable
 		);
 	}
 	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final PersistenceTypeDictionaryIoHandler.Provider typeDictionaryIoHandlerProvider,
-		final PersistenceTypeEvaluator                    typeEvaluatorPersistable       ,
-		final PersistenceTypeEvaluator                    typeEvaluatorTypeIdMappable
+		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler    ,
+		final PersistenceTypeEvaluator           typeEvaluatorPersistable   ,
+		final PersistenceTypeEvaluator           typeEvaluatorTypeIdMappable
 	)
 	{
 		return EmbeddedStorageConnectionFoundation.New()
-			.setTypeDictionaryIoHandlerProvider(typeDictionaryIoHandlerProvider)
-			.setTypeEvaluatorPersistable       (typeEvaluatorPersistable)
-			.setTypeEvaluatorTypeIdMappable    (typeEvaluatorTypeIdMappable)
+			.setTypeDictionaryIoHandler    (typeDictionaryIoHandler)
+			.setTypeEvaluatorPersistable   (typeEvaluatorPersistable)
+			.setTypeEvaluatorTypeIdMappable(typeEvaluatorTypeIdMappable)
 		;
 	}
 	
@@ -51,7 +51,7 @@ public final class EmbeddedStorage
 	)
 	{
 		return ConnectionFoundation(
-			PersistenceTypeDictionaryFileHandler.ProviderInDirecory(directory)
+			PersistenceTypeDictionaryFileHandler.NewInDirectory(directory)
 		);
 	}
 
@@ -87,8 +87,7 @@ public final class EmbeddedStorage
 		return Foundation(
 			Storage.Configuration(
 				Storage.FileProvider(directory)
-			),
-			ConnectionFoundation(directory)
+			)
 		);
 	}
 	
@@ -111,11 +110,18 @@ public final class EmbeddedStorage
 		final StorageConfiguration configuration
 	)
 	{
-		final StorageFileProvider fileProvider = configuration.fileProvider();
+		final StorageBackupSetup backupSetup = configuration.backupSetup();
+		final PersistenceTypeDictionaryIoHandler btdih = backupSetup != null
+			? backupSetup.backupFileProvider().provideTypeDictionaryIoHandler()
+			: null
+		;
 
+		final StorageFileProvider fileProvider = configuration.fileProvider();
+		final PersistenceTypeDictionaryIoHandler tdih = fileProvider.provideTypeDictionaryIoHandler(btdih);
+		
 		return Foundation(
 			configuration,
-			ConnectionFoundation(fileProvider)
+			ConnectionFoundation(tdih)
 		);
 	}
 		

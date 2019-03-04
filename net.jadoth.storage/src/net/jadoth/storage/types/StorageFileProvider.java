@@ -12,6 +12,7 @@ import net.jadoth.files.XFiles;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryIoHandler;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 
 public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.Provider
 {
@@ -26,7 +27,9 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	 */
 	
 	@Override
-	public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler();
+	public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler(
+		PersistenceTypeDictionaryStorer writeListener
+	);
 	
 	public StorageNumberedFile provideDataFile(int channelIndex, long fileNumber);
 
@@ -85,6 +88,11 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		public static String defaultTypeDictionaryFileName()
 		{
 			return Persistence.defaultFilenameTypeDictionary();
+		}
+
+		public static PersistenceTypeDictionaryFileHandler.Creator defaultTypeDictionaryFileHandlerCreator()
+		{
+			return PersistenceTypeDictionaryFileHandler::New;
 		}
 		
 	}
@@ -225,6 +233,10 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 		public B setTypeDictionaryFileName(String typeDictionaryFileName);
 		
+		public PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator();
+		
+		public B setFileHandlerCreator(PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator);
+		
 		public StorageFileProvider createFileProvider();
 		
 		
@@ -246,6 +258,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				transactionsFileSuffix,
 				typeDictionaryFileName
 			;
+			
+			private PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator;
 			
 			
 
@@ -388,18 +402,32 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			}
 			
 			@Override
+			public PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator()
+			{
+				return this.fileHandlerCreator;
+			}
+			
+			@Override
+			public B setFileHandlerCreator(final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator)
+			{
+				this.fileHandlerCreator = fileHandlerCreator;
+				return this.$();
+			}
+			
+			@Override
 			public StorageFileProvider createFileProvider()
 			{
 				return StorageFileProvider.New(
-					coalesce(this.storageDirectory      , StorageFileProvider.Defaults.defaultStorageDirectory()      ),
-					coalesce(this.deletionDirectory     , StorageFileProvider.Defaults.defaultDeletionDirectory()     ),
-					coalesce(this.truncationDirectory   , StorageFileProvider.Defaults.defaultTruncationDirectory()   ),
-					coalesce(this.channelDirectoryPrefix, StorageFileProvider.Defaults.defaultChannelDirectoryPrefix()),
-					coalesce(this.storageFilePrefix     , StorageFileProvider.Defaults.defaultStorageFilePrefix()     ),
-					coalesce(this.storageFileSuffix     , StorageFileProvider.Defaults.defaultStorageFileSuffix()     ),
-					coalesce(this.transactionsFilePrefix, StorageFileProvider.Defaults.defaultTransactionFilePrefix() ),
-					coalesce(this.transactionsFileSuffix, StorageFileProvider.Defaults.defaultTransactionFileSuffix() ),
-					coalesce(this.typeDictionaryFileName, StorageFileProvider.Defaults.defaultTypeDictionaryFileName())
+					coalesce(this.storageDirectory      , Defaults.defaultStorageDirectory()                ),
+					coalesce(this.deletionDirectory     , Defaults.defaultDeletionDirectory()               ),
+					coalesce(this.truncationDirectory   , Defaults.defaultTruncationDirectory()             ),
+					coalesce(this.channelDirectoryPrefix, Defaults.defaultChannelDirectoryPrefix()          ),
+					coalesce(this.storageFilePrefix     , Defaults.defaultStorageFilePrefix()               ),
+					coalesce(this.storageFileSuffix     , Defaults.defaultStorageFileSuffix()               ),
+					coalesce(this.transactionsFilePrefix, Defaults.defaultTransactionFilePrefix()           ),
+					coalesce(this.transactionsFileSuffix, Defaults.defaultTransactionFileSuffix()           ),
+					coalesce(this.typeDictionaryFileName, Defaults.defaultTypeDictionaryFileName()          ),
+					coalesce(this.fileHandlerCreator    , Defaults.defaultTypeDictionaryFileHandlerCreator())
 				);
 			}
 			
@@ -409,27 +437,29 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	
 	
 	public static StorageFileProvider.Implementation New(
-		final String baseDirectory           ,
-		final String deletionDirectory       ,
-		final String truncationDirectory     ,
-		final String channelDirectoryBaseName,
-		final String storageFileBaseName     ,
-		final String storageFileSuffix       ,
-		final String transactionsFileBaseName,
-		final String transactionsFileSuffix  ,
-		final String typeDictionaryFileName
+		final String                                       baseDirectory         ,
+		final String                                       deletionDirectory     ,
+		final String                                       truncationDirectory   ,
+		final String                                       channelDirectoryPrefix,
+		final String                                       storageFilePrefix     ,
+		final String                                       storageFileSuffix     ,
+		final String                                       transactionsFilePrefix,
+		final String                                       transactionsFileSuffix,
+		final String                                       typeDictionaryFileName,
+		final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator
 	)
 	{
 		return new StorageFileProvider.Implementation(
-			notNull(baseDirectory)           , // base directory must at least a relative directory name.
-			mayNull(deletionDirectory)       , // null (no directory) means actually delete files
-			mayNull(truncationDirectory)     , // null (no directory) means actually delete files
-			notNull(channelDirectoryBaseName),
-			notNull(storageFileBaseName)     ,
-			notNull(storageFileSuffix)       ,
-			notNull(transactionsFileBaseName),
-			notNull(transactionsFileSuffix)  ,
-			notNull(typeDictionaryFileName)
+			notNull(baseDirectory)         , // base directory must at least a relative directory name.
+			mayNull(deletionDirectory)     , // null (no directory) means actually delete files
+			mayNull(truncationDirectory)   , // null (no directory) means actually delete files
+			notNull(channelDirectoryPrefix),
+			notNull(storageFilePrefix)     ,
+			notNull(storageFileSuffix)     ,
+			notNull(transactionsFilePrefix),
+			notNull(transactionsFileSuffix),
+			notNull(typeDictionaryFileName),
+			notNull(fileHandlerCreator)
 		);
 	}
 
@@ -550,19 +580,28 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	public final class Implementation extends StorageFileProvider.AbstractImplementation
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
 		public Implementation(
-			final String baseDirectory         ,
-			final String deletionDirectory     ,
-			final String truncationDirectory   ,
-			final String channelDirectoryPrefix,
-			final String storageFilePrefix     ,
-			final String storageFileSuffix     ,
-			final String transactionsFilePrefix,
-			final String transactionsFileSuffix,
-			final String typeDictionaryFileName
+			final String                                       baseDirectory         ,
+			final String                                       deletionDirectory     ,
+			final String                                       truncationDirectory   ,
+			final String                                       channelDirectoryPrefix,
+			final String                                       storageFilePrefix     ,
+			final String                                       storageFileSuffix     ,
+			final String                                       transactionsFilePrefix,
+			final String                                       transactionsFileSuffix,
+			final String                                       typeDictionaryFileName,
+			final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator
 		)
 		{
 			super(
@@ -576,6 +615,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				transactionsFileSuffix,
 				typeDictionaryFileName
 			);
+			this.fileHandlerCreator = fileHandlerCreator;
 		}
 		
 		
@@ -584,11 +624,18 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		////////////
 		
 		@Override
-		public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler()
+		public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler(
+			final PersistenceTypeDictionaryStorer writeListener
+		)
 		{
-			return PersistenceTypeDictionaryFileHandler.New(
-				new File(this.baseDirectory(), this.typeDictionaryFileName())
-			);
+			/* (04.03.2019 TM)TODO: forced delegating API is not a clean solution.
+			 * This is only a temporary solution. See the task containing "PersistenceDataFile".
+			 */
+			final File directory = new File(this.baseDirectory());
+			XFiles.ensureDirectory(directory);
+			
+			final File file = new File(directory, this.typeDictionaryFileName());
+			return this.fileHandlerCreator.createTypeDictionaryIoHandler(file, writeListener);
 		}
 
 		public final File provideChannelDirectory(final String parentDirectory, final int hashIndex)

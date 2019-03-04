@@ -1,5 +1,6 @@
 package net.jadoth.persistence.internal;
 
+import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import java.io.File;
@@ -10,8 +11,9 @@ import net.jadoth.persistence.exceptions.PersistenceException;
 import net.jadoth.persistence.exceptions.PersistenceExceptionSource;
 import net.jadoth.persistence.types.Persistence;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryIoHandler;
+import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 
-public final class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDictionaryIoHandler
+public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDictionaryIoHandler
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -51,17 +53,34 @@ public final class PersistenceTypeDictionaryFileHandler implements PersistenceTy
 	}
 	
 	// sadly, the JDK geniuses didn't have enough OOP skill to implement proper FSElement types like Directory and File.
-	public static PersistenceTypeDictionaryFileHandler NewInDirecoty(final File directory)
+	public static PersistenceTypeDictionaryFileHandler NewInDirectory(final File directory)
 	{
-		return new PersistenceTypeDictionaryFileHandler(
-			new File(directory, Persistence.defaultFilenameTypeDictionary())
-		);
+		return NewInDirectory(directory, null);
 	}
 	
 	public static PersistenceTypeDictionaryFileHandler New(final File file)
 	{
+		return New(file, null);
+	}
+	
+	public static PersistenceTypeDictionaryFileHandler NewInDirectory(
+		final File                            directory    ,
+		final PersistenceTypeDictionaryStorer writeListener
+	)
+	{
 		return new PersistenceTypeDictionaryFileHandler(
-			notNull(file)
+			new File(directory, Persistence.defaultFilenameTypeDictionary()),
+			mayNull(writeListener)
+		);
+	}
+	
+	public static PersistenceTypeDictionaryFileHandler New(
+		final File                            file         ,
+		final PersistenceTypeDictionaryStorer writeListener)
+	{
+		return new PersistenceTypeDictionaryFileHandler(
+			notNull(file)         ,
+			mayNull(writeListener)
 		);
 	}
 
@@ -71,7 +90,8 @@ public final class PersistenceTypeDictionaryFileHandler implements PersistenceTy
 	// instance fields  //
 	/////////////////////
 
-	private final File file;
+	private final File                            file         ;
+	private final PersistenceTypeDictionaryStorer writeListener;
 
 
 
@@ -79,10 +99,14 @@ public final class PersistenceTypeDictionaryFileHandler implements PersistenceTy
 	// constructors     //
 	/////////////////////
 
-	PersistenceTypeDictionaryFileHandler(final File file)
+	PersistenceTypeDictionaryFileHandler(
+		final File                            file         ,
+		final PersistenceTypeDictionaryStorer writeListener
+	)
 	{
 		super();
-		this.file = notNull(file);
+		this.file          = file         ;
+		this.writeListener = writeListener;
 	}
 
 
@@ -90,22 +114,46 @@ public final class PersistenceTypeDictionaryFileHandler implements PersistenceTy
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
 	/////////////////////
+	
+	protected File file()
+	{
+		return this.file;
+	}
 
 	@Override
 	public final synchronized String loadTypeDictionary()
 	{
 		return readTypeDictionary(this.file);
 	}
+	
+	protected synchronized void writeTypeDictionary(final String typeDictionaryString)
+	{
+		writeTypeDictionary(this.file, typeDictionaryString);
+	}
 
 	@Override
 	public final synchronized void storeTypeDictionary(final String typeDictionaryString)
 	{
-		writeTypeDictionary(this.file, typeDictionaryString);
+		this.writeTypeDictionary(typeDictionaryString);
+		if(this.writeListener != null)
+		{
+			this.writeListener.storeTypeDictionary(typeDictionaryString);
+		}
 	}
 	
 	
+	@FunctionalInterface
+	public interface Creator
+	{
+		public PersistenceTypeDictionaryIoHandler createTypeDictionaryIoHandler(
+			File                            file         ,
+			PersistenceTypeDictionaryStorer writeListener
+		);
+		
+	}
 	
-	public static PersistenceTypeDictionaryFileHandler.Provider ProviderInDirecory(final File directory)
+	
+	public static PersistenceTypeDictionaryFileHandler.Provider ProviderInDirectory(final File directory)
 	{
 		return new PersistenceTypeDictionaryFileHandler.Provider(
 			new File(directory, Persistence.defaultFilenameTypeDictionary())
@@ -146,7 +194,9 @@ public final class PersistenceTypeDictionaryFileHandler implements PersistenceTy
 		////////////
 
 		@Override
-		public PersistenceTypeDictionaryFileHandler provideTypeDictionaryIoHandler()
+		public PersistenceTypeDictionaryFileHandler provideTypeDictionaryIoHandler(
+			final PersistenceTypeDictionaryStorer writeListener
+		)
 		{
 			return PersistenceTypeDictionaryFileHandler.New(this.file);
 		}
