@@ -665,5 +665,46 @@ FileComparer fertig bauen und testen. Bissl bugfixen. Passt.\par
 \par
 Jetzt brauch ich noch eine Testklasse, die die StorageFiles anhand des FileProviders aus der Foundation collectet, sich die Backup Files daf\'fcr geben l\'e4sst und darauf dann den Comparer anwendet.\par
 Das wird super :D.\par
+\par
+\par
+Gebaut. Testen.\par
+Funktioniert auf Anhiebt. Aber interessant: Das Backup Transactions File ist 26 Byte gr\'f6\'dfer als das Storage Transaction File und genau bei index 26 geht der Unterschied los.\par
+Seltsam, oder? Wurden evtl. die ersten 26 Byte zweimal kopiert?\par
+Mal anschauen ...\par
+\par
+Sieht tats\'e4chlich so aus. Mal l\'f6schen und Dateien neu schreiben lassen f\'fcr Reproduzierbarkeit und Debugbarkeit.\par
+\par
+\'d6h ... "File already exists" Exception beim Verschieben des TypeDictionary Files ins Archiv. Das w\'fcrde ja hei\'dfen, dass es zweimal innerhalb von einer Millisekunde geschrieben wird.\par
+Nochmal versuchen. Wieder. WTF.\par
+Mal Thread.sleep(1) reinbauen. Naja, da sind jetzt ~4 ms Unterschied. Kann tats\'e4chlich durch das warten kommen.\par
+Mal eine retry Logik einbauen, um solche F\'e4lle zu behandeln.\par
+Testen.\par
+\par
+Da werden tats\'e4chlich bis zu 3 mal pro ms (trotz Konsolenausgabe) TypeDictionary Files verschoben...\par
+... Und zwar tats\'e4chlich mit neuen Eintr\'e4gen ...\par
+Da hilft auch kein "+1" im Timestamp, weil es bei mehr als 2 pro ms dann wieder eine Kollision gibt.\par
+Also ruf ich die Methode mit einem sleep(1) so lange auf, bis der Konflikt weg ist. Ist zwar bissl hackig, aber so oft werden TypeDictionaries ja nicht geschrieben. Anfangs ein paar dutzend bis hundert mal und danach kaum noch.\par
+Das ist alles in einem Wimpernschlag erledigt.\par
+Testen. Passt.\par
+Witzig: Ohne sleep(1): 183 Retries, bis alle ~6 Updates geschrieben sind.\par
+\par
+Jetzt zur\'fcck zum eigentlichen Problem:\par
+Transaction files ausgelesen.\par
+Im Backup Transaction file stehen tats\'e4chlich am Anfang zwei Creates mit gleichem Timestamp drin, w\'e4hrend im normalen nur einer drin steht.\par
+Alle sp\'e4teren Creates passen.\par
+Wie kann denn das sein?\par
+Recherchieren ...\par
+\par
+Aaach, nach langem Debuggen hab ich jetzt endlich verstanden:\par
+1.) Storage Verzeichnis ist leer bzw. nichtexistent.\par
+2.) Storage Transactions File wird angelegt\par
+3.) Erstes Data file wird angelegt, das erzeugt einen Create Eintrag im Transactions File und dementsprechend einen enqueueten Eintrag daf\'fcr in den Backup items\par
+4.) Backup Verzeichnis wird initialisiert und mit storage verzeichnis gesyncht. Die Logik sieht das transactions file mit einem Eintrag. Der wird kopiert.\par
+5.) Der Backup Thread nimmt seine Arbeit auf und arbeitet die Items ab.\par
+6.) Das erste item ist: richtig! Der Transactions File Eintrag.\par
+7.) Dadurch wird der erste Transactions File Eintrag doppelt geschrieben, alle danach passen.\par
+\par
+Das wird knifflig aufzul\'f6sen. Die Initialisierung/Synch soll ja n\'e4mlich im Nicht-leere-Datenbank Fall durchaus das transactions file synchen.\par
+Hmpfl ...\par
 }
  

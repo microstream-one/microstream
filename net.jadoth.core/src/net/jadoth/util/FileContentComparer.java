@@ -209,7 +209,7 @@ public class FileContentComparer
 			this.targetBuffer.position(),
 			-1,
 			Boolean.TRUE,
-			"Match",
+			"Perfect Match",
 			null
 		));
 	}

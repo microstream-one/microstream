@@ -1,9 +1,6 @@
 package net.jadoth.test.corp.logic;
 
-import java.io.File;
-
 import net.jadoth.X;
-import net.jadoth.chars.VarString;
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.persistence.internal.PersistenceTypeDictionaryFileHandlerArchiving;
 import net.jadoth.storage.types.EmbeddedStorage;
@@ -11,26 +8,30 @@ import net.jadoth.storage.types.EmbeddedStorageManager;
 import net.jadoth.storage.types.Storage;
 import net.jadoth.storage.types.StorageBackupSetup;
 import net.jadoth.storage.types.StorageDataFileValidator;
-import net.jadoth.storage.types.StorageTransactionsFileAnalysis;
+import net.jadoth.storage.types.StorageFileProvider;
 
 
-public class MainTestContinousStoring
+public class MainTestBackupStoring
 {
+	static final String DIRECTORY_STORAGE   = StorageFileProvider.Defaults.defaultStorageDirectory();
+	static final String DIRECTORY_BACKUP    = DIRECTORY_STORAGE + "/backup";
+	static final String DIRECTORY_DELETED   = DIRECTORY_BACKUP  + "/deleted";
+	static final String DIRECTORY_TRUNCATED = DIRECTORY_BACKUP  + "/truncated";
+	
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation(
 			Storage.ConfigurationBuilder()
 			.setFileEvaluator(
-				Storage.DataFileEvaluator(1_000, 10_000, 0.7)
+				Storage.DataFileEvaluator(100, 1_000, 0.7)
 			)
-			// (01.03.2019 TM)FIXME: JET-55: build byte-wise comparison of storage files and backup files.
 			.setBackupSetup(
 				StorageBackupSetup.New(
 					Storage
 					.FileProviderBuilder()
-					.setStorageDirectory("storage/backup")
-					.setDeletionDirectory("storage/backup/deleted")
-					.setTruncationDirectory("storage/backup/truncated")
+					.setStorageDirectory(DIRECTORY_BACKUP)
+					.setDeletionDirectory(DIRECTORY_DELETED)
+					.setTruncationDirectory(DIRECTORY_TRUNCATED)
 					.setFileHandlerCreator(PersistenceTypeDictionaryFileHandlerArchiving::New)
 					.createFileProvider()
 				)
@@ -50,36 +51,21 @@ public class MainTestContinousStoring
 	public static void main(final String[] args)
 	{
 //		printTransactionsFiles();
-		final Object[] array = createArray(1000);
+		final Object[] array = createArray(100);
 		STORAGE.root().set(array);
 		Test.print("STORAGE: storing ...");
 		STORAGE.store(STORAGE.root());
 		
-		for(int i = 0; i < 10; i++)
+		for(int i = 0; i < 1; i++)
 		{
-			XThreads.sleep(1000);
+			XThreads.sleep(500);
 			STORAGE.store(array);
-			STORAGE.issueFullFileCheck();
 		}
-		XThreads.sleep(2000);
+//		STORAGE.issueFullFileCheck();
+//		XThreads.sleep(1000);
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
 	
-	public static void printTransactionsFiles()
-	{
-		printTransactionsFiles(1);
-	}
-	
-	public static void printTransactionsFiles(final int channelCount)
-	{
-		System.out.println(StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(VarString.New(), "\t"));
-		for(int i = 0; i < channelCount; i++)
-		{
-			final VarString vs = StorageTransactionsFileAnalysis.Logic.parseFile(
-				new File("storage/channel_"+i+"/transactions_"+i+".sft")
-			);
-			System.out.println(vs);
-		}
-	}
+
 		
 }
