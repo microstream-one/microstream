@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 
+import net.jadoth.concurrency.XThreads;
 import net.jadoth.files.XFiles;
 import net.jadoth.persistence.exceptions.PersistenceException;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
@@ -76,8 +77,17 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	private File buildArchiveFile()
 	{
 		final SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss_SSS");
+		final String fileName = this.filePrefix + sdf.format(System.currentTimeMillis()) + this.fileSuffix;
 		
-		return new File(this.tdArchive, this.filePrefix + sdf.format(System.currentTimeMillis()) + this.fileSuffix);
+		final File file = new File(this.tdArchive, fileName);
+		if(file.exists())
+		{
+			// yes, it's weird, but it actually happened during testing. Multiple updates and moves per ms.
+			XThreads.sleep(1); // crucial to prevent hundreds or even thousands of retries.
+			return this.buildArchiveFile();
+		}
+		
+		return file;
 	}
 	
 	private void moveCurrentFileToArchive()

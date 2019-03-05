@@ -82,7 +82,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		
 		public static String defaultTransactionFileSuffix()
 		{
-			return "sft"; // "torage file transactions"
+			return ".sft"; // "storage file transactions"
 		}
 
 		public static String defaultTypeDictionaryFileName()
@@ -550,7 +550,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 		public final String provideTransactionFileName(final int channelIndex)
 		{
-			return this.transactionsFilePrefix + channelIndex + '.' + this.transactionsFileSuffix;
+			return this.transactionsFilePrefix + channelIndex + this.transactionsFileSuffix;
 		}
 		
 
