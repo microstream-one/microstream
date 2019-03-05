@@ -359,6 +359,19 @@ public final class VarString implements CharSequence, Appendable, Serializable
 		}
 		return this;
 	}
+	
+	public final VarString addMapped(final boolean value, final String trueValue, final String falseValue)
+	{
+		return this.add(value ? trueValue : falseValue);
+	}
+	
+	public final VarString addMapped(final Boolean value, final String trueValue, final String falseValue)
+	{
+		return value != null
+			? this.add(value ? trueValue : falseValue)
+			: this
+		;
+	}
 
 	public final VarString add(final short value)
 	{
