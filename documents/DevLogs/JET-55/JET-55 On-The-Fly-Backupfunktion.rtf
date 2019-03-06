@@ -706,5 +706,20 @@ Aaach, nach langem Debuggen hab ich jetzt endlich verstanden:\par
 \par
 Das wird knifflig aufzul\'f6sen. Die Initialisierung/Synch soll ja n\'e4mlich im Nicht-leere-Datenbank Fall durchaus das transactions file synchen.\par
 Hmpfl ...\par
+\par
+\par
+2019-03-06\par
+\par
+Ich hab da gestern Abend mal dr\'fcber nachgedacht:\par
+Es sollte eigentlich ganz einfach sein: Backup synchen nur machen, wenn es schon files gibt, nicht bei einer leeren Datenbank.\par
+Mal anschauen ...\par
+\par
+Also daf\'fcr m\'fcsste aber die Backup Handler initialisierung zweigeteilt werden:\par
+1.) Basisinitialisierung\par
+2.) Dateien Synchen\par
+\par
+Dann wird die 1 immer gemacht und die 2 nur bei nicht-leerer Datenbank.\par
+\par
+Die BackupHandler Initialisierung einfach nur vorziehen w\'e4re unter Umst\'e4nden fatal, weil dann auch corruptete Datenbankdateien ins Backup kopiert werden w\'fcrden, bevor sie von der Initialisierung validiert worden w\'e4ren.\par
 }
  
