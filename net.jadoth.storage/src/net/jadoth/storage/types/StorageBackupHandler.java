@@ -17,7 +17,9 @@ public interface StorageBackupHandler extends Runnable
 {
 	public StorageBackupSetup setup();
 	
-	public void initialize(StorageInventory storageInventory);
+	public void initialize(int channelIndex);
+	
+	public void synchronize(StorageInventory storageInventory);
 	
 	public void copyFilePart(
 		StorageInventoryFile sourceFile    ,
@@ -141,12 +143,27 @@ public interface StorageBackupHandler extends Runnable
 			return this.channelInventories[sourceFile.channelIndex()].ensureBackupFile(sourceFile);
 		}
 		
+
 		@Override
-		public final void initialize(final StorageInventory storageInventory)
+		public void initialize(final int channelIndex)
 		{
 			try
 			{
-				this.tryInitialize(storageInventory);
+				this.tryInitialize(channelIndex);
+			}
+			catch(final RuntimeException e)
+			{
+				this.channelController.registerDisruptingProblem(e);
+				throw e;
+			}
+		}
+		
+		@Override
+		public void synchronize(final StorageInventory storageInventory)
+		{
+			try
+			{
+				this.trySynchronize(storageInventory);
 			}
 			catch(final RuntimeException e)
 			{
@@ -181,11 +198,15 @@ public interface StorageBackupHandler extends Runnable
 			}
 		}
 		
-		private void tryInitialize(final StorageInventory storageInventory)
+		private void tryInitialize(final int channelIndex)
+		{
+			final ChannelInventory backupInventory = this.channelInventories[channelIndex];
+			backupInventory.ensureRegisteredFiles();
+		}
+		
+		private void trySynchronize(final StorageInventory storageInventory)
 		{
 			final ChannelInventory backupInventory = this.channelInventories[storageInventory.channelIndex()];
-			backupInventory.ensureRegisteredFiles();
-
 			if(backupInventory.dataFiles.isEmpty())
 			{
 				this.fillEmptyBackup(storageInventory, backupInventory);
@@ -300,6 +321,58 @@ public interface StorageBackupHandler extends Runnable
 					backupTargetFile           ,
 					backupTargetFileLength
 				);
+			}
+			
+			this.synchronizeTransactionFile(storageInventory, backupInventory);
+		}
+		
+		private void deleteBackupTransactionFile(final ChannelInventory backupInventory)
+		{
+			final StorageBackupFile backupTransactionFile = backupInventory.ensureTransactionsFile();
+			if(!backupTransactionFile.exists())
+			{
+				return;
+			}
+			
+			final StorageNumberedFile deletionTargetFile = this.backupSetup.backupFileProvider()
+				.provideDeletionTargetFile(backupTransactionFile)
+			;
+			
+			// FIXME MS-55: StorageBackupHandler.Implementation#deleteBackupTransactionFile()
+			throw new net.jadoth.meta.NotImplementedYetError();
+		}
+		
+		private void synchronizeTransactionFile(
+			final StorageInventory storageInventory,
+			final ChannelInventory backupInventory
+		)
+		{
+			// tfa null means there is no transactions file. A non-existing transactions file later on is an error.
+			final StorageTransactionsFileAnalysis tfa = storageInventory.transactionsFileAnalysis();
+			if(tfa == null)
+			{
+				this.deleteBackupTransactionFile(backupInventory);
+				return;
+			}
+			
+			final StorageInventoryFile storageTransactionsFile = tfa.transactionsFile();
+			final StorageBackupFile    backupTransactionFile   = backupInventory.ensureTransactionsFile();
+			
+			if(!backupTransactionFile.exists())
+			{
+				// if the backup transaction file does not exist, yet, the actual file is simply copied.
+				this.copyFile(storageTransactionsFile, backupTransactionFile);
+				return;
+			}
+
+			final long storageFileLength      = storageTransactionsFile.length();
+			final long backupTargetFileLength = backupTransactionFile.length();
+			
+			if(backupTargetFileLength != storageFileLength)
+			{
+				// on any mismatch, the backup transaction file is deleted (potentially moved&renamed) and rebuilt.
+				this.deleteBackupTransactionFile(backupInventory);
+				this.copyFile(storageTransactionsFile, backupTransactionFile);
 			}
 		}
 				
@@ -446,8 +519,6 @@ public interface StorageBackupHandler extends Runnable
 					// files already registered
 					return;
 				}
-				
-//				final EqHashTable<Long, StorageBackupFile> existingBackupFiles =
 				
 				final BulkList<StorageNumberedFile> collectedFiles =
 				this.backupFileProvider.collectDataFiles(

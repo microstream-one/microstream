@@ -719,7 +719,49 @@ Also daf\'fcr m\'fcsste aber die Backup Handler initialisierung zweigeteilt werd
 2.) Dateien Synchen\par
 \par
 Dann wird die 1 immer gemacht und die 2 nur bei nicht-leerer Datenbank.\par
-\par
 Die BackupHandler Initialisierung einfach nur vorziehen w\'e4re unter Umst\'e4nden fatal, weil dann auch corruptete Datenbankdateien ins Backup kopiert werden w\'fcrden, bevor sie von der Initialisierung validiert worden w\'e4ren.\par
+\par
+Also Logik zerteilen, gleich kommentieren (sonst komm ich sp\'e4ter mal auf die Idee, das zu optimieren).\par
+Testen.\par
+Passt.\par
+\par
+Weitertesten.\par
+Und gleich das n\'e4chste Problem:\par
+Ich hab den Testlauf ohne warten am Ende beendet, so dass der Backupthread nicht mehr alles kopiert hat.\par
+Das letzte Data file wird wie erwartet bei der Initialisierung aktualisiert. Aber f\'fcr das Transaction File gilt das nicht.\par
+Au\'dferdem f\'e4llt mir da gerade auf: Was ist, wenn der laufende Betrieb zwei oder mehr files voraus ist und dann der Prozess endet? Aktuell ist nur g\'fcltig, das letzte File zu aktualisieren.\par
+Eigentlich muss g\'fcltig sein:\par
+1.) transaction file ist zu klein und muss aktualisiert werden.\par
+2.) transaction file ist zu gro\'df oder fehlt in der storage, weil es zwischenzeitlich manuell gel\'f6scht worden ist.\par
+3.) letztes Backup Data File ist zu klein und muss aktualisiert werden, au\'dferdem m\'fcssen weitere Dateien danach (gr\'f6\'dfere Number) noch kopiert werden.\par
+\par
+Interessant ist noch die Frage:\par
+Sollen zwischendrin fehlende Backup Dateien zu existierenden Storage Dateien einfach durch Umkopieren aus der Storage nachgepflegt werden, oder ist das ein Fehler, der angezeigt werden muss?\par
+Und das gleiche nochmal f\'fcr existierende, aber zu kleine Backup Dateien?\par
+Sowas sind aber eher Fehler, oder?\par
+Lieber solche F\'e4lle manuell untersuchen und manuell umkopieren, als dass mal automatisiert eine fehlerhafte Storage Datei stillschweigend ins Backup kopiert wird.\par
+Aber die F\'e4lle oben muss ich mal pr\'fcfen, ob das schon so l\'e4uft.\par
+\par
+Ach: Das mit dem fehlende Dateien Nachr\'fcsten wird schon gemacht. L\'e4uft unter "healable Error". Hm. Ob das so die beste Idee ist ...\par
+Zu kurze existierende Dateien sind aber ein Fehler.\par
+\par
+Punkt 3 oben ist durch die Art der Schleife automatisch abgedeckt.\par
+\par
+Bei Punkt 2 ist eigentlich schon wieder knifflig:\par
+Was soll mit dem bestehenden transaction File gemacht werden? L\'f6schen ist schlecht. Es soll niemals etwas im Backup automatisch gel\'f6scht werden.\par
+Verschieden ins deleted Verzeichnis \'e4hnlich wie die TypeDictionary Datei? Klingt gut ...\par
+Einfach mergen w\'e4r auch eine Idee. Aber es kann sein, dass es L\'fccken zwischen zwei transaction Files gibt, man m\'fcsste die Dateien erst inhaltlich abgleichen, usw.\par
+\par
+Eigentlich f\'fchrt an einem inhaltlichn Vergleich der transaction Files kein Weg vorbei, denn es k\'f6nnte ja auch sein, dass beide Dateien zuf\'e4llig gleich lang sind, aber anderen Inhalt enthalten, weil die storage transaction Datei zwischenzeitlich gel\'f6scht worden ist. Da ist nat\'fcrlich die Frage, wie das Ding dann wieder erheblichen Inhalt bekommen hat k\'f6nnen, ohne dass es von einer StorageBackupHandler Initialisierung verarbeitet worden w\'e4re.\par
+\par
+Vielleicht ist das wirklich zu kompliziert gedacht. Vielleicht reichen erst mal folgende F\'e4lle: ("S" = "Storage Transaction File", "B" = Backup Transaction File)\par
+1.) Keine der beide existiert: nichts machen (transaction File wird noch angelegt oder wurde schon und das Item daf\'fcr ist in der Queue oder irgendsowas)\par
+2.) B existiert und S nicht: B nach deleted kopieren.\par
+3.) S existiert und B nicht: S nach B kopieren.\par
+4.) S und B sind gleich gro\'df: nichts machen.\par
+5.) S ist kleiner als B: B nach deleted kopieren, S nach B kopieren.\par
+6.) S ist gr\'f6\'dfer als B: S \'dcberhang nach B kopieren (anh\'e4ngen).\par
+\par
+\par
 }
  

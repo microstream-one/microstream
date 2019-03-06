@@ -127,7 +127,7 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		/*
 		 * Communication differs from Storing in some essential details, so the OGS Legacy Type Mapping
 		 * is not applicable here.
-		 * Also see descriptions in Issue JET-46. At some point in the future, a OGC-suitable type mapping
+		 * Also see descriptions in Issue MS-46. At some point in the future, a OGC-suitable type mapping
 		 * will probably become necessary. Until then, type mismatches are invalid.
 		 * The rationale behind this decission is that properly matching types on both sides must be established
 		 * at the time the connction is established, so BEFORE any data has been transmitted. On the fly type
