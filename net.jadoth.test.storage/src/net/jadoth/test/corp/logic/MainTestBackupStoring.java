@@ -62,7 +62,7 @@ public class MainTestBackupStoring
 			STORAGE.store(array);
 		}
 //		STORAGE.issueFullFileCheck();
-//		XThreads.sleep(1000);
+		XThreads.sleep(1000);
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
 	

@@ -855,6 +855,9 @@ public interface StorageFileManager
 					// initialize if there are no files at all (create first file, ensure transactions file)
 					this.initializeForNoFiles(taskTimestamp, storageInventory);
 					idAnalysis = StorageIdAnalysis.New(0L, 0L, 0L);
+					
+					// blank initialization to avoid redundantly copying the initial transactions entry (nasty bug).
+					this.initializeBackupHandler();
 				}
 				else
 				{
@@ -868,11 +871,12 @@ public interface StorageFileManager
 						consistentStoreTimestamp       ,
 						unregisteredEmptyLastFileNumber
 					);
+					
+					// initialization plus synchronization with existing files.
+					this.initializeBackupHandler(storageInventory);
 				}
 
 				this.resetFileCleanupCursor();
-				
-				this.initializeBackupHandler(storageInventory);
 				
 //				DEBUGStorage.println(this.channelIndex + " initialization complete, maxOid = " + maxOid);
 				return idAnalysis;
@@ -893,14 +897,20 @@ public interface StorageFileManager
 			}
 		}
 		
-		private void initializeBackupHandler(final StorageInventory storageInventory)
+		private void initializeBackupHandler()
 		{
 			if(this.backupHandler == null)
 			{
 				return;
 			}
 			
-			this.backupHandler.initialize(storageInventory);
+			this.backupHandler.initialize(this.channelIndex());
+		}
+		
+		private void initializeBackupHandler(final StorageInventory inventory)
+		{
+			this.initializeBackupHandler();
+			this.backupHandler.synchronize(inventory);
 		}
 
 		private StorageIdAnalysis initializeForExistingFiles(
