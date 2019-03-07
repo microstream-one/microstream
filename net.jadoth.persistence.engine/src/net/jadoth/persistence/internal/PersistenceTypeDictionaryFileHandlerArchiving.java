@@ -4,13 +4,10 @@ import static net.jadoth.X.mayNull;
 import static net.jadoth.X.notNull;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 
 import net.jadoth.concurrency.XThreads;
 import net.jadoth.files.XFiles;
-import net.jadoth.persistence.exceptions.PersistenceException;
 import net.jadoth.persistence.types.PersistenceTypeDictionaryStorer;
 
 
@@ -93,18 +90,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	private void moveCurrentFileToArchive()
 	{
 		XFiles.ensureDirectory(this.tdArchive);
-		
-		final Path source = this.file().toPath();
-		final Path target = this.buildArchiveFile().toPath();
-		
-		try
-		{
-			Files.move(source, target);
-		}
-		catch(final Exception e)
-		{
-			throw new PersistenceException("Could not move type dictionary file to " + target, e);
-		}
+		UtilPersistenceIo.move(this.file(), this.buildArchiveFile());
 	}
 	
 	@Override

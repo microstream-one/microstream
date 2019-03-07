@@ -8,12 +8,15 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.jadoth.chars.VarString;
 import net.jadoth.chars.XChars;
+import net.jadoth.exceptions.IORuntimeException;
 import net.jadoth.functional.XFunc;
 
 /**
@@ -394,13 +397,6 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	{
 		mergeBinary(sourceFiles, targetFile, XFunc.all());
 	}
-
-
-	private XFiles()
-	{
-		// static only
-		throw new UnsupportedOperationException();
-	}
 	
 
 	public static void closeSilent(final Closeable closable)
@@ -417,5 +413,31 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		{
 			// sshhh, silence!
 		}
+	}
+	
+	public static void move(final File sourceFile, final File targetFile) throws IORuntimeException, RuntimeException
+	{
+		final Path source = sourceFile.toPath();
+		final Path target = targetFile.toPath();
+		
+		try
+		{
+			Files.move(source, target);
+		}
+		catch(final IOException e)
+		{
+			throw new IORuntimeException(e);
+		}
+		catch(final Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+
+	private XFiles()
+	{
+		// static only
+		throw new UnsupportedOperationException();
 	}
 }
