@@ -1,4 +1,4 @@
-package net.jadoth.storage.types;
+package one.microstream.storage.types;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,10 +7,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
-import net.jadoth.concurrency.XThreads;
-import net.jadoth.files.XFiles;
-import net.jadoth.low.XVM;
-import net.jadoth.meta.XDebug;
+import one.microstream.concurrency.XThreads;
+import one.microstream.files.XFiles;
+import one.microstream.low.XVM;
+import one.microstream.meta.XDebug;
 
 
 @SuppressWarnings("resource") // resource closed internally by FileChannel (JDK tricking Java compiler ^^)

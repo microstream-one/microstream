@@ -1,6 +1,6 @@
 
 
-import net.jadoth.math.XMath;
+import one.microstream.math.XMath;
 
 public class Rand7FromRand5
 {

@@ -2,7 +2,7 @@
 
 import java.text.DecimalFormat;
 
-import net.jadoth.chars.VarString;
+import one.microstream.chars.VarString;
 
 
 

@@ -1,5 +1,5 @@
-import net.jadoth.util.pooling.Pool;
-import net.jadoth.util.pooling.ThreadedPool;
+import one.microstream.util.pooling.Pool;
+import one.microstream.util.pooling.ThreadedPool;
 
 public class MainTestThreadedPool
 {

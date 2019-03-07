@@ -1,4 +1,4 @@
-import net.jadoth.X;
+import one.microstream.X;
 
 public class MainTestElegantDecrement
 {

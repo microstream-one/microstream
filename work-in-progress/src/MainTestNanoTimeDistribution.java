@@ -1,4 +1,4 @@
-import net.jadoth.math.FastRandom;
+import one.microstream.math.FastRandom;
 
 
 

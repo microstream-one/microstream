@@ -1,4 +1,4 @@
-import net.jadoth.chars.VarString;
+import one.microstream.chars.VarString;
 
 
 

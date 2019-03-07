@@ -3,7 +3,7 @@
  */
 
 
-import net.jadoth.concurrency.XThreads;
+import one.microstream.concurrency.XThreads;
 
 /**
  * @author Thomas Muenz

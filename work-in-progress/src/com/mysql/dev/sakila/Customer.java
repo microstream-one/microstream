@@ -3,7 +3,7 @@ package com.mysql.dev.sakila;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-import net.jadoth.persistence.binary.types.BinaryTypeHandler;
+import one.microstream.persistence.binary.types.BinaryTypeHandler;
 
 /**
  * Java entity class counterpart for the MySQL Sakila "customer" table.<br>

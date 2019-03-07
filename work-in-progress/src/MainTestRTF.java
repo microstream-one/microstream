@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 import javax.swing.text.Document;
 import javax.swing.text.rtf.RTFEditorKit;
 
-import net.jadoth.chars.VarString;
-import net.jadoth.files.XFiles;
+import one.microstream.chars.VarString;
+import one.microstream.files.XFiles;
 
 public class MainTestRTF
 {

@@ -1,8 +1,8 @@
 package some.app.main;
 
-import net.jadoth.entity.Entity;
-import net.jadoth.entity.EntityTransaction;
-import net.jadoth.entity.EntityVersionContext;
+import one.microstream.entity.Entity;
+import one.microstream.entity.EntityTransaction;
+import one.microstream.entity.EntityVersionContext;
 import some.app.entities.AppEntities;
 import some.app.entities.Person;
 import some.app.entitylogging.EntityLogger;
