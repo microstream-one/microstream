@@ -1,7 +1,7 @@
 package some.app.entities._generated._Person;
 
-import net.jadoth.entity.Entity;
-import net.jadoth.entity.EntityLayerIdentity;
+import one.microstream.entity.Entity;
+import one.microstream.entity.EntityLayerIdentity;
 import some.app.entities.Person;
 
 public interface Creator_Person extends Entity.Creator<Person, Creator_Person>

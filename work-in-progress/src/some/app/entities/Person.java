@@ -1,6 +1,6 @@
 package some.app.entities;
 
-import net.jadoth.entity.Entity;
+import one.microstream.entity.Entity;
 
 
 /**

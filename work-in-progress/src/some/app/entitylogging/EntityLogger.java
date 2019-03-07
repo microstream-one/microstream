@@ -1,10 +1,10 @@
 package some.app.entitylogging;
 
-import net.jadoth.chars.XChars;
-import net.jadoth.concurrency.XThreads;
-import net.jadoth.entity.Entity;
-import net.jadoth.entity.EntityLayer;
-import net.jadoth.entity.EntityLayerProvider;
+import one.microstream.chars.XChars;
+import one.microstream.concurrency.XThreads;
+import one.microstream.entity.Entity;
+import one.microstream.entity.EntityLayer;
+import one.microstream.entity.EntityLayerProvider;
 
 public class EntityLogger<E extends Entity<E>> extends EntityLayer<E>
 {

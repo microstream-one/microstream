@@ -1,6 +1,6 @@
-import net.jadoth.collections.EqHashEnum;
-import net.jadoth.collections.types.XGettingSequence;
-import net.jadoth.math.XMath;
+import one.microstream.collections.EqHashEnum;
+import one.microstream.collections.types.XGettingSequence;
+import one.microstream.math.XMath;
 
 
 public class MainGen

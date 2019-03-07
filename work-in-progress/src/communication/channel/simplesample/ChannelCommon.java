@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import net.jadoth.memory.XMemory;
+import one.microstream.memory.XMemory;
 
 
 public class ChannelCommon

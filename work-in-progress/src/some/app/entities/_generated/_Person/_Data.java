@@ -1,6 +1,6 @@
 package some.app.entities._generated._Person;
 
-import net.jadoth.entity.EntityData;
+import one.microstream.entity.EntityData;
 import some.app.entities.Person;
 
 public final class _Data extends EntityData<Person> implements Person

@@ -1,7 +1,7 @@
 import java.io.File;
 
-import net.jadoth.chars.VarString;
-import net.jadoth.collections.BulkList;
+import one.microstream.chars.VarString;
+import one.microstream.collections.BulkList;
 
 
 public class MainUtilSortFilesByPathLength

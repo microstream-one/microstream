@@ -1,0 +1,28 @@
+package one.microstream.persistence.binary.internal;
+
+import one.microstream.persistence.binary.types.Binary;
+
+public final class BinaryHandlerNativeObject extends AbstractBinaryHandlerStateless<Object>
+{
+	///////////////////////////////////////////////////////////////////////////
+	// constructors     //
+	/////////////////////
+
+	public BinaryHandlerNativeObject()
+	{
+		super(Object.class);
+	}
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// override methods //
+	/////////////////////
+
+	@Override
+	public final Object create(final Binary bytes)
+	{
+		return new Object(); // funny
+	}
+
+}

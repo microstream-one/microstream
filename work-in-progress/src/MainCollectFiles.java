@@ -2,7 +2,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import net.jadoth.files.XFiles;
+import one.microstream.files.XFiles;
 
 
 public class MainCollectFiles

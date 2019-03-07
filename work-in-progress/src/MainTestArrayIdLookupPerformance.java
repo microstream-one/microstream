@@ -1,4 +1,4 @@
-import net.jadoth.collections.HashEnum;
+import one.microstream.collections.HashEnum;
 
 @SuppressWarnings("unused")
 public class MainTestArrayIdLookupPerformance

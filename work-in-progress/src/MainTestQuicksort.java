@@ -1,5 +1,5 @@
-import net.jadoth.collections.XSort;
-import net.jadoth.math.XMath;
+import one.microstream.collections.XSort;
+import one.microstream.math.XMath;
 
 
 /**

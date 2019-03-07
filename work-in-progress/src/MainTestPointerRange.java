@@ -1,4 +1,4 @@
-import net.jadoth.memory.XMemory;
+import one.microstream.memory.XMemory;
 
 
 public class MainTestPointerRange

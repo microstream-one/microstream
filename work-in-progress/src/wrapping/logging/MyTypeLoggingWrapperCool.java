@@ -1,7 +1,7 @@
 package wrapping.logging;
 
 
-import net.jadoth.wrapping.Wrapper;
+import one.microstream.wrapping.Wrapper;
 import wrapping.MyType;
 import wrapping.generated.WrapperMyType;
 

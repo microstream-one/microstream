@@ -1,6 +1,6 @@
 package some.app.entities._generated._Person;
 
-import net.jadoth.entity.EntityLayerIdentity;
+import one.microstream.entity.EntityLayerIdentity;
 import some.app.entities.Person;
 
 public final class _Entity extends EntityLayerIdentity<Person> implements Person

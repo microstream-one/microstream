@@ -1,4 +1,4 @@
-import net.jadoth.equality.Equalator;
+import one.microstream.equality.Equalator;
 
 /**
  *

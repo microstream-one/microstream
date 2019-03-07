@@ -1,0 +1,36 @@
+package one.microstream.storage.exceptions;
+
+public class StorageExceptionRequest extends StorageException
+{
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields  //
+	/////////////////////
+
+	private final Throwable[] problems;
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// constructors     //
+	/////////////////////
+
+	public StorageExceptionRequest(final Throwable[] problems)
+	{
+		super();
+		this.problems = problems;
+	}
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// getters          //
+	/////////////////////
+
+	public Throwable[] problems()
+	{
+		return this.problems;
+	}
+
+
+
+}

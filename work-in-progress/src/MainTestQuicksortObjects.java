@@ -1,8 +1,8 @@
 import java.util.Arrays;
 import java.util.Comparator;
 
-import net.jadoth.collections.XSort;
-import net.jadoth.math.XMath;
+import one.microstream.collections.XSort;
+import one.microstream.math.XMath;
 
 
 /**
@@ -230,7 +230,7 @@ class Age
 	@Override
 	public int hashCode()
 	{
-		throw new net.jadoth.meta.NotImplementedYetError(); // FIXME Age#hashCode
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Age#hashCode
 	}
 
 }

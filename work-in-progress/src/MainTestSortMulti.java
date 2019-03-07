@@ -2,9 +2,9 @@
 
 import java.util.Comparator;
 
-import net.jadoth.X;
-import net.jadoth.collections.XSort;
-import net.jadoth.collections.types.XList;
+import one.microstream.X;
+import one.microstream.collections.XSort;
+import one.microstream.collections.types.XList;
 
 public class MainTestSortMulti
 {

@@ -1,5 +1,5 @@
 package wrapping.generated;
-import net.jadoth.wrapping.Wrapper;
+import one.microstream.wrapping.Wrapper;
 import wrapping.MyType;
 
 

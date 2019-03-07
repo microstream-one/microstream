@@ -1,7 +1,7 @@
 import java.io.File;
 
-import net.jadoth.collections.HashTable;
-import net.jadoth.util.FileContentComparer;
+import one.microstream.collections.HashTable;
+import one.microstream.util.FileContentComparer;
 
 public class MainTestFileContentComparer
 {

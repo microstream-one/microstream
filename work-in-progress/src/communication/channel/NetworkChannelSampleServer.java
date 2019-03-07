@@ -1,6 +1,6 @@
 package communication.channel;
 
-import static net.jadoth.concurrency.XThreads.start;
+import static one.microstream.concurrency.XThreads.start;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
