@@ -359,6 +359,24 @@ public interface StorageManager extends StorageController
 				// (07.07.2016 TM)FIXME: OGS-23: shutdown doesn't wait for the shutdown to be completed.
 				task.waitOnCompletion();
 			}
+			
+
+
+			/* (07.03.2019 TM)FIXME: Shutdown must wait for ongoing activities.
+			 * Such as a StorageBackupHandler thread with a non-empty item queue.
+			 * There must be a kind of "activity registry" where all activities are registered
+			 * and that is checked until all activities have stopped.
+			 * Probably with a "forced" / "kill" flag to enforce shutdown.
+			 * Or, more object-oriented-ly: an activities checker type that gets passed
+			 * the ongoing activity, the time since the shutdown issue, etc.
+			 * 
+			 * This could probabyl done in the context of a general overhaul of the shutdown process.
+			 * There are already a lot of other TODOs and even bugs concerning that.
+			 * Maybe channel threads should simply be registered as activities, too.
+			 * 
+			 */
+			
+			
 //			DEBUGStorage.println("shutdown complete");
 		}
 
