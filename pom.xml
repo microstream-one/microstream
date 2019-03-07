@@ -1,69 +1,215 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>net.jadoth</groupId>
-	<artifactId>jadoth-pom</artifactId>
+
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<parent>
-		<groupId>com.xdev-software</groupId>
-		<artifactId>xdev-maven-inhouse</artifactId>
-		<version>1.0.0</version>
-	</parent>
+	<name>Microstream</name>
+	<url>http://microstream.one</url>
 
-	<repositories>
-		<repository>
-			<id>xdevmaven-releases</id>
-			<url>http://xdevmaven/repository/releases/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>xdevmaven-snapshots</id>
-			<url>http://xdevmaven/repository/snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+	<organization>
+		<name>Microstream Software</name>
+		<url>http://microstream.one</url>
+	</organization>
 
-	<distributionManagement>
-		<repository>
-			<id>maven.xdevwebservices.com-releases</id>
-			<name>maven.xdevwebservices.com</name>
-			<url>https://maventest.xdevwebservices.com/maven2-intern</url>
-		</repository>
-		<snapshotRepository>
-			<id>maven.xdevwebservices.com-snapshots</id>
-			<name>maven.xdevwebservices.com</name>
-			<url>https://maventest.xdevwebservices.com/maven2-intern</url>
-		</snapshotRepository>
-	</distributionManagement>
+	<developers>
+		<developer>
+			<name>Microstream Software</name>
+			<url>http://microstream.one</url>
+		</developer>
+	</developers>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<rootDir>./</rootDir>
+	</properties>
 
 	<modules>
-		<module>net.jadoth.core</module>
-		<module>net.jadoth.swizzling</module>
-		<module>net.jadoth.persistence.engine</module>
-		<module>net.jadoth.persistence.binary</module>
-		<module>net.jadoth.storage</module>
-		<module>net.jadoth.storage.embedded</module>
-		<!-- Test / Work in Progress -->
-		<module>net.jadoth.core.work-in-progress</module>
-		<module>net.jadoth.network</module>
-		<module>net.jadoth.network.binary.persistence</module>
-		<module>net.jadoth.network.simple-session-protocol</module>
-		<module>net.jadoth.test.core</module>
-		<module>net.jadoth.test.persistence</module>
-		<module>net.jadoth.test.storage</module>
-		<module>net.jadoth.test.network</module>
+		<module>base</module>
+		<module>communication</module>
+		<module>communication.binary</module>
+		<module>persistence</module>
+		<module>persistence.binary</module>
+		<module>storage</module>
+		<module>storage.embedded</module>
+<!-- 		<module>work-in-progress</module> -->
 	</modules>
-	
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<compilerId>eclipse</compilerId>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-compiler-eclipse</artifactId>
+						<version>2.8.5</version>
+					</dependency>
+					<dependency>
+						<groupId>org.eclipse.jdt</groupId>
+						<artifactId>ecj</artifactId>
+						<version>3.16.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.1.1</version>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<built-by>${project.organization.name}</built-by>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<manifestEntries>
+									<built-by>${project.organization.name}</built-by>
+								</manifestEntries>
+							</archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
+<!-- 				<artifactId>maven-javadoc-plugin</artifactId> -->
+<!-- 				<version>3.0.1</version> -->
+<!-- 				<executions> -->
+<!-- 					<execution> -->
+<!-- 						<id>attach-javadocs</id> -->
+<!-- 						<goals> -->
+<!-- 							<goal>jar</goal> -->
+<!-- 						</goals> -->
+<!-- 						<configuration> -->
+<!-- 							<doclint>none</doclint> -->
+<!-- 							<archive> -->
+<!-- 								<manifestEntries> -->
+<!-- 									<built-by>${project.organization.name}</built-by> -->
+<!-- 								</manifestEntries> -->
+<!-- 							</archive> -->
+<!-- 						</configuration> -->
+<!-- 					</execution> -->
+<!-- 				</executions> -->
+<!-- 			</plugin> -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<executions>
+					<execution>
+						<id>flatten</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>flatten</goal>
+						</goals>
+						<configuration>
+							<flattenMode>ossrh</flattenMode>
+						</configuration>
+					</execution>
+					<execution>
+						<id>flatten.clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.3</version>
+					<configuration>
+						<mavenExecutorId>forked-path</mavenExecutorId>
+						<useReleaseProfile>false</useReleaseProfile>
+						<arguments>${arguments} -Psonatype-oss-release</arguments>
+						<releaseProfiles>release</releaseProfiles>
+						<goals>deploy</goals>
+					</configuration>
+				</plugin>
+
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-compiler-plugin</artifactId>
+										<versionRange>[3.8.0,)</versionRange>
+										<goals>
+											<goal>compile</goal>
+											<goal>testCompile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.codehaus.mojo</groupId>
+										<artifactId>flatten-maven-plugin</artifactId>
+										<versionRange>[1.0.1,)</versionRange>
+										<goals>
+											<goal>flatten</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
 </project>

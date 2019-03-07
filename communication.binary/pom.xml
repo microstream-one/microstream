@@ -13,7 +13,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>persistence</artifactId>
+	<artifactId>communication.binary</artifactId>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -23,7 +23,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>base</artifactId>
+			<artifactId>communication</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>persistence.binary</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
