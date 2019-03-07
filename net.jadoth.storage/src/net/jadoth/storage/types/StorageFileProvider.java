@@ -197,9 +197,9 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	
 	public interface Builder<B extends Builder<?>>
 	{
-		public String storageDirectory();
+		public String baseDirectory();
 
-		public B setStorageDirectory(String mainDirectory);
+		public B setBaseDirectory(String baseDirectory);
 
 		public String deletionDirectory();
 
@@ -248,7 +248,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			////////////////////
 			
 			private String
-				storageDirectory      ,
+				baseDirectory      ,
 				deletionDirectory     ,
 				truncationDirectory   ,
 				channelDirectoryPrefix,
@@ -285,15 +285,15 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			}
 
 			@Override
-			public String storageDirectory()
+			public String baseDirectory()
 			{
-				return this.storageDirectory;
+				return this.baseDirectory;
 			}
 
 			@Override
-			public B setStorageDirectory(final String storageDirectory)
+			public B setBaseDirectory(final String baseDirectory)
 			{
-				this.storageDirectory = storageDirectory;
+				this.baseDirectory = baseDirectory;
 				return this.$();
 			}
 
@@ -418,7 +418,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			public StorageFileProvider createFileProvider()
 			{
 				return StorageFileProvider.New(
-					coalesce(this.storageDirectory      , Defaults.defaultStorageDirectory()                ),
+					coalesce(this.baseDirectory         , Defaults.defaultStorageDirectory()                ),
 					coalesce(this.deletionDirectory     , Defaults.defaultDeletionDirectory()               ),
 					coalesce(this.truncationDirectory   , Defaults.defaultTruncationDirectory()             ),
 					coalesce(this.channelDirectoryPrefix, Defaults.defaultChannelDirectoryPrefix()          ),
