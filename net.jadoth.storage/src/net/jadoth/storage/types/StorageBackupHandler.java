@@ -2,11 +2,14 @@ package net.jadoth.storage.types;
 
 import static net.jadoth.X.notNull;
 
+import java.io.File;
 import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
 
 import net.jadoth.X;
 import net.jadoth.collections.BulkList;
 import net.jadoth.collections.EqHashTable;
+import net.jadoth.persistence.internal.UtilPersistenceIo;
 import net.jadoth.storage.exceptions.StorageExceptionBackupCopying;
 import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
 import net.jadoth.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmptyBackup;
@@ -338,8 +341,44 @@ public interface StorageBackupHandler extends Runnable
 				.provideDeletionTargetFile(backupTransactionFile)
 			;
 			
-			// FIXME MS-55: StorageBackupHandler.Implementation#deleteBackupTransactionFile()
-			throw new net.jadoth.meta.NotImplementedYetError();
+			if(deletionTargetFile == null)
+			{
+				if(backupTransactionFile.delete())
+				{
+					return;
+				}
+
+				// (02.10.2014 TM)EXCP: proper exception
+				throw new RuntimeException("Could not delete file " + backupTransactionFile);
+			}
+			
+			final String movedTargetFileName = this.createDeletionFileName(backupTransactionFile);
+			final File actualTargetFile = new File(deletionTargetFile.qualifier(), movedTargetFileName) ;
+			UtilPersistenceIo.move(new File(backupTransactionFile.identifier()), actualTargetFile);
+		}
+		
+		private String createDeletionFileName(final StorageBackupFile backupTransactionFile)
+		{
+			final String currentName = backupTransactionFile.name();
+			final int lastDotIndex = currentName.lastIndexOf('.');
+			
+			final String namePrefix;
+			final String nameSuffix;
+			if(lastDotIndex >= 0)
+			{
+				namePrefix = currentName.substring(0, lastDotIndex);
+				nameSuffix = currentName.substring(lastDotIndex);
+			}
+			else
+			{
+				namePrefix = currentName;
+				nameSuffix = "";
+			}
+			
+			final SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss_SSS");
+			final String newFileName = namePrefix + sdf.format(System.currentTimeMillis()) + nameSuffix;
+			
+			return newFileName;
 		}
 		
 		private void synchronizeTransactionFile(
