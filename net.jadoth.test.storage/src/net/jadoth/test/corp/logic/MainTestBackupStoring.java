@@ -23,9 +23,11 @@ public class MainTestBackupStoring
 		.Foundation(
 			Storage.ConfigurationBuilder()
 			.setFileEvaluator(
+				// just to make testing more convenient. Not necessary for the backup itself.
 				Storage.DataFileEvaluator(100, 1_000, 0.7)
 			)
 			.setBackupSetup(
+				// the only necessary part to activate and configure backupping.
 				StorageBackupSetup.New(
 					Storage
 					.FileProviderBuilder()
@@ -38,6 +40,7 @@ public class MainTestBackupStoring
 			)
 		)
 		.setDataFileValidatorCreator(
+			// just to make testing more convenient. Not necessary for the backup itself.
 			StorageDataFileValidator.CreatorDebugLogging()
 		)
 		.start()
