@@ -355,6 +355,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			this.entityCache.registerPendingStoreUpdate();
 
 			final ByteBuffer[] buffers = chunkData.buffers();
+			
+			// (11.03.2019 TM)FIXME: MS-115: Pre-Write EntityValidator
+			
 			// set new data flag, even if chunk has no data to account for (potential) data in other channels
 			return X.KeyValue(buffers, this.fileManager.storeChunks(timestamp, buffers));
 		}
