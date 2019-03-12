@@ -5,18 +5,19 @@ import java.nio.channels.FileChannel;
 
 import one.microstream.X;
 import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.types.Binary;
-import one.microstream.storage.exceptions.StorageException;
+import one.microstream.persistence.binary.types.BinaryEntityDataAcceptor;
+import one.microstream.persistence.binary.types.BinaryEntityDataIterator;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
 
 
 public interface StorageFileEntityDataIterator
 {
 	public long iterateEntityData(
-		StorageFile        file           ,
-		long               fileOffset     ,
-		long               iterationLength,
-		EntityDataAcceptor logic
+		StorageFile              file           ,
+		long                     fileOffset     ,
+		long                     iterationLength,
+		BinaryEntityDataIterator dataIterator   ,
+		BinaryEntityDataAcceptor dataAcceptor
 	);
 	
 	public long bufferCapacity();
@@ -35,14 +36,15 @@ public interface StorageFileEntityDataIterator
 	{
 		@Override
 		public default long iterateEntityData(
-			final StorageFile        file           ,
-			final long               fileOffset     ,
-			final long               iterationLength,
-			final EntityDataAcceptor logic
+			final StorageFile              file           ,
+			final long                     fileOffset     ,
+			final long                     iterationLength,
+			final BinaryEntityDataIterator dataIterator   ,
+			final BinaryEntityDataAcceptor dataAcceptor
 		)
 		{
 			this.fillBuffer(this, file, fileOffset, iterationLength);
-			return this.iterateFilledBuffer(this, logic);
+			return this.iterateFilledBuffer(this, dataIterator, dataAcceptor);
 		}
 		
 		public default void prepareFile(
@@ -73,8 +75,9 @@ public interface StorageFileEntityDataIterator
 		);
 		
 		public long iterateFilledBuffer(
-			StorageFileEntityDataIterator.Internal self ,
-			EntityDataAcceptor                     logic
+			StorageFileEntityDataIterator.Internal self        ,
+			BinaryEntityDataIterator               dataIterator,
+			BinaryEntityDataAcceptor               dataAcceptor
 		);
 		
 		public void validateIterationRange(
@@ -225,57 +228,17 @@ public interface StorageFileEntityDataIterator
 		
 		@Override
 		public long iterateFilledBuffer(
-			final StorageFileEntityDataIterator.Internal self ,
-			final EntityDataAcceptor                     logic
+			final StorageFileEntityDataIterator.Internal self        ,
+			final BinaryEntityDataIterator               dataIterator,
+			final BinaryEntityDataAcceptor               dataAcceptor
 		)
 		{
 			final long bufferStartAddress = XMemory.getDirectByteBufferAddress(this.directByteBuffer);
 			final long bufferBoundAddress = bufferStartAddress + this.directByteBuffer.position();
 			
-			// the loop condition must be safe to read the item length
-			final long itemStartBoundAddress = bufferBoundAddress - Binary.lengthLength() + 1;
-			
-			long a = bufferStartAddress;
-			while(a < itemStartBoundAddress)
-			{
-				final long itemLength = XMemory.get_long(a);
-				if(itemLength > 0)
-				{
-					// if the logic did not accept the entity data, iteration is aborted at the start of that entity.
-					if(!logic.acceptEntityData(a, bufferBoundAddress))
-					{
-						break;
-					}
-					
-					// otherwise, the iteration advances to the next item (comment or entity)
-					a += itemLength;
-				}
-				else if(itemLength < 0)
-				{
-					// comments (indicated by negative length) just get skipped.
-					a -= itemLength;
-				}
-				else
-				{
-					// entity length may never be 0 or the iteration will hang forever
-					throw new StorageException("Zero length data item."); // (28.02.2019 TM)EXCP: proper exception
-				}
-			}
-			
-			// the total length of processed items is returned so the calling context can validate/advance/etc.
-			return a - bufferStartAddress;
+			return dataIterator.iterateFilledBuffer(bufferStartAddress, bufferBoundAddress, dataAcceptor);
 		}
 		
 	}
-	
-	
-	
-	public interface EntityDataAcceptor
-	{
-		public boolean acceptEntityData(long entityStartAddress, long dataBoundAddress);
-	}
-	
-	
-
 		
 }
