@@ -2,12 +2,14 @@ package one.microstream.test.corp.logic;
 
 import one.microstream.X;
 import one.microstream.concurrency.XThreads;
+import one.microstream.persistence.binary.types.BinaryEntityDataIterator;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandlerArchiving;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageBackupSetup;
 import one.microstream.storage.types.StorageDataFileValidator;
+import one.microstream.storage.types.StorageEntityDataValidator;
 import one.microstream.storage.types.StorageFileProvider;
 
 
@@ -41,7 +43,10 @@ public class MainTestBackupStoring
 		)
 		.setDataFileValidatorCreator(
 			// just to make testing more convenient. Not necessary for the backup itself.
-			StorageDataFileValidator.CreatorDebugLogging()
+			StorageDataFileValidator.CreatorDebugLogging(
+				BinaryEntityDataIterator.Provider(),
+				StorageEntityDataValidator.CreatorDebugLogging()
+			)
 		)
 		.start()
 	;
