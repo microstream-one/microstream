@@ -1,7 +1,7 @@
 package one.microstream.persistence.binary.types;
 
 @FunctionalInterface
-public interface BinaryEntityDataAcceptor
+public interface BinaryEntityRawDataAcceptor
 {
 	public boolean acceptEntityData(long entityStartAddress, long dataBoundAddress);
 }

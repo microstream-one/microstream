@@ -897,19 +897,25 @@ public interface StorageFileManager
 			}
 		}
 		
-		private void initializeBackupHandler()
+		private boolean initializeBackupHandler()
 		{
 			if(this.backupHandler == null)
 			{
-				return;
+				return false;
 			}
 			
 			this.backupHandler.initialize(this.channelIndex());
+			
+			return true;
 		}
 		
 		private void initializeBackupHandler(final StorageInventory inventory)
 		{
-			this.initializeBackupHandler();
+			if(!this.initializeBackupHandler())
+			{
+				return;
+			}
+			
 			this.backupHandler.synchronize(inventory);
 		}
 

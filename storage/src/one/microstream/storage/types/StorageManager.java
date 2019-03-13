@@ -52,7 +52,7 @@ public interface StorageManager extends StorageController
 		private final StorageFileWriter.Provider           writerProvider                ;
 		private final StorageRequestAcceptor.Creator       requestAcceptorCreator        ;
 		private final StorageTaskBroker.Creator            taskBrokerCreator             ;
-		private final StorageValidatorDataChunk.Provider   dataChunkValidatorProvider    ;
+		private final StorageDataChunkValidator.Provider   dataChunkValidatorProvider    ;
 		private final StorageChannelsCreator               channelCreator                ;
 		private final StorageThreadProvider                threadProvider                ;
 		private final StorageEntityCacheEvaluator          entityCacheEvaluator          ;
@@ -107,7 +107,7 @@ public interface StorageManager extends StorageController
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider ,
 			final StorageRequestAcceptor.Creator       requestAcceptorCreator        ,
 			final StorageTaskBroker.Creator            taskBrokerCreator             ,
-			final StorageValidatorDataChunk.Provider   dataChunkValidatorProvider    ,
+			final StorageDataChunkValidator.Provider   dataChunkValidatorProvider    ,
 			final StorageChannelsCreator               channelCreator                ,
 			final StorageThreadProvider                threadProvider                ,
 			final StorageRequestTaskCreator            requestTaskCreator            ,
@@ -477,7 +477,7 @@ public interface StorageManager extends StorageController
 			this.ensureRunning();
 
 			return this.requestAcceptorCreator.createRequestAcceptor(
-				this.dataChunkValidatorProvider.provideDataChunkValidator(),
+				this.dataChunkValidatorProvider.provideDataChunkValidator(this.typeDictionary),
 				this.taskbroker
 			);
 		}

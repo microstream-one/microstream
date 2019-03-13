@@ -3,7 +3,7 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 
 import one.microstream.meta.XDebug;
-import one.microstream.persistence.binary.types.BinaryEntityDataIterator;
+import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.storage.exceptions.StorageException;
 
 
@@ -27,7 +27,7 @@ public interface StorageDataFileValidator
 	
 	
 	public static StorageDataFileValidator New(
-		final BinaryEntityDataIterator      entityDataIterator ,
+		final BinaryEntityRawDataIterator   entityDataIterator ,
 		final StorageEntityDataValidator    entityDataValidator,
 		final StorageFileEntityDataIterator fileIterator
 	)
@@ -41,7 +41,7 @@ public interface StorageDataFileValidator
 	
 	@Deprecated
 	public static StorageDataFileValidator DebugLogging(
-		final BinaryEntityDataIterator      entityDataIterator ,
+		final BinaryEntityRawDataIterator   entityDataIterator ,
 		final StorageEntityDataValidator    entityDataValidator,
 		final StorageFileEntityDataIterator fileIterator
 	)
@@ -71,7 +71,7 @@ public interface StorageDataFileValidator
 		// instance fields //
 		////////////////////
 
-		private final BinaryEntityDataIterator      entityDataIterator ;
+		private final BinaryEntityRawDataIterator   entityDataIterator ;
 		private final StorageEntityDataValidator    entityDataValidator;
 		private final StorageFileEntityDataIterator fileIterator       ;
 
@@ -82,7 +82,7 @@ public interface StorageDataFileValidator
 		/////////////////
 		
 		protected Default(
-			final BinaryEntityDataIterator      entityDataIterator ,
+			final BinaryEntityRawDataIterator   entityDataIterator ,
 			final StorageEntityDataValidator    entityDataValidator,
 			final StorageFileEntityDataIterator fileIterator
 		)
@@ -117,20 +117,20 @@ public interface StorageDataFileValidator
 				return;
 			}
 			
-			final long processedLength = this.fileIterator.iterateEntityData(
+			final long remainingLength = this.fileIterator.iterateEntityData(
 				file,
 				fileOffset,
 				iterationLength,
 				this.entityDataIterator,
 				this.entityDataValidator
 			);
-			if(processedLength !=  iterationLength)
+			if(remainingLength != 0)
 			{
 				 // (01.03.2019 TM)EXCP: proper exception
 				throw new StorageException(
-					"Invalid data file iteration length: "
-					+ "Processed length " + processedLength + " != specified length " + iterationLength
-					+ " in file " + file.identifier()
+					"Uncompletable validation: "
+					+ remainingLength + " remaining bytes of " + iterationLength + " total cannot be validated"
+					+ " in file " + file.identifier() + " at offset " + fileOffset
 				);
 			}
 		}
@@ -163,8 +163,8 @@ public interface StorageDataFileValidator
 	
 	
 	public static StorageDataFileValidator.Creator Creator(
-		final BinaryEntityDataIterator.Provider  entityDataIteratorProvider,
-		final StorageEntityDataValidator.Creator entityDataValidatorCreator
+		final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider,
+		final StorageEntityDataValidator.Creator   entityDataValidatorCreator
 	)
 	{
 		return new StorageDataFileValidator.Creator.Default(
@@ -175,8 +175,8 @@ public interface StorageDataFileValidator
 	
 	@Deprecated
 	public static StorageDataFileValidator.Creator CreatorDebugLogging(
-		final BinaryEntityDataIterator.Provider  entityDataIteratorProvider,
-		final StorageEntityDataValidator.Creator entityDataValidatorCreator
+		final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider,
+		final StorageEntityDataValidator.Creator   entityDataValidatorCreator
 	)
 	{
 		return new StorageDataFileValidator.Creator.DebugLogging(
@@ -194,12 +194,12 @@ public interface StorageDataFileValidator
 		
 		public class Default implements StorageDataFileValidator.Creator
 		{
-			private final BinaryEntityDataIterator.Provider  entityDataIteratorProvider;
-			private final StorageEntityDataValidator.Creator entityDataValidatorCreator;
+			private final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider;
+			private final StorageEntityDataValidator.Creator   entityDataValidatorCreator;
 			
 			Default(
-				final BinaryEntityDataIterator.Provider  entityDataIteratorProvider,
-				final StorageEntityDataValidator.Creator entityDataValidatorCreator
+				final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider,
+				final StorageEntityDataValidator.Creator   entityDataValidatorCreator
 			)
 			{
 				super();
@@ -225,8 +225,8 @@ public interface StorageDataFileValidator
 		public final class DebugLogging extends StorageDataFileValidator.Creator.Default
 		{
 			DebugLogging(
-				final BinaryEntityDataIterator.Provider  entityDataIteratorProvider,
-				final StorageEntityDataValidator.Creator entityDataValidatorCreator
+				final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider,
+				final StorageEntityDataValidator.Creator   entityDataValidatorCreator
 			)
 			{
 				super(entityDataIteratorProvider, entityDataValidatorCreator);

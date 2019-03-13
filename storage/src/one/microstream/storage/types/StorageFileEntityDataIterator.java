@@ -5,19 +5,19 @@ import java.nio.channels.FileChannel;
 
 import one.microstream.X;
 import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.types.BinaryEntityDataAcceptor;
-import one.microstream.persistence.binary.types.BinaryEntityDataIterator;
+import one.microstream.persistence.binary.types.BinaryEntityRawDataAcceptor;
+import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
 
 
 public interface StorageFileEntityDataIterator
 {
 	public long iterateEntityData(
-		StorageFile              file           ,
-		long                     fileOffset     ,
-		long                     iterationLength,
-		BinaryEntityDataIterator dataIterator   ,
-		BinaryEntityDataAcceptor dataAcceptor
+		StorageFile                 file           ,
+		long                        fileOffset     ,
+		long                        iterationLength,
+		BinaryEntityRawDataIterator dataIterator   ,
+		BinaryEntityRawDataAcceptor dataAcceptor
 	);
 	
 	public long bufferCapacity();
@@ -36,14 +36,15 @@ public interface StorageFileEntityDataIterator
 	{
 		@Override
 		public default long iterateEntityData(
-			final StorageFile              file           ,
-			final long                     fileOffset     ,
-			final long                     iterationLength,
-			final BinaryEntityDataIterator dataIterator   ,
-			final BinaryEntityDataAcceptor dataAcceptor
+			final StorageFile                 file           ,
+			final long                        fileOffset     ,
+			final long                        iterationLength,
+			final BinaryEntityRawDataIterator dataIterator   ,
+			final BinaryEntityRawDataAcceptor dataAcceptor
 		)
 		{
 			this.fillBuffer(this, file, fileOffset, iterationLength);
+			
 			return this.iterateFilledBuffer(this, dataIterator, dataAcceptor);
 		}
 		
@@ -76,8 +77,8 @@ public interface StorageFileEntityDataIterator
 		
 		public long iterateFilledBuffer(
 			StorageFileEntityDataIterator.Internal self        ,
-			BinaryEntityDataIterator               dataIterator,
-			BinaryEntityDataAcceptor               dataAcceptor
+			BinaryEntityRawDataIterator            dataIterator,
+			BinaryEntityRawDataAcceptor            dataAcceptor
 		);
 		
 		public void validateIterationRange(
@@ -229,14 +230,14 @@ public interface StorageFileEntityDataIterator
 		@Override
 		public long iterateFilledBuffer(
 			final StorageFileEntityDataIterator.Internal self        ,
-			final BinaryEntityDataIterator               dataIterator,
-			final BinaryEntityDataAcceptor               dataAcceptor
+			final BinaryEntityRawDataIterator            dataIterator,
+			final BinaryEntityRawDataAcceptor            dataAcceptor
 		)
 		{
 			final long bufferStartAddress = XMemory.getDirectByteBufferAddress(this.directByteBuffer);
 			final long bufferBoundAddress = bufferStartAddress + this.directByteBuffer.position();
 			
-			return dataIterator.iterateFilledBuffer(bufferStartAddress, bufferBoundAddress, dataAcceptor);
+			return dataIterator.iterateEntityRawData(bufferStartAddress, bufferBoundAddress, dataAcceptor);
 		}
 		
 	}

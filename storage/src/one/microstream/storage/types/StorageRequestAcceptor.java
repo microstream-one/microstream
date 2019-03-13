@@ -87,7 +87,7 @@ public interface StorageRequestAcceptor
 	public interface Creator
 	{
 		public StorageRequestAcceptor createRequestAcceptor(
-			StorageValidatorDataChunk dataChunkValidator,
+			StorageDataChunkValidator dataChunkValidator,
 			StorageTaskBroker         taskBroker
 		);
 
@@ -97,7 +97,7 @@ public interface StorageRequestAcceptor
 
 			@Override
 			public StorageRequestAcceptor createRequestAcceptor(
-				final StorageValidatorDataChunk dataChunkValidator,
+				final StorageDataChunkValidator dataChunkValidator,
 				final StorageTaskBroker         taskBroker
 			)
 			{
@@ -117,7 +117,7 @@ public interface StorageRequestAcceptor
 		/////////////////////
 
 		private final StorageTaskBroker         taskBroker           ;
-		private final StorageValidatorDataChunk prevalidatorDataChunk;
+		private final StorageDataChunkValidator prevalidatorDataChunk;
 
 
 
@@ -126,7 +126,7 @@ public interface StorageRequestAcceptor
 		/////////////////////
 
 		public Implementation(
-			final StorageValidatorDataChunk dataChunkValidator,
+			final StorageDataChunkValidator dataChunkValidator,
 			final StorageTaskBroker         taskBroker
 		)
 		{
