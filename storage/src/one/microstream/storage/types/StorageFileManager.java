@@ -98,16 +98,6 @@ public interface StorageFileManager
 		// static methods //
 		///////////////////
 
-		private static long chunksTotalLength(final ByteBuffer[] chunks)
-		{
-			long totalLength = 0;
-			for(int i = 0; i < chunks.length; i++)
-			{
-				totalLength += chunks[i].limit();
-			}
-			return totalLength;
-		}
-
 		private static long[] allChunksStoragePositions(final ByteBuffer[] chunks, final long basePosition)
 		{
 			final long[] storagePositions = new long[chunks.length];
@@ -117,6 +107,7 @@ public interface StorageFileManager
 				storagePositions[i] = position;
 				position += chunks[i].limit();
 			}
+			
 			return storagePositions;
 		}
 
@@ -362,31 +353,6 @@ public interface StorageFileManager
 			}
 		}
 
-		private void writeChunks(final long timestamp, final ByteBuffer[] dataBuffers)
-		{
-			this.uncommittedDataLength = chunksTotalLength(dataBuffers);
-//			DEBUGStorage.println(this.channelIndex + " writing " + entityCount + " entities (" + this.uncommittedDataLength + " bytes) to " + this.headFile.number());
-			if(dataBuffers.length == 0)
-			{
-				return; // nothing to write (empty chunk, only header for consistency)
-			}
-
-			final long oldTotalLength = this.headFile.totalLength();
-
-			this.writer.writeStore(this.headFile, dataBuffers);
-			
-			final long newTotalLength = oldTotalLength + this.uncommittedDataLength;
-			if(newTotalLength < 0)
-			{
-				throwImpossibleStoreLengthException(timestamp, oldTotalLength, this.uncommittedDataLength, dataBuffers);
-			}
-			
-			this.writeTransactionsEntryStore(this.headFile, oldTotalLength, this.uncommittedDataLength, timestamp, newTotalLength);
-//			DEBUGStorage.println(this.channelIndex + " wrote " + this.uncommittedDataLength + " bytes");
-
-			this.resetFileCleanupCursor();
-//			DEBUGStorage.println("Channel " + this.channelIndex + " wrote data for " + timestamp);
-		}
 		
 		final void transferOneChainToHeadFile(final StorageDataFile.Implementation sourceFile)
 		{
@@ -596,17 +562,53 @@ public interface StorageFileManager
 		{
 			this.createNewStorageFile(this.headFile.number() + 1);
 		}
+		
+		private long ensureHeadFileTotalLength()
+		{
+			final long physicalLength = this.headFile.length();
+			final long expectedLength = this.headFile.totalLength();
+			
+			if(physicalLength != expectedLength)
+			{
+				// (13.03.2019 TM)EXCP: proper exception
+				throw new StorageException(
+					"Physical length " + physicalLength
+					+ " of current head file " + this.headFile.number()
+					+ " is not equal its expected length of " + expectedLength
+				);
+			}
+			
+			return physicalLength;
+		}
 
 		@Override
 		public final long[] storeChunks(final long timestamp, final ByteBuffer[] dataBuffers)
 			throws StorageExceptionIoWritingChunk
 		{
+			if(dataBuffers.length == 0)
+			{
+				return new long[0]; // nothing to write (empty chunk, only header for consistency)
+			}
+			
 			this.checkForNewFile();
-			final long[] storagePositions = allChunksStoragePositions(
-				dataBuffers,
-				this.headFile.totalLength()
-			);
-			this.writeChunks(timestamp, dataBuffers);
+			final long   oldTotalLength   = this.ensureHeadFileTotalLength();
+			final long[] storagePositions = allChunksStoragePositions(dataBuffers, oldTotalLength);
+			final long   writeCount       = this.writer.writeStore(this.headFile, dataBuffers);
+			final long   newTotalLength   = oldTotalLength + writeCount;
+			
+			if(newTotalLength != this.headFile.length())
+			{
+				throwImpossibleStoreLengthException(timestamp, oldTotalLength, writeCount, dataBuffers);
+			}
+			
+			this.uncommittedDataLength = writeCount;
+			
+			this.writeTransactionsEntryStore(this.headFile, oldTotalLength, writeCount, timestamp, newTotalLength);
+//			DEBUGStorage.println(this.channelIndex + " wrote " + this.uncommittedDataLength + " bytes");
+
+			this.resetFileCleanupCursor();
+//			DEBUGStorage.println("Channel " + this.channelIndex + " wrote data for " + timestamp);
+			
 			return storagePositions;
 		}
 
