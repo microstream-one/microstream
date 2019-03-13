@@ -1,6 +1,7 @@
 package one.microstream.persistence.binary.types;
 
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
@@ -51,6 +52,13 @@ public class BinaryLoadItem extends Binary
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
+	public void iterateChannelChunks(final Consumer<? super Binary> logic)
+	{
+		// technically, the single data set could be iterated, but designwise, it's not the task, here.
+		throw new UnsupportedOperationException();
+	}
+		
 	/**
 	 * Some binary entries serve as a skip entry, so that an entry for a particular object id already exists.
 	 * Naturally, those entries don't have data then, which must be checked (be checkable) later on.

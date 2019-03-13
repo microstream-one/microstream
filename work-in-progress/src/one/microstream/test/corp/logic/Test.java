@@ -71,7 +71,7 @@ public class Test
 
 	static final GenerationAmount amount(final double fraction)
 	{
-		return amount(fraction, 0);
+		return amount(fraction, 1);
 	}
 
 	// single entity factory methods //

@@ -375,6 +375,8 @@ public abstract class Binary implements Chunk
 	
 	public abstract int channelCount();
 	
+	public abstract void iterateChannelChunks(Consumer<? super Binary> logic);
+	
 	public abstract void iterateEntityData(BinaryEntityDataReader reader);
 		
 	public final long storeSizedKeyValuesAsEntries(

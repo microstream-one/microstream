@@ -2,12 +2,15 @@ package one.microstream.test.corp.logic;
 
 import one.microstream.X;
 import one.microstream.concurrency.XThreads;
+import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandlerArchiving;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageBackupSetup;
+import one.microstream.storage.types.StorageDataChunkValidator;
 import one.microstream.storage.types.StorageDataFileValidator;
+import one.microstream.storage.types.StorageEntityDataValidator;
 import one.microstream.storage.types.StorageFileProvider;
 
 
@@ -39,9 +42,18 @@ public class MainTestBackupStoring
 				)
 			)
 		)
+		.setDataChunkValidatorProvider2(
+			StorageDataChunkValidator.Provider2()
+		)
+//		.setEntityDataValidatorCreator(
+//			StorageEntityDataValidator.CreatorDebugLogging()
+//		)
 		.setDataFileValidatorCreator(
 			// just to make testing more convenient. Not necessary for the backup itself.
-			StorageDataFileValidator.CreatorDebugLogging()
+			StorageDataFileValidator.CreatorDebugLogging(
+				BinaryEntityRawDataIterator.Provider(),
+				StorageEntityDataValidator.CreatorDebugLogging()
+			)
 		)
 		.start()
 	;
@@ -59,12 +71,12 @@ public class MainTestBackupStoring
 		Test.print("STORAGE: storing ...");
 		STORAGE.store(STORAGE.root());
 		
-		for(int i = 0; i < 1; i++)
+		for(int i = 0; i < 10; i++)
 		{
 			XThreads.sleep(500);
 			STORAGE.store(array);
 		}
-//		STORAGE.issueFullFileCheck();
+		STORAGE.issueFullFileCheck();
 		XThreads.sleep(1000);
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}

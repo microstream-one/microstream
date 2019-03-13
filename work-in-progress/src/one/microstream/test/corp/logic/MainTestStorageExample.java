@@ -31,10 +31,10 @@ public class MainTestStorageExample
 			// first execution enters here
 
 			Test.print("TEST: model data required." );
-			STORAGE.root().set(Test.generateModelData(1000));
+			STORAGE.root().set(Test.generateModelData(1_000));
 			Test.print("STORAGE: storing ...");
 			STORAGE.store(STORAGE.root());
-			STORAGE.issueFullFileCheck();
+//			STORAGE.issueFullFileCheck();
 			Test.print("STORAGE: storing completed.");
 //			printObjectRegistryStatistics();
 		}

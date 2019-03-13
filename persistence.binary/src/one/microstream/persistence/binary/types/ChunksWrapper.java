@@ -1,6 +1,7 @@
 package one.microstream.persistence.binary.types;
 
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 
 import one.microstream.memory.XMemory;
 //CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
@@ -75,6 +76,12 @@ public class ChunksWrapper extends Binary
 		}
 	}
 	
+	@Override
+	public void iterateChannelChunks(final Consumer<? super Binary> logic)
+	{
+		logic.accept(this);
+	}
+		
 	private void iterateBufferLoadItems(
 		final long                   startAddress,
 		final long                   boundAddress,
