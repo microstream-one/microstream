@@ -4,11 +4,11 @@ import static one.microstream.X.notNull;
 
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.binary.types.BinaryEntityDataAcceptor;
+import one.microstream.persistence.binary.types.BinaryEntityRawDataAcceptor;
 
 
 @FunctionalInterface
-public interface StorageEntityDataValidator extends BinaryEntityDataAcceptor
+public interface StorageEntityDataValidator extends BinaryEntityRawDataAcceptor
 {
 
 	@Override

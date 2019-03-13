@@ -3,8 +3,9 @@ package one.microstream.storage.types;
 import java.nio.ByteOrder;
 
 import one.microstream.exceptions.MissingFoundationPartException;
-import one.microstream.persistence.binary.types.BinaryEntityDataIterator;
+import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.persistence.types.Unpersistable;
+import one.microstream.storage.types.StorageDataChunkValidator.Provider2;
 import one.microstream.storage.types.StorageFileWriter.Provider;
 import one.microstream.util.InstanceDispatcher;
 
@@ -18,7 +19,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public StorageTaskBroker.Creator getTaskBrokerCreator();
 
-	public StorageValidatorDataChunk.Provider getDataChunkValidatorProvider();
+	public StorageDataChunkValidator.Provider getDataChunkValidatorProvider();
+	
+	public StorageDataChunkValidator.Provider2 getDataChunkValidatorProvider2();
 
 	public StorageChannelsCreator getChannelCreator();
 
@@ -54,7 +57,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public StorageDataFileValidator.Creator getDataFileValidatorCreator();
 
-	public BinaryEntityDataIterator.Provider getEntityDataIteratorProvider();
+	public BinaryEntityRawDataIterator.Provider getEntityDataIteratorProvider();
 	
 	public StorageEntityDataValidator.Creator getEntityDataValidatorCreator();
 
@@ -69,7 +72,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setTaskBrokerCreator(StorageTaskBroker.Creator taskBrokerCreator);
 
-	public F setDataChunkValidatorProvider(StorageValidatorDataChunk.Provider chunkValidatorProvider);
+	public F setDataChunkValidatorProvider(StorageDataChunkValidator.Provider dataChunkValidatorProvider);
+	
+	public F setDataChunkValidatorProvider2(StorageDataChunkValidator.Provider2 dataChunkValidatorProvider2);
 
 	public F setChannelCreator(StorageChannelsCreator channelCreator);
 
@@ -107,7 +112,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setDataFileValidatorCreator(StorageDataFileValidator.Creator dataFileValidatorCreator);
 
-	public F setEntityDataIteratorProvider(BinaryEntityDataIterator.Provider entityDataIteratorProvider);
+	public F setEntityDataIteratorProvider(BinaryEntityRawDataIterator.Provider entityDataIteratorProvider);
 	
 	public F setEntityDataValidatorCreator(StorageEntityDataValidator.Creator entityDataValidatorCreator);
 
@@ -128,7 +133,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageInitialDataFileNumberProvider  initialDataFileNumberProvider;
 		private StorageRequestAcceptor.Creator        requestAcceptorCreator       ;
 		private StorageTaskBroker.Creator             taskBrokerCreator            ;
-		private StorageValidatorDataChunk.Provider    dataChunkValidatorProvider   ;
+		private StorageDataChunkValidator.Provider    dataChunkValidatorProvider   ;
+		private StorageDataChunkValidator.Provider2   dataChunkValidatorProvider2  ;
 		private StorageChannelsCreator                channelCreator               ;
 		private StorageChannelThreadProvider          channelThreadProvider        ;
 		private StorageBackupThreadProvider           backupThreadProvider         ;
@@ -145,7 +151,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageDataFileValidator.Creator      dataFileValidatorCreator     ;
-		private BinaryEntityDataIterator.Provider     entityDataIteratorProvider   ;
+		private BinaryEntityRawDataIterator.Provider  entityDataIteratorProvider   ;
 		private StorageEntityDataValidator.Creator    entityDataValidatorCreator   ;
 		private StorageExceptionHandler               exceptionHandler             ;
 
@@ -211,9 +217,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return new StorageTaskBroker.Creator.Implementation();
 		}
 
-		protected StorageValidatorDataChunk.Provider ensureDataChunkValidatorProvider()
+		protected StorageDataChunkValidator.Provider ensureDataChunkValidatorProvider()
 		{
-			return new StorageValidatorDataChunk.NoOp();
+			return getDataChunkValidatorProvider2().provideDataChunkValidatorProvider(this);
+		}
+
+		protected StorageDataChunkValidator.Provider2 ensureDataChunkValidatorProvider2()
+		{
+			return new StorageDataChunkValidator.NoOp();
 		}
 
 		protected StorageChannelsCreator ensureChannelCreator()
@@ -304,9 +315,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			);
 		}
 		
-		protected BinaryEntityDataIterator.Provider ensureEntityDataIteratorProvider()
+		protected BinaryEntityRawDataIterator.Provider ensureEntityDataIteratorProvider()
 		{
-			return BinaryEntityDataIterator.Provider();
+			return BinaryEntityRawDataIterator.Provider();
 		}
 		
 		protected StorageEntityDataValidator.Creator ensureEntityDataValidatorCreator()
@@ -372,13 +383,23 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 
 		@Override
-		public StorageValidatorDataChunk.Provider getDataChunkValidatorProvider()
+		public StorageDataChunkValidator.Provider getDataChunkValidatorProvider()
 		{
 			if(this.dataChunkValidatorProvider == null)
 			{
 				this.dataChunkValidatorProvider = this.dispatch(this.ensureDataChunkValidatorProvider());
 			}
 			return this.dataChunkValidatorProvider;
+		}
+		
+		@Override
+		public Provider2 getDataChunkValidatorProvider2()
+		{
+			if(this.dataChunkValidatorProvider2 == null)
+			{
+				this.dataChunkValidatorProvider2 = this.dispatch(this.ensureDataChunkValidatorProvider2());
+			}
+			return this.dataChunkValidatorProvider2;
 		}
 
 		@Override
@@ -552,7 +573,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 		
 		@Override
-		public BinaryEntityDataIterator.Provider getEntityDataIteratorProvider()
+		public BinaryEntityRawDataIterator.Provider getEntityDataIteratorProvider()
 		{
 			if(this.entityDataIteratorProvider == null)
 			{
@@ -617,10 +638,19 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		@Override
 		public F setDataChunkValidatorProvider(
-			final StorageValidatorDataChunk.Provider dataChunkValidatorProvider
+			final StorageDataChunkValidator.Provider dataChunkValidatorProvider
 		)
 		{
 			this.dataChunkValidatorProvider = dataChunkValidatorProvider;
+			return this.$();
+		}
+		
+		@Override
+		public F setDataChunkValidatorProvider2(
+			final StorageDataChunkValidator.Provider2 dataChunkValidatorProvider2
+		)
+		{
+			this.dataChunkValidatorProvider2 = dataChunkValidatorProvider2;
 			return this.$();
 		}
 
@@ -750,7 +780,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 		
 		@Override
-		public F setEntityDataIteratorProvider(final BinaryEntityDataIterator.Provider entityDataIteratorProvider)
+		public F setEntityDataIteratorProvider(final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider)
 		{
 			this.entityDataIteratorProvider = entityDataIteratorProvider;
 			return this.$();

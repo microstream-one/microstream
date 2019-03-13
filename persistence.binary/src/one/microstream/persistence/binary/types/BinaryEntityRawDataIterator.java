@@ -4,21 +4,21 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceException;
 
 
-public interface BinaryEntityDataIterator
+public interface BinaryEntityRawDataIterator
 {
-	public long iterateFilledBuffer(
-		long                     startAddress      ,
-		long                     boundAddress      ,
-		BinaryEntityDataAcceptor entityDataAcceptor
+	public long iterateEntityRawData(
+		long                        startAddress      ,
+		long                        boundAddress      ,
+		BinaryEntityRawDataAcceptor entityDataAcceptor
 	);
 	
 	
-	public static BinaryEntityDataIterator New()
+	public static BinaryEntityRawDataIterator New()
 	{
-		return new BinaryEntityDataIterator.Implementation();
+		return new BinaryEntityRawDataIterator.Implementation();
 	}
 	
-	public final class Implementation implements BinaryEntityDataIterator
+	public final class Implementation implements BinaryEntityRawDataIterator
 	{
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -37,10 +37,10 @@ public interface BinaryEntityDataIterator
 		////////////
 		
 		@Override
-		public long iterateFilledBuffer(
-			final long                     startAddress      ,
-			final long                     boundAddress      ,
-			final BinaryEntityDataAcceptor entityDataAcceptor
+		public long iterateEntityRawData(
+			final long                        startAddress      ,
+			final long                        boundAddress      ,
+			final BinaryEntityRawDataAcceptor entityDataAcceptor
 		)
 		{
 			// the loop condition must be safe to read the item length
@@ -75,26 +75,26 @@ public interface BinaryEntityDataIterator
 			}
 			
 			// the total length of processed items is returned so the calling context can validate/advance/etc.
-			return address - startAddress;
+			return boundAddress - address;
 		}
 		
 	}
 	
-	public static BinaryEntityDataIterator.Provider Provider()
+	public static BinaryEntityRawDataIterator.Provider Provider()
 	{
-		return new BinaryEntityDataIterator.Provider.Implementation();
+		return new BinaryEntityRawDataIterator.Provider.Implementation();
 	}
 	
 	public interface Provider
 	{
-		public BinaryEntityDataIterator provideEntityDataIterator();
+		public BinaryEntityRawDataIterator provideEntityDataIterator();
 		
-		public final class Implementation implements BinaryEntityDataIterator.Provider
+		public final class Implementation implements BinaryEntityRawDataIterator.Provider
 		{
 			@Override
-			public BinaryEntityDataIterator provideEntityDataIterator()
+			public BinaryEntityRawDataIterator provideEntityDataIterator()
 			{
-				return BinaryEntityDataIterator.New();
+				return BinaryEntityRawDataIterator.New();
 			}
 			
 		}
