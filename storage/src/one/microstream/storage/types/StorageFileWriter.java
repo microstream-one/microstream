@@ -46,17 +46,31 @@ public interface StorageFileWriter
 		
 		final FileChannel channel   = file.fileChannel();
 		final long        oldLength = file.length();
+		
+		long writeCount = 0;
 		try
 		{
+			channel.position(oldLength);
 			while(lastNonEmpty.hasRemaining())
 			{
-				channel.write(byteBuffers);
+				writeCount += channel.write(byteBuffers);
 			}
 			
 			// this is the right place for a data-safety-securing force/flush.
 			channel.force(false);
 			
-			return file.length() - oldLength;
+			final long newTotalLength = file.length();
+			if(newTotalLength != oldLength + writeCount)
+			{
+				 // (01.10.2014)EXCP: proper exception
+				throw new RuntimeException(
+					"Inconsistent post-write file length:"
+					+ " New total length " + newTotalLength +
+					" is not equal " + oldLength + " + " + writeCount + " (old length and write count)"
+				);
+			}
+			
+			return writeCount;
 		}
 		catch(final IOException e)
 		{

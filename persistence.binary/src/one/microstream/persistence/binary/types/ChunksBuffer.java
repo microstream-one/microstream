@@ -3,6 +3,7 @@ package one.microstream.persistence.binary.types;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 
 import one.microstream.X;
 import one.microstream.memory.XMemory;
@@ -273,6 +274,8 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 			);
 		}
 	}
+		
+
 	
 	@Override
 	public void iterateEntityData(final BinaryEntityDataReader reader)
@@ -280,6 +283,15 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		for(final ChunksBuffer channelBuffer : this.channelBuffers)
 		{
 			channelBuffer.iterateEntityDataLocal(reader);
+		}
+	}
+
+	@Override
+	public void iterateChannelChunks(final Consumer<? super Binary> logic)
+	{
+		for(final ChunksBuffer channelBuffer : this.channelBuffers)
+		{
+			logic.accept(channelBuffer);
 		}
 	}
 	

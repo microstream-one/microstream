@@ -25,7 +25,7 @@ import one.microstream.storage.types.StorageRootTypeIdProvider;
 import one.microstream.storage.types.StorageTaskBroker;
 import one.microstream.storage.types.StorageTimestampProvider;
 import one.microstream.storage.types.StorageTypeDictionary;
-import one.microstream.storage.types.StorageValidatorDataChunk;
+import one.microstream.storage.types.StorageDataChunkValidator;
 
 public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>
 {
@@ -185,7 +185,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 
 		@Override
 		public F setDataChunkValidatorProvider(
-			final StorageValidatorDataChunk.Provider dataChunkValidatorProvider
+			final StorageDataChunkValidator.Provider dataChunkValidatorProvider
 		)
 		{
 			super.setDataChunkValidatorProvider(dataChunkValidatorProvider);
