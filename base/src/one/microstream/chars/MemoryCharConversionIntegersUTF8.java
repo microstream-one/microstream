@@ -7,7 +7,7 @@ import one.microstream.memory.XMemory;
  * This implementation exists because it is very efficient, both performance- and memory-wise, to transform integer
  * values in UTF format inherently without intermediate form as the numeric characters are ALWAYS single bytes.
  *
- * @author Paigan
+ * @author Thomas Muenz
  *
  */
 public final class MemoryCharConversionIntegersUTF8
