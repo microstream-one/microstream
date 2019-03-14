@@ -760,7 +760,7 @@ public interface StorageFileManager
 			}
 
 			final XGettingSequence<StorageInventoryFile>    dataFiles = storageInventory.dataFiles().values();
-			final EqHashTable<Long, StorageTransactionFile> fileEntries = EqHashTable.New(tFileAnalysis.transactionsFileEntries());
+			final EqHashTable<Long, StorageTransactionFileEntry> fileEntries = EqHashTable.New(tFileAnalysis.transactionsFileEntries());
 			final StorageInventoryFile                      lastFile    = dataFiles.peek();
 
 			for(final StorageInventoryFile file : dataFiles)
@@ -768,7 +768,7 @@ public interface StorageFileManager
 				final long actualFileLength = file.length();
 
 				// retrieve and remove (= mark as already handled) the corresponding file entry
-				final StorageTransactionFile entryFile = fileEntries.removeFor(file.number());
+				final StorageTransactionFileEntry entryFile = fileEntries.removeFor(file.number());
 				if(entryFile == null)
 				{
 					// special case: empty file was created but not registered, can be safely ignored
@@ -809,7 +809,7 @@ public interface StorageFileManager
 			}
 
 			// check that all remaining file entries are deleted files. No non-deleted file may be missing!
-			for(final StorageTransactionFile remainingFileEntry : fileEntries.values())
+			for(final StorageTransactionFileEntry remainingFileEntry : fileEntries.values())
 			{
 				if(remainingFileEntry.isDeleted())
 				{
