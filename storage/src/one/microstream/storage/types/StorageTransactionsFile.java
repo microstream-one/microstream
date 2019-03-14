@@ -210,26 +210,34 @@ public interface StorageTransactionsFile
 		public long timestamp();
 
 		public long fileLength();
+
+		public long targetFileNumber();
 		
-		public Long fileNumber();
+		public Long sourceFileNumber();
 		
 		public Long specialOffset();
 		
+		public long lengthChange();
+		
+		public void setLengthChange(long lengthChange);
+		
 		
 		public static Entry New(
-			final EntryType type         ,
-			final long      timestamp    ,
-			final long      fileLength   ,
-			final Long      fileNumber   ,
+			final EntryType type            ,
+			final long      timestamp       ,
+			final long      fileLength      ,
+			final long      targetFileNumber,
+			final Long      sourceFileNumber,
 			final Long      specialOffset
 		)
 		{
 			// no constraints to allow inventorizing of any transactions file, potentially inconsistent.
 			return new Entry.Implementation(
-				type         ,
-				timestamp    ,
-				fileLength   ,
-				fileNumber   ,
+				type            ,
+				timestamp       ,
+				fileLength      ,
+				targetFileNumber,
+				sourceFileNumber,
 				specialOffset
 			);
 		}
@@ -240,11 +248,14 @@ public interface StorageTransactionsFile
 			// instance fields //
 			////////////////////
 			
-			private final EntryType type         ;
-			private final long      timestamp    ;
-			private final long      fileLength   ;
-			private final Long      fileNumber   ;
-			private final Long      specialOffset;
+			private final EntryType type            ;
+			private final long      timestamp       ;
+			private final long      fileLength      ;
+			private final long      targetFileNumber;
+			private final Long      sourceFileNumber;
+			private final Long      specialOffset   ;
+			
+			private       long      lengthChange    ;
 			
 			
 			
@@ -253,19 +264,21 @@ public interface StorageTransactionsFile
 			/////////////////
 			
 			Implementation(
-				final EntryType type         ,
-				final long      timestamp    ,
-				final long      fileLength   ,
-				final Long      fileNumber   ,
+				final EntryType type            ,
+				final long      timestamp       ,
+				final long      fileLength      ,
+				final long      targetFileNumber,
+				final Long      sourceFileNumber,
 				final Long      specialOffset
 			)
 			{
 				super();
-				this.type          = type         ;
-				this.timestamp     = timestamp    ;
-				this.fileLength    = fileLength   ;
-				this.fileNumber    = fileNumber   ;
-				this.specialOffset = specialOffset;
+				this.type             = type            ;
+				this.timestamp        = timestamp       ;
+				this.fileLength       = fileLength      ;
+				this.targetFileNumber = targetFileNumber;
+				this.sourceFileNumber = sourceFileNumber;
+				this.specialOffset    = specialOffset   ;
 			}
 			
 			
@@ -291,17 +304,35 @@ public interface StorageTransactionsFile
 			{
 				return this.fileLength;
 			}
+			
+			@Override
+			public final long targetFileNumber()
+			{
+				return this.targetFileNumber;
+			}
 
 			@Override
-			public final Long fileNumber()
+			public final Long sourceFileNumber()
 			{
-				return this.fileNumber;
+				return this.sourceFileNumber;
 			}
 
 			@Override
 			public final Long specialOffset()
 			{
 				return this.specialOffset;
+			}
+			
+			@Override
+			public long lengthChange()
+			{
+				return this.lengthChange;
+			}
+			
+			@Override
+			public void setLengthChange(final long lengthChange)
+			{
+				this.lengthChange = lengthChange;
 			}
 			
 			@Override
@@ -322,6 +353,9 @@ public interface StorageTransactionsFile
 		////////////////////
 		
 		private final XCollection<Entry> entries;
+		
+		private long currentFileNumber = 0;
+		private long currentFileLength;
 		
 		
 		
@@ -377,12 +411,23 @@ public interface StorageTransactionsFile
 				Logic.getEntryTimestamp(address),
 				Logic.getFileLength    (address),
 				Logic.getFileNumber    (address),
+				this.currentFileNumber          ,
 				null
 			);
-			this.entries.add(e);
+			this.currentFileNumber = e.targetFileNumber();
+			this.currentFileLength = 0;
+			this.addEntry(e);
 			
 			return true;
 			
+		}
+		
+		private void addEntry(final Entry e)
+		{
+			e.setLengthChange(e.fileLength() - this.currentFileLength);
+			this.currentFileLength = e.fileLength();
+			
+			this.entries.add(e);
 		}
 		
 		private boolean parseEntryStore(final long address, final long availableEntryLength)
@@ -396,10 +441,13 @@ public interface StorageTransactionsFile
 				EntryType.DATA_STORE            ,
 				Logic.getEntryTimestamp(address),
 				Logic.getFileLength    (address),
+				this.currentFileNumber          ,
 				null,
 				null
 			);
-			this.entries.add(e);
+			this.addEntry(e);
+			
+//			XDebug.println("STORE " + e.targetFileNumber() + " " + e.fileLength() + " " + e.lengthChange());
 			
 			return true;
 		}
@@ -415,10 +463,11 @@ public interface StorageTransactionsFile
 				EntryType.DATA_TRANSFER         ,
 				Logic.getEntryTimestamp(address),
 				Logic.getFileLength    (address),
+				this.currentFileNumber          ,
 				Logic.getFileNumber    (address),
 				Logic.getSpecialOffset (address)
 			);
-			this.entries.add(e);
+			this.addEntry(e);
 			
 			return true;
 		}
@@ -435,9 +484,10 @@ public interface StorageTransactionsFile
 				Logic.getEntryTimestamp(address),
 				Logic.getFileLength    (address),
 				Logic.getFileNumber    (address),
+				null                            ,
 				Logic.getSpecialOffset (address)
 			);
-			this.entries.add(e);
+			this.addEntry(e);
 			
 			return true;
 		}
@@ -454,8 +504,11 @@ public interface StorageTransactionsFile
 				Logic.getEntryTimestamp(address),
 				Logic.getFileLength    (address),
 				Logic.getFileNumber    (address),
+				null                            ,
 				null
 			);
+			
+			// no chaning of current file number or length by a delete!
 			this.entries.add(e);
 			
 			return true;
