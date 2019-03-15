@@ -39,7 +39,7 @@
 		<module>persistence.binary</module>
 		<module>storage</module>
 		<module>storage.embedded</module>
-<!-- 		<module>work-in-progress</module> -->
+		<module>storage.embedded.configuration</module>
 	</modules>
 
 	<build>
