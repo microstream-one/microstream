@@ -13,6 +13,9 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.memory.XMemory;
+import one.microstream.meta.XDebug;
+import one.microstream.persistence.binary.types.Binary;
 import one.microstream.storage.types.StorageTransactionsFile;
 import one.microstream.typing.KeyValue;
 
@@ -22,6 +25,7 @@ class StorageRollbacker
 	// instance fields //
 	////////////////////
 	
+	final EntityDataHeaderEvaluator     headerEvaluator;
 	final EqHashTable<Long, SourceFile> sourceFiles    ;
 	final File                          recDirectory   ;
 	final File                          storeDirectory ;
@@ -42,10 +46,12 @@ class StorageRollbacker
 		final File                      recDirectory   ,
 		final File                      storeDirectory ,
 		final String                    recFilePrefix  ,
-		final String                    storeFilePrefix
+		final String                    storeFilePrefix,
+		final EntityDataHeaderEvaluator headerEvaluator
 	)
 	{
 		super();
+		this.headerEvaluator = headerEvaluator;
 		this.sourceFiles     = this.setupSourceFiles(sourceFiles);
 		this.recDirectory    = recDirectory   ;
 		this.storeDirectory  = storeDirectory ;
@@ -94,6 +100,7 @@ class StorageRollbacker
 	
 		this.processRecEntries();
 		this.processStoreEntries();
+		this.cleanUpStores();
 	}
 	
 	private void processRecEntries() throws Exception
@@ -141,6 +148,172 @@ class StorageRollbacker
 				s.fileChannel.force(false);
 			}
 		}
+	}
+	
+	private void cleanUpStores() throws Exception
+	{
+		final File    cleanedFile = new File(this.storeDirectory, "cleanedStores.dat");
+		final FileChannel channel = openChannel(cleanedFile);
+		
+		for(final StoreFile s : this.storeFiles.values())
+		{
+			this.cleanUp(s, channel);
+		}
+	}
+	
+	private void cleanUp(final StoreFile storeFile, final FileChannel channel) throws Exception
+	{
+		final ByteBuffer    dbb = readFile(storeFile.fileChannel());
+		final long startAddress = XMemory.getDirectByteBufferAddress(dbb);
+		final long boundAddress = startAddress + dbb.position();
+		
+		final EntityDataHeaderEvaluator validator = this.headerEvaluator;
+		
+		long currentValidEntityStartAddress = startAddress;
+		long currentValidEntityBoundAddress = currentValidEntityStartAddress;
+		
+		long a = startAddress;
+		outer:
+		while(a < boundAddress)
+		{
+			long s = a;
+			while(XMemory.get_byte(s) == 0)
+			{
+				if(++s == boundAddress)
+				{
+					break outer;
+				}
+			}
+			if(s != a)
+			{
+				this.flushValidEntities(channel, currentValidEntityStartAddress, currentValidEntityBoundAddress);
+				// (15.03.2019 TM)FIXME: SYSO
+				System.out.println("Skipping zeroes  in store file " + storeFile.number() + " ["+a+";"+s+"[("+(s-a)+")");
+				a = s;
+				currentValidEntityBoundAddress = currentValidEntityStartAddress = s;
+			}
+			
+			long v = a;
+			while(!validator.isValidHeader(v, boundAddress - v))
+			{
+				if(++v == boundAddress)
+				{
+					break outer;
+				}
+			}
+			if(v != a)
+			{
+				this.flushValidEntities(channel, currentValidEntityStartAddress, currentValidEntityBoundAddress);
+				currentValidEntityBoundAddress = currentValidEntityStartAddress = 0;
+				// (15.03.2019 TM)FIXME: SYSO
+				System.out.println("Skipping garbage in store file " + storeFile.number() + " ["+a+";"+v+"[("+(v-a)+")");
+				this.writeGargabe(storeFile, startAddress, v, v - a);
+				a = v;
+				currentValidEntityBoundAddress = currentValidEntityStartAddress = v;
+			}
+			
+			final long length   = Binary.getEntityLengthRawValue(a)  ;
+			final long typeId   = Binary.getEntityTypeIdRawValue(a)  ;
+			final long objectId = Binary.getEntityObjectIdRawValue(a);
+			
+			if(length == 0)
+			{
+				XDebug.println("length 0");
+			}
+
+			System.out.println(
+				"Recovering entity in store file " + storeFile.number() + " @" + a
+				+ ": [" + length + "][" + typeId + "][" + objectId + "]"
+			);
+			currentValidEntityBoundAddress += length;
+			a += length;
+		}
+		
+		this.flushValidEntities(channel, currentValidEntityStartAddress, currentValidEntityBoundAddress);
+	}
+	
+	private void flushValidEntities(
+		final FileChannel channel,
+		final long        address,
+		final long        boundAddress
+	)
+		throws Exception
+	{
+		if(address == boundAddress)
+		{
+			return;
+		}
+		writeBytes(address, boundAddress - address, channel);
+	}
+	
+	private void writeGargabe(
+		final StoreFile storeFile  ,
+		final long      addressBase,
+		final long      address    ,
+		final long      length
+	)
+		throws Exception
+	{
+		final File partFile = new File(
+			this.storeDirectory,
+			"Garbage_" + storeFile.number + "_@" + (address - addressBase) + "[" + length + "]"
+		);
+		writeBytes(address, length, partFile);
+	}
+	
+	private static void writeBytes(final long address, final long length, final File file) throws Exception
+	{
+		writeBytes(address, length, openChannel(file));
+	}
+	
+	private static void writeBytes(
+		final long        address,
+		final long        length ,
+		final FileChannel channel
+	)
+		throws Exception
+	{
+//		XDebug.println("Writing @" + address + "[" + length + "]");
+		
+		final ByteBuffer dbb = ByteBuffer.allocateDirect(X.checkArrayRange(length));
+		XMemory.copyRange(address, XMemory.getDirectByteBufferAddress(dbb), length);
+		
+		while(dbb.hasRemaining())
+		{
+			channel.write(dbb);
+		}
+		/* Intentionally no close since the cleanedStores file is kept open
+		 * All channels are closed when the programm terminates, anyway.
+		 * This is (currently!) only a oneshot-"script", not an application.
+		 */
+	}
+	
+	public static void closeSilent(final AutoCloseable closable)
+	{
+		if(closable == null)
+		{
+			return;
+		}
+		try
+		{
+			closable.close();
+		}
+		catch(final Exception t)
+		{
+			// sshhh, silence!
+		}
+	}
+	
+	private static ByteBuffer readFile(final FileChannel channel) throws Exception
+	{
+		final ByteBuffer bb = ByteBuffer.allocateDirect(X.checkArrayRange(channel.size()));
+		
+		while(bb.hasRemaining())
+		{
+			channel.read(bb);
+		}
+		
+		return bb;
 	}
 	
 	private boolean handleTransactionsEntry(final StorageTransactionsFile.Entry e) throws Exception
@@ -390,6 +563,107 @@ class StorageRollbacker
 			// no method implementations. It's magic! :D
 		}
 	}
+	
+	public static final class EntityDataHeaderEvaluator
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
 		
+		private final long
+			lengthLowerValue  ,
+			lengthUpperBound  ,
+			typeIdLowerValue  ,
+			typeIdUpperBound  ,
+			objectIdLowerValue,
+			objectIdUpperBound
+		;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		public EntityDataHeaderEvaluator(
+			final long lengthLowerValue  ,
+			final long lengthUpperBound  ,
+			final long typeIdLowerValue  ,
+			final long typeIdUpperBound  ,
+			final long objectIdLowerValue,
+			final long objectIdUpperBound
+		)
+		{
+			super();
+			this.lengthLowerValue   = lengthLowerValue  ;
+			this.lengthUpperBound   = lengthUpperBound  ;
+			this.typeIdLowerValue   = typeIdLowerValue  ;
+			this.typeIdUpperBound   = typeIdUpperBound  ;
+			this.objectIdLowerValue = objectIdLowerValue;
+			this.objectIdUpperBound = objectIdUpperBound;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		private static boolean isValid(final long lowerValue, final long upperBound, final long value)
+		{
+			if(value < lowerValue)
+			{
+				return false;
+			}
+			if(value >= upperBound)
+			{
+				return false;
+			}
+			
+			return true;
+		}
+		
+		public boolean isValidHeader(final long entityStartAddress, final long availableDataLength)
+		{
+			if(Binary.entityHeaderLength() > availableDataLength)
+			{
+				return false;
+			}
+			final long length   = Binary.getEntityLengthRawValue(entityStartAddress)  ;
+			final long typeId   = Binary.getEntityTypeIdRawValue(entityStartAddress)  ;
+			final long objectId = Binary.getEntityObjectIdRawValue(entityStartAddress);
+			
+			if(!this.isValidHeader(length, typeId, objectId))
+			{
+				return false;
+			}
+
+			if(length > availableDataLength)
+			{
+				return false;
+			}
+			
+			return true;
+		}
+		
+		public boolean isValidHeader(final long length, final long typeId, final long objectId)
+		{
+			if(!isValid(this.lengthLowerValue, this.lengthUpperBound, length))
+			{
+				return false;
+			}
+			if(!isValid(this.typeIdLowerValue, this.typeIdUpperBound, typeId))
+			{
+				return false;
+			}
+			if(!isValid(this.objectIdLowerValue, this.objectIdUpperBound, objectId))
+			{
+				return false;
+			}
+			
+			return true;
+		}
+		
+	}
 	
 }
