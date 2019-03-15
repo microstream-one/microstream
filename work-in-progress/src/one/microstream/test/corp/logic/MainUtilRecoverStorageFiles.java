@@ -81,22 +81,24 @@ public class MainUtilRecoverStorageFiles
 		final File dir = XFiles.ensureDirectory(new File("D:/_Allianz/20190313_2330_Rollback"));
 		XDebug.deleteAllFiles(dir, false);
 		
+		final StorageRollbacker sr = new StorageRollbacker(
+			863,
+			EqHashTable.New(KeyValue(872L, sourceFile)),
+			dir, "rolledBack_", "storesOnly_",
+			new StorageRollbacker.EntityDataHeaderEvaluator(
+				LENGTH_LOWER_VALUE  , LENGTH_UPPER_BOUND  ,
+				TYPEID_LOWER_VALUE  , TYPEID_UPPER_BOUND  ,
+				OBJECTID_LOWER_VALUE, OBJECTID_UPPER_BOUND
+			)
+		);
+
 		final StorageTransactionsFile tf = StorageTransactionsFile.parseFile(
 			new File(PATH_CORRUPTED + "/channel_0/transactions_0.sft")
 		);
+//		sr.rollbackTransfers(tf);
 		
-		final StorageRollbacker sr = new StorageRollbacker(
-			EqHashTable.New(
-				KeyValue(872L, sourceFile)),
-				dir, dir, "rolledBack_", "storesOnly_",
-				new StorageRollbacker.EntityDataHeaderEvaluator(
-					LENGTH_LOWER_VALUE  , LENGTH_UPPER_BOUND  ,
-					TYPEID_LOWER_VALUE  , TYPEID_UPPER_BOUND  ,
-					OBJECTID_LOWER_VALUE, OBJECTID_UPPER_BOUND
-				)
-		);
-		
-		sr.rollbackTransfers(tf, 863, 607_914);
+//		sr.cleanUpDirect();
+		sr.recoverStringsAndPrint();
 	}
 	
 }

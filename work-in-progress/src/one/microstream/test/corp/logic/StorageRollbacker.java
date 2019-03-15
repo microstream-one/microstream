@@ -9,13 +9,17 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import one.microstream.X;
+import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
+import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.files.XFiles;
 import one.microstream.memory.XMemory;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.storage.types.StorageTransactionsFile;
 import one.microstream.typing.KeyValue;
 
@@ -25,12 +29,12 @@ class StorageRollbacker
 	// instance fields //
 	////////////////////
 	
-	final EntityDataHeaderEvaluator     headerEvaluator;
-	final EqHashTable<Long, SourceFile> sourceFiles    ;
-	final File                          recDirectory   ;
-	final File                          storeDirectory ;
-	final String                        recFilePrefix  ;
-	final String                        storeFilePrefix;
+	final long                          lowestFileNumber;
+	final EntityDataHeaderEvaluator     headerEvaluator ;
+	final EqHashTable<Long, SourceFile> sourceFiles     ;
+	final File                          recDirectory    ;
+	final String                        recFilePrefix   ;
+	final String                        storeFilePrefix ;
 	
 	final EqHashTable<Long, StoreFile> storeFiles = EqHashTable.New();
 	final EqHashTable<Long, RecFile>   recFiles   = EqHashTable.New();
@@ -42,21 +46,21 @@ class StorageRollbacker
 	/////////////////
 	
 	StorageRollbacker(
-		final XGettingTable<Long, File> sourceFiles    ,
-		final File                      recDirectory   ,
-		final File                      storeDirectory ,
-		final String                    recFilePrefix  ,
-		final String                    storeFilePrefix,
+		final long                      lowestFileNumber,
+		final XGettingTable<Long, File> sourceFiles     ,
+		final File                      recDirectory    ,
+		final String                    recFilePrefix   ,
+		final String                    storeFilePrefix ,
 		final EntityDataHeaderEvaluator headerEvaluator
 	)
 	{
 		super();
-		this.headerEvaluator = headerEvaluator;
-		this.sourceFiles     = this.setupSourceFiles(sourceFiles);
-		this.recDirectory    = recDirectory   ;
-		this.storeDirectory  = storeDirectory ;
-		this.recFilePrefix   = recFilePrefix  ;
-		this.storeFilePrefix = storeFilePrefix;
+		this.headerEvaluator  = headerEvaluator ;
+		this.sourceFiles      = this.setupSourceFiles(sourceFiles);
+		this.recDirectory     = recDirectory    ;
+		this.recFilePrefix    = recFilePrefix   ;
+		this.storeFilePrefix  = storeFilePrefix ;
+		this.lowestFileNumber = lowestFileNumber;
 	}
 	
 	
@@ -79,14 +83,10 @@ class StorageRollbacker
 		return sourceFiles;
 	}
 
-	public void rollbackTransfers(
-		final StorageTransactionsFile tf            ,
-		final long                    lastFileNumber,
-		final long                    lastFileLength
-	)
+	public void rollbackTransfers(final StorageTransactionsFile tf)
 		 throws Exception
 	{
-		final long quickNDirtyCertainlyLastFile = lastFileNumber - 1;
+		final long quickNDirtyCertainlyLastFile = this.lowestFileNumber - 1;
 		
 		final XGettingSequence<StorageTransactionsFile.Entry> reversed = tf.entries().toReversed();
 		for(final StorageTransactionsFile.Entry e : reversed)
@@ -103,6 +103,141 @@ class StorageRollbacker
 		this.cleanUpStores();
 	}
 	
+	public void cleanUpDirect() throws Exception
+	{
+		final File cleanedFile = this.createCleanUpFile();
+		final FileChannel channel = openChannel(cleanedFile);
+		
+		for(final SourceFile file : this.sourceFiles.values())
+		{
+			this.cleanUp(file, channel);
+		}
+	}
+	
+	public void recoverStringsAndPrint() throws Exception
+	{
+		final EqHashTable<Long, String> strings = this.recoverStrings();
+		
+		final VarString vs = VarString.New();
+		
+		for(final KeyValue<Long, String> e : strings)
+		{
+			vs.add("[[["+e.key()+"]]]:").lf();
+			vs.add(e.value()).lf();
+			vs.lf();
+		}
+		
+		XFiles.writeStringToFile(new File(this.recDirectory, "lcm_prod_Strings.txt"), vs.toString());
+	}
+	
+	public EqHashTable<Long, String> recoverStrings() throws Exception
+	{
+		final File cleanedFile = this.createCleanUpFile();
+		final FileChannel channel = openChannel(cleanedFile);
+		
+		final EqHashTable<Long, String> strings = EqHashTable.New();
+		
+		for(final SourceFile file : this.sourceFiles.values())
+		{
+			this.recoverStrings(strings, file, channel);
+		}
+		
+		strings.keys().sort(XSort::compare);
+		return strings;
+	}
+	
+	public static final class StringRecognizer
+	{
+		static final long
+			LENGTH_LOWER_VALUE   = Binary.entityHeaderLength()       ,
+			LENGTH_UPPER_BOUND   = 100_000                           ,
+			TYPEID_STRING        = 30                                ,
+			OBJECTID_LOWER_VALUE = Persistence.defaultStartObjectId(),
+			OBJECTID_UPPER_BOUND = 1000000000001000000L
+		;
+		
+		public boolean isString(final long entityStartAddress, final long availableDataLength)
+		{
+			if(Binary.entityHeaderLength() > availableDataLength)
+			{
+				return false;
+			}
+			final long typeId = Binary.getEntityTypeIdRawValue(entityStartAddress);
+			if(typeId != TYPEID_STRING)
+			{
+				return false;
+			}
+			
+			final long length = Binary.getEntityLengthRawValue(entityStartAddress);
+			if(!isValid(LENGTH_LOWER_VALUE, LENGTH_UPPER_BOUND, length))
+			{
+				return false;
+			}
+			
+			final long objectId = Binary.getEntityObjectIdRawValue(entityStartAddress);
+			if(!isValid(OBJECTID_LOWER_VALUE, OBJECTID_UPPER_BOUND, objectId))
+			{
+				return false;
+			}
+
+			if(length > availableDataLength)
+			{
+				return false;
+			}
+			
+			return true;
+		}
+	}
+	
+	public void recoverStrings(
+		final EqHashTable<Long, String> strings  ,
+		final SourceFile                storeFile,
+		final FileChannel               channel
+	)
+		throws Exception
+	{
+		final ByteBuffer    dbb = readFile(storeFile.fileChannel());
+		final long startAddress = XMemory.getDirectByteBufferAddress(dbb);
+		final long boundAddress = startAddress + dbb.position();
+		
+		final StringRecognizer validator = new StringRecognizer();
+				
+		long a = startAddress;
+		while(a < boundAddress)
+		{
+			if(validator.isString(a, boundAddress - a))
+			{
+				a = this.collectString(strings, a);
+			}
+			else
+			{
+				a++;
+			}
+		}
+	}
+	
+	private static final long STRING_HEADER_LENGTH = Binary.entityHeaderLength() + 16; // 16 = list header length
+	
+	private long collectString(
+		final EqHashTable<Long, String> strings,
+		final long      entityStartAddress
+	)
+		throws Exception
+	{
+
+		final long length   = Binary.getEntityLengthRawValue(entityStartAddress)  ;
+		final long objectId = Binary.getEntityObjectIdRawValue(entityStartAddress);
+		
+		final int stringContentLength = X.checkArrayRange(length - STRING_HEADER_LENGTH);
+		final char[] buffer = new char[stringContentLength / 2];
+		XMemory.copyRangeToArray(entityStartAddress + STRING_HEADER_LENGTH, buffer);
+		final String string = new String(buffer);
+		
+		strings.add(objectId, string);
+		
+		return entityStartAddress + length;
+	}
+	
 	private void processRecEntries() throws Exception
 	{
 		for(final RecFile r : this.recFiles.values())
@@ -115,9 +250,9 @@ class StorageRollbacker
 				// (14.03.2019 TM)FIXME: SYSO
 //				XDebug.println(
 				System.out.println(
-					"Copying to RecFile " + r.number()
+					"Copying"
 					+ " from source " + e.sourceFile.number() + "@" + e.sourceOffset + "[" + e.length + "]"
-					+ " to " + e.targetOffset
+					+ " to RecFile "  + r.number()            + "@" + e.targetOffset
 				);
 				r.fileChannel.position(e.targetOffset);
 				e.sourceFile.fileChannel().position(e.sourceOffset);
@@ -139,9 +274,9 @@ class StorageRollbacker
 				// (14.03.2019 TM)FIXME: SYSO
 //				XDebug.println(
 				System.out.println(
-					"Copying to StoreFile " + s.number()
-					+ " from source " + e.sourceFile.number() + "@" + e.sourceOffset + "[" + e.length + "]"
-					+ " to " + s.fileChannel.size()
+					"Copying"
+					+ " from source "  + e.sourceFile.number() + "@" + e.sourceOffset + "[" + e.length + "]"
+					+ " to StoreFile " + s.number()            + "@" + + s.fileChannel.size()
 				);
 				e.sourceFile.fileChannel().position(e.sourceOffset);
 				s.fileChannel.transferFrom(e.sourceFile.fileChannel(), s.fileChannel.size(), e.length);
@@ -152,16 +287,24 @@ class StorageRollbacker
 	
 	private void cleanUpStores() throws Exception
 	{
-		final File    cleanedFile = new File(this.storeDirectory, "cleanedStores.dat");
+		final File cleanedFile = this.createCleanUpFile();
 		final FileChannel channel = openChannel(cleanedFile);
 		
-		for(final StoreFile s : this.storeFiles.values())
+		for(final SourceFile s : this.storeFiles.values())
 		{
 			this.cleanUp(s, channel);
 		}
 	}
 	
-	private void cleanUp(final StoreFile storeFile, final FileChannel channel) throws Exception
+	private File createCleanUpFile()
+	{
+		return new File(
+			XFiles.ensureDirectory(new File(this.recDirectory, "cleaned")),
+			"channel_0_" + (this.lowestFileNumber + 1) + ".dat"
+		);
+	}
+	
+	private void cleanUp(final SourceFile storeFile, final FileChannel channel) throws Exception
 	{
 		final ByteBuffer    dbb = readFile(storeFile.fileChannel());
 		final long startAddress = XMemory.getDirectByteBufferAddress(dbb);
@@ -188,7 +331,8 @@ class StorageRollbacker
 			{
 				this.flushValidEntities(channel, currentValidEntityStartAddress, currentValidEntityBoundAddress);
 				// (15.03.2019 TM)FIXME: SYSO
-				System.out.println("Skipping zeroes  in store file " + storeFile.number() + " ["+a+";"+s+"[("+(s-a)+")");
+				System.out.println("Skipping zeroes  in store file " + storeFile.number()
+				+ " ["+(a - startAddress)+";"+(s - startAddress)+"[("+(s-a)+")");
 				a = s;
 				currentValidEntityBoundAddress = currentValidEntityStartAddress = s;
 			}
@@ -206,7 +350,9 @@ class StorageRollbacker
 				this.flushValidEntities(channel, currentValidEntityStartAddress, currentValidEntityBoundAddress);
 				currentValidEntityBoundAddress = currentValidEntityStartAddress = 0;
 				// (15.03.2019 TM)FIXME: SYSO
-				System.out.println("Skipping garbage in store file " + storeFile.number() + " ["+a+";"+v+"[("+(v-a)+")");
+				System.out.println("Skipping garbage in store file " + storeFile.number()
+				+ " ["+(a - startAddress)+";"+(v - startAddress)+"[("+(v-a)+")"
+			);
 				this.writeGargabe(storeFile, startAddress, v, v - a);
 				a = v;
 				currentValidEntityBoundAddress = currentValidEntityStartAddress = v;
@@ -216,14 +362,10 @@ class StorageRollbacker
 			final long typeId   = Binary.getEntityTypeIdRawValue(a)  ;
 			final long objectId = Binary.getEntityObjectIdRawValue(a);
 			
-			if(length == 0)
-			{
-				XDebug.println("length 0");
-			}
-
 			System.out.println(
 				"Recovering entity in store file " + storeFile.number() + " @" + a
 				+ ": [" + length + "][" + typeId + "][" + objectId + "]"
+				+ " (" + (channel.size() + currentValidEntityBoundAddress - currentValidEntityStartAddress) + ")"
 			);
 			currentValidEntityBoundAddress += length;
 			a += length;
@@ -247,16 +389,22 @@ class StorageRollbacker
 	}
 	
 	private void writeGargabe(
-		final StoreFile storeFile  ,
-		final long      addressBase,
-		final long      address    ,
-		final long      length
+		final SourceFile storeFile  ,
+		final long       addressBase,
+		final long       address    ,
+		final long       length
 	)
 		throws Exception
 	{
+		// (15.03.2019 TM)FIXME: /!\ DEBUG
+		if(address - addressBase == 3366897)
+		{
+			XDebug.println("3366897");
+		}
+		
 		final File partFile = new File(
-			this.storeDirectory,
-			"Garbage_" + storeFile.number + "_@" + (address - addressBase) + "[" + length + "]"
+			XFiles.ensureDirectory(new File(this.recDirectory, "garbage")),
+			"Garbage_" + storeFile.number() + "_@" + (address - addressBase) + "[" + length + "]"
 		);
 		writeBytes(address, length, partFile);
 	}
@@ -398,7 +546,10 @@ class StorageRollbacker
 
 	private RecFile createRecFile(final Long fileNumber)
 	{
-		final File file = new File(this.recDirectory, this.recFilePrefix + fileNumber + ".dat");
+		final File file = new File(
+			XFiles.ensureDirectory(new File(this.recDirectory, "rollback")),
+			this.recFilePrefix + fileNumber + ".dat"
+		);
 		final RecFile rf = new RecFile(fileNumber, file);
 		this.sourceFiles.add(fileNumber, rf);
 		
@@ -407,7 +558,10 @@ class StorageRollbacker
 
 	private StoreFile createStoreFile(final Long fileNumber)
 	{
-		final File file = new File(this.storeDirectory, this.storeFilePrefix + fileNumber + ".dat");
+		final File file = new File(
+			XFiles.ensureDirectory(new File(this.recDirectory, "stores")),
+			this.storeFilePrefix + fileNumber + ".dat"
+		);
 		return new StoreFile(fileNumber, file);
 	}
 	
@@ -503,7 +657,7 @@ class StorageRollbacker
 		
 	}
 	
-	static class StoreFile extends AbstractFile
+	static class StoreFile extends AbstractFile implements SourceFile
 	{
 		final BulkList<StoreEntry> storeEntries = BulkList.New();
 		
@@ -564,6 +718,20 @@ class StorageRollbacker
 		}
 	}
 	
+	static final boolean isValid(final long lowerValue, final long upperBound, final long value)
+	{
+		if(value < lowerValue)
+		{
+			return false;
+		}
+		if(value >= upperBound)
+		{
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public static final class EntityDataHeaderEvaluator
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -609,19 +777,7 @@ class StorageRollbacker
 		// methods //
 		////////////
 		
-		private static boolean isValid(final long lowerValue, final long upperBound, final long value)
-		{
-			if(value < lowerValue)
-			{
-				return false;
-			}
-			if(value >= upperBound)
-			{
-				return false;
-			}
-			
-			return true;
-		}
+
 		
 		public boolean isValidHeader(final long entityStartAddress, final long availableDataLength)
 		{
@@ -632,6 +788,12 @@ class StorageRollbacker
 			final long length   = Binary.getEntityLengthRawValue(entityStartAddress)  ;
 			final long typeId   = Binary.getEntityTypeIdRawValue(entityStartAddress)  ;
 			final long objectId = Binary.getEntityObjectIdRawValue(entityStartAddress);
+			
+			// (15.03.2019 TM)FIXME: /!\ DEBUG
+			if(objectId == 1000000000000079583L)
+			{
+				XDebug.println("1000000000000079583");
+			}
 			
 			if(!this.isValidHeader(length, typeId, objectId))
 			{
