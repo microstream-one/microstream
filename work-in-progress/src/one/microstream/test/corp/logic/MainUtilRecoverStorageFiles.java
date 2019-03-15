@@ -8,6 +8,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.files.XFiles;
 import one.microstream.meta.XDebug;
+import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.storage.types.StorageDataFileValidator;
@@ -22,7 +23,14 @@ public class MainUtilRecoverStorageFiles
 	static final String PATH_CORRUPTED =
 		"D:/_Allianz/2019-03-14_ProdDb/20190313_2330_autobackup_prod_kaputt/backup_daily_2019-03-13Z"
 	;
-	
+	static final long
+		LENGTH_LOWER_VALUE   = Binary.entityHeaderLength()       ,
+		LENGTH_UPPER_BOUND   = 100_000                           ,
+		TYPEID_LOWER_VALUE   = 10                                ,
+		TYPEID_UPPER_BOUND   = 1013002                           ,
+		OBJECTID_LOWER_VALUE = Persistence.defaultStartObjectId(),
+		OBJECTID_UPPER_BOUND = 1000000000001000000L
+	;
 	
 	public static void main(final String[] args) throws Exception
 	{
@@ -30,8 +38,7 @@ public class MainUtilRecoverStorageFiles
 //		validateDataFiles();
 //		printTransactionsFile();
 	}
-	
-
+//	1000000000000087529
 	static void validateDataFiles()
 	{
 		final StorageFileProvider sfp = StorageFileProvider
@@ -45,9 +52,9 @@ public class MainUtilRecoverStorageFiles
 			BinaryEntityRawDataIterator.New(),
 			StorageEntityDataValidator.DebugLogging(
 				StorageEntityDataValidator.New(
-					24, 100_000,
-					 1, 1013002,
-					 Persistence.defaultStartObjectId(), Persistence.defaultBoundConstantId()
+					LENGTH_LOWER_VALUE  , LENGTH_UPPER_BOUND  ,
+					TYPEID_LOWER_VALUE  , TYPEID_UPPER_BOUND  ,
+					OBJECTID_LOWER_VALUE, OBJECTID_UPPER_BOUND
 				)
 			),
 			StorageFileEntityDataIterator.New()
@@ -79,7 +86,14 @@ public class MainUtilRecoverStorageFiles
 		);
 		
 		final StorageRollbacker sr = new StorageRollbacker(
-			EqHashTable.New(KeyValue(872L, sourceFile)), dir, dir, "rolledBack_", "storesOnly_"
+			EqHashTable.New(
+				KeyValue(872L, sourceFile)),
+				dir, dir, "rolledBack_", "storesOnly_",
+				new StorageRollbacker.EntityDataHeaderEvaluator(
+					LENGTH_LOWER_VALUE  , LENGTH_UPPER_BOUND  ,
+					TYPEID_LOWER_VALUE  , TYPEID_UPPER_BOUND  ,
+					OBJECTID_LOWER_VALUE, OBJECTID_UPPER_BOUND
+				)
 		);
 		
 		sr.rollbackTransfers(tf, 863, 607_914);
