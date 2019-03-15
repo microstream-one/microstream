@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.collections.XArrays;
 import one.microstream.files.XFiles;
@@ -21,8 +22,42 @@ public class MainSearchBinaryStringInFiles
 
 	static final BiConsumer<File, Consumer<? super File>> DIRECT = (f, p) -> p.accept(f);
 
+	
+	private static void searchLCM(final long... oids)
+	{
+		for(final long oid : oids)
+		{
+			searchLCM(oid);
+		}
+	}
+	
+	private static void searchLCM(final long oid)
+	{
+		System.out.println("\nSearching for " + oid);
+		searchStringsInFiles(
+			DIRECT,
+			X.array(new File("D:/_Allianz/20190313_2330_Rollback/garbage/").listFiles()),
+			XMemory.toByteArray(oid)
+		);
+		searchStringsInFiles(
+			DIRECT,
+			X.array(new File("D:/_Allianz/20190313_2330_Rollback/cleaned/channel_0_864.dat")),
+			XMemory.toByteArray(oid)
+		);
+		searchStringsInFiles(
+			DIRECT,
+			X.array(new File("D:/_Allianz/2019-03-14_ProdDb/20190313_2330_autobackup_prod_kaputt/backup_daily_2019-03-13Z/channel_0/channel_0_872.dat")),
+			XMemory.toByteArray(oid)
+		);
+	}
+	
 	public static void main(final String[] args)
 	{
+		searchLCM(
+			1000000000000098172L,
+			1000000000000098219L
+		);
+		
 //		searchStringsInFiles(
 //			DIRECT,
 //			X.array(new File("D:/Bonus25/storage/graveyard3/channel_3_663.dat")),
@@ -41,11 +76,11 @@ public class MainSearchBinaryStringInFiles
 //			Memory.toByteArray(1000000000037420619L)
 //		);
 
-		searchStringsInFiles(
-			DIRECT,
-			new File("C:/Bonus25/storage/channel_1").listFiles(),
-			XMemory.toByteArray(1000000000034381713L)
-		);
+//		searchStringsInFiles(
+//			DIRECT,
+//			new File("C:/Bonus25/storage/channel_1").listFiles(),
+//			XMemory.toByteArray(1000000000034381713L)
+//		);
 	}
 
 
