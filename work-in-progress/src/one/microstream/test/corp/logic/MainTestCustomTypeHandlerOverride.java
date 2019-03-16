@@ -3,6 +3,7 @@ package one.microstream.test.corp.logic;
 import java.util.ArrayList;
 
 import one.microstream.collections.old.OldCollections;
+import one.microstream.persistence.binary.internal.BinaryHandlerArrayList;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
@@ -11,7 +12,14 @@ public class MainTestCustomTypeHandlerOverride
 {
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-//		.Foundation()
+		.Foundation()
+		.onConnectionFoundation(f ->
+		{
+			f.getCustomTypeHandlerRegistry()
+			.registerTypeHandler(
+				new BinaryHandlerArrayList(f.getSizedArrayLengthController()).initializeTypeId(10043)
+			);
+		})
 //		.setRefactoringMappingProvider(
 //			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
 //		)
@@ -37,10 +45,10 @@ public class MainTestCustomTypeHandlerOverride
 		{
 			Test.print("TEST: graph loaded." );
 			Test.print(STORAGE.root().get());
-			Test.print("TEST: exporting data ..." );
+			Test.print("TEST: done." );
 		}
 		
-		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
+		System.exit(0);
 	}
 	
 	static ArrayList<String> generateGraph()
