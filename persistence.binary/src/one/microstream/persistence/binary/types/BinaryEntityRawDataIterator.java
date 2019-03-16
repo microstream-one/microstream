@@ -47,31 +47,42 @@ public interface BinaryEntityRawDataIterator
 			final long itemStartBoundAddress = boundAddress - Binary.lengthLength() + 1;
 			
 			long address = startAddress;
-			while(address < itemStartBoundAddress)
+			try
 			{
-				final long itemLength = XMemory.get_long(address);
-				if(itemLength > 0)
+				while(address < itemStartBoundAddress)
 				{
-					// if the logic did not accept the entity data, iteration is aborted at the start of that entity.
-					if(!entityDataAcceptor.acceptEntityData(address, boundAddress))
+					final long itemLength = XMemory.get_long(address);
+					if(itemLength > 0)
 					{
-						break;
+						// if the logic did not accept the entity data, iteration is aborted at the start of that entity.
+						if(!entityDataAcceptor.acceptEntityData(address, boundAddress))
+						{
+							break;
+						}
+						
+						// otherwise, the iteration advances to the next item (comment or entity)
+						address += itemLength;
 					}
-					
-					// otherwise, the iteration advances to the next item (comment or entity)
-					address += itemLength;
+					else if(itemLength < 0)
+					{
+						// comments (indicated by negative length) just get skipped.
+						address -= itemLength;
+					}
+					else
+					{
+						// (28.02.2019 TM)EXCP: proper exception
+						// entity length may never be 0 or the iteration will hang forever
+						throw new BinaryPersistenceException("Zero length data item.");
+					}
 				}
-				else if(itemLength < 0)
-				{
-					// comments (indicated by negative length) just get skipped.
-					address -= itemLength;
-				}
-				else
-				{
-					// (28.02.2019 TM)EXCP: proper exception
-					// entity length may never be 0 or the iteration will hang forever
-					throw new BinaryPersistenceException("Zero length data item.");
-				}
+			}
+			catch(final Exception e)
+			{
+				throw new BinaryPersistenceException(
+					"Exception at address offset " + (address - startAddress)
+					+ " (bound offset = " + (boundAddress - startAddress) + ")"
+					, e
+				);
 			}
 			
 			// the total length of processed items is returned so the calling context can validate/advance/etc.

@@ -10,22 +10,22 @@ public class ComException extends BaseException
 
 	public ComException()
 	{
-		this(null, null);
+		super();
 	}
 
 	public ComException(final String message)
 	{
-		this(message, null);
+		super(message);
 	}
 
 	public ComException(final Throwable cause)
 	{
-		this(null, cause);
+		super(cause);
 	}
 
 	public ComException(final String message, final Throwable cause)
 	{
-		this(message, cause, true, true);
+		super(message, cause);
 	}
 
 	public ComException(

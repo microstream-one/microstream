@@ -2,11 +2,11 @@ package one.microstream.storage.types;
 
 
 /**
- * The representation of a data file inside a transactions file, accumulated from multiple transactions entry.
+ * The representation of a data file inside a transactions file, accumulated from multiple transactions entries.
  *
- * @author Paigan
+ * @author Thomas Muenz
  */
-public interface StorageTransactionFile
+public interface StorageTransactionFileEntry
 {
 	public long fileNumber();
 
@@ -16,7 +16,7 @@ public interface StorageTransactionFile
 
 
 
-	public final class Implementation implements StorageTransactionFile
+	public final class Implementation implements StorageTransactionFileEntry
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //

@@ -29,15 +29,14 @@ public interface StorageTransactionsFileAnalysis
 
 	public StorageInventoryFile transactionsFile();
 
-	public XGettingTable<Long, ? extends StorageTransactionFile> transactionsFileEntries();
+	public XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries();
 
 	public default boolean isEmpty()
 	{
 		return this.transactionsFileEntries().isEmpty();
 	}
 
-
-
+	
 	public final class Logic
 	{
 		/*
@@ -563,7 +562,7 @@ public interface StorageTransactionsFileAnalysis
 			// reset as it is no longer valid for a new file (would mess up common part calculation otherwise)
 			this.lastFileLength = 0;
 
-			this.vs.add("CREATE").tab();
+			this.vs.add(StorageTransactionsFile.EntryType.FILE_CREATION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -581,7 +580,7 @@ public interface StorageTransactionsFileAnalysis
 				return false;
 			}
 			this.vs
-			.add("STORE").tab();
+			.add(StorageTransactionsFile.EntryType.DATA_STORE.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -599,7 +598,7 @@ public interface StorageTransactionsFileAnalysis
 				return false;
 			}
 			this.vs
-			.add("TRANSFER").tab();
+			.add(StorageTransactionsFile.EntryType.DATA_TRANSFER.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -618,7 +617,7 @@ public interface StorageTransactionsFileAnalysis
 				return false;
 			}
 			this.vs
-			.add("TRUNCATE").tab();
+			.add(StorageTransactionsFile.EntryType.FILE_TRUNCATION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -641,7 +640,7 @@ public interface StorageTransactionsFileAnalysis
 //			this.lastFileLength = 2 * Logic.getFileLength(address); // a little hack :)
 
 			this.vs
-			.add("DELETE").tab();
+			.add(StorageTransactionsFile.EntryType.FILE_DELETION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.vs
 			.add('0').tab()
@@ -658,9 +657,11 @@ public interface StorageTransactionsFileAnalysis
 
 	}
 
+	
+	
 	public final class EntryAggregator implements EntryIterator
 	{
-		private final EqHashTable<Long, StorageTransactionFile.Implementation> files = EqHashTable.New();
+		private final EqHashTable<Long, StorageTransactionFileEntry.Implementation> files = EqHashTable.New();
 
 		private final int  hashIndex;
 
@@ -753,7 +754,7 @@ public interface StorageTransactionsFileAnalysis
 			}
 			this.files.add(
 				this.currentFileNumber,
-				new StorageTransactionFile.Implementation(this.currentFileNumber, this.currentStoreLength)
+				new StorageTransactionFileEntry.Implementation(this.currentFileNumber, this.currentStoreLength)
 			);
 		}
 
@@ -867,7 +868,7 @@ public interface StorageTransactionsFileAnalysis
 			}
 
 			final long number = Logic.getFileNumber(address);
-			final StorageTransactionFile.Implementation file = this.files.get(number);
+			final StorageTransactionFileEntry.Implementation file = this.files.get(number);
 			if(file == null)
 			{
 				// (03.09.2014 TM)EXCP: proper exception
@@ -901,22 +902,22 @@ public interface StorageTransactionsFileAnalysis
 
 	public final class Implementation implements StorageTransactionsFileAnalysis
 	{
-		private final StorageInventoryFile                              transactionsFile                    ;
-		private final XGettingTable<Long, ? extends StorageTransactionFile> transactionsFileEntries             ;
-		private final long                                                  headFileLastConsistentStoreLength   ;
-		private final long                                                  headFileLastConsistentStoreTimestamp;
-		private final long                                                  headFileLatestLength                ;
-		private final long                                                  headFileLatestTimestamp             ;
+		private final StorageInventoryFile                                       transactionsFile                    ;
+		private final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries             ;
+		private final long                                                       headFileLastConsistentStoreLength   ;
+		private final long                                                       headFileLastConsistentStoreTimestamp;
+		private final long                                                       headFileLatestLength                ;
+		private final long                                                       headFileLatestTimestamp             ;
 
 
 
 		Implementation(
-			final StorageInventoryFile                              transactionsFile                    ,
-			final XGettingTable<Long, ? extends StorageTransactionFile> transactionsFileEntries             ,
-			final long                                                  headFileLastConsistentStoreLength   ,
-			final long                                                  headFileLastConsistentStoreTimestamp,
-			final long                                                  headFileLatestLength                ,
-			final long                                                  headFileLatestTimestamp
+			final StorageInventoryFile                                       transactionsFile                    ,
+			final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries             ,
+			final long                                                       headFileLastConsistentStoreLength   ,
+			final long                                                       headFileLastConsistentStoreTimestamp,
+			final long                                                       headFileLatestLength                ,
+			final long                                                       headFileLatestTimestamp
 		)
 		{
 			super();
@@ -941,7 +942,7 @@ public interface StorageTransactionsFileAnalysis
 		}
 
 		@Override
-		public final XGettingTable<Long, ? extends StorageTransactionFile> transactionsFileEntries()
+		public final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries()
 		{
 			return this.transactionsFileEntries;
 		}
