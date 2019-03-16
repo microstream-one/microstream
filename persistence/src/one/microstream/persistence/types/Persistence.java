@@ -112,7 +112,7 @@ public class Persistence
 	static final long TID_java_util_AbstractCollection = 40L;
 	static final long TID_java_util_AbstractList       = 41L;
 	static final long TID_java_util_AbstractSet        = 42L;
-	static final long TID_java_util_ArrayList          = 43L;
+	static final long TID_java_util_ArrayList          = 10043L;
 	static final long TID_java_util_HashSet            = 44L;
 
 	static final long TID_ARRAY_byte           = 100L + TID_PRIMITIVE_byte   ;
