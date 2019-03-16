@@ -10,22 +10,22 @@ public class PersistenceException extends BaseException
 
 	public PersistenceException()
 	{
-		this(null, null);
+		super();
 	}
 
 	public PersistenceException(final String message)
 	{
-		this(message, null);
+		super(message);
 	}
 
 	public PersistenceException(final Throwable cause)
 	{
-		this(null, cause);
+		super(cause);
 	}
 
 	public PersistenceException(final String message, final Throwable cause)
 	{
-		this(message, cause, true, true);
+		super(message, cause, true, true);
 	}
 
 	public PersistenceException(

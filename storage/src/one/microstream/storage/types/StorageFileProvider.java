@@ -248,7 +248,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			////////////////////
 			
 			private String
-				baseDirectory      ,
+				baseDirectory         ,
 				deletionDirectory     ,
 				truncationDirectory   ,
 				channelDirectoryPrefix,

@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataAcceptor;
+import one.microstream.util.UtilStackTrace;
 
 
 @FunctionalInterface
@@ -39,8 +40,37 @@ public interface StorageEntityDataValidator extends BinaryEntityRawDataAcceptor
 		final StorageTypeDictionary typeDictionary
 	)
 	{
-		return new StorageEntityDataValidator.Implementation(
+		return new StorageEntityDataValidator.ByDictionary(
 			notNull(typeDictionary)
+		);
+	}
+	
+	public static StorageEntityDataValidator New(
+		final long lengthLowerValue  ,
+		final long lengthUpperBound  ,
+		final long typeIdLowerValue  ,
+		final long typeIdUpperBound  ,
+		final long objectIdLowerValue,
+		final long objectIdUpperBound
+	)
+	{
+		return new StorageEntityDataValidator.SimpleBounds(
+			lengthLowerValue  ,
+			lengthUpperBound  ,
+			typeIdLowerValue  ,
+			typeIdUpperBound  ,
+			objectIdLowerValue,
+			objectIdUpperBound
+		);
+	}
+	
+	@Deprecated
+	public static StorageEntityDataValidator DebugLogging(
+		final StorageEntityDataValidator delegate
+	)
+	{
+		return new DebugLogger(
+			notNull(delegate)
 		);
 	}
 	
@@ -49,20 +79,115 @@ public interface StorageEntityDataValidator extends BinaryEntityRawDataAcceptor
 		final StorageTypeDictionary         typeDictionary
 	)
 	{
-		return new StorageEntityDataValidator.Implementation(
-			notNull(typeDictionary)
-		){
-			
-			@Override
-			public void validateEntity(final long length, final long typeId, final long objectId)
-			{
-				XDebug.println("Validating entity [" + length + "][" + typeId + "][" + objectId + "]");
-				super.validateEntity(length, typeId, objectId);
-			}
-		};
+		return DebugLogging(New(typeDictionary));
 	}
 	
-	public class Implementation implements StorageEntityDataValidator
+	public final class DebugLogger implements StorageEntityDataValidator
+	{
+		private final StorageEntityDataValidator delegate;
+
+		DebugLogger(final StorageEntityDataValidator delegate)
+		{
+			super();
+			this.delegate = delegate;
+		}
+		
+		@Override
+		public void validateEntity(final long length, final long typeId, final long objectId)
+		{
+			XDebug.println("Validating entity [" + length + "][" + typeId + "][" + objectId + "]");
+			this.delegate.validateEntity(length, typeId, objectId);
+		}
+		
+		
+	}
+	
+	public class SimpleBounds implements StorageEntityDataValidator
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final long
+			lengthLowerValue  ,
+			lengthUpperBound  ,
+			typeIdLowerValue  ,
+			typeIdUpperBound  ,
+			objectIdLowerValue,
+			objectIdUpperBound
+		;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		SimpleBounds(
+			final long lengthLowerValue  ,
+			final long lengthUpperBound  ,
+			final long typeIdLowerValue  ,
+			final long typeIdUpperBound  ,
+			final long objectIdLowerValue,
+			final long objectIdUpperBound
+		)
+		{
+			super();
+			this.lengthLowerValue   = lengthLowerValue  ;
+			this.lengthUpperBound   = lengthUpperBound  ;
+			this.typeIdLowerValue   = typeIdLowerValue  ;
+			this.typeIdUpperBound   = typeIdUpperBound  ;
+			this.objectIdLowerValue = objectIdLowerValue;
+			this.objectIdUpperBound = objectIdUpperBound;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		private static boolean isValid(final long lowerValue, final long upperBound, final long value)
+		{
+			if(value < lowerValue)
+			{
+				return false;
+			}
+			if(value >= upperBound)
+			{
+				return false;
+			}
+			
+			return true;
+		}
+		
+		private static RuntimeException createException(final long length, final long typeId, final long objectId)
+		{
+			return UtilStackTrace.cutStacktraceByOne(
+				new RuntimeException("[" + length + "][" + typeId + "][" + objectId + "]")
+			);
+		}
+
+		@Override
+		public void validateEntity(final long length, final long typeId, final long objectId)
+		{
+			if(!isValid(this.lengthLowerValue, this.lengthUpperBound, length))
+			{
+				throw createException(length, typeId, objectId);
+			}
+			if(!isValid(this.typeIdLowerValue, this.typeIdUpperBound, typeId))
+			{
+				throw createException(length, typeId, objectId);
+			}
+			if(!isValid(this.objectIdLowerValue, this.objectIdUpperBound, objectId))
+			{
+				throw createException(length, typeId, objectId);
+			}
+		}
+		
+	}
+	
+	public class ByDictionary implements StorageEntityDataValidator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -76,7 +201,7 @@ public interface StorageEntityDataValidator extends BinaryEntityRawDataAcceptor
 		// constructors //
 		/////////////////
 		
-		protected Implementation(final StorageTypeDictionary typeDictionary)
+		protected ByDictionary(final StorageTypeDictionary typeDictionary)
 		{
 			super();
 			this.typeDictionary = notNull(typeDictionary);
