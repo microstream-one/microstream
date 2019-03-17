@@ -21,7 +21,7 @@ public class MainTestCustomTypeHandlerOverride
 			);
 		})
 //		.setRefactoringMappingProvider(
-//			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
+//			Persistence.RefactoringMapping(new File("Refactorings.csv"))
 //		)
 //		.onConnectionFoundation(e ->
 //			e.setRefactoringMappingProvider(
