@@ -74,7 +74,8 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 			final PersistenceTypeHandler<M, T> typeHandlerInitializer
 		)
 		{
-			return this.mapping.add(type, typeHandlerInitializer);
+			// put instead of add to allow custom-tailed replacments for native handlers (e.g. divergent TID or logic)
+			return this.mapping.put(type, typeHandlerInitializer);
 		}
 
 		@Override
