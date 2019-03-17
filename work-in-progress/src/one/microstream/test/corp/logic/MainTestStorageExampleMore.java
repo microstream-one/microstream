@@ -25,6 +25,10 @@ public class MainTestStorageExampleMore
 			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluatorCustomTimeout(10_000)) // evalutator for removing entities from the cache
 		)
 		
+		.onConnectionFoundation(f -> {
+			f.getRootResolver();
+		})
+		
 		// with registered refactorings
 //		.setRefactoringMappingProvider(
 //			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
