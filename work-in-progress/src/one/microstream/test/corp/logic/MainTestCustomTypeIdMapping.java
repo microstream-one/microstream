@@ -2,23 +2,24 @@ package one.microstream.test.corp.logic;
 
 import java.util.ArrayList;
 
+import one.microstream.X;
+import one.microstream.collections.EqHashTable;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.persistence.binary.internal.BinaryHandlerArrayList;
+import one.microstream.persistence.types.Persistence;
+import one.microstream.persistence.types.PersistenceTypeRegistry;
 import one.microstream.storage.types.EmbeddedStorage;
+import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 
-public class MainTestCustomTypeHandlerOverride
+public class MainTestCustomTypeIdMapping
 {
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation()
-		.onConnectionFoundation(f ->
+		.onThis(f ->
 		{
-			f.getCustomTypeHandlerRegistry()
-			.registerTypeHandler(
-				new BinaryHandlerArrayList(f.getSizedArrayLengthController()).initializeTypeId(10043)
-			);
+			registerCustomTypeIdMappings(f);
 		})
 //		.setRefactoringMappingProvider(
 //			Persistence.RefactoringMapping(new File("Refactorings.csv"))
@@ -30,6 +31,21 @@ public class MainTestCustomTypeHandlerOverride
 //		)
 		.start()
 	;
+	
+	static void registerCustomTypeIdMappings(final EmbeddedStorageFoundation<?> f)
+	{
+		final EqHashTable<Class<?>, Long> customTypeIds = EqHashTable.New(
+			X.KeyValue(java.util.ArrayList.class, 10043L),
+			X.KeyValue(java.util.HashSet.class  ,    44L)
+		);
+		
+		final PersistenceTypeRegistry typeRegistry = PersistenceTypeRegistry.New();
+		Persistence.iterateJavaBasicTypes((type, systemTypeId) ->
+		{
+			typeRegistry.registerType(X.coalesce(customTypeIds.get(type), systemTypeId), type);
+		});
+		f.getConnectionFoundation().setTypeRegistry(typeRegistry);
+	}
 
 	public static void main(final String[] args)
 	{

@@ -17,7 +17,6 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.files.XFiles;
 import one.microstream.memory.XMemory;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.storage.types.StorageTransactionsFile;
@@ -242,12 +241,10 @@ class StorageRollbacker
 	{
 		for(final RecFile r : this.recFiles.values())
 		{
-			// (14.03.2019 TM)FIXME: SYSO
 //			XDebug.println("Filling RecFile " + r.number);
 			System.out.println("Filling RecFile " + r.number);
 			for(final RecEntry e : r.recEntries)
 			{
-				// (14.03.2019 TM)FIXME: SYSO
 //				XDebug.println(
 				System.out.println(
 					"Copying"
@@ -266,12 +263,10 @@ class StorageRollbacker
 	{
 		for(final StoreFile s : this.storeFiles.values())
 		{
-			// (14.03.2019 TM)FIXME: SYSO
 //			XDebug.println("Filling StoreFile " + s.number);
 			System.out.println("Filling StoreFile " + s.number);
 			for(final StoreEntry e : s.storeEntries)
 			{
-				// (14.03.2019 TM)FIXME: SYSO
 //				XDebug.println(
 				System.out.println(
 					"Copying"
@@ -330,7 +325,6 @@ class StorageRollbacker
 			if(s != a)
 			{
 				this.flushValidEntities(channel, currentValidEntityStartAddress, currentValidEntityBoundAddress);
-				// (15.03.2019 TM)FIXME: SYSO
 				System.out.println("Skipping zeroes  in store file " + storeFile.number()
 				+ " ["+(a - startAddress)+";"+(s - startAddress)+"[("+(s-a)+")");
 				a = s;
@@ -349,7 +343,6 @@ class StorageRollbacker
 			{
 				this.flushValidEntities(channel, currentValidEntityStartAddress, currentValidEntityBoundAddress);
 				currentValidEntityBoundAddress = currentValidEntityStartAddress = 0;
-				// (15.03.2019 TM)FIXME: SYSO
 				System.out.println("Skipping garbage in store file " + storeFile.number()
 				+ " ["+(a - startAddress)+";"+(v - startAddress)+"[("+(v-a)+")"
 			);
@@ -396,12 +389,6 @@ class StorageRollbacker
 	)
 		throws Exception
 	{
-		// (15.03.2019 TM)FIXME: /!\ DEBUG
-		if(address - addressBase == 3366897)
-		{
-			XDebug.println("3366897");
-		}
-		
 		final File partFile = new File(
 			XFiles.ensureDirectory(new File(this.recDirectory, "garbage")),
 			"Garbage_" + storeFile.number() + "_@" + (address - addressBase) + "[" + length + "]"
@@ -524,7 +511,6 @@ class StorageRollbacker
 	
 	private boolean handleTransactionsEntryFileDeletion(final StorageTransactionsFile.Entry e) throws Exception
 	{
-		// (14.03.2019 TM)FIXME: SYSO
 //		XDebug.println("Creating RecFile " + e.targetFileNumber() + " with length " + e.fileLength());
 		System.out.println("Creating RecFile " + e.targetFileNumber() + " with length " + e.fileLength());
 		final RecFile r = this.ensureRecFile(e.targetFileNumber());
@@ -788,12 +774,6 @@ class StorageRollbacker
 			final long length   = Binary.getEntityLengthRawValue(entityStartAddress)  ;
 			final long typeId   = Binary.getEntityTypeIdRawValue(entityStartAddress)  ;
 			final long objectId = Binary.getEntityObjectIdRawValue(entityStartAddress);
-			
-			// (15.03.2019 TM)FIXME: /!\ DEBUG
-			if(objectId == 1000000000000079583L)
-			{
-				XDebug.println("1000000000000079583");
-			}
 			
 			if(!this.isValidHeader(length, typeId, objectId))
 			{
