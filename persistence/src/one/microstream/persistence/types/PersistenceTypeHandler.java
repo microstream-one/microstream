@@ -182,7 +182,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 			 * As long as the same typeId (originating from the dictionary file) is passed for initialization,
 			 * everything is fine.
 			 */
-			if(this.typeId != 0)
+			if(this.typeId != Persistence.nullId())
 			{
 				if(this.typeId == typeId)
 				{
