@@ -20,8 +20,8 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =                        0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = XMemory.byteSize_float(); // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_LOAD_FACTOR =           0; // 1 float at offset 0
+	static final long BINARY_OFFSET_ELEMENTS    = Float.BYTES; // sized array at offset 0 + float size
 
 
 
@@ -104,11 +104,10 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	@Override
 	public final void update(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler builder)
 	{
-		final int elementCount = getElementCount(bytes);
+		final int      elementCount   = getElementCount(bytes);
 		final Object[] elementsHelper = new Object[elementCount];
 		
 		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
-	
 		bytes.registerHelper(instance, elementsHelper);
 	}
 
@@ -116,7 +115,6 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	public void complete(final Binary rawData, final LinkedHashSet<?> instance, final PersistenceLoadHandler loadHandler)
 	{
 		final Object helper = rawData.getHelper(instance);
-		
 		if(helper == null)
 		{
 			// (22.04.2016 TM)EXCP: proper exception
@@ -134,6 +132,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 		}
 		
 		final Object[] elementsHelper = (Object[])helper;
+		
 		@SuppressWarnings("unchecked")
 		final LinkedHashSet<Object> castedInstance = (LinkedHashSet<Object>)instance;
 		
@@ -142,7 +141,9 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 			if(!castedInstance.add(element))
 			{
 				// (22.04.2016 TM)EXCP: proper exception
-				throw new RuntimeException("Element hashing inconsistency in " + XChars.systemString(castedInstance));
+				throw new RuntimeException(
+					"Element hashing inconsistency in " + XChars.systemString(castedInstance)
+				);
 			}
 		}
 	}
