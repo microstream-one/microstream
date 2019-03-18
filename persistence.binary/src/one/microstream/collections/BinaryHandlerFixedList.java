@@ -2,7 +2,7 @@ package one.microstream.collections;
 
 import one.microstream.X;
 import one.microstream.collections.FixedList;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.Persistence;
@@ -17,7 +17,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  * @author Thomas Muenz
  */
 public final class BinaryHandlerFixedList
-extends AbstractBinaryHandlerNativeCustomCollection<FixedList<?>>
+extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //

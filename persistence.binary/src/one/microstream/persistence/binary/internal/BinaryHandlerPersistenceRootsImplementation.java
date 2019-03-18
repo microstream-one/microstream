@@ -17,7 +17,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
 public final class BinaryHandlerPersistenceRootsImplementation
-extends AbstractBinaryHandlerNativeCustom<PersistenceRoots.Implementation>
+extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //

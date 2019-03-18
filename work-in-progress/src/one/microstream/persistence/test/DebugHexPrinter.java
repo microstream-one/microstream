@@ -12,8 +12,6 @@ import java.nio.channels.FileLock;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import one.microstream.persistence.binary.types.DEBUG_BinaryPersistence;
-
 @SuppressWarnings("deprecation")
 public class DebugHexPrinter extends FileChannel
 {

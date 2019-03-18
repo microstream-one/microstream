@@ -6,7 +6,7 @@ import one.microstream.collections.EqBulkList;
 import one.microstream.equality.Equalator;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollectionSizedArray;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollectionSizedArray;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.Persistence;
@@ -23,7 +23,7 @@ import one.microstream.reflect.XReflect;
  * @author Thomas Muenz
  */
 public final class BinaryHandlerEqBulkList
-extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<EqBulkList<?>>
+extends AbstractBinaryHandlerCustomCollectionSizedArray<EqBulkList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //

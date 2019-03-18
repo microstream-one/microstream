@@ -6,7 +6,7 @@ import one.microstream.X;
 import one.microstream.collections.EqConstHashEnum;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.Persistence;
@@ -22,7 +22,7 @@ import one.microstream.reflect.XReflect;
  * @author Thomas Muenz
  */
 public final class BinaryHandlerEqConstHashEnum
-extends AbstractBinaryHandlerNativeCustomCollection<EqConstHashEnum<?>>
+extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //

@@ -9,7 +9,6 @@ import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.persistence.binary.internal.BinaryFileSource;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.binary.types.BinaryChunkPrinter;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.PersistenceIdSet;
 import one.microstream.persistence.types.PersistenceSource;

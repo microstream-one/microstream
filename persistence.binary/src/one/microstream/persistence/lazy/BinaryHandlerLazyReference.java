@@ -1,13 +1,13 @@
 package one.microstream.persistence.lazy;
 
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.lazy.Lazy;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerNativeCustom<Lazy<?>>
+public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerCustom<Lazy<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors     //

@@ -5,9 +5,9 @@ import static one.microstream.X.notNull;
 import java.lang.reflect.Field;
 
 import one.microstream.collections.types.XGettingEnum;
-import one.microstream.persistence.binary.internal.BinaryHandlerEnum;
+import one.microstream.java.BinaryHandlerEnum;
+import one.microstream.java.lang.BinaryHandlerNativeArrayObject;
 import one.microstream.persistence.binary.internal.BinaryHandlerGenericType;
-import one.microstream.persistence.binary.internal.BinaryHandlerNativeArrayObject;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
