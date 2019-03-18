@@ -413,6 +413,19 @@ public abstract class Binary implements Chunk
 		final PersistenceStoreHandler persister
 	)
 	{
+		return this.storeSizedArray(tid, oid, headerOffset, array, 0, size, persister);
+	}
+	
+	public final long storeSizedArray(
+		final long                    tid         ,
+		final long                    oid         ,
+		final long                    headerOffset,
+		final Object[]                array       ,
+		final int                     offset      ,
+		final int                     size        ,
+		final PersistenceStoreHandler persister
+	)
+	{
 		// (29.01.2019 TM)FIXME: MS-64: offset validation
 		
 		// store entity header including the complete content size (8 + elements)
@@ -430,7 +443,7 @@ public abstract class Binary implements Chunk
 			contentAddress + headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
 			persister,
 			array,
-			0,
+			offset,
 			size
 		);
 

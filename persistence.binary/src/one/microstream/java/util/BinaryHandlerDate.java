@@ -13,8 +13,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 	// constants        //
 	/////////////////////
 
-	private static final int  BITS_3           = 3                   ;
-	private static final long LENGTH_TIMESTAMP = Long.SIZE >>> BITS_3;
+	private static final long LENGTH_TIMESTAMP = Long.BYTES;
 
 
 
