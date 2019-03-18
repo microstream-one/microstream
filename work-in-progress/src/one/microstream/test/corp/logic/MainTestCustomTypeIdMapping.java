@@ -1,5 +1,6 @@
 package one.microstream.test.corp.logic;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import one.microstream.X;
@@ -21,14 +22,9 @@ public class MainTestCustomTypeIdMapping
 		{
 			registerCustomTypeIdMappings(f);
 		})
-//		.setRefactoringMappingProvider(
-//			Persistence.RefactoringMapping(new File("Refactorings.csv"))
-//		)
-//		.onConnectionFoundation(e ->
-//			e.setRefactoringMappingProvider(
-//				Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
-//			)
-//		)
+		.setRefactoringMappingProvider(
+			Persistence.RefactoringMapping(new File("Refactorings.csv"))
+		)
 		.start()
 	;
 	

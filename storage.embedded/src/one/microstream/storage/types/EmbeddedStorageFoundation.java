@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 import one.microstream.X;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceRefactoringMappingProvider;
 import one.microstream.persistence.types.PersistenceRootResolver;
@@ -110,7 +109,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		public F setRoot(final Object root)
 		{
 			this.setRootResolver(
-				Persistence.RootResolver(root)
+				this.getConnectionFoundation().createRootResolver(root)
 			);
 			
 			return this.$();
