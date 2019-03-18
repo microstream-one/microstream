@@ -2,6 +2,7 @@ package one.microstream.test.corp.logic;
 
 import java.io.File;
 
+import one.microstream.persistence.types.Persistence;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
@@ -25,22 +26,17 @@ public class MainTestStorageExampleMore
 			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluatorCustomTimeout(10_000)) // evalutator for removing entities from the cache
 		)
 		
-		.onConnectionFoundation(f -> {
-			f.getRootResolver();
-		})
-		
 		// with registered refactorings
-//		.setRefactoringMappingProvider(
-//			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
-//		)
+		.setRefactoringMappingProvider(
+			Persistence.RefactoringMapping(new File("Refactorings.csv"))
+		)
 		
-		// root resolver with refactorings
+		// explicit root resolver with refactorings
 //		.setRootResolver(
-//		//	Storage.RootResolver(ROOT, Persistence.RefactoringMapping(new File("D:/Refactorings.csv")))
-//			PersistenceRootResolver.Builder()
+//			Persistence.RootResolverBuilder()
 //			.registerRoot("root", ROOT)
 //		//	.registerRoots(PersistenceRootResolver.deriveRoots(SomeClassWithConstants.class))
-//			.setRefactoring(Persistence.RefactoringMapping(new File("D:/Refactorings.csv")))
+//			.setRefactoring(Persistence.RefactoringMapping(new File("Refactorings.csv")))
 //			.build()
 //		)
 		
