@@ -143,4 +143,5 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 	{
 		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
+	
 }
