@@ -251,6 +251,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public F setReferenceFieldMandatoryEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
 
 	public F setRootResolver(PersistenceRootResolver rootResolver);
+	
+	public PersistenceRootResolver createRootResolver(Object root);
 
 	public F setRootsProvider(PersistenceRootsProvider<M> rootsProvider);
 	
@@ -1893,6 +1895,12 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			throw new MissingFoundationPartException(PersistenceRootResolver.class);
 		}
 		
+		@Override
+		public PersistenceRootResolver createRootResolver(final Object root)
+		{
+			return Persistence.RootResolver(root);
+		}
+		
 		protected PersistenceRootsProvider<M> ensureRootsProviderInternal()
 		{
 			throw new MissingFoundationPartException(PersistenceRootsProvider.class);
@@ -1919,8 +1927,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		///////////////////////////////////////////////////////////////////////////
 		// methods // (with logic worth mentioning)
 		////////////
-		
-		
 		
 		@Override
 		public PersistenceManager<M> createPersistenceManager()
