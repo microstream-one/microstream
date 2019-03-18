@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -63,11 +64,9 @@ public final class XMemory
 		OFFSET_HashMap_loadFactor    = internalGetFieldOffset(HashMap.class      , "loadFactor" ),
 		
 		// (18.03.2019 TM)FIXME: MS-76: review and clean up XMemory#OFFSET-s
-		// (18.03.2019 TM)NOTE: not required
-//		OFFSET_ArrayDeque_elements       = internalGetFieldOffset(ArrayDeque.class   , "elements"         ),
-//		OFFSET_ArrayDeque_head           = internalGetFieldOffset(ArrayDeque.class   , "head"             ),
-//		OFFSET_ArrayDeque_tail           = internalGetFieldOffset(ArrayDeque.class   , "tail"             ),
-		// (18.03.2019 TM)NOTE: required
+		OFFSET_ArrayDeque_elements       = internalGetFieldOffset(ArrayDeque.class   , "elements"         ),
+		OFFSET_ArrayDeque_head           = internalGetFieldOffset(ArrayDeque.class   , "head"             ),
+		OFFSET_ArrayDeque_tail           = internalGetFieldOffset(ArrayDeque.class   , "tail"             ),
 		OFFSET_Hashtable_loadFactor      = internalGetFieldOffset(Hashtable.class    , "loadFactor"       ),
 		OFFSET_LinkedHashMap_loadFactor  = internalGetFieldOffset(LinkedHashMap.class, "loadFactor"       ),
 		OFFSET_LinkedHashMap_accessOrder = internalGetFieldOffset(LinkedHashMap.class, "accessOrder"      )
@@ -401,6 +400,36 @@ public final class XMemory
 	{
 		// must check not null here explictely to prevent VM crashes
 		return VM.getBoolean(notNull(linkedHashMap), OFFSET_LinkedHashMap_accessOrder);
+	}
+	
+	public static Object[] accessStorage(final ArrayDeque<?> arrayDeque)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return (Object[]) VM.getObject(notNull(arrayDeque), OFFSET_ArrayDeque_elements);
+	}
+
+	public static int accessHead(final ArrayDeque<?> arrayDeque)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return VM.getInt(notNull(arrayDeque), OFFSET_ArrayDeque_head);
+	}
+
+	public static int accessTail(final ArrayDeque<?> arrayDeque)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return VM.getInt(notNull(arrayDeque), OFFSET_ArrayDeque_tail);
+	}
+
+	public static void setHead(final ArrayDeque<?> arrayDeque, final int head)
+	{
+		// must check not null here explictely to prevent VM crashes
+		set_int(notNull(arrayDeque), OFFSET_ArrayDeque_head, head);
+	}
+
+	public static void setTail(final ArrayDeque<?> arrayDeque, final int tail)
+	{
+		// must check not null here explictely to prevent VM crashes
+		set_int(notNull(arrayDeque), OFFSET_ArrayDeque_tail, tail);
 	}
 
 

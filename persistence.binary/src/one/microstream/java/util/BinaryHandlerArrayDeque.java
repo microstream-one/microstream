@@ -1,4 +1,4 @@
-package one.microstream.persistence.binary.internal;
+package one.microstream.java.util;
 
 import java.util.ArrayDeque;
 
