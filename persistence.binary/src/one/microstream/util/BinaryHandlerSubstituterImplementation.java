@@ -1,7 +1,7 @@
 package one.microstream.util;
 
 import one.microstream.collections.BinaryHandlerEqHashEnum;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerNativeCustom;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
@@ -14,7 +14,7 @@ import one.microstream.util.Substituter;
  * @author Thomas Muenz
  */
 public final class BinaryHandlerSubstituterImplementation
-extends AbstractBinaryHandlerNativeCustom<Substituter.Implementation<?>>
+extends AbstractBinaryHandlerCustom<Substituter.Implementation<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods    //

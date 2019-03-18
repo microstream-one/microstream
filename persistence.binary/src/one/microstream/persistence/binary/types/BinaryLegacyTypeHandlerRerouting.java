@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import one.microstream.X;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.memory.XMemory;
+import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;

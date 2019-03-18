@@ -24,6 +24,7 @@ import one.microstream.files.XFiles;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
+import one.microstream.persistence.lazy.Lazy;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.Composition;
 import one.microstream.typing.KeyValue;
@@ -256,11 +257,10 @@ public class Persistence
 		NATIVE_TYPES.add(java.io  .File      .class, TID_java_io_File        );
 		NATIVE_TYPES.add(java.util.Date      .class, TID_java_util_Date      );
 
-		NATIVE_TYPES.add(Number              .class, TID_Number              );
+		NATIVE_TYPES.add(java.lang.Number    .class, TID_Number              );
 		NATIVE_TYPES.add(java.math.BigInteger.class, TID_java_math_BigInteger);
 		NATIVE_TYPES.add(java.math.BigDecimal.class, TID_java_math_BigDecimal);
 
-		// so stupid java.util collections, can't even tell x_x
 		NATIVE_TYPES.add(java.util.ArrayList.class.getSuperclass().getSuperclass(), TID_java_util_AbstractCollection );
 		NATIVE_TYPES.add(java.util.ArrayList.class.getSuperclass(), TID_java_util_AbstractList );
 		NATIVE_TYPES.add(java.util.HashSet  .class.getSuperclass(), TID_java_util_AbstractSet );
@@ -275,10 +275,6 @@ public class Persistence
 		 * XCollections here as well?
 		 * what about Thread? Is it persistable? Hardly ^^
 		 * java.nio.Path
-		 *
-		 * How to handle "definitely not persistable" native types
-		 * and native types with stuff like unshared objects?
-		 *
 		 */
 
 		// basic array types (arrays of java.lang. types)
@@ -309,7 +305,7 @@ public class Persistence
 
 		// framework types //
 
-		NATIVE_TYPES.add(one.microstream.persistence.lazy.Lazy.class, TID_X_swizzling_types_Lazy);
+		NATIVE_TYPES.add(Lazy.class, TID_X_swizzling_types_Lazy);
 	}
 
 

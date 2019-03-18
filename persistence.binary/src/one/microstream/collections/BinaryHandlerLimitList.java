@@ -1,7 +1,7 @@
 package one.microstream.collections;
 
 import one.microstream.collections.LimitList;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollectionSizedArray;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollectionSizedArray;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.Persistence;
@@ -17,7 +17,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  * @author Thomas Muenz
  */
 public final class BinaryHandlerLimitList
-extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<LimitList<?>>
+extends AbstractBinaryHandlerCustomCollectionSizedArray<LimitList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //

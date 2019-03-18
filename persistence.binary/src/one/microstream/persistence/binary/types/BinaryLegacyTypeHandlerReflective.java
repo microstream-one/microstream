@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.exceptions.TypeCastException;
+import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;

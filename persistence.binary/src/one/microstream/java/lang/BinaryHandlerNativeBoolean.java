@@ -1,0 +1,36 @@
+package one.microstream.java.lang;
+
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceStoreHandler;
+
+public final class BinaryHandlerNativeBoolean extends AbstractBinaryHandlerCustomValueFixedLength<Boolean>
+{
+	///////////////////////////////////////////////////////////////////////////
+	// constructors     //
+	/////////////////////
+
+	public BinaryHandlerNativeBoolean()
+	{
+		super(Boolean.class, defineValueType(boolean.class));
+	}
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// override methods //
+	/////////////////////
+
+	@Override
+	public void store(final Binary bytes, final Boolean instance, final long oid, final PersistenceStoreHandler handler)
+	{
+		bytes.storeBoolean(this.typeId(), oid, instance.booleanValue());
+	}
+
+	@Override
+	public Boolean create(final Binary bytes)
+	{
+		return bytes.buildBoolean();
+	}
+
+}

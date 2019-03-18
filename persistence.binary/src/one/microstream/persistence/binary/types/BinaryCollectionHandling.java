@@ -2,7 +2,7 @@ package one.microstream.persistence.binary.types;
 
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerNative;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 
 public final class BinaryCollectionHandling
@@ -17,7 +17,7 @@ public final class BinaryCollectionHandling
 		return elementsPseudoFields(
 			XArrays.add(
 				preHeaderFields,
-				AbstractBinaryHandlerNative.pseudoField(long.class, "capacity")
+				AbstractBinaryHandlerCustom.pseudoField(long.class, "capacity")
 			)
 		);
 	}
@@ -25,11 +25,11 @@ public final class BinaryCollectionHandling
 	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> elementsPseudoFields(
 		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
 	{
-		return AbstractBinaryHandlerNative.pseudoFields(
+		return AbstractBinaryHandlerCustom.pseudoFields(
 			XArrays.add(
 				preHeaderFields,
-				AbstractBinaryHandlerNative.complex("elements",
-					AbstractBinaryHandlerNative.pseudoField(Object.class, "element")
+				AbstractBinaryHandlerCustom.complex("elements",
+					AbstractBinaryHandlerCustom.pseudoField(Object.class, "element")
 				)
 			)
 		);
@@ -38,11 +38,11 @@ public final class BinaryCollectionHandling
 	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> simpleArrayPseudoFields(
 		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
 	{
-		return AbstractBinaryHandlerNative.pseudoFields(
+		return AbstractBinaryHandlerCustom.pseudoFields(
 			XArrays.add(
 				preHeaderFields,
-				AbstractBinaryHandlerNative.complex("elements",
-					AbstractBinaryHandlerNative.pseudoField(Object.class, "element")
+				AbstractBinaryHandlerCustom.complex("elements",
+					AbstractBinaryHandlerCustom.pseudoField(Object.class, "element")
 				)
 			)
 		);

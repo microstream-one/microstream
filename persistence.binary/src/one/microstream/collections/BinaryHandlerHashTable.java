@@ -5,8 +5,8 @@ import java.lang.reflect.Field;
 import one.microstream.X;
 import one.microstream.collections.HashTable;
 import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerNative;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -21,7 +21,7 @@ import one.microstream.reflect.XReflect;
  * @author Thomas Muenz
  */
 public final class BinaryHandlerHashTable
-extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
+extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
@@ -70,13 +70,13 @@ extends AbstractBinaryHandlerNativeCustomCollection<HashTable<?, ?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			AbstractBinaryHandlerNative.pseudoFields(
+			AbstractBinaryHandlerCustom.pseudoFields(
 				pseudoField(HashTable.Keys.class, "keys"),
 				pseudoField(HashTable.Values.class, "values"),
 				pseudoField(float.class, "hashDensity"),
-				AbstractBinaryHandlerNative.complex("entries",
-					AbstractBinaryHandlerNative.pseudoField(Object.class, "key"),
-					AbstractBinaryHandlerNative.pseudoField(Object.class, "value")
+				AbstractBinaryHandlerCustom.complex("entries",
+					AbstractBinaryHandlerCustom.pseudoField(Object.class, "key"),
+					AbstractBinaryHandlerCustom.pseudoField(Object.class, "value")
 				)
 			)
 
