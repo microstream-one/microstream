@@ -76,47 +76,73 @@ public class Persistence
 
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 
-	static final long TID_PRIMITIVE_byte               =  1L;
-	static final long TID_PRIMITIVE_boolean            =  2L;
-	static final long TID_PRIMITIVE_short              =  3L;
-	static final long TID_PRIMITIVE_char               =  4L;
-	static final long TID_PRIMITIVE_int                =  5L;
-	static final long TID_PRIMITIVE_float              =  6L;
-	static final long TID_PRIMITIVE_long               =  7L;
-	static final long TID_PRIMITIVE_double             =  8L;
-	static final long TID_PRIMITIVE_void               =  9L; // "kind of" primitive. Or whatever.
-	static final long TID_Object                       = 10L;
-	static final long TID_Byte                         = 11L;
-	static final long TID_Boolean                      = 12L;
-	static final long TID_Short                        = 13L;
-	static final long TID_Character                    = 14L;
-	static final long TID_Integer                      = 15L;
-	static final long TID_Float                        = 16L;
-	static final long TID_Long                         = 17L;
-	static final long TID_Double                       = 18L;
-	static final long TID_Void                         = 19L;
+	// java.lang and basic types.
+	static final long TID_PRIMITIVE_byte        =  1L;
+	static final long TID_PRIMITIVE_boolean     =  2L;
+	static final long TID_PRIMITIVE_short       =  3L;
+	static final long TID_PRIMITIVE_char        =  4L;
+	static final long TID_PRIMITIVE_int         =  5L;
+	static final long TID_PRIMITIVE_float       =  6L;
+	static final long TID_PRIMITIVE_long        =  7L;
+	static final long TID_PRIMITIVE_double      =  8L;
+	static final long TID_PRIMITIVE_void        =  9L; // "kind of" primitive. Or whatever.
+	static final long TID_Object                = 10L;
+	static final long TID_Byte                  = 11L;
+	static final long TID_Boolean               = 12L;
+	static final long TID_Short                 = 13L;
+	static final long TID_Character             = 14L;
+	static final long TID_Integer               = 15L;
+	static final long TID_Float                 = 16L;
+	static final long TID_Long                  = 17L;
+	static final long TID_Double                = 18L;
+	static final long TID_Void                  = 19L;
 
-	static final long TID_Class                        = 20L;
-	static final long TID_Enum                         = 21L;
+	static final long TID_Class                 = 20L;
+	static final long TID_Enum                  = 21L;
 
-	static final long TID_String                       = 30L;
-	static final long TID_AbstractStringBuilder        = 31L;
-	static final long TID_StringBuffer                 = 32L;
-	static final long TID_StringBuilder                = 33L;
+	static final long TID_String                = 30L;
+	static final long TID_AbstractStringBuilder = 31L;
+	static final long TID_StringBuffer          = 32L;
+	static final long TID_StringBuilder         = 33L;
 
-	static final long TID_java_io_File                 = 34L;
-	static final long TID_java_util_Date               = 35L;
+	static final long TID_java_io_File          = 34L;
+	static final long TID_java_util_Date        = 35L;
 
-	static final long TID_Number                       = 36L;
-	static final long TID_java_math_BigInteger         = 37L;
-	static final long TID_java_math_BigDecimal         = 38L;
+	static final long TID_Number                = 36L;
+	static final long TID_java_math_BigInteger  = 37L;
+	static final long TID_java_math_BigDecimal  = 38L;
 
-	static final long TID_java_util_AbstractCollection = 40L;
-	static final long TID_java_util_AbstractList       = 41L;
-	static final long TID_java_util_AbstractSet        = 42L;
-	static final long TID_java_util_ArrayList          = 43L;
-	static final long TID_java_util_HashSet            = 44L;
+	// java.util collections
+	static final long TID_java_util_AbstractCollection     = 40L;
+	static final long TID_java_util_AbstractList           = 41L;
+	static final long TID_java_util_AbstractSet            = 42L;
+	static final long TID_java_util_ArrayList              = 43L;
+	static final long TID_java_util_HashSet                = 44L;
+	static final long TID_java_util_AbstractMap            = 45L;
+	static final long TID_java_util_HashMap                = 46L;
+	static final long TID_java_util_Dictionary             = 47L;
+	static final long TID_java_util_Hashtable              = 48L;
+	static final long TID_java_util_ArrayDeque             = 49L;
+	static final long TID_java_util_IdentityHashMap        = 50L;
+	static final long TID_java_util_LinkedHashMap          = 51L;
+	static final long TID_java_util_LinkedHashSet          = 52L;
+	static final long TID_java_util_AbstractSequentialList = 53L;
+	static final long TID_java_util_LinkedList             = 54L;
+	static final long TID_java_util_AbstractQueue          = 55L;
+	static final long TID_java_util_PriorityQueue          = 56L;
+	static final long TID_java_util_TreeMap                = 57L;
+	static final long TID_java_util_TreeSet                = 58L;
+	static final long TID_java_util_Vector                 = 59L;
+	static final long TID_java_util_Stack                  = 60L;
+	static final long TID_java_util_Properties             = 61L;
+	// java.util.concurrent collections
+	static final long TID_java_util_ConcurrentHashMap      = 62L;
+	static final long TID_java_util_ConcurrentLinkedDeque  = 63L;
+	static final long TID_java_util_ConcurrentLinkedQueue  = 64L;
+	static final long TID_java_util_ConcurrentSkipListMap  = 65L;
+	static final long TID_java_util_ConcurrentSkipListSet  = 66L;
 
+	// arrays (only 1D) of common types
 	static final long TID_ARRAY_byte           = 100L + TID_PRIMITIVE_byte   ;
 	static final long TID_ARRAY_boolean        = 100L + TID_PRIMITIVE_boolean;
 	static final long TID_ARRAY_short          = 100L + TID_PRIMITIVE_short  ;
@@ -145,7 +171,7 @@ public class Persistence
 	static final long TID_ARRAY_StringBuffer   = 100L + TID_StringBuffer         ;
 	static final long TID_ARRAY_StringBuilder  = 100L + TID_StringBuilder        ;
 
-	static final long TID_X_swizzling_types_Lazy = 10000L;
+	static final long TID_persistence_Lazy = 10000L;
 
 	// CHECKSTYLE.ON: ConstantName
 
@@ -264,8 +290,31 @@ public class Persistence
 		NATIVE_TYPES.add(java.util.ArrayList.class.getSuperclass().getSuperclass(), TID_java_util_AbstractCollection );
 		NATIVE_TYPES.add(java.util.ArrayList.class.getSuperclass(), TID_java_util_AbstractList );
 		NATIVE_TYPES.add(java.util.HashSet  .class.getSuperclass(), TID_java_util_AbstractSet );
-		NATIVE_TYPES.add(java.util.ArrayList.class, TID_java_util_ArrayList );
-		NATIVE_TYPES.add(java.util.HashSet  .class, TID_java_util_HashSet   );
+		NATIVE_TYPES.add(java.util.ArrayList             .class, TID_java_util_ArrayList             );
+		NATIVE_TYPES.add(java.util.HashSet               .class, TID_java_util_HashSet               );
+		NATIVE_TYPES.add(java.util.AbstractMap           .class, TID_java_util_AbstractMap           );
+		NATIVE_TYPES.add(java.util.HashMap               .class, TID_java_util_HashMap               );
+		NATIVE_TYPES.add(java.util.Dictionary            .class, TID_java_util_Dictionary            );
+		NATIVE_TYPES.add(java.util.Hashtable             .class, TID_java_util_Hashtable             );
+		NATIVE_TYPES.add(java.util.ArrayDeque            .class, TID_java_util_ArrayDeque            );
+		NATIVE_TYPES.add(java.util.IdentityHashMap       .class, TID_java_util_IdentityHashMap       );
+		NATIVE_TYPES.add(java.util.LinkedHashMap         .class, TID_java_util_LinkedHashMap         );
+		NATIVE_TYPES.add(java.util.LinkedHashSet         .class, TID_java_util_LinkedHashSet         );
+		NATIVE_TYPES.add(java.util.AbstractSequentialList.class, TID_java_util_AbstractSequentialList);
+		NATIVE_TYPES.add(java.util.LinkedList            .class, TID_java_util_LinkedList            );
+		NATIVE_TYPES.add(java.util.AbstractQueue         .class, TID_java_util_AbstractQueue         );
+		NATIVE_TYPES.add(java.util.PriorityQueue         .class, TID_java_util_PriorityQueue         );
+		NATIVE_TYPES.add(java.util.TreeMap               .class, TID_java_util_TreeMap               );
+		NATIVE_TYPES.add(java.util.TreeSet               .class, TID_java_util_TreeSet               );
+		NATIVE_TYPES.add(java.util.Vector                .class, TID_java_util_Vector                );
+		NATIVE_TYPES.add(java.util.Stack                 .class, TID_java_util_Stack                 );
+		NATIVE_TYPES.add(java.util.Properties            .class, TID_java_util_Properties            );
+
+		NATIVE_TYPES.add(java.util.concurrent.ConcurrentHashMap    .class, TID_java_util_ConcurrentHashMap    );
+		NATIVE_TYPES.add(java.util.concurrent.ConcurrentLinkedDeque.class, TID_java_util_ConcurrentLinkedDeque);
+		NATIVE_TYPES.add(java.util.concurrent.ConcurrentLinkedQueue.class, TID_java_util_ConcurrentLinkedQueue);
+		NATIVE_TYPES.add(java.util.concurrent.ConcurrentSkipListMap.class, TID_java_util_ConcurrentSkipListMap);
+		NATIVE_TYPES.add(java.util.concurrent.ConcurrentSkipListSet.class, TID_java_util_ConcurrentSkipListSet);
 		
 		/* (27.03.2012)FIXME more native types
 		 *
@@ -305,7 +354,7 @@ public class Persistence
 
 		// framework types //
 
-		NATIVE_TYPES.add(Lazy.class, TID_X_swizzling_types_Lazy);
+		NATIVE_TYPES.add(Lazy.class, TID_persistence_Lazy);
 	}
 
 

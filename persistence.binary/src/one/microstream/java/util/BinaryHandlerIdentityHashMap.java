@@ -1,12 +1,11 @@
 package one.microstream.java.util;
 
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import one.microstream.X;
 import one.microstream.chars.XChars;
 import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
-import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
@@ -16,14 +15,13 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomCollection<HashMap<?, ?>>
+public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCustomCollection<IdentityHashMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =                        0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = XMemory.byteSize_float(); // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_ELEMENTS = 0;
 
 
 
@@ -32,14 +30,9 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	/////////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<HashMap<?, ?>> typeWorkaround()
+	private static Class<IdentityHashMap<?, ?>> typeWorkaround()
 	{
-		return (Class)HashMap.class; // no idea how to get ".class" to work otherwise
-	}
-
-	static final float getLoadFactor(final Binary bytes)
-	{
-		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
+		return (Class)IdentityHashMap.class; // no idea how to get ".class" to work otherwise
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -53,13 +46,11 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerHashMap()
+	public BinaryHandlerIdentityHashMap()
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.elementsPseudoFields(
-				pseudoField(float.class, "loadFactor")
-			)
+			BinaryCollectionHandling.elementsPseudoFields()
 		);
 	}
 
@@ -72,13 +63,13 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	@Override
 	public final void store(
 		final Binary                  bytes   ,
-		final HashMap<?, ?>           instance,
+		final IdentityHashMap<?, ?>   instance,
 		final long                    oid     ,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedIterableAsList(
+		bytes.storeSizedIterableAsList(
 			this.typeId()          ,
 			oid                    ,
 			BINARY_OFFSET_ELEMENTS ,
@@ -87,37 +78,32 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 			instance.size() * 2    ,
 			handler
 		);
-
-		// store load factor as (sole) header value
-		bytes.store_float(
-			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
-			XMemory.accessLoadFactor(instance)
+	}
+	
+	@Override
+	public final IdentityHashMap<?, ?> create(final Binary bytes)
+	{
+		return new IdentityHashMap<>(
+			getElementCount(bytes) / 2
 		);
 	}
 
 	@Override
-	public final HashMap<?, ?> create(final Binary bytes)
+	public final void update(final Binary bytes, final IdentityHashMap<?, ?> instance, final PersistenceLoadHandler builder)
 	{
-		return new HashMap<>(
-			getElementCount(bytes) / 2,
-			getLoadFactor(bytes)
-		);
-	}
-
-	@Override
-	public final void update(final Binary bytes, final HashMap<?, ?> instance, final PersistenceLoadHandler builder)
-	{
-		final int      elementCount   = getElementCount(bytes);
+		final int elementCount = getElementCount(bytes);
 		final Object[] elementsHelper = new Object[elementCount];
 		
 		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
+	
 		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public void complete(final Binary rawData, final HashMap<?, ?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary rawData, final IdentityHashMap<?, ?> instance, final PersistenceLoadHandler handler)
 	{
 		final Object helper = rawData.getHelper(instance);
+		
 		if(helper == null)
 		{
 			// (22.04.2016 TM)EXCP: proper exception
@@ -135,9 +121,8 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 		}
 		
 		final Object[] elementsHelper = (Object[])helper;
-		
 		@SuppressWarnings("unchecked")
-		final HashMap<Object, Object> castedInstance = (HashMap<Object, Object>)instance;
+		final IdentityHashMap<Object, Object> castedInstance = (IdentityHashMap<Object, Object>)instance;
 		
 		for(int i = 0; i < elementsHelper.length; i += 2)
 		{
@@ -149,11 +134,12 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 				);
 			}
 		}
-		
 	}
+	
+
 
 	@Override
-	public final void iterateInstanceReferences(final HashMap<?, ?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final IdentityHashMap<?, ?> instance, final PersistenceFunction iterator)
 	{
 		for(final Map.Entry<?, ?> entry : instance.entrySet())
 		{
@@ -167,5 +153,4 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
-	
 }

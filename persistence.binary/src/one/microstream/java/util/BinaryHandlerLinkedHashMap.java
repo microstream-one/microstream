@@ -1,9 +1,11 @@
 package one.microstream.java.util;
 
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import one.microstream.X;
 import one.microstream.chars.XChars;
+import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
@@ -14,14 +16,15 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomCollection<HashSet<?>>
+public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCustomCollection<LinkedHashMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =           0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = Float.BYTES; // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_LOAD_FACTOR  =                                                       0;
+	static final long BINARY_OFFSET_ACCESS_ORDER = BINARY_OFFSET_LOAD_FACTOR  + XMemory.byteSize_float()  ;
+	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_ACCESS_ORDER + XMemory.byteSize_boolean();
 
 
 
@@ -30,14 +33,19 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	/////////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<HashSet<?>> typeWorkaround()
+	private static Class<LinkedHashMap<?, ?>> typeWorkaround()
 	{
-		return (Class)HashSet.class; // no idea how to get ".class" to work otherwise
+		return (Class)LinkedHashMap.class; // no idea how to get ".class" to work otherwise
 	}
 
 	static final float getLoadFactor(final Binary bytes)
 	{
 		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
+	}
+
+	static final boolean getAccessOrder(final Binary bytes)
+	{
+		return bytes.get_boolean(BINARY_OFFSET_ACCESS_ORDER);
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -51,12 +59,13 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerHashSet()
+	public BinaryHandlerLinkedHashMap()
 	{
 		super(
 			typeWorkaround(),
 			BinaryCollectionHandling.elementsPseudoFields(
-				pseudoField(float.class, "loadFactor")
+				pseudoField(float.class,   "loadFactor"),
+				pseudoField(boolean.class, "accessOrder")
 			)
 		);
 	}
@@ -68,46 +77,58 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	////////////
 
 	@Override
-	public final void store(final Binary bytes, final HashSet<?> instance, final long oid, final PersistenceStoreHandler handler)
+	public final void store(
+		final Binary                  bytes   ,
+		final LinkedHashMap<?, ?>     instance,
+		final long                    oid     ,
+		final PersistenceStoreHandler handler
+	)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = bytes.storeSizedIterableAsList(
-			this.typeId()         ,
-			oid                   ,
-			BINARY_OFFSET_ELEMENTS,
-			instance              ,
-			instance.size()       ,
+			this.typeId()          ,
+			oid                    ,
+			BINARY_OFFSET_ELEMENTS ,
+			() ->
+				JavaUtilMapEntrySetFlattener.New(instance),
+			instance.size() * 2    ,
 			handler
 		);
 
-		// store load factor as (sole) header value
 		bytes.store_float(
 			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
 			XMemory.accessLoadFactor(instance)
 		);
+		bytes.store_boolean(
+			contentAddress + BINARY_OFFSET_ACCESS_ORDER,
+			XMemory.accessAccessOrder(instance)
+		);
 	}
+	
+	
 
 	@Override
-	public final HashSet<?> create(final Binary bytes)
+	public final LinkedHashMap<?, ?> create(final Binary bytes)
 	{
-		return new HashSet<>(
-			getElementCount(bytes),
-			getLoadFactor(bytes)
+		return new LinkedHashMap<>(
+			getElementCount(bytes) / 2,
+			getLoadFactor(bytes),
+			getAccessOrder(bytes)
 		);
 	}
 
 	@Override
-	public final void update(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final LinkedHashMap<?, ?> instance, final PersistenceLoadHandler builder)
 	{
-		final int      elementCount   = getElementCount(rawData);
+		final int      elementCount   = getElementCount(bytes);
 		final Object[] elementsHelper = new Object[elementCount];
 		
-		rawData.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
-		rawData.registerHelper(instance, elementsHelper);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
+		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public void complete(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary rawData, final LinkedHashMap<?, ?> instance, final PersistenceLoadHandler handler)
 	{
 		final Object helper = rawData.getHelper(instance);
 		if(helper == null)
@@ -128,19 +149,11 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 		
 		final Object[] elementsHelper = (Object[])helper;
 		@SuppressWarnings("unchecked")
-		final HashSet<Object> castedInstance = (HashSet<Object>)instance;
+		final LinkedHashMap<Object, Object> castedInstance = (LinkedHashMap<Object, Object>)instance;
 		
-		for(final Object element : elementsHelper)
+		for(int i = 0; i < elementsHelper.length; i += 2)
 		{
-			/* (22.04.2016 TM)NOTE: oh look, they added an add() logic complementary to put().
-			 * I did that years ago as a noob.
-			 * They even chose the proper reasonable term instead of the moronic "putIfAbsent"
-			 * or some "putElementOnlyIfAbsentBecauseWeLikeMoronicNaming" terminology normally to be expected
-			 * from the JDK.
-			 * If they now also realize that their collection's hash-equality, immutability and most other concepts
-			 * are deeply flawed, they might end up developing a proper collection framework. In 50 years or so.
-			 */
-			if(!castedInstance.add(element))
+			if(castedInstance.putIfAbsent(elementsHelper[i], elementsHelper[i + 1]) != null)
 			{
 				// (22.04.2016 TM)EXCP: proper exception
 				throw new RuntimeException(
@@ -148,16 +161,15 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 				);
 			}
 		}
-		
-		rawData.registerHelper(instance, null); // might help Garbage Collector
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final HashSet<?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final LinkedHashMap<?, ?> instance, final PersistenceFunction iterator)
 	{
-		for(final Object e : instance)
+		for(final Map.Entry<?, ?> entry : instance.entrySet())
 		{
-			iterator.apply(e);
+			iterator.apply(entry.getKey());
+			iterator.apply(entry.getValue());
 		}
 	}
 
@@ -166,5 +178,5 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
-
+	
 }

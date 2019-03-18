@@ -47,6 +47,7 @@ import one.microstream.java.math.BinaryHandlerBigDecimal;
 import one.microstream.java.math.BinaryHandlerBigInteger;
 import one.microstream.java.util.BinaryHandlerArrayList;
 import one.microstream.java.util.BinaryHandlerDate;
+import one.microstream.java.util.BinaryHandlerHashMap;
 import one.microstream.java.util.BinaryHandlerHashSet;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
@@ -147,12 +148,32 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerNativeArray_long()   ,
 			new BinaryHandlerNativeArray_double() ,
 
-			new BinaryHandlerArrayList(controller) ,
+			new BinaryHandlerArrayList(controller)  ,
+			new BinaryHandlerHashSet()              ,
+			new BinaryHandlerHashMap()              ,
+			// (18.03.2019 TM)FIXME: MS-76: migrate JDK collection handlers
+//			new BinaryHandlerHashtable()            ,
+//			new BinaryHandlerLinkedList()           ,
+//			new BinaryHandlerArrayDeque(controller) ,
+//			new BinaryHandlerIdentityHashMap()      ,
+//			new BinaryHandlerLinkedHashMap()        ,
+//			new BinaryHandlerLinkedHashSet()        ,
+//			new BinaryHandlerPriorityQueue()        ,
+//			new BinaryHandlerTreeMap()              ,
+//			new BinaryHandlerTreeSet()              ,
+//			new BinaryHandlerVector(controller)     ,
+//			new BinaryHandlerStack(controller)      ,
+//			new BinaryHandlerProperties()           ,
+//			new BinaryHandlerConcurrentHashMap()    ,
+//			new BinaryHandlerConcurrentLinkedDeque(),
+//			new BinaryHandlerConcurrentLinkedQueue(),
+//			new BinaryHandlerConcurrentSkipListMap(),
+//			new BinaryHandlerConcurrentSkipListSet(),
+			
 			new BinaryHandlerBigInteger(),
 			new BinaryHandlerBigDecimal(),
 			new BinaryHandlerFile()      ,
 			new BinaryHandlerDate()      ,
-			new BinaryHandlerHashSet()   ,
 
 			new BinaryHandlerLazyReference()
 			// (24.10.2013 TM)TODO: more native handlers (old collections etc.)
