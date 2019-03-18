@@ -1,10 +1,13 @@
-package one.microstream.persistence.binary.internal;
+package one.microstream.java.util;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import one.microstream.X;
 import one.microstream.chars.XChars;
+import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
 import one.microstream.memory.XMemory;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerNativeCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -13,14 +16,14 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCustomCollection<HashSet<?>>
+public final class BinaryHandlerHashMap2 extends AbstractBinaryHandlerNativeCustomCollection<HashMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =           0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = Float.BYTES; // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_LOAD_FACTOR =                        0; // 1 float at offset 0
+	static final long BINARY_OFFSET_ELEMENTS    = XMemory.byteSize_float(); // sized array at offset 0 + float size
 
 
 
@@ -29,9 +32,9 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	/////////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<HashSet<?>> typeWorkaround()
+	private static Class<HashMap<?, ?>> typeWorkaround()
 	{
-		return (Class)HashSet.class; // no idea how to get ".class" to work otherwise
+		return (Class)HashMap.class; // no idea how to get ".class" to work otherwise
 	}
 
 	static final float getLoadFactor(final Binary bytes)
@@ -50,7 +53,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerHashSet()
+	public BinaryHandlerHashMap2()
 	{
 		super(
 			typeWorkaround(),
@@ -67,15 +70,21 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	////////////
 
 	@Override
-	public final void store(final Binary bytes, final HashSet<?> instance, final long oid, final PersistenceStoreHandler handler)
+	public final void store(
+		final Binary                  bytes   ,
+		final HashMap<?, ?>           instance,
+		final long                    oid     ,
+		final PersistenceStoreHandler handler
+	)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = bytes.storeSizedIterableAsList(
-			this.typeId()         ,
-			oid                   ,
-			BINARY_OFFSET_ELEMENTS,
-			instance              ,
-			instance.size()       ,
+			this.typeId()          ,
+			oid                    ,
+			BINARY_OFFSET_ELEMENTS ,
+			() ->
+				JavaUtilMapEntrySetFlattener.New(instance),
+			instance.size() * 2    ,
 			handler
 		);
 
@@ -84,27 +93,26 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	}
 
 	@Override
-	public final HashSet<?> create(final Binary bytes)
+	public final HashMap<?, ?> create(final Binary bytes)
 	{
-		return new HashSet<>(
-			getElementCount(bytes),
+		return new HashMap<>(
+			getElementCount(bytes) / 2,
 			getLoadFactor(bytes)
 		);
 	}
 
 	@Override
-	public final void update(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final HashMap<?, ?> instance, final PersistenceLoadHandler builder)
 	{
-		final int      elementCount   = getElementCount(rawData);
+		final int      elementCount   = getElementCount(bytes);
 		final Object[] elementsHelper = new Object[elementCount];
 		
-		rawData.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
-	
-		rawData.registerHelper(instance, elementsHelper);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
+		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public void complete(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary rawData, final HashMap<?, ?> instance, final PersistenceLoadHandler loadHandler)
 	{
 		final Object helper = rawData.getHelper(instance);
 		if(helper == null)
@@ -124,20 +132,13 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 		}
 		
 		final Object[] elementsHelper = (Object[])helper;
-		@SuppressWarnings("unchecked")
-		final HashSet<Object> castedInstance = (HashSet<Object>)instance;
 		
-		for(final Object element : elementsHelper)
+		@SuppressWarnings("unchecked")
+		final HashMap<Object, Object> castedInstance = (HashMap<Object, Object>)instance;
+		
+		for(int i = 0; i < elementsHelper.length; i += 2)
 		{
-			/* (22.04.2016 TM)NOTE: oh look, they added an add() logic complementary to put().
-			 * I did that years ago as a noob.
-			 * They even chose the proper reasonable term instead of the moronic "putIfAbsent"
-			 * or some "putElementOnlyIfAbsentBecauseWeLikeMoronicNaming" terminology normally to be expected
-			 * from the JDK.
-			 * If they now also realize that their collection's hash-equality, immutability and most other concepts
-			 * are deeply flawed, they might end up developing a proper collection framework. In 50 years or so.
-			 */
-			if(!castedInstance.add(element))
+			if(castedInstance.putIfAbsent(elementsHelper[i], elementsHelper[i + 1]) != null)
 			{
 				// (22.04.2016 TM)EXCP: proper exception
 				throw new RuntimeException(
@@ -146,15 +147,15 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 			}
 		}
 		
-		rawData.registerHelper(instance, null); // might help Garbage Collector
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final HashSet<?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final HashMap<?, ?> instance, final PersistenceFunction iterator)
 	{
-		for(final Object e : instance)
+		for(final Map.Entry<?, ?> entry : instance.entrySet())
 		{
-			iterator.apply(e);
+			iterator.apply(entry.getKey());
+			iterator.apply(entry.getValue());
 		}
 	}
 
@@ -163,5 +164,5 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerNativeCusto
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
-
+	
 }
