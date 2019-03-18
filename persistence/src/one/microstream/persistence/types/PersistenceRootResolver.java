@@ -159,6 +159,9 @@ public interface PersistenceRootResolver
 		}
 		
 		public Builder setRefactoring(PersistenceRefactoringResolverProvider refactoring);
+		
+		public Builder setRefactoring(PersistenceRefactoringMappingProvider refactoringMapping);
+		
 				
 		public PersistenceRootResolver build();
 		
@@ -168,9 +171,10 @@ public interface PersistenceRootResolver
 			// instance fields //
 			////////////////////
 			
-			private final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider  ;
-			private final EqHashTable<String, PersistenceRootEntry>             rootEntries    ;
-			private       PersistenceRefactoringResolverProvider                 refactoring    ;
+			private final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider     ;
+			private final EqHashTable<String, PersistenceRootEntry>             rootEntries       ;
+			private       PersistenceRefactoringResolverProvider                refactoring       ;
+			private       PersistenceRefactoringMappingProvider                 refactoringMapping;
 			
 			
 			
@@ -230,16 +234,44 @@ public interface PersistenceRootResolver
 					this.rootEntries.immure()
 				);
 				
-				return this.refactoring == null
+				final PersistenceRefactoringResolverProvider refactoring = this.getBuildRefactoring();
+				
+				return refactoring == null
 					? resolver
-					: PersistenceRootResolver.Wrap(resolver, this.refactoring)
+					: PersistenceRootResolver.Wrap(resolver, refactoring)
 				;
 			}
 			
+			protected PersistenceRefactoringResolverProvider getBuildRefactoring()
+			{
+				if(this.refactoring != null)
+				{
+					return this.refactoring;
+				}
+				
+				if(this.refactoringMapping != null)
+				{
+					return PersistenceRefactoringResolverProvider.Caching(this.refactoringMapping);
+				}
+				
+				return null;
+			}
+			
 			@Override
-			public final synchronized Builder setRefactoring(final PersistenceRefactoringResolverProvider refactoring)
+			public final synchronized Builder setRefactoring(
+				final PersistenceRefactoringResolverProvider refactoring
+			)
 			{
 				this.refactoring = refactoring;
+				return this;
+			}
+			
+			@Override
+			public final synchronized Builder setRefactoring(
+				final PersistenceRefactoringMappingProvider refactoringMapping
+			)
+			{
+				this.refactoringMapping = refactoringMapping;
 				return this;
 			}
 		}

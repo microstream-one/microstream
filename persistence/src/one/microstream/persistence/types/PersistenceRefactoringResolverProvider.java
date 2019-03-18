@@ -3,7 +3,6 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 
 import one.microstream.collections.types.XGettingEnum;
-import one.microstream.typing.Caching;
 
 public interface PersistenceRefactoringResolverProvider extends PersistenceTypeResolverProvider
 {
@@ -13,17 +12,41 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 	
 	
 	public static PersistenceRefactoringResolverProvider New(
+		final PersistenceRefactoringMappingProvider refactoringMappingProvider
+	)
+	{
+		return new PersistenceRefactoringResolverProvider.Default(
+			notNull(refactoringMappingProvider),
+			PersistenceRefactoringTypeIdentifierBuilder.createDefaultRefactoringLegacyTypeIdentifierBuilders(),
+			PersistenceRefactoringMemberIdentifierBuilder.createDefaultRefactoringLegacyMemberIdentifierBuilders(),
+			PersistenceRefactoringMemberIdentifierBuilder.createDefaultRefactoringCurrentMemberIdentifierBuilders()
+		);
+	}
+	
+	public static PersistenceRefactoringResolverProvider New(
 		final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ,
 		final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders
 	)
 	{
-		return new PersistenceRefactoringResolverProvider.Implementation(
+		return new PersistenceRefactoringResolverProvider.Default(
 			notNull(refactoringMappingProvider)    ,
 			notNull(sourceTypeIdentifierBuilders)  ,
 			notNull(sourceMemberIdentifierBuilders),
 			notNull(targetMemberIdentifierBuilders)
+		);
+	}
+	
+	public static PersistenceRefactoringResolverProvider Caching(
+		final PersistenceRefactoringMappingProvider refactoringMappingProvider
+	)
+	{
+		return new PersistenceRefactoringResolverProvider.Caching(
+			notNull(refactoringMappingProvider),
+			PersistenceRefactoringTypeIdentifierBuilder.createDefaultRefactoringLegacyTypeIdentifierBuilders(),
+			PersistenceRefactoringMemberIdentifierBuilder.createDefaultRefactoringLegacyMemberIdentifierBuilders(),
+			PersistenceRefactoringMemberIdentifierBuilder.createDefaultRefactoringCurrentMemberIdentifierBuilders()
 		);
 	}
 	
@@ -34,7 +57,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders
 	)
 	{
-		return new PersistenceRefactoringResolverProvider.CachingImplementation(
+		return new PersistenceRefactoringResolverProvider.Caching(
 			notNull(refactoringMappingProvider)    ,
 			notNull(sourceTypeIdentifierBuilders)  ,
 			notNull(sourceMemberIdentifierBuilders),
@@ -42,7 +65,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		);
 	}
 	
-	public class Implementation implements PersistenceRefactoringResolverProvider
+	public class Default implements PersistenceRefactoringResolverProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -60,7 +83,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		// constructors //
 		/////////////////
 		
-		protected Implementation(
+		protected Default(
 			final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ,
 			final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 			final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
@@ -94,7 +117,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		
 	}
 	
-	public class CachingImplementation extends Implementation implements Caching
+	public class Caching extends Default implements one.microstream.typing.Caching
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -108,7 +131,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		// constructors //
 		/////////////////
 		
-		protected CachingImplementation(
+		protected Caching(
 			final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ,
 			final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 			final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,

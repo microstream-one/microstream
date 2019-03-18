@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import one.microstream.X;
@@ -339,11 +340,21 @@ public class Persistence
 
 	public static final <R extends PersistenceTypeRegistry> R registerJavaBasicTypes(final R registry)
 	{
-		NATIVE_TYPES.iterate(e ->
-			registry.registerType(e.value(), e.key())
-		);
+		iterateJavaBasicTypes((c, tid) ->
+		{
+			registry.registerType(tid, c);
+		});
 		
 		return registry;
+	}
+	
+	public static final <C extends BiConsumer<Class<?>, Long>> C iterateJavaBasicTypes(final C iterator)
+	{
+		NATIVE_TYPES.iterate(e ->
+			iterator.accept(e.key(), e.value())
+		);
+		
+		return iterator;
 	}
 
 	public static final <R extends PersistenceObjectRegistry> R registerJavaConstants(final R registry)

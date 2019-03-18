@@ -4,16 +4,11 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Supplier;
 
-import one.microstream.X;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.BinaryLoader;
 import one.microstream.persistence.binary.types.BinaryPersistenceFoundation;
 import one.microstream.persistence.binary.types.BinaryStorer;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceRootResolver;
-import one.microstream.storage.types.StorageConnection;
-import one.microstream.storage.types.StorageManager;
-import one.microstream.storage.types.StorageRequestAcceptor;
 
 public interface EmbeddedStorageConnectionFoundation<F extends EmbeddedStorageConnectionFoundation<?>>
 extends BinaryPersistenceFoundation<F>
@@ -164,10 +159,19 @@ extends BinaryPersistenceFoundation<F>
 		}
 		
 		@Override
+		public PersistenceRootResolver createRootResolver(final Object root)
+		{
+			return PersistenceRootResolver.Wrap(
+				super.createRootResolver(root),
+				this.getRefactoringResolverProvider()
+			);
+		}
+		
+		@Override
 		protected PersistenceRootResolver ensureRootResolver()
 		{
 			// default root is an empty reference that can be set afterwards
-			return Persistence.RootResolver(X.Reference(null));
+			return this.createRootResolver(null);
 		}
 
 		@Override

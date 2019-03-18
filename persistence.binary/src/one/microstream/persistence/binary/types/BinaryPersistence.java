@@ -58,6 +58,7 @@ import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeHandler;
+import one.microstream.persistence.types.PersistenceTypeIdLookup;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BinaryHandlerSubstituterImplementation;
 
@@ -77,21 +78,25 @@ public final class BinaryPersistence extends Persistence
 	}
 	
 	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
+		final PersistenceTypeIdLookup               nativeTypeIdLookup,
 		final PersistenceSizedArrayLengthController controller
 	)
 	{
 		final PersistenceCustomTypeHandlerRegistry.Implementation<Binary> defaultCustomTypeHandlerRegistry =
 			PersistenceCustomTypeHandlerRegistry.<Binary>New()
-			.registerTypeHandlers(nativeHandlers(controller))
+			.registerTypeHandlers(createNativeHandlers(nativeTypeIdLookup, controller))
 			.registerTypeHandlers(defaultCustomHandlers(controller))
 		;
 		return defaultCustomTypeHandlerRegistry;
 	}
 		
-	static final void initializeNativeTypeId(final PersistenceTypeHandler<Binary, ?> typeHandler)
+	static final void initializeNativeTypeId(
+		final PersistenceTypeHandler<Binary, ?> typeHandler       ,
+		final PersistenceTypeIdLookup           nativeTypeIdLookup
+	)
 	{
-		final Long nativeTypeId = Persistence.getNativeTypeId(typeHandler.type());
-		if(nativeTypeId == null)
+		final long nativeTypeId = nativeTypeIdLookup.lookupTypeId(typeHandler.type());
+		if(nativeTypeId == 0)
 		{
 			// (07.11.2018 TM)EXCP: proper exception
 			throw new RuntimeException("No native TypeId found for type " + typeHandler.type());
@@ -100,7 +105,8 @@ public final class BinaryPersistence extends Persistence
 		typeHandler.initializeTypeId(nativeTypeId);
 	}
 	
-	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers(
+	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> createNativeHandlers(
+		final PersistenceTypeIdLookup               nativeTypeIdLookup,
 		final PersistenceSizedArrayLengthController controller
 	)
 	{
@@ -152,7 +158,10 @@ public final class BinaryPersistence extends Persistence
 			// (24.10.2013 TM)TODO: more native handlers (old collections etc.)
 		);
 		
-		nativeHandlers.iterate(BinaryPersistence::initializeNativeTypeId);
+		nativeHandlers.iterate(handler ->
+		{
+			BinaryPersistence.initializeNativeTypeId(handler, nativeTypeIdLookup);
+		});
 		
 		return nativeHandlers;
 	}

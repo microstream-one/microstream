@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 import one.microstream.X;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceRefactoringMappingProvider;
 import one.microstream.persistence.types.PersistenceRootResolver;
@@ -14,18 +13,6 @@ import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeManager;
 import one.microstream.reference.Reference;
-import one.microstream.storage.types.StorageChannelsCreator;
-import one.microstream.storage.types.StorageConfiguration;
-import one.microstream.storage.types.StorageFoundation;
-import one.microstream.storage.types.StorageManager;
-import one.microstream.storage.types.StorageObjectIdRangeEvaluator;
-import one.microstream.storage.types.StorageRequestAcceptor;
-import one.microstream.storage.types.StorageRequestTaskCreator;
-import one.microstream.storage.types.StorageRootTypeIdProvider;
-import one.microstream.storage.types.StorageTaskBroker;
-import one.microstream.storage.types.StorageTimestampProvider;
-import one.microstream.storage.types.StorageTypeDictionary;
-import one.microstream.storage.types.StorageDataChunkValidator;
 
 public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>
 {
@@ -33,6 +20,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	
 	// next level method chaining 8-)
 	public F onConnectionFoundation(Consumer<? super EmbeddedStorageConnectionFoundation<?>> logic);
+	
+	public F onThis(Consumer<? super EmbeddedStorageFoundation<?>> logic);
 
 	public default EmbeddedStorageManager createEmbeddedStorageManager()
 	{
@@ -107,11 +96,20 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			return this.$();
 		}
 		
+
+		@Override
+		public F onThis(final Consumer<? super EmbeddedStorageFoundation<?>> logic)
+		{
+			logic.accept(this);
+			
+			return this.$();
+		}
+		
 		@Override
 		public F setRoot(final Object root)
 		{
 			this.setRootResolver(
-				Persistence.RootResolver(root)
+				this.getConnectionFoundation().createRootResolver(root)
 			);
 			
 			return this.$();

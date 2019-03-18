@@ -76,7 +76,13 @@ extends AbstractBinaryHandlerNativeCustomCollectionSizedArray<ArrayList<?>>
 	@Override
 	public final ArrayList<?> create(final Binary bytes)
 	{
-		return new ArrayList<>();
+		/*
+		 * InitialCapacity 1 instead of default constructor is a workaround for yet another JDK moronity bug.
+		 * Using the default constructor causes #ensureCapacity to yield incorrect behavior for values of
+		 * 10 or below, which causes a subsequent array length validation exception.
+		 * Also see https://bugs.openjdk.java.net/browse/JDK-8206945
+		 */
+		return new ArrayList<>(1);
 	}
 
 	@Override
