@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
 // CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
@@ -58,7 +60,27 @@ public final class XMemory
 		OFFSET_ArrayList_elementData = internalGetFieldOffset(ArrayList.class    , "elementData"),
 		OFFSET_ArrayList_size        = internalGetFieldOffset(ArrayList.class    , "size"       ),
 		OFFSET_HashSet_map           = internalGetFieldOffset(HashSet.class      , "map"        ),
-		OFFSET_HashMap_loadFactor    = internalGetFieldOffset(HashMap.class      , "loadFactor" )
+		OFFSET_HashMap_loadFactor    = internalGetFieldOffset(HashMap.class      , "loadFactor" ),
+		
+		// (18.03.2019 TM)FIXME: MS-76: review and clean up XMemory#OFFSET-s
+		// (18.03.2019 TM)NOTE: not required
+//		OFFSET_ArrayDeque_elements       = internalGetFieldOffset(ArrayDeque.class   , "elements"         ),
+//		OFFSET_ArrayDeque_head           = internalGetFieldOffset(ArrayDeque.class   , "head"             ),
+//		OFFSET_ArrayDeque_tail           = internalGetFieldOffset(ArrayDeque.class   , "tail"             ),
+		// (18.03.2019 TM)NOTE: required
+		OFFSET_Hashtable_loadFactor      = internalGetFieldOffset(Hashtable.class    , "loadFactor"       ),
+		OFFSET_LinkedHashMap_loadFactor  = internalGetFieldOffset(LinkedHashMap.class, "loadFactor"       ),
+		OFFSET_LinkedHashMap_accessOrder = internalGetFieldOffset(LinkedHashMap.class, "accessOrder"      )
+		// (18.03.2019 TM)NOTE: ToDO
+//		OFFSET_PriorityQueue_queue       = internalGetFieldOffset(PriorityQueue.class, "queue"            ),
+//		OFFSET_PriorityQueue_size        = internalGetFieldOffset(PriorityQueue.class, "size"             ),
+//		OFFSET_TreeSet_backingMap        = internalGetFieldOffset(TreeSet.class      , "m"                ),
+//		OFFSET_Vector_elementData        = internalGetFieldOffset(Vector.class       , "elementData"      ),
+//		OFFSET_Vector_elementCount       = internalGetFieldOffset(Vector.class       , "elementCount"     ),
+//		OFFSET_Vector_capacityIncrement  = internalGetFieldOffset(Vector.class       , "capacityIncrement"),
+//		OFFSET_Properties_Defaults       = internalGetFieldOffset(Properties.class   , "defaults"         ),
+//
+//		OFFSET_ConcurrentSkipListMap_comparator = internalGetFieldOffset(ConcurrentSkipListMap.class, "comparator")
 
 	;
 	// CHECKSTYLE.ON: ConstantName
@@ -361,6 +383,18 @@ public final class XMemory
 	{
 		// must check not null here explictely to prevent VM crashes
 		return VM.getFloat(notNull(hashMap), OFFSET_HashMap_loadFactor);
+	}
+
+	public static float accessLoadFactor(final LinkedHashMap<?, ?> linkedHashMap)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return VM.getFloat(notNull(linkedHashMap), OFFSET_LinkedHashMap_loadFactor);
+	}
+
+	public static boolean accessAccessOrder(final LinkedHashMap<?, ?> linkedHashMap)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return VM.getBoolean(notNull(linkedHashMap), OFFSET_LinkedHashMap_accessOrder);
 	}
 
 

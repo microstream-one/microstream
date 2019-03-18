@@ -1,6 +1,6 @@
 package one.microstream.java.util;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import one.microstream.X;
 import one.microstream.chars.XChars;
@@ -14,14 +14,14 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomCollection<HashSet<?>>
+public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCustomCollection<LinkedHashSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =           0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = Float.BYTES; // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_LOAD_FACTOR =                        0; // 1 float at offset 0
+	static final long BINARY_OFFSET_ELEMENTS    = XMemory.byteSize_float(); // sized array at offset 0 + float size
 
 
 
@@ -30,9 +30,9 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	/////////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<HashSet<?>> typeWorkaround()
+	private static Class<LinkedHashSet<?>> typeWorkaround()
 	{
-		return (Class)HashSet.class; // no idea how to get ".class" to work otherwise
+		return (Class)LinkedHashSet.class; // no idea how to get ".class" to work otherwise
 	}
 
 	static final float getLoadFactor(final Binary bytes)
@@ -51,7 +51,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerHashSet()
+	public BinaryHandlerLinkedHashSet()
 	{
 		super(
 			typeWorkaround(),
@@ -68,7 +68,12 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	////////////
 
 	@Override
-	public final void store(final Binary bytes, final HashSet<?> instance, final long oid, final PersistenceStoreHandler handler)
+	public final void store(
+		final Binary                  bytes   ,
+		final LinkedHashSet<?>        instance,
+		final long                    oid     ,
+		final PersistenceStoreHandler handler
+	)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = bytes.storeSizedIterableAsList(
@@ -88,28 +93,30 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final HashSet<?> create(final Binary bytes)
+	public final LinkedHashSet<?> create(final Binary bytes)
 	{
-		return new HashSet<>(
+		return new LinkedHashSet<>(
 			getElementCount(bytes),
 			getLoadFactor(bytes)
 		);
 	}
 
 	@Override
-	public final void update(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler builder)
 	{
-		final int      elementCount   = getElementCount(rawData);
+		final int elementCount = getElementCount(bytes);
 		final Object[] elementsHelper = new Object[elementCount];
 		
-		rawData.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
-		rawData.registerHelper(instance, elementsHelper);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
+	
+		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public void complete(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary rawData, final LinkedHashSet<?> instance, final PersistenceLoadHandler loadHandler)
 	{
 		final Object helper = rawData.getHelper(instance);
+		
 		if(helper == null)
 		{
 			// (22.04.2016 TM)EXCP: proper exception
@@ -128,32 +135,20 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 		
 		final Object[] elementsHelper = (Object[])helper;
 		@SuppressWarnings("unchecked")
-		final HashSet<Object> castedInstance = (HashSet<Object>)instance;
+		final LinkedHashSet<Object> castedInstance = (LinkedHashSet<Object>)instance;
 		
 		for(final Object element : elementsHelper)
 		{
-			/* (22.04.2016 TM)NOTE: oh look, they added an add() logic complementary to put().
-			 * I did that years ago as a noob.
-			 * They even chose the proper reasonable term instead of the moronic "putIfAbsent"
-			 * or some "putElementOnlyIfAbsentBecauseWeLikeMoronicNaming" terminology normally to be expected
-			 * from the JDK.
-			 * If they now also realize that their collection's hash-equality, immutability and most other concepts
-			 * are deeply flawed, they might end up developing a proper collection framework. In 50 years or so.
-			 */
 			if(!castedInstance.add(element))
 			{
 				// (22.04.2016 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Element hashing inconsistency in " + XChars.systemString(castedInstance)
-				);
+				throw new RuntimeException("Element hashing inconsistency in " + XChars.systemString(castedInstance));
 			}
 		}
-		
-		rawData.registerHelper(instance, null); // might help Garbage Collector
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final HashSet<?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final LinkedHashSet<?> instance, final PersistenceFunction iterator)
 	{
 		for(final Object e : instance)
 		{
@@ -166,5 +161,5 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
-
+	
 }

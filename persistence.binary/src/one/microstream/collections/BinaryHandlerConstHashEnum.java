@@ -1,7 +1,6 @@
 package one.microstream.collections;
 
 import one.microstream.X;
-import one.microstream.collections.ConstHashEnum;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
@@ -89,7 +88,10 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 		);
 
 		// store hash density as (sole) header value
-		bytes.store_float(contentAddress, instance.hashDensity);
+		bytes.store_float(
+			contentAddress + BINARY_OFFSET_HASH_DENSITY,
+			instance.hashDensity
+		);
 	}
 
 	@Override
