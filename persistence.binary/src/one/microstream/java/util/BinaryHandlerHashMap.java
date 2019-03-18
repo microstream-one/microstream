@@ -22,8 +22,8 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =                        0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = XMemory.byteSize_float(); // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_LOAD_FACTOR =           0; // 1 float at offset 0
+	static final long BINARY_OFFSET_ELEMENTS    = Float.BYTES; // sized array at offset 0 + float size
 
 
 
@@ -79,12 +79,12 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	{
 		// store elements simply as array binary form
 		final long contentAddress = bytes.storeSizedIterableAsList(
-			this.typeId()          ,
-			oid                    ,
-			BINARY_OFFSET_ELEMENTS ,
+			this.typeId()         ,
+			oid                   ,
+			BINARY_OFFSET_ELEMENTS,
 			() ->
 				JavaUtilMapEntrySetFlattener.New(instance),
-			instance.size() * 2    ,
+			instance.size() * 2   ,
 			handler
 		);
 

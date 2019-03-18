@@ -385,6 +385,12 @@ public final class XMemory
 		return VM.getFloat(notNull(hashMap), OFFSET_HashMap_loadFactor);
 	}
 
+	public static float accessLoadFactor(final Hashtable<?, ?> hashtable)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return VM.getFloat(notNull(hashtable), OFFSET_Hashtable_loadFactor);
+	}
+
 	public static float accessLoadFactor(final LinkedHashMap<?, ?> linkedHashMap)
 	{
 		// must check not null here explictely to prevent VM crashes
