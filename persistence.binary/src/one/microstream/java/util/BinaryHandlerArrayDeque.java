@@ -49,13 +49,13 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 	static final int getHead(final ArrayDeque<?> instance)
 	{
 		// "head" (actually headIndex, JDK Pros) is nothing more than a starting index and tail is offset + size.
-		return XMemory.accessHead(instance);
+		return XMemory.getHead(instance);
 	}
 
 	static final int getTail(final ArrayDeque<?> instance)
 	{
 		// "tail" (actually tailIndex, JDK Pros) is nothing more than a bounding index equalling headIndex + size.
-		return XMemory.accessTail(instance);
+		return XMemory.getTail(instance);
 	}
 
 
@@ -97,7 +97,7 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 			this.typeId()                  ,
 			objectId                       ,
 			BINARY_OFFSET_SIZED_ARRAY      ,
-			XMemory.accessStorage(instance),
+			XMemory.accessArray(instance),
 			head                           ,
 			instance.size()                ,
 			handler
@@ -120,7 +120,7 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 		
 		bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			XMemory.accessStorage(instance),
+			XMemory.accessArray(instance),
 			builder
 		);
 		XMemory.setHead(instance, getHead(bytes));
@@ -130,7 +130,7 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 	@Override
 	public final void iterateInstanceReferences(final ArrayDeque<?> instance, final PersistenceFunction iterator)
 	{
-		Persistence.iterateReferences(iterator, XMemory.accessStorage(instance), getHead(instance), instance.size());
+		Persistence.iterateReferences(iterator, XMemory.accessArray(instance), getHead(instance), instance.size());
 	}
 
 	@Override

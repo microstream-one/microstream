@@ -55,6 +55,7 @@ import one.microstream.java.util.BinaryHandlerIdentityHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashSet;
 import one.microstream.java.util.BinaryHandlerLinkedList;
+import one.microstream.java.util.BinaryHandlerVector;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
@@ -157,7 +158,7 @@ public final class BinaryPersistence extends Persistence
 			// (18.03.2019 TM)FIXME: MS-76: migrate JDK collection handlers
 			
 			// creepy JDK 1.0 collections
-//			new BinaryHandlerVector(controller)     ,
+			new BinaryHandlerVector(controller)     ,
 			new BinaryHandlerHashtable()            ,
 //			new BinaryHandlerStack(controller)      ,
 //			new BinaryHandlerProperties()           ,

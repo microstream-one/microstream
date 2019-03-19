@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
 // CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
@@ -69,14 +70,14 @@ public final class XMemory
 		OFFSET_ArrayDeque_tail           = internalGetFieldOffset(ArrayDeque.class   , "tail"             ),
 		OFFSET_Hashtable_loadFactor      = internalGetFieldOffset(Hashtable.class    , "loadFactor"       ),
 		OFFSET_LinkedHashMap_loadFactor  = internalGetFieldOffset(LinkedHashMap.class, "loadFactor"       ),
-		OFFSET_LinkedHashMap_accessOrder = internalGetFieldOffset(LinkedHashMap.class, "accessOrder"      )
+		OFFSET_LinkedHashMap_accessOrder = internalGetFieldOffset(LinkedHashMap.class, "accessOrder"      ),
 		// (18.03.2019 TM)NOTE: ToDO
 //		OFFSET_PriorityQueue_queue       = internalGetFieldOffset(PriorityQueue.class, "queue"            ),
 //		OFFSET_PriorityQueue_size        = internalGetFieldOffset(PriorityQueue.class, "size"             ),
 //		OFFSET_TreeSet_backingMap        = internalGetFieldOffset(TreeSet.class      , "m"                ),
-//		OFFSET_Vector_elementData        = internalGetFieldOffset(Vector.class       , "elementData"      ),
-//		OFFSET_Vector_elementCount       = internalGetFieldOffset(Vector.class       , "elementCount"     ),
-//		OFFSET_Vector_capacityIncrement  = internalGetFieldOffset(Vector.class       , "capacityIncrement"),
+		OFFSET_Vector_elementData        = internalGetFieldOffset(Vector.class       , "elementData"      ),
+		OFFSET_Vector_elementCount       = internalGetFieldOffset(Vector.class       , "elementCount"     ),
+		OFFSET_Vector_capacityIncrement  = internalGetFieldOffset(Vector.class       , "capacityIncrement")
 //		OFFSET_Properties_Defaults       = internalGetFieldOffset(Properties.class   , "defaults"         ),
 //
 //		OFFSET_ConcurrentSkipListMap_comparator = internalGetFieldOffset(ConcurrentSkipListMap.class, "comparator")
@@ -294,48 +295,48 @@ public final class XMemory
 
 	public static void setData(
 		final StringBuilder stringBuilder,
-		final char[]        array        ,
-		final long          offset       ,
-		final long          length
+		final char[]       chars         ,
+		final long         offsetInBytes ,
+		final long         lengthInBytes
 	)
 	{
 		notNull(stringBuilder); // must check not null here explictely to prevent VM crashes
-		if((length & 1) == 1)
+		if((lengthInBytes & 1) == 1)
 		{
 			throw new RuntimeException("Invalid odd byte length for char array");
 		}
 
 		final char[] data = (char[])VM.getObject(stringBuilder, OFFSET_StringBuilder_value);
-		if(data.length < (int)(length >>> 1))
+		if(data.length < (int)(lengthInBytes >>> 1))
 		{
 			throw new RuntimeException("Not enough capacity");
 		}
 
-		VM.copyMemory(array, offset, data, Unsafe.ARRAY_CHAR_BASE_OFFSET, length);
-		VM.putInt(stringBuilder, OFFSET_StringBuilder_count, (int)(length >>> 1));
+		VM.copyMemory(chars, offsetInBytes, data, Unsafe.ARRAY_CHAR_BASE_OFFSET, lengthInBytes);
+		VM.putInt(stringBuilder, OFFSET_StringBuilder_count, (int)(lengthInBytes >>> 1));
 	}
 
-	public static void setData(
-		final StringBuffer stringBuffer,
-		final char[]       array       ,
-		final long         offset      ,
-		final long         length
+	public static void setChars(
+		final StringBuffer stringBuffer ,
+		final char[]       chars        ,
+		final long         offsetInBytes,
+		final long         lengthInBytes
 	)
 	{
 		notNull(stringBuffer); // must check not null here explictely to prevent VM crashes
-		if((length & 1) == 1)
+		if((lengthInBytes & 1) == 1)
 		{
 			throw new RuntimeException("Invalid odd byte length for char array");
 		}
 
 		final char[] data = (char[])VM.getObject(stringBuffer, OFFSET_StringBuffer_value);
-		if(data.length < (int)(length >>> 1))
+		if(data.length < (int)(lengthInBytes >>> 1))
 		{
 			throw new RuntimeException("Not enough capacity");
 		}
 
-		VM.copyMemory(array, offset, data, Unsafe.ARRAY_CHAR_BASE_OFFSET, length);
-		VM.putInt(stringBuffer, OFFSET_StringBuffer_count, (int)(length >>> 1));
+		VM.copyMemory(chars, offsetInBytes, data, Unsafe.ARRAY_CHAR_BASE_OFFSET, lengthInBytes);
+		VM.putInt(stringBuffer, OFFSET_StringBuffer_count, (int)(lengthInBytes >>> 1));
 	}
 
 	public static char[] accessChars(final StringBuffer stringBuffer)
@@ -344,7 +345,7 @@ public final class XMemory
 		return (char[])VM.getObject(notNull(stringBuffer), OFFSET_StringBuffer_value);
 	}
 
-	public static Object[] accessStorage(final ArrayList<?> arrayList)
+	public static Object[] accessArray(final ArrayList<?> arrayList)
 	{
 		// must check not null here explictely to prevent VM crashes
 		return (Object[])VM.getObject(notNull(arrayList), OFFSET_ArrayList_elementData);
@@ -371,50 +372,50 @@ public final class XMemory
 	 * @param hashSet
 	 * @return
 	 */
-	public static float accessLoadFactor(final HashSet<?> hashSet)
+	public static float getLoadFactor(final HashSet<?> hashSet)
 	{
 		// must check not null here explictely to prevent VM crashes
 		final HashMap<?, ?> map = (HashMap<?, ?>)VM.getObject(notNull(hashSet), OFFSET_HashSet_map);
-		return accessLoadFactor(map);
+		return getLoadFactor(map);
 	}
 
-	public static float accessLoadFactor(final HashMap<?, ?> hashMap)
+	public static float getLoadFactor(final HashMap<?, ?> hashMap)
 	{
 		// must check not null here explictely to prevent VM crashes
 		return VM.getFloat(notNull(hashMap), OFFSET_HashMap_loadFactor);
 	}
 
-	public static float accessLoadFactor(final Hashtable<?, ?> hashtable)
+	public static float getLoadFactor(final Hashtable<?, ?> hashtable)
 	{
 		// must check not null here explictely to prevent VM crashes
 		return VM.getFloat(notNull(hashtable), OFFSET_Hashtable_loadFactor);
 	}
 
-	public static float accessLoadFactor(final LinkedHashMap<?, ?> linkedHashMap)
+	public static float getLoadFactor(final LinkedHashMap<?, ?> linkedHashMap)
 	{
 		// must check not null here explictely to prevent VM crashes
 		return VM.getFloat(notNull(linkedHashMap), OFFSET_LinkedHashMap_loadFactor);
 	}
 
-	public static boolean accessAccessOrder(final LinkedHashMap<?, ?> linkedHashMap)
+	public static boolean getAccessOrder(final LinkedHashMap<?, ?> linkedHashMap)
 	{
 		// must check not null here explictely to prevent VM crashes
 		return VM.getBoolean(notNull(linkedHashMap), OFFSET_LinkedHashMap_accessOrder);
 	}
 	
-	public static Object[] accessStorage(final ArrayDeque<?> arrayDeque)
+	public static Object[] accessArray(final ArrayDeque<?> arrayDeque)
 	{
 		// must check not null here explictely to prevent VM crashes
 		return (Object[]) VM.getObject(notNull(arrayDeque), OFFSET_ArrayDeque_elements);
 	}
 
-	public static int accessHead(final ArrayDeque<?> arrayDeque)
+	public static int getHead(final ArrayDeque<?> arrayDeque)
 	{
 		// must check not null here explictely to prevent VM crashes
 		return VM.getInt(notNull(arrayDeque), OFFSET_ArrayDeque_head);
 	}
 
-	public static int accessTail(final ArrayDeque<?> arrayDeque)
+	public static int getTail(final ArrayDeque<?> arrayDeque)
 	{
 		// must check not null here explictely to prevent VM crashes
 		return VM.getInt(notNull(arrayDeque), OFFSET_ArrayDeque_tail);
@@ -430,6 +431,36 @@ public final class XMemory
 	{
 		// must check not null here explictely to prevent VM crashes
 		set_int(notNull(arrayDeque), OFFSET_ArrayDeque_tail, tail);
+	}
+
+	public static Object[] accessArray(final Vector<?> vector)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return (Object[])VM.getObject(notNull(vector), OFFSET_Vector_elementData);
+	}
+	
+	public static int getElementCount(final Vector<?> vector)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return VM.getInt(notNull(vector), OFFSET_Vector_elementCount);
+	}
+
+	public static void setElementCount(final Vector<?> vector, final int size)
+	{
+		// must check not null here explictely to prevent VM crashes
+		VM.putInt(notNull(vector), OFFSET_Vector_elementCount, size);
+	}
+	
+	public static int getCapacityIncrement(final Vector<?> vector)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return VM.getInt(notNull(vector), OFFSET_Vector_capacityIncrement);
+	}
+
+	public static void setCapacityIncrement(final Vector<?> vector, final int size)
+	{
+		// must check not null here explictely to prevent VM crashes
+		VM.putInt(notNull(vector), OFFSET_Vector_capacityIncrement, size);
 	}
 
 

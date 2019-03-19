@@ -1,6 +1,6 @@
 package one.microstream.java.util;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollectionSizedArray;
@@ -14,25 +14,25 @@ import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerArrayList
-extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayList<?>>
+public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomCollectionSizedArray<Vector<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_SIZED_ARRAY = 0; // binary form is 100% just a sized array, so offset 0
+	static final long BINARY_OFFSET_CAPACITY_INCREMENT =             0;
+	static final long BINARY_OFFSET_SIZED_ARRAY        = Integer.BYTES;
 
-
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods    //
 	/////////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<ArrayList<?>> typeWorkaround()
+	private static Class<Vector<?>> typeWorkaround()
 	{
-		return (Class)ArrayList.class; // no idea how to get ".class" to work otherwise
+		return (Class)Vector.class; // no idea how to get ".class" to work otherwise
 	}
 
 
@@ -41,11 +41,13 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayList<?>>
 	// constructors     //
 	/////////////////////
 
-	public BinaryHandlerArrayList(final PersistenceSizedArrayLengthController controller)
+	public BinaryHandlerVector(final PersistenceSizedArrayLengthController controller)
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.sizedArrayPseudoFields(),
+			BinaryCollectionHandling.sizedArrayPseudoFields(
+			    pseudoField(int.class, "capacityIncrement")
+			),
 			controller
 		);
 	}
@@ -59,48 +61,50 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayList<?>>
 	@Override
 	public final void store(
 		final Binary                  bytes   ,
-		final ArrayList<?>            instance,
+		final Vector<?>               instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeSizedArray(
-			this.typeId()                  ,
-			objectId                       ,
-			BINARY_OFFSET_SIZED_ARRAY      ,
+		final long contentAddress = bytes.storeSizedArray(
+			this.typeId()                ,
+			objectId                     ,
+			BINARY_OFFSET_SIZED_ARRAY    ,
 			XMemory.accessArray(instance),
-			instance.size()                ,
+			instance.size()              ,
 			handler
+		);
+		bytes.store_int(
+		    contentAddress + BINARY_OFFSET_CAPACITY_INCREMENT,
+		    XMemory.getCapacityIncrement(instance)
 		);
 	}
 
 	@Override
-	public final ArrayList<?> create(final Binary bytes)
+	public final Vector<?> create(final Binary bytes)
 	{
-		/*
-		 * InitialCapacity 1 instead of default constructor is a workaround for yet another JDK moronity bug.
-		 * Using the default constructor causes #ensureCapacity to yield incorrect behavior for values of
-		 * 10 or below, which causes a subsequent array length validation exception.
-		 * Also see https://bugs.openjdk.java.net/browse/JDK-8206945
-		 */
-		return new ArrayList<>(1);
+		// capacityIncrement can be any int value, even negative. So no validation can be done here.
+		return new Vector<>(
+			1,
+			bytes.get_int(BINARY_OFFSET_CAPACITY_INCREMENT)
+		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final Vector<?> instance, final PersistenceLoadHandler handler)
 	{
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 		final int size = bytes.updateSizedArrayObjectReferences(
-			BINARY_OFFSET_SIZED_ARRAY,
+			BINARY_OFFSET_SIZED_ARRAY    ,
 			XMemory.accessArray(instance),
-			builder
+			handler
 		);
-		XMemory.setSize(instance, size);
+		XMemory.setElementCount(instance, size);
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final ArrayList<?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final Vector<?> instance, final PersistenceFunction iterator)
 	{
 		Persistence.iterateReferences(iterator, XMemory.accessArray(instance), 0, instance.size());
 	}
@@ -110,5 +114,4 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayList<?>>
 	{
 		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
-
 }
