@@ -622,16 +622,16 @@ public abstract class AbstractArrayStorage
 	/////////////////////
 
 	public static final <E> void iterate(
-		final E[] data,
-		final int size,
-		final Consumer<? super E> procedure
+		final E[]                 data    ,
+		final int                 size    ,
+		final Consumer<? super E> iterator
 	)
 	{
 		try
 		{
 			for(int i = 0; i < size; i++)
 			{
-				procedure.accept(data[i]);
+				iterator.accept(data[i]);
 			}
 		}
 		catch(final ThrowBreak b)
@@ -641,10 +641,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, A> void join(
-		final E[]                          data     ,
-		final int                          size     ,
+		final E[]                              data     ,
+		final int                              size     ,
 		final BiConsumer<? super E, ? super A> joiner   ,
-		final A                            aggregate
+		final A                                aggregate
 	)
 	{
 		try

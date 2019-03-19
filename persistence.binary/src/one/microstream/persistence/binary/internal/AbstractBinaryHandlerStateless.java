@@ -23,9 +23,14 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	/////////////////////
 
 	@Override
-	public final void store(final Binary bytes, final T instance, final long oid, final PersistenceStoreHandler handler)
+	public final void store(
+		final Binary                  bytes   ,
+		final T                       instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
 	{
-		bytes.storeStateless(this.typeId(), oid);
+		bytes.storeStateless(this.typeId(), objectId);
 	}
 
 	@Override

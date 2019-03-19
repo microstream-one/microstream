@@ -1,6 +1,5 @@
 package one.microstream.collections;
 
-import one.microstream.collections.BulkList;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollectionSizedArray;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
@@ -64,13 +63,13 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<BulkList<?>>
 	public final void store(
 		final Binary                  bytes   ,
 		final BulkList<?>             instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		bytes.storeSizedArray(
 			this.typeId()            ,
-			oid                      ,
+			objectId                 ,
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
 			instance.size            ,

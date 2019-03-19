@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -501,6 +502,25 @@ public class Persistence
 	public static final void iterateReferences(final PersistenceFunction iterator, final XIterable<?> elements)
 	{
 		elements.iterate(iterator::apply);
+	}
+
+	public static final void iterateReferencesIterable(final PersistenceFunction iterator, final Iterable<?> elements)
+	{
+		// using forEach would create two temporary instances, this (and #iterateReferences) only creates one.
+		for(final Object element : elements)
+		{
+			iterator.apply(element);
+		}
+	}
+	
+	public static final void iterateReferencesMap(final PersistenceFunction iterator, final Map<?, ?> elements)
+	{
+		// using forEach would create two temporary instances, this (and the method above) only creates one.
+		for(final Map.Entry<?, ?> element : elements.entrySet())
+		{
+			iterator.apply(element.getKey());
+			iterator.apply(element.getValue());
+		}
 	}
 
 

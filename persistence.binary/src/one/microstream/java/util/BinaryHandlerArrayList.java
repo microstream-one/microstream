@@ -60,16 +60,16 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayList<?>>
 	public final void store(
 		final Binary                  bytes   ,
 		final ArrayList<?>            instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		bytes.storeSizedArray(
-			this.typeId(),
-			oid,
-			BINARY_OFFSET_SIZED_ARRAY,
+			this.typeId()                  ,
+			objectId                       ,
+			BINARY_OFFSET_SIZED_ARRAY      ,
 			XMemory.accessStorage(instance),
-			instance.size(),
+			instance.size()                ,
 			handler
 		);
 	}

@@ -2,7 +2,6 @@ package one.microstream.collections;
 
 import java.lang.reflect.Field;
 
-import one.microstream.collections.EqBulkList;
 import one.microstream.equality.Equalator;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.memory.XMemory;
@@ -76,14 +75,14 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<EqBulkList<?>>
 	public final void store(
 		final Binary                  bytes   ,
 		final EqBulkList<?>           instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference
 		final long contentAddress = bytes.storeSizedArray(
 			this.typeId()            ,
-			oid                      ,
+			objectId                 ,
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
 			instance.size            ,

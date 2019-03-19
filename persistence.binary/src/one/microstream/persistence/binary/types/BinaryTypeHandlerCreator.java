@@ -101,7 +101,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				type                                           ,
 				persistableFields                              ,
 				this.lengthResolver()                          ,
-				this.eagerStoringFieldEvaluator()                 ,
+				this.eagerStoringFieldEvaluator()              ,
 				BinaryPersistence.blankMemoryInstantiator(type),
 				this.switchByteOrder
 			);

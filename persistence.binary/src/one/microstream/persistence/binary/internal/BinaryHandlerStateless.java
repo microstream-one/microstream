@@ -24,17 +24,17 @@ public final class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivia
 
 	@Override
 	public final void store(
-		final Binary                  medium  ,
+		final Binary                  bytes   ,
 		final T                       instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		medium.storeStateless(this.typeId(), oid);
+		bytes.storeStateless(this.typeId(), objectId);
 	}
 
 	@Override
-	public final T create(final Binary medium)
+	public final T create(final Binary bytes)
 	{
 		return XMemory.instantiate(this.type());
 	}

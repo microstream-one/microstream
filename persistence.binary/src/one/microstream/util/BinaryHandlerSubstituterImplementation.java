@@ -6,7 +6,6 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
-import one.microstream.util.Substituter;
 
 
 /**
@@ -52,13 +51,13 @@ extends AbstractBinaryHandlerCustom<Substituter.Implementation<?>>
 	public final void store(
 		final Binary                        bytes   ,
 		final Substituter.Implementation<?> instance,
-		final long                          oid     ,
-		final PersistenceStoreHandler                handler
+		final long                          objectId,
+		final PersistenceStoreHandler       handler
 	)
 	{
 		synchronized(instance)
 		{
-			BinaryHandlerEqHashEnum.staticStore(bytes, instance.elements, this.typeId(), oid, handler);
+			BinaryHandlerEqHashEnum.staticStore(bytes, instance.elements, this.typeId(), objectId, handler);
 		}
 	}
 

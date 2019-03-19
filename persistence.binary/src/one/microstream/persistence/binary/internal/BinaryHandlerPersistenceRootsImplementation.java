@@ -94,11 +94,11 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
 	public final void store(
 		final Binary                          bytes   ,
 		final PersistenceRoots.Implementation instance,
-		final long                            oid     ,
+		final long                            objectId,
 		final PersistenceStoreHandler         handler
 	)
 	{
-		bytes.storeRoots(this.typeId(), oid, instance.entries(), handler);
+		bytes.storeRoots(this.typeId(), objectId, instance.entries(), handler);
 	}
 
 	private static long[] buildTempObjectIdArray(final Binary bytes)

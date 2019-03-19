@@ -70,7 +70,12 @@ public interface PersistenceTypeHandlerCreator<M>
 				);
 			}
 			
-			// since type refactoring, the old and simple strategy to handle Class instances does not work any more.
+			/*
+			 * Since type refactoring, the old and simple strategy to handle Class instances does not work any more.
+			 * Class instances are system meta data and should not be stored as user data in a database, anyway.
+			 * Register a custom handler if you absolutely must and accept full responsibility for all details and
+			 * problems associated with it.
+			 */
 			if(type == Class.class)
 			{
 				// (18.09.2018 TM)EXCP: proper exception
