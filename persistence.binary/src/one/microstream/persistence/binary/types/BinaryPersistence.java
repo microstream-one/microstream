@@ -45,10 +45,15 @@ import one.microstream.java.lang.BinaryHandlerStringBuffer;
 import one.microstream.java.lang.BinaryHandlerStringBuilder;
 import one.microstream.java.math.BinaryHandlerBigDecimal;
 import one.microstream.java.math.BinaryHandlerBigInteger;
+import one.microstream.java.util.BinaryHandlerArrayDeque;
 import one.microstream.java.util.BinaryHandlerArrayList;
 import one.microstream.java.util.BinaryHandlerDate;
 import one.microstream.java.util.BinaryHandlerHashMap;
 import one.microstream.java.util.BinaryHandlerHashSet;
+import one.microstream.java.util.BinaryHandlerHashtable;
+import one.microstream.java.util.BinaryHandlerIdentityHashMap;
+import one.microstream.java.util.BinaryHandlerLinkedHashMap;
+import one.microstream.java.util.BinaryHandlerLinkedHashSet;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
@@ -152,12 +157,12 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerHashSet()              ,
 			new BinaryHandlerHashMap()              ,
 			// (18.03.2019 TM)FIXME: MS-76: migrate JDK collection handlers
-//			new BinaryHandlerHashtable()            ,
+			new BinaryHandlerHashtable()            ,
 //			new BinaryHandlerLinkedList()           ,
-//			new BinaryHandlerArrayDeque(controller) ,
-//			new BinaryHandlerIdentityHashMap()      ,
-//			new BinaryHandlerLinkedHashMap()        ,
-//			new BinaryHandlerLinkedHashSet()        ,
+			new BinaryHandlerArrayDeque(controller) ,
+			new BinaryHandlerIdentityHashMap()      ,
+			new BinaryHandlerLinkedHashMap()        ,
+			new BinaryHandlerLinkedHashSet()        ,
 //			new BinaryHandlerPriorityQueue()        ,
 //			new BinaryHandlerTreeMap()              ,
 //			new BinaryHandlerTreeSet()              ,

@@ -1033,8 +1033,8 @@ public abstract class Binary implements Chunk
 		long address = elementsDataAddress;
 
 		/*
-		 * must check elementCount on every element because under no circumstances may the memory be set
-		 * longer than the elementCount indicates (e.g. concurrent modification of the passed collection)
+		 * Must check elementCount on every element because under no circumstances may the memory be set
+		 * beyond the reserved range (e.g. concurrent modification of the passed collection)
 		 */
 		while(address < elementsBinaryBound && iterator.hasNext())
 		{
@@ -1043,10 +1043,12 @@ public abstract class Binary implements Chunk
 			address += referenceLength;
 		}
 
-		/* if there are fewer elements than specified, it is an error just the same.
+		/*
+		 * If there are fewer OR more elements than specified, it is an error.
 		 * The element count must match exactely, no matter what.
 		 */
-		if(address != elementsBinaryBound)
+		// (19.03.2019 TM)NOTE: added "|| iterator.hasNext()" check
+		if(address != elementsBinaryBound || iterator.hasNext())
 		{
 			// (22.04.2016 TM)EXCP: proper exception
 			throw new RuntimeException(
