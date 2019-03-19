@@ -89,7 +89,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 		// store load factor as (sole) header value
 		bytes.store_float(
 			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
-			XMemory.accessLoadFactor(instance)
+			XMemory.getLoadFactor(instance)
 		);
 	}
 

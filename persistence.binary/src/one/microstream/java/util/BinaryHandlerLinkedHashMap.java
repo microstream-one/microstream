@@ -97,11 +97,11 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 
 		bytes.store_float(
 			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
-			XMemory.accessLoadFactor(instance)
+			XMemory.getLoadFactor(instance)
 		);
 		bytes.store_boolean(
 			contentAddress + BINARY_OFFSET_ACCESS_ORDER,
-			XMemory.accessAccessOrder(instance)
+			XMemory.getAccessOrder(instance)
 		);
 	}
 	
