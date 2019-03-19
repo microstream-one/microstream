@@ -39,10 +39,11 @@ public interface PersistenceMetaIdentifiers
 		final EqHashTable<String, Supplier<?>> entries = EqHashTable.New();
 		
 		// arbitrary constant identifiers that decouple constant resolving from class/field names.
-		entries.add("XHashEqualator:hashEqualityValue"   , XHashing::hashEqualityValue   );
-		entries.add("XHashEqualator:hashEqualityIdentity", XHashing::hashEqualityIdentity);
-		entries.add("XEmpty:Collection"                  , X::empty                     );
-		entries.add("XEmpty:Table"                       , X::emptyTable                );
+		entries.add("XHashEqualator:hashEqualityValue"              , XHashing::hashEqualityValue              );
+		entries.add("XHashEqualator:hashEqualityIdentity"           , XHashing::hashEqualityIdentity           );
+		entries.add("XHashEqualator:keyValueHashEqualityKeyIdentity", XHashing::keyValueHashEqualityKeyIdentity);
+		entries.add("XEmpty:Collection"                             , X::empty                                 );
+		entries.add("XEmpty:Table"                                  , X::emptyTable                            );
 		
 		return entries;
 	}
