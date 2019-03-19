@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.Properties;
 import java.util.Vector;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
@@ -77,8 +78,8 @@ public final class XMemory
 //		OFFSET_TreeSet_backingMap        = internalGetFieldOffset(TreeSet.class      , "m"                ),
 		OFFSET_Vector_elementData        = internalGetFieldOffset(Vector.class       , "elementData"      ),
 		OFFSET_Vector_elementCount       = internalGetFieldOffset(Vector.class       , "elementCount"     ),
-		OFFSET_Vector_capacityIncrement  = internalGetFieldOffset(Vector.class       , "capacityIncrement")
-//		OFFSET_Properties_Defaults       = internalGetFieldOffset(Properties.class   , "defaults"         ),
+		OFFSET_Vector_capacityIncrement  = internalGetFieldOffset(Vector.class       , "capacityIncrement"),
+		OFFSET_Properties_Defaults       = internalGetFieldOffset(Properties.class   , "defaults"         )
 //
 //		OFFSET_ConcurrentSkipListMap_comparator = internalGetFieldOffset(ConcurrentSkipListMap.class, "comparator")
 
@@ -406,7 +407,7 @@ public final class XMemory
 	public static Object[] accessArray(final ArrayDeque<?> arrayDeque)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return (Object[]) VM.getObject(notNull(arrayDeque), OFFSET_ArrayDeque_elements);
+		return (Object[])VM.getObject(notNull(arrayDeque), OFFSET_ArrayDeque_elements);
 	}
 
 	public static int getHead(final ArrayDeque<?> arrayDeque)
@@ -461,6 +462,18 @@ public final class XMemory
 	{
 		// must check not null here explictely to prevent VM crashes
 		VM.putInt(notNull(vector), OFFSET_Vector_capacityIncrement, size);
+	}
+	
+	public static Properties accessDefaults(final Properties properties)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return (Properties)VM.getObject(notNull(properties), OFFSET_Properties_Defaults);
+	}
+
+	public static void setDefaults(final Properties properties, final Properties defaults)
+	{
+		// must check not null here explictely to prevent VM crashes
+		VM.putObject(notNull(properties), OFFSET_Properties_Defaults, defaults);
 	}
 
 

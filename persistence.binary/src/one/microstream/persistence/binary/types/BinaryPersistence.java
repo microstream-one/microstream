@@ -55,6 +55,8 @@ import one.microstream.java.util.BinaryHandlerIdentityHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashSet;
 import one.microstream.java.util.BinaryHandlerLinkedList;
+import one.microstream.java.util.BinaryHandlerProperties;
+import one.microstream.java.util.BinaryHandlerStack;
 import one.microstream.java.util.BinaryHandlerVector;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
@@ -160,8 +162,8 @@ public final class BinaryPersistence extends Persistence
 			// creepy JDK 1.0 collections
 			new BinaryHandlerVector(controller)     ,
 			new BinaryHandlerHashtable()            ,
-//			new BinaryHandlerStack(controller)      ,
-//			new BinaryHandlerProperties()           ,
+			new BinaryHandlerStack(controller)      ,
+			new BinaryHandlerProperties()           ,
 			
 			// still creepy JDK 1.2 collections
 			new BinaryHandlerArrayList(controller)  ,
