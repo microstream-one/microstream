@@ -3,7 +3,6 @@ package one.microstream.collections;
 import java.lang.reflect.Field;
 
 import one.microstream.X;
-import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.memory.XMemory;
@@ -62,17 +61,17 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	}
 
 	public static final void staticStore(
-		final Binary          bytes    ,
-		final EqHashEnum<?>   instance ,
-		final long            tid      ,
-		final long            oid      ,
+		final Binary              bytes    ,
+		final EqHashEnum<?>       instance ,
+		final long                typeId   ,
+		final long                objectId ,
 		final PersistenceFunction persister
 	)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = bytes.storeSizedIterableAsList(
-			tid                   ,
-			oid                   ,
+			typeId                ,
+			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,
@@ -185,11 +184,11 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	public final void store(
 		final Binary                  bytes   ,
 		final EqHashEnum<?>           instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		staticStore(bytes, instance, this.typeId(), oid, handler);
+		staticStore(bytes, instance, this.typeId(), objectId, handler);
 	}
 
 	@Override

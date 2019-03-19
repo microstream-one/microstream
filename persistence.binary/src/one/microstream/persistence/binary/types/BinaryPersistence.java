@@ -54,6 +54,7 @@ import one.microstream.java.util.BinaryHandlerHashtable;
 import one.microstream.java.util.BinaryHandlerIdentityHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashSet;
+import one.microstream.java.util.BinaryHandlerLinkedList;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
@@ -126,7 +127,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerPrimitive<>(long   .class),
 			new BinaryHandlerPrimitive<>(double .class),
 
-//			new BinaryHandlerNativeClass()    , // (18.09.2018 TM)NOTE: see comments in BinaryHandlerNativeClass.
+//			new BinaryHandlerNativeClass()    , // see PersistenceTypeHandlerCreator#createTypeHandler
 			new BinaryHandlerNativeByte()     ,
 			new BinaryHandlerNativeBoolean()  ,
 			new BinaryHandlerNativeShort()    ,
@@ -152,28 +153,40 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerNativeArray_float()  ,
 			new BinaryHandlerNativeArray_long()   ,
 			new BinaryHandlerNativeArray_double() ,
-
+			
+			// (18.03.2019 TM)FIXME: MS-76: migrate JDK collection handlers
+			
+			// creepy JDK 1.0 collections
+//			new BinaryHandlerVector(controller)     ,
+			new BinaryHandlerHashtable()            ,
+//			new BinaryHandlerStack(controller)      ,
+//			new BinaryHandlerProperties()           ,
+			
+			// still creepy JDK 1.2 collections
 			new BinaryHandlerArrayList(controller)  ,
 			new BinaryHandlerHashSet()              ,
 			new BinaryHandlerHashMap()              ,
-			// (18.03.2019 TM)FIXME: MS-76: migrate JDK collection handlers
-			new BinaryHandlerHashtable()            ,
-//			new BinaryHandlerLinkedList()           ,
-			new BinaryHandlerArrayDeque(controller) ,
+			new BinaryHandlerLinkedList()           ,
+//			new BinaryHandlerTreeMap()              ,
+//			new BinaryHandlerTreeSet()              ,
+			
+			// still creepy JDK 1.4 collections
 			new BinaryHandlerIdentityHashMap()      ,
 			new BinaryHandlerLinkedHashMap()        ,
 			new BinaryHandlerLinkedHashSet()        ,
+			
+			// still creepy JDK 1.5 collections
 //			new BinaryHandlerPriorityQueue()        ,
-//			new BinaryHandlerTreeMap()              ,
-//			new BinaryHandlerTreeSet()              ,
-//			new BinaryHandlerVector(controller)     ,
-//			new BinaryHandlerStack(controller)      ,
-//			new BinaryHandlerProperties()           ,
 //			new BinaryHandlerConcurrentHashMap()    ,
-//			new BinaryHandlerConcurrentLinkedDeque(),
 //			new BinaryHandlerConcurrentLinkedQueue(),
+			
+			// still creepy JDK 1.6 collections
+			new BinaryHandlerArrayDeque(controller) ,
 //			new BinaryHandlerConcurrentSkipListMap(),
 //			new BinaryHandlerConcurrentSkipListSet(),
+			
+			// still creepy JDK 1.7 collections
+//			new BinaryHandlerConcurrentLinkedDeque(),
 			
 			new BinaryHandlerBigInteger(),
 			new BinaryHandlerBigDecimal(),
@@ -181,7 +194,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerDate()      ,
 
 			new BinaryHandlerLazyReference()
-			// (24.10.2013 TM)TODO: more native handlers (old collections etc.)
+			// (24.10.2013 TM)TODO: more native handlers (Path and whatnot)
 		);
 		
 		nativeHandlers.iterate(handler ->

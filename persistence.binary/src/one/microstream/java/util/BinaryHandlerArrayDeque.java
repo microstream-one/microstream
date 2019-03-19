@@ -86,29 +86,24 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 	public final void store(
 		final Binary                  bytes   ,
 		final ArrayDeque<?>           instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		final int head = getHead(instance);
+		final int tail = getTail(instance);
 		
 		final long contentAddress = bytes.storeSizedArray(
-			this.typeId(),
-			oid,
-			BINARY_OFFSET_SIZED_ARRAY,
+			this.typeId()                  ,
+			objectId                       ,
+			BINARY_OFFSET_SIZED_ARRAY      ,
 			XMemory.accessStorage(instance),
-			head,
-			instance.size(),
+			head                           ,
+			instance.size()                ,
 			handler
 		);
-		bytes.store_int(
-		    contentAddress + BINARY_OFFSET_HEAD,
-		    head
-		);
-		bytes.store_int(
-		    contentAddress + BINARY_OFFSET_TAIL,
-		    getTail(instance)
-		);
+		bytes.store_int(contentAddress + BINARY_OFFSET_HEAD, head);
+		bytes.store_int(contentAddress + BINARY_OFFSET_TAIL, tail);
 	}
 
 	@Override

@@ -73,14 +73,14 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 	public final void store(
 		final Binary                  bytes   ,
 		final ConstHashEnum<?>        instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = bytes.storeSizedIterableAsList(
 			this.typeId()         ,
-			oid                   ,
+			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,

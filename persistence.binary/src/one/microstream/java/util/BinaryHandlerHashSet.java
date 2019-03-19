@@ -8,6 +8,7 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
@@ -68,12 +69,17 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	////////////
 
 	@Override
-	public final void store(final Binary bytes, final HashSet<?> instance, final long oid, final PersistenceStoreHandler handler)
+	public final void store(
+		final Binary                  bytes   ,
+		final HashSet<?>              instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = bytes.storeSizedIterableAsList(
 			this.typeId()         ,
-			oid                   ,
+			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,
@@ -155,10 +161,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	@Override
 	public final void iterateInstanceReferences(final HashSet<?> instance, final PersistenceFunction iterator)
 	{
-		for(final Object e : instance)
-		{
-			iterator.apply(e);
-		}
+		Persistence.iterateReferencesIterable(iterator, instance);
 	}
 
 	@Override

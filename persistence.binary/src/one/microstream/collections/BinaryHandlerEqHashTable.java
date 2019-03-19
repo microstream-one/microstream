@@ -3,7 +3,6 @@ package one.microstream.collections;
 import java.lang.reflect.Field;
 
 import one.microstream.X;
-import one.microstream.collections.EqHashTable;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
@@ -101,14 +100,14 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 	public final void store(
 		final Binary                  bytes   ,
 		final EqHashTable<?, ?>       instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = bytes.storeSizedKeyValuesAsEntries(
 			this.typeId()         ,
-			oid                   ,
+			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,

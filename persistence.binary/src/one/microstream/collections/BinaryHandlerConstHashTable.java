@@ -3,7 +3,6 @@ package one.microstream.collections;
 import java.lang.reflect.Field;
 
 import one.microstream.X;
-import one.microstream.collections.ConstHashTable;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
@@ -97,14 +96,14 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 	public final void store(
 		final Binary                  bytes   ,
 		final ConstHashTable<?, ?>    instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = bytes.storeSizedKeyValuesAsEntries(
 			this.typeId()         ,
-			oid                   ,
+			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
 			instance              ,
 			instance.size()       ,

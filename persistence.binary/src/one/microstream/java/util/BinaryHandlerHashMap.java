@@ -1,7 +1,6 @@
 package one.microstream.java.util;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import one.microstream.X;
 import one.microstream.chars.XChars;
@@ -10,6 +9,7 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
@@ -73,14 +73,14 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	public final void store(
 		final Binary                  bytes   ,
 		final HashMap<?, ?>           instance,
-		final long                    oid     ,
+		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
 		final long contentAddress = bytes.storeSizedIterableAsList(
 			this.typeId()         ,
-			oid                   ,
+			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
 			() ->
 				JavaUtilMapEntrySetFlattener.New(instance),
@@ -155,11 +155,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	@Override
 	public final void iterateInstanceReferences(final HashMap<?, ?> instance, final PersistenceFunction iterator)
 	{
-		for(final Map.Entry<?, ?> entry : instance.entrySet())
-		{
-			iterator.apply(entry.getKey());
-			iterator.apply(entry.getValue());
-		}
+		Persistence.iterateReferencesMap(iterator, instance);
 	}
 
 	@Override

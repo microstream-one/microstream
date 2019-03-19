@@ -22,9 +22,14 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 	////////////
 
 	@Override
-	public final void store(final Binary bytes, final boolean[] array, final long oid, final PersistenceStoreHandler handler)
+	public final void store(
+		final Binary                  bytes   ,
+		final boolean[]               array   ,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
 	{
-		bytes.storeArray_boolean(this.typeId(), oid, array);
+		bytes.storeArray_boolean(this.typeId(), objectId, array);
 	}
 
 	@Override
