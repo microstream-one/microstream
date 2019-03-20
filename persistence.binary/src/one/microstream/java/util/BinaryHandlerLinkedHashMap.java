@@ -63,7 +63,7 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.elementsPseudoFields(
+			BinaryCollectionHandling.simpleArrayPseudoFields(
 				pseudoField(float.class,   "loadFactor"),
 				pseudoField(boolean.class, "accessOrder")
 			)

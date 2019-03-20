@@ -56,7 +56,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.elementsPseudoFields(
+			BinaryCollectionHandling.simpleArrayPseudoFields(
 				pseudoField(float.class, "loadFactor")
 			)
 		);

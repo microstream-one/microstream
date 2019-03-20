@@ -14,23 +14,10 @@ public final class BinaryCollectionHandling
 	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> sizedArrayPseudoFields(
 		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
 	{
-		return elementsPseudoFields(
+		return simpleArrayPseudoFields(
 			XArrays.add(
 				preHeaderFields,
 				AbstractBinaryHandlerCustom.pseudoField(long.class, "capacity")
-			)
-		);
-	}
-
-	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> elementsPseudoFields(
-		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
-	{
-		return AbstractBinaryHandlerCustom.pseudoFields(
-			XArrays.add(
-				preHeaderFields,
-				AbstractBinaryHandlerCustom.complex("elements",
-					AbstractBinaryHandlerCustom.pseudoField(Object.class, "element")
-				)
 			)
 		);
 	}
@@ -43,6 +30,20 @@ public final class BinaryCollectionHandling
 				preHeaderFields,
 				AbstractBinaryHandlerCustom.complex("elements",
 					AbstractBinaryHandlerCustom.pseudoField(Object.class, "element")
+				)
+			)
+		);
+	}
+	
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> keyValuesPseudoFields(
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
+	{
+		return AbstractBinaryHandlerCustom.pseudoFields(
+			XArrays.add(
+				preHeaderFields,
+				AbstractBinaryHandlerCustom.complex("entries",
+					AbstractBinaryHandlerCustom.pseudoField(Object.class, "key"),
+					AbstractBinaryHandlerCustom.pseudoField(Object.class, "value")
 				)
 			)
 		);

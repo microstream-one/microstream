@@ -4,9 +4,9 @@ import java.lang.reflect.Field;
 
 import one.microstream.X;
 import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -73,14 +73,10 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			AbstractBinaryHandlerCustom.pseudoFields(
+			BinaryCollectionHandling.keyValuesPseudoFields(
 				pseudoField(ConstHashTable.Keys.class, "keys"),
 				pseudoField(ConstHashTable.Values.class, "values"),
-				pseudoField(float.class, "hashDensity"),
-				AbstractBinaryHandlerCustom.complex("entries",
-					AbstractBinaryHandlerCustom.pseudoField(Object.class, "key"),
-					AbstractBinaryHandlerCustom.pseudoField(Object.class, "value")
-				)
+				pseudoField(float.class, "hashDensity")
 			)
 
 		);

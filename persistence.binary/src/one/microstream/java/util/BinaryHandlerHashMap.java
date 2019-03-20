@@ -3,8 +3,7 @@ package one.microstream.java.util;
 import java.util.HashMap;
 
 import one.microstream.X;
-import one.microstream.chars.XChars;
-import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
+import one.microstream.collections.old.OldCollections;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
@@ -57,7 +56,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.elementsPseudoFields(
+			BinaryCollectionHandling.keyValuesPseudoFields(
 				pseudoField(float.class, "loadFactor")
 			)
 		);
@@ -78,13 +77,11 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedIterableAsList(
+		final long contentAddress = bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
-			() ->
-				JavaUtilMapEntrySetFlattener.New(instance),
-			instance.size() * 2   ,
+			instance.entrySet()   ,
 			handler
 		);
 
@@ -99,7 +96,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	public final HashMap<?, ?> create(final Binary bytes)
 	{
 		return new HashMap<>(
-			getElementCount(bytes) / 2,
+			getElementCount(bytes),
 			getLoadFactor(bytes)
 		);
 	}
@@ -115,43 +112,11 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public void complete(final Binary rawData, final HashMap<?, ?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final HashMap<?, ?> instance, final PersistenceLoadHandler handler)
 	{
-		final Object helper = rawData.getHelper(instance);
-		if(helper == null)
-		{
-			// (22.04.2016 TM)EXCP: proper exception
-			throw new RuntimeException(
-				"Missing element collection helper instance for " + XChars.systemString(instance)
-			);
-		}
-		
-		if(!(helper instanceof Object[]))
-		{
-			// (22.04.2016 TM)EXCP: proper exception
-			throw new RuntimeException(
-				"Inconsistent element collection helper instance for " + XChars.systemString(instance)
-			);
-		}
-		
-		final Object[] elementsHelper = (Object[])helper;
-		
-		@SuppressWarnings("unchecked")
-		final HashMap<Object, Object> castedInstance = (HashMap<Object, Object>)instance;
-		
-		for(int i = 0; i < elementsHelper.length; i += 2)
-		{
-			if(castedInstance.putIfAbsent(elementsHelper[i], elementsHelper[i + 1]) != null)
-			{
-				// (22.04.2016 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Element hashing inconsistency in " + XChars.systemString(castedInstance)
-				);
-			}
-		}
-		
+		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}
-
+	
 	@Override
 	public final void iterateInstanceReferences(final HashMap<?, ?> instance, final PersistenceFunction iterator)
 	{

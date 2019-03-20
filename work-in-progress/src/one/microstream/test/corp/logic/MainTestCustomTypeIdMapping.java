@@ -25,6 +25,10 @@ public class MainTestCustomTypeIdMapping
 		.setRefactoringMappingProvider(
 			Persistence.RefactoringMapping(new File("Refactorings.csv"))
 		)
+//		.onConnectionFoundation(f ->
+//		{
+//			f.getCustomTypeHandlerRegistry().registerTypeHandler(new BinaryHandlerHashMapFlattened());
+//		})
 		.start()
 	;
 	
