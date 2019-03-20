@@ -84,14 +84,17 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<LimitList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final LimitList<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final LimitList<?> instance, final PersistenceLoadHandler handler)
 	{
+		// must clear to avoid memory leaks due to residual references beyond the new size in existing instances.
+		instance.clear();
+		
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 		instance.size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
-			builder
+			handler
 		);
 	}
 

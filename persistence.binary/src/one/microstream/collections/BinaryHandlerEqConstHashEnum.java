@@ -28,9 +28,9 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 	/////////////////////
 
 	// one oid for equalator reference
-	static final long BINARY_OFFSET_EQUALATOR    =                                                   0;
+	static final long BINARY_OFFSET_EQUALATOR    =                                                        0;
 	// space offset for one oid
-	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + Binary.oidByteLength();
+	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + Binary.objectIdByteLength();
 	// one float offset to sized array
 	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES;
 
@@ -125,35 +125,35 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqConstHashEnum<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final EqConstHashEnum<?> instance, final PersistenceLoadHandler handler)
 	{
-		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
-		final EqConstHashEnum<Object> casted = (EqConstHashEnum<Object>)instance;
-
-		// length must be checked for consistency reasons
+		// validate to the best of possibilities (or should an immutable instance be updatedable from outside?)
 		if(instance.size != 0)
 		{
-			throw new IllegalStateException(); // (28.10.2013 TM)EXCP: proper exception
+			throw new IllegalStateException(); // (28.10.2013)EXCP: proper exception
 		}
+		
+		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
+		final EqConstHashEnum<Object> casted = (EqConstHashEnum<Object>)instance;
 
 		// set equalator instance (must be done on memory-level due to final modifier. Little hacky, but okay)
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			builder.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
 		);
 
 		// collect elements AFTER hashEqualator has been set because it is used in it
 		instance.size = bytes.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
-			builder               ,
+			handler               ,
 			casted::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqConstHashEnum<?> instance, final PersistenceLoadHandler builder)
+	public final void complete(final Binary medium, final EqConstHashEnum<?> instance, final PersistenceLoadHandler handler)
 	{
 		// rehash all previously unhashed collected elements
 		instance.internalRehash();

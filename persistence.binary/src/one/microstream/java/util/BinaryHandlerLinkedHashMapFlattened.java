@@ -1,6 +1,6 @@
 package one.microstream.java.util;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import one.microstream.X;
 import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
@@ -16,30 +16,36 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCustomCollection<HashMap<?, ?>>
+public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHandlerCustomCollection<LinkedHashMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =           0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = Float.BYTES; // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_LOAD_FACTOR  =                                        0;
+	static final long BINARY_OFFSET_ACCESS_ORDER = BINARY_OFFSET_LOAD_FACTOR  + Float.BYTES;
+	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_ACCESS_ORDER + Byte.BYTES ; // actually Boolean.BYTES
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<HashMap<?, ?>> typeWorkaround()
+	private static Class<LinkedHashMap<?, ?>> typeWorkaround()
 	{
-		return (Class)HashMap.class; // no idea how to get ".class" to work otherwise
+		return (Class)LinkedHashMap.class; // no idea how to get ".class" to work otherwise
 	}
 
 	static final float getLoadFactor(final Binary bytes)
 	{
 		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
+	}
+
+	static final boolean getAccessOrder(final Binary bytes)
+	{
+		return bytes.get_boolean(BINARY_OFFSET_ACCESS_ORDER);
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -50,15 +56,16 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
-	public BinaryHandlerHashMapFlattened()
+	public BinaryHandlerLinkedHashMapFlattened()
 	{
 		super(
 			typeWorkaround(),
 			BinaryCollectionHandling.simpleArrayPseudoFields(
-				pseudoField(float.class, "loadFactor")
+				pseudoField(float.class,   "loadFactor"),
+				pseudoField(boolean.class, "accessOrder")
 			)
 		);
 	}
@@ -72,7 +79,7 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	@Override
 	public final void store(
 		final Binary                  bytes   ,
-		final HashMap<?, ?>           instance,
+		final LinkedHashMap<?, ?>     instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
@@ -87,25 +94,28 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 			instance.size() * 2   ,
 			handler
 		);
-
-		// store load factor as (sole) header value
 		bytes.store_float(
 			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
 			XMemory.getLoadFactor(instance)
 		);
-	}
-
-	@Override
-	public final HashMap<?, ?> create(final Binary bytes)
-	{
-		return new HashMap<>(
-			getElementCount(bytes) / 2,
-			getLoadFactor(bytes)
+		bytes.store_boolean(
+			contentAddress + BINARY_OFFSET_ACCESS_ORDER,
+			XMemory.getAccessOrder(instance)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashMap<?, ?> instance, final PersistenceLoadHandler handler)
+	public final LinkedHashMap<?, ?> create(final Binary bytes)
+	{
+		return new LinkedHashMap<>(
+			getElementCount(bytes) / 2,
+			getLoadFactor(bytes),
+			getAccessOrder(bytes)
+		);
+	}
+
+	@Override
+	public final void update(final Binary bytes, final LinkedHashMap<?, ?> instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];
@@ -114,13 +124,13 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	}
 
 	@Override
-	public void complete(final Binary bytes, final HashMap<?, ?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final LinkedHashMap<?, ?> instance, final PersistenceLoadHandler handler)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final HashMap<?, ?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final LinkedHashMap<?, ?> instance, final PersistenceFunction iterator)
 	{
 		Persistence.iterateReferencesMap(iterator, instance);
 	}

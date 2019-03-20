@@ -31,7 +31,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 
 	static final long
 		BINARY_OFFSET_EQUALATOR    =                                                   0, // oid for eqltr ref
-		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + Binary.oidByteLength(), // offset for 1 oid
+		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + Binary.objectIdByteLength(), // offset for 1 oid
 		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES             // offset for 1 float
 ;
 	// field type detour because there are sadly no field literals in Java (yet?).
@@ -105,6 +105,9 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		final PersistenceLoadHandler handler
 	)
 	{
+		// must clear to ensure consistency
+		instance.clear();
+		
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
 		final EqHashEnum<Object> casted = (EqHashEnum<Object>)instance;
 
@@ -198,13 +201,13 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqHashEnum<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final EqHashEnum<?> instance, final PersistenceLoadHandler handler)
 	{
-		staticUpdate(bytes, instance, builder);
+		staticUpdate(bytes, instance, handler);
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqHashEnum<?> instance, final PersistenceLoadHandler builder)
+	public final void complete(final Binary medium, final EqHashEnum<?> instance, final PersistenceLoadHandler handler)
 	{
 		staticComplete(medium, instance);
 	}

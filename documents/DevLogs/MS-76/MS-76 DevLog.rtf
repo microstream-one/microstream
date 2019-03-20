@@ -162,5 +162,22 @@ Map-Logik umbauen.\par
 MS-120 und MS-76 updaten.\par
 Gemeinsame Logik konsolidieren. Das ist alles endlos redundanter Code f\'fcr dieselbe Sache.\par
 Au\'dferdem: IdentityHashMap braucht kein elements helper, weil es identity hashing macht.\par
+\par
+Da f\'e4llt mir gerade auf:\par
+Es gibt bisher noch in keiner update() Methode von BinaryHandler f\'fcr Collections einen Aufruf von clear(). Auch nicht f\'fcr die X-Collections.\par
+Ups. Hehe.\par
+Schnell nachr\'fcsten.\par
+Bei Arrays und Const~ Implementierungen gibt es immerhin schon eine Validierung.\par
+Wobei die interessante Frage ist: Sollte eine immutable instanz von au\'dfen evtl. doch updatebar sein? Aber warum eigentlich?\par
+\par
+Weitermachen.\par
+java.util.Properties ist auch noch eine Map-artige Collection. Auch noch umbauen.\par
+Mal im TypeDictionary von CK schauen, ob ich die alte Implementierung daf\'fcr bestehen lassen muss.\par
+\'d6h ... WTF ...? Da werden nur threshold und loadFactor gespeichert.\par
+Mal den TypeHandler daf\'fcr in der jar suchen.\par
+Aaach, da gibts keinen. Darum wurde das Ding generisch analysiert und weil das hashing array in Hashtable transient ist ... tja. Dumm gelaufen.\par
+Mail an CK mit Hinweis darauf.\par
+\par
+\par
 }
  

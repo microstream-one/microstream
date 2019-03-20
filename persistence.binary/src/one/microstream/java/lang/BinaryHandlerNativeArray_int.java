@@ -34,7 +34,7 @@ public final class BinaryHandlerNativeArray_int extends AbstractBinaryHandlerNat
 	}
 
 	@Override
-	public void update(final Binary bytes, final int[] instance, final PersistenceLoadHandler builder)
+	public void update(final Binary bytes, final int[] instance, final PersistenceLoadHandler handler)
 	{
 		bytes.updateArray_int(instance);
 	}

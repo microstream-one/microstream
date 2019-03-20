@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import one.microstream.X;
@@ -515,6 +516,43 @@ public final class OldCollections
 		for(int i = 0; i < elements.length; i += 2)
 		{
 			if(instance.putIfAbsent(elements[i], elements[i + 1]) != null)
+			{
+				// (22.04.2016 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Element hashing inconsistency in " + XChars.systemString(instance)
+				);
+			}
+		}
+	}
+	
+	public static final void populateSetFromHelperArray(final Set<?> instance, final Object elementsHelper)
+	{
+		if(elementsHelper == null)
+		{
+			// (22.04.2016 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Missing collection elements helper instance for " + XChars.systemString(instance)
+			);
+		}
+		
+		if(!(elementsHelper instanceof Object[]))
+		{
+			// (22.04.2016 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Invalid collection elements helper instance for " + XChars.systemString(instance)
+			);
+		}
+		
+		@SuppressWarnings("unchecked")
+		final Set<Object> castedInstance = (Set<Object>)instance;
+		populateSet(castedInstance, (Object[])elementsHelper);
+	}
+	
+	public static final void populateSet(final Set<Object> instance, final Object[] elements)
+	{
+		for(int i = 0; i < elements.length; i++)
+		{
+			if(!instance.add(elements[i]))
 			{
 				// (22.04.2016 TM)EXCP: proper exception
 				throw new RuntimeException(

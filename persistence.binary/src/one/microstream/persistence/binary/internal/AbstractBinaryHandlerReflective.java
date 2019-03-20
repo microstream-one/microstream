@@ -113,7 +113,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		System.arraycopy(prmFields , 0, fieldsPersistdOrder, r, p);
 
 		// the values' total length is the length of all references plus the accumulated length of all primitives.
-		return r * Binary.oidByteLength() + primitiveTotalBinaryLength;
+		return Binary.referenceBinaryLength(r) + primitiveTotalBinaryLength;
 	}
 	
 	protected static final XGettingTable<Field, PersistenceTypeDefinitionMemberField> createTypeDescriptionMembers(
@@ -324,7 +324,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	public abstract T create(final Binary bytes);
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler builder)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
@@ -336,11 +336,11 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			throw new TypeCastException(this.type(), instance);
 		}
 
-		bytes.updateFixedSize(instance, this.memorySetters, this.allBinaryOffsets, builder);
+		bytes.updateFixedSize(instance, this.memorySetters, this.allBinaryOffsets, handler);
 	}
 
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler builder)
+	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}

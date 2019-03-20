@@ -34,7 +34,7 @@ public final class BinaryHandlerNativeArray_float extends AbstractBinaryHandlerN
 	}
 
 	@Override
-	public void update(final Binary bytes, final float[] instance, final PersistenceLoadHandler builder)
+	public void update(final Binary bytes, final float[] instance, final PersistenceLoadHandler handler)
 	{
 		bytes.updateArray_float(instance);
 	}

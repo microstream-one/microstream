@@ -114,14 +114,15 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ArrayDeque<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final ArrayDeque<?> instance, final PersistenceLoadHandler handler)
 	{
 		// (18.03.2019 TM)FIXME: MS-76: must ensure ArrayDeque capacity or add elements externally.
-		
+
+		instance.clear();
 		bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
 			XMemory.accessArray(instance),
-			builder
+			handler
 		);
 		XMemory.setHead(instance, getHead(bytes));
 		XMemory.setTail(instance, getTail(bytes));

@@ -87,14 +87,15 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceLoadHandler handler)
 	{
 		// length must be checked for consistency reasons
+		instance.clear();
 		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
 			XMemory.accessArray(instance),
-			builder
+			handler
 		);
 		XMemory.setSize(instance, size);
 	}

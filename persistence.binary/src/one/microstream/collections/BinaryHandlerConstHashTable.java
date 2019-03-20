@@ -27,9 +27,9 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 	/////////////////////
 
 	static final long
-		BINARY_OFFSET_KEYS         = 0                                                  ,
-		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS         + Binary.oidByteLength(),
-		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES       + Binary.oidByteLength(),
+		BINARY_OFFSET_KEYS         = 0                                                       ,
+		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS         + Binary.objectIdByteLength(),
+		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES       + Binary.objectIdByteLength(),
 		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES
 	;
 
@@ -78,7 +78,6 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 				pseudoField(ConstHashTable.Values.class, "values"),
 				pseudoField(float.class, "hashDensity")
 			)
-
 		);
 	}
 
@@ -129,32 +128,32 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ConstHashTable<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final ConstHashTable<?, ?> instance, final PersistenceLoadHandler handler)
 	{
-		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
-		final ConstHashTable<Object, Object> casted = (ConstHashTable<Object, Object>)instance;
-
-		// validate to the best of possibilities
+		// validate to the best of possibilities (or should an immutable instance be updatedable from outside?)
 		if(instance.size != 0)
 		{
 			throw new IllegalStateException(); // (26.10.2013)EXCP: proper exception
 		}
+		
+		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
+		final ConstHashTable<Object, Object> casted = (ConstHashTable<Object, Object>)instance;
 
 		// set satellite instances (must be done on memory-level due to final modifier. Little hacky, but okay)
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			builder.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			builder.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
 		);
 		bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
-			builder,
+			handler,
 			casted::internalAdd
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)

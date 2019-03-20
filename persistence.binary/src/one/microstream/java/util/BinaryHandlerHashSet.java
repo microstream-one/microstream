@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.HashSet;
 
 import one.microstream.X;
-import one.microstream.chars.XChars;
+import one.microstream.collections.old.OldCollections;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
@@ -103,59 +103,18 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final void update(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler handler)
 	{
-		final int      elementCount   = getElementCount(rawData);
-		final Object[] elementsHelper = new Object[elementCount];
-		
-		rawData.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
+		instance.clear();
+		final Object[] elementsHelper = new Object[getElementCount(rawData)];
+		rawData.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
 		rawData.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public void complete(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
 	{
-		final Object helper = rawData.getHelper(instance);
-		if(helper == null)
-		{
-			// (22.04.2016 TM)EXCP: proper exception
-			throw new RuntimeException(
-				"Missing element collection helper instance for " + XChars.systemString(instance)
-			);
-		}
-		
-		if(!(helper instanceof Object[]))
-		{
-			// (22.04.2016 TM)EXCP: proper exception
-			throw new RuntimeException(
-				"Inconsistent element collection helper instance for " + XChars.systemString(instance)
-			);
-		}
-		
-		final Object[] elementsHelper = (Object[])helper;
-		@SuppressWarnings("unchecked")
-		final HashSet<Object> castedInstance = (HashSet<Object>)instance;
-		
-		for(final Object element : elementsHelper)
-		{
-			/* (22.04.2016 TM)NOTE: oh look, they added an add() logic complementary to put().
-			 * I did that years ago as a noob.
-			 * They even chose the proper reasonable term instead of the moronic "putIfAbsent"
-			 * or some "putElementOnlyIfAbsentBecauseWeLikeMoronicNaming" terminology normally to be expected
-			 * from the JDK.
-			 * If they now also realize that their collection's hash-equality, immutability and most other concepts
-			 * are deeply flawed, they might end up developing a proper collection framework. In 50 years or so.
-			 */
-			if(!castedInstance.add(element))
-			{
-				// (22.04.2016 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Element hashing inconsistency in " + XChars.systemString(castedInstance)
-				);
-			}
-		}
-		
-		rawData.registerHelper(instance, null); // might help Garbage Collector
+		OldCollections.populateSetFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override

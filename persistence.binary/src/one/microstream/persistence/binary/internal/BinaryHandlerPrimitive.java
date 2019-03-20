@@ -82,7 +82,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler builder)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}

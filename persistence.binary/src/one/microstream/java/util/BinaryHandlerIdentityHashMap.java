@@ -3,8 +3,7 @@ package one.microstream.java.util;
 import java.util.IdentityHashMap;
 
 import one.microstream.X;
-import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
-import one.microstream.collections.old.OldCollections;
+import one.microstream.chars.XChars;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
@@ -22,6 +21,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	/////////////////////
 
 	static final long BINARY_OFFSET_ELEMENTS = 0;
+	// to prevent recurring confusion: IdentityHashMap really has no loadFactor. It uses an open adressing hash array.
 
 
 
@@ -50,7 +50,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.simpleArrayPseudoFields()
+			BinaryCollectionHandling.keyValuesPseudoFields()
 		);
 	}
 
@@ -69,13 +69,11 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeSizedIterableAsList(
+		bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
-			() ->
-				JavaUtilMapEntrySetFlattener.New(instance),
-			instance.size() * 2   ,
+			instance.entrySet()   ,
 			handler
 		);
 	}
@@ -84,25 +82,41 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	public final IdentityHashMap<?, ?> create(final Binary bytes)
 	{
 		return new IdentityHashMap<>(
-			getElementCount(bytes) / 2
+			getElementCount(bytes)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final IdentityHashMap<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void update(
+		final Binary                 bytes   ,
+		final IdentityHashMap<?, ?>  instance,
+		final PersistenceLoadHandler handler
+	)
 	{
-		// (20.03.2019 TM)FIXME: MS-76: IdentityHashMap does not need the elementsHelper detour
-		final Object[] elementsHelper = new Object[getElementCount(bytes)];
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
-		bytes.registerHelper(instance, elementsHelper);
+		instance.clear();
+		
+		@SuppressWarnings("unchecked")
+		final IdentityHashMap<Object, Object> castedInstance = (IdentityHashMap<Object, Object>)instance;
+		
+		// IdentityHashMap does not need the elementsHelper detour as identity hashing does not depend on contained data
+		bytes.collectKeyValueReferences(
+			BINARY_OFFSET_ELEMENTS,
+			getElementCount(bytes),
+			handler,
+			(k, v) ->
+			{
+				if(castedInstance.putIfAbsent(k, v) != null)
+				{
+					// (22.04.2016 TM)EXCP: proper exception
+					throw new RuntimeException(
+						"Duplicate key reference in " + IdentityHashMap.class.getSimpleName()
+						+ " " + XChars.systemString(instance)
+					);
+				}
+			}
+		);
 	}
-
-	@Override
-	public void complete(final Binary bytes, final IdentityHashMap<?, ?> instance, final PersistenceLoadHandler handler)
-	{
-		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
-	}
-
+	
 	@Override
 	public final void iterateInstanceReferences(final IdentityHashMap<?, ?> instance, final PersistenceFunction iterator)
 	{
@@ -114,4 +128,5 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
+	
 }

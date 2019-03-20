@@ -106,10 +106,11 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler handler)
 	{
+		instance.clear();
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
 		bytes.registerHelper(instance, elementsHelper);
 	}
 

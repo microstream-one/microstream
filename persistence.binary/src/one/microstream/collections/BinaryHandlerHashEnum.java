@@ -105,8 +105,11 @@ extends AbstractBinaryHandlerCustomCollection<HashEnum<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashEnum<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final HashEnum<?> instance, final PersistenceLoadHandler handler)
 	{
+		// must clear to ensure consistency
+		instance.clear();
+		
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
 		final HashEnum<Object> collectingInstance = (HashEnum<Object>)instance;
 
@@ -115,7 +118,7 @@ extends AbstractBinaryHandlerCustomCollection<HashEnum<?>>
 
 		instance.size = bytes.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
-			builder               ,
+			handler               ,
 			collectingInstance::add
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)

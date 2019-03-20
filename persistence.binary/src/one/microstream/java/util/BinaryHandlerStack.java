@@ -89,6 +89,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollect
 	@Override
 	public final void update(final Binary bytes, final Stack<?> instance, final PersistenceLoadHandler handler)
 	{
+		instance.clear();
 		instance.ensureCapacity(bytes.getSizedArrayLength(BINARY_OFFSET_SIZED_ARRAY));
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,

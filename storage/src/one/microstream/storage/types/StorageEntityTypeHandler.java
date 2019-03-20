@@ -107,7 +107,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			this.isPrimitive          = typeDefinition.isPrimitiveType();
 			this.hasReferences        = typeDefinition.hasPersistedReferences();
 			this.simpleReferenceCount = BinaryReferenceTraverser.Static.calculateSimpleReferenceCount(referenceTraversers);
-			this.simpleReferenceRange = this.simpleReferenceCount * Binary.oidByteLength();
+			this.simpleReferenceRange = this.simpleReferenceCount * Binary.objectIdByteLength();
 			this.referenceTraversers  = BinaryReferenceTraverser.Static.cropToReferences(referenceTraversers);
 			this.minimumEntityLength  = calculateMinimumEntityLength(typeDefinition);
 			this.maximumEntityLength  = calculateMaximumEntityLength(typeDefinition);

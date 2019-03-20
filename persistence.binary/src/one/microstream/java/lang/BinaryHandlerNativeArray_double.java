@@ -34,7 +34,7 @@ public final class BinaryHandlerNativeArray_double extends AbstractBinaryHandler
 	}
 
 	@Override
-	public void update(final Binary bytes, final double[] instance, final PersistenceLoadHandler builder)
+	public void update(final Binary bytes, final double[] instance, final PersistenceLoadHandler handler)
 	{
 		bytes.updateArray_double(instance);
 	}

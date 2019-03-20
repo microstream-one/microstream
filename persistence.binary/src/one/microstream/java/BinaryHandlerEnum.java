@@ -125,7 +125,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	}
 	
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler builder)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		/* (09.06.2017 TM)FIXME: BinaryHandlerEnum#update()
 		 * must not set Enum#ordinal and Enum#name, but rather validate the loaded data's consistency in regard

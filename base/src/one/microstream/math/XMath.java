@@ -1263,6 +1263,50 @@ public final class XMath
 	{
 		return RANDOM.nextInt(n);
 	}
+	
+	public static int even(final int value)
+	{
+		if((value & 1) != 0)
+		{
+			// (20.03.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Not an even number: " + value);
+		}
+		
+		return value;
+	}
+	
+	public static long even(final long value)
+	{
+		if((value & 1L) != 0L)
+		{
+			// (20.03.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Not an even number: " + value);
+		}
+		
+		return value;
+	}
+	
+	public static int odd(final int value)
+	{
+		if((value & 1) != 1)
+		{
+			// (20.03.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Not an odd number: " + value);
+		}
+		
+		return value;
+	}
+	
+	public static long odd(final long value)
+	{
+		if((value & 1L) != 1L)
+		{
+			// (20.03.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Not an odd number: " + value);
+		}
+		
+		return value;
+	}
 
 	public static int positive(final int value) throws NumberRangeException
 	{

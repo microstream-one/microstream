@@ -29,13 +29,13 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	////////////
 
 	@Override
-	public void update(final Binary medium, final T instance, final PersistenceLoadHandler builder)
+	public void update(final Binary medium, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op, no state to update
 	}
 	
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler builder)
+	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler handler)
 	{
 		/* any "trival" implementation cannot have the need for a completion step
 		 * (see non-reference-hashing collections for other examples)
