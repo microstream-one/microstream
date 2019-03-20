@@ -178,6 +178,16 @@ Mal den TypeHandler daf\'fcr in der jar suchen.\par
 Aaach, da gibts keinen. Darum wurde das Ding generisch analysiert und weil das hashing array in Hashtable transient ist ... tja. Dumm gelaufen.\par
 Mail an CK mit Hinweis darauf.\par
 \par
+N\'e4chster: BinaryHandlerTreeSet\par
+\par
+Da wird einfach nur die gewrappte Map referenziert. Sowas mach ma net. Die Set Elemente werden richtig als Elemente gespeichert.\par
+\par
+Zwischendrin Besprechung mit FH zu MS-125 Probleme. Erkenntnisse aufschreiben und ins Issue reintun.\par
+\par
+Ahh... Mist.\par
+Also eigentlich ist es richtig, das Set direkt als Set und nicht als Referenz auf eine Map zu persistieren.\par
+Allerdings haben die JDK Deppen einen Konstruktor gebaut, der eine \'fcbergebene Map direkt setzt. D.h. das TreeSet ist eigentlich nur ein Set-Wrapper f\'fcr eine Map Instanz mit eigener Identit\'e4t. Nix unshared oder so.\par
+Hei\'dft: Das muss als Refrenz auf eine Map implementiert werden. Geht nichts anders, wenn es bugfrei sein soll.\par
 \par
 }
  
