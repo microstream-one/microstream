@@ -39,7 +39,7 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 	}
 
 	@Override
-	public final void update(final Binary bytes, final boolean[] instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final boolean[] instance, final PersistenceLoadHandler handler)
 	{
 		bytes.updateArray_boolean(instance);
 	}

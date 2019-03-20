@@ -29,9 +29,9 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 
 	static final long
 		BINARY_OFFSET_EQUALATOR    =                                                   0,
-		BINARY_OFFSET_KEYS         = BINARY_OFFSET_EQUALATOR    + Binary.oidByteLength(),
-		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS         + Binary.oidByteLength(),
-		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES       + Binary.oidByteLength(),
+		BINARY_OFFSET_KEYS         = BINARY_OFFSET_EQUALATOR    + Binary.objectIdByteLength(),
+		BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS         + Binary.objectIdByteLength(),
+		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES       + Binary.objectIdByteLength(),
 		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES
 	;
 
@@ -137,8 +137,11 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqHashTable<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final EqHashTable<?, ?> instance, final PersistenceLoadHandler handler)
 	{
+		// must clear to ensure consistency
+		instance.clear();
+		
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
 		final EqHashTable<Object, Object> collectingInstance = (EqHashTable<Object, Object>)instance;
 
@@ -146,29 +149,29 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQUALATOR),
-			builder.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			builder.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			builder.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
 		);
 		instance.size = bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
-			builder,
+			handler,
 			collectingInstance::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqHashTable<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void complete(final Binary medium, final EqHashTable<?, ?> instance, final PersistenceLoadHandler handler)
 	{
 		// rehash all previously unhashed collected elements
 		instance.rehash();

@@ -77,7 +77,7 @@ public final class BinaryValueFunctions
 		)
 		{
 			XMemory.set_long(targetAddress, handler.apply(XMemory.getObject(src, srcOffset)));
-			return targetAddress + Binary.oidByteLength();
+			return targetAddress + Binary.objectIdByteLength();
 		}
 	};
 	
@@ -92,7 +92,7 @@ public final class BinaryValueFunctions
 		)
 		{
 			XMemory.set_long(targetAddress, handler.applyEager(XMemory.getObject(source, sourceOffset)));
-			return targetAddress + Binary.oidByteLength();
+			return targetAddress + Binary.objectIdByteLength();
 		}
 	};
 	
@@ -155,7 +155,7 @@ public final class BinaryValueFunctions
 				targetAddress,
 				Long.reverseBytes(handler.apply(XMemory.getObject(src, srcOffset)))
 			);
-			return targetAddress + Binary.oidByteLength();
+			return targetAddress + Binary.objectIdByteLength();
 		}
 	};
 	
@@ -173,7 +173,7 @@ public final class BinaryValueFunctions
 				targetAddress,
 				Long.reverseBytes(handler.applyEager(XMemory.getObject(source, sourceOffset)))
 			);
-			return targetAddress + Binary.oidByteLength();
+			return targetAddress + Binary.objectIdByteLength();
 		}
 	};
 	
@@ -248,7 +248,7 @@ public final class BinaryValueFunctions
 		)
 		{
 			XMemory.setObject(target, targetOffset, idResolver.lookupObject(XMemory.get_long(sourceAddress)));
-			return sourceAddress + Binary.oidByteLength();
+			return sourceAddress + Binary.objectIdByteLength();
 		}
 	};
 	
@@ -312,7 +312,7 @@ public final class BinaryValueFunctions
 				targetOffset,
 				idResolver.lookupObject(Long.reverseBytes(XMemory.get_long(sourceAddress)))
 			);
-			return sourceAddress + Binary.oidByteLength();
+			return sourceAddress + Binary.objectIdByteLength();
 		}
 	};
 

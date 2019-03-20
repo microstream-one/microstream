@@ -93,6 +93,8 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomCollec
 	@Override
 	public final void update(final Binary bytes, final Vector<?> instance, final PersistenceLoadHandler handler)
 	{
+		instance.clear();
+		
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 		final int size = bytes.updateSizedArrayObjectReferences(

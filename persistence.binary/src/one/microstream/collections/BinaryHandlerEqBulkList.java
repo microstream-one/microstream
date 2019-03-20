@@ -28,8 +28,8 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<EqBulkList<?>>
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_EQUALATOR   =                             0; // one oid for equalator reference
-	static final long BINARY_OFFSET_SIZED_ARRAY = Binary.oidByteLength(); // space offset for one oid
+	static final long BINARY_OFFSET_EQUALATOR   =                           0; // one oid for equalator reference
+	static final long BINARY_OFFSET_SIZED_ARRAY = Binary.objectIdByteLength(); // space offset for one oid
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqBulkList.class, Equalator.class);
@@ -104,22 +104,25 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<EqBulkList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqBulkList<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final EqBulkList<?> instance, final PersistenceLoadHandler handler)
 	{
+		// must clear to avoid memory leaks due to residual references beyond the new size in existing instances.
+		instance.clear();
+		
 		// length must be checked for consistency reasons
 		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 
 		instance.size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
 			instance.data            ,
-			builder
+			handler
 		);
 
 		// set equalator instance (must be done on memory-level due to final modifier. Little hacky, but okay)
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			builder.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
 		);
 	}
 

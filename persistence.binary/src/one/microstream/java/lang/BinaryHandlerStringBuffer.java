@@ -41,8 +41,11 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	}
 
 	@Override
-	public void update(final Binary bytes, final StringBuffer instance, final PersistenceLoadHandler builder)
+	public void update(final Binary bytes, final StringBuffer instance, final PersistenceLoadHandler handler)
 	{
+		// because implementing a clear() would have been too hard for the JDK Pros.
+		instance.delete(0, instance.length());
+		
 		instance.ensureCapacity(this.readCapacity(bytes));
 		this.readChars(bytes, XMemory.accessChars(instance));
 	}

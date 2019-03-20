@@ -3,6 +3,7 @@ package one.microstream.java.util;
 import java.util.Hashtable;
 
 import one.microstream.X;
+import one.microstream.collections.old.KeyValueFlatCollector;
 import one.microstream.collections.old.OldCollections;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
@@ -103,11 +104,13 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler handler)
 	{
-		final Object[] elementsHelper = new Object[getElementCount(bytes)];
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
-		bytes.registerHelper(instance, elementsHelper);
+		instance.clear();
+		final int elementCount = getElementCount(bytes);
+		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
+		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
+		bytes.registerHelper(instance, collector.yield());
 	}
 
 	@Override

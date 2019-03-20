@@ -27,8 +27,8 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 	/////////////////////
 
 	static final long BINARY_OFFSET_KEYS         =                                                   0;
-	static final long BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS         + Binary.oidByteLength();
-	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES       + Binary.oidByteLength();
+	static final long BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS         + Binary.objectIdByteLength();
+	static final long BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_VALUES       + Binary.objectIdByteLength();
 	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES;
 
 	// field type detour because there are sadly no field literals in Java (yet?).
@@ -125,8 +125,11 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashTable<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final HashTable<?, ?> instance, final PersistenceLoadHandler handler)
 	{
+		// must clear to ensure consistency
+		instance.clear();
+		
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
 		final HashTable<Object, Object> collectingInstance = (HashTable<Object, Object>)instance;
 
@@ -134,17 +137,17 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			builder.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			builder.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
+			handler.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
 		);
 		bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
-			builder,
+			handler,
 			collectingInstance::internalAdd
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)

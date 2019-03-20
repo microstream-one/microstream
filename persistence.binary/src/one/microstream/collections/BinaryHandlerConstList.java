@@ -1,7 +1,6 @@
 package one.microstream.collections;
 
 import one.microstream.X;
-import one.microstream.collections.ConstList;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
@@ -83,13 +82,13 @@ extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ConstList<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final ConstList<?> instance, final PersistenceLoadHandler handler)
 	{
 		final Object[] arrayInstance = instance.data;
 
-		// length must be checked for consistency reasons
+		// Length must be checked for consistency reasons. No clear required.
 		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_LIST);
-		bytes.collectElementsIntoArray(BINARY_OFFSET_LIST, builder, arrayInstance);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_LIST, handler, arrayInstance);
 	}
 
 	@Override

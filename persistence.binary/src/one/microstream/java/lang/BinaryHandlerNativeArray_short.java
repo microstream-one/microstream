@@ -34,7 +34,7 @@ public final class BinaryHandlerNativeArray_short extends AbstractBinaryHandlerN
 	}
 
 	@Override
-	public void update(final Binary bytes, final short[] instance, final PersistenceLoadHandler builder)
+	public void update(final Binary bytes, final short[] instance, final PersistenceLoadHandler handler)
 	{
 		bytes.updateArray_short(instance);
 	}

@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.LinkedHashSet;
 
 import one.microstream.X;
-import one.microstream.chars.XChars;
+import one.microstream.collections.old.OldCollections;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
@@ -103,50 +103,18 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public final void update(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler handler)
 	{
-		final int      elementCount   = getElementCount(bytes);
-		final Object[] elementsHelper = new Object[elementCount];
-		
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, elementsHelper);
+		instance.clear();
+		final Object[] elementsHelper = new Object[getElementCount(bytes)];
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
 		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public void complete(final Binary rawData, final LinkedHashSet<?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler loadHandler)
 	{
-		final Object helper = rawData.getHelper(instance);
-		if(helper == null)
-		{
-			// (22.04.2016 TM)EXCP: proper exception
-			throw new RuntimeException(
-				"Missing element collection helper instance for " + XChars.systemString(instance)
-			);
-		}
-		
-		if(!(helper instanceof Object[]))
-		{
-			// (22.04.2016 TM)EXCP: proper exception
-			throw new RuntimeException(
-				"Inconsistent element collection helper instance for " + XChars.systemString(instance)
-			);
-		}
-		
-		final Object[] elementsHelper = (Object[])helper;
-		
-		@SuppressWarnings("unchecked")
-		final LinkedHashSet<Object> castedInstance = (LinkedHashSet<Object>)instance;
-		
-		for(final Object element : elementsHelper)
-		{
-			if(!castedInstance.add(element))
-			{
-				// (22.04.2016 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Element hashing inconsistency in " + XChars.systemString(castedInstance)
-				);
-			}
-		}
+		OldCollections.populateSetFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override

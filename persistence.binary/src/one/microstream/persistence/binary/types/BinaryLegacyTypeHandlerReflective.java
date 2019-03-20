@@ -74,7 +74,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 	
 	@Override
-	public final void update(final Binary rawData, final T instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
@@ -86,11 +86,11 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 			throw new TypeCastException(this.type(), instance);
 		}
 
-		rawData.updateFixedSize(instance, this.valueTranslators(), this.targetOffsets(), builder);
+		rawData.updateFixedSize(instance, this.valueTranslators(), this.targetOffsets(), handler);
 	}
 
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler builder)
+	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op for reflective logic
 	}

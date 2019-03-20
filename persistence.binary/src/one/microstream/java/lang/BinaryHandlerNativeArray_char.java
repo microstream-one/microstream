@@ -34,7 +34,7 @@ public final class BinaryHandlerNativeArray_char extends AbstractBinaryHandlerNa
 	}
 
 	@Override
-	public void update(final Binary bytes, final char[] instance, final PersistenceLoadHandler builder)
+	public void update(final Binary bytes, final char[] instance, final PersistenceLoadHandler handler)
 	{
 		bytes.updateArray_char(instance);
 	}

@@ -90,13 +90,13 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	}
 
 	@Override
-	public final void update(final Binary bytes, final A instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final A instance, final PersistenceLoadHandler handler)
 	{
-		// better check length consistency here
 		final Object[] arrayInstance = (Object[])instance;
+		
+		// better check length consistency here. No clear required.
 		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_ELEMENTS);
-	
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, builder, arrayInstance);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, arrayInstance);
 	}
 	
 	@Override

@@ -54,7 +54,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 	}
 
 	@Override
-	public void update(final Binary bytes, final Date instance, final PersistenceLoadHandler builder)
+	public void update(final Binary bytes, final Date instance, final PersistenceLoadHandler handler)
 	{
 		instance.setTime(bytes.get_long(0));
 	}

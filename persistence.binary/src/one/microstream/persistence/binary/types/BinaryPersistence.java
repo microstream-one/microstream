@@ -250,7 +250,7 @@ public final class BinaryPersistence extends Persistence
 	{
 		return fieldType.isPrimitive()
 			? resolvePrimitiveFieldBinaryLength(fieldType)
-			: Binary.oidByteLength()
+			: Binary.objectIdByteLength()
 		;
 	}
 
@@ -278,7 +278,7 @@ public final class BinaryPersistence extends Persistence
 	{
 		return type.isPrimitive()
 			? XMemory.byteSizePrimitive(type)
-			: Binary.oidByteLength()
+			: Binary.objectIdByteLength()
 		;
 	}
 

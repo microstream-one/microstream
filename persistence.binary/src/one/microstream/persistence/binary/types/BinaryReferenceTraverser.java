@@ -118,7 +118,7 @@ public interface BinaryReferenceTraverser
 		;
 
 		static final int
-			REFERENCE_LENGTH   = Binary.oidByteLength(),
+			REFERENCE_LENGTH   = Binary.objectIdByteLength(),
 			REFERENCE_LENGTH_2 = REFERENCE_LENGTH * C2,
 			REFERENCE_LENGTH_3 = REFERENCE_LENGTH * C3,
 			REFERENCE_LENGTH_4 = REFERENCE_LENGTH * C4,

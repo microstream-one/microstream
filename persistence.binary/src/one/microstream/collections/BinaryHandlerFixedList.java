@@ -1,7 +1,6 @@
 package one.microstream.collections;
 
 import one.microstream.X;
-import one.microstream.collections.FixedList;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
@@ -79,17 +78,19 @@ extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 	@Override
 	public final FixedList<?> create(final Binary bytes)
 	{
-		return new FixedList<>(X.checkArrayRange(bytes.getListElementCountReferences(0)));
+		return new FixedList<>(
+			X.checkArrayRange(bytes.getListElementCountReferences(0))
+		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final FixedList<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final FixedList<?> instance, final PersistenceLoadHandler handler)
 	{
 		final Object[] arrayInstance = instance.data;
 
-		// length must be checked for consistency reasons
+		// Length must be checked for consistency reasons. No clearing required.
 		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_LIST);
-		bytes.collectElementsIntoArray(BINARY_OFFSET_LIST, builder, arrayInstance);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_LIST, handler, arrayInstance);
 	}
 
 	@Override

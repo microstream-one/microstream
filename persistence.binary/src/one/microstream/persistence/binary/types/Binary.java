@@ -221,7 +221,7 @@ public abstract class Binary implements Chunk
 		return entityAddress + LENGTH_ENTITY_HEADER;
 	}
 	
-	public static final int oidByteLength()
+	public static final int objectIdByteLength()
 	{
 		return LENGTH_OID;
 	}
@@ -447,7 +447,7 @@ public abstract class Binary implements Chunk
 			a += entryLength; // advance index for both in one step
 		}
 
-		validatePostIterationState(elementsDataAddress, elementsBinaryBound, iterator, a, entryLength);
+		validatePostIterationState(a, elementsBinaryBound, iterator, size, entryLength);
 
 		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
 		return contentAddress;
@@ -1541,11 +1541,11 @@ public abstract class Binary implements Chunk
 		for(int i = 0; i < length; i++)
 		{
 			collector.accept(
-				// key (on every nth oid position)
+				// key (on every 2nth objectId position)
 				oidResolver.lookupObject(
 					this.read_long(binaryElementsStartAddress + referenceBinaryLength(i << 1))
 				),
-				// value (on every (n + 1)th oid position)
+				// value (on every (2n + 1)th objectId position)
 				oidResolver.lookupObject(
 					this.read_long(binaryElementsStartAddress + referenceBinaryLength(i << 1) + LENGTH_OID)
 				)

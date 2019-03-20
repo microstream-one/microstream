@@ -104,20 +104,20 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ConstHashEnum<?> instance, final PersistenceLoadHandler builder)
+	public final void update(final Binary bytes, final ConstHashEnum<?> instance, final PersistenceLoadHandler handler)
 	{
-		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
-		final ConstHashEnum<Object> casted = (ConstHashEnum<Object>)instance;
-
-		// validate to the best of possibilities
+		// validate to the best of possibilities (or should an immutable instance be updatedable from outside?)
 		if(instance.size != 0)
 		{
 			throw new IllegalStateException(); // (26.10.2013)EXCP: proper exception
 		}
+		
+		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
+		final ConstHashEnum<Object> casted = (ConstHashEnum<Object>)instance;
 
 		instance.size = bytes.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
-			builder               ,
+			handler               ,
 			casted::internalAdd
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
