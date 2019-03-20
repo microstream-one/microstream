@@ -153,7 +153,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 
 	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields()
 	{
-		return BinaryCollectionHandling.elementsPseudoFields(
+		return BinaryCollectionHandling.simpleArrayPseudoFields(
 			pseudoField(HashEqualator.class, "hashEqualator"),
 			pseudoField(float.class, "hashDensity")
 		);

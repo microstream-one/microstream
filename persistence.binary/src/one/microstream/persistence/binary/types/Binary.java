@@ -2,6 +2,8 @@ package one.microstream.persistence.binary.types;
 
 import java.nio.ByteBuffer;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -399,6 +401,53 @@ public abstract class Binary implements Chunk
 
 		// store entries
 		this.storeKeyValuesAsEntries(contentAddress + headerOffset, persister, keyValues, size);
+
+		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
+		return contentAddress;
+	}
+	
+	// this "<K, V>" is not superfluous! It prevents the dreaded "capture#3453 of ?" compiler errors.
+	public final <K, V> long storeMapEntrySet(
+		final long                 typeId      ,
+		final long                 objectId    ,
+		final long                 headerOffset,
+		final Set<Map.Entry<K, V>> entrySet    ,
+		final PersistenceFunction  persister
+	)
+	{
+		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		
+		final int size = entrySet.size();
+		
+		// store entity header including the complete content size (headerOffset + entries)
+		final long contentAddress = this.storeEntityHeader(
+			headerOffset + Binary.calculateReferenceListTotalBinaryLength(keyValueReferenceCount(size)),
+			typeId,
+			objectId
+		);
+
+		final long storeAddress        = contentAddress + headerOffset;
+		final long referenceLength     = referenceBinaryLength(1);
+		final long entryLength         = Binary.referenceBinaryLength(2); // two references per entry
+		final long elementsBinaryRange = size * entryLength;
+		final long elementsDataAddress = this.storeListHeader(storeAddress, elementsBinaryRange, size);
+		final long elementsBinaryBound = elementsDataAddress + elementsBinaryRange;
+
+		/*
+		 * must check elementCount on every element because under no circumstances may the memory be set
+		 * longer than the elementCount indicates (e.g. concurrent modification of the passed collection)
+		 */
+		final Iterator<? extends Map.Entry<?, ?>> iterator = entrySet.iterator();
+		long a = elementsDataAddress;
+		while(a < elementsBinaryBound && iterator.hasNext())
+		{
+			final Map.Entry<?, ?> element = iterator.next();
+			this.store_long(a                  , persister.apply(element.getKey())  );
+			this.store_long(a + referenceLength, persister.apply(element.getValue()));
+			a += entryLength; // advance index for both in one step
+		}
+
+		validatePostIterationState(elementsDataAddress, elementsBinaryBound, iterator, a, entryLength);
 
 		// return contentAddress to allow calling context to fill in 'headerOffset' amount of bytes
 		return contentAddress;
@@ -1004,7 +1053,6 @@ public abstract class Binary implements Chunk
 		}
 	}
 	
-	
 	public final long storeListHeader(
 		final long storeAddress        ,
 		final long elementsBinaryLength,
@@ -1023,39 +1071,25 @@ public abstract class Binary implements Chunk
 		final long                elementCount
 	)
 	{
-		final Iterator<?> iterator = elements.iterator();
-
 		final long referenceLength     = referenceBinaryLength(1);
 		final long elementsBinaryRange = elementCount * referenceLength;
 		final long elementsDataAddress = this.storeListHeader(storeAddress, elementsBinaryRange, elementCount);
 		final long elementsBinaryBound = elementsDataAddress + elementsBinaryRange;
 
-		long address = elementsDataAddress;
-
 		/*
 		 * Must check elementCount on every element because under no circumstances may the memory be set
 		 * beyond the reserved range (e.g. concurrent modification of the passed collection)
 		 */
-		while(address < elementsBinaryBound && iterator.hasNext())
+		final Iterator<?> iterator = elements.iterator();
+		long a = elementsDataAddress;
+		while(a < elementsBinaryBound && iterator.hasNext())
 		{
 			final Object element = iterator.next();
-			this.store_long(address, persister.apply(element));
-			address += referenceLength;
+			this.store_long(a, persister.apply(element));
+			a += referenceLength;
 		}
 
-		/*
-		 * If there are fewer OR more elements than specified, it is an error.
-		 * The element count must match exactely, no matter what.
-		 */
-		// (19.03.2019 TM)NOTE: added "|| iterator.hasNext()" check
-		if(address != elementsBinaryBound || iterator.hasNext())
-		{
-			// (22.04.2016 TM)EXCP: proper exception
-			throw new RuntimeException(
-				"Inconsistent element count: specified " + elementCount
-				+ " vs. iterated " + elementsBinaryBound / referenceLength
-			);
-		}
+		validatePostIterationState(a, elementsBinaryBound, iterator, elementCount, referenceLength);
 	}
 
 	public final void storeKeyValuesAsEntries(
@@ -1065,35 +1099,43 @@ public abstract class Binary implements Chunk
 		final long                               elementCount
 	)
 	{
-		final Iterator<? extends KeyValue<?, ?>> iterator = elements.iterator();
-
-		final long referenceLength = referenceBinaryLength(1);
-
-		// two references per entry
-		final long entryLength = 2 * referenceLength;
-
+		final long referenceLength     = referenceBinaryLength(1);
+		final long entryLength         = Binary.referenceBinaryLength(2); // two references per entry
 		final long elementsBinaryRange = elementCount * entryLength;
 		final long elementsDataAddress = this.storeListHeader(storeAddress, elementsBinaryRange, elementCount);
 		final long elementsBinaryBound = elementsDataAddress + elementsBinaryRange;
-
-		long address = elementsDataAddress;
 
 		/*
 		 * must check elementCount on every element because under no circumstances may the memory be set
 		 * longer than the elementCount indicates (e.g. concurrent modification of the passed collection)
 		 */
-		while(address < elementsBinaryBound && iterator.hasNext())
+		final Iterator<? extends KeyValue<?, ?>> iterator = elements.iterator();
+		long a = elementsDataAddress;
+		while(a < elementsBinaryBound && iterator.hasNext())
 		{
 			final KeyValue<?, ?> element = iterator.next();
-			this.store_long(address                  , persister.apply(element.key())  );
-			this.store_long(address + referenceLength, persister.apply(element.value()));
-			address += entryLength; // advance index for both in one step
+			this.store_long(a                  , persister.apply(element.key())  );
+			this.store_long(a + referenceLength, persister.apply(element.value()));
+			a += entryLength; // advance index for both in one step
 		}
 
-		/* if there are fewer elements than specified, it is an error just the same.
+		validatePostIterationState(a, elementsBinaryBound, iterator, elementCount, entryLength);
+	}
+	
+	private static void validatePostIterationState(
+		final long        address            ,
+		final long        elementsBinaryBound,
+		final Iterator<?> iterator           ,
+		final long        elementCount       ,
+		final long        entryLength
+	)
+	{
+		/*
+		 * If there are fewer OR more elements than specified, it is an error.
 		 * The element count must match exactely, no matter what.
 		 */
-		if(address != elementsBinaryBound)
+		// (19.03.2019 TM)NOTE: added "|| iterator.hasNext()" check
+		if(address != elementsBinaryBound || iterator.hasNext())
 		{
 			// (22.04.2016 TM)EXCP: proper exception
 			throw new RuntimeException(

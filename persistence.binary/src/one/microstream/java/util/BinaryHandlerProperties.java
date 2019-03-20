@@ -51,7 +51,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.elementsPseudoFields(
+			BinaryCollectionHandling.simpleArrayPseudoFields(
 				pseudoField(Properties.class, "defaults")
 			)
 		);

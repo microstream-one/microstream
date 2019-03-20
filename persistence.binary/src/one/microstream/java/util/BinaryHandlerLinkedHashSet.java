@@ -56,7 +56,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.elementsPseudoFields(
+			BinaryCollectionHandling.simpleArrayPseudoFields(
 				pseudoField(float.class, "loadFactor")
 			)
 		);

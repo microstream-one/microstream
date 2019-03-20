@@ -48,7 +48,7 @@ public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerCustomCo
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.elementsPseudoFields()
+			BinaryCollectionHandling.simpleArrayPseudoFields()
 		);
 	}
 

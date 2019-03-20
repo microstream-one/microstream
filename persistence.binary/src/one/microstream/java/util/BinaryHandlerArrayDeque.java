@@ -68,7 +68,7 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.elementsPseudoFields(
+			BinaryCollectionHandling.simpleArrayPseudoFields(
 			    pseudoField(int.class, "head"),
 			    pseudoField(int.class, "tail")
 			),

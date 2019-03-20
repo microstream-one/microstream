@@ -13,6 +13,7 @@ import java.util.RandomAccess;
 import java.util.function.Predicate;
 
 import one.microstream.X;
+import one.microstream.chars.XChars;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.typing.KeyValue;
@@ -471,13 +472,6 @@ public final class OldCollections
 		return lhm;
 	}
 
-
-	private OldCollections()
-	{
-		// static only
-		throw new UnsupportedOperationException();
-	}
-
 	/**
 	 * Convenience method for <code>new ArrayList<E>(xCollection)</code>.
 	 * <p>
@@ -492,4 +486,54 @@ public final class OldCollections
 		// ArrayList collection constructor already uses toArray() directly as elementData
 		return new ArrayList<>(xCollection.old());
 	}
+	
+	public static final void populateMapFromHelperArray(final Map<?, ?> instance, final Object elementsHelper)
+	{
+		if(elementsHelper == null)
+		{
+			// (22.04.2016 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Missing collection elements helper instance for " + XChars.systemString(instance)
+			);
+		}
+		
+		if(!(elementsHelper instanceof Object[]))
+		{
+			// (22.04.2016 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Invalid collection elements helper instance for " + XChars.systemString(instance)
+			);
+		}
+		
+		@SuppressWarnings("unchecked")
+		final Map<Object, Object> castedInstance = (Map<Object, Object>)instance;
+		populateMap(castedInstance, (Object[])elementsHelper);
+	}
+	
+	public static final void populateMap(final Map<Object, Object> instance, final Object[] elements)
+	{
+		for(int i = 0; i < elements.length; i += 2)
+		{
+			if(instance.putIfAbsent(elements[i], elements[i + 1]) != null)
+			{
+				// (22.04.2016 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Element hashing inconsistency in " + XChars.systemString(instance)
+				);
+			}
+		}
+	}
+
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	private OldCollections()
+	{
+		// static only
+		throw new UnsupportedOperationException();
+	}
+	
 }
