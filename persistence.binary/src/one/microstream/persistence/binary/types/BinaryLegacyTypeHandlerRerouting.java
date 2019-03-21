@@ -24,7 +24,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	public static <T> BinaryLegacyTypeHandlerRerouting<T> New(
 		final PersistenceTypeDefinition                     typeDefinition              ,
 		final PersistenceTypeHandler<Binary, T>             typeHandler                 ,
-		final XGettingTable<BinaryValueSetter, Long>        translatorsWithTargetOffsets,
+		final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets,
 		final PersistenceLegacyTypeHandlingListener<Binary> listener                    ,
 		final boolean                                       switchByteOrder
 	)
