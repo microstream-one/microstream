@@ -77,21 +77,42 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayList<?>>
 	@Override
 	public final ArrayList<?> create(final Binary bytes)
 	{
+		final int arrayLength = this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
+		
 		/*
 		 * InitialCapacity 1 instead of default constructor is a workaround for yet another JDK moronity bug.
 		 * Using the default constructor causes #ensureCapacity to yield incorrect behavior for values of
 		 * 10 or below, which causes a subsequent array length validation exception.
 		 * Also see https://bugs.openjdk.java.net/browse/JDK-8206945
+		 * 
+		 * However, having an actually zero-capacity instance should still cause the internal dummy array instance
+		 * to be used instead of a redundant one that unnecessarily occupies memory. Hence the if.
 		 */
-		return new ArrayList<>(1);
+		return arrayLength == 0
+			? new ArrayList<>(0)
+			: new ArrayList<>(1)
+		;
 	}
 
 	@Override
 	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceLoadHandler handler)
 	{
-		// length must be checked for consistency reasons
+		// instance must be cleared in case an existing one is updated
 		instance.clear();
-		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
+		
+		// length must be checked for consistency reasons
+		final int arrayLength = this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
+		
+		// check for the zero-capacity case. See #create.
+		if(arrayLength == 0)
+		{
+			// no-op if the empty dummy array is already used, otherwise memory optimization (e.g. existing instance).
+			instance.trimToSize();
+			return;
+		}
+		
+		// normal (non-zero-capacity) case: ensure capacity, add elements, adjust the size.
+		instance.ensureCapacity(arrayLength);
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
 			XMemory.accessArray(instance),
