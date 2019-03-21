@@ -3,25 +3,16 @@ package one.microstream.test.legacy;
 import java.io.File;
 
 import one.microstream.X;
-import one.microstream.chars.VarString;
-import one.microstream.collections.types.XGettingMap;
-import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XList;
 import one.microstream.meta.XDebug;
-import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
-import one.microstream.persistence.types.PersistenceLegacyTypeMappingResult;
-import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
 import one.microstream.persistence.types.PersistenceMemberMatchingProvider;
-import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
-import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.util.matching.MatchValidator;
-import one.microstream.util.matching.MultiMatch;
 
 
 public class MainTestStorageLegacyMapping
@@ -94,37 +85,7 @@ public class MainTestStorageLegacyMapping
 		});
 	}
 		
-	static void printMatchedMapping(
-		final PersistenceTypeDefinition                   legacyTypeDefinition,
-		final PersistenceTypeHandler<Binary, ?>           currentTypeHandler  ,
-		final MultiMatch<PersistenceTypeDefinitionMember> match
-	)
-	{
-		System.out.println("INPUT:");
-		XDebug.printCollection(legacyTypeDefinition.members(), null, "\t", null, null);
-		XDebug.printCollection(currentTypeHandler.members(), null, "\t", null, null);
-		System.out.println();
-		System.out.println("OUTPUT:");
-		System.out.println(match.assembler().assembleMappingSchemeVertical(VarString.New(), (vs, e) -> vs.add(e)));
-	}
-	
-	static class MappingPrinter implements PersistenceLegacyTypeMappingResultor<Binary>
-	{
-		@Override
-		public <T> PersistenceLegacyTypeMappingResult<Binary, T> createMappingResult(
-			final PersistenceTypeDefinition                                                     legacyTypeDefinition,
-			final PersistenceTypeHandler<Binary, T>                                             currentTypeHandler  ,
-			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
-			final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers  ,
-			final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
-		)
-		{
-			printMatchedMapping(legacyTypeDefinition, currentTypeHandler, matchedMembers);
-			return PersistenceLegacyTypeMappingResultor.super.createMappingResult(
-				legacyTypeDefinition, currentTypeHandler, explicitMappings, explicitNewMembers, matchedMembers
-			);
-		}
-	}
+
 	
 	static class MatchValidator1 implements MatchValidator<PersistenceTypeDefinitionMember>
 	{
