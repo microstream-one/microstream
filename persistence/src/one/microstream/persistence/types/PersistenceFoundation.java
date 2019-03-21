@@ -5,7 +5,6 @@ import java.nio.ByteOrder;
 import one.microstream.collections.types.XEnum;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
-import one.microstream.persistence.internal.InquiringLegacyTypeMappingResultor;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import one.microstream.typing.TypeMapping;
 import one.microstream.typing.XTypes;
@@ -1813,9 +1812,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 				
 		protected PersistenceLegacyTypeMappingResultor<M> ensureLegacyTypeMappingResultor()
 		{
-			return InquiringLegacyTypeMappingResultor.New(
-				PersistenceLegacyTypeMappingResultor.New()
-			);
+			// default is silent, which is dangerous when heuristics are in play. Should be wrapped by the user.
+			return PersistenceLegacyTypeMappingResultor.New();
 		}
 		
 		protected PersistenceLegacyTypeHandlerCreator<M> ensureLegacyTypeHandlerCreator()

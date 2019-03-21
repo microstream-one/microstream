@@ -75,6 +75,11 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 			matchedMembers
 		);
 		
+		/* (21.03.2019 TM)TODO: MS-126: make inquiering configurable to not ask if the mapping is completely clear.
+		 * Or even better: use a threshold similarity that defines how low the lowest matching has to be in order to
+		 * perform the inquiry. A simplified constructor can be provided that maps a boolean to 1.0/0.0.
+		 */
+		
 		if(this.inquireApproval(explicitMappings, matchedMembers, result))
 		{
 			return result;
