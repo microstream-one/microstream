@@ -57,6 +57,8 @@ import one.microstream.java.util.BinaryHandlerLinkedHashSet;
 import one.microstream.java.util.BinaryHandlerLinkedList;
 import one.microstream.java.util.BinaryHandlerProperties;
 import one.microstream.java.util.BinaryHandlerStack;
+import one.microstream.java.util.BinaryHandlerTreeMap;
+import one.microstream.java.util.BinaryHandlerTreeSet;
 import one.microstream.java.util.BinaryHandlerVector;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
@@ -170,8 +172,8 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerHashSet()              ,
 			new BinaryHandlerHashMap()              ,
 			new BinaryHandlerLinkedList()           ,
-//			new BinaryHandlerTreeMap()              ,
-//			new BinaryHandlerTreeSet()              ,
+			new BinaryHandlerTreeMap()              ,
+			new BinaryHandlerTreeSet()              ,
 			
 			// still creepy JDK 1.4 collections
 			new BinaryHandlerIdentityHashMap()      ,
@@ -197,7 +199,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerDate()      ,
 
 			new BinaryHandlerLazyReference()
-			// (24.10.2013 TM)TODO: more native handlers (Path and whatnot)
+			// (24.10.2013 TM)TODO: more native handlers (Path, Instant and whatnot)
 		);
 		
 		nativeHandlers.iterate(handler ->
