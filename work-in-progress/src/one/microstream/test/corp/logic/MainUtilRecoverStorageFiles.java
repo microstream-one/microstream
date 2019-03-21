@@ -92,9 +92,9 @@ public class MainUtilRecoverStorageFiles
 			)
 		);
 
-		final StorageTransactionsFile tf = StorageTransactionsFile.parseFile(
-			new File(PATH_CORRUPTED + "/channel_0/transactions_0.sft")
-		);
+//		final StorageTransactionsFile tf = StorageTransactionsFile.parseFile(
+//			new File(PATH_CORRUPTED + "/channel_0/transactions_0.sft")
+//		);
 //		sr.rollbackTransfers(tf);
 		
 //		sr.cleanUpDirect();
