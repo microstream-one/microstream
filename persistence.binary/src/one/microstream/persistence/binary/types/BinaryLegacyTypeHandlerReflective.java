@@ -70,6 +70,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	@Override
 	protected T internalCreate(final Binary rawData, final PersistenceLoadHandler handler)
 	{
+		// (21.03.2019 TM)XXX: just passing to the type handler (in the end to BinaryInstantiator) can be dangerous
 		return this.typeHandler().create(rawData, handler);
 	}
 	

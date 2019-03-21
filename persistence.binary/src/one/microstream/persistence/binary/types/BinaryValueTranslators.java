@@ -1,5 +1,6 @@
 package one.microstream.persistence.binary.types;
 
+import one.microstream.X;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
@@ -73,6 +74,11 @@ public final class BinaryValueTranslators
 	
 	public static final TypeMapping<BinaryValueSetter> createDefaultValueTranslatorsSwitchingByteOrder()
 	{
+		/* note:
+		 * these translators must do a double-switch since the actual binary-to-instance logic will
+		 * switch the bytes, too.
+		 * For the same reason, non-converting translators can just pass the value through without any switching.
+		 */
 		final TypeMapping<BinaryValueSetter> mapping = TypeMapping.New();
 		registerPrimitivesToPrimitivesSwitchingByteOrder(mapping);
 		registerPrimitivesToWrappersSwitchingByteOrder(mapping);
@@ -162,12 +168,30 @@ public final class BinaryValueTranslators
 	
 	private static void registerPrimitivesToWrappers(final TypeMapping<BinaryValueSetter> mapping)
 	{
-		// (28.09.2018 TM)TODO: Legacy Type Mapping: Defaults for primitive -> primitive wrapper
+		mapping
+		.register(byte   .class, Byte     .class, BinaryValueTranslators::copy_byteAsByte      )
+		.register(boolean.class, Boolean  .class, BinaryValueTranslators::copy_booleanAsBoolean)
+		.register(short  .class, Short    .class, BinaryValueTranslators::copy_shortAsShort    )
+		.register(char   .class, Character.class, BinaryValueTranslators::copy_charAsCharacter )
+		.register(int    .class, Integer  .class, BinaryValueTranslators::copy_intAsInteger    )
+		.register(float  .class, Float    .class, BinaryValueTranslators::copy_floatAsFloat    )
+		.register(long   .class, Long     .class, BinaryValueTranslators::copy_longAsLong      )
+		.register(double .class, Double   .class, BinaryValueTranslators::copy_doubleAsDouble  )
+		;
 	}
 	
 	private static void registerWrappersToPrimitives(final TypeMapping<BinaryValueSetter> mapping)
 	{
-		// (28.09.2018 TM)TODO: Legacy Type Mapping: Defaults for primitive wrapper -> primitive
+		mapping
+		.register(Byte     .class, byte   .class, BinaryValueTranslators::copyByteTo_byte      )
+		.register(Boolean  .class, boolean.class, BinaryValueTranslators::copyBooleanTo_boolean)
+		.register(Short    .class, short  .class, BinaryValueTranslators::copyShortTo_short    )
+		.register(Character.class, char   .class, BinaryValueTranslators::copyCharacterTo_char )
+		.register(Integer  .class, int    .class, BinaryValueTranslators::copyIntegerTo_int    )
+		.register(Float    .class, float  .class, BinaryValueTranslators::copyFloatTo_float    )
+		.register(Long     .class, long   .class, BinaryValueTranslators::copyLongTo_long      )
+		.register(Double   .class, double .class, BinaryValueTranslators::copyDoubleTo_double  )
+		;
 	}
 	
 	private static void registerWrappersToWrappers(final TypeMapping<BinaryValueSetter> mapping)
@@ -1007,6 +1031,183 @@ public final class BinaryValueTranslators
 		return sourceAddress + XMemory.byteSize_double();
 	}
 	
+	public static long copy_byteAsByte(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.setObject(target, targetOffset, Byte.valueOf(XMemory.get_byte(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_byte();
+	}
+	
+	public static long copy_booleanAsBoolean(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.setObject(target, targetOffset, Boolean.valueOf(XMemory.get_boolean(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_boolean();
+	}
+	
+	public static long copy_shortAsShort(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.setObject(target, targetOffset, Short.valueOf(XMemory.get_short(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_short();
+	}
+	
+	public static long copy_charAsCharacter(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.setObject(target, targetOffset, Character.valueOf(XMemory.get_char(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_char();
+	}
+	
+	public static long copy_intAsInteger(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.setObject(target, targetOffset, Integer.valueOf(XMemory.get_int(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_int();
+	}
+	
+	public static long copy_floatAsFloat(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.setObject(target, targetOffset, Float.valueOf(XMemory.get_float(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_float();
+	}
+	
+	public static long copy_longAsLong(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.setObject(target, targetOffset, Long.valueOf(XMemory.get_long(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_long();
+	}
+	
+	public static long copy_doubleAsDouble(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.setObject(target, targetOffset, Double.valueOf(XMemory.get_double(sourceAddress)));
+		return sourceAddress + XMemory.byteSize_double();
+	}
+	
+	public static long copyByteTo_byte(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.set_byte(target, targetOffset, X.unbox((Byte)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		return sourceAddress + Binary.objectIdByteLength();
+	}
+	
+	public static long copyBooleanTo_boolean(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.set_boolean(target, targetOffset, X.unbox((Boolean)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		return sourceAddress + Binary.objectIdByteLength();
+	}
+	
+	public static long copyShortTo_short(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.set_short(target, targetOffset, X.unbox((Short)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		return sourceAddress + Binary.objectIdByteLength();
+	}
+	
+	public static long copyCharacterTo_char(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.set_char(target, targetOffset, X.unbox((Character)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		return sourceAddress + Binary.objectIdByteLength();
+	}
+	
+	public static long copyIntegerTo_int(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.set_int(target, targetOffset, X.unbox((Integer)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		return sourceAddress + Binary.objectIdByteLength();
+	}
+	
+	public static long copyFloatTo_float(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.set_float(target, targetOffset, X.unbox((Float)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		return sourceAddress + Binary.objectIdByteLength();
+	}
+	
+	public static long copyLongTo_long(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.set_long(target, targetOffset, X.unbox((Long)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		return sourceAddress + Binary.objectIdByteLength();
+	}
+	
+	public static long copyDoubleTo_double(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		XMemory.set_double(target, targetOffset, X.unbox((Double)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		return sourceAddress + Binary.objectIdByteLength();
+	}
+	
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -1027,6 +1228,11 @@ public final class BinaryValueTranslators
 		final TypeMapping<BinaryValueSetter> mapping
 	)
 	{
+		/* note:
+		 * these translators must do a double-switch since the actual binary-to-instance logic will
+		 * switch the bytes, too.
+		 * For the same reason, non-converting translators can just pass the value through without any switching.
+		 */
 		mapping
 		.register(byte.class, byte   .class, BinaryValueTranslators::copy_byteTo_byte            )
 		.register(byte.class, boolean.class, BinaryValueTranslators::copy_byteTo_boolean         )

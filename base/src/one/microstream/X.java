@@ -290,7 +290,7 @@ public final class X
 	
 	public static final boolean unbox(final Boolean d)
 	{
-		return d == null || d.booleanValue();
+		return d != null && d.booleanValue();
 	}
 
 	public static final boolean unbox(final Boolean d, final boolean nullSubstitute)
