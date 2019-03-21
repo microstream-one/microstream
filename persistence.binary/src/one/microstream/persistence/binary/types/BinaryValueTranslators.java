@@ -89,6 +89,16 @@ public final class BinaryValueTranslators
 		return mapping;
 	}
 	
+	/* (21.03.2019 TM)TODO: split the numerous value converters into explicitely named separate classes
+	 * E.g.
+	 * primitive <-> primitive
+	 * primitive <-> Wrapper
+	 * Wrapper   <-> primitive
+	 * Wrapper   <-> Wrapper
+	 * 
+	 * with and without byte switching
+	 */
+	
 	private static void registerPrimitivesToPrimitives(final TypeMapping<BinaryValueSetter> mapping)
 	{
 		mapping
