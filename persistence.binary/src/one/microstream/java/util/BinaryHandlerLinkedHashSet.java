@@ -94,7 +94,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public final LinkedHashSet<?> create(final Binary bytes)
+	public final LinkedHashSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new LinkedHashSet<>(
 			getElementCount(bytes),

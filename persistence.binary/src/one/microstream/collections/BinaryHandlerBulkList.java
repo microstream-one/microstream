@@ -78,7 +78,7 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<BulkList<?>>
 	}
 
 	@Override
-	public final BulkList<?> create(final Binary bytes)
+	public final BulkList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new BulkList<>();
 	}

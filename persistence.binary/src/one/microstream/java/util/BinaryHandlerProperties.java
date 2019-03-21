@@ -87,7 +87,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	}
 	
 	@Override
-	public final Properties create(final Binary bytes)
+	public final Properties create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new Properties();
 	}

@@ -2,6 +2,7 @@ package one.microstream.java.lang;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerNativeBoolean extends AbstractBinaryHandlerCustomValueFixedLength<Boolean>
@@ -28,7 +29,7 @@ public final class BinaryHandlerNativeBoolean extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public Boolean create(final Binary bytes)
+	public Boolean create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.buildBoolean();
 	}

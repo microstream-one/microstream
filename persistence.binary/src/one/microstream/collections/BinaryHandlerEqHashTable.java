@@ -128,7 +128,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 	}
 
 	@Override
-	public final EqHashTable<?, ?> create(final Binary bytes)
+	public final EqHashTable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return EqHashTable.NewCustom(
 			getBuildItemElementCount(bytes),

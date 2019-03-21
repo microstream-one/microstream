@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomValueVariableLength<BigDecimal>
@@ -36,7 +37,7 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	}
 
 	@Override
-	public BigDecimal create(final Binary bytes)
+	public BigDecimal create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new BigDecimal(bytes.buildArray_char());
 	}

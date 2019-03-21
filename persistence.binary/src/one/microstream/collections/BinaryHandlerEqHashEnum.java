@@ -195,7 +195,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	}
 
 	@Override
-	public final EqHashEnum<?> create(final Binary bytes)
+	public final EqHashEnum<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return staticCreate(bytes);
 	}

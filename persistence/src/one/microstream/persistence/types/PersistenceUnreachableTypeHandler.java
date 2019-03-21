@@ -47,7 +47,7 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default T create(final M medium)
+	public default T create(final M medium, PersistenceLoadHandler handler)
 	{
 		// (01.06.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(

@@ -194,9 +194,9 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public T create(final M medium)
+		public T create(final M medium, final PersistenceLoadHandler handler)
 		{
-			return this.typeHandler.create(medium);
+			return this.typeHandler.create(medium, handler);
 		}
 
 		@Override

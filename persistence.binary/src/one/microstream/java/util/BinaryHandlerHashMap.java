@@ -94,7 +94,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final HashMap<?, ?> create(final Binary bytes)
+	public final HashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new HashMap<>(
 			getElementCount(bytes),

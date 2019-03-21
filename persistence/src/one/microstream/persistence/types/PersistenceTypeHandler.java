@@ -37,7 +37,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
 	public void store(M medium, T instance, long objectId, PersistenceStoreHandler handler);
 
-	public T    create(M medium);
+	public T    create(M medium, PersistenceLoadHandler handler);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for loading
 	public void update(M medium, T instance, PersistenceLoadHandler handler);

@@ -81,7 +81,7 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public Lazy<?> create(final Binary bytes)
+	public Lazy<?> create(final Binary bytes, PersistenceLoadHandler handler)
 	{
 		/* (27.04.2016 TM)NOTE: registering a Lazy instance with a reference manager
 		 * without having the object supplier set yet might cause an inconsistency if the

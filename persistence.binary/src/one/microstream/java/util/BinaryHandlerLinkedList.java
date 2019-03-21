@@ -78,7 +78,7 @@ public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerCustomCo
 	}
 
 	@Override
-	public final LinkedList<?> create(final Binary bytes)
+	public final LinkedList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new LinkedList<>();
 	}

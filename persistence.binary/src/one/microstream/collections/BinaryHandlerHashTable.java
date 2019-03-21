@@ -116,7 +116,7 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 	}
 
 	@Override
-	public final HashTable<?, ?> create(final Binary bytes)
+	public final HashTable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return HashTable.NewCustom(
 			getBuildItemElementCount(bytes),

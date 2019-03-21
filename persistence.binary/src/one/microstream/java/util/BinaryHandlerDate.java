@@ -48,7 +48,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 	}
 
 	@Override
-	public Date create(final Binary bytes)
+	public Date create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new Date(bytes.get_long(0));
 	}

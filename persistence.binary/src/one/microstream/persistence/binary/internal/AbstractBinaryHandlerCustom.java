@@ -178,7 +178,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 
 	@Override
-	public abstract T create(Binary bytes);
+	public abstract T create(Binary bytes, PersistenceLoadHandler handler);
 
 	@Override
 	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
@@ -190,7 +190,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 
 	@Override
-	public void complete(final Binary medium, final T instance, final PersistenceLoadHandler handler)
+	public void complete(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}

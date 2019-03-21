@@ -4,6 +4,7 @@ import java.io.File;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVariableLength<File>
@@ -35,7 +36,7 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVar
 	}
 
 	@Override
-	public File create(final Binary bytes)
+	public File create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new File(bytes.buildString());
 	}

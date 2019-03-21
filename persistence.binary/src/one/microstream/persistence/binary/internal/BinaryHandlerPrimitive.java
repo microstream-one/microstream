@@ -76,7 +76,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 
 	@Override
-	public T create(final Binary bytes)
+	public T create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}

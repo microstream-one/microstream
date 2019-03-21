@@ -76,7 +76,7 @@ extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 	}
 
 	@Override
-	public final FixedList<?> create(final Binary bytes)
+	public final FixedList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new FixedList<>(
 			X.checkArrayRange(bytes.getListElementCountReferences(0))

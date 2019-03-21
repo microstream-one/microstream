@@ -28,7 +28,7 @@ public final class BinaryHandlerNativeArray_float extends AbstractBinaryHandlerN
 	}
 
 	@Override
-	public float[] create(final Binary bytes)
+	public float[] create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.createArray_float();
 	}

@@ -76,7 +76,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 	}
 
 	@Override
-	public final ConstList<?> create(final Binary bytes)
+	public final ConstList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return ConstList.New(X.checkArrayRange(bytes.getListElementCountReferences(0)));
 	}

@@ -81,7 +81,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	}
 
 	@Override
-	public final A create(final Binary bytes)
+	public final A create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		final long rawElementCount = bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS);
 		return this.arrayType.cast(

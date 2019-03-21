@@ -28,7 +28,7 @@ public final class BinaryHandlerNativeArray_short extends AbstractBinaryHandlerN
 	}
 
 	@Override
-	public short[] create(final Binary bytes)
+	public short[] create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.createArray_short();
 	}

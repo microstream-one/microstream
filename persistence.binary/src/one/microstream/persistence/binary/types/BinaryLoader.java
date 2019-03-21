@@ -129,7 +129,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			 */
 			if(buildItem.contextInstance == null)
 			{
-				buildItem.localInstance = buildItem.handler.create(buildItem);
+				buildItem.localInstance = buildItem.handler.create(buildItem, this);
 			}
 
 			// register build item

@@ -103,7 +103,7 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public final LinkedHashMap<?, ?> create(final Binary bytes)
+	public final LinkedHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new LinkedHashMap<>(
 			getElementCount(bytes),

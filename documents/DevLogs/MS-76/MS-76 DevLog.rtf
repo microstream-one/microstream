@@ -200,6 +200,18 @@ Besprechung mit FH.\par
 \par
 BinaryHandlerArrayList erweitern um Handling f\'fcr Dummy Array Konstante.\par
 \par
+BinaryHandlerTreeSet weitermachen.\par
+\par
+Ah, es geht doch (mit akzeptablem Restrisiko) ohne komplizierten Mist. MS-76 updaten. Implementieren.\par
+\par
+Hm. Eigentlich braucht die create Methode auch eine Referenz auf den LoadHandler. Sonst kann man nie einen Konstruktor mit Referenzen aufrufen. So wie das beim TreeSet z.B. zwingend n\'f6tig ist.\par
+Nachr\'fcsten.\par
+\par
+\'dcberlegen/pr\'fcfen: TreeSet hat kein Hashing. Braucht es dann \'fcberhaupt den Umweg \'fcber das Helper Array?\par
+Ergebnis: Ja, weil die add Logik den internen State der Elemente verwendet.\par
+Also so bauen und Kommentar dazu schreiben.\par
+\par
+Und schon ist das TreeSet fertig, hurra.\par
 \par
 }
  

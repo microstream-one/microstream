@@ -28,7 +28,7 @@ public final class BinaryHandlerNativeArray_int extends AbstractBinaryHandlerNat
 	}
 
 	@Override
-	public int[] create(final Binary bytes)
+	public int[] create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.createArray_int();
 	}
