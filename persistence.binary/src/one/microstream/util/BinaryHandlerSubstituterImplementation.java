@@ -62,7 +62,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Implementation<?>>
 	}
 
 	@Override
-	public final Substituter.Implementation<?> create(final Binary bytes)
+	public final Substituter.Implementation<?> create(final Binary bytes, PersistenceLoadHandler handler)
 	{
 		// hashEqualator gets set in update
 		return new Substituter.Implementation<>(BinaryHandlerEqHashEnum.staticCreate(bytes));

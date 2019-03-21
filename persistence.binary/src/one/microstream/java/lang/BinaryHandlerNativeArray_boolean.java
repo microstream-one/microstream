@@ -33,7 +33,7 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 	}
 
 	@Override
-	public final boolean[] create(final Binary bytes)
+	public final boolean[] create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.createArray_boolean();
 	}

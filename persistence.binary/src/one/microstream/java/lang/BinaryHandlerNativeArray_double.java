@@ -28,7 +28,7 @@ public final class BinaryHandlerNativeArray_double extends AbstractBinaryHandler
 	}
 
 	@Override
-	public double[] create(final Binary bytes)
+	public double[] create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.createArray_double();
 	}

@@ -96,7 +96,7 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	}
 
 	@Override
-	public final HashMap<?, ?> create(final Binary bytes)
+	public final HashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new HashMap<>(
 			getElementCount(bytes) / 2,

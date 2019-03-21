@@ -81,7 +81,7 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomCollec
 	}
 
 	@Override
-	public final Vector<?> create(final Binary bytes)
+	public final Vector<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		// capacityIncrement can be any int value, even negative. So no validation can be done here.
 		return new Vector<>(

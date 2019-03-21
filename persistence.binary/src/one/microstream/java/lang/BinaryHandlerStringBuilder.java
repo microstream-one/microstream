@@ -35,7 +35,7 @@ public final class BinaryHandlerStringBuilder extends AbstractBinaryHandlerAbstr
 	}
 
 	@Override
-	public final StringBuilder create(final Binary bytes)
+	public final StringBuilder create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new StringBuilder(this.readCapacity(bytes));
 	}

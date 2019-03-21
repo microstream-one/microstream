@@ -28,7 +28,7 @@ public final class BinaryHandlerNativeArray_byte extends AbstractBinaryHandlerNa
 	}
 
 	@Override
-	public byte[] create(final Binary bytes)
+	public byte[] create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.createArray_byte();
 	}

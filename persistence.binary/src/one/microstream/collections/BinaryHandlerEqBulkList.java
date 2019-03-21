@@ -97,7 +97,7 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<EqBulkList<?>>
 	}
 
 	@Override
-	public final EqBulkList<?> create(final Binary bytes)
+	public final EqBulkList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		// this method only creates shallow instances, so hashEqualator gets set during update like other references.
 		return new EqBulkList<>((Equalator<?>)null);

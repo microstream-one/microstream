@@ -159,7 +159,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
 	}
 
 	@Override
-	public final PersistenceRoots.Implementation create(final Binary bytes)
+	public final PersistenceRoots.Implementation create(final Binary bytes, PersistenceLoadHandler handler)
 	{
 		return PersistenceRoots.Implementation.createUninitialized();
 	}

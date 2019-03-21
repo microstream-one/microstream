@@ -35,7 +35,7 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 	}
 
 	@Override
-	public final StringBuffer create(final Binary bytes)
+	public final StringBuffer create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new StringBuffer(this.readCapacity(bytes));
 	}

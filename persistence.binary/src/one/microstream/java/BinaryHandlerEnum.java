@@ -115,7 +115,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	}
 	
 	@Override
-	public final T create(final Binary bytes)
+	public final T create(final Binary bytes, PersistenceLoadHandler handler)
 	{
 		// enum constant do not get created, but only looked up instead.
 		

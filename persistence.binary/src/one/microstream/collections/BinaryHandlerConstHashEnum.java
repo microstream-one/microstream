@@ -95,7 +95,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 	}
 
 	@Override
-	public final ConstHashEnum<?> create(final Binary bytes)
+	public final ConstHashEnum<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return ConstHashEnum.NewCustom(
 			getBuildItemElementCount(bytes),

@@ -119,7 +119,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 	}
 
 	@Override
-	public final ConstHashTable<?, ?> create(final Binary bytes)
+	public final ConstHashTable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return ConstHashTable.NewCustom(
 			getBuildItemElementCount(bytes),

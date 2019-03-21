@@ -64,7 +64,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	////////////
 
 	@Override
-	protected T internalCreate(final Binary rawData)
+	protected T internalCreate(final Binary rawData, final PersistenceLoadHandler handler)
 	{
 		final long entityContentLength = this.typeHandler().membersPersistedLengthMaximum();
 		
@@ -100,7 +100,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		rawData.registerHelper(directByteBuffer, directByteBuffer);
 
 		// the current type handler can now create a new instance with correctly rearranged raw values
-		final T instance = this.typeHandler().create(rawData);
+		final T instance = this.typeHandler().create(rawData, handler);
 		
 		return instance;
 	}

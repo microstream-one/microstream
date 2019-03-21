@@ -81,7 +81,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollect
 	}
 
 	@Override
-	public final Stack<?> create(final Binary bytes)
+	public final Stack<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new Stack<>();
 	}

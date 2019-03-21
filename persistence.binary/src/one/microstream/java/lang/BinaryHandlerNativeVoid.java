@@ -3,6 +3,7 @@ package one.microstream.java.lang;
 import one.microstream.X;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerCustom<Void>
@@ -29,7 +30,7 @@ public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerCustom<V
 	}
 
 	@Override
-	public Void create(final Binary bytes)
+	public Void create(final Binary bytes, PersistenceLoadHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -321,7 +321,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public abstract T create(final Binary bytes);
+	public abstract T create(final Binary bytes, PersistenceLoadHandler handler);
 
 	@Override
 	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)

@@ -2,6 +2,7 @@ package one.microstream.persistence.binary.internal;
 
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -34,7 +35,7 @@ public final class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivia
 	}
 
 	@Override
-	public final T create(final Binary bytes)
+	public final T create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return XMemory.instantiate(this.type());
 	}

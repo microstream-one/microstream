@@ -2,6 +2,7 @@ package one.microstream.java.lang;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerNativeFloat extends AbstractBinaryHandlerCustomValueFixedLength<Float>
@@ -28,7 +29,7 @@ public final class BinaryHandlerNativeFloat extends AbstractBinaryHandlerCustomV
 	}
 
 	@Override
-	public Float create(final Binary bytes)
+	public Float create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.buildFloat();
 	}

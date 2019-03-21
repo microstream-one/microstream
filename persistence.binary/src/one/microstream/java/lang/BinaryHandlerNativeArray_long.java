@@ -28,7 +28,7 @@ public final class BinaryHandlerNativeArray_long extends AbstractBinaryHandlerNa
 	}
 
 	@Override
-	public long[] create(final Binary bytes)
+	public long[] create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.createArray_long();
 	}

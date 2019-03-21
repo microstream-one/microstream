@@ -75,7 +75,7 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayList<?>>
 	}
 
 	@Override
-	public final ArrayList<?> create(final Binary bytes)
+	public final ArrayList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		final int arrayLength = this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
 		

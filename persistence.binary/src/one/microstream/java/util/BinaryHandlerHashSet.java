@@ -94,7 +94,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final HashSet<?> create(final Binary bytes)
+	public final HashSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new HashSet<>(
 			getElementCount(bytes),
@@ -103,12 +103,12 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final void update(final Binary rawData, final HashSet<?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
-		final Object[] elementsHelper = new Object[getElementCount(rawData)];
-		rawData.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
-		rawData.registerHelper(instance, elementsHelper);
+		final Object[] elementsHelper = new Object[getElementCount(bytes)];
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
+		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override

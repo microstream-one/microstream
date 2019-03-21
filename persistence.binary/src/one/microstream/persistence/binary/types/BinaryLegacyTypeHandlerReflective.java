@@ -68,9 +68,9 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 	
 	@Override
-	protected T internalCreate(final Binary rawData)
+	protected T internalCreate(final Binary rawData, final PersistenceLoadHandler handler)
 	{
-		return this.typeHandler().create(rawData);
+		return this.typeHandler().create(rawData, handler);
 	}
 	
 	@Override

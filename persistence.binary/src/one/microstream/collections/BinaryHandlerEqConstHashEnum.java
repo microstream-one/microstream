@@ -116,7 +116,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 	}
 
 	@Override
-	public final EqConstHashEnum<?> create(final Binary bytes)
+	public final EqConstHashEnum<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return EqConstHashEnum.New(
 			getBuildItemElementCount(bytes),

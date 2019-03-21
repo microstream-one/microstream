@@ -107,7 +107,7 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 	}
 
 	@Override
-	public final ArrayDeque<?> create(final Binary bytes)
+	public final ArrayDeque<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		final int arrayLength = this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
 		return new ArrayDeque<>(arrayLength);

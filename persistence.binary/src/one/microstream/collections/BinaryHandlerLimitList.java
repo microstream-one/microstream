@@ -78,7 +78,7 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<LimitList<?>>
 	}
 
 	@Override
-	public final LimitList<?> create(final Binary bytes)
+	public final LimitList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new LimitList<>(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 	}

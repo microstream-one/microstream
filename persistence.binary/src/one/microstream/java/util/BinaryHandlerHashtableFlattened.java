@@ -97,7 +97,7 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	
 
 	@Override
-	public final Hashtable<?, ?> create(final Binary bytes)
+	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new Hashtable<>(
 			getElementCount(bytes) / 2,

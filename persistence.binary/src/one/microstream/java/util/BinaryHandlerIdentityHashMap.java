@@ -79,7 +79,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	}
 	
 	@Override
-	public final IdentityHashMap<?, ?> create(final Binary bytes)
+	public final IdentityHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new IdentityHashMap<>(
 			getElementCount(bytes)
