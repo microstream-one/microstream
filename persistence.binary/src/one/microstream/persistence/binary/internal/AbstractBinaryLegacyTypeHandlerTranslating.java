@@ -23,20 +23,20 @@ extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
 	///////////////////
 	
 	public static BinaryValueSetter[] toTranslators(
-		final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets
+		final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets
 	)
 	{
-		final BinaryValueSetter[] translators = translatorsWithTargetOffsets.keys()
+		final BinaryValueSetter[] translators = translatorsWithTargetOffsets.values()
 			.toArray(BinaryValueSetter.class)
 		;
 		return translators;
 	}
 	
 	public static long[] toTargetOffsets(
-		final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets
+		final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets
 	)
 	{
-		final long[] targetOffsets = X.unbox(translatorsWithTargetOffsets.values()
+		final long[] targetOffsets = X.unbox(translatorsWithTargetOffsets.keys()
 			.toArray(Long.class))
 		;
 		return targetOffsets;

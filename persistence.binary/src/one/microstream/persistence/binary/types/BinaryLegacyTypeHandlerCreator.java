@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 
+import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
@@ -101,7 +102,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			return memberOffsets;
 		}
 		
-		private XGettingTable<BinaryValueSetter, Long> deriveValueTranslators(
+		private XGettingTable<Long, BinaryValueSetter> deriveValueTranslators(
 			final PersistenceTypeDefinition                                                     legacyTypeDefinition ,
 			final PersistenceTypeHandler<Binary, ?>                                             currentTypeHandler   ,
 			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToTargetMembers,
@@ -109,7 +110,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			final boolean                                                                       resolveReferences
 		)
 		{
-			final HashTable<BinaryValueSetter, Long> translatorsWithTargetOffsets = HashTable.New();
+			final EqHashTable<Long, BinaryValueSetter> translatorsWithTargetOffsets = EqHashTable.New();
 			
 			final BinaryValueTranslatorProvider creator = this.valueTranslatorProvider;
 
@@ -123,7 +124,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 					: creator.provideBinaryValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
 				;
 				final Long targetOffset = targetMemberOffsets.get(currentMember);
-				translatorsWithTargetOffsets.add(translator, targetOffset);
+				translatorsWithTargetOffsets.add(targetOffset, translator);
 			}
 			
 			return translatorsWithTargetOffsets;
@@ -148,7 +149,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				mappingResult.currentTypeHandler().members()
 			);
 			
-			final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets = this.deriveValueTranslators(
+			final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets = this.deriveValueTranslators(
 				mappingResult.legacyTypeDefinition()  ,
 				mappingResult.currentTypeHandler()    ,
 				mappingResult.legacyToCurrentMembers(),
@@ -175,7 +176,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				typeHandler.members()
 			);
 			
-			final XGettingTable<BinaryValueSetter, Long> translatorsWithTargetOffsets = this.deriveValueTranslators(
+			final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets = this.deriveValueTranslators(
 				mappingResult.legacyTypeDefinition()  ,
 				mappingResult.currentTypeHandler()    ,
 				mappingResult.legacyToCurrentMembers(),
