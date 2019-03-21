@@ -68,14 +68,13 @@ public final class XMemory
 		OFFSET_HashSet_map           = internalGetFieldOffset(HashSet.class      , "map"        ),
 		OFFSET_HashMap_loadFactor    = internalGetFieldOffset(HashMap.class      , "loadFactor" ),
 		
-		// (18.03.2019 TM)FIXME: MS-76: review and clean up XMemory#OFFSET-s
 		OFFSET_ArrayDeque_elements       = internalGetFieldOffset(ArrayDeque.class   , "elements"         ),
 		OFFSET_ArrayDeque_head           = internalGetFieldOffset(ArrayDeque.class   , "head"             ),
 		OFFSET_ArrayDeque_tail           = internalGetFieldOffset(ArrayDeque.class   , "tail"             ),
 		OFFSET_Hashtable_loadFactor      = internalGetFieldOffset(Hashtable.class    , "loadFactor"       ),
 		OFFSET_LinkedHashMap_loadFactor  = internalGetFieldOffset(LinkedHashMap.class, "loadFactor"       ),
 		OFFSET_LinkedHashMap_accessOrder = internalGetFieldOffset(LinkedHashMap.class, "accessOrder"      ),
-		// (18.03.2019 TM)NOTE: ToDO
+		// (18.03.2019 TM)FIXME: MS-76: review and clean up XMemory#OFFSET-s
 //		OFFSET_PriorityQueue_queue       = internalGetFieldOffset(PriorityQueue.class, "queue"            ),
 //		OFFSET_PriorityQueue_size        = internalGetFieldOffset(PriorityQueue.class, "size"             ),
 		OFFSET_TreeSet_backingMap        = internalGetFieldOffset(TreeSet.class      , "m"                ),
