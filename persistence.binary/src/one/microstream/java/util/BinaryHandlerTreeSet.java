@@ -5,7 +5,6 @@ import java.util.TreeSet;
 
 import one.microstream.X;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
@@ -35,11 +34,6 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	private static Class<TreeSet<?>> typeWorkaround()
 	{
 		return (Class)TreeSet.class; // no idea how to get ".class" to work otherwise
-	}
-	
-	private static <E> Comparator<? super E> getComparator(final TreeSet<E> instance)
-	{
-		return XMemory.accessComparator(instance);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -99,7 +93,7 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 		
 		bytes.store_long(
 			contentAddress + BINARY_OFFSET_COMPARATOR,
-			handler.apply(getComparator(instance))
+			handler.apply(instance.comparator())
 		);
 	}
 	
@@ -134,7 +128,7 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	@Override
 	public final void iterateInstanceReferences(final TreeSet<?> instance, final PersistenceFunction iterator)
 	{
-		iterator.apply(getComparator(instance));
+		iterator.apply(instance.comparator());
 		Persistence.iterateReferencesIterable(iterator, instance);
 	}
 
