@@ -22,8 +22,8 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_HASH_DENSITY =           0;
-	static final long BINARY_OFFSET_ELEMENTS     = Float.BYTES; // one float offset to sized array
+	static final long BINARY_OFFSET_HASH_DENSITY =                                        0;
+	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES; // one float offset to sized array
 
 
 
