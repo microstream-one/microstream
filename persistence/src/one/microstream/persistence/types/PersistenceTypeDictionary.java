@@ -283,12 +283,14 @@ public interface PersistenceTypeDictionary
 		final <T> boolean synchRegisterType(final PersistenceTypeDefinition typeDefinition)
 		{
 			final PersistenceTypeLineage lineage = this.ensureTypeLineage(typeDefinition);
-						
-			if(!lineage.registerTypeDefinition(typeDefinition))
-			{
-				// type definition already contained, abort.
-				return false;
-			}
+				
+			// may not abort here in order to consistently use TypeHandlers over dictionary-loaded definitions
+			final boolean hasChanged = lineage.registerTypeDefinition(typeDefinition);
+//			if(!lineage.registerTypeDefinition(typeDefinition))
+//			{
+//				// type definition already contained, abort.
+//				return false;
+//			}
 			
 			// definitions can be replaced by another instance (e.g. a plain instance by a handler instance)
 			this.allTypesPerTypeId.put(typeDefinition.typeId(), typeDefinition);
@@ -299,7 +301,9 @@ public interface PersistenceTypeDictionary
 				this.registrationObserver.observeTypeDefinitionRegistration(typeDefinition);
 			}
 			
-			return true;
+			// the proper state feedback is important for avoiding redundant updats to the dictionary persistent form.
+			return hasChanged;
+//			return true;
 		}
 		
 		private void synchSortTypeLineages()
