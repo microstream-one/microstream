@@ -220,15 +220,8 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 			this.hasReferences   = hasReferences  ;
 			this.isPrimitive     = isPrimitive    ;
 			this.variableLength  = variableLength ;
-			
-			long membersLengthMinimum = 0, membersLengthMaximum = 0;
-			for(final PersistenceTypeDescriptionMember member : this.members)
-			{
-				membersLengthMinimum += member.persistentMinimumLength();
-				membersLengthMaximum += member.persistentMaximumLength();
-			}
-			this.membersLengthMinimum = membersLengthMinimum;
-			this.membersLengthMaximum = membersLengthMaximum;
+			this.membersLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, members);
+			this.membersLengthMaximum = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, members);
 		}
 
 		

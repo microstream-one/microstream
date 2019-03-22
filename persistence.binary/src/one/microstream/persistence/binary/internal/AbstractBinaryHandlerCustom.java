@@ -112,26 +112,10 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	{
 		super(type);
 		this.members = validateAndImmure(members);
-		
-		long binaryLengthMinimum = 0, binaryLengthMaximum = 0;
-		for(final PersistenceTypeDescriptionMember member : this.members)
-		{
-			binaryLengthMinimum = addCapped(binaryLengthMinimum, member.persistentMinimumLength());
-			binaryLengthMaximum = addCapped(binaryLengthMaximum, member.persistentMaximumLength());
-		}
-		this.binaryLengthMinimum = binaryLengthMinimum;
-		this.binaryLengthMaximum = binaryLengthMaximum;
+		this.binaryLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, members);
+		this.binaryLengthMaximum = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, members);
 	}
 	
-	private static long addCapped(final long l1, final long l2)
-	{
-		// does not account for negative values
-		return Long.MAX_VALUE - l1 < l2
-			? Long.MAX_VALUE
-			: l1 + l2
-		;
-	}
-
 	
 
 	///////////////////////////////////////////////////////////////////////////
