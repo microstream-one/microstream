@@ -141,7 +141,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				// (14.09.2018 TM)TODO: Legacy Type Mapping: support VaryingPersistedLengthInstances
 				throw new UnsupportedOperationException(
 					"Types with varying persisted length are not supported, yet by generic mapping."
-					+ " Use a custom handler."
+					+ " Use a custom handler for type" + typeHandler.toRuntimeTypeIdentifier()
 				);
 			}
 			
