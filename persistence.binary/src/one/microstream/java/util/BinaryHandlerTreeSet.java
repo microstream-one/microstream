@@ -22,8 +22,8 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_COMPARATOR =                           0;
-	static final long BINARY_OFFSET_ELEMENTS   = Binary.objectIdByteLength();
+	static final long BINARY_OFFSET_COMPARATOR =                                                      0;
+	static final long BINARY_OFFSET_ELEMENTS   = BINARY_OFFSET_COMPARATOR + Binary.objectIdByteLength();
 
 
 

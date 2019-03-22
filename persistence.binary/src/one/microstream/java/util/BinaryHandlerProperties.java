@@ -22,8 +22,9 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_DEFAULTS =                           0;
-	static final long BINARY_OFFSET_ELEMENTS = Binary.objectIdByteLength();
+	// no load factor because the Properties class does not allow to specify one. It is always the Hashtable default.
+	static final long BINARY_OFFSET_DEFAULTS =                                                    0;
+	static final long BINARY_OFFSET_ELEMENTS = BINARY_OFFSET_DEFAULTS + Binary.objectIdByteLength();
 
 	
 
