@@ -6,7 +6,6 @@ import one.microstream.persistence.binary.types.BinaryReferenceTraverser;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 
 public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 {
@@ -35,45 +34,8 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 	public final class Implementation implements StorageEntityTypeHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// static methods    //
-		/////////////////////
-
-		static long calculateMinimumEntityLength(final PersistenceTypeDefinition typeDescription)
-		{
-			long minimumEntityLength = Binary.entityHeaderLength();
-
-			for(final PersistenceTypeDescriptionMember e : typeDescription.members())
-			{
-				// minimum length is assumed to never be max long
-				minimumEntityLength += e.persistentMinimumLength();
-			}
-
-			return minimumEntityLength;
-		}
-
-		static long calculateMaximumEntityLength(final PersistenceTypeDefinition typeDescription)
-		{
-			long maximumEntityLength = Binary.entityHeaderLength();
-
-			// checks for overflow due to max long (="unlimited") member max length, returns max long in such cases.
-			for(final PersistenceTypeDescriptionMember e : typeDescription.members())
-			{
-				final long maxMemberLength = e.persistentMaximumLength();
-				if(Long.MAX_VALUE - maximumEntityLength < maxMemberLength)
-				{
-					return Long.MAX_VALUE;
-				}
-				maximumEntityLength += maxMemberLength;
-			}
-
-			return maximumEntityLength;
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final PersistenceTypeDefinition  typeDefinition      ;
 		private final BinaryReferenceTraverser[] referenceTraversers ;
@@ -89,8 +51,8 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final PersistenceTypeDefinition typeDefinition ,
@@ -109,8 +71,8 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			this.simpleReferenceCount = BinaryReferenceTraverser.Static.calculateSimpleReferenceCount(referenceTraversers);
 			this.simpleReferenceRange = this.simpleReferenceCount * Binary.objectIdByteLength();
 			this.referenceTraversers  = BinaryReferenceTraverser.Static.cropToReferences(referenceTraversers);
-			this.minimumEntityLength  = calculateMinimumEntityLength(typeDefinition);
-			this.maximumEntityLength  = calculateMaximumEntityLength(typeDefinition);
+			this.minimumEntityLength  = typeDefinition.membersPersistedLengthMinimum();
+			this.maximumEntityLength  = typeDefinition.membersPersistedLengthMaximum();
 			this.hasVariableLength    = this.minimumEntityLength != this.maximumEntityLength;
 			this.switchByteOrder      = switchByteOrder;
 		}
