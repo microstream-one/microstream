@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.equality.Equalator;
 import one.microstream.hashing.HashEqualator;
+import one.microstream.math.XMath;
 
 
 public interface PersistenceTypeDescriptionMember
@@ -66,6 +67,37 @@ public interface PersistenceTypeDescriptionMember
 	{
 		return m1 == m2 || m1 != null && m2 != null && m1.equalsDescription(m2);
 	}
+	
+	
+	
+	public static long calculatePersistentMinimumLength(
+		final long                                                 startValue,
+		final Iterable<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		long length = startValue;
+		for(final PersistenceTypeDescriptionMember member : members)
+		{
+			length = XMath.addCapped(length, member.persistentMinimumLength());
+		}
+		
+		return length;
+	}
+	
+	public static long calculatePersistentMaximumLength(
+		final long                                                 startValue,
+		final Iterable<? extends PersistenceTypeDescriptionMember> members
+	)
+	{
+		long length = startValue;
+		for(final PersistenceTypeDescriptionMember member : members)
+		{
+			length = XMath.addCapped(length, member.persistentMaximumLength());
+		}
+		
+		return length;
+	}
+	
 
 	public void assembleTypeDescription(PersistenceTypeDescriptionMember.Appender assembler);
 

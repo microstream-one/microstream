@@ -1,6 +1,7 @@
 package one.microstream.storage.types;
 
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.math.XMath;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryReferenceTraverser;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
@@ -60,7 +61,6 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		)
 		{
 			super();
-
 			final BinaryReferenceTraverser[] referenceTraversers =
 				BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefinition.members(), switchByteOrder)
 			;
@@ -71,8 +71,8 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			this.simpleReferenceCount = BinaryReferenceTraverser.Static.calculateSimpleReferenceCount(referenceTraversers);
 			this.simpleReferenceRange = this.simpleReferenceCount * Binary.objectIdByteLength();
 			this.referenceTraversers  = BinaryReferenceTraverser.Static.cropToReferences(referenceTraversers);
-			this.minimumEntityLength  = typeDefinition.membersPersistedLengthMinimum();
-			this.maximumEntityLength  = typeDefinition.membersPersistedLengthMaximum();
+			this.minimumEntityLength  = XMath.addCapped(Binary.entityHeaderLength(), typeDefinition.membersPersistedLengthMinimum());
+			this.maximumEntityLength  = XMath.addCapped(Binary.entityHeaderLength(), typeDefinition.membersPersistedLengthMaximum());
 			this.hasVariableLength    = this.minimumEntityLength != this.maximumEntityLength;
 			this.switchByteOrder      = switchByteOrder;
 		}
@@ -197,12 +197,20 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			if(length < this.minimumEntityLength)
 			{
 				// (07.05.2014)EXCP: proper exception
-				throw new RuntimeException("Invalid entity length: " + length + " < " + this.minimumEntityLength);
+				throw new RuntimeException(
+					"Invalid entity length for objectId " + objectId
+					+ " of type " + this.toRuntimeTypeIdentifier()
+					+ " : " + length + " < " + this.minimumEntityLength
+				);
 			}
 			if(length > this.maximumEntityLength)
 			{
 				// (07.05.2014)EXCP: proper exception
-				throw new RuntimeException("Invalid entity length: " + length + " > " + this.maximumEntityLength);
+				throw new RuntimeException(
+					"Invalid entity length for objectId " + objectId
+					+ " of type " + this.toRuntimeTypeIdentifier()
+					+ " : " + length + " > " + this.maximumEntityLength
+				);
 			}
 
 			// type id does not need to be validated here as the handler always got looked up via it beforehand.

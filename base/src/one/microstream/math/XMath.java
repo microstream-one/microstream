@@ -1478,6 +1478,15 @@ public final class XMath
 
 		return false;
 	}
+	
+	public static long addCapped(final long l1, final long l2)
+	{
+		// does not account for negative values
+		return Long.MAX_VALUE - l1 < l2
+			? Long.MAX_VALUE
+			: l1 + l2
+		;
+	}
 
 
 	
