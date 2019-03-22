@@ -8,14 +8,12 @@ import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
-import java.util.NavigableMap;
+import java.util.PriorityQueue;
 import java.util.Properties;
-import java.util.TreeSet;
 import java.util.Vector;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
@@ -74,15 +72,14 @@ public final class XMemory
 		OFFSET_Hashtable_loadFactor      = internalGetFieldOffset(Hashtable.class    , "loadFactor"       ),
 		OFFSET_LinkedHashMap_loadFactor  = internalGetFieldOffset(LinkedHashMap.class, "loadFactor"       ),
 		OFFSET_LinkedHashMap_accessOrder = internalGetFieldOffset(LinkedHashMap.class, "accessOrder"      ),
-		// (18.03.2019 TM)FIXME: MS-76: review and clean up XMemory#OFFSET-s
-//		OFFSET_PriorityQueue_queue       = internalGetFieldOffset(PriorityQueue.class, "queue"            ),
-//		OFFSET_PriorityQueue_size        = internalGetFieldOffset(PriorityQueue.class, "size"             ),
-		OFFSET_TreeSet_backingMap        = internalGetFieldOffset(TreeSet.class      , "m"                ),
+		OFFSET_PriorityQueue_queue       = internalGetFieldOffset(PriorityQueue.class, "queue"            ),
+		OFFSET_PriorityQueue_size        = internalGetFieldOffset(PriorityQueue.class, "size"             ),
 		OFFSET_Vector_elementData        = internalGetFieldOffset(Vector.class       , "elementData"      ),
 		OFFSET_Vector_elementCount       = internalGetFieldOffset(Vector.class       , "elementCount"     ),
 		OFFSET_Vector_capacityIncrement  = internalGetFieldOffset(Vector.class       , "capacityIncrement"),
 		OFFSET_Properties_Defaults       = internalGetFieldOffset(Properties.class   , "defaults"         )
-//
+
+		// (18.03.2019 TM)FIXME: MS-76: review and clean up XMemory#OFFSET-s
 //		OFFSET_ConcurrentSkipListMap_comparator = internalGetFieldOffset(ConcurrentSkipListMap.class, "comparator")
 
 	;
@@ -441,17 +438,6 @@ public final class XMemory
 		// must check not null here explictely to prevent VM crashes
 		return (Object[])VM.getObject(notNull(vector), OFFSET_Vector_elementData);
 	}
-
-	@SuppressWarnings("unchecked")
-	public static <E> Comparator<? super E> accessComparator(final TreeSet<E> treeSet)
-	{
-		// must check not null here explictely to prevent VM crashes
-		final NavigableMap<E, Object> backingMap =
-			(NavigableMap<E, Object>)VM.getObject(notNull(treeSet), OFFSET_TreeSet_backingMap)
-		;
-		
-		return backingMap.comparator();
-	}
 	
 	public static int getElementCount(final Vector<?> vector)
 	{
@@ -487,6 +473,18 @@ public final class XMemory
 	{
 		// must check not null here explictely to prevent VM crashes
 		VM.putObject(notNull(properties), OFFSET_Properties_Defaults, defaults);
+	}
+
+	public static Object[] accessArray(final PriorityQueue<?> priorityQueue)
+	{
+		// must check not null here explictely to prevent VM crashes
+		return (Object[])VM.getObject(notNull(priorityQueue), OFFSET_PriorityQueue_queue);
+	}
+
+	public static void setSize(final PriorityQueue<?> priorityQueue, final int size)
+	{
+		// must check not null here explictely to prevent VM crashes
+		VM.putInt(notNull(priorityQueue), OFFSET_PriorityQueue_size, size);
 	}
 
 

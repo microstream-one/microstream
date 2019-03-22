@@ -55,6 +55,7 @@ import one.microstream.java.util.BinaryHandlerIdentityHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashSet;
 import one.microstream.java.util.BinaryHandlerLinkedList;
+import one.microstream.java.util.BinaryHandlerPriorityQueue;
 import one.microstream.java.util.BinaryHandlerProperties;
 import one.microstream.java.util.BinaryHandlerStack;
 import one.microstream.java.util.BinaryHandlerTreeMap;
@@ -181,7 +182,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerLinkedHashSet()        ,
 			
 			// still creepy JDK 1.5 collections
-//			new BinaryHandlerPriorityQueue()        ,
+			new BinaryHandlerPriorityQueue()        ,
 //			new BinaryHandlerConcurrentHashMap()    ,
 //			new BinaryHandlerConcurrentLinkedQueue(),
 			
