@@ -22,8 +22,8 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =           0; // 1 float at offset 0
-	static final long BINARY_OFFSET_ELEMENTS    = Float.BYTES; // sized array at offset 0 + float size
+	static final long BINARY_OFFSET_LOAD_FACTOR =                                       0;
+	static final long BINARY_OFFSET_ELEMENTS    = BINARY_OFFSET_LOAD_FACTOR + Float.BYTES;
 
 
 

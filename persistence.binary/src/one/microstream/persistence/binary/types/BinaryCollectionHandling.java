@@ -41,7 +41,7 @@ public final class BinaryCollectionHandling
 		return AbstractBinaryHandlerCustom.pseudoFields(
 			XArrays.add(
 				preHeaderFields,
-				AbstractBinaryHandlerCustom.complex("entries",
+				AbstractBinaryHandlerCustom.complex("elements",
 					AbstractBinaryHandlerCustom.pseudoField(Object.class, "key"),
 					AbstractBinaryHandlerCustom.pseudoField(Object.class, "value")
 				)

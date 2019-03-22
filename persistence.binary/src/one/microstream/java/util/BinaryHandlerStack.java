@@ -20,8 +20,8 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollect
 	// constants        //
 	/////////////////////
 
-	static final long BINARY_OFFSET_CAPACITY_INCREMENT =             0;
-	static final long BINARY_OFFSET_SIZED_ARRAY        = Integer.BYTES;
+	static final long BINARY_OFFSET_CAPACITY_INCREMENT =                                                0;
+	static final long BINARY_OFFSET_SIZED_ARRAY        = BINARY_OFFSET_CAPACITY_INCREMENT + Integer.BYTES;
 
 	
 
