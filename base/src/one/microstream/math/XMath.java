@@ -186,6 +186,8 @@ public final class XMath
 
 	public static final int pow2Bound(final int n)
 	{
+		// (23.03.2019 TM)TODO: compare to ConcurrentHashMap#tableSizeFor
+		
 		if(n > MAX_POW_2_INT)
 		{
 			throw new IllegalArgumentException();
