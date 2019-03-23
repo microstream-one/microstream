@@ -231,5 +231,18 @@ Erste Klasse: ConcurrentHashDreck. \'c4h, Map.\par
 Klasse durchschauen, ob die \'fcberhaupt irgendeinen persistenten State \'fcber HashMap hinaus hat. Sonst kopier ich einfach den Handler daf\'fcr und feddich.\par
 Katastrophale Implementierung. Ich bin mir nicht sicher, was das soll. Bissl compareAndSwap verwenden kann man auch, ohne dass man endlos hingekotzten Spaghettibrei \'fcber 70 Einr\'fcckungsebenen baut.\par
 OMG. Da steigt niemand durch. Also einfach nach Konstruktor Paramtern und Gettern suchen.\par
+\par
+Also ich denk, das beste ist folgendes:\par
+- Zum Speichern die Array Capacity \'fcber einen XMemory Accessor abfragen und mit abspeichern.\par
+- Zum Laden als initialCapacity die Capacity mitgeben. Der LoadFactor in den Konstruktoren ist eh nur fake, es l\'e4uft letztendlich immer auf eine (initial) Capacity hinaus.\par
+- Ansonsten einfach nur als key-value elements speichern.\par
+\par
+Hm, ne, Moment: nicht mal der initialCapacity Konstruktor macht das, was er soll, sondern der berechnet nochmal mehr capacity.\par
+D.h. wenn man dem eine bestimmte valide capacity gibt, macht er eine gr\'f6\'dfere draus.\par
+Dann kann der Dreckspfuscher mich jetzt gern haben. Hei\'dft: \'dcberhaupt keine Metadaten speichern, einfach nur die Elements. Als initialCapacity nehm ich den ElementCount.\par
+Wer was spezielleres haben will, soll es sich selber schreiben.\par
+Immer dieser JDK Drecksscheisspfusch.\par
+\par
+\par
 }
  

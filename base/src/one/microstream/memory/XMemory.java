@@ -486,7 +486,7 @@ public final class XMemory
 		// must check not null here explictely to prevent VM crashes
 		VM.putInt(notNull(priorityQueue), OFFSET_PriorityQueue_size, size);
 	}
-
+	
 
 	
 	public static final int bitSize_byte()
