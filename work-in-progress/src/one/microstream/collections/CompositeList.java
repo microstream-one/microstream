@@ -57,8 +57,8 @@ public final class CompositeList<E> implements XGettingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	CompositeList(final XGettingList<E>[] lists, final int offset, final int length)
 	{

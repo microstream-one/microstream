@@ -13,8 +13,8 @@ extends PersistenceExceptionTypeHandlerConsistency
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
 		final long typeId

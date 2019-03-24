@@ -24,8 +24,8 @@ public final class BinaryHandlerEqHashTable
 extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long
 		BINARY_OFFSET_EQUALATOR    =                                                   0,
@@ -68,8 +68,8 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerEqHashTable()
 	{

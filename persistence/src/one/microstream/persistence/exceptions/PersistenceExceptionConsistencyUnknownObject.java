@@ -15,8 +15,8 @@ public class PersistenceExceptionConsistencyUnknownObject extends PersistenceExc
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionConsistencyUnknownObject(final Object object)
 	{

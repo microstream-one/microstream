@@ -36,8 +36,8 @@ public class LockedAspectWrapper<T> extends AspectWrapper<T>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected LockedAspectWrapper(final T subject)
 	{

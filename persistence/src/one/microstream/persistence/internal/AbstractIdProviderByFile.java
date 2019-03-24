@@ -31,8 +31,8 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractIdProviderByFile(final File file, final long increase, final long id)
 	{

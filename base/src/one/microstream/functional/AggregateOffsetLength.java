@@ -15,8 +15,8 @@ public final class AggregateOffsetLength<E, R> implements Aggregator<E, R>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AggregateOffsetLength(final long offset, final long length, final Aggregator<? super E, R> aggregate)
 	{

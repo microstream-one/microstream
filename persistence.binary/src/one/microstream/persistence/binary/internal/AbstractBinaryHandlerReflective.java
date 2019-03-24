@@ -155,8 +155,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractBinaryHandlerReflective(
 		final Class<T>                              type                      ,

@@ -41,8 +41,8 @@ public final class SynchList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	/**
 	 * Creates a new {@link SynchList} that wraps the passed {@link XList} instance.

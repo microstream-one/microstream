@@ -9,8 +9,8 @@ import java.util.TimeZone;
 public final class XTime
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	private static final int
 		MIN_MONTH        =   1,

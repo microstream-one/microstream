@@ -18,8 +18,8 @@ public class PersistenceExceptionTypeHandlerConsistencyConflictedType extends Pe
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeHandlerConsistencyConflictedType(
 		final Class<?>                    type             ,

@@ -13,8 +13,8 @@ import one.microstream.memory.XMemory;
 public final class MemoryCharConversionIntegersUTF8
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 

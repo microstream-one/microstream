@@ -12,8 +12,8 @@ import sun.nio.ch.DirectBuffer;
 public class ChunksWrapper extends Binary
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static ChunksWrapper New(final ByteBuffer... chunkDirectBuffers)
 	{
@@ -32,8 +32,8 @@ public class ChunksWrapper extends Binary
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	// internal constructor. Does not validate arguments!
 	protected ChunksWrapper(final ByteBuffer[] chunks)

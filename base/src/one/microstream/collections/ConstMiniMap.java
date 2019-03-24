@@ -28,8 +28,8 @@ public final class ConstMiniMap<K, V> implements IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	@SuppressWarnings("unchecked")
 	ConstMiniMap(final int size, final MiniMap.Entry<K, V>[] source)

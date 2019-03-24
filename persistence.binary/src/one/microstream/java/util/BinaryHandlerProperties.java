@@ -19,8 +19,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCollection<Properties>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// no load factor because the Properties class does not allow to specify one. It is always the Hashtable default.
 	static final long BINARY_OFFSET_DEFAULTS =                                                    0;
@@ -29,8 +29,8 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static Class<Properties> typeWorkaround()
 	{
@@ -45,8 +45,8 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerProperties()
 	{

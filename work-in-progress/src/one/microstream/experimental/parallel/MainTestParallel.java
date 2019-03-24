@@ -71,8 +71,8 @@ abstract class BoardThread extends Thread
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BoardThread(final boolean[] board, final int threadBoardIndex)
 	{

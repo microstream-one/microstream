@@ -32,8 +32,8 @@ import sun.nio.ch.DirectBuffer;
 public final class XMemory
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final Unsafe VM = (Unsafe)getSystemInstance();
 

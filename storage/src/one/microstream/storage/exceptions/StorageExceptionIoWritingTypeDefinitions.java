@@ -3,8 +3,8 @@ package one.microstream.storage.exceptions;
 public class StorageExceptionIoWritingTypeDefinitions extends StorageExceptionIoWriting
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionIoWritingTypeDefinitions()
 	{

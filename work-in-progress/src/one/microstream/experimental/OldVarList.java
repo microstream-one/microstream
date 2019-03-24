@@ -14,8 +14,8 @@ public final class OldVarList<E>
 	// (15.12.2011)NOTE: this implementation could easily be changed/copied to work with long capacity
 
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int MIN_SEGMENT_SIZE = 8; // values below make arrayCopy inefficent and high memory overhead
 	private static final int DEFAULT_SEG_SIZE = 8; // experiments showed good results for this in most situations
@@ -216,8 +216,8 @@ public final class OldVarList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public OldVarList()
 	{

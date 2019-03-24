@@ -14,8 +14,8 @@ import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 public class DebugGraphPrinter implements PersistenceFunction
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int MAX_LITERAL_LENGTH_LONG = 19;
 

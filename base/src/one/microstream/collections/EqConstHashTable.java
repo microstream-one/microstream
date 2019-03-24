@@ -315,8 +315,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	private EqConstHashTable(final EqConstHashTable<K, V> original)
 	{

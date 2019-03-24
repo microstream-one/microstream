@@ -24,8 +24,8 @@ import one.microstream.typing.XTypes;
 public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static void validateIndex(final long index)
 	{
@@ -54,8 +54,8 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public Single()
 	{

@@ -19,16 +19,16 @@ public final class BinaryHandlerConstList
 extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final long BINARY_OFFSET_LIST = 0; // binary form is 100% just a simple list, so offset 0
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private static Class<ConstList<?>> typeWorkaround()
@@ -40,8 +40,8 @@ extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerConstList()
 	{

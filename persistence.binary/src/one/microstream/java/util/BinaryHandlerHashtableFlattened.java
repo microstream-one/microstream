@@ -19,8 +19,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandlerCustomCollection<Hashtable<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_LOAD_FACTOR =                                       0;
 	static final long BINARY_OFFSET_ELEMENTS    = BINARY_OFFSET_LOAD_FACTOR + Float.BYTES;
@@ -28,8 +28,8 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<Hashtable<?, ?>> typeWorkaround()
@@ -50,8 +50,8 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerHashtableFlattened()
 	{

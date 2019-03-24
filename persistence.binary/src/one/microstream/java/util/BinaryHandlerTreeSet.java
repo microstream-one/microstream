@@ -18,8 +18,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomCollection<TreeSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_COMPARATOR =                                                      0;
 	static final long BINARY_OFFSET_ELEMENTS   = BINARY_OFFSET_COMPARATOR + Binary.objectIdByteLength();
@@ -27,8 +27,8 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<TreeSet<?>> typeWorkaround()
@@ -53,8 +53,8 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerTreeSet()
 	{

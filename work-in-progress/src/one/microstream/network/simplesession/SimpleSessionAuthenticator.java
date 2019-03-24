@@ -20,8 +20,8 @@ public class SimpleSessionAuthenticator<U extends SimpleSessionUser> implements 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public SimpleSessionAuthenticator(final SimpleSessionUser.Creator<U> userCreator)
 	{

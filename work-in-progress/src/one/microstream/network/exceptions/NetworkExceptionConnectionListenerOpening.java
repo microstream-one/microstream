@@ -13,8 +13,8 @@ public class NetworkExceptionConnectionListenerOpening extends NetworkExceptionC
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public NetworkExceptionConnectionListenerOpening(final ServerSocketChannel connectionSocket)
 	{

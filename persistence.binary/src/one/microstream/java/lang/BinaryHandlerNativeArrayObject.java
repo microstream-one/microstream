@@ -14,8 +14,8 @@ import one.microstream.reflect.XReflect;
 public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends AbstractBinaryHandlerNativeArray<A>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	static final long BINARY_OFFSET_ELEMENTS = 0L;
 	
@@ -31,8 +31,8 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerNativeArrayObject(final Class<A> arrayType)
 	{

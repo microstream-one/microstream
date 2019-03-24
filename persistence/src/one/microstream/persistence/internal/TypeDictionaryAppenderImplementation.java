@@ -18,8 +18,8 @@ extends PersistenceTypeDictionary.Symbols
 implements PersistenceTypeDescriptionMember.Appender
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// equal-length predefined char sequences
 //	private static final char[] static_final_  = (KEYWORD_STATIC+' '+KEYWORD_FINAL+' ').toCharArray();
@@ -44,8 +44,8 @@ implements PersistenceTypeDescriptionMember.Appender
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public TypeDictionaryAppenderImplementation(
 		final VarString vc,

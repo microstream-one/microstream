@@ -19,8 +19,8 @@ public final class BinaryHandlerBulkList
 extends AbstractBinaryHandlerCustomCollectionSizedArray<BulkList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_SIZED_ARRAY = 0; // binary form is 100% just a sized array, so offset 0
 
@@ -40,8 +40,8 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<BulkList<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerBulkList(final PersistenceSizedArrayLengthController controller)
 	{

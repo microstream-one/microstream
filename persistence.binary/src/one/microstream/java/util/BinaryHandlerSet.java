@@ -1,10 +1,9 @@
 package one.microstream.java.util;
 
-import java.util.HashSet;
+import java.util.Set;
 
 import one.microstream.X;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
@@ -15,14 +14,13 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomCollection<HashSet<?>>
+public class BinaryHandlerSet<T extends Set<?>> extends AbstractBinaryHandlerCustomCollection<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =                                       0;
-	static final long BINARY_OFFSET_ELEMENTS    = BINARY_OFFSET_LOAD_FACTOR + Float.BYTES;
+	static final long BINARY_OFFSET_ELEMENTS = 0;
 
 
 
@@ -30,21 +28,18 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	// static methods //
 	///////////////////
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<HashSet<?>> typeWorkaround()
+	static final long getElementCount(final Binary bytes)
 	{
-		return (Class)HashSet.class; // no idea how to get ".class" to work otherwise
+		return bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS);
 	}
-
-	static final float getLoadFactor(final Binary bytes)
-	{
-		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
-	}
-
-	static final int getElementCount(final Binary bytes)
-	{
-		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
-	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+	
+	public Instantiator<T> instantiator;
 
 
 
@@ -52,14 +47,13 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashSet()
+	public BinaryHandlerSet(final Class<T> type, final Instantiator<T> instantiator)
 	{
 		super(
-			typeWorkaround(),
-			BinaryCollectionHandling.simpleArrayPseudoFields(
-				pseudoField(float.class, "loadFactor")
-			)
+			type,
+			BinaryCollectionHandling.simpleArrayPseudoFields()
 		);
+		this.instantiator = instantiator;
 	}
 
 
@@ -69,15 +63,25 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	////////////
 
 	@Override
-	public final void store(
+	public void store(
 		final Binary                  bytes   ,
-		final HashSet<?>              instance,
+		final T                       instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
+	{
+		this.internalStore(bytes, instance, objectId, handler);
+	}
+	
+	protected long internalStore(
+		final Binary                  bytes   ,
+		final T                       instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedIterableAsList(
+		return bytes.storeSizedIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -85,48 +89,46 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 			instance.size()       ,
 			handler
 		);
-
-		// store load factor as (sole) header value
-		bytes.store_float(
-			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
-			XMemory.getLoadFactor(instance)
-		);
 	}
 
 	@Override
-	public final HashSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public T create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return new HashSet<>(
-			getElementCount(bytes),
-			getLoadFactor(bytes)
-		);
+		return this.instantiator.instantiateSet(getElementCount(bytes));
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler handler)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
-		final Object[] elementsHelper = new Object[getElementCount(bytes)];
+		final Object[] elementsHelper = new Object[X.checkArrayRange(getElementCount(bytes))];
 		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
 		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public void complete(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final T instance, final PersistenceLoadHandler loadHandler)
 	{
 		OldCollections.populateSetFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final HashSet<?> instance, final PersistenceFunction iterator)
+	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
 		Persistence.iterateReferencesIterable(iterator, instance);
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+	}
+	
+	
+	
+	public interface Instantiator<T extends Set<?>>
+	{
+		public T instantiateSet(long elementCount);
 	}
 
 }

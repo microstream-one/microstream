@@ -11,8 +11,8 @@ public class PersistenceExceptionTypeNotTypeIdMappable extends PersistenceExcept
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeNotTypeIdMappable(
 		final Class<?> type

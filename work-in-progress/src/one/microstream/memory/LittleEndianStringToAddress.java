@@ -5,8 +5,8 @@ import one.microstream.memory.XMemory;
 public final class LittleEndianStringToAddress
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int BIT_SHIFT_MULTIPLY_BY_2  =    1;
 	private static final int ASCII_OFFSET_DIGITS      = 0x30; // see ASCII table for digit '0'

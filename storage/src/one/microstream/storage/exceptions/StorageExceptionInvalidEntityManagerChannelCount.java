@@ -4,8 +4,8 @@ package one.microstream.storage.exceptions;
 public class StorageExceptionInvalidEntityManagerChannelCount extends StorageException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionInvalidEntityManagerChannelCount()
 	{

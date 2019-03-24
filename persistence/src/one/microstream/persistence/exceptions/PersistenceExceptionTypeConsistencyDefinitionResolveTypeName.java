@@ -25,8 +25,8 @@ extends PersistenceExceptionTypeConsistencyDictionary
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(final String typeName)
 	{

@@ -34,8 +34,8 @@ public class GenericListIterator<E> implements ListIterator<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public GenericListIterator(final XList<E> list) throws IndexBoundsException
 	{

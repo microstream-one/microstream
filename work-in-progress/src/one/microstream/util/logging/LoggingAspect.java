@@ -16,8 +16,8 @@ public class LoggingAspect<T> extends AspectWrapper<T>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public LoggingAspect(final InvocationLogger logger, final T subject)
 	{

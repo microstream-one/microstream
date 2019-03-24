@@ -23,8 +23,8 @@ public final class BinaryHandlerConstHashTable
 extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long
 		BINARY_OFFSET_KEYS         = 0                                                       ,

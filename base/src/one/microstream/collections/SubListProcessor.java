@@ -24,8 +24,8 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public SubListProcessor(final XProcessingList<E> list, final long fromIndex, final long toIndex)
 	{

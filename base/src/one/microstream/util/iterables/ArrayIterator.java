@@ -20,8 +20,8 @@ public final class ArrayIterator<E> implements Iterator<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ArrayIterator(final E[] array)
 	{

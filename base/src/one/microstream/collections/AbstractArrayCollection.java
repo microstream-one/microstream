@@ -12,8 +12,8 @@ import one.microstream.math.XMath;
 public abstract class AbstractArrayCollection<E> extends AbstractExtendedCollection<E> implements Sized
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// internal marker object for marking to be removed slots for batch removal and null ambiguity resolution
 	private static final transient Object MARKER = new Object();
@@ -21,8 +21,8 @@ public abstract class AbstractArrayCollection<E> extends AbstractExtendedCollect
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings("unchecked")
 	protected static final <E> E marker()

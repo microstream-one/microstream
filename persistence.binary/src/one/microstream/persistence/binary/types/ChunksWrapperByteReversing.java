@@ -8,8 +8,8 @@ import one.microstream.memory.XMemory;
 public final class ChunksWrapperByteReversing extends ChunksWrapper
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final ChunksWrapperByteReversing New(final ByteBuffer... chunkDirectBuffers)
 	{
@@ -19,8 +19,8 @@ public final class ChunksWrapperByteReversing extends ChunksWrapper
 
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	// private constructor. Does not validate arguments!
 	private ChunksWrapperByteReversing(final ByteBuffer[] chunks)

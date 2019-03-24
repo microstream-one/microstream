@@ -17,8 +17,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayDeque<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_HEAD        =                                  0;
 	static final long BINARY_OFFSET_TAIL        = BINARY_OFFSET_HEAD + Integer.BYTES;
@@ -27,8 +27,8 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<ArrayDeque<?>> typeWorkaround()
@@ -61,8 +61,8 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerCustomCo
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerArrayDeque(final PersistenceSizedArrayLengthController controller)
 	{

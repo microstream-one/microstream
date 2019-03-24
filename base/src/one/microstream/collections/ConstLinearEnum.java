@@ -28,8 +28,8 @@ public final class ConstLinearEnum<E> extends AbstractSimpleArrayCollection<E>
 implements XImmutableEnum<E>, IdentityEqualityLogic
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final Object[] EMPTY_DATA = new Object[0];
 

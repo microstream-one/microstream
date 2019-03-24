@@ -7,8 +7,8 @@ import one.microstream.memory.XMemory;
 public final class StringSubstituter implements StringStamper
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static Entry[] newSlots(final int slotsLength)
 	{
@@ -33,8 +33,8 @@ public final class StringSubstituter implements StringStamper
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	StringSubstituter()
 	{

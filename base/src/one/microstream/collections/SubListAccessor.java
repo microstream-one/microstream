@@ -16,8 +16,8 @@ public class SubListAccessor<E> extends SubListView<E> implements XSettingList<E
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public SubListAccessor(final XSettingList<E> list, final long fromIndex, final long toIndex)
 	{

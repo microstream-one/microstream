@@ -17,8 +17,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCustomCollection<IdentityHashMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_ELEMENTS = 0;
 	// to prevent recurring confusion: IdentityHashMap really has no loadFactor. It uses an open adressing hash array.
@@ -26,8 +26,8 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<IdentityHashMap<?, ?>> typeWorkaround()
@@ -43,8 +43,8 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerIdentityHashMap()
 	{

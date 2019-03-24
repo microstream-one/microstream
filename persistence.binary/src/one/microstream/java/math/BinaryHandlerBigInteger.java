@@ -10,8 +10,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomValueVariableLength<BigInteger>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerBigInteger()
 	{

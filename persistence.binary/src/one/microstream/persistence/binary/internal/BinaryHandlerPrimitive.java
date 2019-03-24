@@ -22,8 +22,8 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerPrimitive(final Class<T> type)
 	{

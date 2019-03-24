@@ -20,8 +20,8 @@ public final class LimitedPredicate<E> implements Predicate<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public LimitedPredicate(final Predicate<? super E> predicate, final int skip, final int limit)
 	{

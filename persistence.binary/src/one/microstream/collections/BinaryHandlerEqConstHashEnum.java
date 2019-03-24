@@ -24,8 +24,8 @@ public final class BinaryHandlerEqConstHashEnum
 extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// one oid for equalator reference
 	static final long BINARY_OFFSET_EQUALATOR    =                                                        0;
@@ -40,8 +40,8 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private static Class<EqConstHashEnum<?>> typeWorkaround()
@@ -63,8 +63,8 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerEqConstHashEnum()
 	{

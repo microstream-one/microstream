@@ -19,8 +19,8 @@ public final class BinaryHandlerConstHashEnum
 extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_HASH_DENSITY =                                        0;
 	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES; // one float offset to sized array
@@ -28,8 +28,8 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private static Class<ConstHashEnum<?>> typeWorkaround()
@@ -51,8 +51,8 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerConstHashEnum()
 	{

@@ -7,8 +7,8 @@ import one.microstream.chars.VarString;
 public final class RingQueue<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final int MINIMUM_CAPACITY =  4;
 	static final int DEFAULT_CAPACITY = 16;

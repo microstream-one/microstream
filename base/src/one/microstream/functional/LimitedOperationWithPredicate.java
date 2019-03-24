@@ -20,8 +20,8 @@ public final class LimitedOperationWithPredicate<E> implements Consumer<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public LimitedOperationWithPredicate(
 		final int skip,

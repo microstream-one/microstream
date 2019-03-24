@@ -53,8 +53,8 @@ public class NetworkChannelSampleServer implements Runnable
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public NetworkChannelSampleServer(final int port)
 	{

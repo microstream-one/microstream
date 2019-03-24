@@ -16,8 +16,8 @@ public class BinaryPersistenceExceptionStateInvalidLength extends BinaryPersiste
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryPersistenceExceptionStateInvalidLength(
 		final long address,

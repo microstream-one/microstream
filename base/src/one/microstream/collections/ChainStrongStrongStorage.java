@@ -32,8 +32,8 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	// CHECKSTYLE.OFF: FinalParameter: A LOT of methods use that pattern in this class
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ChainStrongStrongStorage(final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent, final EN head)
 	{

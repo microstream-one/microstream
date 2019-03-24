@@ -186,8 +186,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	private EqConstHashEnum(final EqConstHashEnum<E> original)
 	{

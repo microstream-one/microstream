@@ -9,8 +9,8 @@ public abstract class AbstractBinaryHandlerAbstractStringBuilder<B/*extends Abst
 extends AbstractBinaryHandlerCustom<B>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	protected static final long LENGTH_LENGTH = Integer.BYTES;
 	
@@ -22,8 +22,8 @@ extends AbstractBinaryHandlerCustom<B>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AbstractBinaryHandlerAbstractStringBuilder(final Class<B> type)
 	{
