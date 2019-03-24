@@ -18,8 +18,8 @@ import one.microstream.util.Substituter;
 public final class CsvContentBuilderCharArray implements CsvContent.Builder<_charArrayRange>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final CsvContentBuilderCharArray New()
 	{
@@ -50,8 +50,8 @@ public final class CsvContentBuilderCharArray implements CsvContent.Builder<_cha
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	private CsvContentBuilderCharArray(
 		final CsvConfiguration           configuration,

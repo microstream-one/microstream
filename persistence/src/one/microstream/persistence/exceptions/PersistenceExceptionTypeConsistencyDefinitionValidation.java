@@ -4,8 +4,8 @@ public class PersistenceExceptionTypeConsistencyDefinitionValidation
 extends PersistenceExceptionTypeConsistencyDictionary
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeConsistencyDefinitionValidation()
 	{

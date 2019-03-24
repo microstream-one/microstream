@@ -14,8 +14,8 @@ public class StorageExceptionDisruptingExceptions extends StorageException
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionDisruptingExceptions(
 		final XGettingSequence<Throwable> problems

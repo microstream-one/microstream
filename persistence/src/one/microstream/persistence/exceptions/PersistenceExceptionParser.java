@@ -11,8 +11,8 @@ public class PersistenceExceptionParser extends PersistenceException
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionParser(
 		final int index

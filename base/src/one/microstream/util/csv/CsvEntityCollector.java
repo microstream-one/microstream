@@ -21,8 +21,8 @@ public final class CsvEntityCollector<T> implements CsvRowCollector
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public CsvEntityCollector(
 		final CsvEntityParser.AbstractImplementation<T> parser,

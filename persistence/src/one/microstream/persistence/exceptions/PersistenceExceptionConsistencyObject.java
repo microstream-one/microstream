@@ -15,8 +15,8 @@ public class PersistenceExceptionConsistencyObject extends PersistenceExceptionC
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionConsistencyObject(
 		final long   oid,

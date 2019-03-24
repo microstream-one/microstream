@@ -11,8 +11,8 @@ import one.microstream.typing.XTypes;
 public abstract class AbstractBridgeXList<E> extends AbstractOldSettingList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractBridgeXList(final XList<E> list)
 	{

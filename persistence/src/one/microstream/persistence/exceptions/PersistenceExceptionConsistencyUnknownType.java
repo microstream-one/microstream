@@ -12,8 +12,8 @@ public class PersistenceExceptionConsistencyUnknownType extends PersistenceExcep
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionConsistencyUnknownType(final Class<?> type)
 	{

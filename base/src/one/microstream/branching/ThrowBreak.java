@@ -13,8 +13,8 @@ package one.microstream.branching;
 public class ThrowBreak extends AbstractBranchingThrow
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ThrowBreak()
 	{

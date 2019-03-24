@@ -56,8 +56,8 @@ public class SubListView<E> implements XGettingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public SubListView(final XGettingList<E> list, final long fromIndex, final long toIndex)
 	{

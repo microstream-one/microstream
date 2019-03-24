@@ -22,8 +22,8 @@ public class Concatentation implements CharSequence
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public Concatentation(final CharSequence s1, final CharSequence s2)
 	{

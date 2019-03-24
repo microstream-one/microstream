@@ -9,8 +9,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerCustom<Lazy<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerLazyReference()
 	{

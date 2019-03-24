@@ -19,8 +19,8 @@ extends StorageExceptionBackupChannelIndex
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionBackupCopying(
 		final StorageInventoryFile storageFile   ,

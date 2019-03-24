@@ -31,8 +31,8 @@ import one.microstream.util.UtilStackTrace;
 public final class XReflect
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	/*
 	 * JDK workaround stuff. transient to skip fields in persistence layers collecting constants

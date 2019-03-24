@@ -36,8 +36,8 @@ public class Persistence
 	// (23.11.2018 TM)TODO: cleanup Persistence class
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	static final long START_CID_BASE =  9_000_000_000_000_000_000L; // first assigned CID is 9...1
 	static final long START_OID_BASE =  1_000_000_000_000_000_000L; // first assigned OID is 1...1
@@ -589,8 +589,8 @@ public class Persistence
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static boolean isPersistable(final Class<?> type)
 	{

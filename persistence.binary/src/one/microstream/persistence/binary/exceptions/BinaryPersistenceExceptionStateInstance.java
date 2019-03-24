@@ -11,8 +11,8 @@ public class BinaryPersistenceExceptionStateInstance extends BinaryPersistenceEx
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryPersistenceExceptionStateInstance(final Object instance)
 	{

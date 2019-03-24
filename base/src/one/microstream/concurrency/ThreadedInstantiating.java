@@ -85,8 +85,8 @@ public class ThreadedInstantiating<E> extends Threaded<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	/**
 	 * Instantiates a new empty {@link ThreadedInstantiating} instance with the passed {@link Instantiator} instance

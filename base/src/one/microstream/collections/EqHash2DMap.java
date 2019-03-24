@@ -15,8 +15,8 @@ import one.microstream.typing.KeyValue;
 public final class EqHash2DMap<K1, K2, V> implements X2DMap<K1, K2, V>, Composition
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final <K1, K2, V> EqHash2DMap<K1, K2, V> New()
 	{
@@ -48,8 +48,8 @@ public final class EqHash2DMap<K1, K2, V> implements X2DMap<K1, K2, V>, Composit
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	private EqHash2DMap(
 		final HashEqualator<K1> k1HashEqualator,

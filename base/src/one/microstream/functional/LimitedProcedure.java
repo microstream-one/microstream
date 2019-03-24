@@ -20,8 +20,8 @@ public final class LimitedProcedure<E> implements Consumer<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public LimitedProcedure(final Consumer<? super E> procedure, final int skip, final int limit)
 	{

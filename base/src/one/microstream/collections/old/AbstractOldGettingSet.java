@@ -18,8 +18,8 @@ public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractOldGettingSet(final XGettingSet<E> set)
 	{

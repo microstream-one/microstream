@@ -32,8 +32,8 @@ import one.microstream.memory.XMemory;
 public final class XChars
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 	// CHECKSTYLE.OFF: MagicNumber: The 1E7 is virtually already a constant.

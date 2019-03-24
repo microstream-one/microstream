@@ -13,8 +13,8 @@ public class NetworkExceptionConnectionAcception extends NetworkExceptionConnect
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public NetworkExceptionConnectionAcception(final SocketChannel newConnection)
 	{

@@ -9,8 +9,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerCustom<Void>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerNativeVoid()
 	{

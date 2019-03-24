@@ -26,8 +26,8 @@ public final class ListProcessor<E> implements XProcessingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ListProcessor(final XProcessingList<E> list)
 	{

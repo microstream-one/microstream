@@ -5,8 +5,8 @@ import one.microstream.exceptions.BaseException;
 public class ComException extends BaseException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ComException()
 	{

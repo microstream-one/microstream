@@ -5,8 +5,8 @@ import one.microstream.memory.XMemory;
 public final class MemoryCharConversionIntegers
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int
 		V001G = 1_000_000_000,

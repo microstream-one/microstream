@@ -17,8 +17,8 @@ public final class LimitedRange<E> implements Predicate<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public LimitedRange(final int skip, final int limit)
 	{

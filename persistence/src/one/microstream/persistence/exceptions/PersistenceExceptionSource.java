@@ -3,8 +3,8 @@ package one.microstream.persistence.exceptions;
 public class PersistenceExceptionSource extends PersistenceException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionSource()
 	{

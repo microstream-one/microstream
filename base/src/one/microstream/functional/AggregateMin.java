@@ -14,8 +14,8 @@ public final class AggregateMin<E> implements Aggregator<E, E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AggregateMin(final Comparator<? super E> comparator)
 	{

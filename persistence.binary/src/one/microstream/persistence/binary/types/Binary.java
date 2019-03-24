@@ -37,8 +37,8 @@ public abstract class Binary implements Chunk
 	 */
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int
 		LENGTH_LEN  = Long.BYTES,

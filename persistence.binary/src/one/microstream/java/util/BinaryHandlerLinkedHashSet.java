@@ -18,8 +18,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCustomCollection<LinkedHashSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_LOAD_FACTOR =                                       0;
 	static final long BINARY_OFFSET_ELEMENTS    = BINARY_OFFSET_LOAD_FACTOR + Float.BYTES;
@@ -27,8 +27,8 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<LinkedHashSet<?>> typeWorkaround()
@@ -49,8 +49,8 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerLinkedHashSet()
 	{

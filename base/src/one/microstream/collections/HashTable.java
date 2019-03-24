@@ -223,8 +223,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	private HashTable(final HashTable<K, V> original)
 	{

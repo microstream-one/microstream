@@ -115,8 +115,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	private ConstHashEnum(final ConstHashEnum<E> original)
 	{

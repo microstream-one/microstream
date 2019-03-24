@@ -36,8 +36,8 @@ public class MappedList<E, S> implements XGettingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public MappedList(final XGettingList<S> subject, final Function<S, E> mapper, final Equalator<? super E> equality)
 	{

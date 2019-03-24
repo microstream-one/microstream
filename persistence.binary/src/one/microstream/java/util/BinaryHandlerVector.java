@@ -17,8 +17,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomCollectionSizedArray<Vector<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_CAPACITY_INCREMENT =                                                0;
 	static final long BINARY_OFFSET_SIZED_ARRAY        = BINARY_OFFSET_CAPACITY_INCREMENT + Integer.BYTES;
@@ -26,8 +26,8 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomCollec
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<Vector<?>> typeWorkaround()
@@ -38,8 +38,8 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomCollec
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerVector(final PersistenceSizedArrayLengthController controller)
 	{

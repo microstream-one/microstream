@@ -12,8 +12,8 @@ public class MissingFoundationPartException extends RuntimeException
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public MissingFoundationPartException(
 		final Class<?> missingSssemblyPartType

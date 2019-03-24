@@ -20,8 +20,8 @@ public final class ArrayListReadOnlyIterator<E> implements ListIterator<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ArrayListReadOnlyIterator(final E[] array)
 	{

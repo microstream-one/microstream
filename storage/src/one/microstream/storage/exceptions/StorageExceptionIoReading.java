@@ -3,8 +3,8 @@ package one.microstream.storage.exceptions;
 public class StorageExceptionIoReading extends StorageExceptionIo
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionIoReading()
 	{

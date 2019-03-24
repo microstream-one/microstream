@@ -29,8 +29,8 @@ public class ThreadedPool<E> implements Pool<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	static <E> Instantiator<HashEnum<E>> poolCreator()
 	{
@@ -73,8 +73,8 @@ public class ThreadedPool<E> implements Pool<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ThreadedPool(final Configuration<E> configuration)
 	{

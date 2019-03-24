@@ -33,8 +33,8 @@ import one.microstream.math.XMath;
 public final class OpenAdressingMiniSet<E> implements XSet<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int   DEFAULT_INITIAL_CAPACITY = 32  ;
 	private static final float DEFAULT_HASH_DENSITY     = 1.0f;

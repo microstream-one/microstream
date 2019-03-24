@@ -8,8 +8,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerNativeByte extends AbstractBinaryHandlerCustomValueFixedLength<Byte>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerNativeByte()
 	{

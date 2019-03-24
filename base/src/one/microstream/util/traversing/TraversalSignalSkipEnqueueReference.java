@@ -4,8 +4,8 @@ package one.microstream.util.traversing;
 public final class TraversalSignalSkipEnqueueReference extends AbstractTraversalSkipSignal
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	// can be thrown any number of times, so a singleton instead of constant instantiation is the better approach
 	static final TraversalSignalSkipEnqueueReference SINGLETON = new TraversalSignalSkipEnqueueReference();

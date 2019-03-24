@@ -17,8 +17,8 @@ import one.microstream.persistence.types.PersistenceFoundation;
 public class TestComponentProvider extends InvocationLogging
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	protected static final File TEST_DIRECTORY = new File("c:/Files/");
 
@@ -56,8 +56,8 @@ public class TestComponentProvider extends InvocationLogging
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected TestComponentProvider()
 	{

@@ -27,8 +27,8 @@ public final class VarByte implements Externalizable
 	// (24.07.2013 TM)FIXME: Overhaul VarByte via VarString implementation
 
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	//have to be 2^n values
 	private static final int

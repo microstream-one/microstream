@@ -3,8 +3,8 @@ package one.microstream.persistence.exceptions;
 public class PersistenceExceptionParserMissingTypeId extends PersistenceExceptionParser
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionParserMissingTypeId(
 		final int index

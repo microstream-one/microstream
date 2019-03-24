@@ -18,8 +18,8 @@ public final class XMath
 	// CHECKSTYLE.OFF: MagicNumber: all magic numbers are intentional in this class
 
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final transient Random RANDOM = new Random();
 

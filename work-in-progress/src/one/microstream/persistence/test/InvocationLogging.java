@@ -9,8 +9,8 @@ import one.microstream.util.logging.LoggingAspect;
 public class InvocationLogging
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	protected static final boolean LOGGING_ENABLED   = false;
 	protected static final InvocationLogging LOGGING = new InvocationLogging();
@@ -43,8 +43,8 @@ public class InvocationLogging
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public InvocationLogging()
 	{

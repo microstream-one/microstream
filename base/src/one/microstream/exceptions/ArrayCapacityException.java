@@ -10,8 +10,8 @@ package one.microstream.exceptions;
 public class ArrayCapacityException extends IndexBoundsException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final String MESSAGE_BODY = "Java technical array capacity limit of max signed 32 bit integer value exceeded";
 	

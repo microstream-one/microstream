@@ -3,8 +3,8 @@ package one.microstream.persistence.exceptions;
 public class PersistenceExceptionParserMissingComplexTypeDefinition extends PersistenceExceptionParser
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionParserMissingComplexTypeDefinition(
 		final int index

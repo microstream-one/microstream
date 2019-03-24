@@ -3,8 +3,8 @@ package one.microstream.storage.exceptions;
 public class StorageExceptionExportFailed extends StorageException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionExportFailed()
 	{

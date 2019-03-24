@@ -11,8 +11,8 @@ import one.microstream.typing.XTypes;
 public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractOldRemovingList(final XProcessingList<E> list)
 	{

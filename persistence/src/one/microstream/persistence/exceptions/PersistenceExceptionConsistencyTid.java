@@ -14,8 +14,8 @@ public class PersistenceExceptionConsistencyTid extends PersistenceExceptionCons
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionConsistencyTid(
 		final long   oid      ,

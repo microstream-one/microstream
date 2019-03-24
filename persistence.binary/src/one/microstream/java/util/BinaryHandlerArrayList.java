@@ -18,16 +18,16 @@ public final class BinaryHandlerArrayList
 extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_SIZED_ARRAY = 0; // binary form is 100% just a sized array, so offset 0
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<ArrayList<?>> typeWorkaround()
@@ -38,8 +38,8 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<ArrayList<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerArrayList(final PersistenceSizedArrayLengthController controller)
 	{

@@ -18,8 +18,8 @@ public class DEBUG_BinaryFileTarget extends BinaryFileTarget
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public DEBUG_BinaryFileTarget(final PrintStream out, final File file)
 	{

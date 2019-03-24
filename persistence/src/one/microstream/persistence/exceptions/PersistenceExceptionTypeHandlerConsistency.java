@@ -3,8 +3,8 @@ package one.microstream.persistence.exceptions;
 public class PersistenceExceptionTypeHandlerConsistency extends PersistenceExceptionTypeConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeHandlerConsistency()
 	{

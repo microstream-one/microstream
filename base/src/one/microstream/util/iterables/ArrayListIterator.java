@@ -21,8 +21,8 @@ public final class ArrayListIterator<E> implements ListIterator<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ArrayListIterator(final E[] array)
 	{

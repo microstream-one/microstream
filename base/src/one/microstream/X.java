@@ -59,8 +59,8 @@ import one.microstream.util.UtilStackTrace;
 public final class X
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	private static final Empty<?> EMPTY = new Empty<>();
 

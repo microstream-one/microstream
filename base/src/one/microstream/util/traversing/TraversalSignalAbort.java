@@ -4,8 +4,8 @@ package one.microstream.util.traversing;
 public final class TraversalSignalAbort extends AbstractTraversalSignal
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	// can be thrown any number of times, so a singleton instead of constant instantiation is the better approach
 	static final TraversalSignalAbort SINGLETON = new TraversalSignalAbort();

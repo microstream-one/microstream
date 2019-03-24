@@ -7,8 +7,8 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 public final class BinaryHandlerNativeObject extends AbstractBinaryHandlerStateless<Object>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerNativeObject()
 	{

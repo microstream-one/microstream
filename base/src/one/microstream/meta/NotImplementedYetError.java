@@ -24,8 +24,8 @@ package one.microstream.meta;
 public class NotImplementedYetError extends Error
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public NotImplementedYetError()
 	{

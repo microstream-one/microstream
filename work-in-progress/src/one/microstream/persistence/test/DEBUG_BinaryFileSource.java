@@ -25,8 +25,8 @@ public class DEBUG_BinaryFileSource implements PersistenceSource<Binary>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public DEBUG_BinaryFileSource(final PrintStream out, final File file)
 	{

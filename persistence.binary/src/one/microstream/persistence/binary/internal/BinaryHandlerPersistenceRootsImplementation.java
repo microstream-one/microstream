@@ -20,8 +20,8 @@ public final class BinaryHandlerPersistenceRootsImplementation
 extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final long OFFSET_OID_LIST = 0;
 
@@ -61,8 +61,8 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	BinaryHandlerPersistenceRootsImplementation(
 		final PersistenceRootResolver resolver      ,

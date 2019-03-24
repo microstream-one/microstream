@@ -15,8 +15,8 @@ public class PersistenceExceptionConsistencyWrongType extends PersistenceExcepti
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionConsistencyWrongType(final long tid, final Class<?> actualType, final Class<?> passedType)
 	{

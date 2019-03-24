@@ -8,8 +8,8 @@ public abstract class AbstractBinaryHandlerCustomValue<T>
 extends AbstractBinaryHandlerCustom<T>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AbstractBinaryHandlerCustomValue(
 		final Class<T>                                                    type  ,

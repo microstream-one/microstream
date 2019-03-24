@@ -18,8 +18,8 @@ extends PersistenceExceptionTypeHandlerConsistency
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeHandlerConsistencyConflictedTypeId(
 		final long                        typeId           ,
