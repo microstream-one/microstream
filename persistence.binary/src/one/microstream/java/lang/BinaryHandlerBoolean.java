@@ -5,33 +5,33 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerNativeCharacter extends AbstractBinaryHandlerCustomValueFixedLength<Character>
+public final class BinaryHandlerBoolean extends AbstractBinaryHandlerCustomValueFixedLength<Boolean>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerNativeCharacter()
+	public BinaryHandlerBoolean()
 	{
-		super(Character.class, defineValueType(char.class));
+		super(Boolean.class, defineValueType(boolean.class));
 	}
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// methods //
-	////////////
+	// override methods //
+	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final Character instance, final long oid, final PersistenceStoreHandler handler)
+	public void store(final Binary bytes, final Boolean instance, final long oid, final PersistenceStoreHandler handler)
 	{
-		bytes.storeCharacter(this.typeId(), oid, instance.charValue());
+		bytes.storeBoolean(this.typeId(), oid, instance.booleanValue());
 	}
 
 	@Override
-	public Character create(final Binary bytes, final PersistenceLoadHandler handler)
+	public Boolean create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return bytes.buildCharacter();
+		return bytes.buildBoolean();
 	}
 
 }

@@ -1,7 +1,7 @@
-package one.microstream.java.util;
+package one.microstream.java.util.concurrent;
 
 import java.util.Comparator;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import one.microstream.X;
 import one.microstream.collections.old.KeyValueFlatCollector;
@@ -16,7 +16,7 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomCollection<TreeMap<?, ?>>
+public final class BinaryHandlerConcurrentSkipListMap extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -32,9 +32,9 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<TreeMap<?, ?>> typeWorkaround()
+	private static Class<ConcurrentSkipListMap<?, ?>> typeWorkaround()
 	{
-		return (Class)TreeMap.class; // no idea how to get ".class" to work otherwise
+		return (Class)ConcurrentSkipListMap.class; // no idea how to get ".class" to work otherwise
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -57,7 +57,7 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerTreeMap()
+	public BinaryHandlerConcurrentSkipListMap()
 	{
 		super(
 			typeWorkaround(),
@@ -75,10 +75,10 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
-		final TreeMap<?, ?>           instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                      bytes   ,
+		final ConcurrentSkipListMap<?, ?> instance,
+		final long                        objectId,
+		final PersistenceStoreHandler     handler
 	)
 	{
 		// store elements simply as array binary form
@@ -97,15 +97,22 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	}
 	
 	@Override
-	public final TreeMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final ConcurrentSkipListMap<?, ?> create(
+		final Binary                 bytes  ,
+		final PersistenceLoadHandler handler
+	)
 	{
-		return new TreeMap<>(
+		return new ConcurrentSkipListMap<>(
 			getComparator(bytes, handler)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final TreeMap<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void update(
+		final Binary                      bytes   ,
+		final ConcurrentSkipListMap<?, ?> instance,
+		final PersistenceLoadHandler      handler
+	)
 	{
 		instance.clear();
 		
@@ -120,13 +127,20 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final void complete(final Binary bytes, final TreeMap<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void complete(
+		final Binary                      bytes   ,
+		final ConcurrentSkipListMap<?, ?> instance,
+		final PersistenceLoadHandler      builder
+	)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final TreeMap<?, ?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(
+		final ConcurrentSkipListMap<?, ?> instance,
+		final PersistenceFunction         iterator
+	)
 	{
 		iterator.apply(instance.comparator());
 		Persistence.iterateReferencesMap(iterator, instance);

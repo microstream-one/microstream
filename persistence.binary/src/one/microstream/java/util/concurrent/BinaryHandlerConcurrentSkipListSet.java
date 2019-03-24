@@ -1,10 +1,9 @@
-package one.microstream.java.util;
+package one.microstream.java.util.concurrent;
 
 import java.util.Comparator;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import one.microstream.X;
-import one.microstream.collections.old.KeyValueFlatCollector;
 import one.microstream.collections.old.OldCollections;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
@@ -16,7 +15,7 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomCollection<TreeMap<?, ?>>
+public final class BinaryHandlerConcurrentSkipListSet extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -24,24 +23,19 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 
 	static final long BINARY_OFFSET_COMPARATOR =                                                      0;
 	static final long BINARY_OFFSET_ELEMENTS   = BINARY_OFFSET_COMPARATOR + Binary.objectIdByteLength();
-	
-	
+
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<TreeMap<?, ?>> typeWorkaround()
+	private static Class<ConcurrentSkipListSet<?>> typeWorkaround()
 	{
-		return (Class)TreeMap.class; // no idea how to get ".class" to work otherwise
+		return (Class)ConcurrentSkipListSet.class; // no idea how to get ".class" to work otherwise
 	}
-
-	static final int getElementCount(final Binary bytes)
-	{
-		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
-	}
-		
+	
 	@SuppressWarnings("unchecked")
 	private static <E> Comparator<? super E> getComparator(
 		final Binary                 bytes  ,
@@ -51,20 +45,26 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 		return (Comparator<? super E>)handler.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
 	}
 
+	static final int getElementCount(final Binary bytes)
+	{
+		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
+	}
+
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerTreeMap()
+	public BinaryHandlerConcurrentSkipListSet()
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.keyValuesPseudoFields(
+			BinaryCollectionHandling.simpleArrayPseudoFields(
 				pseudoField(Comparator.class, "comparator")
 			)
 		);
+		
 	}
 
 
@@ -75,18 +75,19 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
-		final TreeMap<?, ?>           instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                   bytes   ,
+		final ConcurrentSkipListSet<?> instance,
+		final long                     objectId,
+		final PersistenceStoreHandler  handler
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeMapEntrySet(
+		final long contentAddress = bytes.storeSizedIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
-			instance.entrySet()   ,
+			instance              ,
+			instance.size()       ,
 			handler
 		);
 		
@@ -97,15 +98,22 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	}
 	
 	@Override
-	public final TreeMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final ConcurrentSkipListSet<?> create(
+		final Binary                 bytes  ,
+		final PersistenceLoadHandler handler
+	)
 	{
-		return new TreeMap<>(
+		return new ConcurrentSkipListSet<>(
 			getComparator(bytes, handler)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final TreeMap<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void update(
+		final Binary                   bytes   ,
+		final ConcurrentSkipListSet<?> instance,
+		final PersistenceLoadHandler   handler
+	)
 	{
 		instance.clear();
 		
@@ -113,23 +121,29 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 		 * Tree collections don't use hashing, but their comparing logic still uses the elements' state,
 		 * which might not yet be available when this method is called. Hence the detour to #complete.
 		 */
-		final int elementCount = getElementCount(bytes);
-		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
-		bytes.registerHelper(instance, collector.yield());
+		final Object[] elementsHelper = new Object[getElementCount(bytes)];
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
+		bytes.registerHelper(instance, elementsHelper);
 	}
-
+	
 	@Override
-	public final void complete(final Binary bytes, final TreeMap<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void complete(
+		final Binary                   bytes   ,
+		final ConcurrentSkipListSet<?> instance,
+		final PersistenceLoadHandler   handler
+	)
 	{
-		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateSetFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final TreeMap<?, ?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(
+		final ConcurrentSkipListSet<?> instance,
+		final PersistenceFunction      iterator
+	)
 	{
 		iterator.apply(instance.comparator());
-		Persistence.iterateReferencesMap(iterator, instance);
+		Persistence.iterateReferencesIterable(iterator, instance);
 	}
 
 	@Override
