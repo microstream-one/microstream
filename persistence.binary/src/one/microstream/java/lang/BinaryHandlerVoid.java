@@ -6,13 +6,13 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerNativeVoid extends AbstractBinaryHandlerCustom<Void>
+public final class BinaryHandlerVoid extends AbstractBinaryHandlerCustom<Void>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerNativeVoid()
+	public BinaryHandlerVoid()
 	{
 		super(Void.class, X.empty());
 	}

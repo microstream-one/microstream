@@ -78,10 +78,6 @@ public final class XMemory
 		OFFSET_Vector_elementCount       = internalGetFieldOffset(Vector.class       , "elementCount"     ),
 		OFFSET_Vector_capacityIncrement  = internalGetFieldOffset(Vector.class       , "capacityIncrement"),
 		OFFSET_Properties_Defaults       = internalGetFieldOffset(Properties.class   , "defaults"         )
-
-		// (18.03.2019 TM)FIXME: MS-76: review and clean up XMemory#OFFSET-s
-//		OFFSET_ConcurrentSkipListMap_comparator = internalGetFieldOffset(ConcurrentSkipListMap.class, "comparator")
-
 	;
 	// CHECKSTYLE.ON: ConstantName
 
@@ -90,7 +86,6 @@ public final class XMemory
 		char[].class ,
 		boolean.class
 	);
-
 	
 	// return type not specified to avoid public API dependencies to sun implementation details
 	public static final Object getSystemInstance()
@@ -284,8 +279,6 @@ public final class XMemory
 		// must check not null here explictely to prevent VM crashes
 		return (char[])VM.getObject(notNull(string), OFFSET_String_value);
 	}
-	
-	// (04.11.2018 TM)FIXME: Where is the fix for the JDK-9 botch-job String workaround?
 
 	public static char[] accessChars(final StringBuilder stringBuilder)
 	{

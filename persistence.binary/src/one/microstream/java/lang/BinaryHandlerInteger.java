@@ -5,13 +5,13 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerNativeInteger extends AbstractBinaryHandlerCustomValueFixedLength<Integer>
+public final class BinaryHandlerInteger extends AbstractBinaryHandlerCustomValueFixedLength<Integer>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerNativeInteger()
+	public BinaryHandlerInteger()
 	{
 		super(Integer.class, defineValueType(int.class));
 	}

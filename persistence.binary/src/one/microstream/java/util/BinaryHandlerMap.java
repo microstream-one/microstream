@@ -40,6 +40,9 @@ public class BinaryHandlerMap<T extends Map<?, ?>> extends AbstractBinaryHandler
 	// instance fields //
 	////////////////////
 	
+	/**
+	 * May be null if the extending class handles instantiation on its own.
+	 */
 	public Instantiator<T> instantiator;
 
 
@@ -48,6 +51,15 @@ public class BinaryHandlerMap<T extends Map<?, ?>> extends AbstractBinaryHandler
 	// constructors //
 	/////////////////
 
+	public BinaryHandlerMap(final Class<T> type)
+	{
+		this(type, null);
+	}
+	
+	/**
+	 * @param type
+	 * @param instantiator May be null if the extending class handles instantiation on its own.
+	 */
 	public BinaryHandlerMap(final Class<T> type, final Instantiator<T> instantiator)
 	{
 		super(

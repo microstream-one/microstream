@@ -22,6 +22,13 @@ import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.functional.IndexedAcceptor;
 import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.java.io.BinaryHandlerFile;
+import one.microstream.java.lang.BinaryHandlerBoolean;
+import one.microstream.java.lang.BinaryHandlerByte;
+import one.microstream.java.lang.BinaryHandlerCharacter;
+import one.microstream.java.lang.BinaryHandlerDouble;
+import one.microstream.java.lang.BinaryHandlerFloat;
+import one.microstream.java.lang.BinaryHandlerInteger;
+import one.microstream.java.lang.BinaryHandlerLong;
 import one.microstream.java.lang.BinaryHandlerNativeArray_boolean;
 import one.microstream.java.lang.BinaryHandlerNativeArray_byte;
 import one.microstream.java.lang.BinaryHandlerNativeArray_char;
@@ -30,19 +37,12 @@ import one.microstream.java.lang.BinaryHandlerNativeArray_float;
 import one.microstream.java.lang.BinaryHandlerNativeArray_int;
 import one.microstream.java.lang.BinaryHandlerNativeArray_long;
 import one.microstream.java.lang.BinaryHandlerNativeArray_short;
-import one.microstream.java.lang.BinaryHandlerNativeBoolean;
-import one.microstream.java.lang.BinaryHandlerNativeByte;
-import one.microstream.java.lang.BinaryHandlerNativeCharacter;
-import one.microstream.java.lang.BinaryHandlerNativeDouble;
-import one.microstream.java.lang.BinaryHandlerNativeFloat;
-import one.microstream.java.lang.BinaryHandlerNativeInteger;
-import one.microstream.java.lang.BinaryHandlerNativeLong;
-import one.microstream.java.lang.BinaryHandlerNativeObject;
-import one.microstream.java.lang.BinaryHandlerNativeShort;
-import one.microstream.java.lang.BinaryHandlerNativeString;
-import one.microstream.java.lang.BinaryHandlerNativeVoid;
+import one.microstream.java.lang.BinaryHandlerObject;
+import one.microstream.java.lang.BinaryHandlerShort;
+import one.microstream.java.lang.BinaryHandlerString;
 import one.microstream.java.lang.BinaryHandlerStringBuffer;
 import one.microstream.java.lang.BinaryHandlerStringBuilder;
+import one.microstream.java.lang.BinaryHandlerVoid;
 import one.microstream.java.math.BinaryHandlerBigDecimal;
 import one.microstream.java.math.BinaryHandlerBigInteger;
 import one.microstream.java.util.BinaryHandlerArrayDeque;
@@ -61,6 +61,11 @@ import one.microstream.java.util.BinaryHandlerStack;
 import one.microstream.java.util.BinaryHandlerTreeMap;
 import one.microstream.java.util.BinaryHandlerTreeSet;
 import one.microstream.java.util.BinaryHandlerVector;
+import one.microstream.java.util.concurrent.BinaryHandlerConcurrentHashMap;
+import one.microstream.java.util.concurrent.BinaryHandlerConcurrentLinkedDeque;
+import one.microstream.java.util.concurrent.BinaryHandlerConcurrentLinkedQueue;
+import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListMap;
+import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListSet;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
@@ -134,20 +139,20 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerPrimitive<>(double .class),
 
 //			new BinaryHandlerNativeClass()    , // see PersistenceTypeHandlerCreator#createTypeHandler
-			new BinaryHandlerNativeByte()     ,
-			new BinaryHandlerNativeBoolean()  ,
-			new BinaryHandlerNativeShort()    ,
-			new BinaryHandlerNativeCharacter(),
-			new BinaryHandlerNativeInteger()  ,
-			new BinaryHandlerNativeFloat()    ,
-			new BinaryHandlerNativeLong()     ,
-			new BinaryHandlerNativeDouble()   ,
+			new BinaryHandlerByte()     ,
+			new BinaryHandlerBoolean()  ,
+			new BinaryHandlerShort()    ,
+			new BinaryHandlerCharacter(),
+			new BinaryHandlerInteger()  ,
+			new BinaryHandlerFloat()    ,
+			new BinaryHandlerLong()     ,
+			new BinaryHandlerDouble()   ,
 			
-			new BinaryHandlerNativeVoid()     ,
+			new BinaryHandlerVoid()     ,
 			
-			new BinaryHandlerNativeObject()   ,
+			new BinaryHandlerObject()   ,
 			
-			new BinaryHandlerNativeString()   ,
+			new BinaryHandlerString()   ,
 			new BinaryHandlerStringBuffer()   ,
 			new BinaryHandlerStringBuilder()  ,
 
@@ -183,16 +188,16 @@ public final class BinaryPersistence extends Persistence
 			
 			// still creepy JDK 1.5 collections
 			new BinaryHandlerPriorityQueue()        ,
-//			new BinaryHandlerConcurrentHashMap()    ,
-//			new BinaryHandlerConcurrentLinkedQueue(),
+			new BinaryHandlerConcurrentHashMap()    ,
+			new BinaryHandlerConcurrentLinkedQueue(),
 			
 			// still creepy JDK 1.6 collections
 			new BinaryHandlerArrayDeque(controller) ,
-//			new BinaryHandlerConcurrentSkipListMap(),
-//			new BinaryHandlerConcurrentSkipListSet(),
+			new BinaryHandlerConcurrentSkipListMap(),
+			new BinaryHandlerConcurrentSkipListSet(),
 			
 			// still creepy JDK 1.7 collections
-//			new BinaryHandlerConcurrentLinkedDeque(),
+			new BinaryHandlerConcurrentLinkedDeque(),
 			
 			new BinaryHandlerBigInteger(),
 			new BinaryHandlerBigDecimal(),

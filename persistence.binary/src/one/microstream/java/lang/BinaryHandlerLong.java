@@ -5,15 +5,15 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerNativeFloat extends AbstractBinaryHandlerCustomValueFixedLength<Float>
+public final class BinaryHandlerLong extends AbstractBinaryHandlerCustomValueFixedLength<Long>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerNativeFloat()
+	public BinaryHandlerLong()
 	{
-		super(Float.class, defineValueType(float.class));
+		super(Long.class, defineValueType(long.class));
 	}
 
 
@@ -23,15 +23,15 @@ public final class BinaryHandlerNativeFloat extends AbstractBinaryHandlerCustomV
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Float instance, final long oid, final PersistenceStoreHandler handler)
+	public void store(final Binary bytes, final Long instance, final long oid, final PersistenceStoreHandler handler)
 	{
-		bytes.storeFloat(this.typeId(), oid, instance.floatValue());
+		bytes.storeLong(this.typeId(), oid, instance.longValue());
 	}
 
 	@Override
-	public Float create(final Binary bytes, final PersistenceLoadHandler handler)
+	public Long create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return bytes.buildFloat();
+		return bytes.buildLong();
 	}
 
 }
