@@ -165,8 +165,6 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerNativeArray_long()   ,
 			new BinaryHandlerNativeArray_double() ,
 			
-			// (18.03.2019 TM)FIXME: MS-76: migrate JDK collection handlers
-			
 			// creepy JDK 1.0 collections
 			new BinaryHandlerVector(controller)     ,
 			new BinaryHandlerHashtable()            ,
@@ -192,7 +190,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerConcurrentLinkedQueue(),
 			
 			// still creepy JDK 1.6 collections
-			new BinaryHandlerArrayDeque(controller) ,
+			new BinaryHandlerArrayDeque()           ,
 			new BinaryHandlerConcurrentSkipListMap(),
 			new BinaryHandlerConcurrentSkipListSet(),
 			

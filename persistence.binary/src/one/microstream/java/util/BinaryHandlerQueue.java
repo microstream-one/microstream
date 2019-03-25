@@ -59,7 +59,7 @@ public class BinaryHandlerQueue<T extends Queue<?>> extends AbstractBinaryHandle
 	{
 		super(
 			type,
-			BinaryCollectionHandling.sizedArrayPseudoFields()
+			BinaryCollectionHandling.simpleArrayPseudoFields()
 		);
 		this.instantiator = instantiator;
 	}
@@ -134,7 +134,7 @@ public class BinaryHandlerQueue<T extends Queue<?>> extends AbstractBinaryHandle
 	@Override
 	public void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 	

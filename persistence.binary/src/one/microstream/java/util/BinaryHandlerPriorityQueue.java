@@ -1,8 +1,10 @@
 package one.microstream.java.util;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.PriorityQueue;
 
+import one.microstream.X;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
@@ -20,8 +22,8 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	// constants //
 	//////////////
 
-	static final long BINARY_OFFSET_COMPARATOR  =                                                      0;
-	static final long BINARY_OFFSET_SIZED_ARRAY = BINARY_OFFSET_COMPARATOR + Binary.objectIdByteLength();
+	static final long BINARY_OFFSET_COMPARATOR =                                                      0;
+	static final long BINARY_OFFSET_ELEMENTS   = BINARY_OFFSET_COMPARATOR + Binary.objectIdByteLength();
 	
 	
 
@@ -33,6 +35,11 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	private static Class<PriorityQueue<?>> typeWorkaround()
 	{
 		return (Class)PriorityQueue.class; // no idea how to get ".class" to work otherwise
+	}
+
+	static final int getElementCount(final Binary bytes)
+	{
+		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -54,7 +61,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.sizedArrayPseudoFields(
+			BinaryCollectionHandling.simpleArrayPseudoFields(
 			    pseudoField(Comparator.class, "comparator")
 			)
 		);
@@ -74,12 +81,13 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeSizedArray(
-			this.typeId()                ,
-			objectId                     ,
-			BINARY_OFFSET_COMPARATOR     ,
-			XMemory.accessArray(instance),
-			instance.size()              ,
+		// store elements simply as array binary form
+		final long contentAddress = bytes.storeSizedIterableAsList(
+			this.typeId()         ,
+			objectId              ,
+			BINARY_OFFSET_ELEMENTS,
+			instance              ,
+			instance.size()       ,
 			handler
 		);
 		bytes.store_long(
@@ -92,7 +100,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	public final PriorityQueue<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new PriorityQueue<>(
-			bytes.getSizedArrayLength(BINARY_OFFSET_SIZED_ARRAY),
+			bytes.getSizedArrayLength(BINARY_OFFSET_ELEMENTS),
 			getComparator(bytes, handler)
 		);
 	}
@@ -100,30 +108,19 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	@Override
 	public final void update(final Binary bytes, final PriorityQueue<?> instance, final PersistenceLoadHandler handler)
 	{
-		// clear to avoid remnant references to logically unreachable instances of an updated existing instance.
+		// instance must be cleared in case an existing one is updated
 		instance.clear();
 		
-		final Object[] array = XMemory.accessArray(instance);
-		final long requiredArrayLength = bytes.getSizedArrayLength(BINARY_OFFSET_SIZED_ARRAY);
-
-		// since PriorityQueue has no #ensureCapacity,
-		if(array.length >= requiredArrayLength)
-		{
-			final int size = bytes.updateSizedArrayObjectReferences(BINARY_OFFSET_SIZED_ARRAY, array, handler);
-			XMemory.setSize(instance, size);
-		}
-		else
-		{
-			@SuppressWarnings("unchecked")
-			final PriorityQueue<Object> castedInstance = (PriorityQueue<Object>)instance;
-			
-			// (22.03.2019 TM)FIXME: MS-76: check if adding in order fits the implementation's add logic
-			bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, objectId ->
-			{
-				final Object element = handler.lookupObject(objectId);
-				castedInstance.add(element);
-			});
-		}
+		@SuppressWarnings("unchecked")
+		final List<Object> castedInstance = (List<Object>)instance;
+		
+		bytes.collectObjectReferences(
+			BINARY_OFFSET_ELEMENTS,
+			X.checkArrayRange(getElementCount(bytes)),
+			handler,
+			e ->
+				castedInstance.add(e)
+		);
 	}
 
 	@Override
@@ -137,7 +134,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_COMPARATOR));
-		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
+		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 }

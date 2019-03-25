@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -56,19 +55,15 @@ public final class XMemory
 
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 	private static final long
-		OFFSET_String_value          = internalGetFieldOffset(String.class       , "value"      ),
-		OFFSET_StringBuilder_value   = internalGetFieldOffset(StringBuilder.class, "value"      ),
-		OFFSET_StringBuilder_count   = internalGetFieldOffset(StringBuilder.class, "count"      ),
-		OFFSET_StringBuffer_value    = internalGetFieldOffset(StringBuffer.class , "value"      ),
-		OFFSET_StringBuffer_count    = internalGetFieldOffset(StringBuffer.class , "count"      ),
-		OFFSET_ArrayList_elementData = internalGetFieldOffset(ArrayList.class    , "elementData"),
-		OFFSET_ArrayList_size        = internalGetFieldOffset(ArrayList.class    , "size"       ),
-		OFFSET_HashSet_map           = internalGetFieldOffset(HashSet.class      , "map"        ),
-		OFFSET_HashMap_loadFactor    = internalGetFieldOffset(HashMap.class      , "loadFactor" ),
-		
-		OFFSET_ArrayDeque_elements       = internalGetFieldOffset(ArrayDeque.class   , "elements"         ),
-		OFFSET_ArrayDeque_head           = internalGetFieldOffset(ArrayDeque.class   , "head"             ),
-		OFFSET_ArrayDeque_tail           = internalGetFieldOffset(ArrayDeque.class   , "tail"             ),
+		OFFSET_String_value              = internalGetFieldOffset(String.class       , "value"            ),
+		OFFSET_StringBuilder_value       = internalGetFieldOffset(StringBuilder.class, "value"            ),
+		OFFSET_StringBuilder_count       = internalGetFieldOffset(StringBuilder.class, "count"            ),
+		OFFSET_StringBuffer_value        = internalGetFieldOffset(StringBuffer.class , "value"            ),
+		OFFSET_StringBuffer_count        = internalGetFieldOffset(StringBuffer.class , "count"            ),
+		OFFSET_ArrayList_elementData     = internalGetFieldOffset(ArrayList.class    , "elementData"      ),
+		OFFSET_ArrayList_size            = internalGetFieldOffset(ArrayList.class    , "size"             ),
+		OFFSET_HashSet_map               = internalGetFieldOffset(HashSet.class      , "map"              ),
+		OFFSET_HashMap_loadFactor        = internalGetFieldOffset(HashMap.class      , "loadFactor"       ),
 		OFFSET_Hashtable_loadFactor      = internalGetFieldOffset(Hashtable.class    , "loadFactor"       ),
 		OFFSET_LinkedHashMap_loadFactor  = internalGetFieldOffset(LinkedHashMap.class, "loadFactor"       ),
 		OFFSET_LinkedHashMap_accessOrder = internalGetFieldOffset(LinkedHashMap.class, "accessOrder"      ),
@@ -396,36 +391,6 @@ public final class XMemory
 		return VM.getBoolean(notNull(linkedHashMap), OFFSET_LinkedHashMap_accessOrder);
 	}
 	
-	public static Object[] accessArray(final ArrayDeque<?> arrayDeque)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return (Object[])VM.getObject(notNull(arrayDeque), OFFSET_ArrayDeque_elements);
-	}
-
-	public static int getHead(final ArrayDeque<?> arrayDeque)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return VM.getInt(notNull(arrayDeque), OFFSET_ArrayDeque_head);
-	}
-
-	public static int getTail(final ArrayDeque<?> arrayDeque)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return VM.getInt(notNull(arrayDeque), OFFSET_ArrayDeque_tail);
-	}
-
-	public static void setHead(final ArrayDeque<?> arrayDeque, final int head)
-	{
-		// must check not null here explictely to prevent VM crashes
-		set_int(notNull(arrayDeque), OFFSET_ArrayDeque_head, head);
-	}
-
-	public static void setTail(final ArrayDeque<?> arrayDeque, final int tail)
-	{
-		// must check not null here explictely to prevent VM crashes
-		set_int(notNull(arrayDeque), OFFSET_ArrayDeque_tail, tail);
-	}
-
 	public static Object[] accessArray(final Vector<?> vector)
 	{
 		// must check not null here explictely to prevent VM crashes

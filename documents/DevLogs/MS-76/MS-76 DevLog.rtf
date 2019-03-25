@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 MS-76 DevLog\par
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 MS-76 DevLog\par
 \par
 2019-03-18\par
 \par
@@ -81,7 +82,7 @@ BinaryHandlerArrayDeque#iterateInstanceReferences ist auch ein bug: iteriert das
 2019-03-19\par
 \par
 Branches im Home Office auschecken und alte Branches aufr\'e4umen.\par
-Kurz mal recherchieren zu besserem Begriff f\'fcr "ByteMultiple": {\field{\*\fldinst{HYPERLINK "https://en.wikipedia.org/wiki/Metric_prefix"}}{\fldrslt{\ul\cf1 https://en.wikipedia.org/wiki/Metric_prefix}}}\f0\fs28\par
+Kurz mal recherchieren zu besserem Begriff f\'fcr "ByteMultiple": {{\field{\*\fldinst{HYPERLINK https://en.wikipedia.org/wiki/Metric_prefix }}{\fldrslt{https://en.wikipedia.org/wiki/Metric_prefix\ul0\cf0}}}}\f0\fs28\par
 Hm. Da ist "Multiple" tats\'e4chlich als Fachbegriff verwendet.\par
 Aber trotzdem ist es seltsam. Das Ding hei\'dft ja dann "ByteVielfaches". Sollte es nicht sowas wie "ByteEinheit" oder "ByteDimension" oder so hei\'dfen?\par
 Egal, weitermachen.\par
@@ -90,7 +91,7 @@ Teams Nachricht an FH f\'fcr Abstimmung des aktuellen Stands.\par
 Zweiten Branch f\'fcr MS-76 machen, um die restlichen Handler zu migrieren bzw. nachzuarbeiten, ohne st\'e4ndig den Master zu ver\'e4ndern, falls die den zum Testen/Deployen verwenden wollen.\par
 \par
 Evtl. "Magnitude".\par
-Siehe {\field{\*\fldinst{HYPERLINK "https://en.wikipedia.org/wiki/Megabyte"}}{\fldrslt{\ul\cf1 https://en.wikipedia.org/wiki/Megabyte}}}\f0\fs28  und {\field{\*\fldinst{HYPERLINK "https://en.wikipedia.org/wiki/Orders_of_magnitude_(data"}}{\fldrslt{\ul\cf1 https://en.wikipedia.org/wiki/Orders_of_magnitude_(data}}}\f0\fs28 )\par
+Siehe {{\field{\*\fldinst{HYPERLINK https://en.wikipedia.org/wiki/Megabyte }}{\fldrslt{https://en.wikipedia.org/wiki/Megabyte\ul0\cf0}}}}\f0\fs28  und {{\field{\*\fldinst{HYPERLINK https://en.wikipedia.org/wiki/Orders_of_magnitude_(data) }}{\fldrslt{https://en.wikipedia.org/wiki/Orders_of_magnitude_(data)\ul0\cf0}}}}\f0\fs28\par
 Aber jetzt MS-76.\par
 \par
 \par
@@ -256,5 +257,17 @@ F\'fcr die anderne Concurrent Dinger auch gleich noch.\par
 Achso, f\'fcr die SkipListSetMapQuatschSchmarrn Dinger geht das nicht, weil die einen Comparator brauchen.\par
 Dann halt copy&paste von dem Treebl\'f6dsinn.\par
 Fertig.\par
+\par
+\par
+2019-03-25\par
+\par
+TODOs durchgehen.\par
+\par
+ArrayDeque ensure capacity ... \'e4h ... einfach als generische Queue handeln. Kein Bock auf den Scheiss, den wahrscheinlich eh nie jemand nimmt.\par
+Priority Queue adding Order ... \'e4h ... einfach als generische Queue handeln. Kein Bock auf den Scheiss, den wahrscheinlich eh nie jemand nimmt.\par
+\par
+So, was hamma noch ...\par
+Hm. Mal \'fcberall durchchecken, ob wirklich korrekt sizedArray (Array mit capacity und size) anstatt simple Array (Anzahl an Elementen) verwendet wird.\par
+Also ArrayList, Vector, Stack sind letztendlich alle drei logisch gesehen einfach eine ArrayList. Dort passt es. Beim Rest nicht.\par
 }
  

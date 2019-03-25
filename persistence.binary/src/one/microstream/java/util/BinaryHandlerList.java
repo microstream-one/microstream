@@ -50,7 +50,7 @@ public class BinaryHandlerList<T extends List<?>> extends AbstractBinaryHandlerC
 	{
 		super(
 			type,
-			BinaryCollectionHandling.sizedArrayPseudoFields()
+			BinaryCollectionHandling.simpleArrayPseudoFields()
 		);
 		this.instantiator = instantiator;
 	}
@@ -125,7 +125,7 @@ public class BinaryHandlerList<T extends List<?>> extends AbstractBinaryHandlerC
 	@Override
 	public void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 	
