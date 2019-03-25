@@ -23,8 +23,8 @@ public class View<E> implements XGettingCollection<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public View(final XGettingCollection<E> collection)
 	{

@@ -25,8 +25,8 @@ public final class BinaryHandlerEqBulkList
 extends AbstractBinaryHandlerCustomCollectionSizedArray<EqBulkList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_EQUALATOR   =                                                     0;
 	static final long BINARY_OFFSET_SIZED_ARRAY = BINARY_OFFSET_EQUALATOR + Binary.objectIdByteLength();
@@ -37,8 +37,8 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<EqBulkList<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private static Class<EqBulkList<?>> typeWorkaround()
@@ -50,8 +50,8 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<EqBulkList<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerEqBulkList(final PersistenceSizedArrayLengthController controller)
 	{

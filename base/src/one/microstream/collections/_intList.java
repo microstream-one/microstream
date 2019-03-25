@@ -21,8 +21,8 @@ import one.microstream.typing.Composition;
 public final class _intList implements _intCollecting, Composition
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static String exceptionStringRange(final int size, final int startIndex, final int length)
 	{

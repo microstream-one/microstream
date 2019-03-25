@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 public final class ExperimentalArrayVarList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int MINIMAL_INDEX_SIZE = 2;
 	private static final int MINIMAL_ENTRY_SIZE = 8;

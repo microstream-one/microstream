@@ -51,8 +51,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	public static final float defaultHashDensity()
 	{

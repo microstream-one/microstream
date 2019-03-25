@@ -214,5 +214,92 @@ Also so bauen und Kommentar dazu schreiben.\par
 Und schon ist das TreeSet fertig, hurra.\par
 \par
 \par
+\par
+2019-03-22\par
+\par
+N\'e4chster Handler: PriorityQueue\par
+Da werden head und tail als Felder definiert. Das ist schon mal falsch.\par
+Recherchieren.\par
+Eigentlich ist das nur ein sized array mit Comparator.\par
+\par
+\par
+2019-03-23\par
+\par
+Jetzt noch die restlichen BinaryHandler implementieren, damit das mal fertig wird.\par
+Die 5 ~Concurrent Dinger sind noch \'fcbrig.\par
+\par
+Erste Klasse: ConcurrentHashDreck. \'c4h, Map.\par
+Klasse durchschauen, ob die \'fcberhaupt irgendeinen persistenten State \'fcber HashMap hinaus hat. Sonst kopier ich einfach den Handler daf\'fcr und feddich.\par
+Katastrophale Implementierung. Ich bin mir nicht sicher, was das soll. Bissl compareAndSwap verwenden kann man auch, ohne dass man endlos hingekotzten Spaghettibrei \'fcber 70 Einr\'fcckungsebenen baut.\par
+OMG. Da steigt niemand durch. Also einfach nach Konstruktor Paramtern und Gettern suchen.\par
+\par
+Also ich denk, das beste ist folgendes:\par
+- Zum Speichern die Array Capacity \'fcber einen XMemory Accessor abfragen und mit abspeichern.\par
+- Zum Laden als initialCapacity die Capacity mitgeben. Der LoadFactor in den Konstruktoren ist eh nur fake, es l\'e4uft letztendlich immer auf eine (initial) Capacity hinaus.\par
+- Ansonsten einfach nur als key-value elements speichern.\par
+\par
+Hm, ne, Moment: nicht mal der initialCapacity Konstruktor macht das, was er soll, sondern der berechnet nochmal mehr capacity.\par
+D.h. wenn man dem eine bestimmte valide capacity gibt, macht er eine gr\'f6\'dfere draus.\par
+Dann kann der Dreckspfuscher mich jetzt gern haben. Hei\'dft: \'dcberhaupt keine Metadaten speichern, einfach nur die Elements. Als initialCapacity nehm ich den ElementCount.\par
+Wer was spezielleres haben will, soll es sich selber schreiben.\par
+Immer dieser JDK Drecksscheisspfusch.\par
+\par
+\par
+2019-03-24\par
+\par
+Idee: Ich schreib gleich einen generischen TypeHandler f\'fcr Map und verwend den f\'fcr die ConcurrentHashMap.\par
+Das w\'e4re dann auch gleich ein Teil f\'fcr MS-125.\par
+Paar Issues durchschauen und updaten.\par
+Einen f\'fcr Set auch gleich bauen.\par
+Hm... die Offsets sind bl\'f6d. MS-130 erstellen.\par
+\par
+F\'fcr die anderne Concurrent Dinger auch gleich noch.\par
+Achso, f\'fcr die SkipListSetMapQuatschSchmarrn Dinger geht das nicht, weil die einen Comparator brauchen.\par
+Dann halt copy&paste von dem Treebl\'f6dsinn.\par
+Fertig.\par
+\par
+\par
+2019-03-25\par
+\par
+TODOs durchgehen.\par
+\par
+ArrayDeque ensure capacity ... \'e4h ... einfach als generische Queue handeln. Kein Bock auf den Scheiss, den wahrscheinlich eh nie jemand nimmt.\par
+Priority Queue adding Order ... \'e4h ... einfach als generische Queue handeln. Kein Bock auf den Scheiss, den wahrscheinlich eh nie jemand nimmt.\par
+\par
+So, was hamma noch ...\par
+Hm. Mal \'fcberall durchchecken, ob wirklich korrekt sizedArray (Array mit capacity und size) anstatt simple Array (Anzahl an Elementen) verwendet wird.\par
+Also ArrayList, Vector, Stack sind letztendlich alle drei logisch gesehen einfach eine ArrayList. Dort passt es. Beim Rest nicht.\par
+\par
+Dann noch bissl Konstruktoraufrufe und XMemory Konstanten aufr\'e4umen.\par
+Fertig!\par
+\par
+Ah, okay: und testen sollt ich den Mist vielleicht noch.\par
+Testklasse von FH anschauen.\par
+\par
+Oh. Einige Fl\'fcchtigkeitsfehler beim Aufruf von Iterierungsmethoden. Fixen.\par
+Au\'dferdem durch copy&paste paar Queues auf List gecastet, hehe. Ups. Fixen.\par
+\par
+L\'e4uft durch. Export anschauen.\par
+Seltsam: Eine ArrayList mit 50 Elementen (49 Kommas) hat 73 als Capacity.\par
+Ah ne, ist nicht falsch. Denn: die ArrayList startet mit 10 Capacity und der increase is plus die H\'e4lfte.\par
+Also 10, 15, 22, 33, 49, 73\par
+\par
+Sieht soweit gut aus.\par
+\par
+Noch String output von erzeugten und geladenen collections vergleichen.\par
+Abweichung.\par
+Ach, in Properties wird beim Laden die Reihenfolge ja nicht eingehalten, weil die JDK Hashtable ja keine Reihenfolge hat.\par
+Aber die String Werte an sich, key und value, sind gleich.\par
+\par
+Also soweit es die BinaryHandler geht, sieht alles gut aus.\par
+Aber bl\'f6d ist schon irgendwie: Ein Lambda Typ wird ohne Problem analysiert, ins Dictionary eingetragen und die Instanz als stateless Entity gespeichert.\par
+Beim Laden gibts dann aber eine Exception, weil der Typ daf\'fcr nicht gefunden wird.\par
+Das Problem ist: Man kann \'fcber Reflection nicht erkennen, ob ein Typ ein Lambda ist. Der Goetz sabbelt da auf Stackoverflow schwachsinniges Zeug, dass es irrelevant sein m\'fcsste, ob eine Instanz ein Lambda sei oder nicht und wenn man das unterscheiden wolle, dann w\'fcrde man etwas falsch machen. Der lebt halt in seiner eigenen kleinen Welt. Kasper.\par
+\par
+Man k\'f6nnte nat\'fcrlich sagen:\par
+Das Speichern l\'e4uft einwandfrei ab. Nur der Class Loader l\'f6st Name und Lambda-ID nicht mehr richtig auf. Wenn er das irgendwann mal kann, dann passt ja auch alles damit, Lambdas als stateless entities zu laden und sie anhand ihres class names wieder zu dereferenzieren.\par
+Falls das mal st\'f6ren sollte, muss man halt einen eigenen PersistenceTypeEvaluator setzen, der Lambdas schon beim Speichern rausfischt.\par
+\par
+Hm. Das muss als ausf\'fchrlicher Kommentar ordentlich in den PersistenceTypeHandlerCreator rein, sonst sucht man da jedes mal wieder.\par
 }
  

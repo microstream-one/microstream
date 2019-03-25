@@ -13,8 +13,8 @@ extends AbstractChainEntryLinkedKV<K, V, EN>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractChainEntryLinkedKVHashed(final int hash, final EN link)
 	{

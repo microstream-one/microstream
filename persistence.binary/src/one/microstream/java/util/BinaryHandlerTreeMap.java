@@ -39,7 +39,7 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 
 	static final int getElementCount(final Binary bytes)
 	{
-		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
 		
 	@SuppressWarnings("unchecked")
@@ -120,6 +120,12 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
+	public final void complete(final Binary bytes, final TreeMap<?, ?> instance, final PersistenceLoadHandler builder)
+	{
+		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
+	}
+
+	@Override
 	public final void iterateInstanceReferences(final TreeMap<?, ?> instance, final PersistenceFunction iterator)
 	{
 		iterator.apply(instance.comparator());
@@ -127,16 +133,10 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final void complete(final Binary bytes, final TreeMap<?, ?> instance, final PersistenceLoadHandler builder)
-	{
-		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
-	}
-
-	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_COMPARATOR));
-		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 }

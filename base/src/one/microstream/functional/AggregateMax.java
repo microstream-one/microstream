@@ -14,8 +14,8 @@ public final class AggregateMax<E> implements Aggregator<E, E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AggregateMax(final Comparator<? super E> comparator)
 	{

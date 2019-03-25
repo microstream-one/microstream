@@ -65,8 +65,8 @@ public final class LimitList<E> extends AbstractSimpleArrayCollection<E>
 implements XList<E>, Composition, IdentityEqualityLogic
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// internal marker object for marking to be removed buckets for batch removal and null ambiguity resolution
 	private static final Object MARKER = new Object();

@@ -100,8 +100,8 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	private HashEnum(final HashEnum<E> original)
 	{

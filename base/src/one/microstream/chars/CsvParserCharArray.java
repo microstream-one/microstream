@@ -42,8 +42,8 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int META_INDEX_LITERAL_DELIMITER            =  0;
 	private static final int META_INDEX_VALUE_SEPARATOR              =  1;

@@ -44,8 +44,8 @@ public final class ConstList<E> extends AbstractSimpleArrayCollection<E>
 implements XImmutableList<E>, Composition, IdentityEqualityLogic
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final transient Object[] EMPTY_DATA = new Object[0];
 

@@ -29,8 +29,8 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	@Override
 	public <A> A join(final BiConsumer<? super KeyValue<K, V>, ? super A> joiner, final A aggregate)

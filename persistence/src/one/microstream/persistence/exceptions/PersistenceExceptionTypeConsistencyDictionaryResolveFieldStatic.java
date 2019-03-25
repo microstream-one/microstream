@@ -6,8 +6,8 @@ public class PersistenceExceptionTypeConsistencyDictionaryResolveFieldStatic
 extends PersistenceExceptionTypeConsistencyDictionaryResolveField
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeConsistencyDictionaryResolveFieldStatic(final Field field)
 	{

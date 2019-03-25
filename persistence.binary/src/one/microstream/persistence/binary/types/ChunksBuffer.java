@@ -14,16 +14,16 @@ import one.microstream.util.BufferSizeProviderIncremental;
 public class ChunksBuffer extends Binary implements MemoryRangeReader
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int DEFAULT_BUFFERS_CAPACITY = Long.BYTES;
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static ChunksBuffer New(
 		final ChunksBuffer[]                channelBuffers    ,
@@ -55,8 +55,8 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	ChunksBuffer(
 		final ChunksBuffer[]                channelBuffers    ,

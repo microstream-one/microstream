@@ -5,7 +5,6 @@ import java.util.TreeSet;
 
 import one.microstream.X;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryCollectionHandling;
@@ -19,8 +18,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomCollection<TreeSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_COMPARATOR =                                                      0;
 	static final long BINARY_OFFSET_ELEMENTS   = BINARY_OFFSET_COMPARATOR + Binary.objectIdByteLength();
@@ -28,18 +27,13 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<TreeSet<?>> typeWorkaround()
 	{
 		return (Class)TreeSet.class; // no idea how to get ".class" to work otherwise
-	}
-	
-	private static <E> Comparator<? super E> getComparator(final TreeSet<E> instance)
-	{
-		return XMemory.accessComparator(instance);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -59,8 +53,8 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerTreeSet()
 	{
@@ -88,7 +82,7 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedIterableAsList(
+		final long contentAddress = bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -99,7 +93,7 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 		
 		bytes.store_long(
 			contentAddress + BINARY_OFFSET_COMPARATOR,
-			handler.apply(getComparator(instance))
+			handler.apply(instance.comparator())
 		);
 	}
 	
@@ -134,7 +128,7 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	@Override
 	public final void iterateInstanceReferences(final TreeSet<?> instance, final PersistenceFunction iterator)
 	{
-		iterator.apply(getComparator(instance));
+		iterator.apply(instance.comparator());
 		Persistence.iterateReferencesIterable(iterator, instance);
 	}
 

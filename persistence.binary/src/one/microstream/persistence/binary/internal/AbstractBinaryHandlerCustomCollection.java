@@ -8,8 +8,8 @@ public abstract class AbstractBinaryHandlerCustomCollection<T>
 extends AbstractBinaryHandlerCustom<T>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AbstractBinaryHandlerCustomCollection(
 		final Class<T>                                                               type        ,

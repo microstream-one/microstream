@@ -20,8 +20,8 @@ import one.microstream.util.UtilStackTrace;
 public class TestJaList
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final Equalator<String> EQUAL_STRING = X::equal;
 

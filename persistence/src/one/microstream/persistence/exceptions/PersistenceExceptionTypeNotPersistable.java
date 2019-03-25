@@ -11,8 +11,8 @@ public class PersistenceExceptionTypeNotPersistable extends PersistenceException
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeNotPersistable(
 		final Class<?> type

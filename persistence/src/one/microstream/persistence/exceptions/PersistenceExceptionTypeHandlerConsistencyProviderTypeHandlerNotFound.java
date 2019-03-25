@@ -13,8 +13,8 @@ extends PersistenceExceptionTypeHandlerConsistencyProvider
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeHandlerConsistencyProviderTypeHandlerNotFound(
 		final Class<?> type,

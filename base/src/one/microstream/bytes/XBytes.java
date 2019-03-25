@@ -5,8 +5,8 @@ import java.nio.ByteOrder;
 public final class XBytes
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	/**
 	 * Parses a {@link String} instance to a {@link ByteOrder} instance according to {@code ByteOrder#toString()}

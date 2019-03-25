@@ -7,8 +7,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerNoOp(final Class<T> type)
 	{

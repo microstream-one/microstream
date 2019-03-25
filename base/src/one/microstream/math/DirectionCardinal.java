@@ -11,8 +11,8 @@ package one.microstream.math;
 public enum DirectionCardinal
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// CHECKSTYLE.OFF: MagicNumber: these are virtually already constants.
 	NORTH_WEST(1 << 4), NORTH(1 << 0), NORTH_EAST(1 << 5),
@@ -62,8 +62,8 @@ public enum DirectionCardinal
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 	private DirectionCardinal(final int bit)
 	{
 		this.directionBit = bit;

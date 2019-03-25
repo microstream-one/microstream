@@ -7,8 +7,8 @@ import java.io.File;
 public final class Storage
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// channels (work and storage distribution accross multiple threads with exclusive directories)
 	private static final int    DEFAULT_CHANNELCOUNT                = 1              ;

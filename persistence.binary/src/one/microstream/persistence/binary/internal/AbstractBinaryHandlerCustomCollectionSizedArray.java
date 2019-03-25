@@ -18,8 +18,8 @@ extends AbstractBinaryHandlerCustomCollection<T>
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AbstractBinaryHandlerCustomCollectionSizedArray(
 		final Class<T>                                                               type        ,

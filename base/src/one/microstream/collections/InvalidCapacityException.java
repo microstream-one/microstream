@@ -12,8 +12,8 @@ public class InvalidCapacityException extends RuntimeException
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public InvalidCapacityException()
 	{

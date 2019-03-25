@@ -281,8 +281,8 @@ implements XTable<K, V>, HashCollection<K>, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	private EqHashTable(final EqHashTable<K, V> original)
 	{

@@ -16,8 +16,8 @@ public class AggregateSearch<E> implements Aggregator<E, E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AggregateSearch(final Predicate<? super E> predicate)
 	{

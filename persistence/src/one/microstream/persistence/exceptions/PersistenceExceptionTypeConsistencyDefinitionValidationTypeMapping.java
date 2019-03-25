@@ -13,8 +13,8 @@ extends PersistenceExceptionTypeConsistencyDefinitionValidation
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeConsistencyDefinitionValidationTypeMapping(
 		final long     typeId,

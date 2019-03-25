@@ -20,8 +20,8 @@ import one.microstream.network.types.NetworkFactoryUserSessionServer;
 public final class LogicSimpleNetwork
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	/* (15.04.2016 TM)XXX: Very strange idea to put that there.
 	 * Probably an oversight leftover from a test class that evolved into a util class

@@ -18,8 +18,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomCollection<HashSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_LOAD_FACTOR =                                       0;
 	static final long BINARY_OFFSET_ELEMENTS    = BINARY_OFFSET_LOAD_FACTOR + Float.BYTES;
@@ -27,8 +27,8 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<HashSet<?>> typeWorkaround()
@@ -49,8 +49,8 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerHashSet()
 	{
@@ -77,7 +77,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedIterableAsList(
+		final long contentAddress = bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,

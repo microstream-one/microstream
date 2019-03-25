@@ -102,8 +102,8 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractBinaryHandlerCustom(
 		final Class<T>                                                    type   ,

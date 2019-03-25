@@ -19,16 +19,16 @@ public final class BinaryHandlerLimitList
 extends AbstractBinaryHandlerCustomCollectionSizedArray<LimitList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_SIZED_ARRAY = 0; // binary form is 100% just a sized array, so offset 0
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private static Class<LimitList<?>> typeWorkaround()
@@ -40,8 +40,8 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<LimitList<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerLimitList(final PersistenceSizedArrayLengthController controller)
 	{

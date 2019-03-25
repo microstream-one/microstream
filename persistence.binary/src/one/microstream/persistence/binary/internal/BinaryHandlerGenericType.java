@@ -43,8 +43,8 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected BinaryHandlerGenericType(
 		final Class<T>                              type                      ,

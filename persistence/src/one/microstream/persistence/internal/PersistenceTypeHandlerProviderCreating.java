@@ -41,8 +41,8 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	PersistenceTypeHandlerProviderCreating(
 		final PersistenceTypeManager               typeManager       ,

@@ -62,8 +62,8 @@ import one.microstream.util.iterables.GenericListIterator;
 public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> implements XList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// internal marker object for marking to be removed buckets for batch removal and null ambiguity resolution
 	private static final Object   MARKER = new Object() ;

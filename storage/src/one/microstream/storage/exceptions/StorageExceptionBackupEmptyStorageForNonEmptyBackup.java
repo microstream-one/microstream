@@ -15,8 +15,8 @@ extends StorageExceptionBackupChannelIndex
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
 		final long                                   channelIndex,

@@ -12,8 +12,8 @@ import one.microstream.persistence.binary.types.BinaryEntityDataReader;
 public final class BinaryChunkPrinter implements Consumer<Binary>, BinaryEntityDataReader
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	private static final int MAX_LITERAL_LENGTH_LONG = 20;
 	
@@ -61,8 +61,8 @@ public final class BinaryChunkPrinter implements Consumer<Binary>, BinaryEntityD
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryChunkPrinter(final VarString vc)
 	{

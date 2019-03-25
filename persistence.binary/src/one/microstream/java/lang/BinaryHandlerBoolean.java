@@ -5,13 +5,13 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerNativeBoolean extends AbstractBinaryHandlerCustomValueFixedLength<Boolean>
+public final class BinaryHandlerBoolean extends AbstractBinaryHandlerCustomValueFixedLength<Boolean>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
-	public BinaryHandlerNativeBoolean()
+	public BinaryHandlerBoolean()
 	{
 		super(Boolean.class, defineValueType(boolean.class));
 	}

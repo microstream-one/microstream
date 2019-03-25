@@ -14,8 +14,8 @@ public class BinaryPersistenceExceptionStateArrayLength extends BinaryPersistenc
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryPersistenceExceptionStateArrayLength(
 		final Object[] actualArray ,

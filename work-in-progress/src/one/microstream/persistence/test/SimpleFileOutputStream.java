@@ -20,8 +20,8 @@ public class SimpleFileOutputStream extends OutputStream
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public SimpleFileOutputStream(final File file)
 	{

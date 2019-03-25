@@ -11,8 +11,8 @@ public class PersistenceExceptionConsistencyInvalidId extends PersistenceExcepti
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionConsistencyInvalidId(final long id)
 	{

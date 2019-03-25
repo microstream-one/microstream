@@ -16,8 +16,8 @@ public final class BinaryHandlerSubstituterImplementation
 extends AbstractBinaryHandlerCustom<Substituter.Implementation<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private static Class<Substituter.Implementation<?>> typeWorkaround()
@@ -29,8 +29,8 @@ extends AbstractBinaryHandlerCustom<Substituter.Implementation<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerSubstituterImplementation()
 	{

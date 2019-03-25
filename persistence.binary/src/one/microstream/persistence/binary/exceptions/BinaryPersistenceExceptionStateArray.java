@@ -3,8 +3,8 @@ package one.microstream.persistence.binary.exceptions;
 public class BinaryPersistenceExceptionStateArray extends BinaryPersistenceExceptionState
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryPersistenceExceptionStateArray()
 	{

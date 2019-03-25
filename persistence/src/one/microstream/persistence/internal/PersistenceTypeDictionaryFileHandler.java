@@ -96,8 +96,8 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	PersistenceTypeDictionaryFileHandler(
 		final File                            file         ,

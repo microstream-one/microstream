@@ -16,16 +16,16 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerCustomCollection<LinkedList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_ELEMENTS = 0;
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<LinkedList<?>> typeWorkaround()
@@ -41,8 +41,8 @@ public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerCustomCo
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerLinkedList()
 	{
@@ -67,7 +67,7 @@ public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerCustomCo
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeSizedIterableAsList(
+		bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,

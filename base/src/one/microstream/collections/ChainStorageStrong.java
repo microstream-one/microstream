@@ -312,8 +312,8 @@ extends AbstractChainStorage<E, K, V, EN>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ChainStorageStrong(final AbstractChainCollection<E, K, V, EN> parent, final EN head)
 	{

@@ -9,8 +9,8 @@ import one.microstream.collections.types.XIterable;
 public final class CSV
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final char             DEFAULT_LINE_SEPERATOR              = '\n';
 	// the most reasonable control character for anyone who actually understands how it really works

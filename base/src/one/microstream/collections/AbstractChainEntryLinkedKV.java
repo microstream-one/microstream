@@ -8,8 +8,8 @@ public abstract class AbstractChainEntryLinkedKV<K, V, EN extends AbstractChainE
 extends AbstractChainEntryLinked<KeyValue<K, V>, K, V, EN>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractChainEntryLinkedKV(final EN link)
 	{

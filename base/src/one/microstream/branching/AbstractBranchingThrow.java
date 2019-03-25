@@ -15,8 +15,8 @@ public abstract class AbstractBranchingThrow extends RuntimeException
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractBranchingThrow()
 	{
@@ -45,20 +45,14 @@ public abstract class AbstractBranchingThrow extends RuntimeException
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// methods //
+	////////////
 
 	public Object getHint()
 	{
 		return this.hint;
 	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
-
+	
 	@Override
 	public synchronized AbstractBranchingThrow fillInStackTrace()
 	{

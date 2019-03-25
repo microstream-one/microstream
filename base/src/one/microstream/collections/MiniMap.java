@@ -45,8 +45,8 @@ public final class MiniMap<K, V> implements Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	@SuppressWarnings("unchecked")
 	public MiniMap()

@@ -27,8 +27,8 @@ public final class MapView<K, V> implements XGettingMap<K, V>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public MapView(final XGettingMap<K, V> subject)
 	{

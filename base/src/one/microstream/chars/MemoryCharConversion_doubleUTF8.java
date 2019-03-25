@@ -8,8 +8,8 @@ public final class MemoryCharConversion_doubleUTF8
 	// CHECKSTYLE.OFF: MagicNumber: Arithmetics are better readable with direct values
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final transient double
 		DOUBLE_NORMALIZATION_THRESHOLD_HIGH = 10_000_000.0  ,

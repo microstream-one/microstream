@@ -9,8 +9,8 @@ import one.microstream.network.exceptions.NetworkExceptionTimeout;
 public final class LogicSimpleAuthentication
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int MAX_STRING_LENGTH_AUTHENTICATION = 255; // should suffice for any username+password
 	private static final char AUTH_PARTS_SEPERATOR = '\n'; // no reasonable username should ever contain a newline ^^
@@ -18,8 +18,8 @@ public final class LogicSimpleAuthentication
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final SimpleAuthenticationInformation readUsernamePassword(final SocketChannel channel)
 		throws IOException, NetworkExceptionTimeout, NetworkExceptionConnectionValidation

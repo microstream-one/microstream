@@ -36,8 +36,8 @@ import one.microstream.typing.KeyValue;
 public final class XDebug
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final transient int    LINE_BUFFER_INITIAL_SIZE = 256       ;
 	private static final transient int    SOURCE_POSITION_PADDING  = 64        ;

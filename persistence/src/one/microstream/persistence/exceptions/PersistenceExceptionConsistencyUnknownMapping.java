@@ -14,8 +14,8 @@ public class PersistenceExceptionConsistencyUnknownMapping extends PersistenceEx
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionConsistencyUnknownMapping(final long passedTid, final Class<?> passedType)
 	{

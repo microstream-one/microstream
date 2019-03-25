@@ -13,8 +13,8 @@ import javax.swing.UIManager;
 public class ItemMatcherTestBench extends JFrame
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final int TEXTFIELD_COLUMNS      = 20;
 	static final int TEXTFIELD_COUNT        = 16;
@@ -60,8 +60,8 @@ public class ItemMatcherTestBench extends JFrame
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ItemMatcherTestBench(final String title, final int fieldCount)
 	{

@@ -81,8 +81,8 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected BinaryHandlerEnum(
 		final Class<T>                              type                      ,

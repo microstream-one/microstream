@@ -60,8 +60,8 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
 public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> implements XSettingList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final Object   MARKER = new Object() ;
 	private static final Object[] DUMMY  = new Object[0];

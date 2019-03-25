@@ -19,16 +19,16 @@ public final class BinaryHandlerFixedList
 extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final long BINARY_OFFSET_LIST = 0;
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private static Class<FixedList<?>> typeWorkaround()
@@ -40,8 +40,8 @@ extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerFixedList()
 	{

@@ -14,8 +14,8 @@ public abstract class Code
 	// CHECKSTYLE.OFF: ConstantName: keyword names are intentionally unchanged
 
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final String VISIBILITY_private   = "private";
 	private static final String VISIBILITY_protected = "protected";

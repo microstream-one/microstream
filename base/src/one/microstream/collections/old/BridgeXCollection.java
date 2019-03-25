@@ -20,8 +20,8 @@ public class BridgeXCollection<E> implements OldCollection<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected BridgeXCollection(final XCollection<E> collection)
 	{

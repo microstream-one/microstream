@@ -62,8 +62,8 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int
 		LITERAL_LENGTH_DUAL_CHAR    = 2,

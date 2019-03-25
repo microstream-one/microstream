@@ -9,8 +9,8 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFi
 public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends AbstractBinaryHandlerNativeArray<A>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AbstractBinaryHandlerNativeArrayPrimitive(
 		final Class<A>                                                                 arrayType   ,

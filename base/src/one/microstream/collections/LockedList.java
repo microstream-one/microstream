@@ -34,8 +34,8 @@ public final class LockedList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public LockedList(final XList<E> list)
 	{

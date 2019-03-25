@@ -15,8 +15,8 @@ public final class ToArrayAggregator<E> implements Aggregator<E, E[]>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ToArrayAggregator(final E[] array)
 	{

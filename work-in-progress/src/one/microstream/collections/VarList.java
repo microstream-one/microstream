@@ -47,8 +47,8 @@ import one.microstream.typing.Composition;
 public final class VarList<E> implements Composition, XList<E>, IdentityEqualityLogic
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	/*
 	 * Intentionally no minimum segment length because of the following rationale:
@@ -137,8 +137,8 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	VarList(final int segmentLength)
 	{

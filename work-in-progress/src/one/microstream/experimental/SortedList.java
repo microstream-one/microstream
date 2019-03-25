@@ -51,8 +51,8 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public SortedList(final XList<E> list, final Comparator<E> comparator)
 	{

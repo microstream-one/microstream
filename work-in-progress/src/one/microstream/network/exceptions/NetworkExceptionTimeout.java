@@ -3,8 +3,8 @@ package one.microstream.network.exceptions;
 public class NetworkExceptionTimeout extends NetworkException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public NetworkExceptionTimeout()
 	{

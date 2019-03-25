@@ -4,13 +4,13 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerStateles
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 
-public final class BinaryHandlerNativeObject extends AbstractBinaryHandlerStateless<Object>
+public final class BinaryHandlerObject extends AbstractBinaryHandlerStateless<Object>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
-	public BinaryHandlerNativeObject()
+	public BinaryHandlerObject()
 	{
 		super(Object.class);
 	}

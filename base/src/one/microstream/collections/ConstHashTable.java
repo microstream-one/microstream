@@ -221,8 +221,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	private ConstHashTable(final ConstHashTable<K, V> original)
 	{

@@ -48,8 +48,8 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// internal marker object for marking to be removed slots for batch removal and null ambiguity resolution
 	private static final Object MARKER = new Object();

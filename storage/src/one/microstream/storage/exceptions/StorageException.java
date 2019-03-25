@@ -5,8 +5,8 @@ import one.microstream.exceptions.BaseException;
 public class StorageException extends BaseException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageException()
 	{

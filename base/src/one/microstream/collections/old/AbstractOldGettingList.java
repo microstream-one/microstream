@@ -21,8 +21,8 @@ public abstract class AbstractOldGettingList<E> implements OldList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractOldGettingList(final XGettingList<E> list)
 	{

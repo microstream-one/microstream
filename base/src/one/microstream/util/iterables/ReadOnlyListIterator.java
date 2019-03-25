@@ -38,8 +38,8 @@ public class ReadOnlyListIterator<E> implements ListIterator<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public ReadOnlyListIterator(final XGettingSequence<E> list) throws IndexBoundsException
 	{

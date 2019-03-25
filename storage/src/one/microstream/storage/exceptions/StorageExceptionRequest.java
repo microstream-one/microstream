@@ -11,8 +11,8 @@ public class StorageExceptionRequest extends StorageException
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionRequest(final Throwable[] problems)
 	{

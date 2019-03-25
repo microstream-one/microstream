@@ -36,8 +36,8 @@ public final class FileObjectIdProvider extends AbstractIdProviderByFile impleme
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	FileObjectIdProvider(final File file, final long increase, final long startId)
 	{

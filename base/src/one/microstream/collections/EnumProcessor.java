@@ -27,8 +27,8 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public EnumProcessor(final XProcessingEnum<E> list)
 	{

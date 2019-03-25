@@ -3,8 +3,8 @@ package one.microstream.chars;
 final class CharConversionIntegers
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int
 		V001G = 1_000_000_000,
