@@ -21,8 +21,8 @@ public class TransientTidProvider implements PersistenceTypeIdProvider
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public TransientTidProvider()
 	{

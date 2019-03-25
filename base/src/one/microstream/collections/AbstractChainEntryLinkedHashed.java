@@ -18,8 +18,8 @@ extends AbstractChainEntryLinked<E, K, V, EN>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractChainEntryLinkedHashed(final int hash, final EN link)
 	{

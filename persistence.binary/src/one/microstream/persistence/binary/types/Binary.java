@@ -37,8 +37,8 @@ public abstract class Binary implements Chunk
 	 */
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final int
 		LENGTH_LEN  = Long.BYTES,
@@ -381,7 +381,7 @@ public abstract class Binary implements Chunk
 	
 	public abstract void iterateEntityData(BinaryEntityDataReader reader);
 		
-	public final long storeSizedKeyValuesAsEntries(
+	public final long storeKeyValuesAsEntries(
 		final long                               typeId      ,
 		final long                               objectId    ,
 		final long                               headerOffset,
@@ -532,7 +532,7 @@ public abstract class Binary implements Chunk
 		);
 	}
 
-	public final long storeSizedIterableAsList(
+	public final long storeIterableAsList(
 		final long                tid         ,
 		final long                oid         ,
 		final long                headerOffset,

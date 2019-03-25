@@ -23,8 +23,8 @@ implements Aggregator<PersistenceTypeDescriptionMember, TypeDictionaryAppenderIm
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public TypeDictionaryAppenderBuilder(final VarString vc, final int level)
 	{

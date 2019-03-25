@@ -27,8 +27,8 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public CodeGeneratorFoundation(final String typeName, final String superclass, final Member... members)
 	{

@@ -23,8 +23,8 @@ public final class BinaryHandlerHashTable
 extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_KEYS         =                                                        0;
 	static final long BINARY_OFFSET_VALUES       = BINARY_OFFSET_KEYS         + Binary.objectIdByteLength();
@@ -38,8 +38,8 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private static Class<HashTable<?, ?>> typeWorkaround()
@@ -61,8 +61,8 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerHashTable()
 	{
@@ -93,7 +93,7 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedKeyValuesAsEntries(
+		final long contentAddress = bytes.storeKeyValuesAsEntries(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,

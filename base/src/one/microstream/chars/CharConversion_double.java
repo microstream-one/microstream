@@ -6,8 +6,8 @@ public final class CharConversion_double
 	// CHECKSTYLE.OFF: MagicNumber: Arithmetics are better readable with direct values
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final double
 		DOUBLE_NORMALIZATION_THRESHOLD_HIGH = 10_000_000.0  ,

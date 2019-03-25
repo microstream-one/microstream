@@ -38,8 +38,8 @@ public class MainExampleCollections20
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public MainExampleCollections20(final int n, final int k, final int l)
 	{

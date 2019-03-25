@@ -5,8 +5,8 @@ import java.nio.channels.SocketChannel;
 public class NetworkExceptionConnectionValidation extends NetworkExceptionConnectionAcception
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public NetworkExceptionConnectionValidation(final SocketChannel newConnection)
 	{

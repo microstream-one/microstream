@@ -23,8 +23,8 @@ public final class BinaryHandlerConstHashTable
 extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long
 		BINARY_OFFSET_KEYS         = 0                                                       ,
@@ -96,7 +96,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedKeyValuesAsEntries(
+		final long contentAddress = bytes.storeKeyValuesAsEntries(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,

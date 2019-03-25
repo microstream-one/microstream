@@ -10,8 +10,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomValueVariableLength<BigDecimal>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerBigDecimal()
 	{

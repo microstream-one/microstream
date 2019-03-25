@@ -9,8 +9,8 @@ import java.rmi.server.UnicastRemoteObject;
 public class BabbleTest
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	public static final int    port        = 1337;
 	public static final String host        = "localhost";

@@ -12,8 +12,8 @@ extends PersistenceExceptionTypeConsistencyDefinitionValidation
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeConsistencyDefinitionValidationArrayType(
 		final Class<?> actualType

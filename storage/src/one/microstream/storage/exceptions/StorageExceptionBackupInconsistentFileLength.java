@@ -23,8 +23,8 @@ extends StorageExceptionBackupChannelIndex
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                       storageInventory ,

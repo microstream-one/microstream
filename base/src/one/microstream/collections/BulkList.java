@@ -68,8 +68,8 @@ public final class BulkList<E> extends AbstractSimpleArrayCollection<E>
 implements XList<E>, Composition, IdentityEqualityLogic
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final int DEFAULT_INITIAL_CAPACITY = 1;
 

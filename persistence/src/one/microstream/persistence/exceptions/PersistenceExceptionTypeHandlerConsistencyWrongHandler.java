@@ -17,8 +17,8 @@ public class PersistenceExceptionTypeHandlerConsistencyWrongHandler extends Pers
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeHandlerConsistencyWrongHandler(
 		final Class<?>                    type       ,

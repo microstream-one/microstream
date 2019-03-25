@@ -6,8 +6,8 @@ public final class ChainEntryLinkedHashedStrong<E>
 extends AbstractChainEntryLinkedHashed<E, E, E, ChainEntryLinkedHashedStrong<E>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 	
 	@SuppressWarnings("unchecked") // compensate java generics type system loophole
 	static final <E> ChainEntryLinkedHashedStrong<E>[] array(final int length)
@@ -26,8 +26,8 @@ extends AbstractChainEntryLinkedHashed<E, E, E, ChainEntryLinkedHashedStrong<E>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected ChainEntryLinkedHashedStrong(final int hash, final E element, final ChainEntryLinkedHashedStrong<E> link)
 	{

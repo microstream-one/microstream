@@ -25,8 +25,8 @@ public class SingletonView<E> implements XReferencing<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public SingletonView(final Singleton<E> subject)
 	{

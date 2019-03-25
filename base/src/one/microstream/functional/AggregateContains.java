@@ -19,8 +19,8 @@ public final class AggregateContains<E> implements Aggregator<E, Boolean>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AggregateContains(final Predicate<? super E> predicate)
 	{

@@ -16,8 +16,8 @@ public class IsGreater<E> implements Predicate<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public IsGreater(final Comparator<? super E> comparator)
 	{

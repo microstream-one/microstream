@@ -6,8 +6,8 @@ import one.microstream.reflect.XReflect;
 public final class VolatileFlag
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// CHECKSTYLE.OFF: ConstantName: field names are intentionally unchanged
 

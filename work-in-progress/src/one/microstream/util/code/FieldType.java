@@ -3,8 +3,8 @@ package one.microstream.util.code;
 public enum FieldType
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	MUTABLE                          (false, false, false, false),
 	MUTABLE_WITH_CTOR                (false, true , false, false),

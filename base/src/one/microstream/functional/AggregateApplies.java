@@ -19,8 +19,8 @@ public class AggregateApplies<E> implements Aggregator<E, Boolean>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AggregateApplies(final Predicate<? super E> predicate)
 	{

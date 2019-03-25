@@ -5,8 +5,8 @@ import one.microstream.exceptions.BaseException;
 public class PersistenceException extends BaseException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceException()
 	{

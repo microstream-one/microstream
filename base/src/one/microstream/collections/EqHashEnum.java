@@ -161,8 +161,8 @@ implements XEnum<E>, HashCollection<E>, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	private EqHashEnum(final EqHashEnum<E> original)
 	{

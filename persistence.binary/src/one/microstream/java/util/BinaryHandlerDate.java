@@ -10,16 +10,16 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFixedLength<Date>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final long LENGTH_TIMESTAMP = Long.BYTES;
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerDate()
 	{

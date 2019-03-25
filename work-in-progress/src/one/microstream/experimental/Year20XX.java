@@ -13,8 +13,8 @@ import one.microstream.typing.ValueType;
 public final class Year20XX extends Number implements ValueType
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	public static final int MIN_VALUE = 2000;
 	public static final int MAX_VALUE = 2099;

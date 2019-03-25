@@ -16,8 +16,8 @@ import one.microstream.functional.Similator;
 public final class Levenshtein
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	public static final double similiarity(final String a, final String b)
 	{

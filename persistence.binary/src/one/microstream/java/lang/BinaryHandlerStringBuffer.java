@@ -9,8 +9,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstractStringBuilder<StringBuffer>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerStringBuffer()
 	{

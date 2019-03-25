@@ -7,8 +7,8 @@ final class ChainMapEntryLinkedStrongStrong<K, V>
 extends AbstractChainEntryLinkedKV<K, V, ChainMapEntryLinkedStrongStrong<K, V>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 	
 	@SuppressWarnings("unchecked") // compensate java generics type system loophole
 	static final <K, V> ChainMapEntryLinkedStrongStrong<K, V>[] array(final int length)
@@ -28,8 +28,8 @@ extends AbstractChainEntryLinkedKV<K, V, ChainMapEntryLinkedStrongStrong<K, V>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected ChainMapEntryLinkedStrongStrong(
 		final K                                     key  ,

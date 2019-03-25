@@ -10,8 +10,8 @@ package one.microstream.exceptions;
 public class NumberRangeException extends RuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public NumberRangeException()
 	{

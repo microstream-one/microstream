@@ -12,8 +12,8 @@ public class BinaryPersistenceExceptionInvalidListElements extends BinaryPersist
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryPersistenceExceptionInvalidListElements(
 		final long entityLength    ,

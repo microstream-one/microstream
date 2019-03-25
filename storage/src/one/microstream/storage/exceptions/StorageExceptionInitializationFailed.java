@@ -3,8 +3,8 @@ package one.microstream.storage.exceptions;
 public class StorageExceptionInitializationFailed extends StorageExceptionInitialization
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionInitializationFailed()
 	{

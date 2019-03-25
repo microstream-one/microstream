@@ -11,8 +11,8 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFi
 public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinaryHandlerCustom<A>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	protected static final XImmutableSequence<PersistenceTypeDefinitionMemberPseudoFieldComplex>
 	defineElementsType(final Class<?> componentType)
@@ -31,8 +31,8 @@ public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinary
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AbstractBinaryHandlerNativeArray(
 		final Class<A>                                                               arrayType   ,

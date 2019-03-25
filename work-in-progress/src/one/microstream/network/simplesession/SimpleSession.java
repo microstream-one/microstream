@@ -11,8 +11,8 @@ import one.microstream.network.types.NetworkUserSessionManager;
 public class SimpleSession extends NetworkUserSession.AbstractImplementation<SimpleSessionUser, String, SimpleSession>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// (15.04.2016 TM)TODO: those values must be configurable
 	private static final int TIMEOUT            = 1000; // in milliseconds

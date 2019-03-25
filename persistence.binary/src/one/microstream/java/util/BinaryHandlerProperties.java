@@ -19,8 +19,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCollection<Properties>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	// no load factor because the Properties class does not allow to specify one. It is always the Hashtable default.
 	static final long BINARY_OFFSET_DEFAULTS =                                                    0;
@@ -29,8 +29,8 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static Class<Properties> typeWorkaround()
 	{
@@ -39,14 +39,14 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 
 	static final int getElementCount(final Binary bytes)
 	{
-		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerProperties()
 	{
@@ -127,7 +127,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_DEFAULTS));
-		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 }

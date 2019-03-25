@@ -101,6 +101,33 @@ public interface PersistenceTypeHandlerCreator<M>
 				// array types can never change and therefore can never have obsolete types.
 				return this.createTypeHandlerArray(type);
 			}
+			
+			/* (25.03.2019 TM)NOTE:
+			 * Note on lambdas:
+			 * There is (currently) no way of determining if an instance is a lambda.
+			 * Any checks on the name are best guesses, not reliable logic.
+			 * It may work in a certain (even most) applications absolutely correctly, but it is not reliable
+			 * to not be ambiguous and hence wrong.
+			 * 
+			 * Here (https://stackoverflow.com/questions/23870478/how-to-correctly-determine-that-an-object-is-a-lambda),
+			 * Brian Goetz babbles some narrow-minded stuff about that it should not matter if an instance is
+			 * a lambda or not and that one with the wish to recognize that would "almost certainly" be doing
+			 * something wrong.
+			 * Cute little world he lives in.
+			 * 
+			 * On a more competent note:
+			 * Persisting a lambda as a stateless entity is actually not technically wrong.
+			 * The only problem is that the JVM cannot resolve the type name it itself generated to describe the lambda.
+			 * That is simply a shortcoming of the (current) JVM that may get fixed in the future.
+			 * (also, it directly proves the good Brian oh so wrong. If the JVM cannot resolve its own lambda type,
+			 * as opposed to inner class types etc., there IS a need to recognize lambdas.)
+			 * Or it might not, as long as they maintain their displayed competence.
+			 * 
+			 * Until then:
+			 * If required/desired, a a simple solution would be to register a custom PersistenceTypeEvaluator
+			 * that checks for lambdas (with whatever logic works in the particular case) and throws an exception
+			 * to abort the storing of the lambda instance.
+			 */
 
 			// create generic handler for all other cases ("normal" classes without predefined handler)
 			return this.createGenericHandler(type);

@@ -11,8 +11,8 @@ public class StorageExceptionBackupChannelIndex extends StorageExceptionBackup
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public StorageExceptionBackupChannelIndex(final long channelIndex)
 	{

@@ -22,8 +22,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public SubList(final XList<E> list, final long fromIndex, final long toIndex)
 	{

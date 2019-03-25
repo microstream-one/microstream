@@ -15,8 +15,8 @@ public final class AggregateArrayAdder<E> implements Aggregator<E, Integer>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AggregateArrayAdder(final Predicate<? super E> predicate, final E[] array, final int i)
 	{

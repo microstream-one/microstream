@@ -12,8 +12,8 @@ public class BinaryPersistenceExceptionIncompleteChunk extends BinaryPersistence
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryPersistenceExceptionIncompleteChunk(final long currentChunkLength, final long totalChunkLength)
 	{

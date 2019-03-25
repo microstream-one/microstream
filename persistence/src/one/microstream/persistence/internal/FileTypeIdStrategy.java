@@ -10,8 +10,8 @@ import one.microstream.persistence.types.PersistenceTypeIdStrategy;
 public class FileTypeIdStrategy implements PersistenceTypeIdStrategy
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final long DEFAULT_INCREASE = 1000;
 	

@@ -8,8 +8,8 @@ public abstract class AbstractBinaryHandlerCustomValueVariableLength<T>
 extends AbstractBinaryHandlerCustomValue<T>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AbstractBinaryHandlerCustomValueVariableLength(
 		final Class<T>                                                               type        ,

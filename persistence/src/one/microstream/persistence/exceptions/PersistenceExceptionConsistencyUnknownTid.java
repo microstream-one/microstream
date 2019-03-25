@@ -12,8 +12,8 @@ public class PersistenceExceptionConsistencyUnknownTid extends PersistenceExcept
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionConsistencyUnknownTid(final long passedTid)
 	{

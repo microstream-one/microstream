@@ -35,8 +35,8 @@ public final class CompositeIdProvider implements PersistenceObjectIdProvider, P
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	CompositeIdProvider(
 		final PersistenceTypeIdProvider   typeIdProvider  ,
@@ -67,8 +67,8 @@ public final class CompositeIdProvider implements PersistenceObjectIdProvider, P
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public final synchronized CompositeIdProvider initialize()
 	{

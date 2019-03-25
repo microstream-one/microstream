@@ -52,8 +52,8 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public RandomArrayIterator(final E[] array, final int count)
 	{

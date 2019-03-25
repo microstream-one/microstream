@@ -137,8 +137,8 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	/**
 	 * Instantiates a new empty {@link Threaded} instance with default (quite small) storage size.

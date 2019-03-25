@@ -31,8 +31,8 @@ import one.microstream.storage.types.StorageTypeDictionary;
 public class UtilStorageCsvExport
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	static final int    BUFFER_SIZE_READ  =  4096;
 	static final int    BUFFER_SIZE_WRITE =  4096;

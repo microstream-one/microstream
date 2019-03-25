@@ -5,8 +5,8 @@ import one.microstream.persistence.exceptions.PersistenceException;
 public class BinaryPersistenceException extends PersistenceException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryPersistenceException()
 	{

@@ -34,8 +34,8 @@ public abstract class AbstractCodeGenerator<F extends Field>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	@SafeVarargs
 	public AbstractCodeGenerator(

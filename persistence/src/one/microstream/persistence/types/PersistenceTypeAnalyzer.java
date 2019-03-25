@@ -87,11 +87,9 @@ public interface PersistenceTypeAnalyzer
 			/*
 			 * tricky:
 			 * all abstract types (both interfaces and classes) can be handled as having no fields at all
-			 * because there will (can!) never be actual instances of exactely (only) that type encountered
+			 * because there can never be actual instances of exactely (only) that type encountered
 			 * that would have to be persistet.
-			 * However a type entry for those abstract classes is still necessary in case the class itself
-			 * (the definition) is referenced in an object graph (as an entity by itself) and for typeId
-			 * validation purposes.
+			 * However, a type entry for those abstract classes is still necessary for typeId validation purposes.
 			 * Checking for abstract types comes even before checking for persistability intentionally as
 			 * a persistence layer only has to handle concrete types anyway.
 			 * This means for example a type definition string is exported for them, but it will be empty.
@@ -103,7 +101,7 @@ public interface PersistenceTypeAnalyzer
 				return persistableFields; // handle abstract types as having no fields at all / stateless types.
 			}
 
-			if(!this.isPersistable.test(type))
+			if(!this.isPersistable.isPersistableType(type))
 			{
 				throw new PersistenceExceptionTypeNotPersistable(type);
 			}

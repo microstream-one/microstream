@@ -5,8 +5,8 @@ import one.microstream.collections.types.XSettingList;
 public abstract class AbstractOldSettingList<E> extends AbstractOldGettingList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	protected AbstractOldSettingList(final XSettingList<E> list)
 	{

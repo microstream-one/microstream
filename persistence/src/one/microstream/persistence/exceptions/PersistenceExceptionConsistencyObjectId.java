@@ -13,8 +13,8 @@ public class PersistenceExceptionConsistencyObjectId extends PersistenceExceptio
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionConsistencyObjectId(final Object reference, final long actualOid, final long passedOid)
 	{

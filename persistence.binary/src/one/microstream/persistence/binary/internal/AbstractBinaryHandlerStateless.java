@@ -8,8 +8,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHandlerCustom<T>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AbstractBinaryHandlerStateless(final Class<T> type)
 	{

@@ -24,8 +24,8 @@ public final class BinaryHandlerEqHashTable
 extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long
 		BINARY_OFFSET_EQUALATOR    =                                                   0,
@@ -68,8 +68,8 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerEqHashTable()
 	{
@@ -101,7 +101,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedKeyValuesAsEntries(
+		final long contentAddress = bytes.storeKeyValuesAsEntries(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,

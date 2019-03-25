@@ -14,8 +14,8 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.AbstractImplementation<T>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public AbstractBinaryHandlerTrivial(final Class<T> type)
 	{

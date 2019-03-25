@@ -40,8 +40,8 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
 public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> implements XGettingList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	private static final Object[] DUMMY = new Object[0];
 

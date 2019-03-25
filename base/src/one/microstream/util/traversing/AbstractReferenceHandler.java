@@ -7,8 +7,8 @@ import one.microstream.collections.types.XSet;
 public abstract class AbstractReferenceHandler implements TraversalReferenceHandler
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	static final int SEGMENT_SIZE = 50;
 	

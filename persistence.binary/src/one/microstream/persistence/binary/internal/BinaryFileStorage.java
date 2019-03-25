@@ -22,8 +22,8 @@ public final class BinaryFileStorage implements PersistenceChannel<Binary>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryFileStorage(final PersistenceSource<Binary> source, final PersistenceTarget<Binary> target)
 	{

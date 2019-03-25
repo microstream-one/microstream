@@ -3,8 +3,8 @@ package one.microstream.network.exceptions;
 public class NetworkExceptionConnection extends NetworkException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public NetworkExceptionConnection()
 	{

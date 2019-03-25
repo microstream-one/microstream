@@ -11,8 +11,8 @@ public class BinaryPersistenceExceptionInvalidChunkLength extends BinaryPersiste
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryPersistenceExceptionInvalidChunkLength(final long chunkLength)
 	{

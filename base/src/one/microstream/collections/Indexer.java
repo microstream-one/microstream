@@ -8,8 +8,8 @@ import one.microstream.functional.IndexedAcceptor;
 final class Indexer<E> implements IndexedAcceptor<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 	
 	private static final int INITIAL_INDEX_LENGTH = 32;
 	

@@ -17,8 +17,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollectionSizedArray<Stack<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
 	static final long BINARY_OFFSET_CAPACITY_INCREMENT =                                                0;
 	static final long BINARY_OFFSET_SIZED_ARRAY        = BINARY_OFFSET_CAPACITY_INCREMENT + Integer.BYTES;
@@ -26,8 +26,8 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollect
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods    //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<Stack<?>> typeWorkaround()
@@ -38,8 +38,8 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollect
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public BinaryHandlerStack(final PersistenceSizedArrayLengthController controller)
 	{
@@ -89,8 +89,10 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollect
 	@Override
 	public final void update(final Binary bytes, final Stack<?> instance, final PersistenceLoadHandler handler)
 	{
+		// instance must be cleared and capacity-ensured in case an existing instance gets updated.
 		instance.clear();
 		instance.ensureCapacity(bytes.getSizedArrayLength(BINARY_OFFSET_SIZED_ARRAY));
+		
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
 			XMemory.accessArray(instance),

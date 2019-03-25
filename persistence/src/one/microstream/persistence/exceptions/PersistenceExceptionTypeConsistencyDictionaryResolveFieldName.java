@@ -14,8 +14,8 @@ extends PersistenceExceptionTypeConsistencyDictionary
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// constructors     //
-	/////////////////////
+	// constructors //
+	/////////////////
 
 	public PersistenceExceptionTypeConsistencyDictionaryResolveFieldName(
 		final Class<?> declaringType,
