@@ -93,7 +93,7 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedKeyValuesAsEntries(
+		final long contentAddress = bytes.storeKeyValuesAsEntries(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,

@@ -273,5 +273,33 @@ Also ArrayList, Vector, Stack sind letztendlich alle drei logisch gesehen einfac
 Dann noch bissl Konstruktoraufrufe und XMemory Konstanten aufr\'e4umen.\par
 Fertig!\par
 \par
+Ah, okay: und testen sollt ich den Mist vielleicht noch.\par
+Testklasse von FH anschauen.\par
+\par
+Oh. Einige Fl\'fcchtigkeitsfehler beim Aufruf von Iterierungsmethoden. Fixen.\par
+Au\'dferdem durch copy&paste paar Queues auf List gecastet, hehe. Ups. Fixen.\par
+\par
+L\'e4uft durch. Export anschauen.\par
+Seltsam: Eine ArrayList mit 50 Elementen (49 Kommas) hat 73 als Capacity.\par
+Ah ne, ist nicht falsch. Denn: die ArrayList startet mit 10 Capacity und der increase is plus die H\'e4lfte.\par
+Also 10, 15, 22, 33, 49, 73\par
+\par
+Sieht soweit gut aus.\par
+\par
+Noch String output von erzeugten und geladenen collections vergleichen.\par
+Abweichung.\par
+Ach, in Properties wird beim Laden die Reihenfolge ja nicht eingehalten, weil die JDK Hashtable ja keine Reihenfolge hat.\par
+Aber die String Werte an sich, key und value, sind gleich.\par
+\par
+Also soweit es die BinaryHandler geht, sieht alles gut aus.\par
+Aber bl\'f6d ist schon irgendwie: Ein Lambda Typ wird ohne Problem analysiert, ins Dictionary eingetragen und die Instanz als stateless Entity gespeichert.\par
+Beim Laden gibts dann aber eine Exception, weil der Typ daf\'fcr nicht gefunden wird.\par
+Das Problem ist: Man kann \'fcber Reflection nicht erkennen, ob ein Typ ein Lambda ist. Der Goetz sabbelt da auf Stackoverflow schwachsinniges Zeug, dass es irrelevant sein m\'fcsste, ob eine Instanz ein Lambda sei oder nicht und wenn man das unterscheiden wolle, dann w\'fcrde man etwas falsch machen. Der lebt halt in seiner eigenen kleinen Welt. Kasper.\par
+\par
+Man k\'f6nnte nat\'fcrlich sagen:\par
+Das Speichern l\'e4uft einwandfrei ab. Nur der Class Loader l\'f6st Name und Lambda-ID nicht mehr richtig auf. Wenn er das irgendwann mal kann, dann passt ja auch alles damit, Lambdas als stateless entities zu laden und sie anhand ihres class names wieder zu dereferenzieren.\par
+Falls das mal st\'f6ren sollte, muss man halt einen eigenen PersistenceTypeEvaluator setzen, der Lambdas schon beim Speichern rausfischt.\par
+\par
+Hm. Das muss als ausf\'fchrlicher Kommentar ordentlich in den PersistenceTypeHandlerCreator rein, sonst sucht man da jedes mal wieder.\par
 }
  

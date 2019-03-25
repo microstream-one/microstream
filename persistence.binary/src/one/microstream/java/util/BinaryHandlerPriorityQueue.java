@@ -1,8 +1,8 @@
 package one.microstream.java.util;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 import one.microstream.X;
 import one.microstream.memory.XMemory;
@@ -82,7 +82,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedIterableAsList(
+		final long contentAddress = bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -112,7 +112,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 		instance.clear();
 		
 		@SuppressWarnings("unchecked")
-		final List<Object> castedInstance = (List<Object>)instance;
+		final Queue<Object> castedInstance = (Queue<Object>)instance;
 		
 		bytes.collectObjectReferences(
 			BINARY_OFFSET_ELEMENTS,

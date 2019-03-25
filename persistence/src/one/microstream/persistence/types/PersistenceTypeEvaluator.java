@@ -1,9 +1,6 @@
 package one.microstream.persistence.types;
 
-import java.util.function.Predicate;
-
-public interface PersistenceTypeEvaluator extends Predicate<Class<?>>
+public interface PersistenceTypeEvaluator
 {
-	@Override
-	public boolean test(Class<?> type);
+	public boolean isPersistableType(Class<?> type);
 }
