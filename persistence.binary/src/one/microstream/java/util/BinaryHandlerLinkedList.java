@@ -67,7 +67,7 @@ public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerCustomCo
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeSizedIterableAsList(
+		bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,

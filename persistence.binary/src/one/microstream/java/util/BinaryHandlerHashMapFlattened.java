@@ -78,7 +78,7 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeSizedIterableAsList(
+		final long contentAddress = bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,

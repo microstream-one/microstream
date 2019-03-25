@@ -31,7 +31,7 @@ public class BinaryHandlerMap<T extends Map<?, ?>> extends AbstractBinaryHandler
 	
 	public static final long getElementCount(final Binary bytes)
 	{
-		return bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS);
+		return bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS);
 	}
 	
 	
@@ -151,7 +151,7 @@ public class BinaryHandlerMap<T extends Map<?, ?>> extends AbstractBinaryHandler
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
-		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 	

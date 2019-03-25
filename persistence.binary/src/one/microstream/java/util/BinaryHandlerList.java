@@ -80,7 +80,7 @@ public class BinaryHandlerList<T extends List<?>> extends AbstractBinaryHandlerC
 	)
 	{
 		// store elements simply as array binary form
-		return bytes.storeSizedIterableAsList(
+		return bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,

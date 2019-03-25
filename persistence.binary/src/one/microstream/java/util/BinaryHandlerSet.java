@@ -81,7 +81,7 @@ public class BinaryHandlerSet<T extends Set<?>> extends AbstractBinaryHandlerCus
 	)
 	{
 		// store elements simply as array binary form
-		return bytes.storeSizedIterableAsList(
+		return bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,

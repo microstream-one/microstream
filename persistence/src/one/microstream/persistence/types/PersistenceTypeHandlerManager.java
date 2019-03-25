@@ -184,7 +184,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 
 		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandler(final Class<T> type)
 		{
-			if(!this.typeEvaluator.test(type))
+			if(!this.typeEvaluator.isPersistableType(type))
 			{
 				throw new PersistenceExceptionTypeNotPersistable(type);
 			}
