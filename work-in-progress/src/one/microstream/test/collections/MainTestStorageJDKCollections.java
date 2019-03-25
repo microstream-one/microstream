@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import one.microstream.collections.XSort;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
@@ -86,7 +85,7 @@ public class MainTestStorageJDKCollections
 			populate(new ConcurrentLinkedQueue<>()),
 			populate(new ConcurrentLinkedDeque<>()),
 			populate(new ConcurrentSkipListSet<>()),
-			populate(new ConcurrentSkipListMap<Integer, String>(XSort::compare))
+			populate(new ConcurrentSkipListMap<Integer, String>(new IntegerComparator()))
 		};
 	}
 	
