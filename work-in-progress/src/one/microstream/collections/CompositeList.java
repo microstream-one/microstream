@@ -202,7 +202,7 @@ public final class CompositeList<E> implements XGettingList<E>
 	{
 		final XGettingList<E>[] lists = subject.lists;
 
-		final BulkList<S> buffer = new BulkList<>(XTypes.to_int(subject.size())); // size() should be better than frequent bulk rebuilds
+		final BulkList<S> buffer = BulkList.New((subject.size())); // size() should be better than frequent bulk rebuilds
 		for(int c = 0; c < subject.count; c++)
 		{
 			buffer.addAll(lists[c]);

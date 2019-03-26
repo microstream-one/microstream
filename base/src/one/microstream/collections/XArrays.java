@@ -228,6 +228,26 @@ public final class XArrays
 		}
 		return array;
 	}
+	
+	public static final float[] fill(final float[] array, final float fillElement)
+	{
+		final int length = array.length;
+		for(int i = 0; i < length; i++)
+		{
+			array[i] = fillElement;
+		}
+		return array;
+	}
+	
+	public static final double[] fill(final double[] array, final double fillElement)
+	{
+		final int length = array.length;
+		for(int i = 0; i < length; i++)
+		{
+			array[i] = fillElement;
+		}
+		return array;
+	}
 
 	public static final <T> T[] clear(final T[] array)
 	{

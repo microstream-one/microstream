@@ -5,8 +5,6 @@ import one.microstream.collections.ConstList;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.functional.XFunc;
-import one.microstream.typing.KeyValue;
-import one.microstream.typing.XTypes;
 
 
 public interface MultiMatchResult<E>
@@ -17,9 +15,9 @@ public interface MultiMatchResult<E>
 
 	public XGettingSequence<E> inputTargets();
 
-	public XGettingSequence<KeyValue<E, E>> matchesInSourceOrder();
+	public XGettingSequence<? extends Item<E>> matchesInSourceOrder();
 
-	public XGettingSequence<KeyValue<E, E>> matchesInTargetOrder();
+	public XGettingSequence<? extends Item<E>> matchesInTargetOrder();
 
 	public XGettingSequence<E> remainingSources();
 
@@ -29,13 +27,76 @@ public interface MultiMatchResult<E>
 
 	public XGettingSequence<E> unmatchedTargets();
 
-	public XGettingSequence<KeyValue<E, E>> sourceMatches();
+	public XGettingSequence<? extends Item<E>> sourceMatches();
 
-	public XGettingSequence<KeyValue<E, E>> targetMatches();
+	public XGettingSequence<? extends Item<E>> targetMatches();
 
 	public XGettingList<E> matchedSources();
 
 	public XGettingList<E> matchedTargets();
+	
+	
+	public interface Item<E>
+	{
+		public E sourceElement();
+		
+		public double similarity();
+		
+		public E targetElement();
+		
+		
+		
+		public final class Implementation<E> implements MultiMatchResult.Item<E>
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private final E      sourceElement;
+			private final double similarity   ;
+			private final E      targetElement;
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Implementation(final E sourceElement, final double similarity, final E targetElement)
+			{
+				super();
+				this.sourceElement = sourceElement;
+				this.similarity    = similarity   ;
+				this.targetElement = targetElement;
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
+			@Override
+			public final E sourceElement()
+			{
+				return this.sourceElement;
+			}
+			
+			@Override
+			public final double similarity()
+			{
+				return this.similarity;
+			}
+			
+			@Override
+			public final E targetElement()
+			{
+				return this.targetElement;
+			}
+			
+		}
+		
+	}
 	
 	
 	
@@ -45,9 +106,12 @@ public interface MultiMatchResult<E>
 		//  static methods  //
 		/////////////////////
 
-		static <T> ConstList<T> collectRemaining(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
+		static <T> ConstList<T> collectRemaining(
+			final ConstList<T>                 input  ,
+			final ConstList<? extends Item<T>> matches
+		)
 		{
-			final BulkList<T> remaining = new BulkList<>(XTypes.to_int(input.size()));
+			final BulkList<T> remaining = BulkList.New(input.size());
 			input.iterateIndexed((final T e, final long index) ->
 			{
 				remaining.add(matches.at(index) == null ? e : null);
@@ -56,9 +120,12 @@ public interface MultiMatchResult<E>
 			return remaining.immure();
 		}
 
-		static <T> ConstList<T> collectUnmatched(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
+		static <T> ConstList<T> collectUnmatched(
+			final ConstList<T>                 input  ,
+			final ConstList<? extends Item<T>> matches
+		)
 		{
-			final BulkList<T> unmatched = new BulkList<>(XTypes.to_int(input.size()));
+			final BulkList<T> unmatched = BulkList.New(input.size());
 			input.iterateIndexed((final T e, final long index) ->
 			{
 				if(matches.at(index) == null)
@@ -70,9 +137,12 @@ public interface MultiMatchResult<E>
 			return unmatched.immure();
 		}
 
-		static <T> ConstList<T> collectMatched(final ConstList<T> input, final ConstList<KeyValue<T, T>> matches)
+		static <T> ConstList<T> collectMatched(
+			final ConstList<T>                 input  ,
+			final ConstList<? extends Item<T>> matches
+		)
 		{
-			final BulkList<T> matched = new BulkList<>(XTypes.to_int(input.size()));
+			final BulkList<T> matched = BulkList.New(input.size());
 			input.iterateIndexed((final T e, final long index) ->
 			{
 				if(matches.at(index) != null)
@@ -95,8 +165,8 @@ public interface MultiMatchResult<E>
 		final ConstList<E> sources;
 		final ConstList<E> targets;
 
-		final ConstList<KeyValue<E, E>> matchesInSourceOrder;
-		final ConstList<KeyValue<E, E>> matchesInTargetOrder;
+		final ConstList<? extends Item<E>> matchesInSourceOrder;
+		final ConstList<? extends Item<E>> matchesInTargetOrder;
 
 		ConstList<E> remainingSources;
 		ConstList<E> remainingTargets;
@@ -105,8 +175,8 @@ public interface MultiMatchResult<E>
 		ConstList<E>   matchedSources;
 		ConstList<E>   matchedTargets;
 
-		ConstList<KeyValue<E, E>> sourceMatches;
-		ConstList<KeyValue<E, E>> targetMatches;
+		ConstList<? extends Item<E>> sourceMatches;
+		ConstList<? extends Item<E>> targetMatches;
 
 
 
@@ -115,11 +185,11 @@ public interface MultiMatchResult<E>
 		/////////////////////
 
 		protected Implementation(
-			final int                       matchCount          ,
-			final ConstList<E>              sourceInput         ,
-			final ConstList<E>              targetInput         ,
-			final ConstList<KeyValue<E, E>> matchesInSourceOrder,
-			final ConstList<KeyValue<E, E>> matchesInTargetOrder
+			final int                          matchCount          ,
+			final ConstList<E>                 sourceInput         ,
+			final ConstList<E>                 targetInput         ,
+			final ConstList<? extends Item<E>> matchesInSourceOrder,
+			final ConstList<? extends Item<E>> matchesInTargetOrder
 		)
 		{
 			super();
@@ -155,13 +225,13 @@ public interface MultiMatchResult<E>
 		}
 
 		@Override
-		public XGettingSequence<KeyValue<E, E>> matchesInSourceOrder()
+		public XGettingSequence<? extends Item<E>> matchesInSourceOrder()
 		{
 			return this.matchesInSourceOrder;
 		}
 
 		@Override
-		public XGettingSequence<KeyValue<E, E>> matchesInTargetOrder()
+		public XGettingSequence<? extends Item<E>> matchesInTargetOrder()
 		{
 			return this.matchesInTargetOrder;
 		}
@@ -207,12 +277,12 @@ public interface MultiMatchResult<E>
 		}
 
 		@Override
-		public synchronized XGettingSequence<KeyValue<E, E>> sourceMatches()
+		public synchronized XGettingSequence<? extends Item<E>> sourceMatches()
 		{
 			if(this.sourceMatches == null)
 			{
 				this.sourceMatches = this.matchesInSourceOrder.filterTo(
-					new BulkList<KeyValue<E, E>>(this.matchCount),
+					new BulkList<Item<E>>(this.matchCount),
 					XFunc.notNull()
 				).immure();
 			}
@@ -220,12 +290,12 @@ public interface MultiMatchResult<E>
 		}
 
 		@Override
-		public synchronized XGettingSequence<KeyValue<E, E>> targetMatches()
+		public synchronized XGettingSequence<? extends Item<E>> targetMatches()
 		{
 			if(this.targetMatches == null)
 			{
 				this.targetMatches = this.matchesInTargetOrder.filterTo(
-					new BulkList<KeyValue<E, E>>(this.matchCount),
+					new BulkList<Item<E>>(this.matchCount),
 					XFunc.notNull()
 				).immure();
 			}
