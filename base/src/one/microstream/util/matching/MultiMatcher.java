@@ -134,45 +134,6 @@ public interface MultiMatcher<E>
 		return 0.50;
 	}
 	
-	public static int calculateMatchCount(final int[] s2tMapping)
-	{
-		int matchCount = 0;
-		for(int i = 0; i < s2tMapping.length; i++)
-		{
-			if(s2tMapping[i] < 0)
-			{
-				continue;
-			}
-			matchCount++;
-		}
-		return matchCount;
-	}
-
-	public static int maxTargetQuantifier(final int[] sTargets)
-	{
-		int maxQuantifier = 0;
-		for(int t = 0; t < sTargets.length; t++)
-		{
-			if(sTargets[t] > maxQuantifier)
-			{
-				maxQuantifier = sTargets[t];
-			}
-		}
-		return maxQuantifier;
-	}
-
-	public static int maxSourceQuantifier(final int[][] quantifiers, final int t)
-	{
-		int maxQuantifier = 0;
-		for(int s = 0; s < quantifiers.length; s++)
-		{
-			if(quantifiers[s][t] > maxQuantifier)
-			{
-				maxQuantifier = quantifiers[s][t];
-			}
-		}
-		return maxQuantifier;
-	}
 	
 	
 	public static <E> MultiMatcher<E> New()

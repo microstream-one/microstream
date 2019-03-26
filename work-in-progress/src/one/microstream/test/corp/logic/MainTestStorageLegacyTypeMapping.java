@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import one.microstream.collections.old.OldCollections;
+import one.microstream.persistence.internal.InquiringLegacyTypeMappingResultor;
+import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.time.XTime;
@@ -11,7 +13,17 @@ import one.microstream.time.XTime;
 
 public class MainTestStorageLegacyTypeMapping
 {
-	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
+	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
+		.Foundation()
+		.onConnectionFoundation(f ->
+			f.setLegacyTypeMappingResultor(
+				InquiringLegacyTypeMappingResultor.New(
+					PersistenceLegacyTypeMappingResultor.New()
+				)
+			)
+		)
+		.start()
+	;
 
 	public static void main(final String[] args)
 	{
@@ -51,7 +63,7 @@ public class MainTestStorageLegacyTypeMapping
 		String             name     ;
 		Date               stuff    ;
 		ArrayList<String>  moreStuff;
-//		ArrayList<Integer> newStuff ;
+		ArrayList<Integer> newStuff ;
 		
 		
 		public TestEntity(final Integer id, final String name, final String... moreStuff)

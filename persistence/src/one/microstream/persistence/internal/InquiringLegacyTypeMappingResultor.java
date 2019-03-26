@@ -10,6 +10,8 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.math.XMath;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResult;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -27,8 +29,30 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final PersistenceLegacyTypeMappingResultor<M> delegate
 	)
 	{
+		return new InquiringLegacyTypeMappingResultor<>(delegate, 0.0);
+	}
+	
+	public static <M> InquiringLegacyTypeMappingResultor<M> New(
+		final PersistenceLegacyTypeMappingResultor<M> delegate,
+		final boolean                     ignorePerfectMatches
+	)
+	{
+		return New(
+			delegate,
+			ignorePerfectMatches
+				? 1.0
+				: 0.0
+		);
+	}
+	
+	public static <M> InquiringLegacyTypeMappingResultor<M> New(
+		final PersistenceLegacyTypeMappingResultor<M> delegate,
+		final double                inquerySimilarityThreshold
+	)
+	{
 		return new InquiringLegacyTypeMappingResultor<>(
-			notNull(delegate)
+			notNull(delegate),
+			XMath.notNegativePercentage(inquerySimilarityThreshold)
 		);
 	}
 	
@@ -39,6 +63,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	////////////////////
 	
 	private final PersistenceLegacyTypeMappingResultor<M> delegate;
+	private final double                                  inquerySimilarityThreshold;
 	
 	
 	
@@ -46,10 +71,14 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	// constructors //
 	/////////////////
 	
-	InquiringLegacyTypeMappingResultor(final PersistenceLegacyTypeMappingResultor<M> delegate)
+	InquiringLegacyTypeMappingResultor(
+		final PersistenceLegacyTypeMappingResultor<M> delegate,
+		final double                inquerySimilarityThreshold
+	)
 	{
 		super();
-		this.delegate = delegate;
+		this.delegate                   = delegate                  ;
+		this.inquerySimilarityThreshold = inquerySimilarityThreshold;
 	}
 
 
@@ -57,6 +86,17 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private boolean inquiryRequired(final PersistenceLegacyTypeMappingResult<M, ?> result)
+	{
+//		final long maxMemberCount = Math.max(
+//			matchedMembers.result().inputSources().size(),
+//			matchedMembers.result().inputTargets().size()
+//		);
+		// (26.03.2019 TM)FIXME: inquiryRequired
+		XDebug.println("FIXME");
+		return true;
+	}
 
 	@Override
 	public <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
@@ -67,6 +107,10 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
+		// (26.03.2019 TM)FIXME: /!\ DEBUG
+		final VarString vs = VarString.New(currentTypeHandler.runtimeTypeName() + " Matching:").lf();
+		XDebug.println(matchedMembers.assembler().assembleMappingSchemeVertical(vs).toString());
+		
 		final PersistenceLegacyTypeMappingResult<M, T> result = this.delegate.createMappingResult(
 			legacyTypeDefinition,
 			currentTypeHandler  ,
@@ -74,13 +118,8 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 			explicitNewMembers  ,
 			matchedMembers
 		);
-		
-		/* (21.03.2019 TM)TODO: MS-126: make inquiering configurable to not ask if the mapping is completely clear.
-		 * Or even better: use a threshold similarity that defines how low the lowest matching has to be in order to
-		 * perform the inquiry. A simplified constructor can be provided that maps a boolean to 1.0/0.0.
-		 */
-		
-		if(this.inquireApproval(explicitMappings, matchedMembers, result))
+				
+		if(!this.inquiryRequired(result) || this.inquireApproval(explicitMappings, matchedMembers, result))
 		{
 			return result;
 		}

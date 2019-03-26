@@ -6,7 +6,6 @@ import one.microstream.X;
 import one.microstream.collections.XArrays;
 import one.microstream.equality.Equalator;
 import one.microstream.functional.Similator;
-import one.microstream.typing.KeyValue;
 
 public interface MultiMatch<E>
 {
@@ -16,9 +15,11 @@ public interface MultiMatch<E>
 
 	public double singletonPrecedenceBonus();
 
+	public double lowestSimilarity();
+	
 	public double averageSimilarity();
-
-	public double totalSimilarity();
+	
+	public double highestSimilarity();
 	
 	public MultiMatchResult<E> result();
 	
@@ -37,43 +38,54 @@ public interface MultiMatch<E>
 	public class Implementation<E> implements MultiMatch<E>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// static methods //
+		///////////////////
 
-		// note that similarity values get converted from raw double similarity to int quantifiers to boost performance.
-		/* (05.09.2018 TM)TODO: MultiMatching: Remove premature int quantifier optimization
-		 * The quantifier concept (from 2011) is naive:
-		 * The performance impact for handling floats instead of ints is negligible here.
-		 * Most operations are simple != 0 or < 0 checks.
-		 * Plus, the work to convert all values, even multiple times, is not free, either.
-		 * The quantifier conversion can even create false behavior for really big double values.
-		 * Conclusion: all "quantifiers" should be eliminated, the work should be done on the doubles themselves.
-		 * 
-		 * There might even occur overflows when multiplying with the bonus factor or other arithmetics.
-		 */
-		protected static final int MAX_QUANTIFIER = 1000000000; // nicer to read/debug values and still big enough.
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// static methods   //
-		/////////////////////
-
-		static double similarity(final int quantifier)
+		public static int calculateMatchCount(final int[] s2tMapping)
 		{
-			return (double)quantifier / MAX_QUANTIFIER;
+			int matchCount = 0;
+			for(int i = 0; i < s2tMapping.length; i++)
+			{
+				if(s2tMapping[i] < 0)
+				{
+					continue;
+				}
+				matchCount++;
+			}
+			return matchCount;
 		}
 
-		static int quantifier(final double similarity)
+		public static double maxTargetQuantifier(final double[] sTargets)
 		{
-			return (int)(similarity * MAX_QUANTIFIER);
+			double maxQuantifier = 0.0;
+			for(int t = 0; t < sTargets.length; t++)
+			{
+				if(sTargets[t] > maxQuantifier)
+				{
+					maxQuantifier = sTargets[t];
+				}
+			}
+			return maxQuantifier;
 		}
 
-
-
+		public static double maxSourceQuantifier(final double[][] quantifiers, final int t)
+		{
+			double maxQuantifier = 0.0;
+			for(int s = 0; s < quantifiers.length; s++)
+			{
+				if(quantifiers[s][t] > maxQuantifier)
+				{
+					maxQuantifier = quantifiers[s][t];
+				}
+			}
+			return maxQuantifier;
+		}
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final MultiMatcher<E>           matcher       ;
 		private final MatchValidator<? super E> matchValidator;
@@ -91,7 +103,7 @@ public interface MultiMatch<E>
 		 * conflicted candidate pair.<p>
 		 * See {@link MultiMatcher#singletonPrecedenceThreshold()}.
 		 */
-		private final int singletonPrecedenceThreshold;
+		private final double singletonPrecedenceThreshold;
 
 		// factors //
 		/**
@@ -117,13 +129,15 @@ public interface MultiMatch<E>
 		final int[] trgToSrcMap;
 		final int[] srcCandCount;
 		final int[] trgCandCount;
-		final int[][] quantifiers;
-		final int[] linkedSrcQuantifiers; // doesn't require a target~ pendant as it applies to both
+		
+		final double[][] matrix;
+		final double[]   linkedSourceSimilarities; // doesn't require a target~ pendant as it applies to both
 
 		int    sourceCandidateCount;
 		int    targetCandidateCount;
-		int    totalQuantifier     ;
 		double averageSimilarity   ;
+		double lowestSimilarity    ;
+		double highestSimilarity   ;
 		int    matchCount          ;
 
 		MultiMatchResult<E> result;
@@ -131,8 +145,8 @@ public interface MultiMatch<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		@SuppressWarnings("unchecked")
 		protected Implementation(final MultiMatcher<E> matcher, final E[] source, final E[] target)
@@ -142,7 +156,7 @@ public interface MultiMatch<E>
 			this.matchValidator = matcher.validator();
 
 			// configurations
-			this.singletonPrecedenceThreshold = quantifier(matcher.singletonPrecedenceThreshold());
+			this.singletonPrecedenceThreshold = matcher.singletonPrecedenceThreshold();
 			this.singletonPrecedenceBonus = matcher.singletonPrecedenceBonus();
 			this.similarityThreshold = matcher.similarityThreshold();
 			this.noiseFactor = matcher.noiseFactor();
@@ -160,16 +174,16 @@ public interface MultiMatch<E>
 			this.trgToSrcMap = new int[this.inputTarget.length];
 
 			// similarity matrix (converted to integer quantifier values)
-			this.quantifiers = new int[source.length][this.inputTarget.length];
+			this.matrix = new double[source.length][this.inputTarget.length];
 
-			this.linkedSrcQuantifiers = new int[source.length];
+			this.linkedSourceSimilarities = new double[source.length];
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public double similarityThreshold()
@@ -196,16 +210,16 @@ public interface MultiMatch<E>
 		}
 
 		@Override
-		public double totalSimilarity()
+		public double lowestSimilarity()
 		{
-			return similarity(this.totalQuantifier);
+			return this.lowestSimilarity;
 		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		
+		@Override
+		public double highestSimilarity()
+		{
+			return this.highestSimilarity;
+		}
 
 		// internal methods - linking //
 
@@ -221,19 +235,19 @@ public interface MultiMatch<E>
 		{
 			XArrays.fill(this.srcCandCount, 0);
 			XArrays.fill(this.trgCandCount, 0);
-			XArrays.fill(this.linkedSrcQuantifiers, 0);
+			XArrays.fill(this.linkedSourceSimilarities, 0);
 
-			for(int s = 0; s < this.quantifiers.length; s++)
+			for(int s = 0; s < this.matrix.length; s++)
 			{
-				final int[] sTargets = this.quantifiers[s];
+				final double[] sTargets = this.matrix[s];
 				for(int t = 0; t < sTargets.length; t++)
 				{
-					sTargets[t] = 0;
+					sTargets[t] = 0.0;
 				}
 			}
 		}
 
-		protected void buildQuantifiers()
+		protected void buildSimilarityMatrix()
 		{
 			final MultiMatcher<E> m = this.matcher;
 			
@@ -254,7 +268,7 @@ public interface MultiMatch<E>
 					final double sim;
 					if((sim = m.similator().evaluate(this.source[s], this.target[t])) >= this.similarityThreshold)
 					{
-						this.quantifiers[s][t] = quantifier(sim);
+						this.matrix[s][t] = sim;
 						this.srcCandCount[s]++;
 						this.trgCandCount[t]++;
 					}
@@ -273,7 +287,7 @@ public interface MultiMatch<E>
 		protected void linkOneMatched(final int s, final int t)
 		{
 			if(this.matchValidator != null && !this.matchValidator.isValidMatch(
-				this.source[s], this.target[t], similarity(this.quantifiers[s][t]), this.srcCandCount[s], this.trgCandCount[t]
+				this.source[s], this.target[t], this.matrix[s][t], this.srcCandCount[s], this.trgCandCount[t]
 			))
 			{
 				this.removeOne(this.srcCandCount, this.trgCandCount, s, t);
@@ -286,25 +300,25 @@ public interface MultiMatch<E>
 //			;
 
 			this.link(s, t);
-			this.totalQuantifier += this.linkedSrcQuantifiers[s] = this.quantifiers[s][t];
+			this.linkedSourceSimilarities[s] = this.matrix[s][t];
 
-			final int[] sourceTargets = this.quantifiers[s];
+			final double[] sourceTargets = this.matrix[s];
 			for(int i = 0; i < sourceTargets.length; i++)
 			{
-				if(sourceTargets[i] > 0)
+				if(sourceTargets[i] > 0.0)
 				{
 					this.removeOne(this.srcCandCount, this.trgCandCount, s, i);
 				}
-				sourceTargets[i] = 0;
+				sourceTargets[i] = 0.0;
 			}
 
-			for(int i = 0; i < this.quantifiers.length; i++)
+			for(int i = 0; i < this.matrix.length; i++)
 			{
-				if(this.quantifiers[i][t] > 0)
+				if(this.matrix[i][t] > 0.0)
 				{
 					this.removeOne(this.srcCandCount, this.trgCandCount, i, t);
 				}
-				this.quantifiers[i][t] = 0;
+				this.matrix[i][t] = 0.0;
 			}
 
 //			this.debug_printState(debug_Title);
@@ -347,7 +361,7 @@ public interface MultiMatch<E>
 			}
 
 			this.initializeSimilarityArrays();
-			this.buildQuantifiers();
+			this.buildSimilarityMatrix();
 			this.calculateCandidateCount();
 
 			// link all perfect matches once at the beginning
@@ -395,10 +409,10 @@ public interface MultiMatch<E>
 				{
 					continue;
 				}
-				final int[] sTargets = this.quantifiers[s];
+				final double[] sTargets = this.matrix[s];
 				for(int t = 0; t < this.target.length; t++)
 				{
-					if(sTargets[t] != MAX_QUANTIFIER)
+					if(sTargets[t] != 1.0)
 					{
 						continue;
 					}
@@ -419,10 +433,10 @@ public interface MultiMatch<E>
 					{
 						continue;
 					}
-					final int[] sTargets = this.quantifiers[s];
+					final double[] sTargets = this.matrix[s];
 					for(int t = 0; t < sTargets.length; t++)
 					{
-						if(this.quantifiers[s][t] == 0 || this.trgCandCount[t] != 1)
+						if(this.matrix[s][t] == 0 || this.trgCandCount[t] != 1)
 						{
 							continue;
 						}
@@ -446,25 +460,25 @@ public interface MultiMatch<E>
 				}
 				for(int t = 0; t < this.target.length; t++)
 				{
-					if(this.quantifiers[s][t] == 0)
+					if(this.matrix[s][t] == 0)
 					{
 						continue;
 					}
 					// search for a better singleton target match and switch to it
 					int bsts = s; // best singleton target match source index
-					int bestTargetSingletonQnt = this.quantifiers[s][t];
+					double bestTargetSingletonQnt = this.matrix[s][t];
 					for(int i = s; i < this.source.length; i++)
 					{
 						// starting at s is sufficient because of singleton iteration
 						// (04.10.2018 TM)TODO: MultiMatching: But why is it enough? Or is it a bug?
-						if(this.srcCandCount[i] == 1 && this.quantifiers[i][t] > bestTargetSingletonQnt)
+						if(this.srcCandCount[i] == 1 && this.matrix[i][t] > bestTargetSingletonQnt)
 						{
-							bestTargetSingletonQnt = this.quantifiers[bsts = i][t];
+							bestTargetSingletonQnt = this.matrix[bsts = i][t];
 						}
 					}
 
 					// if found target singleton has absolute precedence, link it without looking at overall best at all
-					if(this.quantifiers[bsts][t] >= this.singletonPrecedenceThreshold)
+					if(this.matrix[bsts][t] >= this.singletonPrecedenceThreshold)
 					{
 						this.linkOneMatched(bsts, t);
 						return true;
@@ -474,14 +488,14 @@ public interface MultiMatch<E>
 					int bots = bsts; // best overall target match source index
 					for(int i = 0; i < this.source.length; i++)
 					{
-						if(this.quantifiers[i][t] > bestTargetSingletonQnt)
+						if(this.matrix[i][t] > bestTargetSingletonQnt)
 						{
 							bots = i;
 						}
 					}
 
 					// if best matched singleton is also overall best matched or has relative precedence, then link it
-					if(bots == bsts || this.quantifiers[bsts][t] * this.singletonPrecedenceBonus >= this.quantifiers[bots][t])
+					if(bots == bsts || this.matrix[bsts][t] * this.singletonPrecedenceBonus >= this.matrix[bots][t])
 					{
 						this.linkOneMatched(bsts, t);
 
@@ -506,24 +520,24 @@ public interface MultiMatch<E>
 				}
 				for(int s = 0; s < this.source.length; s++)
 				{
-					if(this.quantifiers[s][t] == 0)
+					if(this.matrix[s][t] == 0)
 					{
 						continue;
 					}
 					// search for a better singleton source match and switch to it
 					int bsst = t; // best singleton source match target index
-					int bestSourceSingletonQnt = this.quantifiers[s][t];
+					double bestSourceSingletonQnt = this.matrix[s][t];
 					for(int i = t; i < this.target.length; i++)
 					{
 						// starting at s is sufficient because of singleton iteration
-						if(this.trgCandCount[i] == 1 && this.quantifiers[s][i] > bestSourceSingletonQnt)
+						if(this.trgCandCount[i] == 1 && this.matrix[s][i] > bestSourceSingletonQnt)
 						{
-							bestSourceSingletonQnt = this.quantifiers[s][bsst = i];
+							bestSourceSingletonQnt = this.matrix[s][bsst = i];
 						}
 					}
 
 					// if found source singleton has absolute precedence, link it without looking at overall best at all
-					if(this.quantifiers[s][bsst] >= this.singletonPrecedenceThreshold)
+					if(this.matrix[s][bsst] >= this.singletonPrecedenceThreshold)
 					{
 						this.linkOneMatched(s, bsst);
 						return true;
@@ -533,14 +547,14 @@ public interface MultiMatch<E>
 					int bost = bsst; // best overall source match target index
 					for(int i = 0; i < this.target.length; i++)
 					{
-						if(this.quantifiers[s][i] > bestSourceSingletonQnt)
+						if(this.matrix[s][i] > bestSourceSingletonQnt)
 						{
 							bost = i;
 						}
 					}
 
 					// if best matched singleton is also overall best matched or has relative precedence, then link it
-					if(bost == bsst || this.quantifiers[s][bsst] * this.singletonPrecedenceBonus >= this.quantifiers[s][bost])
+					if(bost == bsst || this.matrix[s][bsst] * this.singletonPrecedenceBonus >= this.matrix[s][bost])
 					{
 						this.linkOneMatched(s, bsst);
 
@@ -558,19 +572,19 @@ public interface MultiMatch<E>
 		protected void linkOneBestMatch()
 		{
 			int sMax = -1, tMax = -1;
-			int maxQuantifier = 0;
+			double maxQuantifier = 0.0;
 
 			for(int s = 0; s < this.source.length; s++)
 			{
-				if(this.srcCandCount[s] == 0)
+				if(this.srcCandCount[s] == 0.0)
 				{
 					continue;
 				}
 				for(int t = 0; t < this.target.length; t++)
 				{
-					if(this.quantifiers[s][t] > 0 && this.quantifiers[s][t] > maxQuantifier)
+					if(this.matrix[s][t] > 0.0 && this.matrix[s][t] > maxQuantifier)
 					{
-						maxQuantifier = this.quantifiers[sMax = s][tMax = t];
+						maxQuantifier = this.matrix[sMax = s][tMax = t];
 					}
 				}
 			}
@@ -623,9 +637,9 @@ public interface MultiMatch<E>
 				{
 					continue;
 				}
-				final int noiseThreshold;
-				final int[] sTargets;
-				if((noiseThreshold = (int)(MultiMatcher.maxTargetQuantifier(sTargets = this.quantifiers[s]) * this.noiseFactor)) == 0)
+				final double noiseThreshold;
+				final double[] sTargets;
+				if((noiseThreshold = maxTargetQuantifier(sTargets = this.matrix[s]) * this.noiseFactor) == 0)
 				{
 					continue;
 				}
@@ -647,17 +661,17 @@ public interface MultiMatch<E>
 				{
 					continue;
 				}
-				final int noiseThreshold;
-				if((noiseThreshold = (int)(MultiMatcher.maxSourceQuantifier(this.quantifiers, t) * this.noiseFactor)) == 0)
+				final double noiseThreshold;
+				if((noiseThreshold = maxSourceQuantifier(this.matrix, t) * this.noiseFactor) == 0)
 				{
 					continue;
 				}
-				for(int s = 0; s < this.quantifiers.length; s++)
+				for(int s = 0; s < this.matrix.length; s++)
 				{
-					if(this.quantifiers[s][t] > 0 && this.quantifiers[s][t] < noiseThreshold)
+					if(this.matrix[s][t] > 0 && this.matrix[s][t] < noiseThreshold)
 					{
 						this.removeOne(this.srcCandCount, this.trgCandCount, s, t);
-						this.quantifiers[s][t] = 0;
+						this.matrix[s][t] = 0;
 					}
 				}
 			}
@@ -678,8 +692,6 @@ public interface MultiMatch<E>
 			 * at the end of the algorithm is a waste of memory.
 			 * All data that is only temporarily required for the algorithm to work on should end with it.
 			 * 
-			 * Plus see the int quantifier issue above.
-			 * 
 			 * This code is basically from my early days in 2012 and while it works quite well, it deserves an
 			 * overhault. Maybe even improve on the algorithm itself. Maybe get rid of the precedence stuff.
 			 */
@@ -693,25 +705,61 @@ public interface MultiMatch<E>
 				this.linkAllSimilar(this.matcher.similator());
 			}
 
-			this.averageSimilarity = similarity(this.totalQuantifier)
-				/ (this.matchCount = MultiMatcher.calculateMatchCount(this.srcToTrgMap))
-			;
+			this.calculateStatistics();
+			
 			return this;
 		}
+		
+		private void calculateStatistics()
+		{
+			this.matchCount = calculateMatchCount(this.srcToTrgMap);
+			
+			double lowest = Double.MAX_VALUE, highest = 0.0, total = 0.0;
+			for(final double linkedSimilarity : this.linkedSourceSimilarities)
+			{
+				total += linkedSimilarity;
+				if(linkedSimilarity < lowest)
+				{
+					lowest = linkedSimilarity;
+				}
+				if(linkedSimilarity > highest)
+				{
+					highest = linkedSimilarity;
+				}
+			}
+			
+			this.averageSimilarity = total / this.matchCount;
+			this.lowestSimilarity  = lowest;
+			this.highestSimilarity = highest;
+		}
+		
 
 		@SuppressWarnings("unchecked")
+		private static <E> MultiMatchResult.Item.Implementation<E>[] newArray(final int length)
+		{
+			return new MultiMatchResult.Item.Implementation[length];
+		}
+
 		private MultiMatchResult<E> buildResult()
 		{
-			final E[] source = this.inputSource, target = this.inputTarget;
-			final int[] s2tMapping = this.srcToTrgMap;
-			final KeyValue<E, E>[] matchS = new KeyValue[source.length];
-			final KeyValue<E, E>[] matchT = new KeyValue[target.length];
+			final E[]      source     = this.inputSource;
+			final E[]      target     = this.inputTarget;
+			final int[]    s2tMapping = this.srcToTrgMap;
+			final double[] linkedSims = this.linkedSourceSimilarities;
+			
+			final MultiMatchResult.Item.Implementation<E>[] matchS = newArray(source.length);
+			final MultiMatchResult.Item.Implementation<E>[] matchT = newArray(target.length);
 
 			for(int s = 0; s < source.length; s++)
 			{
 				if(s2tMapping[s] >= 0)
 				{
-					matchT[s2tMapping[s]] = matchS[s] = X.KeyValue(source[s], target[s2tMapping[s]]);
+					final MultiMatchResult.Item.Implementation<E> item = new MultiMatchResult.Item.Implementation<>(
+						source[s],
+						linkedSims[s],
+						target[s2tMapping[s]]
+					);
+					matchT[s2tMapping[s]] = matchS[s] = item;
 				}
 			}
 

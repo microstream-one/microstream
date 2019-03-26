@@ -74,7 +74,7 @@ public interface StorageChannelCountProvider extends _intReference
 	
 	public static StorageChannelCountProvider New(final int channelCount)
 	{
-		return New(
+		return new StorageChannelCountProvider.Implementation(
 			validateChannelCount(channelCount)
 		);
 	}

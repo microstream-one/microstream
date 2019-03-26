@@ -3,7 +3,7 @@ package one.microstream.util.chars;
 import static one.microstream.collections.XArrays.shuffle;
 import static one.microstream.math.XMath.random;
 
-import java.util.function.BiConsumer;
+import java.text.DecimalFormat;
 
 import one.microstream.X;
 import one.microstream.chars.Levenshtein;
@@ -13,6 +13,7 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.meta.XDebug;
 import one.microstream.util.matching.MultiMatch;
+import one.microstream.util.matching.MultiMatchAssembler;
 import one.microstream.util.matching.MultiMatcher;
 
 public class MainTestMultiMatcher
@@ -37,6 +38,8 @@ public class MainTestMultiMatcher
 		.setSimilator(Levenshtein::substringSimilarity)
 		.setValidator(MainTestMultiMatcher::printMatch)
 	;
+	
+	private static final DecimalFormat FORMAT = MultiMatchAssembler.Defaults.defaultSimilarityFormatter();
 
 	
 	public static boolean printMatch(
@@ -47,19 +50,9 @@ public class MainTestMultiMatcher
 		final int    targetCandidateCount
 	)
 	{
-		System.out.println("matching\t" + sourceItem + "\t<-" + similarity + "->\t" + targetItem);
+		System.out.println("matching\t" + sourceItem + "\t<-" + FORMAT.format(similarity) + "->\t" + targetItem);
 		return true;
 	}
-
-	
-	public static void join(final VarString vc, final Object e)
-	{
-		vc.add(e);
-	}
-	
-	// because a default context concise "::join" would have been too much to ask.
-	public static final BiConsumer<VarString, Object> join = MainTestMultiMatcher::join;
-
 
 	static void testSimple()
 	{
@@ -70,8 +63,8 @@ public class MainTestMultiMatcher
 		XDebug.printCollection(trg, null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
-		System.out.println(match.assembler().assembleMappingSchemeVertical(VarString.New(), join));
-		System.out.println(match.assembler().assembleMappingSchemeHorizontal(VarString.New(), join));
+		System.out.println(match.assembler().assembleMappingSchemeVertical(VarString.New()));
+		System.out.println(match.assembler().assembleMappingSchemeHorizontal(VarString.New()));
 	}
 
 
@@ -133,7 +126,7 @@ public class MainTestMultiMatcher
 		XDebug.printCollection(trg, null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
-		System.out.println(match.assembler().assembleMappingSchemeHorizontal(VarString.New(), join));
+		System.out.println(match.assembler().assembleMappingSchemeHorizontal(VarString.New()));
 	}
 
 	public static void main(final String[] args)

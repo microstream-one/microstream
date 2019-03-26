@@ -12,6 +12,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.util.matching.MultiMatch;
+import one.microstream.util.matching.MultiMatchAssembler;
 
 public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTypeMappingResultor<M>
 {
@@ -30,7 +31,11 @@ public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTy
 		XDebug.printCollection(currentTypeHandler.members()  , null, "\t", null, null);
 		System.out.println();
 		System.out.println("OUTPUT:");
-		System.out.println(match.assembler().assembleMappingSchemeVertical(VarString.New(), (vs, e) -> vs.add(e)));
+		System.out.println(match.assembler().assembleMappingSchemeVertical(
+			VarString.New(),
+			MultiMatchAssembler.Defaults.defaultSimilarityFormatter(),
+			MultiMatchAssembler.Defaults.defaultElementAssembler()
+		));
 	}
 	
 	public static <M> PrintingLegacyTypeMappingResultor<M> New(

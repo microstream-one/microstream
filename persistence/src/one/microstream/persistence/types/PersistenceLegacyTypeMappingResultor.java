@@ -9,6 +9,7 @@ import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XTable;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.matching.MultiMatch;
+import one.microstream.util.matching.MultiMatchResult;
 
 
 //@FunctionalInterface - well, lol.
@@ -99,30 +100,30 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	)
 	{
 		// no idea right now why the multi match result ~Matches are not tables, so build them here temporarily
-		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> srcLookup = HashTable.New();
-		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> trgLookup = HashTable.New();
+		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> sourceLookup = HashTable.New();
+		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> targetLookup = HashTable.New();
 		// and another temporary reverse lookup table
-		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> trgExplicits = HashTable.New();
+		final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> targetExplicits = HashTable.New();
 		
 		Static.fillLookupTables(
-			srcLookup         ,
-			trgLookup         ,
-			trgExplicits      ,
+			sourceLookup      ,
+			targetLookup      ,
+			targetExplicits   ,
 			explicitMappings  ,
 			explicitNewMembers,
 			matchedMembers
 		);
 		Static.buildLegacyToCurrentMembersMapping(
 			legacyTypeDefinition  ,
-			srcLookup             ,
+			sourceLookup          ,
 			explicitMappings      ,
 			legacyToCurrentMembers,
 			discardedLegacyMembers
 		);
 		Static.buildCurrentToLegacyMembersMapping(
 			currentTypeHandler    ,
-			trgLookup             ,
-			trgExplicits          ,
+			targetLookup          ,
+			targetExplicits       ,
 			currentToLegacyMembers,
 			newCurrentMembers
 		);
@@ -153,13 +154,13 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 		{
 			if(matchedMembers != null)
 			{
-				final XGettingSequence<KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember>> matches =
+				final XGettingSequence<? extends MultiMatchResult.Item<PersistenceTypeDefinitionMember>> matches =
 					matchedMembers.result().sourceMatches()
 				;
-				for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> match : matches)
+				for(final MultiMatchResult.Item<PersistenceTypeDefinitionMember> match : matches)
 				{
-					sourceToTargetLookup.add(match.key(), match.value());
-					targetToSourceLookup.add(match.value(), match.key());
+					sourceToTargetLookup.add(match.sourceElement(), match.targetElement());
+					targetToSourceLookup.add(match.targetElement(), match.sourceElement());
 				}
 			}
 			
