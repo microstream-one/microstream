@@ -85,8 +85,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 		// CHECKSTYLE.OFF: MagicNumber: very low-level technical implementation. Magic numbers kept for now.
 
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		// +1 char for value separator, *2 as each character required 2 bytes
 		static final transient int
@@ -240,8 +240,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public ImplementationUTF8(
 			final StorageDataConverterCsvConfiguration    configuration  ,

@@ -1400,6 +1400,24 @@ public final class XMath
 		return value;
 	}
 
+	public static double positivePercentage(final double value) throws NumberRangeException
+	{
+		if(value <= 1.0)
+		{
+			return positive(value);
+		}
+		throw new NumberRangeException();
+	}
+
+	public static double notNegativePercentage(final double value) throws NumberRangeException
+	{
+		if(value <= 1.0)
+		{
+			return notNegative(value);
+		}
+		throw new NumberRangeException();
+	}
+
 	public static float positive(final float value) throws NumberRangeException
 	{
 		if(value > 0)

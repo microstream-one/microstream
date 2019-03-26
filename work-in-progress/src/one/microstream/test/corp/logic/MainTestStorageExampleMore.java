@@ -21,9 +21,9 @@ public class MainTestStorageExampleMore
 		.Foundation(
 			DIRECTORY, // location for the database files
 			Storage.ConfigurationBuilder()
-			.setChannelCountProvider  (Storage.ChannelCountProvider(CHANNEl_COUNT))        // storage channel/thread count (default 1)
-			.setHousekeepingController(Storage.HousekeepingController(100, 10_000_000))    // time configuration for housekeeping, caching, etc.
-			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluatorCustomTimeout(10_000)) // evalutator for removing entities from the cache
+			.setChannelCountProvider  (Storage.ChannelCountProvider(CHANNEl_COUNT))     // storage channel/thread count (default 1)
+			.setHousekeepingController(Storage.HousekeepingController(100, 10_000_000)) // time configuration for housekeeping, caching, etc.
+			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluator(10_000))            // evalutator for removing entities from the cache
 		)
 		
 		// with registered refactorings

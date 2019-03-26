@@ -111,13 +111,13 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 		/**
 		 * A nanosecond timestamp marking the calculated end of the current housekeeping interval.
-		 * @see {@link StorageHousekeepingController#housekeepingInterval()}
+		 * @see {@link StorageHousekeepingController#housekeepingIntervalMs()}
 		 */
 		private long housekeepingIntervalBoundTimeNs;
 
 		/**
 		 * The remaining housekeeping budget in nanoseconds for the current interval.
-		 * @see StorageHousekeepingController#housekeepingNanoTimeBudgetBound(long)
+		 * @see StorageHousekeepingController#housekeepingTimeBudgetNs(long)
 		 */
 		private long housekeepingIntervalBudgetNs;
 
@@ -126,8 +126,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final int                               hashIndex                ,
@@ -176,9 +176,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			if((currentNanotime = System.nanoTime()) >= this.housekeepingIntervalBoundTimeNs)
 			{
 				this.housekeepingIntervalBoundTimeNs = currentNanotime
-					+ Storage.millisecondsToNanoseconds(this.housekeepingController.housekeepingInterval())
+					+ Storage.millisecondsToNanoseconds(this.housekeepingController.housekeepingIntervalMs())
 				;
-				this.housekeepingIntervalBudgetNs = this.housekeepingController.housekeepingNanoTimeBudgetBound();
+				this.housekeepingIntervalBudgetNs = this.housekeepingController.housekeepingTimeBudgetNs();
 //				DEBUGStorage.println(this.channelIndex + " resetting housekeeping budget at " + new java.text.DecimalFormat("00,000,000,000").format(currentNanotime) + " to " + new java.text.DecimalFormat("00,000,000,000").format(this.housekeepingIntervalBoundTimeNs));
 			}
 			else if(this.housekeepingIntervalBudgetNs <= 0)
@@ -235,7 +235,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		{
 			return this.fileManager.incrementalFileCleanupCheck(
 				this.calculateSpecificHousekeepingTimeBudgetBound(
-					this.housekeepingController.fileCheckNanoTimeBudget()
+					this.housekeepingController.fileCheckTimeBudgetNs()
 				)
 			);
 		}
@@ -244,7 +244,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		{
 			return this.entityCache.incrementalGarbageCollection(
 				this.calculateSpecificHousekeepingTimeBudgetBound(
-					this.housekeepingController.garbageCollectionNanoTimeBudget()
+					this.housekeepingController.garbageCollectionTimeBudgetNs()
 				),
 				this
 			);
@@ -254,7 +254,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		{
 			return this.entityCache.incrementalLiveCheck(
 				this.calculateSpecificHousekeepingTimeBudgetBound(
-					this.housekeepingController.liveCheckNanoTimeBudget()
+					this.housekeepingController.liveCheckTimeBudgetNs()
 				)
 			);
 		}
@@ -295,7 +295,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 //				final long waitStart = System.currentTimeMillis();
 
 				// check and wait for the next task to come in
-				if((currentTask = processedTask.awaitNext(housekeepingController.housekeepingInterval())) == null)
+				if((currentTask = processedTask.awaitNext(housekeepingController.housekeepingIntervalMs())) == null)
 				{
 //					DEBUGStorage.println(this.channelIndex + " issuing GC");
 //					if(waitStart + timeConfiguration.housekeepingInterval() < System.currentTimeMillis())
@@ -617,8 +617,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public EntityCollectorByOid(
 			final StorageEntityCache.Implementation entityCache  ,
@@ -671,8 +671,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public EntityCollectorByTid(
 			final StorageEntityCache.Implementation entityCache  ,

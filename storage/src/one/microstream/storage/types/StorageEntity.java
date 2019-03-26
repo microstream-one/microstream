@@ -67,8 +67,8 @@ public interface StorageEntity
 	public final class Implementation implements StorageEntityCacheItem<StorageEntity.Implementation>, StorageEntity
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		// Quite a lot, but that's the price of simplicity and performance (GC etc.)
 		private static final int MEMORY_CONSUMPTION_BYTES = // 84/120 bytes (+/-coops).

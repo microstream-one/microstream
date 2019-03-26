@@ -37,8 +37,8 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final long                                                                         timestamp              ,
@@ -229,8 +229,8 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		ExportItem(
 			final int                              channelCount   ,

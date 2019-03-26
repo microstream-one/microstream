@@ -84,8 +84,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 	CsvRecordParserCharArray
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		static final int
 			BIT_SHIFT_DIVIDE_NONE         = 0, // just for completeness' sake
