@@ -27,7 +27,7 @@ public interface ConfigurationConsumer extends Consumer<Configuration>
 	
 	
 	
-	public static ConfigurationConsumer FoundationUpdater(EmbeddedStorageFoundation<?> storageFoundation)
+	public static ConfigurationConsumer FoundationUpdater(final EmbeddedStorageFoundation<?> storageFoundation)
 	{
 		return new FoundationUpdater(storageFoundation);
 	}
@@ -37,14 +37,14 @@ public interface ConfigurationConsumer extends Consumer<Configuration>
 	{
 		private final EmbeddedStorageFoundation<?> storageFoundation;
 
-		public FoundationUpdater(EmbeddedStorageFoundation<?> storageFoundation) 
+		public FoundationUpdater(final EmbeddedStorageFoundation<?> storageFoundation)
 		{
 			super();
 			this.storageFoundation = storageFoundation;
 		}
 		
 		@Override
-		public void accept(Configuration configuration) 
+		public void accept(final Configuration configuration)
 		{
 			final File baseDir = ensureDirectory(new File(configuration.getBaseDirectory()));
 									
@@ -73,10 +73,10 @@ public interface ConfigurationConsumer extends Consumer<Configuration>
 					configuration.getDataFileDissolveRatio());
 			
 			final StorageEntityCacheEvaluator entityCacheEvaluator = Storage.EntityCacheEvaluator(
-					configuration.getEntityCacheThreshold(),
-					configuration.getEntityCacheTimeout());
+					configuration.getEntityCacheTimeout(),
+					configuration.getEntityCacheThreshold());
 			
-			StorageConfiguration.Builder<?> storageConfigurationBuilder = Storage.ConfigurationBuilder()
+			final StorageConfiguration.Builder<?> storageConfigurationBuilder = Storage.ConfigurationBuilder()
 					.setStorageFileProvider(fileProvider)
 					.setChannelCountProvider(channelCountProvider)
 					.setHousekeepingController(housekeepingController)

@@ -21,8 +21,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 	implements StorageRequestTaskImportData, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 		
 		private static final int SOURCE_FILE_WAIT_TIME_MS = 100;
 		
@@ -49,8 +49,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final long                          timestamp             ,

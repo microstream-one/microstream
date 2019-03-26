@@ -28,24 +28,65 @@ public interface StorageEntityCacheEvaluator
 	{
 		return !this.clearEntityCache(totalCacheSize, evaluationTime, entity);
 	}
-
-
 	
-	public static StorageEntityCacheEvaluator New(final long threshold, final long millisecondTimeout)
+	
+	
+	public interface Defaults
+	{
+		public static long defaultCacheThreshold()
+		{
+			// ~1 GB default threshold
+			return 1_000_000_000;
+		}
+		
+		public static long defaultTimeoutMs()
+		{
+			// 1 day default timeout
+			return 86_400_000;
+		}
+	}
+	
+	public static StorageEntityCacheEvaluator New()
+	{
+		/*
+		 * Validates its own default value, but the cost is neglible and it is a
+		 * good defense against accidentally erroneous changes of the default value.
+		 */
+		return New(
+			Defaults.defaultTimeoutMs(),
+			Defaults.defaultCacheThreshold()
+		);
+	}
+	
+	public static StorageEntityCacheEvaluator New(final long timeoutMs)
+	{
+		return New(
+			positive(timeoutMs)    ,
+			Defaults.defaultCacheThreshold()
+		);
+	}
+	
+	public static StorageEntityCacheEvaluator New(
+		final long timeoutMs,
+		final long threshold
+	)
 	{
 		return new StorageEntityCacheEvaluator.Implementation(
-			positive(threshold)         ,
-			positive(millisecondTimeout)
+			positive(timeoutMs),
+			positive(threshold)
 		);
 	}
 
-	public class Implementation implements StorageEntityCacheEvaluator
+	public final class Implementation implements StorageEntityCacheEvaluator
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
-		// To satisfy CheckStyle. See algorithm comment below. Shifting by 16 means roughly age in minutes and is fast.
+		/*
+		 * To satisfy CheckStyle. See algorithm comment below.
+		 * Shifting by 16 means roughly age in minutes and is fast.
+		 */
 		private static final int C16 = 16;
 
 
@@ -53,12 +94,6 @@ public interface StorageEntityCacheEvaluator
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-
-		/**
-		 * Abstract threshold value, roughly comparable to size in bytes with a time component, at which a cache
-		 * must be cleared of some entities.
-		 */
-		private final long threshold;
 
 		/**
 		 * Entity age timeout value in milliseconds at which the entity should definitely be cleared from the cache,
@@ -71,21 +106,25 @@ public interface StorageEntityCacheEvaluator
 		 * (e.g. constantly working systems with medium load)
 		 * Can be set to a huge value to like 1 year or max long to disable the timeout and solely rely on the threshold
 		 */
-		private final long msTimeout;
+		private final long timeoutMs;
+
+		/**
+		 * Abstract threshold value, roughly comparable to size in bytes with a time component, at which a cache
+		 * must be cleared of some entities.
+		 */
+		private final long threshold;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
-		protected Implementation(final long threshold, final long millisecondTimeout)
+		Implementation(final long timeoutMs, final long threshold)
 		{
 			super();
-			
-			// must perform checks in constructor in case a deriving implementation passes invalid values
-			this.threshold = positive(threshold)         ;
-			this.msTimeout = positive(millisecondTimeout);
+			this.timeoutMs = timeoutMs;
+			this.threshold = threshold;
 		}
 
 
@@ -149,7 +188,7 @@ public interface StorageEntityCacheEvaluator
 			 * Unsigned shifting makes that a giant positive age, causing an unwanted unload.
 			 * For the formula to be correct, the signed shift has to be used.
 			 */
-			return ageInMs >= this.msTimeout
+			return ageInMs >= this.timeoutMs
 				|| this.threshold - cacheSize < e.cachedDataLength() * (ageInMs >> C16) << (e.hasReferences() ? 0 : 1)
 			;
 		}
@@ -160,7 +199,7 @@ public interface StorageEntityCacheEvaluator
 			return VarString.New()
 				.add(this.getClass().getName()).add(':').lf()
 				.blank().add("threshold ").tab().add('=').blank().add(this.threshold).lf()
-				.blank().add("timeout   ").tab().add('=').blank().add(this.msTimeout)
+				.blank().add("timeout   ").tab().add('=').blank().add(this.timeoutMs)
 				.toString()
 			;
 		}

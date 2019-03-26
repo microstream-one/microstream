@@ -34,8 +34,8 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final Date creationTime   ,

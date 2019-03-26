@@ -23,8 +23,8 @@ public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(final StorageRequestAcceptor requestAcceptor)
 		{

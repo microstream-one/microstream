@@ -104,8 +104,8 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final StorageConfiguration                   configuration       ,

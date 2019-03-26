@@ -67,8 +67,8 @@ public interface StorageEntityTypeExportStatistics
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 		
 		Implementation(final XGettingTable<Integer, ? extends ChannelStatistic> channelStatistics)
 		{

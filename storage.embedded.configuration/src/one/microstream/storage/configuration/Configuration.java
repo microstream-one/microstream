@@ -4,6 +4,7 @@ package one.microstream.storage.configuration;
 
 import static one.microstream.chars.XChars.notEmpty;
 import static one.microstream.math.XMath.positive;
+import static one.microstream.math.XMath.positivePercentage;
 
 import java.io.File;
 import java.time.Duration;
@@ -13,8 +14,11 @@ import one.microstream.persistence.internal.FileObjectIdStrategy;
 import one.microstream.persistence.internal.FileTypeIdStrategy;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
+import one.microstream.storage.types.StorageChannelCountProvider;
+import one.microstream.storage.types.StorageDataFileEvaluator;
 import one.microstream.storage.types.StorageEntityCacheEvaluator;
 import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.storage.types.StorageHousekeepingController;
 
 
 public interface Configuration
@@ -24,7 +28,7 @@ public interface Configuration
 		return updateEmbeddedStorageFoundation(EmbeddedStorage.Foundation());
 	}
 	
-	public default EmbeddedStorageFoundation<?> updateEmbeddedStorageFoundation(EmbeddedStorageFoundation<?> foundation)
+	public default EmbeddedStorageFoundation<?> updateEmbeddedStorageFoundation(final EmbeddedStorageFoundation<?> foundation)
 	{
 		ConfigurationConsumer.FoundationUpdater(foundation).accept(this);
 		return foundation;
@@ -361,23 +365,23 @@ public interface Configuration
 		private String	baseDirectory                    = StorageFileProvider.Defaults.defaultStorageDirectory();
 		private String  deletionDirectory                = StorageFileProvider.Defaults.defaultDeletionDirectory();
 		private String  truncationDirectory              = StorageFileProvider.Defaults.defaultTruncationDirectory();
-		private String  backupDirectory                  = null;
+		private String  backupDirectory                  = null; // no on-the-fly backup by default
 		private String	channelDirectoryPrefix           = StorageFileProvider.Defaults.defaultChannelDirectoryPrefix();
 		private String	dataFilePrefix                   = StorageFileProvider.Defaults.defaultStorageFilePrefix();
 		private String	dataFileSuffix                   = StorageFileProvider.Defaults.defaultStorageFileSuffix();
 		private String  transactionFilePrefix            = StorageFileProvider.Defaults.defaultTransactionFilePrefix();
 		private String  transactionFileSuffix            = StorageFileProvider.Defaults.defaultTransactionFileSuffix();
 		private String	typeDictionaryFilename           = StorageFileProvider.Defaults.defaultTypeDictionaryFileName();
-		private int		channelCount                     = 1;
+		private int		channelCount                     = StorageChannelCountProvider.Defaults.defaultChannelCount();
 		private String	typeIdFilename                   = FileTypeIdStrategy.defaultFilename();
 		private String	objectIdFilename                 = FileObjectIdStrategy.defaultFilename();
-		private long	houseKeepingInterval             = 1_000;
-		private long	houseKeepingNanoTimeBudget       = 10_000_000;
-		private long	entityCacheThreshold             = 1_000_000_000;
-		private long	entityCacheTimeout               = 86_400_000;
-		private int		dataFileMinSize                  = 1 * 1024 * 1024;
-		private int		dataFileMaxSize                  = 8 * 1024 * 1024;
-		private double	dataFileDissolveRatio            = 0.75;
+		private long	houseKeepingIntervalMs           = StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs();
+		private long	houseKeepingTimeBudgetNs         = StorageHousekeepingController.Defaults.defaultHousekeepingTimeBudgetNs();
+		private long	entityCacheTimeout               = StorageEntityCacheEvaluator.Defaults.defaultTimeoutMs();
+		private long	entityCacheThreshold             = StorageEntityCacheEvaluator.Defaults.defaultCacheThreshold();
+		private int		dataFileMinSize                  = StorageDataFileEvaluator.Defaults.defaultFileMinimumSize();
+		private int		dataFileMaxSize                  = StorageDataFileEvaluator.Defaults.defaultFileMaximumSize();
+		private double	dataFileDissolveRatio            = StorageDataFileEvaluator.Defaults.defaultMinimumUseRatio();
 
 		public Implementation()
 		{
@@ -388,7 +392,6 @@ public interface Configuration
 		public Configuration setBaseDirectory(final String baseDirectory)
 		{
 			this.baseDirectory = notEmpty(baseDirectory);
-
 			return this;
 		}
 
@@ -399,40 +402,40 @@ public interface Configuration
 		}
 		
 		@Override
-		public Configuration setDeletionDirectory(String deletionDirectory) 
+		public Configuration setDeletionDirectory(final String deletionDirectory)
 		{
 			this.deletionDirectory = deletionDirectory;
 			return this;
 		}
 		
 		@Override
-		public String getDeletionDirectory() 
+		public String getDeletionDirectory()
 		{
 			return this.deletionDirectory;
 		}
 		
 		@Override
-		public Configuration setTruncationDirectory(String truncationDirectory) 
+		public Configuration setTruncationDirectory(final String truncationDirectory)
 		{
 			this.truncationDirectory = truncationDirectory;
 			return this;
 		}
 		
 		@Override
-		public String getTruncationDirectory() 
+		public String getTruncationDirectory()
 		{
 			return this.truncationDirectory;
 		}
 		
 		@Override
-		public Configuration setBackupDirectory(String backupDirectory) 
+		public Configuration setBackupDirectory(final String backupDirectory)
 		{
 			this.backupDirectory = backupDirectory;
 			return this;
 		}
 		
 		@Override
-		public String getBackupDirectory() 
+		public String getBackupDirectory()
 		{
 			return this.backupDirectory;
 		}
@@ -491,27 +494,27 @@ public interface Configuration
 		}
 		
 		@Override
-		public Configuration setTransactionFilePrefix(String transactionFilePrefix) 
+		public Configuration setTransactionFilePrefix(final String transactionFilePrefix)
 		{
 			this.transactionFilePrefix = transactionFilePrefix;
 			return this;
 		}
 		
 		@Override
-		public String getTransactionFilePrefix() 
+		public String getTransactionFilePrefix()
 		{
 			return this.transactionFilePrefix;
 		}
 		
 		@Override
-		public Configuration setTransactionFileSuffix(String transactionFileSuffix) 
+		public Configuration setTransactionFileSuffix(final String transactionFileSuffix)
 		{
 			this.transactionFileSuffix = transactionFileSuffix;
 			return this;
 		}
 		
 		@Override
-		public String getTransactionFileSuffix() 
+		public String getTransactionFileSuffix()
 		{
 			return this.transactionFileSuffix;
 		}
@@ -558,27 +561,27 @@ public interface Configuration
 		@Override
 		public Configuration setHouseKeepingInterval(final long houseKeepingInterval)
 		{
-			this.houseKeepingInterval = positive(houseKeepingInterval);
+			this.houseKeepingIntervalMs = positive(houseKeepingInterval);
 			return this;
 		}
 
 		@Override
 		public long getHouseKeepingInterval()
 		{
-			return this.houseKeepingInterval;
+			return this.houseKeepingIntervalMs;
 		}
 
 		@Override
 		public Configuration setHouseKeepingNanoTimeBudget(final long houseKeepingNanoTimeBudget)
 		{
-			this.houseKeepingNanoTimeBudget = positive(houseKeepingNanoTimeBudget);
+			this.houseKeepingTimeBudgetNs = positive(houseKeepingNanoTimeBudget);
 			return this;
 		}
 
 		@Override
 		public long getHouseKeepingNanoTimeBudget()
 		{
-			return this.houseKeepingNanoTimeBudget;
+			return this.houseKeepingTimeBudgetNs;
 		}
 
 		@Override
@@ -636,7 +639,7 @@ public interface Configuration
 		@Override
 		public Configuration setDataFileDissolveRatio(final double dataFileDissolveRatio)
 		{
-			this.dataFileDissolveRatio = positive(dataFileDissolveRatio);
+			this.dataFileDissolveRatio = positivePercentage(dataFileDissolveRatio);
 			return this;
 		}
 

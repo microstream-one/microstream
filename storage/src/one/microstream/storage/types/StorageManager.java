@@ -94,8 +94,8 @@ public interface StorageManager extends StorageController
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final StorageConfiguration                 storageConfiguration          ,

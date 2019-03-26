@@ -44,8 +44,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 	implements StorageEntityCache<StorageEntity.Implementation>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 		
 		// (24.11.2017 TM)TODO: there seems to still be a GC race condition bug, albeit only very rarely.
 		private static final boolean DEBUG_GC_ENABLED = false;
@@ -99,8 +99,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final int                                 channelIndex         ,

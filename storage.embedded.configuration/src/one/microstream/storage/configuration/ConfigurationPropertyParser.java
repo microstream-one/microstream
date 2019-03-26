@@ -176,6 +176,7 @@ public interface ConfigurationPropertyParser
 				}
 				catch(final NumberFormatException e1)
 				{
+					// fall through to exception
 				}
 			}
 			
@@ -197,6 +198,7 @@ public interface ConfigurationPropertyParser
 				}
 				catch(final NumberFormatException e1)
 				{
+					// fall through to exception
 				}
 			}
 			

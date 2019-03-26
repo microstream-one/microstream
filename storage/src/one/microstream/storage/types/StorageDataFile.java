@@ -43,8 +43,8 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 	public final class Implementation implements StorageDataFile<StorageEntity.Implementation>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final int INITIAL_TYPE_IN_FILE_ARRAY_LENGTH = 8;
 
@@ -95,8 +95,8 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		private Implementation(final StorageFileManager.Implementation parent, final StorageInventoryFile file)
 		{

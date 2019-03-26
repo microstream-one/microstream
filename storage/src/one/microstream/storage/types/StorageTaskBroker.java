@@ -94,8 +94,8 @@ public interface StorageTaskBroker
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final StorageManager            storageManager,

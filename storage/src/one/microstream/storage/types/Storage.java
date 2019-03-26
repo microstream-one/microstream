@@ -7,26 +7,9 @@ import java.io.File;
 public final class Storage
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants        //
-	/////////////////////
+	// constants //
+	//////////////
 
-	// channels (work and storage distribution accross multiple threads with exclusive directories)
-	private static final int    DEFAULT_CHANNELCOUNT                = 1              ;
-
-	// file provider configuration
-
-	// housekeeping time configuration (periodic time for garbage collection, cache and file consolidation)
-	private static final long   DEFAULT_HOUSEKEEPING_INTERVAL       = 1_000          ; // hk interval (ms)
-	private static final long   DEFAULT_HOUSEKEEPING_NANOTIMEBUDGET =    10_000_000  ; // hk time budget (ns)
-
-	// entity caching configuration (applies per channel)
-	private static final long   DEFAULT_CACHE_THRESHOLD             = 1_000_000_000  ; // ~1 GB default threshold
-	private static final long   DEFAULT_CACHE_TIMEOUT               =    86_400_000  ; // 1 day default timeout
-
-	// file housekeeping configuration (applies per channel). Relatively small default values
-	private static final int    DEFAULT_MIN_FILESIZE                = 1 * 1024 * 1024; // 1 MB
-	private static final int    DEFAULT_MAX_FILESIZE                = 8 * 1024 * 1024; // 8 MB
-	private static final double DEFAULT_DISSOLVE_RATIO              = 0.75           ; // 75 %
 
 	private static final long   ONE_MILLION                         = 1_000_000L;
 	
@@ -101,78 +84,79 @@ public final class Storage
 		return StorageConfiguration.Builder();
 	}
 
-	public static final StorageChannelCountProvider ChannelCountProvider()
-	{
-		return ChannelCountProvider(DEFAULT_CHANNELCOUNT);
-	}
-
 	public static final StorageHousekeepingController HousekeepingController()
 	{
-		return HousekeepingController(DEFAULT_HOUSEKEEPING_INTERVAL, DEFAULT_HOUSEKEEPING_NANOTIMEBUDGET);
+		return StorageHousekeepingController.New();
+	}
+	
+	public static final StorageHousekeepingController HousekeepingController(
+		final long housekeepingIntervalMs      ,
+		final long housekeepingTimeBudgetNs
+	)
+	{
+		return StorageHousekeepingController.New(housekeepingIntervalMs, housekeepingTimeBudgetNs);
 	}
 
 	public static final StorageEntityCacheEvaluator EntityCacheEvaluator()
 	{
-		return EntityCacheEvaluator(DEFAULT_CACHE_THRESHOLD, DEFAULT_CACHE_TIMEOUT);
+		return StorageEntityCacheEvaluator.New();
 	}
 
-	public static final StorageEntityCacheEvaluator EntityCacheEvaluatorCustomThreshold(final long threshold)
+	public static final StorageChannelCountProvider ChannelCountProvider()
 	{
-		return EntityCacheEvaluator(threshold, DEFAULT_CACHE_TIMEOUT);
-	}
-
-	public static final StorageEntityCacheEvaluator EntityCacheEvaluatorCustomTimeout(final long millisecondTimeout)
-	{
-		return EntityCacheEvaluator(DEFAULT_CACHE_THRESHOLD, millisecondTimeout);
-	}
-
-	public static final StorageDataFileEvaluator DataFileEvaluator()
-	{
-		return DataFileEvaluator(
-			DEFAULT_MIN_FILESIZE,
-			DEFAULT_MAX_FILESIZE,
-			DEFAULT_DISSOLVE_RATIO
-		);
+		return StorageChannelCountProvider.New();
 	}
 
 	public static final StorageChannelCountProvider ChannelCountProvider(final int channelCount)
 	{
-		return new StorageChannelCountProvider.Implementation(channelCount);
-	}
-
-	public static final StorageHousekeepingController HousekeepingController(
-		final long housekeepingInterval      ,
-		final long housekeepingNanoTimeBudget
-	)
-	{
-		return new StorageHousekeepingController.Implementation(housekeepingInterval, housekeepingNanoTimeBudget);
+		return StorageChannelCountProvider.New(channelCount);
 	}
 
 	public static final StorageEntityCacheEvaluator EntityCacheEvaluator(
-		final long threshold         ,
-		final long millisecondTimeout
+		final long timeoutMs
 	)
 	{
-		return StorageEntityCacheEvaluator.New(threshold, millisecondTimeout);
+		return StorageEntityCacheEvaluator.New(timeoutMs);
+	}
+
+	public static final StorageEntityCacheEvaluator EntityCacheEvaluator(
+		final long timeoutMs,
+		final long threshold
+	)
+	{
+		return StorageEntityCacheEvaluator.New(timeoutMs, threshold);
+	}
+	
+	public static final StorageDataFileEvaluator DataFileEvaluator()
+	{
+		return StorageDataFileEvaluator.New();
 	}
 
 	public static final StorageDataFileEvaluator DataFileEvaluator(
-		final int     minFileSize  ,
-		final int     maxFileSize  ,
-		final double  dissolveRatio
+		final int fileMinimumSize,
+		final int fileMaximumSize
 	)
 	{
-		return StorageDataFileEvaluator.New(minFileSize, maxFileSize, dissolveRatio);
+		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize);
 	}
 
 	public static final StorageDataFileEvaluator DataFileEvaluator(
-		final int     minFileSize     ,
-		final int     maxFileSize     ,
+		final int    fileMinimumSize,
+		final int    fileMaximumSize,
+		final double dissolveRatio
+	)
+	{
+		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, dissolveRatio);
+	}
+
+	public static final StorageDataFileEvaluator DataFileEvaluator(
+		final int     fileMinimumSize ,
+		final int     fileMaximumSize ,
 		final double  dissolveRatio   ,
 		final boolean dissolveHeadfile
 	)
 	{
-		return StorageDataFileEvaluator.New(minFileSize, maxFileSize, dissolveRatio, dissolveHeadfile);
+		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, dissolveRatio, dissolveHeadfile);
 	}
 	
 	public static final StorageBackupSetup BackupSetup(

@@ -1,34 +1,72 @@
 package one.microstream.storage.types;
 
 import one.microstream.chars.VarString;
+import one.microstream.math.XMath;
 
 public interface StorageHousekeepingController
 {
 	/**
 	 * @return The housekeeping interval in milliseconds.
 	 */
-	public long housekeepingInterval();
+	public long housekeepingIntervalMs();
 
 	/**
 	 * @return The general housekeeping time budget per interval in nanoseconds.
 	 */
-	public long housekeepingNanoTimeBudgetBound();
+	public long housekeepingTimeBudgetNs();
 
 	/**
 	 * @return The garbage collection housekeeping time budget per interval in nanoseconds.
 	 */
-	public long garbageCollectionNanoTimeBudget();
+	public long garbageCollectionTimeBudgetNs();
 
 	/**
 	 * @return The live/cache check housekeeping time budget per interval in nanoseconds.
 	 */
-	public long liveCheckNanoTimeBudget();
+	public long liveCheckTimeBudgetNs();
 
 	/**
 	 * @return The file cleanup housekeeping time budget per interval in nanoseconds.
 	 */
-	public long fileCheckNanoTimeBudget();
+	public long fileCheckTimeBudgetNs();
 
+
+	
+	public static StorageHousekeepingController New()
+	{
+		/*
+		 * Validates its own default values, but the cost is neglible and it is a
+		 * good defense against accidentally erroneous changes of the default values.
+		 */
+		return new StorageHousekeepingController.Implementation(
+			Defaults.defaultHousekeepingIntervalMs(),
+			Defaults.defaultHousekeepingTimeBudgetNs()
+		);
+	}
+	
+	public static StorageHousekeepingController New(
+		final long housekeepingIntervalMs  ,
+		final long housekeepingTimeBudgetNs
+	)
+	{
+		return new StorageHousekeepingController.Implementation(
+			XMath.positive(housekeepingIntervalMs)  ,
+			XMath.positive(housekeepingTimeBudgetNs)
+		);
+	}
+	
+	public interface Defaults
+	{
+		public static long defaultHousekeepingIntervalMs()
+		{
+			return 1_000; // ms
+		}
+		
+		public static long defaultHousekeepingTimeBudgetNs()
+		{
+			return 10_000_000; // ns
+		}
+	}
 
 
 	public final class Implementation implements StorageHousekeepingController
@@ -37,19 +75,19 @@ public interface StorageHousekeepingController
 		// instance fields  //
 		/////////////////////
 
-		private final long housekeepingInterval, housekeepingNanoTimeBudget;
+		private final long intervalMs, nanoTimeBudget;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
-		public Implementation(final long housekeepingInterval, final long housekeepingNanoTimeBudget)
+		Implementation(final long intervalMs, final long nanoTimeBudget)
 		{
 			super();
-			this.housekeepingInterval       = housekeepingInterval      ;
-			this.housekeepingNanoTimeBudget = housekeepingNanoTimeBudget;
+			this.intervalMs     = intervalMs    ;
+			this.nanoTimeBudget = nanoTimeBudget;
 		}
 
 
@@ -59,36 +97,36 @@ public interface StorageHousekeepingController
 		////////////
 
 		@Override
-		public final long housekeepingInterval()
+		public final long housekeepingIntervalMs()
 		{
-			return this.housekeepingInterval;
+			return this.intervalMs;
 		}
 
 		@Override
-		public final long housekeepingNanoTimeBudgetBound()
+		public final long housekeepingTimeBudgetNs()
 		{
-			return this.housekeepingNanoTimeBudget;
+			return this.nanoTimeBudget;
 		}
 
 		@Override
-		public final long garbageCollectionNanoTimeBudget()
+		public final long garbageCollectionTimeBudgetNs()
 		{
 			// no special treatment in generic base implementation
-			return this.housekeepingNanoTimeBudgetBound();
+			return this.housekeepingTimeBudgetNs();
 		}
 
 		@Override
-		public final long liveCheckNanoTimeBudget()
+		public final long liveCheckTimeBudgetNs()
 		{
 			// no special treatment in generic base implementation
-			return this.housekeepingNanoTimeBudgetBound();
+			return this.housekeepingTimeBudgetNs();
 		}
 
 		@Override
-		public final long fileCheckNanoTimeBudget()
+		public final long fileCheckTimeBudgetNs()
 		{
 			// no special treatment in generic base implementation
-			return this.housekeepingNanoTimeBudgetBound();
+			return this.housekeepingTimeBudgetNs();
 		}
 
 		@Override
@@ -96,8 +134,8 @@ public interface StorageHousekeepingController
 		{
 			return VarString.New()
 				.add(this.getClass().getName()).add(':').lf()
-				.blank().add("house keeping interval"        ).tab().add('=').blank().add(this.housekeepingInterval).lf()
-				.blank().add("house keeping nano time budget").tab().add('=').blank().add(this.housekeepingNanoTimeBudget)
+				.blank().add("house keeping interval"        ).tab().add('=').blank().add(this.intervalMs).lf()
+				.blank().add("house keeping nano time budget").tab().add('=').blank().add(this.nanoTimeBudget)
 				.toString()
 			;
 		}

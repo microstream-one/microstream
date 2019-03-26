@@ -23,34 +23,99 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 
 	public boolean needsRetirement(long fileTotalLength);
 
-	public int minimumFileSize();
+	public int fileMinimumSize();
 
-	public int maximumFileSize();
+	public int fileMaximumSize();
 
-
-	public static StorageDataFileEvaluator New(final int minFileSize, final int maxFileSize, final double dissolveRatio)
+	
+	public static StorageDataFileEvaluator New()
 	{
-		return New(minFileSize, maxFileSize, dissolveRatio, true);
+		/*
+		 * Validates its own default values, but the cost is neglible and it is a
+		 * good defense against accidentally erroneous changes of the default values.
+		 */
+		return New(
+			Defaults.defaultFileMinimumSize(),
+			Defaults.defaultFileMaximumSize(),
+			Defaults.defaultMinimumUseRatio(),
+			Defaults.defaultResolveHeadfile()
+		);
 	}
 
 	public static StorageDataFileEvaluator New(
-		final int     minFileSize    ,
-		final int     maxFileSize    ,
-		final double  dissolveRatio  ,
+		final int fileMinimumSize,
+		final int fileMaximumSize
+	)
+	{
+		return New(
+			fileMinimumSize                  ,
+			fileMaximumSize                  ,
+			Defaults.defaultMinimumUseRatio(),
+			Defaults.defaultResolveHeadfile()
+		);
+	}
+
+	public static StorageDataFileEvaluator New(
+		final int    fileMinimumSize,
+		final int    fileMaximumSize,
+		final double dissolveRatio
+	)
+	{
+		return New(
+			fileMinimumSize                  ,
+			fileMaximumSize                  ,
+			dissolveRatio                    ,
+			Defaults.defaultResolveHeadfile()
+		);
+	}
+
+	public static StorageDataFileEvaluator New(
+		final int     fileMinimumSize,
+		final int     fileMaximumSize,
+		final double  minimumUseRatio,
 		final boolean cleanupHeadFile
 	)
 	{
-		if(maxFileSize <= minFileSize)
+		if(fileMaximumSize <= fileMinimumSize)
 		{
 			// (24.06.2014)EXCP: proper exception
-			throw new IllegalArgumentException("nonsensical size limits: min file size = " + minFileSize + ", max file size = " + maxFileSize);
+			throw new IllegalArgumentException(
+				"Nonsensical size limits: min file size = " + fileMinimumSize + ", max file size = " + fileMaximumSize
+			);
 		}
 		return new Implementation(
-			XMath.positive(minFileSize)  ,
-			XMath.positive(maxFileSize)  ,
-			XMath.positive(dissolveRatio),
-			cleanupHeadFile
+			XMath.positive          (fileMinimumSize),
+			XMath.positive          (fileMaximumSize),
+			XMath.positivePercentage(minimumUseRatio),
+			                         cleanupHeadFile
 		);
+	}
+	
+	
+	public interface Defaults
+	{
+		public static int defaultFileMinimumSize()
+		{
+			// 1 MB in common byte magnitude
+			return 1 * 1024 * 1024;
+		}
+
+		public static int defaultFileMaximumSize()
+		{
+			// 8 MB in common byte magnitude
+			return 8 * 1024 * 1024;
+		}
+		
+		public static double defaultMinimumUseRatio()
+		{
+			// 75% non-gap ("useful") data.
+			return 0.75;
+		}
+		
+		public static boolean defaultResolveHeadfile()
+		{
+			return true;
+		}
 	}
 
 
@@ -60,29 +125,29 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		// instance fields  //
 		/////////////////////
 
-		private final int     minimumFileSize ;
-		private final int     maximumFileSize ;
-		private final double  minimumFillRatio;
-		private final boolean cleanupHeadFile ;
+		private final int     fileMinimumSize;
+		private final int     fileMaximumSize;
+		private final double  minimumUseRatio;
+		private final boolean cleanupHeadFile;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
-			final int     minFileSize     ,
-			final int     maxFileSize     ,
-			final double  minimumFillRatio,
+			final int     fileMinimumSize,
+			final int     fileMaximumSize,
+			final double  minimumUseRatio,
 			final boolean cleanupHeadFile
 		)
 		{
 			super();
-			this.minimumFileSize  = minFileSize     ;
-			this.maximumFileSize  = maxFileSize     ;
-			this.minimumFillRatio = minimumFillRatio;
-			this.cleanupHeadFile  = cleanupHeadFile ;
+			this.fileMinimumSize = fileMinimumSize;
+			this.fileMaximumSize = fileMaximumSize;
+			this.minimumUseRatio = minimumUseRatio;
+			this.cleanupHeadFile = cleanupHeadFile;
 		}
 
 
@@ -92,15 +157,15 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		////////////
 
 		@Override
-		public final int minimumFileSize()
+		public final int fileMinimumSize()
 		{
-			return this.minimumFileSize;
+			return this.fileMinimumSize;
 		}
 
 		@Override
-		public final int maximumFileSize()
+		public final int fileMaximumSize()
 		{
-			return this.maximumFileSize;
+			return this.fileMaximumSize;
 		}
 
 		@Override
@@ -136,17 +201,17 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 
 		private boolean isBelowMinimumSize(final StorageDataFile<?> storageFile)
 		{
-			return storageFile.totalLength() < this.minimumFileSize();
+			return storageFile.totalLength() < this.fileMinimumSize();
 		}
 
 		private boolean hasTooMuchGapSpace(final StorageDataFile<?> storageFile)
 		{
-			return storageFile.dataFillRatio() < this.minimumFillRatio;
+			return storageFile.dataFillRatio() < this.minimumUseRatio;
 		}
 
 		private boolean isAboveMaximumSize(final StorageDataFile<?> storageFile)
 		{
-			return storageFile.totalLength() > this.maximumFileSize();
+			return storageFile.totalLength() > this.fileMaximumSize();
 		}
 
 		private boolean isGaplessSingleEntityFile(final StorageDataFile<?> storageFile)
@@ -158,7 +223,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		@Override
 		public final boolean needsRetirement(final long fileTotalLength)
 		{
-			return fileTotalLength >= this.maximumFileSize;
+			return fileTotalLength >= this.fileMaximumSize;
 		}
 
 		@Override
@@ -166,9 +231,10 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		{
 			return VarString.New()
 				.add(this.getClass().getName()).add(':').lf()
-				.blank().add("minFileSize"  ).tab().add('=').blank().add(this.minimumFileSize  ).lf()
-				.blank().add("maxFileSize"  ).tab().add('=').blank().add(this.maximumFileSize  ).lf()
-				.blank().add("dissolveRatio").tab().add('=').blank().add(this.minimumFillRatio)
+				.blank().add("fileMinimumSize").tab().add('=').blank().add(this.fileMinimumSize).lf()
+				.blank().add("fileMaximumSize").tab().add('=').blank().add(this.fileMaximumSize).lf()
+				.blank().add("minimumUseRatio").tab().add('=').blank().add(this.minimumUseRatio).lf()
+				.blank().add("cleanupHeadFile").tab().add('=').blank().add(this.cleanupHeadFile)
 				.toString()
 			;
 		}

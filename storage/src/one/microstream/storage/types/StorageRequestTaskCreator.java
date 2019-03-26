@@ -82,8 +82,8 @@ public interface StorageRequestTaskCreator
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(final StorageTimestampProvider timestampProvider)
 		{
