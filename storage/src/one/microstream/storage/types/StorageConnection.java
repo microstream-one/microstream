@@ -176,8 +176,8 @@ public interface StorageConnection extends PersistenceStoring
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final PersistenceManager<Binary> delegate                 ,

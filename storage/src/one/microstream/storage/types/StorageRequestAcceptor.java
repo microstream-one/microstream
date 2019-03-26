@@ -122,8 +122,8 @@ public interface StorageRequestAcceptor
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final StorageDataChunkValidator dataChunkValidator,

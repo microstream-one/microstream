@@ -68,8 +68,8 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(final int channelIndex)
 		{

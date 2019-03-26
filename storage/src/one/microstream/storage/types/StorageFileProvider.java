@@ -44,7 +44,6 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	
 	public interface Defaults
 	{
-
 		public static String defaultStorageDirectory()
 		{
 			return "storage";
@@ -486,8 +485,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public AbstractImplementation(
 			final String baseDirectory         ,

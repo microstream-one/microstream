@@ -36,8 +36,8 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(final long timestamp, final Binary data)
 		{

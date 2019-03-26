@@ -1,7 +1,6 @@
 package one.microstream.storage.types;
 
 import one.microstream.chars.VarString;
-import one.microstream.math.XMath;
 import one.microstream.reference._intReference;
 
 
@@ -10,19 +9,78 @@ public interface StorageChannelCountProvider extends _intReference
 	@Override
 	public int get();
 
-
+	
+	
+	public interface Defaults
+	{
+		public static int defaultChannelCount()
+		{
+			// single-threaded by default.
+			return 1;
+		}
+		
+		public static int defaultHighestSaneChannelCount()
+		{
+			/* (20.06.2013 TM)NOTE:
+			 * What was that: '640 KB ought to be enough RAM for anybody'?
+			 * Nevertheless, I'll stick with that bound for now.
+			 * 
+			 * On a more serious note:
+			 * This check has no actual technical background, it is just a safety net against
+			 * versight mistakes to prevent creation of hundreds of threads and files.
+			 * Can be altered or removed anytime.
+			 */
+			return 64;
+		}
+	}
+	
+	
+	public static boolean isValidChannelCount(final int channelCount)
+	{
+		if(channelCount > Defaults.defaultHighestSaneChannelCount())
+		{
+			return false;
+		}
+		
+		/*
+		 * This is NOT necessarily the default channel count.
+		 * If that changes to 2, the lowest valid count will still be 1!
+		 */
+		return channelCount >= 1;
+	}
+	
+	public static int validateChannelCount(final int channelCount)
+	{
+		if(isValidChannelCount(channelCount))
+		{
+			return channelCount;
+		}
+		
+		// (26.03.2019 TM)EXCP: proper exception
+		throw new IllegalArgumentException("Not a sane channel count: " + channelCount);
+	}
+	
+	
+	public static StorageChannelCountProvider New()
+	{
+		/*
+		 * Validates its own default value, but the cost is neglible and it is a
+		 * good defense against accidentally erroneous changes of the default value.
+		 */
+		return New(
+			Defaults.defaultChannelCount()
+		);
+	}
+	
+	public static StorageChannelCountProvider New(final int channelCount)
+	{
+		return New(
+			validateChannelCount(channelCount)
+		);
+	}
 
 	public final class Implementation implements StorageChannelCountProvider
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
-		
-		// what was that: '640K ought to be enough for anybody'? Nevertheless, I'll stick with this for now
-		private static final int HIGHEST_SANE_CHANNEL_COUNT = 64;
-		
-		
-		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
@@ -32,22 +90,13 @@ public interface StorageChannelCountProvider extends _intReference
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
-		public Implementation(final int channelCount)
+		Implementation(final int channelCount)
 		{
 			super();
-			/* (20.06.2013 TM)NOTE: this check has no actual technical background,
-			 * just a safety net against oversight mistakes to prevent creation of hundreds of threads and files.
-			 * Can be altered or removed anytime.
-			 */
-			if(channelCount > HIGHEST_SANE_CHANNEL_COUNT)
-			{
-				// (16.04.2016)EXCP: properly typed exception
-				throw new IllegalArgumentException("Insane channel counts are not supported");
-			}
-			this.channelCount = XMath.positive(channelCount);
+			this.channelCount = channelCount;
 		}
 
 
@@ -61,7 +110,6 @@ public interface StorageChannelCountProvider extends _intReference
 		{
 			return this.channelCount;
 		}
-
 
 		@Override
 		public String toString()

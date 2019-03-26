@@ -53,10 +53,10 @@ public class TestStorage extends TestComponentProvider
 		.setConfiguration(
 			Storage.ConfigurationBuilder()
 			.setStorageFileProvider   (createTestFileProvider())
-			.setChannelCountProvider  (Storage.ChannelCountProvider(channelCount))        // storage channel/thread count (default 1)
-			.setHousekeepingController(Storage.HousekeepingController(100, 7_000_000))    // time configuration for housekeeping, caching, etc.
-			.setFileEvaluator         (Storage.DataFileEvaluator(100, 10_000_000, 0.75))  // evalutator for dissolving old files
-			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluatorCustomTimeout(10_000)) // evalutator for removing entities from the cache
+			.setChannelCountProvider  (Storage.ChannelCountProvider(channelCount))       // storage channel/thread count (default 1)
+			.setHousekeepingController(Storage.HousekeepingController(100, 7_000_000))   // time configuration for housekeeping, caching, etc.
+			.setFileEvaluator         (Storage.DataFileEvaluator(100, 10_000_000, 0.75)) // evalutator for dissolving old files
+			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluator(10_000))             // evalutator for removing entities from the cache
 			.createConfiguration()
 		)
 		.setConnectionFoundation(createTestConnectionFoundation()) // config and files for persistence layer

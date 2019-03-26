@@ -17,8 +17,8 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final long                     timestamp        ,

@@ -29,8 +29,8 @@ public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProv
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(final Class<?> rootType)
 		{

@@ -23,8 +23,8 @@ public interface StorageRawFileStatisticsItem
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		AbstractImplementation(final long fileCount, final long liveDataLength, final long totalDataLength)
 		{

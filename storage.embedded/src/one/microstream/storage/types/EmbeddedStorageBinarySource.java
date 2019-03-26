@@ -31,8 +31,8 @@ public interface EmbeddedStorageBinarySource extends PersistenceSource<Binary>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(final StorageRequestAcceptor requestAcceptor)
 		{
