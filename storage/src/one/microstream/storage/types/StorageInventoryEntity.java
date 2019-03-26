@@ -26,8 +26,8 @@ public interface StorageInventoryEntity
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(final long position, final long length, final long typeId, final long objectId)
 		{

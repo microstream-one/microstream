@@ -23,8 +23,8 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final long        timestamp          ,

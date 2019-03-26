@@ -22,8 +22,8 @@ public interface StorageRequestTaskCacheCheck extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final long                        timestamp          ,

@@ -144,8 +144,8 @@ public interface StorageDataFileItemIterator
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(final BufferProvider bufferProvider, final ItemProcessor itemProcessor)
 		{

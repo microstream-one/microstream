@@ -89,8 +89,8 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final PersistenceTypeDefinition typeDefinition ,

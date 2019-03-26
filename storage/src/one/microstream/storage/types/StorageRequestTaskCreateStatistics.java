@@ -33,8 +33,8 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final long timestamp   ,
@@ -116,8 +116,8 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		ExportItem(final int channelCount, final StorageEntityTypeHandler type, final File file)
 		{

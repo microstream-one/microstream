@@ -16,8 +16,8 @@ public interface StorageRequestTaskExportChannels extends StorageRequestTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final long               timestamp   ,

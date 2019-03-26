@@ -83,8 +83,8 @@ public interface StorageFileManager
 	public final class Implementation implements StorageFileManager, StorageReaderCallback
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		// the only reason for this limit is to have an int instead of a long for the item's file position.
 		static final int MAX_FILE_LENGTH = Integer.MAX_VALUE;
@@ -184,8 +184,8 @@ public interface StorageFileManager
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final int                                  channelIndex                 ,
@@ -363,7 +363,7 @@ public interface StorageFileManager
 
 			final long copyStart                = first.storagePosition                     ;
 			final long targetFileOldTotalLength = headFile.totalLength()                    ;
-			final long maximumFileSize          = this.dataFileEvaluator.maximumFileSize()  ;
+			final long maximumFileSize          = this.dataFileEvaluator.fileMaximumSize()  ;
 			final long freeSpace                = maximumFileSize - targetFileOldTotalLength;
 			      long copyLength               = 0                                         ;
 

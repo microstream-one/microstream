@@ -27,8 +27,8 @@ public interface StorageChannelTask extends StorageTask
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public AbstractImplementation(final long timestamp, final int channelCount)
 		{

@@ -23,8 +23,8 @@ public interface StorageInventory extends StorageHashChannelPart
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final int                                       channelIndex    ,

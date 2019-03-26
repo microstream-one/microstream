@@ -17,8 +17,8 @@ public interface StorageChannelSynchronizingTask extends StorageChannelTask
 	implements StorageChannelSynchronizingTask
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public AbstractCompletingTask(final long timestamp, final int channelCount)
 		{

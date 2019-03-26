@@ -47,8 +47,8 @@ public interface StorageChannelController
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(final StorageChannelCountProvider channelCountProvider)
 		{
