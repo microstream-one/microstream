@@ -1,12 +1,12 @@
 package one.microstream.functional;
 
-public final class AggregateSum<E> implements Aggregator<E, Double>
+public final class Aggregate_doubleSum<E> implements Aggregator<E, Double>
 {
 	private final To_double<? super E> getter;
 
 	private double sum;
 
-	public AggregateSum(final To_double<? super E> getter)
+	public Aggregate_doubleSum(final To_double<? super E> getter)
 	{
 		super();
 		this.getter = getter;

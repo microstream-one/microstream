@@ -6,13 +6,15 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.equality.Equalator;
-import one.microstream.functional.Similator;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing.TypeMappingLookup;
-import one.microstream.util.matching.MatchValidator;
-import one.microstream.util.matching.MultiMatch;
-import one.microstream.util.matching.MultiMatcher;
+import one.microstream.util.similarity.MatchValidator;
+import one.microstream.util.similarity.MultiMatch;
+import one.microstream.util.similarity.MultiMatchAssembler;
+import one.microstream.util.similarity.MultiMatcher;
+import one.microstream.util.similarity.Similarity;
+import one.microstream.util.similarity.Similator;
 
 public interface PersistenceLegacyTypeMapper<M>
 {
@@ -21,6 +23,41 @@ public interface PersistenceLegacyTypeMapper<M>
 		PersistenceTypeHandler<M, T> currentTypeHandler
 	);
 	
+	
+	
+	public interface Defaults
+	{
+		public static double defaultExplicitMappingSimilarity()
+		{
+			// to indicate "super similarity", something beyind a similiary match: an explicit mapping.
+			return 2.0;
+		}
+		
+		public static String defaultExplicitMappingString()
+		{
+			return "[mapped]";
+		}
+	}
+	
+	public static String similarityToString(final Similarity<PersistenceTypeDefinitionMember> match)
+	{
+		return match.similarity() == Defaults.defaultExplicitMappingSimilarity()
+			? Defaults.defaultExplicitMappingString()
+			: MultiMatchAssembler.Defaults.defaultSimilarityFormatter().format(match.similarity())
+		;
+	}
+	
+	public static Similarity<PersistenceTypeDefinitionMember> ExplicitMatch(
+		final PersistenceTypeDefinitionMember sourceMember,
+		final PersistenceTypeDefinitionMember targetMember
+	)
+	{
+		return Similarity.New(
+			notNull(sourceMember),
+			Defaults.defaultExplicitMappingSimilarity(),
+			notNull(targetMember)
+		);
+	}
 	
 	
 	public static <M> PersistenceLegacyTypeMapper<M> New(
@@ -32,7 +69,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator
 	)
 	{
-		return new PersistenceLegacyTypeMapper.Implementation<>(
+		return new PersistenceLegacyTypeMapper.Default<>(
 			notNull(refactoringResolverProvider),
 			notNull(typeSimilarity)             ,
 			notNull(customTypeHandlerRegistry)  ,
@@ -42,7 +79,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		);
 	}
 
-	public class Implementation<M> implements PersistenceLegacyTypeMapper<M>
+	public class Default<M> implements PersistenceLegacyTypeMapper<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -61,7 +98,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		// constructors //
 		/////////////////
 		
-		protected Implementation(
+		protected Default(
 			final PersistenceRefactoringResolverProvider  refactoringResolverProvider,
 			final TypeMappingLookup<Float>                typeSimilarity             ,
 			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ,

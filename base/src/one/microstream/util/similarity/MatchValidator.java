@@ -1,4 +1,4 @@
-package one.microstream.util.matching;
+package one.microstream.util.similarity;
 
 /**
  * Since matching on similarity is a heuristical method, it can be necessary to have a validation callback logic

@@ -3,6 +3,7 @@ package one.microstream.persistence.types;
 import java.util.Iterator;
 
 import one.microstream.collections.types.XGettingMap;
+import one.microstream.util.similarity.Similarity;
 
 public interface PersistenceLegacyTypeHandlerCreator<M>
 {
@@ -48,7 +49,7 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 				return false;
 			}
 
-			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> map =
+			final XGettingMap<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> map =
 				result.legacyToCurrentMembers()
 			;
 			final Iterator<? extends PersistenceTypeDefinitionMember> legacy =

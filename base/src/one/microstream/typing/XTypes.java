@@ -118,22 +118,11 @@ public final class XTypes
 	{
 		// all value types, ordered in common use probability
 		return c == String.class
-			|| c == Integer.class
-			|| c == Long.class
-			|| c == Character.class
-			|| c == Double.class
-			|| c == Byte.class
-			|| c == Boolean.class
-			|| c == Float.class
-			|| c == Short.class
-			|| c == BigInteger.class
-			|| c == BigDecimal.class
-			|| c == Field.class // Field instances are no cached singletons but get copied over and over as value types
+			|| Number.class.isAssignableFrom(c)
 			|| ValueType.class.isAssignableFrom(c)
+			|| c == Field.class // Field instances are no cached singletons but get copied over and over as value types
 		;
 	}
-
-	
 	
 	public static boolean isNaturalNumber(final Object o)
 	{
@@ -179,11 +168,9 @@ public final class XTypes
 	 */
 	public static boolean isValueType(final Object o)
 	{
-		// all value types, ordered in common use probability
+		// everything extending Number is a value type by definition.
 		return o instanceof String
-			|| isPrimitiveWrapper(o)
-			|| o instanceof BigInteger
-			|| o instanceof BigDecimal
+			|| o instanceof Number
 			|| o instanceof ValueType
 		;
 	}

@@ -12,9 +12,9 @@ import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.meta.XDebug;
-import one.microstream.util.matching.MultiMatch;
-import one.microstream.util.matching.MultiMatchAssembler;
-import one.microstream.util.matching.MultiMatcher;
+import one.microstream.util.similarity.MultiMatch;
+import one.microstream.util.similarity.MultiMatchAssembler;
+import one.microstream.util.similarity.MultiMatcher;
 
 public class MainTestMultiMatcher
 {

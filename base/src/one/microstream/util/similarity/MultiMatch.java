@@ -1,11 +1,10 @@
-package one.microstream.util.matching;
+package one.microstream.util.similarity;
 
 import static one.microstream.X.notNull;
 
 import one.microstream.X;
 import one.microstream.collections.XArrays;
 import one.microstream.equality.Equalator;
-import one.microstream.functional.Similator;
 
 public interface MultiMatch<E>
 {
@@ -733,13 +732,6 @@ public interface MultiMatch<E>
 			this.highestSimilarity = highest;
 		}
 		
-
-		@SuppressWarnings("unchecked")
-		private static <E> MultiMatchResult.Item.Implementation<E>[] newArray(final int length)
-		{
-			return new MultiMatchResult.Item.Implementation[length];
-		}
-
 		private MultiMatchResult<E> buildResult()
 		{
 			final E[]      source     = this.inputSource;
@@ -747,14 +739,14 @@ public interface MultiMatch<E>
 			final int[]    s2tMapping = this.srcToTrgMap;
 			final double[] linkedSims = this.linkedSourceSimilarities;
 			
-			final MultiMatchResult.Item.Implementation<E>[] matchS = newArray(source.length);
-			final MultiMatchResult.Item.Implementation<E>[] matchT = newArray(target.length);
+			final Similarity<E>[] matchS = Similarity.Array(source.length);
+			final Similarity<E>[] matchT = Similarity.Array(target.length);
 
 			for(int s = 0; s < source.length; s++)
 			{
 				if(s2tMapping[s] >= 0)
 				{
-					final MultiMatchResult.Item.Implementation<E> item = new MultiMatchResult.Item.Implementation<>(
+					final Similarity<E> item = Similarity.New(
 						source[s],
 						linkedSims[s],
 						target[s2tMapping[s]]

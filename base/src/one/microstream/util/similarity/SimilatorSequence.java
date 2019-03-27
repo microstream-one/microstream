@@ -1,5 +1,4 @@
-package one.microstream.functional;
-
+package one.microstream.util.similarity;
 
 /**
  *

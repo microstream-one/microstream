@@ -1,13 +1,17 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.legacy;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
 import one.microstream.collections.old.OldCollections;
 import one.microstream.persistence.internal.InquiringLegacyTypeMappingResultor;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.test.corp.logic.Test;
+import one.microstream.test.corp.logic.TestImportExport;
 import one.microstream.time.XTime;
 
 
@@ -18,9 +22,12 @@ public class MainTestStorageLegacyTypeMapping
 		.onConnectionFoundation(f ->
 			f.setLegacyTypeMappingResultor(
 				InquiringLegacyTypeMappingResultor.New(
-					PersistenceLegacyTypeMappingResultor.New()
+					PersistenceLegacyTypeMappingResultor.New(), 0.8
 				)
 			)
+		)
+		.setRefactoringMappingProvider(
+			Persistence.RefactoringMapping(new File("Refactorings.csv"))
 		)
 		.start()
 	;
@@ -54,7 +61,8 @@ public class MainTestStorageLegacyTypeMapping
 	
 	static Object generateGraph()
 	{
-		return new TestEntity(47, "testi", "A", "B", "C");
+		return new Person();
+//		return new TestEntity(47, "testi", "A", "B", "C");
 	}
 	
 	static class TestEntity

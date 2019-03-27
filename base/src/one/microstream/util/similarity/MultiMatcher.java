@@ -1,9 +1,8 @@
-package one.microstream.util.matching;
+package one.microstream.util.similarity;
 
 import one.microstream.chars.XChars;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.equality.Equalator;
-import one.microstream.functional.Similator;
 
 
 /**

@@ -86,7 +86,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		return new Implementation(
 			XMath.positive          (fileMinimumSize),
 			XMath.positive          (fileMaximumSize),
-			XMath.positivePercentage(minimumUseRatio),
+			XMath.positiveMax1(minimumUseRatio),
 			                         cleanupHeadFile
 		);
 	}

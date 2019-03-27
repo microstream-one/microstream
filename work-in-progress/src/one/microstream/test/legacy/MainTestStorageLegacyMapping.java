@@ -12,7 +12,7 @@ import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
-import one.microstream.util.matching.MatchValidator;
+import one.microstream.util.similarity.MatchValidator;
 
 
 public class MainTestStorageLegacyMapping
