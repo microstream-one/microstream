@@ -9,9 +9,6 @@ import static one.microstream.X.notNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -21,6 +18,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.exceptions.NumberRangeException;
 import one.microstream.functional._charProcedure;
 import one.microstream.memory.XMemory;
+import one.microstream.typing.XTypes;
 
 
 
@@ -1397,11 +1395,6 @@ public final class XChars
 		return prefix;
 	}
 
-	public static final DecimalFormat createDecimalFormatter(final String pattern, final Locale locale)
-	{
-		return new DecimalFormat(pattern, new DecimalFormatSymbols(locale));
-	}
-
 	public static final String padLeft(final String s, final int totalLength, final char paddingChar)
 	{
 		return VarString.New(totalLength).padLeft(s, totalLength, paddingChar).toString();
@@ -2482,6 +2475,29 @@ public final class XChars
 		
 		// string contains solely whitespaces, hence return null
 		return null;
+	}
+	
+	/**
+	 * Assembles the passed instance "cautiously" in the sense that only types recognizable via
+	 * {@link XTypes#isValueType(Object)} get assembled using their {@link Object#toString()} method,
+	 * while all others are assembled using {@link #systemString(Object)}
+	 * (which behaves identical to the actual implementation of {@link Object#toString()}).
+	 * 
+	 * @param vs the {@link VarString} instance to hold the assembled string.
+	 * @param object the instance to be assembled "cautiously" as described above.
+	 * @return the passed vs instance (method-chaining viable).
+	 * 
+	 * @see VarString#add(Object, java.util.function.BiConsumer)
+	 * @see XTypes#isValueType(Object)
+	 * @see Object#toString()
+	 * @see XChars#systemString(Object)
+	 */
+	public static final VarString assembleCautiously(final VarString vs, final Object object)
+	{
+		return vs.add(XTypes.isValueType(object)
+			? object.toString()
+			: XChars.systemString(object)
+		);
 	}
 		
 

@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.util.similarity.Similarity;
 
 
 public interface PersistenceLegacyTypeMappingResult<M, T>
@@ -13,9 +14,9 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 	
 	public PersistenceTypeHandler<M, T> currentTypeHandler();
 	
-	public XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers();
+	public XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> legacyToCurrentMembers();
 	
-	public XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers();
+	public XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> currentToLegacyMembers();
 
 	public XGettingEnum<PersistenceTypeDefinitionMember> discardedLegacyMembers();
 	
@@ -24,12 +25,12 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 	
 	
 	public static <M, T> PersistenceLegacyTypeMappingResult<M, T> New(
-		final PersistenceTypeDefinition                                                       legacyTypeDefinition  ,
-		final PersistenceTypeHandler<M, T>                                                    currentTypeHandler    ,
-		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers,
-		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers,
-		final XGettingEnum<PersistenceTypeDefinitionMember>                                   discardedLegacyMembers,
-		final XGettingEnum<PersistenceTypeDefinitionMember>                                   newCurrentMembers
+		final PersistenceTypeDefinition                                                                   legacyTypeDefinition  ,
+		final PersistenceTypeHandler<M, T>                                                                currentTypeHandler    ,
+		final XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> legacyToCurrentMembers,
+		final XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> currentToLegacyMembers,
+		final XGettingEnum<PersistenceTypeDefinitionMember>                                               discardedLegacyMembers,
+		final XGettingEnum<PersistenceTypeDefinitionMember>                                               newCurrentMembers
 	)
 	{
 		return new PersistenceLegacyTypeMappingResult.Implementation<>(
@@ -50,10 +51,13 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		
 		final PersistenceTypeDefinition                     legacyTypeDefinition  ;
 		final PersistenceTypeHandler<M, T>                  currentTypeHandler    ;
-		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers;
-		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers;
 		final XGettingEnum<PersistenceTypeDefinitionMember> discardedLegacyMembers;
 		final XGettingEnum<PersistenceTypeDefinitionMember> newCurrentMembers     ;
+		
+		final XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>>
+			legacyToCurrentMembers,
+			currentToLegacyMembers
+		;
 		
 		
 		
@@ -62,12 +66,12 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		/////////////////
 		
 		Implementation(
-			final PersistenceTypeDefinition                                                       legacyTypeDefinition  ,
-			final PersistenceTypeHandler<M, T>                                                    currentTypeHandler    ,
-			final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers,
-			final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers,
-			final XGettingEnum<PersistenceTypeDefinitionMember>                                   discardedLegacyMembers,
-			final XGettingEnum<PersistenceTypeDefinitionMember>                                   newCurrentMembers
+			final PersistenceTypeDefinition                                                                   legacyTypeDefinition  ,
+			final PersistenceTypeHandler<M, T>                                                                currentTypeHandler    ,
+			final XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> legacyToCurrentMembers,
+			final XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> currentToLegacyMembers,
+			final XGettingEnum<PersistenceTypeDefinitionMember>                                               discardedLegacyMembers,
+			final XGettingEnum<PersistenceTypeDefinitionMember>                                               newCurrentMembers
 		)
 		{
 			super();
@@ -98,13 +102,13 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		}
 
 		@Override
-		public XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToCurrentMembers()
+		public XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> legacyToCurrentMembers()
 		{
 			return this.legacyToCurrentMembers;
 		}
 		
 		@Override
-		public XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers()
+		public XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> currentToLegacyMembers()
 		{
 			return this.currentToLegacyMembers;
 		}

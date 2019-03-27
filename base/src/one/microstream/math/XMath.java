@@ -4,9 +4,11 @@ import static java.lang.Math.abs;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.Random;
 
 import one.microstream.exceptions.NumberRangeException;
+import one.microstream.functional.To_double;
 
 
 /**
@@ -1316,6 +1318,8 @@ public final class XMath
 		{
 			return value;
 		}
+		
+		// (27.03.2019 TM)EXCP: proper exception
 		throw new NumberRangeException();
 	}
 
@@ -1323,6 +1327,7 @@ public final class XMath
 	{
 		if(value < 0)
 		{
+			// (27.03.2019 TM)EXCP: proper exception
 			throw new NumberRangeException();
 		}
 		return value;
@@ -1332,6 +1337,8 @@ public final class XMath
 	{
 		if(value != null && value < 0)
 		{
+			
+			// (27.03.2019 TM)EXCP: proper exception
 			throw new NumberRangeException();
 		}
 		return value;
@@ -1343,6 +1350,8 @@ public final class XMath
 		{
 			return value;
 		}
+		
+		// (27.03.2019 TM)EXCP: proper exception
 		throw new NumberRangeException();
 	}
 
@@ -1352,6 +1361,8 @@ public final class XMath
 		{
 			return value;
 		}
+		
+		// (27.03.2019 TM)EXCP: proper exception
 		throw new NumberRangeException();
 	}
 
@@ -1359,6 +1370,7 @@ public final class XMath
 	{
 		if(value < 0)
 		{
+			// (27.03.2019 TM)EXCP: proper exception
 			throw new NumberRangeException();
 		}
 		return value;
@@ -1368,6 +1380,7 @@ public final class XMath
 	{
 		if(value != null && value < 0)
 		{
+			// (27.03.2019 TM)EXCP: proper exception
 			throw new NumberRangeException();
 		}
 		return value;
@@ -1379,6 +1392,8 @@ public final class XMath
 		{
 			return value;
 		}
+		
+		// (27.03.2019 TM)EXCP: proper exception
 		throw new NumberRangeException();
 	}
 
@@ -1388,6 +1403,8 @@ public final class XMath
 		{
 			return value;
 		}
+		
+		// (27.03.2019 TM)EXCP: proper exception
 		throw new NumberRangeException();
 	}
 
@@ -1395,26 +1412,31 @@ public final class XMath
 	{
 		if(value < 0)
 		{
+			// (27.03.2019 TM)EXCP: proper exception
 			throw new NumberRangeException();
 		}
 		return value;
 	}
 
-	public static double positivePercentage(final double value) throws NumberRangeException
+	public static double positiveMax1(final double value) throws NumberRangeException
 	{
 		if(value <= 1.0)
 		{
 			return positive(value);
 		}
+		
+		// (27.03.2019 TM)EXCP: proper exception
 		throw new NumberRangeException();
 	}
 
-	public static double notNegativePercentage(final double value) throws NumberRangeException
+	public static double notNegativeMax1(final double value) throws NumberRangeException
 	{
 		if(value <= 1.0)
 		{
 			return notNegative(value);
 		}
+		
+		// (27.03.2019 TM)EXCP: proper exception
 		throw new NumberRangeException();
 	}
 
@@ -1424,6 +1446,8 @@ public final class XMath
 		{
 			return value;
 		}
+		
+		// (27.03.2019 TM)EXCP: proper exception
 		throw new NumberRangeException();
 	}
 
@@ -1507,6 +1531,55 @@ public final class XMath
 			: l1 + l2
 		;
 	}
+	
+
+
+	
+	public static <E> Double minDouble(final Iterable<E> elements, final To_double<? super E> getter)
+	{
+		final double minimum = min_double(elements, getter);
+		
+		return Double.isNaN(minimum)
+			? null
+			: Double.valueOf(minimum)
+		;
+	}
+	
+	public static <E> double min_double(final Iterable<E> elements, final To_double<? super E> getter)
+	{
+		return min_double(elements, getter, Double.NaN);
+	}
+	
+	public static <E> double min_double(
+		final Iterable<E>          elements    ,
+		final To_double<? super E> getter      ,
+		final double               defaultValue
+	)
+	{
+		final Iterator<E> iterator = elements.iterator();
+		if(!iterator.hasNext())
+		{
+			return defaultValue;
+		}
+		
+		double minimum = Double.MAX_VALUE;
+		while(iterator.hasNext())
+		{
+			final double value = getter.apply(iterator.next());
+			if(value < minimum)
+			{
+				minimum = value;
+			}
+		}
+		
+		return minimum;
+	}
+	
+//	public static void main(final String[] args)
+//	{
+//		final double minimum = min_double(X.List(5.4, 1.2, Double.NaN, 3.8, 0.0), O->O);
+//		System.out.println(minimum);
+//	}
 
 
 	

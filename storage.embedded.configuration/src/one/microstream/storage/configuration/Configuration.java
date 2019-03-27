@@ -4,7 +4,7 @@ package one.microstream.storage.configuration;
 
 import static one.microstream.chars.XChars.notEmpty;
 import static one.microstream.math.XMath.positive;
-import static one.microstream.math.XMath.positivePercentage;
+import static one.microstream.math.XMath.positiveMax1;
 
 import java.io.File;
 import java.time.Duration;
@@ -639,7 +639,7 @@ public interface Configuration
 		@Override
 		public Configuration setDataFileDissolveRatio(final double dataFileDissolveRatio)
 		{
-			this.dataFileDissolveRatio = positivePercentage(dataFileDissolveRatio);
+			this.dataFileDissolveRatio = positiveMax1(dataFileDissolveRatio);
 			return this;
 		}
 

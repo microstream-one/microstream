@@ -1,4 +1,4 @@
-package one.microstream.util.matching;
+package one.microstream.util.similarity;
 
 import static one.microstream.X.notNull;
 
@@ -224,7 +224,7 @@ public interface MultiMatchAssembler<E>
 				line1Srcs.tab();
 			}
 
-			for(final MultiMatchResult.Item<? extends E> e : result.matchesInSourceOrder())
+			for(final Similarity<? extends E> e : result.matchesInSourceOrder())
 			{
 				if(e != null)
 				{

@@ -1,6 +1,6 @@
 package one.microstream.chars;
 
-import one.microstream.functional.Similator;
+import one.microstream.util.similarity.Similator;
 
 /**
  * Simple implementation of the Levenshtein distance algorithm for calculating Levenshtein distance or a

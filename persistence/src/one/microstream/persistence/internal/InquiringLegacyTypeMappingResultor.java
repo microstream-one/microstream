@@ -6,18 +6,16 @@ import java.util.Scanner;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
-import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSet;
-import one.microstream.collections.types.XGettingTable;
 import one.microstream.math.XMath;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResult;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeHandler;
-import one.microstream.util.matching.MultiMatch;
+import one.microstream.util.similarity.MultiMatch;
+import one.microstream.util.similarity.Similarity;
 
 public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyTypeMappingResultor<M>
 {
@@ -29,31 +27,23 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final PersistenceLegacyTypeMappingResultor<M> delegate
 	)
 	{
-		return new InquiringLegacyTypeMappingResultor<>(delegate, 0.0);
+		return New(delegate, 1.0);
 	}
-	
+		
 	public static <M> InquiringLegacyTypeMappingResultor<M> New(
 		final PersistenceLegacyTypeMappingResultor<M> delegate,
-		final boolean                     ignorePerfectMatches
-	)
-	{
-		return New(
-			delegate,
-			ignorePerfectMatches
-				? 1.0
-				: 0.0
-		);
-	}
-	
-	public static <M> InquiringLegacyTypeMappingResultor<M> New(
-		final PersistenceLegacyTypeMappingResultor<M> delegate,
-		final double                inquerySimilarityThreshold
+		final double                minimumSimilarityThreshold
 	)
 	{
 		return new InquiringLegacyTypeMappingResultor<>(
 			notNull(delegate),
-			XMath.notNegativePercentage(inquerySimilarityThreshold)
+			XMath.notNegativeMax1(minimumSimilarityThreshold)
 		);
+	}
+	
+	public static char approvalToken()
+	{
+		return 'y';
 	}
 	
 	
@@ -63,7 +53,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	////////////////////
 	
 	private final PersistenceLegacyTypeMappingResultor<M> delegate;
-	private final double                                  inquerySimilarityThreshold;
+	private final double                inquirySimilarityThreshold;
 	
 	
 	
@@ -73,12 +63,12 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	
 	InquiringLegacyTypeMappingResultor(
 		final PersistenceLegacyTypeMappingResultor<M> delegate,
-		final double                inquerySimilarityThreshold
+		final double                inquirySimilarityThreshold
 	)
 	{
 		super();
 		this.delegate                   = delegate                  ;
-		this.inquerySimilarityThreshold = inquerySimilarityThreshold;
+		this.inquirySimilarityThreshold = inquirySimilarityThreshold;
 	}
 
 
@@ -87,15 +77,27 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	// methods //
 	////////////
 	
-	private boolean inquiryRequired(final PersistenceLegacyTypeMappingResult<M, ?> result)
+	private boolean inquiryRequired(
+		final PersistenceLegacyTypeMappingResult<M, ?>                                      result          ,
+		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings
+	)
 	{
-//		final long maxMemberCount = Math.max(
-//			matchedMembers.result().inputSources().size(),
-//			matchedMembers.result().inputTargets().size()
-//		);
-		// (26.03.2019 TM)FIXME: inquiryRequired
-		XDebug.println("FIXME");
-		return true;
+		final double lowestSimilarity = XMath.min_double(
+			result.currentToLegacyMembers().values(),
+			Similarity::_similarity
+		);
+				
+		boolean hasUnmappedDiscardedMembers = false;
+		for(final PersistenceTypeDefinitionMember discarded : result.discardedLegacyMembers())
+		{
+			if(!explicitMappings.keys().contains(discarded))
+			{
+				hasUnmappedDiscardedMembers = true;
+				break;
+			}
+		}
+		
+		return lowestSimilarity < this.inquirySimilarityThreshold || hasUnmappedDiscardedMembers;
 	}
 
 	@Override
@@ -107,10 +109,6 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
-		// (26.03.2019 TM)FIXME: /!\ DEBUG
-		final VarString vs = VarString.New(currentTypeHandler.runtimeTypeName() + " Matching:").lf();
-		XDebug.println(matchedMembers.assembler().assembleMappingSchemeVertical(vs).toString());
-		
 		final PersistenceLegacyTypeMappingResult<M, T> result = this.delegate.createMappingResult(
 			legacyTypeDefinition,
 			currentTypeHandler  ,
@@ -118,8 +116,22 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 			explicitNewMembers  ,
 			matchedMembers
 		);
-				
-		if(!this.inquiryRequired(result) || this.inquireApproval(explicitMappings, matchedMembers, result))
+		
+		final boolean inquiryRequired = this.inquiryRequired(result, explicitMappings);
+		if(!inquiryRequired)
+		{
+			final String output = PrintingLegacyTypeMappingResultor.assembleMappingWithHeader(
+				explicitMappings,
+				matchedMembers  ,
+				result
+			);
+			System.out.println(output);
+			
+			return result;
+		}
+		
+		final boolean approved = this.inquireApproval(explicitMappings, matchedMembers, result);
+		if(approved)
 		{
 			return result;
 		}
@@ -142,7 +154,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		final Scanner scanner = new Scanner(System.in);
 		
 		final String input = XChars.trimEmptyToNull(scanner.nextLine());
-		if(input != null && 'y' == Character.toLowerCase(input.charAt(0)))
+		if(input != null && Character.toLowerCase(input.charAt(0)) == approvalToken())
 		{
 			return true;
 		}
@@ -158,79 +170,15 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	{
 		// intentionally no instance field to not permanently occupy memory by an initializer part.
 		final VarString vs = VarString.New(1000);
-		this.assembleInquiryStart(vs, result);
-		this.assembleMapping(vs, explicitMappings, matchedMembers, result);
+		PrintingLegacyTypeMappingResultor.assembleMappingHeader(vs, result);
+		PrintingLegacyTypeMappingResultor.assembleMapping(vs, explicitMappings, matchedMembers, result);
 		this.assembleInquiryEnd(vs, result);
 		final String inquiry = vs.toString();
 		return inquiry;
 	}
 	
-	protected VarString assembleInquiryStart(
-		final VarString                                vs    ,
-		final PersistenceLegacyTypeMappingResult<M, ?> result
-	)
-	{
-		vs
-		.lf()
-		.add("----------").lf()
-		.add("Legacy type mapping required for legacy type ").lf()
-		.add(result.legacyTypeDefinition().toTypeIdentifier()).lf()
-		.add("to current type ").lf()
-		.add(result.currentTypeHandler().toTypeIdentifier()).lf()
-		.add("Fields:").lf()
-		;
+
 		
-		return vs;
-	}
-	
-	private static void assembleMember(final VarString vs, final PersistenceTypeDefinitionMember member)
-	{
-		vs.add(member.typeName()).blank().add(member.uniqueName());
-	}
-	
-	protected VarString assembleMapping(
-		final VarString                                                                     vs              ,
-		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings,
-		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers  ,
-		final PersistenceLegacyTypeMappingResult<M, ?>                                      result
-	)
-	{
-		final XGettingTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> currentToLegacyMembers =
-			result.currentToLegacyMembers()
-		;
-		final XGettingEnum<PersistenceTypeDefinitionMember> newCurrentMembers = result.newCurrentMembers();
-		
-		for(final PersistenceTypeDefinitionMember member : result.currentTypeHandler().membersInDeclaredOrder())
-		{
-			final PersistenceTypeDefinitionMember mappedLegacyMember = currentToLegacyMembers.get(member);
-			if(mappedLegacyMember != null)
-			{
-				assembleMember(vs, mappedLegacyMember);
-				vs.add("\t----> ");
-				assembleMember(vs, member);
-				vs.lf();
-				continue;
-			}
-			if(newCurrentMembers.contains(member))
-			{
-				vs.add("\t[new] ");
-				assembleMember(vs, member);
-				vs.lf();
-				continue;
-			}
-			// (11.10.2018 TM)EXCP: proper exception
-			throw new RuntimeException("Inconsistent current type member mapping: " + member.uniqueName());
-		}
-		
-		for(final PersistenceTypeDefinitionMember e : result.discardedLegacyMembers())
-		{
-			assembleMember(vs, e);
-			vs.add("\t[discarded]").lf();
-		}
-		
-		return vs;
-	}
-	
 	protected VarString assembleInquiryEnd(
 		final VarString                                vs    ,
 		final PersistenceLegacyTypeMappingResult<M, ?> result
@@ -238,7 +186,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	{
 		vs
 		.add("---").lf()
-		.add("Write 'y' to accept the mapping.")
+		.add("Write '").add(approvalToken()).add("' to accept the mapping.")
 		;
 		return vs;
 	}

@@ -22,7 +22,8 @@ import one.microstream.collections.sorting.Sortable;
 import one.microstream.collections.sorting.SortableProcedure;
 import one.microstream.collections.types.XIterable;
 import one.microstream.collections.types.XSequence;
-import one.microstream.functional.AggregateSum;
+import one.microstream.functional.Aggregate_doubleMin;
+import one.microstream.functional.Aggregate_doubleSum;
 import one.microstream.functional.Aggregator;
 import one.microstream.functional.To_double;
 import one.microstream.functional.XFunc;
@@ -472,7 +473,12 @@ public final class CQL
 
 	public static <O> CqlResultor<O, Double> sum(final To_double<? super O> getter)
 	{
-		return e -> new AggregateSum<>(getter);
+		return e -> new Aggregate_doubleSum<>(getter);
+	}
+	
+	public static <O> CqlResultor<O, Double> min(final To_double<? super O> getter)
+	{
+		return e -> new Aggregate_doubleMin<>(getter);
 	}
 
 	

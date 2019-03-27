@@ -3,8 +3,8 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 
 import one.microstream.chars.Levenshtein;
-import one.microstream.functional.Similator;
 import one.microstream.typing.TypeMappingLookup;
+import one.microstream.util.similarity.Similator;
 
 public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDefinitionMember>
 {

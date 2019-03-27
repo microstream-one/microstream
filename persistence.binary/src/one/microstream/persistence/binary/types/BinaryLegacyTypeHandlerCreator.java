@@ -20,6 +20,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberField;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
+import one.microstream.util.similarity.Similarity;
 
 public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHandlerCreator<Binary>
 {
@@ -103,11 +104,11 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		}
 		
 		private XGettingTable<Long, BinaryValueSetter> deriveValueTranslators(
-			final PersistenceTypeDefinition                                                     legacyTypeDefinition ,
-			final PersistenceTypeHandler<Binary, ?>                                             currentTypeHandler   ,
-			final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> legacyToTargetMembers,
-			final HashTable<PersistenceTypeDefinitionMember, Long>                              targetMemberOffsets  ,
-			final boolean                                                                       resolveReferences
+			final PersistenceTypeDefinition                                                                 legacyTypeDefinition ,
+			final PersistenceTypeHandler<Binary, ?>                                                         currentTypeHandler   ,
+			final XGettingMap<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> legacyToTargetMembers,
+			final HashTable<PersistenceTypeDefinitionMember, Long>                                          targetMemberOffsets  ,
+			final boolean                                                                                   resolveReferences
 		)
 		{
 			final EqHashTable<Long, BinaryValueSetter> translatorsWithTargetOffsets = EqHashTable.New();
@@ -117,7 +118,9 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			for(final PersistenceTypeDefinitionMember legacyMember : legacyTypeDefinition.members())
 			{
 				// currentMember null means the value is to be discarded.
-				final PersistenceTypeDefinitionMember currentMember = legacyToTargetMembers.get(legacyMember);
+				final PersistenceTypeDefinitionMember currentMember = Similarity.targetElement(
+					legacyToTargetMembers.get(legacyMember)
+				);
 				
 				final BinaryValueSetter translator = resolveReferences
 					? creator.provideTargetValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)

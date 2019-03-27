@@ -8,3 +8,5 @@ one.microstream.test.legacy.OldContact#note	one.microstream.test.legacy.NewConta
 one.microstream.test.legacy.OldContact#age	one.microstream.test.legacy.NewContact#age
 one.microstream.test.legacy.OldContact#link	
 XHashEqualator:hashEqualityValueOld	XHashEqualator:hashEqualityValue
+one.microstream.test.legacy.Person#kundennummer	one.microstream.test.legacy.Person#pin
+one.microstream.test.legacy.Person#comment	

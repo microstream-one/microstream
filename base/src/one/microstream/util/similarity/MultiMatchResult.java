@@ -1,4 +1,4 @@
-package one.microstream.util.matching;
+package one.microstream.util.similarity;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.ConstList;
@@ -15,9 +15,9 @@ public interface MultiMatchResult<E>
 
 	public XGettingSequence<E> inputTargets();
 
-	public XGettingSequence<? extends Item<E>> matchesInSourceOrder();
+	public XGettingSequence<? extends Similarity<E>> matchesInSourceOrder();
 
-	public XGettingSequence<? extends Item<E>> matchesInTargetOrder();
+	public XGettingSequence<? extends Similarity<E>> matchesInTargetOrder();
 
 	public XGettingSequence<E> remainingSources();
 
@@ -27,77 +27,13 @@ public interface MultiMatchResult<E>
 
 	public XGettingSequence<E> unmatchedTargets();
 
-	public XGettingSequence<? extends Item<E>> sourceMatches();
+	public XGettingSequence<? extends Similarity<E>> sourceMatches();
 
-	public XGettingSequence<? extends Item<E>> targetMatches();
+	public XGettingSequence<? extends Similarity<E>> targetMatches();
 
 	public XGettingList<E> matchedSources();
 
 	public XGettingList<E> matchedTargets();
-	
-	
-	public interface Item<E>
-	{
-		public E sourceElement();
-		
-		public double similarity();
-		
-		public E targetElement();
-		
-		
-		
-		public final class Implementation<E> implements MultiMatchResult.Item<E>
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields //
-			////////////////////
-			
-			private final E      sourceElement;
-			private final double similarity   ;
-			private final E      targetElement;
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-			
-			Implementation(final E sourceElement, final double similarity, final E targetElement)
-			{
-				super();
-				this.sourceElement = sourceElement;
-				this.similarity    = similarity   ;
-				this.targetElement = targetElement;
-			}
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-			
-			@Override
-			public final E sourceElement()
-			{
-				return this.sourceElement;
-			}
-			
-			@Override
-			public final double similarity()
-			{
-				return this.similarity;
-			}
-			
-			@Override
-			public final E targetElement()
-			{
-				return this.targetElement;
-			}
-			
-		}
-		
-	}
-	
 	
 	
 	public class Implementation<E> implements MultiMatchResult<E>
@@ -107,8 +43,8 @@ public interface MultiMatchResult<E>
 		/////////////////////
 
 		static <T> ConstList<T> collectRemaining(
-			final ConstList<T>                 input  ,
-			final ConstList<? extends Item<T>> matches
+			final ConstList<T>                       input  ,
+			final ConstList<? extends Similarity<T>> matches
 		)
 		{
 			final BulkList<T> remaining = BulkList.New(input.size());
@@ -121,8 +57,8 @@ public interface MultiMatchResult<E>
 		}
 
 		static <T> ConstList<T> collectUnmatched(
-			final ConstList<T>                 input  ,
-			final ConstList<? extends Item<T>> matches
+			final ConstList<T>                       input  ,
+			final ConstList<? extends Similarity<T>> matches
 		)
 		{
 			final BulkList<T> unmatched = BulkList.New(input.size());
@@ -138,8 +74,8 @@ public interface MultiMatchResult<E>
 		}
 
 		static <T> ConstList<T> collectMatched(
-			final ConstList<T>                 input  ,
-			final ConstList<? extends Item<T>> matches
+			final ConstList<T>                       input  ,
+			final ConstList<? extends Similarity<T>> matches
 		)
 		{
 			final BulkList<T> matched = BulkList.New(input.size());
@@ -165,8 +101,8 @@ public interface MultiMatchResult<E>
 		final ConstList<E> sources;
 		final ConstList<E> targets;
 
-		final ConstList<? extends Item<E>> matchesInSourceOrder;
-		final ConstList<? extends Item<E>> matchesInTargetOrder;
+		final ConstList<? extends Similarity<E>> matchesInSourceOrder;
+		final ConstList<? extends Similarity<E>> matchesInTargetOrder;
 
 		ConstList<E> remainingSources;
 		ConstList<E> remainingTargets;
@@ -175,8 +111,8 @@ public interface MultiMatchResult<E>
 		ConstList<E>   matchedSources;
 		ConstList<E>   matchedTargets;
 
-		ConstList<? extends Item<E>> sourceMatches;
-		ConstList<? extends Item<E>> targetMatches;
+		ConstList<? extends Similarity<E>> sourceMatches;
+		ConstList<? extends Similarity<E>> targetMatches;
 
 
 
@@ -185,11 +121,11 @@ public interface MultiMatchResult<E>
 		/////////////////////
 
 		protected Implementation(
-			final int                          matchCount          ,
-			final ConstList<E>                 sourceInput         ,
-			final ConstList<E>                 targetInput         ,
-			final ConstList<? extends Item<E>> matchesInSourceOrder,
-			final ConstList<? extends Item<E>> matchesInTargetOrder
+			final int                                matchCount          ,
+			final ConstList<E>                       sourceInput         ,
+			final ConstList<E>                       targetInput         ,
+			final ConstList<? extends Similarity<E>> matchesInSourceOrder,
+			final ConstList<? extends Similarity<E>> matchesInTargetOrder
 		)
 		{
 			super();
@@ -225,13 +161,13 @@ public interface MultiMatchResult<E>
 		}
 
 		@Override
-		public XGettingSequence<? extends Item<E>> matchesInSourceOrder()
+		public XGettingSequence<? extends Similarity<E>> matchesInSourceOrder()
 		{
 			return this.matchesInSourceOrder;
 		}
 
 		@Override
-		public XGettingSequence<? extends Item<E>> matchesInTargetOrder()
+		public XGettingSequence<? extends Similarity<E>> matchesInTargetOrder()
 		{
 			return this.matchesInTargetOrder;
 		}
@@ -277,12 +213,12 @@ public interface MultiMatchResult<E>
 		}
 
 		@Override
-		public synchronized XGettingSequence<? extends Item<E>> sourceMatches()
+		public synchronized XGettingSequence<? extends Similarity<E>> sourceMatches()
 		{
 			if(this.sourceMatches == null)
 			{
 				this.sourceMatches = this.matchesInSourceOrder.filterTo(
-					new BulkList<Item<E>>(this.matchCount),
+					new BulkList<Similarity<E>>(this.matchCount),
 					XFunc.notNull()
 				).immure();
 			}
@@ -290,12 +226,12 @@ public interface MultiMatchResult<E>
 		}
 
 		@Override
-		public synchronized XGettingSequence<? extends Item<E>> targetMatches()
+		public synchronized XGettingSequence<? extends Similarity<E>> targetMatches()
 		{
 			if(this.targetMatches == null)
 			{
 				this.targetMatches = this.matchesInTargetOrder.filterTo(
-					new BulkList<Item<E>>(this.matchCount),
+					new BulkList<Similarity<E>>(this.matchCount),
 					XFunc.notNull()
 				).immure();
 			}

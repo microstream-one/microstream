@@ -1,4 +1,4 @@
-package one.microstream.functional;
+package one.microstream.util.similarity;
 
 import java.util.Comparator;
 

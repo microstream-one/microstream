@@ -1,9 +1,9 @@
 package one.microstream.persistence.types;
 
 import one.microstream.equality.Equalator;
-import one.microstream.functional.Similator;
 import one.microstream.typing.TypeMappingLookup;
-import one.microstream.util.matching.MatchValidator;
+import one.microstream.util.similarity.MatchValidator;
+import one.microstream.util.similarity.Similator;
 
 //@FunctionalInterface - well, lol.
 public interface PersistenceMemberMatchingProvider
@@ -31,10 +31,10 @@ public interface PersistenceMemberMatchingProvider
 	
 	public static PersistenceMemberMatchingProvider New()
 	{
-		return new PersistenceMemberMatchingProvider.Implementation();
+		return new PersistenceMemberMatchingProvider.Default();
 	}
 	
-	public class Implementation implements PersistenceMemberMatchingProvider
+	public class Default implements PersistenceMemberMatchingProvider
 	{
 		// since default methods, the ability to instantiate stateless instances from interfaces is missing
 	}
