@@ -150,7 +150,31 @@ Alte Workspaces aufr\'e4umen (muss nat\'fcrlich erst gegoogelt werden).\par
 Fertig.\par
 Die Checkliste ist trotzdem gut, weil man damit pr\'fcfen kann, ob alles geklappt hat.\par
 \par
-Und jetzt Feierabend. Ganzen Tag mit Eclipse updaten rumgeschlagen.\par
+Und jetzt Feierabend. Halben Tag mit Eclipse updaten rumgeschlagen.\par
+\par
+\par
+2019-03-29\par
+\par
+Jetzt die eigentliche Implementierung machen.\par
+Erst mal auf JDK 9 umstellen und anschauen.\par
+\par
+\par
+\par
+Oh. Compilerfehler bei Cleaner.\par
+\par
+Das wird ein neues Issue:\par
+\par
+Im Rahmen von MS-87 habe ich das JDK 9 installiert und mal im MS Projekt verwendet.\par
+\par
+\'dcberraschung: Compilerfehler.\par
+\par
+Und zwar ist die JDK-interne Klasse "Cleaner" umgezogen von "sun.misc.Cleaner" nach "jdk.internal.ref.Cleaner".\par
+Das ist halt die Gefahr, wenn man internes Zeug verwendet: es kann sich von einem Release zum anderen ver\'e4ndern.\par
+\par
+Jetzt ist das Problem:\par
+Ich kann den Import einfach per Knopdruck anpassen, aber dann hat MS auf einmal als Mindestanforderung JDK 9.\par
+\par
+... hm. Mit MK und FH kl\'e4ren.\par
 \par
 }
  
