@@ -16,8 +16,6 @@ import java.util.Properties;
 import java.util.Vector;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
-// CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
-import sun.misc.Cleaner;
 import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
 //CHECKSTYLE.ON: IllegalImport
@@ -182,6 +180,8 @@ public final class XMemory
 		{
 			return;
 		}
+		
+		// (01.04.2019 TMuenz)NOTE: test
 		
 		final Cleaner cleaner = ((DirectBuffer)directByteBuffer).cleaner();
 		if(cleaner != null)
@@ -841,12 +841,12 @@ public final class XMemory
 
 	public static void _longInByteArray(final byte[] bytes, final long value)
 	{
-		VM.putLong(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET, value);
+		VM.putLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET, value);
 	}
 
 	public static long _longFromByteArray(final byte[] bytes)
 	{
-		return VM.getLong(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET);
+		return VM.getLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET);
 	}
 
 
