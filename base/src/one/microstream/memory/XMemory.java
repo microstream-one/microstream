@@ -181,7 +181,7 @@ public final class XMemory
 			return;
 		}
 		
-		// (01.04.2019 TMuenz)NOTE: test
+		// (01.04.2019 TMuenz)NOTE: test 2
 		
 		final Cleaner cleaner = ((DirectBuffer)directByteBuffer).cleaner();
 		if(cleaner != null)
