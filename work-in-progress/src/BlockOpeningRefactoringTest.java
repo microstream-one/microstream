@@ -1,3 +1,4 @@
+import one.microstream.persistence.types.PersistenceFunction;
 
 // 1.) Cleanup inlined comments: "\{[ \t]*((//.*)|(/\*.*\*/))\R([ \t]*/*[ \t]*)" -> "{\R$4$1\R$4"
 // 2.) Move Curly braces: "^([ \t]*/*\t*)(.*)([^\s/\*]+)[ \t]*\{[ \t]*\R+" -> "$1$2$3\R$1{\R"
@@ -37,20 +38,20 @@ public class BlockOpeningRefactoringTest{
 	 * }
 	 *
 	 */
-	static final java.util.function.Predicate<Object> SOME_TEST = new java.util.function.Predicate<Object>()  	  {
-		@Override public boolean test(final Object t) {
-			return true;
+	static final PersistenceFunction SOME_TEST = new PersistenceFunction()  	  {
+		@Override public <T> long apply(final T t) {
+			return 0;
 		}
 
 	};
 
-	static final java.util.function.Predicate<Object> MEAN_BLANK_LINE_TEST = new java.util.function.Predicate<Object>(){
+	static final PersistenceFunction MEAN_BLANK_LINE_TEST = new PersistenceFunction(){
 
-		@Override public boolean test(final Object t) {
+		@Override public <T> long apply(final T t) {
 
 
 
-			return true;
+			return 0;
 		}
 
 	};

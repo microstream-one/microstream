@@ -7,16 +7,14 @@ import one.microstream.math.FastRandom;
 
 public final class SortValue
 {
-	public static final Comparator<SortValue> compare = new Comparator<SortValue>(){
-		@Override public int compare(final SortValue o1, final SortValue o2) {
+	public static final Comparator<SortValue> compare = (final SortValue o1, final SortValue o2) ->
+	{
 			return unstableCompare(o1, o2);
-		}
 	};
 
-	public static final Comparator<SortValue> stableCompare = new Comparator<SortValue>(){
-		@Override public int compare(final SortValue o1, final SortValue o2) {
+	public static final Comparator<SortValue> stableCompare = (final SortValue o1, final SortValue o2) ->
+	{
 			return stableCompare(o1, o2);
-		}
 	};
 
 	private static final int DEFAULT_PRINT_LENGTH = 100;

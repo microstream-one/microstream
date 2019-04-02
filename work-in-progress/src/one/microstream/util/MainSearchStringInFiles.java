@@ -6,6 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.files.XFiles;
 import one.microstream.functional.TriConsumer;
 
@@ -51,7 +52,7 @@ public class MainSearchStringInFiles
 
 	static String[] completeIds(final String[] ids, final String prefix)
 	{
-		final char[] chars = prefix.toCharArray();
+		final char[] chars = XChars.readChars(prefix);
 
 		final VarString vs = VarString.New();
 

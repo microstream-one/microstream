@@ -2,8 +2,6 @@ package one.microstream.chars;
 
 import java.util.function.Consumer;
 
-import one.microstream.memory.XMemory;
-
 public final class StringSubstituter implements StringStamper
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -132,7 +130,7 @@ public final class StringSubstituter implements StringStamper
 		final int hash = XChars.internalHashCode(chars, offset, length);
 		for(Entry e = this.slots[this.range & hash]; e != null; e = e.link)
 		{
-			if(e.hash == hash && e.item.length() == length && equals(XMemory.accessChars(e.item), chars, offset, length))
+			if(e.hash == hash && e.item.length() == length && equals(XChars.readChars(e.item), chars, offset, length))
 			{
 				return e.item;
 			}

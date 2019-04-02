@@ -63,11 +63,7 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 		}
 		this.subject = list;
 		this.comparator = comparator;
-		this.notEqual = new Equalator<E>(){
-			@Override public boolean equal(final E e1, final E e2) {
-				return comparator.compare(e1, e2) != 0;
-			}
-		};
+		this.notEqual = Equalator.Wrap(comparator);
 	}
 
 

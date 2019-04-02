@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
@@ -101,7 +102,10 @@ public final class XDebug
 		final Integer               limit
 	)
 	{
-		final char[] sepp = separator != null ? separator.toCharArray() : null;
+		final char[] sepp = separator != null
+			? XChars.readChars(separator)
+			: null
+		;
 
 		final VarString vs = VarString.New();
 		if(start != null)
@@ -165,7 +169,11 @@ public final class XDebug
 		final Integer             limit
 	)
 	{
-		final char[] sepp = separator != null ? separator.toCharArray() : null;
+		final char[] sepp = separator != null
+			? XChars.readChars(separator)
+			: null
+		;
+		
 		if(start != null)
 		{
 			vs.add(start);
@@ -244,7 +252,10 @@ public final class XDebug
 		final Integer  limit
 	)
 	{
-		final char[] sepp = separator != null ? separator.toCharArray() : null;
+		final char[] sepp = separator != null
+			? XChars.readChars(separator)
+			: null
+		;
 
 		final VarString vc = VarString.New();
 		if(start != null)

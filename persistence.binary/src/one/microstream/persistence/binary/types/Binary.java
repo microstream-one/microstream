@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import one.microstream.X;
+import one.microstream.chars.XChars;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.math.XMath;
 import one.microstream.memory.XMemory;
@@ -984,19 +985,43 @@ public abstract class Binary implements Chunk
 	{
 		this.storeEntityHeader(0L, tid, oid); // so funny :D
 	}
-
-	public final void storeStringValue(final long tid, final long oid, final String string)
+	
+	public final void storeStringValue(
+		final long   typeId  ,
+		final long   objectId,
+		final String string
+	)
 	{
-		final char[] chars = XMemory.accessChars(string); // thank god they fixed that stupid String storage mess
+		// since Java 9, there is no sane way to store the string's internal data directly
+		this.storeStringValue(typeId, objectId, XChars.readChars(string));
+	}
+	
+	public final void storeStringValue(
+		final long   typeId  ,
+		final long   objectId,
+		final char[] chars
+	)
+	{
+		this.storeStringValue(typeId, objectId, chars, 0, chars.length);
+	}
+
+	public final void storeStringValue(
+		final long   typeId  ,
+		final long   objectId,
+		final char[] chars   ,
+		final int    offset  ,
+		final int    length
+	)
+	{
 		this.storeCharsAsList(
 			this.storeEntityHeader(
 				calculateBinaryLengthChars(chars.length),
-				tid,
-				oid
+				typeId,
+				objectId
 			),
-			chars,
-			0,
-			chars.length
+			chars ,
+			offset,
+			length
 		);
 	}
 	
@@ -1167,7 +1192,7 @@ public abstract class Binary implements Chunk
 		final int bound = offset + length;
 		for(int i = offset; i < bound; i++)
 		{
-			elementsDataAddress = this.storeCharsAsList(elementsDataAddress, XMemory.accessChars(strings[i]));
+			elementsDataAddress = this.storeCharsAsList(elementsDataAddress, XChars.readChars(strings[i]));
 		}
 	}
 
@@ -1376,6 +1401,12 @@ public abstract class Binary implements Chunk
 			array
 		);
 	}
+	
+	public final String buildString()
+	{
+		// since Java 9, there is no sane way to build a string without copying the loaded data multiple times.
+		return String.valueOf(this.buildArray_char());
+	}
 
 	public final char[] buildArray_char()
 	{
@@ -1445,12 +1476,6 @@ public abstract class Binary implements Chunk
 			toBinaryListElementsAddress(this.loadItemEntityContentAddress()),
 			array
 		);
-	}
-
-	public final String buildString()
-	{
-		// perfectly reasonable example use of the wrapping method.
-		return XMemory.wrapCharsAsString(this.buildArray_char());
 	}
 
 	public final void updateArrayObjectReferences(

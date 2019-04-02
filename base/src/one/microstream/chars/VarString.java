@@ -624,12 +624,12 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final int indexOf(final String s)
 	{
-		return XChars.indexOf(this.data, 0, this.size, XChars.getChars(s), 0, s.length(), 0);
+		return XChars.indexOf(this.data, 0, this.size, XChars.readChars(s), 0, s.length(), 0);
 	}
 
 	public final int indexOf(final String s, final int offset)
 	{
-		return XChars.indexOf(this.data, 0, this.size, XChars.getChars(s), 0, s.length(), offset);
+		return XChars.indexOf(this.data, 0, this.size, XChars.readChars(s), 0, s.length(), offset);
 	}
 
 	public final int indexOf(final VarString vc)
@@ -654,7 +654,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final boolean contains(final String s)
 	{
-		return XChars.uncheckedIndexOf(this.data, this.size, XChars.getChars(s)) != -1;
+		return XChars.uncheckedIndexOf(this.data, this.size, XChars.readChars(s)) != -1;
 	}
 
 	public final boolean contains(final VarString vc)
@@ -685,7 +685,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final int count(final String s)
 	{
-		return XChars.count(this.data, 0, this.size, XChars.getChars(s), 0, s.length());
+		return XChars.count(this.data, 0, this.size, XChars.readChars(s), 0, s.length());
 	}
 
 	public final int count(final VarString vc)
@@ -824,7 +824,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return this;
 		}
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		for(final Object e : listElements)
 		{
 			this.internalAddObject(e);
@@ -842,7 +842,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * separator.length());
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		for(final Object e : listElements)
 		{
 			this.internalAddObject(e);
@@ -860,7 +860,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * separator.length());
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		for(final String e : listElements)
 		{
 			if(e == null)
@@ -885,7 +885,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * separator.length());
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		for(final VarString e : listElements)
 		{
 			if(e == null)
@@ -910,7 +910,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * separator.length());
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		for(final Appendable e : listElements)
 		{
 			if(e == null)
@@ -935,7 +935,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_boolean() + separator.length()));
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		final char[] data = this.data;
 		int size = this.size;
 		for(final boolean e : listElements)
@@ -958,7 +958,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_byte() + separator.length()));
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
@@ -979,7 +979,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_short() + separator.length()));
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
@@ -1000,7 +1000,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_int() + separator.length()));
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
@@ -1021,7 +1021,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_long() + separator.length()));
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
@@ -1042,7 +1042,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_float() + separator.length()));
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
@@ -1063,7 +1063,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * (XChars.maxCharCount_double() + separator.length()));
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
@@ -1084,7 +1084,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 		this.ensureFreeCapacity(listElements.length * (1 + separator.length()));
 
-		final char[] sepChars = XChars.getChars(separator);
+		final char[] sepChars = XChars.readChars(separator);
 		final char[] data = this.data;
 
 		int size = this.size;
@@ -1204,7 +1204,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final VarString repeat(final int amount, final String string)
 	{
-		this.repeat(amount, XChars.getChars(string));
+		this.repeat(amount, XChars.readChars(string));
 
 		return this;
 	}
@@ -1261,7 +1261,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final boolean endsWith(final String string)
 	{
-		return this.endsWith(XChars.getChars(string));
+		return this.endsWith(XChars.readChars(string));
 	}
 
 	private static int calculatePaddingCount(final String s, final int totalLength)

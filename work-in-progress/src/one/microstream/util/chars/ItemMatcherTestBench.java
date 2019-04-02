@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 public class ItemMatcherTestBench extends JFrame
 {
@@ -128,7 +129,7 @@ public class ItemMatcherTestBench extends JFrame
 	static void createAndShowGUI()
 	{
 		final JFrame frame = new ItemMatcherTestBench(ItemMatcherTestBench.class.getSimpleName(), TEXTFIELD_COUNT);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
 

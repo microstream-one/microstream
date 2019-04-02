@@ -288,8 +288,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 					configuration.referenceTypeName()
 				)
 			;
-			this.literalTrue             = MemoryCharConversionUTF8.toUTF8(configuration.literalBooleanTrue().toCharArray()) ;
-			this.literalFalse            = MemoryCharConversionUTF8.toUTF8(configuration.literalBooleanFalse().toCharArray());
+			this.literalTrue             = MemoryCharConversionUTF8.toUTF8(XChars.readChars(configuration.literalBooleanTrue())) ;
+			this.literalFalse            = MemoryCharConversionUTF8.toUTF8(XChars.readChars(configuration.literalBooleanFalse()));
 			this.listStarter             = toSingleByte(configuration.literalListStarter()   );
 			this.listTerminator          = toSingleByte(configuration.literalListTerminator());
 			this.listSeparator           = toSingleByte(configuration.literalListSeparator() );

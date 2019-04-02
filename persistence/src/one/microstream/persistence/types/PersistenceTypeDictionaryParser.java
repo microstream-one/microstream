@@ -2,6 +2,7 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.exceptions.PersistenceExceptionParser;
@@ -436,7 +437,7 @@ public interface PersistenceTypeDictionaryParser
 			
 			try
 			{
-				parseTypes(input.toCharArray(), this.lengthResolver, entries);
+				parseTypes(XChars.readChars(input), this.lengthResolver, entries);
 			}
 			catch(final ArrayIndexOutOfBoundsException e)
 			{

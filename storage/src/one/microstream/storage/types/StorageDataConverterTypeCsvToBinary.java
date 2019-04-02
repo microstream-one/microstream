@@ -172,8 +172,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + XMemory.defaultBufferSize()      ;
 			this.simpleValueWriters              = this.deriveSimpleValueWriters(configuration)                   ;
 			this.theMappingNeverEnds             = this.derivePrimitiveToArrayWriters(this.simpleValueWriters)    ;
-			this.literalTrue                     = configuration.literalBooleanTrue().toCharArray()               ;
-			this.literalFalse                    = configuration.literalBooleanFalse().toCharArray()              ;
+			this.literalTrue                     = XChars.readChars(configuration.literalBooleanTrue())           ;
+			this.literalFalse                    = XChars.readChars(configuration.literalBooleanFalse())          ;
 			this.literalDelimiter                = configuration.csvConfiguration().literalDelimiter()            ;
 			this.listStarter                     = configuration.literalListStarter()                             ;
 			this.listSeparator                   = configuration.literalListSeparator()                           ;

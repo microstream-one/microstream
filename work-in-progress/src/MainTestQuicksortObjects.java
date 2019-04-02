@@ -1,5 +1,4 @@
 import java.util.Arrays;
-import java.util.Comparator;
 
 import one.microstream.collections.XSort;
 import one.microstream.math.XMath;
@@ -11,13 +10,6 @@ import one.microstream.math.XMath;
  */
 public class MainTestQuicksortObjects
 {
-	static final Comparator<Age> COMPARE_AGE = new Comparator<Age>(){
-		@Override public int compare(final Age o1, final Age o2){
-			return o1.value - o2.value;
-		}
-	};
-
-
 	private static final int SIZE = 1000000;
 	private static final int VALUE_OFF = 0;
 	private static final int VALUE_MAX = 10;//Integer.MAX_VALUE;
@@ -39,7 +31,7 @@ public class MainTestQuicksortObjects
 //		JaSort.stackStats.clear();
 		final Age[] ages = createArray();
 		if(SIZE < 25) System.out.println(Arrays.toString(ages));
-		XSort.quicksort(ages, COMPARE_AGE);
+		XSort.quicksort(ages, MainTestMergesortObjects::compareAge);
 		if(SIZE < 25) System.out.println(Arrays.toString(ages));
 
 //		for(final Integer i : JaSort.stackStats.keySet())
@@ -58,8 +50,8 @@ public class MainTestQuicksortObjects
 			final Age[] ages = createArray();
 			final Age[] ages2 = Arrays.copyOf(ages, ages.length);
 
-			Arrays.sort(ages2, COMPARE_AGE);
-			XSort.quicksort(ages, 0, ages.length-1, COMPARE_AGE);
+			Arrays.sort(ages2, MainTestMergesortObjects::compareAge);
+			XSort.quicksort(ages, 0, ages.length-1, MainTestMergesortObjects::compareAge);
 
 			if(equal = Arrays.equals(ages, ages2))
 			{
@@ -91,7 +83,7 @@ public class MainTestQuicksortObjects
 
 
 			tStart = System.nanoTime();
-			Arrays.sort(ages2, COMPARE_AGE);
+			Arrays.sort(ages2, MainTestMergesortObjects::compareAge);
 			tStop = System.nanoTime();
 			System.out.println(
 				"Elapsed Time ( 2 ): " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart)
@@ -99,7 +91,7 @@ public class MainTestQuicksortObjects
 			);
 
 			tStart = System.nanoTime();
-			XSort.quicksort(ages, COMPARE_AGE);
+			XSort.quicksort(ages, MainTestMergesortObjects::compareAge);
 			tStop = System.nanoTime();
 			System.out.println(
 				"Elapsed Time ( 1 ): " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart)
@@ -112,7 +104,7 @@ public class MainTestQuicksortObjects
 //			System.out.println("Equals: "+Arrays.equals(ages, ages2));
 
 //			tStart = System.nanoTime();
-//			TimSort.sort(ages3, COMPARE_AGE);
+//			TimSort.sort(ages3, MainTestMergesortObjects::compareAge);
 //			tStop = System.nanoTime();
 //			System.out.println(
 //				"Elapsed Time (Tim): " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart)
@@ -123,7 +115,7 @@ public class MainTestQuicksortObjects
 			System.out.println("");
 
 //			tStart = System.nanoTime();
-//			JaSort.quicksort(ages, COMPARE_AGE);
+//			JaSort.quicksort(ages, MainTestMergesortObjects::compareAge);
 //			tStop = System.nanoTime();
 //			System.out.println(
 //				"Elapsed Time (# 1 ): " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart)
@@ -131,14 +123,14 @@ public class MainTestQuicksortObjects
 //
 //			);
 //			tStart = System.nanoTime();
-//			Arrays.sort(ages2, COMPARE_AGE);
+//			Arrays.sort(ages2, MainTestMergesortObjects::compareAge);
 //			tStop = System.nanoTime();
 //			System.out.println(
 //				"Elapsed Time (# 2 ): " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart)
 //				+"  ( 2 ): ["+ages2[0]+"; "+ages2[ages2.length-1]+"]"
 //			);
 //			tStart = System.nanoTime();
-//			TimSort.sort(ages3, COMPARE_AGE);
+//			TimSort.sort(ages3, MainTestMergesortObjects::compareAge);
 //			tStop = System.nanoTime();
 //			System.out.println(
 //				"Elapsed Time (#Tim): " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart)
@@ -160,7 +152,7 @@ public class MainTestQuicksortObjects
 		{
 			final Age[] ages = createArray();
 			tStart = System.nanoTime();
-			XSort.quicksort(ages, 0, ages.length-1, COMPARE_AGE);
+			XSort.quicksort(ages, 0, ages.length-1, MainTestMergesortObjects::compareAge);
 			tStop = System.nanoTime();
 			if(tStop - tStart < currentMin) currentMin = tStop - tStart;
 		}
@@ -177,13 +169,13 @@ public class MainTestQuicksortObjects
 
 //			JaSort.swapCount = 0;
 //			tStart = System.nanoTime();
-			XSort.quicksort(ages, 0, ages.length-1, COMPARE_AGE);
+			XSort.quicksort(ages, 0, ages.length-1, MainTestMergesortObjects::compareAge);
 //			tStop = System.nanoTime();
 //			System.out.println(XSort.swapCount+" Elapsed Time: "+new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
 //			JaSort.swapCount = 0;
 //			tStart = System.nanoTime();
-			XSort.quicksort(ages, 0, ages.length-1, COMPARE_AGE);
+			XSort.quicksort(ages, 0, ages.length-1, MainTestMergesortObjects::compareAge);
 //			tStop = System.nanoTime();
 //			System.out.println(XSort.swapCount+" Elapsed Time: "+new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 		}

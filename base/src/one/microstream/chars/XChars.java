@@ -229,7 +229,7 @@ public final class XChars
 		validateIndex(chars, offset);
 
 		final int    length = string.length();
-		final char[] sChars = XMemory.accessChars(string);
+		final char[] sChars = readChars(string);
 
 		if(length != chars.length - offset)
 		{
@@ -1622,7 +1622,7 @@ public final class XChars
 
 	public static final void iterate(final String chars, final _charProcedure iterator)
 	{
-		iterate(getChars(chars), iterator);
+		iterate(readChars(chars), iterator);
 	}
 
 	public static final void iterate(final char[] chars, final _charProcedure iterator)
@@ -1865,9 +1865,17 @@ public final class XChars
 		return new StringBuffer(length).append(vs.data, offset, length);
 	}
 
-	public static final char[] getChars(final String s)
+	public static final char[] readChars(final String s)
 	{
-		return XMemory.accessChars(s);
+		/*
+		 * In ages past, this method called low-level mechanisms to access the string's internal char[] array
+		 * in a safe read-only fashion to process the chars efficiently without the need to absurdely and insanely
+		 * copy the complete string content just to read it.
+		 * However, since the absolute madness that is the messed up string format of Java 9, no sane way is left
+		 * to read-only access a string's characters. Thus, this method had to succumb to the insanity that is
+		 * copying immutable data on every time read-only access.
+		 */
+		return s.toCharArray();
 	}
 
 
@@ -1930,7 +1938,7 @@ public final class XChars
 		final C      collector
 	)
 	{
-		return splitAndTrimToStrings(XMemory.accessChars(input), separator, collector);
+		return splitAndTrimToStrings(readChars(input), separator, collector);
 	}
 
 	/**

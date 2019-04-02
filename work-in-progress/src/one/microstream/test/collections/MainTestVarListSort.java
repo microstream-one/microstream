@@ -1,10 +1,10 @@
 package one.microstream.test.collections;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 
 import one.microstream.collections.BulkList;
+import one.microstream.collections.XSort;
 import one.microstream.math.XMath;
 
 /**
@@ -25,28 +25,6 @@ public class MainTestVarListSort
 		return ints;
 	}
 
-
-	static final Comparator<Integer> ORDER_INTS = new Comparator<Integer>(){
-		@Override
-		public int compare(final Integer o1, final Integer o2){
-			if(o1 == null)
-			{
-				return o2 == null ?0 :1;
-			}
-			if(o2 == null)
-			{
-				return -1;
-			}
-			if(o1.intValue() < o2.intValue())
-			{
-				return -1;
-			}
-			else if(o1.intValue() > o2.intValue()){
-				return 1;
-			}
-			return 0;
-		}
-	};
 
 	/**
 	 * @param args
@@ -74,12 +52,12 @@ public class MainTestVarListSort
 
 
 			tStart = System.nanoTime();
-			Collections.sort(ll, ORDER_INTS);
+			Collections.sort(ll, XSort::compare);
 			tStop = System.nanoTime();
 			System.out.println("LL Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
 			tStart = System.nanoTime();
-			fl.sort(ORDER_INTS);
+			fl.sort(XSort::compare);
 			tStop = System.nanoTime();
 			System.out.println("FL Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 

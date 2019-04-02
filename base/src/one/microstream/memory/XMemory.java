@@ -18,7 +18,7 @@ import java.util.Vector;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
-//CHECKSTYLE.ON: IllegalImport
+
 
 /**
  * Util class for low-level VM memory operations and information that makes the call site independent of
@@ -53,7 +53,6 @@ public final class XMemory
 
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 	private static final long
-		OFFSET_String_value              = internalGetFieldOffset(String.class       , "value"            ),
 		OFFSET_StringBuilder_value       = internalGetFieldOffset(StringBuilder.class, "value"            ),
 		OFFSET_StringBuilder_count       = internalGetFieldOffset(StringBuilder.class, "count"            ),
 		OFFSET_StringBuffer_value        = internalGetFieldOffset(StringBuffer.class , "value"            ),
@@ -227,6 +226,17 @@ public final class XMemory
 	{
 		return ((DirectBuffer)directByteBuffer).address();
 	}
+	
+	/**
+	 * Just to have all jdk internal types here at one place.
+	 * 
+	 * @param directByteBuffer
+	 * @return
+	 */
+	public static final boolean isDirectByteBuffer(final ByteBuffer directByteBuffer)
+	{
+		return directByteBuffer instanceof DirectBuffer;
+	}
 
 	public static final ByteBuffer ensureDirectByteBufferCapacity(final ByteBuffer current, final long capacity)
 	{
@@ -276,30 +286,6 @@ public final class XMemory
 			// use standard copy-constructor as fallback because this method may not fail.
 			return new String(chars);
 		}
-	}
-
-	/**
-	 * Access the normally unshared char array backing the passed {@link String} instance.
-	 * While not the cleanest way to write code, this can be necessary at times for performance reasons
-	 * in a well-controlled algorithm.
-	 * <p>
-	 * Warning:<br>
-	 * This method is intended strictly for read-only purposes!<br>
-	 * It also is strongly discouraged (if not "forbidden") to keep a reference to the accessed char array in
-	 * a fashion that makes it accessible to long-lived and/or instances outside the control of the context
-	 * calling this method.<br>
-	 * In short: One must be sure to know what one is doing (including sufficient knowledge of the Java memory model)
-	 * when using this method.<br>
-	 * As a rule of thumb: accessing the char array in a local block (e.g. method), reading it and letting the
-	 * reference run out of scope is a safe way to use this method.
-	 *
-	 * @param string the {@link String} instance whose backing char array.
-	 * @return the internal char array of the passed {@link String} instance.
-	 */
-	public static char[] accessChars(final String string)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return (char[])VM.getObject(notNull(string), OFFSET_String_value);
 	}
 
 	public static char[] accessChars(final StringBuilder stringBuilder)

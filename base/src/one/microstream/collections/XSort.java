@@ -4,6 +4,7 @@ import java.util.Comparator;
 
 import one.microstream.collections.sorting.Sortable;
 import one.microstream.collections.types.XSortableSequence;
+import one.microstream.functional.ComparatorReversed;
 import one.microstream.functional.ComparatorSequence;
 import one.microstream.math.FastRandom;
 
@@ -195,14 +196,7 @@ public final class XSort
 
 	public static final <E> Comparator<E> reverse(final Comparator<E> comparator)
 	{
-		return new Comparator<E>()
-		{
-			@Override
-			public int compare(final E o1, final E o2)
-			{
-				return -comparator.compare(o1, o2);
-			}
-		};
+		return new ComparatorReversed<>(comparator);
 	}
 
 	@SafeVarargs

@@ -17,6 +17,7 @@ import java.util.function.Predicate;
 import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.collections.interfaces.ChainStorage;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingSequence;
@@ -4011,7 +4012,7 @@ public abstract class AbstractArrayStorage
 		}
 		else
 		{
-			final char[] sepp = separator.toCharArray();
+			final char[] sepp = XChars.readChars(separator);
 			for(int i = 0; i < size; i++)
 			{
 				vc.add(data[i]).add(sepp);
@@ -4081,7 +4082,7 @@ public abstract class AbstractArrayStorage
 		}
 		else
 		{
-			final char[] sepp = separator.toCharArray();
+			final char[] sepp = XChars.readChars(separator);
 			for(int i = 0; i < size; i++)
 			{
 				appender.accept(vc, data[i]);
@@ -4161,7 +4162,7 @@ public abstract class AbstractArrayStorage
 		}
 		else
 		{
-			final char[] sepp = separator.toCharArray();
+			final char[] sepp = XChars.readChars(separator);
 			for(int i = offset - d; i != endIndex;)
 			{
 				vc.add(data[i += d]).add(sepp);
@@ -4246,7 +4247,7 @@ public abstract class AbstractArrayStorage
 		}
 		else
 		{
-			final char[] sepp = separator.toCharArray();
+			final char[] sepp = XChars.readChars(separator);
 			for(int i = offset - d; i != endIndex;)
 			{
 				appender.accept(vc, data[i += d]);

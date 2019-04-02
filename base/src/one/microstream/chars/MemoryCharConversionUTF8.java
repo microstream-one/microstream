@@ -139,7 +139,7 @@ public final class MemoryCharConversionUTF8
 	public static final long writeUTF8(final long address, final String string)
 	{
 		// avoid copying potentially huge amounts of data repeatedly like the last noob.
-		return writeUTF8(address, XMemory.accessChars(string));
+		return writeUTF8(address, XChars.readChars(string));
 	}
 
 	public static final long writeUTF8(final long address, final VarString vs)

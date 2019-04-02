@@ -15,7 +15,6 @@ import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.collections.types.XImmutableList;
-import one.microstream.memory.XMemory;
 import one.microstream.typing.XTypes;
 import one.microstream.util.csv.CSV;
 import one.microstream.util.csv.CsvConfiguration;
@@ -77,7 +76,7 @@ public interface StringTable
 			 * (e.g. give String an iterate(_charConsumer) method so that logic could be written reusable)
 			 * Or even better: make immutable arrays or optionally read-only accessible. But nooo...
 			 */
-			return parse(_charArrayRange.New(XMemory.accessChars(rawData)), csvConfiguration);
+			return parse(_charArrayRange.New(XChars.readChars(rawData)), csvConfiguration);
 		}
 		
 		public static StringTable parse(final _charArrayRange rawData, final CsvConfiguration csvConfiguration)

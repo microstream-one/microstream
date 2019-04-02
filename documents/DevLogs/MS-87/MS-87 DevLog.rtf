@@ -197,11 +197,29 @@ You will have to do that when compiling (javac) and when running (java) the code
 Mal mit FH besprechen, ob der mehr wei\'df.\par
 Leider nein, aber Hinweis auf Klasse ServiceLoader.\par
 \par
+MS-135 erstellen.\par
 \par
 MS-136 erstellen. Hintergr\'fcnde, Optionen und Hass dokumentieren.\par
 Dabei #3 eingefallen. Kurz mit FH besprechen. So implementieren.\par
 Issues MS-87 und MS-136 updaten.\par
 \par
+Jetzt String handling ab\'e4ndern.\par
+\par
+Hm. Eigentlich war die XChars.getChars Methode gar nicht schlecht.\par
+Die behalt ich bei, aber umbenannt zu readChars und dort kommt ein entsprechender Kommentar rein. Vielleicht gibt es zuk\'fcnftig ja mal wieder einen g\'fcnstigen Weg daf\'fcr, dann ist das gleich sch\'f6n gekapselt.\par
+\par
+Ach, Java 9 erlaubt jetzt <>-Schreibweise in AICs. Das ist ein Problem: Mach ich das raus (oder speicher ich so eine Klasse einfach nur ab), wird der Code inkompatibel zu Java 8. Mach ich es nicht raus, sind lauter Warnings und die save actions machen die betroffenen Klassen zu Editor-Tretminen.\par
+L\'f6sung: Umbauen auf Lambdas oder benannte Klassen. Dann passt es f\'fcr beide ohne Problem.\par
+Manche uralt-Testklassen kann ich auch l\'f6schen.\par
+\par
 Und schon kann ich mit der eigentlichen Arbeit anfangen, der Wahnsinn.\par
+\par
+Problem mit DirectBuffer interface nach Umstellung auf Java 9 compiler compliance.\par
+L\'f6sung: maximale Unsafe Hackerei.\par
+Besprechen mit FH.\par
+Ist gar nicht n\'f6tig, weil die compliance ja erst mal auf Java 8 bleiben muss.\par
+MS-136 updaten.\par
+\par
+Noch bissl code aufr\'e4umen usw.\par
 }
  

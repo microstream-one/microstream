@@ -1,7 +1,5 @@
 package one.microstream.test.collections;
 
-import java.util.Comparator;
-
 import one.microstream.collections.EqHashEnum;
 import one.microstream.functional.XFunc;
 import one.microstream.typing.XTypes;
@@ -12,18 +10,9 @@ import one.microstream.typing.XTypes;
  */
 public class MainTestSetAddPerformance
 {
-
 	static final int SIZE = 1000*1000;
 	static final int LOOPS = 100;
 	static final int OFFSET = 9;
-
-
-	static final Comparator<Integer> SORT_INTEGER = new Comparator<Integer>() {
-		@Override public int compare(final Integer o1, final Integer o2) {
-			return o1.intValue() < o2.intValue() ?-1 : o1.intValue() == o2.intValue() ?0 :1;
-		}
-	};
-
 
 	static Integer[] integers = new Integer[SIZE];
 	static {
