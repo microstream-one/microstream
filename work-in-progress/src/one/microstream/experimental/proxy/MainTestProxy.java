@@ -39,11 +39,10 @@ public class MainTestProxy
 		System.out.println();
 
 
-		final Consumer<Throwable> someExceptionHandler = new Consumer<Throwable>(){
-			@Override public void accept(final Throwable e){
-				System.out.print("HANDLER: For the record: >>"+e.getMessage()+"<< Exiting... ");
-				System.exit(-1);
-			}
+		final Consumer<Throwable> someExceptionHandler = (final Throwable e) ->
+		{
+			System.out.print("HANDLER: For the record: >>"+e.getMessage()+"<< Exiting... ");
+			System.exit(-1);
 		};
 
 		// joe instance wrapped in debugging instance, wrapped in exception handler instance
@@ -78,7 +77,6 @@ public class MainTestProxy
 	{
 		return LockedAspectWrapper.wrapLocked(subject, mutex);
 	}
-
 
 	public static final <T> T addDebugging(final T subject)
 	{

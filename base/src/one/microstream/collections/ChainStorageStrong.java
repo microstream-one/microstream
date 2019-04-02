@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.equality.Equalator;
 import one.microstream.functional.Aggregator;
@@ -2778,7 +2779,7 @@ extends AbstractChainStorage<E, K, V, EN>
 			return vc;
 		}
 
-		final char[] sepp = separator.toCharArray();
+		final char[] sepp = XChars.readChars(separator);
 		for(EN entry = this.head; (entry = entry.next) != null;)
 		{
 			entry.assembleElement(vc).add(sepp);
@@ -2826,7 +2827,7 @@ extends AbstractChainStorage<E, K, V, EN>
 			return vc;
 		}
 		appender.accept(vc, entry.element());
-		final char[] sepp = separator.toCharArray();
+		final char[] sepp = XChars.readChars(separator);
 		while((entry = entry.next) != null)
 		{
 			appender.accept(vc.add(sepp), entry.element());
@@ -2900,7 +2901,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		{
 			return vc;
 		}
-		final char[] sepp = separator.toCharArray();
+		final char[] sepp = XChars.readChars(separator);
 		final long bound = offset + length;
 		vc.add(entry.element());
 		if(length > 0)
@@ -2998,7 +2999,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		{
 			return vc;
 		}
-		final char[] sepp = separator.toCharArray();
+		final char[] sepp = XChars.readChars(separator);
 		final long bound = offset + length;
 		appender.accept(vc, entry.element());
 		if(length > 0)

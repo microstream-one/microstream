@@ -8,7 +8,6 @@ import static one.microstream.math.XMath.random;
 import one.microstream.chars.VarString;
 import one.microstream.collections.LimitList;
 import one.microstream.concurrency.Threaded;
-import one.microstream.functional.Instantiator;
 
 /**
  * This Test shows that although multiple Threads use the same shared static variable, each thread gets his own private
@@ -26,14 +25,8 @@ import one.microstream.functional.Instantiator;
  */
 public class MainTestThreadLocal
 {
-	static final Instantiator<VarString> VARCHAR_FACTORY = new Instantiator<VarString>(){
-		@Override public VarString newInstance(){
-			return VarString.New();
-		}
-	};
-
 	// single static ("global") instance that is used by all threads, yet with thread-safe / thread-private content
-	static final Threaded<VarString> THREAD_VARCHAR = threaded(VARCHAR_FACTORY);
+	static final Threaded<VarString> THREAD_VARCHAR = threaded(VarString::New);
 
 	// with project lambda salvation
 //	static final ThreadContext<VarString> THREAD_VARCHAR = threaded(#{VarString.New()});

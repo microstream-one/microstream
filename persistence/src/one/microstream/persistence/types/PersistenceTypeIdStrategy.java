@@ -2,6 +2,7 @@ package one.microstream.persistence.types;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.chars.XParsing;
 import one.microstream.collections.types.XReference;
 import one.microstream.exceptions.ParsingException;
@@ -61,7 +62,7 @@ public interface PersistenceTypeIdStrategy
 				typeIdStrategyContent
 			);
 			
-			final char[] input  = typeIdStrategyContent.toCharArray();
+			final char[] input  = XChars.readChars(typeIdStrategyContent);
 			final int    iBound = input.length;
 			
 			final XReference<String> valueString = X.Reference(null);

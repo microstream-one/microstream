@@ -187,7 +187,7 @@ public final class MemoryCharConversion_doubleUTF8
 
 	private static long putSimpleCharacterString(final String s, final long address)
 	{
-		final char[] chars = XMemory.accessChars(s);
+		final char[] chars = XChars.readChars(s);
 
 		for(int i = 0; i < chars.length; i++)
 		{

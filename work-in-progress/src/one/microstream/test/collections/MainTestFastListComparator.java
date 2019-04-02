@@ -36,22 +36,11 @@ public class MainTestFastListComparator
 //			}
 //		}
 
-		final Predicate<String> isLast = new Predicate<String>(){
-			@Override public final boolean test(final String t){
-				return t.equals("999");
-			}
-		};
-
-
-
+		final Predicate<String> isLast = s -> s.equals("999");
 		final String LAST = "999";
 		long indexOfLast = 0;
 
-
-		long tStart;
-		long tStop;
-
-
+		long tStart, tStop;
 		for(int i = 10; i --> 0;)
 		{
 			tStart = System.nanoTime();
@@ -60,9 +49,6 @@ public class MainTestFastListComparator
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 		}
 		System.out.println(indexOfLast);
-
-
-
 
 		for(int i = 10; i --> 0;)
 		{

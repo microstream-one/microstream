@@ -9,13 +9,12 @@ public class MainTestParallelProcedure
 {
 	private static final ParallelProcedure.LogicProvider<String, Consumer<Object>> provider =
 		new ParallelProcedure.LogicProvider.SingletonLogic<>(
-			new Consumer<Object>() {
-				@Override public void accept(final Object e) {
-//					XThreads.sleep(10);
-					System.out.println(Thread.currentThread()+":\t"+e);
-//					XThreads.sleep(10);
-//					if(e == null) throw new NullPointerException();
-				}
+			(final Object e) ->
+			{
+//				XThreads.sleep(10);
+				System.out.println(Thread.currentThread()+":\t"+e);
+//				XThreads.sleep(10);
+//				if(e == null) throw new NullPointerException();
 			}
 		)
 	;

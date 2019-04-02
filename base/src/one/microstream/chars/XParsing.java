@@ -148,7 +148,7 @@ public final class XParsing
 	public static final boolean startsWith(final char[] input, final int iStart, final int iBound, final String subject)
 	{
 		// intentionally no length quick-check before array creation. The string is assumed to fit in.
-		return startsWith(input, iStart, iBound, subject.toCharArray());
+		return startsWith(input, iStart, iBound, XChars.readChars(subject));
 	}
 	
 	public static final boolean startsWith(final char[] input, final int iStart, final int iBound, final char[] subject)

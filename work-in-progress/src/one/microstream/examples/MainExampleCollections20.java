@@ -19,20 +19,19 @@ public class MainExampleCollections20
 	/////////////////////
 
 	// specified variables
-	final int n;
-	final int k;
-	final int l;
+	int n;
+	int k;
+	int l;
 
 	// specified logic
-	final Predicate<String> condition1 = new Predicate<String>() {
-		@Override public boolean test(final String e) {
-			return e != null && e.length() < MainExampleCollections20.this.l;
-		}
+	final Predicate<String> condition1 = (final String e) ->
+	{
+		return e != null && e.length() < this.l;
 	};
-	final Consumer<String> procedure1 = new Consumer<String>() {
-		@Override public void accept(final String e) {
-			System.out.println(e);
-		}
+	
+	final Consumer<String> procedure1 = (final String e) ->
+	{
+		System.out.println(e);
 	};
 
 

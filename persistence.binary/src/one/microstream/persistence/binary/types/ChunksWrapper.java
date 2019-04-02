@@ -4,9 +4,6 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import one.microstream.memory.XMemory;
-//CHECKSTYLE.OFF: IllegalImport: low-level system tools are required for high performance low-level operations
-import sun.nio.ch.DirectBuffer;
-//CHECKSTYLE.ON: IllegalImport
 
 
 public class ChunksWrapper extends Binary
@@ -43,7 +40,7 @@ public class ChunksWrapper extends Binary
 		long totalLength = 0;
 		for(int i = 0; i < chunks.length; i++)
 		{
-			if(!(chunks[i] instanceof DirectBuffer))
+			if(!XMemory.isDirectByteBuffer(chunks[i]))
 			{
 				throw new IllegalArgumentException();
 			}

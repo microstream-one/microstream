@@ -35,14 +35,7 @@ public class ThreadedPool<E> implements Pool<E>
 	static <E> Instantiator<HashEnum<E>> poolCreator()
 	{
 		// must be static to avoid creation of an implicit reference to outer instance which would prevent GC.
-		return new Instantiator<HashEnum<E>>()
-		{
-			@Override
-			public HashEnum<E> newInstance()
-			{
-				return HashEnum.New();
-			}
-		};
+		return HashEnum::New;
 	}
 
 

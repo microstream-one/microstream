@@ -7,8 +7,6 @@ import java.nio.channels.SocketChannel;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
-import one.microstream.com.ComException;
-import one.microstream.com.XSockets;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.types.PersistenceIdStrategy;
 import one.microstream.persistence.types.PersistenceObjectIdStrategy;
@@ -160,7 +158,7 @@ public class Com
 		;
 		protocolStringConverter.assemble(vs, protocol);
 		
-		final char[] lengthString = XChars.toString(vs.length()).toCharArray();
+		final char[] lengthString = XChars.readChars(XChars.toString(vs.length()));
 		vs.setChars(lengthCharCount - lengthString.length, lengthString);
 		
 		return vs;

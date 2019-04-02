@@ -17,6 +17,7 @@ import java.util.function.Predicate;
 import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.equality.Equalator;
 import one.microstream.functional.Aggregator;
@@ -7022,7 +7023,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			return vc;
 		}
 		vc.add(entry.value());
-		final char[] sepp = separator.toCharArray();
+		final char[] sepp = XChars.readChars(separator);
 		while((entry = entry.next) != null)
 		{
 			vc.add(sepp).add(entry.value());
@@ -7070,7 +7071,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			return vc;
 		}
 		appender.accept(vc, entry.value());
-		final char[] sepp = separator.toCharArray();
+		final char[] sepp = XChars.readChars(separator);
 		while((entry = entry.next) != null)
 		{
 			appender.accept(vc.add(sepp), entry.value());
@@ -7144,7 +7145,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			return vc;
 		}
-		final char[] sepp = separator.toCharArray();
+		final char[] sepp = XChars.readChars(separator);
 		final int bound = offset + length;
 		vc.add(entry.value());
 		if(length > 0)
@@ -7242,7 +7243,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			return vc;
 		}
-		final char[] sepp = separator.toCharArray();
+		final char[] sepp = XChars.readChars(separator);
 		final int bound = offset + length;
 		appender.accept(vc, entry.value());
 		if(length > 0)

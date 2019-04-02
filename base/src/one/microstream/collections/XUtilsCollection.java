@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.collections.types.XAddingCollection;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingSequence;
@@ -1965,7 +1966,7 @@ public final class XUtilsCollection
 			return vc;
 		}
 
-		final char[] sepp = separator.toCharArray();
+		final char[] sepp = XChars.readChars(separator);
 		collection.iterate(e -> vc.add(e).add(sepp));
 		return vc.deleteLast(sepp.length);
 	}
@@ -2042,7 +2043,7 @@ public final class XUtilsCollection
 			return vc;
 		}
 
-		final char[] sepp = separator.toCharArray();
+		final char[] sepp = XChars.readChars(separator);
 		collection.iterate(e ->
 		{
 			appender.accept(vc, e);

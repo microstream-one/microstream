@@ -24,20 +24,17 @@ public class MainTestEqualator
 	}
 
 
-	static final Equalator<Number> EQUAL_NUMBER = new Equalator<Number>(){
-		@Override
-		public boolean equal(final Number s1, final Number s2)
+	static final Equalator<Number> EQUAL_NUMBER = (final Number s1, final Number s2) ->
+	{
+		if(s1 == s2)
 		{
-			if(s1 == s2)
-			{
-				return true;
-			}
-			if(s1 == null)
-			{
-				return s2 == null;
-			}
-			return s1.equals(s2);
+			return true;
 		}
+		if(s1 == null)
+		{
+			return s2 == null;
+		}
+		return s1.equals(s2);
 	};
 
 }

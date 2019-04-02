@@ -1,6 +1,6 @@
 package one.microstream.util.chars;
 
-import one.microstream.memory.XMemory;
+import one.microstream.chars.XChars;
 
 public class MainTestParseIntegerPerformance
 {
@@ -17,7 +17,7 @@ public class MainTestParseIntegerPerformance
 		{
 			final long value = (long)(Math.random() * Math.pow(10, Math.random() * 12));
 //			final long value = (long)(Math.random() * Long.MAX_VALUE);
-			CHARS[i] = XMemory.accessChars(STRINGS[i] = Long.toString(value));
+			CHARS[i] = XChars.readChars(STRINGS[i] = Long.toString(value));
 
 			totalLength += CHARS[i].length;
 		}

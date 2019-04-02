@@ -37,8 +37,8 @@ public final class Levenshtein
 	public static final double substringSimilarity(final String s1, final String s2)
 	{
 		final char[] c1, c2;
-		final double minLen = (c1 = s1.toUpperCase().toCharArray()).length
-			< (c2 = s2.toUpperCase().toCharArray()).length
+		final double minLen = (c1 = XChars.readChars(s1.toUpperCase())).length
+			< (c2 = XChars.readChars(s2.toUpperCase())).length
 			? c1.length
 			: c2.length
 		;

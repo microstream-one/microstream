@@ -155,7 +155,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	public static final char[] readCharsFromFileDefaultCharset(final File file) throws IOException
 	{
 		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
-		return XChars.getChars(readStringFromFileDefaultCharset(file));
+		return XChars.readChars(readStringFromFileDefaultCharset(file));
 	}
 
 	public static final char[] readCharsFromFileDefaultCharset(
@@ -187,7 +187,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 			return null;
 		}
 
-		return XChars.getChars(content);
+		return XChars.readChars(content);
 	}
 		
 	public static final char[] readCharsFromFileUtf8(final File file)
@@ -211,7 +211,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	public static final char[] readCharsFromFile(final File file, final Charset charset) throws IOException
 	{
 		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
-		return XChars.getChars(readStringFromFile(file, charset));
+		return XChars.readChars(readStringFromFile(file, charset));
 	}
 
 	public static final String readStringFromFile(final File file, final Charset charset) throws IOException

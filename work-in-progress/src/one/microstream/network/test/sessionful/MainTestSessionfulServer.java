@@ -18,13 +18,10 @@ public class MainTestSessionfulServer
 
 
 	// echoMessage() wrapper function
-	private static final NetworkMessageProcessor<SimpleSession> messageEchoer =
-		new NetworkMessageProcessor<SimpleSession>(){
-			@Override public void accept(final SimpleSession session) {
-				echoMessage(session);
-			}
-		}
-	;
+	private static final NetworkMessageProcessor<SimpleSession> messageEchoer = (final SimpleSession session) ->
+	{
+		echoMessage(session);
+	};
 
 
 

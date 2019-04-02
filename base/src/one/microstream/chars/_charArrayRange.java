@@ -15,7 +15,7 @@ public interface _charArrayRange
 
 	public static Implementation New(final String value)
 	{
-		return New(value.toCharArray());
+		return New(XChars.readChars(value));
 	}
 
 	public static Implementation New(final char[] array)

@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.function.BiConsumer;
 
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.collections.interfaces.ChainStorage;
 import one.microstream.collections.interfaces._intCollecting;
 import one.microstream.exceptions.IndexBoundsException;
@@ -3217,7 +3218,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		else
 		{
-			final char[] sepp = separator.toCharArray();
+			final char[] sepp = XChars.readChars(separator);
 			for(int i = 0; i < size; i++)
 			{
 				vc.add(data[i]).add(sepp);
@@ -3287,7 +3288,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		else
 		{
-			final char[] sepp = separator.toCharArray();
+			final char[] sepp = XChars.readChars(separator);
 			for(int i = 0; i < size; i++)
 			{
 				appender.accept(vc, data[i]);
@@ -3367,7 +3368,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		else
 		{
-			final char[] sepp = separator.toCharArray();
+			final char[] sepp = XChars.readChars(separator);
 			for(int i = offset - d; i != endIndex;)
 			{
 				vc.add(data[i += d]).add(sepp);
@@ -3452,7 +3453,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		else
 		{
-			final char[] sepp = separator.toCharArray();
+			final char[] sepp = XChars.readChars(separator);
 			for(int i = offset - d; i != endIndex;)
 			{
 				appender.accept(vc, data[i += d]);

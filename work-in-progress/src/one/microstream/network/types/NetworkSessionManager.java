@@ -45,14 +45,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 
 		private volatile boolean active; // (29.10.2012)XXX: use multi-state pattern like in Server?
 
-		private final Consumer<S> synchTimeoutChecker = new Consumer<S>()
-		{
-			@Override
-			public void accept(final S session)
-			{
-				AbstractImplementation.this.synchCheckTimeout(session);
-			}
-		};
+		private final Consumer<S> synchTimeoutChecker = this::synchCheckTimeout;
 
 
 

@@ -2,7 +2,6 @@ package one.microstream.util.chars;
 
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
-import one.microstream.memory.XMemory;
 
 public class MainTestSplitAndTrim
 {
@@ -22,6 +21,6 @@ public class MainTestSplitAndTrim
 
 	static void test(final String s)
 	{
-		System.out.println(XChars.splitAndTrimToStrings(XMemory.accessChars(s), ';', new BulkList<String>()));
+		System.out.println(XChars.splitAndTrimToStrings(XChars.readChars(s), ';', new BulkList<String>()));
 	}
 }

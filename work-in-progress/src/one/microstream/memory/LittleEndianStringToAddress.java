@@ -1,6 +1,6 @@
 package one.microstream.memory;
 
-import one.microstream.memory.XMemory;
+import one.microstream.chars.XChars;
 
 public final class LittleEndianStringToAddress
 {
@@ -196,8 +196,7 @@ public final class LittleEndianStringToAddress
 		// (25.02.2013 TM)TODO: Float.toString(): optimize horrible moron-code from JDK
 		final String valueString = Float.toString(value);
 		
-		// endless copying around and around because of JDK moron code.
-		final char[] valueArray = valueString.toCharArray();
+		final char[] valueArray = XChars.readChars(valueString);
 		XMemory.copyArrayToAddress(valueArray, address);
 		
 		return valueString.length() << BIT_SHIFT_MULTIPLY_BY_2; // chars are 2 bytes long.
@@ -208,8 +207,7 @@ public final class LittleEndianStringToAddress
 		// (25.02.2013 TM)TODO: Double.toString(): optimize horrible moron-code from JDK
 		final String valueString = Double.toString(value);
 		
-		// endless copying around and around because of JDK moron code.
-		final char[] valueArray = valueString.toCharArray();
+		final char[] valueArray = XChars.readChars(valueString);
 		XMemory.copyArrayToAddress(valueArray, address);
 		
 		return valueString.length() << BIT_SHIFT_MULTIPLY_BY_2; // chars are 2 bytes long.

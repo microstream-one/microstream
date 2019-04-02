@@ -18,7 +18,6 @@ import one.microstream.collections.BinaryHandlerHashTable;
 import one.microstream.collections.BinaryHandlerLimitList;
 import one.microstream.collections.ConstList;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.functional.IndexedAcceptor;
 import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.java.io.BinaryHandlerFile;
@@ -309,14 +308,9 @@ public final class BinaryPersistence extends Persistence
 
 	public static final <T> BinaryInstantiator<T> blankMemoryInstantiator(final Class<T> type)
 	{
-		return new BinaryInstantiator<T>()
-		{
-			@Override
-			public T newInstance(final long buildItemAddress) throws InstantiationRuntimeException
-			{
-				return BinaryPersistence.blankMemoryInstantiate(type);
-			}
-		};
+		return (final long buildItemAddress) ->
+			BinaryPersistence.blankMemoryInstantiate(type)
+		;
 	}
 
 	public static final void iterateInstanceReferences(

@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import java.util.function.Consumer;
 
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashEnum;
@@ -135,13 +136,12 @@ public abstract class AbstractConfig implements Config
 			return rawValue;
 		}
 
-		// strictly read-only, so accessing the string instance's storage array is safe
-		final char[]           chars              = rawValue.toCharArray() ;
-		final int              length             = chars.length           ;
-		final char             variableStarter    = this.variableStarter   ;
-		final char             variableTerminator = this.variableTerminator;
-		final String           stringStrt         = this.stringStarter     ;
-		final String           stringTerm         = this.stringTerminator  ;
+		final char[] chars              = XChars.readChars(rawValue);
+		final int    length             = chars.length              ;
+		final char   variableStarter    = this.variableStarter      ;
+		final char   variableTerminator = this.variableTerminator   ;
+		final String stringStrt         = this.stringStarter        ;
+		final String stringTerm         = this.stringTerminator     ;
 
 		// lazily initialized to make the normal case (no variable at all) as efficient as possible
 		BulkList<String> elements = null;
