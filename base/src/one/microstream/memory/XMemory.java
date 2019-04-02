@@ -53,10 +53,6 @@ public final class XMemory
 
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 	private static final long
-		OFFSET_StringBuilder_value       = internalGetFieldOffset(StringBuilder.class, "value"            ),
-		OFFSET_StringBuilder_count       = internalGetFieldOffset(StringBuilder.class, "count"            ),
-		OFFSET_StringBuffer_value        = internalGetFieldOffset(StringBuffer.class , "value"            ),
-		OFFSET_StringBuffer_count        = internalGetFieldOffset(StringBuffer.class , "count"            ),
 		OFFSET_ArrayList_elementData     = internalGetFieldOffset(ArrayList.class    , "elementData"      ),
 		OFFSET_ArrayList_size            = internalGetFieldOffset(ArrayList.class    , "size"             ),
 		OFFSET_HashSet_map               = internalGetFieldOffset(HashSet.class      , "map"              ),
@@ -73,6 +69,7 @@ public final class XMemory
 	;
 	// CHECKSTYLE.ON: ConstantName
 
+	// (02.04.2019 TM)FIXME: MS-87: delete and replace by endless copying
 	private static final Constructor<String> STRING_CONSTRUCTOR_ARRAY_WRAPPER = getConstructorOrNull(
 		String.class ,
 		char[].class ,
@@ -286,64 +283,6 @@ public final class XMemory
 			// use standard copy-constructor as fallback because this method may not fail.
 			return new String(chars);
 		}
-	}
-
-	public static char[] accessChars(final StringBuilder stringBuilder)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return (char[])VM.getObject(notNull(stringBuilder), OFFSET_StringBuilder_value);
-	}
-
-	public static void setData(
-		final StringBuilder stringBuilder,
-		final char[]       chars         ,
-		final long         offsetInBytes ,
-		final long         lengthInBytes
-	)
-	{
-		notNull(stringBuilder); // must check not null here explictely to prevent VM crashes
-		if((lengthInBytes & 1) == 1)
-		{
-			throw new RuntimeException("Invalid odd byte length for char array");
-		}
-
-		final char[] data = (char[])VM.getObject(stringBuilder, OFFSET_StringBuilder_value);
-		if(data.length < (int)(lengthInBytes >>> 1))
-		{
-			throw new RuntimeException("Not enough capacity");
-		}
-
-		VM.copyMemory(chars, offsetInBytes, data, Unsafe.ARRAY_CHAR_BASE_OFFSET, lengthInBytes);
-		VM.putInt(stringBuilder, OFFSET_StringBuilder_count, (int)(lengthInBytes >>> 1));
-	}
-
-	public static void setChars(
-		final StringBuffer stringBuffer ,
-		final char[]       chars        ,
-		final long         offsetInBytes,
-		final long         lengthInBytes
-	)
-	{
-		notNull(stringBuffer); // must check not null here explictely to prevent VM crashes
-		if((lengthInBytes & 1) == 1)
-		{
-			throw new RuntimeException("Invalid odd byte length for char array");
-		}
-
-		final char[] data = (char[])VM.getObject(stringBuffer, OFFSET_StringBuffer_value);
-		if(data.length < (int)(lengthInBytes >>> 1))
-		{
-			throw new RuntimeException("Not enough capacity");
-		}
-
-		VM.copyMemory(chars, offsetInBytes, data, Unsafe.ARRAY_CHAR_BASE_OFFSET, lengthInBytes);
-		VM.putInt(stringBuffer, OFFSET_StringBuffer_count, (int)(lengthInBytes >>> 1));
-	}
-
-	public static char[] accessChars(final StringBuffer stringBuffer)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return (char[])VM.getObject(notNull(stringBuffer), OFFSET_StringBuffer_value);
 	}
 
 	public static Object[] accessArray(final ArrayList<?> arrayList)

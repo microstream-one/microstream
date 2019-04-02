@@ -1871,9 +1871,9 @@ public final class XChars
 		 * In ages past, this method called low-level mechanisms to access the string's internal char[] array
 		 * in a safe read-only fashion to process the chars efficiently without the need to absurdely and insanely
 		 * copy the complete string content just to read it.
-		 * However, since the absolute madness that is the messed up string format of Java 9, no sane way is left
-		 * to read-only access a string's characters. Thus, this method had to succumb to the insanity that is
-		 * copying immutable data on every time read-only access.
+		 * However, since the absolute madness that is the messed up internal string data of Java 9, no sane way
+		 * is left to read-only access a string's characters. Thus, this method had to succumb to the insanity that is
+		 * copying immutable data on every read-only access.
 		 */
 		return s.toCharArray();
 	}
