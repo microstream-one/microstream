@@ -80,6 +80,45 @@ public final class XMemory
 		boolean.class
 	);
 	
+	private static DirectByteBufferDeallocator DIRECT_BYTEBUFFER_DEALLOCATOR = createDefaultDirectByteBufferDeallocator();
+	
+	/**
+	 * Allows to set the {@link DirectByteBufferDeallocator} used by
+	 * {@link #deallocateDirectByteBuffer(ByteBuffer)}.<br>
+	 * See {@link DirectByteBufferDeallocator} for details.
+	 * <p>
+	 * The passed instance "should" be immutable or better stateless to ensure concurrency-safe usage,
+	 * but ultimately, the responsibility resides with the author of the instance's implementation.
+	 * <p>
+	 * Passing <code>null</code> resets to the internal default implementation.
+	 * The used deallocator will never be null.
+	 * 
+	 * @param deallocator the deallocator to be used.
+	 * 
+	 * @see DirectByteBufferDeallocator
+	 */
+	public static synchronized void setDirectByteBufferDeallocator(
+		final DirectByteBufferDeallocator deallocator
+	)
+	{
+		// allows resetting to default without knowing what the default is.
+		DIRECT_BYTEBUFFER_DEALLOCATOR = deallocator != null
+			? deallocator
+			: createDefaultDirectByteBufferDeallocator()
+		;
+	}
+	
+	public static synchronized DirectByteBufferDeallocator getDirectByteBufferDeallocator()
+	{
+		return DIRECT_BYTEBUFFER_DEALLOCATOR;
+	}
+	
+	public static DirectByteBufferDeallocator createDefaultDirectByteBufferDeallocator()
+	{
+		return DirectByteBufferDeallocator.NoOp();
+	}
+	
+	
 	// return type not specified to avoid public API dependencies to sun implementation details
 	public static final Object getSystemInstance()
 	{
@@ -175,17 +214,7 @@ public final class XMemory
 	 */
 	public static final void deallocateDirectByteBuffer(final ByteBuffer directByteBuffer)
 	{
-		// memory handling of this burrowedly tinkered buffer is a real P in the A.
-		if(!(directByteBuffer instanceof DirectBuffer))
-		{
-			return;
-		}
-		
-		final Cleaner cleaner = ((DirectBuffer)directByteBuffer).cleaner();
-		if(cleaner != null)
-		{
-			cleaner.clean();
-		}
+		DIRECT_BYTEBUFFER_DEALLOCATOR.deallocateDirectByteBuffer(directByteBuffer);
 	}
 
 	/**
