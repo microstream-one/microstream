@@ -1,4 +1,5 @@
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red0\green0\blue255;}
 {\*\generator Riched20 10.0.17763}\viewkind4\uc1 
 \pard\sl276\slmult1\f0\fs28\lang7 2019-03-28\par
 \par
@@ -176,5 +177,31 @@ Ich kann den Import einfach per Knopdruck anpassen, aber dann hat MS auf einmal 
 \par
 ... hm. Mit MK und FH kl\'e4ren.\par
 \par
+\par
+\par
+2019-04-02\par
+\par
+Workaround f\'fcr Cleaner Package\'e4nderung.\par
+Ausf\'fchrliche JavaDoc dazuschreiben.\par
+\par
+Jetzt testen.\par
+Ah, na toll: module Exception:\par
+java.lang.reflect.InaccessibleObjectException: Unable to make public void jdk.internal.ref.Cleaner.clean() accessible: module java.base does not "exports jdk.internal.ref" to unnamed module @629f0666\par
+\par
+Zeit f\'fcr eine Fortbildung ...\par
+{{\field{\*\fldinst{HYPERLINK https://stackoverflow.com/questions/42538750/unable-to-export-a-package-from-java-base-module }}{\fldrslt{https://stackoverflow.com/questions/42538750/unable-to-export-a-package-from-java-base-module\ul0\cf0}}}}\f0\fs28\par
+You will have to do that when compiling (javac) and when running (java) the code.\par
+\par
+... well, shit ...\par
+\par
+Mal mit FH besprechen, ob der mehr wei\'df.\par
+Leider nein, aber Hinweis auf Klasse ServiceLoader.\par
+\par
+\par
+MS-136 erstellen. Hintergr\'fcnde, Optionen und Hass dokumentieren.\par
+Dabei #3 eingefallen. Kurz mit FH besprechen. So implementieren.\par
+Issues MS-87 und MS-136 updaten.\par
+\par
+Und schon kann ich mit der eigentlichen Arbeit anfangen, der Wahnsinn.\par
 }
  
