@@ -1,6 +1,6 @@
 package one.microstream.java.lang;
 
-import one.microstream.memory.XMemory;
+import one.microstream.chars.XChars;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
@@ -31,7 +31,7 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 		final PersistenceStoreHandler handler
 	)
 	{
-		this.storeData(bytes, XMemory.accessChars(instance), instance.length(), objectId, handler);
+		this.storeData(bytes, XChars.toCharArray(instance), instance.capacity(), objectId, handler);
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 		instance.delete(0, instance.length());
 		
 		instance.ensureCapacity(this.readCapacity(bytes));
-		this.readChars(bytes, XMemory.accessChars(instance));
+		instance.append(this.readChars(bytes));
 	}
 
 }

@@ -12,11 +12,11 @@ extends AbstractBinaryHandlerCustom<B>
 	// constants //
 	//////////////
 	
-	protected static final long LENGTH_LENGTH = Integer.BYTES;
+	protected static final long LENGTH_CAPACITY = Long.BYTES;
 	
 	protected static final long
-		OFFSET_LENGTH = 0                            ,
-		OFFSET_CHARS  = OFFSET_LENGTH + LENGTH_LENGTH
+		OFFSET_CAPACITY = 0                                ,
+		OFFSET_CHARS    = OFFSET_CAPACITY + LENGTH_CAPACITY
 	;
 
 
@@ -45,33 +45,29 @@ extends AbstractBinaryHandlerCustom<B>
 	protected final void storeData(
 		final Binary                  bytes   ,
 		final char[]                  data    ,
-		final int                     length  ,
+		final int                     capacity,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeEntityHeader(
-			(long)length * Character.BYTES + LENGTH_LENGTH, this.typeId(), objectId
+		// capacity + list header + list data
+		final long contentLength = Binary.toBinaryListTotalByteLength(
+			LENGTH_CAPACITY + (long)data.length * Character.BYTES
 		);
 		
-		bytes.store_int(contentAddress + OFFSET_LENGTH, data.length);
-		bytes.storeCharsDirect(contentAddress + OFFSET_CHARS, data, 0, length);
+		final long contentAddress = bytes.storeEntityHeader(contentLength, this.typeId(), objectId);
+		bytes.store_long(contentAddress + OFFSET_CAPACITY, capacity);
+		bytes.storeCharsAsList(contentAddress + OFFSET_CHARS, data, 0, data.length);
 	}
 	
 	protected final int readCapacity(final Binary bytes)
 	{
-		return X.checkArrayRange(bytes.get_long(OFFSET_LENGTH));
+		return X.checkArrayRange(bytes.get_long(OFFSET_CAPACITY));
 	}
 	
-	protected final int readLength(final Binary bytes)
+	protected final char[] readChars(final Binary bytes)
 	{
-		return X.checkArrayRange(bytes.getBuildItemContentLength() - LENGTH_LENGTH);
-	}
-	
-	protected final void readChars(final Binary bytes, final char[] target)
-	{
-		final int lengthChars = X.checkArrayRange(bytes.getBuildItemContentLength() - LENGTH_LENGTH);
-		bytes.readCharsDirect(bytes.getBuildItemContentLength() + OFFSET_CHARS, target, 0, lengthChars);
+		return bytes.buildArray_char(OFFSET_CHARS);
 	}
 
 	@Override
