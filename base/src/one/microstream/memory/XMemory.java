@@ -1,6 +1,5 @@
 package one.microstream.memory;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
@@ -68,13 +67,6 @@ public final class XMemory
 		OFFSET_Properties_Defaults       = internalGetFieldOffset(Properties.class   , "defaults"         )
 	;
 	// CHECKSTYLE.ON: ConstantName
-
-	// (02.04.2019 TM)FIXME: MS-87: delete and replace by endless copying
-	private static final Constructor<String> STRING_CONSTRUCTOR_ARRAY_WRAPPER = getConstructorOrNull(
-		String.class ,
-		char[].class ,
-		boolean.class
-	);
 	
 	private static DirectByteBufferDeallocator DIRECT_BYTEBUFFER_DEALLOCATOR = createDefaultDirectByteBufferDeallocator();
 	
@@ -135,21 +127,6 @@ public final class XMemory
 		}
 	}
 	
-
-	private static <T> Constructor<T> getConstructorOrNull(final Class<T> c, final Class<?>... parameterTypes)
-	{
-		try
-		{
-			final Constructor<T> ctor = c.getDeclaredConstructor(parameterTypes);
-			ctor.setAccessible(true);
-			return ctor;
-		}
-		catch(final Exception e)
-		{
-			return null;
-		}
-	}
-
 	public static long objectFieldOffset(final Field field)
 	{
 		return VM.objectFieldOffset(field);
@@ -246,43 +223,6 @@ public final class XMemory
 		deallocateDirectByteBuffer(current);
 		
 		return ByteBuffer.allocateDirect((int)capacity);
-	}
-
-	/**
-	 * This method is ONLY meant as a dirty shortcut to create String instances without the performance
-	 * penalty of unnecessarily copying the char array.
-	 * <p>
-	 * Notes:<ol>
-	 * <li>It can very well corrupt the string if the passed char array is altered after the string
-	 * has been created.</li>
-	 * <li>For short char sequences (around < 20 chars), the performed reflective operation
-	 * may be slower than the normal copying constructor.</li>
-	 * <li>Unrepresentative performance measuring to give a rough estimate:<br>
-	 * - Standard copying constructor required statistically 5 to 7 ns for char array lengths from 0 to 20.<br>
-	 * - Reflective wrapper instantiation required always statistically 7 ns, independent of array length.</li>
-	 * <li>The name is intentionally verbose and clumsy to avoid the impression that this is some kind
-	 * of convenient fluent syntax helper method.</li>
-	 * <li>This method uses the standard char array copying constructor as a fallback on any {@link Throwable},
-	 * so this method does never fail but only get slow.</li>
-	 * </ol>
-	 * <p>
-	 * Conclusion: only use this method if you know what you're doing!
-	 *
-	 * @param chars the array to be used as the new {@link String} instance's internal storage value.
-	 * @return a new {@link String} instance using the passed array as its internal storage value.
-	 */
-	public static final String wrapCharsAsString(final char... chars)
-	{
-		try
-		{
-			// caching the zero Integer showed no difference in performance. Maybe done by compiler anyway.
-			return STRING_CONSTRUCTOR_ARRAY_WRAPPER.newInstance(chars, Boolean.TRUE);
-		}
-		catch(final Exception t)
-		{
-			// use standard copy-constructor as fallback because this method may not fail.
-			return new String(chars);
-		}
 	}
 
 	public static Object[] accessArray(final ArrayList<?> arrayList)
