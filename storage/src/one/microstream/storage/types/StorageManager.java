@@ -34,14 +34,14 @@ public interface StorageManager extends StorageController
 	public boolean shutdown();
 
 	public StorageObjectIdRangeEvaluator objectIdRangeEvaluator();
-
+	
 
 
 	public final class Implementation implements StorageManager, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		// composite members //
 		private final StorageConfiguration                 configuration                 ;
@@ -74,16 +74,18 @@ public interface StorageManager extends StorageController
 
 
 		// state flags //
-		private volatile boolean isRunning       ;
-		private volatile boolean isStartingUp    ;
+		private volatile boolean isRunning         ;
+		private volatile boolean isStartingUp      ;
 		// (15.06.2013)TODO: isAcceptingTasks: either use (methode) or delete or comment
-		private volatile boolean isAcceptingTasks;
-		private volatile boolean isShuttingDown  ;
-		private volatile boolean isShutdown       = true ;
-		private final    Object  stateLock        = new Object();
+		private volatile boolean isAcceptingTasks  ;
+		private volatile boolean isShuttingDown    ;
+		private volatile boolean isShutdown         = true ;
+		private final    Object  stateLock          = new Object();
+		private volatile long    initializationTime;
+		private volatile long    operationModeTime ;
 
 		// running state members //
-		private volatile StorageTaskBroker taskbroker   ;
+		private volatile StorageTaskBroker taskbroker    ;
 		private final    ChannelKeeper[]   channelKeepers;
 		
 		private          StorageBackupHandler backupHandler;
@@ -196,6 +198,18 @@ public interface StorageManager extends StorageController
 		public final boolean isShuttingDown()
 		{
 			return this.isShuttingDown;
+		}
+		
+		@Override
+		public final long initializationTime()
+		{
+			return this.initializationTime;
+		}
+		
+		@Override
+		public final long operationModeTime()
+		{
+			return this.operationModeTime;
 		}
 
 		private void ensureRunning()
@@ -333,6 +347,7 @@ public interface StorageManager extends StorageController
 
 			// create channels, setup task processing and start threads
 			this.taskbroker = this.taskBrokerCreator.createTaskBroker(this, this.requestTaskCreator);
+						
 			final StorageChannelTaskInitialize task = this.taskbroker.issueChannelInitialization(
 				this.channelController
 			);
@@ -403,7 +418,9 @@ public interface StorageManager extends StorageController
 				this.isShutdown = false;
 				try
 				{
+					this.initializationTime = System.currentTimeMillis();
 					this.internalStartUp();
+					this.operationModeTime = System.currentTimeMillis();
 					this.isRunning = true;
 				}
 				catch(final InterruptedException e)

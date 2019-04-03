@@ -18,5 +18,14 @@ public interface StorageController
 	public boolean isShutdown();
 
 	public void checkAcceptingTasks();
+	
+	public long initializationTime();
+	
+	public long operationModeTime();
+	
+	public default long initializationDuration()
+	{
+		return this.operationModeTime() - this.initializationTime();
+	}
 
 }
