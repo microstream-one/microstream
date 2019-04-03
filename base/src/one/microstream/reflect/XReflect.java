@@ -6,7 +6,6 @@ import static one.microstream.X.notNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -30,55 +29,6 @@ import one.microstream.util.UtilStackTrace;
  */
 public final class XReflect
 {
-	///////////////////////////////////////////////////////////////////////////
-	// constants //
-	//////////////
-
-	/*
-	 * JDK workaround stuff. transient to skip fields in persistence layers collecting constants
-	 * CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
-	 */
-	private static final transient Field ArrayList_elementData = setAccessible(getArrayListElementsField());
-	
-	
-	
-	///////////////////////////////////////////////////////////////////////////
-	// static methods //
-	///////////////////
-	
-	private static Field getArrayListElementsField()
-	{
-		/*
-		 * This should be both correct and robost enough for any change to ArrayList they might possibly come up with.
-		 * Only non-primitive array type instance fields are considered. Of any class in the hierarchy.
-		 * The only possible case where this method would fail would be if an ArrayList contained more than
-		 * one reference array. But that would be a pretty superfluous and moronic waste of memory.
-		 */
-		return getAnyField(ArrayList.class, field ->
-			isInstanceField(field) && field.getType().isArray() && !field.getType().getComponentType().isPrimitive()
-		);
-	}
-	
-	/**
-	 * Accesses the elementData field containing the array holding the elements of <code>arrayList</code>.
-	 * <p>
-	 * <u><b>Warning</b></u>: Use this method wisely!<br>
-	 * In almost all situations, it is not necessary to "peek" inside the <code>ArrayList</code> object and "steal" the
-	 * array from it. The use of this method in such situations is bad programming style and can cause any sort of
-	 * trouble. E.g. logic manipulating the array while the actual <code>ArrayList</code> object is still active.<br>
-	 * <br>
-	 * Handle with care!<br>
-	 *
-	 * @param <T>
-	 * @param arrayList
-	 * @return the elementData member array used by <code>arrayList</code>
-	 */
-	public static final Object[] accessArray(final ArrayList<?> arrayList) throws IllegalAccessRuntimeException
-	{
-		//can never throw an exception if field elementData has been successfully retrieved
-		return (Object[])getFieldValue(ArrayList_elementData, arrayList);
-	}
-
 	public static final Field setAccessible(final Field field)
 	{
 		// because lol
