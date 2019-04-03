@@ -25,7 +25,7 @@ import one.microstream.collections.types.XImmutableList;
 import one.microstream.collections.types.XList;
 import one.microstream.equality.Equalator;
 import one.microstream.functional.IndexedAcceptor;
-import one.microstream.reflect.XReflect;
+import one.microstream.memory.XMemory;
 
 /**
  * Extended-Collection wrapper implementation for old {@link ArrayList}.
@@ -113,7 +113,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	protected E[] internalGetStorageArray()
 	{
-		return (E[])XReflect.accessArray(this.subject);
+		return (E[])XMemory.accessArray(this.subject);
 	}
 
 	@Override
