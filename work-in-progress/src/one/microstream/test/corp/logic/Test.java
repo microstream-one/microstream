@@ -19,6 +19,7 @@ import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XTable;
 import one.microstream.math.XMath;
+import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis;
 import one.microstream.test.corp.model.Address;
 import one.microstream.test.corp.model.BusinessYear;
@@ -209,11 +210,11 @@ public class Test
 	public static ClientCorporation generateModelData(final int entityAmount)
 	{
 		final Generator generator = new Generator(entityAmount);
-		print("TEST: entity amounts: \n"+generator.infoGenerationAmounts());
+		print("Entity amounts: \n"+generator.infoGenerationAmounts());
 
-		print("TEST: generating model data ...");
+		print("Generating model data ...");
 		final ClientCorporation clientcorporation = generator.generateModelData();
-		print("TEST: model data generation complete.");
+		print("Model data generation complete.");
 
 		return clientcorporation;
 	}
@@ -259,6 +260,16 @@ public class Test
 
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
+	public static void printInitializationTime(final EmbeddedStorageManager storage)
+	{
+		System.out.println(TIME_FORMAT.format(new Date(storage.initializationTime())) + ": Initializing database ...");
+	}
+
+	public static void printOperationModeTime(final EmbeddedStorageManager storage)
+	{
+		System.out.println(TIME_FORMAT.format(new Date(storage.operationModeTime())) + ": Database initialized.");
+	}
+	
 	public static void print(final Object object)
 	{
 		System.out.println(TIME_FORMAT.format(XTime.now())+": "+object);
