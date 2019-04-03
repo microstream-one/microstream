@@ -1270,7 +1270,7 @@ public abstract class Binary implements Chunk
 		long stringsOffset = toBinaryListElementsAddress(stringsListOffset); // first element address
 		for(int i = 0; i < target.length; i++)
 		{
-			target[i] = XMemory.wrapCharsAsString(this.buildArray_char(stringsOffset)); // build string element
+			target[i] = String.valueOf(this.buildArray_char(stringsOffset)); // build string element
 			stringsOffset += this.getBinaryListTotalByteLength(stringsOffset); // scroll to next element
 		}
 
