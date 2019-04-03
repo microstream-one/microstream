@@ -16,19 +16,6 @@ import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.Reference;
-import one.microstream.storage.types.StorageConfiguration;
-import one.microstream.storage.types.StorageConnection;
-import one.microstream.storage.types.StorageController;
-import one.microstream.storage.types.StorageDataFileDissolvingEvaluator;
-import one.microstream.storage.types.StorageEntityCacheEvaluator;
-import one.microstream.storage.types.StorageEntityTypeExportFileProvider;
-import one.microstream.storage.types.StorageEntityTypeExportStatistics;
-import one.microstream.storage.types.StorageEntityTypeHandler;
-import one.microstream.storage.types.StorageIdAnalysis;
-import one.microstream.storage.types.StorageIoHandler;
-import one.microstream.storage.types.StorageManager;
-import one.microstream.storage.types.StorageRawFileStatistics;
-import one.microstream.storage.types.StorageTypeDictionary;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -312,27 +299,39 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		{
 			return this.connectionFoundation.createStorageConnection();
 		}
+		
+		@Override
+		public final long initializationTime()
+		{
+			return this.storageManager.initializationTime();
+		}
+		
+		@Override
+		public final long operationModeTime()
+		{
+			return this.storageManager.operationModeTime();
+		}
 
 		@Override
-		public void issueFullGarbageCollection()
+		public final void issueFullGarbageCollection()
 		{
 			this.singletonConnection().issueFullGarbageCollection();
 		}
 
 		@Override
-		public boolean issueGarbageCollection(final long nanoTimeBudget)
+		public final boolean issueGarbageCollection(final long nanoTimeBudget)
 		{
 			return this.singletonConnection().issueGarbageCollection(nanoTimeBudget);
 		}
 
 		@Override
-		public void issueFullFileCheck()
+		public final void issueFullFileCheck()
 		{
 			this.singletonConnection().issueFullFileCheck();
 		}
 
 		@Override
-		public void issueFullFileCheck(final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
+		public final void issueFullFileCheck(final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
 		{
 			this.singletonConnection().issueFullFileCheck(fileDissolvingEvaluator);
 		}
@@ -344,7 +343,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public boolean issueFileCheck(
+		public final boolean issueFileCheck(
 			final long nanoTimeBudgetBound,
 			final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
 		{
@@ -352,25 +351,25 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public void issueFullCacheCheck()
+		public final void issueFullCacheCheck()
 		{
 			this.singletonConnection().issueFullCacheCheck();
 		}
 
 		@Override
-		public void issueFullCacheCheck(final StorageEntityCacheEvaluator entityEvaluator)
+		public final void issueFullCacheCheck(final StorageEntityCacheEvaluator entityEvaluator)
 		{
 			this.singletonConnection().issueFullCacheCheck(entityEvaluator);
 		}
 
 		@Override
-		public boolean issueCacheCheck(final long nanoTimeBudgetBound)
+		public final boolean issueCacheCheck(final long nanoTimeBudgetBound)
 		{
 			return this.singletonConnection().issueCacheCheck(nanoTimeBudgetBound);
 		}
 
 		@Override
-		public boolean issueCacheCheck(
+		public final boolean issueCacheCheck(
 			final long                        nanoTimeBudgetBound,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
@@ -379,19 +378,22 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public StorageRawFileStatistics createStorageStatistics()
+		public final StorageRawFileStatistics createStorageStatistics()
 		{
 			return this.singletonConnection().createStorageStatistics();
 		}
 
 		@Override
-		public void exportChannels(final StorageIoHandler fileHandler, final boolean performGarbageCollection)
+		public final void exportChannels(
+			final StorageIoHandler fileHandler             ,
+			final boolean          performGarbageCollection
+		)
 		{
 			this.singletonConnection().exportChannels(fileHandler, performGarbageCollection);
 		}
 
 		@Override
-		public StorageEntityTypeExportStatistics exportTypes(
+		public final StorageEntityTypeExportStatistics exportTypes(
 			final StorageEntityTypeExportFileProvider         exportFileProvider,
 			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
@@ -400,7 +402,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public void importFiles(final XGettingEnum<File> importFiles)
+		public final void importFiles(final XGettingEnum<File> importFiles)
 		{
 			this.singletonConnection().importFiles(importFiles);
 		}
