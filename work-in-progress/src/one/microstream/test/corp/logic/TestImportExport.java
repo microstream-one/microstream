@@ -36,12 +36,12 @@ public class TestImportExport
 			"dat"
 		);
 		tStop = System.nanoTime();
-		System.out.println("Bin exp done. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
+		System.out.println("Data export to binary files complete. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
 		tStart = System.nanoTime();
 		csvDir = convertBinToCsv(storage.typeDictionary(), exportFiles, file -> file.getName().endsWith(".dat"));
 		tStop = System.nanoTime();
-		System.out.println("bin2csv done. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
+		System.out.println("Conversion of binary to csv complete. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
 
 //		csvDir = new File("D:/BonusExportTest/csv");
