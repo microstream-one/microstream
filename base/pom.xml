@@ -9,15 +9,10 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>01.00.00-MS-RC1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>base</artifactId>
-	<packaging>jar</packaging>
-
-	<properties>
-		<rootDir>..</rootDir>
-	</properties>
-
+	
 </project>
