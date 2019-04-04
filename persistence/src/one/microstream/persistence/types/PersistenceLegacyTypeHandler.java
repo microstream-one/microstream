@@ -9,7 +9,7 @@ import one.microstream.collections.types.XGettingEnum;
 public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandler<M, T>
 {
 	@Override
-	public default PersistenceTypeHandler<M, T> initializeTypeId(final long typeId)
+	public default PersistenceTypeHandler<M, T> initialize(final long typeId)
 	{
 		if(typeId == this.typeId())
 		{

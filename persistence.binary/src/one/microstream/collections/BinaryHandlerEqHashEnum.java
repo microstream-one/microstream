@@ -8,7 +8,6 @@ import one.microstream.hashing.HashEqualator;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -30,9 +29,9 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	//////////////
 
 	static final long
-		BINARY_OFFSET_EQUALATOR    =                                                   0, // oid for eqltr ref
+		BINARY_OFFSET_EQUALATOR    =                                                        0, // oid for eqltr ref
 		BINARY_OFFSET_HASH_DENSITY = BINARY_OFFSET_EQUALATOR    + Binary.objectIdByteLength(), // offset for 1 oid
-		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES             // offset for 1 float
+		BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES                  // offset for 1 float
 ;
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqHashEnum.class, HashEqualator.class);
@@ -156,7 +155,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 
 	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields()
 	{
-		return BinaryCollectionHandling.simpleArrayPseudoFields(
+		return simpleArrayPseudoFields(
 			pseudoField(HashEqualator.class, "hashEqualator"),
 			pseudoField(float.class, "hashDensity")
 		);

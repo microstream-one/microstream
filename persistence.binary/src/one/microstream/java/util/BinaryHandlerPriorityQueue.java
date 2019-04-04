@@ -8,7 +8,6 @@ import one.microstream.X;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -61,7 +60,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	{
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.simpleArrayPseudoFields(
+			simpleArrayPseudoFields(
 			    pseudoField(Comparator.class, "comparator")
 			)
 		);
