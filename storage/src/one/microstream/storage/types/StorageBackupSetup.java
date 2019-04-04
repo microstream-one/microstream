@@ -42,7 +42,7 @@ public interface StorageBackupSetup
 		// constructors //
 		/////////////////
 		
-		public Implementation(
+		Implementation(
 			final StorageFileProvider    backupFileProvider,
 			final StorageBackupItemQueue itemQueue
 		)

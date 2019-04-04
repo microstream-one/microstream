@@ -5,7 +5,6 @@ import java.util.Queue;
 import one.microstream.X;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -58,7 +57,7 @@ public class BinaryHandlerQueue<T extends Queue<?>> extends AbstractBinaryHandle
 	{
 		super(
 			type,
-			BinaryCollectionHandling.simpleArrayPseudoFields()
+			simpleArrayPseudoFields()
 		);
 		this.instantiator = instantiator;
 	}
