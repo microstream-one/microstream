@@ -119,7 +119,7 @@ public final class BinaryPersistence extends Persistence
 			throw new RuntimeException("No native TypeId found for type " + typeHandler.type());
 		}
 		
-		typeHandler.initializeTypeId(nativeTypeId);
+		typeHandler.initialize(nativeTypeId);
 	}
 	
 	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> createNativeHandlers(

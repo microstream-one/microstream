@@ -7,7 +7,6 @@ import one.microstream.hashing.HashEqualator;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -76,7 +75,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.keyValuesPseudoFields(
+			keyValuesPseudoFields(
 				pseudoField(HashEqualator.class, "hashEqualator"),
 				pseudoField(EqHashTable.Keys.class, "keys"),
 				pseudoField(EqHashTable.Values.class, "values"),

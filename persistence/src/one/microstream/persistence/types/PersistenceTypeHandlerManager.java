@@ -582,7 +582,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			for(final KeyValue<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> match : matches)
 			{
 				final long typeId = match.key().typeId();
-				final PersistenceTypeHandler<M, ?> ith = match.value().initializeTypeId(typeId);
+				final PersistenceTypeHandler<M, ?> ith = match.value().initialize(typeId);
 				initializedTypeHandlers.add(ith);
 			}
 		}
@@ -625,7 +625,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 
 			// must be the TypeHandlerProvider's ensureTypeId in order to circumvent implicit handler creation.
 			final long newTypeId = this.typeHandlerProvider.ensureTypeId(typeHandler.type());
-			return typeHandler.initializeTypeId(newTypeId);
+			return typeHandler.initialize(newTypeId);
 		}
 				
 		private void filterRuntimeTypeLineages(

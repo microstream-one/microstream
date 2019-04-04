@@ -7,7 +7,6 @@ import one.microstream.hashing.HashEqualator;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.binary.types.BinaryCollectionHandling;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -71,7 +70,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			BinaryCollectionHandling.simpleArrayPseudoFields(
+			simpleArrayPseudoFields(
 				pseudoField(HashEqualator.class, "hashEqualator"),
 				pseudoField(float.class        , "hashDensity"  )
 			)

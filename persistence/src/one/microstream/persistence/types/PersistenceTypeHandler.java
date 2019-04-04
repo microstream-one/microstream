@@ -61,7 +61,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 * Maybe solve by a PersistenceDomain-specific Builder? Wouldn't even have to have a new interface, just a class
 	 */
 	
-	public PersistenceTypeHandler<M, T> initializeTypeId(long typeId);
+	public PersistenceTypeHandler<M, T> initialize(long typeId);
 	
 	/**
 	 * Iterates the types of persistent members (e.g. non-transient {@link Field}s).
@@ -174,8 +174,19 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 			return this.type.getName();
 		}
 		
+		protected void internalInitialize()
+		{
+			/*
+			 * Empty by itself, this method is required to have a convenient entry point for executing
+			 * logic in sub classes only once for initialization, but after the constructor chain has been completed.
+			 * For example:
+			 * Collecting BinaryField instances accross the class hiararchy and initializing their binary offsets
+			 * afterwards. Trying to do that in the constructors directly would cause some fields to be null.
+			 */
+		}
+		
 		@Override
-		public synchronized PersistenceTypeHandler<M, T> initializeTypeId(final long typeId)
+		public synchronized PersistenceTypeHandler<M, T> initialize(final long typeId)
 		{
 			/* note:
 			 * Type handlers can have hardcoded typeIds, e.g. for native types like primitive arrays.
@@ -197,6 +208,8 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 			}
 			
 			this.typeId = typeId;
+			
+			this.internalInitialize();
 			
 			// by default, implementations are assumed to be (effectively) immutable and thus can return themselves.
 			return this;

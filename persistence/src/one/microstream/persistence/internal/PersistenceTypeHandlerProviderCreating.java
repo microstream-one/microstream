@@ -67,7 +67,7 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 		throws PersistenceExceptionTypeNotPersistable
 	{
 		final PersistenceTypeHandler<M, T> protoTypeHandler = this.ensureTypeHandler(type);
-		final PersistenceTypeHandler<M, T> typeHandler      = protoTypeHandler.initializeTypeId(typeId);
+		final PersistenceTypeHandler<M, T> typeHandler      = protoTypeHandler.initialize(typeId);
 
 		return typeHandler;
 	}
