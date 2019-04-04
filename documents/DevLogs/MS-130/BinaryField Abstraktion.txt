@@ -1,0 +1,293 @@
+Binary Field Abstraktion
+MS-130
+2019-04-04
+
+
+
+Aktuell müssen binary offsets manuell definiert werden, inklusive addieren der Länge des VORHERIGEN Felds.
+Das ist ziemlich mühsam und auch fehleranfällig.
+Besser wäre, Felder API-mäßig definieren zu können. Natürlich mit möglichst wenig Schreibaufwand.
+
+
+Idealerweise sollte folgendes reichen:
+
+final BinaryField
+    someField    = Field(long.class ),
+    anotherField = Field(short.class)
+;
+
+Der Offset wird dann von einer zentralen Logik in der Superklasse für alle Felder berechnet, wenn klar ist, welche Felder (über alle Kindklassen hinweg) vorliegen.
+
+
+In der Handler Logik kann man dann entweder explizit den offset verwenden:
+this.someField.offset()
+
+oder noch besser: den Wert über das Feld setzen
+this.someField.setValue(bytes, instance.someValue())
+
+Es muss aber auch möglich sein, sich den field Offset exlpizit zu holen und zwischenzuspeichern, weil das schneller ist, als jedes mal erst in eine andere Instanz (BinaryField) auf dem Heap zu springen.
+Dafür, aber auch wegen der class field Initialisierungsreihenfolge, muss die BinaryField Initialisierung in einer nachgelagerten Methode on-demand einmalig lazy initialisiert werden.
+
+Die persistente Reihenfolge ergibt sich aus der declaration order der BinaryField Instanzen:
+Zuerst (offset 0 in der binary form des entities) kommen alle Felder der "kindigsten" Klasse, in ihrer declaration order.
+Nach Klasse für Klasse die Hiararchie nach oben.
+Als letztes kommt das letzte Feld der obersten Klasse.
+Damit und mit dem Typ des Felds können alle binary form feld offsets berechnet werden und über eine interne Methode im Feld initialisiert werden.
+
+Hinweis: Binary Form Datensätze müssen in ihrem layout NICHT kompatibel zu dem Supertyp sein. Jede Klasse hat ihr eigens layout.
+
+Das funktioniert natürlich nur, wenn keins außer dem letzten Feld variable Länge hat.
+
+Das sollte eigentlich immer ausreichen. Es gibt eigentlich keinen Typ, der mehr als ein Feld mit Variabler Länge hat. Das wäre unsauber gekapselt.
+
+Die Kombination aus dieser Einschränkung und der Reihenfolgenregel macht aber folgenden Fall unmöglich:
+Superklasse definiert kein variable length field.
+Kindklasse ein variable length field hinzufügen.
+
+Laut Einschränkung wäre das möglich.
+Aber laut feldreihenfolgenregel nicht.
+
+Um das zu lösen muss ein handler die methode zur initialisierung der Felder überschreiben und auf eigene Verantwortung durch eine maßgeschneiderte ersetzen können.
+Diese Methode muss dann die nötigen rohdaten ordentlich übergeben bekommen (ordered Collection mit per-class feldern)
+
+Falls es mal irgendwelche Probleme mit reflection geben sollte (modules oder weiß der geier) muss es auch eine möglichkeit geben, dass eine Klasse ihre declared fields explizit registriert.
+Also so:
+this.registerBinaryFields(SpecificClass.class, this.someField, this.anotherField);
+
+es muss also eine zweistufige initialisierungsmethode geben:
+ein allgemeines "initializeBinaryFields", in der gemacht wird:
+- collectBinaryFields
+- defineBinaryFieldOrder
+- initializeBinaryFieldOffsets
+
+Um die reflection zu umgehen, overridet man nur die collectBinaryFields Methode.
+Um die reihenfolge zu verändern, overridet man die defineBinaryFieldOrder Methode.
+Die initializeBinaryFieldOffsets darf nicht overridbar sein, denn sonst setzt vielleicht mal jemand für ein long feld die länge 4 und alles ist hin.
+
+
+Die Initialisierung könnte in initializeTypeId gleich mitgemacht werden.
+Es gibt keine Abhängigkeiten zu state von außen. Es geht nur darum, etwas "nach" dem Konstrukturaufruf zu haben.
+
+
+
+
+
+
+
+Code für AbstractBinaryHandlerCustom:
+
+
+	/* (04.04.2019 TM)TODO: BinaryFields
+	 * Usage example below:
+	 */
+//	// field definitions
+//	final BinaryField
+//		someField    = Field(long.class ),
+//		anotherField = Field(short.class)
+//	;
+//
+//	// field offsets for direct use (optional)
+//	final long
+//		offsetSomeField   ,
+//		offsetAnotherField
+//	;
+	/*
+	 * note: final classes can call initializeBinaryFieldsExplicitely(TheFinalClass.class)
+	 * directly in their constructor and thus have offset-caching fields final.
+	 * Any non-final classes can't have final offset-caching fields because of class hiararchy initialization order.
+	 */
+	
+	protected static final class BinaryField
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Class<?> type;
+		private final String   name;
+		
+		private long offset = -1;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		BinaryField(final Class<?> type, final String name)
+		{
+			super();
+			this.type = type;
+			this.name = name;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		final long initializeOffset(final long offset)
+		{
+			if(this.offset >= 0)
+			{
+				if(this.offset == offset)
+				{
+					return offset;
+				}
+				
+				throw new RuntimeException(); // (04.04.2019 TM)EXCP: proper exception
+			}
+			this.offset = XMath.notNegative(offset);
+			
+			return this.offset;
+		}
+		
+		public final String name()
+		{
+			return this.name;
+		}
+		
+		public final Class<?> type()
+		{
+			return this.type;
+		}
+		
+		public final long getOffset()
+		{
+			return XMath.notNegative(this.offset);
+		}
+		
+	}
+
+	/* (04.04.2019 TM)TODO: BinaryField value-get/set-support
+	 * To get rid of explicit offsets alltogether, BinaryField could provide
+	 * 9 methods to store the 8 primitives and the reference case.
+	 * That would require 9 subclasses of BinaryField.
+	 * The 8 primitives could convert to and from every primitive type and throw an exception for the reference case.
+	 * The reference case implementation accordingly.
+	 */
+	
+	protected static final BinaryField Field(final Class<?> type, final String name)
+	{
+		return new BinaryField(
+			notNull(type),
+			mayNull(name)
+		);
+	}
+	
+	protected static final BinaryField Field(final Class<?> type)
+	{
+		return new BinaryField(
+			notNull(type),
+			null
+		);
+	}
+	
+	// (04.04.2019 TM)TODO: move field to proper place upon integration
+	private Class<?> initializationInvokingClass;
+	
+	protected final synchronized void initializeBinaryFieldsExplicitely(final Class<?> invokingClass)
+	{
+		if(this.initializationInvokingClass != null)
+		{
+			if(this.initializationInvokingClass == invokingClass)
+			{
+				// consistent no-op, abort.
+				return;
+			}
+			
+			// (04.04.2019 TM)EXCP: proper exception
+			throw new RuntimeException(
+				XChars.systemString(this)
+				+ " already initialized by an invokation from class "
+				+ this.initializationInvokingClass.getName()
+			);
+		}
+		
+		this.initializeBinaryFields();
+		this.initializationInvokingClass = invokingClass;
+	}
+	
+	protected final synchronized void initializeBinaryFields()
+	{
+		final HashTable<Class<?>, XGettingSequence<BinaryField>> binaryFieldsPerClass = HashTable.New();
+		
+		this.collectBinaryFields(binaryFieldsPerClass);
+
+		final EqHashTable<String, BinaryField> binaryFieldsInOrder = EqHashTable.New();
+		this.defineBinaryFieldOrder(binaryFieldsPerClass, (name, field) ->
+		{
+			if(!binaryFieldsInOrder.add(name, field))
+			{
+				// (04.04.2019 TM)EXCP: proper exception
+				throw new RuntimeException(
+					BinaryField.class.getSimpleName() + " with the name \"" + name + "\" is already registered."
+				);
+			}
+		});
+		
+		this.initializeBinaryFieldOffsets(binaryFieldsInOrder);
+	}
+	
+	private void collectBinaryFields(
+		final HashTable<Class<?>, XGettingSequence<BinaryField>> binaryFieldsPerClass
+	)
+	{
+		for(Class<?> c = this.getClass(); c != AbstractBinaryHandlerCustom.class; c = c.getSuperclass())
+		{
+			/*
+			 * This construction is necessary to maintain the collection order even if a class
+			 * overrides the collecting logic
+			 */
+			final XGettingSequence<BinaryField> binaryFieldsOfClass = this.defineBinaryFields(c);
+
+			// already existing entries (added by an extending class in an override of this method) are allowed
+			binaryFieldsPerClass.add(c, binaryFieldsOfClass);
+		}
+	}
+	
+	protected XGettingSequence<BinaryField> defineBinaryFields(final Class<?> c)
+	{
+		/* FIXME AbstractBinaryHandlerCustom#collectBinaryFields()
+		 * Collect all values of declared non-transient fields of type BinaryField
+		 * Initialize their name refectively is not yet present.
+		 */
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+	
+	protected void defineBinaryFieldOrder(
+		final XGettingTable<Class<?>, XGettingSequence<BinaryField>> binaryFieldsPerClass,
+		final BiConsumer<String, BinaryField>                        collector
+	)
+	{
+		/*
+		 * With the class hiararchy collection order guaranteed above, this loop does:
+		 * - order binaryFields from most to least specific class ("upwards")
+		 * - order binaryFields per class in declaration order
+		 */
+		for(final XGettingSequence<BinaryField> binaryFieldsOfClass : binaryFieldsPerClass.values())
+		{
+			for(final BinaryField binaryField : binaryFieldsOfClass)
+			{
+				collector.accept(binaryField.name(), binaryField);
+			}
+		}
+	}
+	
+	private void initializeBinaryFieldOffsets(final XGettingTable<String, BinaryField> binaryFields)
+	{
+		/* FIXME AbstractBinaryHandlerCustom#initializeBinaryFieldOffsets()
+		 * - validate that only the last binary field may be of variable length
+		 * - start at offset 0, iterate the fields:
+		 * - set the current offset, add the field's binary length to the offset
+		 */
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+	
+	@Override
+	protected void internalInitialize()
+	{
+		this.initializeBinaryFieldsExplicitely(this.getClass());
+	}
+	

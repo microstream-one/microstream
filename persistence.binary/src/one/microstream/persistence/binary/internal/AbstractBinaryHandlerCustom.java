@@ -3,6 +3,7 @@ package one.microstream.persistence.binary.internal;
 import java.util.function.Consumer;
 
 import one.microstream.X;
+import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableEnum;
@@ -27,8 +28,8 @@ public abstract class AbstractBinaryHandlerCustom<T>
 extends BinaryTypeHandler.AbstractImplementation<T>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 	
 	public static final XImmutableSequence<PersistenceTypeDefinitionMemberPseudoField>
 	defineValueType(final Class<?> valueType)
@@ -88,12 +89,50 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 			Binary.binaryListMaximumLength()
 		);
 	}
+	
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> sizedArrayPseudoFields(
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
+	{
+		return simpleArrayPseudoFields(
+			XArrays.add(
+				preHeaderFields,
+				AbstractBinaryHandlerCustom.pseudoField(long.class, "capacity")
+			)
+		);
+	}
+
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> simpleArrayPseudoFields(
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
+	{
+		return AbstractBinaryHandlerCustom.pseudoFields(
+			XArrays.add(
+				preHeaderFields,
+				AbstractBinaryHandlerCustom.complex("elements",
+					AbstractBinaryHandlerCustom.pseudoField(Object.class, "element")
+				)
+			)
+		);
+	}
+	
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> keyValuesPseudoFields(
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
+	{
+		return AbstractBinaryHandlerCustom.pseudoFields(
+			XArrays.add(
+				preHeaderFields,
+				AbstractBinaryHandlerCustom.complex("elements",
+					AbstractBinaryHandlerCustom.pseudoField(Object.class, "key"),
+					AbstractBinaryHandlerCustom.pseudoField(Object.class, "value")
+				)
+			)
+		);
+	}
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members;
 	private final long binaryLengthMinimum;
