@@ -11,8 +11,8 @@ public interface StorageBackupSetup
 	);
 	
 	public StorageBackupHandler setupHandler(
-		StorageChannelController channelController,
-		StorageDataFileValidator validator
+		StorageOperationController operationController,
+		StorageDataFileValidator   validator
 	);
 	
 	
@@ -74,16 +74,16 @@ public interface StorageBackupSetup
 		
 		@Override
 		public StorageBackupHandler setupHandler(
-			final StorageChannelController channelController,
-			final StorageDataFileValidator validator
+			final StorageOperationController operationController,
+			final StorageDataFileValidator   validator
 		)
 		{
-			final int channelCount = channelController.channelCountProvider().get();
+			final int channelCount = operationController.channelCountProvider().get();
 			return StorageBackupHandler.New(
-				this             ,
-				channelCount     ,
-				this.itemQueue   ,
-				channelController,
+				this               ,
+				channelCount       ,
+				this.itemQueue     ,
+				operationController,
 				validator
 			);
 		}

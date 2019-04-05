@@ -15,12 +15,12 @@ public interface StorageManager extends StorageController
 
 	public StorageTypeDictionary typeDictionary();
 
-	// (20.05.2013)TODO: StorageManager#channelController() - not sure this belongs here
-	public StorageChannelController channelController();
+	// (20.05.2013)TODO: StorageManager#operationController() - not sure this belongs here
+	public StorageOperationController operationController();
 	
 	public default StorageChannelCountProvider channelCountProvider()
 	{
-		return this.channelController().channelCountProvider();
+		return this.operationController().channelCountProvider();
 	}
 
 	public StorageConfiguration configuration();
@@ -58,7 +58,7 @@ public interface StorageManager extends StorageController
 		private final StorageEntityCacheEvaluator          entityCacheEvaluator          ;
 		private final StorageRequestTaskCreator            requestTaskCreator            ;
 		private final StorageTypeDictionary                typeDictionary                ;
-		private final StorageChannelController             channelController             ;
+		private final StorageOperationController           operationController           ;
 		private final StorageRootTypeIdProvider            rootTypeIdProvider            ;
 		private final StorageExceptionHandler              exceptionHandler              ;
 		private final StorageHousekeepingController        housekeepingController        ;
@@ -101,8 +101,7 @@ public interface StorageManager extends StorageController
 
 		public Implementation(
 			final StorageConfiguration                 storageConfiguration          ,
-			final StorageChannelController             channelController             ,
-			final StorageBackupSetup                   backupSetup                   ,
+			final StorageOperationController.Creator   ocCreator                     ,
 			final StorageDataFileValidator.Creator     backupDataFileValidatorCreator,
 			final StorageFileWriter.Provider           writerProvider                ,
 			final StorageFileReader.Provider           readerProvider                ,
@@ -126,8 +125,12 @@ public interface StorageManager extends StorageController
 		)
 		{
 			super();
+
+			final StorageChannelCountProvider ccp = storageConfiguration.channelCountProvider();
+
+			this.channelKeepers                 = new ChannelKeeper[ccp.get()]                 ;
 			this.configuration                  = notNull(storageConfiguration)                ;
-			this.channelController              = notNull(channelController)                   ;
+			this.operationController            = notNull(ocCreator.createOperationController(ccp, this));
 			this.initialDataFileNumberProvider  = notNull(initialDataFileNumberProvider)       ;
 			this.fileDissolver                  = storageConfiguration.fileEvaluator()         ;
 			this.fileProvider                   = storageConfiguration.fileProvider()          ;
@@ -150,12 +153,9 @@ public interface StorageManager extends StorageController
 			this.oidMarkQueueCreator            = notNull(oidMarkQueueCreator)                 ;
 			this.entityMarkMonitorCreator       = notNull(entityMarkMonitorCreator)            ;
 			this.exceptionHandler               = notNull(exceptionHandler)                    ;
-			this.backupSetup                    = mayNull(backupSetup)                         ;
+			this.backupSetup                    = mayNull(storageConfiguration.backupSetup())  ;
 			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
 			this.switchByteOrder                =         switchByteOrder                      ;
-			
-			final int channelCount = storageConfiguration.channelCountProvider().get();
-			this.channelKeepers                       = new ChannelKeeper[channelCount];
 		}
 
 
@@ -245,7 +245,7 @@ public interface StorageManager extends StorageController
 					.createDataFileValidator(this.typeDictionary)
 				;
 				
-				this.backupHandler = this.backupSetup.setupHandler(this.channelController, validator);
+				this.backupHandler = this.backupSetup.setupHandler(this.operationController, validator);
 			}
 			
 			return this.backupHandler;
@@ -304,7 +304,7 @@ public interface StorageManager extends StorageController
 				this.entityCacheEvaluator                  ,
 				this.typeDictionary                        ,
 				this.taskbroker                            ,
-				this.channelController                     ,
+				this.operationController                   ,
 				this.housekeepingController                ,
 				this.timestampProvider                     ,
 				this.readerProvider                        ,
@@ -349,7 +349,7 @@ public interface StorageManager extends StorageController
 			this.taskbroker = this.taskBrokerCreator.createTaskBroker(this, this.requestTaskCreator);
 						
 			final StorageChannelTaskInitialize task = this.taskbroker.issueChannelInitialization(
-				this.channelController
+				this.operationController
 			);
 			this.createChannels();
 
@@ -368,7 +368,7 @@ public interface StorageManager extends StorageController
 		private void internalShutdown() throws InterruptedException
 		{
 //			DEBUGStorage.println("shutting down ...");
-			final StorageChannelTaskShutdown task = this.taskbroker.issueChannelShutdown(this.channelController);
+			final StorageChannelTaskShutdown task = this.taskbroker.issueChannelShutdown(this.operationController);
 			synchronized(task)
 			{
 				// (07.07.2016 TM)FIXME: OGS-23: shutdown doesn't wait for the shutdown to be completed.
@@ -477,9 +477,9 @@ public interface StorageManager extends StorageController
 		}
 
 		@Override
-		public StorageChannelController channelController()
+		public StorageOperationController operationController()
 		{
-			return this.channelController;
+			return this.operationController;
 		}
 
 		@Override

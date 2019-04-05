@@ -12,8 +12,8 @@ import one.microstream.persistence.types.PersistenceIdSet;
 public interface StorageRequestTaskCreator
 {
 	public StorageChannelTaskInitialize createInitializationTask(
-		int                      channelCount     ,
-		StorageChannelController channelController
+		int                        channelCount     ,
+		StorageOperationController operationController
 	);
 
 	public StorageRequestTaskStoreEntities createSaveTask(Binary medium);
@@ -65,8 +65,8 @@ public interface StorageRequestTaskCreator
 	);
 
 	public StorageChannelTaskShutdown createShutdownTask(
-		int                      channelCount     ,
-		StorageChannelController channelController
+		int                        channelCount       ,
+		StorageOperationController operationController
 	);
 
 
@@ -99,27 +99,27 @@ public interface StorageRequestTaskCreator
 
 		@Override
 		public StorageChannelTaskInitialize createInitializationTask(
-			final int                      channelCount     ,
-			final StorageChannelController channelController
+			final int                        channelCount       ,
+			final StorageOperationController operationController
 		)
 		{
 			return new StorageChannelTaskInitialize.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount                                 ,
-				channelController
+				operationController
 			);
 		}
 
 		@Override
 		public StorageChannelTaskShutdown createShutdownTask(
-			final int channelCount,
-			final StorageChannelController channelController
+			final int                        channelCount       ,
+			final StorageOperationController operationController
 		)
 		{
 			return new StorageChannelTaskShutdown.Implementation(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount,
-				channelController
+				operationController
 			);
 		}
 

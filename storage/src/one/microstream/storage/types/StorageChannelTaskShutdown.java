@@ -12,7 +12,7 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 		// instance fields  //
 		/////////////////////
 
-		private final StorageChannelController channelController;
+		private final StorageOperationController operationController;
 
 
 
@@ -21,13 +21,13 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 		/////////////////
 
 		public Implementation(
-			final long                     timestamp        ,
-			final int                      channelCount     ,
-			final StorageChannelController channelController
+			final long                       timestamp          ,
+			final int                        channelCount       ,
+			final StorageOperationController operationController
 		)
 		{
 			super(timestamp, channelCount);
-			this.channelController = notNull(channelController);
+			this.operationController = notNull(operationController);
 		}
 
 
@@ -55,7 +55,7 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 			 */
 
 			// may not be done before to give every channel a safe way to notice the processing progress
-			this.channelController.deactivate();
+			this.operationController.deactivate();
 
 			// can / may never throw an exception
 			channel.clear();

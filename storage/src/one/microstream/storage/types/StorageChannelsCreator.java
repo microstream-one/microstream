@@ -13,9 +13,9 @@ public interface StorageChannelsCreator
 		StorageDataFileEvaluator             fileDissolver                ,
 		StorageFileProvider                  storageFileProvider          ,
 		StorageEntityCacheEvaluator          entityCacheEvaluator         ,
-		StorageTypeDictionary                typeDictionary               , // the connection to the exclusive storage (file or whatever)
-		StorageTaskBroker                    taskBroker                   , // the source for new tasks
-		StorageChannelController             channelController            , // simple hook to check if processing is still enabled
+		StorageTypeDictionary                typeDictionary               ,
+		StorageTaskBroker                    taskBroker                   ,
+		StorageOperationController           operationController          ,
 		StorageHousekeepingController        housekeepingController       ,
 		StorageTimestampProvider             timestampProvider            ,
 		StorageFileReader.Provider           readerProvider               ,
@@ -47,7 +47,7 @@ public interface StorageChannelsCreator
 			final StorageEntityCacheEvaluator          entityCacheEvaluator         ,
 			final StorageTypeDictionary                typeDictionary               ,
 			final StorageTaskBroker                    taskBroker                   ,
-			final StorageChannelController             channelController            ,
+			final StorageOperationController           operationController          ,
 			final StorageHousekeepingController        housekeepingController       ,
 			final StorageTimestampProvider             timestampProvider            ,
 			final StorageFileReader.Provider           readerProvider               ,
@@ -118,7 +118,7 @@ public interface StorageChannelsCreator
 					i                        ,
 					exceptionHandler         ,
 					taskBroker               ,
-					channelController        ,
+					operationController      ,
 					housekeepingController   ,
 					entityCache              ,
 					switchByteOrder             ,
