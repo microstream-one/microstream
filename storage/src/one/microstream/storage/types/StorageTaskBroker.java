@@ -55,11 +55,11 @@ public interface StorageTaskBroker
 		throws InterruptedException;
 
 	public StorageChannelTaskInitialize issueChannelInitialization(
-		StorageChannelController channelController
+		StorageOperationController operationController
 	)
 		throws InterruptedException;
 
-	public StorageChannelTaskShutdown issueChannelShutdown(StorageChannelController channelController)
+	public StorageChannelTaskShutdown issueChannelShutdown(StorageOperationController operationController)
 		throws InterruptedException;
 
 	public StorageRequestTaskGarbageCollection issueGarbageCollection(long nanoTimeBudgetBound)
@@ -395,14 +395,14 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageChannelTaskInitialize issueChannelInitialization(
-			final StorageChannelController channelController
+			final StorageOperationController operationController
 
 		)
 			throws InterruptedException
 		{
 			final StorageChannelTaskInitialize task = this.taskCreator.createInitializationTask(
-				this.channelCount,
-				channelController
+				this.channelCount  ,
+				operationController
 			);
 			
 			// special case: cannot wait on the task before the channel threads are started
@@ -412,13 +412,13 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageChannelTaskShutdown issueChannelShutdown(
-			final StorageChannelController channelController
+			final StorageOperationController operationController
 		)
 			throws InterruptedException
 		{
 			final StorageChannelTaskShutdown task = this.taskCreator.createShutdownTask(
-				this.channelCount,
-				channelController
+				this.channelCount  ,
+				operationController
 			);
 			// special case: cannot wait on the task before the channel threads are started
 			this.enqueueTaskAndNotifyAll(task);
@@ -436,8 +436,13 @@ public interface StorageTaskBroker
 
 
 
-		public final class Implementation implements Creator
+		public final class Default implements Creator
 		{
+			public Default()
+			{
+				super();
+			}
+			
 			@Override
 			public StorageTaskBroker createTaskBroker(
 				final StorageManager            storageManager,
@@ -448,6 +453,7 @@ public interface StorageTaskBroker
 			}
 
 		}
+		
 	}
 
 }

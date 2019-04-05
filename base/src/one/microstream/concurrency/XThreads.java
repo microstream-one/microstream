@@ -26,10 +26,21 @@ public final class XThreads
 	
 
 	/**
-	 * Causes the current thread to sleep the specified amount of milliseconds.
-	 * Should an {@link InterruptedException} occur, the method returns immediately.
-	 *
-	 * @param millis the amount of milliseconds to sleep.
+	 * Causes the current thread to sleep the specified amount of milliseconds by calling {@link Thread#sleep(long)}.
+	 * Should an {@link InterruptedException} of {@link Thread#sleep(long)} occur, this method restored the
+	 * interruption state by invoking {@link Thread#interrupted()} and reporting the {@link InterruptedException}
+	 * wrappedn in a {@link RuntimeException}.<p>
+	 * The underlying rationale to this behavior is explained in an internal comment.<br>
+	 * In short: generically interrupting a thread while ignoring the application/library state and logic is just
+	 * as naive and dangerous as {@link Thread#stop()} is. They realized it for that method. Interruption is nothing
+	 * different in this regard. Until that erratic and dangerous behavior is fixed, this method provides a
+	 * convenient encapsulation of handling the nonsense as well as possible.
+	 * 
+     * @param  millis
+     *         the length of time to sleep in milliseconds
+     * 
+	 * @see Thread#sleep(long)
+	 * @see Thread#stop()
 	 */
 	public static final void sleep(final long millis)
 	{
@@ -39,8 +50,71 @@ public final class XThreads
 		}
 		catch(final InterruptedException e)
 		{
-			// interrupted, return
-			return;
+			/*
+			 * Explanations about the meaning of InterruptedException like the following are naive:
+			 * https://stackoverflow.com/questions/3976344/handling-interruptedexception-in-java
+			 * 
+			 * Interrupting an application's (/library's) internal thread that has a certain purpose, state and
+			 * dependency to other parts of the application state by a generic technical is pretty much the same
+			 * dangerous nonsense as Thread#stop:
+			 * A thread embedded in a complex context and state can't be stopped or interrputed "just like that".
+			 * What should a crucial thread do on such a request? Say a thread that updates a database's lock file
+			 * to indicate it is actively used. Should it just terminate and stop updating the lock file that secures
+			 * the database despite the other threads still accessing the database? Surely not.
+			 * Or should it prematurely write the update, because "some doesn't want to wait any longer"? Nonsense.
+			 * No external interference bypassing the specific logic and ignoring the state and complexity of the
+			 * application makes sense. It is pure and utter nonsense to interrupt such a thread in such a generic
+			 * and ignorant way.
+			 * 
+			 * Whoever (in terms of program logic, of course) wants a certain thread to stop must use the proper
+			 * methods to do so, that properly control the application state, etc.
+			 * If there are none provided, then the thread is not supposed to be stoppable or interruptable.
+			 * It's that simple.
+			 * 
+			 * If a managing layer (like the OS) wants to shut down the application, it has to use its proper
+			 * interfacing means for that, but never pick out single threads and stop or interrupt them one by one.
+			 * Generic interruption CAN be useful IF the logic explicitely supports it.
+			 * Otherwise, this is just another JDK naivety that does more harm than good.
+			 * Thread#stop has been deprecated and so should generic interruption be.
+			 */
+			
+			// restore the interruption flag
+			Thread.currentThread().interrupt();
+			
+			// abort the current program flow and report back the inconsistent program behavior.
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Causes the current thread to sleep the specified amount of milliseconds by calling {@link Thread#sleep(long, int)}.
+	 * <p>
+	 * Also see the explanations in {@link #sleep(long)}
+	 * 
+     * @param  millis
+     *         the length of time to sleep in milliseconds
+     *
+     * @param  nanos
+     *         {@code 0-999999} additional nanoseconds to sleep
+     * 
+	 * @see Thread#sleep(long)
+	 * @see Thread#stop()
+	 */
+	public static final void sleep(final long millis, final int nanos)
+	{
+		try
+		{
+			Thread.sleep(millis, nanos);
+		}
+		catch(final InterruptedException e)
+		{
+			// see sleep(long) above for the explanation
+			
+			// restore the interruption flag
+			Thread.currentThread().interrupt();
+			
+			// abort the current program flow and report back the inconsistent program behavior.
+			throw new RuntimeException(e);
 		}
 	}
 

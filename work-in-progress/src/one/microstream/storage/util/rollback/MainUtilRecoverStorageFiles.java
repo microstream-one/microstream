@@ -1,4 +1,4 @@
-package one.microstream.test.corp.logic;
+package one.microstream.storage.util.rollback;
 
 import static one.microstream.X.KeyValue;
 
@@ -21,7 +21,7 @@ import one.microstream.storage.types.StorageTransactionsFile;
 public class MainUtilRecoverStorageFiles
 {
 	static final String PATH_CORRUPTED =
-		"D:/_Allianz/2019-03-14_ProdDb/20190313_2330_autobackup_prod_kaputt/backup_daily_2019-03-13Z"
+		"D:/_Allianz/2019-01-10/jetstreamdb_lcm_prod_v400"
 	;
 	static final long
 		LENGTH_LOWER_VALUE   = Binary.entityHeaderLength()       ,
@@ -76,14 +76,27 @@ public class MainUtilRecoverStorageFiles
 	
 	static void rollbackTransfers() throws Exception
 	{
-		final File sourceFile = new File(PATH_CORRUPTED + "/channel_0/channel_0_872.dat");
+		final File sourceFile = new File(PATH_CORRUPTED + "/channel_0/channel_0_491.dat");
 				
-		final File dir = XFiles.ensureDirectory(new File("D:/_Allianz/20190313_2330_Rollback"));
+		final File dir = XFiles.ensureDirectory(new File(PATH_CORRUPTED, "strings"));
 		XDebug.deleteAllFiles(dir, false);
 		
+		// 2019-03-13 (2019-03-14)
+//		final StorageRollbacker sr = new StorageRollbacker(
+//			863,
+//			EqHashTable.New(KeyValue(872L, sourceFile)),
+//			dir, "rolledBack_", "storesOnly_",
+//			new StorageRollbacker.EntityDataHeaderEvaluator(
+//				LENGTH_LOWER_VALUE  , LENGTH_UPPER_BOUND  ,
+//				TYPEID_LOWER_VALUE  , TYPEID_UPPER_BOUND  ,
+//				OBJECTID_LOWER_VALUE, OBJECTID_UPPER_BOUND
+//			)
+//		);
+		
+		// 2019-01-10 (2019-04-05)
 		final StorageRollbacker sr = new StorageRollbacker(
-			863,
-			EqHashTable.New(KeyValue(872L, sourceFile)),
+			490L,
+			EqHashTable.New(KeyValue(491L, sourceFile)),
 			dir, "rolledBack_", "storesOnly_",
 			new StorageRollbacker.EntityDataHeaderEvaluator(
 				LENGTH_LOWER_VALUE  , LENGTH_UPPER_BOUND  ,

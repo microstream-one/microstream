@@ -58,11 +58,11 @@ public interface StorageBackupHandler extends Runnable
 	
 	
 	public static StorageBackupHandler New(
-		final StorageBackupSetup       backupSetup      ,
-		final int                      channelCount     ,
-		final StorageBackupItemQueue   itemQueue        ,
-		final StorageChannelController channelController,
-		final StorageDataFileValidator validator
+		final StorageBackupSetup         backupSetup        ,
+		final int                        channelCount       ,
+		final StorageBackupItemQueue     itemQueue          ,
+		final StorageOperationController operationController,
+		final StorageDataFileValidator   validator
 	)
 	{
 		final StorageFileProvider backupFileProvider = backupSetup.backupFileProvider();
@@ -73,10 +73,10 @@ public interface StorageBackupHandler extends Runnable
 		});
 		
 		return new StorageBackupHandler.Implementation(
-	                cis               ,
-			notNull(backupSetup)      ,
-			notNull(itemQueue)        ,
-			notNull(channelController),
+	                cis                 ,
+			notNull(backupSetup)        ,
+			notNull(itemQueue)          ,
+			notNull(operationController),
 			notNull(validator)
 		);
 	}
@@ -86,11 +86,11 @@ public interface StorageBackupHandler extends Runnable
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		private final StorageBackupSetup       backupSetup       ;
-		private final ChannelInventory[]       channelInventories;
-		private final StorageBackupItemQueue   itemQueue         ;
-		private final StorageChannelController channelController ;
-		private final StorageDataFileValidator validator         ;
+		private final StorageBackupSetup         backupSetup        ;
+		private final ChannelInventory[]         channelInventories ;
+		private final StorageBackupItemQueue     itemQueue          ;
+		private final StorageOperationController operationController;
+		private final StorageDataFileValidator   validator          ;
 		
 		private boolean running;
 		
@@ -101,19 +101,19 @@ public interface StorageBackupHandler extends Runnable
 		/////////////////
 		
 		Implementation(
-			final ChannelInventory[]       channelInventories,
-			final StorageBackupSetup       backupSetup       ,
-			final StorageBackupItemQueue   itemQueue         ,
-			final StorageChannelController channelController ,
-			final StorageDataFileValidator validator
+			final ChannelInventory[]         channelInventories ,
+			final StorageBackupSetup         backupSetup        ,
+			final StorageBackupItemQueue     itemQueue          ,
+			final StorageOperationController operationController,
+			final StorageDataFileValidator   validator
 		)
 		{
 			super();
-			this.channelInventories = channelInventories;
-			this.backupSetup        = backupSetup       ;
-			this.itemQueue          = itemQueue         ;
-			this.channelController  = channelController ;
-			this.validator          = validator         ;
+			this.channelInventories  = channelInventories ;
+			this.backupSetup         = backupSetup        ;
+			this.itemQueue           = itemQueue          ;
+			this.operationController = operationController;
+			this.validator           = validator          ;
 		}
 
 		
@@ -156,7 +156,7 @@ public interface StorageBackupHandler extends Runnable
 			}
 			catch(final RuntimeException e)
 			{
-				this.channelController.registerDisruptingProblem(e);
+				this.operationController.registerDisruptingProblem(e);
 				throw e;
 			}
 		}
@@ -170,7 +170,7 @@ public interface StorageBackupHandler extends Runnable
 			}
 			catch(final RuntimeException e)
 			{
-				this.channelController.registerDisruptingProblem(e);
+				this.operationController.registerDisruptingProblem(e);
 				throw e;
 			}
 		}
@@ -195,7 +195,7 @@ public interface StorageBackupHandler extends Runnable
 				}
 				catch(final RuntimeException e)
 				{
-					this.channelController.registerDisruptingProblem(e);
+					this.operationController.registerDisruptingProblem(e);
 					throw e;
 				}
 			}

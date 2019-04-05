@@ -123,7 +123,7 @@ extends BinaryPersistenceFoundation<F>
 		protected BinaryLoader.Creator ensureBuilderCreator()
 		{
 			return new BinaryLoader.CreatorChannelHashing(
-				this.getStorageManager().channelController().channelCountProvider(),
+				this.getStorageManager().operationController().channelCountProvider(),
 				this.isByteOrderMismatch()
 			);
 		}

@@ -94,7 +94,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final int                               channelIndex             ;
 		private final StorageExceptionHandler           exceptionHandler         ;
 		private final StorageTaskBroker                 taskBroker               ;
-		private final StorageChannelController          channelController        ;
+		private final StorageOperationController        operationController      ;
 		private final StorageHousekeepingController     housekeepingController   ;
 		private final StorageFileManager.Implementation fileManager              ;
 		private final StorageEntityCache.Implementation entityCache              ;
@@ -133,10 +133,10 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final int                               hashIndex                ,
 			final StorageExceptionHandler           exceptionHandler         ,
 			final StorageTaskBroker                 taskBroker               ,
-			final StorageChannelController          controller               ,
+			final StorageOperationController        operationController      ,
 			final StorageHousekeepingController     housekeepingController   ,
 			final StorageEntityCache.Implementation entityCache              ,
-			final boolean                           switchByteOrder             ,
+			final boolean                           switchByteOrder          ,
 			final BufferSizeProviderIncremental     loadingBufferSizeProvider,
 			final StorageFileManager.Implementation fileManager
 		)
@@ -145,12 +145,12 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			this.channelIndex              = notNegative(hashIndex)                ;
 			this.exceptionHandler          =     notNull(exceptionHandler)         ;
 			this.taskBroker                =     notNull(taskBroker)               ;
-			this.channelController         =     notNull(controller)               ;
+			this.operationController       =     notNull(operationController)      ;
 			this.fileManager               =     notNull(fileManager)              ;
 			this.entityCache               =     notNull(entityCache)              ;
 			this.housekeepingController    =     notNull(housekeepingController)   ;
 			this.loadingBufferSizeProvider =     notNull(loadingBufferSizeProvider);
-			this.switchByteOrder              =             switchByteOrder              ;
+			this.switchByteOrder           =             switchByteOrder           ;
 		}
 
 
@@ -261,7 +261,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 		private void work() throws InterruptedException
 		{
-			final StorageChannelController      channelController      = this.channelController     ;
+			final StorageOperationController    operationController    = this.operationController   ;
 			final StorageHousekeepingController housekeepingController = this.housekeepingController;
 
 			StorageTask processedTask = new StorageTask.DummyTask();
@@ -283,7 +283,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				 * Also may NOT check before task processing as the first task is initializing which in turn
 				 * enables channel processing on success. So no simple while condition possible.
 				 */
-				if(!channelController.checkProcessingEnabled())
+				if(!operationController.checkProcessingEnabled())
 				{
 					DEBUGStorage.println(this.channelIndex + " processing disabled.");
 					break;

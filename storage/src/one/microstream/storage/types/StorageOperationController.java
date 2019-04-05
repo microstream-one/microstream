@@ -1,13 +1,13 @@
 package one.microstream.storage.types;
 
-import static one.microstream.X.notNull;
+import java.lang.ref.WeakReference;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.storage.exceptions.StorageExceptionDisruptingExceptions;
 
 
-public interface StorageChannelController
+public interface StorageOperationController
 {
 	public StorageChannelCountProvider channelCountProvider();
 
@@ -15,7 +15,7 @@ public interface StorageChannelController
 	
 	public boolean checkProcessingEnabled() throws StorageExceptionDisruptingExceptions;
 	
-	public boolean registerDisruptingProblem(Throwable problem);
+	public void registerDisruptingProblem(Throwable problem);
 	
 	public XGettingSequence<Throwable> disruptingProblems();
 	
@@ -31,17 +31,29 @@ public interface StorageChannelController
 	public void deactivate();
 
 
+	
+	public static StorageOperationController New(
+		final StorageManager              storageManager      ,
+		final StorageChannelCountProvider channelCountProvider
+	)
+	{
+		return new StorageOperationController.Implementation(
+			new WeakReference<>(storageManager),
+			channelCountProvider
+		);
+	}
 
-	public final class Implementation implements StorageChannelController
+	public final class Implementation implements StorageOperationController
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields  //
 		/////////////////////
 
-		private final StorageChannelCountProvider channelCountProvider;
-		private final BulkList<Throwable>         disruptingProblems = BulkList.New();
-		private       boolean                     hasDisruptingProblems;
+		private final WeakReference<StorageManager> storageManagerReference;
+		private final StorageChannelCountProvider   channelCountProvider   ;
+		private final BulkList<Throwable>           disruptingProblems      = BulkList.New();
 		
+		private boolean hasDisruptingProblems   ;
 		private boolean channelProcessingEnabled;
 
 
@@ -50,10 +62,14 @@ public interface StorageChannelController
 		// constructors //
 		/////////////////
 
-		public Implementation(final StorageChannelCountProvider channelCountProvider)
+		Implementation(
+			final WeakReference<StorageManager> storageManagerReference,
+			final StorageChannelCountProvider   channelCountProvider
+		)
 		{
 			super();
-			this.channelCountProvider = notNull(channelCountProvider);
+			this.storageManagerReference = storageManagerReference;
+			this.channelCountProvider    = channelCountProvider   ;
 		}
 
 		
@@ -98,20 +114,25 @@ public interface StorageChannelController
 		{
 			if(this.hasDisruptingProblems)
 			{
+				// registering a problem has already set the processing flag to false.
 				throw new StorageExceptionDisruptingExceptions(this.disruptingProblems.immure());
+			}
+			
+			// if the database managing instance is no longer reachable (used), there is no point in continue processing
+			if(this.storageManagerReference.get() == null)
+			{
+				this.deactivate();
 			}
 			
 			return this.channelProcessingEnabled;
 		}
 
 		@Override
-		public final synchronized boolean registerDisruptingProblem(final Throwable problem)
+		public final synchronized void registerDisruptingProblem(final Throwable problem)
 		{
 			this.disruptingProblems.add(problem);
 			this.hasDisruptingProblems = true;
 			this.channelProcessingEnabled = false;
-
-			return this.disruptingProblems.size() == 1;
 		}
 
 		@Override
@@ -129,18 +150,19 @@ public interface StorageChannelController
 	}
 	
 	
-	public static StorageChannelController.Creator Provider()
+	public static StorageOperationController.Creator Provider()
 	{
-		return new StorageChannelController.Creator.Implementation();
+		return new StorageOperationController.Creator.Implementation();
 	}
 	
 	public interface Creator
 	{
-		public StorageChannelController provideChannelController(
-			StorageChannelCountProvider channelCountProvider
+		public StorageOperationController createOperationController(
+			StorageChannelCountProvider channelCountProvider,
+			StorageManager              storageManager
 		);
 		
-		public final class Implementation implements StorageChannelController.Creator
+		public final class Implementation implements StorageOperationController.Creator
 		{
 			Implementation()
 			{
@@ -148,12 +170,14 @@ public interface StorageChannelController
 			}
 
 			@Override
-			public final StorageChannelController provideChannelController(
-				final StorageChannelCountProvider channelCountProvider
+			public final StorageOperationController createOperationController(
+				final StorageChannelCountProvider channelCountProvider,
+				final StorageManager              storageManager
 			)
 			{
-				return new StorageChannelController.Implementation(
-					notNull(channelCountProvider)
+				return StorageOperationController.New(
+					storageManager      ,
+					channelCountProvider
 				);
 			}
 			

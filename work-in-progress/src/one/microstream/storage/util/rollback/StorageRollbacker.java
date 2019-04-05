@@ -1,4 +1,4 @@
-package one.microstream.test.corp.logic;
+package one.microstream.storage.util.rollback;
 
 import static one.microstream.X.notNull;
 
@@ -131,14 +131,11 @@ class StorageRollbacker
 	
 	public EqHashTable<Long, String> recoverStrings() throws Exception
 	{
-		final File cleanedFile = this.createCleanUpFile();
-		final FileChannel channel = openChannel(cleanedFile);
-		
 		final EqHashTable<Long, String> strings = EqHashTable.New();
 		
 		for(final SourceFile file : this.sourceFiles.values())
 		{
-			this.recoverStrings(strings, file, channel);
+			this.recoverStrings(strings, file);
 		}
 		
 		strings.keys().sort(XSort::compare);
@@ -190,8 +187,7 @@ class StorageRollbacker
 	
 	public void recoverStrings(
 		final EqHashTable<Long, String> strings  ,
-		final SourceFile                storeFile,
-		final FileChannel               channel
+		final SourceFile                storeFile
 	)
 		throws Exception
 	{

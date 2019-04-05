@@ -20,8 +20,8 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		// instance fields  //
 		/////////////////////
 
-		private final StorageChannelController channelController;
-		private final StorageInventory[]       result           ;
+		private final StorageOperationController operationController;
+		private final StorageInventory[]         result             ;
 
 		private Long consistentStoreTimestamp   ;
 		private Long commonTaskHeadFileTimestamp;
@@ -39,14 +39,14 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		/////////////////
 
 		public Implementation(
-			final long                     timestamp        ,
-			final int                      channelCount     ,
-			final StorageChannelController channelController
+			final long                       timestamp          ,
+			final int                        channelCount       ,
+			final StorageOperationController operationController
 		)
 		{
 			super(timestamp, channelCount);
-			this.channelController = notNull(channelController)        ;
-			this.result            = new StorageInventory[channelCount];
+			this.operationController = notNull(operationController)      ;
+			this.result              = new StorageInventory[channelCount];
 		}
 
 		private synchronized long getConsistentStoreTimestamp()
@@ -203,7 +203,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 
 			this.updateIdAnalysis(idAnalysis);
 
-			this.channelController.activate();
+			this.operationController.activate();
 //			DEBUGStorage.println("Channel " + channel.hashIndex() + " completed initialization");
 		}
 

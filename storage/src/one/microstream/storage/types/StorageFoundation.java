@@ -11,7 +11,7 @@ import one.microstream.util.InstanceDispatcher;
 
 public interface StorageFoundation<F extends StorageFoundation<?>>
 {
-	public StorageChannelController.Creator getChannelControllerCreator();
+	public StorageOperationController.Creator getOperationControllerCreator();
 	
 	public StorageInitialDataFileNumberProvider getInitialDataFileNumberProvider();
 
@@ -64,7 +64,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public StorageExceptionHandler getExceptionHandler();
 
 
-	public F setChannelControllerCreator(StorageChannelController.Creator channelControllerProvider);
+	public F setOperationControllerCreator(StorageOperationController.Creator operationControllerProvider);
 
 	public F setInitialDataFileNumberProvider(StorageInitialDataFileNumberProvider initDataFileNumberProvider);
 
@@ -129,7 +129,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		////////////////////
 
 		private StorageConfiguration                  configuration                ;
-		private StorageChannelController.Creator      channelControllerCreator     ;
+		private StorageOperationController.Creator    operationControllerCreator   ;
 		private StorageInitialDataFileNumberProvider  initialDataFileNumberProvider;
 		private StorageRequestAcceptor.Creator        requestAcceptorCreator       ;
 		private StorageTaskBroker.Creator             taskBrokerCreator            ;
@@ -190,9 +190,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return Storage.Configuration();
 		}
 		
-		protected StorageChannelController.Creator ensureChannelControllerCreator()
+		protected StorageOperationController.Creator ensureOperationControllerCreator()
 		{
-			return StorageChannelController.Provider();
+			return StorageOperationController.Provider();
 		}
 		
 		
@@ -214,7 +214,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageTaskBroker.Creator ensureTaskBrokerCreator()
 		{
-			return new StorageTaskBroker.Creator.Implementation();
+			return new StorageTaskBroker.Creator.Default();
 		}
 
 		protected StorageDataChunkValidator.Provider ensureDataChunkValidatorProvider()
@@ -343,13 +343,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		
 
 		@Override
-		public StorageChannelController.Creator getChannelControllerCreator()
+		public StorageOperationController.Creator getOperationControllerCreator()
 		{
-			if(this.channelControllerCreator == null)
+			if(this.operationControllerCreator == null)
 			{
-				this.channelControllerCreator = this.dispatch(this.ensureChannelControllerCreator());
+				this.operationControllerCreator = this.dispatch(this.ensureOperationControllerCreator());
 			}
-			return this.channelControllerCreator;
+			return this.operationControllerCreator;
 		}
 
 		@Override
@@ -605,9 +605,11 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		
 		
 		@Override
-		public F setChannelControllerCreator(final StorageChannelController.Creator channelControllerProvider)
+		public F setOperationControllerCreator(
+			final StorageOperationController.Creator operationControllerCreator
+		)
 		{
-			this.channelControllerCreator = channelControllerProvider;
+			this.operationControllerCreator = operationControllerCreator;
 			return this.$();
 		}
 		
@@ -821,16 +823,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			 * foreseeable future.
 			 * See StorageEntityCache$Implementation#putEntity
 			 */
-			
-			final StorageConfiguration               configuration = this.getConfiguration();
-			final StorageChannelController.Creator             ccc = this.getChannelControllerCreator();
-			final StorageChannelCountProvider channelCountProvider = configuration.channelCountProvider();
-			final StorageChannelController    channelController    = ccc.provideChannelController(channelCountProvider);
-			
+						
 			return new StorageManager.Implementation(
-				configuration                          ,
-				channelController                      ,
-				configuration.backupSetup()            ,
+				this.getConfiguration()                ,
+				this.getOperationControllerCreator()     ,
 				this.getDataFileValidatorCreator()     ,
 				this.getWriterProvider()               ,
 				this.getReaderProvider()               ,
