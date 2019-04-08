@@ -61,10 +61,11 @@ public class MainTestStorageLegacyTypeMapping
 	
 	static Object generateGraph()
 	{
-		return new Person();
-//		return new TestEntity(47, "testi", "A", "B", "C");
+//		return new User137();
+//		return new Person();
+		return new TestEntity(47, "testi", "A", "B", "C");
 	}
-	
+		
 	static class TestEntity
 	{
 		Integer            id       ;
@@ -95,6 +96,19 @@ public class MainTestStorageLegacyTypeMapping
 			;
 		}
 		
+	}
+	
+	// "137": to test legacy type mapping with inheritance. There was a (now fixed) bug in the TypeId registration order.
+	static class Person137
+	{
+		String fieldp1;
+		String fieldp2;
+	}
+	
+	static class User137 extends Person137
+	{
+//		String fieldu3;
+		String fieldu4;
 	}
 	
 }
