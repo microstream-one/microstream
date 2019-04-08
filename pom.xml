@@ -11,16 +11,16 @@
 	<version>01.00.00-MS-RC1</version>
 	<packaging>pom</packaging>
 
-	<name>Microstream</name>
+	<name>MicroStream</name>
 
 	<organization>
-		<name>Microstream Software</name>
+		<name>MicroStream Software</name>
 		<url>http://microstream.one</url>
 	</organization>
 
 	<developers>
 		<developer>
-			<name>Microstream Software</name>
+			<name>MicroStream Software</name>
 			<url>http://microstream.one</url>
 		</developer>
 	</developers>
