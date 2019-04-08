@@ -314,7 +314,7 @@ public interface StorageFileManager
 			 * Or better enhance StorageFileProvider to a StorageFileHandler
 			 * that handles both creation and closing.
 			 */
-			StorageFile.closeSilent(this.fileTransactions);
+			StorageLockedFile.closeSilent(this.fileTransactions);
 
 			if(this.headFile == null)
 			{
@@ -326,7 +326,7 @@ public interface StorageFileManager
 			StorageDataFile.Implementation file = headFile;
 			do
 			{
-				StorageFile.closeSilent(file);
+				StorageLockedFile.closeSilent(file);
 			}
 			while((file = file.next) != headFile);
 
@@ -742,7 +742,7 @@ public interface StorageFileManager
 			}
 			catch(final IOException e)
 			{
-				StorageFile.closeSilent(file);
+				StorageLockedFile.closeSilent(file);
 				throw new RuntimeException(e); // (29.08.2014)EXCP: proper exception
 			}
 		}
@@ -1084,7 +1084,7 @@ public interface StorageFileManager
 			}
 			catch(final Exception e)
 			{
-				StorageFile.closeSilent(tfile);
+				StorageLockedFile.closeSilent(tfile);
 				throw e;
 			}
 		}

@@ -35,10 +35,14 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 	public StorageNumberedFile provideTransactionsFile(int channelIndex);
 	
+	public StorageLockedFile provideLockFile();
+	
 	public StorageNumberedFile provideDeletionTargetFile(StorageNumberedFile fileToBeDeleted);
 	
 	public StorageNumberedFile provideTruncationBackupTargetFile(StorageNumberedFile fileToBeTruncated, long newLength);
 
+	
+	
 	public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(P collector, int channelIndex);
 	
 	
@@ -669,6 +673,17 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			);
 
 			return StorageNumberedFile.New(channelIndex, Storage.transactionsFileNumber(), file);
+		}
+		
+		@Override
+		public StorageLockedFile provideLockFile()
+		{
+			/* (08.04.2019 TM)FIXME: MS-62: make lock file name dynamic
+			 * This was just quick&dirty to get rid of the compiler error for a context change.
+			 */
+			final File lockFile = new File(this.baseDirectory(), "used.lock");
+			
+			return StorageLockedFile.openLockedFile(lockFile);
 		}
 
 		@Override

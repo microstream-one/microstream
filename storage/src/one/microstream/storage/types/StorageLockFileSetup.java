@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 public interface StorageLockFileSetup
 {
-	public StorageFileProvider backupFileProvider();
+	public StorageFileProvider lockFileProvider();
 
 	public String processIdentity();
 	
@@ -13,13 +13,13 @@ public interface StorageLockFileSetup
 	
 	
 	public static StorageLockFileSetup New(
-		final StorageFileProvider            backupFileProvider     ,
+		final StorageFileProvider            lockFileProvider       ,
 		final StorageProcessIdentityProvider processIdentityProvider,
 		final long                           updateInterval
 	)
 	{
 		return new StorageLockFileSetup.Default(
-			notNull(backupFileProvider)     ,
+			notNull(lockFileProvider)       ,
 			notNull(processIdentityProvider),
 			notNull(updateInterval)
 		);
@@ -31,7 +31,7 @@ public interface StorageLockFileSetup
 		// instance fields //
 		////////////////////
 		
-		private final StorageFileProvider            backupFileProvider     ;
+		private final StorageFileProvider            lockFileProvider       ;
 		private final StorageProcessIdentityProvider processIdentityProvider;
 		private final long                           updateInterval         ;
 		
@@ -42,13 +42,13 @@ public interface StorageLockFileSetup
 		/////////////////
 		
 		Default(
-			final StorageFileProvider            backupFileProvider     ,
+			final StorageFileProvider            lockFileProvider       ,
 			final StorageProcessIdentityProvider processIdentityProvider,
 			final long                           updateInterval
 		)
 		{
 			super();
-			this.backupFileProvider      = backupFileProvider     ;
+			this.lockFileProvider        = lockFileProvider       ;
 			this.processIdentityProvider = processIdentityProvider;
 			this.updateInterval          = updateInterval         ;
 		}
@@ -60,9 +60,9 @@ public interface StorageLockFileSetup
 		////////////
 
 		@Override
-		public final StorageFileProvider backupFileProvider()
+		public final StorageFileProvider lockFileProvider()
 		{
-			return this.backupFileProvider;
+			return this.lockFileProvider;
 		}
 
 		@Override
