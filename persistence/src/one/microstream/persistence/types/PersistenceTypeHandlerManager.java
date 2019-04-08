@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
+import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
@@ -53,6 +54,16 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 
 	@Override
 	public Class<?> ensureType(long typeId);
+	
+	public void validateTypeHandler(PersistenceTypeHandler<M, ?> typeHandler);
+	
+	public default void validateTypeHandlers(final Iterable<? extends PersistenceTypeHandler<M, ?>> typeHandlers)
+	{
+		for(final PersistenceTypeHandler<M, ?> typeHandler : typeHandlers)
+		{
+			this.validateTypeHandler(typeHandler);
+		}
+	}
 
 
 
@@ -146,13 +157,10 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			this.recursiveEnsureTypeHandlers(typeHandler);
 		}
 		
-		private void internalRegisterTypeHandlers(final XGettingCollection<PersistenceTypeHandler<M, ?>> typeHandlers)
+		private void internalRecursiveEnsureTypeHandlers(
+			final Iterable<? extends PersistenceTypeHandler<M, ?>> typeHandlers
+		)
 		{
-			for(final PersistenceTypeHandler<M, ?> typeHandler : typeHandlers)
-			{
-				this.typeHandlerRegistry.registerTypeHandler(typeHandler);
-			}
-			
 			for(final PersistenceTypeHandler<M, ?> typeHandler : typeHandlers)
 			{
 				this.recursiveEnsureTypeHandlers(typeHandler);
@@ -207,8 +215,9 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				return this.synchEnsureTypeHandler(type);
 			}
 		}
-				
-		private void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
+		
+		@Override
+		public final void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
 			final PersistenceTypeDefinition registeredTd =
 				this.typeDictionaryManager.provideTypeDictionary().lookupTypeByName(typeHandler.typeName())
@@ -223,6 +232,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				// (07.04.2013)EXCP proper exception
 				throw new PersistenceExceptionTypeConsistency(
 					"TypeId inconsistency for " + typeHandler.typeName()
+					+ ": typeDictionary type definition typeId = " + registeredTd.typeId()
+					+ ", validated type handler typeId = " + typeHandler.typeId()
 				);
 			}
 
@@ -533,8 +544,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		{
 			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary();
 			
-			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers      = HashEnum.New();
-			final HashEnum<PersistenceTypeHandler<M, ?>> existingTypeHandlers = HashEnum.New();
+			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers = HashEnum.New();
+			final HashEnum<PersistenceTypeHandler<M, ?>> typeRegisteredTypeHandlers = HashEnum.New();
 			
 			// either fill/initialize an empty type dictionary or initalize from a non-empty dictionary.
 			if(typeDictionary.isEmpty())
@@ -543,11 +554,29 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			}
 			else
 			{
-				this.initializeFromDictionary(typeDictionary, existingTypeHandlers, newTypeHandlers);
+				this.initializeFromDictionary(typeDictionary, newTypeHandlers, typeRegisteredTypeHandlers);
 			}
-
-			this.initializeNewTypeHandlers(existingTypeHandlers, newTypeHandlers);
+			
+			// "new" type Handlers are either generated ones for a blank or misfits for an existing type dictionary.
+			this.initializeNewTypeHandlers(newTypeHandlers, typeRegisteredTypeHandlers);
+			
+			// after all type handler initialization and typeId registration was successful, register all type handlers.
+			this.registerTypeHandlers(typeRegisteredTypeHandlers);
+			
+			// after that, the initialization is complete and marked accordingly.
+			this.initialized = true;
 		}
+		
+		private void typeRegisterInitializedTypeHandlers(
+			final XGettingEnum<PersistenceTypeHandler<M, ?>> typeUnregisteredInitializedTypeHandlers,
+			final XAddingEnum<PersistenceTypeHandler<M, ?>>  typeRegisteredInitializedTypeHandlers
+		)
+		{
+			// register the matched Type<->TypeId mappings
+			this.typeHandlerRegistry.registerTypes(typeUnregisteredInitializedTypeHandlers);
+			typeRegisteredInitializedTypeHandlers.addAll(typeUnregisteredInitializedTypeHandlers);
+		}
+		
 		
 		private void initializeBlank(final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers)
 		{
@@ -555,11 +584,12 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 		
 		private void initializeFromDictionary(
-			final PersistenceTypeDictionary              typeDictionary         ,
-			final HashEnum<PersistenceTypeHandler<M, ?>> initializedTypeHandlers,
-			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers
+			final PersistenceTypeDictionary                 typeDictionary            ,
+			final HashEnum<PersistenceTypeHandler<M, ?>>    newTypeHandlers           ,
+			final XAddingEnum<PersistenceTypeHandler<M, ?>> typeRegisteredTypeHandlers
 		)
 		{
+			final HashEnum<PersistenceTypeHandler<M, ?>> initializedMatchingTypeHandlers = HashEnum.New();
 			final HashEnum<PersistenceTypeLineage> runtimeTypeLineages = HashEnum.New();
 			
 			this.filterRuntimeTypeLineages(typeDictionary, runtimeTypeLineages);
@@ -583,35 +613,54 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			{
 				final long typeId = match.key().typeId();
 				final PersistenceTypeHandler<M, ?> ith = match.value().initialize(typeId);
-				initializedTypeHandlers.add(ith);
+				initializedMatchingTypeHandlers.add(ith);
+			}
+			
+			/*
+			 * must register the matching type handlers' type-mappings BEFORE initializing the new type handlers
+			 * As initializing the new type handlers might ensure a super type's typeId.
+			 */
+			this.typeRegisterInitializedTypeHandlers(initializedMatchingTypeHandlers, typeRegisteredTypeHandlers);
+		}
+		
+		private void registerTypeHandlers(
+			final XGettingCollection<PersistenceTypeHandler<M, ?>> initializedTypeHandlers
+		)
+		{
+			// set initialized handlers as runtime definitions
+			this.typeDictionaryManager.registerRuntimeTypeDefinitions(initializedTypeHandlers);
+			
+			this.internalRegisterTypeHandlers(initializedTypeHandlers);
+			
+			// recursive registration: initialized handlers themselves plus all handlers required for their field types
+			this.internalRecursiveEnsureTypeHandlers(initializedTypeHandlers);
+		}
+		
+		private void internalRegisterTypeHandlers(final Iterable<PersistenceTypeHandler<M, ?>> typeHandlers)
+		{
+			for(final PersistenceTypeHandler<M, ?> typeHandler : typeHandlers)
+			{
+				this.typeHandlerRegistry.registerTypeHandler(typeHandler);
 			}
 		}
 		
 		private void initializeNewTypeHandlers(
-			final XGettingCollection<PersistenceTypeHandler<M, ?>> existingTypeHandlers,
-			final XGettingCollection<PersistenceTypeHandler<M, ?>> newTypeHandlers
+			final XGettingCollection<PersistenceTypeHandler<M, ?>> newTypeHandlers,
+			final HashEnum<PersistenceTypeHandler<M, ?>>           typeRegisteredTypeHandlers
 		)
 		{
-			final HashEnum<PersistenceTypeHandler<M, ?>> initializedTypeHandlers = HashEnum.New(existingTypeHandlers);
+			final HashEnum<PersistenceTypeHandler<M, ?>> initializedNewTypeHandlers = HashEnum.New();
 			
-			// assign new TypeIds to all misfits
+			// assign new TypeIds to all misfits (TypeIds of matching type handlers must already be registered!)
 			for(final PersistenceTypeHandler<M, ?> newTypeHandler : newTypeHandlers)
 			{
 				// native handlers (e.g. see in class BinaryPersistence) already have their TypeId, even if "new".
 				final PersistenceTypeHandler<M, ?> ith = this.ensureInitializedTypeHandler(newTypeHandler);
-				initializedTypeHandlers.add(ith);
+				initializedNewTypeHandlers.add(ith);
 			}
-			
-			// register the current Type<->TypeId mapping
-			this.typeHandlerRegistry.registerTypes(initializedTypeHandlers);
-			
-			// set initialized handlers as runtime definitions
-			this.typeDictionaryManager.registerRuntimeTypeDefinitions(initializedTypeHandlers);
-						
-			// recursive registration: initialized handlers themselves plus all handlers required for their field types
-			this.internalRegisterTypeHandlers(initializedTypeHandlers);
-			
-			this.initialized = true;
+
+			// register TypeId mappings of all successfully initialized new type handlers.
+			this.typeRegisterInitializedTypeHandlers(initializedNewTypeHandlers, typeRegisteredTypeHandlers);
 		}
 		
 		private PersistenceTypeHandler<M, ?> ensureInitializedTypeHandler(
