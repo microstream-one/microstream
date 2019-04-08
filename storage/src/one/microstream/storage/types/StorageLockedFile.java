@@ -34,9 +34,21 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 	
 
 
-	public static StorageLockedFile New(final File file, final FileLock lock)
+	public static void closeSilent(final StorageLockedFile file)
 	{
-		return new StorageLockedFile.Implementation(file, lock);
+		if(file == null)
+		{
+			return;
+		}
+		
+		try
+		{
+			file.close();
+		}
+		catch(final Exception t)
+		{
+			// sshhh, silence!
+		}
 	}
 
 	@SuppressWarnings("resource") // resource closed internally by FileChannel (JDK tricking Java compiler ^^)
@@ -82,6 +94,11 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 	}
 
 
+
+	public static StorageLockedFile New(final File file, final FileLock lock)
+	{
+		return new StorageLockedFile.Implementation(file, lock);
+	}
 
 	public class Implementation implements StorageLockedFile
 	{

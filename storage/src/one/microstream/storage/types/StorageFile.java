@@ -119,24 +119,6 @@ public interface StorageFile
 	}
 	
 	
-	public static void closeSilent(final StorageLockedFile file)
-	{
-		if(file == null)
-		{
-			return;
-		}
-		
-		try
-		{
-			file.close();
-		}
-		catch(final Exception t)
-		{
-			// sshhh, silence!
-		}
-	}
-	
-	
 	public static VarString assembleNameAndSize(final VarString vs, final StorageFile file)
 	{
 		return vs.add(file.identifier() + "[" + file.length() + "]");

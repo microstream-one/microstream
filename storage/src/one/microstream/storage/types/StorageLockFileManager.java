@@ -98,6 +98,11 @@ public interface StorageLockFileManager extends Runnable
 				this.operationController.registerDisruptingProblem(e);
 				throw e;
 			}
+			finally
+			{
+				// ensure closed file in any case. Regular shutdown or forceful shutdown by exception.
+				this.ensureClosedFile();
+			}
 		}
 		
 		private void ensureInitialized()
@@ -111,7 +116,11 @@ public interface StorageLockFileManager extends Runnable
 		
 		private void initialize()
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIXME StorageLockFileManager.Default#initialize()
+			final StorageFileProvider fileProvider = this.setup.lockFileProvider();
+			final StorageLockedFile   lockFile     = fileProvider.provideLockFile();
+			
+			// FIXME StorageLockFileManager.Default#initialize()
+			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 		private void updateFile()
@@ -123,6 +132,17 @@ public interface StorageLockFileManager extends Runnable
 				return;
 			}
 			throw new one.microstream.meta.NotImplementedYetError(); // FIXME StorageLockFileManager.Default#updateFile()
+		}
+		
+		private void ensureClosedFile()
+		{
+			if(this.lockFile == null)
+			{
+				return;
+			}
+			
+			StorageLockedFile.closeSilent(this.lockFile);
+			this.lockFile = null;
 		}
 		
 	}

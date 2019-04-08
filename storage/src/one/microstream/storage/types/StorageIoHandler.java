@@ -82,6 +82,12 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 		
 		@Override
+		public StorageLockedFile provideLockFile()
+		{
+			return this.fileProvider.provideLockFile();
+		}
+		
+		@Override
 		public StorageNumberedFile provideDeletionTargetFile(final StorageNumberedFile fileToBeDeleted)
 		{
 			return this.fileProvider.provideDeletionTargetFile(fileToBeDeleted);
