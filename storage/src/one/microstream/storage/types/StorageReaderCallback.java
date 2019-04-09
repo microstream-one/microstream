@@ -5,6 +5,51 @@ import java.nio.ByteBuffer;
 
 public interface StorageReaderCallback
 {
-	public long incrementalRead(final StorageLockedFile file, long filePosition, ByteBuffer buffer, long lastReadCount)
-		throws IOException;
+	public void validateIncrementalRead(
+		StorageLockedFile file         ,
+		long              filePosition ,
+		ByteBuffer        buffer       ,
+		long              lastReadCount
+	)
+		throws IOException
+	;
+	
+	public static void staticValidateIncrementalRead(
+		final StorageLockedFile file         ,
+		final long              filePosition ,
+		final ByteBuffer        buffer       ,
+		final long              lastReadCount
+	)
+		throws IOException
+	{
+		if(lastReadCount < 0)
+		{
+			// (30.06.2013)EXCP: proper exception
+			throw new RuntimeException(
+				"Could not read data in file " +file.identifier()+ " at position " + filePosition
+			);
+		}
+	}
+	
+	public static StorageReaderCallback Default()
+	{
+		return new StorageReaderCallback.Default();
+	}
+	
+	public final class Default implements StorageReaderCallback
+	{
+
+		@Override
+		public void validateIncrementalRead(
+			final StorageLockedFile file         ,
+			final long              filePosition ,
+			final ByteBuffer        buffer       ,
+			final long              lastReadCount
+		)
+			throws IOException
+		{
+			StorageReaderCallback.staticValidateIncrementalRead(file, filePosition, buffer, lastReadCount);
+		}
+		
+	}
 }

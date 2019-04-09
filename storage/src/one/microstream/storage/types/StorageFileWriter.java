@@ -32,7 +32,6 @@ public interface StorageFileWriter
 		);
 	}
 	
-	// (13.02.2019 TM)NOTE: single ByteBuffer variant removed to keep implementations simple.
 	public default long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
 	{
 //		DEBUGStorage.println("storage write multiple buffers");

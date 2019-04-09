@@ -17,15 +17,18 @@ public interface StorageFileReader
 
 		try
 		{
+			long currentFilePosition = filePosition;
+			
 			// single call should normally be sufficient
-			long readCount = fileChannel.read(targetBuffer, filePosition);
+			long readCount = fileChannel.read(targetBuffer, currentFilePosition);
 
 			// if single call was not sufficient, report to callback and try incremental reads.
 			while(targetBuffer.hasRemaining())
 			{
 				// handle all non-trivial cases (including -1 readCount) in other method to keep this one small
-				incompleteReadCallack.incrementalRead(file, filePosition, targetBuffer, readCount);
-				readCount += fileChannel.read(targetBuffer, filePosition + targetBuffer.position());
+				incompleteReadCallack.validateIncrementalRead(file, currentFilePosition, targetBuffer, readCount);
+				currentFilePosition = filePosition + targetBuffer.position();
+				readCount += fileChannel.read(targetBuffer, currentFilePosition);
 			}
 
 			return readCount;
