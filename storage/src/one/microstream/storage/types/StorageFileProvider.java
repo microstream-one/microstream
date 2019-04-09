@@ -92,6 +92,11 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		{
 			return Persistence.defaultFilenameTypeDictionary();
 		}
+		
+		public static String defaultLockFileName()
+		{
+			return "used.lock";
+		}
 
 		public static PersistenceTypeDictionaryFileHandler.Creator defaultTypeDictionaryFileHandlerCreator()
 		{
@@ -235,6 +240,10 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		public String typeDictionaryFileName();
 
 		public B setTypeDictionaryFileName(String typeDictionaryFileName);
+
+		public String lockFileName();
+
+		public B setLockFileName(String lockFileName);
 		
 		public PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator();
 		
@@ -259,7 +268,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				storageFileSuffix     ,
 				transactionsFilePrefix,
 				transactionsFileSuffix,
-				typeDictionaryFileName
+				typeDictionaryFileName,
+				lockFileName
 			;
 			
 			private PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator;
@@ -403,6 +413,19 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				this.typeDictionaryFileName = typeDictionaryFileName;
 				return this.$();
 			}
+
+			@Override
+			public String lockFileName()
+			{
+				return this.lockFileName;
+			}
+
+			@Override
+			public B setLockFileName(final String lockFileName)
+			{
+				this.lockFileName = lockFileName;
+				return this.$();
+			}
 			
 			@Override
 			public PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator()
@@ -430,6 +453,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 					coalesce(this.transactionsFilePrefix, Defaults.defaultTransactionFilePrefix()           ),
 					coalesce(this.transactionsFileSuffix, Defaults.defaultTransactionFileSuffix()           ),
 					coalesce(this.typeDictionaryFileName, Defaults.defaultTypeDictionaryFileName()          ),
+					coalesce(this.lockFileName          , Defaults.defaultLockFileName()                    ),
 					coalesce(this.fileHandlerCreator    , Defaults.defaultTypeDictionaryFileHandlerCreator())
 				);
 			}
@@ -449,6 +473,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		final String                                       transactionsFilePrefix,
 		final String                                       transactionsFileSuffix,
 		final String                                       typeDictionaryFileName,
+		final String                                       lockFileName          ,
 		final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator
 	)
 	{
@@ -462,6 +487,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			notNull(transactionsFilePrefix),
 			notNull(transactionsFileSuffix),
 			notNull(typeDictionaryFileName),
+			notNull(lockFileName)          ,
 			notNull(fileHandlerCreator)
 		);
 	}
@@ -483,7 +509,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			storageFileSuffix     ,
 			transactionsFilePrefix,
 			transactionsFileSuffix,
-			typeDictionaryFileName
+			typeDictionaryFileName,
+			lockFileName
 		;
 
 
@@ -501,7 +528,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final String storageFileSuffix     ,
 			final String transactionsFilePrefix,
 			final String transactionsFileSuffix,
-			final String typeDictionaryFileName
+			final String typeDictionaryFileName,
+			final String lockFileName
 		)
 		{
 			super();
@@ -514,6 +542,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			this.transactionsFilePrefix = transactionsFilePrefix;
 			this.transactionsFileSuffix = transactionsFileSuffix;
 			this.typeDictionaryFileName = typeDictionaryFileName;
+			this.lockFileName           = lockFileName          ;
 		}
 
 		public String baseDirectory()
@@ -546,6 +575,11 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			return this.typeDictionaryFileName;
 		}
 
+		public String lockFileName()
+		{
+			return this.lockFileName;
+		}
+
 		public final String provideStorageFileName(final int channelIndex, final long fileNumber)
 		{
 			return this.storageFilePrefix + channelIndex + '_' + fileNumber + this.storageFileSuffix;
@@ -573,7 +607,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				.blank().add("deletion directory"      ).tab().add('=').blank().add(this.deletionDirectory     ).lf()
 				.blank().add("channel directory prefix").tab().add('=').blank().add(this.channelDirectoryPrefix).lf()
 				.blank().add("storage file prefix"     ).tab().add('=').blank().add(this.storageFilePrefix     ).lf()
-				.blank().add("file suffix"             ).tab().add('=').blank().add(this.storageFileSuffix     )
+				.blank().add("file suffix"             ).tab().add('=').blank().add(this.storageFileSuffix     ).lf()
+				.blank().add("lockFileName"            ).tab().add('=').blank().add(this.lockFileName          )
 				.toString()
 			;
 		}
@@ -604,6 +639,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final String                                       transactionsFilePrefix,
 			final String                                       transactionsFileSuffix,
 			final String                                       typeDictionaryFileName,
+			final String                                       lockFileName          ,
 			final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator
 		)
 		{
@@ -616,7 +652,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				storageFileSuffix     ,
 				transactionsFilePrefix,
 				transactionsFileSuffix,
-				typeDictionaryFileName
+				typeDictionaryFileName,
+				lockFileName
 			);
 			this.fileHandlerCreator = fileHandlerCreator;
 		}
@@ -678,10 +715,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		@Override
 		public StorageLockedFile provideLockFile()
 		{
-			/* (08.04.2019 TM)FIXME: MS-62: make lock file name dynamic
-			 * This was just quick&dirty to get rid of the compiler error for a context change.
-			 */
-			final File lockFile = new File(this.baseDirectory(), "used.lock");
+			final File lockFile = new File(this.baseDirectory(), this.lockFileName());
 			
 			return StorageLockedFile.openLockedFile(lockFile);
 		}

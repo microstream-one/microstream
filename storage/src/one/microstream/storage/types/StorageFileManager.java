@@ -672,7 +672,7 @@ public interface StorageFileManager
 		}
 
 		@Override
-		public long incrementalRead(
+		public void validateIncrementalRead(
 			final StorageLockedFile fileChannel  ,
 			final long              filePosition ,
 			final ByteBuffer        buffer       ,

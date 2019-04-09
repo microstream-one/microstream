@@ -41,6 +41,16 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			Defaults.defaultResolveHeadfile()
 		);
 	}
+	
+	public static StorageDataFileEvaluator New(final double dissolveRatio)
+	{
+		return New(
+			Defaults.defaultFileMinimumSize(),
+			Defaults.defaultFileMaximumSize(),
+			dissolveRatio                    ,
+			Defaults.defaultResolveHeadfile()
+		);
+	}
 
 	public static StorageDataFileEvaluator New(
 		final int fileMinimumSize,
@@ -84,10 +94,10 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			);
 		}
 		return new Implementation(
-			XMath.positive          (fileMinimumSize),
-			XMath.positive          (fileMaximumSize),
+			XMath.positive    (fileMinimumSize),
+			XMath.positive    (fileMaximumSize),
 			XMath.positiveMax1(minimumUseRatio),
-			                         cleanupHeadFile
+			                   cleanupHeadFile
 		);
 	}
 	
