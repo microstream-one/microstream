@@ -7,9 +7,9 @@
 	<servers>
 
 		<server>
-			<id>jetstream-maven</id>
+			<id>microstream-repo</id>
 			<username>admin</username>
-			<password>K2rsTHDt8sDwy4oVG4nv</password>
+			<password>ajw1ET3EH8Ad4rKaesXi</password>
 		</server>
 		
 	</servers>
@@ -17,7 +17,7 @@
 	<profiles>
 
 		<profile>
-			<id>jetstream-maven</id>
+			<id>deploy</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>
 			</activation>
