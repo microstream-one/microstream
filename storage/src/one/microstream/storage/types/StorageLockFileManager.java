@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import one.microstream.X;
+import one.microstream.chars.XChars;
 import one.microstream.concurrency.XThreads;
 import one.microstream.memory.XMemory;
 
@@ -39,8 +40,13 @@ public interface StorageLockFileManager extends Runnable
 		private final StorageFileWriter          writer             ;
 
 		// cached values
-		private transient boolean           isRunning;
-		private transient StorageLockedFile lockFile;
+		private transient boolean           isRunning        ;
+		private transient StorageLockedFile lockFile         ;
+		private transient LockFileData      lockFileData     ;
+		private transient ByteBuffer[]      wrappedByteBuffer;
+		private transient ByteBuffer        directByteBuffer ;
+		private transient byte[]            stringReadBuffer ;
+		private transient byte[]            stringWriteBuffer;
 		
 		
 		
@@ -124,22 +130,25 @@ public interface StorageLockFileManager extends Runnable
 			}
 			this.initialize();
 		}
-
-		private ByteBuffer[] singleDirectByteBuffer;
-		private ByteBuffer   directByteBuffer      ;
-		private byte[]       stringReadBuffer      ;
-		private byte[]       stringWriteBuffer     ;
 		
 		private ByteBuffer ensureReadingBuffer(final int capacity)
 		{
-			ensureBufferCapacity(capacity);
+			if(ensureBufferCapacity(capacity))
+			{
+				this.stringReadBuffer = new byte[capacity];
+			}
+			
 			return this.directByteBuffer;
 		}
 		
 		private ByteBuffer[] ensureWritingBuffer(final int capacity)
 		{
-			ensureBufferCapacity(capacity);
-			return this.singleDirectByteBuffer;
+			if(ensureBufferCapacity(capacity))
+			{
+				this.stringWriteBuffer = new byte[capacity];
+			}
+			
+			return this.wrappedByteBuffer;
 		}
 		
 		private boolean ensureBufferCapacity(final int capacity)
@@ -150,30 +159,111 @@ public interface StorageLockFileManager extends Runnable
 				return false;
 			}
 			
-			// data has to be copied 3242 times in JDK to build a single String.
+			/* data has to be copied 3242 times in JDK to build a single String.
+			 * Note that using a byte[]-wrapping ByteBuffer is not better since the geniuses
+			 * use a TemporaryDirectBuffer internally for non-direct buffers that adds the copying step anyway.
+			 * The only reasonable thing to use with nio is the DirectByteBuffer, despite all the missing API
+			 * and API hiding issues.
+			 */
 			XMemory.deallocateDirectByteBuffer(this.directByteBuffer);
-			this.singleDirectByteBuffer[0] = this.directByteBuffer = ByteBuffer.allocate(capacity);
+			this.wrappedByteBuffer[0] = this.directByteBuffer = ByteBuffer.allocate(capacity);
+			
+			return true;
 		}
 		
 		private String readString()
 		{
 			final int fileLength = X.checkArrayRange(this.lockFile.length());
 			this.reader.readStorage(this.lockFile, 0, this.ensureReadingBuffer(fileLength), this);
-			XMemory.copyRangeToArray(XMemory.getDirectByteBufferAddress(this.directByteBuffer), this.stringIoBuffer);
+			XMemory.copyRangeToArray(XMemory.getDirectByteBufferAddress(this.directByteBuffer), this.stringReadBuffer);
 			
-			return new String(this.stringIoBuffer, this.setup.charset());
+			
+			return new String(this.stringReadBuffer, this.setup.charset());
+		}
+				
+		private LockFileData readLockFileData()
+		{
+			final String currentFileData = this.readString();
+			
+			// since JDK 9's moronic String change, there's even one more copying required. Endless copying ...
+			final char[] chars = currentFileData.toCharArray();
+			
+			final int sep1Index = indexOfFirstNonNumberCharacter(chars, 0);
+			final int sep2Index = indexOfFirstNonNumberCharacter(chars, sep1Index + 1);
+			
+			final long   currentTime    = XChars.parse_longDecimal(chars, 0, sep1Index);
+			final long   expirationTime = XChars.parse_longDecimal(chars, sep1Index + 1, sep2Index - sep1Index);
+			final String identifier     = String.valueOf(chars, sep2Index + 1, chars.length - sep2Index - 1);
+			
+			return new LockFileData(currentTime, expirationTime, identifier);
 		}
 		
-		private void readLockFileData()
+		static final int indexOfFirstNonNumberCharacter(final char[] data, final int offset)
 		{
-//			final String
+			for(int i = offset; i < data.length; i++)
+			{
+				if(data[i] < '0' || data[i] > '9')
+				{
+					return i;
+				}
+			}
+			
+			// (10.04.2019 TM)EXCP: proper exception
+			throw new RuntimeException("No separator found in lock file string.");
 		}
 		
 		static final class LockFileData
 		{
-			long   lastWriteTime ;
-			long   expirationTime;
-			String identifier    ;
+			      long   lastWriteTime ;
+			      long   expirationTime;
+			final String identifier    ;
+			final long   updateInterval;
+			
+			LockFileData(final String identifier, final long updateInterval)
+			{
+				super();
+				this.identifier     = identifier    ;
+				this.updateInterval = updateInterval;
+			}
+			
+			LockFileData(final long lastWriteTime, final long expirationTime, final String identifier)
+			{
+				this(identifier, deriveUpdateInterval(lastWriteTime, expirationTime));
+				this.lastWriteTime  = lastWriteTime ;
+				this.expirationTime = expirationTime;
+			}
+			
+			final void update()
+			{
+				this.lastWriteTime  = System.currentTimeMillis();
+				this.expirationTime = this.lastWriteTime + this.updateInterval;
+			}
+			
+			private static long deriveUpdateInterval(final long lastWriteTime, final long expirationTime)
+			{
+				final long derivedInterval = expirationTime - lastWriteTime;
+				if(derivedInterval <= 0)
+				{
+					// (10.04.2019 TM)EXCP: proper exception
+					throw new RuntimeException(
+						"Invalid lockfile timestamps: lastWriteTime = " + lastWriteTime
+						+ ", expirationTime = " + expirationTime
+					);
+				}
+				
+				return derivedInterval;
+			}
+			
+			/**
+			 * "long" meaning the expiration time has been passed by another interval.
+			 * This is a tolerance / grace time strategy to exclude
+			 * @return
+			 */
+			final boolean isLongExpired()
+			{
+				return System.currentTimeMillis() < this.expirationTime + this.updateInterval;
+			}
+			
 		}
 		
 		@Override
@@ -193,11 +283,62 @@ public interface StorageLockFileManager extends Runnable
 			final StorageFileProvider fileProvider = this.setup.lockFileProvider();
 			final StorageLockedFile   lockFile     = fileProvider.provideLockFile();
 			
-			final int fileLength = X.checkArrayRange(lockFile.length());
-			this.reader.readStorage(lockFile, 0, this.ensureReadingBuffer(fileLength), this);
+			if(lockFile.exists())
+			{
+				this.validateExistingLockFileData(true);
+			}
+
+			this.lockFileData = new LockFileData(this.setup.processIdentity(), this.setup.updateInterval());
 			
-			// FIXME StorageLockFileManager.Default#initialize()
-			throw new one.microstream.meta.NotImplementedYetError();
+			this.writeLockFileData();
+		}
+		
+		private void validateExistingLockFileData(final boolean firstAttempt)
+		{
+			final LockFileData existingFiledata = this.readLockFileData();
+			
+			final String identifier = this.setup.processIdentity();
+			if(identifier.equals(existingFiledata.identifier))
+			{
+				// database is already owned by "this" process (e.g. crash shorty before), so just continue and reuse.
+				return;
+			}
+			
+			if(existingFiledata.isLongExpired())
+			{
+				/*
+				 * The lock file is no longer updated, meaning the database is not used anymore
+				 * and the lockfile is just a zombie, probably left by a crash.
+				 */
+				return;
+			}
+			
+			// not owned and not expired
+			if(firstAttempt)
+			{
+				// wait one interval and try a second time
+				XThreads.sleep(existingFiledata.updateInterval);
+				validateExistingLockFileData(true);
+				
+				// reaching here means no exception (but expiration) on the second attempt, meaning success.
+				return;
+			}
+			
+			// not owned, not expired and still active, meaning really still in use, so exception
+
+			// (10.04.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Storage already in use by: " + existingFiledata.identifier);
+		}
+		
+		private void checkForModifiedLockFile()
+		{
+			// (10.04.2019 TM)FIXME: load bytes in read buffer and compare byte-wise to write buffer.
+		}
+		
+		private void writeLockFileData()
+		{
+			// (10.04.2019 TM)FIXME: update this.lockFileData with current data
+			// (10.04.2019 TM)FIXME: write lockfiledata
 		}
 		
 		private void updateFile()
@@ -208,7 +349,9 @@ public interface StorageLockFileManager extends Runnable
 				// abort to avoid un unnecessary write.
 				return;
 			}
-			throw new one.microstream.meta.NotImplementedYetError(); // FIXME StorageLockFileManager.Default#updateFile()
+			
+			this.checkForModifiedLockFile();
+			this.writeLockFileData();
 		}
 		
 		private void ensureClosedFile()

@@ -316,7 +316,19 @@ public final class XChars
 		}
 		// CHECKSTYLE.ON: MagicNumber
 	}
+	
+	public static final int indexOf(final char[] data, final char c)
+	{
+		return uncheckedIndexOf(data, 0, data.length, c);
+	}
 
+	public static final int indexOf(final char[] data, final int offset, final int length, final char c)
+	{
+		validateIndex(data, offset);
+		validateIndex(data, offset + length);
+		
+		return uncheckedIndexOf(data, offset, offset + length, c);
+	}
 
 	static final int uncheckedIndexOf(final char[] data, final int size, final int offset, final char c)
 	{
@@ -2084,14 +2096,14 @@ public final class XChars
 		return uncheckedParse_shortDecimal(input, 0, input.length);
 	}
 
-	public static final int parse_intDecimal(final char[] input)
+	public static final int parse_intLiteral(final char[] input)
 	{
-		return uncheckedParse_intDecimal(input, 0, input.length);
+		return uncheckedParse_intLiteral(input, 0, input.length);
 	}
 
 	public static final long parse_longDecimal(final char[] input)
 	{
-		return uncheckedParse_longDecimal(input, 0, input.length);
+		return uncheckedParse_longLiteral(input, 0, input.length);
 	}
 
 	public static final byte parse_byteDecimal(final char[] input, final int offset, final int length)
@@ -2106,16 +2118,16 @@ public final class XChars
 		return uncheckedParse_shortDecimal(input, offset, length);
 	}
 
-	public static final int parse_intDecimal(final char[] input, final int offset, final int length)
+	public static final int parse_intLiteral(final char[] input, final int offset, final int length)
 	{
 		validateRange(input, offset, length);
-		return uncheckedParse_intDecimal(input, offset, length);
+		return uncheckedParse_intLiteral(input, offset, length);
 	}
 
 	public static final long parse_longDecimal(final char[] input, final int offset, final int length)
 	{
 		validateRange(input, offset, length);
-		return uncheckedParse_longDecimal(input, offset, length);
+		return uncheckedParse_longLiteral(input, offset, length);
 	}
 
 	public static final float parse_float(final char[] input, final int offset, final int length)
@@ -2145,7 +2157,7 @@ public final class XChars
 		try
 		{
 			// checks above guarantee that the parsed long value is in range
-			return (byte)internalParse_longDecimal(input, offset, length);
+			return (byte)internalParse_longLiteral(input, offset, length);
 		}
 		catch(final NumberFormatException e)
 		{
@@ -2165,7 +2177,7 @@ public final class XChars
 		try
 		{
 			// checks above guarantee that the parsed long value is in range
-			return (short)internalParse_longDecimal(input, offset, length);
+			return (short)internalParse_longLiteral(input, offset, length);
 		}
 		catch(final NumberFormatException e)
 		{
@@ -2174,7 +2186,7 @@ public final class XChars
 		}
 	}
 
-	public static final int uncheckedParse_intDecimal(final char[] input, final int offset, final int length)
+	public static final int uncheckedParse_intLiteral(final char[] input, final int offset, final int length)
 	{
 		// lots of special case checking, but only executed for max length literals, so hardly relevant performancewise.
 		if(length >= SIGNLESS_MAX_CHAR_COUNT_int)
@@ -2185,7 +2197,7 @@ public final class XChars
 		try
 		{
 			// checks above guarantee that the parsed long value is in range
-			return (int)internalParse_longDecimal(input, offset, length);
+			return (int)internalParse_longLiteral(input, offset, length);
 		}
 		catch(final NumberFormatException e)
 		{
@@ -2194,7 +2206,7 @@ public final class XChars
 		}
 	}
 
-	public static final long uncheckedParse_longDecimal(final char[] input, final int offset, final int length)
+	public static final long uncheckedParse_longLiteral(final char[] input, final int offset, final int length)
 	{
 		// lots of special case checking, but only executed for max length literals, so hardly relevant performancewise.
 		if(length >= SIGNLESS_MAX_CHAR_COUNT_long)
@@ -2204,7 +2216,7 @@ public final class XChars
 
 		try
 		{
-			return internalParse_longDecimal(input, offset, length);
+			return internalParse_longLiteral(input, offset, length);
 		}
 		catch(final NumberFormatException e)
 		{
@@ -2289,12 +2301,12 @@ public final class XChars
 	 * @param length
 	 * @return
 	 */
-	public static final long internalParse_longDecimal(final char[] input, final int offset, final int length)
+	public static final long internalParse_longLiteral(final char[] input, final int offset, final int length)
 	{
 		// special cased trivial case and invalid single character cases (like letter or sole '+')
 		if(length == 1)
 		{
-			return toDecimal(input[offset]);
+			return to_int(input[offset]);
 		}
 
 		int i;
@@ -2319,7 +2331,7 @@ public final class XChars
 		long value = 0;
 		while(i < bound)
 		{
-			value = value * DECIMAL_BASE + toDecimal(input[i++]);
+			value = value * DECIMAL_BASE + to_int(input[i++]);
 		}
 
 		// adjust sign and return resulting value
@@ -2367,7 +2379,7 @@ public final class XChars
 		return false;
 	}
 
-	public static final int toDecimal(final char digit)
+	public static final int to_int(final char digit)
 	{
 		if(digit < DIGIT_LOWER_INDEX || digit >= DIGIT_UPPER_BOUND)
 		{
