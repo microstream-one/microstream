@@ -42,8 +42,8 @@
 
 	<repositories>
 		<repository>
-			<id>jetstream-maven-public</id>
-			<url>https://maven.jetstream.one/maven2-public/</url>
+			<id>microstream-maven-releases</id>
+			<url>https://repo.microstream.one/repository/maven-releases/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -52,8 +52,8 @@
 			</snapshots>
 		</repository>
 		<repository>
-			<id>jetstream-maven-public-snapshot</id>
-			<url>https://maven.jetstream.one/maven2-public-snapshot/</url>
+			<id>microstream-maven-snapshots</id>
+			<url>https://repo.microstream.one/repository/maven-snapshots/</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
@@ -65,12 +65,12 @@
 
 	<distributionManagement>
 		<repository>
-			<id>jetstream-maven</id>
-			<url>https://maven.jetstream.one/maven2-public/</url>
+			<id>microstream-repo</id>
+			<url>https://repo.microstream.one/repository/maven-releases/</url>
 		</repository>
 		<snapshotRepository>
-			<id>jetstream-maven</id>
-			<url>https://maven.jetstream.one/maven2-public-snapshot/</url>
+			<id>microstream-repo</id>
+			<url>https://repo.microstream.one/repository/maven-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
@@ -88,19 +88,34 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<compilerId>eclipse</compilerId>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-compiler-eclipse</artifactId>
+						<version>2.8.5</version>
+					</dependency>
+					<dependency>
+						<groupId>org.eclipse.jdt</groupId>
+						<artifactId>ecj</artifactId>
+						<version>3.17.0</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
+				<groupId>one.microstream</groupId>
+				<artifactId>sourcestub-maven-plugin</artifactId>
 			</plugin>
-			<!-- <plugin> -->
-			<!-- <groupId>org.apache.maven.plugins</groupId> -->
-			<!-- <artifactId>maven-javadoc-plugin</artifactId> -->
-			<!-- </plugin> -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
@@ -115,20 +130,7 @@
 					<configuration>
 						<source>1.8</source>
 						<target>1.8</target>
-						<compilerId>eclipse</compilerId>
 					</configuration>
-					<dependencies>
-						<dependency>
-							<groupId>org.codehaus.plexus</groupId>
-							<artifactId>plexus-compiler-eclipse</artifactId>
-							<version>2.8.5</version>
-						</dependency>
-						<dependency>
-							<groupId>org.eclipse.jdt</groupId>
-							<artifactId>ecj</artifactId>
-							<version>3.16.0</version>
-						</dependency>
-					</dependencies>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -143,9 +145,9 @@
 					</configuration>
 				</plugin>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.1</version>
+					<groupId>one.microstream</groupId>
+					<artifactId>sourcestub-maven-plugin</artifactId>
+					<version>1.0.0</version>
 					<executions>
 						<execution>
 							<id>attach-sources</id>
@@ -279,7 +281,7 @@
 
 	<profiles>
 		<profile>
-			<id>jetstream-maven</id>
+			<id>deploy</id>
 			<build>
 				<plugins>
 					<plugin>
