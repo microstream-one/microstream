@@ -406,7 +406,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				j--;
 			}
-			this.write_int(XChars.parse_intDecimal(data, offset, j - offset + 1));
+			this.write_int(XChars.parse_intLiteral(data, offset, j - offset + 1));
 			return i;
 		}
 
@@ -761,7 +761,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				// parse literal
 				final int currentElementStart = i;
 				i = seekSimpleLiteralEnd(data, i, bound, listSeparator, listTerminator);
-				this.write_int(XChars.parse_intDecimal(data, currentElementStart, i - currentElementStart));
+				this.write_int(XChars.parse_intLiteral(data, currentElementStart, i - currentElementStart));
 
 				// find literal terminating character (not the same as literal end: there might be white spaces)
 				i = seekListElementCompletion(data, i, bound, listSeparator, listTerminator);
