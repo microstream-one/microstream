@@ -85,9 +85,11 @@ public interface StorageTaskBroker
 		// instance fields  //
 		/////////////////////
 
-		private final StorageManager            storageManager;
-		private final StorageRequestTaskCreator taskCreator   ;
-		private final int                       channelCount  ;
+		// can't have a strong reference to StorageManager since that would prevent automatic shutdown
+		private final StorageDataFileEvaluator      fileEvaluator         ;
+		private final StorageObjectIdRangeEvaluator objectIdRangeEvaluator;
+		private final StorageRequestTaskCreator     taskCreator           ;
+		private final int                           channelCount          ;
 
 		private volatile StorageTask currentHead;
 
@@ -97,16 +99,19 @@ public interface StorageTaskBroker
 		// constructors //
 		/////////////////
 
-		public Implementation(
-			final StorageManager            storageManager,
-			final StorageRequestTaskCreator taskCreator
+		Implementation(
+			final StorageRequestTaskCreator     taskCreator           ,
+			final StorageDataFileEvaluator      fileEvaluator         ,
+			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
+			final int                           channelCount
 		)
 		{
 			super();
-			this.storageManager = notNull(storageManager);
-			this.taskCreator    = notNull(taskCreator);
-			this.channelCount   = storageManager.channelCountProvider().get();
-			this.currentHead    = new StorageTask.DummyTask();
+			this.fileEvaluator          = notNull(fileEvaluator);
+			this.objectIdRangeEvaluator = notNull(objectIdRangeEvaluator);
+			this.taskCreator            = notNull(taskCreator);
+			this.channelCount           = channelCount;
+			this.currentHead            = new StorageTask.DummyTask();
 		}
 
 
@@ -283,9 +288,9 @@ public interface StorageTaskBroker
 		{
 			// always use the internal evaluator to match live operation
 			final StorageRequestTaskImportData task = this.taskCreator.createImportFromFilesTask(
-				this.channelCount                                  ,
-				this.storageManager.configuration().fileEvaluator(),
-				this.storageManager.objectIdRangeEvaluator()       ,
+				this.channelCount          ,
+				this.fileEvaluator         ,
+				this.objectIdRangeEvaluator,
 				importFiles
 			);
 			this.enqueueTaskAndNotifyAll(task);
@@ -449,7 +454,12 @@ public interface StorageTaskBroker
 				final StorageRequestTaskCreator taskCreator
 			)
 			{
-				return new StorageTaskBroker.Implementation(storageManager, taskCreator);
+				return new StorageTaskBroker.Implementation(
+					taskCreator,
+					storageManager.configuration().fileEvaluator(),
+					storageManager.objectIdRangeEvaluator(),
+					storageManager.channelCountProvider().get()
+				);
 			}
 
 		}
