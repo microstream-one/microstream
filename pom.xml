@@ -119,10 +119,6 @@
 				<artifactId>sourcestub-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
 			</plugin>
@@ -153,7 +149,7 @@
 				<plugin>
 					<groupId>one.microstream</groupId>
 					<artifactId>sourcestub-maven-plugin</artifactId>
-					<version>1.1.0</version>
+					<version>1.0.0</version>
 					<executions>
 						<execution>
 							<id>attach-sources</id>
