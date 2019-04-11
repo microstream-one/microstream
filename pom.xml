@@ -107,7 +107,7 @@
 				</excludes>
 			</resource>
 			<resource>
-				<directory>${user.dir}</directory>
+				<directory>${maven.multiModuleProjectDirectory}</directory>
 				<includes>
 					<include>LICENSE</include>
 				</includes>
@@ -185,7 +185,7 @@
 										<built-by>${project.organization.name}</built-by>
 									</manifestEntries>
 								</archive>
-								<sourceHeaderFile>${user.dir}/HEADER</sourceHeaderFile>
+								<sourceHeaderFile>${maven.multiModuleProjectDirectory}/HEADER</sourceHeaderFile>
 							</configuration>
 						</execution>
 					</executions>
