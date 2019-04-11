@@ -70,6 +70,7 @@ public interface StorageManager extends StorageController
 		private final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ;
 		private final StorageDataFileValidator.Creator     backupDataFileValidatorCreator;
 		private final StorageBackupSetup                   backupSetup                   ;
+		// (11.04.2019 TM)FIXME: MS-62: StorageLockFileManager.Creator
 		private final boolean                              switchByteOrder               ;
 
 

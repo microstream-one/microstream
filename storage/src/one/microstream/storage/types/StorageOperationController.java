@@ -118,9 +118,13 @@ public interface StorageOperationController
 				throw new StorageExceptionDisruptingExceptions(this.disruptingProblems.immure());
 			}
 			
+			System.out.println("GC");
+			System.gc();
+			
 			// if the database managing instance is no longer reachable (used), there is no point in continue processing
 			if(this.storageManagerReference.get() == null)
 			{
+				System.out.println("manager is null");
 				this.deactivate();
 			}
 			

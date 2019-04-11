@@ -826,7 +826,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 						
 			return new StorageManager.Implementation(
 				this.getConfiguration()                ,
-				this.getOperationControllerCreator()     ,
+				this.getOperationControllerCreator()   ,
 				this.getDataFileValidatorCreator()     ,
 				this.getWriterProvider()               ,
 				this.getReaderProvider()               ,
