@@ -13,14 +13,14 @@ public interface StorageChannelThreadProvider
 	 *
 	 * @return a {@link Thread} instance to be used as a storage channel worker thread.
 	 */
-	public Thread provideStorageThread(StorageChannel storageChannel);
+	public Thread provideChannelThread(StorageChannel storageChannel);
 
 
 
 	public final class Implementation implements StorageChannelThreadProvider
 	{
 		@Override
-		public Thread provideStorageThread(final StorageChannel storageChannel)
+		public Thread provideChannelThread(final StorageChannel storageChannel)
 		{
 			return new Thread(
 				storageChannel,

@@ -2,16 +2,19 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-public interface StorageThreadProvider extends StorageChannelThreadProvider, StorageBackupThreadProvider
+public interface StorageThreadProvider
+extends StorageChannelThreadProvider, StorageBackupThreadProvider, StorageLockFileManagerThreadProvider
 {
 	public static StorageThreadProvider New(
-		final StorageChannelThreadProvider channelThreadProvider,
-		final StorageBackupThreadProvider  backupThreadProvider
+		final StorageChannelThreadProvider         channelThreadProvider        ,
+		final StorageBackupThreadProvider          backupThreadProvider         ,
+		final StorageLockFileManagerThreadProvider lockFileManagerThreadProvider
 	)
 	{
 		return new StorageThreadProvider.Wrapper(
-			notNull(channelThreadProvider),
-			notNull(backupThreadProvider)
+			notNull(channelThreadProvider)        ,
+			notNull(backupThreadProvider)         ,
+			notNull(lockFileManagerThreadProvider)
 		);
 	}
 
@@ -21,8 +24,9 @@ public interface StorageThreadProvider extends StorageChannelThreadProvider, Sto
 		// instance fields //
 		////////////////////
 		
-		private final StorageChannelThreadProvider channelThreadProvider;
-		private final StorageBackupThreadProvider  backupThreadProvider ;
+		private final StorageChannelThreadProvider         channelThreadProvider        ;
+		private final StorageBackupThreadProvider          backupThreadProvider         ;
+		private final StorageLockFileManagerThreadProvider lockFileManagerThreadProvider;
 		
 		
 		
@@ -31,13 +35,15 @@ public interface StorageThreadProvider extends StorageChannelThreadProvider, Sto
 		/////////////////
 		
 		Wrapper(
-			final StorageChannelThreadProvider channelThreadProvider,
-			final StorageBackupThreadProvider  backupThreadProvider
+			final StorageChannelThreadProvider         channelThreadProvider        ,
+			final StorageBackupThreadProvider          backupThreadProvider         ,
+			final StorageLockFileManagerThreadProvider lockFileManagerThreadProvider
 		)
 		{
 			super();
-			this.channelThreadProvider = channelThreadProvider;
-			this.backupThreadProvider = backupThreadProvider;
+			this.channelThreadProvider         = channelThreadProvider        ;
+			this.backupThreadProvider          = backupThreadProvider         ;
+			this.lockFileManagerThreadProvider = lockFileManagerThreadProvider;
 		}
 		
 		
@@ -47,15 +53,21 @@ public interface StorageThreadProvider extends StorageChannelThreadProvider, Sto
 		////////////
 		
 		@Override
-		public final Thread provideStorageThread(final StorageChannel storageChannel)
+		public final Thread provideChannelThread(final StorageChannel storageChannel)
 		{
-			return this.channelThreadProvider.provideStorageThread(storageChannel);
+			return this.channelThreadProvider.provideChannelThread(storageChannel);
 		}
 
 		@Override
 		public final Thread provideBackupThread(final StorageBackupHandler backupHandler)
 		{
 			return this.backupThreadProvider.provideBackupThread(backupHandler);
+		}
+		
+		@Override
+		public final Thread provideLockFileManagerThread(final StorageLockFileManager lockFileManager)
+		{
+			return this.lockFileManagerThreadProvider.provideLockFileManagerThread(lockFileManager);
 		}
 
 	}

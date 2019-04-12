@@ -49,12 +49,18 @@ public interface StorageFileReader
 	@FunctionalInterface
 	public interface Provider
 	{
-		public StorageFileReader provideReader(final int channelIndex);
+
+		public StorageFileReader provideReader();
+		
+		public default StorageFileReader provideReader(final int channelIndex)
+		{
+			return this.provideReader();
+		}
 
 		public final class Implementation implements StorageFileReader.Provider
 		{
 			@Override
-			public StorageFileReader provideReader(final int channelIndex)
+			public StorageFileReader provideReader()
 			{
 				return new StorageFileReader.Implementation();
 			}

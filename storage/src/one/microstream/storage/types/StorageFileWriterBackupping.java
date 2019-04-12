@@ -295,6 +295,13 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 					this.backupItemEnqueuer
 				);
 			}
+			
+			@Override
+			public StorageFileWriter provideWriter()
+			{
+				// non-channel-file writing (e.g. lock file) is not part of the backupping (yet), so just pass through.
+				return this.wrappedProvider.provideWriter();
+			}
 
 		}
 	}
