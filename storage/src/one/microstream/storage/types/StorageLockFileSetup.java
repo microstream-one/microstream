@@ -4,6 +4,8 @@ import static one.microstream.X.notNull;
 
 import java.nio.charset.Charset;
 
+import one.microstream.persistence.types.Persistence;
+
 public interface StorageLockFileSetup
 {
 	public StorageFileProvider lockFileProvider();
@@ -14,6 +16,21 @@ public interface StorageLockFileSetup
 	
 	public long updateInterval();
 	
+	
+	public interface Defaults
+	{
+		public default long defaultUpdateInterval()
+		{
+			// default of 10 seconds (meaning the lock file content is read, validated and written every 10 seconds)
+			return 10_000;
+		}
+		
+		public default Charset defaultCharset()
+		{
+			// permanent re-aliasing of the same one and only reasonable CharSet which is UTF-8.
+			return Persistence.standardCharset();
+		}
+	}
 	
 	
 	public static StorageLockFileSetup New(

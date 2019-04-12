@@ -70,7 +70,8 @@ public interface StorageManager extends StorageController
 		private final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ;
 		private final StorageDataFileValidator.Creator     backupDataFileValidatorCreator;
 		private final StorageBackupSetup                   backupSetup                   ;
-		// (11.04.2019 TM)FIXME: MS-62: StorageLockFileManager.Creator
+		private final StorageLockFileSetup                 lockFileSetup                 ;
+		private final StorageLockFileManager.Creator       lockFileManagerCreator        ;
 		private final boolean                              switchByteOrder               ;
 
 
@@ -122,6 +123,8 @@ public interface StorageManager extends StorageController
 			final StorageOidMarkQueue.Creator          oidMarkQueueCreator           ,
 			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ,
 			final boolean                              switchByteOrder               ,
+			final StorageLockFileSetup                 lockFileSetup                 ,
+			final StorageLockFileManager.Creator       lockFileManagerCreator        ,
 			final StorageExceptionHandler              exceptionHandler
 		)
 		{
@@ -154,6 +157,8 @@ public interface StorageManager extends StorageController
 			this.oidMarkQueueCreator            = notNull(oidMarkQueueCreator)                 ;
 			this.entityMarkMonitorCreator       = notNull(entityMarkMonitorCreator)            ;
 			this.exceptionHandler               = notNull(exceptionHandler)                    ;
+			this.lockFileSetup                  = notNull(lockFileSetup)                       ;
+			this.lockFileManagerCreator         = notNull(lockFileManagerCreator)              ;
 			this.backupSetup                    = mayNull(storageConfiguration.backupSetup())  ;
 			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
 			this.switchByteOrder                =         switchByteOrder                      ;
@@ -267,6 +272,23 @@ public interface StorageManager extends StorageController
 			this.backupThread = this.threadProvider.provideBackupThread(backupHandler);
 			this.backupThread.start();
 		}
+		
+		private void startLockFileManagerThread()
+		{
+			final StorageLockFileManager lockFileManager = this.lockFileManagerCreator.createLockFileManager(
+				this.lockFileSetup,
+				this.operationController,
+				this.readerProvider.provideReader(),
+				this.writerProvider.provideWriter()
+			);
+
+			// initialize lock file manager state to being running
+			lockFileManager.start();
+			
+			// setup a lock file manager thread and start it if initialization (obtaining the "lock") was successful.
+			this.backupThread = this.threadProvider.provideLockFileManagerThread(lockFileManager);
+			this.backupThread.start();
+		}
 
 
 
@@ -322,7 +344,7 @@ public interface StorageManager extends StorageController
 			final ChannelKeeper[] keepers = this.channelKeepers;
 			for(int i = 0; i < channels.length; i++)
 			{
-				keepers[i] = new ChannelKeeper(i, channels[i], this.threadProvider.provideStorageThread(channels[i]));
+				keepers[i] = new ChannelKeeper(i, channels[i], this.threadProvider.provideChannelThread(channels[i]));
 			}
 		}
 		
@@ -344,6 +366,9 @@ public interface StorageManager extends StorageController
 
 		private void internalStartUp() throws InterruptedException
 		{
+			// first of all, the lock file needs to be obtained before any writing action may occur.
+			this.startLockFileManagerThread();
+			
 			// thread safety and state consistency ensured prior to calling
 
 			// create channels, setup task processing and start threads

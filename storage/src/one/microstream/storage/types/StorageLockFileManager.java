@@ -113,6 +113,14 @@ public interface StorageLockFileManager extends Runnable
 		{
 			return this.isRunning && this.operationController.checkProcessingEnabled();
 		}
+		
+		@Override
+		public StorageLockFileManager.Default start()
+		{
+			this.ensureInitialized();
+			StorageLockFileManager.super.start();
+			return this;
+		}
 
 		@Override
 		public final void run()
@@ -121,8 +129,7 @@ public interface StorageLockFileManager extends Runnable
 			
 			try
 			{
-				// causes the initial write
-				this.ensureInitialized();
+				this.checkInitialized();
 				
 				// wait first after the intial write, then perform the regular update
 				while(this.checkIsRunning())
@@ -150,6 +157,17 @@ public interface StorageLockFileManager extends Runnable
 				return;
 			}
 			this.initialize();
+		}
+		
+		private void checkInitialized()
+		{
+			if(this.lockFile != null)
+			{
+				return;
+			}
+			
+			// (12.04.2019 TM)EXCP: proper exception
+			throw new RuntimeException(StorageLockFileManager.class.getSimpleName() + " not initialized.");
 		}
 		
 		private ByteBuffer ensureReadingBuffer(final int capacity)

@@ -345,12 +345,17 @@ public interface StorageFileWriter
 	@FunctionalInterface
 	public interface Provider
 	{
-		public StorageFileWriter provideWriter(final int channelIndex);
+		public StorageFileWriter provideWriter();
+		
+		public default StorageFileWriter provideWriter(final int channelIndex)
+		{
+			return this.provideWriter();
+		}
 
 		public final class Implementation implements StorageFileWriter.Provider
 		{
 			@Override
-			public StorageFileWriter provideWriter(final int channelIndex)
+			public StorageFileWriter provideWriter()
 			{
 				return new StorageFileWriter.Implementation();
 			}
