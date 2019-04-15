@@ -112,21 +112,21 @@ public interface StorageOperationController
 		@Override
 		public final synchronized boolean checkProcessingEnabled() throws StorageExceptionDisruptingExceptions
 		{
+			
 			if(this.hasDisruptingProblems)
 			{
 				// registering a problem has already set the processing flag to false.
 				throw new StorageExceptionDisruptingExceptions(this.disruptingProblems.immure());
 			}
 			
-			System.out.println("GC");
-			System.gc();
-			
 			// if the database managing instance is no longer reachable (used), there is no point in continue processing
 			if(this.storageManagerReference.get() == null)
 			{
-				System.out.println("manager is null");
+//				XDebug.println(Thread.currentThread().getName() + " found nulled reference.");
 				this.deactivate();
 			}
+
+//			XDebug.println(Thread.currentThread().getName() + " channelProcessingEnabled = " + this.channelProcessingEnabled);
 			
 			return this.channelProcessingEnabled;
 		}

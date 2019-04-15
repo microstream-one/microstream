@@ -8,6 +8,7 @@ import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.types.StorageDataChunkValidator.Provider2;
 import one.microstream.storage.types.StorageFileWriter.Provider;
 import one.microstream.util.InstanceDispatcher;
+import one.microstream.util.ProcessIdentityProvider;
 
 public interface StorageFoundation<F extends StorageFoundation<?>>
 {
@@ -28,6 +29,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public StorageChannelThreadProvider getChannelThreadProvider();
 
 	public StorageBackupThreadProvider getBackupThreadProvider();
+	
+	public StorageLockFileManagerThreadProvider getLockFileManagerThreadProvider();
 	
 	public StorageThreadProvider getThreadProvider();
 
@@ -60,6 +63,12 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public BinaryEntityRawDataIterator.Provider getEntityDataIteratorProvider();
 	
 	public StorageEntityDataValidator.Creator getEntityDataValidatorCreator();
+	
+	public ProcessIdentityProvider getProcessIdentityProvider();
+	
+	public StorageLockFileSetup getLockFileSetup();
+	
+	public StorageLockFileManager.Creator getLockFileManagerCreator();
 
 	public StorageExceptionHandler getExceptionHandler();
 
@@ -81,6 +90,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public F setChannelThreadProvider(StorageChannelThreadProvider channelThreadProvider);
 	
 	public F setBackupThreadProvider(StorageBackupThreadProvider backupThreadProvider);
+	
+	public F setLockFileManagerThreadProvider(StorageLockFileManagerThreadProvider lockFileManagerThreadProvider);
 	
 	public F setThreadProvider(StorageThreadProvider threadProvider);
 
@@ -104,8 +115,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
 
-	public F setExceptionHandler(StorageExceptionHandler exceptionHandler);
-
 	public F setOidMarkQueueCreator(StorageOidMarkQueue.Creator oidMarkQueueCreator);
 
 	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
@@ -115,6 +124,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public F setEntityDataIteratorProvider(BinaryEntityRawDataIterator.Provider entityDataIteratorProvider);
 	
 	public F setEntityDataValidatorCreator(StorageEntityDataValidator.Creator entityDataValidatorCreator);
+	
+	public F setProcessIdentityProvider(ProcessIdentityProvider processIdentityProvider);
+	
+	public F setLockFileSetup(StorageLockFileSetup lockFileSetup);
+	
+	public F setLockFileManagerCreator(StorageLockFileManager.Creator lockFileManagerCreator);
+
+	public F setExceptionHandler(StorageExceptionHandler exceptionHandler);
 
 	public StorageManager createStorageManager();
 
@@ -138,6 +155,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageChannelsCreator                channelCreator               ;
 		private StorageChannelThreadProvider          channelThreadProvider        ;
 		private StorageBackupThreadProvider           backupThreadProvider         ;
+		private ProcessIdentityProvider               processIdentityProvider      ;
+		private StorageLockFileManagerThreadProvider  lockFileManagerThreadProvider;
 		private StorageThreadProvider                 threadProvider               ;
 		private StorageRequestTaskCreator             requestTaskCreator           ;
 		private StorageTypeDictionary                 typeDictionary               ;
@@ -153,6 +172,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageDataFileValidator.Creator      dataFileValidatorCreator     ;
 		private BinaryEntityRawDataIterator.Provider  entityDataIteratorProvider   ;
 		private StorageEntityDataValidator.Creator    entityDataValidatorCreator   ;
+		private StorageLockFileSetup                  lockFileSetup                ;
+		private StorageLockFileManager.Creator        lockFileManagerCreator       ;
 		private StorageExceptionHandler               exceptionHandler             ;
 
 		
@@ -242,11 +263,22 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return StorageBackupThreadProvider.New();
 		}
 		
+		protected ProcessIdentityProvider ensureProcessIdentityProvider()
+		{
+			return ProcessIdentityProvider.New();
+		}
+		
+		protected StorageLockFileManagerThreadProvider ensureLockFileManagerThreadProvider()
+		{
+			return StorageLockFileManagerThreadProvider.New();
+		}
+		
 		protected StorageThreadProvider ensureThreadProvider()
 		{
 			return StorageThreadProvider.New(
 				this.getChannelThreadProvider(),
-				this.getBackupThreadProvider()
+				this.getBackupThreadProvider(),
+				this.getLockFileManagerThreadProvider()
 			);
 		}
 
@@ -332,6 +364,21 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		protected StorageExceptionHandler ensureExceptionHandler()
 		{
 			return new StorageExceptionHandler.Implementation();
+		}
+		
+		protected StorageLockFileSetup ensureLockFileSetup()
+		{
+			return StorageLockFileSetup.New(
+				this.getConfiguration().fileProvider(),
+				this.getProcessIdentityProvider(),
+				StorageLockFileSetup.Defaults.defaultCharset(),
+				StorageLockFileSetup.Defaults.defaultUpdateInterval()
+			);
+		}
+		
+		protected StorageLockFileManager.Creator ensureLockFileManagerCreator()
+		{
+			return StorageLockFileManager.Creator();
 		}
 		
 		protected ByteOrder ensureTargetByteOrder()
@@ -430,6 +477,26 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.backupThreadProvider = this.dispatch(this.ensureBackupThreadProvider());
 			}
 			return this.backupThreadProvider;
+		}
+		
+		@Override
+		public ProcessIdentityProvider getProcessIdentityProvider()
+		{
+			if(this.processIdentityProvider == null)
+			{
+				this.processIdentityProvider = this.dispatch(this.ensureProcessIdentityProvider());
+			}
+			return this.processIdentityProvider;
+		}
+		
+		@Override
+		public StorageLockFileManagerThreadProvider getLockFileManagerThreadProvider()
+		{
+			if(this.lockFileManagerThreadProvider == null)
+			{
+				this.lockFileManagerThreadProvider = this.dispatch(this.ensureLockFileManagerThreadProvider());
+			}
+			return this.lockFileManagerThreadProvider;
 		}
 		
 		@Override
@@ -591,6 +658,27 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			}
 			return this.entityDataValidatorCreator;
 		}
+		
+
+		@Override
+		public StorageLockFileSetup getLockFileSetup()
+		{
+			if(this.lockFileSetup == null)
+			{
+				this.lockFileSetup = this.dispatch(this.ensureLockFileSetup());
+			}
+			return this.lockFileSetup;
+		}
+		
+		@Override
+		public StorageLockFileManager.Creator getLockFileManagerCreator()
+		{
+			if(this.lockFileManagerCreator == null)
+			{
+				this.lockFileManagerCreator = this.dispatch(this.ensureLockFileManagerCreator());
+			}
+			return this.lockFileManagerCreator;
+		}
 
 		@Override
 		public StorageExceptionHandler getExceptionHandler()
@@ -674,6 +762,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		public F setBackupThreadProvider(final StorageBackupThreadProvider backupThreadProvider)
 		{
 			this.backupThreadProvider = backupThreadProvider;
+			return this.$();
+		}
+
+		@Override
+		public F setLockFileManagerThreadProvider(final StorageLockFileManagerThreadProvider lockFileManagerThreadProvider)
+		{
+			this.lockFileManagerThreadProvider = lockFileManagerThreadProvider;
 			return this.$();
 		}
 		
@@ -761,37 +856,73 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 
 		@Override
-		public F setOidMarkQueueCreator(final StorageOidMarkQueue.Creator oidMarkQueueCreator)
+		public F setOidMarkQueueCreator(
+			final StorageOidMarkQueue.Creator oidMarkQueueCreator)
 		{
 			this.oidMarkQueueCreator = oidMarkQueueCreator;
 			return this.$();
 		}
 
 		@Override
-		public F setEntityMarkMonitorCreator(final StorageEntityMarkMonitor.Creator entityMarkMonitorCreator)
+		public F setEntityMarkMonitorCreator(
+			final StorageEntityMarkMonitor.Creator entityMarkMonitorCreator
+		)
 		{
 			this.entityMarkMonitorCreator = entityMarkMonitorCreator;
 			return this.$();
 		}
 		
 		@Override
-		public F setDataFileValidatorCreator(final StorageDataFileValidator.Creator dataFileValidatorCreator)
+		public F setDataFileValidatorCreator(
+			final StorageDataFileValidator.Creator dataFileValidatorCreator
+		)
 		{
 			this.dataFileValidatorCreator = dataFileValidatorCreator;
 			return this.$();
 		}
 		
 		@Override
-		public F setEntityDataIteratorProvider(final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider)
+		public F setEntityDataIteratorProvider(
+			final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider
+		)
 		{
 			this.entityDataIteratorProvider = entityDataIteratorProvider;
 			return this.$();
 		}
 		
 		@Override
-		public F setEntityDataValidatorCreator(final StorageEntityDataValidator.Creator entityDataValidatorCreator)
+		public F setEntityDataValidatorCreator(
+			final StorageEntityDataValidator.Creator entityDataValidatorCreator
+		)
 		{
 			this.entityDataValidatorCreator = entityDataValidatorCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setProcessIdentityProvider(
+			final ProcessIdentityProvider processIdentityProvider
+		)
+		{
+			this.processIdentityProvider = processIdentityProvider;
+			return this.$();
+		}
+		
+		@Override
+		public F setLockFileSetup(
+			final StorageLockFileSetup lockFileSetup
+		)
+		{
+			this.lockFileSetup = lockFileSetup;
+			return this.$();
+		}
+		
+		@Override
+		public F setLockFileManagerCreator(
+			final StorageLockFileManager.Creator lockFileManagerCreator
+		)
+		{
+			this.lockFileManagerCreator = lockFileManagerCreator;
 			return this.$();
 		}
 
@@ -846,6 +977,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getOidMarkQueueCreator()          ,
 				this.getEntityMarkMonitorCreator()     ,
 				this.isByteOrderMismatch()             ,
+				this.getLockFileSetup()                ,
+				this.getLockFileManagerCreator()       ,
 				this.getExceptionHandler()
 			);
 		}

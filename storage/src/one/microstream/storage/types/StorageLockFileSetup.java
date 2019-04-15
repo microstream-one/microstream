@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import java.nio.charset.Charset;
 
 import one.microstream.persistence.types.Persistence;
+import one.microstream.util.ProcessIdentityProvider;
 
 public interface StorageLockFileSetup
 {
@@ -19,13 +20,13 @@ public interface StorageLockFileSetup
 	
 	public interface Defaults
 	{
-		public default long defaultUpdateInterval()
+		public static long defaultUpdateInterval()
 		{
 			// default of 10 seconds (meaning the lock file content is read, validated and written every 10 seconds)
-			return 10_000;
+			return 2_000L;
 		}
 		
-		public default Charset defaultCharset()
+		public static Charset defaultCharset()
 		{
 			// permanent re-aliasing of the same one and only reasonable CharSet which is UTF-8.
 			return Persistence.standardCharset();
@@ -35,7 +36,7 @@ public interface StorageLockFileSetup
 	
 	public static StorageLockFileSetup New(
 		final StorageFileProvider            lockFileProvider       ,
-		final StorageProcessIdentityProvider processIdentityProvider,
+		final ProcessIdentityProvider processIdentityProvider,
 		final Charset                        charset                ,
 		final long                           updateInterval
 	)
@@ -55,7 +56,7 @@ public interface StorageLockFileSetup
 		////////////////////
 		
 		private final StorageFileProvider            lockFileProvider       ;
-		private final StorageProcessIdentityProvider processIdentityProvider;
+		private final ProcessIdentityProvider processIdentityProvider;
 		private final Charset                        charset                ;
 		private final long                           updateInterval         ;
 		
@@ -67,7 +68,7 @@ public interface StorageLockFileSetup
 		
 		Default(
 			final StorageFileProvider            lockFileProvider       ,
-			final StorageProcessIdentityProvider processIdentityProvider,
+			final ProcessIdentityProvider processIdentityProvider,
 			final Charset                        charset                ,
 			final long                           updateInterval
 		)

@@ -1,4 +1,4 @@
-package one.microstream.storage.types;
+package one.microstream.util;
 
 import java.lang.management.ManagementFactory;
 
@@ -7,7 +7,7 @@ import java.lang.management.ManagementFactory;
  * 
  * @author TM
  */
-public interface StorageProcessIdentityProvider
+public interface ProcessIdentityProvider
 {
 	public String provideProcessIdentity();
 	
@@ -21,12 +21,12 @@ public interface StorageProcessIdentityProvider
 	
 	
 	
-	public static StorageProcessIdentityProvider New()
+	public static ProcessIdentityProvider New()
 	{
-		return new StorageProcessIdentityProvider.Default();
+		return new ProcessIdentityProvider.Default();
 	}
 	
-	public final class Default implements StorageProcessIdentityProvider
+	public final class Default implements ProcessIdentityProvider
 	{
 		Default()
 		{
@@ -36,7 +36,7 @@ public interface StorageProcessIdentityProvider
 		@Override
 		public String provideProcessIdentity()
 		{
-			return StorageProcessIdentityProvider.queryProcessIdentity();
+			return ProcessIdentityProvider.queryProcessIdentity();
 		}
 		
 	}
