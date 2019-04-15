@@ -50,7 +50,7 @@ public final class XDebug
 	// static methods //
 	///////////////////
 
-	static String formatTimestamp(final Date timestamp)
+	public static String formatCommonTime(final Date timestamp)
 	{
 		/*
 		 * JDK people are not capable of programming thread safe utility classes, so a new instance
@@ -59,7 +59,7 @@ public final class XDebug
 		return new SimpleDateFormat("HH:mm:ss.SSS").format(timestamp);
 	}
 	
-	static String formatTimestamp(final long timestamp)
+	public static String formatNanoTime(final long timestamp)
 	{
 		/*
 		 * JDK people are not capable of programming thread safe utility classes, so a new instance
@@ -81,7 +81,7 @@ public final class XDebug
 		System.out.println(
 			VarString.New(LINE_BUFFER_INITIAL_SIZE)
 			.padRight(toMethodLink(e), SOURCE_POSITION_PADDING, ' ')
-			.add(formatTimestamp(now()))
+			.add(formatCommonTime(now()))
 			.add(TIME_SEPERATOR)
 			.add(s))
 		;

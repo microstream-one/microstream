@@ -243,6 +243,7 @@ public final class XChars
 				return false;
 			}
 		}
+		
 		return true;
 	}
 

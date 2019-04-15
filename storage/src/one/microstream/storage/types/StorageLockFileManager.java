@@ -4,13 +4,15 @@ import static one.microstream.X.notNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.util.Date;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.collections.XArrays;
 import one.microstream.concurrency.XThreads;
 import one.microstream.memory.XMemory;
+import one.microstream.meta.XDebug;
 
 public interface StorageLockFileManager extends Runnable
 {
@@ -87,6 +89,13 @@ public interface StorageLockFileManager extends Runnable
 			this.reader              = reader             ;
 			this.writer              = writer             ;
 			this.vs                  = VarString.New()    ;
+			
+			// 2 timestamps with separators and an identifier. Should suffice.
+			this.wrappedByteBuffer = new ByteBuffer[1];
+
+			this.stringReadBuffer = new byte[64];
+			this.stringWriteBuffer = this.stringReadBuffer.clone();
+			this.allocateBuffer(this.stringReadBuffer.length);
 		}
 		
 		
@@ -131,6 +140,8 @@ public interface StorageLockFileManager extends Runnable
 			{
 				this.checkInitialized();
 				
+				XDebug.println("Lock File Manager is running ...");
+				
 				// wait first after the intial write, then perform the regular update
 				while(this.checkIsRunning())
 				{
@@ -156,7 +167,17 @@ public interface StorageLockFileManager extends Runnable
 			{
 				return;
 			}
-			this.initialize();
+			
+			try
+			{
+				this.initialize();
+			}
+			catch(final Exception e)
+			{
+				this.operationController.registerDisruptingProblem(e);
+				this.ensureClosedFile();
+				throw e;
+			}
 		}
 		
 		private void checkInitialized()
@@ -170,22 +191,23 @@ public interface StorageLockFileManager extends Runnable
 			throw new RuntimeException(StorageLockFileManager.class.getSimpleName() + " not initialized.");
 		}
 		
-		private ByteBuffer ensureReadingBuffer(final int capacity)
+		private ByteBuffer ensureReadingBuffer(final int fileLength)
 		{
-			if(ensureBufferCapacity(capacity))
+			ensureBufferCapacity(fileLength);
+			if(this.stringReadBuffer.length != fileLength)
 			{
-				this.stringReadBuffer = new byte[capacity];
+				this.stringReadBuffer = new byte[fileLength];
 			}
+			
+			this.directByteBuffer.limit(fileLength);
 			
 			return this.directByteBuffer;
 		}
 		
 		private ByteBuffer[] ensureWritingBuffer(final byte[] bytes)
 		{
-			if(ensureBufferCapacity(bytes.length))
-			{
-				this.stringWriteBuffer = bytes;
-			}
+			ensureBufferCapacity(bytes.length);
+			this.stringWriteBuffer = bytes;
 			
 			return this.wrappedByteBuffer;
 		}
@@ -198,16 +220,21 @@ public interface StorageLockFileManager extends Runnable
 				return false;
 			}
 			
-			/* data has to be copied 3242 times in JDK to build a single String.
+			/* data has to be copied 3242 times in JDK to load a single String.
 			 * Note that using a byte[]-wrapping ByteBuffer is not better since the geniuses
 			 * use a TemporaryDirectBuffer internally for non-direct buffers that adds the copying step anyway.
 			 * The only reasonable thing to use with nio is the DirectByteBuffer, despite all the missing API
 			 * and API hiding issues.
 			 */
 			XMemory.deallocateDirectByteBuffer(this.directByteBuffer);
-			this.wrappedByteBuffer[0] = this.directByteBuffer = ByteBuffer.allocate(capacity);
+			this.allocateBuffer(capacity);
 			
 			return true;
+		}
+		
+		private void allocateBuffer(final int capacity)
+		{
+			this.wrappedByteBuffer[0] = this.directByteBuffer = ByteBuffer.allocateDirect(capacity);
 		}
 		
 		private String readString()
@@ -324,14 +351,19 @@ public interface StorageLockFileManager extends Runnable
 		private void initialize()
 		{
 			final StorageFileProvider fileProvider = this.setup.lockFileProvider();
-			final StorageLockedFile   lockFile     = fileProvider.provideLockFile();
+			this.lockFile = fileProvider.provideLockFile();
 			
-			if(lockFile.exists())
+			if(this.lockFile.exists() && this.lockFile.length() > 0)
 			{
 				this.validateExistingLockFileData(true);
 			}
 
 			this.lockFileData = new LockFileData(this.setup.processIdentity(), this.setup.updateInterval());
+			
+			// (15.04.2019 TM)FIXME: /!\ DEBUG
+			XDebug.println(
+				"Initial lock data: " + this.lockFileData.identifier + "@" + this.lockFileData.updateInterval
+			);
 			
 			this.writeLockFileData();
 		}
@@ -378,7 +410,7 @@ public interface StorageLockFileManager extends Runnable
 			this.fillReadBufferFromFile();
 			
 			// performance-optimized JDK method
-			if(Arrays.equals(this.stringReadBuffer, this.stringWriteBuffer))
+			if(XArrays.equals(this.stringReadBuffer, this.stringWriteBuffer, this.stringWriteBuffer.length))
 			{
 				return;
 			}
@@ -390,6 +422,13 @@ public interface StorageLockFileManager extends Runnable
 		private void writeLockFileData()
 		{
 			this.lockFileData.update();
+			// (15.04.2019 TM)FIXME: /!\ DEBUG
+			XDebug.println(
+				"Writing lock data: "
+				+ XDebug.formatCommonTime(new Date(this.lockFileData.lastWriteTime)) + ";"
+				+ XDebug.formatCommonTime(new Date(this.lockFileData.expirationTime)) + ";"
+				+ this.lockFileData.identifier
+			);
 			
 			this.vs.reset()
 			.add(this.lockFileData.lastWriteTime).add(';')
@@ -405,9 +444,9 @@ public interface StorageLockFileManager extends Runnable
 		private void updateFile()
 		{
 			// check again after the wait time.
-			if(this.checkIsRunning())
+			if(!this.checkIsRunning())
 			{
-				// abort to avoid un unnecessary write.
+				// abort to avoid an unnecessary write.
 				return;
 			}
 			

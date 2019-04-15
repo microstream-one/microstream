@@ -1,6 +1,7 @@
 package one.microstream.collections;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -349,6 +350,11 @@ public final class XArrays
 			}
 		}
 		return true;
+	}
+	
+	public static final boolean equals(final byte[] array1, final byte[] array2, final int length)
+	{
+		return Arrays.equals(array1, 0, length, array2, 0, length);
 	}
 
 	/**

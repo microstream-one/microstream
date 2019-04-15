@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 2019-04-03 MS-62\par
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 2019-04-03 MS-62\par
 \par
 Planung:\par
 \par
@@ -80,7 +81,7 @@ Siehe StorageManager#startBackupThread\par
 \par
 \par
 ProcessId wird wieder mal nicht so einfach:\par
-{\field{\*\fldinst{HYPERLINK "https://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id"}}{\fldrslt{\ul\cf1 https://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id}}}\f0\fs28\line Also ein extra Interface daf\'fcr.\par
+{{\field{\*\fldinst{HYPERLINK https://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id }}{\fldrslt{https://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id\ul0\cf0}}}}\f0\fs28\line Also ein extra Interface daf\'fcr.\par
 \par
 \par
 2019-04-04\par
@@ -191,6 +192,45 @@ Jetzt den gestern gebauten Creator in die Foundation und den StorageManager einb
 Jetzt waren das noch so viele kleine Verflechtungen und Details, dass ich alles gemact hab, nur den Einbau in die Foundation noch nicht. Haha.\par
 Aber immerhin.\par
 Sp\'e4ter dann nur noch Foundation Erweiterung und dann testen.\par
+\par
+\par
+2019-04-15\par
+\par
+Jetzt endlich Integration in Foundation und Testen.\par
+Okay, ProcessIdentityProvider auch noch ...\par
+Jetzt testen.\par
+Exception. Paar Kleinigkeiten, Fl\'fcchtigkeitsfehler. War zu erwarten.\par
+Noch paar.\par
+Zwischendrin paar kleinere Refactorings in bestehendem Code.\par
+Oh Mann, langsam wirds nervig. Aber sind immer nur Kleinigkeiten.\par
+\par
+Ah, nicht so Kleinigkeit: Der LockManager Thread darf nicht starten, bevor der Rest \'fcberhaupt den ordentlichen Running State hat, sonst beendet er sich sofort wieder.\par
+Einfach einmal warten lassen ist pfuschig. H\'e4ngt mal was vom OS her oder gro\'dfen Dateien oder so, beendet sich auf einmal das Ding.\par
+Saubere L\'f6sung: Ganz als erstes in der initialisierung die LockFileManager Logik starten, den Thread daf\'fcr aber erst am Ende.\par
+Funzt.\par
+\par
+Jetzt concurrent modification exception, die nat\'fcrlich quatsch ist.\par
+Mal debuggen.\par
+Read Buffer hat lauter nuller. Seltsam. Pr\'fcfen.\par
+Da steht nix im File.\par
+Nochmal von vorne debuggen und schauen, warum nicht.\par
+Fiel gr\'f6\'dfe ist 64 byte, aber belegte Gr\'f6\'dfe ist 0.\par
+Pr\'fcfen, ob force gemacht wird.\par
+Ja, wirds.\par
+Und es stehen lauter 0er bytes drin. (NUL char).\par
+Seltsam: selbst nach dem File beenden ist die belegte Gr\'f6\'dfe 0 Byte. Das kann doch nicht richtig sein ...\par
+\par
+Rumrecherchieren ... Oh Mann...\par
+\par
+Au\'dferdem regt mich auf, dass wegen behindertem JDK Code st\'e4ndig neue Byte Arrays erzeugt werden m\'fcssen, weil sie zu d\'e4mlich sind, gescheite utilmethoden zu schreiben.\par
+Mal kurz recherchieren, ob man das selber bauen k\'f6nnte.\par
+W\'e4r gar nicht so schwierig:\par
+{{\field{\*\fldinst{HYPERLINK http://www.herongyang.com/Unicode/UTF-8-UTF-8-Encoding-Algorithm.html }}{\fldrslt{http://www.herongyang.com/Unicode/UTF-8-UTF-8-Encoding-Algorithm.html\ul0\cf0}}}}\f0\fs28\par
+\par
+Aber andererseits ... sowas ist ein Implementierungsdetail. Kann man in der Zukunft immer noch machen ...\par
+\par
+\par
+\par
 \par
 }
  

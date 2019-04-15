@@ -93,6 +93,8 @@ public interface StorageManager extends StorageController
 		private          StorageBackupHandler backupHandler;
 		private          Thread               backupThread ;
 		
+		private          Thread               lockFileManagerThread;
+		
 		private StorageIdAnalysis initializationIdAnalysis;
 
 
@@ -273,7 +275,7 @@ public interface StorageManager extends StorageController
 			this.backupThread.start();
 		}
 		
-		private void startLockFileManagerThread()
+		private void initializeLockFileManager()
 		{
 			final StorageLockFileManager lockFileManager = this.lockFileManagerCreator.createLockFileManager(
 				this.lockFileSetup,
@@ -286,8 +288,14 @@ public interface StorageManager extends StorageController
 			lockFileManager.start();
 			
 			// setup a lock file manager thread and start it if initialization (obtaining the "lock") was successful.
-			this.backupThread = this.threadProvider.provideLockFileManagerThread(lockFileManager);
-			this.backupThread.start();
+			this.lockFileManagerThread = this.threadProvider.provideLockFileManagerThread(lockFileManager);
+			// can't start before the operation controller isn't in proper running state...
+		}
+		
+		private void startLockFileManagerThread()
+		{
+			// can't start before the operation controller isn't in proper running state, hence the extra method
+			this.lockFileManagerThread.start();
 		}
 
 
@@ -367,7 +375,7 @@ public interface StorageManager extends StorageController
 		private void internalStartUp() throws InterruptedException
 		{
 			// first of all, the lock file needs to be obtained before any writing action may occur.
-			this.startLockFileManagerThread();
+			this.initializeLockFileManager();
 			
 			// thread safety and state consistency ensured prior to calling
 
@@ -386,6 +394,9 @@ public interface StorageManager extends StorageController
 			this.objectIdRangeEvaluator.evaluateObjectIdRange(0, maxOid == null ? 0 : maxOid);
 			
 			this.initializationIdAnalysis = idAnalysis;
+
+			// mandatory
+			this.startLockFileManagerThread();
 			
 			// optional
 			this.startBackupThread();
