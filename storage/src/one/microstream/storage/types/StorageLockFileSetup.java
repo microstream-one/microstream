@@ -23,7 +23,7 @@ public interface StorageLockFileSetup
 		public static long defaultUpdateInterval()
 		{
 			// default of 10 seconds (meaning the lock file content is read, validated and written every 10 seconds)
-			return 2_000L;
+			return 10_000L;
 		}
 		
 		public static Charset defaultCharset()

@@ -165,7 +165,6 @@ public final class Storage
 	{
 		return BackupSetup(backupDirectory.getPath());
 	}
-
 	
 	public static final StorageBackupSetup BackupSetup(
 		final String backupDirectoryIdentifier
@@ -188,6 +187,10 @@ public final class Storage
 		);
 	}
 		
+	public static StorageLockFileSetup.Provider LockFileSetupProvider()
+	{
+		return StorageLockFileSetup.Provider();
+	}
 	
 
 	/**

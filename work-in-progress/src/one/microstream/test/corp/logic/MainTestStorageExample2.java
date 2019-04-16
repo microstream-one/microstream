@@ -12,6 +12,7 @@ public class MainTestStorageExample2
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 //		.Foundation()
+//		.setLockFileSetupProvider(Storage.LockFileSetupProvider())
 //		.setRefactoringMappingProvider(
 //			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
 //		)
@@ -20,7 +21,6 @@ public class MainTestStorageExample2
 //				Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
 //			)
 //		)
-//		.setLockFileSetupProvider(StorageLockFileSetup.Provider())
 		.start()
 	;
 
