@@ -3,6 +3,7 @@ package one.microstream.concurrency;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 /**
  * @author Thomas Muenz
@@ -10,6 +11,50 @@ import java.lang.reflect.Method;
  */
 public final class XThreads
 {
+	///////////////////////////////////////////////////////////////////////////
+	// constants //
+	//////////////
+	
+	/**
+	 * @see #executeSynchronized(Runnable)
+	 */
+	private static final Object GLOBAL_LOCK = new Object();
+	
+	
+	/**
+	 * Very simple and naive way of handling an application's concurrency globally:<br>
+	 * Every logic that has concurrent modifications and/or race conditions in it has to be executed via
+	 * this mechanism, making an application's concurrent parts effectively single-threaded.<br>
+	 * While this is not foolproof (one critical block of logic spread over multiple calls can still
+	 * create inconsistent state, waiting threads are selected randomly, etc.) and definitely not suitable
+	 * for complex applications, it can be a conveniently simple, working way to make concurrency-wise
+	 * simple applications sufficiently concurrency-safe.
+	 * 
+	 * @param <T>
+	 * @param logic
+	 * @return
+	 */
+	public static <T> T executeSynchronized(final Supplier<T> logic)
+	{
+		synchronized(GLOBAL_LOCK)
+		{
+			return logic.get();
+		}
+	}
+	
+	/**
+	 * @see #executeSynchronized(Runnable)
+	 */
+	public static void executeSynchronized(final Runnable logic)
+	{
+		synchronized(GLOBAL_LOCK)
+		{
+			logic.run();
+		}
+	}
+	
+	
+	
 	public static final <T extends Thread> T start(final T thread)
 	{
 		thread.start();
