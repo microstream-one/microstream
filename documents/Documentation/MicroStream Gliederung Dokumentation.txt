@@ -12,20 +12,20 @@ TM, 2019-04-16
 02.) Betriebskontrolle
 - Shutdown: möglich aber nicht nötig. Siehe Safety.
 - Sicherung durch LockFile. Siehe unten.
-- Beliebiges starten und stoppen in der Anwendung möglich
+- Beliebiges Starten und Stoppen in der Anwendung möglich
 - Beliebig viele Datenbankinstanzen in einer Anwendung möglich
 
 03.) Anwendungsarchitektonische Schichten
-- Anwendungsebene (Swizzling, Storer, Loader, Lazy References. )
-- Storageebene (Channels, Threads, Dateien, Caching, Housekeeping.)
-- Fileebene (channel, dat-Dateien, transactions Datei, TypeDictionary, Backup Dateien.)
+- Anwendungsebene (Swizzling, Storer, Loader, Lazy References)
+- Storageebene (Channels, Threads, Dateien, Caching, Housekeeping)
+- Fileebene (channel, dat-Dateien, transactions Datei, TypeDictionary, Backup Dateien)
 (Jeweils Links nach unten.)
 
 04.) Codearchitektonische Schichten
 - Persistence (Persistierung allgemein, auch für Serialisierung. Beliebiges Format, theoretisch auch CSV, XML, JSON)
 - Binary Persistence (Binary Implementierung für Persistence Schicht)
 - Storage (Datenbanklösung mit Binary Persistence, theoretisch auch standalone Prozess)
-- EmbeddedStorage (Schnittstelle für Anwendung zu Storage)
+- EmbeddedStorage (Schnittstelle für Anwendung zu Storage, gestartet im selben Prozess)
 
 05.) Rootinstanz
 - Bedeutung und Möglichkeiten zur Registrierung
