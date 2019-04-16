@@ -33,12 +33,24 @@ public interface StorageLockFileSetup
 		}
 	}
 	
+	public static StorageLockFileSetup New(
+		final StorageFileProvider     lockFileProvider       ,
+		final ProcessIdentityProvider processIdentityProvider
+	)
+	{
+		return New(
+			lockFileProvider                ,
+			processIdentityProvider         ,
+			Defaults.defaultCharset()       ,
+			Defaults.defaultUpdateInterval()
+		);
+	}
 	
 	public static StorageLockFileSetup New(
-		final StorageFileProvider            lockFileProvider       ,
+		final StorageFileProvider     lockFileProvider       ,
 		final ProcessIdentityProvider processIdentityProvider,
-		final Charset                        charset                ,
-		final long                           updateInterval
+		final Charset                 charset                ,
+		final long                    updateInterval
 	)
 	{
 		return new StorageLockFileSetup.Default(
@@ -55,10 +67,10 @@ public interface StorageLockFileSetup
 		// instance fields //
 		////////////////////
 		
-		private final StorageFileProvider            lockFileProvider       ;
+		private final StorageFileProvider     lockFileProvider       ;
 		private final ProcessIdentityProvider processIdentityProvider;
-		private final Charset                        charset                ;
-		private final long                           updateInterval         ;
+		private final Charset                 charset                ;
+		private final long                    updateInterval         ;
 		
 		
 		
@@ -67,10 +79,10 @@ public interface StorageLockFileSetup
 		/////////////////
 		
 		Default(
-			final StorageFileProvider            lockFileProvider       ,
+			final StorageFileProvider     lockFileProvider       ,
 			final ProcessIdentityProvider processIdentityProvider,
-			final Charset                        charset                ,
-			final long                           updateInterval
+			final Charset                 charset                ,
+			final long                    updateInterval
 		)
 		{
 			super();
@@ -108,6 +120,39 @@ public interface StorageLockFileSetup
 		public final Charset charset()
 		{
 			return this.charset;
+		}
+		
+	}
+	
+	
+	
+	public static StorageLockFileSetup.Provider Provider()
+	{
+		return new StorageLockFileSetup.Provider.Default();
+	}
+	
+	public interface Provider
+	{
+		public StorageLockFileSetup provideLockFileSetup(StorageFoundation<?> foundation);
+		
+		public final class Default implements StorageLockFileSetup.Provider
+		{
+			Default()
+			{
+				super();
+			}
+			
+			@Override
+			public StorageLockFileSetup provideLockFileSetup(
+				final StorageFoundation<?> foundation
+			)
+			{
+				return StorageLockFileSetup.New(
+					foundation.getConfiguration().fileProvider(),
+					foundation.getProcessIdentityProvider()
+				);
+			}
+			
 		}
 		
 	}

@@ -4,7 +4,6 @@ import static one.microstream.X.notNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Date;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
@@ -207,6 +206,8 @@ public interface StorageLockFileManager extends Runnable
 		private ByteBuffer[] ensureWritingBuffer(final byte[] bytes)
 		{
 			ensureBufferCapacity(bytes.length);
+			this.directByteBuffer.limit(bytes.length);
+			
 			this.stringWriteBuffer = bytes;
 			
 			return this.wrappedByteBuffer;
@@ -250,7 +251,7 @@ public interface StorageLockFileManager extends Runnable
 			this.reader.readStorage(this.lockFile, 0, this.ensureReadingBuffer(fileLength), this);
 			XMemory.copyRangeToArray(XMemory.getDirectByteBufferAddress(this.directByteBuffer), this.stringReadBuffer);
 		}
-				
+						
 		private LockFileData readLockFileData()
 		{
 			final String currentFileData = this.readString();
@@ -262,7 +263,7 @@ public interface StorageLockFileManager extends Runnable
 			final int sep2Index = indexOfFirstNonNumberCharacter(chars, sep1Index + 1);
 			
 			final long   currentTime    = XChars.parse_longDecimal(chars, 0, sep1Index);
-			final long   expirationTime = XChars.parse_longDecimal(chars, sep1Index + 1, sep2Index - sep1Index);
+			final long   expirationTime = XChars.parse_longDecimal(chars, sep1Index + 1, sep2Index - sep1Index - 1);
 			final String identifier     = String.valueOf(chars, sep2Index + 1, chars.length - sep2Index - 1);
 			
 			return new LockFileData(currentTime, expirationTime, identifier);
@@ -331,7 +332,7 @@ public interface StorageLockFileManager extends Runnable
 			 */
 			final boolean isLongExpired()
 			{
-				return System.currentTimeMillis() < this.expirationTime + this.updateInterval;
+				return System.currentTimeMillis() > this.expirationTime + this.updateInterval;
 			}
 			
 		}
@@ -360,10 +361,9 @@ public interface StorageLockFileManager extends Runnable
 
 			this.lockFileData = new LockFileData(this.setup.processIdentity(), this.setup.updateInterval());
 			
-			// (15.04.2019 TM)FIXME: /!\ DEBUG
-			XDebug.println(
-				"Initial lock data: " + this.lockFileData.identifier + "@" + this.lockFileData.updateInterval
-			);
+//			XDebug.println(
+//				"Initial lock data: " + this.lockFileData.identifier + " update=" + this.lockFileData.updateInterval
+//			);
 			
 			this.writeLockFileData();
 		}
@@ -393,7 +393,7 @@ public interface StorageLockFileManager extends Runnable
 			{
 				// wait one interval and try a second time
 				XThreads.sleep(existingFiledata.updateInterval);
-				validateExistingLockFileData(true);
+				validateExistingLockFileData(false);
 				
 				// reaching here means no exception (but expiration) on the second attempt, meaning success.
 				return;
@@ -412,6 +412,9 @@ public interface StorageLockFileManager extends Runnable
 			// performance-optimized JDK method
 			if(XArrays.equals(this.stringReadBuffer, this.stringWriteBuffer, this.stringWriteBuffer.length))
 			{
+//				XDebug.println(
+//					"Current LockFile is valid: " + new String(this.stringReadBuffer, this.setup.charset())
+//				);
 				return;
 			}
 
@@ -422,13 +425,13 @@ public interface StorageLockFileManager extends Runnable
 		private void writeLockFileData()
 		{
 			this.lockFileData.update();
-			// (15.04.2019 TM)FIXME: /!\ DEBUG
-			XDebug.println(
-				"Writing lock data: "
-				+ XDebug.formatCommonTime(new Date(this.lockFileData.lastWriteTime)) + ";"
-				+ XDebug.formatCommonTime(new Date(this.lockFileData.expirationTime)) + ";"
-				+ this.lockFileData.identifier
-			);
+			
+//			XDebug.println(
+//				"Writing lock data: "
+//				+ XDebug.formatCommonTime(new Date(this.lockFileData.lastWriteTime)) + ";"
+//				+ XDebug.formatCommonTime(new Date(this.lockFileData.expirationTime)) + ";"
+//				+ this.lockFileData.identifier
+//			);
 			
 			this.vs.reset()
 			.add(this.lockFileData.lastWriteTime).add(';')
@@ -438,6 +441,9 @@ public interface StorageLockFileManager extends Runnable
 			
 			final byte[] bytes = this.vs.encodeBy(this.setup.charset());
 			final ByteBuffer[] bb = this.ensureWritingBuffer(bytes);
+			
+			XMemory.copyArrayToAddress(bytes, XMemory.getDirectByteBufferAddress(this.directByteBuffer));
+			
 			this.writer.write(this.lockFile, bb);
 		}
 				
