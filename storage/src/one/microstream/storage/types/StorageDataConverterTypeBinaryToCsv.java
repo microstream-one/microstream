@@ -548,7 +548,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				return;
 			}
 
-			// (13.10.2018 TM)FIXME: /!\ replace autoclose by external closing
+			// (13.10.2018 TM)FIXME: replace autoclose by external closing
 			try(SeekableByteChannel inputChannel = (this.currentSourceFile = file).fileChannel())
 			{
 				try

@@ -230,6 +230,40 @@ W\'e4r gar nicht so schwierig:\par
 Aber andererseits ... sowas ist ein Implementierungsdetail. Kann man in der Zukunft immer noch machen ...\par
 \par
 \par
+2019-04-16\par
+\par
+Verflixtes Schreibproblem ansehen. Echt seltsam, bei den normalen Storage-Dateien funktioniert derSELBE Writer Code einwandfrei. Also evtl. vorher irgendwo.\par
+\par
+Aber vorher noch wichtige Idee einbauen:\line Wenn das UpdateInterval 0 ist, dann LockFile gar nicht machen, Manager nicht starten.\par
+Ist schnell eingebaut.\par
+Aber ... hm ...\par
+Sollte es vielleicht Defaultm\'e4\'dfig aus sein? Immerhin ist die Anforderung schon sehr ... naja ... speziell und das Dign w\'e4r das einzige, das selbst bei Inaktivit\'e4t regelm\'e4\'dfig auf die Platte schreibt und Instanzen erzeugt, die den Heap volllaufen lassen.\par
+Dann sollte es aber eine simple Methode geben, um das zu aktivieren. Z.B. noch einen Provider/Builder/Creator, den man nur setzen muss.\par
+Evtl. sollte dann doch ein null Setup erlaubt sein. \'c4hnlich wie beim Backup. Dann br\'e4ucht ich den Hack mit dem Interval 0 auch nicht...\par
+\par
+So einbauen. Testen. Passt.\par
+\par
+Jetzt Schreibproblem untersuchen.\par
+Ach, schnell gefunden: Ich \'fcbergeb zwar das erzeugte Byte-Array, aber nur um die Capacity zu ensuren. Die Daten m\'fcssen ja auch noch umkopiert werden.\par
+Fixen.\par
+Testen.\par
+Passt.\par
+\par
+Noch bissl debuginformationen reinbauen, nochmal testen.\par
+\par
+Jetzt Neustart mit lockfile Validierung testen.\par
+Noch kleinen Arithmetikfehler beim File parsen Index rausmachen.\par
+\par
+Dreher in firstAttempt argument rausmachen.\par
+Pr\'fcfen, warum das nicht expiret.\par
+War verdrehtes ">". Jetzt gehts.\par
+\par
+Passt. Jetzt l\'e4uft auch das LockFile Einlesen, Validieren, \'dcbernehmen und danach weiter normal updaten.\par
+\par
+Noch nach "MS-62" TODOs suchen: Keine.\par
+\par
+Debug-Printlns rausmachen. Und gleich mal Vorkommen von "/!\\" allgemein.\par
+\line Fertig. Committen, mergen, Issue Update.\par
 \par
 \par
 }

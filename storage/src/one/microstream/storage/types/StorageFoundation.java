@@ -68,6 +68,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	
 	public StorageLockFileSetup getLockFileSetup();
 	
+	public StorageLockFileSetup.Provider getLockFileSetupProvider();
+	
 	public StorageLockFileManager.Creator getLockFileManagerCreator();
 
 	public StorageExceptionHandler getExceptionHandler();
@@ -129,6 +131,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	
 	public F setLockFileSetup(StorageLockFileSetup lockFileSetup);
 	
+	public F setLockFileSetupProvider(StorageLockFileSetup.Provider lockFileSetupProvider);
+	
 	public F setLockFileManagerCreator(StorageLockFileManager.Creator lockFileManagerCreator);
 
 	public F setExceptionHandler(StorageExceptionHandler exceptionHandler);
@@ -173,6 +177,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private BinaryEntityRawDataIterator.Provider  entityDataIteratorProvider   ;
 		private StorageEntityDataValidator.Creator    entityDataValidatorCreator   ;
 		private StorageLockFileSetup                  lockFileSetup                ;
+		private StorageLockFileSetup.Provider         lockFileSetupProvider        ;
 		private StorageLockFileManager.Creator        lockFileManagerCreator       ;
 		private StorageExceptionHandler               exceptionHandler             ;
 
@@ -368,12 +373,12 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		
 		protected StorageLockFileSetup ensureLockFileSetup()
 		{
-			return StorageLockFileSetup.New(
-				this.getConfiguration().fileProvider(),
-				this.getProcessIdentityProvider(),
-				StorageLockFileSetup.Defaults.defaultCharset(),
-				StorageLockFileSetup.Defaults.defaultUpdateInterval()
-			);
+			final StorageLockFileSetup.Provider lockFileSetupProvider = this.getLockFileSetupProvider();
+			
+			return lockFileSetupProvider == null
+				? null
+				: lockFileSetupProvider.provideLockFileSetup(this)
+			;
 		}
 		
 		protected StorageLockFileManager.Creator ensureLockFileManagerCreator()
@@ -671,6 +676,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 		
 		@Override
+		public StorageLockFileSetup.Provider getLockFileSetupProvider()
+		{
+			// intentionally no ensuring since the lock file mechanism is off by default
+			return this.lockFileSetupProvider;
+		}
+		
+		@Override
 		public StorageLockFileManager.Creator getLockFileManagerCreator()
 		{
 			if(this.lockFileManagerCreator == null)
@@ -914,6 +926,15 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		)
 		{
 			this.lockFileSetup = lockFileSetup;
+			return this.$();
+		}
+		
+		@Override
+		public F setLockFileSetupProvider(
+			final StorageLockFileSetup.Provider lockFileSetupProvider
+		)
+		{
+			this.lockFileSetupProvider = lockFileSetupProvider;
 			return this.$();
 		}
 		

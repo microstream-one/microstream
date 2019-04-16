@@ -159,7 +159,7 @@ public interface StorageManager extends StorageController
 			this.oidMarkQueueCreator            = notNull(oidMarkQueueCreator)                 ;
 			this.entityMarkMonitorCreator       = notNull(entityMarkMonitorCreator)            ;
 			this.exceptionHandler               = notNull(exceptionHandler)                    ;
-			this.lockFileSetup                  = notNull(lockFileSetup)                       ;
+			this.lockFileSetup                  = mayNull(lockFileSetup)                       ;
 			this.lockFileManagerCreator         = notNull(lockFileManagerCreator)              ;
 			this.backupSetup                    = mayNull(storageConfiguration.backupSetup())  ;
 			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
@@ -277,6 +277,12 @@ public interface StorageManager extends StorageController
 		
 		private void initializeLockFileManager()
 		{
+			if(this.lockFileSetup == null || this.lockFileSetup.updateInterval() == 0)
+			{
+				// no setup or no interval means lock file is not desired
+				return;
+			}
+			
 			final StorageLockFileManager lockFileManager = this.lockFileManagerCreator.createLockFileManager(
 				this.lockFileSetup,
 				this.operationController,
@@ -294,6 +300,12 @@ public interface StorageManager extends StorageController
 		
 		private void startLockFileManagerThread()
 		{
+			if(this.lockFileManagerThread == null)
+			{
+				// can be null if lock file is not desired. See #initializeLockFileManager
+				return;
+			}
+			
 			// can't start before the operation controller isn't in proper running state, hence the extra method
 			this.lockFileManagerThread.start();
 		}

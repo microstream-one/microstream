@@ -20,6 +20,7 @@ public class MainTestStorageExample2
 //				Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
 //			)
 //		)
+//		.setLockFileSetupProvider(StorageLockFileSetup.Provider())
 		.start()
 	;
 
