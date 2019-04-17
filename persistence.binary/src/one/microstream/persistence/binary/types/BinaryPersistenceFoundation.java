@@ -210,6 +210,7 @@ extends PersistenceFoundation<Binary, F>
 				this.getTypeAnalyzer(),
 				this.getFieldFixedLengthResolver(),
 				this.getReferenceFieldMandatoryEvaluator(),
+				this.getLambdaTypeRecognizer(),
 				this.isByteOrderMismatch()
 			);
 		}

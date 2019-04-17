@@ -14,6 +14,7 @@ import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceTypeAnalyzer;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
+import one.microstream.typing.LambdaTypeRecognizer;
 
 
 public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<Binary>
@@ -28,6 +29,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		final PersistenceTypeAnalyzer               typeAnalyzer              ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final LambdaTypeRecognizer                  lambdaTypeRecognizer      ,
 		final boolean                               switchByteOrder
 	)
 	{
@@ -35,6 +37,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			notNull(typeAnalyzer)              ,
 			notNull(lengthResolver)            ,
 			notNull(eagerStoringFieldEvaluator),
+			notNull(lambdaTypeRecognizer)      ,
 			switchByteOrder
 		);
 	}
@@ -59,10 +62,11 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final PersistenceTypeAnalyzer               typeAnalyzer              ,
 			final PersistenceFieldLengthResolver        lengthResolver            ,
 			final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+			final LambdaTypeRecognizer                  lambdaTypeRecognizer      ,
 			final boolean                               switchByteOrder
 		)
 		{
-			super(typeAnalyzer, lengthResolver, eagerStoringFieldEvaluator);
+			super(typeAnalyzer, lengthResolver, eagerStoringFieldEvaluator, lambdaTypeRecognizer);
 			this.switchByteOrder = switchByteOrder;
 		}
 
