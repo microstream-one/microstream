@@ -6,6 +6,7 @@ import one.microstream.collections.types.XEnum;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
+import one.microstream.typing.LambdaTypeRecognizer;
 import one.microstream.typing.TypeMapping;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BufferSizeProviderIncremental;
@@ -153,6 +154,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public PersistenceRootResolver rootResolver();
 	
+	public LambdaTypeRecognizer getLambdaTypeRecognizer();
+	
 	
 	
 	public F setObjectRegistry(PersistenceObjectRegistry objectRegistry);
@@ -250,6 +253,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public F setReferenceFieldMandatoryEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
 
 	public F setRootResolver(PersistenceRootResolver rootResolver);
+	
+	public F setLambdaTypeRecognizer(LambdaTypeRecognizer lambdaTypeRecognizer);
 	
 	public PersistenceRootResolver createRootResolver(Object root);
 
@@ -357,6 +362,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceRootResolver                 rootResolver               ;
 		private PersistenceRootsProvider<M>             rootsProvider              ;
 		private PersistenceSizedArrayLengthController   sizedArrayLengthController ;
+		private LambdaTypeRecognizer                    lambdaTypeRecognizer       ;
 		
 		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
 		private PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
@@ -992,6 +998,16 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		{
 			return this.rootResolver;
 		}
+		
+		@Override
+		public LambdaTypeRecognizer getLambdaTypeRecognizer()
+		{
+			if(this.lambdaTypeRecognizer == null)
+			{
+				this.lambdaTypeRecognizer = this.dispatch(this.ensureLambdaTypeRecognizer());
+			}
+			return this.lambdaTypeRecognizer;
+		}
 
 		@Override
 		public PersistenceRootsProvider<M> getRootsProvider()
@@ -1387,6 +1403,15 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		)
 		{
 			this.rootResolver = rootResolver;
+			return this.$();
+		}
+		
+		@Override
+		public F setLambdaTypeRecognizer(
+			final LambdaTypeRecognizer lambdaTypeRecognizer
+		)
+		{
+			this.lambdaTypeRecognizer = lambdaTypeRecognizer;
 			return this.$();
 		}
 
@@ -1913,6 +1938,11 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			);
 			
 			return rootsProvider;
+		}
+		
+		protected LambdaTypeRecognizer ensureLambdaTypeRecognizer()
+		{
+			return LambdaTypeRecognizer.New();
 		}
 		
 		protected ByteOrder ensureTargetByteOrder()

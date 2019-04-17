@@ -8,12 +8,25 @@ public interface LambdaTypeRecognizer
 	
 	
 	/**
-	 * Creates a {@link LambdaTypeRecognizer} instance with stateless default implementation.
-	 * See {@link one.microstream.typing.LambdaTypeRecognizer.Java8Makeshift}.
+	 * Creates a {@link LambdaTypeRecognizer} instance with stateless default implementation for the most current
+	 * approach (JDK version).<p>
+	 * 
+	 * Currently {@link #Java8Makeshift()}.
 	 * 
 	 * @return a new and stateless instance.
 	 */
 	public static LambdaTypeRecognizer New()
+	{
+		return Java8Makeshift();
+	}
+	
+	/**
+	 * Creates a {@link LambdaTypeRecognizer} instance with stateless makeshift implementation for Java 8 and
+	 * compatible later versions.
+	 * 
+	 * @return a new and stateless instance for Java 8.
+	 */
+	public static LambdaTypeRecognizer Java8Makeshift()
 	{
 		return new LambdaTypeRecognizer.Java8Makeshift();
 	}
@@ -27,7 +40,7 @@ public interface LambdaTypeRecognizer
 	 * This approach works correctly to recognize lambda types in Java 8. However,
 	 * it comes with the following two risks:<br>
 	 * 1.) Should any synthetic but non-lambda class contain that String in its type name,
-	 *     it will falsely be identified as a lambda.
+	 *     it will falsely be identified as a lambda.<br>
 	 * 2.) Should the JDK-internal implementation detail lambda type String that the used String refers to ever
 	 *     change in a future release, this approach will no longer recognize lambda types.
 	 * <p>

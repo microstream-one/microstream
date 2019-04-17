@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import one.microstream.typing.LambdaTypeRecognizer;
 
 public interface PersistenceTypeHandlerCreator<M>
 {
@@ -20,9 +21,10 @@ public interface PersistenceTypeHandlerCreator<M>
 		// instance fields //
 		////////////////////
 
-		final PersistenceTypeAnalyzer               typeAnalyzer           ;
-		final PersistenceFieldLengthResolver        lengthResolver         ;
+		final PersistenceTypeAnalyzer               typeAnalyzer              ;
+		final PersistenceFieldLengthResolver        lengthResolver            ;
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator;
+		final LambdaTypeRecognizer                  lambdaTypeRecognizer      ;
 		
 		
 		
@@ -33,13 +35,15 @@ public interface PersistenceTypeHandlerCreator<M>
 		protected AbstractImplementation(
 			final PersistenceTypeAnalyzer               typeAnalyzer              ,
 			final PersistenceFieldLengthResolver        lengthResolver            ,
-			final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator
+			final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+			final LambdaTypeRecognizer                  lambdaTypeRecognizer
 		)
 		{
 			super();
 			this.typeAnalyzer               = notNull(typeAnalyzer)              ;
 			this.lengthResolver             = notNull(lengthResolver)            ;
 			this.eagerStoringFieldEvaluator = notNull(eagerStoringFieldEvaluator);
+			this.lambdaTypeRecognizer       = notNull(lambdaTypeRecognizer)      ;
 		}
 
 
@@ -100,6 +104,15 @@ public interface PersistenceTypeHandlerCreator<M>
 				
 				// array types can never change and therefore can never have obsolete types.
 				return this.createTypeHandlerArray(type);
+			}
+			
+			if(this.lambdaTypeRecognizer.isLambdaType(type))
+			{
+				// (17.04.2019 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Lambdas are not supported as they cannot be resolved during loading"
+					+ " due to insufficient reflection mechanisms provided by Java."
+				);
 			}
 			
 			/* (25.03.2019 TM)NOTE:

@@ -1,6 +1,5 @@
 package one.microstream.test.corp.model;
 
-
 public final class Person extends Contact.AbstractImplementation
 {
 	///////////////////////////////////////////////////////////////////////////
