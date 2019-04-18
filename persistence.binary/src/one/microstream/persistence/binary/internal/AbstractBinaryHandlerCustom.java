@@ -1,7 +1,5 @@
 package one.microstream.persistence.binary.internal;
 
-import static one.microstream.X.notNull;
-
 import java.lang.reflect.Field;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -88,7 +86,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 
 	public static final PersistenceTypeDefinitionMemberPseudoFieldComplex
 	complex(
-		final String name,
+		final String                                         name        ,
 		final PersistenceTypeDescriptionMemberPseudoField... pseudoFields
 	)
 	{
@@ -101,7 +99,8 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 	
 	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> sizedArrayPseudoFields(
-		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields
+	)
 	{
 		return simpleArrayPseudoFields(
 			XArrays.add(
@@ -112,7 +111,8 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 
 	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> simpleArrayPseudoFields(
-		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields
+	)
 	{
 		return AbstractBinaryHandlerCustom.pseudoFields(
 			XArrays.add(
@@ -125,7 +125,8 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	}
 	
 	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> keyValuesPseudoFields(
-		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields)
+		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields
+	)
 	{
 		return AbstractBinaryHandlerCustom.pseudoFields(
 			XArrays.add(
@@ -138,7 +139,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 		);
 	}
 	
-	/* (04.04.2019 TM)TODO: BinaryField value-get/set-support
+	/* (04.04.2019 TM)TODO: MS-130 BinaryField value-get/set-support
 	 * To get rid of explicit offsets altogether, BinaryField could provide
 	 * 9 methods to store the 8 primitives and the reference case.
 	 * That would require 2 subclasses of BinaryField.
@@ -146,11 +147,54 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	 * The reference case implementation accordingly.
 	 */
 	
-	protected static final BinaryField Field(final Class<?> type)
+	protected static final BinaryField Field(
+		final Class<?>  type
+	)
 	{
-		return new BinaryField.Default(
-			notNull(type)
-		);
+		return BinaryField.New(type);
+	}
+	
+	protected static final BinaryField Field(
+		final Class<?> type,
+		final String   name
+	)
+	{
+		return BinaryField.New(type, name);
+	}
+	
+	protected static final BinaryField FieldComplex(
+		final PersistenceTypeDefinitionMemberPseudoField... nestedPseudoFields
+	)
+	{
+		return BinaryField.Complex(nestedPseudoFields);
+	}
+	
+	protected static final BinaryField FieldComplex(
+		final String                                        name              ,
+		final PersistenceTypeDefinitionMemberPseudoField... nestedPseudoFields
+	)
+	{
+		return BinaryField.Complex(name, nestedPseudoFields);
+	}
+	
+	protected static final BinaryField FieldBytes()
+	{
+		return BinaryField.Bytes();
+	}
+	
+	protected static final BinaryField FieldBytes(final String name)
+	{
+		return BinaryField.Bytes(name);
+	}
+	
+	protected static final BinaryField FieldChars()
+	{
+		return BinaryField.Chars();
+	}
+	
+	protected static final BinaryField FieldChars(final String name)
+	{
+		return BinaryField.Chars(name);
 	}
 	
 
@@ -177,6 +221,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	)
 	{
 		super(type);
+		// (18.04.2019 TM)FIXME: MS-130: replace by on-demand member-initialization
 		this.members = validateAndImmure(members);
 		this.binaryLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, members);
 		this.binaryLengthMaximum = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, members);
@@ -280,7 +325,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 		
 		this.collectBinaryFields(binaryFieldsPerClass);
 
-		final EqHashTable<String, BinaryField> binaryFieldsInOrder = EqHashTable.New();
+		final EqHashTable<String, BinaryField.Initializable> binaryFieldsInOrder = EqHashTable.New();
 		this.defineBinaryFieldOrder(binaryFieldsPerClass, (name, field) ->
 		{
 			/* (17.04.2019 TM)FIXME: MS-130: name must be unique.
@@ -296,6 +341,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 		});
 		
 		this.initializeBinaryFieldOffsets(binaryFieldsInOrder);
+		// (18.04.2019 TM)FIXME: MS-130: assign to members field here or somewhere appropriate.
 	}
 	
 	private void collectBinaryFields(
@@ -367,14 +413,45 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 		}
 	}
 	
-	private void initializeBinaryFieldOffsets(final XGettingTable<String, BinaryField> binaryFields)
+	private void initializeBinaryFieldOffsets(final XGettingTable<String, BinaryField.Initializable> binaryFields)
 	{
-		/* FIXME MS-130: AbstractBinaryHandlerCustom#initializeBinaryFieldOffsets()
-		 * - validate that only the last binary field may be of variable length
-		 * - start at offset 0, iterate the fields:
-		 * - set the current offset, add the field's binary length to the offset
-		 */
-		throw new one.microstream.meta.NotImplementedYetError();
+		validateVariableLengthLayout(binaryFields);
+		
+		long offset = 0;
+		for(final BinaryField.Initializable binaryField : binaryFields.values())
+		{
+			binaryField.initializeOffset(offset);
+			offset += binaryField.persistentMinimumLength();
+		}
+		// note: a trailing variable length field sets the offset to an invalid state, but that is never read.
+	}
+	
+	/**
+	 * Only the last field may have variable length, otherweise simple offsets can't be used.
+	 * 
+	 * @param binaryFields
+	 */
+	private static void validateVariableLengthLayout(final XGettingTable<String, ? extends BinaryField> binaryFields)
+	{
+		if(binaryFields.size() <= 1)
+		{
+			// no fields or a single field is implicitely valid.
+			return;
+		}
+		
+		final BinaryField lastBinaryField = binaryFields.values().peek();
+		for(final BinaryField binaryField : binaryFields.values())
+		{
+			if(!binaryField.isVariableLength())
+			{
+				continue;
+			}
+			if(binaryField != lastBinaryField)
+			{
+				// (18.04.2019 TM)EXCP: proper exception
+				throw new RuntimeException("Non-last binary field with variable length: " + binaryField.name());
+			}
+		}
 	}
 	
 	@Override

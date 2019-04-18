@@ -6,6 +6,10 @@ import static one.microstream.math.XMath.positive;
 public interface PersistenceTypeDefinitionMemberPseudoFieldVariableLength
 extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 {
+	@Override
+	public PersistenceTypeDefinitionMemberPseudoFieldVariableLength copyForName(String name);
+	
+	
 
 	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation New(
 		final PersistenceTypeDescriptionMemberPseudoFieldVariableLength description
@@ -94,6 +98,18 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		public final Class<?> type()
 		{
 			return null;
+		}
+
+		@Override
+		public PersistenceTypeDefinitionMemberPseudoFieldVariableLength copyForName(final String name)
+		{
+			return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation(
+				this.typeName(),
+				name,
+				this.isReference(),
+				this.persistentMinimumLength(),
+				this.persistentMaximumLength()
+			);
 		}
 
 	}

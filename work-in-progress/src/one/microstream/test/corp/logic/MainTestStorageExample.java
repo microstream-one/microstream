@@ -17,7 +17,7 @@ public class MainTestStorageExample
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			STORAGE.root().set(Test.generateModelData(100_000));
+			STORAGE.root().set(Test.generateModelData(1_000));
 			
 			Test.print("Storing ...");
 			STORAGE.store(STORAGE.root());

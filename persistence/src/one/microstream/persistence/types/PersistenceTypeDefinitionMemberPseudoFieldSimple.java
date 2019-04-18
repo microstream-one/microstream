@@ -7,6 +7,11 @@ import static one.microstream.math.XMath.positive;
 public interface PersistenceTypeDefinitionMemberPseudoFieldSimple
 extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMemberPseudoFieldSimple
 {
+	@Override
+	public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(String name);
+	
+	
+	
 	public static PersistenceTypeDefinitionMemberPseudoFieldSimple New(
 		final String   name                   ,
 		final String   typeName               ,
@@ -71,6 +76,19 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		public void assembleTypeDescription(final Appender assembler)
 		{
 			assembler.appendTypeMemberDescription(this);
+		}
+
+		@Override
+		public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(final String name)
+		{
+			return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Implementation(
+				name,
+				this.typeName(),
+				this.type,
+				this.isReference(),
+				this.persistentMinimumLength(),
+				this.persistentMaximumLength()
+			);
 		}
 
 	}
