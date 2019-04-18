@@ -8,6 +8,11 @@ import one.microstream.collections.types.XGettingSequence;
 public interface PersistenceTypeDefinitionMemberPseudoFieldComplex
 extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTypeDescriptionMemberPseudoFieldComplex
 {
+	@Override
+	public PersistenceTypeDefinitionMemberPseudoFieldComplex copyForName(String name);
+	
+	
+	
 	public static PersistenceTypeDefinitionMemberPseudoFieldComplex New(
 		final PersistenceTypeDescriptionMemberPseudoFieldComplex description
 	)
@@ -68,6 +73,17 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		public final Class<?> type()
 		{
 			return null;
+		}
+
+		@Override
+		public PersistenceTypeDefinitionMemberPseudoFieldComplex copyForName(final String name)
+		{
+			return new PersistenceTypeDefinitionMemberPseudoFieldComplex.Implementation(
+				name,
+				this.members(),
+				this.persistentMinimumLength(),
+				this.persistentMaximumLength()
+			);
 		}
 
 	}
