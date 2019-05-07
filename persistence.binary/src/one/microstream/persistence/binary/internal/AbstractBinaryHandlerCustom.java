@@ -148,7 +148,7 @@ extends BinaryTypeHandler.AbstractImplementation<T>
 	 */
 	
 	protected static final BinaryField Field(
-		final Class<?>  type
+		final Class<?> type
 	)
 	{
 		return BinaryField.New(type);
