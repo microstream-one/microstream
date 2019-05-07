@@ -53,8 +53,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final int                                 channelIndex        ;
 		private final int                                 channelHashModulo   ;

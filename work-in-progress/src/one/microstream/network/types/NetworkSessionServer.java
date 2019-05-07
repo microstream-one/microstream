@@ -27,8 +27,8 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 	public class Implementation extends NetworkConnectionServer.Implementation implements NetworkSessionServer
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final NetworkSessionManager<?> sessionManager;
 
@@ -49,8 +49,8 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(final Setup setup)
 		{
@@ -73,8 +73,8 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
 
 		@Override
 		public int getMessageListenerThreadCount()
@@ -115,8 +115,8 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// setters          //
-		/////////////////////
+		// setters //
+		////////////
 
 		protected final void internalSetMessageListenerThreadCount(final int maxThreadCount)
 		{

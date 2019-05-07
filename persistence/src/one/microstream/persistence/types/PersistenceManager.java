@@ -88,8 +88,8 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 	public final class Implementation<M> implements PersistenceManager<M>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		// instance registration components //
 		private final PersistenceObjectRegistry     objectRegistry   ;
@@ -110,8 +110,8 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final PersistenceObjectRegistry        objectRegistering ,

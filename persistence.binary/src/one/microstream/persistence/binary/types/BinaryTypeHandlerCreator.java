@@ -55,8 +55,8 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final PersistenceTypeAnalyzer               typeAnalyzer              ,

@@ -20,8 +20,8 @@ public final class BinaryChunkPrinter implements Consumer<Binary>, BinaryEntityD
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static void padLong(final VarString vc, final long value)
 	{
@@ -53,8 +53,8 @@ public final class BinaryChunkPrinter implements Consumer<Binary>, BinaryEntityD
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final VarString vc;
 

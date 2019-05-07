@@ -48,8 +48,8 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		        final int                      channelIndex            ;
 		        final long                     typeId                  ;

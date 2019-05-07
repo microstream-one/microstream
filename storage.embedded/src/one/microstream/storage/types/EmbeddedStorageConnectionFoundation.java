@@ -36,8 +36,8 @@ extends BinaryPersistenceFoundation<F>
 	implements EmbeddedStorageConnectionFoundation<F>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private StorageManager                     storageManager           ;
 		private Supplier<? extends StorageManager> storageManagerSupplier   ;
@@ -57,8 +57,8 @@ extends BinaryPersistenceFoundation<F>
 		
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
 
 		@Override
 		public Supplier<? extends StorageManager> storageManagerSupplier()

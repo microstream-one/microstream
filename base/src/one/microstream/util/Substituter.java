@@ -58,8 +58,8 @@ public interface Substituter<T>
 	public final class Implementation<T> implements Substituter.Managed<T>, Composition
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 		
 		private static final int MAX_TO_STRING_ITEMS = 10;
 		
@@ -74,8 +74,8 @@ public interface Substituter<T>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(final EqHashEnum<T> elements)
 		{

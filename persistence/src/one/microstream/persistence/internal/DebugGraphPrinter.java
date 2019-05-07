@@ -118,8 +118,8 @@ public class DebugGraphPrinter implements PersistenceFunction
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// OID registry map     //
-	/////////////////////////
+	// OID registry map //
+	/////////////////////
 
 	private boolean isRegisteredLocal(final Object instance)
 	{

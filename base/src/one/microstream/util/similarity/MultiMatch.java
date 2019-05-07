@@ -27,14 +27,14 @@ public interface MultiMatch<E>
 	
 	public static <E> MultiMatch<E> New(final MultiMatcher<E> matcher, final E[] source, final E[] target)
 	{
-		return new MultiMatch.Implementation<>(
+		return new MultiMatch.Default<>(
 			notNull(matcher),
 			notNull(source) ,
 			notNull(target)
 		);
 	}
 	
-	public class Implementation<E> implements MultiMatch<E>
+	public class Default<E> implements MultiMatch<E>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
@@ -148,7 +148,7 @@ public interface MultiMatch<E>
 		/////////////////
 
 		@SuppressWarnings("unchecked")
-		protected Implementation(final MultiMatcher<E> matcher, final E[] source, final E[] target)
+		protected Default(final MultiMatcher<E> matcher, final E[] source, final E[] target)
 		{
 			super();
 			this.matcher = matcher;
@@ -679,7 +679,7 @@ public interface MultiMatch<E>
 
 		// public methods //
 
-		protected Implementation<E> match()
+		protected Default<E> match()
 		{
 			/* (04.10.2018 TM)TODO: MultiMatching: Consolidate type structure
 			 * Currently, the MultiMatcher is more of a factory (configuration holder),
@@ -798,7 +798,7 @@ public interface MultiMatch<E>
 		@Override
 		public MultiMatchAssembler<E> assembler()
 		{
-			return new MultiMatchAssembler.Implementation<>(this);
+			return new MultiMatchAssembler.Default<>(this);
 		}
 
 	}

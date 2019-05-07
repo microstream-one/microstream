@@ -1033,8 +1033,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// setters          //
-		/////////////////////
+		// setters //
+		////////////
 
 		@Override
 		public F setInstanceDispatcher(

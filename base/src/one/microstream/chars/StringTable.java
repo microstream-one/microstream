@@ -206,7 +206,7 @@ public interface StringTable
 
 
 
-	public final class Implementation implements StringTable
+	public final class Default implements StringTable
 	{
 		public static final class Creator implements StringTable.Creator
 		{
@@ -219,15 +219,15 @@ public interface StringTable
 				final XGettingList<String[]>   rows
 			)
 			{
-				return new StringTable.Implementation(name, columnNames, columnTypes, rows);
+				return new StringTable.Default(name, columnNames, columnTypes, rows);
 			}
 
 		}
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static void validateColumnCount(final int columnCount, final XGettingList<String[]> rows)
 		{
@@ -259,7 +259,7 @@ public interface StringTable
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final XGettingSequence<String> columns    ,
 			final XGettingList<String>     columnTypes,
 			final XGettingList<String[]>   rows
@@ -268,7 +268,7 @@ public interface StringTable
 			this(null, columns, columnTypes, rows);
 		}
 
-		public Implementation(
+		public Default(
 			final String                   name       ,
 			final XGettingSequence<String> columns    ,
 			final XGettingList<String>     columnTypes,

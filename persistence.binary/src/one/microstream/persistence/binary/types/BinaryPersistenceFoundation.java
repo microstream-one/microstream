@@ -149,8 +149,8 @@ extends PersistenceFoundation<Binary, F>
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// setters  //
-		/////////////
+		// setters //
+		////////////
 		
 		@Override
 		public F setCustomTranslatorLookup(final XTable<String, BinaryValueSetter> customTranslatorLookup)

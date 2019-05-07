@@ -100,8 +100,8 @@ public final class DownwrapList<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	/**
 	 * Returns the {@link ExtendedList} instance that has been passed to the constructor when creating this
@@ -135,8 +135,8 @@ public final class DownwrapList<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   add methods    //
-	/////////////////////
+	// adding //
+	///////////
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -212,8 +212,8 @@ public final class DownwrapList<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   put methods    //
-	/////////////////////
+	// putting //
+	////////////
 
 	@Override
 	public boolean put(final E e)
@@ -277,8 +277,8 @@ public final class DownwrapList<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// prepend methods //
-	////////////////////
+	// prepending //
+	///////////////
 
 	@Override
 	public boolean prepend(final E element)
@@ -342,8 +342,8 @@ public final class DownwrapList<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// preput methods  //
-	////////////////////
+	// preputting //
+	///////////////
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -411,8 +411,8 @@ public final class DownwrapList<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  insert methods  //
-	/////////////////////
+	// inserting //
+	//////////////
 
 	@Override
 	public boolean insert(final long index, final E element)
@@ -473,8 +473,8 @@ public final class DownwrapList<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  input methods   //
-	/////////////////////
+	// inputting //
+	//////////////
 
 	@Override
 	public boolean input(final long index, final E element)

@@ -33,8 +33,8 @@ public interface CsvEntityAssembler<T> extends CsvRowAssembler<T>
 	public abstract class AbstractImplementation<T> implements CsvEntityAssembler<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 		
 		private static final int DEFAULT_ROW_COUNT_ESTIAMTE = 100;
 		

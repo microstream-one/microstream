@@ -25,8 +25,8 @@ public final class XSort
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
-	//   Comparators    //
-	/////////////////////
+	// Comparators //
+	////////////////
 
 	public static final int compare(final Boolean o1, final Boolean o2)
 	{
@@ -208,8 +208,8 @@ public final class XSort
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  Pseudo Random  //
-	////////////////////
+	// Pseudo Random //
+	//////////////////
 
 	private static final transient int RANDOM_SEGMENTS = 32;
 	private static final transient int R32_SHIFT = 5;
@@ -507,8 +507,8 @@ public final class XSort
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// internal substitute sorts  //
-	///////////////////////////////
+	// internal substitute sorts //
+	//////////////////////////////
 
 	private static void insertionsort0(final int[] values, final int start, final int bound)
 	{
@@ -563,8 +563,8 @@ public final class XSort
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   Rearranging    //
-	/////////////////////
+	// rearranging //
+	////////////////
 
 	@SafeVarargs
 	public static final <T> void sortAll(final Comparator<? super T> sortation, final Sortable<T>... sortables)
@@ -582,8 +582,8 @@ public final class XSort
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  Insertion Sort  //
-	/////////////////////
+	// Insertion Sort //
+	///////////////////
 
 	public static void insertionsort(final boolean[] values)
 	{
@@ -750,8 +750,8 @@ public final class XSort
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// Adaptive Mergesort  //
-	////////////////////////
+	// Adaptive Mergesort //
+	///////////////////////
 
 	/**
 	 * Sorts the passed array as true instances (i.e. with a stable sorting algorithm) that adapts to already sorted
@@ -1037,8 +1037,8 @@ public final class XSort
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// parallel sorting  //
-	//////////////////////
+	// parallel sorting //
+	/////////////////////
 
 	/**
 	 * Experimental parallel sorting that splits the sorting work up into two parts.
@@ -1134,8 +1134,8 @@ public final class XSort
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// Primitive Sorting  //
-	///////////////////////
+	// Primitive Sorting //
+	//////////////////////
 
 	/**
 	 * Sorts the passed values array.
@@ -1190,8 +1190,8 @@ public final class XSort
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    Quicksort     //
-	/////////////////////
+	// Quicksort //
+	//////////////
 
 	public static final <E> void quicksort(final E[] values, final Comparator<? super E> comparator)
 		throws NullPointerException
@@ -1289,8 +1289,8 @@ public final class XSort
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    Mergesort     //
-	/////////////////////
+	// Mergesort //
+	//////////////
 
 	public static <E> void mergesort(final E[] values, final Comparator<? super E> comparator)
 	{
@@ -1514,8 +1514,8 @@ public final class XSort
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// Dual Pivot Quicksort  //
-	//////////////////////////
+	// Dual Pivot Quicksort //
+	/////////////////////////
 
 	public static void quicksortDualPivot(final int[] values)
 	{
@@ -2130,10 +2130,6 @@ public final class XSort
 	}
 
 
-
-	///////////////////////////////////////////////////////////////////////////
-	//   Util Methods   //
-	/////////////////////
 
 	public static boolean isIncreasing(final int[] values)
 	{

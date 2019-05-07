@@ -173,8 +173,8 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public EqConstList<E> copy()
@@ -520,8 +520,8 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// java.util.list and derivatives  //
-	////////////////////////////////////
+	// java.util.list and derivatives //
+	///////////////////////////////////
 
 	@Override
 	public boolean isEmpty()

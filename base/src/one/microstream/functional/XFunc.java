@@ -624,8 +624,8 @@ public final class XFunc
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// member types     //
-	/////////////////////
+	// member types //
+	/////////////////
 		
 	public static final class MaxInteger implements Aggregator<Integer, Integer>
 	{

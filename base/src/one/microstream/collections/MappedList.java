@@ -26,8 +26,8 @@ public class MappedList<E, S> implements XGettingList<E>
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final XGettingList<S> subject;
 	final Function<S, E> mapper;

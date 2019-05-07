@@ -6,7 +6,7 @@ public interface StringStamper
 
 
 
-	public final class Implementation implements StringStamper
+	public final class Default implements StringStamper
 	{
 		@Override
 		public final String stampString(final char[] chars, final int offset, final int length)

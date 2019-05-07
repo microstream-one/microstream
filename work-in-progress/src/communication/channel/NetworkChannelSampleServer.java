@@ -20,8 +20,8 @@ import java.util.Set;
 public class NetworkChannelSampleServer implements Runnable
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	protected static final boolean isAccept(final SelectionKey key)
 	{
@@ -36,8 +36,8 @@ public class NetworkChannelSampleServer implements Runnable
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	// The port to listen on
 	private final InetSocketAddress address;
@@ -231,8 +231,8 @@ public class NetworkChannelSampleServer implements Runnable
 	public static class NetworkException extends RuntimeException
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public NetworkException()
 		{

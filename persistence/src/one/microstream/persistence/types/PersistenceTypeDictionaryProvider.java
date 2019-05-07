@@ -23,8 +23,8 @@ public interface PersistenceTypeDictionaryProvider
 	public final class Implementation implements PersistenceTypeDictionaryProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final PersistenceTypeDictionaryLoader   loader  ;
 		private final PersistenceTypeDictionaryCompiler compiler;
@@ -32,8 +32,8 @@ public interface PersistenceTypeDictionaryProvider
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final PersistenceTypeDictionaryLoader   loader  ,

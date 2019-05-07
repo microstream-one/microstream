@@ -4,8 +4,8 @@ public class PersistenceExceptionTypeHandlerConsistencyProviderTypeHandlerNotFou
 extends PersistenceExceptionTypeHandlerConsistencyProvider
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Class<?> type;
 	private final Long     typeId;
@@ -68,8 +68,8 @@ extends PersistenceExceptionTypeHandlerConsistencyProvider
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Class<?> getType()
 	{

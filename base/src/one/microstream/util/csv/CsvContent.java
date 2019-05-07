@@ -26,22 +26,22 @@ public interface CsvContent
 
 
 
-	public final class Implementation implements CsvContent
+	public final class Default implements CsvContent
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// static methods    //
-		/////////////////////
+		// static methods //
+		//////////////////
 		
-		public static final Implementation New(
+		public static final Default New(
 			final String                                                    name         ,
 			final XGettingSequence<? extends KeyValue<String, StringTable>> segments     ,
 			final CsvConfiguration                                          configuration
 		)
 		{
-			return new Implementation(name, segments, configuration);
+			return new Default(name, segments, configuration);
 		}
 		
-		public static final Implementation NewTranslated(
+		public static final Default NewTranslated(
 			final String                                  name         ,
 			final XGettingSequence<? extends StringTable> segments     ,
 			final CsvConfiguration                        configuration
@@ -71,7 +71,7 @@ public interface CsvContent
 		// constructors //
 		/////////////////
 
-		private Implementation(
+		private Default(
 			final String                                                    name         ,
 			final XGettingSequence<? extends KeyValue<String, StringTable>> segments     ,
 			final CsvConfiguration                                          configuration

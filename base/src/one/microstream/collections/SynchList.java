@@ -30,8 +30,8 @@ import one.microstream.util.iterables.SynchronizedListIterator;
 public final class SynchList<E> implements XList<E>, Synchronized
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	/**
 	 * The {@link XList} instance to be wrapped (synchronized).
@@ -70,8 +70,8 @@ public final class SynchList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   add methods    //
-	/////////////////////
+	// adding //
+	///////////
 
 	@Override
 	public final synchronized void accept(final E e)
@@ -116,8 +116,8 @@ public final class SynchList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   put methods    //
-	/////////////////////
+	// putting //
+	////////////
 
 	@Override
 	public final synchronized boolean put(final E e)
@@ -156,8 +156,8 @@ public final class SynchList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// prepend methods //
-	////////////////////
+	// prepending //
+	///////////////
 
 	@Override
 	public final synchronized boolean prepend(final E element)
@@ -196,8 +196,8 @@ public final class SynchList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// preput methods  //
-	////////////////////
+	// preputting //
+	///////////////
 
 	@Override
 	public final synchronized boolean preput(final E element)
@@ -236,8 +236,8 @@ public final class SynchList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  insert methods  //
-	/////////////////////
+	// inserting //
+	//////////////
 
 	@Override
 	public final synchronized boolean insert(final long index, final E element)
@@ -273,8 +273,8 @@ public final class SynchList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  input methods   //
-	/////////////////////
+	// inputting //
+	//////////////
 
 	@Override
 	public final synchronized boolean input(final long index, final E element)

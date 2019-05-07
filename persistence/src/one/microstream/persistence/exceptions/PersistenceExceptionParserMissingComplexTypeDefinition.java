@@ -48,8 +48,8 @@ public class PersistenceExceptionParserMissingComplexTypeDefinition extends Pers
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	@Override
 	public String getMessage()

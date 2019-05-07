@@ -87,8 +87,8 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final File                            file         ;
 	private final PersistenceTypeDictionaryStorer writeListener;

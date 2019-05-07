@@ -59,7 +59,7 @@ public interface LinkReference<T> extends LinkingReference<T>
 			return null;
 		}
 
-		final LinkReference<T> chain = new LinkReference.Implementation<>(objects[0]);
+		final LinkReference<T> chain = new LinkReference.Default<>(objects[0]);
 
 		if(objects.length > 1)
 		{
@@ -74,7 +74,7 @@ public interface LinkReference<T> extends LinkingReference<T>
 	}
 	
 
-	public class Implementation<T> extends Singleton<T> implements LinkReference<T>
+	public class Default<T> extends Singleton<T> implements LinkReference<T>
 	{
 
 		private LinkReference<T> next;
@@ -83,7 +83,7 @@ public interface LinkReference<T> extends LinkingReference<T>
 		/**
 		 * @param ref
 		 */
-		public Implementation(final T ref)
+		public Default(final T ref)
 		{
 			super(ref);
 		}
@@ -149,7 +149,7 @@ public interface LinkReference<T> extends LinkingReference<T>
 		@Override
 		public LinkReference<T> link(final T nextRef)
 		{
-			return this.link(new LinkReference.Implementation<>(nextRef));
+			return this.link(new LinkReference.Default<>(nextRef));
 		}
 
 

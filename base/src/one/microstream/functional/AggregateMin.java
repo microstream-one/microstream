@@ -5,8 +5,8 @@ import java.util.Comparator;
 public final class AggregateMin<E> implements Aggregator<E, E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Comparator<? super E> comparator;
 	private       E                     currentMin;

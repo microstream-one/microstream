@@ -67,8 +67,8 @@ public interface XGettingMap<K, V> extends ExtendedMap<K, V>, XGettingSet<KeyVal
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// satellite types  //
-	/////////////////////
+	// satellite types //
+	////////////////////
 
 	public interface Satellite<K, V> extends ComponentType
 	{

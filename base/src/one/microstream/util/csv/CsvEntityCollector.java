@@ -11,8 +11,8 @@ import one.microstream.typing.XTypes;
 public final class CsvEntityCollector<T> implements CsvRowCollector
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final CsvEntityParser.AbstractImplementation<T> parser;
 	private final XSequence<? super T>                      rows  ;

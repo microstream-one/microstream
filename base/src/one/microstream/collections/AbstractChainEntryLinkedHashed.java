@@ -10,8 +10,8 @@ public abstract class AbstractChainEntryLinkedHashed<E, K, V, EN extends Abstrac
 extends AbstractChainEntryLinked<E, K, V, EN>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final int hash; // the hash value of the hash-related value contained in this entry
 

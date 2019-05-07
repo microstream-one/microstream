@@ -98,7 +98,7 @@ public interface CqlProjection<I, O> extends CqlIteration<I, O, XSequence<O>>
 
 	public static <I, O> CqlProjection<I, O> New()
 	{
-		return new Implementation<>(null, null, null, null, null, null, null);
+		return new Default<>(null, null, null, null, null, null, null);
 	}
 
 	public static <I, O> CqlProjection<I, O> New(
@@ -110,7 +110,7 @@ public interface CqlProjection<I, O> extends CqlIteration<I, O, XSequence<O>>
 		final Comparator<? super O>  comparator
 	)
 	{
-		return new Implementation<>(
+		return new Default<>(
 			source            ,
 			skip              ,
 			limit             ,
@@ -131,7 +131,7 @@ public interface CqlProjection<I, O> extends CqlIteration<I, O, XSequence<O>>
 		final Aggregator<O, XSequence<O>> aggregator
 	)
 	{
-		return new Implementation<>(
+		return new Default<>(
 			source                  ,
 			skip                    ,
 			limit                   ,
@@ -152,7 +152,7 @@ public interface CqlProjection<I, O> extends CqlIteration<I, O, XSequence<O>>
 		final XSequence<O>           target
 	)
 	{
-		return new Implementation<>(
+		return new Default<>(
 			source              ,
 			skip                ,
 			limit               ,
@@ -173,12 +173,12 @@ public interface CqlProjection<I, O> extends CqlIteration<I, O, XSequence<O>>
 		final CqlResultor<O, XSequence<O>> resultor
 	)
 	{
-		return new Implementation<>(source, skip, limit, selector, projector, comparator, resultor);
+		return new Default<>(source, skip, limit, selector, projector, comparator, resultor);
 	}
 
-	final class Implementation<I, O> extends CqlQuery.Abstract<I, O, XSequence<O>> implements CqlProjection<I, O>
+	final class Default<I, O> extends CqlQuery.Abstract<I, O, XSequence<O>> implements CqlProjection<I, O>
 	{
-		Implementation(
+		Default(
 			final XIterable<? extends I>    source    ,
 			final Long                      skip      ,
 			final Long                      limit     ,

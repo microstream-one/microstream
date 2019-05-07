@@ -94,7 +94,7 @@ public interface CqlIteration<I, O, R extends XIterable<O>> extends CqlQuery<I, 
 
 	public static <I, O, R extends XIterable<O>> CqlIteration<I, O, R> New()
 	{
-		return new Implementation<>(null, null, null, null, null, null, null);
+		return new Default<>(null, null, null, null, null, null, null);
 	}
 
 	public static <I, O> CqlQuery<I, O, XSequence<O>> New(
@@ -106,7 +106,7 @@ public interface CqlIteration<I, O, R extends XIterable<O>> extends CqlQuery<I, 
 		final Comparator<? super O>  comparator
 	)
 	{
-		return new Implementation<>(
+		return new Default<>(
 			source            ,
 			skip              ,
 			limit             ,
@@ -127,7 +127,7 @@ public interface CqlIteration<I, O, R extends XIterable<O>> extends CqlQuery<I, 
 		final Aggregator<O, R>       aggregator
 	)
 	{
-		return new Implementation<>(
+		return new Default<>(
 			source                  ,
 			skip                    ,
 			limit                   ,
@@ -148,7 +148,7 @@ public interface CqlIteration<I, O, R extends XIterable<O>> extends CqlQuery<I, 
 		final R                      target
 	)
 	{
-		return new Implementation<>(
+		return new Default<>(
 			source              ,
 			skip                ,
 			limit               ,
@@ -169,13 +169,13 @@ public interface CqlIteration<I, O, R extends XIterable<O>> extends CqlQuery<I, 
 		final CqlResultor<O, R>      resultor
 	)
 	{
-		return new Implementation<>(source, skip, limit, selector, projector, comparator, resultor);
+		return new Default<>(source, skip, limit, selector, projector, comparator, resultor);
 	}
 
 
-	final class Implementation<I, O, R extends XIterable<O>> extends Abstract<I, O, R> implements CqlIteration<I, O, R>
+	final class Default<I, O, R extends XIterable<O>> extends Abstract<I, O, R> implements CqlIteration<I, O, R>
 	{
-		Implementation(
+		Default(
 			final XIterable<? extends I> source    ,
 			final Long                   skip      ,
 			final Long                   limit     ,

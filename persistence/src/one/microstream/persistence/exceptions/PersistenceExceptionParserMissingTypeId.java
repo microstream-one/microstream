@@ -48,8 +48,8 @@ public class PersistenceExceptionParserMissingTypeId extends PersistenceExceptio
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	@Override
 	public String getMessage()

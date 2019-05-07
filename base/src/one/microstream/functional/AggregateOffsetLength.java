@@ -5,8 +5,8 @@ import one.microstream.X;
 public final class AggregateOffsetLength<E, R> implements Aggregator<E, R>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private long                           offset   ;
 	private long                           length   ;

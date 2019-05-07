@@ -25,8 +25,8 @@ public interface NetworkUserSession<U, M> extends NetworkSession<M>
 	extends NetworkSession.AbstractImplementation<M> implements NetworkUserSession<U, M>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final NetworkUserSessionManager<U, SELF> sessionManager;
 		private final U                           user          ;
@@ -35,8 +35,8 @@ public interface NetworkUserSession<U, M> extends NetworkSession<M>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		protected AbstractImplementation(
 			final NetworkUserSessionManager<U, SELF> sessionManager,
@@ -53,8 +53,8 @@ public interface NetworkUserSession<U, M> extends NetworkSession<M>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
 
 		// CHECKSTYLE.OFF: MethodName: concise symbol for "self type"
 		@SuppressWarnings("unchecked") // necessary because of missing "self type" in Java.

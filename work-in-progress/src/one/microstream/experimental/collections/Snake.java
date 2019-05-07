@@ -33,8 +33,8 @@ public interface Snake<E> //extends VarString.Appendable
 	class Implementation<E> implements Snake<E>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		Object value;
 		Snake.Implementation<E> next = null;
@@ -42,8 +42,8 @@ public interface Snake<E> //extends VarString.Appendable
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation()
 		{

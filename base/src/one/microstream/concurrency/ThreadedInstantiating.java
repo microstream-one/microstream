@@ -34,8 +34,8 @@ import one.microstream.functional.Instantiator;
 public class ThreadedInstantiating<E> extends Threaded<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	/**
 	 * Convenience / readability method that wraps the passed {@link Instantiator} instance in a new
@@ -77,8 +77,8 @@ public class ThreadedInstantiating<E> extends Threaded<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Instantiator<E> instantiator;
 
@@ -149,8 +149,8 @@ public class ThreadedInstantiating<E> extends Threaded<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	/**
 	 * Returns the wrapped {@link Instantiator} instance used by this instance to create instances of

@@ -26,8 +26,8 @@ public interface NetworkFactoryServer
 	public abstract class AbstractImplementation implements NetworkFactoryServer
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final InstanceDispatcherLogic NO_OP = new InstanceDispatcherLogic()
 		{
@@ -41,8 +41,8 @@ public interface NetworkFactoryServer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final InstanceDispatcherLogic instanceDispatcher = NO_OP;
 
@@ -62,8 +62,8 @@ public interface NetworkFactoryServer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// setters          //
-		/////////////////////
+		// setters //
+		////////////
 
 		protected final synchronized void internalSetMaxThreadCountConnectionListeners(final int maxThreadCount)
 		{

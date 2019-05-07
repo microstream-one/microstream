@@ -39,8 +39,8 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 		// CHECKSTYLE.OFF: ConstantName: literals and type names are intentionally unchanged
 		
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final String
 			_bit             = " bit"            ,

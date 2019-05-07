@@ -10,8 +10,8 @@ public interface StorageRootTypeIdProvider
 	public final class Implementation implements StorageRootTypeIdProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final long rootTypeId;
 

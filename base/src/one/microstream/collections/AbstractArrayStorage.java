@@ -54,8 +54,8 @@ public abstract class AbstractArrayStorage
 	// CHECKSTYLE.OFF: FinalParameter: A LOT of methods use that pattern in this class
 
 	///////////////////////////////////////////////////////////////////////////
-	// utility methods  //
-	/////////////////////
+	// utility methods //
+	////////////////////
 
 	public static final void validateRange0toUpperBound(final int upperBound, final int offset, final int length)
 	{
@@ -85,8 +85,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// index scanning   //
-	/////////////////////
+	// index scanning //
+	///////////////////
 
 	public static final <E> int rangedIndexOF(
 		final E[] data,
@@ -478,8 +478,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// element querying  //
-	//////////////////////
+	// element querying //
+	/////////////////////
 
 	public static final <E> E rangedSearchElement(
 		final E[] data,
@@ -619,8 +619,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// iteration        //
-	/////////////////////
+	// iteration //
+	//////////////
 
 	public static final <E> void iterate(
 		final E[]                 data    ,
@@ -829,8 +829,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// aggregation      //
-	/////////////////////
+	// aggregation //
+	////////////////
 
 	public static final <E, R> R rangedAggregate(
 		final E[] data,
@@ -914,8 +914,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//     adding       //
-	/////////////////////
+	// adding //
+	///////////
 
 	public static final <E> int addAll(
 		final E[] data,
@@ -1000,8 +1000,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// containing       //
-	/////////////////////
+	// containing //
+	///////////////
 
 	public static final <E> boolean rangedContainsNull(
 		final E[] data,
@@ -1164,8 +1164,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//     counting     //
-	/////////////////////
+	// counting //
+	/////////////
 
 	public static final <E> int rangedCount(
 		final E[] data,
@@ -1443,8 +1443,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// data arithmetic  //
-	/////////////////////
+	// data arithmetic //
+	////////////////////
 
 	public static final <E, C extends Consumer<? super E>> C intersect(
 		final E[] data,
@@ -1885,8 +1885,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    executing     //
-	/////////////////////
+	// executing //
+	//////////////
 
 	public static final <E> void iterate(final E[] data, final int size, final IndexedAcceptor<? super E> procedure)
 	{
@@ -1937,8 +1937,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    removing      //
-	/////////////////////
+	// removing //
+	/////////////
 
 	public static final <E> int rangedRemove(
 		final E[] data,
@@ -3158,8 +3158,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    replacing     //
-	/////////////////////
+	// replacing //
+	//////////////
 
 	// replacing - single //
 
@@ -3732,8 +3732,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//     setting      //
-	/////////////////////
+	// setting //
+	////////////
 
 	public static final <E> void swap(
 		final E[] data,
@@ -4261,8 +4261,8 @@ public abstract class AbstractArrayStorage
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//     sorting       //
-	//////////////////////
+	// sorting //
+	////////////
 
 	public static final <E> boolean isSorted(
 		final E[] data,

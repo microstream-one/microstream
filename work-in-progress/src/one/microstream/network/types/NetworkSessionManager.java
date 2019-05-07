@@ -30,8 +30,8 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 	public abstract class AbstractImplementation<S extends NetworkSession<?>> implements NetworkSessionManager<S>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final RegulatorSessionTimeout         regulatorSessionTimeout;
 		private final RegulatorSessionCheckInterval   regulatorSessionCheckInterval;
@@ -50,8 +50,8 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public AbstractImplementation(
 			final RegulatorSessionTimeout         sessionTimeoutController     ,

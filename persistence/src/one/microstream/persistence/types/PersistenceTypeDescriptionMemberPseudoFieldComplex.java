@@ -59,8 +59,8 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 	implements PersistenceTypeDescriptionMemberPseudoFieldComplex
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final XImmutableSequence<PersistenceTypeDescriptionMemberPseudoField> members;
 

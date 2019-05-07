@@ -39,8 +39,8 @@ public class TestComponentProvider extends InvocationLogging
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final File directory;
 	private final String filenameTypeDictionary;

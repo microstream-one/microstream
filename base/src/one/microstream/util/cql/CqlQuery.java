@@ -247,7 +247,7 @@ public interface CqlQuery<I, O, R>
 
 	public static <I, O, R> CqlQuery<I, O, R> New()
 	{
-		return new Implementation<>(null, null, null, null, null, null, null);
+		return new Default<>(null, null, null, null, null, null, null);
 	}
 
 	public static <I, O> CqlQuery<I, O, XSequence<O>> New(
@@ -259,7 +259,7 @@ public interface CqlQuery<I, O, R>
 		final Comparator<? super O>  comparator
 	)
 	{
-		return new Implementation<>(
+		return new Default<>(
 			source            ,
 			skip              ,
 			limit             ,
@@ -280,7 +280,7 @@ public interface CqlQuery<I, O, R>
 		final Aggregator<O, R>       aggregator
 	)
 	{
-		return new Implementation<>(
+		return new Default<>(
 			source                  ,
 			skip                    ,
 			limit                   ,
@@ -301,7 +301,7 @@ public interface CqlQuery<I, O, R>
 		final R                      target
 	)
 	{
-		return new Implementation<>(
+		return new Default<>(
 			source                 ,
 			skip                   ,
 			limit                  ,
@@ -322,7 +322,7 @@ public interface CqlQuery<I, O, R>
 		final CqlResultor<O, R>      resultor
 	)
 	{
-		return new Implementation<>(source, skip, limit, selector, projector, comparator, resultor);
+		return new Default<>(source, skip, limit, selector, projector, comparator, resultor);
 	}
 
 	// implementations //
@@ -330,8 +330,8 @@ public interface CqlQuery<I, O, R>
 	abstract class Abstract<I, O, R> implements CqlQuery<I, O, R>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final XIterable<? extends I> source    ;
 		final Long                   skip      ;
@@ -418,9 +418,9 @@ public interface CqlQuery<I, O, R>
 
 	}
 
-	final class Implementation<I, O, R> extends Abstract<I, O, R>
+	final class Default<I, O, R> extends Abstract<I, O, R>
 	{
-		Implementation(
+		Default(
 			final XIterable<? extends I> source    ,
 			final Long                   skip      ,
 			final Long                   limit     ,

@@ -63,8 +63,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	implements EmbeddedStorageFoundation<F>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private EmbeddedStorageConnectionFoundation<?> connectionFoundation;
 		

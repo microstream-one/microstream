@@ -50,7 +50,7 @@ public class MainTestComServer
 		
 		
 		
-		//  advanced example with arbitrary host address and business logic
+		// advanced example with arbitrary host address and business logic
 		
 		// setup the host instance for a custom address and business logic
 		final ComHost<?> host = ComBinary.Foundation()

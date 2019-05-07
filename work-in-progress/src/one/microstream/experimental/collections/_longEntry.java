@@ -5,8 +5,8 @@ import one.microstream.typing._longKeyValue;
 public class _longEntry implements _longKeyValue
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final    long key;
 	final    int  hash;
@@ -40,8 +40,8 @@ public class _longEntry implements _longKeyValue
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setters          //
-	/////////////////////
+	// setters //
+	////////////
 
 	_longEntry setLink(final _longEntry link)
 	{

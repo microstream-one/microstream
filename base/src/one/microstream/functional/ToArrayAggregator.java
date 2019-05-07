@@ -5,8 +5,8 @@ import static one.microstream.X.notNull;
 public final class ToArrayAggregator<E> implements Aggregator<E, E[]>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final E[] array;
 

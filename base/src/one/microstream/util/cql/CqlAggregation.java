@@ -166,7 +166,7 @@ public interface CqlAggregation<I, R> extends CqlQuery<I, I, R>
 
 	public static <I, R> CqlAggregation<I, R> New()
 	{
-		return new Implementation<>(null, null, null, null, null, null);
+		return new Default<>(null, null, null, null, null, null);
 	}
 
 	public static <I, R> CqlAggregation<I, R> New(
@@ -178,12 +178,12 @@ public interface CqlAggregation<I, R> extends CqlQuery<I, I, R>
 		final CqlResultor<I, R>      resultor
 	)
 	{
-		return new Implementation<>(source, skip, limit, selector, order, resultor);
+		return new Default<>(source, skip, limit, selector, order, resultor);
 	}
 
-	final class Implementation<I, R> extends Abstract<I, I, R> implements CqlAggregation<I, R>
+	final class Default<I, R> extends Abstract<I, I, R> implements CqlAggregation<I, R>
 	{
-		Implementation(
+		Default(
 			final XIterable<? extends I> source  ,
 			final Long                   skip    ,
 			final Long                   limit   ,

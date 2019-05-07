@@ -8,8 +8,8 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 public class PersistenceExceptionTypeHandlerConsistencyWrongHandler extends PersistenceExceptionTypeHandlerConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final Class<?>                    type       ;
 	final PersistenceTypeHandler<?, ?> typeHandler;
@@ -68,8 +68,8 @@ public class PersistenceExceptionTypeHandlerConsistencyWrongHandler extends Pers
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Class<?> getType()
 	{

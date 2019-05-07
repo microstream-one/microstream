@@ -24,8 +24,8 @@ public final class CompositeIdProvider implements PersistenceObjectIdProvider, P
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final PersistenceTypeIdProvider   typeIdProvider  ;
 	private final PersistenceObjectIdProvider objectIdProvider;

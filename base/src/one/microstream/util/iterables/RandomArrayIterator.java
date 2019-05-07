@@ -30,8 +30,8 @@ import one.microstream.math.XMath;
 public final class RandomArrayIterator<E> implements Iterator<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static <E> Factory<E> random(final int count, final E[] array)
 	{
@@ -41,8 +41,8 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final E[] array;
 	private final int length;
@@ -67,8 +67,8 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	/**
 	 *
@@ -82,8 +82,8 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setters          //
-	/////////////////////
+	// setters //
+	////////////
 
 	/**
 	 * @param count the count to set
@@ -191,8 +191,8 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	public static final class Factory<E> implements Iterable<E>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final E[] array;
 		private int count;
@@ -200,8 +200,8 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Factory(final E[] array, final int count)
 		{
@@ -213,8 +213,8 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
 
 		/**
 		 *
@@ -228,8 +228,8 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// setters          //
-		/////////////////////
+		// setters //
+		////////////
 
 		/**
 		 * @param count the count to set

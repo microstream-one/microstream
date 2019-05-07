@@ -8,8 +8,8 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 public class BinaryLoadItem extends Binary
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	PersistenceTypeHandler<Binary, Object> handler;
 	Object contextInstance, localInstance;

@@ -55,8 +55,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final <K, V> HashTable<K, V> New()
 	{
@@ -202,8 +202,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	// data storage
 	final AbstractChainKeyValueStorage<K, V, ChainMapEntryLinkedStrongStrong<K, V>> chain;
@@ -498,8 +498,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// inheriteted ExtendedCollection methods  //
-	////////////////////////////////////////////
+	// inheriteted ExtendedCollection methods //
+	///////////////////////////////////////////
 
 	@Override
 	protected int internalCountingAddAll(final KeyValue<K, V>[] elements) throws UnsupportedOperationException
@@ -1196,8 +1196,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public final XEnum<KeyValue<K, V>> range(final long lowIndex, final long highIndex)
@@ -2149,8 +2149,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getting methods  //
-		/////////////////////
+		// getting methods //
+		////////////////////
 
 		@Override
 		public final Equalator<? super K> equality()
@@ -2458,8 +2458,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 
 		///////////////////////////////////////////////////////////////////////////
-		//  adding methods  //
-		/////////////////////
+		// adding //
+		///////////
 
 		@Override
 		public final long currentCapacity()
@@ -2635,8 +2635,8 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 
 		///////////////////////////////////////////////////////////////////////////
-		//  remove methods  //
-		/////////////////////
+		// removing //
+		/////////////
 
 		/**
 		 * Allocates a new internal storage with default size. No cutting of entry references is performed.

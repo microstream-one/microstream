@@ -3,8 +3,8 @@ package one.microstream.experimental;
 public abstract class BoardThread extends Thread
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final boolean[] threadBoard;
 	final int threadBoardIndex;

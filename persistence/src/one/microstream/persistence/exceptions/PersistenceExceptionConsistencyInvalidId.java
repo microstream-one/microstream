@@ -3,8 +3,8 @@ package one.microstream.persistence.exceptions;
 public class PersistenceExceptionConsistencyInvalidId extends PersistenceExceptionConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final long id;
 
@@ -29,8 +29,8 @@ public class PersistenceExceptionConsistencyInvalidId extends PersistenceExcepti
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public final long getId()
 	{

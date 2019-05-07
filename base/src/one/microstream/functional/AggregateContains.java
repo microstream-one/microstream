@@ -10,8 +10,8 @@ import one.microstream.X;
 public final class AggregateContains<E> implements Aggregator<E, Boolean>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private Boolean contains = FALSE;
 	private final Predicate<? super E> predicate;

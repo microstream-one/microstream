@@ -46,8 +46,8 @@ public interface StorageOperationController
 	public final class Implementation implements StorageOperationController
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final WeakReference<StorageManager> storageManagerReference;
 		private final StorageChannelCountProvider   channelCountProvider   ;

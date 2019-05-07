@@ -4,8 +4,8 @@ public class PersistenceExceptionTypeConsistencyDefinitionValidationArrayType
 extends PersistenceExceptionTypeConsistencyDefinitionValidation
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Class<?> arrayType ;
 
@@ -58,8 +58,8 @@ extends PersistenceExceptionTypeConsistencyDefinitionValidation
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Class<?> getType()
 	{

@@ -26,8 +26,8 @@ public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssemble
 	implements PersistenceTypeDictionaryAssembler
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final int  MAX_LONG_LENGTH = 19 ;
 		private static final char ID_PADDING_CHAR = '0';

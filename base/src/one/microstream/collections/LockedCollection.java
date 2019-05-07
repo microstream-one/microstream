@@ -20,8 +20,8 @@ import one.microstream.util.iterables.SynchronizedIterator;
 public final class LockedCollection<E> implements XCollection<E>, Synchronized
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final XCollection<E> subject;
 	private final Object         lock   ;

@@ -5,8 +5,8 @@ package one.microstream.persistence.exceptions;
 public class PersistenceExceptionConsistencyUnknownMapping extends PersistenceExceptionConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final long     passedTid ;
 	final Class<?> passedType;

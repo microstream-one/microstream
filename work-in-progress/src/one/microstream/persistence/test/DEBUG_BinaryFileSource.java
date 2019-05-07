@@ -16,8 +16,8 @@ import one.microstream.persistence.types.PersistenceSource;
 public class DEBUG_BinaryFileSource implements PersistenceSource<Binary>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final PrintStream out;
 	private final PersistenceSource<Binary> relayTarget;

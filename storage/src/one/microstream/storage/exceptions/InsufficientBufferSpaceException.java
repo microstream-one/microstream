@@ -23,8 +23,8 @@ public final class InsufficientBufferSpaceException extends Exception // intenti
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public long requiredBufferSpace()
 	{

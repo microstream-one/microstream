@@ -32,15 +32,15 @@ public final class CsvContentBuilderCharArray implements CsvContent.Builder<_cha
 			csvConfiguration,
 			Substituter.<String>New(),
 			CsvParserCharArray.New(),
-			new StringTable.Implementation.Creator()
+			new StringTable.Default.Creator()
 		);
 	}
 
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final CsvConfiguration           configuration;
 	private final Substituter<String>        stringCache  ;
@@ -81,7 +81,7 @@ public final class CsvContentBuilderCharArray implements CsvContent.Builder<_cha
 
 		final CsvConfiguration effectiveConfig = this.parser.parseCsvData(this.configuration, medium, tableCollector);
 
-		return CsvContent.Implementation.NewTranslated(name, tables, effectiveConfig);
+		return CsvContent.Default.NewTranslated(name, tables, effectiveConfig);
 	}
 
 

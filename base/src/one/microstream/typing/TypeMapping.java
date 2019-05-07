@@ -43,12 +43,12 @@ public interface TypeMapping<V> extends TypeMappingLookup<V>
 	
 	public static <T> TypeMapping<T> New(final HashEqualator<? super TypePair> hashEquality)
 	{
-		return new TypeMapping.Implementation<>(
+		return new TypeMapping.Default<>(
 			EqHashTable.New(hashEquality)
 		);
 	}
 	
-	public final class Implementation<V> implements TypeMapping<V>
+	public final class Default<V> implements TypeMapping<V>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -62,7 +62,7 @@ public interface TypeMapping<V> extends TypeMappingLookup<V>
 		// constructors //
 		/////////////////
 
-		Implementation(final EqHashTable<TypePair, V> table)
+		Default(final EqHashTable<TypePair, V> table)
 		{
 			super();
 			this.table = table;

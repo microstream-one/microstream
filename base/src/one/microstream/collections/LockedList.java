@@ -25,8 +25,8 @@ import one.microstream.util.iterables.SynchronizedListIterator;
 public final class LockedList<E> implements XList<E>, Synchronized
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final XList<E> subject;
 	private final Object   lock;
@@ -72,8 +72,8 @@ public final class LockedList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   add methods    //
-	/////////////////////
+	// adding //
+	///////////
 
 	@Override
 	public final void accept(final E e)
@@ -136,8 +136,8 @@ public final class LockedList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   put methods    //
-	/////////////////////
+	// putting //
+	////////////
 
 	@Override
 	public final boolean put(final E e)
@@ -191,8 +191,8 @@ public final class LockedList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// prepend methods //
-	////////////////////
+	// prepending //
+	///////////////
 
 	@Override
 	public final boolean prepend(final E element)
@@ -246,8 +246,8 @@ public final class LockedList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// preput methods  //
-	////////////////////
+	// preputting //
+	///////////////
 
 	@Override
 	public final boolean preput(final E element)
@@ -301,8 +301,8 @@ public final class LockedList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  insert methods  //
-	/////////////////////
+	// inserting //
+	//////////////
 
 	@Override
 	public final boolean insert(final long index, final E element)
@@ -353,8 +353,8 @@ public final class LockedList<E> implements XList<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  input methods   //
-	/////////////////////
+	// inputting //
+	//////////////
 
 	@Override
 	public final boolean input(final long index, final E element)

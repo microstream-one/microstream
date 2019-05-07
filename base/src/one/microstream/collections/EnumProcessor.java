@@ -19,8 +19,8 @@ import one.microstream.typing.XTypes;
 public final class EnumProcessor<E> implements XProcessingEnum<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final XProcessingEnum<E> subject;
 
@@ -454,8 +454,8 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// removing methods  //
-	//////////////////////
+	// removing methods //
+	/////////////////////
 
 	@Override
 	public final long consolidate()

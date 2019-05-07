@@ -33,8 +33,8 @@ public final class EqHashEnum<E> extends AbstractChainCollection<E, E, E, ChainE
 implements XEnum<E>, HashCollection<E>, Composition
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final <E> EqHashEnum<E> New()
 	{
@@ -141,8 +141,8 @@ implements XEnum<E>, HashCollection<E>, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	// data storage
 	private final AbstractChainStorage<E, E, E, ChainEntryLinkedHashedStrong<E>> chain;
@@ -243,8 +243,8 @@ implements XEnum<E>, HashCollection<E>, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// inheriteted ExtendedCollection methods  //
-	////////////////////////////////////////////
+	// inheriteted ExtendedCollection methods //
+	///////////////////////////////////////////
 
 	@Override
 	public boolean nullAllowed()
@@ -691,8 +691,8 @@ implements XEnum<E>, HashCollection<E>, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public final XEnum<E> range(final long lowIndex, final long highIndex)

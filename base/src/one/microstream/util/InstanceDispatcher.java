@@ -15,8 +15,8 @@ public interface InstanceDispatcher
 	public class Implementation implements InstanceDispatcher
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 		
 		private static final InstanceDispatcherLogic NO_OP = new InstanceDispatcherLogic()
 		{
@@ -30,8 +30,8 @@ public interface InstanceDispatcher
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 		
 		private InstanceDispatcherLogic logic = NO_OP;
 		

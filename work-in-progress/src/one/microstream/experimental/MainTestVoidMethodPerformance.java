@@ -123,8 +123,8 @@ public final class MainTestVoidMethodPerformance
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// conclusion       //
-		/////////////////////
+		// conclusion //
+		///////////////
 		/*
 		 * Iteration performance depends more on order of tests than on used code.
 		 * Hence all three alternatives can be seen as equally fast.

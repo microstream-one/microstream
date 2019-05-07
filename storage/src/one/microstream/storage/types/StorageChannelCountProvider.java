@@ -82,8 +82,8 @@ public interface StorageChannelCountProvider extends _intReference
 	public final class Implementation implements StorageChannelCountProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final int channelCount;
 

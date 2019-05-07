@@ -6,8 +6,8 @@ public class PersistenceExceptionTypeConsistencyDictionaryResolveField
 extends PersistenceExceptionTypeConsistencyDictionaryResolve
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Field field;
 
@@ -55,8 +55,8 @@ extends PersistenceExceptionTypeConsistencyDictionaryResolve
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Field getField()
 	{

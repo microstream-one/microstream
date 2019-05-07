@@ -78,16 +78,16 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 	public final class Implementation<S extends NetworkSession<?>> implements NetworkMessageListener<S>, Predicate<S>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final int THREAD_SLEEP_TIME_MS = 10;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final NetworkMessageHandler<S>     messageHandler;
 
@@ -99,8 +99,8 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(final NetworkMessageHandler<S> messageHandler)
 		{

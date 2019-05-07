@@ -41,8 +41,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	// (21.05.2013)XXX: AbstractBinaryHandlerReflective clean up static handling massacre mess
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SafeVarargs
 	protected static final EqConstHashEnum<Field> filter(
@@ -134,8 +134,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	// instance persistence context //
 	private final EqConstHashEnum<Field>                               instanceFields         ;

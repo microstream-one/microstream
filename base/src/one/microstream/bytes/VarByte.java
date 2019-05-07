@@ -65,8 +65,8 @@ public final class VarByte implements Externalizable
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static final int boundPow2(final int n)
 	{

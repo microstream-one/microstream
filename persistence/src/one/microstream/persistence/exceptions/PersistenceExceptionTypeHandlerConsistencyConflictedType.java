@@ -8,8 +8,8 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 public class PersistenceExceptionTypeHandlerConsistencyConflictedType extends PersistenceExceptionTypeHandlerConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final Class<?>                    type             ;
 	final PersistenceTypeHandler<?, ?> actualTypeHandler;
@@ -75,8 +75,8 @@ public class PersistenceExceptionTypeHandlerConsistencyConflictedType extends Pe
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Class<?> getType()
 	{

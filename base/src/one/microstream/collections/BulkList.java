@@ -76,8 +76,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static <E> Function<BulkList<E>, ConstList<E>> Immurer()
 	{
@@ -644,8 +644,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public final BulkList<E> copy()
@@ -994,8 +994,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setting methods  //
-	/////////////////////
+	// setting methods //
+	////////////////////
 
 	@Override
 	public final ListView<E> view()
@@ -1332,8 +1332,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   add methods    //
-	/////////////////////
+	// adding //
+	///////////
 
 	@Override
 	public final void accept(final E element)
@@ -1418,8 +1418,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   put methods    //
-	/////////////////////
+	// putting //
+	////////////
 
 	@Override
 	public final boolean nullPut()
@@ -1456,8 +1456,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// prepend methods //
-	////////////////////
+	// prepending //
+	///////////////
 
 	@Override
 	public final boolean prepend(final E element)
@@ -1524,8 +1524,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// preput methods  //
-	////////////////////
+	// preputting //
+	///////////////
 
 	@Override
 	public final boolean preput(final E element)
@@ -1592,8 +1592,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  insert methods  //
-	/////////////////////
+	// inserting //
+	//////////////
 
 	@Override
 	public final boolean insert(final long index, final E element)
@@ -1692,8 +1692,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  input methods   //
-	/////////////////////
+	// inputting //
+	//////////////
 
 	@Override
 	public final boolean input(final long index, final E element)
@@ -1785,8 +1785,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  remove methods  //
-	/////////////////////
+	// removing //
+	/////////////
 
 	@Override
 	public final void truncate()

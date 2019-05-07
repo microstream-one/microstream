@@ -17,8 +17,8 @@ public interface StorageInventoryEntity
 	public final class Implementation implements StorageInventoryEntity
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final long position, length, typeId, objectId;
 		private       StorageInventoryEntity.Implementation next;

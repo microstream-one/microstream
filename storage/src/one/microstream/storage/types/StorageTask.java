@@ -28,8 +28,8 @@ public interface StorageTask
 	public abstract class AbstractImplementation implements StorageTask
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private volatile StorageTask next;
 

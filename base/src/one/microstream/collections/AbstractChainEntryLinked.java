@@ -93,8 +93,8 @@ extends AbstractChainEntry<E, K, V, EN>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	EN link; // the next (linked) entry in the hash chain (null for last in hash chain).
 

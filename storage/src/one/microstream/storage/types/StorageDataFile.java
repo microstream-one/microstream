@@ -51,8 +51,8 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// static methods   //
-		/////////////////////
+		// static methods //
+		///////////////////
 
 		public static final StorageDataFile.Implementation Dummy()
 		{
@@ -70,8 +70,8 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final StorageFileManager.Implementation parent;
 

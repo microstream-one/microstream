@@ -69,8 +69,8 @@ extends NetworkConnectionProcessor
 	implements NetworkUserSessionConnectionRegisterer<U, S>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final NetworkUserSessionManager<U, S> sessionManager         ;
 		private final NetworkConnectionValidator<U>   connectionAuthenticator;
@@ -79,8 +79,8 @@ extends NetworkConnectionProcessor
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final NetworkUserSessionManager<U, S> sessionManager,

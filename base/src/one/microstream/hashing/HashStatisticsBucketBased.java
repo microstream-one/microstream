@@ -31,7 +31,7 @@ public interface HashStatisticsBucketBased extends HashStatistics
 		final XGettingTable<Long, Long> bucketLengthDistribution
 	)
 	{
-		return new HashStatisticsBucketBased.Implementation(
+		return new HashStatisticsBucketBased.Default(
 			   positive(hashLength)              ,
 			notNegative(elementCount)            ,
 			            hashDensity              ,
@@ -40,7 +40,7 @@ public interface HashStatisticsBucketBased extends HashStatistics
 		);
 	}
 	
-	public final class Implementation implements HashStatisticsBucketBased
+	public final class Default implements HashStatisticsBucketBased
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -58,7 +58,7 @@ public interface HashStatisticsBucketBased extends HashStatistics
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final long                      hashLength              ,
 			final long                      elementCount            ,
 			final float                     hashDensity             ,

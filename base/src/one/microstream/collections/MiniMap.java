@@ -24,8 +24,8 @@ import one.microstream.typing.KeyValue;
 public final class MiniMap<K, V> implements Composition
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SafeVarargs
 	public static final <K, V> MiniMap<K, V> miniMap(final KeyValue<? extends K, ? extends V>... data)
@@ -35,8 +35,8 @@ public final class MiniMap<K, V> implements Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private Entry<K, V>[] slots;
 	private int modulo;

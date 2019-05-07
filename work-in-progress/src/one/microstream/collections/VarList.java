@@ -64,8 +64,8 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings("unchecked")
 	static final <E> E[] newArray(final int size)
@@ -125,8 +125,8 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final int        segmentLength             ;
 	              int        headSize, tailSize        ;

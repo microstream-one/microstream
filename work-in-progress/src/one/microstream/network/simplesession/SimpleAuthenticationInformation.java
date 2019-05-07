@@ -11,8 +11,8 @@ public interface SimpleAuthenticationInformation
 	public class Implementation implements SimpleAuthenticationInformation
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final String username;
 		private final String password;
@@ -20,8 +20,8 @@ public interface SimpleAuthenticationInformation
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(final String username, final String password)
 		{

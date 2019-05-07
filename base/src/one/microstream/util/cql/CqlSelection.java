@@ -124,7 +124,7 @@ public interface CqlSelection<I> extends CqlProjection<I, I>, CqlTransfer<I, XSe
 
 	public static <I> CqlSelection<I> New()
 	{
-		return new Implementation<>(null, null, null, null, null, null);
+		return new Default<>(null, null, null, null, null, null);
 	}
 
 	public static <I> CqlSelection<I> New(
@@ -135,7 +135,7 @@ public interface CqlSelection<I> extends CqlProjection<I, I>, CqlTransfer<I, XSe
 		final Comparator<? super I>  comparator
 	)
 	{
-		return new Implementation<>(source, skip, limit, selector, comparator, CqlResultor.New());
+		return new Default<>(source, skip, limit, selector, comparator, CqlResultor.New());
 	}
 
 	public static <I> CqlSelection<I> New(
@@ -147,7 +147,7 @@ public interface CqlSelection<I> extends CqlProjection<I, I>, CqlTransfer<I, XSe
 		final XSequence<I>           target
 	)
 	{
-		return new Implementation<>(source, skip, limit, selector, comparator, CqlResultor.New(target));
+		return new Default<>(source, skip, limit, selector, comparator, CqlResultor.New(target));
 	}
 
 	public static <I> CqlSelection<I> New(
@@ -159,13 +159,13 @@ public interface CqlSelection<I> extends CqlProjection<I, I>, CqlTransfer<I, XSe
 		final CqlResultor<I, XSequence<I>> resultor
 	)
 	{
-		return new Implementation<>(source, skip, limit, selector, comparator, resultor);
+		return new Default<>(source, skip, limit, selector, comparator, resultor);
 	}
 
 
-	final class Implementation<I> extends CqlQuery.Abstract<I, I, XSequence<I>> implements CqlSelection<I>
+	final class Default<I> extends CqlQuery.Abstract<I, I, XSequence<I>> implements CqlSelection<I>
 	{
-		Implementation(
+		Default(
 			final XIterable<? extends I>    source    ,
 			final Long                      skip      ,
 			final Long                      limit     ,

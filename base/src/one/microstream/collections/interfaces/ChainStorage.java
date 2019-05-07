@@ -46,8 +46,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  content info    //
-	/////////////////////
+	// content info //
+	/////////////////
 
 	public long size();
 
@@ -72,8 +72,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   containing     //
-	/////////////////////
+	// containing //
+	///////////////
 
 	// containing - null //
 
@@ -116,8 +116,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    applying      //
-	/////////////////////
+	// applying //
+	/////////////
 
 	// applying - single //
 
@@ -134,8 +134,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    counting      //
-	/////////////////////
+	// counting //
+	/////////////
 
 	// counting - element //
 
@@ -154,8 +154,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// data arithmetic  //
-	/////////////////////
+	// data arithmetic //
+	////////////////////
 
 	// data - data sets //
 
@@ -235,8 +235,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    querying      //
-	/////////////////////
+	// querying //
+	/////////////
 
 	public E first();
 
@@ -247,8 +247,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    searching     //
-	/////////////////////
+	// searching //
+	//////////////
 
 	// searching - sample //
 
@@ -275,8 +275,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    executing     //
-	/////////////////////
+	// executing //
+	//////////////
 
 	// executing - procedure //
 
@@ -304,8 +304,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    indexing      //
-	/////////////////////
+	// indexing //
+	/////////////
 
 	// indexing - single //
 
@@ -342,8 +342,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   distinction    //
-	/////////////////////
+	// distinction //
+	////////////////
 
 	// distinction querying //
 
@@ -402,8 +402,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    removing      //
-	/////////////////////
+	// removing //
+	/////////////
 
 	// removing - indexed //
 
@@ -481,8 +481,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//     reducing     //
-	/////////////////////
+	// reducing //
+	/////////////
 
 	// reducing - predicate //
 
@@ -493,8 +493,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    retaining     //
-	/////////////////////
+	// retaining //
+	//////////////
 
 	// retaining - array //
 
@@ -513,8 +513,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   processing     //
-	/////////////////////
+	// processing //
+	///////////////
 
 	public long process(Consumer<? super E> procedure);
 
@@ -523,8 +523,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//     Moving       //
-	/////////////////////
+	// moving //
+	///////////
 
 	public long moveRange(long offset, long length, Consumer<? super E> target);
 
@@ -539,8 +539,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//     ordering     //
-	/////////////////////
+	// ordering //
+	/////////////
 
 	public void shiftTo(final long sourceIndex, final long targetIndex);
 
@@ -561,8 +561,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//     sorting       //
-	//////////////////////
+	// sorting //
+	////////////
 
 	public void sort(Comparator<? super E> comparator);
 
@@ -579,8 +579,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//     setting      //
-	/////////////////////
+	// setting //
+	////////////
 
 	public void set(long offset, E[] elements);
 
@@ -591,8 +591,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//    replacing     //
-	/////////////////////
+	// replacing //
+	//////////////
 
 	// replacing - one single //
 
@@ -633,8 +633,8 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  substituting    //
-	/////////////////////
+	// substituting //
+	/////////////////
 
 	// substituting - one //
 

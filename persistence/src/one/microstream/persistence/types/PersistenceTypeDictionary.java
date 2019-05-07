@@ -187,8 +187,8 @@ public interface PersistenceTypeDictionary
 	public final class Implementation implements PersistenceTypeDictionary
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		// the dictionary must be enhanceable at runtime, hence it must know a type lineage provider
 		private final PersistenceTypeLineageCreator                  typeLineageCreator;
@@ -200,8 +200,8 @@ public interface PersistenceTypeDictionary
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(final PersistenceTypeLineageCreator typeLineageCreator)
 		{

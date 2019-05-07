@@ -15,8 +15,8 @@ public interface StorageChannelTask extends StorageTask
 	implements StorageChannelTask
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private          int         remainingForCompletion;
 		private          int         remainingForProcessing;

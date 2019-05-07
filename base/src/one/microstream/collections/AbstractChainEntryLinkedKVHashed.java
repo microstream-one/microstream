@@ -5,8 +5,8 @@ public abstract class AbstractChainEntryLinkedKVHashed<K, V, EN extends Abstract
 extends AbstractChainEntryLinkedKV<K, V, EN>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final int hash; // the hash value of the hash-related value contained in this entry
 

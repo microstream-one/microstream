@@ -69,8 +69,8 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static String exceptionStringRange(final long size, final long startIndex, final long length)
 	{
@@ -119,8 +119,8 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public E[] getArray()
 	{
@@ -176,8 +176,8 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setters          //
-	/////////////////////
+	// setters //
+	////////////
 
 	@SuppressWarnings("unchecked")
 	public ArrayAccessor<E> setArray(final E[] array)
@@ -224,8 +224,8 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public ArrayAccessor<E> copy()
@@ -586,8 +586,8 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setting methods  //
-	/////////////////////
+	// setting methods //
+	////////////////////
 
 	@Override
 	public ListView<E> view()
@@ -886,8 +886,8 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// java.util.list and derivatives  //
-	////////////////////////////////////
+	// java.util.list and derivatives //
+	///////////////////////////////////
 
 	@Override
 	public boolean isEmpty()

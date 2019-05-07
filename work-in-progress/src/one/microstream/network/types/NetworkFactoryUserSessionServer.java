@@ -13,8 +13,8 @@ extends NetworkFactoryServerSessionful<S>
 	implements NetworkFactoryUserSessionServer<U, S>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private NetworkUserSessionConnectionRegisterer.Provider<U, S> connectionRegistererProvider;
 		private NetworkUserSessionProtocol<U, ?, S>                   sessionProtocol             ;

@@ -16,8 +16,8 @@ import java.nio.channels.WritableByteChannel;
 public class DebugHexPrinter extends FileChannel
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final PrintStream out;
 	private final FileChannel relayTarget;

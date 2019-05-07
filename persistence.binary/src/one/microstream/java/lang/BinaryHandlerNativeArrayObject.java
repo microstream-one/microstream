@@ -22,8 +22,8 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final           Class<A> arrayType    ;
 	private final transient Class<?> componentType;
@@ -47,8 +47,8 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public final Class<A> getArrayType()
 	{

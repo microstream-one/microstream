@@ -21,8 +21,8 @@ import one.microstream.typing.XTypes;
 public final class TableView<K, V> implements XGettingTable<K, V>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final XGettingTable<K, V> subject;
 

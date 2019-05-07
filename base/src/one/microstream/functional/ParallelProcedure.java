@@ -154,20 +154,20 @@ public interface ParallelProcedure<E> extends Consumer<E>
 	 * superior one. In the end, synchronizing/locking on the instance itself is fine. It just may not be messed up.
 	 * As with anything else in writing code.
 	 */
-	public final class Implementation<E> implements ParallelProcedure<E>
+	public final class Default<E> implements ParallelProcedure<E>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
-		private static final int                   DEFAULT_THREAD_TIMEOUT = 1000;
+		private static final int                   DEFAULT_THREAD_TIMEOUT          = 1000;
 		private static final ThreadTimeoutProvider DEFAULT_THREAD_TIMEOUT_PROVIDER = () -> DEFAULT_THREAD_TIMEOUT;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final LogicProvider<? super E, ? extends Consumer<? super E>> logicProvider;
 
@@ -181,10 +181,10 @@ public interface ParallelProcedure<E> extends Consumer<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
-		public Implementation(
+		public Default(
 			final LogicProvider<? super E, ? extends Consumer<? super E>> logicProvider,
 			final int threadCount
 		)
@@ -192,7 +192,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 			this(logicProvider, new ThreadCountProvider.Constant(threadCount), DEFAULT_THREAD_TIMEOUT_PROVIDER);
 		}
 
-		public Implementation(
+		public Default(
 			final LogicProvider<? super E, ? extends Consumer<? super E>> logicProvider,
 			final int threadCount,
 			final int threadTimeout
@@ -211,7 +211,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 		 * @param logicProvider the instance that provides the logic instances to be used by the worker threads.
 		 * @param threadTimeout the maximum number of concurrent threads to be created by this instance.
 		 */
-		public Implementation(
+		public Default(
 			final LogicProvider<? super E, ? extends Consumer<? super E>> logicProvider,
 			final ThreadCountProvider threadCountProvider
 		)
@@ -237,7 +237,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 		 * @param threadTimeout the maximum number of concurrent threads to be created by this instance.
 		 * @param threadTimeout the thread abolishment timeout in milliseconds.
 		 */
-		public Implementation(
+		public Default(
 			final LogicProvider<? super E, ? extends Consumer<? super E>> logicProvider,
 			final ThreadCountProvider   threadCountProvider,
 			final ThreadTimeoutProvider threadTimeout
@@ -293,7 +293,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 			if((this.isTimedOut() || this.isOversized()) && XTypes.to_int(this.threads.size()) > 0)
 			{
 				this.touch();                    // touch here to make threads shutdown one by one over time
-				this.threads.last().interrupt(); // intentionally no pick() because thread gets removed explicitly 
+				this.threads.last().interrupt(); // intentionally no pick() because thread gets removed explicitly
 			}
 		}
 
@@ -309,8 +309,8 @@ public interface ParallelProcedure<E> extends Consumer<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// enqueing         //
-		/////////////////////
+		// enqueing //
+		/////////////
 
 		/**
 		 * {@inheritDoc}
@@ -346,8 +346,8 @@ public interface ParallelProcedure<E> extends Consumer<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// retrieval & threading  //
-		///////////////////////////
+		// retrieval & threading //
+		//////////////////////////
 
 		private final class WorkerThread extends Thread
 		{
@@ -362,7 +362,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 			@Override
 			public void run()
 			{
-				Implementation.this.runWorker(this);
+				Default.this.runWorker(this);
 			}
 		}
 
@@ -370,17 +370,17 @@ public interface ParallelProcedure<E> extends Consumer<E>
 		@SuppressWarnings("unchecked")
 		final <S, E1 extends S, P extends Consumer<? super S>> void runWorker(final WorkerThread worker)
 		{
-			Implementation.delegateRun(
-				(Implementation<E1>)this,
-				(Implementation<E1>.WorkerThread)worker,
+			Default.delegateRun(
+				(Default<E1>)this,
+				(Default<E1>.WorkerThread)worker,
 				(LogicProvider<S, P>)this.logicProvider
 			);
 		}
 
 		// all that clutter just because there is no <S super E> typing for instance methods
 		static <S, E extends S, P extends Consumer<? super S>> void delegateRun(
-			final Implementation<E>              instance,
-			final Implementation<E>.WorkerThread thread  ,
+			final Default<E>              instance,
+			final Default<E>.WorkerThread thread  ,
 			final LogicProvider<S, P>            provider
 		)
 		{

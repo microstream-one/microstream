@@ -29,8 +29,8 @@ public final class CSV
 	static final int              DEFAULT_SKIP_LINE_COUNT             = 0   ;
 	static final int              DEFAULT_SKIP_LINE_COUNT_POST_HEADER = 0   ;
 	static final int              DEFAULT_TRAILING_LINE_COUNT         = 0   ;
-	static final EscapeHandler    DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Implementation();
-	static final CsvConfiguration DEFAULT_CONFIG = new CsvConfiguration.Builder.Implementation().createConfiguration();
+	static final EscapeHandler    DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
+	static final CsvConfiguration DEFAULT_CONFIG = new CsvConfiguration.Builder.Default().createConfiguration();
 
 
 
@@ -45,12 +45,12 @@ public final class CSV
 
 	public static final CsvConfiguration.Builder configurationBuilder()
 	{
-		return new CsvConfiguration.Builder.Implementation();
+		return new CsvConfiguration.Builder.Default();
 	}
 
 	public static final CsvAssembler.Builder<VarString> rowAssemblerBuilder()
 	{
-		return CsvAssembler.Builder.Implementation.New();
+		return CsvAssembler.Builder.Default.New();
 	}
 
 	public static final <T> void assembleRow(

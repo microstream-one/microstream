@@ -45,8 +45,8 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 	public final class Implementation implements StorageTypeDictionary
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final HashMapIdObject<StorageEntityTypeHandler> registry        = HashMapIdObject.New();
 		private final boolean                                   switchByteOrder;

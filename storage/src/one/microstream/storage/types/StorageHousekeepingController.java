@@ -72,8 +72,8 @@ public interface StorageHousekeepingController
 	public final class Implementation implements StorageHousekeepingController
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final long intervalMs, nanoTimeBudget;
 

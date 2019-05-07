@@ -284,7 +284,7 @@ public class CompositeConfig
 	{
 		final File         file           = this.buildFile(identifier, config)      ;
 		final VarString    vs             = VarString.New()                         ;
-		final CsvAssembler assembler      = CsvAssembler.Implementation.New(this.csvConfig, vs, "\t", " ", "\r", "");
+		final CsvAssembler assembler      = CsvAssembler.Default.New(this.csvConfig, vs, "\t", " ", "\r", "");
 
 		config.table.iterate(new Consumer<KeyValue<String, String>>()
 		{

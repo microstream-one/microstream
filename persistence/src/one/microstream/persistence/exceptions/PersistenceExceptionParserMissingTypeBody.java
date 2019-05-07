@@ -48,8 +48,8 @@ public class PersistenceExceptionParserMissingTypeBody extends PersistenceExcept
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	@Override
 	public String getMessage()

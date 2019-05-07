@@ -10,8 +10,8 @@ import one.microstream.X;
 public class AggregateApplies<E> implements Aggregator<E, Boolean>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private Boolean applies = TRUE;
 	private final Predicate<? super E> predicate;

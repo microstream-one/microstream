@@ -14,10 +14,10 @@ public interface KeyValue<K, V>
 	
 	public static <K, V> KeyValue<K, V> New(final K key, final V value)
 	{
-		return new KeyValue.Implementation<>(key, value);
+		return new KeyValue.Default<>(key, value);
 	}
 
-	public final class Implementation<K, V> implements KeyValue<K, V>, Immutable
+	public final class Default<K, V> implements KeyValue<K, V>, Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -32,7 +32,7 @@ public interface KeyValue<K, V>
 		// constructors //
 		/////////////////
 
-		Implementation(final K key, final V value)
+		Default(final K key, final V value)
 		{
 			super();
 			this.key   = key;

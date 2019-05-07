@@ -38,13 +38,13 @@ public interface CsvAssembler
 
 
 
-	public final class Implementation implements CsvAssembler
+	public final class Default implements CsvAssembler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
 		///////////////////
 
-		public static final CsvAssembler.Implementation New(
+		public static final CsvAssembler.Default New(
 			final CsvConfiguration csvConfig            ,
 			final VarString        vs                   ,
 			final String           valueSeparatorPrefix ,
@@ -54,7 +54,7 @@ public interface CsvAssembler
 		)
 		{
 
-			return new CsvAssembler.Implementation(
+			return new CsvAssembler.Default(
 				notNull(vs),
 				csvConfig.literalDelimiter(),
 				csvConfig.valueSeparator(valueSeparatorPrefix, valueSeparatorSuffix).toCharArray(),
@@ -63,9 +63,9 @@ public interface CsvAssembler
 			);
 		}
 
-		public static final CsvAssembler.Implementation New(final CsvConfiguration csvConfig, final VarString vs)
+		public static final CsvAssembler.Default New(final CsvConfiguration csvConfig, final VarString vs)
 		{
-			return new CsvAssembler.Implementation(
+			return new CsvAssembler.Default(
 				notNull(vs),
 				csvConfig.literalDelimiter(),
 				new char[]{csvConfig.valueSeparator()},
@@ -74,7 +74,7 @@ public interface CsvAssembler
 			);
 		}
 
-		public static final CsvAssembler.Implementation New(final CsvConfiguration csvConfig)
+		public static final CsvAssembler.Default New(final CsvConfiguration csvConfig)
 		{
 			return New(csvConfig, VarString.New());
 		}
@@ -97,7 +97,7 @@ public interface CsvAssembler
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final VarString        vs             ,
 			final char             delimiter      ,
 			final char[]           valueSeparator ,
@@ -277,15 +277,15 @@ public interface CsvAssembler
 
 
 
-		public final class Implementation implements Builder<VarString>
+		public final class Default implements Builder<VarString>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// static methods //
 			///////////////////
 
-			public static final Implementation New()
+			public static final Default New()
 			{
-				return new Implementation(CSV.configurationDefault(), "", "", "", "");
+				return new Default(CSV.configurationDefault(), "", "", "", "");
 			}
 
 
@@ -306,7 +306,7 @@ public interface CsvAssembler
 			// constructors //
 			/////////////////
 
-			Implementation(
+			Default(
 				final CsvConfiguration configuration        ,
 				final String           valueSeparatorPrefix ,
 				final String           valueSeparatorSuffix ,
@@ -409,7 +409,7 @@ public interface CsvAssembler
 			@Override
 			public CsvAssembler buildRowAssembler(final VarString vs)
 			{
-				return CsvAssembler.Implementation.New(
+				return CsvAssembler.Default.New(
 					this.configuration,
 					vs,
 					this.valueSeparatorPrefix,

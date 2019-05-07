@@ -52,16 +52,16 @@ public interface NetworkMessageHandler<S extends NetworkSession<?>>
 	public class Implementation<S extends NetworkSession<?>> implements NetworkMessageHandler<S>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final ParallelProcedure<S> threadManager;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final NetworkMessageProcessor.Provider<S, ?>          messageProcessorProvider,
@@ -70,7 +70,7 @@ public interface NetworkMessageHandler<S extends NetworkSession<?>>
 		)
 		{
 			super();
-			this.threadManager = new ParallelProcedure.Implementation<>(
+			this.threadManager = new ParallelProcedure.Default<>(
 				messageProcessorProvider,
 				threadCountController,
 				threadTimeoutProvider

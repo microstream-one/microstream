@@ -55,8 +55,8 @@ public interface XImmutableTable<K, V> extends XImmutableMap<K, V>, XGettingTabl
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// satellite types  //
-	/////////////////////
+	// satellite types //
+	////////////////////
 
 	public interface Satellite<K, V> extends XImmutableMap.Satellite<K, V>, XGettingTable.Satellite<K, V>
 	{

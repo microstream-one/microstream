@@ -12,8 +12,8 @@ import java.lang.reflect.Method;
 public class LockedAspectWrapper<T> extends AspectWrapper<T>
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static <T> T wrapLocked(final T subject)
 	{
@@ -28,8 +28,8 @@ public class LockedAspectWrapper<T> extends AspectWrapper<T>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final Object lock;
 

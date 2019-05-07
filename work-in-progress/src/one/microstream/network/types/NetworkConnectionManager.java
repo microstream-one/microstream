@@ -13,8 +13,8 @@ public interface NetworkConnectionManager extends Suspendable
 	public class Implementation implements NetworkConnectionManager
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final NetworkConnectionSocket                           connectionSocket            ;
 		private final NetworkConnectionListener.Provider                connectionListenerProvider  ;
@@ -34,8 +34,8 @@ public interface NetworkConnectionManager extends Suspendable
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final NetworkConnectionSocket                           connectionSocket                        ,

@@ -74,8 +74,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	// (23.10.2013 TM)XXX: replace exception strings by proper exceptions (stupid)
 	private static String exceptionStringRange(final long size, final long startIndex, final long length)
@@ -465,8 +465,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public final LimitList<E> copy()
@@ -829,8 +829,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setting methods  //
-	/////////////////////
+	// setting methods //
+	////////////////////
 
 	@Override
 	public final ListView<E> view()
@@ -1092,8 +1092,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  adding methods  //
-	/////////////////////
+	// adding //
+	///////////
 
 	@Override
 	public final long currentCapacity()
@@ -1265,8 +1265,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  insert methods  //
-	/////////////////////
+	// inserting //
+	//////////////
 
 	@Override
 	public final boolean prepend(final E element)
@@ -1442,8 +1442,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  remove methods  //
-	/////////////////////
+	// removing //
+	/////////////
 
 	@Override
 	public final void truncate()
@@ -1712,8 +1712,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// java.util.list and derivatives  //
-	////////////////////////////////////
+	// java.util.list and derivatives //
+	///////////////////////////////////
 
 	@Override
 	public final boolean isEmpty()

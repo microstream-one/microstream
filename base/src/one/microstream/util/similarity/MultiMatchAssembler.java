@@ -79,17 +79,17 @@ public interface MultiMatchAssembler<E>
 	
 
 		
-	public class Implementation<E> implements MultiMatchAssembler<E>
+	public class Default<E> implements MultiMatchAssembler<E>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
 		///////////////////
 				
-		public static <E> MultiMatchAssembler.Implementation<E> New(
-			final MultiMatch.Implementation<E> match
+		public static <E> MultiMatchAssembler.Default<E> New(
+			final MultiMatch.Default<E> match
 		)
 		{
-			return new MultiMatchAssembler.Implementation<>(
+			return new MultiMatchAssembler.Default<>(
 				notNull(match)
 			);
 		}
@@ -100,7 +100,7 @@ public interface MultiMatchAssembler<E>
 		// instance fields //
 		////////////////////
 		
-		private final MultiMatch.Implementation<E> match;
+		private final MultiMatch.Default<E> match;
 				
 		
 		
@@ -108,7 +108,7 @@ public interface MultiMatchAssembler<E>
 		// constructors //
 		/////////////////
 		
-		protected Implementation(final MultiMatch.Implementation<E> match)
+		protected Default(final MultiMatch.Default<E> match)
 		{
 			super();
 			this.match = match;
@@ -127,7 +127,7 @@ public interface MultiMatchAssembler<E>
 			final BiConsumer<VarString, ? super E> assembler
 		)
 		{
-			final MultiMatch.Implementation<E> match = this.match;
+			final MultiMatch.Default<E> match = this.match;
 			final int candidateCount = Math.min(match.sourceCandidateCount, match.targetCandidateCount);
 			
 			vs
@@ -207,7 +207,7 @@ public interface MultiMatchAssembler<E>
 			final BiConsumer<VarString, ? super E> assembler
 		)
 		{
-			final MultiMatch.Implementation<E> match = this.match;
+			final MultiMatch.Default<E> match = this.match;
 			
 			final VarString
 				line2SrcSymbol = VarString.New(),
@@ -265,7 +265,7 @@ public interface MultiMatchAssembler<E>
 			final BiConsumer<VarString, ? super E> assembler
 		)
 		{
-			final MultiMatch.Implementation<E> match = this.match;
+			final MultiMatch.Default<E> match = this.match;
 			
 			for(int s = 0 ; s < match.inputSource.length; s++)
 			{

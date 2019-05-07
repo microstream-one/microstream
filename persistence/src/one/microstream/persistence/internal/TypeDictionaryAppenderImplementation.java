@@ -32,8 +32,8 @@ implements PersistenceTypeDescriptionMember.Appender
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final VarString vc;
 	private final int maxFieldTypeNameLength    ;

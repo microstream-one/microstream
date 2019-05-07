@@ -51,8 +51,8 @@ public interface TimeSpan
 	public class Format
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final Integer INDEX_MILLIS = TimeSpan.INDEX_MILLIS;
 		private static final Integer INDEX_SECOND = TimeSpan.INDEX_SECOND;
@@ -113,8 +113,8 @@ public interface TimeSpan
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final String formatString;
 		private final Object[] parsedFormatString;
@@ -122,8 +122,8 @@ public interface TimeSpan
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Format(final String formatString)
 		{
@@ -143,8 +143,8 @@ public interface TimeSpan
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
 
 		public String getFormatString()
 		{
@@ -174,11 +174,11 @@ public interface TimeSpan
 
 	}
 
-	public final class Implementation implements TimeSpan
+	public final class Default implements TimeSpan
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 		
 		private static final int LITERAL_LENGTH_DAYS    = 3;
 		private static final int LITERAL_LENGTH_HOUR    = 2;
@@ -207,10 +207,10 @@ public interface TimeSpan
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
-		public Implementation(final long time)
+		public Default(final long time)
 		{
 			super();
 			this.time = time;
@@ -265,8 +265,8 @@ public interface TimeSpan
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
 
 		@Override
 		public int getYears()

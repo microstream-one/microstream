@@ -60,8 +60,8 @@ implements ChainStorage.Entry<E, K, V, EN>, KeyValue<K, V>, java.util.Map.Entry<
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	EN prev;  // the previous entry in the order chain (head for first entry).
 	EN next;  // the next entry in the order chain (null for last entry).

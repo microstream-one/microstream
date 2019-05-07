@@ -18,8 +18,8 @@ import one.microstream.typing.KeyValue;
 public final class ConstMiniMap<K, V> implements IdentityEqualityLogic
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Entry<K, V>[] slots;
 	private final int modulo;

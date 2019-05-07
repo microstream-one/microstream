@@ -13,8 +13,8 @@ package one.microstream.math;
 public class Countdown
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 	
 	private final int startValue;
 	private int remainingValue;
@@ -43,8 +43,8 @@ public class Countdown
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 	
 	/**
 	 * @return the start value of this countdown. Cannot be negative.

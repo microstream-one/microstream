@@ -65,8 +65,8 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
 
 		protected NetworkSessionManager<S> getSessionManager()
 		{
@@ -182,8 +182,8 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// setters          //
-		/////////////////////
+		// setters //
+		////////////
 
 		protected final synchronized void internalSetMaxThreadCountMessageListeners(final int maxThreadCount)
 		{

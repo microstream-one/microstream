@@ -20,8 +20,8 @@ import one.microstream.persistence.types.PersistenceTypeHandlerRegistry;
 public class TestBinaryPersistenceTests extends TestComponentProvider
 {
 	///////////////////////////////////////////////////////////////////////////
-	// tests             //
-	//////////////////////
+	// tests //
+	//////////
 
 	static void testPersist(final PersistenceManager<Binary> persistenceManager)
 	{

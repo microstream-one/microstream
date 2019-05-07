@@ -52,8 +52,8 @@ public class SimpleSession extends NetworkUserSession.AbstractImplementation<Sim
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public long sessionId()
 	{

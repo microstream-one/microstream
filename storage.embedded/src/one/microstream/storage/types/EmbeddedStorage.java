@@ -9,11 +9,12 @@ import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionaryIoHandler;
 import one.microstream.persistence.types.PersistenceTypeEvaluator;
-import one.microstream.storage.types.Storage;
-import one.microstream.storage.types.StorageBackupSetup;
-import one.microstream.storage.types.StorageConfiguration;
-import one.microstream.storage.types.StorageFileProvider;
 
+/**
+ * {@link one.microstream.storage.types.EmbeddedStorage}
+ * @author TM
+ *
+ */
 public final class EmbeddedStorage
 {
 	/**

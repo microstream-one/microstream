@@ -137,10 +137,10 @@ public interface MultiMatcher<E>
 	
 	public static <E> MultiMatcher<E> New()
 	{
-		return new MultiMatcher.Implementation<>();
+		return new MultiMatcher.Default<>();
 	}
 
-	public class Implementation<E> implements MultiMatcher<E>
+	public class Default<E> implements MultiMatcher<E>
 	{
 		/* (04.08.2011 TM)TOD0: JavaDoc
 		 * (04.09.2018 TM)NOTE: I'll leave that here for nostalgia's sake and as a foundation stone timestamp.
@@ -148,8 +148,8 @@ public interface MultiMatcher<E>
 		 */
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private Equalator<? super E>      equalator;
 		private Similator<? super E>      similator;
@@ -166,7 +166,7 @@ public interface MultiMatcher<E>
 		// constructors //
 		/////////////////
 		
-		protected Implementation()
+		protected Default()
 		{
 			super();
 		}
@@ -174,8 +174,8 @@ public interface MultiMatcher<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
 
 		@Override
 		public double similarityThreshold()
@@ -222,8 +222,8 @@ public interface MultiMatcher<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// setters          //
-		/////////////////////
+		// setters //
+		////////////
 
 		@Override
 		public MultiMatcher<E> setSimilarityThreshold(final double similarityThreshold)
@@ -287,7 +287,7 @@ public interface MultiMatcher<E>
 			final XGettingCollection<? extends E> target
 		)
 		{
-			return new MultiMatch.Implementation<>(
+			return new MultiMatch.Default<>(
 				this,
 				(E[])source.toArray(),
 				(E[])target.toArray()

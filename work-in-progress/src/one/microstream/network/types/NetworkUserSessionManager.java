@@ -22,8 +22,8 @@ public interface NetworkUserSessionManager<U, S extends NetworkUserSession<U, ?>
 	implements NetworkUserSessionManager<U, S>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final NetworkUserSession.Creator<U, ?, S> sessionCreator;
 
@@ -41,8 +41,8 @@ public interface NetworkUserSessionManager<U, S extends NetworkUserSession<U, ?>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final NetworkUserSession.Creator<U, ?, S>                 sessionCreator               ,

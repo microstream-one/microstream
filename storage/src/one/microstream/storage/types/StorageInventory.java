@@ -13,8 +13,8 @@ public interface StorageInventory extends StorageHashChannelPart
 	public final class Implementation implements StorageInventory
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final int                                       channelIndex    ;
 		final XGettingTable<Long, StorageInventoryFile> dataFiles       ;

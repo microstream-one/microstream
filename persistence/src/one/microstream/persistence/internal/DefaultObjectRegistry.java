@@ -1002,8 +1002,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// member types     //
-	/////////////////////
+	// member types //
+	/////////////////
 
 	static final class Entry extends WeakReference<Object>
 	{

@@ -7,8 +7,8 @@ import one.microstream.chars.XChars;
 public class PersistenceExceptionConsistencyUnknownObject extends PersistenceExceptionConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final Object object;
 
@@ -59,8 +59,8 @@ public class PersistenceExceptionConsistencyUnknownObject extends PersistenceExc
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Object getObject()
 	{

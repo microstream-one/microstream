@@ -44,8 +44,8 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private static Class<EqConstHashTable<?, ?>> typeWorkaround()

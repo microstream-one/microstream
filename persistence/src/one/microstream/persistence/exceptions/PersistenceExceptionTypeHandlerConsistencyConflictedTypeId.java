@@ -8,8 +8,8 @@ public class PersistenceExceptionTypeHandlerConsistencyConflictedTypeId
 extends PersistenceExceptionTypeHandlerConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final long                        typeId           ;
 	final PersistenceTypeHandler<?, ?> actualTypeHandler;
@@ -76,8 +76,8 @@ extends PersistenceExceptionTypeHandlerConsistency
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public long getTypeId()
 	{

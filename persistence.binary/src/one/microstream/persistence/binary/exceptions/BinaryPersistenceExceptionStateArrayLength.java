@@ -5,8 +5,8 @@ import one.microstream.chars.XChars;
 public class BinaryPersistenceExceptionStateArrayLength extends BinaryPersistenceExceptionStateArray
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Object[] actualArray ;
 	private final int      passedLength;
@@ -66,8 +66,8 @@ public class BinaryPersistenceExceptionStateArrayLength extends BinaryPersistenc
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Object[] getActualArray()
 	{

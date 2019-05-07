@@ -10,8 +10,8 @@ import java.util.NoSuchElementException;
 public final class ArrayIterator<E> implements Iterator<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final E[] array;
 	private final int length;

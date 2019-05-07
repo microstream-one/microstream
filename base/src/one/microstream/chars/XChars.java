@@ -1666,8 +1666,8 @@ public final class XChars
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// toChars methods  //
-	/////////////////////
+	// toChars methods //
+	////////////////////
 
 	public static final int put(final byte value, final char[] target, final int offset)
 	{

@@ -22,8 +22,8 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 	implements StorageRequestTaskCreateStatistics
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final Date                                         creationTime  ;
 		private final StorageRawFileStatistics.ChannelStatistics[] channelResults;
@@ -104,8 +104,8 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 	static final class ExportItem implements Supplier<FileChannel>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		        final    int                      channelCount  ;
 		        final    StorageEntityTypeHandler type          ;

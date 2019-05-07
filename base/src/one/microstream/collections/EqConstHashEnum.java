@@ -29,8 +29,8 @@ extends AbstractChainCollection<E, E, E, ChainEntryLinkedHashedStrong<E>>
 implements XImmutableEnum<E>, HashCollection<E>, Composition
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final <E> EqConstHashEnum<E> New()
 	{
@@ -167,8 +167,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	// data storage
 	private final AbstractChainStorage<E, E, E, ChainEntryLinkedHashedStrong<E>> chain;
@@ -329,8 +329,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// inheriteted ExtendedCollection methods  //
-	////////////////////////////////////////////
+	// inheriteted ExtendedCollection methods //
+	///////////////////////////////////////////
 
 	@Override
 	public final int rehash()
@@ -528,8 +528,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public final XImmutableEnum<E> range(final long lowIndex, final long highIndex)

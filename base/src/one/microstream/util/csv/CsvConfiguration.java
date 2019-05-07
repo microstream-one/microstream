@@ -72,7 +72,7 @@ public interface CsvConfiguration
 
 
 
-	public final class Implementation implements CsvConfiguration, Immutable
+	public final class Default implements CsvConfiguration, Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -106,7 +106,7 @@ public interface CsvConfiguration
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final char          lineSeparator          ,
 			final char          terminator             ,
 			final char          valueSeparator         ,
@@ -497,7 +497,7 @@ public interface CsvConfiguration
 
 
 
-		public final class Implementation extends InstanceDispatcher.Implementation implements Builder
+		public final class Default extends InstanceDispatcher.Implementation implements Builder
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -727,105 +727,105 @@ public interface CsvConfiguration
 			/////////////////////
 
 			@Override
-			public Builder.Implementation setRecordSeparator(final char lineSeparator)
+			public Builder.Default setRecordSeparator(final char lineSeparator)
 			{
 				this.internalSetLineSeparator(lineSeparator);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setTerminator(final char terminator)
+			public Builder.Default setTerminator(final char terminator)
 			{
 				this.internalSetTerminator(terminator);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setValueSeparator(final char valueSeparator)
+			public Builder.Default setValueSeparator(final char valueSeparator)
 			{
 				this.internalSetValueSeparator(valueSeparator);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setLiteralDelimiter(final char valueDelimiter)
+			public Builder.Default setLiteralDelimiter(final char valueDelimiter)
 			{
 				this.internalSetValueDelimiter(valueDelimiter);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setEscaper(final char valueEscaper)
+			public Builder.Default setEscaper(final char valueEscaper)
 			{
 				this.internalSetValueEscaper(valueEscaper);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setSegmentStarter(final char segmentStarter)
+			public Builder.Default setSegmentStarter(final char segmentStarter)
 			{
 				this.internalSetSegmentStarter(segmentStarter);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setSegmentTerminator(final char segmentTerminator)
+			public Builder.Default setSegmentTerminator(final char segmentTerminator)
 			{
 				this.internalSetSegmentTerminator(segmentTerminator);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setHeaderStarter(final char headerStarter)
+			public Builder.Default setHeaderStarter(final char headerStarter)
 			{
 				this.internalSetHeaderStarter(headerStarter);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setHeaderTerminator(final char headerTerminator)
+			public Builder.Default setHeaderTerminator(final char headerTerminator)
 			{
 				this.internalSetHeaderTerminator(headerTerminator);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setCommentSignal(final char commentSignal)
+			public Builder.Default setCommentSignal(final char commentSignal)
 			{
 				this.internalSetCommentSignal(commentSignal);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setCommentSimpleStarter(final char commentSimpleStarter)
+			public Builder.Default setCommentSimpleStarter(final char commentSimpleStarter)
 			{
 				this.internalSetCommentSimpleStarter(commentSimpleStarter);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setCommentFullStarter(final char commentFullStarter)
+			public Builder.Default setCommentFullStarter(final char commentFullStarter)
 			{
 				this.internalSetCommentFullStarter(commentFullStarter);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setCommentFullTerminator(final String commentFullTerminator)
+			public Builder.Default setCommentFullTerminator(final String commentFullTerminator)
 			{
 				this.internalSetCommentFullTerminator(commentFullTerminator);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setSkipLineCount(final int skipLineCount)
+			public Builder.Default setSkipLineCount(final int skipLineCount)
 			{
 				this.internalSetSkipLineCount(skipLineCount);
 				return this;
 			}
 
 			@Override
-			public Builder.Implementation setPostColumnHeaderSkipLineCount(final int skipLineCountPostHeader)
+			public Builder.Default setPostColumnHeaderSkipLineCount(final int skipLineCountPostHeader)
 			{
 				this.internalSetSkipLineCountPostHeader(skipLineCountPostHeader);
 				return this;
@@ -839,7 +839,7 @@ public interface CsvConfiguration
 			}
 
 			@Override
-			public Builder.Implementation setEscapeHandler(final EscapeHandler escapeHandler)
+			public Builder.Default setEscapeHandler(final EscapeHandler escapeHandler)
 			{
 				this.internalSetEscapeHandler(escapeHandler);
 				return this;
@@ -876,7 +876,7 @@ public interface CsvConfiguration
 				/* (01.07.2013 TM)FIXME: CsvConfiguration: meta symbol consistency validation
 				 * i.e. delimiter not same as separator, etc.
 				 */
-				return new CsvConfiguration.Implementation(
+				return new CsvConfiguration.Default(
 					this.getLineSeparator(),
 					this.getTerminator(),
 					this.getValueSeparator(),

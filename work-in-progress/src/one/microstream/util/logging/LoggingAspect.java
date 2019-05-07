@@ -8,8 +8,8 @@ import one.microstream.util.aspects.AspectWrapper;
 public class LoggingAspect<T> extends AspectWrapper<T>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final InvocationLogger logger;
 

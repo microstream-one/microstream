@@ -13,8 +13,8 @@ import one.microstream.persistence.types.PersistenceTarget;
 public final class BinaryFileStorage implements PersistenceChannel<Binary>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final PersistenceSource<Binary> source;
 	private final PersistenceTarget<Binary> target;
