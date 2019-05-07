@@ -209,7 +209,8 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 			
 			this.typeId = typeId;
 			
-			this.internalInitialize();
+			// (07.05.2019 TM)FIXME: MS-130: reactivate upon resume.
+//			this.internalInitialize();
 			
 			// by default, implementations are assumed to be (effectively) immutable and thus can return themselves.
 			return this;
