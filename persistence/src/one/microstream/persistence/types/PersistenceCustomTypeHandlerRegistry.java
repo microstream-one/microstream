@@ -39,8 +39,8 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 	public final class Implementation<M> implements PersistenceCustomTypeHandlerRegistry<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 		
 		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> mapping            = HashTable.New();
 		private final HashEnum<PersistenceLegacyTypeHandler<M, ?>>      legacyTypeHandlers = HashEnum.New() ;

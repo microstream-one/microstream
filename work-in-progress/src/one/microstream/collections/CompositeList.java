@@ -23,8 +23,8 @@ import one.microstream.typing.XTypes;
 public final class CompositeList<E> implements XGettingList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final <E> CompositeList<E> New(final XGettingList<E>[] lists)
 	{
@@ -48,8 +48,8 @@ public final class CompositeList<E> implements XGettingList<E>
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final XGettingList<E>[] lists;
 	final int               count;
@@ -70,8 +70,8 @@ public final class CompositeList<E> implements XGettingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters         //
-	/////////////////////
+	// getters //
+	/////////////
 
 	@Override
 	public final E get()

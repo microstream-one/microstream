@@ -28,8 +28,8 @@ extends AbstractChainCollection<E, E, E, ChainEntryLinkedStrong<E>>
 implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final <E> ConstHashEnum<E> New()
 	{
@@ -96,8 +96,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	// data storage
 	private final AbstractChainStorage<E, E, E, ChainEntryLinkedStrong<E>> chain;
@@ -209,8 +209,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// inheriteted ExtendedCollection methods  //
-	////////////////////////////////////////////
+	// inheriteted ExtendedCollection methods //
+	///////////////////////////////////////////
 
 	@Override
 	public boolean nullAllowed()
@@ -407,8 +407,8 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public final XImmutableEnum<E> range(final long lowIndex, final long highIndex)

@@ -48,8 +48,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final <KI, VI, KO, VO> Aggregator<KeyValue<KI, VI>, ConstHashTable<KO, VO>> projector(
 		final ConstHashTable<KO, VO> target        ,
@@ -201,8 +201,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	// data storage
 	final AbstractChainKeyValueStorage<K, V, ChainMapEntryLinkedStrongStrong<K, V>> chain;
@@ -350,8 +350,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// inheriteted ExtendedCollection methods  //
-	////////////////////////////////////////////
+	// inheriteted ExtendedCollection methods //
+	///////////////////////////////////////////
 
 	@Override
 	protected int internalCountingAddAll(final KeyValue<K, V>[] elements) throws UnsupportedOperationException
@@ -635,8 +635,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public final XEnum<KeyValue<K, V>> range(final long lowIndex, final long highIndex)
@@ -1046,8 +1046,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getting methods  //
-		/////////////////////
+		// getting methods //
+		////////////////////
 
 		@Override
 		public final Equalator<? super K> equality()
@@ -1346,8 +1346,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 
 
 		///////////////////////////////////////////////////////////////////////////
-		//  adding methods  //
-		/////////////////////
+		// adding //
+		///////////
 
 		@Override
 		public final long maximumCapacity()
@@ -1370,8 +1370,8 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 
 
 		///////////////////////////////////////////////////////////////////////////
-		//  remove methods  //
-		/////////////////////
+		// removing //
+		/////////////
 
 		@Override
 		public final Keys toReversed()

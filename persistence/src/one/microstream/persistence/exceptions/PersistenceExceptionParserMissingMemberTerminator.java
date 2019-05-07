@@ -48,8 +48,8 @@ public class PersistenceExceptionParserMissingMemberTerminator extends Persisten
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	@Override
 	public String getMessage()

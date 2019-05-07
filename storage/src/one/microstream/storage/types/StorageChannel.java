@@ -88,8 +88,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 	public final class Implementation implements StorageChannel, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final int                               channelIndex             ;
 		private final StorageExceptionHandler           exceptionHandler         ;
@@ -608,8 +608,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		// (01.06.2013)TODO: clean up / consolidate all internal implementations
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final StorageEntityCache.Implementation entityCache  ;
 		private final ChunksBuffer                      dataCollector;
@@ -662,8 +662,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 	public final class EntityCollectorByTid implements _longProcedure
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final StorageEntityCache.Implementation entityCache  ;
 		private final ChunksBuffer                      dataCollector;

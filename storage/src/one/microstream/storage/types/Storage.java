@@ -4,16 +4,30 @@ import static one.microstream.X.notNull;
 
 import java.io.File;
 
+
+/**
+ * Static utility class containing static pseudo-constructor methods (indicated by a capital first letter)
+ * and various utility methods.<p>
+ * To setup and start a database, see the class "EmbeddedStorage".
+ * 
+ * @author TM
+ *
+ */
 public final class Storage
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
 
-
-	private static final long   ONE_MILLION                         = 1_000_000L;
+	/**
+	 * Trivial helper constant.
+	 */
+	private static final long ONE_MILLION = 1_000_000L;
 	
-	private static final long   TRANSACTIONS_FILE_NUMBER = -1;
+	/**
+	 * Dummy file number for the transactions file.
+	 */
+	private static final long TRANSACTIONS_FILE_NUMBER = -1;
 	
 
 
@@ -21,27 +35,61 @@ public final class Storage
 	// static methods //
 	///////////////////
 	
-	/* (18.02.2019 TM)NOTE:
-	 * It's a rather hacky solution to make a transactions file have a file number in the first place,
-	 * but transaction files are bound to be replaced by inlined meta data in the future,
-	 * so in order to not overcomplicate API now that would have to be consolidated later,
-	 * transaction files are just numbered files with a specific fake number.
+	/**
+	 * Returns the dummy file number for transaction files, which is the value {@value #TRANSACTIONS_FILE_NUMBER}.<p>
+	 * Transaction files conceptually don't have a file number, but are subject to the {@link StorageNumberedFile}
+	 * mechanics, so a dummy value is required. Since transaction files are planned to be replaced in the future
+	 * by meta data inlined directly in the storage files, a dummy value like this is a preferable solution
+	 * to restructuring.
+	 * 
+	 * @return the dummy file number for transaction files.
 	 */
 	public static final long transactionsFileNumber()
 	{
 		return TRANSACTIONS_FILE_NUMBER;
 	}
 	
+	/**
+	 * Checks if the passed {@link StorageNumberedFile} is a transaction file by comparing its file number to
+	 * {@link #transactionsFileNumber()}.
+	 * 
+	 * @param file the {@link StorageNumberedFile} to be checked.
+	 * 
+	 * @return whether the passed file is a transactions file.
+	 * 
+	 * @see #transactionsFileNumber()
+	 * @see #isDataFile(StorageNumberedFile)
+	 */
 	public static final boolean isTransactionFile(final StorageNumberedFile file)
 	{
 		return file.number() == TRANSACTIONS_FILE_NUMBER;
 	}
 	
+	/**
+	 * Checks if the passed {@link StorageNumberedFile} is a data file.
+	 * 
+	 * @param file the {@link StorageNumberedFile} to be checked.
+	 * 
+	 * @return whether the passed file is a data file.
+	 * 
+	 * @see #isTransactionFile(StorageNumberedFile)
+	 */
 	public static final boolean isDataFile(final StorageNumberedFile file)
 	{
 		return file.number() > 0;
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with a default value
+	 * for the storage directory, which is the folder named "storage" in the JVM's working directory.<p>
+	 * To specify a custom storage directory, see #FileProvider(File).<p>
+	 * For full control over defining a storage's file locations and names, see {@link StorageFileProvider.Builder}.
+	 * 
+	 * @return a new {@link StorageFileProvider} instance with the default storage directory.
+	 * 
+	 * @see #FileProvider(File)
+	 * @see StorageFileProvider.Builder
+	 */
 	public static final StorageFileProvider FileProvider()
 	{
 		return Storage.FileProviderBuilder()
@@ -49,19 +97,46 @@ public final class Storage
 		;
 	}
 	
-	public static final StorageFileProvider FileProvider(final File mainDirectory)
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with the passed {@link File}
+	 * as the storage directory<p>
+	 * For full control over defining a storage's file locations and names, see {@link StorageFileProvider.Builder}.
+	 * 
+	 * @return a new {@link StorageFileProvider} instance with the passed {@link File} as the storage directory.
+	 * 
+	 * @see #FileProvider(File)
+	 * @see StorageFileProvider.Builder
+	 */
+	public static final StorageFileProvider FileProvider(final File storageDirectory)
 	{
+		/* (07.05.2019 TM)NOTE: string-based paths are planned to be replaced by an abstraction of
+		 * storage files and directories that will replace any direct references to the file-system.
+		 * Since that work is not completed, yet, the string approach has been used as a working temporary solution.
+		 */
 		return Storage.FileProviderBuilder()
-			.setBaseDirectory(mainDirectory.getPath())
+			.setBaseDirectory(storageDirectory.getPath())
 			.createFileProvider()
 		;
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageFileProvider.Builder} instance.
+	 * 
+	 * @return a new {@link StorageFileProvider.Builder} instance.
+	 */
 	public static final StorageFileProvider.Builder<?> FileProviderBuilder()
 	{
 		return StorageFileProvider.Builder();
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageConfiguration.Builder} instance
+	 * using default values.
+	 * 
+	 * @return a new {@link StorageConfiguration} instance.
+	 * 
+	 * @see StorageConfiguration.Builder
+	 */
 	public static final StorageConfiguration Configuration()
 	{
 		return StorageConfiguration.Builder()
@@ -69,6 +144,14 @@ public final class Storage
 		;
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageConfiguration.Builder} instance
+	 * using the passed {@link StorageFileProvider} and default values for everything else.
+	 * 
+	 * @return a new {@link StorageConfiguration} instance using the passed {@link StorageFileProvider}.
+	 * 
+	 * @see StorageConfiguration.Builder
+	 */
 	public static final StorageConfiguration Configuration(
 		final StorageFileProvider fileProvider
 	)
@@ -78,19 +161,34 @@ public final class Storage
 			.createConfiguration()
 		;
 	}
-
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageConfiguration.Builder} instance.
+	 * 
+	 * @return a new {@link StorageConfiguration.Builder} instance.
+	 */
 	public static final StorageConfiguration.Builder<?> ConfigurationBuilder()
 	{
 		return StorageConfiguration.Builder();
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageHousekeepingController} instance
+	 * using default values.<p>
+	 * To specify custom values, see {@link #HousekeepingController(long, long)}.<p>
+	 * 
+	 * @return a new {@link StorageHousekeepingController} instance using default values.
+	 * 
+	 * @see #HousekeepingController(long, long)
+	 * @see StorageHousekeepingController#New())
+	 */
 	public static final StorageHousekeepingController HousekeepingController()
 	{
 		return StorageHousekeepingController.New();
 	}
 	
 	public static final StorageHousekeepingController HousekeepingController(
-		final long housekeepingIntervalMs      ,
+		final long housekeepingIntervalMs  ,
 		final long housekeepingTimeBudgetNs
 	)
 	{

@@ -32,7 +32,7 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 	public String toChainString();
 
 
-	public class Implementation<T> extends Constant<T> implements LinkingReferencing<T>
+	public class Default<T> extends Constant<T> implements LinkingReferencing<T>
 	{
 
 		private final LinkingReferencing<T> next = null;
@@ -41,7 +41,7 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 		/**
 		 * @param ref
 		 */
-		public Implementation(final T ref)
+		public Default(final T ref)
 		{
 			super(ref);
 		}

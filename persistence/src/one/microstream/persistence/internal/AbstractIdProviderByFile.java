@@ -21,8 +21,8 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final long increase ;
 	private       long id       ;

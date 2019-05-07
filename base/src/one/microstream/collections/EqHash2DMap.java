@@ -37,8 +37,8 @@ public final class EqHash2DMap<K1, K2, V> implements X2DMap<K1, K2, V>, Composit
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final HashEqualator<K1>                      k1HashEqualator;
 	final HashEqualator<K2>                      k2HashEqualator;

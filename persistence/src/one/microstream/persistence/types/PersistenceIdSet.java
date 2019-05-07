@@ -19,8 +19,8 @@ public interface PersistenceIdSet extends _longIterable, Sized
 	final class Implementation implements PersistenceIdSet, _longCollector
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final int DEFAULT_CAPACITY = 64;
 

@@ -8,8 +8,8 @@ public interface StorageRequestTaskExportChannels extends StorageRequestTask
 	implements StorageRequestTaskExportChannels, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final StorageIoHandler fileHandler;
 

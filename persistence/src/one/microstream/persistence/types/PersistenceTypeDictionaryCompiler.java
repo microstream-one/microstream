@@ -27,8 +27,8 @@ public interface PersistenceTypeDictionaryCompiler
 	public final class Implementation implements PersistenceTypeDictionaryCompiler
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final PersistenceTypeDictionaryParser  parser ;
 		private final PersistenceTypeDictionaryBuilder builder;
@@ -36,8 +36,8 @@ public interface PersistenceTypeDictionaryCompiler
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final PersistenceTypeDictionaryParser  parser ,

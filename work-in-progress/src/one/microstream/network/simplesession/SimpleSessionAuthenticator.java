@@ -12,8 +12,8 @@ import one.microstream.network.types.NetworkConnectionValidator;
 public class SimpleSessionAuthenticator<U extends SimpleSessionUser> implements NetworkConnectionValidator<U>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final SimpleSessionUser.Creator<U> userCreator;
 

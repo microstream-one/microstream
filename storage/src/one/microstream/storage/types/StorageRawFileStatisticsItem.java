@@ -13,8 +13,8 @@ public interface StorageRawFileStatisticsItem
 	public abstract class AbstractImplementation implements StorageRawFileStatisticsItem
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final long fileCount      ;
 		final long liveDataLength ;

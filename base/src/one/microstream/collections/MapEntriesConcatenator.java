@@ -33,8 +33,8 @@ public class MapEntriesConcatenator<K, V>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public String getMapStartSymbol()
 	{
@@ -64,8 +64,8 @@ public class MapEntriesConcatenator<K, V>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setters          //
-	/////////////////////
+	// setters //
+	////////////
 
 	public MapEntriesConcatenator<K, V> setMapStartSymbol(final String mapStartSymbol)
 	{

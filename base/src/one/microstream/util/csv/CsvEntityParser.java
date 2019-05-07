@@ -19,8 +19,8 @@ public interface CsvEntityParser<T>
 	public abstract class AbstractImplementation<T> implements CsvEntityParser<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 		
 		private static final int DEFAULT_COLLECTOR_CAPACITY = 1024;
 		

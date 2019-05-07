@@ -50,8 +50,8 @@ extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<Persistenc
 	public final class Implementation implements PersistenceObjectManager
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final PersistenceObjectRegistry   objectRegistry;
 		private final PersistenceObjectIdProvider oidProvider   ;
@@ -59,8 +59,8 @@ extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<Persistenc
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final PersistenceObjectRegistry   objectRegistry,

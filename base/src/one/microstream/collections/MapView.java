@@ -19,8 +19,8 @@ import one.microstream.typing.XTypes;
 public final class MapView<K, V> implements XGettingMap<K, V>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final XGettingMap<K, V> subject;
 

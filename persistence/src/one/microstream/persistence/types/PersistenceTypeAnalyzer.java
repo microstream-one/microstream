@@ -23,8 +23,8 @@ public interface PersistenceTypeAnalyzer
 	public final class Implementation implements PersistenceTypeAnalyzer
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// static methods    //
-		/////////////////////
+		// static methods //
+		//////////////////
 
 		public static final void collectPersistableInstanceFields(
 			final XPrependingSequence<Field> collection   ,
@@ -48,8 +48,8 @@ public interface PersistenceTypeAnalyzer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final PersistenceFieldEvaluator fieldSelector;
 		private final PersistenceTypeEvaluator  isPersistable;

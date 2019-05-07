@@ -52,8 +52,8 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static <E> Aggregator<E, ConstList<E>> Builder()
 	{
@@ -208,8 +208,8 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public ConstList<E> copy()
@@ -565,8 +565,8 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// java.util.list and derivatives  //
-	////////////////////////////////////
+	// java.util.list and derivatives //
+	///////////////////////////////////
 
 	@Override
 	public boolean isEmpty()

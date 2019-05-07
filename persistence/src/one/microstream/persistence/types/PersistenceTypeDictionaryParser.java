@@ -39,8 +39,8 @@ public interface PersistenceTypeDictionaryParser
 		// CHECKSTYLE.OFF: FinalParameters: parameter assignment required for performance reasons
 
 		///////////////////////////////////////////////////////////////////////////
-		// static methods    //
-		/////////////////////
+		// static methods //
+		//////////////////
 
 		// util methods //
 
@@ -398,16 +398,16 @@ public interface PersistenceTypeDictionaryParser
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final PersistenceFieldLengthResolver lengthResolver;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(final PersistenceFieldLengthResolver lengthResolver)
 		{
@@ -524,8 +524,8 @@ public interface PersistenceTypeDictionaryParser
 	abstract class AbstractMemberBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		boolean                                                     isVariableLength, isComplex;
 		private String                                              declrTypeName, typeName, fieldName;
@@ -535,8 +535,8 @@ public interface PersistenceTypeDictionaryParser
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public AbstractMemberBuilder(
 			final PersistenceFieldLengthResolver lengthResolver   ,
@@ -635,16 +635,16 @@ public interface PersistenceTypeDictionaryParser
 	final class TypeMemberBuilder extends AbstractMemberBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		String primitiveDefinition;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public TypeMemberBuilder(
 			final PersistenceFieldLengthResolver lengthResolver   ,
@@ -766,8 +766,8 @@ public interface PersistenceTypeDictionaryParser
 	final class NestedMemberBuilder extends AbstractMemberBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public NestedMemberBuilder(
 			final PersistenceFieldLengthResolver lengthResolver   ,

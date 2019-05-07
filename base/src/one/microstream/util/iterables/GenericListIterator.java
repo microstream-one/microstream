@@ -24,8 +24,8 @@ import one.microstream.typing.XTypes;
 public class GenericListIterator<E> implements ListIterator<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final XList<E> list;
 	private int index;

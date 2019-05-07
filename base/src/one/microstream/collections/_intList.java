@@ -482,8 +482,8 @@ public final class _intList implements _intCollecting, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	public _intList copy()
 	{
@@ -665,8 +665,8 @@ public final class _intList implements _intCollecting, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setting methods  //
-	/////////////////////
+	// setting methods //
+	////////////////////
 
 	// (30.03.2012)TODO _intViewList
 //	public ListView view()
@@ -958,8 +958,8 @@ public final class _intList implements _intCollecting, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   add methods    //
-	/////////////////////
+	// adding //
+	///////////
 
 	public void accept(final int element)
 	{
@@ -1030,8 +1030,8 @@ public final class _intList implements _intCollecting, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   put methods    //
-	/////////////////////
+	// putting //
+	////////////
 
 	public boolean nullPut()
 	{
@@ -1062,8 +1062,8 @@ public final class _intList implements _intCollecting, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// prepend methods //
-	////////////////////
+	// prepending //
+	///////////////
 
 	public boolean prepend(final int element)
 	{
@@ -1105,8 +1105,8 @@ public final class _intList implements _intCollecting, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// preput methods  //
-	////////////////////
+	// preputting //
+	///////////////
 
 	public boolean preput(final int element)
 	{
@@ -1148,8 +1148,8 @@ public final class _intList implements _intCollecting, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  insert methods  //
-	/////////////////////
+	// inserting //
+	//////////////
 
 	public boolean insert(final int index, final int element)
 	{
@@ -1237,8 +1237,8 @@ public final class _intList implements _intCollecting, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  input methods   //
-	/////////////////////
+	// inputting //
+	//////////////
 
 	public boolean input(final int index, final int element)
 	{
@@ -1326,8 +1326,8 @@ public final class _intList implements _intCollecting, Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  remove methods  //
-	/////////////////////
+	// removing //
+	/////////////
 
 	public void truncate()
 	{

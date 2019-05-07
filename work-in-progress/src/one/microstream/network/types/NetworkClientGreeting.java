@@ -26,8 +26,8 @@ public interface NetworkClientGreeting
 	public class Implementation implements NetworkClientGreeting
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final String SEPERATOR       = ":";
 		private static final String TERMINATOR      = "\n";
@@ -147,8 +147,8 @@ public interface NetworkClientGreeting
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
 
 		@Override
 		public String host()

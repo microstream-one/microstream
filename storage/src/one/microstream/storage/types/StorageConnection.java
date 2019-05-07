@@ -163,8 +163,8 @@ public interface StorageConnection extends PersistenceStoring
 	public final class Implementation implements StorageConnection, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		/* The performance penalty of this indirection is negligible as a persistence manager instance
 		 * is only (properly) used for non-performance-relevant uses and otherwise spawns dedicated

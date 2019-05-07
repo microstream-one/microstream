@@ -8,8 +8,8 @@ import one.microstream.X;
 public final class LimitedRange<E> implements Predicate<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private int skip;
 	private int limit;

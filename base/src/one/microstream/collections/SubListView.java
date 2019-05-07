@@ -21,8 +21,8 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
 public class SubListView<E> implements XGettingList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	static final <E> IndexedAcceptor<E> offset(
 		final IndexedAcceptor<? super E> procedure,
@@ -44,8 +44,8 @@ public class SubListView<E> implements XGettingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final XGettingList<E> list;
 	long startIndex;

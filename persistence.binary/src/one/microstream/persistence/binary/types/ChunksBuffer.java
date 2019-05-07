@@ -39,8 +39,8 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final ChunksBuffer[]                channelBuffers    ;
 	private final BufferSizeProviderIncremental bufferSizeProvider;

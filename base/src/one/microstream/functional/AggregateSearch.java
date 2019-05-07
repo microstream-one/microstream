@@ -7,8 +7,8 @@ import one.microstream.X;
 public class AggregateSearch<E> implements Aggregator<E, E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private E found;
 	private final Predicate<? super E> predicate;

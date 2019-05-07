@@ -3,8 +3,8 @@ package one.microstream.storage.exceptions;
 public class StorageExceptionRequest extends StorageException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Throwable[] problems;
 
@@ -23,8 +23,8 @@ public class StorageExceptionRequest extends StorageException
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Throwable[] problems()
 	{

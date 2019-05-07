@@ -21,8 +21,8 @@ public interface NetworkConnectionServer extends NetworkServer
 	public class Implementation implements NetworkConnectionServer
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final NetworkConnectionManager connectionManager ;
 
@@ -44,8 +44,8 @@ public interface NetworkConnectionServer extends NetworkServer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(final Setup setup)
 		{
@@ -64,8 +64,8 @@ public interface NetworkConnectionServer extends NetworkServer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// getters          //
-		/////////////////////
+		// getters //
+		////////////
 
 		@Override
 		public final synchronized int getConnectionListenerThreadCount()
@@ -94,8 +94,8 @@ public interface NetworkConnectionServer extends NetworkServer
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// setters          //
-		/////////////////////
+		// setters //
+		////////////
 
 		protected final void internalSetConnectionListenerThreadCount(final int maxThreadCount)
 		{

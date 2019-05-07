@@ -26,8 +26,8 @@ extends AbstractBinaryHandlerCustomCollectionSizedArray<BulkList<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private static Class<BulkList<?>> typeWorkaround()

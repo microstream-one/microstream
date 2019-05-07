@@ -48,8 +48,8 @@ public class PersistenceExceptionParserMissingFieldDeclaringType extends Persist
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	@Override
 	public String getMessage()

@@ -99,8 +99,8 @@ public interface PersistenceTypeDictionaryView extends PersistenceTypeDictionary
 	public final class Implementation implements PersistenceTypeDictionaryView
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final EqConstHashTable<String, ? extends PersistenceTypeLineageView> typeLineages     ;
 		private final EqConstHashTable<Long  , PersistenceTypeDefinition>            allTypesPerTypeId;
@@ -108,8 +108,8 @@ public interface PersistenceTypeDictionaryView extends PersistenceTypeDictionary
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final EqConstHashTable<String, ? extends PersistenceTypeLineageView> typeLineages     ,

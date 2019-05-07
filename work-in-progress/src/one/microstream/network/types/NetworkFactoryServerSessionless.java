@@ -14,16 +14,16 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 	implements NetworkFactoryServerSessionless
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private volatile NetworkConnectionProcessor connectionProcessor;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// setters          //
-		/////////////////////
+		// setters //
+		////////////
 
 		protected final synchronized void internalSetConnectionProcessor(
 			final NetworkConnectionProcessor connectionProcessor

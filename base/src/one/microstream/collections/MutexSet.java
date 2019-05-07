@@ -66,8 +66,8 @@ public final class MutexSet<E> implements XSet<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   add methods    //
-	/////////////////////
+	// adding //
+	///////////
 
 	@Override
 	public void accept(final E e)
@@ -130,8 +130,8 @@ public final class MutexSet<E> implements XSet<E>, Synchronized
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   put methods    //
-	/////////////////////
+	// putting //
+	////////////
 
 	@Override
 	public boolean put(final E e)

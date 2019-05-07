@@ -12,8 +12,8 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 	implements StorageRequestTaskGarbageCollection, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final StorageTask actualTask         ;
 		private final long        nanoTimeBudgetBound;

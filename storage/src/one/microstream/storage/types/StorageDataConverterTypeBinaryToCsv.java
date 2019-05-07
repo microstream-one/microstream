@@ -146,8 +146,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// static methods    //
-		/////////////////////
+		// static methods //
+		//////////////////
 
 		static final FileChannel createFileChannel(final File file) throws StorageException
 		{
@@ -164,8 +164,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		// caching fields for performance reasons (skipping repeated pointer indirection)
 		private final String                                  oidColumnName         ;

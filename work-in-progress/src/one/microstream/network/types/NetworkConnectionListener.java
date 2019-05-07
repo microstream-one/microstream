@@ -100,8 +100,8 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 	public class Implementation implements NetworkConnectionListener
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final NetworkConnectionProblemHandler DEFAULT_PH = new NetworkConnectionProblemHandler()
 		{
@@ -115,8 +115,8 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final NetworkConnectionSocket         connectionSocket ;
 		private final NetworkConnectionHandler        connectionHandler;
@@ -127,8 +127,8 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final NetworkConnectionSocket  connectionSocket ,

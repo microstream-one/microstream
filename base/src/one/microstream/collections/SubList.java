@@ -90,8 +90,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   add methods    //
-	/////////////////////
+	// adding //
+	///////////
 
 	@Override
 	public final void accept(final E element)
@@ -145,8 +145,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   put methods    //
-	/////////////////////
+	// putting //
+	////////////
 
 	@Override
 	public final boolean put(final E element)
@@ -182,8 +182,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// prepend methods //
-	////////////////////
+	// prepending //
+	///////////////
 
 	@Override
 	public final boolean prepend(final E element)
@@ -238,8 +238,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// preput methods  //
-	////////////////////
+	// preputting //
+	///////////////
 
 	@Override
 	public final boolean preput(final E element)
@@ -287,8 +287,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  insert methods  //
-	/////////////////////
+	// inserting //
+	//////////////
 
 	@Override
 	public final boolean insert(final long index, final E element)
@@ -355,8 +355,8 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  input methods   //
-	/////////////////////
+	// inputting //
+	//////////////
 
 	@Override
 	public final boolean input(final long index, final E element)

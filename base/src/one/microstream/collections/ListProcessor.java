@@ -18,8 +18,8 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
 public final class ListProcessor<E> implements XProcessingList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final XProcessingList<E> subject;
 
@@ -463,8 +463,8 @@ public final class ListProcessor<E> implements XProcessingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// removing methods  //
-	//////////////////////
+	// removing methods //
+	/////////////////////
 
 	@Override
 	public long consolidate()

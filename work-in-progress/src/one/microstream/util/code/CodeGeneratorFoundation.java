@@ -11,8 +11,8 @@ import one.microstream.chars.VarString;
 public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGeneratorFoundation.Member>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final Member Member(final String typeName)
 	{

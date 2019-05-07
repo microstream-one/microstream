@@ -58,13 +58,13 @@ public interface TypePair
 		
 	public static TypePair New(final Class<?> type1, final Class<?> type2)
 	{
-		return new TypePair.Implementation(
+		return new TypePair.Default(
 			notNull(type1),
 			notNull(type2)
 		);
 	}
 	
-	public final class Implementation implements TypePair
+	public final class Default implements TypePair
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -80,7 +80,7 @@ public interface TypePair
 		// constructors //
 		/////////////////
 		
-		Implementation(final Class<?> type1, final Class<?> type2)
+		Default(final Class<?> type1, final Class<?> type2)
 		{
 			super();
 			this.type1 = type1;
@@ -116,9 +116,9 @@ public interface TypePair
 		public final boolean equals(final Object other)
 		{
 			return other == this
-				|| other instanceof TypePair.Implementation
-				&& this.type1 == ((TypePair.Implementation)other).type1
-				&& this.type2 == ((TypePair.Implementation)other).type2
+				|| other instanceof TypePair.Default
+				&& this.type1 == ((TypePair.Default)other).type1
+				&& this.type2 == ((TypePair.Default)other).type2
 			;
 		}
 		

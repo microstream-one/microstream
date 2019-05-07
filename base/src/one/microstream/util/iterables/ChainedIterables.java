@@ -94,8 +94,8 @@ public class ChainedIterables<T> implements Iterable<T>
 	protected class ChainedIterator implements Iterator<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private Iterator<T> currentIterator;
 		private int         currentIndex   ;
@@ -103,8 +103,8 @@ public class ChainedIterables<T> implements Iterable<T>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		ChainedIterator()
 		{

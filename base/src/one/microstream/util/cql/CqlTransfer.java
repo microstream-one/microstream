@@ -109,7 +109,7 @@ public interface CqlTransfer<I, R extends XIterable<I>> extends CqlIteration<I, 
 
 	public static <I> CqlTransfer<I, XSequence<I>> New()
 	{
-		return new Implementation<>(null, null, null, null, null, null);
+		return new Default<>(null, null, null, null, null, null);
 	}
 
 	public static <I> CqlTransfer<I, XSequence<I>> New(
@@ -120,7 +120,7 @@ public interface CqlTransfer<I, R extends XIterable<I>> extends CqlIteration<I, 
 		final Comparator<? super I>  order
 	)
 	{
-		return new Implementation<>(source, skip, limit, selector, order, CqlResultor.New());
+		return new Default<>(source, skip, limit, selector, order, CqlResultor.New());
 	}
 
 	public static <I, T extends Consumer<I> & XIterable<I>> CqlTransfer<I, T> New(
@@ -132,7 +132,7 @@ public interface CqlTransfer<I, R extends XIterable<I>> extends CqlIteration<I, 
 		final T                      target
 	)
 	{
-		return new Implementation<>(source, skip, limit, selector, order, CqlResultor.New(target));
+		return new Default<>(source, skip, limit, selector, order, CqlResultor.New(target));
 	}
 
 	public static <I, R extends XIterable<I>> CqlTransfer<I, R> New(
@@ -144,12 +144,12 @@ public interface CqlTransfer<I, R extends XIterable<I>> extends CqlIteration<I, 
 		final CqlResultor<I, R>         resultor
 	)
 	{
-		return new Implementation<>(source, skip, limit, selector, order, resultor);
+		return new Default<>(source, skip, limit, selector, order, resultor);
 	}
 
-	final class Implementation<I, R extends XIterable<I>> extends Abstract<I, I, R> implements CqlTransfer<I, R>
+	final class Default<I, R extends XIterable<I>> extends Abstract<I, I, R> implements CqlTransfer<I, R>
 	{
-		Implementation(
+		Default(
 			final XIterable<? extends I> source  ,
 			final Long                   skip    ,
 			final Long                   limit   ,

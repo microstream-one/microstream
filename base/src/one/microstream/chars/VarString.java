@@ -89,8 +89,8 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static int calculateNewCapacity(final int capacity, final int minimumCapacity)
 	{

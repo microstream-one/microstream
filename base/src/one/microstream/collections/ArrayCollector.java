@@ -72,8 +72,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static String exceptionStringRange(final long size, final long startIndex, final long length)
 	{
@@ -129,8 +129,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public E[] getArray()
 	{
@@ -256,8 +256,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setters          //
-	/////////////////////
+	// setters //
+	////////////
 
 	@SuppressWarnings("unchecked")
 	public ArrayCollector<E> setArray(final E[] array, final int size)
@@ -401,8 +401,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public ArrayCollector<E> copy()
@@ -777,8 +777,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setting methods  //
-	/////////////////////
+	// setting methods //
+	////////////////////
 
 	@Override
 	public ListView<E> view()
@@ -1069,8 +1069,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  adding methods  //
-	/////////////////////
+	// adding //
+	///////////
 
 	@Override
 	public long currentCapacity()
@@ -1126,8 +1126,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   add methods    //
-	/////////////////////
+	// adding //
+	///////////
 
 	@Override
 	public void accept(final E element)
@@ -1208,8 +1208,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   put methods    //
-	/////////////////////
+	// putting //
+	////////////
 
 	@Override
 	public boolean put(final E element)
@@ -1245,8 +1245,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// prepend methods //
-	////////////////////
+	// prepending //
+	///////////////
 
 	@Override
 	public boolean prepend(final E element)
@@ -1289,8 +1289,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// preput methods  //
-	////////////////////
+	// preputting //
+	///////////////
 
 	@Override
 	public boolean preput(final E element)
@@ -1341,8 +1341,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  insert methods  //
-	/////////////////////
+	// inserting //
+	//////////////
 
 	@Override
 	public boolean insert(final long index, final E element)
@@ -1428,8 +1428,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  input methods   //
-	/////////////////////
+	// inputting //
+	//////////////
 
 	@Override
 	public boolean input(final long index, final E element)
@@ -1514,8 +1514,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  remove methods  //
-	/////////////////////
+	// removing //
+	/////////////
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1786,8 +1786,8 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// java.util.list and derivatives  //
-	////////////////////////////////////
+	// java.util.list and derivatives //
+	///////////////////////////////////
 
 	@Override
 	public boolean isEmpty()

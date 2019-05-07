@@ -39,8 +39,8 @@ public interface MultiMatchResult<E>
 	public class Implementation<E> implements MultiMatchResult<E>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		//  static methods  //
-		/////////////////////
+		// static methods //
+		///////////////////
 
 		static <T> ConstList<T> collectRemaining(
 			final ConstList<T>                       input  ,
@@ -93,8 +93,8 @@ public interface MultiMatchResult<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final int matchCount;
 
@@ -117,8 +117,8 @@ public interface MultiMatchResult<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		protected Implementation(
 			final int                                matchCount          ,

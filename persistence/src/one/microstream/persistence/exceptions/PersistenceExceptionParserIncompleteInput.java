@@ -48,8 +48,8 @@ public class PersistenceExceptionParserIncompleteInput extends PersistenceExcept
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	@Override
 	public String getMessage()

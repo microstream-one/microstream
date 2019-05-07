@@ -4,8 +4,8 @@ package one.microstream.persistence.binary.exceptions;
 public class BinaryPersistenceExceptionStateInvalidLength extends BinaryPersistenceExceptionState
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final long address  ;
 	private final long length   ;
@@ -80,8 +80,8 @@ public class BinaryPersistenceExceptionStateInvalidLength extends BinaryPersiste
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public long getLength()
 	{

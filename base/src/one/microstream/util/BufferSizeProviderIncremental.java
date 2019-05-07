@@ -41,8 +41,8 @@ public interface BufferSizeProviderIncremental extends BufferSizeProvider
 	public final class Implementation implements BufferSizeProviderIncremental, Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final long initialBufferSize    ;
 		private final long incrementalBufferSize;
@@ -50,8 +50,8 @@ public interface BufferSizeProviderIncremental extends BufferSizeProvider
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(final long initialBufferSize, final long incrementalBufferSize)
 		{

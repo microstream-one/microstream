@@ -25,10 +25,10 @@ public interface ArrayProjector<T> extends Function<T, Object[]>
 			;
 		}
 		
-		return new Implementation<>(fieldProjectors);
+		return new Default<>(fieldProjectors);
 	}
 	
-	public final class Implementation<T> implements ArrayProjector<T>
+	public final class Default<T> implements ArrayProjector<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -42,7 +42,7 @@ public interface ArrayProjector<T> extends Function<T, Object[]>
 		// constructors //
 		/////////////////
 		
-		Implementation(final Function<? super T, Object>[] fieldProjectors)
+		Default(final Function<? super T, Object>[] fieldProjectors)
 		{
 			super();
 			this.fieldProjectors = fieldProjectors;

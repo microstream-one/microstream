@@ -65,8 +65,8 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		protected Abstract()
 		{
@@ -177,8 +177,8 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 	public final class Exporting extends PersistenceTypeDictionaryManager.Abstract<PersistenceTypeDictionary>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final PersistenceTypeDictionaryProvider typeDictionaryProvider;
 		private final PersistenceTypeDictionaryExporter typeDictionaryExporter;
@@ -188,8 +188,8 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Exporting(
 			final PersistenceTypeDictionaryProvider typeDictionaryProvider,

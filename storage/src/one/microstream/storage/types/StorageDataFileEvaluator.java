@@ -132,8 +132,8 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	public final class Implementation implements StorageDataFileEvaluator
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final int     fileMinimumSize;
 		private final int     fileMaximumSize;

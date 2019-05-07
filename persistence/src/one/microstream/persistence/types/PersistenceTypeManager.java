@@ -32,8 +32,8 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 	public final class Implementation implements PersistenceTypeManager
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final PersistenceTypeRegistry   typeRegistry;
 		final PersistenceTypeIdProvider tidProvider ;
@@ -41,8 +41,8 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final PersistenceTypeRegistry   registry   ,

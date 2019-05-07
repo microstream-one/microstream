@@ -17,8 +17,8 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 	implements StorageChannelTaskInitialize
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final StorageOperationController operationController;
 		private final StorageInventory[]         result             ;

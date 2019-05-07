@@ -12,8 +12,8 @@ import one.microstream.typing.XTypes;
 public class BridgeXCollection<E> implements OldCollection<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final XCollection<E> subject;
 

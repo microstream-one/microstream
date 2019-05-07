@@ -23,8 +23,8 @@ public interface LoadItemsChain
 	final class Entry
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final long oid;
 		Entry next, link;
@@ -32,8 +32,8 @@ public interface LoadItemsChain
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Entry(final long oid)
 		{
@@ -47,16 +47,16 @@ public interface LoadItemsChain
 	public abstract class AbstractImplementation implements LoadItemsChain
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final int INITIAL_HASH_SLOTS_LENGTH = 256; // 1 << 8. MUST be a power of 2 value.
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private Entry[] hashSlots = new Entry[INITIAL_HASH_SLOTS_LENGTH];
 		private int     hashRange = this.hashSlots.length - 1;
@@ -169,8 +169,8 @@ public interface LoadItemsChain
 	public final class Simple extends LoadItemsChain.AbstractImplementation implements PersistenceIdSet
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final Entry   chainHead = new Entry(0)  ;
 		private       Entry   chainTail = this.chainHead;
@@ -234,8 +234,8 @@ public interface LoadItemsChain
 	public final class ChannelHashing extends LoadItemsChain.AbstractImplementation
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final int     hashRange;
 		private final Entry[] hashChainHeads, hashChainTails;
@@ -243,8 +243,8 @@ public interface LoadItemsChain
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public ChannelHashing(final int channelCount)
 		{

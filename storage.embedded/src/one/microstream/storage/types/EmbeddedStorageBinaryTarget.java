@@ -15,8 +15,8 @@ public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 	public final class Implementation implements EmbeddedStorageBinaryTarget
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final StorageRequestAcceptor requestAcceptor;
 

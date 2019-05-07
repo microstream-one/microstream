@@ -5,8 +5,8 @@ import java.util.function.Predicate;
 public final class AggregateArrayAdder<E> implements Aggregator<E, Integer>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Predicate<? super E> predicate;
 	private final E[] array;

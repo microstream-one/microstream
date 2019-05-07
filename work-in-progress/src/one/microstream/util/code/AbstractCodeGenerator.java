@@ -18,8 +18,8 @@ import one.microstream.collections.types.XEnum;
 public abstract class AbstractCodeGenerator<F extends Field>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final Type          type      ;
 	final String        superclass; // (15.07.2013 TM)TODO: incorporate superclass into type?

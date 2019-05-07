@@ -7,8 +7,8 @@ package one.microstream.chars;
 public class SimpleStringConcatenator
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static int countTotalChars(final String[] parts)
 	{
@@ -46,8 +46,8 @@ public class SimpleStringConcatenator
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private       int      reservedCharCount;
 	private final String[] parts            ;

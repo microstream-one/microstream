@@ -27,7 +27,7 @@ public class MainTestLinkedReference
 
 	public static <T> LinkReference<T> linkReference(final T object)
 	{
-		return new LinkReference.Implementation<>(object);
+		return new LinkReference.Default<>(object);
 	}
 
 	static void testSimple()

@@ -91,8 +91,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 	public final class Implementation<M> implements PersistenceTypeHandlerManager<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		        final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry          ;
 		private final PersistenceTypeHandlerProvider<M>           typeHandlerProvider          ;
@@ -107,8 +107,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ,

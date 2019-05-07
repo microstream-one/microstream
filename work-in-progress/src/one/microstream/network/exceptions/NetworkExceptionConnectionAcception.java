@@ -5,8 +5,8 @@ import java.nio.channels.SocketChannel;
 public class NetworkExceptionConnectionAcception extends NetworkExceptionConnection
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final SocketChannel newConnection;
 
@@ -53,8 +53,8 @@ public class NetworkExceptionConnectionAcception extends NetworkExceptionConnect
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public SocketChannel getNewConnection()
 	{

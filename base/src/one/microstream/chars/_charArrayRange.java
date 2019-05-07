@@ -13,28 +13,28 @@ public interface _charArrayRange
 	public int bound();
 
 
-	public static Implementation New(final String value)
+	public static Default New(final String value)
 	{
 		return New(XChars.readChars(value));
 	}
 
-	public static Implementation New(final char[] array)
+	public static Default New(final char[] array)
 	{
-		return new Implementation(array, 0, array.length);
+		return new Default(array, 0, array.length);
 	}
 
-	public static Implementation New(final char[] array, final int offset)
+	public static Default New(final char[] array, final int offset)
 	{
-		return new Implementation(
+		return new Default(
 			array,
 			XArrays.validateArrayIndex(array.length, offset),
 			array.length
 		);
 	}
 
-	public static Implementation New(final char[] array, final int offset, final int bound)
+	public static Default New(final char[] array, final int offset, final int bound)
 	{
-		return new Implementation(
+		return new Default(
 			array,
 			XArrays.validateArrayIndex(array.length, offset),
 			XArrays.validateArrayIndex(array.length, bound - 1) + 1 // nasty
@@ -43,7 +43,7 @@ public interface _charArrayRange
 
 
 
-	public final class Implementation implements _charArrayRange
+	public final class Default implements _charArrayRange
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -59,7 +59,7 @@ public interface _charArrayRange
 		// constructors //
 		/////////////////
 
-		Implementation(final char[] array, final int start, final int bound)
+		Default(final char[] array, final int start, final int bound)
 		{
 			super();
 			this.array = array;
@@ -98,8 +98,8 @@ public interface _charArrayRange
 	public final class Mutable implements _charArrayRange
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// static methods    //
-		/////////////////////
+		// static methods //
+		///////////////////
 
 		public static final Mutable New(final char[] array)
 		{

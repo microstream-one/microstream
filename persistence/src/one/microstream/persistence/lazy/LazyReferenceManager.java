@@ -133,8 +133,8 @@ public interface LazyReferenceManager
 	public final class Implementation implements LazyReferenceManager
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final Clearer CLEARER                   = new Clearer();
 

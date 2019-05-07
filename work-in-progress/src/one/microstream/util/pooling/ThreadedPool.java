@@ -40,8 +40,8 @@ public class ThreadedPool<E> implements Pool<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final Configuration<? super E>                     configuration       ;
 	final HashEnum<E>                                  pool                ;
@@ -96,8 +96,8 @@ public class ThreadedPool<E> implements Pool<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	@Override
 	public int getMaximumCount()
@@ -357,16 +357,16 @@ public class ThreadedPool<E> implements Pool<E>
 	static class PoolManager<E> extends Thread implements Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 		
 		private static final long MIN_CHECK_INTERVAL = 100; // anything below 100 ms loop time is not reasonable
 		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final WeakReference<ThreadedPool<E>> pool;
 		private final long                           poolCheckInterval;
@@ -379,8 +379,8 @@ public class ThreadedPool<E> implements Pool<E>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public PoolManager(final ThreadedPool<E> pool, final long poolCheckInterval)
 		{

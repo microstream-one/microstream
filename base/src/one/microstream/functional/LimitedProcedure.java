@@ -10,8 +10,8 @@ import one.microstream.X;
 public final class LimitedProcedure<E> implements Consumer<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Consumer<? super E> procedure;
 	private int skip;

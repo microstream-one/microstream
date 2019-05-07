@@ -13,8 +13,8 @@ public interface StorageRequestTaskLoad extends StorageRequestTask
 	implements StorageRequestTaskLoad
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final ChunksBuffer[] result;
 		

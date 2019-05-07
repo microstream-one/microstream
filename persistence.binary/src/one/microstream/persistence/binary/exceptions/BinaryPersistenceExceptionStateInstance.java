@@ -3,8 +3,8 @@ package one.microstream.persistence.binary.exceptions;
 public class BinaryPersistenceExceptionStateInstance extends BinaryPersistenceExceptionState
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Object instance;
 
@@ -51,8 +51,8 @@ public class BinaryPersistenceExceptionStateInstance extends BinaryPersistenceEx
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Object getInstance()
 	{

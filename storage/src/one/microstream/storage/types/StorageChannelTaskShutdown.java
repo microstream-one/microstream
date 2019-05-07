@@ -9,8 +9,8 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 	implements StorageChannelTaskShutdown
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final StorageOperationController operationController;
 

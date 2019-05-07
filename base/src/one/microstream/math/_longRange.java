@@ -15,17 +15,19 @@ public interface _longRange
 	
 	public static _longRange New(final long start, final long bound)
 	{
-		return new _longRange.Implementation(start, bound);
+		return new _longRange.Default(start, bound);
 	}
 	
-	public final class Implementation implements _longRange
+	public final class Default implements _longRange
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final long start;
-		private final long bound;
+		private final long
+			start,
+			bound
+		;
 		
 		
 		
@@ -33,7 +35,7 @@ public interface _longRange
 		// constructors //
 		/////////////////
 		
-		Implementation(final long start, final long bound)
+		Default(final long start, final long bound)
 		{
 			super();
 			this.start = start;

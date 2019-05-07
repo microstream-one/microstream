@@ -82,8 +82,8 @@ public interface StorageTaskBroker
 	public final class Implementation implements StorageTaskBroker
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		// can't have a strong reference to StorageManager since that would prevent automatic shutdown
 		private final StorageDataFileEvaluator      fileEvaluator         ;

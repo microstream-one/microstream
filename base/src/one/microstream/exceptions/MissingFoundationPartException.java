@@ -4,8 +4,8 @@ package one.microstream.exceptions;
 public class MissingFoundationPartException extends RuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Class<?> missingAssemblyPartType;
 
@@ -58,8 +58,8 @@ public class MissingFoundationPartException extends RuntimeException
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Class<?> getMissingSssemblyPartType()
 	{

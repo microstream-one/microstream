@@ -24,8 +24,8 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 	implements StorageRawFileStatistics
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final Date creationTime;
 

@@ -201,8 +201,8 @@ public final class OldVarList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	@SuppressWarnings("unchecked")
 	final Segment<E> head = new Segment<>((E[])new Object[0], 0, null); // nasty: defSegSize is still 0 here
@@ -233,8 +233,8 @@ public final class OldVarList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public int getNewSegmentSize()
 	{
@@ -244,8 +244,8 @@ public final class OldVarList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setters          //
-	/////////////////////
+	// setters //
+	////////////
 
 	/**
 	 * Experiments showed that around sqrt(targetSize) is a good value for segment sizes.

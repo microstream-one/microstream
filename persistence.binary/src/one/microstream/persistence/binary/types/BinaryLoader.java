@@ -55,15 +55,15 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 	public final class Implementation implements BinaryLoader, BinaryEntityDataReader, PersistenceObjectIdAcceptor
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		private static final int DEFAULT_HASH_SLOTS_LENGTH = 1024;
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		// may be a relay lookup that provides special handlers providing logic
 		private final boolean                                        switchByteOrder          ;
@@ -83,8 +83,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,

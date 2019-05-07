@@ -4,8 +4,8 @@ package one.microstream.persistence.exceptions;
 public class PersistenceExceptionConsistencyUnknownTid extends PersistenceExceptionConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final long passedTid;
 

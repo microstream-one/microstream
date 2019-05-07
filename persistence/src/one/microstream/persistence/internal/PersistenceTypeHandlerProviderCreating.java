@@ -32,8 +32,8 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final PersistenceTypeManager               typeManager       ;
 	private final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer;

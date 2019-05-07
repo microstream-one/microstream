@@ -134,10 +134,11 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		return this.subject.size();
 	}
 
+	
 
 	///////////////////////////////////////////////////////////////////////////
-	//   add methods    //
-	/////////////////////
+	// adding //
+	///////////
 
 	@Override
 	public void accept(final E element)
@@ -184,8 +185,8 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   put methods    //
-	/////////////////////
+	// putting //
+	////////////
 
 	@Override
 	public boolean put(final E element)
@@ -226,8 +227,8 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// prepend methods //
-	////////////////////
+	// prepending //
+	///////////////
 
 	@Override
 	public boolean prepend(final E element)
@@ -264,8 +265,8 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// preput methods  //
-	////////////////////
+	// preputting //
+	///////////////
 
 	@Override
 	public boolean preput(final E element)
@@ -302,8 +303,8 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  insert methods  //
-	/////////////////////
+	// inserting //
+	//////////////
 
 	@Override
 	public boolean insert(final long index, final E element)
@@ -340,8 +341,8 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  input methods   //
-	/////////////////////
+	// inputting //
+	//////////////
 
 	@Override
 	public boolean input(final long index, final E element)
@@ -509,18 +510,6 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
 
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.internalGetStorageArray(), this.subject.size());
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.internalGetStorageArray(), this.subject.size(), equalator);
-//	}
-
 	@Override
 	public boolean hasVolatileElements()
 	{
@@ -589,13 +578,6 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	{
 		return this.subject;
 	}
-
-//	@Override
-//	public E search(final E sample, final Equalator<? super E> equalator)
-//	{
-////		return DelegateArrayLogic.search(this.getInternalStorageArray(), this.list.size(), sample, equalator);
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)
@@ -689,12 +671,6 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		return 0;
 	}
 
-//	@Override
-//	public XArrayList<E> process(final CtrlProcedure<? super E> procedure)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
-
 	@Override
 	public <C extends Consumer<? super E>> C moveTo(final C target, final Predicate<? super E> predicate)
 	{
@@ -719,23 +695,11 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
 
-//	@Override
-//	public int remove(final E sample, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
-
 	@Override
 	public long removeAll(final XGettingCollection<? extends E> elements)
 	{
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
-
-//	@Override
-//	public int removeAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public long removeDuplicates()
@@ -754,12 +718,6 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	{
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
-
-//	@Override
-//	public int retainAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public void truncate()
@@ -823,12 +781,6 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
 
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
-
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
 	{
@@ -852,12 +804,6 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	{
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
-
-//	@Override
-//	public XArrayList<E> iterate(final CtrlIndexProcedure<? super E> procedure)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public long maxIndex(final Comparator<? super E> comparator)
@@ -931,12 +877,6 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
 
-//	@Override
-//	public boolean removeOne(final E sample, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
-
 	@Override
 	public XArrayList<E> removeRange(final long startIndex, final long length)
 	{
@@ -961,35 +901,17 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
 
-//	@Override
-//	public int replace(final CtrlPredicate<? super E> predicate, final E substitute)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
-
 	@Override
 	public long replace(final E element, final E replacement)
 	{
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
 
-//	@Override
-//	public int replace(final E sample, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
-
 	@Override
 	public long replaceAll(final XGettingCollection<? extends E> elements, final E replacement)
 	{
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
-
-//	@Override
-//	public int replaceAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public long substitute(final Function<? super E, ? extends E> mapper)
@@ -1003,23 +925,11 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
 	}
 
-//	@Override
-//	public int modify(final CtrlPredicate<? super E> predicate, final Function<E, E> mapper)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
-
 	@Override
 	public boolean replaceOne(final E element, final E replacement)
 	{
 		return AbstractArrayStorage.replaceOne(this.internalGetStorageArray(), this.subject.size(), element, replacement);
 	}
-
-//	@Override
-//	public boolean replaceOne(final E sample, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		return AbstractArrayStorage.replaceOne(this.internalGetStorageArray(), this.subject.size(), sample, replacement, equalator);
-//	}
 
 	@Override
 	public XArrayList<E> reverse()

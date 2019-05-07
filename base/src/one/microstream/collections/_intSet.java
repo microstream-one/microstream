@@ -66,8 +66,8 @@ public final class _intSet implements Composition
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private int     size, range, capLower, capUpper;
 	private int[][] lines                          ;

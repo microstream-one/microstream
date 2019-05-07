@@ -10,8 +10,8 @@ public final class TypeDictionaryAppenderBuilder
 implements Aggregator<PersistenceTypeDescriptionMember, TypeDictionaryAppenderImplementation>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final VarString vc   ;
 	private final int       level;

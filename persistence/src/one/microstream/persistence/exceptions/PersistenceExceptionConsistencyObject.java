@@ -5,8 +5,8 @@ import one.microstream.chars.XChars;
 public class PersistenceExceptionConsistencyObject extends PersistenceExceptionConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final Object actualRef;
 	final Object passedRef;

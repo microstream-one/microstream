@@ -99,8 +99,8 @@ public interface StorageEntity
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// static methods    //
-		/////////////////////
+		// static methods //
+		//////////////////
 
 		// currently not used, but might come in handy for other/future intentions
 		public static final int memoryConsumptionBytes()

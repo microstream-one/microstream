@@ -39,16 +39,16 @@ extends PersistenceObjectIdHolder, Cloneable<PersistenceObjectIdProvider>
 	public final class Transient implements PersistenceObjectIdProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private long currentObjectId;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Transient(final long startingObjectId)
 		{

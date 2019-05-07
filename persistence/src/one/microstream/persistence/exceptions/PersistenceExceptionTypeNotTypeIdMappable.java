@@ -3,8 +3,8 @@ package one.microstream.persistence.exceptions;
 public class PersistenceExceptionTypeNotTypeIdMappable extends PersistenceException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Class<?> type;
 
@@ -57,8 +57,8 @@ public class PersistenceExceptionTypeNotTypeIdMappable extends PersistenceExcept
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Class<?> getType()
 	{

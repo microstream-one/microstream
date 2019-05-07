@@ -10,8 +10,8 @@ import one.microstream.typing.XTypes;
 public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final XGettingSet<E> subject;
 

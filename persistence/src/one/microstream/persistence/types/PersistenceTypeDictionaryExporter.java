@@ -12,8 +12,8 @@ public interface PersistenceTypeDictionaryExporter
 	public final class Implementation implements PersistenceTypeDictionaryExporter
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final PersistenceTypeDictionaryAssembler assembler;
 		private final PersistenceTypeDictionaryStorer    storer   ;
@@ -21,8 +21,8 @@ public interface PersistenceTypeDictionaryExporter
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final PersistenceTypeDictionaryAssembler assembler,

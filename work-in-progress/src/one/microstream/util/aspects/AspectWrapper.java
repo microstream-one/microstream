@@ -29,8 +29,8 @@ public class AspectWrapper<T> implements java.lang.reflect.InvocationHandler
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	protected T getSubject()
 	{

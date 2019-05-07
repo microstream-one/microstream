@@ -5,8 +5,8 @@ package one.microstream.persistence.exceptions;
 public class PersistenceExceptionConsistencyWrongType extends PersistenceExceptionConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final long     tid       ;
 	final Class<?> actualType;

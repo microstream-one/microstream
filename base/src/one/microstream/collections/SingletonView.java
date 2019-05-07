@@ -17,8 +17,8 @@ import one.microstream.typing.XTypes;
 public class SingletonView<E> implements XReferencing<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final Singleton<E> subject;
 

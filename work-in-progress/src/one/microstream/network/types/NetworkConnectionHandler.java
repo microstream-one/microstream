@@ -68,16 +68,16 @@ public interface NetworkConnectionHandler
 	public class Implementation implements NetworkConnectionHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final ParallelProcedure<SocketChannel> threadManager;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final NetworkConnectionProcessor.Provider<?>            connectionProcessorProvider,
@@ -86,7 +86,7 @@ public interface NetworkConnectionHandler
 		)
 		{
 			super();
-			this.threadManager = new ParallelProcedure.Implementation<>(
+			this.threadManager = new ParallelProcedure.Default<>(
 				connectionProcessorProvider,
 				threadCountController      ,
 				threadTimeoutController

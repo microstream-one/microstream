@@ -20,8 +20,8 @@ public class ChunksWrapper extends Binary
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final ByteBuffer[] buffers    ;
 	private final long         totalLength;

@@ -56,8 +56,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	public class Implementation implements BinaryStorer, PersistenceStoreHandler, PersistenceAcceptor
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
+		// constants //
+		//////////////
 
 		protected static int defaultSlotSize()
 		{

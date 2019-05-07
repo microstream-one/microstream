@@ -3,8 +3,8 @@ package one.microstream.collections;
 public class InvalidCapacityException extends RuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final long maximumCapacity;
 	private final long desiredCapacity;
@@ -93,8 +93,8 @@ public class InvalidCapacityException extends RuntimeException
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public long getMaximumCapacity()
 	{

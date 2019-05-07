@@ -74,8 +74,8 @@ public interface StorageRequestTaskCreator
 	public final class Implementation implements StorageRequestTaskCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final StorageTimestampProvider timestampProvider;
 

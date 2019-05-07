@@ -3,8 +3,8 @@ package one.microstream.persistence.binary.exceptions;
 public class BinaryPersistenceExceptionIncompleteChunk extends BinaryPersistenceException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final long currentChunkLength;
 	private final long totalChunkLength;
@@ -53,8 +53,8 @@ public class BinaryPersistenceExceptionIncompleteChunk extends BinaryPersistence
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public long getCurrentChunkLength()
 	{

@@ -29,8 +29,8 @@ import one.microstream.typing.XTypes;
 public class ReadOnlyListIterator<E> implements ListIterator<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final XGettingSequence<E> subject;
 	private int index;

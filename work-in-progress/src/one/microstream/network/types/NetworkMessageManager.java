@@ -18,8 +18,8 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 	public class Implementation<S extends NetworkSession<?>> implements NetworkMessageManager<S>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final NetworkMessageListener.Provider<S>             messageListenerProvider                ;
 		private final NetworkMessageListener.RegulatorThreadCount    threadCountProviderMessageListeners    ;
@@ -39,8 +39,8 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		public Implementation(
 			final NetworkMessageListener.Provider<S>             messageListenerCreator                 ,

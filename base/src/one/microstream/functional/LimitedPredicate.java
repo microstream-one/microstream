@@ -10,8 +10,8 @@ import one.microstream.X;
 public final class LimitedPredicate<E> implements Predicate<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Predicate<? super E> predicate;
 	private int skip;

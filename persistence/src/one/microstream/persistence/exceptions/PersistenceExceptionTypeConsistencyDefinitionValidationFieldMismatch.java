@@ -6,8 +6,8 @@ public class PersistenceExceptionTypeConsistencyDefinitionValidationFieldMismatc
 extends PersistenceExceptionTypeConsistencyDefinitionValidation
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Field actualField ;
 	private final Field definedField;
@@ -67,8 +67,8 @@ extends PersistenceExceptionTypeConsistencyDefinitionValidation
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Object getActualType()
 	{

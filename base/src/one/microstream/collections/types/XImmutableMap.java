@@ -55,8 +55,8 @@ public interface XImmutableMap<K, V> extends XGettingMap<K, V>, XImmutableSet<Ke
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// satellite types  //
-	/////////////////////
+	// satellite types //
+	////////////////////
 
 	public interface Satellite<K, V>
 	{

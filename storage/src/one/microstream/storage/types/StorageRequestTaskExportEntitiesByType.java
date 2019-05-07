@@ -24,8 +24,8 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 	implements StorageRequestTaskExportEntitiesByType
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final Predicate<? super StorageEntityTypeHandler>                                  isExportType  ;
 		private final Function<? super StorageEntityTypeHandler, Predicate<? super StorageEntity>> predicateEntityProvider;
@@ -216,8 +216,8 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 	static final class ExportItem
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final int                              lastChannelIndex;
 		final StorageLockedFile                file            ;

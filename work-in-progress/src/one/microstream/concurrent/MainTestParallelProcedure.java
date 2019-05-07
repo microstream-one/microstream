@@ -20,7 +20,7 @@ public class MainTestParallelProcedure
 	;
 
 	private static final ParallelProcedure<String> procedure =
-		new ParallelProcedure.Implementation<>(provider, 10, 300)
+		new ParallelProcedure.Default<>(provider, 10, 300)
 	;
 
 	public static void main(final String[] args) throws Exception

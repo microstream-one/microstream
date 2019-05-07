@@ -114,7 +114,7 @@ public final class XTime
 
 	public static final TimeSpan TimeSpan(final long time)
 	{
-		return new TimeSpan.Implementation(time);
+		return new TimeSpan.Default(time);
 	}
 
 

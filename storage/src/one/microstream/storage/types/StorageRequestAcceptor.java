@@ -113,8 +113,8 @@ public interface StorageRequestAcceptor
 	public final class Implementation implements StorageRequestAcceptor
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final StorageTaskBroker         taskBroker           ;
 		private final StorageDataChunkValidator prevalidatorDataChunk;

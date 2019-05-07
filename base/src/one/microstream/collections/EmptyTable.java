@@ -23,8 +23,8 @@ import one.microstream.typing.KeyValue;
 public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Keys   keys   = new Keys();
 	private final Values values = new Values();

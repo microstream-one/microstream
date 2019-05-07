@@ -7,8 +7,8 @@ import java.util.function.Predicate;
 public class IsSmaller<E> implements Predicate<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Comparator<? super E> comparator;
 	private       E                     currentMin;

@@ -62,8 +62,8 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
 public final class FixedList<E> extends AbstractSimpleArrayCollection<E> implements XSettingList<E>, Composition
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static String exceptionStringRange(final long size, final long startIndex, final long length)
 	{
@@ -232,8 +232,8 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public FixedList<E> copy()
@@ -612,8 +612,8 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setting methods  //
-	/////////////////////
+	// setting methods //
+	////////////////////
 
 	@Override
 	public SubListView<E> view(final long fromIndex, final long toIndex)
@@ -779,8 +779,8 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// java.util.list and derivatives  //
-	////////////////////////////////////
+	// java.util.list and derivatives //
+	///////////////////////////////////
 
 	@Override
 	public boolean isEmpty()

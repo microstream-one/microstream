@@ -5,8 +5,8 @@ public class PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId
 extends PersistenceExceptionTypeHandlerConsistency
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final long typeId ;
 
@@ -59,8 +59,8 @@ extends PersistenceExceptionTypeHandlerConsistency
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public long getTypeId()
 	{

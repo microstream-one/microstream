@@ -44,8 +44,8 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(final PersistenceTypeRegistry typeRegistry)
 		{

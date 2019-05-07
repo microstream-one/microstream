@@ -132,8 +132,8 @@ public interface StorageFileManager
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final int                                  channelIndex                 ;
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider;

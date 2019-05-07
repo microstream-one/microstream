@@ -10,13 +10,13 @@ package one.microstream.chars;
 public class Concatentation implements CharSequence
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
-	private final CharSequence s1;
+	private final CharSequence   s1;
 	private final Concatentation c1;
 
-	private final CharSequence s2;
+	private final CharSequence   s2;
 	private final Concatentation c2;
 
 

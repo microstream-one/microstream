@@ -14,8 +14,8 @@ import one.microstream.typing.Composition;
 public final class PrototypeHashMap<E> implements Composition
 {
 	///////////////////////////////////////////////////////////////////////////
-	// static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	public static final <T> PrototypeHashMap<T> New()
 	{

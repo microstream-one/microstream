@@ -37,8 +37,8 @@ public interface NetworkSession<M>
 	public abstract class AbstractImplementation<M> implements NetworkSession<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private volatile long    lastTouched   = System.currentTimeMillis();
 		private volatile Thread  readingThread;
@@ -47,8 +47,8 @@ public interface NetworkSession<M>
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		protected AbstractImplementation()
 		{

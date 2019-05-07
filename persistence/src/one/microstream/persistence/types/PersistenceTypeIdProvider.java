@@ -23,16 +23,16 @@ public interface PersistenceTypeIdProvider extends PersistenceTypeIdHolder
 	public final class Transient implements PersistenceTypeIdProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private long currentTypeId;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Transient(final long startingTypeId)
 		{

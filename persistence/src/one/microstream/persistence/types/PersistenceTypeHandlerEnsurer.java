@@ -34,8 +34,8 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 	public class Implementation<M> implements PersistenceTypeHandlerEnsurer<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry;
 		final PersistenceTypeHandlerCreator<M>        typeHandlerCreator       ;
@@ -43,8 +43,8 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		Implementation(
 			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry,

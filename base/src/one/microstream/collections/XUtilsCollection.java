@@ -1415,8 +1415,8 @@ public final class XUtilsCollection
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// removing         //
-	/////////////////////
+	// removing //
+	/////////////
 
 	@SuppressWarnings("unchecked")
 	public static <E> E rngRetrieve(

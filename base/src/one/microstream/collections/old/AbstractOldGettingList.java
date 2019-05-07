@@ -13,8 +13,8 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
 public abstract class AbstractOldGettingList<E> implements OldList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final XGettingList<E> subject;
 

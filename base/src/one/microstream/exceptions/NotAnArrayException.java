@@ -7,8 +7,8 @@ package one.microstream.exceptions;
 public class NotAnArrayException extends ClassCastException
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final Class<?> wrongClass;
 	private final Throwable cause;

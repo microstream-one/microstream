@@ -9,8 +9,8 @@ import one.microstream.branching.ThrowBreak;
 public final class LimitedOperationWithPredicate<E> implements Consumer<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private int skip;
 	private int lim;

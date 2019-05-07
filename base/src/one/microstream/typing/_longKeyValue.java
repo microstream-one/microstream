@@ -7,12 +7,12 @@ public interface _longKeyValue
 
 
 
-	public class Implementation implements _longKeyValue
+	public class Default implements _longKeyValue
 	{
 		private final long key;
 		private final long value;
 
-		public Implementation(final long key, final long value)
+		public Default(final long key, final long value)
 		{
 			super();
 			this.key = key;

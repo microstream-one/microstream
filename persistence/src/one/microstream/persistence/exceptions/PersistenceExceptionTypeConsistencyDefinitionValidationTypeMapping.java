@@ -4,8 +4,8 @@ public class PersistenceExceptionTypeConsistencyDefinitionValidationTypeMapping
 extends PersistenceExceptionTypeConsistencyDefinitionValidation
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final long     typeId;
 	private final Class<?> type  ;
@@ -65,8 +65,8 @@ extends PersistenceExceptionTypeConsistencyDefinitionValidation
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Class<?> getType()
 	{

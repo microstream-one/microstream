@@ -11,8 +11,8 @@ import java.io.OutputStream;
 public class SimpleFileOutputStream extends OutputStream
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final File file;
 	private FileOutputStream fos = null;

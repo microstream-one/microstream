@@ -85,8 +85,8 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public E[] getArray()
 	{
@@ -142,8 +142,8 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setters          //
-	/////////////////////
+	// setters //
+	////////////
 
 	@SuppressWarnings("unchecked")
 	public ArrayView<E> setArray(final E[] array)
@@ -191,8 +191,8 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public ArrayView<E> copy()
@@ -565,8 +565,8 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// java.util.list and derivatives  //
-	////////////////////////////////////
+	// java.util.list and derivatives //
+	///////////////////////////////////
 
 	@Override
 	public boolean isEmpty()

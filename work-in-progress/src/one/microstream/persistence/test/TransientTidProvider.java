@@ -13,8 +13,8 @@ import one.microstream.persistence.types.PersistenceTypeIdProvider;
 public class TransientTidProvider implements PersistenceTypeIdProvider
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private long tid;
 

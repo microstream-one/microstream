@@ -64,8 +64,8 @@ import one.microstream.util.iterables.GenericListIterator;
 public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implements XList<E>, Composition
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	private static String exceptionStringRange(final long size, final long startIndex, final long length)
 	{
@@ -556,8 +556,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getting methods  //
-	/////////////////////
+	// getting methods //
+	////////////////////
 
 	@Override
 	public EqBulkList<E> copy()
@@ -911,8 +911,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setting methods  //
-	/////////////////////
+	// setting methods //
+	////////////////////
 
 	@Override
 	public ListView<E> view()
@@ -1301,8 +1301,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   add methods    //
-	/////////////////////
+	// adding //
+	///////////
 
 	@Override
 	public void accept(final E element)
@@ -1383,8 +1383,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//   put methods    //
-	/////////////////////
+	// putting //
+	////////////
 
 	@Override
 	public boolean nullPut()
@@ -1421,8 +1421,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// prepend methods //
-	////////////////////
+	// prepending //
+	///////////////
 
 	@Override
 	public boolean prepend(final E element)
@@ -1489,8 +1489,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// preput methods  //
-	////////////////////
+	// preputting //
+	///////////////
 
 	@Override
 	public boolean preput(final E element)
@@ -1557,8 +1557,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  insert methods  //
-	/////////////////////
+	// inserting //
+	//////////////
 
 	@Override
 	public boolean insert(final long index, final E element)
@@ -1665,8 +1665,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  input methods   //
-	/////////////////////
+	// inputting //
+	//////////////
 
 	@Override
 	public boolean input(final long index, final E element)
@@ -1768,8 +1768,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  remove methods  //
-	/////////////////////
+	// removing //
+	/////////////
 
 	@Override
 	public void truncate()

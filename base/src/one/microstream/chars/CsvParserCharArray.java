@@ -385,7 +385,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final String[]                     symbols
 	)
 	{
-		final CsvConfiguration.Builder builder = new CsvConfiguration.Builder.Implementation().copyFrom(config.get());
+		final CsvConfiguration.Builder builder = new CsvConfiguration.Builder.Default().copyFrom(config.get());
 
 		// check for full meta characters set
 		if(symbolIndex >= META_INDEX_COMPLETE_FULL)
@@ -948,16 +948,16 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 	static final class ColumnHeaderCollector implements _charRangeProcedure
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		final BulkList<String> values;
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// constructors     //
-		/////////////////////
+		// constructors //
+		/////////////////
 
 		ColumnHeaderCollector(final BulkList<String> values)
 		{

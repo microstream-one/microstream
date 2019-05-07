@@ -881,7 +881,7 @@ public final class X
 
 	public static _longKeyValue _longKeyValue(final long key, final long value)
 	{
-		return new _longKeyValue.Implementation(key, value);
+		return new _longKeyValue.Default(key, value);
 	}
 
 	

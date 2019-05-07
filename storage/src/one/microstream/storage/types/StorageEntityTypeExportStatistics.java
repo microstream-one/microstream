@@ -44,8 +44,8 @@ public interface StorageEntityTypeExportStatistics
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// static methods    //
-		/////////////////////
+		// static methods //
+		//////////////////
 		
 		public static final void assembleTableHeader(final VarString vs)
 		{
@@ -55,8 +55,8 @@ public interface StorageEntityTypeExportStatistics
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 		
 		final XGettingTable<Long, TypeStatistic.Implementation>       typeStatistics       ;
 		final XGettingTable<Long, TypeStatistic.Implementation>       viewTypeStatistics   ;

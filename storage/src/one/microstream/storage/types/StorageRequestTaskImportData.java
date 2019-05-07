@@ -29,8 +29,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		
 		
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final XGettingEnum<File>                  importFiles           ;
 		private final StorageEntityCache.Implementation[] entityCaches          ;
@@ -425,8 +425,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// helper classes   //
-	/////////////////////
+	// helper classes //
+	///////////////////
 
 	static final class ChannelItem
 	{

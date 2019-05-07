@@ -135,8 +135,8 @@ public interface StorageDataFileItemIterator
 	public final class Implementation implements StorageDataFileItemIterator
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final BufferProvider bufferProvider;
 		private final ItemProcessor  itemProcessor ;
@@ -157,8 +157,8 @@ public interface StorageDataFileItemIterator
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// static methods    //
-		/////////////////////
+		// static methods //
+		//////////////////
 
 		public static <P extends ItemProcessor> P processInputFile(
 			final FileChannel fileChannel  ,

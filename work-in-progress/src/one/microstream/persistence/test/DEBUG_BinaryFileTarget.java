@@ -10,8 +10,8 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 public class DEBUG_BinaryFileTarget extends BinaryFileTarget
 {
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	final PrintStream out;
 

@@ -36,7 +36,7 @@ public interface EscapeHandler
 				// (13.01.2016 TM)TODO: proper exception
 				throw new RuntimeException("String consists of more than one character");
 			}
-			return Implementation.internalUnescape(c.charAt(1));
+			return Default.internalUnescape(c.charAt(1));
 		}
 		else if(c.length() > 1)
 		{
@@ -51,7 +51,7 @@ public interface EscapeHandler
 
 
 
-	public final class Implementation implements EscapeHandler, Stateless
+	public final class Default implements EscapeHandler, Stateless
 	{
 		static char internalUnescape(final char chr)
 		{

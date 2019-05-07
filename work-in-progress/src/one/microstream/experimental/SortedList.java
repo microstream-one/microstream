@@ -30,8 +30,8 @@ import one.microstream.typing.XTypes;
 public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 {
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods  //
-	/////////////////////
+	// static methods //
+	////////////////////
 
 	static String exceptionStringSkipNegative(final int skip)
 	{
@@ -41,8 +41,8 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private final XList<E> subject;
 	private final Comparator<E> comparator;
@@ -69,8 +69,8 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Comparator<E> getComparator()
 	{
@@ -406,8 +406,8 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// adding methods   //
-	/////////////////////
+	// adding methods //
+	///////////////////
 
 	@Override
 	public boolean add(final E e)
@@ -505,8 +505,8 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// removing methods  //
-	//////////////////////
+	// removing methods //
+	/////////////////////
 
 	@Override
 	public long consolidate()
@@ -658,8 +658,8 @@ public final class SortedList<E> implements XPuttingList<E>, XProcessingList<E>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// java.util.list and derivatives  //
-	////////////////////////////////////
+	// java.util.list and derivatives //
+	///////////////////////////////////
 
 	@Override
 	public String toString()

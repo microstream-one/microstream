@@ -81,8 +81,8 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 
 
 	///////////////////////////////////////////////////////////////////////////
-	//  static methods   //
-	/////////////////////
+	// static methods //
+	///////////////////
 
 	@SuppressWarnings("unchecked")
 	private static <E> Entry<E>[] createSlots(final int minimumLength)
@@ -127,8 +127,8 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// instance fields  //
-	/////////////////////
+	// instance fields //
+	////////////////////
 
 	private volatile Entry<E>[] slots;
 	private volatile int size;
@@ -181,8 +181,8 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters          //
-	/////////////////////
+	// getters //
+	////////////
 
 	public Consumer<E> getCleanUpOperation()
 	{
@@ -192,8 +192,8 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// setters          //
-	/////////////////////
+	// setters //
+	////////////
 
 	public Threaded<E> setCleanUpOperation(final Consumer<E> cleanUpOperation)
 	{

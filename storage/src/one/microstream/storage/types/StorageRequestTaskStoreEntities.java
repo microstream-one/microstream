@@ -28,8 +28,8 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 	implements StorageRequestTaskStoreEntities, StorageChannelTaskStoreEntities
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields  //
-		/////////////////////
+		// instance fields //
+		////////////////////
 
 		private final Binary data;
 
