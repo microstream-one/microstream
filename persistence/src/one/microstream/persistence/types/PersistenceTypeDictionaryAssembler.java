@@ -4,7 +4,6 @@ import one.microstream.chars.ObjectStringAssembler;
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.internal.TypeDictionaryAppenderBuilder;
-import one.microstream.persistence.internal.TypeDictionaryAppenderImplementation;
 
 public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssembler<PersistenceTypeDictionary>
 {
@@ -84,7 +83,10 @@ public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssemble
 			{
 				return;
 			}
-			final TypeDictionaryAppenderImplementation appender = typeMembers.iterate(appenderBuilder(vc.lf())).yield();
+			
+			final PersistenceTypeDescriptionMemberAppender appender = typeMembers.iterate(
+				appenderBuilder(vc.lf())
+			).yield();
 			typeMembers.iterate(appender);
 		}
 

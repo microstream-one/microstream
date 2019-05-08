@@ -12,7 +12,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  *
  * @author Thomas Muenz
  */
-public final class BinaryHandlerSubstituterImplementation
+public final class BinaryHandlerSubstituterDefault
 extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerSubstituterImplementation()
+	public BinaryHandlerSubstituterDefault()
 	{
 		// binary layout definition
 		super(
@@ -49,10 +49,10 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 
 	@Override
 	public final void store(
-		final Binary                        bytes   ,
-		final Substituter.Default<?> instance,
-		final long                          objectId,
-		final PersistenceStoreHandler       handler
+		final Binary                  bytes   ,
+		final Substituter.Default<?>  instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
 	)
 	{
 		synchronized(instance)
@@ -62,7 +62,10 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	}
 
 	@Override
-	public final Substituter.Default<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Substituter.Default<?> create(
+		final Binary                 bytes  ,
+		final PersistenceLoadHandler handler
+	)
 	{
 		// hashEqualator gets set in update
 		return new Substituter.Default<>(BinaryHandlerEqHashEnum.staticCreate(bytes));
@@ -70,9 +73,9 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 
 	@Override
 	public final void update(
-		final Binary                        bytes   ,
+		final Binary                 bytes   ,
 		final Substituter.Default<?> instance,
-		final PersistenceLoadHandler        handler
+		final PersistenceLoadHandler handler
 	)
 	{
 		synchronized(instance)
@@ -83,9 +86,9 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 
 	@Override
 	public void complete(
-		final Binary                        medium  ,
+		final Binary                 medium  ,
 		final Substituter.Default<?> instance,
-		final PersistenceLoadHandler        handler
+		final PersistenceLoadHandler handler
 	)
 	{
 		synchronized(instance)
@@ -95,7 +98,10 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iteratePersistedReferences(
+		final Binary                      bytes   ,
+		final PersistenceObjectIdAcceptor iterator
+	)
 	{
 		BinaryHandlerEqHashEnum.staticIteratePersistedReferences(bytes, iterator);
 	}

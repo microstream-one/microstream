@@ -6,6 +6,7 @@ import one.microstream.math.XMath;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberCreator;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberAppender;
 
 public interface BinaryField extends PersistenceTypeDefinitionMemberPseudoField
 {
@@ -227,7 +228,7 @@ public interface BinaryField extends PersistenceTypeDefinitionMemberPseudoField
 		}
 
 		@Override
-		public void assembleTypeDescription(final Appender assembler)
+		public void assembleTypeDescription(final PersistenceTypeDescriptionMemberAppender assembler)
 		{
 			this.actual.assembleTypeDescription(assembler);
 		}

@@ -116,7 +116,7 @@ public interface StorageOidMarkQueue
 			{
 //				debugln("segment full");
 
-				/* (14.07.2016 TM)TODO: prevent Implementation size excess
+				/* (14.07.2016 TM)TODO: prevent size excess
 				 * if the queue exceeds a certain size, a consolidation action should be taken
 				 * to remove redundant OIDs.
 				 * Otherwise, very frequent stores and the entity updates they cause could fill

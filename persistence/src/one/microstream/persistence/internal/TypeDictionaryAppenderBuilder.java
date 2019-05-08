@@ -3,11 +3,12 @@ package one.microstream.persistence.internal;
 import one.microstream.chars.VarString;
 import one.microstream.functional.Aggregator;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberAppender;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberField;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
 
 public final class TypeDictionaryAppenderBuilder
-implements Aggregator<PersistenceTypeDescriptionMember, TypeDictionaryAppenderImplementation>
+implements Aggregator<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMemberAppender>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -29,8 +30,8 @@ implements Aggregator<PersistenceTypeDescriptionMember, TypeDictionaryAppenderIm
 	public TypeDictionaryAppenderBuilder(final VarString vc, final int level)
 	{
 		super();
-		this.vc             = vc            ;
-		this.level          = level         ;
+		this.vc    = vc   ;
+		this.level = level;
 	}
 
 
@@ -87,9 +88,9 @@ implements Aggregator<PersistenceTypeDescriptionMember, TypeDictionaryAppenderIm
 	}
 
 	@Override
-	public final TypeDictionaryAppenderImplementation yield()
+	public final PersistenceTypeDescriptionMemberAppender yield()
 	{
-		return new TypeDictionaryAppenderImplementation(
+		return new PersistenceTypeDescriptionMemberAppender.Default(
 			this.vc,
 			this.level,
 			this.maxFieldTypeNameLength,

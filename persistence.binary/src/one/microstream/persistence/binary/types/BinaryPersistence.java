@@ -77,7 +77,7 @@ import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeIdLookup;
 import one.microstream.typing.XTypes;
-import one.microstream.util.BinaryHandlerSubstituterImplementation;
+import one.microstream.util.BinaryHandlerSubstituterDefault;
 
 public final class BinaryPersistence extends Persistence
 {
@@ -239,7 +239,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerEqHashTable()         ,
 			new BinaryHandlerEqConstHashTable()    ,
 
-			new BinaryHandlerSubstituterImplementation()
+			new BinaryHandlerSubstituterDefault()
 			/* (29.10.2013 TM)TODO: more framework default custom handlers
 			 * - VarString
 			 * - VarByte
