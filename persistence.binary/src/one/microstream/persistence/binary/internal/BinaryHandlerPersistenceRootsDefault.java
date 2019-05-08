@@ -16,7 +16,7 @@ import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerPersistenceRootsImplementation
+public final class BinaryHandlerPersistenceRootsDefault
 extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -31,12 +31,12 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	// static methods //
 	///////////////////
 	
-	public static BinaryHandlerPersistenceRootsImplementation New(
+	public static BinaryHandlerPersistenceRootsDefault New(
 		final PersistenceRootResolver   resolver      ,
 		final PersistenceObjectRegistry globalRegistry
 	)
 	{
-		return new BinaryHandlerPersistenceRootsImplementation(
+		return new BinaryHandlerPersistenceRootsDefault(
 			notNull(resolver)      ,
 			notNull(globalRegistry)
 		);
@@ -64,7 +64,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	// constructors //
 	/////////////////
 
-	BinaryHandlerPersistenceRootsImplementation(
+	BinaryHandlerPersistenceRootsDefault(
 		final PersistenceRootResolver   resolver      ,
 		final PersistenceObjectRegistry globalRegistry
 	)

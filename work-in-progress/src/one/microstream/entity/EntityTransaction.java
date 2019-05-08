@@ -114,7 +114,7 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 		////////////////////
 		
 		private final HashTable<Entity<?>, Entry<?>> entries     = HashTable.New();
-		private       boolean                             isCommitted;
+		private       boolean                        isCommitted;
 		
 		private static final Comparator<Object> compareHashCode = (final Object o1, final Object o2) ->
 		{

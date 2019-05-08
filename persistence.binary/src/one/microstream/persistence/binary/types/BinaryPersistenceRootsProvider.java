@@ -2,7 +2,7 @@ package one.microstream.persistence.binary.types;
 
 import static one.microstream.X.notNull;
 
-import one.microstream.persistence.binary.internal.BinaryHandlerPersistenceRootsImplementation;
+import one.microstream.persistence.binary.internal.BinaryHandlerPersistenceRootsDefault;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceRootResolver;
@@ -64,8 +64,8 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 			final PersistenceObjectRegistry                              objectRegistry
 		)
 		{
-			final BinaryHandlerPersistenceRootsImplementation handler =
-				BinaryHandlerPersistenceRootsImplementation.New(this.rootResolver, objectRegistry)
+			final BinaryHandlerPersistenceRootsDefault handler =
+				BinaryHandlerPersistenceRootsDefault.New(this.rootResolver, objectRegistry)
 			;
 			typeHandlerRegistry.registerTypeHandler(handler);
 		}

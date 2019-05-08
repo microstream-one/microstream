@@ -82,7 +82,7 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		////////////
 
 		@Override
-		public void assembleTypeDescription(final Appender assembler)
+		public void assembleTypeDescription(final PersistenceTypeDescriptionMemberAppender assembler)
 		{
 			assembler.appendTypeMemberDescription(this);
 		}

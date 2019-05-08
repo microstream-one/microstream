@@ -1,7 +1,6 @@
 package one.microstream.persistence.types;
 
 import java.util.Iterator;
-import java.util.function.Consumer;
 
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.equality.Equalator;
@@ -99,7 +98,7 @@ public interface PersistenceTypeDescriptionMember
 	}
 	
 
-	public void assembleTypeDescription(PersistenceTypeDescriptionMember.Appender assembler);
+	public void assembleTypeDescription(PersistenceTypeDescriptionMemberAppender assembler);
 
 	/**
 	 * Determines if this member directly is a reference.
@@ -396,20 +395,6 @@ public interface PersistenceTypeDescriptionMember
 		{
 			return this.typeName() + ' ' + this.uniqueName();
 		}
-
-	}
-
-	public interface Appender extends Consumer<PersistenceTypeDescriptionMember>
-	{
-		public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberField typeMember);
-
-		public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPseudoFieldSimple typeMember);
-
-		public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPseudoFieldVariableLength typeMember);
-
-		public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPseudoFieldComplex typeMember);
-
-		public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPrimitiveDefinition typeMember);
 
 	}
 
