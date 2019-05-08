@@ -15,7 +15,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 
 
 
-	public class Implementation<S extends NetworkSession<?>> implements NetworkMessageManager<S>
+	public class Default<S extends NetworkSession<?>> implements NetworkMessageManager<S>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -42,7 +42,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final NetworkMessageListener.Provider<S>             messageListenerCreator                 ,
 			final NetworkMessageListener.RegulatorThreadCount    threadCountProviderMessageListeners    ,
 			final NetworkMessageListener.RegulatorCheckInterval  checkIntervalProviderMessageListeners  ,
@@ -110,8 +110,8 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 		}
 
 		private static <S extends NetworkSession<?>> void synchTransferSessions(
-			final BulkList<Implementation<S>.ListenerThread>   listeners ,
-			final MiniMap<S, Implementation<S>.ListenerThread> sessionMap,
+			final BulkList<Default<S>.ListenerThread>   listeners ,
+			final MiniMap<S, Default<S>.ListenerThread> sessionMap,
 			final BulkList<S> sessionsToTransfer
 		)
 		{
@@ -164,7 +164,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 
 			ListenerThread(final int number)
 			{
-				super("Message Listener # " + number + " of " + System.identityHashCode(Implementation.this));
+				super("Message Listener # " + number + " of " + System.identityHashCode(Default.this));
 			}
 
 			@Override
@@ -174,13 +174,13 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 				Throwable disposalCause = null; // if logic ends normally, the cause remains null
 				try
 				{
-					(this.logic = Implementation.this.provideMessageListener()).run();
+					(this.logic = Default.this.provideMessageListener()).run();
 				}
 				catch(final Throwable t)
 				{
 					disposalCause = t;
 				}
-				Implementation.this.disposeListener(this, disposalCause);
+				Default.this.disposeListener(this, disposalCause);
 			}
 
 			@Override
@@ -217,7 +217,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 
 			ListenerController(final NetworkMessageListener.RegulatorCheckInterval sleepController)
 			{
-				super("Message Listener Controller of " + System.identityHashCode(Implementation.this));
+				super("Message Listener Controller of " + System.identityHashCode(Default.this));
 				this.sleepController = sleepController; // null already checked by parent instance
 			}
 
@@ -229,7 +229,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 					while(true)
 					{
 						// execute once immediately after thread creation, then sleep
-						Implementation.this.checkListenerCount();
+						Default.this.checkListenerCount();
 						Thread.sleep(this.sleepController.checkInterval());
 					}
 				}
@@ -280,8 +280,8 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 			return true;
 		}
 
-		private static <S extends NetworkSession<?>> Implementation<S>.ListenerThread synchRegisterSession(
-			final BulkList<Implementation<S>.ListenerThread> listeners,
+		private static <S extends NetworkSession<?>> Default<S>.ListenerThread synchRegisterSession(
+			final BulkList<Default<S>.ListenerThread> listeners,
 			final S session
 		)
 		{

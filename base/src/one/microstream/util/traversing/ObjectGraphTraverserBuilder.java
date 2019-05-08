@@ -287,10 +287,10 @@ public interface ObjectGraphTraverserBuilder
 	
 	public static ObjectGraphTraverserBuilder New()
 	{
-		return new ObjectGraphTraverserBuilder.Implementation();
+		return new ObjectGraphTraverserBuilder.Default();
 	}
 		
-	public class Implementation implements ObjectGraphTraverserBuilder
+	public class Default implements ObjectGraphTraverserBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -333,7 +333,7 @@ public interface ObjectGraphTraverserBuilder
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 			

@@ -33,7 +33,7 @@ extends PersistenceTypeDescriptionMemberPseudoField
 	}
 
 	
-	public static PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation New(
+	public static PersistenceTypeDescriptionMemberPseudoFieldSimple.Default New(
 		final String  name                   ,
 		final String  typeName               ,
 		final boolean isReference            ,
@@ -41,7 +41,7 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		final long    persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDescriptionMemberPseudoFieldSimple.Implementation(
+		return new PersistenceTypeDescriptionMemberPseudoFieldSimple.Default(
 			 notNull(name)                   ,
 			 notNull(typeName)               ,
 			         isReference             ,
@@ -50,15 +50,15 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		);
 	}
 	
-	public final class Implementation
-	extends PersistenceTypeDescriptionMemberPseudoField.AbstractImplementation
+	public final class Default
+	extends PersistenceTypeDescriptionMemberPseudoField.Abstract
 	implements PersistenceTypeDescriptionMemberPseudoFieldSimple
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final String  name               ,
 			final String  typeName           ,
 			final boolean isReference        ,

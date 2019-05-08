@@ -11,7 +11,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 	
 	
 
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation New(
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default New(
 		final PersistenceTypeDescriptionMemberPseudoFieldVariableLength description
 	)
 	{
@@ -23,14 +23,14 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		);
 	}
 	
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation New(
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default New(
 		final String typeName               ,
 		final String name                   ,
 		final long   persistentMinimumLength,
 		final long   persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation(
+		return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default(
 			 notNull(typeName)               ,
 			 notNull(name)                   ,
 			         false                   ,
@@ -39,7 +39,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		);
 	}
 
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation Bytes(
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default Bytes(
 		final String name                   ,
 		final long   persistentMinimumLength,
 		final long   persistentMaximumLength
@@ -53,7 +53,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		);
 	}
 
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation Chars(
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default Chars(
 		final String name                   ,
 		final long   persistentMinimumLength,
 		final long   persistentMaximumLength
@@ -69,15 +69,15 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 
 
 
-	public class Implementation
-	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation
+	public class Default
+	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default
 	implements PersistenceTypeDefinitionMemberPseudoFieldVariableLength
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final String  typeName               ,
 			final String  name                   ,
 			final boolean hasReferences          ,
@@ -103,7 +103,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		@Override
 		public PersistenceTypeDefinitionMemberPseudoFieldVariableLength copyForName(final String name)
 		{
-			return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Implementation(
+			return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default(
 				this.typeName(),
 				name,
 				this.isReference(),

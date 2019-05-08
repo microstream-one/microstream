@@ -11,7 +11,7 @@ public interface StorageTimestampProvider
 	public long currentNanoTimestamp();
 	
 	
-	public final class Implementation implements StorageTimestampProvider
+	public final class Default implements StorageTimestampProvider
 	{
 		private long lastTimeMillis, currentOffset;
 

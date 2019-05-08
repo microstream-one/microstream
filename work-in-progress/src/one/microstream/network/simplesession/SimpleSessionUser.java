@@ -16,7 +16,7 @@ public interface SimpleSessionUser extends Named
 
 
 
-	public class Implementation implements SimpleSessionUser
+	public class Default implements SimpleSessionUser
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -30,7 +30,7 @@ public interface SimpleSessionUser extends Named
 		// constructors //
 		/////////////////
 
-		public Implementation(final String name)
+		public Default(final String name)
 		{
 			super();
 			this.name = name;

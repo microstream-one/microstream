@@ -17,7 +17,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
 public final class BinaryHandlerPersistenceRootsImplementation
-extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
+extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -32,8 +32,8 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
 	///////////////////
 	
 	public static BinaryHandlerPersistenceRootsImplementation New(
-		final PersistenceRootResolver resolver      ,
-		final PersistenceObjectRegistry         globalRegistry
+		final PersistenceRootResolver   resolver      ,
+		final PersistenceObjectRegistry globalRegistry
 	)
 	{
 		return new BinaryHandlerPersistenceRootsImplementation(
@@ -65,12 +65,12 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
 	/////////////////
 
 	BinaryHandlerPersistenceRootsImplementation(
-		final PersistenceRootResolver resolver      ,
-		final PersistenceObjectRegistry         globalRegistry
+		final PersistenceRootResolver   resolver      ,
+		final PersistenceObjectRegistry globalRegistry
 	)
 	{
 		super(
-			PersistenceRoots.Implementation.class,
+			PersistenceRoots.Default.class,
 			pseudoFields( // instances first to easy ref-only loading in storage
 				complex("instances",
 					pseudoField(Object.class, "instance")
@@ -93,7 +93,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
 	@Override
 	public final void store(
 		final Binary                          bytes   ,
-		final PersistenceRoots.Implementation instance,
+		final PersistenceRoots.Default instance,
 		final long                            objectId,
 		final PersistenceStoreHandler         handler
 	)
@@ -159,15 +159,15 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
 	}
 
 	@Override
-	public final PersistenceRoots.Implementation create(final Binary bytes, PersistenceLoadHandler handler)
+	public final PersistenceRoots.Default create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return PersistenceRoots.Implementation.createUninitialized();
+		return PersistenceRoots.Default.createUninitialized();
 	}
 
 	@Override
 	public final void update(
 		final Binary                          bytes   ,
-		final PersistenceRoots.Implementation instance,
+		final PersistenceRoots.Default instance,
 		final PersistenceLoadHandler          handler
 	)
 	{
@@ -193,7 +193,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Implementation>
 
 	@Override
 	public final void iterateInstanceReferences(
-		final PersistenceRoots.Implementation instance,
+		final PersistenceRoots.Default instance,
 		final PersistenceFunction                 iterator
 	)
 	{

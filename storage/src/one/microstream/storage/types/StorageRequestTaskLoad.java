@@ -9,7 +9,7 @@ public interface StorageRequestTaskLoad extends StorageRequestTask
 
 
 
-	public abstract class AbstractImplementation extends StorageChannelTask.AbstractImplementation<ChunksBuffer>
+	public abstract class Abstract extends StorageChannelTask.Abstract<ChunksBuffer>
 	implements StorageRequestTaskLoad
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ public interface StorageRequestTaskLoad extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final long timestamp, final int channelCount)
+		protected Abstract(final long timestamp, final int channelCount)
 		{
 			super(timestamp, channelCount);
 			this.result = new ChunksBuffer[channelCount];

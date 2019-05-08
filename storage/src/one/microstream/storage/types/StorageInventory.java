@@ -10,7 +10,7 @@ public interface StorageInventory extends StorageHashChannelPart
 
 
 
-	public final class Implementation implements StorageInventory
+	public final class Default implements StorageInventory
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -26,7 +26,7 @@ public interface StorageInventory extends StorageHashChannelPart
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final int                                       channelIndex    ,
 			final XGettingTable<Long, StorageInventoryFile> dataFiles       ,
 			final StorageTransactionsFileAnalysis           transactionsFile

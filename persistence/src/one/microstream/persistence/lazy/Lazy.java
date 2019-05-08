@@ -354,7 +354,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 //
 //
 //	// not sure if it's particularly clean or particularly unclean to nest that here instead of in its own file.
-//	public static final class TraversalHandlerLazy extends TraversalHandler.AbstractImplementation<Lazy<?>>
+//	public static final class TraversalHandlerLazy extends TraversalHandler.Abstract<Lazy<?>>
 //	{
 //		protected TraversalHandlerLazy(final Predicate<? super Lazy<?>> logic)
 //		{

@@ -2,10 +2,10 @@ package one.microstream.network.types;
 
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
-import one.microstream.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionListenerCheckInterval;
-import one.microstream.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionListenerThreadCount;
-import one.microstream.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionProcessorThreadTimeout;
-import one.microstream.network.types.NetworkConnectionServer.Implementation.RegulatorConnectionProcessorsThreadCount;
+import one.microstream.network.types.NetworkConnectionServer.Default.RegulatorConnectionListenerCheckInterval;
+import one.microstream.network.types.NetworkConnectionServer.Default.RegulatorConnectionListenerThreadCount;
+import one.microstream.network.types.NetworkConnectionServer.Default.RegulatorConnectionProcessorThreadTimeout;
+import one.microstream.network.types.NetworkConnectionServer.Default.RegulatorConnectionProcessorsThreadCount;
 
 public interface NetworkFactoryServer
 {
@@ -23,7 +23,7 @@ public interface NetworkFactoryServer
 
 
 
-	public abstract class AbstractImplementation implements NetworkFactoryServer
+	public abstract class Abstract implements NetworkFactoryServer
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -172,7 +172,7 @@ public interface NetworkFactoryServer
 		}
 
 		@Override
-		public NetworkFactoryServer.AbstractImplementation setConnectionListenerMaxThreadCount(
+		public NetworkFactoryServer.Abstract setConnectionListenerMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -181,7 +181,7 @@ public interface NetworkFactoryServer
 		}
 
 		@Override
-		public NetworkFactoryServer.AbstractImplementation setConnectionProcessorMaxThreadCount(
+		public NetworkFactoryServer.Abstract setConnectionProcessorMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -190,7 +190,7 @@ public interface NetworkFactoryServer
 		}
 
 		@Override
-		public NetworkFactoryServer.AbstractImplementation setConnectionListenerCheckInterval(
+		public NetworkFactoryServer.Abstract setConnectionListenerCheckInterval(
 			final int interval
 		)
 		{
@@ -199,7 +199,7 @@ public interface NetworkFactoryServer
 		}
 
 		@Override
-		public NetworkFactoryServer.AbstractImplementation setConnectionProcessorThreadTimeout(
+		public NetworkFactoryServer.Abstract setConnectionProcessorThreadTimeout(
 			final int timeout
 		)
 		{
@@ -207,7 +207,7 @@ public interface NetworkFactoryServer
 			return this;
 		}
 
-		public NetworkFactoryServer.AbstractImplementation setConnectionSocket(
+		public NetworkFactoryServer.Abstract setConnectionSocket(
 			final NetworkConnectionSocket connectionSocket
 		)
 		{
@@ -215,7 +215,7 @@ public interface NetworkFactoryServer
 			return this;
 		}
 
-		public NetworkFactoryServer.AbstractImplementation setConnectionListenerProvider(
+		public NetworkFactoryServer.Abstract setConnectionListenerProvider(
 			final NetworkConnectionListener.Provider connectionListenerProvider
 		)
 		{
@@ -223,7 +223,7 @@ public interface NetworkFactoryServer
 			return this;
 		}
 
-		public NetworkFactoryServer.AbstractImplementation setConnectionHandlerProvider(
+		public NetworkFactoryServer.Abstract setConnectionHandlerProvider(
 			final NetworkConnectionHandler.Provider connectionHandlerProvider
 		)
 		{
@@ -231,7 +231,7 @@ public interface NetworkFactoryServer
 			return this;
 		}
 
-		public NetworkFactoryServer.AbstractImplementation setConnectionProcessorProvider(
+		public NetworkFactoryServer.Abstract setConnectionProcessorProvider(
 			final NetworkConnectionProcessor.Provider<?> connectionProcessorProvider
 		)
 		{
@@ -239,7 +239,7 @@ public interface NetworkFactoryServer
 			return this;
 		}
 
-		public NetworkFactoryServer.AbstractImplementation setProblemHandlerProviderConnectionListening(
+		public NetworkFactoryServer.Abstract setProblemHandlerProviderConnectionListening(
 			final NetworkConnectionProblemHandler.Provider problemHandlerConnectionListening
 		)
 		{
@@ -247,7 +247,7 @@ public interface NetworkFactoryServer
 			return this;
 		}
 
-		public NetworkFactoryServer.AbstractImplementation setProblemHandlerProviderConnectionProcessing(
+		public NetworkFactoryServer.Abstract setProblemHandlerProviderConnectionProcessing(
 			final NetworkConnectionProblemHandler.Provider problemHandlerConnectionProcessing
 		)
 		{
@@ -255,7 +255,7 @@ public interface NetworkFactoryServer
 			return this;
 		}
 
-		protected synchronized NetworkConnectionServer.Implementation.Setup createConnectionServerSetup()
+		protected synchronized NetworkConnectionServer.Default.Setup createConnectionServerSetup()
 		{
 			final RegulatorConnectionListenerThreadCount    regulatorConLisThreadCount;
 			final RegulatorConnectionListenerCheckInterval  regulatorConLisCheckIntrvl;
@@ -281,7 +281,7 @@ public interface NetworkFactoryServer
 				regulatorConPrcThrdTimeout
 			));
 
-			return new NetworkConnectionServer.Implementation.Setup(
+			return new NetworkConnectionServer.Default.Setup(
 				connectionManager,
 				regulatorConLisThreadCount,
 				regulatorConLisCheckIntrvl,
@@ -298,7 +298,7 @@ public interface NetworkFactoryServer
 		)
 		{
 			final NetworkConnectionManager newConnectionManager =
-				new NetworkConnectionManager.Implementation(
+				new NetworkConnectionManager.Default(
 					this.getConnectionSocket()        ,
 					this.getConnectionListenerProvider() ,
 					threadContrlConListeners             ,
@@ -314,14 +314,14 @@ public interface NetworkFactoryServer
 
 		protected synchronized NetworkConnectionListener.Provider provideConnectionListenerProvider()
 		{
-			return new NetworkConnectionListener.Provider.Implementation(
+			return new NetworkConnectionListener.Provider.Default(
 				this.getProblemHandlerProviderConnectionListening()
 			);
 		}
 
 		protected synchronized NetworkConnectionHandler.Provider provideConnectionHandlerProvider()
 		{
-			return new NetworkConnectionHandler.Provider.Implementation();
+			return new NetworkConnectionHandler.Provider.Default();
 		}
 
 		protected synchronized NetworkConnectionProcessor.Provider<?> provideConnectionProcessorProvider()

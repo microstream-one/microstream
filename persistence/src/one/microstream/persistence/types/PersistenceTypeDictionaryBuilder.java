@@ -128,20 +128,20 @@ public interface PersistenceTypeDictionaryBuilder
 	
 	
 	
-	public static PersistenceTypeDictionaryBuilder.Implementation New(
+	public static PersistenceTypeDictionaryBuilder.Default New(
 		final PersistenceTypeDictionaryCreator typeDictionaryCreator,
 		final PersistenceTypeDefinitionCreator typeDefinitionCreator,
 		final PersistenceTypeResolverProvider  typeResolverProvider
 	)
 	{
-		return new PersistenceTypeDictionaryBuilder.Implementation(
+		return new PersistenceTypeDictionaryBuilder.Default(
 			notNull(typeDictionaryCreator),
 			notNull(typeDefinitionCreator),
 			notNull(typeResolverProvider)
 		);
 	}
 	
-	public class Implementation implements PersistenceTypeDictionaryBuilder
+	public class Default implements PersistenceTypeDictionaryBuilder
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -157,7 +157,7 @@ public interface PersistenceTypeDictionaryBuilder
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final PersistenceTypeDictionaryCreator typeDictionaryCreator,
 			final PersistenceTypeDefinitionCreator typeDefinitionCreator,
 			final PersistenceTypeResolverProvider  typeResolverProvider

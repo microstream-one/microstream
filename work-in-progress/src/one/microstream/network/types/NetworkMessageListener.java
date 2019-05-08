@@ -51,7 +51,7 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 			@Override
 			public NetworkMessageListener<S> provideMessageListener(final NetworkMessageHandler<S> messageHandler)
 			{
-				return new NetworkMessageListener.Implementation<>(messageHandler);
+				return new NetworkMessageListener.Default<>(messageHandler);
 			}
 
 			@Override
@@ -75,7 +75,7 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 
 
 
-	public final class Implementation<S extends NetworkSession<?>> implements NetworkMessageListener<S>, Predicate<S>
+	public final class Default<S extends NetworkSession<?>> implements NetworkMessageListener<S>, Predicate<S>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -102,7 +102,7 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 		// constructors //
 		/////////////////
 
-		public Implementation(final NetworkMessageHandler<S> messageHandler)
+		public Default(final NetworkMessageHandler<S> messageHandler)
 		{
 			super();
 			this.messageHandler = notNull(messageHandler);

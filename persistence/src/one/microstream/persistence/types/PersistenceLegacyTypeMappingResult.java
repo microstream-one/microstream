@@ -33,7 +33,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		final XGettingEnum<PersistenceTypeDefinitionMember>                                               newCurrentMembers
 	)
 	{
-		return new PersistenceLegacyTypeMappingResult.Implementation<>(
+		return new PersistenceLegacyTypeMappingResult.Default<>(
 			notNull(legacyTypeDefinition)  ,
 			notNull(currentTypeHandler)    ,
 			notNull(legacyToCurrentMembers),
@@ -43,7 +43,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		);
 	}
 	
-	public final class Implementation<M, T> implements PersistenceLegacyTypeMappingResult<M, T>
+	public final class Default<M, T> implements PersistenceLegacyTypeMappingResult<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -65,7 +65,7 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final PersistenceTypeDefinition                                                                   legacyTypeDefinition  ,
 			final PersistenceTypeHandler<M, T>                                                                currentTypeHandler    ,
 			final XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> legacyToCurrentMembers,

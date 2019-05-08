@@ -26,12 +26,12 @@ public interface StorageOidMarkQueue
 
 
 
-		public final class Implementation implements StorageOidMarkQueue.Creator
+		public final class Default implements StorageOidMarkQueue.Creator
 		{
 			@Override
 			public StorageOidMarkQueue createOidMarkQueue(final int segmentLength)
 			{
-				return new StorageOidMarkQueue.Implementation(segmentLength);
+				return new StorageOidMarkQueue.Default(segmentLength);
 			}
 
 		}
@@ -39,7 +39,7 @@ public interface StorageOidMarkQueue
 	}
 
 
-	final class Implementation implements StorageOidMarkQueue
+	final class Default implements StorageOidMarkQueue
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -70,7 +70,7 @@ public interface StorageOidMarkQueue
 		// constructors //
 		/////////////////
 
-		Implementation(final int segmentLength)
+		Default(final int segmentLength)
 		{
 			super();
 			this.root = new Segment(XMath.positive(segmentLength), null);
@@ -286,7 +286,7 @@ public interface StorageOidMarkQueue
 
 //		public static void main(final String[] args)
 //		{
-//			final Implementation q = new Implementation(10);
+//			final Default q = new Default(10);
 	//
 //			final long[] buffer = new long[20];
 //			final int amount = 999;

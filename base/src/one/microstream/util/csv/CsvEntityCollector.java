@@ -14,7 +14,7 @@ public final class CsvEntityCollector<T> implements CsvRowCollector
 	// instance fields //
 	////////////////////
 
-	private final CsvEntityParser.AbstractImplementation<T> parser;
+	private final CsvEntityParser.Abstract<T> parser;
 	private final XSequence<? super T>                      rows  ;
 	private final BulkList<String>                          row   ;
 
@@ -25,7 +25,7 @@ public final class CsvEntityCollector<T> implements CsvRowCollector
 	/////////////////
 
 	public CsvEntityCollector(
-		final CsvEntityParser.AbstractImplementation<T> parser,
+		final CsvEntityParser.Abstract<T> parser,
 		final XSequence<? super T>                      rows
 	)
 	{

@@ -80,7 +80,7 @@ public interface StorageFileManager
 
 
 
-	public final class Implementation implements StorageFileManager, StorageReaderCallback
+	public final class Default implements StorageFileManager, StorageReaderCallback
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -140,7 +140,7 @@ public interface StorageFileManager
 		private final StorageTimestampProvider             timestampProvider            ;
 		private final StorageFileProvider                  storageFileProvider          ;
 		private final StorageDataFileEvaluator             dataFileEvaluator            ;
-		private final StorageEntityCache.Implementation    entityCache                  ;
+		private final StorageEntityCache.Default    entityCache                  ;
 		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
 		private final StorageBackupHandler                 backupHandler                ;
@@ -173,7 +173,7 @@ public interface StorageFileManager
 
 		private final ByteBuffer standardByteBuffer;
 
-		private StorageDataFile.Implementation fileCleanupCursor, headFile;
+		private StorageDataFile.Default fileCleanupCursor, headFile;
 
 		private long uncommittedDataLength;
 
@@ -187,13 +187,13 @@ public interface StorageFileManager
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final int                                  channelIndex                 ,
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
 			final StorageTimestampProvider             timestampProvider            ,
 			final StorageFileProvider                  storageFileProvider          ,
 			final StorageDataFileEvaluator             dataFileEvaluator            ,
-			final StorageEntityCache.Implementation    entityCache                  ,
+			final StorageEntityCache.Default    entityCache                  ,
 			final StorageFileReader                    reader                       ,
 			final StorageFileWriter                    writer                       ,
 			final BufferSizeProvider                   standardBufferSizeProvider   ,
@@ -227,17 +227,17 @@ public interface StorageFileManager
 		// methods //
 		////////////
 
-		final <L extends Consumer<StorageEntity.Implementation>> L iterateEntities(final L logic)
+		final <L extends Consumer<StorageEntity.Default>> L iterateEntities(final L logic)
 		{
 			// (01.04.2016)XXX: not tested yet
 
-			final StorageDataFile.Implementation head = this.headFile;
-			StorageDataFile.Implementation file = head; // initial reference, but gets handled at the end
+			final StorageDataFile.Default head = this.headFile;
+			StorageDataFile.Default file = head; // initial reference, but gets handled at the end
 			do
 			{
 				file = file.next;
-				final StorageEntity.Implementation tail = file.tail;
-				for(StorageEntity.Implementation entity = file.head; (entity = entity.fileNext) != tail;)
+				final StorageEntity.Default tail = file.tail;
+				for(StorageEntity.Default entity = file.head; (entity = entity.fileNext) != tail;)
 				{
 					logic.accept(entity);
 				}
@@ -247,7 +247,7 @@ public interface StorageFileManager
 			return logic;
 		}
 
-		final boolean isHeadFile(final StorageDataFile.Implementation dataFile)
+		final boolean isHeadFile(final StorageDataFile.Default dataFile)
 		{
 			return this.headFile == dataFile;
 		}
@@ -260,8 +260,8 @@ public interface StorageFileManager
 //				if(this.headFile != null)
 //				{
 //					this.writer.flush(this.headFile);
-//					final StorageDataFile.Implementation currentFile = this.headFile;
-//					for(StorageDataFile.Implementation file = currentFile.next; file != currentFile; file = file.next)
+//					final StorageDataFile.Default currentFile = this.headFile;
+//					for(StorageDataFile.Default file = currentFile.next; file != currentFile; file = file.next)
 //					{
 //						file.terminate(this.writer);
 //					}
@@ -321,9 +321,9 @@ public interface StorageFileManager
 				return; // already cleared or no files in the first place
 			}
 
-			final StorageDataFile.Implementation headFile = this.headFile;
+			final StorageDataFile.Default headFile = this.headFile;
 
-			StorageDataFile.Implementation file = headFile;
+			StorageDataFile.Default file = headFile;
 			do
 			{
 				StorageLockedFile.closeSilent(file);
@@ -354,12 +354,12 @@ public interface StorageFileManager
 		}
 
 		
-		final void transferOneChainToHeadFile(final StorageDataFile.Implementation sourceFile)
+		final void transferOneChainToHeadFile(final StorageDataFile.Default sourceFile)
 		{
-			final StorageDataFile.Implementation headFile = this.headFile           ;
-			final StorageEntity.Implementation   first    = sourceFile.head.fileNext;
-			      StorageEntity.Implementation   last     = null                    ;
-			      StorageEntity.Implementation   current  = first                   ;
+			final StorageDataFile.Default headFile = this.headFile           ;
+			final StorageEntity.Default   first    = sourceFile.head.fileNext;
+			      StorageEntity.Default   last     = null                    ;
+			      StorageEntity.Default   current  = first                   ;
 
 			final long copyStart                = first.storagePosition                     ;
 			final long targetFileOldTotalLength = headFile.totalLength()                    ;
@@ -436,7 +436,7 @@ public interface StorageFileManager
 		}
 
 		private void appendBytesToHeadFile(
-			final StorageDataFile.Implementation sourceFile,
+			final StorageDataFile.Default sourceFile,
 			final long                           copyStart ,
 			final long                           copyLength
 		)
@@ -446,7 +446,7 @@ public interface StorageFileManager
 //				+ " from " + sourceFile + " to " + targetFile
 //			);
 			
-			final StorageDataFile.Implementation headFile = this.headFile;
+			final StorageDataFile.Default headFile = this.headFile;
 
 			// do the actual file-level copying in one go at the end and validate the byte count to be sure
 			this.writer.writeTransfer(sourceFile, copyStart, copyLength, headFile);
@@ -502,10 +502,10 @@ public interface StorageFileManager
 
 		private void registerHeadFile(final StorageInventoryFile file)
 		{
-			this.registerStorageHeadFile(StorageDataFile.Implementation.New(this, file));
+			this.registerStorageHeadFile(StorageDataFile.Default.New(this, file));
 		}
 		
-		private void registerStorageHeadFile(final StorageDataFile.Implementation storageFile)
+		private void registerStorageHeadFile(final StorageDataFile.Default storageFile)
 		{
 			if(this.headFile == null)
 			{
@@ -532,7 +532,7 @@ public interface StorageFileManager
 		}
 
 		@Override
-		public final StorageDataFile.Implementation currentStorageFile()
+		public final StorageDataFile.Default currentStorageFile()
 		{
 			return this.headFile;
 		}
@@ -541,8 +541,8 @@ public interface StorageFileManager
 		public void iterateStorageFiles(final Consumer<? super StorageDataFile<?>> procedure)
 		{
 			// keep current als end marker, but start with first file, use current als last and then quit the loop
-			final StorageDataFile.Implementation current = this.headFile;
-			StorageDataFile.Implementation file = current;
+			final StorageDataFile.Default current = this.headFile;
+			StorageDataFile.Default file = current;
 			do
 			{
 				procedure.accept(file = file.next);
@@ -636,8 +636,8 @@ public interface StorageFileManager
 		}
 
 		final void loadData(
-			final StorageDataFile.Implementation dataFile   ,
-			final StorageEntity.Implementation   entity     ,
+			final StorageDataFile.Default dataFile   ,
+			final StorageEntity.Default   entity     ,
 			final long                           length     ,
 			final long                           cacheChange
 		)
@@ -661,7 +661,7 @@ public interface StorageFileManager
 		}
 
 		private void putLiveEntityData(
-			final StorageEntity.Implementation entity     ,
+			final StorageEntity.Default entity     ,
 			final long                         address    ,
 			final long                         length     ,
 			final long                         cacheChange
@@ -713,7 +713,7 @@ public interface StorageFileManager
 			);
 			storageFiles.keys().sort(XSort::compare);
 
-			return new StorageInventory.Implementation(this.channelIndex(), storageFiles, transactionsFile);
+			return new StorageInventory.Default(this.channelIndex(), storageFiles, transactionsFile);
 		}
 
 		final StorageTransactionsFileAnalysis readTransactionsFile()
@@ -946,9 +946,9 @@ public interface StorageFileManager
 			;
 
 			// register items (gaps and entities, with latest version of each entity replacing all previous)
-			final StorageEntityInitializer<StorageDataFile.Implementation> initializer =
+			final StorageEntityInitializer<StorageDataFile.Default> initializer =
 				StorageEntityInitializer.New(this.entityCache, f ->
-					StorageDataFile.Implementation.New(this, f)
+					StorageDataFile.Default.New(this, f)
 				)
 			;
 			this.headFile = initializer.registerEntities(files, lastFileLength);
@@ -1248,12 +1248,12 @@ public interface StorageFileManager
 		@Override
 		public final StorageRawFileStatistics.ChannelStatistics createRawFileStatistics()
 		{
-			StorageDataFile.Implementation file;
-			final StorageDataFile.Implementation currentFile = file = this.headFile;
+			StorageDataFile.Default file;
+			final StorageDataFile.Default currentFile = file = this.headFile;
 
 			long liveDataLength  = 0;
 			long totalDataLength = 0;
-			final BulkList<FileStatistics.Implementation> fileStatistics = BulkList.New();
+			final BulkList<FileStatistics.Default> fileStatistics = BulkList.New();
 
 			do
 			{
@@ -1261,7 +1261,7 @@ public interface StorageFileManager
 				liveDataLength  += file.dataLength();
 				totalDataLength += file.totalLength();
 				fileStatistics.add(
-					new FileStatistics.Implementation(
+					new FileStatistics.Default(
 						file.number()    ,
 						file.identifier(),
 						file.dataLength(),
@@ -1271,7 +1271,7 @@ public interface StorageFileManager
 			}
 			while(file != currentFile);
 
-			return new StorageRawFileStatistics.ChannelStatistics.Implementation(
+			return new StorageRawFileStatistics.ChannelStatistics.Default(
 				this.channelIndex(),
 				fileStatistics.size(),
 				liveDataLength,
@@ -1332,7 +1332,7 @@ public interface StorageFileManager
 			}
 		}
 
-		private void deletePendingFile(final StorageDataFile.Implementation file)
+		private void deletePendingFile(final StorageDataFile.Default file)
 		{
 //			DEBUGStorage.println(this.channelIndex + " deleted pending file " + file);
 			if(this.pendingFileDeletes < 1)
@@ -1378,7 +1378,7 @@ public interface StorageFileManager
 			 * Don't know if this can happen at all since the fixed GC race condition.
 			 * Endless testing with both incremental and issued full house keeping never caused any problem since then.
 			 */
-			StorageDataFile.Implementation cycleAnchorFile = this.fileCleanupCursor;
+			StorageDataFile.Default cycleAnchorFile = this.fileCleanupCursor;
 
 			// intentionally no minimum first loop execution as cleanup is not important if the system has heavy load
 			while(this.fileCleanupCursor != null && System.nanoTime() < nanoTimeBudgetBound)
@@ -1453,7 +1453,7 @@ public interface StorageFileManager
 		}
 
 		private boolean incrementalDissolveStorageFile(
-			final StorageDataFile.Implementation file               ,
+			final StorageDataFile.Default file               ,
 			final long                           nanoTimeBudgetBound
 		)
 		{
@@ -1484,7 +1484,7 @@ public interface StorageFileManager
 			return false;
 		}
 
-		private void deleteFile(final StorageDataFile.Implementation file)
+		private void deleteFile(final StorageDataFile.Default file)
 		{
 //			DEBUGStorage.println(this.channelIndex + " deleting " + file);
 
@@ -1511,7 +1511,7 @@ public interface StorageFileManager
 		}
 
 		private boolean incrementalTransferEntities(
-			final StorageDataFile.Implementation file               ,
+			final StorageDataFile.Default file               ,
 			final long                           nanoTimeBudgetBound
 		)
 		{
@@ -1560,8 +1560,8 @@ public interface StorageFileManager
 //			DEBUGStorage.println(this.channelIndex + " committing import data (entity registering)");
 
 			// caching variables
-			final StorageEntityCache.Implementation entityCache = this.entityCache;
-			final StorageDataFile.Implementation    headFile    = this.headFile   ;
+			final StorageEntityCache.Default entityCache = this.entityCache;
+			final StorageDataFile.Default    headFile    = this.headFile   ;
 
 			final long oldTotalLength = this.headFile.totalLength();
 			      long loopFileLength = oldTotalLength;
@@ -1613,8 +1613,8 @@ public interface StorageFileManager
 				return;
 			}
 
-			final StorageDataFile.Implementation first  = this.headFile.next;
-			StorageDataFile.Implementation       doomed = this.importHelper.preImportHeadFile.next;
+			final StorageDataFile.Default first  = this.headFile.next;
+			StorageDataFile.Default       doomed = this.importHelper.preImportHeadFile.next;
 			this.headFile.next = null;
 			(first.prev = this.headFile = this.importHelper.preImportHeadFile).next = first;
 
@@ -1639,7 +1639,7 @@ public interface StorageFileManager
 			}
 		}
 		
-		private void terminateFile(final StorageDataFile.Implementation file)
+		private void terminateFile(final StorageDataFile.Default file)
 		{
 			file.close();
 			this.writer.delete(file, this.storageFileProvider);
@@ -1647,12 +1647,12 @@ public interface StorageFileManager
 
 		final class ImportHelper implements Consumer<StorageChannelImportBatch>
 		{
-			final StorageDataFile.Implementation      preImportHeadFile;
+			final StorageDataFile.Default      preImportHeadFile;
 			final BulkList<StorageChannelImportBatch> importBatches     = BulkList.New(1000);
 			      StorageLockedFile                   file             ;
 
 
-			ImportHelper(final StorageDataFile.Implementation preImportHeadFile)
+			ImportHelper(final StorageDataFile.Default preImportHeadFile)
 			{
 				super();
 				this.preImportHeadFile = preImportHeadFile;
@@ -1662,7 +1662,7 @@ public interface StorageFileManager
 			public void accept(final StorageChannelImportBatch batch)
 			{
 				this.importBatches.add(batch);
-				Implementation.this.importBatch(this.file, batch.fileOffset(), batch.fileLength());
+				StorageFileManager.Default.this.importBatch(this.file, batch.fileOffset(), batch.fileLength());
 			}
 
 			final ImportHelper setFile(final StorageLockedFile file)

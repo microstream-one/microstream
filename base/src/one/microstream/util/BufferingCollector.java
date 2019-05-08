@@ -32,7 +32,7 @@ public interface BufferingCollector<E>
 
 	public static <E> BufferingCollector<E> New(final Consumer<? super E> finalizingLogic)
 	{
-		return new BufferingCollector.Implementation<>(notNull(finalizingLogic), null);
+		return new BufferingCollector.Default<>(notNull(finalizingLogic), null);
 	}
 
 	public static <E> BufferingCollector<E> New(
@@ -40,10 +40,10 @@ public interface BufferingCollector<E>
 		final Consumer<? super E> collectingListener
 	)
 	{
-		return new BufferingCollector.Implementation<>(notNull(finalizingLogic), collectingListener);
+		return new BufferingCollector.Default<>(notNull(finalizingLogic), collectingListener);
 	}
 
-	public final class Implementation<E> implements BufferingCollector<E>
+	public final class Default<E> implements BufferingCollector<E>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -59,7 +59,7 @@ public interface BufferingCollector<E>
 		// constructors //
 		/////////////////
 
-		Implementation(final Consumer<? super E> finalizingLogic, final Consumer<? super E> collectingListener)
+		Default(final Consumer<? super E> finalizingLogic, final Consumer<? super E> collectingListener)
 		{
 			super();
 			this.finalizingLogic    = finalizingLogic   ;

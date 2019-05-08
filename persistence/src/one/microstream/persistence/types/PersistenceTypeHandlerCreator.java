@@ -15,7 +15,7 @@ public interface PersistenceTypeHandlerCreator<M>
 
 	
 	
-	public abstract class AbstractImplementation<M> implements PersistenceTypeHandlerCreator<M>
+	public abstract class Abstract<M> implements PersistenceTypeHandlerCreator<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -32,7 +32,7 @@ public interface PersistenceTypeHandlerCreator<M>
 		// constructors //
 		/////////////////
 		
-		protected AbstractImplementation(
+		protected Abstract(
 			final PersistenceTypeAnalyzer               typeAnalyzer              ,
 			final PersistenceFieldLengthResolver        lengthResolver            ,
 			final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,

@@ -100,9 +100,9 @@ public class TestStorage extends TestComponentProvider
 	protected static File convertBinToCsv(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
 	{
 		final File dir = new File(binaryFiles.get().getParentFile().getParentFile(), "csv");
-		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.ImplementationUTF8(
+		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
-			new StorageEntityTypeConversionFileProvider.Implementation(dir, "csv"),
+			new StorageEntityTypeConversionFileProvider.Default(dir, "csv"),
 			STORAGE.typeDictionary(),
 			null,
 			4096,
@@ -144,7 +144,7 @@ public class TestStorage extends TestComponentProvider
 		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			STORAGE.typeDictionary(),
-			new StorageEntityTypeConversionFileProvider.Implementation(directory, "dat2")
+			new StorageEntityTypeConversionFileProvider.Default(directory, "dat2")
 		);
 
 		for(final File file : binaryFiles)
@@ -166,7 +166,7 @@ public class TestStorage extends TestComponentProvider
 )
 	{
 		final StorageEntityTypeExportStatistics result = storageConnection.exportTypes(
-			new StorageEntityTypeExportFileProvider.Implementation(targetDirectory, fileSuffix)
+			new StorageEntityTypeExportFileProvider.Default(targetDirectory, fileSuffix)
 		);
 		System.out.println(result);
 

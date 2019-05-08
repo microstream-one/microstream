@@ -18,14 +18,14 @@ public interface TypeTraverserProvider
 	
 	
 	
-	public static TypeTraverserProvider.Implementation New(
+	public static TypeTraverserProvider.Default New(
 		final TypeTraverser.Creator                     traverserCreator          ,
 		final XGettingMap<Object, TypeTraverser<?>>     traversersPerInstance     ,
 		final XGettingMap<Class<?>, TypeTraverser<?>>   traversersPerConcreteType ,
 		final XGettingTable<Class<?>, TypeTraverser<?>> traversersPerPolymorphType
 	)
 	{
-		return new TypeTraverserProvider.Implementation(
+		return new TypeTraverserProvider.Default(
 			notNull(traverserCreator)          ,
 			        traversersPerInstance      ,
 			notNull(traversersPerConcreteType) ,
@@ -33,7 +33,7 @@ public interface TypeTraverserProvider
 		);
 	}
 	
-	public final class Implementation implements TypeTraverserProvider
+	public final class Default implements TypeTraverserProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -50,7 +50,7 @@ public interface TypeTraverserProvider
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final TypeTraverser.Creator                       traverserCreator          ,
 			final XGettingMap<Object, TypeTraverser<?>>       traversersPerInstance     ,
 			final XGettingMap<Class<?>, TypeTraverser<?>>     traversersPerConcreteType ,

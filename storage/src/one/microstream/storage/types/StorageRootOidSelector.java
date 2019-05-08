@@ -25,9 +25,30 @@ public interface StorageRootOidSelector extends _longProcedure
 
 
 
-	public final class Implementation implements StorageRootOidSelector
+	public final class Default implements StorageRootOidSelector
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		private transient long currentMax;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default()
+		{
+			super();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void accept(final long rootOid)
@@ -62,12 +83,12 @@ public interface StorageRootOidSelector extends _longProcedure
 
 
 
-		public final class Implementation implements StorageRootOidSelector.Provider
+		public final class Default implements StorageRootOidSelector.Provider
 		{
 			@Override
 			public final StorageRootOidSelector provideRootOidSelector(final int channelIndex)
 			{
-				return new StorageRootOidSelector.Implementation();
+				return new StorageRootOidSelector.Default();
 			}
 
 		}

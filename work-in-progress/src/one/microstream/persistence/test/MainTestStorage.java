@@ -223,7 +223,7 @@ public class MainTestStorage extends TestStorage
 
 //		System.exit(0);
 
-//		storageConnection.exportChannels(new StorageExportFileProvider.Implementation(new File("D:/storageexport"), "channelBackup_"));
+//		storageConnection.exportChannels(new StorageExportFileProvider.Default(new File("D:/storageexport"), "channelBackup_"));
 //		storageConnection.exportChannels(Storage.ExportFileProvider(new File("D:/storageexport"), "channelBackup_"));
 	}
 

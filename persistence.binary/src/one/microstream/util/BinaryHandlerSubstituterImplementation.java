@@ -13,17 +13,17 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  * @author Thomas Muenz
  */
 public final class BinaryHandlerSubstituterImplementation
-extends AbstractBinaryHandlerCustom<Substituter.Implementation<?>>
+extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<Substituter.Implementation<?>> typeWorkaround()
+	private static Class<Substituter.Default<?>> typeWorkaround()
 	{
 		// no idea how to get ".class" to work otherwise
-		return (Class)Substituter.Implementation.class;
+		return (Class)Substituter.Default.class;
 	}
 
 
@@ -50,7 +50,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Implementation<?>>
 	@Override
 	public final void store(
 		final Binary                        bytes   ,
-		final Substituter.Implementation<?> instance,
+		final Substituter.Default<?> instance,
 		final long                          objectId,
 		final PersistenceStoreHandler       handler
 	)
@@ -62,16 +62,16 @@ extends AbstractBinaryHandlerCustom<Substituter.Implementation<?>>
 	}
 
 	@Override
-	public final Substituter.Implementation<?> create(final Binary bytes, PersistenceLoadHandler handler)
+	public final Substituter.Default<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		// hashEqualator gets set in update
-		return new Substituter.Implementation<>(BinaryHandlerEqHashEnum.staticCreate(bytes));
+		return new Substituter.Default<>(BinaryHandlerEqHashEnum.staticCreate(bytes));
 	}
 
 	@Override
 	public final void update(
 		final Binary                        bytes   ,
-		final Substituter.Implementation<?> instance,
+		final Substituter.Default<?> instance,
 		final PersistenceLoadHandler        handler
 	)
 	{
@@ -84,7 +84,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Implementation<?>>
 	@Override
 	public void complete(
 		final Binary                        medium  ,
-		final Substituter.Implementation<?> instance,
+		final Substituter.Default<?> instance,
 		final PersistenceLoadHandler        handler
 	)
 	{
@@ -123,13 +123,5 @@ extends AbstractBinaryHandlerCustom<Substituter.Implementation<?>>
 	{
 		return true;
 	}
-
-//	@Override
-//	public final void copy(final Substituter.Implementation<?> source, final Substituter.Implementation<?> target)
-//	{
-//		// due to type erasure, there is no way to determine if target is valid.
-//		// this also proces that such a totaly generic copy functionality is not viable here
-//		throw new UnsupportedOperationException();
-//	}
 
 }

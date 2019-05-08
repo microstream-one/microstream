@@ -71,7 +71,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		final BufferSizeProviderIncremental    bufferSizeProvider
 	)
 	{
-		return new PersistenceManager.Implementation<>(
+		return new PersistenceManager.Default<>(
 			notNull(objectRegistering) ,
 			notNull(objectManager)     ,
 			notNull(typeHandlerManager),
@@ -85,7 +85,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		);
 	}
 
-	public final class Implementation<M> implements PersistenceManager<M>, Unpersistable
+	public final class Default<M> implements PersistenceManager<M>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -113,7 +113,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final PersistenceObjectRegistry        objectRegistering ,
 			final PersistenceObjectManager         objectManager     ,
 			final PersistenceTypeHandlerManager<M> typeHandlerManager,
@@ -332,7 +332,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		}
 
 		@Override
-		public synchronized PersistenceManager.Implementation<M> updateCurrentObjectId(
+		public synchronized PersistenceManager.Default<M> updateCurrentObjectId(
 			final long currentObjectId
 		)
 		{

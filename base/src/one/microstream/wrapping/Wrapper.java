@@ -7,11 +7,11 @@ public interface Wrapper<W>
 	
 	
 
-	public abstract class AbstractImplementation<W> implements Wrapper<W>
+	public abstract class Abstract<W> implements Wrapper<W>
 	{
 		private final W wrapped;
 
-		protected AbstractImplementation(final W wrapped)
+		protected Abstract(final W wrapped)
 		{
 			super();
 			this.wrapped = wrapped;

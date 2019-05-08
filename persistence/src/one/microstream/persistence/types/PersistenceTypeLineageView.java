@@ -29,7 +29,7 @@ public interface PersistenceTypeLineageView extends PersistenceTypeLineage
 	{
 		synchronized(typeLineage)
 		{
-			return new PersistenceTypeLineageView.Implementation(
+			return new PersistenceTypeLineageView.Default(
 				typeLineage.typeName()                     ,
 				typeLineage.type()                         ,
 				EqConstHashTable.New(typeLineage.entries()),
@@ -38,7 +38,7 @@ public interface PersistenceTypeLineageView extends PersistenceTypeLineage
 		}
 	}
 		
-	public final class Implementation implements PersistenceTypeLineageView
+	public final class Default implements PersistenceTypeLineageView
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -55,7 +55,7 @@ public interface PersistenceTypeLineageView extends PersistenceTypeLineage
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final String                                            runtimeTypeName  ,
 			final Class<?>                                          runtimeType      ,
 			final EqConstHashTable<Long, PersistenceTypeDefinition> entries          ,

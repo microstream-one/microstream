@@ -91,7 +91,7 @@ public interface LazyReferenceManager
 
 	public static LazyReferenceManager New(final Checker checker)
 	{
-		return New(checker, Implementation.DEFAULT_CHECK_INTERVAL_MS, Implementation.DEFAULT_TIME_BUDGET_NS);
+		return New(checker, Default.DEFAULT_CHECK_INTERVAL_MS, Default.DEFAULT_TIME_BUDGET_NS);
 	}
 
 	public static LazyReferenceManager New(
@@ -113,7 +113,7 @@ public interface LazyReferenceManager
 		final _longReference nanoTimeBudgetProvider
 	)
 	{
-		return new Implementation(checker, milliTimeCheckIntervalProvider, nanoTimeBudgetProvider);
+		return new Default(checker, milliTimeCheckIntervalProvider, nanoTimeBudgetProvider);
 	}
 
 	public final class Clearer implements Checker
@@ -130,7 +130,7 @@ public interface LazyReferenceManager
 	}
 
 
-	public final class Implementation implements LazyReferenceManager
+	public final class Default implements LazyReferenceManager
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -151,9 +151,9 @@ public interface LazyReferenceManager
 		private final    Checker        checker                       ;
 		private final    _longReference millitimeCheckIntervalProvider;
 		private final    _longReference nanoTimeBudgetProvider        ;
-		private final    Entry          head    = new Entry(null)     ;
-		private          Entry          tail    = this.head           ;
-		private          Entry          cursor  = this.head           ; // current "last" entry for checking
+		private final    Entry          head   = new Entry(null)      ;
+		private          Entry          tail   = this.head            ;
+		private          Entry          cursor = this.head            ; // current "last" entry for checking
 		        volatile boolean        running                       ;
 
 
@@ -162,7 +162,7 @@ public interface LazyReferenceManager
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final Checker        checker               ,
 			final _longReference checkIntervalProvider ,
 			final _longReference nanoTimeBudgetProvider
@@ -348,11 +348,11 @@ public interface LazyReferenceManager
 		static final class LazyReferenceCleanupThread extends Thread
 		{
 			// lazy reference for automatic thread termination
-			private final WeakReference<LazyReferenceManager.Implementation> parent               ;
+			private final WeakReference<LazyReferenceManager.Default> parent               ;
 			private final _longReference                                     checkIntervalProvider;
 
 			LazyReferenceCleanupThread(
-				final WeakReference<LazyReferenceManager.Implementation> parent,
+				final WeakReference<LazyReferenceManager.Default> parent,
 				final _longReference                      checkIntervalProvider
 			)
 			{
@@ -365,7 +365,7 @@ public interface LazyReferenceManager
 			@Override
 			public void run()
 			{
-				LazyReferenceManager.Implementation parent;
+				LazyReferenceManager.Default parent;
 				while((parent = this.parent.get()) != null)
 				{
 					// sleep for a dynamically specified milli time until the next check

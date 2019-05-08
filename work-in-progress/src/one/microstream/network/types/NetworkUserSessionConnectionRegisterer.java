@@ -13,11 +13,11 @@ extends NetworkConnectionProcessor
 	public interface Provider<U, S extends NetworkUserSession<U, ?>>
 	extends NetworkConnectionProcessor.Provider<NetworkUserSessionConnectionRegisterer<U, S>>
 	{
-		public class Implementation<U, S extends NetworkUserSession<U, ?>> implements Provider<U, S>
+		public class Default<U, S extends NetworkUserSession<U, ?>> implements Provider<U, S>
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 
 			private final NetworkUserSessionManager<U, S>         sessionManager             ;
 			private final NetworkConnectionValidator.Provider<U>  connectionValidatorProvider;
@@ -26,10 +26,10 @@ extends NetworkConnectionProcessor
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
+			// constructors //
+			/////////////////
 
-			public Implementation(
+			public Default(
 				final NetworkUserSessionManager<U, S>         sessionManager             ,
 				final NetworkConnectionValidator.Provider<U>  connectionValidatorProvider,
 				final NetworkSessionClientGreeter.Provider<S> clientGreeterProvider
@@ -44,7 +44,7 @@ extends NetworkConnectionProcessor
 			@Override
 			public NetworkUserSessionConnectionRegisterer<U, S> provideLogic()
 			{
-				return new NetworkUserSessionConnectionRegisterer.Implementation<>(
+				return new NetworkUserSessionConnectionRegisterer.Default<>(
 					this.sessionManager,
 					this.connectionValidatorProvider.provideValidator(),
 					this.clientGreeterProvider.provideClientGreeter()
@@ -65,7 +65,7 @@ extends NetworkConnectionProcessor
 	}
 
 
-	public class Implementation<U, S extends NetworkUserSession<U, ?>>
+	public class Default<U, S extends NetworkUserSession<U, ?>>
 	implements NetworkUserSessionConnectionRegisterer<U, S>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ extends NetworkConnectionProcessor
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final NetworkUserSessionManager<U, S> sessionManager,
 			final NetworkConnectionValidator<U>   connectionAuthenticator,
 			final NetworkSessionClientGreeter<S>  clientGreeter

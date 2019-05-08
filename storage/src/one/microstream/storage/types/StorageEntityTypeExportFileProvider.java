@@ -11,7 +11,7 @@ public interface StorageEntityTypeExportFileProvider
 
 
 
-	public final class Implementation implements StorageEntityTypeExportFileProvider
+	public final class Default implements StorageEntityTypeExportFileProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -28,12 +28,15 @@ public interface StorageEntityTypeExportFileProvider
 		// constructors //
 		/////////////////
 
-		public Implementation(final File directory, final String fileSuffix)
+		public Default(final File directory, final String fileSuffix)
 		{
 			super();
-			this.directory = notNull(directory);
-			this.fileSuffix = fileSuffix;
-			this.cachedFileSuffix = fileSuffix == null ? "" : '.' + fileSuffix;
+			this.directory        = notNull(directory);
+			this.fileSuffix       = fileSuffix;
+			this.cachedFileSuffix = fileSuffix == null
+				? ""
+				: '.' + fileSuffix
+			;
 		}
 
 

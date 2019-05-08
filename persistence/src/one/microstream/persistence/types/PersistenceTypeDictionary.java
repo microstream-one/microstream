@@ -168,7 +168,7 @@ public interface PersistenceTypeDictionary
 	
 	public static PersistenceTypeDictionary New(final PersistenceTypeLineageCreator typeLineageCreator)
 	{
-		return new PersistenceTypeDictionary.Implementation(
+		return new PersistenceTypeDictionary.Default(
 			notNull(typeLineageCreator)
 		);
 	}
@@ -184,7 +184,7 @@ public interface PersistenceTypeDictionary
 		);
 	}
 
-	public final class Implementation implements PersistenceTypeDictionary
+	public final class Default implements PersistenceTypeDictionary
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -203,7 +203,7 @@ public interface PersistenceTypeDictionary
 		// constructors //
 		/////////////////
 
-		Implementation(final PersistenceTypeLineageCreator typeLineageCreator)
+		Default(final PersistenceTypeLineageCreator typeLineageCreator)
 		{
 			super();
 			this.typeLineageCreator = typeLineageCreator;

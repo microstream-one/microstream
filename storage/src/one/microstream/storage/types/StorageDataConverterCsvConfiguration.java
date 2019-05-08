@@ -1,5 +1,7 @@
 package one.microstream.storage.types;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.X;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
@@ -9,8 +11,6 @@ import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.csv.CSV;
 import one.microstream.util.csv.CsvConfiguration;
-
-import static one.microstream.X.notNull;
 
 public interface StorageDataConverterCsvConfiguration
 {
@@ -52,17 +52,17 @@ public interface StorageDataConverterCsvConfiguration
 	)
 	{
 		final EqConstHashTable<String, String> map = EqConstHashTable.New(
-			DefaultImplementation.transientEntry(byte   .class                                                   ),
-			DefaultImplementation.transientEntry(boolean.class                                                   ),
-			DefaultImplementation.transientEntry(short  .class                                                   ),
-			DefaultImplementation.transientEntry(char   .class                                                   ),
-			DefaultImplementation.transientEntry(int    .class                                                   ),
-			DefaultImplementation.transientEntry(float  .class                                                   ),
-			DefaultImplementation.transientEntry(long   .class                                                   ),
-			DefaultImplementation.transientEntry(double .class                                                   ),
-			DefaultImplementation.mappedEntry   (PersistenceTypeDictionary.Symbols.typeChars()  , typeNameChars  ),
-			DefaultImplementation.mappedEntry   (PersistenceTypeDictionary.Symbols.typeBytes()  , typeNameBinary ),
-			DefaultImplementation.mappedEntry   (PersistenceTypeDictionary.Symbols.typeComplex(), typeNameComplex)
+			Defaults.transientEntry(byte   .class                                                   ),
+			Defaults.transientEntry(boolean.class                                                   ),
+			Defaults.transientEntry(short  .class                                                   ),
+			Defaults.transientEntry(char   .class                                                   ),
+			Defaults.transientEntry(int    .class                                                   ),
+			Defaults.transientEntry(float  .class                                                   ),
+			Defaults.transientEntry(long   .class                                                   ),
+			Defaults.transientEntry(double .class                                                   ),
+			Defaults.mappedEntry   (PersistenceTypeDictionary.Symbols.typeChars()  , typeNameChars  ),
+			Defaults.mappedEntry   (PersistenceTypeDictionary.Symbols.typeBytes()  , typeNameBinary ),
+			Defaults.mappedEntry   (PersistenceTypeDictionary.Symbols.typeComplex(), typeNameComplex)
 		);
 		return map;
 	}
@@ -95,7 +95,7 @@ public interface StorageDataConverterCsvConfiguration
 
 	public static Builder Builder()
 	{
-		return new Builder.Implementation();
+		return new Builder.Default();
 	}
 
 
@@ -114,7 +114,7 @@ public interface StorageDataConverterCsvConfiguration
 		final char                        literalListSeparator
 	)
 	{
-		return new StorageDataConverterCsvConfiguration.Implementation(
+		return new StorageDataConverterCsvConfiguration.Default(
 			notNull(csvConfiguration)            ,
 			notNull(typeNameToCsvTypeNameMapping),
 			notNull(csvTypeNameToTypeNameMapping),
@@ -132,7 +132,7 @@ public interface StorageDataConverterCsvConfiguration
 	
 	
 
-	public final class Implementation implements StorageDataConverterCsvConfiguration
+	public final class Default implements StorageDataConverterCsvConfiguration
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -157,7 +157,7 @@ public interface StorageDataConverterCsvConfiguration
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final CsvConfiguration            csvConfiguration            ,
 			final XGettingMap<String, String> typeNameToCsvTypeNameMapping,
 			final XGettingMap<String, String> csvTypeNameToTypeNameMapping,
@@ -269,10 +269,11 @@ public interface StorageDataConverterCsvConfiguration
 
 	public static StorageDataConverterCsvConfiguration defaultConfiguration()
 	{
-		return DefaultImplementation.SINGLETON;
+		return new StorageDataConverterCsvConfiguration.Defaults();
 	}
 
-	public final class DefaultImplementation implements StorageDataConverterCsvConfiguration
+	// (08.05.2019 TM)TODO: This should rather be an interface "Defaults" to just statically encapsulate default values
+	public final class Defaults implements StorageDataConverterCsvConfiguration
 	{
 		static final String DEFAULT_LITERAL_BOOLEAN_TRUE        = "t"        ;
 		static final String DEFAULT_LITERAL_BOOLEAN_FALSE       = "f"        ;
@@ -300,8 +301,6 @@ public interface StorageDataConverterCsvConfiguration
 //				long.class.getSimpleName()
 			)
 		;
-
-		static final DefaultImplementation SINGLETON = new DefaultImplementation();
 
 		static final KeyValue<String, String> transientEntry(final Class<?> type)
 		{
@@ -446,7 +445,7 @@ public interface StorageDataConverterCsvConfiguration
 
 
 
-		public final class Implementation implements Builder
+		public final class Default implements Builder
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -465,12 +464,13 @@ public interface StorageDataConverterCsvConfiguration
 			char                        literalListTerminator       ;
 			char                        literalListSeparator        ;
 
+			
 
 			///////////////////////////////////////////////////////////////////////////
 			// constructors //
 			/////////////////
 
-			Implementation()
+			Default()
 			{
 				super();
 				this.reset(); // centralized way to initialize and reset values.
@@ -483,7 +483,7 @@ public interface StorageDataConverterCsvConfiguration
 
 			final void validate()
 			{
-				// (26.09.2014 TM)TODO: StorageDataConverterCsvConfiguration.Builder.Implementation.validate()
+				// (26.09.2014 TM)TODO: StorageDataConverterCsvConfiguration.Builder.Default.validate()
 			}
 
 

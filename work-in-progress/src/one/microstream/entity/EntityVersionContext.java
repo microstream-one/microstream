@@ -24,12 +24,12 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 	
 	
 	
-	public static <K> EntityVersionContext.Implementation<K> New()
+	public static <K> EntityVersionContext.Default<K> New()
 	{
-		return new EntityVersionContext.Implementation<>();
+		return new EntityVersionContext.Default<>();
 	}
 	
-	public final class Implementation<K> implements EntityVersionContext<K>
+	public final class Default<K> implements EntityVersionContext<K>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -43,7 +43,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}
@@ -61,7 +61,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		}
 
 		@Override
-		public synchronized EntityVersionContext.Implementation<K> currentVersion(final K key)
+		public synchronized EntityVersionContext.Default<K> currentVersion(final K key)
 		{
 			this.key = key;
 			

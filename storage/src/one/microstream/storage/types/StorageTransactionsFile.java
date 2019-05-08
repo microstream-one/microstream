@@ -77,19 +77,19 @@ public interface StorageTransactionsFile
 	
 	public static StorageTransactionsFile New()
 	{
-		return new StorageTransactionsFile.Implementation(
+		return new StorageTransactionsFile.Default(
 			X.empty()
 		);
 	}
 	
 	public static StorageTransactionsFile New(final XGettingSequence<Entry> entries)
 	{
-		return new StorageTransactionsFile.Implementation(
+		return new StorageTransactionsFile.Default(
 			notNull(entries)
 		);
 	}
 	
-	public final class Implementation implements StorageTransactionsFile
+	public final class Default implements StorageTransactionsFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -103,7 +103,7 @@ public interface StorageTransactionsFile
 		// constructors //
 		/////////////////
 		
-		Implementation(final XGettingSequence<Entry> entries)
+		Default(final XGettingSequence<Entry> entries)
 		{
 			super();
 			this.entries = entries;
@@ -232,7 +232,7 @@ public interface StorageTransactionsFile
 		)
 		{
 			// no constraints to allow inventorizing of any transactions file, potentially inconsistent.
-			return new Entry.Implementation(
+			return new Entry.Default(
 				type            ,
 				timestamp       ,
 				fileLength      ,
@@ -242,7 +242,7 @@ public interface StorageTransactionsFile
 			);
 		}
 		
-		public final class Implementation implements Entry
+		public final class Default implements Entry
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -263,7 +263,7 @@ public interface StorageTransactionsFile
 			// constructors //
 			/////////////////
 			
-			Implementation(
+			Default(
 				final EntryType type            ,
 				final long      timestamp       ,
 				final long      fileLength      ,

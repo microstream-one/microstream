@@ -13,7 +13,7 @@ public interface StorageChannelSynchronizingTask extends StorageChannelTask
 
 
 	public abstract class AbstractCompletingTask<R>
-	extends StorageChannelTask.AbstractImplementation<R>
+	extends StorageChannelTask.Abstract<R>
 	implements StorageChannelSynchronizingTask
 	{
 		///////////////////////////////////////////////////////////////////////////

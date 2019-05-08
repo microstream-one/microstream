@@ -38,7 +38,7 @@ public interface StorageHousekeepingController
 		 * Validates its own default values, but the cost is neglible and it is a
 		 * good defense against accidentally erroneous changes of the default values.
 		 */
-		return new StorageHousekeepingController.Implementation(
+		return new StorageHousekeepingController.Default(
 			Defaults.defaultHousekeepingIntervalMs(),
 			Defaults.defaultHousekeepingTimeBudgetNs()
 		);
@@ -49,7 +49,7 @@ public interface StorageHousekeepingController
 		final long housekeepingTimeBudgetNs
 	)
 	{
-		return new StorageHousekeepingController.Implementation(
+		return new StorageHousekeepingController.Default(
 			XMath.positive(housekeepingIntervalMs)  ,
 			XMath.positive(housekeepingTimeBudgetNs)
 		);
@@ -69,7 +69,7 @@ public interface StorageHousekeepingController
 	}
 
 
-	public final class Implementation implements StorageHousekeepingController
+	public final class Default implements StorageHousekeepingController
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -83,7 +83,7 @@ public interface StorageHousekeepingController
 		// constructors //
 		/////////////////
 
-		Implementation(final long intervalMs, final long nanoTimeBudget)
+		Default(final long intervalMs, final long nanoTimeBudget)
 		{
 			super();
 			this.intervalMs     = intervalMs    ;

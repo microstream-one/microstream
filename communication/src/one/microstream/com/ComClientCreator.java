@@ -8,7 +8,7 @@ import java.net.InetSocketAddress;
 @FunctionalInterface
 public interface ComClientCreator<C>
 {
-	public ComClient.Implementation<C> createClient(
+	public ComClient.Default<C> createClient(
 		InetSocketAddress          hostAddress       ,
 		ComConnectionHandler<C>    connectionHandler ,
 		ComProtocolStringConverter protocolParser    ,
@@ -16,15 +16,15 @@ public interface ComClientCreator<C>
 	);
 	
 	
-	public static <C> ComClientCreator.Implementation<C> New()
+	public static <C> ComClientCreator.Default<C> New()
 	{
-		return new ComClientCreator.Implementation<>();
+		return new ComClientCreator.Default<>();
 	}
 	
-	public final class Implementation<C> implements ComClientCreator<C>
+	public final class Default<C> implements ComClientCreator<C>
 	{
 		@Override
-		public ComClient.Implementation<C> createClient(
+		public ComClient.Default<C> createClient(
 			final InetSocketAddress          hostAddress       ,
 			final ComConnectionHandler<C>    connectionHandler ,
 			final ComProtocolStringConverter protocolParser    ,

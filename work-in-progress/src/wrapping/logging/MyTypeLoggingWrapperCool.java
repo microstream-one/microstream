@@ -6,7 +6,7 @@ import wrapping.MyType;
 import wrapping.generated.WrapperMyType;
 
 public class MyTypeLoggingWrapperCool
-extends Wrapper.AbstractImplementation<MyType> // optional
+extends Wrapper.Abstract<MyType> // optional
 implements WrapperMyType
 {
 	public MyTypeLoggingWrapperCool(final MyType wrapped)

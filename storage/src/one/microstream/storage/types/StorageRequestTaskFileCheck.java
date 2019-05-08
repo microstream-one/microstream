@@ -7,7 +7,7 @@ public interface StorageRequestTaskFileCheck extends StorageRequestTask
 
 
 
-	public final class Implementation
+	public final class Default
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<Void>
 	implements StorageRequestTaskFileCheck, StorageChannelTaskStoreEntities
 	{
@@ -25,7 +25,7 @@ public interface StorageRequestTaskFileCheck extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final long                               timestamp          ,
 			final int                                channelCount       ,
 			final long                               nanoTimeBudgetBound,

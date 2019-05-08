@@ -10,10 +10,10 @@ public interface PersistenceUnreachableTypeHandlerCreator<M>
 	
 	public static <M> PersistenceUnreachableTypeHandlerCreator<M> New()
 	{
-		return new PersistenceUnreachableTypeHandlerCreator.Implementation<>();
+		return new PersistenceUnreachableTypeHandlerCreator.Default<>();
 	}
 	
-	public final class Implementation<M> implements PersistenceUnreachableTypeHandlerCreator<M>
+	public final class Default<M> implements PersistenceUnreachableTypeHandlerCreator<M>
 	{
 		@Override
 		public <T> PersistenceUnreachableTypeHandler<M, T> createUnreachableTypeHandler(

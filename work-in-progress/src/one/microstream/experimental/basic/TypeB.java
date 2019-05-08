@@ -8,7 +8,7 @@ public interface TypeB
 	public String whoAmI();
 
 
-	public class Implementation implements TypeB
+	public class Default implements TypeB
 	{
 		protected Object bValue = null;
 		protected Object protectedBValue = null;
@@ -35,13 +35,13 @@ public interface TypeB
 		@Override
 		public String whoAmI()
 		{
-			System.out.println("executing TypeB.Implementation.whoAmI()");
+			System.out.println("executing TypeB.Default.whoAmI()");
 			return getInternWhoAmI();
 		}
 
 		protected String getInternWhoAmI()
 		{
-			return "I'm TypeB.Implementation";
+			return "I'm TypeB.Default";
 		}
 
 	}

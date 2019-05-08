@@ -12,7 +12,7 @@ public interface InstanceDispatcher
 	
 	
 	
-	public class Implementation implements InstanceDispatcher
+	public class Default implements InstanceDispatcher
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //

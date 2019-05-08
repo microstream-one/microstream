@@ -8,8 +8,8 @@ import one.microstream.exceptions.MissingFoundationPartException;
 public interface NetworkFactoryUserSessionServer<U, S extends NetworkUserSession<U, ?>>
 extends NetworkFactoryServerSessionful<S>
 {
-	public class Implementation<U, S extends NetworkUserSession<U, ?>>
-	extends NetworkFactoryServerSessionful.AbstractImplementation<S>
+	public class Default<U, S extends NetworkUserSession<U, ?>>
+	extends NetworkFactoryServerSessionful.Abstract<S>
 	implements NetworkFactoryUserSessionServer<U, S>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ extends NetworkFactoryServerSessionful<S>
 		////////////
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setMessageListenerMaxThreadCount(
+		public NetworkFactoryUserSessionServer.Default<U, S> setMessageListenerMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -35,7 +35,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setMessageListenerCheckInterval(
+		public NetworkFactoryUserSessionServer.Default<U, S> setMessageListenerCheckInterval(
 			final int checkInterval
 		)
 		{
@@ -44,7 +44,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setMessageProcessorMaxThreadCount(
+		public NetworkFactoryUserSessionServer.Default<U, S> setMessageProcessorMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -53,7 +53,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setMessageProcessorThreadTimeout(
+		public NetworkFactoryUserSessionServer.Default<U, S> setMessageProcessorThreadTimeout(
 			final int timeout
 		)
 		{
@@ -62,7 +62,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setSessionTimeout(
+		public NetworkFactoryUserSessionServer.Default<U, S> setSessionTimeout(
 			final int timeout
 		)
 		{
@@ -71,7 +71,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setSessionCheckInterval(
+		public NetworkFactoryUserSessionServer.Default<U, S> setSessionCheckInterval(
 			final int checkInterval
 		)
 		{
@@ -80,7 +80,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setConnectionSocket(
+		public NetworkFactoryUserSessionServer.Default<U, S> setConnectionSocket(
 			final NetworkConnectionSocket connectionSocket
 		)
 		{
@@ -89,7 +89,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setConnectionListenerMaxThreadCount(
+		public NetworkFactoryUserSessionServer.Default<U, S> setConnectionListenerMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -98,7 +98,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setConnectionProcessorMaxThreadCount(
+		public NetworkFactoryUserSessionServer.Default<U, S> setConnectionProcessorMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -107,7 +107,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setConnectionListenerCheckInterval(
+		public NetworkFactoryUserSessionServer.Default<U, S> setConnectionListenerCheckInterval(
 			final int interval
 		)
 		{
@@ -116,7 +116,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 		@Override
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setConnectionProcessorThreadTimeout(
+		public NetworkFactoryUserSessionServer.Default<U, S> setConnectionProcessorThreadTimeout(
 			final int timeout
 		)
 		{
@@ -125,7 +125,7 @@ extends NetworkFactoryServerSessionful<S>
 		}
 
 
-		public NetworkFactoryUserSessionServer.Implementation<U, S> setSessionProtocol(
+		public NetworkFactoryUserSessionServer.Default<U, S> setSessionProtocol(
 			final NetworkUserSessionProtocol<U, ?, S> userSessionCreator
 		)
 		{
@@ -167,7 +167,7 @@ extends NetworkFactoryServerSessionful<S>
 			final NetworkSessionManager.RegulatorSessionCheckInterval regulatorSessionCheckInterval
 		)
 		{
-			return new NetworkUserSessionManager.Implementation<>(
+			return new NetworkUserSessionManager.Default<>(
 				this.getUserSessionProtocol().provideUserSessionCreator(),
 				regulatorSessionTimeout,
 				regulatorSessionCheckInterval,
@@ -191,7 +191,7 @@ extends NetworkFactoryServerSessionful<S>
 		protected synchronized NetworkUserSessionConnectionRegisterer.Provider<U, S>
 		provideConnectionProcessorProvider()
 		{
-			return new NetworkUserSessionConnectionRegisterer.Provider.Implementation<>(
+			return new NetworkUserSessionConnectionRegisterer.Provider.Default<>(
 				this.getSessionManager(),
 				this.getUserSessionProtocol(),
 				this.getUserSessionProtocol()

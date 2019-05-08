@@ -16,7 +16,7 @@ public interface PersistenceIdSet extends _longIterable, Sized
 
 
 
-	final class Implementation implements PersistenceIdSet, _longCollector
+	final class Default implements PersistenceIdSet, _longCollector
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //

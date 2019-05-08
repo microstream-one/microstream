@@ -30,7 +30,7 @@ public final class LogicSimpleAuthentication
 		{
 			throw new NetworkExceptionConnectionValidation(channel);
 		}
-		return new SimpleAuthenticationInformation.Implementation(
+		return new SimpleAuthenticationInformation.Default(
 			authInfoString.substring(0, userNameEndIndex - 1),
 			authInfoString.substring(userNameEndIndex + 1)
 		);

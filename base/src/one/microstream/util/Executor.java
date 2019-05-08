@@ -183,21 +183,21 @@ public interface Executor<EX extends Throwable>
 		final BufferingCollector<? super EX> collector
 	)
 	{
-		return new Executor.Implementation<>(notNull(exceptionType), notNull(collector));
+		return new Executor.Default<>(notNull(exceptionType), notNull(collector));
 	}
 
 	public static <EX extends Throwable> Executor<EX> New(
-		final Class<EX>             exceptionType,
+		final Class<EX>            exceptionType     ,
 		final Consumer<? super EX> exceptionFinalizer
 	)
 	{
-		return new Executor.Implementation<>(
+		return new Executor.Default<>(
 			notNull(exceptionType),
 			BufferingCollector.New(notNull(exceptionFinalizer))
 		);
 	}
 
-	public final class Implementation<EX extends Throwable> implements Executor<EX>
+	public final class Default<EX extends Throwable> implements Executor<EX>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -212,7 +212,7 @@ public interface Executor<EX extends Throwable>
 		// constructors //
 		/////////////////
 
-		Implementation(final Class<EX> type, final BufferingCollector<? super EX> collector)
+		Default(final Class<EX> type, final BufferingCollector<? super EX> collector)
 		{
 			super();
 			this.type      = type     ;
@@ -226,7 +226,7 @@ public interface Executor<EX extends Throwable>
 		////////////
 
 		@Override
-		public Executor.Implementation<EX> reset()
+		public Executor.Default<EX> reset()
 		{
 			this.collector.resetElements();
 			return this;

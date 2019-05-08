@@ -200,7 +200,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	
 	public static Builder<?> Builder()
 	{
-		return new StorageFileProvider.Builder.Implementation<>();
+		return new StorageFileProvider.Builder.Default<>();
 	}
 	
 	public interface Builder<B extends Builder<?>>
@@ -253,7 +253,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		
 		
 		
-		public class Implementation<B extends Builder.Implementation<?>> implements StorageFileProvider.Builder<B>
+		public class Default<B extends Builder.Default<?>> implements StorageFileProvider.Builder<B>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -280,7 +280,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			// instance fields //
 			////////////////////
 			
-			Implementation()
+			Default()
 			{
 				super();
 			}

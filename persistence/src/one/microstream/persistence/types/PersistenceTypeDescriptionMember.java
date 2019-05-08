@@ -273,7 +273,7 @@ public interface PersistenceTypeDescriptionMember
 	public PersistenceTypeDefinitionMember createDefinitionMember(PersistenceTypeDefinitionMemberCreator creator);
 
 
-	public abstract class AbstractImplementation implements PersistenceTypeDescriptionMember
+	public abstract class Abstract implements PersistenceTypeDescriptionMember
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -294,7 +294,7 @@ public interface PersistenceTypeDescriptionMember
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(
+		protected Abstract(
 			final String   typeName               ,
 			final String   name                   ,
 			final boolean  isReference            ,

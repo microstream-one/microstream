@@ -27,7 +27,7 @@ public class MainSearchStringInFiles
 			new File("C:/BonusExportTest_2017-06-28_16-13-47.581/csv").listFiles(),
 			MainSearchStringInFiles::printOid,
 			
-//			"1000000000056176168" // KeyAhVlUSt$Implementation
+//			"1000000000056176168" // KeyAhVlUSt$Default
 			"1000000000054447655" // EqHashEnum
 		);
 	}

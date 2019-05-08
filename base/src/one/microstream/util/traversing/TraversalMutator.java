@@ -10,19 +10,19 @@ public interface TraversalMutator extends TraversalHandler
 		
 	public static TraversalMutator New(final Function<Object, ?> logic)
 	{
-		return new TraversalMutator.Implementation(logic);
+		return new TraversalMutator.Default(logic);
 	}
 		
 	public static TraversalMutator New(final Predicate<Object> condition, final Function<Object, ?> logic)
 	{
-		return new TraversalMutator.ImplementationConditional(condition, logic);
+		return new TraversalMutator.Conditional(condition, logic);
 	}
 		
-	public final class Implementation implements TraversalMutator
+	public final class Default implements TraversalMutator
 	{
 		private final Function<Object, ?> logic;
 
-		Implementation(final Function<Object, ?> logic)
+		Default(final Function<Object, ?> logic)
 		{
 			super();
 			this.logic = logic;
@@ -36,12 +36,12 @@ public interface TraversalMutator extends TraversalHandler
 		
 	}
 
-	public final class ImplementationConditional implements TraversalMutator
+	public final class Conditional implements TraversalMutator
 	{
 		private final Predicate<Object>   condition;
 		private final Function<Object, ?> logic    ;
 
-		ImplementationConditional(final Predicate<Object> condition, final Function<Object, ?> logic)
+		Conditional(final Predicate<Object> condition, final Function<Object, ?> logic)
 		{
 			super();
 			this.condition = condition;

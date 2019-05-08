@@ -36,7 +36,7 @@ public interface ComProtocol extends ComProtocolData
 		final PersistenceTypeDictionaryView typeDictionary
 	)
 	{
-		return new ComProtocol.Implementation(
+		return new ComProtocol.Default(
 			notNull(name)          ,
 			notNull(version)       ,
 			notNull(byteOrder)     ,
@@ -45,7 +45,7 @@ public interface ComProtocol extends ComProtocolData
 		);
 	}
 	
-	public final class Implementation implements ComProtocol, Immutable
+	public final class Default implements ComProtocol, Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -63,7 +63,7 @@ public interface ComProtocol extends ComProtocolData
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final String                        name          ,
 			final String                        version       ,
 			final ByteOrder                     byteOrder     ,

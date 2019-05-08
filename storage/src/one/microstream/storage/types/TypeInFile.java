@@ -5,13 +5,13 @@ import one.microstream.persistence.types.Unpersistable;
 
 final class TypeInFile implements Unpersistable
 {
-	final StorageEntityType.Implementation type    ;
-	final StorageDataFile.Implementation   file    ;
+	final StorageEntityType.Default type    ;
+	final StorageDataFile.Default   file    ;
 	      TypeInFile                       hashNext;
 
 	TypeInFile(
-		final StorageEntityType.Implementation type    ,
-		final StorageDataFile.Implementation   file    ,
+		final StorageEntityType.Default type    ,
+		final StorageDataFile.Default   file    ,
 		final TypeInFile                       hashNext
 	)
 	{

@@ -24,7 +24,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 
 
 
-	public class Implementation extends NetworkConnectionServer.Implementation implements NetworkSessionServer
+	public class Default extends NetworkConnectionServer.Default implements NetworkSessionServer
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -52,7 +52,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 		// constructors //
 		/////////////////
 
-		public Implementation(final Setup setup)
+		public Default(final Setup setup)
 		{
 			super(setup.superSetup);
 			this.sessionManager             =  notNull(setup.sessionManager                             );
@@ -191,7 +191,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 		}
 
 		@Override
-		public synchronized NetworkSessionServer.Implementation setMessageProcessorThreadCount(
+		public synchronized NetworkSessionServer.Default setMessageProcessorThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -200,7 +200,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 		}
 
 		@Override
-		public synchronized NetworkSessionServer.Implementation setMessageProcessorThreadTimeout(
+		public synchronized NetworkSessionServer.Default setMessageProcessorThreadTimeout(
 			final int timeout
 		)
 		{
@@ -209,7 +209,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 		}
 
 		@Override
-		public synchronized NetworkSessionServer.Implementation setConnectionListenerThreadCount(
+		public synchronized NetworkSessionServer.Default setConnectionListenerThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -218,7 +218,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 		}
 
 		@Override
-		public synchronized NetworkSessionServer.Implementation setConnectionListenerCheckInterval(
+		public synchronized NetworkSessionServer.Default setConnectionListenerCheckInterval(
 			final int checkInterval
 		)
 		{
@@ -227,7 +227,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 		}
 
 		@Override
-		public synchronized NetworkSessionServer.Implementation setConnectionProcessorThreadCount(
+		public synchronized NetworkSessionServer.Default setConnectionProcessorThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -236,7 +236,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 		}
 
 		@Override
-		public synchronized NetworkSessionServer.Implementation setConnectionProcessorThreadTimeout(
+		public synchronized NetworkSessionServer.Default setConnectionProcessorThreadTimeout(
 			final int timeout
 		)
 		{
@@ -245,7 +245,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 		}
 
 		@Override
-		public NetworkConnectionServer.Implementation setSessionTimeout(
+		public NetworkConnectionServer.Default setSessionTimeout(
 			final int timeout
 		)
 		{
@@ -254,7 +254,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 		}
 
 		@Override
-		public NetworkConnectionServer.Implementation setSessionCheckInterval(
+		public NetworkConnectionServer.Default setSessionCheckInterval(
 			final int checkInterval
 		)
 		{
@@ -404,7 +404,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 
 		public static class Setup
 		{
-			final NetworkConnectionServer.Implementation.Setup superSetup                ;
+			final NetworkConnectionServer.Default.Setup superSetup                ;
 			final NetworkSessionManager<?>                     sessionManager            ;
 			final RegulatorMessageListenerThreadCount          regulatorMsgLisThreadCount;
 			final RegulatorMessageListenerCheckInterval        regulatorMsgLisCheckIntrvl;
@@ -414,7 +414,7 @@ public interface NetworkSessionServer extends NetworkConnectionServer
 			final RegulatorSessionTimeout                      regulatorSessionTimeout   ;
 
 			public Setup(
-				final NetworkConnectionServer.Implementation.Setup superSetup                ,
+				final NetworkConnectionServer.Default.Setup superSetup                ,
 				final NetworkSessionManager<?>                     sessionManager            ,
 				final RegulatorMessageListenerThreadCount          regulatorMsgLisThreadCount,
 				final RegulatorMessageListenerCheckInterval        regulatorMsgLisCheckIntrvl,

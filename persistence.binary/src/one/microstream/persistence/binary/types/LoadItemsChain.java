@@ -44,7 +44,7 @@ public interface LoadItemsChain
 		}
 	}
 
-	public abstract class AbstractImplementation implements LoadItemsChain
+	public abstract class Abstract implements LoadItemsChain
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -166,7 +166,7 @@ public interface LoadItemsChain
 
 	}
 
-	public final class Simple extends LoadItemsChain.AbstractImplementation implements PersistenceIdSet
+	public final class Simple extends LoadItemsChain.Abstract implements PersistenceIdSet
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -231,7 +231,7 @@ public interface LoadItemsChain
 
 	}
 
-	public final class ChannelHashing extends LoadItemsChain.AbstractImplementation
+	public final class ChannelHashing extends LoadItemsChain.Abstract
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -294,8 +294,8 @@ public interface LoadItemsChain
 		static final class ChainItemObjectIdSet implements PersistenceIdSet
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 
 			private final Entry first;
 //			private final int   size ;
@@ -303,8 +303,8 @@ public interface LoadItemsChain
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
+			// constructors //
+			/////////////////
 
 			public ChainItemObjectIdSet(final Entry first)
 			{

@@ -7,7 +7,7 @@ public interface StorageRootTypeIdProvider
 
 
 
-	public final class Implementation implements StorageRootTypeIdProvider
+	public final class Default implements StorageRootTypeIdProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -21,7 +21,7 @@ public interface StorageRootTypeIdProvider
 		// constructors //
 		/////////////////
 
-		public Implementation(final long rootTypeId)
+		public Default(final long rootTypeId)
 		{
 			super();
 			this.rootTypeId = rootTypeId;

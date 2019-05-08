@@ -12,7 +12,7 @@ public interface NetworkConnectionSocket
 
 
 
-	public final class Implementation implements NetworkConnectionSocket
+	public final class Default implements NetworkConnectionSocket
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -26,7 +26,7 @@ public interface NetworkConnectionSocket
 		// constructors //
 		/////////////////
 
-		public Implementation(final ServerSocketChannel socketChannel)
+		public Default(final ServerSocketChannel socketChannel)
 		{
 			super();
 			if(!socketChannel.isOpen())

@@ -5,7 +5,7 @@ import one.microstream.persistence.types.PersistenceIdSet;
 
 public interface StorageRequestTaskLoadByTids extends StorageRequestTaskLoad
 {
-	public final class Implementation extends StorageRequestTaskLoad.AbstractImplementation
+	public final class Default extends StorageRequestTaskLoad.Abstract
 	implements StorageRequestTaskLoadByTids, StorageChannelTaskLoadByOids
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ public interface StorageRequestTaskLoadByTids extends StorageRequestTaskLoad
 		// constructors //
 		/////////////////
 
-		Implementation(final long timestamp, final PersistenceIdSet tidList, final int channelCount)
+		Default(final long timestamp, final PersistenceIdSet tidList, final int channelCount)
 		{
 			super(timestamp, channelCount);
 			this.tidList = tidList;

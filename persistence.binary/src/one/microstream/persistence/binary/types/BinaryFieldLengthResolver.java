@@ -63,7 +63,7 @@ public interface BinaryFieldLengthResolver extends PersistenceFieldLengthResolve
 
 
 
-	public final class Implementation implements BinaryFieldLengthResolver
+	public final class Default implements BinaryFieldLengthResolver
 	{
 		// empty default implementation. Something is missing in the new default method concept
 	}

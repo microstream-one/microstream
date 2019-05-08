@@ -755,7 +755,7 @@ public interface MultiMatch<E>
 				}
 			}
 
-			return new MultiMatchResult.Implementation<>(
+			return new MultiMatchResult.Default<>(
 				this.matchCount,
 				X.ConstList(source),
 				X.ConstList(target),

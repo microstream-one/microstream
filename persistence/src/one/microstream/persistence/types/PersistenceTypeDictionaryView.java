@@ -89,14 +89,14 @@ public interface PersistenceTypeDictionaryView extends PersistenceTypeDictionary
 	{
 		synchronized(typeDictionary)
 		{
-			return new PersistenceTypeDictionaryView.Implementation(
+			return new PersistenceTypeDictionaryView.Default(
 				EqConstHashTable.New(typeDictionary.typeLineages(), PersistenceTypeLineageView::New),
 				EqConstHashTable.New(typeDictionary.allTypeDefinitions())
 			);
 		}
 	}
 	
-	public final class Implementation implements PersistenceTypeDictionaryView
+	public final class Default implements PersistenceTypeDictionaryView
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -111,7 +111,7 @@ public interface PersistenceTypeDictionaryView extends PersistenceTypeDictionary
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final EqConstHashTable<String, ? extends PersistenceTypeLineageView> typeLineages     ,
 			final EqConstHashTable<Long  , PersistenceTypeDefinition>            allTypesPerTypeId
 		)

@@ -19,7 +19,7 @@ public interface InvocationLogger
 
 
 
-	public class Implementation implements InvocationLogger
+	public class Default implements InvocationLogger
 	{
 		private static String toLogString(final Object value)
 		{

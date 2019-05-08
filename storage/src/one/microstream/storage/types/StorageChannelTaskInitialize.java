@@ -12,7 +12,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 
 
 
-	public final class Implementation
+	public final class Default
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<StorageInventory[]>
 	implements StorageChannelTaskInitialize
 	{
@@ -38,7 +38,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final long                       timestamp          ,
 			final int                        channelCount       ,
 			final StorageOperationController operationController

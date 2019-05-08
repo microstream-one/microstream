@@ -8,12 +8,12 @@ public interface StorageBackupFile extends StorageNumberedFile
 {
 	public static StorageBackupFile New(final StorageNumberedFile file)
 	{
-		return new StorageBackupFile.Implementation(
+		return new StorageBackupFile.Default(
 			notNull(file)
 		);
 	}
 	
-	public final class Implementation implements StorageBackupFile
+	public final class Default implements StorageBackupFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -27,7 +27,7 @@ public interface StorageBackupFile extends StorageNumberedFile
 		// constructors //
 		/////////////////
 
-		Implementation(final StorageNumberedFile delegate)
+		Default(final StorageNumberedFile delegate)
 		{
 			super();
 			this.delegate = delegate;

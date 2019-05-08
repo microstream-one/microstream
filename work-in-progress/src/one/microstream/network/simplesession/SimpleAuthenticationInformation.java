@@ -8,7 +8,7 @@ public interface SimpleAuthenticationInformation
 
 
 
-	public class Implementation implements SimpleAuthenticationInformation
+	public class Default implements SimpleAuthenticationInformation
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -23,7 +23,7 @@ public interface SimpleAuthenticationInformation
 		// constructors //
 		/////////////////
 
-		public Implementation(final String username, final String password)
+		public Default(final String username, final String password)
 		{
 			super();
 			this.username = username;

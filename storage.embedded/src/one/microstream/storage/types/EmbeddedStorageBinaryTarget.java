@@ -12,7 +12,7 @@ public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 
 
 
-	public final class Implementation implements EmbeddedStorageBinaryTarget
+	public final class Default implements EmbeddedStorageBinaryTarget
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -26,7 +26,7 @@ public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 		// constructors //
 		/////////////////
 
-		public Implementation(final StorageRequestAcceptor requestAcceptor)
+		public Default(final StorageRequestAcceptor requestAcceptor)
 		{
 			super();
 			this.requestAcceptor = requestAcceptor;

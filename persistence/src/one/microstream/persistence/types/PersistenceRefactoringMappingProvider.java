@@ -14,7 +14,7 @@ public interface PersistenceRefactoringMappingProvider
 	
 	public static PersistenceRefactoringMappingProvider NewEmpty()
 	{
-		return new PersistenceRefactoringMappingProvider.Implementation(
+		return new PersistenceRefactoringMappingProvider.Default(
 			X.emptyTable(),
 			X.empty()
 		);
@@ -39,10 +39,10 @@ public interface PersistenceRefactoringMappingProvider
 			}
 		}
 		
-		return new PersistenceRefactoringMappingProvider.Implementation(table, newElements);
+		return new PersistenceRefactoringMappingProvider.Default(table, newElements);
 	}
 	
-	public final class Implementation implements PersistenceRefactoringMappingProvider
+	public final class Default implements PersistenceRefactoringMappingProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -57,7 +57,7 @@ public interface PersistenceRefactoringMappingProvider
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final XGettingTable<String, String> entries    ,
 			final XGettingEnum<String>          newElements
 		)
@@ -77,7 +77,7 @@ public interface PersistenceRefactoringMappingProvider
 		public PersistenceRefactoringMapping provideRefactoringMapping()
 		{
 			// nifty: immure at creation time, not before.
-			return new PersistenceRefactoringMapping.Implementation(
+			return new PersistenceRefactoringMapping.Default(
 				this.entries.immure()    ,
 				this.newElements.immure()
 			);

@@ -93,7 +93,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 				"Nonsensical size limits: min file size = " + fileMinimumSize + ", max file size = " + fileMaximumSize
 			);
 		}
-		return new Implementation(
+		return new Default(
 			XMath.positive    (fileMinimumSize),
 			XMath.positive    (fileMaximumSize),
 			XMath.positiveMax1(minimumUseRatio),
@@ -129,7 +129,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	}
 
 
-	public final class Implementation implements StorageDataFileEvaluator
+	public final class Default implements StorageDataFileEvaluator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -146,7 +146,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final int     fileMinimumSize,
 			final int     fileMaximumSize,
 			final double  minimumUseRatio,

@@ -74,12 +74,12 @@ public interface StorageChannelCountProvider extends _intReference
 	
 	public static StorageChannelCountProvider New(final int channelCount)
 	{
-		return new StorageChannelCountProvider.Implementation(
+		return new StorageChannelCountProvider.Default(
 			validateChannelCount(channelCount)
 		);
 	}
 
-	public final class Implementation implements StorageChannelCountProvider
+	public final class Default implements StorageChannelCountProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -93,7 +93,7 @@ public interface StorageChannelCountProvider extends _intReference
 		// constructors //
 		/////////////////
 
-		Implementation(final int channelCount)
+		Default(final int channelCount)
 		{
 			super();
 			this.channelCount = channelCount;

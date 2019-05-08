@@ -160,7 +160,7 @@ public interface StorageConnection extends PersistenceStoring
 
 
 
-	public final class Implementation implements StorageConnection, Unpersistable
+	public final class Default implements StorageConnection, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -179,7 +179,7 @@ public interface StorageConnection extends PersistenceStoring
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final PersistenceManager<Binary> delegate                 ,
 			final StorageRequestAcceptor     connectionRequestAcceptor
 		)

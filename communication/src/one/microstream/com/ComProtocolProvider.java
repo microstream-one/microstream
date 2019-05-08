@@ -30,7 +30,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		final ComProtocolCreator                    protocolCreator
 	)
 	{
-		return new ComProtocolProvider.Implementation<>(
+		return new ComProtocolProvider.Default<>(
 			notNull(name)                  ,
 			notNull(version)               ,
 			notNull(byteOrder)             ,
@@ -40,7 +40,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		);
 	}
 	
-	public final class Implementation<C> implements ComProtocolProvider<C>, Immutable
+	public final class Default<C> implements ComProtocolProvider<C>, Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -59,7 +59,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final String                                name                  ,
 			final String                                version               ,
 			final ByteOrder                             byteOrder             ,

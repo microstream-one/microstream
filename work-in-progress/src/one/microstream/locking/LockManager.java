@@ -117,12 +117,12 @@ public interface LockManager<O> extends LockOwnerTypeHolder<O>
 	{
 		type.getClass(); // just a simple NPE provocation
 
-		return new Implementation<>(type);
+		return new Default<>(type);
 	}
 
 
 
-	public final class Implementation<O> implements LockManager<O>
+	public final class Default<O> implements LockManager<O>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static fields //
@@ -160,7 +160,7 @@ public interface LockManager<O> extends LockOwnerTypeHolder<O>
 		// constructors //
 		/////////////////
 
-		Implementation(final Class<O> type)
+		Default(final Class<O> type)
 		{
 			super();
 			this.type = type;

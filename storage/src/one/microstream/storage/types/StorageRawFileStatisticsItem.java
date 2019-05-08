@@ -10,7 +10,7 @@ public interface StorageRawFileStatisticsItem
 
 
 
-	public abstract class AbstractImplementation implements StorageRawFileStatisticsItem
+	public abstract class Abstract implements StorageRawFileStatisticsItem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -26,7 +26,7 @@ public interface StorageRawFileStatisticsItem
 		// constructors //
 		/////////////////
 
-		AbstractImplementation(final long fileCount, final long liveDataLength, final long totalDataLength)
+		Abstract(final long fileCount, final long liveDataLength, final long totalDataLength)
 		{
 			super();
 			this.fileCount       = fileCount      ;

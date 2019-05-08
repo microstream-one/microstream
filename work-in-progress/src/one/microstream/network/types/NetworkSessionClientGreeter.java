@@ -15,12 +15,12 @@ public interface NetworkSessionClientGreeter<S extends NetworkSession<?>>
 
 
 
-		public class TrivialImplementation<S extends NetworkSession<?>>
+		public class Trivial<S extends NetworkSession<?>>
 		implements NetworkSessionClientGreeter.Provider<S>
 		{
 			private final NetworkSessionClientGreeter<S> clientGreeter;
 
-			public TrivialImplementation(final NetworkSessionClientGreeter<S> clientGreeter)
+			public Trivial(final NetworkSessionClientGreeter<S> clientGreeter)
 			{
 				super();
 				this.clientGreeter = notNull(clientGreeter);

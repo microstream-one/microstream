@@ -9,7 +9,7 @@ public interface StorageInitialDataFileNumberProvider
 	
 	
 	
-	public final class Implementation implements StorageInitialDataFileNumberProvider
+	public final class Default implements StorageInitialDataFileNumberProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -23,7 +23,7 @@ public interface StorageInitialDataFileNumberProvider
 		// constructors //
 		/////////////////
 		
-		public Implementation(final int constantInitialFileNumber)
+		public Default(final int constantInitialFileNumber)
 		{
 			super();
 			this.constantInitialFileNumber = XMath.notNegative(constantInitialFileNumber);

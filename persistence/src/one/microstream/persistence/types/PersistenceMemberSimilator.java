@@ -10,12 +10,12 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 {
 	public static PersistenceMemberSimilator New(final TypeMappingLookup<Float>  typeSimilarity)
 	{
-		return new PersistenceMemberSimilator.Implementation(
+		return new PersistenceMemberSimilator.Default(
 			notNull(typeSimilarity)
 		);
 	}
 	
-	public final class Implementation implements PersistenceMemberSimilator
+	public final class Default implements PersistenceMemberSimilator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -29,7 +29,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 		// constructors //
 		/////////////////
 
-		Implementation(final TypeMappingLookup<Float>typeSimilarity)
+		Default(final TypeMappingLookup<Float>typeSimilarity)
 		{
 			super();
 			this.typeSimilarity = typeSimilarity;

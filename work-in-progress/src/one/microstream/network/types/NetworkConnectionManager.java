@@ -10,7 +10,7 @@ public interface NetworkConnectionManager extends Suspendable
 	@Override
 	public boolean activate();
 
-	public class Implementation implements NetworkConnectionManager
+	public class Default implements NetworkConnectionManager
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -37,7 +37,7 @@ public interface NetworkConnectionManager extends Suspendable
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final NetworkConnectionSocket                           connectionSocket                        ,
 			final NetworkConnectionListener.Provider                connectionListenerCreator               ,
 			final NetworkConnectionListener.RegulatorThreadCount    threadCountProviderConnectionListeners  ,
@@ -139,7 +139,7 @@ public interface NetworkConnectionManager extends Suspendable
 
 			ListenerThread(final int number)
 			{
-				super("Connection Listener # " + number + " of " + System.identityHashCode(Implementation.this));
+				super("Connection Listener # " + number + " of " + System.identityHashCode(Default.this));
 			}
 
 			@Override
@@ -149,13 +149,13 @@ public interface NetworkConnectionManager extends Suspendable
 				Throwable disposalCause = null; // if logic ends normally, the cause remains null
 				try
 				{
-					(this.logic = Implementation.this.provideConnectionListener()).run();
+					(this.logic = Default.this.provideConnectionListener()).run();
 				}
 				catch(final Throwable t)
 				{
 					disposalCause = t;
 				}
-				Implementation.this.disposeListener(this, disposalCause);
+				Default.this.disposeListener(this, disposalCause);
 			}
 
 			@Override
@@ -185,7 +185,7 @@ public interface NetworkConnectionManager extends Suspendable
 
 			ListenerController(final NetworkConnectionListener.RegulatorCheckInterval sleepController)
 			{
-				super("Connection Listener Controller of " + System.identityHashCode(Implementation.this));
+				super("Connection Listener Controller of " + System.identityHashCode(Default.this));
 				this.sleepController = sleepController; // null already checked by parent instance
 			}
 
@@ -197,7 +197,7 @@ public interface NetworkConnectionManager extends Suspendable
 					while(true)
 					{
 						// execute once immediately after thread creation, then sleep
-						Implementation.this.checkListenerCount();
+						Default.this.checkListenerCount();
 						Thread.sleep(this.sleepController.checkInterval());
 					}
 				}

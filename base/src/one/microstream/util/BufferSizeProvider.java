@@ -19,7 +19,7 @@ public interface BufferSizeProvider
 	
 	public static BufferSizeProvider New(final long bufferSize)
 	{
-		return new BufferSizeProvider.Implementation(
+		return new BufferSizeProvider.Sized(
 			XMath.positive(bufferSize)
 		);
 	}
@@ -32,7 +32,7 @@ public interface BufferSizeProvider
 		}
 	}
 	
-	public final class Implementation implements BufferSizeProviderIncremental, Immutable
+	public final class Sized implements BufferSizeProviderIncremental, Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -46,7 +46,7 @@ public interface BufferSizeProvider
 		// constructors //
 		/////////////////
 
-		Implementation(final long bufferSize)
+		Sized(final long bufferSize)
 		{
 			super();
 			this.bufferSize = bufferSize;

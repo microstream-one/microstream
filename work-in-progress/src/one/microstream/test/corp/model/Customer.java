@@ -18,7 +18,7 @@ public interface Customer extends Contact
 
 
 
-	public abstract class AbstractImplementation implements Customer
+	public abstract class Abstract implements Customer
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -34,7 +34,7 @@ public interface Customer extends Contact
 		// constructors //
 		/////////////////
 
-		public AbstractImplementation()
+		public Abstract()
 		{
 			super();
 			this.orders            = EqHashTable.New();

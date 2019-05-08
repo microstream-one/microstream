@@ -15,17 +15,17 @@ public interface BinaryEntityRawDataIterator
 	
 	public static BinaryEntityRawDataIterator New()
 	{
-		return new BinaryEntityRawDataIterator.Implementation();
+		return new BinaryEntityRawDataIterator.Default();
 	}
 	
-	public final class Implementation implements BinaryEntityRawDataIterator
+	public final class Default implements BinaryEntityRawDataIterator
 	{
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}
@@ -93,14 +93,14 @@ public interface BinaryEntityRawDataIterator
 	
 	public static BinaryEntityRawDataIterator.Provider Provider()
 	{
-		return new BinaryEntityRawDataIterator.Provider.Implementation();
+		return new BinaryEntityRawDataIterator.Provider.Default();
 	}
 	
 	public interface Provider
 	{
 		public BinaryEntityRawDataIterator provideEntityDataIterator();
 		
-		public final class Implementation implements BinaryEntityRawDataIterator.Provider
+		public final class Default implements BinaryEntityRawDataIterator.Provider
 		{
 			@Override
 			public BinaryEntityRawDataIterator provideEntityDataIterator()

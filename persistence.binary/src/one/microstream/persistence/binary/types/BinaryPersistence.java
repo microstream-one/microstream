@@ -99,7 +99,7 @@ public final class BinaryPersistence extends Persistence
 		final PersistenceSizedArrayLengthController controller
 	)
 	{
-		final PersistenceCustomTypeHandlerRegistry.Implementation<Binary> defaultCustomTypeHandlerRegistry =
+		final PersistenceCustomTypeHandlerRegistry.Default<Binary> defaultCustomTypeHandlerRegistry =
 			PersistenceCustomTypeHandlerRegistry.<Binary>New()
 			.registerTypeHandlers(createNativeHandlers(nativeTypeIdLookup, controller))
 			.registerTypeHandlers(defaultCustomHandlers(controller))
@@ -266,7 +266,7 @@ public final class BinaryPersistence extends Persistence
 
 	public static final BinaryFieldLengthResolver createFieldLengthResolver()
 	{
-		return new BinaryFieldLengthResolver.Implementation();
+		return new BinaryFieldLengthResolver.Default();
 	}
 		
 	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)

@@ -17,12 +17,12 @@ public interface NetworkMessageReceiver<S extends NetworkSession<?>>
 
 
 
-		public class TrivialImplementation<S extends NetworkSession<?>, H extends NetworkMessageReceiver<S>>
+		public class Trivial<S extends NetworkSession<?>, H extends NetworkMessageReceiver<S>>
 		implements NetworkMessageReceiver.Provider<S, H>
 		{
 			private final H messageReceiver;
 
-			public TrivialImplementation(final H messageReceiver)
+			public Trivial(final H messageReceiver)
 			{
 				super();
 				this.messageReceiver = notNull(messageReceiver);

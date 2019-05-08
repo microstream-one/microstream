@@ -95,10 +95,10 @@ public interface StorageFileEntityDataIterator
 	
 	public static StorageFileEntityDataIterator New()
 	{
-		return new StorageFileEntityDataIterator.Implementation();
+		return new StorageFileEntityDataIterator.Default();
 	}
 	
-	public final class Implementation implements StorageFileEntityDataIterator.Internal
+	public final class Default implements StorageFileEntityDataIterator.Internal
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -112,7 +112,7 @@ public interface StorageFileEntityDataIterator
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}

@@ -335,7 +335,7 @@ public interface StorageFileWriter
 		}
 	}
 
-	public final class Implementation implements StorageFileWriter
+	public final class Default implements StorageFileWriter
 	{
 		// since default methods, interfaces should be directly instantiable :(
 	}
@@ -352,12 +352,12 @@ public interface StorageFileWriter
 			return this.provideWriter();
 		}
 
-		public final class Implementation implements StorageFileWriter.Provider
+		public final class Default implements StorageFileWriter.Provider
 		{
 			@Override
 			public StorageFileWriter provideWriter()
 			{
-				return new StorageFileWriter.Implementation();
+				return new StorageFileWriter.Default();
 			}
 		}
 

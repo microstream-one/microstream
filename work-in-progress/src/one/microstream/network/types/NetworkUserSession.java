@@ -21,8 +21,8 @@ public interface NetworkUserSession<U, M> extends NetworkSession<M>
 
 
 
-	public abstract class AbstractImplementation<U, M, SELF extends NetworkUserSession<U, M>>
-	extends NetworkSession.AbstractImplementation<M> implements NetworkUserSession<U, M>
+	public abstract class Abstract<U, M, SELF extends NetworkUserSession<U, M>>
+	extends NetworkSession.Abstract<M> implements NetworkUserSession<U, M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -38,7 +38,7 @@ public interface NetworkUserSession<U, M> extends NetworkSession<M>
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(
+		protected Abstract(
 			final NetworkUserSessionManager<U, SELF> sessionManager,
 			final U user,
 			final SocketChannel connection

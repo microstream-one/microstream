@@ -661,7 +661,7 @@ public interface StorageTransactionsFileAnalysis
 	
 	public final class EntryAggregator implements EntryIterator
 	{
-		private final EqHashTable<Long, StorageTransactionFileEntry.Implementation> files = EqHashTable.New();
+		private final EqHashTable<Long, StorageTransactionFileEntry.Default> files = EqHashTable.New();
 
 		private final int  hashIndex;
 
@@ -754,7 +754,7 @@ public interface StorageTransactionsFileAnalysis
 			}
 			this.files.add(
 				this.currentFileNumber,
-				new StorageTransactionFileEntry.Implementation(this.currentFileNumber, this.currentStoreLength)
+				new StorageTransactionFileEntry.Default(this.currentFileNumber, this.currentStoreLength)
 			);
 		}
 
@@ -868,7 +868,7 @@ public interface StorageTransactionsFileAnalysis
 			}
 
 			final long number = Logic.getFileNumber(address);
-			final StorageTransactionFileEntry.Implementation file = this.files.get(number);
+			final StorageTransactionFileEntry.Default file = this.files.get(number);
 			if(file == null)
 			{
 				// (03.09.2014 TM)EXCP: proper exception
@@ -884,7 +884,7 @@ public interface StorageTransactionsFileAnalysis
 			// register latest file
 			this.registerCurrentFile();
 
-			return new StorageTransactionsFileAnalysis.Implementation(
+			return new StorageTransactionsFileAnalysis.Default(
 				transactionsFile                 ,
 				this.files                       ,
 				this.lastConsistentStoreLength   ,
@@ -898,10 +898,12 @@ public interface StorageTransactionsFileAnalysis
 
 
 
-
-
-	public final class Implementation implements StorageTransactionsFileAnalysis
+	public final class Default implements StorageTransactionsFileAnalysis
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		private final StorageInventoryFile                                       transactionsFile                    ;
 		private final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries             ;
 		private final long                                                       headFileLastConsistentStoreLength   ;
@@ -910,8 +912,12 @@ public interface StorageTransactionsFileAnalysis
 		private final long                                                       headFileLatestTimestamp             ;
 
 
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
-		Implementation(
+		Default(
 			final StorageInventoryFile                                       transactionsFile                    ,
 			final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries             ,
 			final long                                                       headFileLastConsistentStoreLength   ,

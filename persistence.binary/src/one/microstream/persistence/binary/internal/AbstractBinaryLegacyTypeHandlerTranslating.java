@@ -16,7 +16,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
 public abstract class AbstractBinaryLegacyTypeHandlerTranslating<T>
-extends PersistenceLegacyTypeHandler.AbstractImplementation<Binary, T>
+extends PersistenceLegacyTypeHandler.Abstract<Binary, T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //

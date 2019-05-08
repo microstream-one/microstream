@@ -52,9 +52,9 @@ public final class LogicSimpleNetwork
 		return SINGLETON_PROTOCOL;
 	}
 
-	public static final NetworkFactoryUserSessionServer.Implementation<SimpleSessionUser, SimpleSession> serverFactory()
+	public static final NetworkFactoryUserSessionServer.Default<SimpleSessionUser, SimpleSession> serverFactory()
 	{
-		return new NetworkFactoryUserSessionServer.Implementation<>();
+		return new NetworkFactoryUserSessionServer.Default<>();
 	}
 
 	// should be pretty well optimizable by the VM if it can be certain there are only 2 implementations

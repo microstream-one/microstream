@@ -64,7 +64,7 @@ public class MainTestThreadedPool
 
 	public static void main(final String[] args)
 	{
-		final Pool.Configuration<String> config = new Pool.Configuration.Implementation<>(
+		final Pool.Configuration<String> config = new Pool.Configuration.Default<>(
 			10,
 			1000,
 			MainTestThreadedPool::createString,

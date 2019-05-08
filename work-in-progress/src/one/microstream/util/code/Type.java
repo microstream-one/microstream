@@ -12,16 +12,15 @@ public interface Type
 	
 	
 
-	public final class Implementation implements Type
+	public final class Default implements Type
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		private final String typeName;
+		private final String typeName ;
 		private final String className;
-
-		private final String fullName;
+		private final String fullName ;
 
 
 
@@ -29,7 +28,7 @@ public interface Type
 		// constructors //
 		/////////////////
 
-		Implementation(final String typeName, final String className)
+		Default(final String typeName, final String className)
 		{
 			super();
 			this.typeName = typeName;

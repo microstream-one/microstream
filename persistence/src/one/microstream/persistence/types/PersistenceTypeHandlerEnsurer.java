@@ -18,12 +18,12 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 		throws PersistenceExceptionTypeNotPersistable;
 	
 	
-	public static <M> PersistenceTypeHandlerEnsurer.Implementation<M> New(
+	public static <M> PersistenceTypeHandlerEnsurer.Default<M> New(
 		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry,
 		final PersistenceTypeHandlerCreator<M>        typeHandlerCreator
 	)
 	{
-		return new PersistenceTypeHandlerEnsurer.Implementation<>(
+		return new PersistenceTypeHandlerEnsurer.Default<>(
 			notNull(customTypeHandlerRegistry),
 			notNull(typeHandlerCreator)
 		);
@@ -31,7 +31,7 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 	
 	
 
-	public class Implementation<M> implements PersistenceTypeHandlerEnsurer<M>
+	public class Default<M> implements PersistenceTypeHandlerEnsurer<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -46,7 +46,7 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry,
 			final PersistenceTypeHandlerCreator<M>        typeHandlerCreator
 		)

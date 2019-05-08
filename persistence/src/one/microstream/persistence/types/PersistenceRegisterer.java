@@ -13,7 +13,7 @@ public interface PersistenceRegisterer extends PersistenceFunction
 
 
 
-	public class Implementation implements PersistenceRegisterer
+	public class Default implements PersistenceRegisterer
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -31,7 +31,7 @@ public interface PersistenceRegisterer extends PersistenceFunction
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final PersistenceObjectManager             objectManager,
 			final PersistenceTypeHandlerManager<?> typeManager
 		)
@@ -43,7 +43,7 @@ public interface PersistenceRegisterer extends PersistenceFunction
 			this.oidsModulo         = 0                     ;
 		}
 
-		public Implementation(
+		public Default(
 			final PersistenceObjectManager             objectManager,
 			final PersistenceTypeHandlerManager<?> typeManager,
 			final int                              hashRange
@@ -179,7 +179,7 @@ public interface PersistenceRegisterer extends PersistenceFunction
 				final PersistenceTypeHandlerManager<?> typeManager
 			)
 			{
-				return new PersistenceRegisterer.Implementation(objectManager, typeManager);
+				return new PersistenceRegisterer.Default(objectManager, typeManager);
 
 			}
 		}

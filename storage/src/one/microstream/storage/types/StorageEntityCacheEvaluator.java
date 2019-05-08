@@ -71,13 +71,13 @@ public interface StorageEntityCacheEvaluator
 		final long threshold
 	)
 	{
-		return new StorageEntityCacheEvaluator.Implementation(
+		return new StorageEntityCacheEvaluator.Default(
 			positive(timeoutMs),
 			positive(threshold)
 		);
 	}
 
-	public final class Implementation implements StorageEntityCacheEvaluator
+	public final class Default implements StorageEntityCacheEvaluator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -120,7 +120,7 @@ public interface StorageEntityCacheEvaluator
 		// constructors //
 		/////////////////
 
-		Implementation(final long timeoutMs, final long threshold)
+		Default(final long timeoutMs, final long threshold)
 		{
 			super();
 			this.timeoutMs = timeoutMs;

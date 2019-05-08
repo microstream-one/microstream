@@ -62,7 +62,7 @@ public interface PersistenceIdStrategy extends PersistenceObjectIdStrategy, Pers
 	
 	public static PersistenceIdStrategy NewFromFiles(final File objectIdFile, final File typeIdFile)
 	{
-		return new PersistenceIdStrategy.Implementation(
+		return new PersistenceIdStrategy.Default(
 			FileObjectIdStrategy.New(objectIdFile),
 			FileTypeIdStrategy.New(typeIdFile)
 		);
@@ -73,13 +73,13 @@ public interface PersistenceIdStrategy extends PersistenceObjectIdStrategy, Pers
 		final PersistenceTypeIdStrategy   typeIdStrategy
 	)
 	{
-		return new PersistenceIdStrategy.Implementation(
+		return new PersistenceIdStrategy.Default(
 			notNull(objectIdStrategy),
 			notNull(typeIdStrategy)
 		);
 	}
 	
-	public class Implementation implements PersistenceIdStrategy
+	public class Default implements PersistenceIdStrategy
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -94,7 +94,7 @@ public interface PersistenceIdStrategy extends PersistenceObjectIdStrategy, Pers
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final PersistenceObjectIdStrategy objectIdStrategy,
 			final PersistenceTypeIdStrategy   typeIdStrategy
 		)

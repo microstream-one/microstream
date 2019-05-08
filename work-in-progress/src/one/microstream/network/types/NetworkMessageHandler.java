@@ -21,7 +21,7 @@ public interface NetworkMessageHandler<S extends NetworkSession<?>>
 		public void disposeMessageHandler(NetworkMessageHandler<S> messageHandler, Throwable cause);
 
 
-		public class Implementation<S extends NetworkSession<?>> implements NetworkMessageHandler.Provider<S>
+		public class Default<S extends NetworkSession<?>> implements NetworkMessageHandler.Provider<S>
 		{
 
 			@Override
@@ -31,7 +31,7 @@ public interface NetworkMessageHandler<S extends NetworkSession<?>>
 				final NetworkMessageProcessor.RegulatorThreadTimeout threadTimeoutProvider
 			)
 			{
-				return new NetworkMessageHandler.Implementation<>(
+				return new NetworkMessageHandler.Default<>(
 					messageProcessorProvider,
 					threadCountController   ,
 					threadTimeoutProvider
@@ -49,7 +49,7 @@ public interface NetworkMessageHandler<S extends NetworkSession<?>>
 	}
 
 
-	public class Implementation<S extends NetworkSession<?>> implements NetworkMessageHandler<S>
+	public class Default<S extends NetworkSession<?>> implements NetworkMessageHandler<S>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -63,7 +63,7 @@ public interface NetworkMessageHandler<S extends NetworkSession<?>>
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final NetworkMessageProcessor.Provider<S, ?>          messageProcessorProvider,
 			final NetworkMessageProcessor.RegulatorThreadCount   threadCountController   ,
 			final NetworkMessageProcessor.RegulatorThreadTimeout threadTimeoutProvider

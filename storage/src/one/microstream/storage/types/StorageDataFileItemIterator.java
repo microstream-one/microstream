@@ -129,10 +129,10 @@ public interface StorageDataFileItemIterator
 		final ItemProcessor  entityProcessor
 	)
 	{
-		return new Implementation(bufferProvider, entityProcessor);
+		return new Default(bufferProvider, entityProcessor);
 	}
 
-	public final class Implementation implements StorageDataFileItemIterator
+	public final class Default implements StorageDataFileItemIterator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -147,7 +147,7 @@ public interface StorageDataFileItemIterator
 		// constructors //
 		/////////////////
 
-		Implementation(final BufferProvider bufferProvider, final ItemProcessor itemProcessor)
+		Default(final BufferProvider bufferProvider, final ItemProcessor itemProcessor)
 		{
 			super();
 			this.bufferProvider = bufferProvider;
@@ -158,7 +158,7 @@ public interface StorageDataFileItemIterator
 
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
-		//////////////////
+		///////////////////
 
 		public static <P extends ItemProcessor> P processInputFile(
 			final FileChannel fileChannel  ,

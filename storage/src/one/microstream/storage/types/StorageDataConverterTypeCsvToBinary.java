@@ -65,7 +65,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		final int                                     bufferSize
 	)
 	{
-		return new StorageDataConverterTypeCsvToBinary.Implementation(
+		return new StorageDataConverterTypeCsvToBinary.Default(
 			notNull(configuration) ,
 			notNull(typeDictionary),
 			notNull(fileProvider)  ,
@@ -74,7 +74,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 	}
 
 
-	public final class Implementation
+	public final class Default
 	implements
 	StorageDataConverterTypeCsvToBinary<StorageFile>,
 	CsvSegmentsParser.Provider<_charArrayRange>,
@@ -154,7 +154,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final StorageDataConverterCsvConfiguration    configuration ,
 			final PersistenceTypeDictionary               typeDictionary,
 			final StorageEntityTypeConversionFileProvider fileProvider  ,
@@ -1460,7 +1460,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				final char   terminator
 			)
 			{
-				return Implementation.this.parseComplexListSingleField(data, offset, bound, separator, terminator, this.valueHandler);
+				return Default.this.parseComplexListSingleField(data, offset, bound, separator, terminator, this.valueHandler);
 			}
 		}
 
@@ -1483,7 +1483,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				final char   terminator
 			)
 			{
-				return Implementation.this.parseComplexListMulti(data, offset, bound, separator, terminator, this.valueHandlers);
+				return Default.this.parseComplexListMulti(data, offset, bound, separator, terminator, this.valueHandlers);
 			}
 		}
 

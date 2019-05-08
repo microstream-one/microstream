@@ -8,10 +8,10 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 	
 	public static StorageBackupItemQueue New()
 	{
-		return new StorageBackupItemQueue.Implementation();
+		return new StorageBackupItemQueue.Default();
 	}
 	
-	public final class Implementation implements StorageBackupItemQueue
+	public final class Default implements StorageBackupItemQueue
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -26,7 +26,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}

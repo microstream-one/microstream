@@ -10,7 +10,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 
 
 
-	public class Implementation extends NetworkFactoryServer.AbstractImplementation
+	public class Default extends NetworkFactoryServer.Abstract
 	implements NetworkFactoryServerSessionless
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 		////////////
 
 		@Override
-		public NetworkFactoryServerSessionless.Implementation setConnectionProcessorProvider(
+		public NetworkFactoryServerSessionless.Default setConnectionProcessorProvider(
 			final NetworkConnectionProcessor.Provider<?> connectionProcessorProvider
 		)
 		{
@@ -48,7 +48,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 		}
 
 		@Override
-		public NetworkFactoryServerSessionless.Implementation setConnectionSocket(
+		public NetworkFactoryServerSessionless.Default setConnectionSocket(
 			final NetworkConnectionSocket connectionSocket
 		)
 		{
@@ -56,7 +56,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 			return this;
 		}
 
-		public NetworkFactoryServerSessionless.Implementation setConnectionProcessor(
+		public NetworkFactoryServerSessionless.Default setConnectionProcessor(
 			final NetworkConnectionProcessor connectionProcessor
 		)
 		{
@@ -65,7 +65,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 		}
 
 		@Override
-		public NetworkFactoryServerSessionless.Implementation setConnectionListenerMaxThreadCount(
+		public NetworkFactoryServerSessionless.Default setConnectionListenerMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -74,7 +74,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 		}
 
 		@Override
-		public NetworkFactoryServerSessionless.Implementation setConnectionProcessorMaxThreadCount(
+		public NetworkFactoryServerSessionless.Default setConnectionProcessorMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -83,7 +83,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 		}
 
 		@Override
-		public NetworkFactoryServerSessionless.Implementation setConnectionListenerCheckInterval(
+		public NetworkFactoryServerSessionless.Default setConnectionListenerCheckInterval(
 			final int interval
 		)
 		{
@@ -92,7 +92,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 		}
 
 		@Override
-		public NetworkFactoryServerSessionless.Implementation setConnectionProcessorThreadTimeout(
+		public NetworkFactoryServerSessionless.Default setConnectionProcessorThreadTimeout(
 			final int timeout
 		)
 		{
@@ -117,7 +117,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 		@Override
 		protected synchronized NetworkConnectionProcessor.Provider<?> provideConnectionProcessorProvider()
 		{
-			return new NetworkConnectionProcessor.Provider.TrivialImplementation(
+			return new NetworkConnectionProcessor.Provider.Trivial(
 				this.getConnectionProcessor()
 			);
 		}
@@ -125,7 +125,7 @@ public interface NetworkFactoryServerSessionless extends NetworkFactoryServer
 		@Override
 		public synchronized NetworkConnectionServer createServer()
 		{
-			final NetworkConnectionServer newServer = new NetworkConnectionServer.Implementation(
+			final NetworkConnectionServer newServer = new NetworkConnectionServer.Default(
 				this.createConnectionServerSetup()
 			);
 			return newServer;

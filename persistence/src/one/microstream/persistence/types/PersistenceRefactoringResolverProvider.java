@@ -107,7 +107,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		public PersistenceRefactoringResolver provideResolver()
 		{
 			// nifty: immure at creation time, not before.
-			return new PersistenceRefactoringResolver.Implementation(
+			return new PersistenceRefactoringResolver.Default(
 				this.refactoringMappingProvider.provideRefactoringMapping(),
 				this.sourceTypeIdentifierBuilders  .immure(),
 				this.sourceMemberIdentifierBuilders.immure(),

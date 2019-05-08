@@ -57,7 +57,7 @@ public class MainTestStorageExport extends TestStorage
 //			new File("C:/Files/export/csv/java.math.BigInteger.csv"),
 //			new File("C:/Files/export/csv/java.lang.String.csv"),
 //			new File("C:/Files/export/csv/one.microstream.collections.HashTable.csv"),
-//			new File("C:/Files/export/csv/one.microstream.persistence.types.PersistenceRoots$Implementation.csv")
+//			new File("C:/Files/export/csv/one.microstream.persistence.types.PersistenceRoots$Default.csv")
 //		);
 
 		exit();

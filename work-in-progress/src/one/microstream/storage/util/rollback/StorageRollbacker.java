@@ -76,7 +76,7 @@ class StorageRollbacker
 		
 		for(final KeyValue<Long, File> e : inputSourceFiles)
 		{
-			sourceFiles.add(e.key(), new SourceFile.Implementation(e.key(), e.value()));
+			sourceFiles.add(e.key(), new SourceFile.Default(e.key(), e.value()));
 		}
 		
 		return sourceFiles;
@@ -689,9 +689,9 @@ class StorageRollbacker
 		public FileChannel fileChannel();
 		
 		
-		public final class Implementation extends AbstractFile implements SourceFile
+		public final class Default extends AbstractFile implements SourceFile
 		{
-			Implementation(final Long number, final File file)
+			Default(final Long number, final File file)
 			{
 				super(number, file);
 			}

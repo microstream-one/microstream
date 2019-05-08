@@ -21,7 +21,7 @@ public interface StorageIdAnalysis
 
 	public static StorageIdAnalysis Empty()
 	{
-		return new StorageIdAnalysis.Implementation(X.emptyTable(), null);
+		return new StorageIdAnalysis.Default(X.emptyTable(), null);
 	}
 
 	public static StorageIdAnalysis New(final Long highestTid, final Long highestOid, final Long highestCid)
@@ -56,7 +56,7 @@ public interface StorageIdAnalysis
 		final XGettingEnum<Long>                               occuringTypeIds
 	)
 	{
-		return new StorageIdAnalysis.Implementation(
+		return new StorageIdAnalysis.Default(
 			ConstHashTable.New(notNull(values)),
 			occuringTypeIds == null
 				? X.empty()
@@ -64,14 +64,14 @@ public interface StorageIdAnalysis
 		);
 	}
 
-	public final class Implementation implements StorageIdAnalysis
+	public final class Default implements StorageIdAnalysis
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
 		final XGettingTable<Persistence.IdType, Long> highestIdsPerType;
-		final XGettingEnum<Long>                  occuringTypeIds  ;
+		final XGettingEnum<Long>                      occuringTypeIds  ;
 		
 		
 		
@@ -79,7 +79,7 @@ public interface StorageIdAnalysis
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final XGettingTable<IdType, Long> highestIdsPerType,
 			final XGettingEnum<Long>          occuringTypeIds
 		)

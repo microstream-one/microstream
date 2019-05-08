@@ -26,17 +26,17 @@ public interface Field
 
 
 
-	public class Implementation implements Field
+	public class Default implements Field
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final String     typeName               ;
-		private final String     fieldName              ;
-		private final Visibility visibility             ;
-		private final FieldType  type                   ;
-		private final String     directInitializer      ;
+		private final String     typeName         ;
+		private final String     fieldName        ;
+		private final Visibility visibility       ;
+		private final FieldType  type             ;
+		private final String     directInitializer;
 		
 		private transient String  upperFieldName;
 		private transient boolean hasBooleanType;
@@ -47,7 +47,7 @@ public interface Field
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final String     typeName         ,
 			final String     fieldName        ,
 			final Visibility visibility       ,
@@ -56,11 +56,11 @@ public interface Field
 		)
 		{
 			super();
-			this.typeName                = typeName         ;
-			this.visibility              = visibility       ;
-			this.directInitializer       = directInitializer;
-			this.type                    = type             ;
-			this.fieldName               = fieldName != null
+			this.typeName          = typeName         ;
+			this.visibility        = visibility       ;
+			this.directInitializer = directInitializer;
+			this.type              = type             ;
+			this.fieldName         = fieldName != null
 				? fieldName
 				: Code.toLowerCaseFirstLetter(typeName)
 			;
@@ -248,7 +248,7 @@ public interface Field
 
 	}
 
-	public final class FinalField extends Field.Implementation
+	public final class FinalField extends Field.Default
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //

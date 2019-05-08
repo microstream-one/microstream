@@ -361,8 +361,8 @@ public class Matrix<T>
 		private class MatrixIterator implements Iterator<T>
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 
 			private       T[]            currentArray   ;
 			private       int            currentRowIndex = MatrixIterable.this.firstRow - 1;

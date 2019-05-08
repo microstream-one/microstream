@@ -15,16 +15,16 @@ public interface ComConnectionAcceptorCreator<C>
 	
 	public static <C> ComConnectionAcceptorCreator<C> New()
 	{
-		return new ComConnectionAcceptorCreator.Implementation<>();
+		return new ComConnectionAcceptorCreator.Default<>();
 	}
 	
-	public final class Implementation<C> implements ComConnectionAcceptorCreator<C>
+	public final class Default<C> implements ComConnectionAcceptorCreator<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}

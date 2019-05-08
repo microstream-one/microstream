@@ -20,7 +20,7 @@ public interface TypeA1 extends TypeA
 	 * Body of TypeA1 simple extends the body of TypeA parallel to the extending the interface
 	 * So the Body classes inherit alongside the interfaces
 	 */
-	public class Implementation extends TypeA.Implementation implements TypeA1
+	public class Default extends TypeA.Default implements TypeA1
 	{
 		protected Object a1Value = null;
 

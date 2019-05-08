@@ -47,13 +47,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	/**
 	 * Default implementation that stores referenced instances only if required (i.e. if they have no OID assigned yet,
 	 * therefore have not been stored yet, therefore require to be stored). It can be seen as a "lazy" or "on demand"
-	 * storer as opposed to{@link ImplementationEager}.<br>
+	 * storer as opposed to{@link Eager}.<br>
 	 * For a more differentiated solution between the two simple, but extreme strategies,
 	 * see {@link PersistenceEagerStoringFieldEvaluator}.
 	 * 
 	 * @author TM
 	 */
-	public class Implementation implements BinaryStorer, PersistenceStoreHandler, PersistenceAcceptor
+	public class Default implements BinaryStorer, PersistenceStoreHandler, PersistenceAcceptor
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -102,7 +102,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final PersistenceObjectManager              objectManager     ,
 			final PersistenceObjectRetriever            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
@@ -506,19 +506,19 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	}
 	
 	/**
-	 * Identical to {@link Implementation}, but stores every referenced instance eagerly.<br>
+	 * Identical to {@link Default}, but stores every referenced instance eagerly.<br>
 	 * For a more differentiated solution between the two simple, but extreme strategies,
 	 * see {@link PersistenceEagerStoringFieldEvaluator}.<br>
 	 * 
 	 * @author TM
 	 */
-	public final class ImplementationEager extends Implementation
+	public final class Eager extends Default
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		ImplementationEager(
+		Eager(
 			final PersistenceObjectManager              objectManager     ,
 			final PersistenceObjectRetriever            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
@@ -582,7 +582,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		final boolean       switchByteOrder
 	)
 	{
-		return new BinaryStorer.Creator.Implementation(
+		return new BinaryStorer.Creator.Default(
 			notNull(channelCountProvider),
 			        switchByteOrder
 		);
@@ -622,11 +622,11 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		
 		
-		public abstract class AbstractImplementation implements BinaryStorer.Creator
+		public abstract class Abstract implements BinaryStorer.Creator
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 
 
 			private final _intReference channelCountProvider;
@@ -635,10 +635,10 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
+			// constructors //
+			/////////////////
 
-			protected AbstractImplementation(
+			protected Abstract(
 				final _intReference channelCountProvider,
 				final boolean       switchByteOrder
 			)
@@ -666,9 +666,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 		}
 		
-		public final class Implementation extends AbstractImplementation
+		public final class Default extends Abstract
 		{
-			Implementation(
+			Default(
 				final _intReference channelCountProvider,
 				final boolean       switchByteOrder
 			)
@@ -685,7 +685,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)
 			{
-				return new BinaryStorer.Implementation(
+				return new BinaryStorer.Default(
 					objectManager         ,
 					objectRetriever       ,
 					typeManager           ,
@@ -704,7 +704,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)
 			{
-				return new BinaryStorer.ImplementationEager(
+				return new BinaryStorer.Eager(
 					objectManager         ,
 					objectRetriever       ,
 					typeManager           ,

@@ -19,12 +19,12 @@ public interface StorageBackupThreadProvider
 	
 	public static StorageBackupThreadProvider New()
 	{
-		return new StorageBackupThreadProvider.Implementation();
+		return new StorageBackupThreadProvider.Default();
 	}
 
-	public final class Implementation implements StorageBackupThreadProvider
+	public final class Default implements StorageBackupThreadProvider
 	{
-		Implementation()
+		Default()
 		{
 			super();
 		}

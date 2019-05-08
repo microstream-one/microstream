@@ -95,17 +95,17 @@ public abstract class Code
 	
 	public static final Field Field(final String typeName, final String fieldName)
 	{
-		return new Field.Implementation(typeName, fieldName, Code.DEFAULT, FieldType.MUTABLE_WITH_SETTER, null);
+		return new Field.Default(typeName, fieldName, Code.DEFAULT, FieldType.MUTABLE_WITH_SETTER, null);
 	}
 	
 	public static final Field Field(final String typeName, final String fieldName, final FieldType type)
 	{
-		return new Field.Implementation(typeName, fieldName, Code.DEFAULT, type, null);
+		return new Field.Default(typeName, fieldName, Code.DEFAULT, type, null);
 	}
 	
 	public static final Field Field(final String typeName, final String fieldName, final FieldType type, final String initializer)
 	{
-		return new Field.Implementation(typeName, fieldName, Code.DEFAULT, type, initializer);
+		return new Field.Default(typeName, fieldName, Code.DEFAULT, type, initializer);
 	}
 	
 	

@@ -8,7 +8,7 @@ public interface StorageExceptionHandler
 	
 	
 	
-	public final class Implementation implements StorageExceptionHandler
+	public final class Default implements StorageExceptionHandler
 	{
 		@Override
 		public void handleException(final Throwable exception, final StorageChannel channel)

@@ -50,7 +50,7 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 		
 		
 		
-		public final class Implementation<E extends Entity<E>> implements DataConflict<E>
+		public final class Default<E extends Entity<E>> implements DataConflict<E>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -66,7 +66,7 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 			// constructors //
 			/////////////////
 			
-			Implementation(
+			Default(
 				final Entity<E> localOriginalData,
 				final Entity<E> localModifiedData,
 				final Entity<E> currentData
@@ -104,10 +104,10 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 	
 	public static EntityTransaction New()
 	{
-		return new EntityTransaction.Implementation();
+		return new EntityTransaction.Default();
 	}
 	
-	public final class Implementation implements EntityTransaction
+	public final class Default implements EntityTransaction
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -272,7 +272,7 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 				{
 					conflicts.add(
 						localOriginalData.$entity(),
-						new DataConflict.Implementation<>(
+						new DataConflict.Default<>(
 							localOriginalData,
 							localModifiedData,
 							currentData

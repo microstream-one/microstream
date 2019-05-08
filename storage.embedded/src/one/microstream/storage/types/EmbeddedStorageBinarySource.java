@@ -20,7 +20,7 @@ public interface EmbeddedStorageBinarySource extends PersistenceSource<Binary>
 
 
 
-	public final class Implementation implements EmbeddedStorageBinarySource
+	public final class Default implements EmbeddedStorageBinarySource
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -34,7 +34,7 @@ public interface EmbeddedStorageBinarySource extends PersistenceSource<Binary>
 		// constructors //
 		/////////////////
 
-		public Implementation(final StorageRequestAcceptor requestAcceptor)
+		public Default(final StorageRequestAcceptor requestAcceptor)
 		{
 			super();
 			this.requestAcceptor = requestAcceptor;

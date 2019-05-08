@@ -30,7 +30,7 @@ public interface NetworkConnectionHandler
 
 
 
-		public class Implementation implements NetworkConnectionHandler.Provider
+		public class Default implements NetworkConnectionHandler.Provider
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// override methods //
@@ -43,7 +43,7 @@ public interface NetworkConnectionHandler
 				final NetworkConnectionProcessor.RegulatorThreadTimeout threadTimeoutController
 			)
 			{
-				return new NetworkConnectionHandler.Implementation(
+				return new NetworkConnectionHandler.Default(
 					connectionProcessorProvider,
 					threadCountController      ,
 					threadTimeoutController
@@ -65,7 +65,7 @@ public interface NetworkConnectionHandler
 
 
 
-	public class Implementation implements NetworkConnectionHandler
+	public class Default implements NetworkConnectionHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -79,7 +79,7 @@ public interface NetworkConnectionHandler
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final NetworkConnectionProcessor.Provider<?>            connectionProcessorProvider,
 			final NetworkConnectionProcessor.RegulatorThreadCount   threadCountController      ,
 			final NetworkConnectionProcessor.RegulatorThreadTimeout threadTimeoutController

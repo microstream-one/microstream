@@ -26,7 +26,7 @@ public interface PersistenceRefactoringMapping
 	
 	public static PersistenceRefactoringMapping New()
 	{
-		return new Implementation(
+		return new Default(
 			X.emptyTable(),
 			X.empty()
 		);
@@ -37,13 +37,13 @@ public interface PersistenceRefactoringMapping
 		final XGettingEnum<String>          newElements
 	)
 	{
-		return new Implementation(
+		return new Default(
 			EqConstHashTable.New(entries),
 			EqConstHashEnum.New(newElements)
 		);
 	}
 	
-	public final class Implementation implements PersistenceRefactoringMapping
+	public final class Default implements PersistenceRefactoringMapping
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -58,7 +58,7 @@ public interface PersistenceRefactoringMapping
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final XImmutableTable<String, String> entries    ,
 			final XImmutableEnum<String>          newElements
 		)

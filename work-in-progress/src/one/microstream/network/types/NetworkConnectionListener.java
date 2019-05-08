@@ -26,20 +26,20 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 
 
 
-		public class Implementation implements NetworkConnectionListener.Provider
+		public class Default implements NetworkConnectionListener.Provider
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 
 			private final NetworkConnectionProblemHandler.Provider problemHandlerProvider;
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
+			// constructors //
+			/////////////////
 
-			public Implementation(final NetworkConnectionProblemHandler.Provider problemHandlerProvider)
+			public Default(final NetworkConnectionProblemHandler.Provider problemHandlerProvider)
 			{
 				super();
 				this.problemHandlerProvider = problemHandlerProvider; // may explicitly be null
@@ -57,7 +57,7 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 				final NetworkConnectionHandler connectionHandler
 			)
 			{
-				return new NetworkConnectionListener.Implementation(
+				return new NetworkConnectionListener.Default(
 					connectionSocket,
 					connectionHandler,
 					this.problemHandlerProvider == null
@@ -76,7 +76,7 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 
 				// passed listener must be of the same type as the one instantiated in the provider method or fail.
 				this.problemHandlerProvider.dispose(
-					((NetworkConnectionListener.Implementation)listener).problemHandler(),
+					((NetworkConnectionListener.Default)listener).problemHandler(),
 					cause
 				);
 			}
@@ -97,7 +97,7 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 
 
 
-	public class Implementation implements NetworkConnectionListener
+	public class Default implements NetworkConnectionListener
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -130,7 +130,7 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final NetworkConnectionSocket  connectionSocket ,
 			final NetworkConnectionHandler connectionHandler
 		)
@@ -138,7 +138,7 @@ public interface NetworkConnectionListener extends Runnable, Deactivateable
 			this(connectionSocket, connectionHandler, null);
 		}
 
-		public Implementation(
+		public Default(
 			final NetworkConnectionSocket         connectionSocket ,
 			final NetworkConnectionHandler        connectionHandler,
 			final NetworkConnectionProblemHandler problemHandler

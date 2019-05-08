@@ -54,12 +54,12 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 
 
-		public final class Implementation implements StorageEntityMarkMonitor.Creator
+		public final class Default implements StorageEntityMarkMonitor.Creator
 		{
 			@Override
 			public StorageEntityMarkMonitor createEntityMarkMonitor(final StorageOidMarkQueue[] oidMarkQueues)
 			{
-				return new StorageEntityMarkMonitor.Implementation(oidMarkQueues.clone());
+				return new StorageEntityMarkMonitor.Default(oidMarkQueues.clone());
 			}
 
 		}
@@ -67,7 +67,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 	}
 
 
-	final class Implementation implements StorageEntityMarkMonitor, StorageReferenceMarker
+	final class Default implements StorageEntityMarkMonitor, StorageReferenceMarker
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -118,7 +118,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		// constructors //
 		/////////////////
 
-		Implementation(final StorageOidMarkQueue[] oidMarkQueues)
+		Default(final StorageOidMarkQueue[] oidMarkQueues)
 		{
 			super();
 			this.oidMarkQueues       = oidMarkQueues                 ;
@@ -456,14 +456,14 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 		static final class CachingReferenceMarker implements StorageReferenceMarker
 		{
-			private final StorageEntityMarkMonitor.Implementation markMonitor        ;
+			private final StorageEntityMarkMonitor.Default markMonitor        ;
 			private final long[][]                                oidsPerChannel     ;
 			private final int[]                                   oidsPerChannelSizes;
 			private final int                                     channelHash        ;
 			private final int                                     bufferLength       ;
 
 			CachingReferenceMarker(
-				final StorageEntityMarkMonitor.Implementation markMonitor ,
+				final StorageEntityMarkMonitor.Default markMonitor ,
 				final int                                     channelCount,
 				final int                                     bufferLength
 			)

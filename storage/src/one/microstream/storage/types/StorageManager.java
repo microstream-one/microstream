@@ -37,7 +37,7 @@ public interface StorageManager extends StorageController
 	
 
 
-	public final class Implementation implements StorageManager, Unpersistable
+	public final class Default implements StorageManager, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -103,7 +103,7 @@ public interface StorageManager extends StorageController
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final StorageConfiguration                 storageConfiguration          ,
 			final StorageOperationController.Creator   ocCreator                     ,
 			final StorageDataFileValidator.Creator     backupDataFileValidatorCreator,
@@ -455,7 +455,7 @@ public interface StorageManager extends StorageController
 		}
 
 		@Override
-		public final StorageManager.Implementation start()
+		public final StorageManager.Default start()
 		{
 			synchronized(this.stateLock)
 			{

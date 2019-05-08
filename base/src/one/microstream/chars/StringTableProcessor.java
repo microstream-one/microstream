@@ -8,7 +8,7 @@ public interface StringTableProcessor<T>
 
 
 
-	public abstract class AbstractImplementation<T> implements StringTableProcessor<T>
+	public abstract class Abstract<T> implements StringTableProcessor<T>
 	{
 		protected abstract void validateColumnNames(StringTable sourceData);
 
@@ -26,7 +26,7 @@ public interface StringTableProcessor<T>
 				@Override
 				public void accept(final String[] dataRow)
 				{
-					collector.accept(AbstractImplementation.this.parseRow(dataRow));
+					collector.accept(Abstract.this.parseRow(dataRow));
 				}
 			});
 			return collector;

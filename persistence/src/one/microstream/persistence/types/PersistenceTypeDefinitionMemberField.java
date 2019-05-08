@@ -37,7 +37,7 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		final long     persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberField.Implementation(
+		return new PersistenceTypeDefinitionMemberField.Default(
 			 mayNull(runtimeDeclaringClass)  ,
 			 mayNull(declaringClass)         ,
 			 mayNull(field)                  ,
@@ -71,8 +71,8 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		);
 	}
 
-	public final class Implementation
-	extends PersistenceTypeDescriptionMemberField.Implementation
+	public final class Default
+	extends PersistenceTypeDescriptionMemberField.Default
 	implements PersistenceTypeDefinitionMemberField
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -80,10 +80,10 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		////////////////////
 		
 		// owner type must be initialized effectively final to prevent circular constructor dependencies
-		private final Class<?> type                 ;
+		private final Class<?> type                     ;
 		private final String   runtimeDeclaringClassName;
-		private final Class<?> declaringClass       ;
-		private final Field    field                ;
+		private final Class<?> declaringClass           ;
+		private final Field    field                    ;
 
 
 
@@ -91,7 +91,7 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final String   runtimeDeclClassName,
 			final Class<?> declaringClass      ,
 			final Field    field               ,

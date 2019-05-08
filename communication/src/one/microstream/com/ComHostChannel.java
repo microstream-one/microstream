@@ -21,7 +21,7 @@ public interface ComHostChannel<C> extends ComChannel
 		final ComHost<C>            parent
 	)
 	{
-		return new ComHostChannel.Implementation<>(
+		return new ComHostChannel.Default<>(
 			notNull(persistenceManager),
 			notNull(connection)        ,
 			notNull(protocol)          ,
@@ -29,8 +29,8 @@ public interface ComHostChannel<C> extends ComChannel
 		);
 	}
 	
-	public final class Implementation<C>
-	extends ComChannel.Implementation
+	public final class Default<C>
+	extends ComChannel.Default
 	implements ComHostChannel<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ public interface ComHostChannel<C> extends ComChannel
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final PersistenceManager<?> persistenceManager,
 			final C                     connection        ,
 			final ComProtocol           protocol          ,

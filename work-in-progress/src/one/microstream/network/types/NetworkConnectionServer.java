@@ -18,7 +18,7 @@ public interface NetworkConnectionServer extends NetworkServer
 
 
 
-	public class Implementation implements NetworkConnectionServer
+	public class Default implements NetworkConnectionServer
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -26,10 +26,10 @@ public interface NetworkConnectionServer extends NetworkServer
 
 		private final NetworkConnectionManager connectionManager ;
 
-		private volatile boolean active             ; // state indicating being completely active
-		private volatile boolean shutdown     = true; // state indicating being completely inactive
-		private volatile boolean activating         ; // state indicating transition to active state
-		private volatile boolean deactivating       ; // state indicating transition to inactive state
+		private volatile boolean active         ; // state indicating being completely active
+		private volatile boolean shutdown = true; // state indicating being completely inactive
+		private volatile boolean activating     ; // state indicating transition to active state
+		private volatile boolean deactivating   ; // state indicating transition to inactive state
 
 		private volatile int valueConLisThreadCount;
 		private volatile int valueConLisCheckIntrvl;
@@ -47,7 +47,7 @@ public interface NetworkConnectionServer extends NetworkServer
 		// constructors //
 		/////////////////
 
-		public Implementation(final Setup setup)
+		public Default(final Setup setup)
 		{
 			super();
 			this.connectionManager          =  notNull(setup.connectionManager                          );

@@ -5,7 +5,7 @@ import one.microstream.persistence.types.PersistenceIdSet;
 
 public interface StorageRequestTaskLoadByOids extends StorageRequestTaskLoad
 {
-	public final class Implementation extends StorageRequestTaskLoad.AbstractImplementation
+	public final class Default extends StorageRequestTaskLoad.Abstract
 	implements StorageRequestTaskLoadByOids, StorageChannelTaskLoadByOids
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ public interface StorageRequestTaskLoadByOids extends StorageRequestTaskLoad
 		// constructors //
 		/////////////////
 
-		Implementation(final long timestamp, final PersistenceIdSet[] oidList)
+		Default(final long timestamp, final PersistenceIdSet[] oidList)
 		{
 			/* (16.01.2014 TM)NOTE:
 			 * using calculateRequiredProgress() here is a clear bug as a lower progress count (e.g. 1)

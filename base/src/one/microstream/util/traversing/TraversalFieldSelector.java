@@ -14,12 +14,12 @@ public interface TraversalFieldSelector
 	
 	public static TraversalFieldSelector New(final Predicate<? super Field> simplePredicate)
 	{
-		return new TraversalFieldSelector.Implementation(
+		return new TraversalFieldSelector.Default(
 			notNull(simplePredicate)
 		);
 	}
 	
-	public final class Implementation implements TraversalFieldSelector
+	public final class Default implements TraversalFieldSelector
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -32,7 +32,7 @@ public interface TraversalFieldSelector
 		// constructors //
 		/////////////////
 		
-		public Implementation(final Predicate<? super Field> simplePredicate)
+		public Default(final Predicate<? super Field> simplePredicate)
 		{
 			super();
 			this.simplePredicate = simplePredicate;

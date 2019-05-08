@@ -4,7 +4,7 @@ public interface StorageChannelImportEntity
 {
 	public int length();
 
-	public StorageEntityType.Implementation type();
+	public StorageEntityType.Default type();
 
 	public long objectId();
 	

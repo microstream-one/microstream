@@ -58,14 +58,14 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 	
 	
-	public static EmbeddedStorageManager.Implementation New(
+	public static EmbeddedStorageManager.Default New(
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
 		final PersistenceRoots                       definedRoots        ,
 		final Reference<Object>                      explicitRoot
 	)
 	{
-		return new EmbeddedStorageManager.Implementation(
+		return new EmbeddedStorageManager.Default(
 			notNull(configuration)       ,
 			notNull(connectionFoundation),
 			notNull(definedRoots)        ,
@@ -74,7 +74,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	}
 
 
-	public final class Implementation implements EmbeddedStorageManager, Unpersistable
+	public final class Default implements EmbeddedStorageManager, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -94,7 +94,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final StorageConfiguration                   configuration       ,
 			final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
 			final PersistenceRoots                       definedRoots        ,
@@ -144,7 +144,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public final EmbeddedStorageManager.Implementation start(final XGettingEnum<File> initialImportFiles)
+		public final EmbeddedStorageManager.Default start(final XGettingEnum<File> initialImportFiles)
 		{
 			this.storageManager.start();
 

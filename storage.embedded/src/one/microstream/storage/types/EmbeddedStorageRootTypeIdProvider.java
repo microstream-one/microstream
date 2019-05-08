@@ -13,10 +13,10 @@ public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProv
 
 	public static EmbeddedStorageRootTypeIdProvider New(final Class<?> rootType)
 	{
-		return new EmbeddedStorageRootTypeIdProvider.Implementation(rootType);
+		return new EmbeddedStorageRootTypeIdProvider.Default(rootType);
 	}
 
-	public final class Implementation implements EmbeddedStorageRootTypeIdProvider
+	public final class Default implements EmbeddedStorageRootTypeIdProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -32,7 +32,7 @@ public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProv
 		// constructors //
 		/////////////////
 
-		Implementation(final Class<?> rootType)
+		Default(final Class<?> rootType)
 		{
 			super();
 			this.rootType = rootType;

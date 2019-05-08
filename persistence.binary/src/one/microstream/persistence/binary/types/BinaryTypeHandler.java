@@ -8,8 +8,8 @@ import one.microstream.reflect.XReflect;
 
 public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 {
-	public abstract class AbstractImplementation<T>
-	extends PersistenceTypeHandler.AbstractImplementation<Binary, T>
+	public abstract class Abstract<T>
+	extends PersistenceTypeHandler.Abstract<Binary, T>
 	implements BinaryTypeHandler<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final Class<T> type)
+		protected Abstract(final Class<T> type)
 		{
 			super(type);
 		}

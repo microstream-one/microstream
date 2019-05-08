@@ -13,18 +13,18 @@ public interface PersistenceTypeDictionaryCompiler
 	
 	
 	
-	public static PersistenceTypeDictionaryCompiler.Implementation New(
+	public static PersistenceTypeDictionaryCompiler.Default New(
 		final PersistenceTypeDictionaryParser  parser ,
 		final PersistenceTypeDictionaryBuilder builder
 	)
 	{
-		return new PersistenceTypeDictionaryCompiler.Implementation(
+		return new PersistenceTypeDictionaryCompiler.Default(
 			notNull(parser) ,
 			notNull(builder)
 		);
 	}
 	
-	public final class Implementation implements PersistenceTypeDictionaryCompiler
+	public final class Default implements PersistenceTypeDictionaryCompiler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -39,7 +39,7 @@ public interface PersistenceTypeDictionaryCompiler
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final PersistenceTypeDictionaryParser  parser ,
 			final PersistenceTypeDictionaryBuilder builder
 		)

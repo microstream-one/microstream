@@ -24,7 +24,7 @@ public interface ProtageWritableFile extends ProtageReadableFile
 	public boolean isDeleted();
 	
 	
-	public abstract class Implementation<D extends ProtageWritableDirectory> implements ProtageWritableFile
+	public abstract class Abstract<D extends ProtageWritableDirectory> implements ProtageWritableFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -43,7 +43,7 @@ public interface ProtageWritableFile extends ProtageReadableFile
 		// constructors //
 		/////////////////
 
-		protected Implementation(final D directory, final String name)
+		protected Abstract(final D directory, final String name)
 		{
 			super();
 			this.directory  = notNull(directory);

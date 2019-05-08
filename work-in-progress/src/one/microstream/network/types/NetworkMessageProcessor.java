@@ -33,12 +33,12 @@ public interface NetworkMessageProcessor<S extends NetworkSession<?>> extends Co
 
 
 
-		public class TrivialImplementation<S extends NetworkSession<?>, P extends NetworkMessageProcessor<S>>
+		public class Trivial<S extends NetworkSession<?>, P extends NetworkMessageProcessor<S>>
 		implements NetworkMessageProcessor.Provider<S, P>
 		{
 			private final P messageProcessor;
 
-			public TrivialImplementation(final P messageProcessor)
+			public Trivial(final P messageProcessor)
 			{
 				super();
 				this.messageProcessor = notNull(messageProcessor);

@@ -1,6 +1,6 @@
 package one.microstream.test.corp.model;
 
-public class Corporation extends Contact.AbstractImplementation
+public class Corporation extends Contact.Abstract
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //

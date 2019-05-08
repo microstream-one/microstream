@@ -67,7 +67,7 @@ public class TestImportExport
 //		tStop = System.nanoTime();
 //		System.out.println("import done. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
-//		storageConnection.importFiles(EqHashEnum.New(new File("C:/Files/export/bin2/one.microstream.persistence.types.PersistenceRoots$Implementation.dat")));
+//		storageConnection.importFiles(EqHashEnum.New(new File("C:/Files/export/bin2/one.microstream.persistence.types.PersistenceRoots$Default.dat")));
 
 
 //		UtilTests.storageCleanup();
@@ -82,7 +82,7 @@ public class TestImportExport
 )
 	{
 		final StorageEntityTypeExportStatistics result = storageConnection.exportTypes(
-			new StorageEntityTypeExportFileProvider.Implementation(targetDirectory, fileSuffix)
+			new StorageEntityTypeExportFileProvider.Default(targetDirectory, fileSuffix)
 		);
 		System.out.println(result);
 
@@ -102,9 +102,9 @@ public class TestImportExport
 	)
 	{
 		final File directory = new File(binaryFiles.get().getParentFile().getParentFile(), "csv");
-		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.ImplementationUTF8(
+		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
-			new StorageEntityTypeConversionFileProvider.Implementation(directory, "csv"),
+			new StorageEntityTypeConversionFileProvider.Default(directory, "csv"),
 			typeDictionary,
 			null,
 			4096,
@@ -140,7 +140,7 @@ public class TestImportExport
 		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			typeDictionary,
-			new StorageEntityTypeConversionFileProvider.Implementation(
+			new StorageEntityTypeConversionFileProvider.Default(
 				targetDirectory, "dat"
 			)
 		);

@@ -23,10 +23,10 @@ public interface TraversalReferenceHandlerProvider
 	
 	public static TraversalReferenceHandlerProvider New()
 	{
-		return new TraversalReferenceHandlerProvider.Implementation();
+		return new TraversalReferenceHandlerProvider.Default();
 	}
 	
-	public class Implementation implements TraversalReferenceHandlerProvider
+	public class Default implements TraversalReferenceHandlerProvider
 	{
 		@Override
 		public AbstractReferenceHandler provideReferenceHandler(

@@ -27,12 +27,12 @@ public interface ComConnectionLogicDispatcher<C>
 	
 	public static <C> ComConnectionLogicDispatcher<C> New()
 	{
-		return new ComConnectionLogicDispatcher.Implementation<>();
+		return new ComConnectionLogicDispatcher.Default<>();
 	}
 	
-	public final class Implementation<C> implements ComConnectionLogicDispatcher<C>
+	public final class Default<C> implements ComConnectionLogicDispatcher<C>
 	{
-		Implementation()
+		Default()
 		{
 			super();
 		}

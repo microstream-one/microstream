@@ -55,11 +55,11 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	
 	public static EmbeddedStorageFoundation<?> New()
 	{
-		return new EmbeddedStorageFoundation.Implementation<>();
+		return new EmbeddedStorageFoundation.Default<>();
 	}
 
-	public class Implementation<F extends EmbeddedStorageFoundation.Implementation<?>>
-	extends StorageFoundation.Implementation<F>
+	public class Default<F extends EmbeddedStorageFoundation.Default<?>>
+	extends StorageFoundation.Default<F>
 	implements EmbeddedStorageFoundation<F>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}
@@ -118,7 +118,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		protected EmbeddedStorageConnectionFoundation<?> createConnectionFoundation()
 		{
 			throw new MissingFoundationPartException(EmbeddedStorageConnectionFoundation.class);
-//			return new EmbeddedStorageConnectionFoundation.Implementation();
+//			return new EmbeddedStorageConnectionFoundation.Default();
 		}
 
 		@Override

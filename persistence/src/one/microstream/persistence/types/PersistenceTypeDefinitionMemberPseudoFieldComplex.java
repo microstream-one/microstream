@@ -32,7 +32,7 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		final long                                                          persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPseudoFieldComplex.Implementation(
+		return new PersistenceTypeDefinitionMemberPseudoFieldComplex.Default(
 			 notNull(name)                   ,
 			 notNull(members)                ,
 			positive(persistentMinimumLength),
@@ -40,15 +40,15 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		);
 	}
 	
-	public class Implementation
-	extends PersistenceTypeDescriptionMemberPseudoFieldComplex.Implementation
+	public class Default
+	extends PersistenceTypeDescriptionMemberPseudoFieldComplex.Default
 	implements PersistenceTypeDefinitionMemberPseudoFieldComplex
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final String                                                        name                   ,
 			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members                ,
 			final long                                                          persistentMinimumLength,
@@ -78,7 +78,7 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		@Override
 		public PersistenceTypeDefinitionMemberPseudoFieldComplex copyForName(final String name)
 		{
-			return new PersistenceTypeDefinitionMemberPseudoFieldComplex.Implementation(
+			return new PersistenceTypeDefinitionMemberPseudoFieldComplex.Default(
 				name,
 				this.members(),
 				this.persistentMinimumLength(),

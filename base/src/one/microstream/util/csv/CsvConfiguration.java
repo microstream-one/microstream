@@ -497,7 +497,7 @@ public interface CsvConfiguration
 
 
 
-		public final class Default extends InstanceDispatcher.Implementation implements Builder
+		public final class Default extends InstanceDispatcher.Default implements Builder
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -615,8 +615,8 @@ public interface CsvConfiguration
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// getters          //
-			/////////////////////
+			// getters //
+			////////////
 
 			@Override
 			public char getLineSeparator()
@@ -723,8 +723,8 @@ public interface CsvConfiguration
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// setters          //
-			/////////////////////
+			// setters //
+			////////////
 
 			@Override
 			public Builder.Default setRecordSeparator(final char lineSeparator)

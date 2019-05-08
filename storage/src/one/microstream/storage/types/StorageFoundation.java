@@ -141,8 +141,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 
 
-	public class Implementation<F extends StorageFoundation.Implementation<?>>
-	extends InstanceDispatcher.Implementation
+	public class Default<F extends StorageFoundation.Default<?>>
+	extends InstanceDispatcher.Default
 	implements StorageFoundation<F>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -187,7 +187,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		// constructors //
 		/////////////////
 		
-		public Implementation()
+		public Default()
 		{
 			super();
 		}
@@ -208,7 +208,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageGCZombieOidHandler ensureStorageGCZombieOidHandler()
 		{
-			return new StorageGCZombieOidHandler.Implementation();
+			return new StorageGCZombieOidHandler.Default();
 		}
 
 		protected StorageConfiguration ensureConfiguration()
@@ -225,7 +225,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageInitialDataFileNumberProvider ensureInitialDataFileNumberProvider()
 		{
-			return new StorageInitialDataFileNumberProvider.Implementation(1); // constant 1 by default
+			return new StorageInitialDataFileNumberProvider.Default(1); // constant 1 by default
 		}
 
 		protected StorageDataFileEvaluator ensureStorageConfiguration()
@@ -235,7 +235,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageRequestAcceptor.Creator ensureRequestAcceptorCreator()
 		{
-			return new StorageRequestAcceptor.Creator.Implementation();
+			return new StorageRequestAcceptor.Creator.Default();
 		}
 
 		protected StorageTaskBroker.Creator ensureTaskBrokerCreator()
@@ -255,12 +255,12 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageChannelsCreator ensureChannelCreator()
 		{
-			return new StorageChannelsCreator.Implementation();
+			return new StorageChannelsCreator.Default();
 		}
 
 		protected StorageChannelThreadProvider ensureChannelThreadProvider()
 		{
-			return new StorageChannelThreadProvider.Implementation();
+			return new StorageChannelThreadProvider.Default();
 		}
 		
 		protected StorageBackupThreadProvider ensureBackupThreadProvider()
@@ -289,19 +289,19 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageRequestTaskCreator ensureRequestTaskCreator()
 		{
-			return new StorageRequestTaskCreator.Implementation(
+			return new StorageRequestTaskCreator.Default(
 				this.getTimestampProvider()
 			);
 		}
 
 		protected StorageTypeDictionary ensureTypeDictionary()
 		{
-			return new StorageTypeDictionary.Implementation(this.isByteOrderMismatch());
+			return new StorageTypeDictionary.Default(this.isByteOrderMismatch());
 		}
 
 		protected StorageChannelCountProvider ensureChannelCountProvider(final int channelCount)
 		{
-			return new StorageChannelCountProvider.Implementation(channelCount);
+			return new StorageChannelCountProvider.Default(channelCount);
 		}
 
 		protected StorageRootTypeIdProvider ensureRootTypeIdProvider()
@@ -311,37 +311,37 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageTimestampProvider ensureTimestampProvider()
 		{
-			return new StorageTimestampProvider.Implementation();
+			return new StorageTimestampProvider.Default();
 		}
 
 		protected StorageObjectIdRangeEvaluator ensureObjectIdRangeEvaluator()
 		{
-			return new StorageObjectIdRangeEvaluator.Implementation();
+			return new StorageObjectIdRangeEvaluator.Default();
 		}
 
 		protected StorageFileReader.Provider ensureReaderProvider()
 		{
-			return new StorageFileReader.Provider.Implementation();
+			return new StorageFileReader.Provider.Default();
 		}
 
 		protected StorageFileWriter.Provider ensureWriterProvider()
 		{
-			return new StorageFileWriter.Provider.Implementation();
+			return new StorageFileWriter.Provider.Default();
 		}
 
 		protected StorageRootOidSelector.Provider ensureRootOidSelectorProvider()
 		{
-			return new StorageRootOidSelector.Provider.Implementation();
+			return new StorageRootOidSelector.Provider.Default();
 		}
 
 		protected StorageOidMarkQueue.Creator ensureOidMarkQueueCreator()
 		{
-			return new StorageOidMarkQueue.Creator.Implementation();
+			return new StorageOidMarkQueue.Creator.Default();
 		}
 
 		protected StorageEntityMarkMonitor.Creator ensureEntityMarkMonitorCreator()
 		{
-			return new StorageEntityMarkMonitor.Creator.Implementation();
+			return new StorageEntityMarkMonitor.Creator.Default();
 		}
 
 		protected StorageDataFileValidator.Creator ensureDataFileValidatorCreator()
@@ -368,7 +368,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageExceptionHandler ensureExceptionHandler()
 		{
-			return new StorageExceptionHandler.Implementation();
+			return new StorageExceptionHandler.Default();
 		}
 		
 		protected StorageLockFileSetup ensureLockFileSetup()
@@ -960,7 +960,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			 * Theoreticaly, the storage engine (OGS) could also use the switchByteOrder mechanism implemented for
 			 * communication (OGC). However, there are a lot stumbling blocks in the details that are currently not
 			 * worth resolving for a feature that is most probably never required in the foreseeable future.
-			 * See StorageEntityCache$Implementation#putEntity
+			 * See StorageEntityCache$Default#putEntity
 			 */
 			return false;
 		}
@@ -973,10 +973,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			 * communiction (OGC). However, there are a lot stumbling blocks involved in the details that
 			 * are currently not worth resolving for a feature that is most probably never required in the
 			 * foreseeable future.
-			 * See StorageEntityCache$Implementation#putEntity
+			 * See StorageEntityCache$Default#putEntity
 			 */
 						
-			return new StorageManager.Implementation(
+			return new StorageManager.Default(
 				this.getConfiguration()                ,
 				this.getOperationControllerCreator()   ,
 				this.getDataFileValidatorCreator()     ,
