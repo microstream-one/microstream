@@ -14,14 +14,14 @@ public interface StorageInventoryEntity
 
 
 
-	public final class Implementation implements StorageInventoryEntity
+	public final class Default implements StorageInventoryEntity
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
 		private final long position, length, typeId, objectId;
-		private       StorageInventoryEntity.Implementation next;
+		private       StorageInventoryEntity.Default next;
 
 
 
@@ -29,7 +29,7 @@ public interface StorageInventoryEntity
 		// constructors //
 		/////////////////
 
-		public Implementation(final long position, final long length, final long typeId, final long objectId)
+		public Default(final long position, final long length, final long typeId, final long objectId)
 		{
 			super();
 			this.position = position;
@@ -44,7 +44,7 @@ public interface StorageInventoryEntity
 		// declared methods //
 		/////////////////////
 
-		final void setNext(final StorageInventoryEntity.Implementation next)
+		final void setNext(final StorageInventoryEntity.Default next)
 		{
 			this.next = next;
 		}
@@ -80,7 +80,7 @@ public interface StorageInventoryEntity
 		}
 
 		@Override
-		public final StorageInventoryEntity.Implementation next()
+		public final StorageInventoryEntity.Default next()
 		{
 			return this.next;
 		}

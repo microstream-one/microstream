@@ -14,7 +14,7 @@ public interface StorageEntityTypeConversionFileProvider
 
 
 
-	public final class Implementation implements StorageEntityTypeConversionFileProvider
+	public final class Default implements StorageEntityTypeConversionFileProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -31,12 +31,15 @@ public interface StorageEntityTypeConversionFileProvider
 		// constructors //
 		/////////////////
 
-		public Implementation(final File directory, final String fileSuffix)
+		public Default(final File directory, final String fileSuffix)
 		{
 			super();
-			this.directory = notNull(directory);
-			this.fileSuffix = fileSuffix;
-			this.cachedFileSuffix = fileSuffix == null ? "" : '.' + fileSuffix;
+			this.directory        = notNull(directory);
+			this.fileSuffix       = fileSuffix        ;
+			this.cachedFileSuffix = fileSuffix == null
+				? ""
+				: '.' + fileSuffix
+			;
 		}
 
 

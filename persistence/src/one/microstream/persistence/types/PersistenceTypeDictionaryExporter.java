@@ -9,7 +9,7 @@ public interface PersistenceTypeDictionaryExporter
 
 
 
-	public final class Implementation implements PersistenceTypeDictionaryExporter
+	public final class Default implements PersistenceTypeDictionaryExporter
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -24,7 +24,7 @@ public interface PersistenceTypeDictionaryExporter
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final PersistenceTypeDictionaryAssembler assembler,
 			final PersistenceTypeDictionaryStorer    storer
 		)

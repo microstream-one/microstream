@@ -10,8 +10,8 @@ public interface StorageChannelTask extends StorageTask
 
 	// (26.11.2014 TM)TODO: consolidate task naming
 
-	public abstract class AbstractImplementation<R>
-	extends StorageTask.AbstractImplementation
+	public abstract class Abstract<R>
+	extends StorageTask.Abstract
 	implements StorageChannelTask
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ public interface StorageChannelTask extends StorageTask
 		// constructors //
 		/////////////////
 
-		public AbstractImplementation(final long timestamp, final int channelCount)
+		public Abstract(final long timestamp, final int channelCount)
 		{
 			super(timestamp);
 			this.problems = new Throwable[this.remainingForProcessing = this.remainingForCompletion = channelCount];

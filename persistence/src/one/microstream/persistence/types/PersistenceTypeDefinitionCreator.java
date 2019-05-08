@@ -15,18 +15,18 @@ public interface PersistenceTypeDefinitionCreator
 	
 	
 	
-	public static PersistenceTypeDefinitionCreator.Implementation New()
+	public static PersistenceTypeDefinitionCreator.Default New()
 	{
-		return new PersistenceTypeDefinitionCreator.Implementation();
+		return new PersistenceTypeDefinitionCreator.Default();
 	}
 			
-	public final class Implementation implements PersistenceTypeDefinitionCreator
+	public final class Default implements PersistenceTypeDefinitionCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}

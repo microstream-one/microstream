@@ -19,7 +19,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 
 
-	public final class Implementation
+	public final class Default
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<ChannelStatistic>
 	implements StorageRequestTaskExportEntitiesByType
 	{
@@ -40,11 +40,11 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		// constructors //
 		/////////////////
 
-		Implementation(
-			final long                                                                         timestamp              ,
-			final int                                                                          channelCount           ,
-			final StorageEntityTypeExportFileProvider                                          fileProvider           ,
-			final Predicate<? super StorageEntityTypeHandler>                                  isExportType           ,
+		Default(
+			final long                                                                         timestamp   ,
+			final int                                                                          channelCount,
+			final StorageEntityTypeExportFileProvider                                          fileProvider,
+			final Predicate<? super StorageEntityTypeHandler>                                  isExportType,
 			final Function<? super StorageEntityTypeHandler, Predicate<? super StorageEntity>> predicateEntityProvider
 		)
 		{
@@ -55,7 +55,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			this.channelResults          = new ChannelStatistic[channelCount];
 		}
 		
-		Implementation(
+		Default(
 			final long                                        timestamp   ,
 			final int                                         channelCount,
 			final StorageEntityTypeExportFileProvider         fileProvider,
@@ -65,7 +65,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			this(timestamp, channelCount, fileProvider, isExportType, null);
 		}
 
-		Implementation(
+		Default(
 			final long                                timestamp   ,
 			final int                                 channelCount,
 			final StorageEntityTypeExportFileProvider fileProvider
@@ -77,8 +77,8 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		final void acceptExportType(final StorageEntityTypeHandler type)
 		{
@@ -107,16 +107,10 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			return this.exportTypes;
 		}
 
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-
 		@Override
 		protected final ChannelStatistic internalProcessBy(final StorageChannel channel)
 		{
-			final EqHashTable<Long, TypeStatistic.Implementation> typeMap     = EqHashTable.New();
+			final EqHashTable<Long, TypeStatistic.Default> typeMap     = EqHashTable.New();
 			final BulkList<ExportItem>                            exportItems = this.getExportTypes(channel);
 
 			for(final ExportItem exportItem : exportItems)
@@ -149,7 +143,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 						continue;
 					}
 
-					final TypeStatistic.Implementation ts = new TypeStatistic.Implementation(
+					final TypeStatistic.Default ts = new TypeStatistic.Default(
 						exportItem.type.typeId(),
 						exportItem.type.typeName(),
 						exportItem.file
@@ -173,7 +167,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			 * so not thread-local finally block necessary/reasonable here.
 			 */
 
-			return new ChannelStatistic.Implementation(channel.channelIndex(), typeMap);
+			return new ChannelStatistic.Default(channel.channelIndex(), typeMap);
 		}
 
 		@Override
@@ -204,7 +198,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		{
 			if(this.result == null)
 			{
-				this.result = new StorageEntityTypeExportStatistics.Implementation(
+				this.result = new StorageEntityTypeExportStatistics.Default(
 					XUtilsCollection.toTable(this.channelResults)
 				);
 			}

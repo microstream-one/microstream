@@ -4,8 +4,8 @@ import one.microstream.experimental.basic.TypeA;
 import one.microstream.experimental.basic.TypeB;
 
 /* read:
-public class MyTypeA1B1 extends TypeB.Implementation, TypeA.Implementation */
-public class MyTypeA1B1 extends TypeA.Implementation implements TypeB
+public class MyTypeA1B1 extends TypeB.Default, TypeA.Default */
+public class MyTypeA1B1 extends TypeA.Default implements TypeB
 {
 	protected MyTypeB1 thisB1 = new MyTypeB1();
 
@@ -95,7 +95,7 @@ public class MyTypeA1B1 extends TypeA.Implementation implements TypeB
 	///////////////////////////////////////////////////////////////////////////
 	// Class part inherited from TypeB //
 	////////////////////////////////////
-	protected class MyTypeB1 extends TypeB.Implementation
+	protected class MyTypeB1 extends TypeB.Default
 	{
 		@Override
 		public Object getBValue() {

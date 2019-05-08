@@ -25,11 +25,11 @@ public interface NetworkConnectionProcessor extends Consumer<SocketChannel>
 
 
 
-		public class TrivialImplementation implements NetworkConnectionProcessor.Provider<NetworkConnectionProcessor>
+		public class Trivial implements NetworkConnectionProcessor.Provider<NetworkConnectionProcessor>
 		{
 			private final NetworkConnectionProcessor connectionProcessor;
 
-			public TrivialImplementation(final NetworkConnectionProcessor connectionProcessor)
+			public Trivial(final NetworkConnectionProcessor connectionProcessor)
 			{
 				super();
 				this.connectionProcessor = notNull(connectionProcessor);

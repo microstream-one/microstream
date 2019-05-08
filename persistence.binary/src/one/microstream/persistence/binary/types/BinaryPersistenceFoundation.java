@@ -57,11 +57,11 @@ extends PersistenceFoundation<Binary, F>
 	
 	public static BinaryPersistenceFoundation<?> New()
 	{
-		return new BinaryPersistenceFoundation.Implementation<>();
+		return new BinaryPersistenceFoundation.Default<>();
 	}
 
-	public class Implementation<F extends BinaryPersistenceFoundation.Implementation<?>>
-	extends PersistenceFoundation.Implementation<Binary, F>
+	public class Default<F extends BinaryPersistenceFoundation.Default<?>>
+	extends PersistenceFoundation.Default<Binary, F>
 	implements BinaryPersistenceFoundation<F>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ extends PersistenceFoundation<Binary, F>
 		// constructors //
 		/////////////////
 		
-		protected Implementation()
+		protected Default()
 		{
 			super();
 		}
@@ -91,9 +91,9 @@ extends PersistenceFoundation<Binary, F>
 		////////////
 		
 		@Override
-		public BinaryPersistenceFoundation.Implementation<F> Clone()
+		public BinaryPersistenceFoundation.Default<F> Clone()
 		{
-			return new BinaryPersistenceFoundation.Implementation<>();
+			return new BinaryPersistenceFoundation.Default<>();
 		}
 		
 		
@@ -206,7 +206,7 @@ extends PersistenceFoundation<Binary, F>
 		@Override
 		protected PersistenceTypeHandlerCreator<Binary> ensureTypeHandlerCreator()
 		{
-			return new BinaryTypeHandlerCreator.Implementation(
+			return new BinaryTypeHandlerCreator.Default(
 				this.getTypeAnalyzer(),
 				this.getFieldFixedLengthResolver(),
 				this.getReferenceFieldMandatoryEvaluator(),

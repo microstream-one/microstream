@@ -12,7 +12,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 {
 	public void enqueueEntry(I entry);
 
-	public void remove(StorageEntity.Implementation entity);
+	public void remove(StorageEntity.Default entity);
 
 	public void loadEntityData(I entity, long length, long cacheChange);
 
@@ -40,7 +40,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 
 
-	public final class Implementation implements StorageDataFile<StorageEntity.Implementation>
+	public final class Default implements StorageDataFile<StorageEntity.Default>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -54,17 +54,17 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		// static methods //
 		///////////////////
 
-		public static final StorageDataFile.Implementation Dummy()
+		public static final StorageDataFile.Default Dummy()
 		{
-			return new StorageDataFile.Implementation(null, null);
+			return new StorageDataFile.Default(null, null);
 		}
 
-		public static final StorageDataFile.Implementation New(
-			final StorageFileManager.Implementation parent,
+		public static final StorageDataFile.Default New(
+			final StorageFileManager.Default parent,
 			final StorageInventoryFile              file
 		)
 		{
-			return new StorageDataFile.Implementation(parent, file);
+			return new StorageDataFile.Default(parent, file);
 		}
 
 
@@ -73,12 +73,12 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		// instance fields //
 		////////////////////
 
-		private final StorageFileManager.Implementation parent;
+		private final StorageFileManager.Default parent;
 
 		final StorageInventoryFile file;
 
-		final StorageEntity.Implementation head = StorageEntity.Implementation.createDummy();
-		final StorageEntity.Implementation tail = StorageEntity.Implementation.createDummy();
+		final StorageEntity.Default head = StorageEntity.Default.createDummy();
+		final StorageEntity.Default tail = StorageEntity.Default.createDummy();
 
 		// data files always start with exactely one user to account for their content.
 		private int users = 1;
@@ -86,7 +86,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		private long fileTotalLength;
 		private long fileDataLength ;
 
-		StorageDataFile.Implementation next, prev;
+		StorageDataFile.Default next, prev;
 
 		private TypeInFile[] typeInFileSlots = new TypeInFile[INITIAL_TYPE_IN_FILE_ARRAY_LENGTH];
 		private int          typeInFileRange = this.typeInFileSlots.length - 1                  ;
@@ -98,7 +98,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		// constructors //
 		/////////////////
 
-		private Implementation(final StorageFileManager.Implementation parent, final StorageInventoryFile file)
+		private Default(final StorageFileManager.Default parent, final StorageInventoryFile file)
 		{
 			super();
 			this.parent        = parent   ;
@@ -113,7 +113,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		// declared methods //
 		/////////////////////
 
-		final TypeInFile typeInFile(final StorageEntityType.Implementation type)
+		final TypeInFile typeInFile(final StorageEntityType.Default type)
 		{
 			// identity equality is enough as every type has a unique instance per channel
 			for(TypeInFile t = this.typeInFileSlots[System.identityHashCode(type) & this.typeInFileRange]; t != null; t = t.hashNext)
@@ -126,7 +126,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			return this.createTypeInFile(type);
 		}
 
-		private TypeInFile createTypeInFile(final StorageEntityType.Implementation type)
+		private TypeInFile createTypeInFile(final StorageEntityType.Default type)
 		{
 			if(this.typeInFileCount == this.typeInFileRange)
 			{
@@ -265,14 +265,14 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		}
 
 		@Override
-		public void remove(final StorageEntity.Implementation entity)
+		public void remove(final StorageEntity.Default entity)
 		{
 			// disjoin entity from chain and decrement data length
 			(entity.fileNext.filePrev = entity.filePrev).fileNext = entity.fileNext;
 			this.decrementDataLength(entity.length);
 		}
 
-		final void removeHeadBoundChain(final StorageEntity.Implementation newFirst, final long copylength)
+		final void removeHeadBoundChain(final StorageEntity.Default newFirst, final long copylength)
 		{
 			// check for special case of completely clearing a file (no new first means empty file)
 
@@ -297,8 +297,8 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		}
 
 		final void addChainToTail(
-			final StorageEntity.Implementation first,
-			final StorageEntity.Implementation last
+			final StorageEntity.Default first,
+			final StorageEntity.Default last
 		)
 		{
 			// enqueue whole chain
@@ -312,7 +312,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		}
 
 		@Override
-		public final void enqueueEntry(final StorageEntity.Implementation entry)
+		public final void enqueueEntry(final StorageEntity.Default entry)
 		{
 			// entry gets appended after the start (the head), hence reverse-building the order.
 			(entry.filePrev = this.head).fileNext = (entry.fileNext = this.head.fileNext).filePrev = entry;
@@ -323,7 +323,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 		@Override
 		public final void loadEntityData(
-			final StorageEntity.Implementation entity     ,
+			final StorageEntity.Default entity     ,
 			final long                         length     ,
 			final long                         cacheChange
 		)

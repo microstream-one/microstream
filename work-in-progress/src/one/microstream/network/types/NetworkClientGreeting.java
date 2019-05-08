@@ -23,7 +23,7 @@ public interface NetworkClientGreeting
 
 
 
-	public class Implementation implements NetworkClientGreeting
+	public class Default implements NetworkClientGreeting
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -44,7 +44,7 @@ public interface NetworkClientGreeting
 
 
 		// (30.10.2012 TM)XXX: horrible prototype code, overhaul
-		public static NetworkClientGreeting.Implementation parseGreeting(final String greeting)
+		public static NetworkClientGreeting.Default parseGreeting(final String greeting)
 		{
 			final int protocolIndex = greeting.indexOf(TAG_PROTOCOL);
 			if(protocolIndex < 0)
@@ -107,7 +107,7 @@ public interface NetworkClientGreeting
 				throw new IllegalArgumentException("Unknown session id");
 			}
 
-			return new Implementation(host, port, byteOrder, sessionId, protocolPart);
+			return new Default(host, port, byteOrder, sessionId, protocolPart);
 		}
 
 
@@ -128,7 +128,7 @@ public interface NetworkClientGreeting
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final String    host     ,
 			final int       port     ,
 			final ByteOrder byteOrder,

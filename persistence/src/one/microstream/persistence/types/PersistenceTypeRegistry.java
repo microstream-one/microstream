@@ -15,12 +15,12 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 	
 	
 	
-	public static PersistenceTypeRegistry.Implementation New()
+	public static PersistenceTypeRegistry.Default New()
 	{
-		return new PersistenceTypeRegistry.Implementation();
+		return new PersistenceTypeRegistry.Default();
 	}
 	
-	public final class Implementation implements PersistenceTypeRegistry
+	public final class Default implements PersistenceTypeRegistry
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -35,7 +35,7 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}

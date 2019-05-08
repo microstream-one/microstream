@@ -65,7 +65,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 	
 	public static PersistenceIdStrategyStringConverter.Creator Creator()
 	{
-		return new PersistenceIdStrategyStringConverter.Creator.Implementation();
+		return new PersistenceIdStrategyStringConverter.Creator.Default();
 	}
 	
 	public static interface Creator
@@ -94,7 +94,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 		
 		
 		
-		public final class Implementation implements PersistenceIdStrategyStringConverter.Creator
+		public final class Default implements PersistenceIdStrategyStringConverter.Creator
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -112,7 +112,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 			// constructors //
 			/////////////////
 			
-			Implementation()
+			Default()
 			{
 				super();
 			}
@@ -124,7 +124,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 			////////////
 			
 			@Override
-			public synchronized <S extends PersistenceObjectIdStrategy> Creator.Implementation register(
+			public synchronized <S extends PersistenceObjectIdStrategy> Creator.Default register(
 				final Class<S>                             objectIdStrategyType,
 				final PersistenceObjectIdStrategy.Assembler<S> assembler
 			)
@@ -138,7 +138,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 			}
 			
 			@Override
-			public synchronized <S extends PersistenceTypeIdStrategy>  Creator.Implementation register(
+			public synchronized <S extends PersistenceTypeIdStrategy>  Creator.Default register(
 				final Class<S>                           typeIdStrategyType,
 				final PersistenceTypeIdStrategy.Assembler<S> assembler
 			)
@@ -182,7 +182,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 			@Override
 			public final synchronized PersistenceIdStrategyStringConverter create()
 			{
-				return new PersistenceIdStrategyStringConverter.Implementation(
+				return new PersistenceIdStrategyStringConverter.Default(
 					this.oidAssemblers.immure(),
 					this.tidAssemblers.immure(),
 					this.oidParsers.immure()   ,
@@ -213,7 +213,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 		;
 	}
 	
-	public final class Implementation implements PersistenceIdStrategyStringConverter
+	public final class Default implements PersistenceIdStrategyStringConverter
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
@@ -261,7 +261,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final XImmutableMap<Class<?>, PersistenceObjectIdStrategy.Assembler<?>> oidsAssemblers,
 			final XImmutableMap<Class<?>, PersistenceTypeIdStrategy.Assembler<?>  > tidsAssemblers,
 			final XImmutableMap<String, PersistenceObjectIdStrategy.Parser<?>>      oidsParsers   ,

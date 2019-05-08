@@ -20,7 +20,7 @@ public interface Contact
 
 
 
-	public abstract class AbstractImplementation implements Contact
+	public abstract class Abstract implements Contact
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -38,7 +38,7 @@ public interface Contact
 		// constructors //
 		/////////////////
 
-		public AbstractImplementation(final String contactId, final Address address)
+		public Abstract(final String contactId, final Address address)
 		{
 			super();
 			this.contactId = contactId;

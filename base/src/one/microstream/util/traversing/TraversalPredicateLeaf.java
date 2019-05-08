@@ -19,7 +19,7 @@ public interface TraversalPredicateLeaf extends TraversalPredicate
 		final XGettingSequence<Class<?>> typesPolymorphic
 	)
 	{
-		return new TraversalPredicateLeaf.Implementation(
+		return new TraversalPredicateLeaf.Default(
 			explicitInstances,
 			customPredicate  ,
 			positiveTypes    ,
@@ -27,7 +27,7 @@ public interface TraversalPredicateLeaf extends TraversalPredicate
 		);
 	}
 	
-	public final class Implementation extends AbstractHandlingPredicate implements TraversalPredicateLeaf
+	public final class Default extends AbstractHandlingPredicate implements TraversalPredicateLeaf
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -41,7 +41,7 @@ public interface TraversalPredicateLeaf extends TraversalPredicate
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final XGettingSet<Object>        explicitInstances,
 			final Predicate<Object>          customPredicate  ,
 			final XGettingSet<Class<?>>      positiveTypes    ,

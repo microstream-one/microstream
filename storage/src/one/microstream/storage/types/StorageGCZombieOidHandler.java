@@ -24,7 +24,7 @@ public interface StorageGCZombieOidHandler
 
 
 
-	public final class Implementation implements StorageGCZombieOidHandler
+	public final class Default implements StorageGCZombieOidHandler
 	{
 		@Override
 		public final boolean handleZombieOid(final long oid)

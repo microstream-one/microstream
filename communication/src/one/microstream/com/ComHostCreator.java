@@ -15,16 +15,16 @@ public interface ComHostCreator<C>
 	
 	public static <C> ComHostCreator<C> New()
 	{
-		return new ComHostCreator.Implementation<>();
+		return new ComHostCreator.Default<>();
 	}
 	
-	public final class Implementation<C> implements ComHostCreator<C>
+	public final class Default<C> implements ComHostCreator<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}

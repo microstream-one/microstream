@@ -17,7 +17,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 
 
 
-	public final class Implementation
+	public final class Default
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<StorageRawFileStatistics.ChannelStatistics>
 	implements StorageRequestTaskCreateStatistics
 	{
@@ -36,7 +36,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final long timestamp   ,
 			final int  channelCount
 		)
@@ -77,7 +77,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 			return this.result;
 		}
 
-		private StorageRawFileStatistics.Implementation createResult()
+		private StorageRawFileStatistics.Default createResult()
 		{
 			long fileCount       = 0;
 			long liveDataLength  = 0;
@@ -90,7 +90,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 				totalDataLength += result.totalDataLength();
 			}
 
-			return new StorageRawFileStatistics.Implementation(
+			return new StorageRawFileStatistics.Default(
 				this.creationTime                            ,
 				fileCount                                    ,
 				liveDataLength                               ,

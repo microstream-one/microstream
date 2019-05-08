@@ -325,8 +325,8 @@ public interface CsvAssembler
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// getters          //
-			/////////////////////
+			// getters //
+			////////////
 
 			@Override
 			public final CsvConfiguration configuration()
@@ -361,8 +361,8 @@ public interface CsvAssembler
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// setters          //
-			/////////////////////
+			// setters //
+			////////////
 
 			@Override
 			public final Builder<VarString> setConfiguration(final CsvConfiguration configuration)

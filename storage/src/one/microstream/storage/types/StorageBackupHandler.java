@@ -14,7 +14,7 @@ import one.microstream.storage.exceptions.StorageExceptionBackupCopying;
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmptyBackup;
 import one.microstream.storage.exceptions.StorageExceptionBackupInconsistentFileLength;
-import one.microstream.storage.types.StorageBackupHandler.Implementation.ChannelInventory;
+import one.microstream.storage.types.StorageBackupHandler.Default.ChannelInventory;
 
 public interface StorageBackupHandler extends Runnable
 {
@@ -72,7 +72,7 @@ public interface StorageBackupHandler extends Runnable
 			return new ChannelInventory(i, backupFileProvider);
 		});
 		
-		return new StorageBackupHandler.Implementation(
+		return new StorageBackupHandler.Default(
 	                cis                 ,
 			notNull(backupSetup)        ,
 			notNull(itemQueue)          ,
@@ -81,7 +81,7 @@ public interface StorageBackupHandler extends Runnable
 		);
 	}
 	
-	public final class Implementation implements StorageBackupHandler
+	public final class Default implements StorageBackupHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -100,7 +100,7 @@ public interface StorageBackupHandler extends Runnable
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final ChannelInventory[]         channelInventories ,
 			final StorageBackupSetup         backupSetup        ,
 			final StorageBackupItemQueue     itemQueue          ,

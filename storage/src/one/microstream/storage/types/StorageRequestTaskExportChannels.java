@@ -3,7 +3,7 @@ package one.microstream.storage.types;
 
 public interface StorageRequestTaskExportChannels extends StorageRequestTask
 {
-	public final class Implementation
+	public final class Default
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<Void>
 	implements StorageRequestTaskExportChannels, StorageChannelTaskStoreEntities
 	{
@@ -19,9 +19,9 @@ public interface StorageRequestTaskExportChannels extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		Implementation(
-			final long               timestamp   ,
-			final int                channelCount,
+		Default(
+			final long             timestamp   ,
+			final int              channelCount,
 			final StorageIoHandler fileHandler
 		)
 		{

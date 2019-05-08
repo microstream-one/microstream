@@ -27,7 +27,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 
 
 
-	public abstract class AbstractImplementation<S extends NetworkSession<?>> implements NetworkSessionManager<S>
+	public abstract class Abstract<S extends NetworkSession<?>> implements NetworkSessionManager<S>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -53,7 +53,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 		// constructors //
 		/////////////////
 
-		public AbstractImplementation(
+		public Abstract(
 			final RegulatorSessionTimeout         sessionTimeoutController     ,
 			final RegulatorSessionCheckInterval   regulatorSessionCheckInterval,
 			final NetworkMessageManager<S>        messageManager               ,
@@ -194,11 +194,11 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 
 	final class SessionManagerTimeoutThread extends Thread
 	{
-		private final WeakReference<AbstractImplementation<?>> sessionManager;
+		private final WeakReference<Abstract<?>> sessionManager;
 		private final RegulatorSessionCheckInterval            sessionCheckInterval;
 
 		SessionManagerTimeoutThread(
-			final AbstractImplementation<?>        sessionManager,
+			final Abstract<?>        sessionManager,
 			final RegulatorSessionCheckInterval sessionCheckInterval
 		)
 		{
@@ -210,7 +210,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 		@Override
 		public void run()
 		{
-			for(AbstractImplementation<?> sm; (sm = this.sessionManager.get()) != null; sm = null)
+			for(Abstract<?> sm; (sm = this.sessionManager.get()) != null; sm = null)
 			{
 				try
 				{

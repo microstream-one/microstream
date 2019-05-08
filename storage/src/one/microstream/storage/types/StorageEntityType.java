@@ -31,17 +31,17 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 
 
-	public final class Implementation implements StorageEntityType<StorageEntity.Implementation>
+	public final class Default implements StorageEntityType<StorageEntity.Default>
 	{
-		public interface EntityDeleter extends Predicate<StorageEntity.Implementation>
+		public interface EntityDeleter extends Predicate<StorageEntity.Default>
 		{
 			@Override
-			public boolean test(StorageEntity.Implementation entity);
+			public boolean test(StorageEntity.Default entity);
 
 			public void delete(
-				StorageEntity.Implementation     entity        ,
-				StorageEntityType.Implementation type          ,
-				StorageEntity.Implementation     previousInType
+				StorageEntity.Default     entity        ,
+				StorageEntityType.Default type          ,
+				StorageEntity.Default     previousInType
 			);
 		}
 
@@ -58,12 +58,12 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		private final long                     simpleReferenceDataCount;
                                                
 		private       long                     entityCount             ;
-		StorageEntityType.Implementation       hashNext                ;
-		StorageEntityType.Implementation       next                    ;
+		StorageEntityType.Default              hashNext                ;
+		StorageEntityType.Default              next                    ;
 		        final TypeInFile               dummy                    = new TypeInFile(this, null, null);
 
-		StorageEntity.Implementation head = StorageEntity.Implementation.createDummy(this.dummy);
-		StorageEntity.Implementation tail = this.head;
+		StorageEntity.Default head = StorageEntity.Default.createDummy(this.dummy);
+		StorageEntity.Default tail = this.head;
 
 
 
@@ -71,7 +71,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		// constructors //
 		/////////////////
 
-		Implementation(final int channelIndex)
+		Default(final int channelIndex)
 		{
 			super();
 			this.channelIndex             = channelIndex;
@@ -82,11 +82,11 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 			this.next                     =         this;
 		}
 
-		Implementation(
+		Default(
 			final int                              channelIndex,
 			final StorageEntityTypeHandler         typeHandler ,
-			final StorageEntityType.Implementation hashNext    ,
-			final StorageEntityType.Implementation next
+			final StorageEntityType.Default hashNext    ,
+			final StorageEntityType.Default next
 		)
 		{
 			super();
@@ -105,7 +105,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		// declared methods //
 		/////////////////////
 
-		final void add(final StorageEntity.Implementation entry)
+		final void add(final StorageEntity.Default entry)
 		{
 			// last item next null strategy to increase adding and iteration performance
 //			(entry.typePrev = this.head.typePrev).typeNext = this.head.typePrev = entry;
@@ -113,7 +113,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 			this.entityCount++;
 		}
 
-		final void remove(final StorageEntity.Implementation entry, final StorageEntity.Implementation previousInType)
+		final void remove(final StorageEntity.Default entry, final StorageEntity.Default previousInType)
 		{
 			// better check if already removed, should never happen in correct code, but you never know and it's cheap.
 //			if(entry.typePrev == null)
@@ -138,7 +138,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 			this.entityCount--;
 		}
 
-//		final void reset(final StorageEntityType.Implementation typeHead)
+//		final void reset(final StorageEntityType.Default typeHead)
 //		{
 //			this.entityCount = 0;
 //			(this.tail = this.head).typeNext = null;
@@ -147,10 +147,10 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 //		}
 
 		@Override
-		public <T extends Throwable, P extends ThrowingProcedure<? super StorageEntity.Implementation, T>>
+		public <T extends Throwable, P extends ThrowingProcedure<? super StorageEntity.Default, T>>
 		P iterateEntities(final P procedure) throws T
 		{
-			for(StorageEntity.Implementation entity = this.head; (entity = entity.typeNext) != null;)
+			for(StorageEntity.Default entity = this.head; (entity = entity.typeNext) != null;)
 			{
 				procedure.accept(entity);
 			}
@@ -159,7 +159,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 		public <P extends EntityDeleter> P removeAll(final P deleter)
 		{
-			for(StorageEntity.Implementation last, entity = this.head; (entity = (last = entity).typeNext) != null;)
+			for(StorageEntity.Default last, entity = this.head; (entity = (last = entity).typeNext) != null;)
 			{
 				if(deleter.test(entity))
 				{
@@ -215,7 +215,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 		@Override
 		public final void iterateEntityReferenceIds(
-			final StorageEntity.Implementation entity  ,
+			final StorageEntity.Default entity  ,
 			final PersistenceObjectIdAcceptor  iterator
 		)
 		{
@@ -229,7 +229,7 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 			long maxOid = 0, maxCid = 0;
 			final long maxTid = 0;
-			for(StorageEntity.Implementation entity = this.head; (entity = entity.typeNext) != null;)
+			for(StorageEntity.Default entity = this.head; (entity = entity.typeNext) != null;)
 			{
 				final long entityLength   = entity.length;
 				final long entityObjectId = entity.objectId();

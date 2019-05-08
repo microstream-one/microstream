@@ -17,7 +17,7 @@ public interface StorageChannelThreadProvider
 
 
 
-	public final class Implementation implements StorageChannelThreadProvider
+	public final class Default implements StorageChannelThreadProvider
 	{
 		@Override
 		public Thread provideChannelThread(final StorageChannel storageChannel)

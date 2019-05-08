@@ -92,7 +92,7 @@ NetworkClientGreeting.Creator<SimpleSession>
 	@Override
 	public SimpleSessionUser createUser(final SimpleAuthenticationInformation parameter)
 	{
-		return new SimpleSessionUser.Implementation(parameter.username());
+		return new SimpleSessionUser.Default(parameter.username());
 	}
 
 	@Override
@@ -123,7 +123,7 @@ NetworkClientGreeting.Creator<SimpleSession>
 	@Override
 	public NetworkClientGreeting createGreeting(final SimpleSession session)
 	{
-		return new NetworkClientGreeting.Implementation(
+		return new NetworkClientGreeting.Default(
 			this.host,
 			this.port,
 			this.byteOrder,

@@ -206,7 +206,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 		}
 
 		/**
-		 * Alias for {@code Implementation(logicProvider, maxThreadCount, 1000)}.
+		 * Alias for {@code Default(logicProvider, maxThreadCount, 1000)}.
 		 *
 		 * @param logicProvider the instance that provides the logic instances to be used by the worker threads.
 		 * @param threadTimeout the maximum number of concurrent threads to be created by this instance.

@@ -17,8 +17,8 @@ public interface NetworkUserSessionManager<U, S extends NetworkUserSession<U, ?>
 	}
 
 
-	public class Implementation<U, S extends NetworkUserSession<U, ?>>
-	extends NetworkSessionManager.AbstractImplementation<S>
+	public class Default<U, S extends NetworkUserSession<U, ?>>
+	extends NetworkSessionManager.Abstract<S>
 	implements NetworkUserSessionManager<U, S>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ public interface NetworkUserSessionManager<U, S extends NetworkUserSession<U, ?>
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final NetworkUserSession.Creator<U, ?, S>                 sessionCreator               ,
 			final NetworkSessionManager.RegulatorSessionTimeout       regulatorSessionTimeout      ,
 			final NetworkSessionManager.RegulatorSessionCheckInterval regulatorSessionCheckInterval,

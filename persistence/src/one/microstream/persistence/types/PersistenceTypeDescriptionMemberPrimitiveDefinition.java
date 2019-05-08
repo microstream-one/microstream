@@ -45,15 +45,15 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 		final long   persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation(
+		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Default(
 			 notNull(primitiveDefinition)    ,
 			positive(persistentMinimumLength),
 			positive(persistentMaximumLength)
 		);
 	}
 
-	public class Implementation
-	extends PersistenceTypeDescriptionMember.AbstractImplementation
+	public class Default
+	extends PersistenceTypeDescriptionMember.Abstract
 	implements PersistenceTypeDescriptionMemberPrimitiveDefinition
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final String primitiveDefinition    ,
 			final long   persistentMinimumLength,
 			final long   persistentMaximumLength

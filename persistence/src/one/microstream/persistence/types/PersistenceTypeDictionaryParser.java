@@ -23,16 +23,16 @@ public interface PersistenceTypeDictionaryParser
 
 
 	
-	public static PersistenceTypeDictionaryParser.Implementation New(
+	public static PersistenceTypeDictionaryParser.Default New(
 		final PersistenceFieldLengthResolver lengthResolver
 	)
 	{
-		return new PersistenceTypeDictionaryParser.Implementation(
+		return new PersistenceTypeDictionaryParser.Default(
 			notNull(lengthResolver)
 		);
 	}
 
-	public final class Implementation
+	public final class Default
 	extends PersistenceTypeDictionary.Symbols
 	implements PersistenceTypeDictionaryParser
 	{
@@ -40,7 +40,7 @@ public interface PersistenceTypeDictionaryParser
 
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
-		//////////////////
+		///////////////////
 
 		// util methods //
 
@@ -409,7 +409,7 @@ public interface PersistenceTypeDictionaryParser
 		// constructors //
 		/////////////////
 
-		Implementation(final PersistenceFieldLengthResolver lengthResolver)
+		Default(final PersistenceFieldLengthResolver lengthResolver)
 		{
 			super();
 			this.lengthResolver = lengthResolver;
@@ -459,7 +459,7 @@ public interface PersistenceTypeDictionaryParser
 	}
 
 
-	final class TypeEntry extends  PersistenceTypeDictionaryEntry.AbstractImplementation
+	final class TypeEntry extends  PersistenceTypeDictionaryEntry.Abstract
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -663,7 +663,7 @@ public interface PersistenceTypeDictionaryParser
 		final long resolveMinimumPrimitiveLength()
 		{
 			return this.lengthResolver.resolveMinimumLengthFromPrimitiveType(
-				PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation.resolvePrimitiveDefinition(
+				PersistenceTypeDefinitionMemberPrimitiveDefinition.Default.resolvePrimitiveDefinition(
 					this.primitiveDefinition
 				)
 			);
@@ -672,7 +672,7 @@ public interface PersistenceTypeDictionaryParser
 		final long resolveMaximumPrimitiveLength()
 		{
 			return this.lengthResolver.resolveMaximumLengthFromPrimitiveType(
-				PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation.resolvePrimitiveDefinition(
+				PersistenceTypeDefinitionMemberPrimitiveDefinition.Default.resolvePrimitiveDefinition(
 					this.primitiveDefinition
 				)
 			);

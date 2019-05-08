@@ -2,12 +2,12 @@ package one.microstream.network.types;
 
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.network.types.NetworkMessageListener.Provider;
-import one.microstream.network.types.NetworkSessionServer.Implementation.RegulatorMessageListenerCheckInterval;
-import one.microstream.network.types.NetworkSessionServer.Implementation.RegulatorMessageListenerThreadCount;
-import one.microstream.network.types.NetworkSessionServer.Implementation.RegulatorMessageProcessorThreadCount;
-import one.microstream.network.types.NetworkSessionServer.Implementation.RegulatorMessageProcessorThreadTimeout;
-import one.microstream.network.types.NetworkSessionServer.Implementation.RegulatorSessionCheckInterval;
-import one.microstream.network.types.NetworkSessionServer.Implementation.RegulatorSessionTimeout;
+import one.microstream.network.types.NetworkSessionServer.Default.RegulatorMessageListenerCheckInterval;
+import one.microstream.network.types.NetworkSessionServer.Default.RegulatorMessageListenerThreadCount;
+import one.microstream.network.types.NetworkSessionServer.Default.RegulatorMessageProcessorThreadCount;
+import one.microstream.network.types.NetworkSessionServer.Default.RegulatorMessageProcessorThreadTimeout;
+import one.microstream.network.types.NetworkSessionServer.Default.RegulatorSessionCheckInterval;
+import one.microstream.network.types.NetworkSessionServer.Default.RegulatorSessionTimeout;
 
 
 
@@ -32,8 +32,8 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 
 
 
-	public abstract class AbstractImplementation<S extends NetworkSession<?>>
-	extends NetworkFactoryServer.AbstractImplementation
+	public abstract class Abstract<S extends NetworkSession<?>>
+	extends NetworkFactoryServer.Abstract
 	implements NetworkFactoryServerSessionful<S>
 	{
 		private int valueMsgLisThreadCount = RegulatorMessageListenerThreadCount   .DEFAULT_THREAD_COUNT;
@@ -130,13 +130,13 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 
 		protected synchronized NetworkMessageHandler.Provider<S> provideMessageHandlerProvider()
 		{
-			return new NetworkMessageHandler.Provider.Implementation<>();
+			return new NetworkMessageHandler.Provider.Default<>();
 		}
 
 		protected synchronized NetworkMessageProcessor.Provider<S, ? extends NetworkMessageProcessor<S>>
 		provideMessageProcessorProvider()
 		{
-			return new NetworkMessageProcessor.Provider.TrivialImplementation<>(
+			return new NetworkMessageProcessor.Provider.Trivial<>(
 				this.getMessageProcessor()
 			);
 		}
@@ -243,7 +243,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setConnectionListenerMaxThreadCount(
+		public NetworkFactoryServerSessionful.Abstract<S> setConnectionListenerMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -252,7 +252,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setConnectionProcessorMaxThreadCount(
+		public NetworkFactoryServerSessionful.Abstract<S> setConnectionProcessorMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -261,7 +261,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setConnectionListenerCheckInterval(
+		public NetworkFactoryServerSessionful.Abstract<S> setConnectionListenerCheckInterval(
 			final int interval
 		)
 		{
@@ -270,7 +270,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setConnectionProcessorThreadTimeout(
+		public NetworkFactoryServerSessionful.Abstract<S> setConnectionProcessorThreadTimeout(
 			final int timeout
 		)
 		{
@@ -279,7 +279,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setConnectionSocket(
+		public NetworkFactoryServerSessionful.Abstract<S> setConnectionSocket(
 			final NetworkConnectionSocket connectionSocket
 		)
 		{
@@ -288,7 +288,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setConnectionListenerProvider(
+		public NetworkFactoryServerSessionful.Abstract<S> setConnectionListenerProvider(
 			final NetworkConnectionListener.Provider connectionListenerProvider
 		)
 		{
@@ -297,7 +297,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setConnectionHandlerProvider(
+		public NetworkFactoryServerSessionful.Abstract<S> setConnectionHandlerProvider(
 			final NetworkConnectionHandler.Provider connectionHandlerProvider
 		)
 		{
@@ -306,7 +306,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setProblemHandlerProviderConnectionListening(
+		public NetworkFactoryServerSessionful.Abstract<S> setProblemHandlerProviderConnectionListening(
 			final NetworkConnectionProblemHandler.Provider problemHandlerConnectionListening
 		)
 		{
@@ -315,7 +315,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setProblemHandlerProviderConnectionProcessing(
+		public NetworkFactoryServerSessionful.Abstract<S> setProblemHandlerProviderConnectionProcessing(
 			final NetworkConnectionProblemHandler.Provider problemHandlerConnectionProcessing
 		)
 		{
@@ -383,7 +383,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setMessageProcessorMaxThreadCount(
+		public NetworkFactoryServerSessionful.Abstract<S> setMessageProcessorMaxThreadCount(
 			final int maxThreadCount
 		)
 		{
@@ -392,7 +392,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setMessageProcessorThreadTimeout(
+		public NetworkFactoryServerSessionful.Abstract<S> setMessageProcessorThreadTimeout(
 			final int timeout
 		)
 		{
@@ -401,7 +401,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setSessionTimeout(
+		public NetworkFactoryServerSessionful.Abstract<S> setSessionTimeout(
 			final int timeout
 		)
 		{
@@ -410,7 +410,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 		@Override
-		public NetworkFactoryServerSessionful.AbstractImplementation<S> setSessionCheckInterval(
+		public NetworkFactoryServerSessionful.Abstract<S> setSessionCheckInterval(
 			final int checkInterval
 		)
 		{
@@ -425,7 +425,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 			final RegulatorMessageProcessorThreadTimeout regulatorMsgPrcThrdTimeout
 		)
 		{
-			return new NetworkMessageManager.Implementation<>(
+			return new NetworkMessageManager.Default<>(
 				this.getMessageListenerProvider() ,
 				regulatorMsgLisThreadCount        ,
 				regulatorMsgLisCheckIntrvl        ,
@@ -437,7 +437,7 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		}
 
 
-		protected synchronized NetworkSessionServer.Implementation.Setup createSessionServerSetup()
+		protected synchronized NetworkSessionServer.Default.Setup createSessionServerSetup()
 		{
 			final RegulatorMessageListenerThreadCount    regulatorMsgLisThreadCount;
 			final RegulatorMessageListenerCheckInterval  regulatorMsgLisCheckIntrvl;
@@ -477,11 +477,11 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 				regulatorSessionChkIntervl
 			));
 
-			final NetworkConnectionServer.Implementation.Setup superSetup = this.dispatch(
+			final NetworkConnectionServer.Default.Setup superSetup = this.dispatch(
 				this.createConnectionServerSetup()
 			);
 
-			return new NetworkSessionServer.Implementation.Setup(
+			return new NetworkSessionServer.Default.Setup(
 				superSetup                ,
 				this.sessionManager       ,
 				regulatorMsgLisThreadCount,
@@ -497,8 +497,8 @@ public interface NetworkFactoryServerSessionful<S extends NetworkSession<?>> ext
 		public synchronized NetworkSessionServer createServer()
 		{
 			this.cleanUpConstruction(); // reset volatile/temporary construction state just in case.
-			final NetworkSessionServer.Implementation.Setup setup = this.createSessionServerSetup();
-			final NetworkSessionServer newServer = new NetworkSessionServer.Implementation(setup);
+			final NetworkSessionServer.Default.Setup setup = this.createSessionServerSetup();
+			final NetworkSessionServer newServer = new NetworkSessionServer.Default(setup);
 			this.cleanUpConstruction(); // clean up
 			return newServer;
 		}

@@ -136,7 +136,7 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 				
 		
 		
-		public abstract class Implementation<E extends Entity<E>, C extends Creator<E, C>>
+		public abstract class Abstract<E extends Entity<E>, C extends Creator<E, C>>
 		implements Entity.Creator<E, C>
 		{
 			///////////////////////////////////////////////////////////////////////////

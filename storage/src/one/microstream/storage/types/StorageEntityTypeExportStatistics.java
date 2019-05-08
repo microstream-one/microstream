@@ -25,7 +25,7 @@ public interface StorageEntityTypeExportStatistics
 	
 	
 	
-	public final class Implementation extends AbstractStatistic implements StorageEntityTypeExportStatistics
+	public final class Default extends AbstractStatistic implements StorageEntityTypeExportStatistics
 	{
 		private static final String[] TABLE_COLUMN_NAMES =
 		{
@@ -45,7 +45,7 @@ public interface StorageEntityTypeExportStatistics
 		
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
-		//////////////////
+		///////////////////
 		
 		public static final void assembleTableHeader(final VarString vs)
 		{
@@ -58,8 +58,8 @@ public interface StorageEntityTypeExportStatistics
 		// instance fields //
 		////////////////////
 		
-		final XGettingTable<Long, TypeStatistic.Implementation>       typeStatistics       ;
-		final XGettingTable<Long, TypeStatistic.Implementation>       viewTypeStatistics   ;
+		final XGettingTable<Long, TypeStatistic.Default>  typeStatistics       ;
+		final XGettingTable<Long, TypeStatistic.Default>  viewTypeStatistics   ;
 		
 		final XGettingTable<Integer, ? extends ChannelStatistic> channelStatistics    ;
 		final XGettingTable<Integer, ? extends ChannelStatistic> viewChannelStatistics;
@@ -70,10 +70,10 @@ public interface StorageEntityTypeExportStatistics
 		// constructors //
 		/////////////////
 		
-		Implementation(final XGettingTable<Integer, ? extends ChannelStatistic> channelStatistics)
+		Default(final XGettingTable<Integer, ? extends ChannelStatistic> channelStatistics)
 		{
 			super();
-			final EqHashTable<Long, TypeStatistic.Implementation> typeStatistics = EqHashTable.New();
+			final EqHashTable<Long, TypeStatistic.Default> typeStatistics = EqHashTable.New();
 			
 			for(final KeyValue<Integer, ? extends ChannelStatistic> e1 : channelStatistics)
 			{
@@ -83,12 +83,12 @@ public interface StorageEntityTypeExportStatistics
 				for(final KeyValue<Long, ? extends TypeStatistic> e2 : cs.typeStatistics())
 				{
 					final TypeStatistic cts = e2.value();
-					TypeStatistic.Implementation ts  = typeStatistics.get(e2.key());
+					TypeStatistic.Default ts  = typeStatistics.get(e2.key());
 					if(ts == null)
 					{
 						typeStatistics.add(
 							e2.key(),
-							ts = new TypeStatistic.Implementation(cts.typeId(), cts.typeName(), cts.file())
+							ts = new TypeStatistic.Default(cts.typeId(), cts.typeName(), cts.file())
 						);
 					}
 					ts.update(cts.entityCount(), cts.bytesWritten(), cts.startTime(), cts.finishTime());
@@ -127,7 +127,7 @@ public interface StorageEntityTypeExportStatistics
 			vs.tab().tab().tab();
 			vs.lf().add("Total per Type:");
 			assembleTableHeader(vs);
-			for(final TypeStatistic.Implementation e : this.typeStatistics.values())
+			for(final TypeStatistic.Default e : this.typeStatistics.values())
 			{
 				e.assembleTableRecord(vs, "");
 			}
@@ -226,11 +226,11 @@ public interface StorageEntityTypeExportStatistics
 		
 			
 		
-		final class Implementation extends AbstractStatistic implements TypeStatistic
+		final class Default extends AbstractStatistic implements TypeStatistic
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 			
 			final long        typeId  ;
 			final String      typeName;
@@ -239,10 +239,10 @@ public interface StorageEntityTypeExportStatistics
 			
 			
 			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
+			// constructors //
+			/////////////////
 			
-			Implementation(final long typeId, final String typeName, final StorageFile file)
+			Default(final long typeId, final String typeName, final StorageFile file)
 			{
 				super();
 				this.typeId   = typeId  ;
@@ -307,31 +307,31 @@ public interface StorageEntityTypeExportStatistics
 		
 		
 		
-		final class Implementation extends AbstractStatistic implements ChannelStatistic
+		final class Default extends AbstractStatistic implements ChannelStatistic
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 			
-			final int                                                  channelIndex;
-			final XImmutableTable<Long, TypeStatistic.Implementation> typeStatistics ;
+			final int                                          channelIndex  ;
+			final XImmutableTable<Long, TypeStatistic.Default> typeStatistics;
 			
 			
 			
 			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
+			// constructors //
+			/////////////////
 			
-			Implementation(
-				final int                                               channelIndex  ,
-				final XGettingTable<Long, TypeStatistic.Implementation> typeStatistics
+			Default(
+				final int                                        channelIndex  ,
+				final XGettingTable<Long, TypeStatistic.Default> typeStatistics
 			)
 			{
 				super();
-				this.channelIndex = channelIndex                     ;
-				this.typeStatistics  = EqConstHashTable.New(typeStatistics);
+				this.channelIndex   = channelIndex                        ;
+				this.typeStatistics = EqConstHashTable.New(typeStatistics);
 				
-				for(final TypeStatistic.Implementation tr : typeStatistics.values())
+				for(final TypeStatistic.Default tr : typeStatistics.values())
 				{
 					this.update(tr.entityCount, tr.bytesWritten, tr.tStart, tr.tEnd);
 				}
@@ -359,13 +359,13 @@ public interface StorageEntityTypeExportStatistics
 			public final void assembleTableRecord(final VarString vs)
 			{
 				final String channelIdentifier = Integer.toString(this.channelIndex);
-				StorageEntityTypeExportStatistics.Implementation.assembleTableHeader(vs);
+				StorageEntityTypeExportStatistics.Default.assembleTableHeader(vs);
 				
 				super.assembleTableRecord(vs, channelIdentifier);
 				
 				vs.tab().tab().tab();
-				StorageEntityTypeExportStatistics.Implementation.assembleTableHeader(vs);
-				for(final TypeStatistic.Implementation e : this.typeStatistics.values())
+				StorageEntityTypeExportStatistics.Default.assembleTableHeader(vs);
+				for(final TypeStatistic.Default e : this.typeStatistics.values())
 				{
 					e.assembleTableRecord(vs, channelIdentifier);
 				}

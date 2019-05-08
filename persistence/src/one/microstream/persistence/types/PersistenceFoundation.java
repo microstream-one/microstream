@@ -306,11 +306,11 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public static <M> PersistenceFoundation<M, ?> New()
 	{
-		return new PersistenceFoundation.Implementation<>();
+		return new PersistenceFoundation.Default<>();
 	}
 	
-	public class Implementation<M, F extends PersistenceFoundation.Implementation<M, ?>>
-	extends InstanceDispatcher.Implementation
+	public class Default<M, F extends PersistenceFoundation.Default<M, ?>>
+	extends InstanceDispatcher.Default
 	implements PersistenceFoundation<M, F>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -388,7 +388,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		// constructors //
 		/////////////////
 		
-		protected Implementation()
+		protected Default()
 		{
 			super();
 		}
@@ -406,9 +406,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceFoundation.Implementation<M, F> Clone()
+		public PersistenceFoundation.Default<M, F> Clone()
 		{
-			return new PersistenceFoundation.Implementation<>();
+			return new PersistenceFoundation.Default<>();
 		}
 
 		
@@ -1626,14 +1626,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		protected PersistenceRegisterer.Creator ensureRegistererCreator()
 		{
-			return new PersistenceRegisterer.Implementation.Creator();
+			return new PersistenceRegisterer.Default.Creator();
 		}
 
 		protected PersistenceTypeHandlerRegistry<M> ensureTypeHandlerRegistry()
 		{
 			// note: sub class should/must register native type handlers in an overridden version of this method
 			final PersistenceTypeHandlerRegistry<M> newTypeHandlerRegistry =
-				new PersistenceTypeHandlerRegistry.Implementation<>(this.getTypeRegistry())
+				new PersistenceTypeHandlerRegistry.Default<>(this.getTypeRegistry())
 			;
 			return newTypeHandlerRegistry;
 		}
@@ -1681,7 +1681,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceTypeDictionaryExporter ensureTypeDictionaryExporter()
 		{
 			final PersistenceTypeDictionaryExporter newTypeDictionaryExporter =
-				new PersistenceTypeDictionaryExporter.Implementation(
+				new PersistenceTypeDictionaryExporter.Default(
 					this.getTypeDictionaryAssembler(),
 					this.getTypeDictionaryStorer()
 				)
@@ -1692,7 +1692,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceTypeDictionaryParser ensureTypeDictionaryParser()
 		{
 			final PersistenceTypeDictionaryParser newTypeDictionaryParser =
-				new PersistenceTypeDictionaryParser.Implementation(
+				new PersistenceTypeDictionaryParser.Default(
 					this.getFieldFixedLengthResolver()
 				)
 			;
@@ -1709,7 +1709,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		protected PersistenceTypeAnalyzer ensureTypeAnalyzer()
 		{
-			return new PersistenceTypeAnalyzer.Implementation(
+			return new PersistenceTypeAnalyzer.Default(
 				this.getTypeEvaluatorPersistable(),
 				this.getFieldEvaluator()
 			);
@@ -1963,7 +1963,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			typeHandlerManager.initialize(); // initialize type handlers (i.e. import/validate type dictionary)
 
 			final PersistenceManager<M> newPersistenceManager =
-				new PersistenceManager.Implementation<>(
+				new PersistenceManager.Default<>(
 					this.getObjectRegistry(),
 					this.getObjectManager(),
 					typeHandlerManager,

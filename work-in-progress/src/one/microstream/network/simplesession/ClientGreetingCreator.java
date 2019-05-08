@@ -42,7 +42,7 @@ public class ClientGreetingCreator implements NetworkClientGreeting.Creator<Simp
 	@Override
 	public NetworkClientGreeting createGreeting(final SimpleSession session)
 	{
-		return new NetworkClientGreeting.Implementation(
+		return new NetworkClientGreeting.Default(
 			this.host,
 			this.port,
 			this.byteOrder,

@@ -11,11 +11,11 @@ public interface ConfigEntry<T>
 	public T parse(String value);
 
 
-	public abstract class AbstractImplementation<T> implements ConfigEntry<T>
+	public abstract class Abstract<T> implements ConfigEntry<T>
 	{
 		final String key;
 
-		protected AbstractImplementation(final String key)
+		protected Abstract(final String key)
 		{
 			super();
 			this.key = key;

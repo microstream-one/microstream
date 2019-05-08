@@ -33,7 +33,7 @@ import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoF
 
 
 public abstract class AbstractBinaryHandlerCustom<T>
-extends BinaryTypeHandler.AbstractImplementation<T>
+extends BinaryTypeHandler.Abstract<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //

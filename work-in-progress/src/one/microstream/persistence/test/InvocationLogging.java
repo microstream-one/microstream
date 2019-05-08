@@ -48,7 +48,7 @@ public class InvocationLogging
 
 	public InvocationLogging()
 	{
-		this(new InvocationLogger.Implementation());
+		this(new InvocationLogger.Default());
 	}
 
 	public InvocationLogging(final InvocationLogger invocationLogger)

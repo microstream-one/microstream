@@ -35,7 +35,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		);
 	}
 
-	public static BinaryLoader.Implementation New(
+	public static BinaryLoader.Default New(
 		final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
 		final PersistenceObjectRegistry            registry       ,
 		final PersistenceSourceSupplier<Binary>    source         ,
@@ -43,7 +43,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		final boolean                              switchByteOrder
 	)
 	{
-		return new BinaryLoader.Implementation(
+		return new BinaryLoader.Default(
 			notNull(typeLookup),
 			notNull(registry),
 			notNull(source),
@@ -52,7 +52,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		);
 	}
 
-	public final class Implementation implements BinaryLoader, BinaryEntityDataReader, PersistenceObjectIdAcceptor
+	public final class Default implements BinaryLoader, BinaryEntityDataReader, PersistenceObjectIdAcceptor
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -61,6 +61,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		private static final int DEFAULT_HASH_SLOTS_LENGTH = 1024;
 
 
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -86,7 +87,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
 			final PersistenceObjectRegistry            registry       ,
 			final PersistenceSourceSupplier<Binary>    source         ,
@@ -764,7 +765,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			final PersistenceSourceSupplier<Binary>    source
 		)
 		{
-			return new BinaryLoader.Implementation(
+			return new BinaryLoader.Default(
 				typeLookup,
 				registry,
 				source,
@@ -815,7 +816,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			final PersistenceSourceSupplier<Binary>    source
 		)
 		{
-			return new BinaryLoader.Implementation(
+			return new BinaryLoader.Default(
 				typeLookup,
 				registry,
 				source,

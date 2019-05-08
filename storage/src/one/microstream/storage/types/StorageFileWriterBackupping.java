@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 public interface StorageFileWriterBackupping extends StorageFileWriter
 {
-	public final class Implementation implements StorageFileWriter
+	public final class Default implements StorageFileWriter
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -22,7 +22,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final StorageFileWriter         delegate    ,
 			final StorageBackupItemEnqueuer itemEnqueuer
 		)
@@ -245,7 +245,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		final StorageFileWriter.Provider wrappedProvider
 	)
 	{
-		return new StorageFileWriterBackupping.Provider.Implementation(
+		return new StorageFileWriterBackupping.Provider.Default(
 			notNull(backupItemEnqueuer),
 			notNull(wrappedProvider)
 		);
@@ -254,7 +254,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 	public interface Provider extends StorageFileWriter.Provider
 	{
 		
-		public static final class Implementation implements StorageFileWriterBackupping.Provider
+		public static final class Default implements StorageFileWriterBackupping.Provider
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -269,7 +269,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 			// constructors //
 			/////////////////
 
-			Implementation(
+			Default(
 				final StorageBackupItemEnqueuer  backupItemEnqueuer,
 				final StorageFileWriter.Provider wrappedProvider
 			)
@@ -290,7 +290,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 			{
 				final StorageFileWriter delegateWriter = this.wrappedProvider.provideWriter(channelIndex);
 				
-				return new StorageFileWriterBackupping.Implementation(
+				return new StorageFileWriterBackupping.Default(
 					delegateWriter,
 					this.backupItemEnqueuer
 				);

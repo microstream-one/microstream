@@ -13,7 +13,7 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 	
 	
 	
-	public abstract class AbstractImplementation<M> implements PersistenceLegacyTypeHandlerCreator<M>
+	public abstract class Abstract<M> implements PersistenceLegacyTypeHandlerCreator<M>
 	{
 		@Override
 		public <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(

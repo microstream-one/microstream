@@ -25,7 +25,7 @@ public interface StorageTask
 
 
 
-	public abstract class AbstractImplementation implements StorageTask
+	public abstract class Abstract implements StorageTask
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -41,7 +41,7 @@ public interface StorageTask
 		// constructors //
 		/////////////////
 
-		public AbstractImplementation(final long timestamp)
+		public Abstract(final long timestamp)
 		{
 			super();
 			this.timestamp = timestamp;
@@ -97,7 +97,7 @@ public interface StorageTask
 
 	}
 
-	public final class DummyTask extends StorageTask.AbstractImplementation
+	public final class DummyTask extends StorageTask.Abstract
 	{
 		DummyTask()
 		{

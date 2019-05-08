@@ -69,7 +69,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders
 	)
 	{
-		return new Implementation(
+		return new Default(
 			refactoringMapping                     ,
 			sourceTypeIdentifierBuilders  .immure(),
 			sourceMemberIdentifierBuilders.immure(),
@@ -77,7 +77,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		);
 	}
 	
-	public final class Implementation implements PersistenceRefactoringResolver
+	public final class Default implements PersistenceRefactoringResolver
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -94,7 +94,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final PersistenceRefactoringMapping                                           refactoringMapping            ,
 			final XImmutableEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 			final XImmutableEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,

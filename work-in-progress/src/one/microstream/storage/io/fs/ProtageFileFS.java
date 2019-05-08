@@ -31,7 +31,7 @@ public interface ProtageFileFS extends ProtageNioChannelFile
 	
 	// there is no publicly accessible constructor. Only directories can create file instances.
 		
-	public final class Implementation extends ProtageWritableFile.Implementation<ProtageDirectoryFS>
+	public final class Default extends ProtageWritableFile.Abstract<ProtageDirectoryFS>
 	implements ProtageFileFS
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ public interface ProtageFileFS extends ProtageNioChannelFile
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final ProtageDirectoryFS directory,
 			final String             name     ,
 			final File               file     ,

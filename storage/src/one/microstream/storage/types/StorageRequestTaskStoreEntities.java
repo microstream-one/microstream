@@ -23,7 +23,7 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 	 * "never touch a running system" proverb applies.
 	 */
 	
-	public final class Implementation
+	public final class Default
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<KeyValue<ByteBuffer[], long[]>>
 	implements StorageRequestTaskStoreEntities, StorageChannelTaskStoreEntities
 	{
@@ -39,7 +39,7 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		Implementation(final long timestamp, final Binary data)
+		Default(final long timestamp, final Binary data)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
 			super(timestamp, data.channelCount());

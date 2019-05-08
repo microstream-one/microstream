@@ -17,14 +17,14 @@ public interface ComClient<C>
 		return ComClientCreator.New();
 	}
 	
-	public static <C> ComClient.Implementation<C> New(
+	public static <C> ComClient.Default<C> New(
 		final InetSocketAddress          hostAddress       ,
 		final ComConnectionHandler<C>    connectionHandler ,
 		final ComProtocolStringConverter protocolParser    ,
 		final ComPersistenceAdaptor<C>   persistenceAdaptor
 	)
 	{
-		return new ComClient.Implementation<>(
+		return new ComClient.Default<>(
 			hostAddress       ,
 			connectionHandler ,
 			protocolParser    ,
@@ -32,7 +32,7 @@ public interface ComClient<C>
 		);
 	}
 	
-	public final class Implementation<C> implements ComClient<C>
+	public final class Default<C> implements ComClient<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -49,7 +49,7 @@ public interface ComClient<C>
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final InetSocketAddress          hostAddress       ,
 			final ComConnectionHandler<C>    connectionHandler ,
 			final ComProtocolStringConverter protocolParser    ,

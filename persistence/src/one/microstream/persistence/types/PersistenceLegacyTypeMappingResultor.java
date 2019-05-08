@@ -133,10 +133,10 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 		
 	public static <M> PersistenceLegacyTypeMappingResultor<M> New()
 	{
-		return new PersistenceLegacyTypeMappingResultor.Implementation<>();
+		return new PersistenceLegacyTypeMappingResultor.Default<>();
 	}
 	
-	public final class Implementation<M> implements PersistenceLegacyTypeMappingResultor<M>
+	public final class Default<M> implements PersistenceLegacyTypeMappingResultor<M>
 	{
 		// since default methods, the ability to instantiate stateless instances from interfaces is missing
 	}

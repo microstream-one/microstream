@@ -36,7 +36,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	
 	
 	
-	public abstract class AbstractImplementation<M, T> implements PersistenceLegacyTypeHandler<M, T>
+	public abstract class Abstract<M, T> implements PersistenceLegacyTypeHandler<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -50,7 +50,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final PersistenceTypeDefinition typeDefinition)
+		protected Abstract(final PersistenceTypeDefinition typeDefinition)
 		{
 			super();
 			this.typeDefinition = typeDefinition;
@@ -145,7 +145,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		);
 	}
 	
-	public final class Wrapper<M, T> extends PersistenceLegacyTypeHandler.AbstractImplementation<M, T>
+	public final class Wrapper<M, T> extends PersistenceLegacyTypeHandler.Abstract<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

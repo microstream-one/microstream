@@ -9,18 +9,18 @@ public interface PersistenceTypeDictionaryProvider
 
 	
 	
-	public static PersistenceTypeDictionaryProvider.Implementation New(
+	public static PersistenceTypeDictionaryProvider.Default New(
 		final PersistenceTypeDictionaryLoader   loader  ,
 		final PersistenceTypeDictionaryCompiler compiler
 	)
 	{
-		return new PersistenceTypeDictionaryProvider.Implementation(
+		return new PersistenceTypeDictionaryProvider.Default(
 			notNull(loader)  ,
 			notNull(compiler)
 		);
 	}
 
-	public final class Implementation implements PersistenceTypeDictionaryProvider
+	public final class Default implements PersistenceTypeDictionaryProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -35,7 +35,7 @@ public interface PersistenceTypeDictionaryProvider
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final PersistenceTypeDictionaryLoader   loader  ,
 			final PersistenceTypeDictionaryCompiler compiler
 		)

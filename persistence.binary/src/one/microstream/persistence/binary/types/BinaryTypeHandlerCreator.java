@@ -33,7 +33,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		final boolean                               switchByteOrder
 	)
 	{
-		return new BinaryTypeHandlerCreator.Implementation(
+		return new BinaryTypeHandlerCreator.Default(
 			notNull(typeAnalyzer)              ,
 			notNull(lengthResolver)            ,
 			notNull(eagerStoringFieldEvaluator),
@@ -42,8 +42,8 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		);
 	}
 
-	public class Implementation
-	extends PersistenceTypeHandlerCreator.AbstractImplementation<Binary>
+	public class Default
+	extends PersistenceTypeHandlerCreator.Abstract<Binary>
 	implements BinaryTypeHandlerCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final PersistenceTypeAnalyzer               typeAnalyzer              ,
 			final PersistenceFieldLengthResolver        lengthResolver            ,
 			final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,

@@ -29,10 +29,10 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		final String identifier = XFiles.ensureTrailingSlash(qualifier) + name;
 		final String qualIdent  = XFiles.ensureTrailingSlash(identifier);
 		
-		final EqHashTable<String, ProtageFileFS.Implementation>   files      = EqHashTable.New();
-		final XGettingTable<String, ProtageFileFS.Implementation> viewFiles  = files.view();
+		final EqHashTable<String, ProtageFileFS.Default>   files      = EqHashTable.New();
+		final XGettingTable<String, ProtageFileFS.Default> viewFiles  = files.view();
 		
-		final ProtageDirectoryFS.Implementation instance = new ProtageDirectoryFS.Implementation(
+		final ProtageDirectoryFS.Default instance = new ProtageDirectoryFS.Default(
 			directory, qualifier, name, identifier, qualIdent, files, viewFiles
 		);
 		instance.initializeFiles(isRelevantFile);
@@ -40,7 +40,7 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		return instance;
 	}
 	
-	public class Implementation implements ProtageDirectoryFS
+	public class Default implements ProtageDirectoryFS
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -52,8 +52,8 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		private final String identifier          ;
 		private final String qualifyingIdentifier;
 		
-		private final EqHashTable<String, ProtageFileFS.Implementation>   files    ;
-		private final XGettingTable<String, ProtageFileFS.Implementation> viewFiles;
+		private final EqHashTable<String, ProtageFileFS.Default>   files    ;
+		private final XGettingTable<String, ProtageFileFS.Default> viewFiles;
 		
 		
 		
@@ -61,14 +61,14 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final File                                                directory           ,
 			final String                                              qualifier           ,
 			final String                                              name                ,
 			final String                                              identifier          ,
 			final String                                              qualifyingIdentifier,
-			final EqHashTable<String, ProtageFileFS.Implementation>   files               ,
-			final XGettingTable<String, ProtageFileFS.Implementation> viewFiles
+			final EqHashTable<String, ProtageFileFS.Default>   files               ,
+			final XGettingTable<String, ProtageFileFS.Default> viewFiles
 		)
 		{
 			super();
@@ -175,7 +175,7 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		protected synchronized ProtageFileFS internalCreateFile(final File file, final String fileName)
 		{
 			// file is created in closed state to allow a complete creation of a preliminary directory instance
-			final ProtageFileFS.Implementation createdFile = new ProtageFileFS.Implementation(
+			final ProtageFileFS.Default createdFile = new ProtageFileFS.Default(
 				this, fileName, file, null, null
 			);
 			

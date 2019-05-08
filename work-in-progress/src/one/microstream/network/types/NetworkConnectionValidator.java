@@ -27,11 +27,11 @@ public interface NetworkConnectionValidator<R>
 
 
 
-		public class TrivialImplementation<R> implements NetworkConnectionValidator.Provider<R>
+		public class Trivial<R> implements NetworkConnectionValidator.Provider<R>
 		{
 			private final NetworkConnectionValidator<R> connectionValidator;
 
-			public TrivialImplementation(final NetworkConnectionValidator<R> connectionValidator)
+			public Trivial(final NetworkConnectionValidator<R> connectionValidator)
 			{
 				super();
 				this.connectionValidator = notNull(connectionValidator);

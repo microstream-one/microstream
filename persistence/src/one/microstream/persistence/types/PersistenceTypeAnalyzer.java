@@ -20,11 +20,11 @@ public interface PersistenceTypeAnalyzer
 
 
 
-	public final class Implementation implements PersistenceTypeAnalyzer
+	public final class Default implements PersistenceTypeAnalyzer
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
-		//////////////////
+		///////////////////
 
 		public static final void collectPersistableInstanceFields(
 			final XPrependingSequence<Field> collection   ,
@@ -32,17 +32,16 @@ public interface PersistenceTypeAnalyzer
 			final PersistenceFieldEvaluator  isPersistable
 		)
 		{
-
 			XReflect.collectTypedFields(collection, entityType, field ->
+			{
+				if(!XReflect.isInstanceField(field) || !isPersistable.isPersistable(entityType, field))
 				{
-					if(!XReflect.isInstanceField(field) || !isPersistable.isPersistable(entityType, field))
-					{
-						return false;
-					}
-//					typeManager.ensureTypeId(field.getType());
-					return true;
+					return false;
 				}
-			);
+				
+//				typeManager.ensureTypeId(field.getType());
+				return true;
+			});
 		}
 
 
@@ -60,7 +59,7 @@ public interface PersistenceTypeAnalyzer
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final PersistenceTypeEvaluator  isPersistable,
 			final PersistenceFieldEvaluator fieldSelector
 		)

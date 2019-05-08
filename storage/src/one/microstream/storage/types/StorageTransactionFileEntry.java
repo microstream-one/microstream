@@ -16,7 +16,7 @@ public interface StorageTransactionFileEntry
 
 
 
-	public final class Implementation implements StorageTransactionFileEntry
+	public final class Default implements StorageTransactionFileEntry
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -33,7 +33,7 @@ public interface StorageTransactionFileEntry
 		// constructors //
 		/////////////////
 
-		public Implementation(final long fileNumber, final long length)
+		public Default(final long fileNumber, final long length)
 		{
 			super();
 			this.fileNumber = fileNumber;

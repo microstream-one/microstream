@@ -135,7 +135,7 @@ public class CodeGeneratorFoundation extends AbstractCodeGenerator<CodeGenerator
 		;
 	}
 
-	static final class Member extends Field.Implementation
+	static final class Member extends Field.Default
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

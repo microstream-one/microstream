@@ -24,7 +24,7 @@ public interface Creator_Person extends Entity.Creator<Person, Creator_Person>
 	
 	public static Creator_Person New()
 	{
-		return new Creator_Person.Implementation();
+		return new Creator_Person.Default();
 	}
 	
 	public static Creator_Person New(final Person other)
@@ -34,8 +34,8 @@ public interface Creator_Person extends Entity.Creator<Person, Creator_Person>
 	
 	
 	
-	public class Implementation
-	extends Entity.Creator.Implementation<Person, Creator_Person>
+	public class Default
+	extends Entity.Creator.Abstract<Person, Creator_Person>
 	implements Creator_Person
 	{
 		///////////////////////////////////////////////////////////////////////////

@@ -31,12 +31,12 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		
 	
 	
-	public static <M> PersistenceCustomTypeHandlerRegistry.Implementation<M> New()
+	public static <M> PersistenceCustomTypeHandlerRegistry.Default<M> New()
 	{
-		return new PersistenceCustomTypeHandlerRegistry.Implementation<>();
+		return new PersistenceCustomTypeHandlerRegistry.Default<>();
 	}
 
-	public final class Implementation<M> implements PersistenceCustomTypeHandlerRegistry<M>
+	public final class Default<M> implements PersistenceCustomTypeHandlerRegistry<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -51,7 +51,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}
@@ -90,7 +90,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		}
 
 		@Override
-		public synchronized PersistenceCustomTypeHandlerRegistry.Implementation<M> registerTypeHandlers(
+		public synchronized PersistenceCustomTypeHandlerRegistry.Default<M> registerTypeHandlers(
 			final XGettingCollection<? extends PersistenceTypeHandler<M, ?>> typeHandlerInitializers
 		)
 		{

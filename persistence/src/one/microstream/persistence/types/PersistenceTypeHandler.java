@@ -75,7 +75,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	
 	
 	
-	public abstract class AbstractImplementation<M, T> implements PersistenceTypeHandler<M, T>
+	public abstract class Abstract<M, T> implements PersistenceTypeHandler<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
@@ -135,7 +135,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final Class<T> type)
+		protected Abstract(final Class<T> type)
 		{
 			super();
 			this.type = notNull(type);

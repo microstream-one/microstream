@@ -4,24 +4,17 @@ import one.microstream.persistence.binary.types.ChunksBuffer;
 
 public interface StorageRequestTaskLoadRoots extends StorageRequestTaskLoad
 {
-	public final class Implementation extends StorageRequestTaskLoad.AbstractImplementation
+	public final class Default extends StorageRequestTaskLoad.Abstract
 	implements StorageRequestTaskLoadRoots
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-
-
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Implementation(final long timestamp, final int channelCount)
+		Default(final long timestamp, final int channelCount)
 		{
 			super(timestamp, channelCount);
 		}
-
 
 
 

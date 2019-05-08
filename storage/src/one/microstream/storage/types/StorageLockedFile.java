@@ -97,10 +97,10 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 
 	public static StorageLockedFile New(final File file, final FileLock lock)
 	{
-		return new StorageLockedFile.Implementation(file, lock);
+		return new StorageLockedFile.Default(file, lock);
 	}
 
-	public class Implementation implements StorageLockedFile
+	public class Default implements StorageLockedFile
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -123,7 +123,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		// constructors //
 		/////////////////
 
-		public Implementation(final File file, final FileLock lock)
+		public Default(final File file, final FileLock lock)
 		{
 			super();
 			this.file         = file          ;

@@ -56,7 +56,7 @@ public class MainTestSessionlessServer
 	public static void main(final String[] args) throws Throwable
 	{
 		// Server factory requires only the socket and the connection processor (= business logic) by default.
-		new NetworkFactoryServerSessionless.Implementation()
+		new NetworkFactoryServerSessionless.Default()
 //		.setConnectionListenerMaxThreadCount(1)
 //		.setConnectionListenerCheckInterval(1000)
 //		.setConnectionProcessorMaxThreadCount(1)

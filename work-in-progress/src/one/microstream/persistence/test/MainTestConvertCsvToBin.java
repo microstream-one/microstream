@@ -20,7 +20,7 @@ public class MainTestConvertCsvToBin
 	{
 		convertCsvToBin(
 			BinaryPersistence.provideTypeDictionaryFromFile(new File("C:/Files/PersistenceTypeDictionary.ptd")),
-			X.List(new File("C:/Files/export/csv/de.emverbund.bonus.stammdaten.Datenstand$Implementation.csv")),
+			X.List(new File("C:/Files/export/csv/ExportTest.csv")),
 			new File("C:/Files/export/bin2"),
 			XFunc.all()
 		);
@@ -36,7 +36,7 @@ public class MainTestConvertCsvToBin
 		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			typeDictionary,
-			new StorageEntityTypeConversionFileProvider.Implementation(
+			new StorageEntityTypeConversionFileProvider.Default(
 				targetDirectory, "dat"
 			)
 		);

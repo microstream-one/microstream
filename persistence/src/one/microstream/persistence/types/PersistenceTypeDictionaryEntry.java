@@ -46,13 +46,13 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 		return assembleDictionaryString(VarString.New(), e).toString();
 	}
 	
-	public abstract class AbstractImplementation implements PersistenceTypeDictionaryEntry
+	public abstract class Abstract implements PersistenceTypeDictionaryEntry
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation()
+		protected Abstract()
 		{
 			super();
 		}

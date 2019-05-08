@@ -12,13 +12,13 @@ public interface Human
 
 
 
-	final class Implementation implements Human
+	final class Default implements Human
 	{
 		private final String name;
 
 
 
-		public Implementation(final String name)
+		public Default(final String name)
 		{
 			super();
 			this.name = name;

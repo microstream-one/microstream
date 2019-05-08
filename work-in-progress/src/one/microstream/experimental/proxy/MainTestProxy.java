@@ -12,7 +12,7 @@ public class MainTestProxy
 	public static void main(final String[] args)
 	{
 		// simple Human instance named Joe
-		final Human joe = new Human.Implementation("Joe");
+		final Human joe = new Human.Default("Joe");
 
 
 		System.out.println("Calling joe.doStuff()... ");
@@ -21,8 +21,8 @@ public class MainTestProxy
 
 
 		// proxy instance counts as instanceof wrapped instance's type, of course
-		System.out.println(joe.getName()+" equals mutexed new human called \"Joe\": "+joe.equals(mutex(new Human.Implementation("Joe"))));
-		System.out.println("Mutexed new human called \"Joe\" equals "+joe.getName()+": "+mutex((Human)new Human.Implementation("Joe")).equals(joe));
+		System.out.println(joe.getName()+" equals mutexed new human called \"Joe\": "+joe.equals(mutex(new Human.Default("Joe"))));
+		System.out.println("Mutexed new human called \"Joe\" equals "+joe.getName()+": "+mutex((Human)new Human.Default("Joe")).equals(joe));
 		System.out.println();
 
 		final Human joeWithDebugging = addDebugging(joe); // still joe instance with debugging aspect wrapped around it

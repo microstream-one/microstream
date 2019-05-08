@@ -33,7 +33,7 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 
 
 
-	public final class Implementation implements StorageIoHandler
+	public final class Default implements StorageIoHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -48,7 +48,7 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		// constructors //
 		/////////////////
 
-		public Implementation(final StorageFileProvider fileProvider, final StorageFileWriter fileWriter)
+		public Default(final StorageFileProvider fileProvider, final StorageFileWriter fileWriter)
 		{
 			super();
 			this.fileProvider = notNull(fileProvider);

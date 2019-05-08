@@ -129,7 +129,7 @@ public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 	}
 	
 	public abstract class Abstract<C, F extends ComFoundation.Abstract<C, ?>>
-	extends InstanceDispatcher.Implementation implements ComFoundation<C, F>
+	extends InstanceDispatcher.Default implements ComFoundation<C, F>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

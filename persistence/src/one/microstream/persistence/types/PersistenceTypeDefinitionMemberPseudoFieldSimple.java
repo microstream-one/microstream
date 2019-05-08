@@ -21,7 +21,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		final long     persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Implementation(
+		return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Default(
 			 notNull(name)                   ,
 			 notNull(typeName)               ,
 			 mayNull(type)                   ,
@@ -31,8 +31,8 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		);
 	}
 	
-	public class Implementation
-	extends PersistenceTypeDescriptionMemberPseudoField.AbstractImplementation
+	public class Default
+	extends PersistenceTypeDescriptionMemberPseudoField.Abstract
 	implements PersistenceTypeDefinitionMemberPseudoFieldSimple
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final String   name               ,
 			final String   typeName           ,
 			final Class<?> type               ,
@@ -81,7 +81,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		@Override
 		public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(final String name)
 		{
-			return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Implementation(
+			return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Default(
 				name,
 				this.typeName(),
 				this.type,

@@ -6,7 +6,7 @@ public final class Network
 {
 	public static NetworkConnectionSocket wrapServerSocketChannel(final ServerSocketChannel serverSocketChannel)
 	{
-		return new NetworkConnectionSocket.Implementation(serverSocketChannel);
+		return new NetworkConnectionSocket.Default(serverSocketChannel);
 	}
 
 

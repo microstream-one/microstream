@@ -14,20 +14,19 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 {
 	public static BinaryPersistenceRootsProvider New(final PersistenceRootResolver rootResolver)
 	{
-		return new BinaryPersistenceRootsProvider.Implementation(
+		return new BinaryPersistenceRootsProvider.Default(
 			notNull(rootResolver)
 		);
 	}
 	
-	public final class Implementation implements BinaryPersistenceRootsProvider
+	public final class Default implements BinaryPersistenceRootsProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		
-		final     PersistenceRootResolver         rootResolver;
-		transient PersistenceRoots.Implementation roots       ;
+		final     PersistenceRootResolver  rootResolver;
+		transient PersistenceRoots.Default roots       ;
 		
 		
 		
@@ -35,7 +34,7 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		// constructors //
 		/////////////////
 		
-		Implementation(final PersistenceRootResolver rootResolver)
+		Default(final PersistenceRootResolver rootResolver)
 		{
 			super();
 			this.rootResolver = rootResolver;
@@ -48,13 +47,14 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		////////////
 
 		@Override
-		public final PersistenceRoots.Implementation provideRoots()
+		public final PersistenceRoots.Default provideRoots()
 		{
 			if(this.roots == null)
 			{
 				// must always be consistent with #provideRootsClass
-				this.roots = PersistenceRoots.Implementation.New(this.rootResolver.getRootInstances());
+				this.roots = PersistenceRoots.Default.New(this.rootResolver.getRootInstances());
 			}
+			
 			return this.roots;
 		}
 		

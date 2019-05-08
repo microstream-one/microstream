@@ -36,7 +36,7 @@ public interface MultiMatchResult<E>
 	public XGettingList<E> matchedTargets();
 	
 	
-	public class Implementation<E> implements MultiMatchResult<E>
+	public class Default<E> implements MultiMatchResult<E>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
@@ -120,7 +120,7 @@ public interface MultiMatchResult<E>
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final int                                matchCount          ,
 			final ConstList<E>                       sourceInput         ,
 			final ConstList<E>                       targetInput         ,

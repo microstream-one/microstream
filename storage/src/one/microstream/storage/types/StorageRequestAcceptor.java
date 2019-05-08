@@ -92,16 +92,15 @@ public interface StorageRequestAcceptor
 		);
 
 
-		public final class Implementation implements Creator
+		public final class Default implements Creator
 		{
-
 			@Override
 			public StorageRequestAcceptor createRequestAcceptor(
 				final StorageDataChunkValidator dataChunkValidator,
 				final StorageTaskBroker         taskBroker
 			)
 			{
-				return new StorageRequestAcceptor.Implementation(dataChunkValidator, taskBroker);
+				return new StorageRequestAcceptor.Default(dataChunkValidator, taskBroker);
 			}
 
 		}
@@ -110,7 +109,7 @@ public interface StorageRequestAcceptor
 
 
 
-	public final class Implementation implements StorageRequestAcceptor
+	public final class Default implements StorageRequestAcceptor
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -125,7 +124,7 @@ public interface StorageRequestAcceptor
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final StorageDataChunkValidator dataChunkValidator,
 			final StorageTaskBroker         taskBroker
 		)

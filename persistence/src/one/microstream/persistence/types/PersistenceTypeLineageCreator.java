@@ -8,18 +8,18 @@ public interface PersistenceTypeLineageCreator
 	
 		
 	
-	public static PersistenceTypeLineageCreator.Implementation New()
+	public static PersistenceTypeLineageCreator.Default New()
 	{
-		return new PersistenceTypeLineageCreator.Implementation();
+		return new PersistenceTypeLineageCreator.Default();
 	}
 	
-	public final class Implementation implements PersistenceTypeLineageCreator
+	public final class Default implements PersistenceTypeLineageCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Implementation()
+		Default()
 		{
 			super();
 		}

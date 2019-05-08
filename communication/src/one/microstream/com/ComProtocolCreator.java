@@ -13,7 +13,7 @@ public interface ComProtocolCreator
 		String                        name          ,
 		String                        version       ,
 		ByteOrder                     byteOrder     ,
-		PersistenceIdStrategy             idStrategy    ,
+		PersistenceIdStrategy         idStrategy    ,
 		PersistenceTypeDictionaryView typeDictionary
 	);
 	
@@ -21,16 +21,16 @@ public interface ComProtocolCreator
 	
 	public static ComProtocolCreator New()
 	{
-		return new ComProtocolCreator.Implementation();
+		return new ComProtocolCreator.Default();
 	}
 	
-	public final class Implementation implements ComProtocolCreator
+	public final class Default implements ComProtocolCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}
@@ -46,11 +46,11 @@ public interface ComProtocolCreator
 			final String                        name          ,
 			final String                        version       ,
 			final ByteOrder                     byteOrder     ,
-			final PersistenceIdStrategy             idStrategy    ,
+			final PersistenceIdStrategy         idStrategy    ,
 			final PersistenceTypeDictionaryView typeDictionary
 		)
 		{
-			return new ComProtocol.Implementation(name, version, byteOrder, idStrategy, typeDictionary);
+			return new ComProtocol.Default(name, version, byteOrder, idStrategy, typeDictionary);
 		}
 		
 	}

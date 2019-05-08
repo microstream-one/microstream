@@ -122,7 +122,7 @@ public class UtilStorageCsvExport
 	)
 	{
 		final StorageEntityTypeExportStatistics result = storageConnection.exportTypes(
-			new StorageEntityTypeExportFileProvider.Implementation(targetDirectory, fileSuffix),
+			new StorageEntityTypeExportFileProvider.Default(targetDirectory, fileSuffix),
 			isExportType
 		);
 		System.out.println(result);
@@ -167,9 +167,9 @@ public class UtilStorageCsvExport
 		final String                  name
 	)
 	{
-		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.ImplementationUTF8(
+		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
-			new StorageEntityTypeConversionFileProvider.Implementation(csvTargetDirectory, FILE_SUFFIX_CSV),
+			new StorageEntityTypeConversionFileProvider.Default(csvTargetDirectory, FILE_SUFFIX_CSV),
 			typeDictionary,
 			null,
 			BUFFER_SIZE_READ,

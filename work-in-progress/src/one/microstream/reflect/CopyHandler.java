@@ -35,7 +35,7 @@ public interface CopyHandler
 	 *
 	 * @author Thomas Muenz
 	 */
-	public static class DefaultImplementation implements CopyHandler
+	public static class Default implements CopyHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -44,7 +44,7 @@ public interface CopyHandler
 		/**
 		 * Trivial default constructor.
 		 */
-		public DefaultImplementation()
+		public Default()
 		{
 			super();
 		}

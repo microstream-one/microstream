@@ -58,7 +58,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		final long    persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDescriptionMemberField.Implementation(
+		return new PersistenceTypeDescriptionMemberField.Default(
 			 notNull(typeName)               ,
 			 notNull(name)                   ,
 			 notNull(declaringTypeName)      ,
@@ -68,8 +68,8 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		);
 	}
 	
-	public class Implementation
-	extends PersistenceTypeDescriptionMember.AbstractImplementation
+	public class Default
+	extends PersistenceTypeDescriptionMember.Abstract
 	implements PersistenceTypeDescriptionMemberField
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final String   typeName           ,
 			final String   name               ,
 			final String   declaringTypeName  ,

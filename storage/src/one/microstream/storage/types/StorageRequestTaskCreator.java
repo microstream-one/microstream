@@ -71,7 +71,7 @@ public interface StorageRequestTaskCreator
 
 
 
-	public final class Implementation implements StorageRequestTaskCreator
+	public final class Default implements StorageRequestTaskCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -85,7 +85,7 @@ public interface StorageRequestTaskCreator
 		// constructors //
 		/////////////////
 
-		public Implementation(final StorageTimestampProvider timestampProvider)
+		public Default(final StorageTimestampProvider timestampProvider)
 		{
 			super();
 			this.timestampProvider = notNull(timestampProvider);
@@ -103,7 +103,7 @@ public interface StorageRequestTaskCreator
 			final StorageOperationController operationController
 		)
 		{
-			return new StorageChannelTaskInitialize.Implementation(
+			return new StorageChannelTaskInitialize.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount                                 ,
 				operationController
@@ -116,7 +116,7 @@ public interface StorageRequestTaskCreator
 			final StorageOperationController operationController
 		)
 		{
-			return new StorageChannelTaskShutdown.Implementation(
+			return new StorageChannelTaskShutdown.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount,
 				operationController
@@ -126,7 +126,7 @@ public interface StorageRequestTaskCreator
 		@Override
 		public StorageRequestTaskStoreEntities createSaveTask(final Binary medium)
 		{
-			return new StorageRequestTaskStoreEntities.Implementation(
+			return new StorageRequestTaskStoreEntities.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				medium
 			);
@@ -135,7 +135,7 @@ public interface StorageRequestTaskCreator
 		@Override
 		public StorageRequestTaskLoadByOids createLoadTaskByOids(final PersistenceIdSet[] loadOids)
 		{
-			return new StorageRequestTaskLoadByOids.Implementation(
+			return new StorageRequestTaskLoadByOids.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				loadOids
 			);
@@ -144,7 +144,7 @@ public interface StorageRequestTaskCreator
 		@Override
 		public StorageRequestTaskLoadRoots createRootsLoadTask(final int channelCount)
 		{
-			return new StorageRequestTaskLoadRoots.Implementation(
+			return new StorageRequestTaskLoadRoots.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount
 			);
@@ -153,7 +153,7 @@ public interface StorageRequestTaskCreator
 		@Override
 		public StorageRequestTaskLoadByTids createLoadTaskByTids(final PersistenceIdSet loadTids, final int channelCount)
 		{
-			return new StorageRequestTaskLoadByTids.Implementation(
+			return new StorageRequestTaskLoadByTids.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				loadTids,
 				channelCount
@@ -167,7 +167,7 @@ public interface StorageRequestTaskCreator
 			final Predicate<? super StorageEntityTypeHandler> isExportType
 		)
 		{
-			return new StorageRequestTaskExportEntitiesByType.Implementation(
+			return new StorageRequestTaskExportEntitiesByType.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount                                 ,
 				exportFileProvider                           ,
@@ -181,7 +181,7 @@ public interface StorageRequestTaskCreator
 			final StorageIoHandler fileHandler
 		)
 		{
-			return new StorageRequestTaskExportChannels.Implementation(
+			return new StorageRequestTaskExportChannels.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount,
 				fileHandler
@@ -191,7 +191,7 @@ public interface StorageRequestTaskCreator
 		@Override
 		public StorageRequestTaskCreateStatistics createCreateRawFileStatisticsTask(final int channelCount)
 		{
-			return new StorageRequestTaskCreateStatistics.Implementation(
+			return new StorageRequestTaskCreateStatistics.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount
 			);
@@ -204,7 +204,7 @@ public interface StorageRequestTaskCreator
 			final StorageDataFileDissolvingEvaluator fileDissolver
 		)
 		{
-			return new StorageRequestTaskFileCheck.Implementation(
+			return new StorageRequestTaskFileCheck.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount,
 				nanoTimeBudgetBound,
@@ -219,7 +219,7 @@ public interface StorageRequestTaskCreator
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 		{
-			return new StorageRequestTaskCacheCheck.Implementation(
+			return new StorageRequestTaskCacheCheck.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount,
 				nanoTimeBudgetBound,
@@ -235,7 +235,7 @@ public interface StorageRequestTaskCreator
 			final XGettingEnum<File>            importFiles
 		)
 		{
-			return new StorageRequestTaskImportData.Implementation(
+			return new StorageRequestTaskImportData.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount,
 				objectIdRangeEvaluator,

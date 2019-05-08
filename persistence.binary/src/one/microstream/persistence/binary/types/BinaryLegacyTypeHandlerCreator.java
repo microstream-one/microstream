@@ -30,15 +30,15 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		final boolean                                       switchByteOrder
 	)
 	{
-		return new BinaryLegacyTypeHandlerCreator.Implementation(
+		return new BinaryLegacyTypeHandlerCreator.Default(
 			notNull(valueTranslatorProvider)   ,
 			mayNull(legacyTypeHandlingListener),
 			switchByteOrder
 		);
 	}
 	
-	public final class Implementation
-	extends PersistenceLegacyTypeHandlerCreator.AbstractImplementation<Binary>
+	public final class Default
+	extends PersistenceLegacyTypeHandlerCreator.Abstract<Binary>
 	implements BinaryLegacyTypeHandlerCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final BinaryValueTranslatorProvider                 valueTranslatorProvider   ,
 			final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener,
 			final boolean                                       switchByteOrder

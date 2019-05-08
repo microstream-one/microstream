@@ -21,16 +21,16 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 	
 	
 
-	public static <M> PersistenceTypeHandlerRegistry.Implementation<M> New(
+	public static <M> PersistenceTypeHandlerRegistry.Default<M> New(
 		final PersistenceTypeRegistry typeRegistry
 	)
 	{
-		return new PersistenceTypeHandlerRegistry.Implementation<>(
+		return new PersistenceTypeHandlerRegistry.Default<>(
 			notNull(typeRegistry)
 		);
 	}
 
-	public final class Implementation<M> implements PersistenceTypeHandlerRegistry<M>
+	public final class Default<M> implements PersistenceTypeHandlerRegistry<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -47,7 +47,7 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 		// constructors //
 		/////////////////
 
-		Implementation(final PersistenceTypeRegistry typeRegistry)
+		Default(final PersistenceTypeRegistry typeRegistry)
 		{
 			super();
 			this.typeRegistry = typeRegistry;

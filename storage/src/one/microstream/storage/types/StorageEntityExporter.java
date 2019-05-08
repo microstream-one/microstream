@@ -10,7 +10,7 @@ public interface StorageEntityExporter<E extends StorageEntityCacheItem<E>>
 
 
 
-	public final class Implementation implements StorageEntityExporter<StorageEntity.Implementation>
+	public final class Default implements StorageEntityExporter<StorageEntity.Default>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
@@ -18,11 +18,13 @@ public interface StorageEntityExporter<E extends StorageEntityCacheItem<E>>
 
 		@Override
 		public final void exportEntities(
-			final StorageEntityType<StorageEntity.Implementation> type,
-			final StorageLockedFile                               file
+			final StorageEntityType<StorageEntity.Default> type,
+			final StorageLockedFile                        file
 		)
 		{
-			type.iterateEntities(e -> e.exportTo(file));
+			type.iterateEntities(e ->
+				e.exportTo(file)
+			);
 		}
 
 		@Override

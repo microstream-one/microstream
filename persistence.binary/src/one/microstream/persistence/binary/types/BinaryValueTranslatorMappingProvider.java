@@ -18,10 +18,10 @@ public interface BinaryValueTranslatorMappingProvider extends BinaryValueTransla
 	
 	public static BinaryValueTranslatorMappingProvider New()
 	{
-		return new BinaryValueTranslatorMappingProvider.Implementation();
+		return new BinaryValueTranslatorMappingProvider.Default();
 	}
 	
-	public final class Implementation implements BinaryValueTranslatorMappingProvider
+	public final class Default implements BinaryValueTranslatorMappingProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

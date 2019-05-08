@@ -16,7 +16,7 @@ public interface CsvEntityParser<T>
 
 
 
-	public abstract class AbstractImplementation<T> implements CsvEntityParser<T>
+	public abstract class Abstract<T> implements CsvEntityParser<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -38,12 +38,12 @@ public interface CsvEntityParser<T>
 		// constructors //
 		/////////////////
 
-		public AbstractImplementation(final int columnCount)
+		public Abstract(final int columnCount)
 		{
 			this(columnCount, DEFAULT_COLLECTOR_CAPACITY);
 		}
 
-		public AbstractImplementation(final int columnCount, final int collectorInitialCapacity)
+		public Abstract(final int columnCount, final int collectorInitialCapacity)
 		{
 			super();
 			this.columnCount = columnCount;

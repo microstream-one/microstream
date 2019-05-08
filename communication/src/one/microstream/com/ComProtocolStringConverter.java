@@ -161,12 +161,12 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		final PersistenceTypeDictionaryCompiler typeDictionaryCompiler
 	)
 	{
-		return new ComProtocolStringConverter.Implementation(
+		return new ComProtocolStringConverter.Default(
 			notNull(typeDictionaryCompiler)
 		);
 	}
 	
-	public final class Implementation implements ComProtocolStringConverter
+	public final class Default implements ComProtocolStringConverter
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -181,7 +181,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		// constructors //
 		/////////////////
 		
-		Implementation(final PersistenceTypeDictionaryCompiler typeDictionaryCompiler)
+		Default(final PersistenceTypeDictionaryCompiler typeDictionaryCompiler)
 		{
 			super();
 			this.typeDictionaryCompiler = typeDictionaryCompiler;

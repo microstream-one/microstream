@@ -18,25 +18,25 @@ public interface PersistenceRoots
 		
 	public static PersistenceRoots New(final XGettingTable<String, Object> roots)
 	{
-		return PersistenceRoots.Implementation.New(roots);
+		return PersistenceRoots.Default.New(roots);
 	}
 
-	public final class Implementation implements PersistenceRoots
+	public final class Default implements PersistenceRoots
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
 		///////////////////
 		
-		public static PersistenceRoots.Implementation createUninitialized()
+		public static PersistenceRoots.Default createUninitialized()
 		{
-			return new PersistenceRoots.Implementation(
+			return new PersistenceRoots.Default(
 				EqHashTable.New()
 			);
 		}
 		
-		public static PersistenceRoots.Implementation New(final XGettingTable<String, Object> roots)
+		public static PersistenceRoots.Default New(final XGettingTable<String, Object> roots)
 		{
-			return new PersistenceRoots.Implementation(
+			return new PersistenceRoots.Default(
 				EqHashTable.New(roots)
 			);
 		}
@@ -57,7 +57,7 @@ public interface PersistenceRoots
 		// constructors //
 		/////////////////
 		
-		Implementation(final EqHashTable<String, Object> roots)
+		Default(final EqHashTable<String, Object> roots)
 		{
 			super();
 			this.roots      = roots;

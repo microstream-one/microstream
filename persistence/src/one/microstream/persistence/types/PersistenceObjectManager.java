@@ -36,18 +36,18 @@ extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<Persistenc
 
 	
 	
-	public static PersistenceObjectManager.Implementation New(
+	public static PersistenceObjectManager.Default New(
 		final PersistenceObjectRegistry   objectRegistry,
 		final PersistenceObjectIdProvider oidProvider
 	)
 	{
-		return new PersistenceObjectManager.Implementation(
+		return new PersistenceObjectManager.Default(
 			notNull(objectRegistry),
 			notNull(oidProvider)
 		);
 	}
 
-	public final class Implementation implements PersistenceObjectManager
+	public final class Default implements PersistenceObjectManager
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -62,7 +62,7 @@ extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<Persistenc
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final PersistenceObjectRegistry   objectRegistry,
 			final PersistenceObjectIdProvider oidProvider
 		)
@@ -79,7 +79,7 @@ extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<Persistenc
 		////////////
 		
 		@Override
-		public PersistenceObjectManager.Implementation Clone()
+		public PersistenceObjectManager.Default Clone()
 		{
 			/*
 			 * This basically turns the globally connected manager instance into a standalone clone.
@@ -88,7 +88,7 @@ extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<Persistenc
 			 */
 			synchronized(this.objectRegistry)
 			{
-				return new PersistenceObjectManager.Implementation(
+				return new PersistenceObjectManager.Default(
 					this.objectRegistry.Clone(),
 					this.oidProvider.Clone()
 				);

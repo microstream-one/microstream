@@ -37,13 +37,13 @@ public interface StorageOperationController
 		final StorageChannelCountProvider channelCountProvider
 	)
 	{
-		return new StorageOperationController.Implementation(
+		return new StorageOperationController.Default(
 			new WeakReference<>(storageManager),
 			channelCountProvider
 		);
 	}
 
-	public final class Implementation implements StorageOperationController
+	public final class Default implements StorageOperationController
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -62,7 +62,7 @@ public interface StorageOperationController
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final WeakReference<StorageManager> storageManagerReference,
 			final StorageChannelCountProvider   channelCountProvider
 		)
@@ -156,7 +156,7 @@ public interface StorageOperationController
 	
 	public static StorageOperationController.Creator Provider()
 	{
-		return new StorageOperationController.Creator.Implementation();
+		return new StorageOperationController.Creator.Default();
 	}
 	
 	public interface Creator
@@ -166,12 +166,22 @@ public interface StorageOperationController
 			StorageManager              storageManager
 		);
 		
-		public final class Implementation implements StorageOperationController.Creator
+		public final class Default implements StorageOperationController.Creator
 		{
-			Implementation()
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Default()
 			{
 				super();
 			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
 
 			@Override
 			public final StorageOperationController createOperationController(

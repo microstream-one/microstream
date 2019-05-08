@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 public interface StorageChannelTaskShutdown extends StorageChannelTask
 {
-	public final class Implementation
+	public final class Default
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<Void>
 	implements StorageChannelTaskShutdown
 	{
@@ -20,7 +20,7 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final long                       timestamp          ,
 			final int                        channelCount       ,
 			final StorageOperationController operationController

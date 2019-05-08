@@ -43,19 +43,19 @@ public interface Substituter<T>
 	}
 
 
-	public static <T> Substituter.Implementation<T> New()
+	public static <T> Substituter.Default<T> New()
 	{
-		return new Implementation<>(EqHashEnum.<T>New());
+		return new Default<>(EqHashEnum.<T>New());
 	}
 
-	public static <T> Substituter.Implementation<T> New(final HashEqualator<? super T> hashEqualator)
+	public static <T> Substituter.Default<T> New(final HashEqualator<? super T> hashEqualator)
 	{
-		return new Implementation<>(EqHashEnum.New(hashEqualator));
+		return new Default<>(EqHashEnum.New(hashEqualator));
 	}
 
 
 
-	public final class Implementation<T> implements Substituter.Managed<T>, Composition
+	public final class Default<T> implements Substituter.Managed<T>, Composition
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -77,7 +77,7 @@ public interface Substituter<T>
 		// constructors //
 		/////////////////
 
-		Implementation(final EqHashEnum<T> elements)
+		Default(final EqHashEnum<T> elements)
 		{
 			super();
 			this.elements = elements;

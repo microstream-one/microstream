@@ -52,7 +52,7 @@ public interface BinaryValueTranslatorProvider
 		final boolean                                                     switchByteOrder
 	)
 	{
-		return new BinaryValueTranslatorProvider.Implementation(
+		return new BinaryValueTranslatorProvider.Default(
 			mayNull(customTranslatorLookup),
 			unwrapKeyBuilders(translatorKeyBuilders),
 			notNull(translatorLookupProvider),
@@ -70,7 +70,7 @@ public interface BinaryValueTranslatorProvider
 		;
 	}
 	
-	public final class Implementation implements BinaryValueTranslatorProvider
+	public final class Default implements BinaryValueTranslatorProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -79,7 +79,7 @@ public interface BinaryValueTranslatorProvider
 		private final XGettingMap<String, BinaryValueSetter> customTranslatorLookup  ;
 		private final BinaryValueTranslatorKeyBuilder[]      translatorKeyBuilders   ;
 		private final BinaryValueTranslatorLookupProvider    translatorLookupProvider;
-		private final boolean                                switchByteOrder            ;
+		private final boolean                                switchByteOrder         ;
 		
 		private transient TypeMappingLookup<BinaryValueSetter> translatorLookup;
 		
@@ -89,7 +89,7 @@ public interface BinaryValueTranslatorProvider
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final XGettingMap<String, BinaryValueSetter> customTranslatorLookup  ,
 			final BinaryValueTranslatorKeyBuilder[]      translatorKeyBuilders   ,
 			final BinaryValueTranslatorLookupProvider    translatorLookupProvider,

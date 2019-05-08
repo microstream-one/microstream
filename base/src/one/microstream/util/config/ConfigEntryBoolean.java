@@ -1,6 +1,6 @@
 package one.microstream.util.config;
 
-final class ConfigEntryBoolean extends ConfigEntry.AbstractImplementation<Boolean>
+final class ConfigEntryBoolean extends ConfigEntry.Abstract<Boolean>
 {
 	ConfigEntryBoolean(final String key)
 	{

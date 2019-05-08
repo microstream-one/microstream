@@ -76,7 +76,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 
 
-	public final class ImplementationUTF8
+	public final class UTF8
 	implements
 	StorageDataConverterTypeBinaryToCsv,
 	StorageDataFileItemIterator.BufferProvider,
@@ -147,7 +147,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
-		//////////////////
+		///////////////////
 
 		static final FileChannel createFileChannel(final File file) throws StorageException
 		{
@@ -243,7 +243,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		// constructors //
 		/////////////////
 
-		public ImplementationUTF8(
+		public UTF8(
 			final StorageDataConverterCsvConfiguration    configuration  ,
 			final StorageEntityTypeConversionFileProvider fileProvider   ,
 			final PersistenceTypeDictionary               typeDictionary ,
@@ -401,7 +401,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 					@Override
 					public long writeValue(final long valueReadAddress) throws IOException
 					{
-						return ImplementationUTF8.this.writeComplexSingle(valueWriter, valueReadAddress);
+						return UTF8.this.writeComplexSingle(valueWriter, valueReadAddress);
 					}
 				};
 			}
@@ -412,7 +412,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					return ImplementationUTF8.this.writeComplexMultiple(valueWriters, valueReadAddress);
+					return UTF8.this.writeComplexMultiple(valueWriters, valueReadAddress);
 				}
 			};
 		}
@@ -553,7 +553,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			{
 				try
 				{
-					StorageDataFileItemIterator.Implementation.processInputFile(inputChannel, this, this, 0, inputChannel.size());
+					StorageDataFileItemIterator.Default.processInputFile(inputChannel, this, this, 0, inputChannel.size());
 					this.flushWriteBuffer(); // make sure to flush the buffer at the end to write all
 				}
 				catch(final WriteException e)
@@ -838,7 +838,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_byte(XMemory.get_byte(valueReadAddress));
+					UTF8.this.write_byte(XMemory.get_byte(valueReadAddress));
 					return valueReadAddress + XMemory.byteSize_byte();
 				}
 			};
@@ -851,7 +851,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_boolean(XMemory.get_boolean(valueReadAddress));
+					UTF8.this.write_boolean(XMemory.get_boolean(valueReadAddress));
 					return valueReadAddress + XMemory.byteSize_boolean();
 				}
 			};
@@ -864,7 +864,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_short(XMemory.get_short(valueReadAddress));
+					UTF8.this.write_short(XMemory.get_short(valueReadAddress));
 					return valueReadAddress + XMemory.byteSize_short();
 				}
 			};
@@ -877,7 +877,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_char(XMemory.get_char(valueReadAddress));
+					UTF8.this.write_char(XMemory.get_char(valueReadAddress));
 					return valueReadAddress + XMemory.byteSize_char();
 				}
 			};
@@ -890,7 +890,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_int(XMemory.get_int(valueReadAddress));
+					UTF8.this.write_int(XMemory.get_int(valueReadAddress));
 					return valueReadAddress + XMemory.byteSize_int();
 				}
 			};
@@ -903,7 +903,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_float(XMemory.get_float(valueReadAddress));
+					UTF8.this.write_float(XMemory.get_float(valueReadAddress));
 					return valueReadAddress + Float.BYTES;
 				}
 			};
@@ -916,7 +916,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_long(XMemory.get_long(valueReadAddress));
+					UTF8.this.write_long(XMemory.get_long(valueReadAddress));
 					return valueReadAddress + XMemory.byteSize_long();
 				}
 			};
@@ -929,7 +929,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.write_double(XMemory.get_double(valueReadAddress));
+					UTF8.this.write_double(XMemory.get_double(valueReadAddress));
 					return valueReadAddress + XMemory.byteSize_double();
 				}
 			};
@@ -942,7 +942,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					ImplementationUTF8.this.writeReference(XMemory.get_long(valueReadAddress));
+					UTF8.this.writeReference(XMemory.get_long(valueReadAddress));
 					return valueReadAddress + XMemory.byteSize_long();
 				}
 			};
@@ -957,7 +957,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				{
 					final long bound = valueReadAddress + Binary.getBinaryListTotalByteLengthRawValue(valueReadAddress);
 					
-					ImplementationUTF8.this.write_chars(
+					UTF8.this.write_chars(
 						Binary.toBinaryListElementsAddress(valueReadAddress),
 						bound
 					);
@@ -976,7 +976,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				{
 					final long bound = valueReadAddress + Binary.getBinaryListTotalByteLengthRawValue(valueReadAddress);
 					
-					ImplementationUTF8.this.write_bytes(
+					UTF8.this.write_bytes(
 						Binary.toBinaryListElementsAddress(valueReadAddress),
 						bound
 					);

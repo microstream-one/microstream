@@ -40,8 +40,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 
-	public final class Implementation
-	implements StorageEntityCache<StorageEntity.Implementation>, Unpersistable
+	public final class Default
+	implements StorageEntityCache<StorageEntity.Default>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -72,21 +72,21 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private final RootEntityRootOidSelectionIterator  rootEntityIterator  ;
 
 		// currently only used for entity iteration
-		private       StorageFileManager.Implementation   fileManager         ; // pseudo-final
+		private       StorageFileManager.Default   fileManager         ; // pseudo-final
 
-		private       StorageEntity.Implementation[]      oidHashTable        ;
+		private       StorageEntity.Default[]      oidHashTable        ;
 		private       int                                 oidModulo           ; // long modulo makes not difference
 		private       long                                oidSize             ;
 
-		private       StorageEntityType.Implementation[]  tidHashTable        ;
+		private       StorageEntityType.Default[]  tidHashTable        ;
 		private       int                                 tidModulo           ;
 		private       int                                 tidSize             ;
 
-		private final StorageEntityType.Implementation    typeHead            ;
-		private       StorageEntityType.Implementation    typeTail            ;
-		private       StorageEntityType.Implementation    rootType            ;
+		private final StorageEntityType.Default    typeHead            ;
+		private       StorageEntityType.Default    typeTail            ;
+		private       StorageEntityType.Default    rootType            ;
 
-		private       StorageEntity.Implementation        liveCursor          ;
+		private       StorageEntity.Default        liveCursor          ;
 
 		private       long                                usedCacheSize       ;
 		private       boolean                             hasUpdatePendingSweep;
@@ -102,7 +102,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final int                                 channelIndex         ,
 			final int                                 channelCount         ,
 			final StorageEntityCacheEvaluator         cacheEvaluator       ,
@@ -130,7 +130,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.markingWaitTimeMs     = positive  (markingWaitTimeMs);
 			this.markingOidBuffer      = new long[markingBufferLength];
 			this.rootEntityIterator    = new RootEntityRootOidSelectionIterator(rootOidSelector);
-			this.typeHead              = new StorageEntityType.Implementation(this.channelIndex);
+			this.typeHead              = new StorageEntityType.Default(this.channelIndex);
 			this.initializeState();
 			this.referenceMarker       = markMonitor.provideReferenceMarker(this);
 		}
@@ -156,7 +156,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return this.lastSweepEnd;
 		}
 
-		final void initializeStorageManager(final StorageFileManager.Implementation fileManager)
+		final void initializeStorageManager(final StorageFileManager.Default fileManager)
 		{
 			if(this.fileManager != null && this.fileManager != fileManager)
 			{
@@ -206,11 +206,11 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		final synchronized void resetState()
 		{
-			this.oidHashTable   = new StorageEntity.Implementation[1];
+			this.oidHashTable   = new StorageEntity.Default[1];
 			this.oidModulo      = this.oidHashTable.length - 1;
 			this.oidSize        = 0;
 
-			this.tidHashTable   = new StorageEntityType.Implementation[1];
+			this.tidHashTable   = new StorageEntityType.Default[1];
 			this.tidModulo      = this.tidHashTable.length - 1;
 			this.tidSize        = 0;
 
@@ -245,10 +245,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private void enlargeOidHashTable()
 		{
 			final int newModulo;
-			final StorageEntity.Implementation[] newSlots =
+			final StorageEntity.Default[] newSlots =
 				XMath.isGreaterThanOrEqualHighestPowerOf2(this.oidHashTable.length)
-				? new StorageEntity.Implementation[newModulo = Integer.MAX_VALUE] // perfect hash range special case
-				: new StorageEntity.Implementation[(newModulo = (this.oidModulo + 1 << 1) - 1) + 1] // 1111 :D
+				? new StorageEntity.Default[newModulo = Integer.MAX_VALUE] // perfect hash range special case
+				: new StorageEntity.Default[(newModulo = (this.oidModulo + 1 << 1) - 1) + 1] // 1111 :D
 			;
 			rebuildOidHashSlots(this.oidHashTable, newSlots, this.channelHashShift, newModulo);
 			this.oidHashTable = newSlots;
@@ -256,15 +256,15 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		private static void rebuildOidHashSlots(
-			final StorageEntity.Implementation[] oldSlots     ,
-			final StorageEntity.Implementation[] newSlots     ,
+			final StorageEntity.Default[] oldSlots     ,
+			final StorageEntity.Default[] newSlots     ,
 			final int                            bitShiftCount,
 			final int                            newModulo
 		)
 		{
-			for(StorageEntity.Implementation entry : oldSlots)
+			for(StorageEntity.Default entry : oldSlots)
 			{
-				for(StorageEntity.Implementation next; entry != null; entry = next)
+				for(StorageEntity.Default next; entry != null; entry = next)
 				{
 					next = entry.hashNext;
 					entry.hashNext = newSlots[oidHashIndex(entry.objectId(), bitShiftCount, newModulo)];
@@ -283,7 +283,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			// if the hash table is unnecessary large, shrink it
 			final int                            newModulo = XMath.pow2BoundMaxed((int)this.oidSize) - 1;
-			final StorageEntity.Implementation[] newSlots  = new StorageEntity.Implementation[newModulo + 1];
+			final StorageEntity.Default[] newSlots  = new StorageEntity.Default[newModulo + 1];
 			rebuildOidHashSlots(this.oidHashTable, newSlots, this.channelHashShift, newModulo);
 			this.oidHashTable = newSlots;
 			this.oidModulo    = newModulo;
@@ -292,13 +292,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private void rebuildTidHashTable()
 		{
 			final int newModulo;
-			final StorageEntityType.Implementation[] newSlots =
-				new StorageEntityType.Implementation[(newModulo = (this.tidModulo + 1 << 1) - 1) + 1]
+			final StorageEntityType.Default[] newSlots =
+				new StorageEntityType.Default[(newModulo = (this.tidModulo + 1 << 1) - 1) + 1]
 			;
 
-			for(StorageEntityType.Implementation entries : this.tidHashTable)
+			for(StorageEntityType.Default entries : this.tidHashTable)
 			{
-				for(StorageEntityType.Implementation next; entries != null; entries = next)
+				for(StorageEntityType.Default next; entries != null; entries = next)
 				{
 					next = entries.hashNext;
 					entries.hashNext = newSlots[tidHashIndex(entries.typeId, newModulo)];
@@ -309,9 +309,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.tidModulo    = newModulo;
 		}
 
-		final StorageEntityType.Implementation getType(final long typeId)
+		final StorageEntityType.Default getType(final long typeId)
 		{
-			final StorageEntityType.Implementation type;
+			final StorageEntityType.Default type;
 			if((type = this.lookupType(typeId)) != null)
 			{
 				return type;
@@ -319,7 +319,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return this.addNewType(typeId);
 		}
 
-		private StorageEntityType.Implementation addNewType(final long typeId)
+		private StorageEntityType.Default addNewType(final long typeId)
 		{
 			// the order is important: first rebuild hash table, THEN create and register the instance. DONT MESS UP.
 			if(this.tidSize >= this.tidModulo)
@@ -333,7 +333,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final int hashIndex = tidHashIndex(typeId, this.tidModulo);
 
 			// create and register
-			final StorageEntityType.Implementation type = new StorageEntityType.Implementation(
+			final StorageEntityType.Default type = new StorageEntityType.Default(
 				this.channelIndex,
 				typeHandler,
 				this.tidHashTable[hashIndex],
@@ -383,12 +383,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return oidChannelIndex(oid, this.channelHashModulo);
 		}
 
-		private StorageEntity.Implementation getOidHashChainHead(final long oid)
+		private StorageEntity.Default getOidHashChainHead(final long oid)
 		{
 			return this.oidHashTable[this.oidHashIndex(oid)];
 		}
 
-		private void setOidHashChainHead(final long oid, final StorageEntity.Implementation head)
+		private void setOidHashChainHead(final long oid, final StorageEntity.Default head)
 		{
 			this.oidHashTable[this.oidHashIndex(oid)] = head;
 		}
@@ -399,9 +399,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * channel's inherent thread which is also the same that rebuilds the hashTables, so it can never work
 		 * on old cached instances.
 		 */
-		final void unregisterEntity(final StorageEntity.Implementation item)
+		final void unregisterEntity(final StorageEntity.Default item)
 		{
-			StorageEntity.Implementation entry;
+			StorageEntity.Default entry;
 			if((entry = this.getOidHashChainHead(item.objectId())) == item)
 			{
 				this.setOidHashChainHead(item.objectId(), item.hashNext);
@@ -422,9 +422,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * channel's inherent thread which is also the same that rebuilds the hashTables, so it can never work
 		 * on old outdated instances.
 		 */
-		public final StorageEntity.Implementation getEntry(final long objectId)
+		public final StorageEntity.Default getEntry(final long objectId)
 		{
-			for(StorageEntity.Implementation e = this.getOidHashChainHead(objectId); e != null; e = e.hashNext)
+			for(StorageEntity.Default e = this.getOidHashChainHead(objectId); e != null; e = e.hashNext)
 			{
 				if(e.objectId() == objectId)
 				{
@@ -453,7 +453,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		static final class RootEntityRootOidSelectionIterator
-		implements ThrowingProcedure<StorageEntity.Implementation, RuntimeException>
+		implements ThrowingProcedure<StorageEntity.Default, RuntimeException>
 		{
 			final StorageRootOidSelector rootOidSelector;
 
@@ -464,14 +464,14 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 
 			@Override
-			public void accept(final StorageEntity.Implementation e) throws RuntimeException
+			public void accept(final StorageEntity.Default e) throws RuntimeException
 			{
 				this.rootOidSelector.accept(e.objectId());
 			}
 
 		}
 
-		private void ensureNoCachedData(final StorageEntity.Implementation entry)
+		private void ensureNoCachedData(final StorageEntity.Default entry)
 		{
 			if(entry.isLive())
 			{
@@ -499,7 +499,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final EqHashEnum<Long> occuringTypeIds = EqHashEnum.New();
 
 			// validate all entities via iteration by type. Simplifies debugging and requires less type pointer chasing
-			for(StorageEntityType.Implementation type : this.tidHashTable)
+			for(StorageEntityType.Default type : this.tidHashTable)
 			{
 				while(type != null)
 				{
@@ -534,14 +534,14 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return StorageIdAnalysis.New(maxTid, maxOid, maxCid, occuringTypeIds);
 		}
 
-		final StorageEntityType.Implementation validateEntity(
+		final StorageEntityType.Default validateEntity(
 			final long length,
 			final long typeId,
 			final long objcId
 		)
 		{
-			final StorageEntityType.Implementation type;
-			final StorageEntity.Implementation entry = this.getEntry(objcId);
+			final StorageEntityType.Default type;
+			final StorageEntity.Default entry = this.getEntry(objcId);
 
 			if(entry != null)
 			{
@@ -566,7 +566,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return type;
 		}
 
-		final StorageEntity.Implementation putEntity(final long objectId, final StorageEntityType.Implementation type)
+		final StorageEntity.Default putEntity(final long objectId, final StorageEntityType.Default type)
 		{
 			/* This logic is a copy from #putEntity(long).
 			 * This is intentionally done for performance reasons:
@@ -579,7 +579,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			// ensure (lookup or create) complete entity item for storing
 //			DEBUGStorage.println("looking for " + Binary.getEntityObjectId(entityAddress));
-			final StorageEntity.Implementation entry;
+			final StorageEntity.Default entry;
 			if((entry = this.getEntry(objectId)) != null)
 			{
 //				DEBUGStorage.println("updating entry " + entry);
@@ -591,7 +591,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return this.createEntity(objectId, type);
 		}
 
-		final StorageEntity.Implementation putEntity(final long entityAddress)
+		final StorageEntity.Default putEntity(final long entityAddress)
 		{
 			/* (11.02.2019 TM)NOTE: On byte order switching:
 			 * Theoreticaly, the storage engine (OGS) could also use the switchByteOrder mechanism implemented for
@@ -604,7 +604,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			 */
 			
 //			DEBUGStorage.println("looking for " + Binary.getEntityObjectId(entityAddress));
-			final StorageEntity.Implementation entry;
+			final StorageEntity.Default entry;
 			if((entry = this.getEntry(Binary.getEntityObjectIdRawValue(entityAddress))) != null)
 			{
 //				DEBUGStorage.println("updating entry " + entry);
@@ -639,9 +639,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		}
 					
-		final StorageEntity.Implementation initialCreateEntity(final long entityAddress)
+		final StorageEntity.Default initialCreateEntity(final long entityAddress)
 		{
-			final StorageEntity.Implementation entity = this.createEntity(
+			final StorageEntity.Default entity = this.createEntity(
 				Binary.getEntityObjectIdRawValue(entityAddress),
 				this.getType(Binary.getEntityTypeIdRawValue(entityAddress))
 			);
@@ -649,7 +649,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return entity;
 		}
 
-		private void resetExistingEntityForUpdate(final StorageEntity.Implementation entry)
+		private void resetExistingEntityForUpdate(final StorageEntity.Default entry)
 		{
 			// ensure the old data is not cached any longer
 			this.ensureNoCachedData(entry);
@@ -671,7 +671,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 *
 		 * @param entry
 		 */
-		private void markEntityForChangedData(final StorageEntity.Implementation entry)
+		private void markEntityForChangedData(final StorageEntity.Default entry)
 		{
 			/*
 			 * (01.08.2016 TM)NOTE:
@@ -764,9 +764,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * channel's inherent thread which is also the same that rebuilds the hashTables, so it can never work
 		 * on old cached instances.
 		 */
-		private StorageEntity.Implementation createEntity(
+		private StorageEntity.Default createEntity(
 			final long                             objectId,
-			final StorageEntityType.Implementation type
+			final StorageEntityType.Default type
 		)
 		{
 			// increment size and check for necessary (and reasonable) rebuild
@@ -776,10 +776,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 
 			// create and put entry
-			final StorageEntity.Implementation entity;
+			final StorageEntity.Default entity;
 			this.setOidHashChainHead(
 				objectId,
-				entity = StorageEntity.Implementation.New(
+				entity = StorageEntity.Default.New(
 					objectId,
 					type.dummy,
 					this.getOidHashChainHead(objectId),
@@ -800,9 +800,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		final void deleteEntity(
-			final StorageEntity.Implementation     entity        ,
-			final StorageEntityType.Implementation type          ,
-			final StorageEntity.Implementation     previousInType
+			final StorageEntity.Default     entity        ,
+			final StorageEntityType.Default type          ,
+			final StorageEntity.Default     previousInType
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.typeInFile.type.typeHandler().typeName());
@@ -823,7 +823,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			entity.setDeleted();
 		}
 
-		private void checkForCacheClear(final StorageEntity.Implementation entry, final long evalTime)
+		private void checkForCacheClear(final StorageEntity.Default entry, final long evalTime)
 		{
 			if(this.entityCacheEvaluator.clearEntityCache(this.usedCacheSize, evalTime, entry))
 			{
@@ -888,7 +888,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				}
 
 				// get the entry for the current oid to be marked
-				final StorageEntity.Implementation entry = this.getEntry(oidsBuffer[oidsMarkIndex++]);
+				final StorageEntity.Default entry = this.getEntry(oidsBuffer[oidsMarkIndex++]);
 
 				// externalized/modularized zombie oid handling
 				if(entry == null)
@@ -965,14 +965,14 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_gray = 0;
 //			final long DEBUG_starttime = System.nanoTime();
 
-			final StorageEntityType.Implementation typeHead = this.typeHead;
+			final StorageEntityType.Default typeHead = this.typeHead;
 
-			for(StorageEntityType.Implementation sweepType = typeHead; (sweepType = sweepType.next) != typeHead;)
+			for(StorageEntityType.Default sweepType = typeHead; (sweepType = sweepType.next) != typeHead;)
 			{
 //				DEBUGStorage.println(this.channelIndex + " sweeping " + sweepType.typeHandler().typeName());
 
 				// get next item and check for end of type (switch to next type required)
-				for(StorageEntity.Implementation item, last = sweepType.head; (item = last.typeNext) != null;)
+				for(StorageEntity.Default item, last = sweepType.head; (item = last.typeNext) != null;)
 				{
 //					DEBUGStorage.println(this.channelIndex + " sweep checking " + item.typeInFile.type.typeHandler().typeName() + " " + item.objectId());
 
@@ -1052,8 +1052,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
 //			}
 
-//			final StorageEntityType.Implementation typeDate = this.lookupType(35);
-//			for(StorageEntity.Implementation e = typeDate.head; e != null; e = e.typeNext)
+//			final StorageEntityType.Default typeDate = this.lookupType(35);
+//			for(StorageEntity.Default e = typeDate.head; e != null; e = e.typeNext)
 //			{
 //				DEBUGStorage.println(this.channelIndex + " date " + e.objectId());
 //			}
@@ -1070,7 +1070,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		final void internalPutEntities(
 			final ByteBuffer                     chunk               ,
 			final long                           chunkStoragePosition,
-			final StorageDataFile.Implementation file
+			final StorageDataFile.Default file
 		)
 		{
 			final long chunkStartAddress = XMemory.getDirectByteBufferAddress(chunk);
@@ -1083,7 +1083,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// chunk's entities are iterated, put into the cache and have their current storage positions set/updated
 			for(long adr = chunkStartAddress; adr < chunkBoundAddress; adr += Binary.getEntityLengthRawValue(adr))
 			{
-				final StorageEntity.Implementation entity = this.putEntity(adr);
+				final StorageEntity.Default entity = this.putEntity(adr);
 				this.markEntityForChangedData(entity);
 				entity.updateStorageInformation(
 					X.checkArrayRange(Binary.getEntityLengthRawValue(adr)),
@@ -1125,7 +1125,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		public void postStorePutEntities(
 			final ByteBuffer[]                   chunks                ,
 			final long[]                         chunksStoragePositions,
-			final StorageDataFile.Implementation dataFile
+			final StorageDataFile.Default dataFile
 		)
 			throws InterruptedException
 		{
@@ -1156,9 +1156,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		@Override
-		public final StorageEntityType.Implementation lookupType(final long typeId)
+		public final StorageEntityType.Default lookupType(final long typeId)
 		{
-			for(StorageEntityType.Implementation typeEntry = this.tidHashTable[tidHashIndex(typeId, this.tidModulo)];
+			for(StorageEntityType.Default typeEntry = this.tidHashTable[tidHashIndex(typeId, this.tidModulo)];
 				typeEntry != null;
 				typeEntry = typeEntry.hashNext
 			)
@@ -1204,11 +1204,11 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 		
 		
-		private static StorageEntity.Implementation getFirstReachableEntity(
-			final StorageDataFile.Implementation startingFile
+		private static StorageEntity.Default getFirstReachableEntity(
+			final StorageDataFile.Default startingFile
 		)
 		{
-			StorageDataFile.Implementation file = startingFile;
+			StorageDataFile.Default file = startingFile;
 			do
 			{
 				if(file.head.fileNext != startingFile.tail)
@@ -1233,10 +1233,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			final long evalTime = System.currentTimeMillis();
 
-			final StorageEntity.Implementation   cursor;
-			      StorageEntity.Implementation   tail  ;
-			      StorageEntity.Implementation   entity;
-			      StorageDataFile.Implementation file  ;
+			final StorageEntity.Default   cursor;
+			      StorageEntity.Default   tail  ;
+			      StorageEntity.Default   entity;
+			      StorageDataFile.Default file  ;
 
 			if(this.liveCursor == null || !this.liveCursor.isProper() || this.liveCursor.isDeleted())
 			{
@@ -1315,7 +1315,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return this.quitLiveCheck(entity);
 		}
 		
-		private boolean quitLiveCheck(final StorageEntity.Implementation entity)
+		private boolean quitLiveCheck(final StorageEntity.Default entity)
 		{
 			if(this.usedCacheSize == 0)
 			{
@@ -1347,7 +1347,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * Not cool :-[.
 		 */
 		private boolean entityRequiresCacheClearing(
-			final StorageEntity.Implementation entity   ,
+			final StorageEntity.Default entity   ,
 			final StorageEntityCacheEvaluator  evaluator,
 			final long                         evalTime
 		)
@@ -1362,7 +1362,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		
 
 		// CHECKSTYLE.OFF: FinalParameters: this method is just an outsourced scroll-helper
-		static final StorageEntity.Implementation getNextLiveEntity(StorageEntity.Implementation entity)
+		static final StorageEntity.Default getNextLiveEntity(StorageEntity.Default entity)
 		{
 			while(entity != null && !entity.isLive())
 			{

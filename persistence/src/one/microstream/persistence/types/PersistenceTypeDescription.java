@@ -73,10 +73,10 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	
 	public static PersistenceTypeDescription Identity(final long typeId, final String typeName)
 	{
-		return new PersistenceTypeDescription.IdentityImplementation(typeId, typeName);
+		return new PersistenceTypeDescription.Identity(typeId, typeName);
 	}
 	
-	public final class IdentityImplementation implements PersistenceTypeDescription
+	public final class Identity implements PersistenceTypeDescription
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -91,7 +91,7 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 		// constructors //
 		/////////////////
 		
-		IdentityImplementation(final long typeId, final String typeName)
+		Identity(final long typeId, final String typeName)
 		{
 			super();
 			this.typeId   = typeId  ;

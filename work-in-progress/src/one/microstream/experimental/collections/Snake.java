@@ -30,55 +30,54 @@ public interface Snake<E> //extends VarString.Appendable
 
 
 
-	class Implementation<E> implements Snake<E>
+	class Default<E> implements Snake<E>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		Object value;
-		Snake.Implementation<E> next = null;
-		Snake.Implementation<E> prev = null;
+		Object           value;
+		Snake.Default<E> next ;
+		Snake.Default<E> prev ;
 
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		public Implementation()
+		public Default()
 		{
 			super();
 			this.value = null;
 		}
-		public Implementation(final Object value)
+		
+		public Default(final Object value)
 		{
 			super();
 			this.value = value;
 		}
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
-		/**
-		 * @return
-		 * @see one.microstream.experimental.collections.Snake#head()
-		 */
 		@Override
 		public Snake<E> head()
 		{
-			Snake.Implementation<E> link = this;
+			Snake.Default<E> link = this;
 			while(link.next != null)
 			{
 				link = link.next;
 			}
 			return link;
 		}
-		/**
-		 * @param index
-		 * @return
-		 * @see one.microstream.experimental.collections.Snake#hop(int)
-		 */
+
 		@Override
 		public Snake<E> hop(int index)
 		{
-			Snake.Implementation<E> link = this;
+			Snake.Default<E> link = this;
 			if(index < 0)
 			{
 				while(index ++> 0)
@@ -95,57 +94,41 @@ public interface Snake<E> //extends VarString.Appendable
 			}
 			return link;
 		}
-		/**
-		 * @return
-		 * @see one.microstream.experimental.collections.Snake#tail()
-		 */
+
 		@Override
 		public Snake<E> tail()
 		{
-			Snake.Implementation<E> link = this;
+			Snake.Default<E> link = this;
 			while(link.prev != null)
 			{
 				link = link.prev;
 			}
 			return link;
 		}
-		/**
-		 * @return
-		 * @see one.microstream.experimental.collections.Snake#value()
-		 */
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public E value()
 		{
 			return (E)this.value;
 		}
-		/**
-		 * @return
-		 * @see one.microstream.experimental.collections.Snake#next()
-		 */
+
 		@Override
 		public Snake<E> next()
 		{
 			return this.next();
 		}
-		/**
-		 * @return
-		 * @see one.microstream.experimental.collections.Snake#prev()
-		 */
+
 		@Override
 		public Snake<E> prev()
 		{
 			return this.prev();
 		}
-		/**
-		 * @param value
-		 * @return
-		 * @see one.microstream.experimental.collections.Snake#add(java.lang.Object)
-		 */
+
 		@Override
 		public Snake<E> add(final E value)
 		{
-			final Snake.Implementation<E> newLink = new Snake.Implementation<>();
+			final Snake.Default<E> newLink = new Snake.Default<>();
 			newLink.value = value;
 
 			newLink.prev = this;
@@ -153,29 +136,19 @@ public interface Snake<E> //extends VarString.Appendable
 
 			return newLink;
 		}
-		/**
-		 * @return
-		 * @see one.microstream.experimental.collections.Snake#hasNext()
-		 */
+
 		@Override
 		public boolean hasNext()
 		{
 			return this.next != null;
 		}
-		/**
-		 * @return
-		 * @see one.microstream.experimental.collections.Snake#hasPrev()
-		 */
+
 		@Override
 		public boolean hasPrev()
 		{
 			return this.prev != null;
 		}
-		/**
-		 * @param value
-		 * @return
-		 * @see one.microstream.experimental.collections.Snake#set(java.lang.Object)
-		 */
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public E set(final E value)
@@ -185,12 +158,6 @@ public interface Snake<E> //extends VarString.Appendable
 			return oldValue;
 		}
 
-
-
-		/**
-		 * @return
-		 * @see java.lang.Object#toString()
-		 */
 		@Override
 		public String toString()
 		{
@@ -199,7 +166,7 @@ public interface Snake<E> //extends VarString.Appendable
 			{
 				//head
 				final VarString vc = VarString.New().append('�');
-				Snake.Implementation<E> link = this;
+				Snake.Default<E> link = this;
 				do {
 					vc.append('(').add(link.value).append(')');
 				}
@@ -210,7 +177,7 @@ public interface Snake<E> //extends VarString.Appendable
 			{
 				//tail
 				final VarString vc = VarString.New().append('<');
-				Snake.Implementation<E> link = this;
+				Snake.Default<E> link = this;
 				do {
 					vc.append('(').add(link.value).append(')');
 				}
@@ -219,6 +186,7 @@ public interface Snake<E> //extends VarString.Appendable
 			}
 			return String.valueOf(this.value);
 		}
+		
 	}
 
 }

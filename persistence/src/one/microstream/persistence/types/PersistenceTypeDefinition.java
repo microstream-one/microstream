@@ -163,7 +163,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 		// no-op for already immutable collection type (e.g. PersistenceTypeDescriptionMember#validateAndImmure)
 		// type may be null for the sole case of an explicitly mapped to be deleted type.
 		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> internalMembers = members.immure();
-		return new PersistenceTypeDefinition.Implementation(
+		return new PersistenceTypeDefinition.Default(
 			                                                         typeId          ,
 			                                                 notNull(typeName)       ,
 			                                                 mayNull(runtimeTypeName),
@@ -177,7 +177,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 
 
 
-	public final class Implementation implements PersistenceTypeDefinition
+	public final class Default implements PersistenceTypeDefinition
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -200,7 +200,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final long                                                      typeId         ,
 			final String                                                    typeName       ,
 			final String                                                    runtimeTypeName,

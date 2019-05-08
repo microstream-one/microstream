@@ -21,25 +21,25 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 	
 	
 	
-	static StorageEntityInitializer<StorageDataFile.Implementation> New(
-		final StorageEntityCache.Implementation                              entityCache    ,
-		final Function<StorageInventoryFile, StorageDataFile.Implementation> dataFileCreator
+	static StorageEntityInitializer<StorageDataFile.Default> New(
+		final StorageEntityCache.Default                              entityCache    ,
+		final Function<StorageInventoryFile, StorageDataFile.Default> dataFileCreator
 	)
 	{
-		return new StorageEntityInitializer.Implementation(
+		return new StorageEntityInitializer.Default(
 			notNull(dataFileCreator),
 			notNull(entityCache)
 		);
 	}
 	
-	final class Implementation implements StorageEntityInitializer<StorageDataFile.Implementation>
+	final class Default implements StorageEntityInitializer<StorageDataFile.Default>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		private final Function<StorageInventoryFile, StorageDataFile.Implementation> dataFileCreator;
-		private final StorageEntityCache.Implementation                              entityCache    ;
+		private final Function<StorageInventoryFile, StorageDataFile.Default> dataFileCreator;
+		private final StorageEntityCache.Default                              entityCache    ;
 		
 		
 		
@@ -47,9 +47,9 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		// constructors //
 		/////////////////
 
-		Implementation(
-			final Function<StorageInventoryFile, StorageDataFile.Implementation> dataFileCreator,
-			final StorageEntityCache.Implementation                              entityCache
+		Default(
+			final Function<StorageInventoryFile, StorageDataFile.Default> dataFileCreator,
+			final StorageEntityCache.Default                              entityCache
 		)
 		{
 			super();
@@ -64,7 +64,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		////////////
 		
 		@Override
-		public final StorageDataFile.Implementation registerEntities(
+		public final StorageDataFile.Default registerEntities(
 			final XGettingSequence<? extends StorageInventoryFile> files ,
 			final long                                             lastFileLength
 		)
@@ -72,9 +72,9 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			return registerEntities(this.dataFileCreator, this.entityCache, files.toReversed(), lastFileLength);
 		}
 		
-		private static StorageDataFile.Implementation registerEntities(
-			final Function<StorageInventoryFile, StorageDataFile.Implementation> fileCreator    ,
-			final StorageEntityCache.Implementation                              entityCache    ,
+		private static StorageDataFile.Default registerEntities(
+			final Function<StorageInventoryFile, StorageDataFile.Default> fileCreator    ,
+			final StorageEntityCache.Default                              entityCache    ,
 			final XGettingSequence<? extends StorageInventoryFile>               reversedFiles  ,
 			final long                                                           lastFileLength
 		)
@@ -86,11 +86,11 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			final long initTime = System.currentTimeMillis();
 			
 			// special case handling for last/head file
-			final StorageDataFile.Implementation headFile = setupHeadFile(fileCreator.apply(iterator.next()));
+			final StorageDataFile.Default headFile = setupHeadFile(fileCreator.apply(iterator.next()));
 			registerFileEntities(entityCache, initTime, headFile, lastFileLength, buffer, entityOffsets);
 			
 			// simple tail file adding iteration for all remaining (previous!) storage files
-			for(StorageDataFile.Implementation dataFile = headFile; iterator.hasNext();)
+			for(StorageDataFile.Default dataFile = headFile; iterator.hasNext();)
 			{
 				dataFile = linkTailFile(dataFile, fileCreator.apply(iterator.next()));
 				registerFileEntities(entityCache, initTime, dataFile, dataFile.length(), buffer, entityOffsets);
@@ -100,9 +100,9 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		}
 		
 		final static void registerFileEntities(
-			final StorageEntityCache.Implementation entityCache       ,
+			final StorageEntityCache.Default entityCache       ,
 			final long                              initializationTime,
-			final StorageDataFile.Implementation    file              ,
+			final StorageDataFile.Default    file              ,
 			final long                              fileActualLength  ,
 			final ByteBuffer                        buffer            ,
 			final int[]                             entityOffsets
@@ -130,7 +130,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 				
 				final long                         entityAddress = bufferStartAddress + entityOffsets[i];
 				final long                         entityLength  = Binary.getEntityLengthRawValue(entityAddress);
-				final StorageEntity.Implementation entity        = entityCache.initialCreateEntity(entityAddress);
+				final StorageEntity.Default entity        = entityCache.initialCreateEntity(entityAddress);
 				
 				entity.updateStorageInformation(XTypes.to_int(entityLength), file, entityOffsets[i]);
 				totalFileContentLength += entityLength;
@@ -157,7 +157,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		 * @return the entity count.
 		 */
 		private static int indexEntities(
-			final StorageDataFile.Implementation file            ,
+			final StorageDataFile.Default file            ,
 			final long                           fileActualLength,
 			final ByteBuffer                     buffer          ,
 			final int[]                          entityOffsets
@@ -204,8 +204,8 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		// utility methods //
 		////////////////////
 		
-		private static StorageDataFile.Implementation setupHeadFile(
-			final StorageDataFile.Implementation storageFile
+		private static StorageDataFile.Default setupHeadFile(
+			final StorageDataFile.Default storageFile
 		)
 		{
 			storageFile.next = storageFile.prev = storageFile;
@@ -213,9 +213,9 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			return storageFile;
 		}
 
-		private static StorageDataFile.Implementation linkTailFile(
-			final StorageDataFile.Implementation currentTailFile,
-			final StorageDataFile.Implementation nextTailFile
+		private static StorageDataFile.Default linkTailFile(
+			final StorageDataFile.Default currentTailFile,
+			final StorageDataFile.Default nextTailFile
 		)
 		{
 			// joined in chain after current head file and before the current first
@@ -249,7 +249,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		
 		private static void fillBuffer(
 			final ByteBuffer                     buffer          ,
-			final StorageDataFile.Implementation file            ,
+			final StorageDataFile.Default file            ,
 			final long                           fileActualLength
 		)
 		{

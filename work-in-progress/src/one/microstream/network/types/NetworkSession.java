@@ -34,7 +34,7 @@ public interface NetworkSession<M>
 
 
 
-	public abstract class AbstractImplementation<M> implements NetworkSession<M>
+	public abstract class Abstract<M> implements NetworkSession<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -50,7 +50,7 @@ public interface NetworkSession<M>
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation()
+		protected Abstract()
 		{
 			super();
 		}

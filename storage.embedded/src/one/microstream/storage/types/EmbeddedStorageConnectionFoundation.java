@@ -28,11 +28,11 @@ extends BinaryPersistenceFoundation<F>
 	
 	public static EmbeddedStorageConnectionFoundation<?> New()
 	{
-		return new EmbeddedStorageConnectionFoundation.Implementation<>();
+		return new EmbeddedStorageConnectionFoundation.Default<>();
 	}
 
-	public class Implementation<F extends EmbeddedStorageConnectionFoundation.Implementation<?>>
-	extends BinaryPersistenceFoundation.Implementation<F>
+	public class Default<F extends EmbeddedStorageConnectionFoundation.Default<?>>
+	extends BinaryPersistenceFoundation.Default<F>
 	implements EmbeddedStorageConnectionFoundation<F>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ extends BinaryPersistenceFoundation<F>
 		// constructors //
 		/////////////////
 
-		protected Implementation()
+		protected Default()
 		{
 			super();
 		}
@@ -140,13 +140,13 @@ extends BinaryPersistenceFoundation<F>
 		@Override
 		protected EmbeddedStorageBinarySource ensurePersistenceSource()
 		{
-			return new EmbeddedStorageBinarySource.Implementation(this.internalGetStorageRequestAcceptor());
+			return new EmbeddedStorageBinarySource.Default(this.internalGetStorageRequestAcceptor());
 		}
 
 		@Override
 		protected EmbeddedStorageBinaryTarget ensurePersistenceTarget()
 		{
-			return new EmbeddedStorageBinaryTarget.Implementation(this.internalGetStorageRequestAcceptor());
+			return new EmbeddedStorageBinaryTarget.Default(this.internalGetStorageRequestAcceptor());
 		}
 
 		protected StorageRequestAcceptor internalGetStorageRequestAcceptor()
@@ -192,7 +192,7 @@ extends BinaryPersistenceFoundation<F>
 			this.internalGetStorageRequestAcceptor();
 
 			// wrap actual persistence manager in connection implementation (see comment inside)
-			return new StorageConnection.Implementation(
+			return new StorageConnection.Default(
 				super.createPersistenceManager(),
 				this.connectionRequestAcceptor
 			);

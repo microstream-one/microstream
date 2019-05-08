@@ -29,14 +29,14 @@ public interface StorageNumberedFile extends StorageChannelFile
 	
 	public static StorageNumberedFile New(final int channelIndex, final long number, final File file)
 	{
-		return new StorageNumberedFile.Implementation(
+		return new StorageNumberedFile.Default(
 			channelIndex ,
 			number       ,
 			notNull(file)
 		);
 	}
 	
-	public final class Implementation implements StorageNumberedFile
+	public final class Default implements StorageNumberedFile
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -47,12 +47,13 @@ public interface StorageNumberedFile extends StorageChannelFile
 		final File     file        ;
 	          FileLock lock        ;
 
+	          
 
 		////////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Implementation(final int channelIndex, final long number, final File file)
+		Default(final int channelIndex, final long number, final File file)
 		{
 			super();
 			this.channelIndex = channelIndex;

@@ -32,7 +32,7 @@ public interface ComConnectionAcceptor<C>
 	)
 	{
 		
-		return new ComConnectionAcceptor.Implementation<>(
+		return new ComConnectionAcceptor.Default<>(
 			notNull(protocolProvider)       ,
 			notNull(protocolStringConverter),
 			notNull(connectionHandler)      ,
@@ -41,7 +41,7 @@ public interface ComConnectionAcceptor<C>
 		);
 	}
 	
-	public final class Implementation<C> implements ComConnectionAcceptor<C>
+	public final class Default<C> implements ComConnectionAcceptor<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -59,7 +59,7 @@ public interface ComConnectionAcceptor<C>
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final ComProtocolProvider<C>     protocolProvider       ,
 			final ComProtocolStringConverter protocolStringConverter,
 			final ComConnectionHandler<C>    connectionHandler      ,

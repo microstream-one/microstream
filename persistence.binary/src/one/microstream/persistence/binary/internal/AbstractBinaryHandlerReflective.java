@@ -35,7 +35,7 @@ import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 import one.microstream.reflect.XReflect;
 
 public abstract class AbstractBinaryHandlerReflective<T>
-extends BinaryTypeHandler.AbstractImplementation<T>
+extends BinaryTypeHandler.Abstract<T>
 implements PersistenceTypeHandlerReflective<Binary, T>
 {
 	// (21.05.2013)XXX: AbstractBinaryHandlerReflective clean up static handling massacre mess

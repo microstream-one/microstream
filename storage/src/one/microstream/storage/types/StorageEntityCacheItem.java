@@ -6,7 +6,7 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 
 
 /**
- * Implementation-level type of an entry/item representing a single entity.
+ * Internal type of an entry/item representing a single entity.
  *
  * @author TM
  * @param <I>

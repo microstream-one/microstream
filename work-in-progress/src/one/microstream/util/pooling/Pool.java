@@ -31,18 +31,18 @@ public interface Pool<E> extends Supplier<E>
 
 
 
-		public class Implementation<E> implements Configuration<E>
+		public class Default<E> implements Configuration<E>
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 
 			final int                                          maximumCount        ;
 			final long                                         poolCheckInterval   ;
 			final Supplier<E>                                  supplier            ;
-			final Consumer<? super E>                         dispatcher          ;
-			final Consumer<? super E>                         returner            ;
-			final Consumer<? super E>                         closer              ;
+			final Consumer<? super E>                          dispatcher          ;
+			final Consumer<? super E>                          returner            ;
+			final Consumer<? super E>                          closer              ;
 			final Pool.WaitTimeoutProvider                     waitTimeoutProvider ;
 			final Pool.WaitIntervalProvider                    waitIntervalProvider;
 			final Controller                                   controller          ;
@@ -51,10 +51,10 @@ public interface Pool<E> extends Supplier<E>
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
+			// constructors //
+			/////////////////
 
-			public Implementation(
+			public Default(
 				final int                                          maximumCount        ,
 				final long                                         poolCheckInterval   ,
 				final Supplier<E>                                  supplier            ,

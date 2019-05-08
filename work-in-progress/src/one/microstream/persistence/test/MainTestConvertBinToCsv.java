@@ -17,7 +17,7 @@ public class MainTestConvertBinToCsv
 	public static void main(final String[] args)
 	{
 		convertBinToCsv(
-			X.List(new File("C:/Files/export/bin/de.emverbund.bonus.stammdaten.Datenstand$Implementation.dat")),
+			X.List(new File("C:/Files/export/bin/ExportTest.dat")),
 			XFunc.all()
 		);
 	}
@@ -27,9 +27,9 @@ public class MainTestConvertBinToCsv
 		final Predicate<? super File> filter
 	)
 	{
-		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.ImplementationUTF8(
+		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
-			new StorageEntityTypeConversionFileProvider.Implementation(
+			new StorageEntityTypeConversionFileProvider.Default(
 				new File(binaryFiles.get().getParentFile().getParentFile(), "csv"), "csv"
 			),
 			BinaryPersistence.provideTypeDictionaryFromFile(new File("C:/Files/PersistenceTypeDictionary.ptd")),

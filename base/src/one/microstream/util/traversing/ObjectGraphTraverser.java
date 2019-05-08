@@ -65,7 +65,7 @@ public interface ObjectGraphTraverser
 	
 	public static ObjectGraphTraverserBuilder Builder()
 	{
-		return new ObjectGraphTraverserBuilder.Implementation();
+		return new ObjectGraphTraverserBuilder.Default();
 	}
 	
 	public static ObjectGraphTraverser New(
@@ -87,7 +87,7 @@ public interface ObjectGraphTraverser
 		final Runnable                                           finalizerLogic
 	)
 	{
-		return new ObjectGraphTraverser.Implementation(
+		return new ObjectGraphTraverser.Default(
 			roots                                                             ,
 			coalesce(skipped, X.empty()).immure()                             ,
 			coalesce(alreadyHandledProvider, s -> OpenAdressingMiniSet.New(s)),
@@ -107,7 +107,7 @@ public interface ObjectGraphTraverser
 		);
 	}
 	
-	public final class Implementation implements ObjectGraphTraverser
+	public final class Default implements ObjectGraphTraverser
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -136,7 +136,7 @@ public interface ObjectGraphTraverser
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final Object[]                                           roots                   ,
 			final XGettingCollection<Object>                         skipped                 ,
 			final Function<XGettingCollection<Object>, XSet<Object>> alreadyHandledProvider  ,

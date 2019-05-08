@@ -13,18 +13,18 @@ public class MainTestSnake
 {
 	public static final <E> Snake<E> snake()
 	{
-		return new Snake.Implementation<>();
+		return new Snake.Default<>();
 	}
 
 	public static final <E> Snake<E> snake(final E value)
 	{
-		return new Snake.Implementation<>(value);
+		return new Snake.Default<>(value);
 	}
 
 	@SafeVarargs
 	public static final <E> Snake<E> snake(final E... values)
 	{
-		Snake<E> snake = new Snake.Implementation<>();
+		Snake<E> snake = new Snake.Default<>();
 		for(final E e : values)
 		{
 			snake = snake.add(e);

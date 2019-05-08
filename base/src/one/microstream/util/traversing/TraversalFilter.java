@@ -126,16 +126,16 @@ public interface TraversalFilter<P extends TraversalPredicate>
 	
 	
 	
-	public static <P extends TraversalPredicate> TraversalFilter.Implementation<P> New(
+	public static <P extends TraversalPredicate> TraversalFilter.Default<P> New(
 		final ObjectGraphTraverserBuilder builder
 	)
 	{
-		return new TraversalFilter.Implementation<>(
+		return new TraversalFilter.Default<>(
 			notNull(builder)
 		);
 	}
 	
-	public final class Implementation<P extends TraversalPredicate> implements TraversalFilter<P>
+	public final class Default<P extends TraversalPredicate> implements TraversalFilter<P>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -154,7 +154,7 @@ public interface TraversalFilter<P extends TraversalPredicate>
 		// constructors //
 		/////////////////
 
-		public Implementation(final ObjectGraphTraverserBuilder builder)
+		public Default(final ObjectGraphTraverserBuilder builder)
 		{
 			super();
 			this.builder          = builder       ;

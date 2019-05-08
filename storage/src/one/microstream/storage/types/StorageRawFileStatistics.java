@@ -19,8 +19,8 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 
 
 
-	public final class Implementation
-	extends StorageRawFileStatisticsItem.AbstractImplementation
+	public final class Default
+	extends StorageRawFileStatisticsItem.Abstract
 	implements StorageRawFileStatistics
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final Date creationTime   ,
 			final long fileCount      ,
 			final long liveDataLength ,
@@ -138,13 +138,13 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 
 
 
-		public final class Implementation
-	 extends StorageRawFileStatisticsItem.AbstractImplementation
+		public final class Default
+		extends StorageRawFileStatisticsItem.Abstract
 		implements ChannelStatistics
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 
 			final int                                        channelIndex;
 			final XGettingSequence<? extends FileStatistics> files       ;
@@ -152,10 +152,10 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
+			// constructors //
+			/////////////////
 
-			Implementation(
+			Default(
 				final int                                        channelIndex   ,
 				final long                                       fileCount      ,
 				final long                                       liveDataLength ,
@@ -200,13 +200,13 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 
 
 
-		public final class Implementation
-	 extends StorageRawFileStatisticsItem.AbstractImplementation
+		public final class Default
+		extends StorageRawFileStatisticsItem.Abstract
 		implements FileStatistics
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 
 			final long   fileNumber;
 			final String file      ;
@@ -214,10 +214,10 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
+			// constructors //
+			/////////////////
 
-			public Implementation(
+			public Default(
 				final long   fileNumber     ,
 				final String file           ,
 				final long   liveDataLength ,

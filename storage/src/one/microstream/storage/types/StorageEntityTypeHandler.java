@@ -32,7 +32,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 
 
 
-	public final class Implementation implements StorageEntityTypeHandler
+	public final class Default implements StorageEntityTypeHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -55,7 +55,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final PersistenceTypeDefinition typeDefinition ,
 			final boolean                   switchByteOrder
 		)

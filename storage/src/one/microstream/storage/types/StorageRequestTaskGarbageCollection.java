@@ -7,7 +7,7 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 
 
 
-	public final class Implementation
+	public final class Default
 	extends StorageChannelSynchronizingTask.AbstractCompletingTask<Boolean>
 	implements StorageRequestTaskGarbageCollection, StorageChannelTaskStoreEntities
 	{
@@ -26,7 +26,7 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final long        timestamp          ,
 			final int         channelCount       ,
 			final long        nanoTimeBudgetBound,

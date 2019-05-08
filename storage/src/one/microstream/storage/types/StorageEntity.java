@@ -64,7 +64,7 @@ public interface StorageEntity
 
 
 	// (27.07.2015 TM)TODO: move internal/default  StorageEntity implementation to StorageEntityCacheItem
-	public final class Implementation implements StorageEntityCacheItem<StorageEntity.Implementation>, StorageEntity
+	public final class Default implements StorageEntityCacheItem<StorageEntity.Default>, StorageEntity
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -72,7 +72,7 @@ public interface StorageEntity
 
 		// Quite a lot, but that's the price of simplicity and performance (GC etc.)
 		private static final int MEMORY_CONSUMPTION_BYTES = // 84/120 bytes (+/-coops).
-			XMemory.byteSizeInstance(StorageEntity.Implementation.class)
+			XMemory.byteSizeInstance(StorageEntity.Default.class)
 			+ XMemory.byteSizeReference() // take into account oid hash table slot in entity cache
 		;
 
@@ -100,7 +100,7 @@ public interface StorageEntity
 
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
-		//////////////////
+		///////////////////
 
 		// currently not used, but might come in handy for other/future intentions
 		public static final int memoryConsumptionBytes()
@@ -175,7 +175,7 @@ public interface StorageEntity
 		 *  Write a test that checks for same filePrev references and let it run as part of the housekeeping.
 		 */
 
-		StorageEntity.Implementation
+		StorageEntity.Default
 			filePrev, // the prev in the file, potentially with a gap in between. Required for entity reassignment.
 			fileNext, // the next in the file, potentially with a gap in between.
 			hashNext, // the next in the oid-lookup hash collision one-way lane.
@@ -188,12 +188,12 @@ public interface StorageEntity
 		// constructors //
 		/////////////////
 
-		static final Implementation createDummy()
+		static final Default createDummy()
 		{
 			return createDummy(null);
 		}
 
-		static final Implementation createDummy(final TypeInFile type)
+		static final Default createDummy(final TypeInFile type)
 		{
 			/*
 			 * dummy entry has "no" object id or "null object id"
@@ -205,7 +205,7 @@ public interface StorageEntity
 			 * - every channel has a root type which has a dummy entity as entity head
 			 * also see the TOdO "consolidate rootType and typeHead ..."
 			 */
-			return new Implementation(
+			return new Default(
 				0                ,
 				type             ,
 				null             ,
@@ -213,15 +213,15 @@ public interface StorageEntity
 			);
 		}
 
-		static Implementation New(
+		static Default New(
 			final long           objectId            ,
 			final TypeInFile     type                ,
-			final Implementation hashNext            ,
+			final Default hashNext            ,
 			final boolean        hasReferences       ,
 			final long           simpleReferenceCount
 		)
 		{
-			return new Implementation(
+			return new Default(
 				objectId                                                    ,
 				type                                                        ,
 				hashNext                                                    ,
@@ -239,10 +239,10 @@ public interface StorageEntity
 		 * @param hashNext
 		 * @param referenceCount
 		 */
-		private Implementation(
+		private Default(
 			final long                         objectId      ,
 			final TypeInFile                   type          ,
-			final StorageEntity.Implementation hashNext      ,
+			final StorageEntity.Default hashNext      ,
 			final byte                         referenceCount
 		)
 		{
@@ -434,7 +434,7 @@ public interface StorageEntity
 
 		final void updateStorageInformation(
 			final int                            length         ,
-			final StorageDataFile.Implementation file           ,
+			final StorageDataFile.Default file           ,
 			final int                            storagePosition
 		)
 		{
@@ -534,7 +534,7 @@ public interface StorageEntity
 		}
 
 		@Override
-		public final StorageDataFile<StorageEntity.Implementation> storageFile()
+		public final StorageDataFile<StorageEntity.Default> storageFile()
 		{
 			return this.typeInFile.file;
 		}
@@ -665,7 +665,7 @@ public interface StorageEntity
 
 //	public static void main(final String[] args)
 //	{
-//		System.out.println(Memory.byteSizeInstance(StorageEntity.Implementation.class));
+//		System.out.println(Memory.byteSizeInstance(StorageEntity.Default.class));
 //	}
 
 }

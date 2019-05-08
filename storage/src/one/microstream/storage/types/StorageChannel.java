@@ -50,7 +50,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 	public void exportData(StorageIoHandler fileHandler);
 
 	// (19.07.2014)TODO: refactor storage typing to avoid classes in public API
-	public StorageEntityCache.Implementation prepareImportData();
+	public StorageEntityCache.Default prepareImportData();
 
 	public void importData(StorageChannelImportSourceFile importFile);
 
@@ -85,7 +85,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 
 
 
-	public final class Implementation implements StorageChannel, Unpersistable
+	public final class Default implements StorageChannel, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -96,8 +96,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final StorageTaskBroker                 taskBroker               ;
 		private final StorageOperationController        operationController      ;
 		private final StorageHousekeepingController     housekeepingController   ;
-		private final StorageFileManager.Implementation fileManager              ;
-		private final StorageEntityCache.Implementation entityCache              ;
+		private final StorageFileManager.Default fileManager              ;
+		private final StorageEntityCache.Default entityCache              ;
 		private final boolean                           switchByteOrder          ;
 		private final BufferSizeProviderIncremental     loadingBufferSizeProvider;
 
@@ -129,16 +129,16 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		// constructors //
 		/////////////////
 
-		public Implementation(
+		public Default(
 			final int                               hashIndex                ,
 			final StorageExceptionHandler           exceptionHandler         ,
 			final StorageTaskBroker                 taskBroker               ,
 			final StorageOperationController        operationController      ,
 			final StorageHousekeepingController     housekeepingController   ,
-			final StorageEntityCache.Implementation entityCache              ,
+			final StorageEntityCache.Default entityCache              ,
 			final boolean                           switchByteOrder          ,
 			final BufferSizeProviderIncremental     loadingBufferSizeProvider,
-			final StorageFileManager.Implementation fileManager
+			final StorageFileManager.Default fileManager
 		)
 		{
 			super();
@@ -460,7 +460,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		}
 
 		@Override
-		public StorageEntityCache.Implementation prepareImportData()
+		public StorageEntityCache.Default prepareImportData()
 		{
 			this.fileManager.prepareImport();
 			return this.entityCache;
@@ -492,19 +492,19 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		)
 			throws IOException
 		{
-			final StorageEntityType.Implementation entities = this.entityCache.getType(type.typeId());
+			final StorageEntityType.Default entities = this.entityCache.getType(type.typeId());
 			if(entities == null || entities.entityCount() == 0)
 			{
 				return X.KeyValue(0L, 0L);
 			}
 
 			final long byteCount = entities.iterateEntities(
-				new ThrowingProcedure<StorageEntity.Implementation, IOException>()
+				new ThrowingProcedure<StorageEntity.Default, IOException>()
 				{
 					long byteCount;
 
 					@Override
-					public void accept(final StorageEntity.Implementation e) throws IOException
+					public void accept(final StorageEntity.Default e) throws IOException
 					{
 						if(!predicateEntity.test(e))
 						{
@@ -526,19 +526,19 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		)
 			throws IOException
 		{
-			final StorageEntityType.Implementation entities = this.entityCache.getType(type.typeId());
+			final StorageEntityType.Default entities = this.entityCache.getType(type.typeId());
 			if(entities == null || entities.entityCount() == 0)
 			{
 				return X.KeyValue(0L, 0L);
 			}
 
 			final long byteCount = entities.iterateEntities(
-				new ThrowingProcedure<StorageEntity.Implementation, IOException>()
+				new ThrowingProcedure<StorageEntity.Default, IOException>()
 				{
 					long byteCount;
 
 					@Override
-					public void accept(final StorageEntity.Implementation e) throws IOException
+					public void accept(final StorageEntity.Default e) throws IOException
 					{
 						this.byteCount += e.exportTo(file);
 					}
@@ -611,7 +611,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		// instance fields //
 		////////////////////
 
-		private final StorageEntityCache.Implementation entityCache  ;
+		private final StorageEntityCache.Default entityCache  ;
 		private final ChunksBuffer                      dataCollector;
 
 
@@ -621,7 +621,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		/////////////////
 
 		public EntityCollectorByOid(
-			final StorageEntityCache.Implementation entityCache  ,
+			final StorageEntityCache.Default entityCache  ,
 			final ChunksBuffer                      dataCollector
 		)
 		{
@@ -665,7 +665,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		// instance fields //
 		////////////////////
 
-		private final StorageEntityCache.Implementation entityCache  ;
+		private final StorageEntityCache.Default entityCache  ;
 		private final ChunksBuffer                      dataCollector;
 
 
@@ -675,7 +675,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		/////////////////
 
 		public EntityCollectorByTid(
-			final StorageEntityCache.Implementation entityCache  ,
+			final StorageEntityCache.Default entityCache  ,
 			final ChunksBuffer                      dataCollector
 		)
 		{
@@ -693,7 +693,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		@Override
 		public final void accept(final long tid)
 		{
-			final StorageEntityType.Implementation type;
+			final StorageEntityType.Default type;
 			if((type = this.entityCache.getType(tid)) == null)
 			{
 				// it can very well be that a channel does not have a certain type at all. That is no error
@@ -701,7 +701,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			}
 
 			// all the type's entities are iterated and their data is collected
-			for(StorageEntity.Implementation entity = type.head; (entity = entity.typeNext) != null;)
+			for(StorageEntity.Default entity = type.head; (entity = entity.typeNext) != null;)
 			{
 				entity.copyCachedData(this.dataCollector);
 			}

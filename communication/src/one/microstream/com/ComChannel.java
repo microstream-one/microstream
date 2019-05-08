@@ -26,12 +26,12 @@ public interface ComChannel
 	
 	public static ComChannel New(final PersistenceManager<?> persistenceManager)
 	{
-		return new ComChannel.Implementation(
+		return new ComChannel.Default(
 			notNull(persistenceManager)
 		);
 	}
 		
-	public class Implementation implements ComChannel
+	public class Default implements ComChannel
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -45,7 +45,7 @@ public interface ComChannel
 		// constructors //
 		/////////////////
 
-		protected Implementation(final PersistenceManager<?> persistenceManager)
+		protected Default(final PersistenceManager<?> persistenceManager)
 		{
 			super();
 			this.persistenceManager = persistenceManager;

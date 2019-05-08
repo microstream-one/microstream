@@ -80,20 +80,20 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 		final PersistenceTypeDefinition typeDefinition
 	)
 	{
-		return new PersistenceUnreachableTypeHandler.Implementation<>(
+		return new PersistenceUnreachableTypeHandler.Default<>(
 			notNull(typeDefinition)
 		);
 	}
 	
-	public class Implementation<M, T>
-	extends PersistenceLegacyTypeHandler.AbstractImplementation<M, T>
+	public class Default<M, T>
+	extends PersistenceLegacyTypeHandler.Abstract<M, T>
 	implements PersistenceUnreachableTypeHandler<M, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		protected Implementation(final PersistenceTypeDefinition typeDefinition)
+		protected Default(final PersistenceTypeDefinition typeDefinition)
 		{
 			super(typeDefinition);
 		}

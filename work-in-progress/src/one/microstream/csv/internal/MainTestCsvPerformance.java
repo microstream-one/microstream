@@ -28,7 +28,7 @@ public class MainTestCsvPerformance
 //	static final CsvRowCollector rowAggregator =
 //		new CsvRowCollector()
 //		{
-//			private final Substituter<String> stringCache = Substituter.Implementation.<String>New();
+//			private final Substituter<String> stringCache = Substituter.Default.<String>New();
 //			private final BulkList<String>    row         = new BulkList<>();
 //
 //			@Override
@@ -69,7 +69,7 @@ public class MainTestCsvPerformance
 	private static void doit() throws Throwable
 	{
 		final char[]            input  = XFiles.readCharsFromFileDefaultCharset(
-			new File("D:/BonusExportTest_2016-02-03_14-30-00.639/csv/de.emverbund.bonus.konz.berechnung.KonzAbschlagAnspruchAhVlUSt$Implementation.csv")
+			new File("D:/TestExport.csv")
 		);
 
 		final CsvContentBuilderCharArray builder = CsvContentBuilderCharArray.New();

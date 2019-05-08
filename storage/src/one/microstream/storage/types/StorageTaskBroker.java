@@ -79,7 +79,7 @@ public interface StorageTaskBroker
 
 
 
-	public final class Implementation implements StorageTaskBroker
+	public final class Default implements StorageTaskBroker
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -99,7 +99,7 @@ public interface StorageTaskBroker
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final StorageRequestTaskCreator     taskCreator           ,
 			final StorageDataFileEvaluator      fileEvaluator         ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
@@ -128,7 +128,7 @@ public interface StorageTaskBroker
 		{
 			final StorageRequestTaskGarbageCollection gcTask;
 			this.enqueueTasksAndNotifyAll(
-				gcTask = new StorageRequestTaskGarbageCollection.Implementation(
+				gcTask = new StorageRequestTaskGarbageCollection.Default(
 					task.timestamp() - 1,
 					this.channelCount   ,
 					nanoTimeBudgetBound ,
@@ -357,7 +357,7 @@ public interface StorageTaskBroker
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
 			final StorageRequestTaskStoreEntities task = this.taskCreator.createSaveTask(data);
 			
-//			((StorageRequestTaskSaveEntities.Implementation)task).DEBUG_Print(null);
+//			((StorageRequestTaskSaveEntities.Default)task).DEBUG_Print(null);
 			
 			this.enqueueTaskAndNotifyAll(task);
 			return task;
@@ -454,7 +454,7 @@ public interface StorageTaskBroker
 				final StorageRequestTaskCreator taskCreator
 			)
 			{
-				return new StorageTaskBroker.Implementation(
+				return new StorageTaskBroker.Default(
 					taskCreator,
 					storageManager.configuration().fileEvaluator(),
 					storageManager.objectIdRangeEvaluator(),

@@ -165,7 +165,7 @@ public interface PersistenceRootResolver
 				
 		public PersistenceRootResolver build();
 		
-		public final class Implementation implements PersistenceRootResolver.Builder
+		public final class Default implements PersistenceRootResolver.Builder
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -182,7 +182,7 @@ public interface PersistenceRootResolver
 			// constructors //
 			/////////////////
 			
-			Implementation(final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider)
+			Default(final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider)
 			{
 				super();
 				this.entryProvider = entryProvider;
@@ -230,7 +230,7 @@ public interface PersistenceRootResolver
 			@Override
 			public final synchronized PersistenceRootResolver build()
 			{
-				final PersistenceRootResolver resolver = new PersistenceRootResolver.Implementation(
+				final PersistenceRootResolver resolver = new PersistenceRootResolver.Default(
 					this.rootEntries.immure()
 				);
 				
@@ -289,7 +289,7 @@ public interface PersistenceRootResolver
 		final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider
 	)
 	{
-		return new PersistenceRootResolver.Builder.Implementation(
+		return new PersistenceRootResolver.Builder.Default(
 			notNull(entryProvider)
 		);
 	}
@@ -302,7 +302,7 @@ public interface PersistenceRootResolver
 		;
 	}
 	
-	public final class Implementation implements PersistenceRootResolver
+	public final class Default implements PersistenceRootResolver
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -316,7 +316,7 @@ public interface PersistenceRootResolver
 		// constructors //
 		/////////////////
 
-		Implementation(final EqConstHashTable<String, PersistenceRootEntry> rootEntries)
+		Default(final EqConstHashTable<String, PersistenceRootEntry> rootEntries)
 		{
 			super();
 			this.rootEntries = rootEntries;

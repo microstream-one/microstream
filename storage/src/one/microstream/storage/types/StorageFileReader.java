@@ -40,7 +40,7 @@ public interface StorageFileReader
 	}
 
 
-	public final class Implementation implements StorageFileReader
+	public final class Default implements StorageFileReader
 	{
 		// since default methods, interfaces should be directly instantiable :(
 	}
@@ -57,12 +57,12 @@ public interface StorageFileReader
 			return this.provideReader();
 		}
 
-		public final class Implementation implements StorageFileReader.Provider
+		public final class Default implements StorageFileReader.Provider
 		{
 			@Override
 			public StorageFileReader provideReader()
 			{
-				return new StorageFileReader.Implementation();
+				return new StorageFileReader.Default();
 			}
 		}
 

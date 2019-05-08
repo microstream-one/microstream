@@ -20,7 +20,7 @@ public interface StorageInventoryFile extends StorageLockedFile, StorageNumbered
 		final File file
 	)
 	{
-		return new StorageInventoryFile.Implementation(
+		return new StorageInventoryFile.Default(
 			channelIndex,
 			number,
 			file,
@@ -28,7 +28,9 @@ public interface StorageInventoryFile extends StorageLockedFile, StorageNumbered
 		);
 	}
 
-	public class Implementation extends StorageLockedFile.Implementation implements StorageInventoryFile
+	public class Default
+	extends StorageLockedFile.Default
+	implements StorageInventoryFile
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -43,7 +45,7 @@ public interface StorageInventoryFile extends StorageLockedFile, StorageNumbered
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final int      channelIndex,
 			final long     number      ,
 			final File     file        ,

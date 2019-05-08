@@ -33,7 +33,7 @@ public interface StorageConfiguration
 		final StorageBackupSetup            backupSetup
 	)
 	{
-		return new StorageConfiguration.Implementation(
+		return new StorageConfiguration.Default(
 			notNull(channelCountProvider)  ,
 			notNull(housekeepingController),
 			notNull(fileProvider)          ,
@@ -43,7 +43,7 @@ public interface StorageConfiguration
 		);
 	}
 
-	public class Implementation implements StorageConfiguration, Immutable
+	public class Default implements StorageConfiguration, Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -62,7 +62,7 @@ public interface StorageConfiguration
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final StorageChannelCountProvider   channelCountProvider  ,
 			final StorageHousekeepingController housekeepingController,
 			final StorageFileProvider           fileProvider          ,
@@ -142,7 +142,7 @@ public interface StorageConfiguration
 	
 	public static Builder<?> Builder()
 	{
-		return new StorageConfiguration.Builder.Implementation<>();
+		return new StorageConfiguration.Builder.Default<>();
 	}
 	
 	public interface Builder<B extends Builder<?>>
@@ -175,7 +175,7 @@ public interface StorageConfiguration
 		
 		
 		
-		public class Implementation<B extends Builder.Implementation<?>> implements StorageConfiguration.Builder<B>
+		public class Default<B extends Builder.Default<?>> implements StorageConfiguration.Builder<B>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -194,7 +194,7 @@ public interface StorageConfiguration
 			// constructors //
 			/////////////////
 			
-			Implementation()
+			Default()
 			{
 				super();
 			}

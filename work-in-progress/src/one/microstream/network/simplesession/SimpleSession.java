@@ -8,7 +8,7 @@ import one.microstream.exceptions.IORuntimeException;
 import one.microstream.network.types.NetworkUserSession;
 import one.microstream.network.types.NetworkUserSessionManager;
 
-public class SimpleSession extends NetworkUserSession.AbstractImplementation<SimpleSessionUser, String, SimpleSession>
+public class SimpleSession extends NetworkUserSession.Abstract<SimpleSessionUser, String, SimpleSession>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //

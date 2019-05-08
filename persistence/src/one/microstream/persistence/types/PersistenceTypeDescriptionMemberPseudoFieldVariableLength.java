@@ -40,14 +40,14 @@ extends PersistenceTypeDescriptionMemberPseudoField
 
 
 
-	public static PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation New(
+	public static PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default New(
 		final String typeName               ,
 		final String name                   ,
 		final long   persistentMinimumLength,
 		final long   persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation(
+		return new PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default(
 			 notNull(typeName),
 			 notNull(name),
 			         false,
@@ -56,15 +56,15 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		);
 	}
 
-	public class Implementation
-	extends PersistenceTypeDescriptionMemberPseudoField.AbstractImplementation
+	public class Default
+	extends PersistenceTypeDescriptionMemberPseudoField.Abstract
 	implements PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final String  typeName               ,
 			final String  name                   ,
 			final boolean hasReferences          ,

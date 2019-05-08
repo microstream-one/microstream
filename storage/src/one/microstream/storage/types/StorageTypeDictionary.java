@@ -42,7 +42,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 
 
 
-	public final class Implementation implements StorageTypeDictionary
+	public final class Default implements StorageTypeDictionary
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -58,7 +58,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		// constructors //
 		/////////////////
 		
-		public Implementation(final boolean switchByteOrder)
+		public Default(final boolean switchByteOrder)
 		{
 			super();
 			this.switchByteOrder = switchByteOrder;
@@ -67,8 +67,8 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
 
 		final void deriveHandler(final PersistenceTypeDefinition typeDefinition)
 		{
@@ -76,7 +76,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			{
 				this.registry.put(
 					typeDefinition.typeId(),
-					new StorageEntityTypeHandler.Implementation(typeDefinition, this.switchByteOrder)
+					new StorageEntityTypeHandler.Default(typeDefinition, this.switchByteOrder)
 				);
 			}
 		}

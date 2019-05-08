@@ -12,7 +12,7 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 		final PersistenceTypeDescriptionMemberPrimitiveDefinition description
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation(
+		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Default(
 			description.primitiveDefinition()    ,
 			description.persistentMinimumLength(),
 			description.persistentMaximumLength()
@@ -25,15 +25,15 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 		final long     persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Implementation(
-			Implementation.assemblePrimitiveDefinition(primitiveType),
+		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Default(
+			Default.assemblePrimitiveDefinition(primitiveType),
 			persistentMinimumLength,
 			persistentMaximumLength
 		);
 	}
 
-	public class Implementation
-	extends PersistenceTypeDescriptionMemberPrimitiveDefinition.Implementation
+	public class Default
+	extends PersistenceTypeDescriptionMemberPrimitiveDefinition.Default
 	implements PersistenceTypeDefinitionMemberPrimitiveDefinition
 	{
 		// CHECKSTYLE.OFF: ConstantName: literals and type names are intentionally unchanged
@@ -167,7 +167,7 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final String primitiveDefinition    ,
 			final long   persistentMinimumLength,
 			final long   persistentMaximumLength

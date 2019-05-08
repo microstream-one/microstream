@@ -145,8 +145,8 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 	static void resetRegistries(final BinaryPersistenceFoundation<?> factory)
 	{
 		final PersistenceObjectRegistry registry = factory.getObjectRegistry();
-		final PersistenceTypeHandlerRegistry.Implementation<Binary> typeHandlerRegistry =
-			(PersistenceTypeHandlerRegistry.Implementation<Binary>)factory.getTypeHandlerRegistry()
+		final PersistenceTypeHandlerRegistry.Default<Binary> typeHandlerRegistry =
+			(PersistenceTypeHandlerRegistry.Default<Binary>)factory.getTypeHandlerRegistry()
 		;
 		registry.clear();
 		typeHandlerRegistry.clear();

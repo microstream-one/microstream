@@ -332,15 +332,16 @@ public interface StringTable
 		static final class ColumnCountValidator implements Predicate<String[]>
 		{
 			///////////////////////////////////////////////////////////////////////////
-			// instance fields  //
-			/////////////////////
+			// instance fields //
+			////////////////////
 
 			private final int columnCount;
 
 
+			
 			///////////////////////////////////////////////////////////////////////////
-			// constructors     //
-			/////////////////////
+			// constructors //
+			/////////////////
 
 			ColumnCountValidator(final int columnCount)
 			{
@@ -351,8 +352,8 @@ public interface StringTable
 
 
 			///////////////////////////////////////////////////////////////////////////
-			// override methods //
-			/////////////////////
+			// methods //
+			////////////
 
 			@Override
 			public final boolean test(final String[] row) throws ThrowBreak

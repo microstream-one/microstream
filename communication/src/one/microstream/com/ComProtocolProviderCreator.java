@@ -22,16 +22,16 @@ public interface ComProtocolProviderCreator<C>
 	
 	public static <C> ComProtocolProviderCreator<C> New()
 	{
-		return new ComProtocolProviderCreator.Implementation<>();
+		return new ComProtocolProviderCreator.Default<>();
 	}
 	
-	public final class Implementation<C> implements ComProtocolProviderCreator<C>
+	public final class Default<C> implements ComProtocolProviderCreator<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}
@@ -52,7 +52,7 @@ public interface ComProtocolProviderCreator<C>
 			final ComProtocolCreator                    protocolCreator
 		)
 		{
-			return new ComProtocolProvider.Implementation<>(
+			return new ComProtocolProvider.Default<>(
 				name                  ,
 				version               ,
 				byteOrder             ,

@@ -1,6 +1,6 @@
 package one.microstream.util.config;
 
-final class ConfigEntryLong extends ConfigEntry.AbstractImplementation<Long>
+final class ConfigEntryLong extends ConfigEntry.Abstract<Long>
 {
 	ConfigEntryLong(final String key)
 	{

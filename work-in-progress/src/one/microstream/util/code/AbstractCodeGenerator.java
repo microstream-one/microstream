@@ -49,7 +49,7 @@ public abstract class AbstractCodeGenerator<F extends Field>
 	{
 		super();
 		this.superclass          = superclass           ;
-		this.type                = new Type.Implementation(notNull(typeName), "Implementation");
+		this.type                = new Type.Default(notNull(typeName), "Default");
 		this.members             = BulkList.New(members);
 		this.getterPrefixBoolean = getterPrefixBoolean  ;
 		this.getterPrefixNormal  = getterPrefixNormal   ;

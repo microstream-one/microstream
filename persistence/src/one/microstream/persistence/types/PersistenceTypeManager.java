@@ -18,18 +18,18 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 
 	
 	
-	public static PersistenceTypeManager.Implementation New(
+	public static PersistenceTypeManager.Default New(
 		final PersistenceTypeRegistry   registry   ,
 		final PersistenceTypeIdProvider tidProvider
 	)
 	{
-		return new PersistenceTypeManager.Implementation(
+		return new PersistenceTypeManager.Default(
 			notNull(registry)   ,
 			notNull(tidProvider)
 		);
 	}
 
-	public final class Implementation implements PersistenceTypeManager
+	public final class Default implements PersistenceTypeManager
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -44,7 +44,7 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final PersistenceTypeRegistry   registry   ,
 			final PersistenceTypeIdProvider tidProvider
 		)

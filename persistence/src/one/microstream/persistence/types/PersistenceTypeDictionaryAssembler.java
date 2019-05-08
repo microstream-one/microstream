@@ -18,10 +18,10 @@ public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssemble
 	
 	public static PersistenceTypeDictionaryAssembler New()
 	{
-		return new PersistenceTypeDictionaryAssembler.Implementation();
+		return new PersistenceTypeDictionaryAssembler.Default();
 	}
 
-	public class Implementation
+	public class Default
 	extends PersistenceTypeDictionary.Symbols
 	implements PersistenceTypeDictionaryAssembler
 	{
@@ -38,7 +38,7 @@ public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssemble
 		// constructors //
 		/////////////////
 		
-		Implementation()
+		Default()
 		{
 			super();
 		}

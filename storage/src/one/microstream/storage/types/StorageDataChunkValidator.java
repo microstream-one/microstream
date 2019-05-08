@@ -20,13 +20,13 @@ public interface StorageDataChunkValidator
 		final StorageEntityDataValidator  entityDataValidator
 	)
 	{
-		return new StorageDataChunkValidator.Implementation(
+		return new StorageDataChunkValidator.Default(
 			notNull(entityDataIterator),
 			notNull(entityDataValidator)
 		);
 	}
 	
-	public final class Implementation implements StorageDataChunkValidator
+	public final class Default implements StorageDataChunkValidator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -41,7 +41,7 @@ public interface StorageDataChunkValidator
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final BinaryEntityRawDataIterator entityDataIterator ,
 			final StorageEntityDataValidator  entityDataValidator
 		)
@@ -92,7 +92,7 @@ public interface StorageDataChunkValidator
 		final StorageEntityDataValidator.Creator   entityDataValidatorCreator
 	)
 	{
-		return new StorageDataChunkValidator.Provider.Implementation(
+		return new StorageDataChunkValidator.Provider.Default(
 			notNull(entityDataIteratorProvider),
 			notNull(entityDataValidatorCreator)
 		);
@@ -103,7 +103,7 @@ public interface StorageDataChunkValidator
 		public StorageDataChunkValidator provideDataChunkValidator(StorageTypeDictionary typeDictionary);
 		
 		
-		public final class Implementation implements StorageDataChunkValidator.Provider
+		public final class Default implements StorageDataChunkValidator.Provider
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -118,7 +118,7 @@ public interface StorageDataChunkValidator
 			// constructors //
 			/////////////////
 			
-			Implementation(
+			Default(
 				final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider,
 				final StorageEntityDataValidator.Creator   entityDataValidatorCreator
 			)
@@ -214,7 +214,7 @@ public interface StorageDataChunkValidator
 	
 	public static StorageDataChunkValidator.Provider2 Provider2()
 	{
-		return new StorageDataChunkValidator.Provider2.Implementation();
+		return new StorageDataChunkValidator.Provider2.Default();
 	}
 	
 	/**
@@ -231,7 +231,7 @@ public interface StorageDataChunkValidator
 		
 		
 		
-		public final class Implementation implements StorageDataChunkValidator.Provider2
+		public final class Default implements StorageDataChunkValidator.Provider2
 		{
 			@Override
 			public StorageDataChunkValidator.Provider provideDataChunkValidatorProvider(final StorageFoundation<?> foundation)

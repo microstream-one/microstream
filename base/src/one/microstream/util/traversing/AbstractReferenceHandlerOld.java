@@ -18,7 +18,7 @@ public abstract class AbstractReferenceHandlerOld implements TraversalReferenceH
 	final TraversalPredicateFull predicateFull    ;
 	final Predicate<Object>      predicateHandle  ; // more used for logging stuff than for filtering, see skipping.
 
-	Object[] iterationTail      = ObjectGraphTraverser.Implementation.createIterationSegment();
+	Object[] iterationTail      = ObjectGraphTraverser.Default.createIterationSegment();
 	Object[] iterationHead      = this.iterationTail;
 	boolean  tailIsHead         = true;
 	int      iterationTailIndex;
@@ -64,8 +64,8 @@ public abstract class AbstractReferenceHandlerOld implements TraversalReferenceH
 	
 	final void increaseIterationQueue()
 	{
-		final Object[] nextIterationSegment = ObjectGraphTraverser.Implementation.createIterationSegment();
-		this.iterationHead[ObjectGraphTraverser.Implementation.SEGMENT_SIZE]    = nextIterationSegment    ;
+		final Object[] nextIterationSegment = ObjectGraphTraverser.Default.createIterationSegment();
+		this.iterationHead[ObjectGraphTraverser.Default.SEGMENT_SIZE]    = nextIterationSegment    ;
 		this.iterationHead      = nextIterationSegment;
 		this.iterationHeadIndex = 0                   ;
 		this.tailIsHead         = false               ;
@@ -89,7 +89,7 @@ public abstract class AbstractReferenceHandlerOld implements TraversalReferenceH
 		}
 		
 		// (23.08.2017 TM)FIXME: must implement a stack instead of a queue or bigger graphs will always flood the memory
-		if(this.iterationHeadIndex >= ObjectGraphTraverser.Implementation.SEGMENT_SIZE)
+		if(this.iterationHeadIndex >= ObjectGraphTraverser.Default.SEGMENT_SIZE)
 		{
 			this.increaseIterationQueue();
 		}
@@ -102,7 +102,7 @@ public abstract class AbstractReferenceHandlerOld implements TraversalReferenceH
 		{
 			this.checkForCompletion();
 		}
-		if(this.iterationTailIndex >= ObjectGraphTraverser.Implementation.SEGMENT_SIZE)
+		if(this.iterationTailIndex >= ObjectGraphTraverser.Default.SEGMENT_SIZE)
 		{
 			this.advanceSegment();
 		}
@@ -120,7 +120,7 @@ public abstract class AbstractReferenceHandlerOld implements TraversalReferenceH
 	
 	final void advanceSegment()
 	{
-		this.iterationTail      = (Object[])this.iterationTail[ObjectGraphTraverser.Implementation.SEGMENT_SIZE];
+		this.iterationTail      = (Object[])this.iterationTail[ObjectGraphTraverser.Default.SEGMENT_SIZE];
 		this.iterationTailIndex = 0;
 		this.tailIsHead         = this.iterationTail == this.iterationHead;
 	}

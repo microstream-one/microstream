@@ -30,7 +30,7 @@ public interface CsvEntityAssembler<T> extends CsvRowAssembler<T>
 		return vs;
 	}
 
-	public abstract class AbstractImplementation<T> implements CsvEntityAssembler<T>
+	public abstract class Abstract<T> implements CsvEntityAssembler<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -53,24 +53,24 @@ public interface CsvEntityAssembler<T> extends CsvRowAssembler<T>
 		// constructors //
 		/////////////////
 
-		protected AbstractImplementation(final XGettingSequence<String> columnHeader)
+		protected Abstract(final XGettingSequence<String> columnHeader)
 		{
 			this(columnHeader, DEFAULT_ROW_COUNT_ESTIAMTE);
 		}
 
-		protected AbstractImplementation(final XGettingSequence<String> columnHeader, final int rowCharCountEstimate)
+		protected Abstract(final XGettingSequence<String> columnHeader, final int rowCharCountEstimate)
 		{
 			super();
 			this.columnHeader         = columnHeader.immure();
 			this.rowCharCountEstimate = rowCharCountEstimate ;
 		}
 
-		protected AbstractImplementation(final String... columnHeader)
+		protected Abstract(final String... columnHeader)
 		{
 			this(ConstList.New(columnHeader));
 		}
 
-		protected AbstractImplementation(final int rowCharCountEstimate, final String... columnHeader)
+		protected Abstract(final int rowCharCountEstimate, final String... columnHeader)
 		{
 			this(ConstList.New(columnHeader), rowCharCountEstimate);
 		}

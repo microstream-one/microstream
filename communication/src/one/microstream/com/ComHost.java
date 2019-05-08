@@ -38,14 +38,14 @@ public interface ComHost<C> extends Runnable
 		final ComConnectionAcceptor<C> connectionAcceptor
 	)
 	{
-		return new ComHost.Implementation<>(
+		return new ComHost.Default<>(
 			mayNull(address)           ,
 			notNull(connectionHandler) ,
 			notNull(connectionAcceptor)
 		);
 	}
 	
-	public final class Implementation<C> implements ComHost<C>
+	public final class Default<C> implements ComHost<C>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -65,7 +65,7 @@ public interface ComHost<C> extends Runnable
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final InetSocketAddress        address           ,
 			final ComConnectionHandler<C>  connectionHandler ,
 			final ComConnectionAcceptor<C> connectionAcceptor

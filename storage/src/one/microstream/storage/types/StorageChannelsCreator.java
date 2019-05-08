@@ -31,14 +31,14 @@ public interface StorageChannelsCreator
 
 
 
-	public static final class Implementation implements StorageChannelsCreator
+	public static final class Default implements StorageChannelsCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// override methods //
 		/////////////////////
 
 		@Override
-		public final StorageChannel.Implementation[] createChannels(
+		public final StorageChannel.Default[] createChannels(
 			final int                                  channelCount                 ,
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
 			final StorageExceptionHandler              exceptionHandler             ,
@@ -67,7 +67,7 @@ public interface StorageChannelsCreator
 			final int  loadingBufferSize        =  XMemory.defaultBufferSize();
 			final int  readingDefaultBufferSize =  XMemory.defaultBufferSize();
 
-			final StorageChannel.Implementation[]     channels = new StorageChannel.Implementation[channelCount];
+			final StorageChannel.Default[]     channels = new StorageChannel.Default[channelCount];
 
 			final StorageOidMarkQueue[]    markQueues = new StorageOidMarkQueue[channels.length];
 			for(int i = 0; i < markQueues.length; i++)
@@ -82,7 +82,7 @@ public interface StorageChannelsCreator
 			for(int i = 0; i < channels.length; i++)
 			{
 				// entity cache to register entities, cache entity data, perform garbage collection
-				final StorageEntityCache.Implementation entityCache = new StorageEntityCache.Implementation(
+				final StorageEntityCache.Default entityCache = new StorageEntityCache.Default(
 					i                                                ,
 					channels.length                                  ,
 					entityCacheEvaluator                             ,
@@ -97,7 +97,7 @@ public interface StorageChannelsCreator
 				);
 
 				// file manager to handle "file" IO (whatever "file" might be, might be a RDBMS binary table as well)
-				final StorageFileManager.Implementation fileManager = new StorageFileManager.Implementation(
+				final StorageFileManager.Default fileManager = new StorageFileManager.Default(
 					i                               ,
 					initialDataFileNumberProvider   ,
 					timestampProvider               ,
@@ -114,7 +114,7 @@ public interface StorageChannelsCreator
 				entityCache.initializeStorageManager(fileManager);
 
 				// everything bundled together in a "channel".
-				channels[i] = new StorageChannel.Implementation(
+				channels[i] = new StorageChannel.Default(
 					i                        ,
 					exceptionHandler         ,
 					taskBroker               ,

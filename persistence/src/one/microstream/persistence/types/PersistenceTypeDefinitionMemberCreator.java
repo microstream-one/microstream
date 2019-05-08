@@ -31,18 +31,18 @@ public interface PersistenceTypeDefinitionMemberCreator
 	
 	
 	
-	public static PersistenceTypeDefinitionMemberCreator.Implementation New(
+	public static PersistenceTypeDefinitionMemberCreator.Default New(
 		final XGettingSequence<? extends PersistenceTypeDescription> ascendingOrderTypeIdEntries,
 		final PersistenceTypeResolver                                typeResolver
 	)
 	{
-		return new PersistenceTypeDefinitionMemberCreator.Implementation(
+		return new PersistenceTypeDefinitionMemberCreator.Default(
 			XUtilsCollection.toArray(ascendingOrderTypeIdEntries, PersistenceTypeDescription.class),
 			notNull(typeResolver)
 		);
 	}
 	
-	public final class Implementation implements PersistenceTypeDefinitionMemberCreator
+	public final class Default implements PersistenceTypeDefinitionMemberCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -57,7 +57,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final PersistenceTypeDescription[] ascendingOrderTypeIdEntries,
 			final PersistenceTypeResolver      typeResolver
 		)

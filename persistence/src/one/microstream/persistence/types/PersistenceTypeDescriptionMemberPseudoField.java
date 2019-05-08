@@ -4,15 +4,15 @@ package one.microstream.persistence.types;
 
 public interface PersistenceTypeDescriptionMemberPseudoField extends PersistenceTypeDescriptionMember
 {
-	public abstract class AbstractImplementation
-	extends PersistenceTypeDescriptionMember.AbstractImplementation
+	public abstract class Abstract
+	extends PersistenceTypeDescriptionMember.Abstract
 	implements PersistenceTypeDescriptionMemberPseudoField
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		public AbstractImplementation(
+		public Abstract(
 			final String  typeName           ,
 			final String  name               ,
 			final boolean isReference        ,

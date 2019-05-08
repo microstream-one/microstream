@@ -39,7 +39,7 @@ public class MainTestExportConvertImport extends TestStorage
 
 //		STORAGE.truncateData();
 		storageConnection.importFiles(EqHashEnum.New(bin2Dir.listFiles()));
-//		storageConnection.importFiles(EqHashEnum.New(new File("C:/Files/export/bin2/one.microstream.persistence.types.PersistenceRoots$Implementation.dat")));
+//		storageConnection.importFiles(EqHashEnum.New(new File("C:/Files/export/bin2/one.microstream.persistence.types.PersistenceRoots$Default.dat")));
 
 		STORAGE.shutdown();
 		MainTestStoragePrintTransactions.printTransactionsFiles(channelCount);

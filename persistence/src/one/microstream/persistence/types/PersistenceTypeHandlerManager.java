@@ -67,7 +67,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 
 
 
-	public static <M> PersistenceTypeHandlerManager.Implementation<M> New(
+	public static <M> PersistenceTypeHandlerManager.Default<M> New(
 		final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ,
 		final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ,
 		final PersistenceTypeDictionaryManager    typeDictionaryManager,
@@ -77,7 +77,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
 	)
 	{
-		return new PersistenceTypeHandlerManager.Implementation<>(
+		return new PersistenceTypeHandlerManager.Default<>(
 			notNull(typeHandlerRegistry)  ,
 			notNull(typeHandlerProvider)  ,
 			notNull(typeDictionaryManager),
@@ -88,7 +88,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		);
 	}
 
-	public final class Implementation<M> implements PersistenceTypeHandlerManager<M>
+	public final class Default<M> implements PersistenceTypeHandlerManager<M>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -110,7 +110,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ,
 			final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ,
 			final PersistenceTypeDictionaryManager    typeDictionaryManager,

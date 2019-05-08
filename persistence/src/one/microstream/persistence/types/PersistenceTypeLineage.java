@@ -31,18 +31,18 @@ public interface PersistenceTypeLineage
 	
 	
 	
-	public static PersistenceTypeLineage.Implementation New(
+	public static PersistenceTypeLineage.Default New(
 		final String   runtimeTypeName,
 		final Class<?> runtimeType
 	)
 	{
-		return new PersistenceTypeLineage.Implementation(
+		return new PersistenceTypeLineage.Default(
 			mayNull(runtimeTypeName), // can be null for types explicitly mapped as having no runtime type.
 			mayNull(runtimeType)      // can be null if the type name cannot be resolved to a runtime class.
 		);
 	}
 		
-	public final class Implementation implements PersistenceTypeLineage
+	public final class Default implements PersistenceTypeLineage
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -59,7 +59,7 @@ public interface PersistenceTypeLineage
 		// constructors //
 		/////////////////
 
-		Implementation(final String runtimeTypeName, final Class<?> runtimeType)
+		Default(final String runtimeTypeName, final Class<?> runtimeType)
 		{
 			super();
 			this.runtimeTypeName = runtimeTypeName  ;

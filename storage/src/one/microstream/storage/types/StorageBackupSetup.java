@@ -21,13 +21,13 @@ public interface StorageBackupSetup
 		final StorageFileProvider backupFileProvider
 	)
 	{
-		return new StorageBackupSetup.Implementation(
+		return new StorageBackupSetup.Default(
 			notNull(backupFileProvider) ,
 			StorageBackupItemQueue.New()
 		);
 	}
 	
-	public final class Implementation implements StorageBackupSetup
+	public final class Default implements StorageBackupSetup
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -42,7 +42,7 @@ public interface StorageBackupSetup
 		// constructors //
 		/////////////////
 		
-		Implementation(
+		Default(
 			final StorageFileProvider    backupFileProvider,
 			final StorageBackupItemQueue itemQueue
 		)

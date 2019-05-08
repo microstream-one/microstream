@@ -46,7 +46,7 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 		final long                                                          persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDescriptionMemberPseudoFieldComplex.Implementation(
+		return new PersistenceTypeDescriptionMemberPseudoFieldComplex.Default(
 			 notNull(name)                   ,
 			 notNull(members)                ,
 			positive(persistentMinimumLength),
@@ -54,8 +54,8 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 		);
 	}
 
-	public class Implementation
-	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Implementation
+	public class Default
+	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default
 	implements PersistenceTypeDescriptionMemberPseudoFieldComplex
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 		// constructors //
 		/////////////////
 
-		Implementation(
+		Default(
 			final String                                                        name                   ,
 			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members                ,
 			final long                                                          persistentMinimumLength,

@@ -17,9 +17,9 @@ public class MainTestConvertTwice extends TestStorage
 
 	public static void main(final String[] args)
 	{
-		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.ImplementationUTF8(
+		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
-			new StorageEntityTypeConversionFileProvider.Implementation(new File(dir, "csv"), "csv"),
+			new StorageEntityTypeConversionFileProvider.Default(new File(dir, "csv"), "csv"),
 			STORAGE.typeDictionary(),
 			null,
 			4096,

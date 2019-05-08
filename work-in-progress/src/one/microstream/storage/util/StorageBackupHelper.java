@@ -33,9 +33,9 @@ public final class StorageBackupHelper
 	{
 		// export (= copy) all channels' data to the target directory (= "backup")
 		storageManager.exportChannels(
-			new StorageIoHandler.Implementation(
+			new StorageIoHandler.Default(
 				Storage.FileProvider(targetDirectory),
-				new StorageFileWriter.Implementation()
+				new StorageFileWriter.Default()
 			),
 			true
 		);

@@ -85,13 +85,13 @@ interface LockManagerAgent<O> extends LockOwnerTypeHolder<O>
 
 	public static <O> LockManagerAgent<O> New(final LockManager<O> master, final O owner)
 	{
-		return new Implementation<>(
+		return new Default<>(
 			notNull(master),
 			notNull(owner)
 		);
 	}
 
-	public class Implementation<O> implements LockManagerAgent<O>
+	public class Default<O> implements LockManagerAgent<O>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -106,7 +106,7 @@ interface LockManagerAgent<O> extends LockOwnerTypeHolder<O>
 		// constructors //
 		/////////////////
 
-		Implementation(final LockManager<O> master, final O owner)
+		Default(final LockManager<O> master, final O owner)
 		{
 			super();
 			this.master = master;

@@ -17,13 +17,13 @@ public interface PersistenceRootEntry
 	
 	public static PersistenceRootEntry New(final String identifier, final Supplier<?> instanceSupplier)
 	{
-		return new PersistenceRootEntry.Implementation(
+		return new PersistenceRootEntry.Default(
 			notNull(identifier)      ,
 			mayNull(instanceSupplier) // null means deleted
 		);
 	}
 	
-	public final class Implementation implements PersistenceRootEntry
+	public final class Default implements PersistenceRootEntry
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -38,7 +38,7 @@ public interface PersistenceRootEntry
 		// constructors //
 		/////////////////
 		
-		Implementation(final String identifier, final Supplier<?> instanceSupplier)
+		Default(final String identifier, final Supplier<?> instanceSupplier)
 		{
 			super();
 			this.identifier       = identifier      ;

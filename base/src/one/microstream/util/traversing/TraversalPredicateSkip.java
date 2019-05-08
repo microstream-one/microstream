@@ -18,20 +18,20 @@ public interface TraversalPredicateSkip extends TraversalPredicate
 		final XGettingSequence<Class<?>> typesPolymorphic
 	)
 	{
-		return new TraversalPredicateSkip.Implementation(
+		return new TraversalPredicateSkip.Default(
 			customPredicate ,
 			positiveTypes   ,
 			typesPolymorphic
 		);
 	}
 	
-	public final class Implementation extends AbstractHandlingPredicate implements TraversalPredicateSkip
+	public final class Default extends AbstractHandlingPredicate implements TraversalPredicateSkip
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		protected Implementation(
+		protected Default(
 			final Predicate<Object>          customPredicate  ,
 			final XGettingSet<Class<?>>      positiveTypes    ,
 			final XGettingSequence<Class<?>> typesPolymorphic
