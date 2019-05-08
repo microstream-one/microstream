@@ -31,7 +31,17 @@ public interface StorageHousekeepingController
 	public long fileCheckTimeBudgetNs();
 
 
-	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageHousekeepingController} instance
+	 * using default values.<p>
+	 * To specify custom values, see {@link #New(long, long)}.<p>
+	 * 
+	 * @return a new {@link StorageHousekeepingController} instance using default values.
+	 * 
+	 * @see #New(long, long)
+	 * @see Storage#HousekeepingController()
+	 * @see StorageHousekeepingController.Defaults
+	 */
 	public static StorageHousekeepingController New()
 	{
 		/*
