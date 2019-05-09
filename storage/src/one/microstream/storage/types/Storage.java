@@ -80,12 +80,10 @@ public final class Storage
 	}
 	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with a default value
-	 * for the storage directory, which is the folder named "storage" in the JVM's working directory.<p>
-	 * To specify a custom storage directory, see Storage#FileProvider(File).<p>
-	 * For full control over defining a storage's file locations and names, see {@link StorageFileProvider.Builder}.
+	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with default values
+	 * provided by {@link StorageFileProvider.Defaults}.
 	 * 
-	 * @return a new {@link StorageFileProvider} instance with the default storage directory.
+	 * @return a new {@link StorageFileProvider} instance.
 	 * 
 	 * @see Storage#FileProvider(File)
 	 * @see StorageFileProvider.Builder
@@ -99,12 +97,13 @@ public final class Storage
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with the passed {@link File}
-	 * as the storage directory<p>
-	 * For full control over defining a storage's file locations and names, see {@link StorageFileProvider.Builder}.
+	 * as the storage directory and defaults for the remaining values provided by {@link StorageFileProvider.Defaults}.
 	 * 
-	 * @return a new {@link StorageFileProvider} instance with the passed {@link File} as the storage directory.
+	 * @param storageDirectory the explicitely defined storage directory.
 	 * 
-	 * @see Storage#FileProvider(File)
+	 * @return a new {@link StorageFileProvider} instance.
+	 * 
+	 * @see Storage#FileProvider()
 	 * @see StorageFileProvider.Builder
 	 */
 	public static final StorageFileProvider FileProvider(final File storageDirectory)
@@ -123,6 +122,9 @@ public final class Storage
 	 * Pseudo-constructor method to create a new {@link StorageFileProvider.Builder} instance.
 	 * 
 	 * @return a new {@link StorageFileProvider.Builder} instance.
+	 * 
+	 * @see Storage#FileProvider()
+	 * @see Storage#FileProvider(File)
 	 */
 	public static final StorageFileProvider.Builder<?> FileProviderBuilder()
 	{
@@ -130,12 +132,13 @@ public final class Storage
 	}
 
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageConfiguration.Builder} instance
-	 * using default values.
+	 * Pseudo-constructor method to create a new {@link StorageConfiguration} instance
+	 * using default instances for its parts and <code>null</code> as the {@link StorageBackupSetup}.
 	 * 
 	 * @return a new {@link StorageConfiguration} instance.
 	 * 
-	 * @see StorageConfiguration.Builder
+	 * @see Storage#Configuration(StorageFileProvider)
+	 * @see Storage#ConfigurationBuilder
 	 */
 	public static final StorageConfiguration Configuration()
 	{
@@ -146,10 +149,12 @@ public final class Storage
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageConfiguration.Builder} instance
-	 * using the passed {@link StorageFileProvider} and default values for everything else.
+	 * using the passed {@link StorageFileProvider}, <code>null</code> as the {@link StorageBackupSetup}
+	 * and default instances for everything else.
 	 * 
-	 * @return a new {@link StorageConfiguration} instance using the passed {@link StorageFileProvider}.
+	 * @return a new {@link StorageConfiguration} instance.
 	 * 
+	 * @see Storage#Configuration()
 	 * @see StorageConfiguration.Builder
 	 */
 	public static final StorageConfiguration Configuration(
@@ -166,6 +171,9 @@ public final class Storage
 	 * Pseudo-constructor method to create a new {@link StorageConfiguration.Builder} instance.
 	 * 
 	 * @return a new {@link StorageConfiguration.Builder} instance.
+	 * 
+	 * @see Storage#Configuration()
+	 * @see Storage#Configuration(StorageFileProvider)
 	 */
 	public static final StorageConfiguration.Builder<?> ConfigurationBuilder()
 	{
@@ -174,7 +182,8 @@ public final class Storage
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageHousekeepingController} instance
-	 * using default values.<p>
+	 * using default values defined by {@link StorageHousekeepingController.Defaults}.
+	 * <p>
 	 * To specify custom values, see {@link Storage#HousekeepingController(long, long)}.<p>
 	 * 
 	 * @return a new {@link StorageHousekeepingController} instance using default values.
@@ -285,7 +294,6 @@ public final class Storage
 		return StorageEntityCacheEvaluator.New(timeoutMs, threshold);
 	}
 
-
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageChannelCountProvider} instance
 	 * using the default value of 1 (meaning a single storage thread).<p>
@@ -314,11 +322,35 @@ public final class Storage
 		return StorageChannelCountProvider.New(channelCount);
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
+	 * using default values specified by {@link StorageDataFileEvaluator.Defaults}<p>
+	 * To specify custom values, see {@link Storage#DataFileEvaluator(int, int, double)}.<p>
+	 * 
+	 * @return a new {@link StorageDataFileEvaluator} instance using default values.
+	 * 
+	 * @see Storage#DataFileEvaluator(int, int)
+	 * @see Storage#DataFileEvaluator(int, int, double)
+	 * @see StorageDataFileEvaluator#New()
+	 */
 	public static final StorageDataFileEvaluator DataFileEvaluator()
 	{
 		return StorageDataFileEvaluator.New();
 	}
-
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
+	 * using the passed values.
+	 * <p>
+	 * Behaves like Storage#DataFileEvaluator(int, int, double) with {@code minimumUseRatio} defaulting to
+	 * {@link StorageDataFileEvaluator.Defaults#defaultMinimumUseRatio}.
+	 * 
+	 * @return a new {@link StorageDataFileEvaluator} instance.
+	 * 
+	 * @see Storage#DataFileEvaluator()
+	 * @see Storage#DataFileEvaluator(int, int, double)
+	 * @see StorageDataFileEvaluator#New(int, int)
+	 */
 	public static final StorageDataFileEvaluator DataFileEvaluator(
 		final int fileMinimumSize,
 		final int fileMaximumSize
@@ -326,24 +358,50 @@ public final class Storage
 	{
 		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize);
 	}
-
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
+	 * using the passed values.
+	 * 
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved by copying their content to the current head file and being deleted.
+	 * 
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved by copying their content to the current head file and being deleted.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of anything smaller than that.
+	 * 
+	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
+	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
+	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        as a negative value length header).<br>
+	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
+	 *        file dissolving (data transfers to new files) is required and vice versa.
+	 * 
+	 * @return a new {@link StorageDataFileEvaluator} instance.
+	 * 
+	 * @see Storage#DataFileEvaluator()
+	 * @see Storage#DataFileEvaluator(int, int)
+	 * @see StorageDataFileEvaluator#New(int, int, double)
+	 */
 	public static final StorageDataFileEvaluator DataFileEvaluator(
 		final int    fileMinimumSize,
 		final int    fileMaximumSize,
-		final double dissolveRatio
+		final double minimumUseRatio
 	)
 	{
-		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, dissolveRatio);
+		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio);
 	}
 
 	public static final StorageDataFileEvaluator DataFileEvaluator(
 		final int     fileMinimumSize ,
 		final int     fileMaximumSize ,
-		final double  dissolveRatio   ,
+		final double  minimumUseRatio ,
 		final boolean dissolveHeadfile
 	)
 	{
-		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, dissolveRatio, dissolveHeadfile);
+		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio, dissolveHeadfile);
 	}
 	
 	public static final StorageBackupSetup BackupSetup(

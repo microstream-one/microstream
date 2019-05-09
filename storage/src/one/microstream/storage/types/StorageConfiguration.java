@@ -8,20 +8,20 @@ import one.microstream.typing.Immutable;
 
 public interface StorageConfiguration
 {
-	public StorageChannelCountProvider   channelCountProvider();
+	public StorageChannelCountProvider channelCountProvider();
 
 	public StorageHousekeepingController housekeepingController();
 
-	public StorageEntityCacheEvaluator   entityCacheEvaluator();
+	public StorageEntityCacheEvaluator entityCacheEvaluator();
 
 	/* (10.12.2014 TM)TODO: consolidate StorageConfiguration#fileProvider with FileWriter and FileReader
 	 * either move both here as well or move fileProvider out of here.
 	 */
-	public StorageFileProvider           fileProvider();
+	public StorageFileProvider fileProvider();
 
-	public StorageDataFileEvaluator      fileEvaluator();
+	public StorageDataFileEvaluator fileEvaluator();
 	
-	public StorageBackupSetup           backupSetup();
+	public StorageBackupSetup backupSetup();
 
 	
 	public static StorageConfiguration New(
