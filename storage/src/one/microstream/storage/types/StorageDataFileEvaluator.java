@@ -104,18 +104,27 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	
 	public interface Defaults
 	{
+		/**
+		 * @return {@code 1 * 1024 * 1024} (meaning 1 MB minimum file size).
+		 */
 		public static int defaultFileMinimumSize()
 		{
 			// 1 MB in common byte magnitude
 			return 1 * 1024 * 1024;
 		}
 
+		/**
+		 * @return {@code 8 * 1024 * 1024} (meaning 8 MB maximum file size).
+		 */
 		public static int defaultFileMaximumSize()
 		{
 			// 8 MB in common byte magnitude
 			return 8 * 1024 * 1024;
 		}
-		
+
+		/**
+		 * @return {@code 0.75} (meaning 75% minimum use ratio required).
+		 */
 		public static double defaultMinimumUseRatio()
 		{
 			// 75% non-gap ("useful") data.
