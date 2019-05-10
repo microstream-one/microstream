@@ -168,6 +168,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			
 			for(final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> e : explicitMappings)
 			{
+				// (10.05.2019 TM)FIXME: MS-141: reversed explicit mapping
 				targetExplicitMappings.add(e.value(), e.key());
 			}
 			for(final PersistenceTypeDefinitionMember e : explicitNewMembers)
@@ -187,6 +188,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			for(final PersistenceTypeDefinitionMember sourceMember : legacyTypeDefinition.members())
 			{
 				// explicit mappings take precedence
+				// (10.05.2019 TM)FIXME: MS-141: reversed explicit mapping (problem here!)
 				final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitEntry =
 					sourceExplicitMappings.lookup(sourceMember)
 				;
