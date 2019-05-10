@@ -7,7 +7,8 @@ import java.io.File;
 
 /**
  * Static utility class containing static pseudo-constructor methods (indicated by a capital first letter)
- * and various utility methods.<p>
+ * and various utility methods.
+ * <p>
  * To setup and start a database, see the class "EmbeddedStorage".
  * 
  * @author TM
@@ -35,12 +36,12 @@ public final class Storage
 	///////////////////
 	
 	/**
-	 * Returns the dummy file number for transaction files, which is the value {@value Storage#TRANSACTIONS_FILE_NUMBER}.
+	 * Returns the dummy file number for transaction files, which is the value {@value #TRANSACTIONS_FILE_NUMBER}.
 	 * <p>
 	 * Transaction files conceptually don't have a file number, but are subject to the {@link StorageNumberedFile}
-	 * mechanics, so a dummy value is required. Since transaction files are planned to be replaced in the future
+	 * type, so a dummy value is required. Since transaction files are planned to be replaced in the future
 	 * by meta data inlined directly in the storage files, a dummy value like this is a preferable solution
-	 * to restructuring.
+	 * to an elaborate restructuring.
 	 * 
 	 * @return the dummy file number for transaction files.
 	 */
@@ -66,11 +67,11 @@ public final class Storage
 	}
 	
 	/**
-	 * Checks if the passed {@link StorageNumberedFile} is a data file.
+	 * Checks if the passed {@link StorageNumberedFile} is a storage data file.
 	 * 
 	 * @param file the {@link StorageNumberedFile} to be checked.
 	 * 
-	 * @return whether the passed file is a data file.
+	 * @return whether the passed file is a storage data file.
 	 * 
 	 * @see Storage#isTransactionFile(StorageNumberedFile)
 	 */
@@ -82,10 +83,13 @@ public final class Storage
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with default values
 	 * provided by {@link StorageFileProvider.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
 	 * 
 	 * @return a new {@link StorageFileProvider} instance.
 	 * 
 	 * @see Storage#FileProvider(File)
+	 * @see Storage#FileProviderBuilder()
 	 * @see StorageFileProvider.Builder
 	 */
 	public static final StorageFileProvider FileProvider()
@@ -98,12 +102,15 @@ public final class Storage
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with the passed {@link File}
 	 * as the storage directory and defaults for the remaining values provided by {@link StorageFileProvider.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
 	 * 
 	 * @param storageDirectory the explicitely defined storage directory.
 	 * 
 	 * @return a new {@link StorageFileProvider} instance.
 	 * 
 	 * @see Storage#FileProvider()
+	 * @see Storage#FileProviderBuilder()
 	 * @see StorageFileProvider.Builder
 	 */
 	public static final StorageFileProvider FileProvider(final File storageDirectory)
@@ -120,11 +127,14 @@ public final class Storage
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageFileProvider.Builder} instance.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
 	 * 
 	 * @return a new {@link StorageFileProvider.Builder} instance.
 	 * 
 	 * @see Storage#FileProvider()
 	 * @see Storage#FileProvider(File)
+	 * @see StorageFileProvider.Builder
 	 */
 	public static final StorageFileProvider.Builder<?> FileProviderBuilder()
 	{
@@ -133,12 +143,15 @@ public final class Storage
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageConfiguration} instance
-	 * using default instances for its parts and <code>null</code> as the {@link StorageBackupSetup}.
+	 * using default instances for its parts and <code>null</code> as the {@link StorageBackupSetup} part.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
 	 * 
 	 * @return a new {@link StorageConfiguration} instance.
 	 * 
 	 * @see Storage#Configuration(StorageFileProvider)
-	 * @see Storage#ConfigurationBuilder
+	 * @see Storage#ConfigurationBuilder()
+	 * @see StorageConfiguration.Builder
 	 */
 	public static final StorageConfiguration Configuration()
 	{
@@ -148,13 +161,16 @@ public final class Storage
 	}
 	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageConfiguration.Builder} instance
-	 * using the passed {@link StorageFileProvider}, <code>null</code> as the {@link StorageBackupSetup}
+	 * Pseudo-constructor method to create a new {@link StorageConfiguration} instance
+	 * using the passed {@link StorageFileProvider}, <code>null</code> as the {@link StorageBackupSetup} part
 	 * and default instances for everything else.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
 	 * 
 	 * @return a new {@link StorageConfiguration} instance.
 	 * 
 	 * @see Storage#Configuration()
+	 * @see Storage#ConfigurationBuilder()
 	 * @see StorageConfiguration.Builder
 	 */
 	public static final StorageConfiguration Configuration(
@@ -169,11 +185,14 @@ public final class Storage
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageConfiguration.Builder} instance.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
 	 * 
 	 * @return a new {@link StorageConfiguration.Builder} instance.
 	 * 
 	 * @see Storage#Configuration()
 	 * @see Storage#Configuration(StorageFileProvider)
+	 * @see StorageConfiguration.Builder
 	 */
 	public static final StorageConfiguration.Builder<?> ConfigurationBuilder()
 	{
@@ -184,7 +203,7 @@ public final class Storage
 	 * Pseudo-constructor method to create a new {@link StorageHousekeepingController} instance
 	 * using default values defined by {@link StorageHousekeepingController.Defaults}.
 	 * <p>
-	 * To specify custom values, see {@link Storage#HousekeepingController(long, long)}.<p>
+	 * For explanations and customizing values, see {@link StorageHousekeepingController#New()}.
 	 * 
 	 * @return a new {@link StorageHousekeepingController} instance using default values.
 	 * 
@@ -199,28 +218,20 @@ public final class Storage
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageHousekeepingController} instance
-	 * using the passed values.<p>
-	 * The combination of these two values can be used to define how much percentage of the system's computing power
-	 * shall be used for storage housekeeping. Example: 10 Million ns (= 10 ms) housekeeping budget every 1000 ms
-	 * means (roughly) 1% of the computing power will be used for storage housekeeping.<p>
-	 * Note that in an application where no store occures over a longer period of time will eventually complete
-	 * all housekeeping tasks, which reduces the required computing power to 0. When the next store occurs, the
-	 * housekeeping starts anew.<br>
-	 * How long the housekeeping requires to complete depends on the computing power it is granted here, other
-	 * configurations (like cache timeouts) and the amount of data that has to be managed.
+	 * using the passed values.
 	 * <p>
-	 * See all "issue~" methods in {@link StorageConnection} for a way to call housekeeping explicitly and causing
-	 * it to be executed completely.
-	 * 
+	 * For explanations and customizing values, see {@link StorageHousekeepingController#New(long, long)}.
 	 * 
 	 * @param housekeepingIntervalMs the interval in milliseconds that the storage threads shall
-	 *        execute their various housekeeping actions (like cache clearing checks, file consolidation, etc.)
+	 *        execute their various housekeeping actions (like cache clearing checks, file consolidation, etc.).
+	 *        Must be greater than zero.
 	 * 
 	 * @param housekeepingTimeBudgetNs the time budget in nanoseconds that each storage thread will use to perform
 	 *        a housekeeping action. This is a best effort value, not a strictly reliable border value. This means
 	 *        a housekeeping action can occasionally take slightly longer than specified here.
+	 *        Must be greater than zero.
 	 * 
-	 * @return a new {@link StorageHousekeepingController} instance using default values.
+	 * @return a new {@link StorageHousekeepingController} instance.
 	 * 
 	 * @see Storage#HousekeepingController()
 	 * @see StorageHousekeepingController#New(long, long)
@@ -235,8 +246,9 @@ public final class Storage
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
-	 * using default values.<p>
-	 * To specify custom values, see {@link Storage#EntityCacheEvaluator(long, long)}.<p>
+	 * using default values.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New()}.
 	 * 
 	 * @return a new {@link StorageEntityCacheEvaluator} instance using default values.
 	 * 
@@ -252,7 +264,8 @@ public final class Storage
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
 	 * using the passed {@code timeoutMs} value and a default threshold value.<br>
-	 * See {@link Storage#EntityCacheEvaluator(long, long)}.<p>
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New()}.
 	 * 
 	 * @param timeoutMs the time (in milliseconds) of not being read (the "age"), after which a particular
 	 *        entity's data will be cleared from the Storage's internal cache.
@@ -273,6 +286,8 @@ public final class Storage
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
 	 * using the passed values.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
 	 * 
 	 * @param timeoutMs the time (in milliseconds) of not being read (the "age"), after which a particular
 	 *        entity's data will be cleared from the Storage's internal cache.
@@ -296,10 +311,11 @@ public final class Storage
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageChannelCountProvider} instance
-	 * using the default value of 1 (meaning a single storage thread).<p>
-	 * To specify a custom value, see {@link Storage#ChannelCountProvider(int)}.<p>
+	 * using the default value of 1 (meaning a single storage thread).
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageChannelCountProvider#New()}.
 	 * 
-	 * @return a new {@link StorageChannelCountProvider} instance defining a single-threaded storage.
+	 * @return a new {@link StorageChannelCountProvider} instance.
 	 * 
 	 * @see Storage#ChannelCountProvider(int)
 	 * @see StorageChannelCountProvider#New()
@@ -311,11 +327,13 @@ public final class Storage
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageChannelCountProvider} instance
-	 * using the passed value to specify the amount of channels (threads and their exclusive storage sub-directory).<p>
+	 * using the passed value to specify the amount of channels (threads and their exclusive storage sub-directory).
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageChannelCountProvider#New(int)}.
 	 * 
 	 * @param channelCount the amount of channels (threads and their exclusive storage sub-directory).
 	 * 
-	 * @return a new {@link StorageChannelCountProvider} instance using the passed {@code channelCount}.
+	 * @return a new {@link StorageChannelCountProvider} instance.
 	 */
 	public static final StorageChannelCountProvider ChannelCountProvider(final int channelCount)
 	{
@@ -342,8 +360,16 @@ public final class Storage
 	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
 	 * using the passed values.
 	 * <p>
-	 * Behaves like Storage#DataFileEvaluator(int, int, double) with {@code minimumUseRatio} defaulting to
-	 * {@link StorageDataFileEvaluator.Defaults#defaultMinimumUseRatio}.
+	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int)}.
+	 * 
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved by copying their content to the current head file and being deleted.
+	 * 
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved by copying their content to the current head file and being deleted.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of anything smaller than that.
 	 * 
 	 * @return a new {@link StorageDataFileEvaluator} instance.
 	 * 
@@ -362,6 +388,8 @@ public final class Storage
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
 	 * using the passed values.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.
 	 * 
 	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
 	 *        will be dissolved by copying their content to the current head file and being deleted.

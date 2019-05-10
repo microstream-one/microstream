@@ -10,3 +10,5 @@ one.microstream.test.legacy.OldContact#link
 XHashEqualator:hashEqualityValueOld	XHashEqualator:hashEqualityValue
 one.microstream.test.legacy.Person#kundennummer	one.microstream.test.legacy.Person#pin
 one.microstream.test.legacy.Person#comment	
+one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name	one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name1
+one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name	one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name2

@@ -52,6 +52,27 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		);
 	}
 
+	/**
+
+	 * <p>
+	 * Behaves like Storage#DataFileEvaluator(int, int, double) with {@code minimumUseRatio} defaulting to
+	 * {@link StorageDataFileEvaluator.Defaults#defaultMinimumUseRatio}.
+
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved by copying their content to the current head file and being deleted.
+	 * 
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved by copying their content to the current head file and being deleted.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of anything smaller than that.
+	 * 
+	 * @return a new {@link StorageDataFileEvaluator} instance.
+	 * 
+	 * @see StorageDataFileEvaluator#New()
+	 * @see StorageDataFileEvaluator#New(int, int, double)
+	 * @see Storage#DataFileEvaluator(int, int)
+	 */
 	public static StorageDataFileEvaluator New(
 		final int fileMinimumSize,
 		final int fileMaximumSize
@@ -64,7 +85,35 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			Defaults.defaultResolveHeadfile()
 		);
 	}
-
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
+	 * using the passed values.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.
+	 * 
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved by copying their content to the current head file and being deleted.
+	 * 
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved by copying their content to the current head file and being deleted.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of anything smaller than that.
+	 * 
+	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
+	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
+	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        as a negative value length header).<br>
+	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
+	 *        file dissolving (data transfers to new files) is required and vice versa.
+	 * 
+	 * @return a new {@link StorageDataFileEvaluator} instance.
+	 * 
+	 * @see StorageDataFileEvaluator#New()
+	 * @see StorageDataFileEvaluator#New(int, int)
+	 * @see Storage#DataFileEvaluator(int, int, double)
+	 */
 	public static StorageDataFileEvaluator New(
 		final int    fileMinimumSize,
 		final int    fileMaximumSize,
@@ -79,6 +128,34 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		);
 	}
 
+	/**
+	 * 
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved by copying their content to the current head file and being deleted.
+	 * 
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved by copying their content to the current head file and being deleted.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of anything smaller than that.
+	 * 
+	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
+	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
+	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        as a negative value length header).<br>
+	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
+	 *        file dissolving (data transfers to new files) is required and vice versa.
+	 * 
+	 * @param cleanupHeadFile wheter or not to apply the dissolving logic to head files, too, resulting in a new
+	 *        (but cleaned up) head file being created.
+	 * 
+	 * @return a new {@link StorageDataFileEvaluator} instance.
+	 * 
+	 * @see StorageDataFileEvaluator#New()
+	 * @see StorageDataFileEvaluator#New(int, int)
+	 * @see StorageDataFileEvaluator#New(int, int, double)
+	 * @see Storage#DataFileEvaluator(int, int, double, boolean)
+	 */
 	public static StorageDataFileEvaluator New(
 		final int     fileMinimumSize,
 		final int     fileMaximumSize,

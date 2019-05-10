@@ -69,19 +69,24 @@ public class MainTestStorageLegacyTypeMapping
 	static class TestEntity
 	{
 		Integer            id       ;
-		String             name     ;
+//		String             name     ;
 		Date               stuff    ;
 		ArrayList<String>  moreStuff;
 		ArrayList<Integer> newStuff ;
+		String             name1     ;
+		String             name2     ;
+		String             name3     ;
+//		String             lastName     ;
 		
 		
 		public TestEntity(final Integer id, final String name, final String... moreStuff)
 		{
 			super();
 			this.id = id;
-			this.name = name;
+//			this.name = name;
 			this.stuff = XTime.now();
 			this.moreStuff = OldCollections.ArrayList(moreStuff);
+//			this.lastName = name;
 		}
 
 
@@ -89,7 +94,10 @@ public class MainTestStorageLegacyTypeMapping
 		public String toString()
 		{
 			return "TestEntity [id=" + this.id
-				+ ", name=" + this.name
+//				+ ", name=" + this.name
+//				+ ", name=" + this.lastName
+				+ ", name1=" + this.name1
+				+ ", name2=" + this.name2
 				+ ", stuff=" + this.stuff
 				+ ", moreStuff=" + this.moreStuff
 				+ "]"
