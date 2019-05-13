@@ -1,0 +1,153 @@
+JavaDoc: Nur sinnvoll mit zusätzlicher Implementierung
+
+Nach wenigen Tagen Java-Doc schreiben bin ich schon frustriert und dreh mich im Kreis.
+Meiner Einschätzung nach muss man erst mal einen gepimpten JavaDoc-Generator schreiben, um überhaupt wirtschaftlich JavaDoc schreiben zu können.
+Aber dazu unten. Erst mal das Problem:
+
+Es ist nicht mal die Ausnahme, sondern schon eher die Regel, dass derselbe JavaDoc Text an vielen Stellen redundant vorkommen muss.
+Redundanzen sind beim Progammcode immer heikel. Das gilt auch für JavaDoc.
+Siehe unten für ein konkretes Beispiel.
+
+Man hat als Strategie nur die Auswahl zwischen lauter schlechten Optionen:
+
+1.) JavaDoc mehrfach redundant schreiben.
+Das ist natürlich indiskutabel. Einmal muss irgendwie reichen.
+
+2.) JavaDoc einmal schreiben und an redundante Stellen kopieren.
+Ist erst mal easy, aber wenn mal was geändert werden muss, kommt man in Teufels Küche. Um das zu vermeiden, müsste man sorgfältig eine Art "Redundanzen-Mapping" führen, das man bei jeder Änderung durchgeht und alle gemappten Stellen sauber mitpflegt. Und das Mapping selber müsste bei Änderungen auch noch mitgepflegt werden.
+Das wäre erstens schon wieder riesiger Aufwand und zweitens, mal ehrlich, macht das keiner.
+Also wäre man zwangsläufig in der Teufelküche und das heißt: permanenter Mehraufwand, Inkonsistenzen, Verwirrung, Frust.
+Das will man nicht.
+
+3.) JavaDoc einmal schreiben und an redundanten Stellen nur verlinken.
+Das ist technisch recht elegant, hat aber Convienience-mäßig (und das ist ja der Sinn von JavaDoc) einen ganzen Sack voll Probleme:
+- Gerade bei zentralen "Convience-Layer"-Methoden müsste der Leser dann fast bei jeder Methode erst mal herumklicken und -springen, bis er endlich mal die Erklärung lesen kann, die er eigentlich braucht. Das ist eigentlich nicht zumutbar.
+- Wenn man an einer redundanten Stelle eine verlinkte Dokumentation ergänzen will (z.B. um einen Defaultwert), dann wird damit die Erklärung auf 2 (oder sogar mehr) Stellen verteil: "Für die normale Erklärung siehe hier, aber dann siehe auch noch hier für Zusatzbemerkungen". Das ist nicht schön.
+- Und, extra nervig:Wenn man für existierende Parameter keine Doc schreib (weil die ja der Link abgdeckt), generiert Eclipse in die Live-JavaDoc einfach trotzdem die Parameter rein, nur halt leer. Das sieht scheiße aus und ist verwirrend. Das kann man auch nicht wollen.
+Heißt: Diese Lösung wäre zwar technisch ganz gut, würde aber irgendwie den Sinn von JavaDoc killen.
+
+Jetzt stellt sich die Frage: "Wir sind ja nicht die ersten auf der Welt, die JavaDoc schreiben. Wie machen das denn die anderen?"
+Antwort: Natürlich eine Mischung aus 1/2/3. Inklusive allem riesigem Aufwand, Inkonsistenzen, Teufelsküche, Leserfrust. Hurra.
+
+Ich frag mich selber schon: Bin ich denn der erste JavaDoc-Schreiber, dem diese Probleme auffallen?
+
+Man muss dazu sagen: Normalerweise gibt es auch nicht so viele Convenience-Layer-Methoden, die zwar dem User das Leben erleichtern, aber mehr Redundanz in der JavaDoc erzeugen. Aber sie deswegen einfach wegzulassen, halte ich für Blödsinn und Pfusch. Code muss zuallererst ordentlich benutzbar sein, mit geringen Einstiegshürden und nur so viel Aufwand wie möglich. Nicht immer seitenweise irgendwelche FactoryFactories aufrufen müssen, nur um ein File zu laden oder so.
+Aber der Preis für Convenience ist halt leider gerade bei JavaDoc sehr viel Redundanz.
+
+
+Konkretes Beispiel:
+
+Es gibt ein Ding "StorageDataFileEvaluator". Der macht was ganz simples: Ein DataFile evaluieren, ob es "aufgeräumt" werden soll oder nicht.
+"Aufräumen" heißt hier: alle noch aktuellen Daten in ein neues File umkopieren und dann das alte löschen.
+
+Standardmäßig (Teil der API) macht der das über Minimum und Maximum File Size.
+Implementierungen können das dann noch beliebig erweitern. Z.B. hat meine Default-Implementierung noch einen dritten Wert für den "Füllgrad" der Datei, damit nicht zu viel Plattenplatz mit unnötigem Datenmüll belegt wird.
+
+Selbst dieses ziemlich triviale Ding hat intern sehr viel Strukturen. Das ist aber kein Problem, weil die sehr bequem verborgen werden kann.
+Dazu gibt es verschiedene Ebenen an Detailgraden, um so ein Ding zu konfigurieren.
+
+Je nachdem, wie detailliert man sich damit befassen will:
+- Gar nicht (Default wird verwendet)
+- Simple Methode aufrufen für min/max File Size.
+- Methode/n aufrufen für min/max File Size und/oder Füllgrad.
+- Eigene Implementierung des Interface schreiben und die verwenden.
+
+JavaDoc-mäßig ist es nun halt aber leider so, dass diese alle dokumentiert werden müssen. Also viele redundante Stellen für das gleiche Ding.
+
+Konkret:
+- Interface StorageDataFileEvaluator (public API Typ)
+- Klasse StorageDataFileEvaluator.Default (meine Default-Implementierung)
+- Konstruktor StorageDataFileEvaluator.Default#Default
+- Statischer Pseudo-Kontruktor StorageDataFileEvaluator#New() (warum die sinnvoll sind, ist ein anderes Thema)
+- Statischer Pseudo-Kontruktor StorageDataFileEvaluator#New(double) 
+- Statischer Pseudo-Kontruktor StorageDataFileEvaluator#New(int, int) 
+- Statischer Pseudo-Kontruktor StorageDataFileEvaluator#New(int, int, double) 
+- Statischer Pseudo-Kontruktor StorageDataFileEvaluator#New(int, int, double, boolean)  (den gibt's auch noch, Erklärung lass hier hier mal weg)
+- Statischer Convenience-Pseudo-Kontruktor Storage#DataFileEvaluator()
+- Statischer Convenience-Pseudo-Kontruktor Storage#DataFileEvaluator(double) 
+- Statischer Convenience-Pseudo-Kontruktor Storage#DataFileEvaluator(int, int) 
+- Statischer Convenience-Pseudo-Kontruktor Storage#DataFileEvaluator(int, int, double) 
+- Statischer Convenience-Pseudo-Kontruktor Storage#DataFileEvaluator(int, int, double, boolean)  (den gibt's auch noch, Erklärung lass hier hier mal weg)
+
+Das ist ein ganz schöner Haufen Zeug.
+Ziemlich viel redundanz. Echt viel. Wirklich viel. (Späsle)
+
+Die ersten drei sind nicht das Problem.
+Das Interface ist das "Haupt-Ding", da kommt ausführlich Dokumentation ran, passt.
+Klasse und Konstruktor würde ich als implementation detail bezeichnen und einfach gar nicht dokumentieren. Bzw das kann man mal machen, wenn die public API dokumentiert ist (in ... 10 Jahren oder so).
+
+Das Problem sind die public Konstruktor-Methoden.
+Zunächst mal gibts die alle doppelt. Einmal im Typ selbst, wo sie hingehören und nötig sind. Und einmal in der zentralen "Convenience"-Klasse "Storage".
+Ohne so eine zentrale Klasse läuft die Verwendung einer API immer raus auf so ein "Das muss man halt wissen"-Magisches-Wissen. Und sowas ist nie gut. APIs müssen so verständlich und zugänglich wie möglich sein. Mit nur so viel Code, wie nötig ist und mit geringer Einstiegshürde. Das ist dann auch ein bisschen Redundanz durchaus wert.
+(Kleine Randbemerkung: Entgegen der Vorstellung ist das JavaDoc schreiben für solche Methoden VIEL mehr Aufwand, als die Methoden an sich zu schreiben. Die 1-5 Zeilen Durchreiche-Logik ist schnell geschrieben bzw. gepastet, aber die Erklärung muss verständlich aufzeigen, worums hier geht und welche Gestaltungsmöglichkeiten man hat)
+
+Dann ist noch das Problem:
+Z.B. den int Minimum File Size Wert gibts 3 bzw. 6 mal. Den Maximum auch und den Füllgrad (double) auch.
+Soll ich dann also für die 3 Paramter 18 redundante JavaDoc-Parameterbeschreibungen pasten? Das dauert an sich schon etwas (kontrollesen, usw.) und wäre für zukünftige Wartungen eine Katastrophe.
+
+Ich hab mich jetzt eine ganze Zeit lang im Kreis gedreht bei der Suche nach einer günstigen Strategie.
+Alle redundanten Methoden komplett redundant copy&paste-en, nur mit so einem generischen Rumpfsatz ausstatten und dann verlinken, Recherche nach fortgeschrittenen JavaDoc-Linking-Möglichkeiten (war natürlich Fehlanzeige).
+
+
+Meine Idee ist jetzt:
+
+Man müsste z.B. die Parameter in der JavaDoc untereinander verlinken können.
+z.B. so:
+
+/**
+[...]
+ * 
+ * @param fileMinimumSize the minimum file size in bytes [... blablabla]
+ * 
+ * @param fileMaximumSize the maximum file size in bytes [... blablabla]
+ * 
+ * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of [... blablabla]
+ * 
+[...]
+ */
+public static StorageDataFileEvaluator New(
+	final int    fileMinimumSize,
+	final int    fileMaximumSize,
+	final double minimumUseRatio
+)
+
+
+Und dann an einer redundanten Stelle nur noch so:
+
+/**
+[...]
+ * 
+ * @param fileMinimumSize {@docLinkParam StorageDataFileEvaluator#New(int, int, double):fileMinimumSize}
+ * 
+ * @param fileMaximumSize {@docLinkParam StorageDataFileEvaluator#New(int, int, double):fileMaximumSize}
+ * 
+[...]
+ */
+public static StorageDataFileEvaluator New(
+	final int    fileMinimumSize,
+	final int    fileMaximumSize
+)
+
+
+Das wär geil, oder? Technisch geringter Aufwand (Dokumentation nur EIN mal schreiben) und trotzdem voller Leser-Komfort.
+
+Wie gesagt, ich fragt mich, ob ich weltweit der erste JavaDoc Schreiber bin, dem sowas auf-/einfällt. Anscheinend schon.
+(Von den JDK-Genies, die das Feature von Anfang an (vor)sehen hätten müssen, ganz zu schweigen).
+
+Es gäbe eine relative leichte Möglichkeit, selbst JavaDoc-Generator-Code zu schreiben und zu verwenden: "Doclet"s.
+Aber Java 9 gäb es sogar "Taglet"s, mit denen man Logik für eigene Tags implementieren kann, aber ich trau mich selber gerade noch dazu, einen Parser für so ein Tag zu schreiben (1 methode mit 1 indexOf und 1 Schleife).
+
+Ich hab mich auch schon mal kurz eingelesen:
+DocletEnvironment liefert "DocTrees" (warum auch immer Plural).
+"Ein" DocTrees liefert für ein Element (die Methode) den DocCommentTree.
+Und der hat BlockTags (die aber DocTree heißen, weil sie im JDK zu dumm zum typisieren sind)
+Von denen fischt man sich den ParamTree raus und checkt, ob es der gesuchte Name ist.
+Wenn ja: getDescription() und schon ist der JavaDoc Text dynamisch verlinkt.
+
+Sollte mit einem Tag Basteln, fluchen und testen erledigt sein.
+Vielleicht wäre das auch ein toller Einstieg für weitere JavaDoc Automatisierungen.
+
+Weil so, wie das Gerümpel out of the Box ist, ist es eine Katastrophe, die unnötig massiv Zeit, Geld, Nerven und Lesbarkeit kostet.
+
+Interessant wäre dann noch, ob man do ein DocLet auch in die Live-JavaDoc Anzeige von Eclipse rein bringt.
+Da muss ich mal FH fragen.
