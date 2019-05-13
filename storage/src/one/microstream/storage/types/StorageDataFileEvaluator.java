@@ -117,13 +117,13 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	public static StorageDataFileEvaluator New(
 		final int    fileMinimumSize,
 		final int    fileMaximumSize,
-		final double dissolveRatio
+		final double minimumUseRatio
 	)
 	{
 		return New(
 			fileMinimumSize                  ,
 			fileMaximumSize                  ,
-			dissolveRatio                    ,
+			minimumUseRatio                  ,
 			Defaults.defaultResolveHeadfile()
 		);
 	}

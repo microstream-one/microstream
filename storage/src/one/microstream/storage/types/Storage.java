@@ -263,7 +263,7 @@ public final class Storage
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
-	 * using the passed {@code timeoutMs} value and a default threshold value.<br>
+	 * using the passed value.<br>
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New()}.
 	 * 
