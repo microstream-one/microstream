@@ -132,11 +132,6 @@ public interface StorageFileWriter
 	/**
 	 * Logically the same as a store, but technically the same as a transfer with an external source file.
 	 * 
-	 * @param sourceFile
-	 * @param sourceOffset
-	 * @param copyLength
-	 * @param targetfile
-	 * @return
 	 */
 	public default long writeImport(
 		final StorageLockedFile  sourceFile  ,

@@ -7,12 +7,12 @@ final class TypeInFile implements Unpersistable
 {
 	final StorageEntityType.Default type    ;
 	final StorageDataFile.Default   file    ;
-	      TypeInFile                       hashNext;
+	      TypeInFile                hashNext;
 
 	TypeInFile(
 		final StorageEntityType.Default type    ,
 		final StorageDataFile.Default   file    ,
-		final TypeInFile                       hashNext
+		final TypeInFile                hashNext
 	)
 	{
 		super();

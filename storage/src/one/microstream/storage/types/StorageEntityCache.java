@@ -56,45 +56,45 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// instance fields //
 		////////////////////
 
-		private final int                                 channelIndex        ;
-		private final int                                 channelHashModulo   ;
-		private final int                                 channelHashShift    ;
-		private final long                                rootTypeId          ;
-		private final long                                markingWaitTimeMs   ;
-		        final StorageEntityCacheEvaluator         entityCacheEvaluator;
-		private final StorageTypeDictionary               typeDictionary      ;
-		private final StorageEntityMarkMonitor            markMonitor         ;
-		private final StorageReferenceMarker              referenceMarker     ;
-		private final StorageOidMarkQueue                 oidMarkQueue        ;
-		private final long[]                              markingOidBuffer    ;
-		private final StorageGCZombieOidHandler           zombieOidHandler    ;
-		private final StorageRootOidSelector              rootOidSelector     ;
-		private final RootEntityRootOidSelectionIterator  rootEntityIterator  ;
+		private final int                                channelIndex      ;
+		private final int                                channelHashModulo ;
+		private final int                                channelHashShift  ;
+		private final long                               rootTypeId        ;
+		private final long                               markingWaitTimeMs ;
+		        final StorageEntityCacheEvaluator        entityCacheEvaluator;
+		private final StorageTypeDictionary              typeDictionary    ;
+		private final StorageEntityMarkMonitor           markMonitor       ;
+		private final StorageReferenceMarker             referenceMarker   ;
+		private final StorageOidMarkQueue                oidMarkQueue      ;
+		private final long[]                             markingOidBuffer  ;
+		private final StorageGCZombieOidHandler          zombieOidHandler  ;
+		private final StorageRootOidSelector             rootOidSelector   ;
+		private final RootEntityRootOidSelectionIterator rootEntityIterator;
 
 		// currently only used for entity iteration
-		private       StorageFileManager.Default   fileManager         ; // pseudo-final
+		private       StorageFileManager.Default         fileManager       ; // pseudo-final
 
-		private       StorageEntity.Default[]      oidHashTable        ;
-		private       int                                 oidModulo           ; // long modulo makes not difference
-		private       long                                oidSize             ;
+		private       StorageEntity.Default[]            oidHashTable      ;
+		private       int                                oidModulo         ; // long modulo makes not difference
+		private       long                               oidSize           ;
 
-		private       StorageEntityType.Default[]  tidHashTable        ;
-		private       int                                 tidModulo           ;
-		private       int                                 tidSize             ;
+		private       StorageEntityType.Default[]        tidHashTable      ;
+		private       int                                tidModulo         ;
+		private       int                                tidSize           ;
 
-		private final StorageEntityType.Default    typeHead            ;
-		private       StorageEntityType.Default    typeTail            ;
-		private       StorageEntityType.Default    rootType            ;
+		private final StorageEntityType.Default          typeHead          ;
+		private       StorageEntityType.Default          typeTail          ;
+		private       StorageEntityType.Default          rootType          ;
 
-		private       StorageEntity.Default        liveCursor          ;
+		private       StorageEntity.Default              liveCursor        ;
 
-		private       long                                usedCacheSize       ;
-		private       boolean                             hasUpdatePendingSweep;
+		private       long                               usedCacheSize     ;
+		private       boolean                            hasUpdatePendingSweep;
 
 		// Statistics for debugging / monitoring / checking to compare with other channels and with the markmonitor
-		private       long                                sweepGeneration     ;
-		private       long                                lastSweepStart      ;
-		private       long                                lastSweepEnd        ;
+		private       long                               sweepGeneration   ;
+		private       long                               lastSweepStart    ;
+		private       long                               lastSweepEnd      ;
 
 
 
@@ -103,36 +103,36 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		/////////////////
 
 		public Default(
-			final int                                 channelIndex         ,
-			final int                                 channelCount         ,
-			final StorageEntityCacheEvaluator         cacheEvaluator       ,
-			final StorageTypeDictionary               typeDictionary       ,
-			final StorageEntityMarkMonitor            markMonitor          ,
-			final StorageGCZombieOidHandler           zombieOidHandler     ,
-			final StorageRootOidSelector              rootOidSelector      ,
-			final long                                rootTypeId           ,
-			final StorageOidMarkQueue                 oidMarkQueue         ,
-			final int                                 markingBufferLength  ,
-			final long                                markingWaitTimeMs
+			final int                         channelIndex       ,
+			final int                         channelCount       ,
+			final StorageEntityCacheEvaluator cacheEvaluator     ,
+			final StorageTypeDictionary       typeDictionary     ,
+			final StorageEntityMarkMonitor    markMonitor        ,
+			final StorageGCZombieOidHandler   zombieOidHandler   ,
+			final StorageRootOidSelector      rootOidSelector    ,
+			final long                        rootTypeId         ,
+			final StorageOidMarkQueue         oidMarkQueue       ,
+			final int                         markingBufferLength,
+			final long                        markingWaitTimeMs
 		)
 		{
 			super();
-			this.channelIndex          = notNegative(channelIndex)    ;
-			this.rootTypeId            =             rootTypeId       ;
-			this.entityCacheEvaluator  = notNull    (cacheEvaluator)  ;
-			this.typeDictionary        = notNull    (typeDictionary)  ;
-			this.markMonitor           = notNull    (markMonitor)     ;
-			this.zombieOidHandler      = notNull    (zombieOidHandler);
-			this.rootOidSelector       = notNull    (rootOidSelector) ;
-			this.channelHashModulo     =             channelCount - 1 ;
-			this.channelHashShift      = log2pow2   (channelCount)    ;
-			this.oidMarkQueue          = notNull    (oidMarkQueue)    ;
-			this.markingWaitTimeMs     = positive  (markingWaitTimeMs);
-			this.markingOidBuffer      = new long[markingBufferLength];
-			this.rootEntityIterator    = new RootEntityRootOidSelectionIterator(rootOidSelector);
-			this.typeHead              = new StorageEntityType.Default(this.channelIndex);
+			this.channelIndex         = notNegative(channelIndex)    ;
+			this.rootTypeId           =             rootTypeId       ;
+			this.entityCacheEvaluator = notNull    (cacheEvaluator)  ;
+			this.typeDictionary       = notNull    (typeDictionary)  ;
+			this.markMonitor          = notNull    (markMonitor)     ;
+			this.zombieOidHandler     = notNull    (zombieOidHandler);
+			this.rootOidSelector      = notNull    (rootOidSelector) ;
+			this.channelHashModulo    =             channelCount - 1 ;
+			this.channelHashShift     = log2pow2   (channelCount)    ;
+			this.oidMarkQueue         = notNull    (oidMarkQueue)    ;
+			this.markingWaitTimeMs    = positive  (markingWaitTimeMs);
+			this.markingOidBuffer     = new long[markingBufferLength];
+			this.rootEntityIterator   = new RootEntityRootOidSelectionIterator(rootOidSelector);
+			this.typeHead             = new StorageEntityType.Default(this.channelIndex);
 			this.initializeState();
-			this.referenceMarker       = markMonitor.provideReferenceMarker(this);
+			this.referenceMarker      = markMonitor.provideReferenceMarker(this);
 		}
 
 

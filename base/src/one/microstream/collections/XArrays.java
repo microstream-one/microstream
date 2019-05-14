@@ -1,7 +1,6 @@
 package one.microstream.collections;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -352,9 +351,29 @@ public final class XArrays
 		return true;
 	}
 	
-	public static final boolean equals(final byte[] array1, final byte[] array2, final int length)
+	public static final boolean equals(final byte[] a, final byte[] a2, final int length)
 	{
-		return Arrays.equals(array1, 0, length, array2, 0, length);
+		if(a == a2)
+		{
+			return true;
+		}
+		if(a == null || a2 == null || a.length < length || a2.length < length)
+		{
+			return false;
+		}
+		
+		for(int i = 0; i < length; i++)
+		{
+			if(a[i] != a2[i])
+			{
+				return false;
+			}
+		}
+		
+		return true;
+		
+		// (14.05.2019 TM)NOTE: Java 9 standard solution. Might be intrinsic, so it is preferable.
+//		return Arrays.equals(array1, 0, length, array2, 0, length);
 	}
 
 	/**

@@ -140,7 +140,7 @@ public interface StorageFileManager
 		private final StorageTimestampProvider             timestampProvider            ;
 		private final StorageFileProvider                  storageFileProvider          ;
 		private final StorageDataFileEvaluator             dataFileEvaluator            ;
-		private final StorageEntityCache.Default    entityCache                  ;
+		private final StorageEntityCache.Default           entityCache                  ;
 		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
 		private final StorageBackupHandler                 backupHandler                ;
@@ -193,7 +193,7 @@ public interface StorageFileManager
 			final StorageTimestampProvider             timestampProvider            ,
 			final StorageFileProvider                  storageFileProvider          ,
 			final StorageDataFileEvaluator             dataFileEvaluator            ,
-			final StorageEntityCache.Default    entityCache                  ,
+			final StorageEntityCache.Default           entityCache                  ,
 			final StorageFileReader                    reader                       ,
 			final StorageFileWriter                    writer                       ,
 			final BufferSizeProvider                   standardBufferSizeProvider   ,
@@ -638,8 +638,8 @@ public interface StorageFileManager
 		final void loadData(
 			final StorageDataFile.Default dataFile   ,
 			final StorageEntity.Default   entity     ,
-			final long                           length     ,
-			final long                           cacheChange
+			final long                    length     ,
+			final long                    cacheChange
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " loading entity " + entity);
@@ -1647,7 +1647,7 @@ public interface StorageFileManager
 
 		final class ImportHelper implements Consumer<StorageChannelImportBatch>
 		{
-			final StorageDataFile.Default      preImportHeadFile;
+			final StorageDataFile.Default             preImportHeadFile;
 			final BulkList<StorageChannelImportBatch> importBatches     = BulkList.New(1000);
 			      StorageLockedFile                   file             ;
 
