@@ -331,9 +331,9 @@ public final class XChars
 		return uncheckedIndexOf(data, offset, offset + length, c);
 	}
 
-	static final int uncheckedIndexOf(final char[] data, final int size, final int offset, final char c)
+	static final int uncheckedIndexOf(final char[] data, final int bound, final int offset, final char c)
 	{
-		for(int i = offset; i < size; i++)
+		for(int i = offset; i < bound; i++)
 		{
 			if(data[i] == c)
 			{
