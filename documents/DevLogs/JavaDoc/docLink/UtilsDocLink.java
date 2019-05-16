@@ -1,6 +1,7 @@
 package doclink;
 
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.RootDoc;
@@ -11,21 +12,7 @@ public final class UtilsDocLink
 	// static methods //
 	///////////////////
 	
-	public static MethodDoc revolveMethod(
-		final String    methodName,
-		final ClassDoc  classDoc,
-		final String... parameterTypesOrNames
-	)
-	{
-		final MethodDoc methodByTypes = revolveMethodByParameterTypes(methodName, classDoc, parameterTypesOrNames);
-		
-		return methodByTypes != null
-			? methodByTypes
-			: revolveMethodByParameterNames(methodName, classDoc, parameterTypesOrNames)
-		;
-	}
-	
-	public static ClassDoc revolveClass(
+	public static ClassDoc resolveClass(
 		final String  className,
 		final RootDoc rootDoc
 	)
@@ -42,7 +29,41 @@ public final class UtilsDocLink
 		return null;
 	}
 	
-	public static MethodDoc revolveMethodByParameterTypes(
+	public static FieldDoc resolveField(final String fieldName, final ClassDoc classDoc)
+	{
+		final FieldDoc[] fields = classDoc.fields();
+		if(fields == null)
+		{
+			return null;
+		}
+		
+		for(final FieldDoc fd : fields)
+		{
+			// refreshingly simple: only declared fields can be meant in this context.
+			if(fd.name().equals(fieldName))
+			{
+				return fd;
+			}
+		}
+	
+		return null;
+	}
+	
+	public static MethodDoc resolveMethod(
+		final String    methodName,
+		final ClassDoc  classDoc,
+		final String... parameterTypesOrNames
+	)
+	{
+		final MethodDoc methodByTypes = resolveMethodByParameterTypes(methodName, classDoc, parameterTypesOrNames);
+		
+		return methodByTypes != null
+			? methodByTypes
+			: resolveMethodByParameterNames(methodName, classDoc, parameterTypesOrNames)
+		;
+	}
+	
+	public static MethodDoc resolveMethodByParameterTypes(
 		final String    methodName,
 		final ClassDoc  classDoc,
 		final String... parameterTypes
@@ -55,7 +76,7 @@ public final class UtilsDocLink
 		}
 		
 		scanMethods:
-		for(final MethodDoc md : classDoc.methods())
+		for(final MethodDoc md : methods)
 		{
 			if(!md.name().equals(methodName))
 			{
@@ -85,7 +106,7 @@ public final class UtilsDocLink
 		return null;
 	}
 	
-	public static MethodDoc revolveMethodByParameterNames(
+	public static MethodDoc resolveMethodByParameterNames(
 		final String    methodName,
 		final ClassDoc  classDoc,
 		final String... parameterNames
@@ -98,7 +119,7 @@ public final class UtilsDocLink
 		}
 		
 		scanMethods:
-		for(final MethodDoc md : classDoc.methods())
+		for(final MethodDoc md : methods)
 		{
 			if(!md.name().equals(methodName))
 			{
@@ -143,17 +164,17 @@ public final class UtilsDocLink
 		return object;
 	}
 
-//	static final int indexOf(final char[] input, final int start, final int bound, final char c)
-//	{
-//		for(int i = start; i < bound; i++)
-//		{
-//			if(input[i] == c)
-//			{
-//				return i;
-//			}
-//		}
-//		return -1;
-//	}
+	static final int indexOf(final char[] input, final int start, final int bound, final char c)
+	{
+		for(int i = start; i < bound; i++)
+		{
+			if(input[i] == c)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
 	
 	static final boolean equalsCharSequence(final char[] input, final int i, final char[] sample)
 	{

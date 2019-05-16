@@ -178,5 +178,39 @@ Sehr gut.\par
 Alles technisch n\'f6tige funktioniert grunds\'e4tzlich.\par
 \par
 Jetzt fehlt noch das parsen des Tag-Contents (das "type#method(params):paramname") und ein paar Kleinigkeiten.\par
+\par
+\par
+2019-05-16\par
+\par
+Jetzt genaue Syntax f\'fcr einen DocLink \'fcberlegen und aufschreiben...\par
+\par
+"typeName"#"memberName"("parameterList")['@"tagName"'|':"parameterName"']\par
+\par
+Regeln:\par
+- "typeName" ist das einzige, das zwingend ist.\par
+- Ein Symbol macht alles vorherige (nach links) zwingend. Ausnahme (leider): das "@[tagName]" ist immer\par
+- Wenn die "()" fehlen, wird der memberName als Feld interpretiert. Falls kein passendes Feld gefunden wird, dann als Methode mit diesem Namen ohne Parameter.\par
+- ParameterList ist eine kommagetrennte Liste mit 0+ Elementen. Es sind entweder lauter Typnamen oder lauter Parameternamen, aber keine Mischung.\par
+- TagName ist ein \'fcbliches BlockTag: return, author, usw. Die Frage w\'e4re noch, wie z.B. mehrere @see tags identifiziert werden sollen und ob man @param dann auch \'fcber diesen Weg identifizieren k\'f6nnen sollte.\par
+- Parametername hat nur eine Bedeutung f\'fcr Methoden, ansonsten wird er ignoriert.\par
+- wenn ein expliziter ParameterName angegeben ist, gilt der anstatt dem Paramternamen des aktuell verarbeiteten @param Tags.\par
+- wenn aktuell kein @param Tag verarbeitet wird, bedeutet ein weggelassener Parametername, die Beschreibung der Methode zu kopieren.\par
+- Um die Beschreibung der Methode explizit anzugeben: ":!"\par
+\par
+? Die Frage ist jetzt nur noch: wie kann man f\'fcr einen parameter definieren, die Beschreibung einer methode zu verwenden? Es darf kein g\'fcltiger java Typ- oder Identifiername sein, um keine Mehrdeutigkeiten zu erzeugen\par
+M\'f6gliche L\'f6sungen:\par
+- Nur das ":".\par
+- Ein ":!"\par
+- Oder ":*"\par
+\par
+Parser Implementieren ...\par
+\par
+Bissl testen und fixen.\par
+Code besser strukturieren.\par
+Fertig.\par
+\par
+Morgen noch Lookups in Doc-Struktur, dann ist der Prototyp fertig.\par
+\par
+Fertig.\par
 }
  

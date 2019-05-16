@@ -10,11 +10,16 @@ public class DocLink //extends com.sun.javadoc.Doclet
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
-	
-	static final String DOC_LINK_TAG       = "@docLink";
-	static final char[] DOC_LINK_TAG_CHARS = DOC_LINK_TAG.toCharArray();
-	static final char   JAVA_DOC_TAG_START = '{';
-	static final char   JAVA_DOC_TAG_CLOSE = '}';
+
+	static final char   JAVA_DOC_TAG_START         = '{';
+	static final char   JAVA_DOC_TAG_CLOSE         = '}';
+	static final char   JAVA_DOC_TAG_SIGNAL        = '@';
+	static final char   JAVA_DOC_MEMBER_SEPARATOR  = '#';
+	static final char   JAVA_DOC_PARENTHESIS_OPEN  = '(';
+	static final char   JAVA_DOC_PARENTHESIS_CLOSE = ')';
+	static final String DOC_LINK_TAG               = JAVA_DOC_TAG_SIGNAL + "docLink";
+	static final char[] DOC_LINK_TAG_CHARS         = DOC_LINK_TAG.toCharArray();
+	static final char   DOCLINK_EXTRA_SEPARATOR    = ':';
 	
 	
 	
@@ -61,8 +66,8 @@ public class DocLink //extends com.sun.javadoc.Doclet
 		final String... parameterTypesOrNames
 	)
 	{
-		final ClassDoc cd = UtilsDocLink.revolveClass(className, root);
-		return UtilsDocLink.revolveMethod(methodName, cd, parameterTypesOrNames);
+		final ClassDoc cd = UtilsDocLink.resolveClass(className, root);
+		return UtilsDocLink.resolveMethod(methodName, cd, parameterTypesOrNames);
 	}
 	
 	public static final <P extends DocLinkTagProcessor> P parseDocLinkContent(
