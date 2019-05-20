@@ -3,6 +3,7 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 
 import java.io.File;
+import java.nio.charset.Charset;
 
 import one.microstream.persistence.types.Persistence;
 
@@ -475,10 +476,32 @@ public final class Storage
 			notNull(fileProvider)
 		);
 	}
-		
+			
 	public static StorageLockFileSetup.Provider LockFileSetupProvider()
 	{
 		return StorageLockFileSetup.Provider();
+	}
+	
+	public static StorageLockFileSetup.Provider LockFileSetupProvider(
+		final Charset charset
+	)
+	{
+		return StorageLockFileSetup.Provider(charset);
+	}
+	
+	public static StorageLockFileSetup.Provider LockFileSetupProvider(
+		final long updateInterval
+	)
+	{
+		return StorageLockFileSetup.Provider(updateInterval);
+	}
+	
+	public static StorageLockFileSetup.Provider LockFileSetupProvider(
+		final Charset charset       ,
+		final long    updateInterval
+	)
+	{
+		return StorageLockFileSetup.Provider(charset, updateInterval);
 	}
 	
 
