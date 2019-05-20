@@ -138,14 +138,66 @@ public final class Storage
 	}
 	
 	
-	// (17.05.2019 TM)FIXME: /!\ DEBUG
+	// (17.05.2019 TM)FIXME: /!\ DEBUG - move to docLink project
 	/**
 	 * {@docLink Storage}
 	 */
-	public static void DEBUGJavaDocLink()
-	{
-		
-	}
+	public static void DEBUGJavaDocLink01() {/**/}
+
+	/**
+	 * {@docLink Storage#ONE_MILLION}
+	 */
+	public static void DEBUGJavaDocLink02() {/**/}
+
+	/**
+	 * {@docLink Storage#HousekeepingController()}
+	 */
+	public static void DEBUGJavaDocLink03() {/**/}
+	
+	/**
+	 * {@docLink Storage#HousekeepingController(long, long)}
+	 */
+	public static void DEBUGJavaDocLink04() {/**/}
+
+	/**
+	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long):}
+	 *
+	 * @param housekeepingTimeBudgetNs {@docLink StorageHousekeepingController#New(long, long):}
+	 */
+	public static void DEBUGJavaDocLink05(
+		final long housekeepingIntervalMs  ,
+		final long housekeepingTimeBudgetNs
+	) {/**/}
+
+	/**
+	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long):housekeepingTimeBudgetNs}
+	 *
+	 * @param housekeepingTimeBudgetNs {@docLink StorageHousekeepingController#New(long, long):housekeepingIntervalMs}
+	 */
+	public static void DEBUGJavaDocLink06(
+		final long housekeepingIntervalMs  ,
+		final long housekeepingTimeBudgetNs
+	) {/**/}
+
+	/**
+	 * {@docLink StorageHousekeepingController#New(long, long)@param:0}<p>
+	 *
+	 * {@docLink StorageHousekeepingController#New(long, long)@param:1}<p>
+	 */
+	public static void DEBUGJavaDocLink07(
+		final long housekeepingIntervalMs  ,
+		final long housekeepingTimeBudgetNs
+	) {/**/}
+
+	/**
+	 * {@docLink StorageHousekeepingController#New(long, long)@param:housekeepingIntervalMs}<p>
+	 *
+	 * {@docLink StorageHousekeepingController#New(long, long)@param:housekeepingTimeBudgetNs}<p>
+	 */
+	public static void DEBUGJavaDocLink08(
+		final long housekeepingIntervalMs  ,
+		final long housekeepingTimeBudgetNs
+	) {/**/}
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageFileProvider.Builder} instance.
@@ -244,9 +296,9 @@ public final class Storage
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageHousekeepingController#New(long, long)}.
 	 * 
-	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long)}
+	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long):}
 	 * 
-	 * @param housekeepingTimeBudgetNs {@docLink StorageHousekeepingController#New(long, long)}
+	 * @param housekeepingTimeBudgetNs {@docLink StorageHousekeepingController#New(long, long):}
 	 * 
 	 * @return a new {@link StorageHousekeepingController} instance.
 	 * 
