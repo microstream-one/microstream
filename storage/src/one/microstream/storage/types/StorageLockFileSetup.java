@@ -1,6 +1,7 @@
 package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
+import static one.microstream.math.XMath.positive;
 
 import java.nio.charset.Charset;
 
@@ -20,16 +21,16 @@ public interface StorageLockFileSetup
 	
 	public interface Defaults
 	{
-		public static long defaultUpdateInterval()
-		{
-			// default of 10 seconds (meaning the lock file content is read, validated and written every 10 seconds)
-			return 10_000L;
-		}
-		
 		public static Charset defaultCharset()
 		{
 			// permanent re-aliasing of the same one and only reasonable CharSet which is UTF-8.
 			return Persistence.standardCharset();
+		}
+		
+		public static long defaultUpdateInterval()
+		{
+			// default of 10 seconds (meaning the lock file content is read, validated and written every 10 seconds)
+			return 10_000L;
 		}
 	}
 	
@@ -57,7 +58,7 @@ public interface StorageLockFileSetup
 			notNull(lockFileProvider)       ,
 			notNull(processIdentityProvider),
 			notNull(charset)                ,
-			notNull(updateInterval)
+			positive(updateInterval)
 		);
 	}
 	
@@ -128,19 +129,78 @@ public interface StorageLockFileSetup
 	
 	public static StorageLockFileSetup.Provider Provider()
 	{
-		return new StorageLockFileSetup.Provider.Default();
+		return Provider(
+			StorageLockFileSetup.Defaults.defaultCharset()       ,
+			StorageLockFileSetup.Defaults.defaultUpdateInterval()
+		);
 	}
 	
+	public static StorageLockFileSetup.Provider Provider(
+		final Charset charset
+	)
+	{
+		return Provider(
+			charset                                              ,
+			StorageLockFileSetup.Defaults.defaultUpdateInterval()
+		);
+	}
+	
+	public static StorageLockFileSetup.Provider Provider(
+		final long updateInterval
+	)
+	{
+		return Provider(
+			StorageLockFileSetup.Defaults.defaultCharset(),
+			updateInterval
+		);
+	}
+	
+	public static StorageLockFileSetup.Provider Provider(
+		final Charset charset       ,
+		final long    updateInterval
+	)
+	{
+		return new StorageLockFileSetup.Provider.Default(
+			notNull(charset)        ,
+			positive(updateInterval)
+		);
+	}
+	
+	@FunctionalInterface
 	public interface Provider
 	{
 		public StorageLockFileSetup provideLockFileSetup(StorageFoundation<?> foundation);
 		
 		public final class Default implements StorageLockFileSetup.Provider
 		{
-			Default()
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			final Charset charset       ;
+			final long    updateInterval;
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Default(
+				final Charset charset       ,
+				final long    updateInterval
+			)
 			{
 				super();
+				this.charset        = charset       ;
+				this.updateInterval = updateInterval;
 			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
 			
 			@Override
 			public StorageLockFileSetup provideLockFileSetup(
@@ -149,7 +209,9 @@ public interface StorageLockFileSetup
 			{
 				return StorageLockFileSetup.New(
 					foundation.getConfiguration().fileProvider(),
-					foundation.getProcessIdentityProvider()
+					foundation.getProcessIdentityProvider()     ,
+					this.charset                                ,
+					this.updateInterval
 				);
 			}
 			
