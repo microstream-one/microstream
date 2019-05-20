@@ -2,7 +2,7 @@ package doclink;
 
 import java.util.Arrays;
 
-public final class DocLinkTagDebugger extends DocLinkTagProcessor.AbstractParserBuffering
+public final class DocLinkTagDebugger extends DocLinker.Abstract
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -21,7 +21,7 @@ public final class DocLinkTagDebugger extends DocLinkTagProcessor.AbstractParser
 	
 	DocLinkTagDebugger()
 	{
-		super(new StringBuilder());
+		super();
 	}
 	
 	
@@ -30,48 +30,57 @@ public final class DocLinkTagDebugger extends DocLinkTagProcessor.AbstractParser
 	// methods //
 	////////////
 
-	
-	@Override
-	protected void handleContent(final char[] input, final int start, final int bound)
-	{
-//		this.DEBUG_passThrough(input, start, bound);
-		this.DEBUG_printAndBlacken(input, start, bound);
-		super.handleContent(input, start, bound);
-	}
-	
 	@Deprecated
-	final void DEBUG_passThrough(final char[] input, final int start, final int bound)
+	final void DEBUG_passThrough(final CharsAcceptor charsAcceptor, final char[] input, final int start, final int bound)
 	{
-		this.buffer().append(input, start, bound - start);
+		charsAcceptor.acceptChars(input, start, bound - start);
 	}
 
 	@Deprecated
-	final void DEBUG_printAndBlacken(final char[] chars, final int offset, final int bound)
+	final void DEBUG_printAndBlacken(final CharsAcceptor charsAcceptor, final char[] chars, final int offset, final int bound)
 	{
 		System.out.println("Parsed content: " + String.valueOf(chars, offset, bound - offset));
-		this.DEBUG_fillWith(bound - offset, 'x');
+		this.DEBUG_fillWith(charsAcceptor, bound - offset, 'x');
 	}
 	
-	private void DEBUG_fillWith(final int amount, final char c)
+	private void DEBUG_fillWith(final CharsAcceptor charsAcceptor, final int amount, final char c)
 	{
-		final StringBuilder sb = this.buffer();
 		for(int i = amount; i --> 0;)
 		{
-			sb.append(c);
+			charsAcceptor.acceptChar(c);
 		}
+	}
+	
+	@Override
+	protected void processDocLinkContentTrimmed(
+		final char[]        input        ,
+		final int           start        ,
+		final int           bound        ,
+		final String        parameterName,
+		final CharsAcceptor charsAcceptor
+	)
+	{
+//		this.DEBUG_passThrough(charsAcceptor, input, start, bound);
+		this.DEBUG_printAndBlacken(charsAcceptor, input, start, bound);
+		super.processDocLinkContentTrimmed(input, start, bound, parameterName, charsAcceptor);
 	}
 
 	@Override
-	protected void handleParsedContent(final DocLinkTagParts parts)
+	protected void handleParsedContent(
+		final DocLinkTagParts parts        ,
+		final String          parameterName,
+		final CharsAcceptor   charsAcceptor
+	)
 	{
 		System.out.println(""
-			+   "-Type       = >" + parts.typeName() + "<"
-			+ "\n-IsMember   ? "  + parts.isMember()
-			+ "\n-MemberName = >" + parts.memberName() + "<"
-			+ "\n-IsMethod   ? "  + parts.isMethod()
-			+ "\n-Parameters = "  + Arrays.toString(parts.parameterList())
-			+ "\n-TagName    = >" + parts.tagName() + "<"
-			+ "\n-Extra      = >" + parts.extraIdentifier() + "<"
+			+   "-Type        = >" + parts.typeName() + "<"
+			+ "\n-IsMember    ? "  + parts.isMember()
+			+ "\n-MemberName  = >" + parts.memberName() + "<"
+			+ "\n-IsMethod    ? "  + parts.isMethod()
+			+ "\n-Parameters  = "  + Arrays.toString(parts.parameterList())
+			+ "\n-TagName     = >" + parts.tagName() + "<"
+			+ "\n-Extra       = >" + parts.extraIdentifier() + "<"
+			+ "\n-PassedParam = >" + parameterName + "<"
 		);
 	}
 	

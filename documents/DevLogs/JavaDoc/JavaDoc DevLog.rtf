@@ -212,5 +212,41 @@ Fertig.\par
 Morgen noch Lookups in Doc-Struktur, dann ist der Prototyp fertig.\par
 \par
 Fertig.\par
+\par
+\par
+\par
+2019-05-17\par
+\par
+Doc-Struktur lookups bauen.\par
+\par
+Das muss alles besser getrennt werden zwischen Doclet Logik und m\'f6glichst bequem verwendbarer DocLink API.\par
+Das l\'e4uft, zumindest in winzigem Umfang, wieder auf paar Interfaces mit Provider usw raus.\par
+\par
+Hm... Rekursion muss ich auch noch einbauen, sonst bringt das nicht viel.\par
+Also wieder zwei Typen zusammenlegen zu einem. Hat paar Nachteile, aber eigentlich marginal.\par
+\par
+\par
+Alles umgebaut. Erster Test mit Doclet:\par
+Funktioniert auf Anhieb. Voll krass.\par
+\par
+Jetzt noch Tag Referenzierung einbauen.\par
+Dabei aufgefallen: Ich muss die Syntax Reihenfolge umdrehen: Erst :parameterName, dann @see[5].\par
+Umgedreht, getestet, passt.\par
+Aber aufgefallen: Parameter JavaDoc kann ja gar keine tags haben. D.h. @ und : schlie\'dfen sich gegenseitig aus.\par
+Das macht nichts, nur die Verarbeitung von methodenkommentaren muss entsprechend leicht anders gemacht werden.\par
+Mal Reihenfolge der verarbeitungslogik \'fcberlegen ...\par
+\par
+Order must be:\par
+1.) if explicit parameter name is present, search for that\par
+2.) if explicit tag name is present, search for that\par
+3.) if explicit description marker ("!") is present, use the description\par
+4.) else, search for the passed parameter name\par
+5.) use the description as the default\par
+\par
+\par
+2019-05-20\par
+\par
+Am Wochenende ist mir auf-/eingefallen: Wenn ein param Tag selbst keine Tags mehr enthalten kann, dann kann man den extra identifier ja doch gleich auch als Index f\'fcr tags verwenden.\par
+Also das "[]"-zeug wieder rausmachen. Wird einfach zu verstehen und zu programmieren. Sehr sch\'f6n.\par
 }
  

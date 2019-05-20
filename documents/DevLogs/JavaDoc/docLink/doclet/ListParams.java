@@ -1,12 +1,14 @@
-package doclink;
+package doclink.doclet;
 
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.Doclet;
 import com.sun.javadoc.ExecutableMemberDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.RootDoc;
 
 // source: https://docs.oracle.com/javase/8/docs/jdk/api/javadoc/doclet/index.html
-public class PrintDocLink
+@Deprecated // just for research
+public class ListParams extends Doclet
 {
 
 	public static boolean start(final RootDoc root)
@@ -35,7 +37,5 @@ public class PrintDocLink
 			}
 		}
 	}
-	
-
 	
 }

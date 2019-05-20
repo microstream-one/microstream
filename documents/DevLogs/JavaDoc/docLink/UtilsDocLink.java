@@ -1,156 +1,10 @@
 package doclink;
 
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.FieldDoc;
-import com.sun.javadoc.MethodDoc;
-import com.sun.javadoc.Parameter;
-import com.sun.javadoc.RootDoc;
-
 public final class UtilsDocLink
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
-	
-	public static ClassDoc resolveClass(
-		final String  className,
-		final RootDoc rootDoc
-	)
-	{
-		for(final ClassDoc cd : rootDoc.classes())
-		{
-			// (15.05.2019 TM)TODO: not sure if supporting unqualified name is a good idea
-			if(cd.qualifiedName().equals(className) || cd.name().equals(className))
-			{
-				return cd;
-			}
-		}
-		
-		return null;
-	}
-	
-	public static FieldDoc resolveField(final String fieldName, final ClassDoc classDoc)
-	{
-		final FieldDoc[] fields = classDoc.fields();
-		if(fields == null)
-		{
-			return null;
-		}
-		
-		for(final FieldDoc fd : fields)
-		{
-			// refreshingly simple: only declared fields can be meant in this context.
-			if(fd.name().equals(fieldName))
-			{
-				return fd;
-			}
-		}
-	
-		return null;
-	}
-	
-	public static MethodDoc resolveMethod(
-		final String    methodName,
-		final ClassDoc  classDoc,
-		final String... parameterTypesOrNames
-	)
-	{
-		final MethodDoc methodByTypes = resolveMethodByParameterTypes(methodName, classDoc, parameterTypesOrNames);
-		
-		return methodByTypes != null
-			? methodByTypes
-			: resolveMethodByParameterNames(methodName, classDoc, parameterTypesOrNames)
-		;
-	}
-	
-	public static MethodDoc resolveMethodByParameterTypes(
-		final String    methodName,
-		final ClassDoc  classDoc,
-		final String... parameterTypes
-	)
-	{
-		final MethodDoc[] methods = classDoc.methods();
-		if(methods == null)
-		{
-			return null;
-		}
-		
-		scanMethods:
-		for(final MethodDoc md : methods)
-		{
-			if(!md.name().equals(methodName))
-			{
-				continue;
-			}
-			
-			final Parameter[] parameters = md.parameters();
-			if(parameters.length != parameterTypes.length)
-			{
-				continue;
-			}
-			
-			for(int i = 0; i < parameters.length; i++)
-			{
-				// the method should be specific enough for unqualified names to not cause problems.
-				if(!parameters[i].type().qualifiedTypeName().equals(parameterTypes[i])
-					&& !parameters[i].typeName().equals(parameterTypes[i])
-				)
-				{
-					continue scanMethods;
-				}
-			}
-			
-			return md;
-		}
-	
-		return null;
-	}
-	
-	public static MethodDoc resolveMethodByParameterNames(
-		final String    methodName,
-		final ClassDoc  classDoc,
-		final String... parameterNames
-	)
-	{
-		final MethodDoc[] methods = classDoc.methods();
-		if(methods == null)
-		{
-			return null;
-		}
-		
-		scanMethods:
-		for(final MethodDoc md : methods)
-		{
-			if(!md.name().equals(methodName))
-			{
-				continue;
-			}
-			
-			final Parameter[] parameters = md.parameters();
-			if(parameters.length != parameterNames.length)
-			{
-				continue;
-			}
-			
-			for(int i = 0; i < parameters.length; i++)
-			{
-				if(!parameters[i].name().equals(parameterNames[i]))
-				{
-					continue scanMethods;
-				}
-			}
-			
-			return md;
-		}
-	
-		return null;
-	}
-	
-	
-	
-	///////////////////////////////////////////////////////////////////////////
-	// general //
-	////////////
 	
 	// (15.05.2019 TM)TODO: Should be replaced by using the microstream base project API
 	
@@ -162,6 +16,14 @@ public final class UtilsDocLink
 			throw new NullPointerException();
 		}
 		return object;
+	}
+	
+	public static final <T> T coalesce(final T firstElement, final T secondElement)
+	{
+		return firstElement == null
+			? secondElement
+			: firstElement
+		;
 	}
 
 	static final int indexOf(final char[] input, final int start, final int bound, final char c)
@@ -225,6 +87,13 @@ public final class UtilsDocLink
 		
 		// char not found, nowhere to skip to
 		return start;
+	}
+	
+	public static StringBuilder clear(final StringBuilder sb)
+	{
+		// because a clear() or equivalent was too hard to implement for them ...
+		sb.setLength(0);
+		return sb;
 	}
 	
 	

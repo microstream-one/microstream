@@ -1,11 +1,6 @@
 package doclink;
 
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.MethodDoc;
-import com.sun.javadoc.Parameter;
-import com.sun.javadoc.RootDoc;
-
-public class DocLink //extends com.sun.javadoc.Doclet
+public class DocLink
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -27,79 +22,16 @@ public class DocLink //extends com.sun.javadoc.Doclet
 	// static methods //
 	///////////////////
 	
-	// the weirdly hacky way of doing pseudo-interfaces of the JDK developers themselves
-	public static boolean start(final RootDoc root)
-	{
-		final ClassDoc[] classes = root.classes();
-		for(int i = 0; i < classes.length; ++i)
-		{
-			printMethods(classes[i]);
-		}
-		
-		final MethodDoc md = TEST_searchMethod("Storage", "EntityCacheEvaluator", root, "timeoutMs", "threshold");
-		System.out.println("Found it!: " + md.qualifiedName());
-		for(final Parameter p : md.parameters())
-		{
-			System.out.println(p.type().qualifiedTypeName() + " " + p.name());
-		}
-		
-		return true;
-	}
-	
-	private static void printMethods(final ClassDoc cd)
-	{
-		System.out.println("Class " + cd.name());
-		for(final MethodDoc md : cd.methods())
-		{
-			System.out.println("  Method " + md.name());
-			for(final Parameter p : md.parameters())
-			{
-				System.out.println("  > " + p.type().qualifiedTypeName() + " " + p.name());
-			}
-		}
-	}
-	
-	private static MethodDoc TEST_searchMethod(
-		final String className ,
-		final String methodName,
-		final RootDoc root,
-		final String... parameterTypesOrNames
-	)
-	{
-		final ClassDoc cd = UtilsDocLink.resolveClass(className, root);
-		return UtilsDocLink.resolveMethod(methodName, cd, parameterTypesOrNames);
-	}
-	
-	public static final <P extends DocLinkTagProcessor> P parseDocLinkContent(
-		final String input,
-		final P      logic
-	)
-	{
-		// quick check before creating a char array
-		final int curlyIndex = input.indexOf(JAVA_DOC_TAG_START);
-		if(containsDocLink(input, curlyIndex))
-		{
-			parseDocLinkContent(input.toCharArray(), logic);
-		}
-		
-		return logic;
-	}
-
 	public static final void parseDocLinkContent(
-		final char[]              input,
-		final DocLinkTagProcessor logic
+		final char[]                   input            ,
+		final int                      start            ,
+		final int                      bound            ,
+		final String                   parameterName    ,
+		final CharsBuilder             charsBuilder     ,
+		final DocLinkTagContentHandler tagContentHandler
 	)
 	{
-		parseDocLinkContent(input, 0, input.length, logic);
-	}
-	
-	public static final void parseDocLinkContent(
-		final char[]                  input,
-		final int                     start,
-		final int                     bound,
-		final DocLinkTagProcessor logic
-	)
-	{
+		int last = start;
 		for(int i = start; i < bound; i++)
 		{
 			// skip until potential tag
@@ -123,30 +55,73 @@ public class DocLink //extends com.sun.javadoc.Doclet
 			final int j = UtilsDocLink.skipWhiteSpaces(input, i + 1, bound);
 			if(UtilsDocLink.equalsCharSequence(input, j, DOC_LINK_TAG_CHARS))
 			{
-				logic.signalTagStart(input, i);
-				logic.processDocLinkContent(input, j + DOC_LINK_TAG_CHARS.length, tagBound);
-				logic.signalTagEnd(input, tagBound + 1);
+				charsBuilder.acceptChars(input, last, i - last);
+				tagContentHandler.handleDocLinkContent(input, j + DOC_LINK_TAG_CHARS.length, tagBound, parameterName, charsBuilder);
+
 			}
 			
 			i = tagBound;
+			last = i + 1;
 		}
 		
-		// give processing logic a chance to handle the trailing part after the last tag occurance.
-		logic.signalInputEnd(input, bound);
+		// handle the trailing part after the last tag occurance.
+		charsBuilder.acceptChars(input, last, bound - last);
 	}
-		
-	static final boolean containsDocLink(final String s, final int firstCurlyBraceIndex)
+	
+	/**
+	 * Quick check (without any object instantiation), if the passed {@link String} contains a docLink tag at all.
+	 * 
+	 * @param input the {@link String} to be tested.
+	 * 
+	 * @return whether the passed {@link String} contains a docLink tag.
+	 */
+	public static final boolean containsDocLink(final String input)
 	{
-		if(firstCurlyBraceIndex < 0)
+		final int curlyIndex = input.indexOf(JAVA_DOC_TAG_START);
+		if(curlyIndex < 0)
 		{
 			return false;
 		}
-		if(s.indexOf(DOC_LINK_TAG, firstCurlyBraceIndex + 1) < 0)
+		if(input.indexOf(DOC_LINK_TAG, curlyIndex + 1) < 0)
 		{
 			return false;
 		}
 		
 		return true;
+	}
+	
+	public static final String getTagName(final String tagString)
+	{
+		final int indexOfBracketOpen = tagString.indexOf('[');
+		
+		return indexOfBracketOpen < 0
+			? tagString
+			: tagString.substring(0, indexOfBracketOpen)
+		;
+	}
+	
+	public static final int getTagIndex(final String tagString)
+	{
+		final int indexOfBracketOpen = tagString.indexOf('[');
+		if(indexOfBracketOpen < 0)
+		{
+			return -1;
+		}
+		final int indexOfBracketClose = tagString.lastIndexOf(']');
+		if(indexOfBracketClose < 0)
+		{
+			return -1;
+		}
+		
+		final String indexLiteral = tagString.substring(indexOfBracketOpen, indexOfBracketClose);
+		try
+		{
+			return Integer.parseInt(indexLiteral);
+		}
+		catch(final NumberFormatException e)
+		{
+			return -1;
+		}
 	}
 	
 

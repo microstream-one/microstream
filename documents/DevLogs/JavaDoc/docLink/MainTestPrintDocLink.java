@@ -10,24 +10,23 @@ public class MainTestPrintDocLink
 		process("start of comment {@docLink MyType#doStuff()} end of comment blabla.");
 		process("start of comment {@docLink MyType#doStuff(int, long, double)} end of comment blabla.");
 		process("start of comment {@docLink MyType#doStuff(int, long, double):paramName} end of comment blabla.");
-		process("start of comment {@docLink MyType#doStuff(int, long, double)@return} end of comment blabla.");
-		process("start of comment {@docLink MyType#doStuff(int, long, double)@return:paramName} end of comment blabla.");
-		process("start {@docLink   MyType  #  doStuff ( int , long , double  )  @  return  :  paramName  } end.");
+		process("start of comment {@docLink MyType#doStuff(int, long, double)@see} end of comment blabla.");
+		process("start of comment {@docLink MyType#doStuff(int, long, double):paramName@see} end of comment blabla.");
+		process("start {@docLink   MyType  #  doStuff ( int , long , double  ) :  paramName   @  see  } end.");
 		process("start of comment {@docLink MyType#do1()} and {@docLink MyType#do2(int)} end of comment blabla.");
 
 		System.out.println("\n\nInvalid cases:\n\n");
 		process("start of comment {@docLink MyType(int, long, double)} end of comment blabla.");
-		process("start of comment {@docLink MyType#doStuff@return(int, long, double):paramName} end of comment blabla.");
-		process("start of comment {@docLink MyType#doStuff:paramName(int, long, double)@return} end of comment blabla.");
+		process("start of comment {@docLink MyType#doStuff@see(int, long, double):paramName} end of comment blabla.");
+		process("start of comment {@docLink MyType#doStuff:paramName(int, long, double)@see} end of comment blabla.");
 	}
 	
 	static void process(final String s)
 	{
 		System.out.println("Input : " + s);
-		final String result = DocLink.parseDocLinkContent(s,
-//			MainTestPrintDocLink::print
-			DocLinkTagDebugger.New()
-		).yieldBuffer();
+		final String result = DocLinkTagDebugger.New()
+			.processDoc(s)
+		;
 		System.out.println("Result: " + result + "\n\n");
 	}
 	
