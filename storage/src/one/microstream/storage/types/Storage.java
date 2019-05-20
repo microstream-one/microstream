@@ -4,6 +4,8 @@ import static one.microstream.X.notNull;
 
 import java.io.File;
 
+import one.microstream.persistence.types.Persistence;
+
 
 /**
  * Static utility class containing static pseudo-constructor methods (indicated by a capital first letter)
@@ -11,7 +13,15 @@ import java.io.File;
  * <p>
  * To setup and start a database, see the class "EmbeddedStorage".
  * 
+ * see {@link StorageChannel}
+ * <p>
+ * this is {@literal true}<br>
+ * this is {@value #ONE_MILLION}
+ * 
+ * 
  * @author TM
+ * @see Persistence
+ * @see StorageChannel
  */
 public final class Storage
 {
@@ -106,6 +116,7 @@ public final class Storage
 	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
 	 * 
 	 * @param storageDirectory the explicitely defined storage directory.
+	 * @see Storage#FileProvider()
 	 * 
 	 * @return a new {@link StorageFileProvider} instance.
 	 * 
@@ -123,6 +134,16 @@ public final class Storage
 			.setBaseDirectory(storageDirectory.getPath())
 			.createFileProvider()
 		;
+	}
+	
+	
+	// (17.05.2019 TM)FIXME: /!\ DEBUG
+	/**
+	 * {@docLink Storage}
+	 */
+	public static void DEBUGJavaDocLink()
+	{
+		
 	}
 	
 	/**
@@ -222,14 +243,9 @@ public final class Storage
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageHousekeepingController#New(long, long)}.
 	 * 
-	 * @param housekeepingIntervalMs the interval in milliseconds that the storage threads shall
-	 *        execute their various housekeeping actions (like cache clearing checks, file consolidation, etc.).
-	 *        Must be greater than zero.
+	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long)}
 	 * 
-	 * @param housekeepingTimeBudgetNs the time budget in nanoseconds that each storage thread will use to perform
-	 *        a housekeeping action. This is a best effort value, not a strictly reliable border value. This means
-	 *        a housekeeping action can occasionally take slightly longer than specified here.
-	 *        Must be greater than zero.
+	 * @param housekeepingTimeBudgetNs {@docLink StorageHousekeepingController#New(long, long)}
 	 * 
 	 * @return a new {@link StorageHousekeepingController} instance.
 	 * 
