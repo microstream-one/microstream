@@ -52,7 +52,7 @@ public class DocLink
 			
 
 			// check tag for docLink tag
-			final int j = UtilsDocLink.skipWhiteSpaces(input, i + 1, bound);
+			final int j = UtilsDocLink.skipStartWhiteSpaces(input, i + 1, bound);
 			if(UtilsDocLink.equalsCharSequence(input, j, DOC_LINK_TAG_CHARS))
 			{
 				charsBuilder.acceptChars(input, last, i - last);
@@ -90,38 +90,16 @@ public class DocLink
 		return true;
 	}
 	
-	public static final String getTagName(final String tagString)
+	public static String determineEffectiveParameterName(
+		final String parameterName  ,
+		final String extraIdentifier
+	)
 	{
-		final int indexOfBracketOpen = tagString.indexOf('[');
-		
-		return indexOfBracketOpen < 0
-			? tagString
-			: tagString.substring(0, indexOfBracketOpen)
+		// an empty extraIdentifier means that just a ":" has been defined, i.e. an omitted parameter name.
+		return extraIdentifier != null && extraIdentifier.isEmpty()
+			? parameterName
+			: extraIdentifier
 		;
-	}
-	
-	public static final int getTagIndex(final String tagString)
-	{
-		final int indexOfBracketOpen = tagString.indexOf('[');
-		if(indexOfBracketOpen < 0)
-		{
-			return -1;
-		}
-		final int indexOfBracketClose = tagString.lastIndexOf(']');
-		if(indexOfBracketClose < 0)
-		{
-			return -1;
-		}
-		
-		final String indexLiteral = tagString.substring(indexOfBracketOpen, indexOfBracketClose);
-		try
-		{
-			return Integer.parseInt(indexLiteral);
-		}
-		catch(final NumberFormatException e)
-		{
-			return -1;
-		}
 	}
 	
 

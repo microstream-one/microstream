@@ -5,13 +5,14 @@ import one.microstream.concurrency.XThreads;
 import one.microstream.hashing.HashStatistics;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.Storage;
 
 
 public class MainTestStorageExample2
 {
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-//		.Foundation()
+		.Foundation()
 //		.setLockFileSetupProvider(Storage.LockFileSetupProvider())
 //		.setRefactoringMappingProvider(
 //			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
@@ -21,6 +22,9 @@ public class MainTestStorageExample2
 //				Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
 //			)
 //		)
+
+		.setLockFileSetupProvider(Storage.LockFileSetupProvider(30_000))
+
 		.start()
 	;
 

@@ -72,16 +72,21 @@ public final class DocLinkTagDebugger extends DocLinker.Abstract
 		final CharsAcceptor   charsAcceptor
 	)
 	{
-		System.out.println(""
+		System.out.println(toDebugString(parts, parameterName));
+	}
+	
+	public static String toDebugString(final DocLinkTagParts parts, final String parameterName)
+	{
+		return ""
 			+   "-Type        = >" + parts.typeName() + "<"
 			+ "\n-IsMember    ? "  + parts.isMember()
 			+ "\n-MemberName  = >" + parts.memberName() + "<"
 			+ "\n-IsMethod    ? "  + parts.isMethod()
-			+ "\n-Parameters  = "  + Arrays.toString(parts.parameterList())
+			+ "\n-Parameters  = "  + Arrays.toString(parts.parameterList()) + " length = " + parts.parameterList().length
 			+ "\n-TagName     = >" + parts.tagName() + "<"
 			+ "\n-Extra       = >" + parts.extraIdentifier() + "<"
 			+ "\n-PassedParam = >" + parameterName + "<"
-		);
+		;
 	}
 	
 }

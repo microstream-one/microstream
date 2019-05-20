@@ -1,6 +1,7 @@
 package doclink.doclet;
 
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.Doc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.ParamTag;
@@ -8,6 +9,7 @@ import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Tag;
 
 import doclink.CharsAcceptor;
+import doclink.DocLink;
 import doclink.DocLinkTagParts;
 import doclink.DocLinker;
 import doclink.UtilsDocLink;
@@ -69,11 +71,15 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		{
 			if(parts.isMethod())
 			{
+//				System.out.println("Resolve Method " + cd.qualifiedName() + "#" + parts.memberName() + Arrays.toString(parts.parameterList()));
 				final MethodDoc md = DocletJava8DocLink.resolveMethod(cd, parts.memberName(), parts.parameterList());
+//				System.out.println("md = " + md);
 				this.handleMethodDoc(md, parts, parameterName, charsAcceptor);
 			}
 			else
 			{
+//				System.out.println("Resolve Field " + cd.qualifiedName() + "#" + parts.memberName());
+				
 				final FieldDoc fd = DocletJava8DocLink.resolveField(parts.memberName(), cd);
 				this.handleFieldDoc(fd, parts, charsAcceptor);
 			}
@@ -92,6 +98,11 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		final CharsAcceptor   charsAcceptor
 	)
 	{
+		if(cd == null)
+		{
+			return;
+		}
+		
 		// (17.05.2019 TM)FIXME: /!\ DEBUG
 		if(cd.simpleTypeName().equals("Storage"))
 		{
@@ -102,8 +113,7 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		}
 		
 		
-		final String parsedLinkedComment = this.processDoc(cd.commentText());
-		charsAcceptor.acceptChars(parsedLinkedComment);
+		this.useComment(charsAcceptor, cd.commentText());
 	}
 	
 	private void handleFieldDoc(
@@ -112,8 +122,21 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		final CharsAcceptor   charsAcceptor
 	)
 	{
-		final String parsedLinkedComment = this.processDoc(fd.commentText());
-		charsAcceptor.acceptChars(parsedLinkedComment);
+		if(fd == null)
+		{
+			return;
+		}
+		
+//		System.out.println("Field " + fd.qualifiedName()+ ":\n");
+//		System.out.println("getRawCommentText:\n" + fd.getRawCommentText());
+//		System.out.println("commentText:\n" + fd.commentText());
+//		System.out.println("tags:\n");
+//		for(final Tag tag : UtilsDocLink.nonNull(fd.tags()))
+//		{
+//			System.out.println(tag.name());
+//		}
+		
+		this.useComment(charsAcceptor, fd.commentText());
 	}
 	
 	private void handleMethodDoc(
@@ -123,33 +146,124 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		final CharsAcceptor   charsAcceptor
 	)
 	{
+		if(md == null)
+		{
+			return;
+		}
 		
-		/* (17.05.2019 TM)FIXME: additional info order
-		 * order must be:
-		 * 1.) if explicit parameter name is present, search for that
-		 * 2.) if explicit tag name is present, search for that
-		 * 3.) if explicit description marker ("!") is present, use the description
-		 * 4.) else, search for the passed parameter name
-		 * 5.) use the description as the default
-		 */
+//		System.out.println("handleMethodDoc:\n" + DocLinkTagDebugger.toDebugString(parts, parameterName));
 		
-		final String effectiveParameterName = UtilsDocLink.coalesce(parts.extraIdentifier(), parameterName);
+		// priority 1: explicit tag takes precedence.
+		if(parts.tagName() != null)
+		{
+			this.handleMethodDocByTag(md, parts, parameterName, charsAcceptor);
+			return;
+		}
 		
+		// priority 2: explicit identifier
+		if(parts.extraIdentifier() != null)
+		{
+			// use current parameter tag's parameter name (null in all other cases) or explicit parameter name
+			final String effParamName = DocLink.determineEffectiveParameterName(parameterName, parts.extraIdentifier());
+			this.handleMethodDocByParameterName(md, effParamName, charsAcceptor);
+			return;
+		}
+		
+		// fallback/default: the method's general description (comment text) is used.
+		this.handleDocGenerically(md, charsAcceptor);
+	}
+		
+	private void handleDocGenerically(
+		final Doc           doc          ,
+		final CharsAcceptor charsAcceptor
+	)
+	{
+		// (20.05.2019 TM)FIXME: test and comment if correct
+		this.useComment(charsAcceptor, doc.commentText());
+	}
+	
+	private void useComment(
+		final CharsAcceptor charsAcceptor,
+		final String        rawComment
+	)
+	{
+		final String parsedLinkedComment = this.processDoc(rawComment);
+		charsAcceptor.acceptChars(parsedLinkedComment);
+	}
+	
+	private void handleProblem(final String problem)
+	{
+		throw new RuntimeException(problem);
+	}
+	
+	private void handleMethodDocByTag(
+		final MethodDoc       md           ,
+		final DocLinkTagParts parts        ,
+		final String          parameterName,
+		final CharsAcceptor   charsAcceptor
+	)
+	{
+		if("param".equals(parts.tagName()))
+		{
+//			System.out.println("param:\n" + DocLinkTagDebugger.toDebugString(parts, parameterName));
+			
+			final ParamTag paramTag = DocletJava8DocLink.searchParamTag(
+				md.paramTags(),
+				parameterName,
+				parts.extraIdentifier()
+			);
+			if(paramTag != null)
+			{
+				this.useComment(charsAcceptor, paramTag.parameterComment());
+				return;
+			}
+		}
+		else
+		{
+			final Tag tag = DocletJava8DocLink.searchNonParamTag(
+				md.tags(),
+				parts.tagName(),
+				parts.extraIdentifier()
+			);
+			if(tag != null)
+			{
+				this.useComment(charsAcceptor, tag.text());
+				return;
+			}
+		}
+		
+		this.handleProblem("No tag found with name \"" + parts.tagName() + "\" for method " + md.qualifiedName());
+	}
+		
+	private void handleMethodDocByParameterName(
+		final MethodDoc       md           ,
+		final String          parameterName,
+		final CharsAcceptor   charsAcceptor
+	)
+	{
 		final ParamTag[] paramTags = md.paramTags();
 		if(paramTags == null)
 		{
+			if(parameterName != null)
+			{
+				this.handleProblem(
+					"No parameters found to look up parameter \"" + parameterName
+					+ "\" for method " + md.qualifiedName()
+				);
+			}
 			return;
 		}
 		
 		for(final ParamTag paramTag : paramTags)
 		{
-			if(effectiveParameterName.equals(paramTag.parameterName()))
+			if(paramTag.parameterName().equals(parameterName))
 			{
-
-				final String parsedLinkedComment = this.processDoc(paramTag.parameterComment());
-				charsAcceptor.acceptChars(parsedLinkedComment);
+				this.useComment(charsAcceptor, paramTag.parameterComment());
+				return;
 			}
 		}
+
+		this.handleProblem("No parameter found with name \"" + parameterName + "\" for method " + md.qualifiedName());
 	}
 	
 }

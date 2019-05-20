@@ -7,7 +7,9 @@ import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.RootDoc;
+import com.sun.javadoc.Tag;
 
+import doclink.DocLink;
 import doclink.UtilsDocLink;
 
 public class DocletJava8DocLink
@@ -149,7 +151,7 @@ public class DocletJava8DocLink
 	
 	public static FieldDoc resolveField(final String fieldName, final ClassDoc classDoc)
 	{
-		final FieldDoc[] fields = classDoc.fields();
+		final FieldDoc[] fields = classDoc.fields(false);
 		if(fields == null)
 		{
 			return null;
@@ -213,6 +215,7 @@ public class DocletJava8DocLink
 			}
 			
 			final Parameter[] parameters = md.parameters();
+//			System.out.println("resolveMethodByParameterTypes: parameterTypes.length = " + parameterTypes.length + " <-> parameters.length = " + parameters.length);
 			if(parameters.length != parameterTypes.length)
 			{
 				continue;
@@ -275,6 +278,67 @@ public class DocletJava8DocLink
 		return null;
 	}
 	
+	public static Tag searchNonParamTag(
+		final Tag[]  tags           ,
+		final String tagName        ,
+		final String extraIdentifier
+	)
+	{
+		/*
+		 * for general tags, extraIdentifier is used as an optional index for the tags of the same name,
+		 * with 0 ("use the first found") as the default.
+		 */
+		int index = UtilsDocLink.to_int(extraIdentifier, 0);
+
+		for(final Tag tag : tags)
+		{
+			if(tag instanceof ParamTag)
+			{
+				// must be handled by a prior call due to more parameters being needed
+				continue;
+			}
+			if(tag.name().equals(tagName) && index-- == 0)
+			{
+				return tag;
+			}
+		}
+		
+		return null;
+	}
+	
+	public static ParamTag searchParamTag(
+		final ParamTag[] paramTags      ,
+		final String     parameterName  ,
+		final String     extraIdentifier
+	)
+	{
+//		System.out.println("searchParamTag: extra = " + extraIdentifier);
+		final int index = UtilsDocLink.to_int(extraIdentifier);
+		if(index >= 0)
+		{
+			return paramTags[index];
+		}
+		
+		final String effectiveParameterName = DocLink.determineEffectiveParameterName(parameterName, extraIdentifier);
+		
+//		System.out.println("searchParamTag: eff = " + effectiveParameterName);
+		
+		if(effectiveParameterName == null)
+		{
+			return null;
+		}
+		
+		for(final ParamTag paramTag : paramTags)
+		{
+//			System.out.println("searchParamTag: paramTag = " + paramTag.name());
+			if(paramTag.parameterName().equals(effectiveParameterName))
+			{
+				return paramTag;
+			}
+		}
+		
+		return null;
+	}
 			
 
 	

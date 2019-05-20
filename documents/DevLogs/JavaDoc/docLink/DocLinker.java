@@ -61,8 +61,8 @@ public interface DocLinker
 		{
 			this.processDocLinkContentTrimmed(
 				input,
-				UtilsDocLink.skipWhiteSpaces(input, start, bound),
-				UtilsDocLink.trimWhiteSpaces(input, start, bound),
+				UtilsDocLink.skipStartWhiteSpaces(input, start, bound),
+				UtilsDocLink.trimBoundWhiteSpaces(input, start, bound),
 				parameterName,
 				charsAcceptor
 			);
@@ -112,13 +112,17 @@ public interface DocLinker
 		
 		private static DocLinkTagParts parseParts(final char[] input, final int start, final int bound)
 		{
-			final int iStart  = UtilsDocLink.skipWhiteSpaces(input, start, bound);
-			final int iBound  = UtilsDocLink.trimWhiteSpaces(input, start, bound);
+			final int iStart  = UtilsDocLink.skipStartWhiteSpaces(input, start, bound);
+			final int iBound  = UtilsDocLink.trimBoundWhiteSpaces(input, start, bound);
 			final int iMember = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.JAVA_DOC_MEMBER_SEPARATOR);
 			final int iParOpn = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.JAVA_DOC_PARENTHESIS_OPEN);
 			final int iParCls = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.JAVA_DOC_PARENTHESIS_CLOSE);
-			final int iExtraS = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.DOCLINK_EXTRA_SEPARATOR);
 			final int iTagSig = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.JAVA_DOC_TAG_SIGNAL);
+			final int iExtraS = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.DOCLINK_EXTRA_SEPARATOR);
+			
+			final int memberNameBound = firstOccurance(0, iParOpn, iTagSig, iExtraS, iBound);
+			final int tagNameBound    = firstOccurance(0, 0, 0, iExtraS, iBound);
+			final int extraNameBound  = firstOccurance(0, 0, 0, 0, iBound);
 
 			final DocLinkTagParts.Default parts = new DocLinkTagParts.Default();
 			
@@ -128,9 +132,8 @@ public interface DocLinker
 				final int typeNameBound = firstOccurance(iMember, 0, iTagSig, iExtraS, iBound);
 				parts.typeName = String(input, iStart - 1, typeNameBound);
 			}
-			if(iMember >= 0)
+			if(iMember >= 0 && iMember < memberNameBound)
 			{
-				final int memberNameBound = firstOccurance(0, iParOpn, iTagSig, iExtraS, iBound);
 				parts.memberName = String(input, iMember, memberNameBound);
 				
 				if(iParOpn >= 0 && iParCls >= 0 && iParOpn < iParCls
@@ -138,20 +141,21 @@ public interface DocLinker
 					&& (iExtraS < 0 || iParCls < iExtraS)
 				)
 				{
-					// writing a direct parser for that is not worth the hassle
-					parts.parameterList = String(input, iParOpn, iParCls).split("\\s*,\\s*");
-				}
-				
-				final int extraBound = firstOccurance(0, 0, 0, iTagSig, iBound);
-				if(iExtraS >= 0 && iExtraS < extraBound)
-				{
-					parts.extraIdentifier = String(input, iExtraS, extraBound);
+					// writing a direct parser for that is not worth the hassle (aaand there's hassle even here)
+					parts.parameterList = iParOpn == UtilsDocLink.trimBoundWhiteSpaces(input, iParOpn, iParCls) - 1
+						? new String[0]
+						: String(input, iParOpn, iParCls).split("\\s*,\\s*")
+					;
 				}
 			}
-			if(iTagSig >= 0)
+			if(iTagSig >= 0 && iTagSig < tagNameBound)
+			{
+				parts.tagName = String(input, iTagSig, tagNameBound);
+			}
+			if(iExtraS >= 0 && iExtraS < extraNameBound)
 			{
 				// tag identifier is always the last thing, so no bounds seeking here, any more.
-				parts.tagName = String(input, iTagSig, iBound);
+				parts.extraIdentifier = String(input, iExtraS, extraNameBound);
 			}
 			
 			return parts;
@@ -159,8 +163,8 @@ public interface DocLinker
 				
 		static final String String(final char[] input, final int lowBound, final int highBound)
 		{
-			final int iStringStart = UtilsDocLink.skipWhiteSpaces(input, lowBound + 1, highBound);
-			final int iStringBound = UtilsDocLink.trimWhiteSpaces(input, iStringStart, highBound);
+			final int iStringStart = UtilsDocLink.skipStartWhiteSpaces(input, lowBound + 1, highBound);
+			final int iStringBound = UtilsDocLink.trimBoundWhiteSpaces(input, iStringStart, highBound);
 			
 			return String.valueOf(input, iStringStart, iStringBound - iStringStart);
 		}

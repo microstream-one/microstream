@@ -248,5 +248,56 @@ Order must be:\par
 \par
 Am Wochenende ist mir auf-/eingefallen: Wenn ein param Tag selbst keine Tags mehr enthalten kann, dann kann man den extra identifier ja doch gleich auch als Index f\'fcr tags verwenden.\par
 Also das "[]"-zeug wieder rausmachen. Wird einfach zu verstehen und zu programmieren. Sehr sch\'f6n.\par
+\par
+\par
+\'dcberarbeitete Reihenfolge:\par
+\par
+1.) if explicit tag name is present, search for that and on hit, process accordingly\par
+2.) if explicit description marker ("!") is present, use the description\par
+3.) if explicit parameter name is present, search for that and on hit, process accordingly\par
+4.) else, search for the passed parameter name\par
+5.) use the description as the default\par
+\par
+\par
+Hm. Neue, leicht verbesserte Regeln:\par
+\par
+"typeName"[#"memberName"][("parameterList")][@"tagName"][:"extraIdentifier"]\par
+\par
+- "typeName" ist das einzige, das zwingend ist.\par
+- Ein Symbol macht alles vorherige (nach links) zwingend. Ausnahme (leider): das "@[tagName]" ist immer optional.\par
+- Wenn die "()" fehlen, wird der memberName als Feld interpretiert.\par
+- ParameterList ist eine kommagetrennte Liste mit 0+ Elementen. Es sind entweder lauter Typnamen oder lauter Parameternamen, aber keine Mischung.\par
+- TagName ist ein \'fcbliches BlockTag: return, author, usw. F\'fcr mehrere Tags von der gleichen Art, siehe unten.\par
+- "extraIdentifier" Leerstring (d.h. nur ":" angegeben): als parametername soll der Parametername des aktuell verarbeiteten Parametertags verwendet werden.\par
+- "extraIdentifier" parsebar als Zahl: der Index f\'fcr die Auswahl aus mehreren gleichen Tags.\par
+- "extraIdentifier" nicht parsebar als Zahl (alle restlichen F\'e4lle): wird bei einer referenzierten Methode als Parametername interpretiert und danach gesucht.\par
+- Gibt es weder "tagName" noch "extraIdentifier", dann wird der Beschreibungstext verwendet.\par
+\par
+\par
+So, soweit alles umgebaut.\par
+Jetzt Tests bauen daf\'fcr ...\par
+\par
+Testen. Paar NPE durch Fl\'fcchtigkeitsfehler wie verdrehte Parameterargumente...\par
+\par
+Field funktioniert nicht bzw. das ist ja das TODO, ob commentText() \'fcberhaupt die richtige Mehode ist.\par
+Mal syso-debuggen ...\par
+\par
+Tja, die FieldDocs sind leer, obwohl es zwei Felder mit JavaDoc gibt. Super. Lesen in der Doku...\par
+Ah, da muss man erst ein d\'e4mliches Visibility-override flag mitgeben.\par
+Testen. Geht.\par
+\par
+N\'e4chstes Problem:\par
+Methodenreferenz mit leerer Parameterliste wird nicht gefunden.\par
+Syso-debuggen ...\par
+\par
+Aha!\par
+"[]" ist ein 1-elementiges array mit element "". Sehr fies.\par
+Dann muss ich das Parameter parsen fixen ...\par
+Gefixt. Testen.\par
+Passt.\par
+\par
+Weiter morgen. Sollt aber so gut wie fertig sein.\par
+\par
+\par
 }
  

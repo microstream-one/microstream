@@ -18,6 +18,15 @@ public final class UtilsDocLink
 		return object;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static final <T> T[] nonNull(final T... elements)
+	{
+		return elements == null
+			? (T[])new Object[0]
+			: elements
+		;
+	}
+	
 	public static final <T> T coalesce(final T firstElement, final T secondElement)
 	{
 		return firstElement == null
@@ -55,7 +64,7 @@ public final class UtilsDocLink
 		return true;
 	}
 	
-	static final int skipWhiteSpaces(final char[] input, int i, final int bound)
+	static final int skipStartWhiteSpaces(final char[] input, int i, final int bound)
 	{
 		while(i < bound && input[i] <= ' ')
 		{
@@ -64,7 +73,7 @@ public final class UtilsDocLink
 		return i;
 	}
 	
-	static final int trimWhiteSpaces(final char[] input, final int start, final int bound)
+	static final int trimBoundWhiteSpaces(final char[] input, final int start, final int bound)
 	{
 		int i = bound - 1;
 		while(i >= start && input[i] <= ' ')
@@ -96,6 +105,23 @@ public final class UtilsDocLink
 		return sb;
 	}
 	
+	
+	public static int to_int(final String s)
+	{
+		return to_int(s, -1);
+	}
+	
+	public static int to_int(final String s, final int defaultValue)
+	{
+		try
+		{
+			return Integer.parseInt(s);
+		}
+		catch(final NumberFormatException e)
+		{
+			return defaultValue;
+		}
+	}
 	
 	
 	///////////////////////////////////////////////////////////////////////////
