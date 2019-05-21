@@ -53,22 +53,24 @@ public final class DocLinkTagDebugger extends DocLinker.Abstract
 	
 	@Override
 	protected void processDocLinkContentTrimmed(
-		final char[]        input        ,
-		final int           start        ,
-		final int           bound        ,
-		final String        parameterName,
+		final char[]        input            ,
+		final int           start            ,
+		final int           bound            ,
+		final String        qualifiedTypeName,
+		final String        parameterName    ,
 		final CharsAcceptor charsAcceptor
 	)
 	{
 //		this.DEBUG_passThrough(charsAcceptor, input, start, bound);
 		this.DEBUG_printAndBlacken(charsAcceptor, input, start, bound);
-		super.processDocLinkContentTrimmed(input, start, bound, parameterName, charsAcceptor);
+		super.processDocLinkContentTrimmed(input, start, bound, qualifiedTypeName, parameterName, charsAcceptor);
 	}
 
 	@Override
 	protected void handleParsedContent(
-		final DocLinkTagParts parts        ,
-		final String          parameterName,
+		final DocLinkTagParts parts            ,
+		final String          qualifiedTypeName,
+		final String          parameterName    ,
 		final CharsAcceptor   charsAcceptor
 	)
 	{

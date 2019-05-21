@@ -15,7 +15,12 @@ public interface DocLinker
 		return this.processDoc(doc, null);
 	}
 	
-	public String processDoc(String doc, String parameterName);
+	public default String processDoc(final String doc, final String qualifiedTypeName)
+	{
+		return this.processDoc(doc, qualifiedTypeName, null);
+	}
+	
+	public String processDoc(String doc, String qualifiedTypeName, String parameterName);
 	
 	
 	
@@ -52,10 +57,11 @@ public interface DocLinker
 		
 		@Override
 		public void handleDocLinkContent(
-			final char[]        input        ,
-			final int           start        ,
-			final int           bound        ,
-			final String        parameterName,
+			final char[]        input            ,
+			final int           start            ,
+			final int           bound            ,
+			final String        qualifiedTypeName,
+			final String        parameterName    ,
 			final CharsAcceptor charsAcceptor
 		)
 		{
@@ -63,21 +69,23 @@ public interface DocLinker
 				input,
 				UtilsDocLink.skipStartWhiteSpaces(input, start, bound),
 				UtilsDocLink.trimBoundWhiteSpaces(input, start, bound),
+				qualifiedTypeName,
 				parameterName,
 				charsAcceptor
 			);
 		}
 		
 		protected void processDocLinkContentTrimmed(
-			final char[]        input        ,
-			final int           start        ,
-			final int           bound        ,
-			final String        parameterName,
+			final char[]        input            ,
+			final int           start            ,
+			final int           bound            ,
+			final String        qualifiedTypeName,
+			final String        parameterName    ,
 			final CharsAcceptor charsAcceptor
 		)
 		{
 			final DocLinkTagParts parsedParts = parseParts(input, start, bound);
-			this.handleParsedContent(parsedParts, parameterName, charsAcceptor);
+			this.handleParsedContent(parsedParts, qualifiedTypeName, parameterName, charsAcceptor);
 		}
 		
 		private static int firstOccurance(final int i1, final int i2, final int i3, final int i4, final int i5)
@@ -170,13 +178,14 @@ public interface DocLinker
 		}
 		
 		protected abstract void handleParsedContent(
-			DocLinkTagParts parts,
-			String          parameterName,
+			DocLinkTagParts parts            ,
+			String          qualifiedTypeName,
+			String          parameterName    ,
 			CharsAcceptor   charsAcceptor
 		);
 
 		@Override
-		public String processDoc(final String doc, final String parameterName)
+		public String processDoc(final String doc, final String qualifiedTypeName, final String parameterName)
 		{
 			// quick check before costly char array creation.
 			if(!DocLink.containsDocLink(doc))
@@ -186,11 +195,12 @@ public interface DocLinker
 			
 			this.charsBuilder.prepare();
 			DocLink.parseDocLinkContent(
-				doc.toCharArray()     ,
-				0                     ,
-				doc.length()          ,
-				parameterName         ,
-				this.charsBuilder     ,
+				doc.toCharArray(),
+				0                ,
+				doc.length()     ,
+				qualifiedTypeName,
+				parameterName    ,
+				this.charsBuilder,
 				this
 			);
 			

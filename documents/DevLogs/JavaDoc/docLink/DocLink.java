@@ -26,6 +26,7 @@ public class DocLink
 		final char[]                   input            ,
 		final int                      start            ,
 		final int                      bound            ,
+		final String                   qualifiedTypeName,
 		final String                   parameterName    ,
 		final CharsBuilder             charsBuilder     ,
 		final DocLinkTagContentHandler tagContentHandler
@@ -56,8 +57,9 @@ public class DocLink
 			if(UtilsDocLink.equalsCharSequence(input, j, DOC_LINK_TAG_CHARS))
 			{
 				charsBuilder.acceptChars(input, last, i - last);
-				tagContentHandler.handleDocLinkContent(input, j + DOC_LINK_TAG_CHARS.length, tagBound, parameterName, charsBuilder);
-
+				tagContentHandler.handleDocLinkContent(
+					input, j + DOC_LINK_TAG_CHARS.length, tagBound, qualifiedTypeName, parameterName, charsBuilder
+				);
 			}
 			
 			i = tagBound;
@@ -90,6 +92,14 @@ public class DocLink
 		return true;
 	}
 	
+	/**
+	 * (This JavaDoc is also used for testing. It can be changed, but should not be deleted.)
+	 * 
+	 * @param parameterName the name of the doc-subject parameter.
+	 * @param extraIdentifier the extra identifier optionally defined in the docLink tag.
+	 * 
+	 * @return the - surprise, surprise - effective parameter name.
+	 */
 	public static String determineEffectiveParameterName(
 		final String parameterName  ,
 		final String extraIdentifier

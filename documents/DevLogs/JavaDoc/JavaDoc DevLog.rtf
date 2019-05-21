@@ -299,5 +299,52 @@ Passt.\par
 Weiter morgen. Sollt aber so gut wie fertig sein.\par
 \par
 \par
+2019-05-21\par
+\par
+Mal kurz reflektieren zu der bisher investierten Zeit.\par
+\par
+Mo\tab 5,50\par
+Di\tab 2,50\par
+Mi\tab 6,75\par
+Do\tab 7,00\par
+Fr\tab 7,00\par
+\par
+Mo\tab 6,50\par
+\par
+Stand Dienstag Morgen sind es bisher ca. 35h.\par
+\par
+Darin enthalten:\par
+- Issue erstellen mit Beschreibung des Problems.\par
+- Kleinere Besprechungen mit MK und FH zu dem Thema.\par
+- Recherche zu DocLink API, Verwirrung zu alt und neu, Recherche und Testen zu Verwendung in eclipse (jar n\'f6tig usw.)\par
+- Konzeptionierung (Grammatik, Anwendungsf\'e4lle). Iterativ (Handling von Tags hinzuf\'fcgen, Grammatik verbessern).\par
+- Eigentliche Implementierung.\par
+- Zus\'e4tzlich Code so strukturieren, dass m\'f6glichst viel f\'fcr Deployment in Eclipse anstatt Doclets wiederverwendet werden kann (besprochene L\'f6sung mit FH).\par
+- Tests \'fcberlegen und schreiben.\par
+- Debugging geht nicht bei Doclets (zumindest w\'fcsste ich nicht, wie), darum war testen und Fixen von Fl\'fcchtigkeitsfehlern sehr zeitaufwendig mit 90er Style Sys-Outs schreiben.\par
+\par
+Fazit:\par
+Die "eigentliche Arbeit", Konzeptionierung, Implementierung und "normales" Testen, werden am Ende ca. 2 Tage Aufwand sein.\par
+Der Rest von ca. 3 Tagen ist der \'fcbliche Overhead, der im Detail vorher nicht vorhersehbar ist, aber in der ein oder anderen Form immer dazukommt. Hier: Issueverwaltung, umst\'e4ndliche Recherche und Verwirrung, umst\'e4ndliches Debuggen, zus\'e4tzlich n\'f6tige Strukturierung.\par
+\par
+\par
+Jetzt ordentliche Testklassen bauen, die alle Varianten abdecken.\par
+\par
+Hm. Dabei aufgefallen:\par
+\par
+1.)\par
+Parameternamen sind eigentlich keine eindeutige Identifierungsm\'f6glichkeit, weil zwei Methodenvarianten mit unterschiedlichen Parametertypen trotzdem gleiche Parameternamen haben k\'f6nnen.\par
+Ich glaub aber, ich lass das trotzdem drin. Denn: Die Wahrscheinlichkeit, dass das wirklich mal eine Kollision ergibt, ist sehr gering. Und wenn es so einen Fall \'fcberhaupt mal gibt, kann man ihn durch Angabe der Parametertypen anstatt der Namen sicher aufl\'f6sen. Das sch\'f6ne an JavaDoc schreiben ist, dass das kein Programmcode ist, der absolut korrekt sein muss oder es kracht, sondern ein Link kann auch mal falsch sein, man kann dann problemlos nachbessern, usw.\par
+Daf\'fcr wird in den restlichen ~99% der F\'e4lle die Verwendung bequemer und aussagekr\'e4ftiger f\'fcr menschliche Leser.\par
+\par
+2.)\par
+Ein \'fcbernommenes @see Tag mit lokaler Referenz muss von der Logik zu einer globalen / full qualified Referenz umgebogen werden, sonst wird der Link unbrauchbar oder \'e4ndert sogar seine Bedeutung.\par
+Das muss ich fixen.\par
+Gefixt. Test wird dann gleich von den allgemeinen Tests abgedeckt.\par
+\par
+Ach und field und class doc handling braucht ja auch noch Tag handling.\par
+Bissl abstrahiert und eingebaut. Test wird auch hier dann gleich von den allgemeinen Tests abgedeckt.\par
+\par
+Jetzt weiter Tests schreiben.\par
 }
  

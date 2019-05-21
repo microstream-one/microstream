@@ -6,6 +6,7 @@ import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.RootDoc;
+import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.Tag;
 
 import doclink.CharsAcceptor;
@@ -60,8 +61,9 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 
 	@Override
 	protected void handleParsedContent(
-		final DocLinkTagParts parts        ,
-		final String          parameterName,
+		final DocLinkTagParts parts            ,
+		final String          qualifiedTypeName,
+		final String          parameterName    ,
 		final CharsAcceptor   charsAcceptor
 	)
 	{
@@ -74,27 +76,25 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 //				System.out.println("Resolve Method " + cd.qualifiedName() + "#" + parts.memberName() + Arrays.toString(parts.parameterList()));
 				final MethodDoc md = DocletJava8DocLink.resolveMethod(cd, parts.memberName(), parts.parameterList());
 //				System.out.println("md = " + md);
-				this.handleMethodDoc(md, parts, parameterName, charsAcceptor);
+				this.handleMethodDoc(qualifiedTypeName, md, parts, parameterName, charsAcceptor);
 			}
 			else
 			{
 //				System.out.println("Resolve Field " + cd.qualifiedName() + "#" + parts.memberName());
-				
 				final FieldDoc fd = DocletJava8DocLink.resolveField(parts.memberName(), cd);
-				this.handleFieldDoc(fd, parts, charsAcceptor);
+				this.handleFieldDoc(qualifiedTypeName, fd, parts, charsAcceptor);
 			}
 		}
 		else
 		{
-			this.handleClassDoc(cd, parts, charsAcceptor);
+			this.handleClassDoc(qualifiedTypeName, cd, parts, charsAcceptor);
 		}
 	}
-	
-	// (17.05.2019 TM)FIXME: handle referenced tags, description text, maybe multiple tags by position
-		
+			
 	private void handleClassDoc(
-		final ClassDoc        cd           ,
-		final DocLinkTagParts parts        ,
+		final String          qualifiedTypeName,
+		final ClassDoc        cd               ,
+		final DocLinkTagParts parts            ,
 		final CharsAcceptor   charsAcceptor
 	)
 	{
@@ -103,27 +103,44 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 			return;
 		}
 		
-		// (17.05.2019 TM)FIXME: /!\ DEBUG
-		if(cd.simpleTypeName().equals("Storage"))
+		if(parts.tagName() != null)
 		{
-			for(final Tag tag : cd.tags())
-			{
-				System.err.println(tag.kind() + " " + tag.name() + ": " + tag.text());
-			}
+			this.handleByTag(
+				qualifiedTypeName,
+				cd.qualifiedName(),
+				cd.tags(),
+				parts.tagName(),
+				parts.extraIdentifier(),
+				charsAcceptor
+			);
+			return;
 		}
-		
 		
 		this.useComment(charsAcceptor, cd.commentText());
 	}
 	
 	private void handleFieldDoc(
-		final FieldDoc        fd           ,
-		final DocLinkTagParts parts        ,
+		final String          qualifiedTypeName,
+		final FieldDoc        fd               ,
+		final DocLinkTagParts parts            ,
 		final CharsAcceptor   charsAcceptor
 	)
 	{
 		if(fd == null)
 		{
+			return;
+		}
+		
+		if(parts.tagName() != null)
+		{
+			this.handleByTag(
+				qualifiedTypeName,
+				fd.qualifiedName(),
+				fd.tags(),
+				parts.tagName(),
+				parts.extraIdentifier(),
+				charsAcceptor
+			);
 			return;
 		}
 		
@@ -140,9 +157,10 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 	}
 	
 	private void handleMethodDoc(
-		final MethodDoc       md           ,
-		final DocLinkTagParts parts        ,
-		final String          parameterName,
+		final String          qualifiedTypeName,
+		final MethodDoc       md               ,
+		final DocLinkTagParts parts            ,
+		final String          parameterName    ,
 		final CharsAcceptor   charsAcceptor
 	)
 	{
@@ -156,7 +174,7 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		// priority 1: explicit tag takes precedence.
 		if(parts.tagName() != null)
 		{
-			this.handleMethodDocByTag(md, parts, parameterName, charsAcceptor);
+			this.handleMethodDocByTag(md, parts, qualifiedTypeName, parameterName, charsAcceptor);
 			return;
 		}
 		
@@ -197,9 +215,10 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 	}
 	
 	private void handleMethodDocByTag(
-		final MethodDoc       md           ,
-		final DocLinkTagParts parts        ,
-		final String          parameterName,
+		final MethodDoc       md               ,
+		final DocLinkTagParts parts            ,
+		final String          qualifiedTypeName,
+		final String          parameterName    ,
 		final CharsAcceptor   charsAcceptor
 	)
 	{
@@ -218,21 +237,77 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 				return;
 			}
 		}
-		else
+
+		this.handleByTag(qualifiedTypeName, md.qualifiedName(), md.tags(), parts.tagName(), parts.extraIdentifier(), charsAcceptor);
+	}
+	
+	private void handleByTag(
+		final String        qualifiedTypeName   ,
+		final String        qualifiedSubjectName,
+		final Tag[]         tags                ,
+		final String        tagName             ,
+		final String        extraIdentifier     ,
+		final CharsAcceptor charsAcceptor
+	)
+	{
+		final Tag tag = DocletJava8DocLink.searchNonParamTag(
+			tags,
+			tagName,
+			extraIdentifier
+		);
+		if(tag != null)
 		{
-			final Tag tag = DocletJava8DocLink.searchNonParamTag(
-				md.tags(),
-				parts.tagName(),
-				parts.extraIdentifier()
-			);
-			if(tag != null)
-			{
-				this.useComment(charsAcceptor, tag.text());
-				return;
-			}
+			this.useTag(charsAcceptor, qualifiedTypeName, tag);
+			return;
 		}
 		
-		this.handleProblem("No tag found with name \"" + parts.tagName() + "\" for method " + md.qualifiedName());
+		this.handleProblem("No tag found with name \"" + tagName + "\" for " + qualifiedSubjectName);
+	}
+	
+	private void useTag(
+		final CharsAcceptor charsAcceptor    ,
+		final String        qualifiedTypeName,
+		final Tag           tag
+	)
+	{
+		if(tag instanceof SeeTag)
+		{
+			this.useSeeTag(charsAcceptor, qualifiedTypeName, (SeeTag)tag);
+			return;
+		}
+		
+		this.useComment(charsAcceptor, tag.text());
+	}
+	
+	/**
+	 * Special casing to transform local to global type identifiers if necessary.
+	 * 
+	 * @param charsAcceptor
+	 * @param fullQualifiedTypeName
+	 * @param seetag
+	 */
+	private void useSeeTag(
+		final CharsAcceptor charsAcceptor    ,
+		final String        qualifiedTypeName,
+		final SeeTag        seeTag
+	)
+	{
+		final String tagOriginalText = seeTag.text();
+		final String commentToBeUsed;
+		if(seeTag.referencedClass().qualifiedName().equals(qualifiedTypeName)
+			|| tagOriginalText.indexOf('#') < 0
+		)
+		{
+			commentToBeUsed = tagOriginalText;
+		}
+		else
+		{
+			commentToBeUsed = seeTag.referencedClass().qualifiedName()
+				+ tagOriginalText.substring(tagOriginalText.indexOf('#'))
+			;
+		}
+		
+		this.useComment(charsAcceptor, commentToBeUsed);
 	}
 		
 	private void handleMethodDocByParameterName(
