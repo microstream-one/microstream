@@ -2,6 +2,8 @@ package doclink;
 
 public interface DocLinkTagParts
 {
+	public String rawString();
+	
 	public String typeName();
 	
 	public String memberName();
@@ -32,6 +34,7 @@ public interface DocLinkTagParts
 		////////////////////
 		
 		String
+			rawString      ,
 			typeName       ,
 			memberName     ,
 			parameterList[],
@@ -55,6 +58,12 @@ public interface DocLinkTagParts
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public String rawString()
+		{
+			return this.rawString;
+		}
 		
 		@Override
 		public final String typeName()

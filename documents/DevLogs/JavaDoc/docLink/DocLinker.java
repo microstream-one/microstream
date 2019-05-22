@@ -24,6 +24,18 @@ public interface DocLinker
 	
 	
 	
+	/* (22.05.2019 TM)TODO: DocLink: Make member and parameters omittable, too.
+	 * E.g. {@docLink TargetType#:)
+	 * Meaning "Take the JavaDoc from the TargetType's member that corresponds to the current subject member".
+	 */
+	
+	// (22.05.2019 TM)TODO: DocLink: Make type omittable for local references.
+	
+	/* (22.05.2019 TM)TODO: DocLink: Proper problem callback instead of simple override-method
+	 * (to better modularize warnings/errors and failfast or problem collecting
+	 * 
+	 */
+	
 	public abstract class Abstract implements DocLinker, DocLinkTagContentHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -120,19 +132,20 @@ public interface DocLinker
 		
 		private static DocLinkTagParts parseParts(final char[] input, final int start, final int bound)
 		{
+			final DocLinkTagParts.Default parts = new DocLinkTagParts.Default();
+			parts.rawString = String(input, start - 1, bound);
+			
 			final int iStart  = UtilsDocLink.skipStartWhiteSpaces(input, start, bound);
 			final int iBound  = UtilsDocLink.trimBoundWhiteSpaces(input, start, bound);
 			final int iMember = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.JAVA_DOC_MEMBER_SEPARATOR);
 			final int iParOpn = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.JAVA_DOC_PARENTHESIS_OPEN);
 			final int iParCls = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.JAVA_DOC_PARENTHESIS_CLOSE);
-			final int iTagSig = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.JAVA_DOC_TAG_SIGNAL);
+			final int iTagSig = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.DOCLINK_TAG_REFERENCE);
 			final int iExtraS = UtilsDocLink.indexOf(input, iStart, iBound, DocLink.DOCLINK_EXTRA_SEPARATOR);
 			
 			final int memberNameBound = firstOccurance(0, iParOpn, iTagSig, iExtraS, iBound);
 			final int tagNameBound    = firstOccurance(0, 0, 0, iExtraS, iBound);
 			final int extraNameBound  = firstOccurance(0, 0, 0, 0, iBound);
-
-			final DocLinkTagParts.Default parts = new DocLinkTagParts.Default();
 			
 			if(iStart >= 0)
 			{
@@ -192,6 +205,10 @@ public interface DocLinker
 			{
 				return doc;
 			}
+			
+			/* (22.05.2019 TM)FIXME: DocLink: Fix stack-overflowing recursion.
+			 * Passing this without an alreadyHandled Set will cause a stack overflow on recusion
+			 */
 			
 			this.charsBuilder.prepare();
 			DocLink.parseDocLinkContent(

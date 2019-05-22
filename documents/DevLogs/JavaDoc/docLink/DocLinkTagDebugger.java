@@ -77,17 +77,23 @@ public final class DocLinkTagDebugger extends DocLinker.Abstract
 		System.out.println(toDebugString(parts, parameterName));
 	}
 	
+	public static String nullEscapedLiteral(final String literal)
+	{
+		return literal == null ? "null" : ">" + literal + "<";
+	}
+	
 	public static String toDebugString(final DocLinkTagParts parts, final String parameterName)
 	{
 		return ""
-			+   "-Type        = >" + parts.typeName() + "<"
-			+ "\n-IsMember    ? "  + parts.isMember()
-			+ "\n-MemberName  = >" + parts.memberName() + "<"
-			+ "\n-IsMethod    ? "  + parts.isMethod()
-			+ "\n-Parameters  = "  + Arrays.toString(parts.parameterList()) + " length = " + parts.parameterList().length
-			+ "\n-TagName     = >" + parts.tagName() + "<"
-			+ "\n-Extra       = >" + parts.extraIdentifier() + "<"
-			+ "\n-PassedParam = >" + parameterName + "<"
+			+  "-RawString    = " + nullEscapedLiteral(parts.rawString())
+			+ "\n-Type        = " + nullEscapedLiteral(parts.typeName())
+			+ "\n-IsMember    ? " + parts.isMember()
+			+ "\n-MemberName  = " + nullEscapedLiteral(parts.memberName())
+			+ "\n-IsMethod    ? " + parts.isMethod()
+			+ "\n-Parameters  = " + Arrays.toString(parts.parameterList())
+			+ "\n-TagName     = " + nullEscapedLiteral(parts.tagName())
+			+ "\n-Extra       = " + nullEscapedLiteral(parts.extraIdentifier())
+			+ "\n-PassedParam = " + nullEscapedLiteral(parameterName)
 		;
 	}
 	

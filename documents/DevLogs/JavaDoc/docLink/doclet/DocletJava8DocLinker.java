@@ -15,10 +15,11 @@ import doclink.DocLinkTagParts;
 import doclink.DocLinker;
 import doclink.UtilsDocLink;
 
-/*
- * See
- * https://docs.oracle.com/javase/8/docs/jdk/api/javadoc/doclet/com/sun/javadoc/RootDoc.html
+/**
+ * Implementation of {@link DocLinker} used by {@literal com.sun.javadoc.Doclet} pseudo-implementors
+ * like {@literal DocletJava8DocLinkPrinter}.
  * 
+ * @author TM
  */
 public final class DocletJava8DocLinker extends DocLinker.Abstract
 {

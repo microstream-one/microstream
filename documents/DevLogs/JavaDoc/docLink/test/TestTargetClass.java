@@ -3,6 +3,13 @@ package doclink.test;
 import doclink.DocLink;
 
 /**
+ * TestTargetClass.
+ * <p>
+ * Some nested docLink tags:<br>
+ * {@literal TestTargetClass#method1()} = {@docLink TestTargetClass#method1()}<br>
+ * {@literal TestTargetClass#method1(int):value} = {@docLink TestTargetClass#method3(int):value}<br>
+ * {@literal TestTargetClass#method1(int)@param:0} = {@docLink TestTargetClass#method3(int)@param:0}<br>
+ * 
  * 
  * @author TM
  *
@@ -46,20 +53,42 @@ public class TestTargetClass
 	 */
 	private int field3;
 	
+	
+	
 		
 	
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
 	
-	// method without JavaDoc
+	public int getField0()
+	{
+		return this.field0;
+	}
+
+	public int getField1()
+	{
+		return this.field1;
+	}
+
+	public int getField2()
+	{
+		return this.field2;
+	}
+
+	public int getField3()
+	{
+		return this.field3;
+	}
+
+	// TestTargetClass method without JavaDoc
 	public void method0()
 	{
 		/* empty */
 	}
 
 	/**
-	 * method1 with simple JavaDoc.
+	 * TestTargetClass method1 with simple JavaDoc.
 	 */
 	public void method1()
 	{
@@ -67,7 +96,7 @@ public class TestTargetClass
 	}
 	
 	/**
-	 * method2 with simple JavaDoc and a return tag.
+	 * TestTargetClass method2 with simple JavaDoc and a return tag.
 	 * 
 	 * @return method2 returns null.
 	 */
@@ -78,7 +107,7 @@ public class TestTargetClass
 	}
 	
 	/**
-	 * method3 with JavaDoc and a return tag.
+	 * TestTargetClass method3 with JavaDoc and a return tag.
 	 * <p>
 	 * Also an additional description blabla.<br>
 	 * More bla.<br>
@@ -98,7 +127,7 @@ public class TestTargetClass
 	}
 	
 	/**
-	 * method3(p1a) overloaded variant of method3.
+	 * TestTargetClass method3(p1a) overloaded variant of method3.
 	 * <p>
 	 * Also text.
 	 * 
@@ -117,7 +146,7 @@ public class TestTargetClass
 
 	
 	/**
-	 * method3(p1b) overloaded variant of method3.
+	 * TestTargetClass method3(p1b) overloaded variant of method3.
 	 * <p>
 	 * Also text.
 	 * 
@@ -135,7 +164,7 @@ public class TestTargetClass
 	}
 
 	/**
-	 * method3(p2a) overloaded variant of method3.
+	 * TestTargetClass method3(p2a) overloaded variant of method3.
 	 * <p>
 	 * Also text.
 	 * 
@@ -154,10 +183,10 @@ public class TestTargetClass
 	}
 
 	/**
-	 * method3(p2b) overloaded variant of method3.
+	 * TestTargetClass method3(p2b) overloaded variant of method3.
 	 * <p>
 	 * Also text.
-	 * Nested docLink: {@docLink doclink.DocLink#determineEffectiveParameterName(String, String):extraIdentifier}.
+	 * Nested docLink: {@docLink doclink.DocLink#determineEffectiveParameterName(String, String):extraIdentifier}
 	 * 
 	 * @param value1 dual-param method3's int parameter {@literal value1}.
 	 * @param value2 dual-param method3's int parameter {@literal value2}.

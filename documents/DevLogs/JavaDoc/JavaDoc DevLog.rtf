@@ -346,5 +346,50 @@ Ach und field und class doc handling braucht ja auch noch Tag handling.\par
 Bissl abstrahiert und eingebaut. Test wird auch hier dann gleich von den allgemeinen Tests abgedeckt.\par
 \par
 Jetzt weiter Tests schreiben.\par
+\par
+\par
+2019-05-22\par
+\par
+TestSubjectClass JavaDoc schreiben.\par
+Paar aufgefallene TODOs in den DocLinker Code schreiben.\par
+\par
+Code noch bissl aufr\'e4umen und zumindest JavaDoc Ein-Satz-Klassenbeschreibungen schreiben f\'fcr die Klassen, die zum verstehen und nachbauen wichtig sind.\par
+\par
+Testen.\par
+\par
+Oh, interessante Erkenntnis: Um @Tags zu referenzieren, sollte nicht wieder ein @ verwendet werden, sonst interpretiert das JavaDoc Dings das als das eigentliche Tag (z.B. @see) und wirft entsprechende Warnings oder treibt sogar mal was ungew\'fcnschtes mit dem Code.\par
+Jetzt ist die Frage, was ich stattdessen nehmen sollte, was halbwegs nachvollziehbar ist und keine Zweideutigkeiten erzeugt. Vielleicht "\'a7".\par
+Umbauen.\par
+\par
+Achso, hehe: der beschwert sich dar\'fcber, dass (durch das @docLink tag) grunds\'e4tzlich ung\'fcltige Zeichen in einem @see stehen.\par
+F\'fcr die richtige JavaDoc wird das ja durch das sourcecode-post-processing behoben und den eclipse javadoc view st\'f6rt es nicht. Also kein Handlungsbedarf, nur mein Doclet Test mault bissl, aber das ist egal.\par
+\par
+Hm, aber w\'e4re das @ nicht trotzdem ein Problem?\par
+Naja, ich machs jetzt mal so: Ich mach wieder das @ rein und wenn es Probleme geben sollte, kann man ja wieder tauschen.\par
+\par
+N\'e4chstes Problem:\par
+Exception 'No parameter found with name "null"'.\par
+\par
+OMG. EWIG syso-pseudo-debuggt, bis ich gefunden habe, dass das ja nur in einer print methode im Doclet~Printer drin war.\par
+Das ist halt das Problem, wenn man nicht richtig debuggen kann ...\par
+\par
+Ah, Parserbug entdeckt: Nicht das erste Vorkommen von "\{" in einem String mit @docLink ist das richtige, sondern das n\'e4heste vor dem  @docLink mit nur WhiteSpaces dazwischen.\par
+Fixen.\par
+\par
+Achso, hm, der Parser macht eigentlich schon:\par
+Bei einem gefundenen "\{" bis zum n\'e4chsten "\}" scrollen und dann schauen, ob der inhalt ein docLink ist. Wenn nein, skippen. Das sollte eigentlich alle nicht-docLink-Tags sauber \'fcberspringen.\par
+Warum tut es das nicht? Oder wird nur der geskippte Teil des Texts nicht als Text weitergegeben? Das k\'f6nnte es sein...\par
+Jup, das isses.\par
+Fixen.\par
+Bissl rumprobieren. Alles nicht so einfach hier. Der initiale Teil vor dem ersten "\{" muss auch mit.\par
+Jetzt passts.\par
+\par
+Weiter testen/fixen.\par
+Haha: Paar nicht aufl\'f6sbare Links kommen einfach daher, dass ich die falsche Methode reingeschrieben hab.\par
+\par
+Weiter testen.\par
+Da werden Ersetzungen doppelt gemacht. Aber die Frage ist jetzt: kommt das von der DocLink Logik oder von dem Test-Printer assemblen?\par
+Ohne richtiges Debuggen m\'fchsam rauszufinden ...\par
+*seufz*\par
 }
  
