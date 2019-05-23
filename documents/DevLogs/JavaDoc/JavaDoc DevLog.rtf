@@ -391,5 +391,26 @@ Weiter testen.\par
 Da werden Ersetzungen doppelt gemacht. Aber die Frage ist jetzt: kommt das von der DocLink Logik oder von dem Test-Printer assemblen?\par
 Ohne richtiges Debuggen m\'fchsam rauszufinden ...\par
 *seufz*\par
+\par
+\par
+2019-05-23\par
+\par
+Mal durchdenken.\par
+Ich glaub, das Problem kommt davon, dass bei einer rekursion zwei kollidierende Arten von Stringbuilding verwendet werden:\par
+1.) charBuilder wird \'fcbergeben, resettet, gef\'fcllt, geyieldet.\par
+2.) geyieldeter String wird zur\'fcckgegeben und vom aufruferkontext zum charBuilder hinzugef\'fcgt.\par
+Da k\'f6nnte es irgendwie sein, dass bei einer Rekurionstiefe gr\'f6\'dfer 0 der String verdoppelt hinzugef\'fcgt wird.\par
+Andererseits: was ist dann eigentlich mit dem reset? Hm...\par
+\par
+Das muss ich mal durchdenken und aufr\'e4umen.\par
+Es muss reichen, eine der beiden Varianten zu verwenden. Idealerweise die ohne String umkopieren und dann den Inhalt nochmal kopieren, sondern ein direkt durchgereichter char sammeler.\par
+Dann wird zwar die API minimal komplizierter, aber besser als verwirrende konflikete Strategien.\par
+Hm... oder wird sie \'fcberhaupt komplizierter? Wird sie nicht einfach einfach, wenn der linker seinen char builder ja eh intern h\'e4lt?\par
+Mal durchdenken ...\par
+\par
+Hm, oder kommt der Fehler eher von dem gestern eingebauten nachtragen von \'fcbersprungenen Tags bzw. Text allgemein und bei Rekursionen wird der falsche Startindex \'fcbergeben, so dass die Ebene tiefer zu viel mitloggt...\par
+mal untersuchen ...\par
+\par
+\par
 }
  
