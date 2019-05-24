@@ -10,17 +10,17 @@ package doclink;
 @FunctionalInterface
 public interface DocLinker
 {
-	public default String processDoc(final String doc)
+	public default DocLinker processDoc(final String doc)
 	{
 		return this.processDoc(doc, null);
 	}
 	
-	public default String processDoc(final String doc, final String qualifiedTypeName)
+	public default DocLinker processDoc(final String doc, final String qualifiedTypeName)
 	{
 		return this.processDoc(doc, qualifiedTypeName, null);
 	}
 	
-	public String processDoc(String doc, String qualifiedTypeName, String parameterName);
+	public DocLinker processDoc(String doc, String qualifiedTypeName, String parameterName);
 	
 	
 	
@@ -33,7 +33,10 @@ public interface DocLinker
 	
 	/* (22.05.2019 TM)TODO: DocLink: Proper problem callback instead of simple override-method
 	 * (to better modularize warnings/errors and failfast or problem collecting
-	 * 
+	 */
+	
+	/* (24.05.2019 TM)TODO: DocLink: @link tags with local reference have to have their reference transformed to
+	 * globally qualified, as well.
 	 */
 	
 	public abstract class Abstract implements DocLinker, DocLinkTagContentHandler
@@ -69,12 +72,11 @@ public interface DocLinker
 		
 		@Override
 		public void handleDocLinkContent(
-			final char[]        input            ,
-			final int           start            ,
-			final int           bound            ,
-			final String        qualifiedTypeName,
-			final String        parameterName    ,
-			final CharsAcceptor charsAcceptor
+			final char[] input            ,
+			final int    start            ,
+			final int    bound            ,
+			final String qualifiedTypeName,
+			final String parameterName
 		)
 		{
 			this.processDocLinkContentTrimmed(
@@ -82,22 +84,31 @@ public interface DocLinker
 				UtilsDocLink.skipStartWhiteSpaces(input, start, bound),
 				UtilsDocLink.trimBoundWhiteSpaces(input, start, bound),
 				qualifiedTypeName,
-				parameterName,
-				charsAcceptor
+				parameterName
 			);
 		}
 		
+		protected void internalPrepare()
+		{
+			this.charsBuilder.prepare();
+		}
+		
+		protected String internalYield()
+		{
+			// no reset here, in case yield is called multiple times before the result is complete (e.g. logging)
+			return this.charsBuilder.yield();
+		}
+		
 		protected void processDocLinkContentTrimmed(
-			final char[]        input            ,
-			final int           start            ,
-			final int           bound            ,
-			final String        qualifiedTypeName,
-			final String        parameterName    ,
-			final CharsAcceptor charsAcceptor
+			final char[] input            ,
+			final int    start            ,
+			final int    bound            ,
+			final String qualifiedTypeName,
+			final String parameterName
 		)
 		{
 			final DocLinkTagParts parsedParts = parseParts(input, start, bound);
-			this.handleParsedContent(parsedParts, qualifiedTypeName, parameterName, charsAcceptor);
+			this.handleParsedContent(parsedParts, qualifiedTypeName, parameterName);
 		}
 		
 		private static int firstOccurance(final int i1, final int i2, final int i3, final int i4, final int i5)
@@ -171,7 +182,8 @@ public interface DocLinker
 			}
 			if(iTagSig >= 0 && iTagSig < tagNameBound)
 			{
-				parts.tagName = String(input, iTagSig, tagNameBound);
+				// tag signal char must be prepended (explicitely, after white spaces have been removed)
+				parts.tagName = DocLink.JAVA_DOC_TAG_SIGNAL + String(input, iTagSig, tagNameBound);
 			}
 			if(iExtraS >= 0 && iExtraS < extraNameBound)
 			{
@@ -193,24 +205,15 @@ public interface DocLinker
 		protected abstract void handleParsedContent(
 			DocLinkTagParts parts            ,
 			String          qualifiedTypeName,
-			String          parameterName    ,
-			CharsAcceptor   charsAcceptor
+			String          parameterName
 		);
 
 		@Override
-		public String processDoc(final String doc, final String qualifiedTypeName, final String parameterName)
+		public DocLinker.Abstract processDoc(final String doc, final String qualifiedTypeName, final String parameterName)
 		{
-			// quick check before costly char array creation.
-			if(!DocLink.containsDocLink(doc))
-			{
-				return doc;
-			}
-			
-			/* (22.05.2019 TM)FIXME: DocLink: Fix stack-overflowing recursion.
-			 * Passing this without an alreadyHandled Set will cause a stack overflow on recusion
+			/* (22.05.2019 TM)FIXME: DocLink: Fix stack-overflowing looping recursion.
+			 * Passing this without an alreadyHandled Set will cause a stack overflow on looping recusion
 			 */
-			
-			this.charsBuilder.prepare();
 			DocLink.parseDocLinkContent(
 				doc.toCharArray(),
 				0                ,
@@ -221,7 +224,7 @@ public interface DocLinker
 				this
 			);
 			
-			return this.charsBuilder.yield();
+			return this;
 		}
 		
 	}

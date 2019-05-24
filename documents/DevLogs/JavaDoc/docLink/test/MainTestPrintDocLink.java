@@ -1,18 +1,9 @@
-package doclink;
+package doclink.test;
 
 public class MainTestPrintDocLink
 {
 	public static void main(final String[] args)
 	{
-
-//		process("TestTargetClass.\n"
-//			+ "<p>\n"
-//			+ "Some nested docLink tags:<br>\n"
-//			+ "{@literal TestTargetClass#method1()} = {@docLink TestTargetClass#method1()}.<br>\n"
-//			+ "{@literal TestTargetClass#method1(int):value} = {@docLink TestTargetClass#method1(int):value}.<br>\n"
-//			+ "{@literal TestTargetClass#method1(int)@param:0} = {@docLink TestTargetClass#method1(int)@param:0}.<br>"
-//		);
-		
 		System.out.println("\n\nCorrect cases:\n\n");
 		process("start of comment {@docLink MyType} end of comment blabla.");
 		process("start of comment {@docLink MyType#doStuff} end of comment blabla.");
@@ -39,7 +30,7 @@ public class MainTestPrintDocLink
 	{
 		System.out.println("Input : " + s);
 		final String result = DocLinkTagDebugger.New()
-			.processDoc(s)
+			.processDoc(s).yield()
 		;
 		System.out.println("Result: " + result + "\n\n");
 	}

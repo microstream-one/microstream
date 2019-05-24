@@ -28,6 +28,9 @@ public class TestSubjectClass
 	/**
 	 * TestSubjectClass.method3(int) with docLink to {@link TestSubjectClass#method3(int, String)}:<br>
 	 * {@docLink TestTargetClass#method3(int, String)}
+	 * <p>
+	 * Test for local-to-global-reference transformation:
+	 * {@docLink TestTargetClass#method3(int)@see:0}
 	 * 
 	 * @param value {@docLink TestTargetClass#method3(int):value}
 	 * 

@@ -107,7 +107,6 @@ public class DocletJava8DocLink
 			}
 			
 			final Parameter[] parameters = md.parameters();
-//			System.out.println("resolveMethodByParameterTypes: parameterTypes.length = " + parameterTypes.length + " <-> parameters.length = " + parameters.length);
 			if(parameters.length != parameterTypes.length)
 			{
 				continue;
@@ -189,6 +188,7 @@ public class DocletJava8DocLink
 				// must be handled by a prior call due to more parameters being needed
 				continue;
 			}
+			
 			if(tag.name().equals(tagName) && index-- == 0)
 			{
 				return tag;
@@ -204,7 +204,6 @@ public class DocletJava8DocLink
 		final String     extraIdentifier
 	)
 	{
-//		System.out.println("searchParamTag: extra = " + extraIdentifier);
 		final int index = UtilsDocLink.to_int(extraIdentifier);
 		if(index >= 0)
 		{
@@ -212,9 +211,6 @@ public class DocletJava8DocLink
 		}
 		
 		final String effectiveParameterName = DocLink.determineEffectiveParameterName(parameterName, extraIdentifier);
-		
-//		System.out.println("searchParamTag: eff = " + effectiveParameterName);
-		
 		if(effectiveParameterName == null)
 		{
 			return null;
@@ -222,7 +218,6 @@ public class DocletJava8DocLink
 		
 		for(final ParamTag paramTag : paramTags)
 		{
-//			System.out.println("searchParamTag: paramTag = " + paramTag.name());
 			if(paramTag.parameterName().equals(effectiveParameterName))
 			{
 				return paramTag;

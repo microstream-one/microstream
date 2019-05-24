@@ -1,8 +1,13 @@
-package doclink;
+package doclink.test;
 
 import java.util.Arrays;
 
-public final class DocLinkTagDebugger extends DocLinker.Abstract
+import doclink.CharsAcceptor;
+import doclink.CharsBuilder;
+import doclink.DocLinkTagParts;
+import doclink.DocLinkerYielding;
+
+public final class DocLinkTagDebugger extends DocLinkerYielding.Abstract
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -10,8 +15,17 @@ public final class DocLinkTagDebugger extends DocLinker.Abstract
 	
 	public static final DocLinkTagDebugger New()
 	{
-		return new DocLinkTagDebugger();
+		final CharsBuilder charsBuilder = CharsBuilder.New();
+		return new DocLinkTagDebugger(charsBuilder);
 	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+	
+	private final CharsBuilder charsBuilder;
 	
 	
 	
@@ -19,9 +33,10 @@ public final class DocLinkTagDebugger extends DocLinker.Abstract
 	// constructors //
 	/////////////////
 	
-	DocLinkTagDebugger()
+	DocLinkTagDebugger(final CharsBuilder charsBuilder)
 	{
-		super();
+		super(charsBuilder);
+		this.charsBuilder = charsBuilder;
 	}
 	
 	
@@ -53,25 +68,23 @@ public final class DocLinkTagDebugger extends DocLinker.Abstract
 	
 	@Override
 	protected void processDocLinkContentTrimmed(
-		final char[]        input            ,
-		final int           start            ,
-		final int           bound            ,
-		final String        qualifiedTypeName,
-		final String        parameterName    ,
-		final CharsAcceptor charsAcceptor
+		final char[] input            ,
+		final int    start            ,
+		final int    bound            ,
+		final String qualifiedTypeName,
+		final String parameterName
 	)
 	{
-//		this.DEBUG_passThrough(charsAcceptor, input, start, bound);
-		this.DEBUG_printAndBlacken(charsAcceptor, input, start, bound);
-		super.processDocLinkContentTrimmed(input, start, bound, qualifiedTypeName, parameterName, charsAcceptor);
+//		this.DEBUG_passThrough(this.charsBuilder, input, start, bound);
+		this.DEBUG_printAndBlacken(this.charsBuilder, input, start, bound);
+		super.processDocLinkContentTrimmed(input, start, bound, qualifiedTypeName, parameterName);
 	}
 
 	@Override
 	protected void handleParsedContent(
 		final DocLinkTagParts parts            ,
 		final String          qualifiedTypeName,
-		final String          parameterName    ,
-		final CharsAcceptor   charsAcceptor
+		final String          parameterName
 	)
 	{
 		System.out.println(toDebugString(parts, parameterName));

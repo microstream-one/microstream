@@ -11,9 +11,10 @@ public class DocLink
 	static final char   JAVA_DOC_MEMBER_SEPARATOR  = '#';
 	static final char   JAVA_DOC_PARENTHESIS_OPEN  = '(';
 	static final char   JAVA_DOC_PARENTHESIS_CLOSE = ')';
+	static final char   JAVA_DOC_TAG_SIGNAL        = '@';
 	static final String DOC_LINK_TAG               = "@docLink";
 	static final char[] DOC_LINK_TAG_CHARS         = DOC_LINK_TAG.toCharArray();
-	static final char   DOCLINK_TAG_REFERENCE      = '@'; // reusing '@' here causes ambiguities
+	static final char   DOCLINK_TAG_REFERENCE      = JAVA_DOC_TAG_SIGNAL;
 	static final char   DOCLINK_EXTRA_SEPARATOR    = ':';
 	
 	
@@ -58,7 +59,7 @@ public class DocLink
 			{
 				charsBuilder.acceptChars(input, last, i - last);
 				tagContentHandler.handleDocLinkContent(
-					input, j + DOC_LINK_TAG_CHARS.length, tagBound, qualifiedTypeName, parameterName, charsBuilder
+					input, j + DOC_LINK_TAG_CHARS.length, tagBound, qualifiedTypeName, parameterName
 				);
 			}
 			else

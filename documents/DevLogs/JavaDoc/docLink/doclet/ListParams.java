@@ -9,7 +9,7 @@ import com.sun.javadoc.RootDoc;
 @Deprecated // just for research
 public class ListParams extends com.sun.javadoc.Doclet
 {
-
+	// magic pseudo-interface method
 	public static boolean start(final RootDoc root)
 	{
 		final ClassDoc[] classes = root.classes();
@@ -28,8 +28,6 @@ public class ListParams extends com.sun.javadoc.Doclet
 		for(int i = 0; i < mems.length; ++i)
 		{
 			final ParamTag[] params = mems[i].paramTags();
-//			System.out.println(mems[i].qualifiedName());
-			
 			for(int j = 0; j < params.length; ++j)
 			{
 				System.out.println("   " + params[j].parameterName() + " - " + params[j].parameterComment());

@@ -1,5 +1,7 @@
 package doclink.doclet;
 
+import java.util.Arrays;
+
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.FieldDoc;
@@ -9,10 +11,10 @@ import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.Tag;
 
-import doclink.CharsAcceptor;
 import doclink.DocLink;
 import doclink.DocLinkTagParts;
 import doclink.DocLinker;
+import doclink.DocLinkerYielding;
 import doclink.UtilsDocLink;
 
 /**
@@ -21,7 +23,7 @@ import doclink.UtilsDocLink;
  * 
  * @author TM
  */
-public final class DocletJava8DocLinker extends DocLinker.Abstract
+public final class DocletJava8DocLinker extends DocLinkerYielding.Abstract
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -40,7 +42,7 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 	// instance fields //
 	////////////////////
 	
-	private final RootDoc docRoot;
+	final RootDoc docRoot;
 	
 	
 	
@@ -64,8 +66,7 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 	protected void handleParsedContent(
 		final DocLinkTagParts parts            ,
 		final String          qualifiedTypeName,
-		final String          parameterName    ,
-		final CharsAcceptor   charsAcceptor
+		final String          parameterName
 	)
 	{
 		final ClassDoc cd = DocletJava8DocLink.resolveClass(parts.typeName(), this.docRoot);
@@ -74,29 +75,25 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		{
 			if(parts.isMethod())
 			{
-//				System.out.println("Resolve Method " + cd.qualifiedName() + "#" + parts.memberName() + Arrays.toString(parts.parameterList()));
 				final MethodDoc md = DocletJava8DocLink.resolveMethod(cd, parts.memberName(), parts.parameterList());
-//				System.out.println("md = " + md);
-				this.handleMethodDoc(qualifiedTypeName, md, parts, parameterName, charsAcceptor);
+				this.handleMethodDoc(qualifiedTypeName, md, parts, parameterName);
 			}
 			else
 			{
-//				System.out.println("Resolve Field " + cd.qualifiedName() + "#" + parts.memberName());
 				final FieldDoc fd = DocletJava8DocLink.resolveField(parts.memberName(), cd);
-				this.handleFieldDoc(qualifiedTypeName, fd, parts, charsAcceptor);
+				this.handleFieldDoc(qualifiedTypeName, fd, parts);
 			}
 		}
 		else
 		{
-			this.handleClassDoc(qualifiedTypeName, cd, parts, charsAcceptor);
+			this.handleClassDoc(qualifiedTypeName, cd, parts);
 		}
 	}
-			
+				
 	private void handleClassDoc(
 		final String          qualifiedTypeName,
 		final ClassDoc        cd               ,
-		final DocLinkTagParts parts            ,
-		final CharsAcceptor   charsAcceptor
+		final DocLinkTagParts parts
 	)
 	{
 		if(cd == null)
@@ -111,20 +108,18 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 				cd.qualifiedName(),
 				cd.tags(),
 				parts.tagName(),
-				parts.extraIdentifier(),
-				charsAcceptor
+				parts.extraIdentifier()
 			);
 			return;
 		}
-		
-		this.useComment(charsAcceptor, cd.commentText());
+
+		this.processDoc(cd.commentText());
 	}
 	
 	private void handleFieldDoc(
 		final String          qualifiedTypeName,
 		final FieldDoc        fd               ,
-		final DocLinkTagParts parts            ,
-		final CharsAcceptor   charsAcceptor
+		final DocLinkTagParts parts
 	)
 	{
 		if(fd == null)
@@ -139,43 +134,30 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 				fd.qualifiedName(),
 				fd.tags(),
 				parts.tagName(),
-				parts.extraIdentifier(),
-				charsAcceptor
+				parts.extraIdentifier()
 			);
 			return;
 		}
-		
-//		System.out.println("Field " + fd.qualifiedName()+ ":\n");
-//		System.out.println("getRawCommentText:\n" + fd.getRawCommentText());
-//		System.out.println("commentText:\n" + fd.commentText());
-//		System.out.println("tags:\n");
-//		for(final Tag tag : UtilsDocLink.nonNull(fd.tags()))
-//		{
-//			System.out.println(tag.name());
-//		}
-		
-		this.useComment(charsAcceptor, fd.commentText());
+
+		this.processDoc(fd.commentText());
 	}
 	
 	private void handleMethodDoc(
 		final String          qualifiedTypeName,
 		final MethodDoc       md               ,
 		final DocLinkTagParts parts            ,
-		final String          parameterName    ,
-		final CharsAcceptor   charsAcceptor
+		final String          parameterName
 	)
 	{
 		if(md == null)
 		{
 			return;
 		}
-		
-//		System.out.println("handleMethodDoc:\n" + DocLinkTagDebugger.toDebugString(parts, parameterName));
-		
+				
 		// priority 1: explicit tag takes precedence.
 		if(parts.tagName() != null)
 		{
-			this.handleMethodDocByTag(md, parts, qualifiedTypeName, parameterName, charsAcceptor);
+			this.handleMethodDocByTag(md, parts, qualifiedTypeName, parameterName);
 			return;
 		}
 		
@@ -184,30 +166,17 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		{
 			// use current parameter tag's parameter name (null in all other cases) or explicit parameter name
 			final String effParamName = DocLink.determineEffectiveParameterName(parameterName, parts.extraIdentifier());
-			this.handleMethodDocByParameterName(md, effParamName, charsAcceptor);
+			this.handleMethodDocByParameterName(md, effParamName);
 			return;
 		}
 		
 		// fallback/default: the method's general description (comment text) is used.
-		this.handleDocGenerically(md, charsAcceptor);
+		this.handleDocGenerically(md);
 	}
 		
-	private void handleDocGenerically(
-		final Doc           doc          ,
-		final CharsAcceptor charsAcceptor
-	)
+	private void handleDocGenerically(final Doc doc)
 	{
-		// (20.05.2019 TM)FIXME: test and comment if correct
-		this.useComment(charsAcceptor, doc.commentText());
-	}
-	
-	private void useComment(
-		final CharsAcceptor charsAcceptor,
-		final String        rawComment
-	)
-	{
-		final String parsedLinkedComment = this.processDoc(rawComment);
-		charsAcceptor.acceptChars(parsedLinkedComment);
+		this.processDoc(doc.commentText());
 	}
 	
 	private void handleProblem(final String problem)
@@ -219,14 +188,11 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		final MethodDoc       md               ,
 		final DocLinkTagParts parts            ,
 		final String          qualifiedTypeName,
-		final String          parameterName    ,
-		final CharsAcceptor   charsAcceptor
+		final String          parameterName
 	)
 	{
-		if("param".equals(parts.tagName()))
+		if("@param".equals(parts.tagName()))
 		{
-//			System.out.println("param:\n" + DocLinkTagDebugger.toDebugString(parts, parameterName));
-			
 			final ParamTag paramTag = DocletJava8DocLink.searchParamTag(
 				md.paramTags(),
 				parameterName,
@@ -234,21 +200,26 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 			);
 			if(paramTag != null)
 			{
-				this.useComment(charsAcceptor, paramTag.parameterComment());
+				this.processDoc(paramTag.parameterComment());
 				return;
 			}
 		}
 
-		this.handleByTag(qualifiedTypeName, md.qualifiedName(), md.tags(), parts.tagName(), parts.extraIdentifier(), charsAcceptor);
+		this.handleByTag(
+			qualifiedTypeName,
+			md.qualifiedName() + Arrays.toString(md.parameters()),
+			md.tags(),
+			parts.tagName(),
+			parts.extraIdentifier()
+		);
 	}
 	
 	private void handleByTag(
-		final String        qualifiedTypeName   ,
-		final String        qualifiedSubjectName,
-		final Tag[]         tags                ,
-		final String        tagName             ,
-		final String        extraIdentifier     ,
-		final CharsAcceptor charsAcceptor
+		final String qualifiedTypeName   ,
+		final String qualifiedSubjectName,
+		final Tag[]  tags                ,
+		final String tagName             ,
+		final String extraIdentifier
 	)
 	{
 		final Tag tag = DocletJava8DocLink.searchNonParamTag(
@@ -258,7 +229,7 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		);
 		if(tag != null)
 		{
-			this.useTag(charsAcceptor, qualifiedTypeName, tag);
+			this.useTag(qualifiedTypeName, tag);
 			return;
 		}
 		
@@ -266,18 +237,17 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 	}
 	
 	private void useTag(
-		final CharsAcceptor charsAcceptor    ,
-		final String        qualifiedTypeName,
-		final Tag           tag
+		final String qualifiedTypeName,
+		final Tag    tag
 	)
 	{
 		if(tag instanceof SeeTag)
 		{
-			this.useSeeTag(charsAcceptor, qualifiedTypeName, (SeeTag)tag);
+			this.useSeeTag(qualifiedTypeName, (SeeTag)tag);
 			return;
 		}
-		
-		this.useComment(charsAcceptor, tag.text());
+
+		this.processDoc(tag.text());
 	}
 	
 	/**
@@ -287,11 +257,7 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 	 * @param fullQualifiedTypeName
 	 * @param seetag
 	 */
-	private void useSeeTag(
-		final CharsAcceptor charsAcceptor    ,
-		final String        qualifiedTypeName,
-		final SeeTag        seeTag
-	)
+	private void useSeeTag(final String qualifiedTypeName, final SeeTag seeTag)
 	{
 		final String tagOriginalText = seeTag.text();
 		final String commentToBeUsed;
@@ -307,14 +273,13 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 				+ tagOriginalText.substring(tagOriginalText.indexOf('#'))
 			;
 		}
-		
-		this.useComment(charsAcceptor, commentToBeUsed);
+
+		this.processDoc(commentToBeUsed);
 	}
 		
 	private void handleMethodDocByParameterName(
-		final MethodDoc       md           ,
-		final String          parameterName,
-		final CharsAcceptor   charsAcceptor
+		final MethodDoc md           ,
+		final String    parameterName
 	)
 	{
 		final ParamTag[] paramTags = md.paramTags();
@@ -334,7 +299,7 @@ public final class DocletJava8DocLinker extends DocLinker.Abstract
 		{
 			if(paramTag.parameterName().equals(parameterName))
 			{
-				this.useComment(charsAcceptor, paramTag.parameterComment());
+				this.processDoc(paramTag.parameterComment());
 				return;
 			}
 		}

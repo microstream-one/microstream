@@ -33,6 +33,10 @@ Dabei kleinere Struktur-Aufr\'e4um-Umformungen am Code machen.\par
 Hm, interessante Frage: Sollen zentrale Methoden parameter usw. redundant erkl\'e4ren? Oder soll im Gegenteil so eine zentrale Convenience-Methode nur auf die eigentliche Pseudo-Konstruktur Methode verlinken und ansonsten gar keine Doku enthalten?\par
 \par
 \par
+2019-05-24\par
+\par
+Implementierung entsprechend umbauen\par
+\par
 2019-05-08\par
 \par
 Kommentar- und Namenskonsolidierung weitermachen: Alle "Implementation" umbenennen zu "Default".\par
@@ -412,5 +416,141 @@ Hm, oder kommt der Fehler eher von dem gestern eingebauten nachtragen von \'fcbe
 mal untersuchen ...\par
 \par
 \par
+2019-05-24\par
+\par
+Die gestern daheim und heute morgen zusammengegr\'fcbelte L\'f6sung umsetzen.\par
+Testen.\par
+Dabei aufgefallen: @link Tags mit lokaler Referenz m\'fcssten auch globalisiert werden.\par
+Ich mach zumindest mal ein TODO daf\'fcr.\par
+\par
+Testergebnisse durchschauen. Sieht soweit gut aus.\par
+\par
+Noch das Referenz-globalisieren testen.\par
+Oh, dabei \'fcberraschende Exception: kein "see" Tag gefunden bei einer Methode mit drei @see tags.\par
+Syso-debuggen.\par
+Also die drei sind drin. Warum findet der die nicht?\par
+Genauer debuggen...\par
+Kind ist see, name ist see, gesucht wird nach see. Alles ist see. Wieso geht das nicht?\par
+Evtl. liegts am index runterz\'e4hlen ...\par
+\par
+Ach ich bein ja ein Depp:\par
+Der Name ist nicht "see", sondern "@see".\par
+Also @ wieder an den geparsten Tagnamen ranbauen.\par
+Testen.\par
+\par
+Na also, geht.\par
+Die Referenz-Globalisierung geht auch.\par
+\par
+Generierten Output weiter anschauen ... sieht gut aus.\par
+\par
+Jetzt die paar Aufr\'e4um-TODOs machen.\par
+\par
+\par
+Und jetzt muss ich das noch grob beschreiben, damit das f\'fcr andere verwendbar wird.\par
+\par
+Gliederung:\par
+1.) Konzeptbeschreibung\par
+2.) Grammatik mit Beispielen\par
+3.) Bekannte Probleme / offene Baustellen\par
+4.) Projektaufbau und Doclet Verwendung\par
+\par
+\par
+\par
+\par
+\par
+DocLink JavaDoc-Erweiterung\par
+\par
+1.) Konzept\par
+Was ist das und wof\'fcr brauch ich es?\par
+Ich habe beim Versuch, systematisch JavaDoc f\'fcr MicroStream zu schreiben, festgestellt, dass es ein riesiges Problem gibt:\par
+\'dcberladene Methoden, gekapselte Konstruktoren, usw. haben wahnsinnig viel Redundanz in ihrer JavaDoc. Ein, sagen wir "int timeout", was konzeptionell eigentlich immer ein und dasselbe Ding ist, muss da ganz schnell an 10 verschiedenen Orten JavaDoc-beschrieben werden. Was soll man da machen? 10 mal manuell tippen w\'e4r d\'e4mlich. 1 mal manuell tippen und 9 mal "see \{@link...\}" schreiben ist f\'fcr den Leser ziemlich st\'f6rend beim Verstehversuch und damit irgendwie das Gegenteil von dem, was JavaDoc eigentlich leisten soll. 1 mal manuell tippen und 9 mal kopieren w\'e4re denkbar, aber sobald an der JavaDoc mal was ge\'e4ndert (erweitert/verbessert) werden muss, bricht das Chaos auf. Egal, ob jedes mal 1 mal \'e4ndern und 9 mal ersetzen (hoffentlich findet man noch alle Stellen) oder 10 mal \'e4ndern, es artet immer in riesige Arbeit und Fehleranf\'e4lligkeit aus.\par
+Was hier fehlt ist doch: Man m\'fcsste JavaDoc Stellen untereinander verlinken k\'f6nnen. So wie dieses @inheritDoc, nur eben als auch f\'fcr andere F\'e4lle.\par
+Also zum Beispiel:\par
+Man dokumentiert den "@param timeout" f\'fcr den "int timeout" einmal explizit und an den anderen 9 Stellen schreibt man dann sowas wie "@param timeout \{@copy Type#method(int):timeout\}".\par
+Der Unterschied zu \{@link ...\} ist: Der Leser muss da nicht draufdr\'fccken und in der JavaDoc herumspringen, sondern beim JavaDoc Generieren wird die einmal geschriebene Dokumentation f\'fcr den @param timeout an die anderen 9 Stellen kopiert.\par
+Das ist die best-vorstellbare L\'f6sung:\par
+- Man muss es nur einmal schreiben.\par
+- Man muss es nur einmal warten und kann keine Stelle \'fcbersehen.\par
+- Der Leser kann an jeder der 10 Stellen trotzdem direkt die Beschreibung lesen. Ohne Herumspringen.\par
+\par
+Meine Erfahrung ist: In einer API mit einigerma\'dfen Convenience Schicht (viele \'dcberladungen und viele Wrapper-Methoden) kann man \'fcberhaupt erst wirtschaftlich (und nervlich) sinnvoll JavaDoc schreiben, wenn man so einen Linking-Mechanismus hat. Ansonsten verschwendet man nur Zeit, Geld und Nerven.\par
+Darum hab ich sowas gebaut.\par
+\par
+2.) Syntax\par
+\par
+Ist ganz simpel. Es ist genau ein neues JavaDoc Tag. Hei\'dft nicht diffus "@copy", sondern "@docLink".\par
+Die Syntax ist so nah wie m\'f6glich an dem, was man von JavaDoc eh schon kennt. Alles andere w\'e4re ja d\'e4mlich.\par
+\par
+Link auf die allgemeine Beschreibung des Typs "com.my.app.MyType":\par
+\{@docLink com.my.app.MyType\}\par
+\par
+Link auf die allgemeine Beschreibung des Felds "com.my.app.MyType#timeout":\par
+\{@docLink com.my.app.MyType#timeout\}\par
+\par
+Link auf die allgemeine Beschreibung der Methode "com.my.app.MyType#doStuff()":\par
+\{@docLink com.my.app.MyType#doStuff()\}\par
+\par
+Link auf die allgemeine Beschreibung der Methode "com.my.app.MyType#doStuff(int, String)":\par
+\{@docLink com.my.app.MyType#doStuff(int, String)\}\par
+\par
+Es geht auch per Namen anstatt per Typen:\par
+\{@docLink com.my.app.MyType#doStuff(timeout, name)\}\par
+\par
+Soweit so langweilig. Was ist nun, wenn man gezielt einen Parameter verlinken will, so wie im Beispiel oben?\par
+Das hab ich oben eh schon gespoilert:\par
+\{@docLink com.my.app.MyType#doStuff(int, String):timeout\}\par
+\{@docLink com.my.app.MyType#doStuff(timeout, name):timeout\}\par
+\par
+Also das hei\'dft "von der Methode mit Namen doStuff und den beiden Parametern timeout und name, nimm die Parameter-Beschreibung von timeout."\par
+Damit man eben wo anders, z.B. bei der Methode com.my.app.MyType#doStuff(int) mit Default-String als Name, nur noch schreiben braucht:\par
+@param timeout \{@docLink com.my.app.MyType#doStuff(int, String):timeout\}\par
+Also eben "Hol dir die Parameterbeschreibung f\'fcr die \'fcberladene Variante von der Hauptvariante der Methode."\par
+Einmal schreiben und dann nur noch verlinken.\par
+\par
+Eine kleine Optimierung kann man da noch machen:\line Wenn vorne eh schon steht, dass es sich um den Parameter mit Namen "timeout" handelt, muss man dann hinten wirklich nochmal explizit ":timeout" schreiben? Das ist ja nervig ... Au\'dferdem m\'fcsste man da wieder doppelt \'e4ndern.\par
+Richtig!\par
+Darum geht das auch besser:\par
+@param timeout \{@docLink com.my.app.MyType#doStuff(int, String):\}\par
+Nur ein ":" hei\'dft: "Verwend den aktuellen JavaDoc Parameternamen f\'fcr den Link."\par
+Ich denke, in 99% der F\'e4lle wird das eh zutreffen, darum war es sinnvoll und wichtig, das einzubauen.\par
+Der ":" ist \'fcbrigens wichtig, denn ohne den bezieht sich der Link ja auf die Methode selbst, also auf die allgemeine JavaDoc Beschreibung.\par
+\par
+Was ist mit Tags?\par
+Es gibt ja neben allgemeiner Beschreibung und Parametern auch noch alle m\'f6glichen Tags. Z.B. das @return. Wie verlinkt man das?\par
+\par
+V\'f6llig \'fcberraschenderweise so:\par
+\{@docLink com.my.app.MyType#doStuff(int, String)@return\}\par
+\par
+Also wieder bei dem Beispiel der \'fcberladenen Methode "com.my.app.MyType#doStuff(int)" br\'e4uchte man in der JavaDoc dann nur noch schreiben:\par
+@return \{@docLink com.my.app.MyType#doStuff(int, String)@return\}\par
+Nur noch einmal schreiben und dann verlinken. Wichtig!\par
+\par
+Jetzt gibts aber manchmal mehrere Tags von der gleichen Sorte. Z.B. @see Tags. Das sind oft 2, 3, 4 oder noch mehr.\par
+Darum muss man zu einem Tag auch noch einen Index angeben k\'f6nnen:\par
+\{@docLink com.my.app.MyType@see:0\}\par
+Das erste @see Tag soll kopiert werden. Oder nat\'fcrlich das :1, :2, usw.\par
+\par
+\{@docLink com.my.app.MyType@return:0\} m\'fcsste auch gehen (hab ich noch gar nicht getestet).\par
+\{@docLink com.my.app.MyType@return:1\} ist nat\'fcrlich immer Unfug.\par
+\par
+Und es geht nat\'fcrlich auch:\par
+\{@docLink com.my.app.MyType#doStuff(int, String)@param:0\}\par
+\{@docLink com.my.app.MyType#doStuff(int, String)@param:1\}\par
+Wenn man die Parameter nach Reihenfolge anstatt nach Namen ausw\'e4hlen will.\par
+Ich wei\'df nicht, ob das in bestimmten F\'e4llen die g\'fcnstige L\'f6sung ist. Jedenfalls ist es m\'f6glich.\par
+\par
+Das wars eigentlich schon.\par
+Zusammengefasst ist die Syntax f\'fcr den Inhalt von \{@docLink ... \}\par
+"typeName"[#"memberName"][("parameterList")][@"tagName"][:"extraIdentifier"]\par
+\par
+Der "extraIdentifier" kann je nach Kontext entweder ein Parametername oder der Index f\'fcr eins von mehreren Tags sein.\par
+Die [] hei\'dfen, dass der Teil optional ist (siehe Beispiele).\par
+Der Rest ist selbsterkl\'e4rend.\par
+\par
+\par
+\par
+3.) Bekannte Probleme  und offene Baustellen\par
+\par
+TODO\par
 }
  

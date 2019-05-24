@@ -120,11 +120,17 @@ public class DocletJava8DocLinkPrinter // extends com.sun.javadoc.Doclet
 		final boolean              assemble
 	)
 	{
-		final String processedString = linker.processDoc(commentText, null, parameterName);
+		final String processedString = linker
+			.prepare()
+			.processDoc(commentText, null, parameterName)
+			.yield()
+		;
+		
 		if(processedString.equals(commentText))
 		{
 			return null;
 		}
+		
 		buffer.append(name + ":").append('\n');
 		buffer.append(commentText).append('\n');
 		buffer.append("->").append('\n');

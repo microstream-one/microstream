@@ -2,7 +2,13 @@ package doclink;
 
 public interface CharsBuilder extends CharsAcceptor
 {
-	public CharsBuilder prepare();
+	public default CharsBuilder prepare()
+	{
+		this.reset();
+		return this;
+	}
+	
+	public CharsBuilder reset();
 	
 	public String yield();
 	
@@ -71,7 +77,7 @@ public interface CharsBuilder extends CharsAcceptor
 		}
 
 		@Override
-		public CharsBuilder prepare()
+		public CharsBuilder reset()
 		{
 			UtilsDocLink.clear(this.sb);
 			return this;
