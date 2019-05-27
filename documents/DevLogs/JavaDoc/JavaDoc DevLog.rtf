@@ -452,34 +452,50 @@ Gliederung:\par
 1.) Konzeptbeschreibung\par
 2.) Grammatik mit Beispielen\par
 3.) Bekannte Probleme / offene Baustellen\par
-4.) Projektaufbau und Doclet Verwendung\par
+4.) Verwendung\par
 \par
 \par
 \par
 \par
+JavaDoc-Erweiterung "DocLink"\par
+Thomas M\'fcnz, 2019-05-27\par
 \par
-DocLink JavaDoc-Erweiterung\par
+\'dcbersicht:\par
+1.) Konzept\par
+2.) Syntax\par
+3.) Bekannte Probleme\par
+4.) Test und Einsatz\par
+\par
+---\par
 \par
 1.) Konzept\par
+\par
 Was ist das und wof\'fcr brauch ich es?\par
+\par
 Ich habe beim Versuch, systematisch JavaDoc f\'fcr MicroStream zu schreiben, festgestellt, dass es ein riesiges Problem gibt:\par
-\'dcberladene Methoden, gekapselte Konstruktoren, usw. haben wahnsinnig viel Redundanz in ihrer JavaDoc. Ein, sagen wir "int timeout", was konzeptionell eigentlich immer ein und dasselbe Ding ist, muss da ganz schnell an 10 verschiedenen Orten JavaDoc-beschrieben werden. Was soll man da machen? 10 mal manuell tippen w\'e4r d\'e4mlich. 1 mal manuell tippen und 9 mal "see \{@link...\}" schreiben ist f\'fcr den Leser ziemlich st\'f6rend beim Verstehversuch und damit irgendwie das Gegenteil von dem, was JavaDoc eigentlich leisten soll. 1 mal manuell tippen und 9 mal kopieren w\'e4re denkbar, aber sobald an der JavaDoc mal was ge\'e4ndert (erweitert/verbessert) werden muss, bricht das Chaos auf. Egal, ob jedes mal 1 mal \'e4ndern und 9 mal ersetzen (hoffentlich findet man noch alle Stellen) oder 10 mal \'e4ndern, es artet immer in riesige Arbeit und Fehleranf\'e4lligkeit aus.\par
-Was hier fehlt ist doch: Man m\'fcsste JavaDoc Stellen untereinander verlinken k\'f6nnen. So wie dieses @inheritDoc, nur eben als auch f\'fcr andere F\'e4lle.\par
+\'dcberladene Methoden, gekapselte Konstruktoren, usw. haben wahnsinnig viel Redundanz in ihrer JavaDoc. Ein, sagen wir "int timeout", was konzeptionell eigentlich immer ein und dasselbe Ding ist, muss da ganz schnell an 10 verschiedenen Orten JavaDoc-beschrieben werden. Was soll man da machen? 10 mal manuell tippen w\'e4r d\'e4mlich. 1 mal manuell tippen und 9 mal "see \{@link...\}" schreiben, w\'e4re f\'fcr den Leser ziemlich st\'f6rend beim Verstehversuch und damit irgendwie das Gegenteil von dem, was JavaDoc eigentlich leisten soll. 1 mal manuell tippen und 9 mal kopieren w\'e4re denkbar, aber sobald an der JavaDoc mal was ge\'e4ndert (erweitert/verbessert) werden muss, bricht das Chaos auf. Egal, ob jedes mal 1 mal \'e4ndern und 9 mal ersetzen (hoffentlich findet man noch alle Stellen) oder 10 mal \'e4ndern, es artet immer in riesige Arbeit und Fehleranf\'e4lligkeit aus. Hat man alle Stellen erwischt? Braucht man daf\'fcr ein extra Referenz-Verzeichnis? Wartet man das auch sorgf\'e4ltig mit? (nat\'fcrlich nicht...)\par
+\par
+Was hier fehlt ist doch: Man m\'fcsste JavaDoc Stellen untereinander verlinken k\'f6nnen. So wie dieses @inheritDoc, nur eben auch f\'fcr andere F\'e4lle.\par
+\par
 Also zum Beispiel:\par
-Man dokumentiert den "@param timeout" f\'fcr den "int timeout" einmal explizit und an den anderen 9 Stellen schreibt man dann sowas wie "@param timeout \{@copy Type#method(int):timeout\}".\par
-Der Unterschied zu \{@link ...\} ist: Der Leser muss da nicht draufdr\'fccken und in der JavaDoc herumspringen, sondern beim JavaDoc Generieren wird die einmal geschriebene Dokumentation f\'fcr den @param timeout an die anderen 9 Stellen kopiert.\par
+Man dokumentiert den "@param timeout" f\'fcr den "int timeout" einmal explizit und an den anderen 9 Stellen schreibt man dann sowas wie "@param timeout \{@copy TypeName#methodName(int):timeout\}".\par
+Der Unterschied zu \{@link ...\} ist: Der Leser muss da nicht draufdr\'fccken und in der JavaDoc herumspringen, sondern beim JavaDoc Generieren wird die einmal geschriebene Dokumentation f\'fcr den @param timeout an die anderen 9 Stellen kopiert und man kann es direkt lesen.\par
 Das ist die best-vorstellbare L\'f6sung:\par
 - Man muss es nur einmal schreiben.\par
 - Man muss es nur einmal warten und kann keine Stelle \'fcbersehen.\par
-- Der Leser kann an jeder der 10 Stellen trotzdem direkt die Beschreibung lesen. Ohne Herumspringen.\par
+- Der Leser kann an jeder der 10 Stellen trotzdem direkt die Beschreibung lesen. Ohne Herumspringen und die daraus resultierende Verwirrung/Frustration.\par
 \par
-Meine Erfahrung ist: In einer API mit einigerma\'dfen Convenience Schicht (viele \'dcberladungen und viele Wrapper-Methoden) kann man \'fcberhaupt erst wirtschaftlich (und nervlich) sinnvoll JavaDoc schreiben, wenn man so einen Linking-Mechanismus hat. Ansonsten verschwendet man nur Zeit, Geld und Nerven.\par
-Darum hab ich sowas gebaut.\par
+Meine Erfahrung ist: In einer API mit einigerma\'dfen Convenience Schicht (viele \'dcberladungen und viele Wrapper-Methoden) kann man \'fcberhaupt erst wirtschaftlich (und nervlich) sinnvoll JavaDoc schreiben, wenn man so einen Linking-Mechanismus hat. Ansonsten verschwendet man langfristig nur Zeit, Geld und Nerven.\par
+Darum hab ich mal sowas gebaut.\par
+\par
+\par
 \par
 2.) Syntax\par
 \par
-Ist ganz simpel. Es ist genau ein neues JavaDoc Tag. Hei\'dft nicht diffus "@copy", sondern "@docLink".\par
+Ist ganz simpel. Es ist nur ein neues JavaDoc Tag. Hei\'dft nicht diffus "@copy", sondern "@docLink".\par
 Die Syntax ist so nah wie m\'f6glich an dem, was man von JavaDoc eh schon kennt. Alles andere w\'e4re ja d\'e4mlich.\par
+\par
+Hier ein paar Beispiele:\par
 \par
 Link auf die allgemeine Beschreibung des Typs "com.my.app.MyType":\par
 \{@docLink com.my.app.MyType\}\par
@@ -505,9 +521,10 @@ Also das hei\'dft "von der Methode mit Namen doStuff und den beiden Parametern t
 Damit man eben wo anders, z.B. bei der Methode com.my.app.MyType#doStuff(int) mit Default-String als Name, nur noch schreiben braucht:\par
 @param timeout \{@docLink com.my.app.MyType#doStuff(int, String):timeout\}\par
 Also eben "Hol dir die Parameterbeschreibung f\'fcr die \'fcberladene Variante von der Hauptvariante der Methode."\par
-Einmal schreiben und dann nur noch verlinken.\par
+Einmal schreiben und dann nur noch verlinken. So muss das sein!\par
 \par
-Eine kleine Optimierung kann man da noch machen:\line Wenn vorne eh schon steht, dass es sich um den Parameter mit Namen "timeout" handelt, muss man dann hinten wirklich nochmal explizit ":timeout" schreiben? Das ist ja nervig ... Au\'dferdem m\'fcsste man da wieder doppelt \'e4ndern.\par
+Eine kleine Optimierung kann man da noch machen:\par
+Wenn vorne eh schon steht, dass es sich um den Parameter mit Namen "timeout" handelt, muss man dann hinten wirklich nochmal explizit ":timeout" schreiben? Das ist ja nervig ... Au\'dferdem m\'fcsste man da wieder doppelt \'e4ndern/warten.\par
 Richtig!\par
 Darum geht das auch besser:\par
 @param timeout \{@docLink com.my.app.MyType#doStuff(int, String):\}\par
@@ -523,12 +540,11 @@ V\'f6llig \'fcberraschenderweise so:\par
 \par
 Also wieder bei dem Beispiel der \'fcberladenen Methode "com.my.app.MyType#doStuff(int)" br\'e4uchte man in der JavaDoc dann nur noch schreiben:\par
 @return \{@docLink com.my.app.MyType#doStuff(int, String)@return\}\par
-Nur noch einmal schreiben und dann verlinken. Wichtig!\par
 \par
 Jetzt gibts aber manchmal mehrere Tags von der gleichen Sorte. Z.B. @see Tags. Das sind oft 2, 3, 4 oder noch mehr.\par
 Darum muss man zu einem Tag auch noch einen Index angeben k\'f6nnen:\par
 \{@docLink com.my.app.MyType@see:0\}\par
-Das erste @see Tag soll kopiert werden. Oder nat\'fcrlich das :1, :2, usw.\par
+Das erste @see Tag soll kopiert werden. Oder nat\'fcrlich :1, :2, usw.\par
 \par
 \{@docLink com.my.app.MyType@return:0\} m\'fcsste auch gehen (hab ich noch gar nicht getestet).\par
 \{@docLink com.my.app.MyType@return:1\} ist nat\'fcrlich immer Unfug.\par
@@ -537,7 +553,7 @@ Und es geht nat\'fcrlich auch:\par
 \{@docLink com.my.app.MyType#doStuff(int, String)@param:0\}\par
 \{@docLink com.my.app.MyType#doStuff(int, String)@param:1\}\par
 Wenn man die Parameter nach Reihenfolge anstatt nach Namen ausw\'e4hlen will.\par
-Ich wei\'df nicht, ob das in bestimmten F\'e4llen die g\'fcnstige L\'f6sung ist. Jedenfalls ist es m\'f6glich.\par
+Ich wei\'df nicht, ob das in bestimmten F\'e4llen die g\'fcnstigste L\'f6sung ist. Im Zweifel ist es eher gef\'e4hrlich. Jedenfalls ist es m\'f6glich.\par
 \par
 Das wars eigentlich schon.\par
 Zusammengefasst ist die Syntax f\'fcr den Inhalt von \{@docLink ... \}\par
@@ -547,10 +563,109 @@ Der "extraIdentifier" kann je nach Kontext entweder ein Parametername oder der I
 Die [] hei\'dfen, dass der Teil optional ist (siehe Beispiele).\par
 Der Rest ist selbsterkl\'e4rend.\par
 \par
+Noch ein paar Specials:\par
+\par
+Wenn in einem verlinkten Text wieder ein DocLink steht, muss der nat\'fcrlich auch aufgel\'f6st werden. Genauer gesagt: Es m\'fcssen rekursiv so lange alle docLink Tags aufgel\'f6st werden, bis der finale Text feststeht.\par
+Das hab ich ber\'fccksichtigt. Ein ekliger Sonderfall dabei, n\'e4mlich eine Schleife in der Rekursion, ist aber noch nicht gel\'f6st. Siehe "Bekannte Probleme".\par
+\par
+Wenn in einem @see eine lokale Referenz steht (z.B. @see #doStuff()), dann muss die beim Verlinken aus einer anderen Klasse nat\'fcrlich in eine globale Referenz (@see com.my.app.MyType#doStuff()) umgewandelt werden, sonst ist die Referenz kaputt. Das wird automatisch mitgemacht. F\'fcr @link hab ich es dummerweise vergessen. Siehe "Bekannte Probleme".\par
 \par
 \par
-3.) Bekannte Probleme  und offene Baustellen\par
 \par
-TODO\par
+3.) Bekannte Probleme\par
+\par
+Mir sind w\'e4hrend dem Testen einige Probleme und erwartbare, aber fehlende Features aufgefallen, die ich aber nicht gel\'f6st habe, weil ich nach viel zu viel investierter Zeit (u.A. wegen fehlender Debugbarkeit dieser seltsamen Doclets) mal einen Schlusstrich ziehen wollte. Das ist halt momentan Version 1.0. Die Fixes w\'e4ren dann Version 1.1, aber wann und von wem die gemacht werden wird, muss sich dann zeigen. TODOs im Sourcecode hab ich auf jeden Fall mal geschrieben.\par
+\par
+Problem #1\par
+Wenn JavaDoc A auf JavaDoc B verweist und B wieder auf A, gibt das momentan eine rekursive Endlosschleife, bis der Prozess auf einen Stack Overflow l\'e4uft. Die Vermeidung w\'e4re gar nicht so schwer, simples Konzept steht schon im Code, aber Schlusstrich f\'fcr Version 1.0 und so. Sollte aber nicht so dramatisch schlimm sein, weil das ohnehin ein Fehler in der JavaDoc w\'e4re und dann halt nach der Exception entsprechend korrigiert werden muss. \par
+\par
+Problem #2\par
+Ein @link Tag mit lokaler Referenz (z.B. \{@link #doStuff()\}) wird noch nicht in eine globale (bzw. full-qualified) Referenz umgewandelt, d.h. solche Links gehen kaputt.\par
+\par
+Problem #3\par
+Umgekehrt sollte das mit den lokalen Referenzen aber auch funktionieren: Innerhalb einer Klasse sollte man bei einem @docLink, genau wie bei JavaDoc allgemein, den Typenamen weglassen k\'f6nnen. Ist technisch ja auch trivial zu machen. Das hatte ich anfangs irgendwie nicht bedacht. Aber halt Version 1.0 und so.\par
+\par
+Problem #4\par
+Und das Weglassen sollte, analog zu Parameternamen, auch f\'fcr den Membernamen gelten, wenn das aktuell verarbeitete Element ein Feld oder Methode ist.\par
+Also z.B. so:\par
+\{@docLink TargetType#\} -> "Gleichnamiges Feld/Methode in dem anderen Typ".\par
+Oder sogar so:\par
+\{@docLink TargetType#:\} -> "Gleichnamiger Parameter der gleichnamigen Methode in dem anderen Typ".\par
+W\'e4re technisch eine Kleinigkeit. Muss man halt mal schauen.\par
+\par
+\par
+\par
+4.) Test und Einsatz\par
+\par
+Dieser Punkt ist eigentlich auch noch Baustelle. Denn: Es geht schon. Aber eigentlich noch nicht. Es gibt da n\'e4mlich ein Problem...\par
+\par
+Um JavaDoc Generierung zu customizen, gibt es ein "Doclet" Konzept im JDK.\par
+Das ist gerade zwischen Java 8 und 9 auch noch komplett umgebaut worden. Bis Java 8 war es ... sehr wirr, in Java 9 ... nur noch ziemlich wirr. JDK halt.\par
+Die Idee ist: Man gibt beim JavaDoc generieren lassen ein St\'fcck custom Code mit (ein "doclet") und das wird dann ausgef\'fchrt.\par
+In Eclipse geht das zum Beispiel so:\par
+Rechtsklick auf Projekt -> Export -> Java -> JavaDoc -> Next -> "Use custom doclet":\par
+Doclet name: [muss der full qualified class name zu einer Klasse mit der magic "start" Doclet-Methode sein.] (Pseudo-interface Bullshit Gewurschtel L\'f6sung. Typisch JDK. Ab der Java 9 L\'f6sung k\'f6nnen sie sogar ECHTE Intefaces. Der Wahnsinn!)\par
+Doclet class path: [Filesystem Pfad zu den Klassen] (Soweit ich wei\'df muss das ein jar sein, sonst geht es nicht. War anfangs sehr verwirrend ...)\par
+\par
+Was momentan geht, ist, so eine pseudo-interface-m\'e4\'dfig implementierte Klasse (doclink.doclet.DocletJava8DocLinkPrinter), die input und output f\'fcr so eine DocLink Ersetzung in die Konsole schreibt.\par
+JavaDoc HTML Output gibts keinen, weil sich n\'e4mlich schnell herausgestellt hat, dass ein Doclet ohnehin unbrauchbare w\'e4re.\par
+\par
+Das Problem ist n\'e4mlich:\par
+Es schaut ja eher selten jemand in so ein JavaDoc HTML Zeug rein, sondern man schaut ja eher \'f6fter direkt in die JavaDoc View oder Tooltips in der IDE live beim Entwickeln. Zumindest muss die live Variante auch funktionieren.\par
+Dummerweise bieten aber IDEs (zumindest eclipse) keine M\'f6glichkeit, in ihre JavaDoc View ebenfalls ein Doclet einzuklinken.\par
+(Im Umkehrschluss fragt man sich da schon irgendwie, ob denn \'fcberhaupt jemand dieses Doclet Zeug benutzt, denn die m\'fcssten ja alle dieses Problem haben)\par
+Eine kurze Recherche von FH im eclipse Source Code hat ergeben: Das ist da drin die \'fcbliche Katastrophe. Da irgendwas zu schreiben oder zu pimpen, k\'f6nnen wir knicken.\par
+Und dann w\'e4ren da ja auch noch alle anderen Java IDEs, die man unterst\'fctzen m\'fcsste. Sehr bl\'f6d.\par
+\par
+Macht aber nichts, denn der ganze Doclet Aufwand ist eh gar nicht n\'f6tig. Es gibt eine viel elegantere L\'f6sung:\par
+Wir machen beim Deployment von Sourcecode sowieso schon so eine Art "Source Code post-processing", wo z.B. License Header usw. hinzugef\'fcgt werden.\par
+Dort kann man die DocLink Logik mit reinklemmen, dann verschwinden alle nicht-JavaDoc-Standard @docLink Tags und man bekommt stattdessen das generierte Ergebnis mit den redundanten Texten.\par
+Funktioniert ohne Doclets und automatisch f\'fcr alle IDEs. Sehr sch\'f6n!\par
+\par
+Ironischerweise ist der einzige, f\'fcr den es nicht funktioniert, der JavaDoc Schreiber live beim Schreiben.\par
+Daf\'fcr br\'e4uchten wir einen eigenen eclipse JavaDoc View, der die DocLink Logik enth\'e4lt. Ist vielleicht mal was f\'fcr die Zukunft (DocLink 2.0?), aber ich ahne, wie viel Aufwand das w\'e4re und wie hoch dadurch die Priorit\'e4t daf\'fcr sein w\'fcrde. Naja mei.\par
+\par
+\par
+Also der aktuelle Stand ist:\par
+Mit der "doclink.doclet.DocletJava8DocLinkPrinter" Klasse kann man den DocLink Code zumindest mal grunds\'e4tzlich testen.\par
+Das Projekt enth\'e4lt praktischerweise selbst gleich zwei Testklassen:\par
+- "doclink.test.TestTargetClass", das ist die Klasse, auf die docLinks zeigen, mit selbst ein paar docLinks, um Rekursion zu testen.\par
+- "doclink.test.TestSubjectClass", das ist die Klasse, die mit docLinks auf die TagetClass zeigt. Deren JavaDoc muss am Ende gut aussehen (keine @docLink Tags mehr und keine seltsamen L\'fccken oder Verdoppelungen).\par
+\par
+Vorgehensweise zum Testen:\par
+1.) Das Projekt braucht eine Abh\'e4ngigkeit zur "tools.jar" des JDK. Aber nur f\'fcr den Doclet Test. Der DocLink Code selbst hat abgesehen vom JDK gar keine Abh\'e4ngigkeiten, auch nicht zu MicroStream Code.\par
+2.) Das DocLink Projekt als jar exportieren. (z.B. nach "D:\\DocLink.jar")\par
+3.) F\'fcr das DocLink Projekt JavaDoc erzeugten (siehe oben), mit den Angaben "doclink.doclet.DocletJava8DocLinkPrinter" und "D:\\DocLink.jar".\par
+\par
+Dann m\'fcsste in der Konsole der beschriebene Input und Output ausgegeben werden.\par
+Inklusive ein paar Warnings f\'fcr @see Tags, weil JavaDoc ja die docLink Tags nicht kennt. Das macht aber nichts, weil die docLink Tags ja ersetzt werden mit (hoffentlich!) validem Text. Also solche Warnings einfach ignorieren.\par
+Es m\'fcsste dann auch im Working Directory ein "doc" Verzeichnis erzeugt worden sein. Das ist aber leer, weil das selbstgebastelte Doclet ja gar keinen File-Output erzeugt. Das passt also und ist kein Fehler.\par
+\par
+Es war gerade beim Testen seltsamerweise so, dass Eclipse nach dem Neustart beim ersten Mal trotz Angabe das Doclet nicht verwendet hat. Aber beim zweiten Mal gings dann. Also falls nichts passiert, einfach nochmal versuchen. Keine Ahnung ...\par
+\par
+\par
+Konkreter Einsatz:\par
+\par
+Damit es wirklich funktioniert, m\'fcsste anhand der Vorlage der drei Doclet-Klassen (im Package "doclink.doclet") nun eine entsprechende Integration f\'fcr das Deployment aus Eclipse heraus erstellt werden. Mit verwendeter API halt das Eclipse Syntax Tree Zeug anstatt dem "com.sun.javadoc.*" Zeug. Aktuell wei\'df ich nicht, wie ich das selber machen k\'f6nnte oder ob es den Aufwand wert w\'e4re, das daf\'fcr n\'f6tige daf\'fcr aufzusetzen, mich einzulesen, usw.\par
+Sollte eigentlich recht schnell kopiet und angepasst werden k\'f6nnen. Mal sehen ...\par
+\par
+Der DocLink Sourcecode selbst sollte mehr oder weniger selbsterkl\'e4rend sein:\par
+Es gibt halt die schon erw\'e4hnten Unterpackages f\'fcr "doclet" und f\'fcr "test". Die Zentralen Klassen sind "DocLink" (statische Logik), "DocLinker" (Funktionales interface mit Defaultimplementierung) und dann ein paar Grusch-Typen f\'fcr statische Util Methoden, String-bau-Interface, Mini-Datenstruktur, usw.\par
+Abh\'e4ngigkeiten gibt es, wie oben geschrieben, "eigentlich" gar keine.\par
+\par
+\par
+\par
+Hier noch Links, die ich f\'fcr die Verwendung des Doclet Zeugs gebraucht habe:\par
+{{\field{\*\fldinst{HYPERLINK https://docs.oracle.com/javase/8/docs/jdk/api/javadoc/doclet/index.html }}{\fldrslt{https://docs.oracle.com/javase/8/docs/jdk/api/javadoc/doclet/index.html\ul0\cf0}}}}\f0\fs28\par
+{{\field{\*\fldinst{HYPERLINK https://docs.oracle.com/javase/8/docs/jdk/api/javadoc/doclet/com/sun/javadoc/RootDoc.html }}{\fldrslt{https://docs.oracle.com/javase/8/docs/jdk/api/javadoc/doclet/com/sun/javadoc/RootDoc.html\ul0\cf0}}}}\f0\fs28\par
+\par
+Dort wird auch die magic "start" Methode erkl\'e4rt. Das "ListParams" Beispiel ist im DocLink Projekt als Referenz enthalten.\par
+\par
+\par
+---\par
+\par
+2019-05-27\par
+\par
+Dokumentation fertigstellen.\par
 }
  
