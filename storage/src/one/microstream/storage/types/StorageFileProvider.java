@@ -198,6 +198,13 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	
 	
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageFileProvider.Builder} instance.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
+	 * 
+	 * @return a new {@link StorageFileProvider.Builder} instance.
+	 */
 	public static Builder<?> Builder()
 	{
 		return new StorageFileProvider.Builder.Default<>();
@@ -462,7 +469,21 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		
 	}
 	
-	
+	/**
+	 * 
+	 * @param baseDirectory
+	 * @param deletionDirectory
+	 * @param truncationDirectory
+	 * @param channelDirectoryPrefix
+	 * @param storageFilePrefix
+	 * @param storageFileSuffix
+	 * @param transactionsFilePrefix
+	 * @param transactionsFileSuffix
+	 * @param typeDictionaryFileName
+	 * @param lockFileName
+	 * @param fileHandlerCreator
+	 * @return
+	 */
 	public static StorageFileProvider.Default New(
 		final String                                       baseDirectory         ,
 		final String                                       deletionDirectory     ,

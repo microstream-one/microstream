@@ -97,11 +97,12 @@ public final class Storage
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
 	 * 
-	 * @return a new {@link StorageFileProvider} instance.
+	 * @return {@docLink Storage#FileProvider()@return}
 	 * 
 	 * @see Storage#FileProvider(File)
 	 * @see Storage#FileProviderBuilder()
 	 * @see StorageFileProvider.Builder
+	 * @see StorageFileProvider.Defaults
 	 */
 	public static final StorageFileProvider FileProvider()
 	{
@@ -112,18 +113,18 @@ public final class Storage
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with the passed {@link File}
-	 * as the storage directory and defaults for the remaining values provided by {@link StorageFileProvider.Defaults}.
+	 * as the storage directory and defaults provided by {@link StorageFileProvider.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
 	 * 
-	 * @param storageDirectory the explicitely defined storage directory.
-	 * @see Storage#FileProvider()
+	 * @param storageDirectory the directory where storage will be located.
 	 * 
 	 * @return a new {@link StorageFileProvider} instance.
 	 * 
 	 * @see Storage#FileProvider()
 	 * @see Storage#FileProviderBuilder()
 	 * @see StorageFileProvider.Builder
+	 * @see StorageFileProvider.Defaults
 	 */
 	public static final StorageFileProvider FileProvider(final File storageDirectory)
 	{
@@ -136,75 +137,11 @@ public final class Storage
 			.createFileProvider()
 		;
 	}
-	
-	
-	// (17.05.2019 TM)FIXME: /!\ DEBUG - move to docLink project
+		
 	/**
-	 * {@docLink Storage}
-	 */
-	public static void DEBUGJavaDocLink01() {/**/}
-
-	/**
-	 * {@docLink Storage#ONE_MILLION}
-	 */
-	public static void DEBUGJavaDocLink02() {/**/}
-
-	/**
-	 * {@docLink Storage#HousekeepingController()}
-	 */
-	public static void DEBUGJavaDocLink03() {/**/}
-	
-	/**
-	 * {@docLink Storage#HousekeepingController(long, long)}
-	 */
-	public static void DEBUGJavaDocLink04() {/**/}
-
-	/**
-	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long):}
-	 *
-	 * @param housekeepingTimeBudgetNs {@docLink StorageHousekeepingController#New(long, long):}
-	 */
-	public static void DEBUGJavaDocLink05(
-		final long housekeepingIntervalMs  ,
-		final long housekeepingTimeBudgetNs
-	) {/**/}
-
-	/**
-	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long):housekeepingTimeBudgetNs}
-	 *
-	 * @param housekeepingTimeBudgetNs {@docLink StorageHousekeepingController#New(long, long):housekeepingIntervalMs}
-	 */
-	public static void DEBUGJavaDocLink06(
-		final long housekeepingIntervalMs  ,
-		final long housekeepingTimeBudgetNs
-	) {/**/}
-
-	/**
-	 * {@docLink StorageHousekeepingController#New(long, long)@param:0}<p>
-	 *
-	 * {@docLink StorageHousekeepingController#New(long, long)@param:1}<p>
-	 */
-	public static void DEBUGJavaDocLink07(
-		final long housekeepingIntervalMs  ,
-		final long housekeepingTimeBudgetNs
-	) {/**/}
-
-	/**
-	 * {@docLink StorageHousekeepingController#New(long, long)@param:housekeepingIntervalMs}<p>
-	 *
-	 * {@docLink StorageHousekeepingController#New(long, long)@param:housekeepingTimeBudgetNs}<p>
-	 */
-	public static void DEBUGJavaDocLink08(
-		final long housekeepingIntervalMs  ,
-		final long housekeepingTimeBudgetNs
-	) {/**/}
-	
-	/**
-	 * Pseudo-constructor method to create a new {@link StorageFileProvider.Builder} instance.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
+	 * {@docLink StorageFileProvider#Builder()}
 	 * 
-	 * @return a new {@link StorageFileProvider.Builder} instance.
+	 * @return {@docLink StorageFileProvider#Builder()@return}
 	 * 
 	 * @see Storage#FileProvider()
 	 * @see Storage#FileProvider(File)
@@ -221,7 +158,7 @@ public final class Storage
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
 	 * 
-	 * @return a new {@link StorageConfiguration} instance.
+	 * @return {@docLink Configuration#Configuration(StorageFileProvider)@return}
 	 * 
 	 * @see Storage#Configuration(StorageFileProvider)
 	 * @see Storage#ConfigurationBuilder()
@@ -258,14 +195,13 @@ public final class Storage
 	}
 	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageConfiguration.Builder} instance.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
+	 * {@docLink StorageConfiguration#Builder()}
 	 * 
-	 * @return a new {@link StorageConfiguration.Builder} instance.
+	 * @return {@docLink StorageConfiguration#Builder()@return}
 	 * 
 	 * @see Storage#Configuration()
 	 * @see Storage#Configuration(StorageFileProvider)
+	 * @see StorageConfiguration#Builder()
 	 * @see StorageConfiguration.Builder
 	 */
 	public static final StorageConfiguration.Builder<?> ConfigurationBuilder()
@@ -274,15 +210,13 @@ public final class Storage
 	}
 
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageHousekeepingController} instance
-	 * using default values defined by {@link StorageHousekeepingController.Defaults}.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageHousekeepingController#New()}.
+	 * {@docLink StorageHousekeepingController#New()}
 	 * 
-	 * @return a new {@link StorageHousekeepingController} instance using default values.
+	 * @return {@docLink StorageHousekeepingController#New()@return}
 	 * 
 	 * @see Storage#HousekeepingController(long, long)
 	 * @see StorageHousekeepingController#New()
+	 * @see StorageHousekeepingController.Defaults
 	 */
 	public static final StorageHousekeepingController HousekeepingController()
 	{
@@ -291,16 +225,13 @@ public final class Storage
 	
 
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageHousekeepingController} instance
-	 * using the passed values.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageHousekeepingController#New(long, long)}.
+	 * {@docLink StorageHousekeepingController#New(long, long)}
 	 * 
 	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long):}
 	 * 
 	 * @param housekeepingTimeBudgetNs {@docLink StorageHousekeepingController#New(long, long):}
 	 * 
-	 * @return a new {@link StorageHousekeepingController} instance.
+	 * @return {@docLink StorageHousekeepingController#New(long, long)@return}
 	 * 
 	 * @see Storage#HousekeepingController()
 	 * @see StorageHousekeepingController#New(long, long)
@@ -314,12 +245,9 @@ public final class Storage
 	}
 
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
-	 * using default values.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New()}.
+	 * {@docLink StorageEntityCacheEvaluator#New()}
 	 * 
-	 * @return a new {@link StorageEntityCacheEvaluator} instance using default values.
+	 * @return {@docLink StorageEntityCacheEvaluator#New()@return}
 	 * 
 	 * @see Storage#EntityCacheEvaluator(long)
 	 * @see Storage#EntityCacheEvaluator(long, long)
@@ -329,6 +257,8 @@ public final class Storage
 	{
 		return StorageEntityCacheEvaluator.New();
 	}
+	
+	// (27.05.2019 TM)FIXME: /!\ JavaDoc WIP.
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance

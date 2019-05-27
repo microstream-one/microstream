@@ -33,12 +33,11 @@ public interface StorageHousekeepingController
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageHousekeepingController} instance
-	 * using default values.<p>
-	 * To specify custom values, see {@link #New(long, long)}.<p>
+	 * using default values defined by {@link StorageHousekeepingController.Defaults}.
 	 * 
-	 * @return a new {@link StorageHousekeepingController} instance using default values.
+	 * @return {@docLink StorageHousekeepingController#New(long, long)@return}
 	 * 
-	 * @see #New(long, long)
+	 * @see StorageHousekeepingController#New(long, long)
 	 * @see Storage#HousekeepingController()
 	 * @see StorageHousekeepingController.Defaults
 	 */
@@ -81,7 +80,7 @@ public interface StorageHousekeepingController
 	 *        a housekeeping action can occasionally take slightly longer than specified here.
 	 *        Must be greater than zero.
 	 * 
-	 * @return a new {@link StorageHousekeepingController} instance using default values.
+	 * @return a new {@link StorageHousekeepingController} instance.
 	 * 
 	 * @see StorageHousekeepingController#New()
 	 * @see Storage#HousekeepingController(long, long)

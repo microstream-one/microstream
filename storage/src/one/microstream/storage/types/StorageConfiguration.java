@@ -139,8 +139,17 @@ public interface StorageConfiguration
 	}
 	
 	
-	
-	public static Builder<?> Builder()
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageConfiguration.Builder} instance.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
+	 * 
+	 * @return a new {@link StorageConfiguration.Builder} instance.
+	 * 
+	 * @see StorageConfiguration.Builder
+	 * @see StorageConfiguration
+	 */
+	public static StorageConfiguration.Builder<?> Builder()
 	{
 		return new StorageConfiguration.Builder.Default<>();
 	}
