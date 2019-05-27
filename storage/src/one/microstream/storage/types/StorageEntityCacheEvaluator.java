@@ -46,6 +46,19 @@ public interface StorageEntityCacheEvaluator
 		}
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
+	 * using default values defined by {@link StorageEntityCacheEvaluator.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
+	 * 
+	 * @return {@docLink StorageEntityCacheEvaluator#New(long, long)@return}.
+	 * 
+	 * @see Storage#EntityCacheEvaluator(long)
+	 * @see Storage#EntityCacheEvaluator(long, long)
+	 * @see StorageEntityCacheEvaluator#New()
+	 * @see StorageEntityCacheEvaluator.Defaults
+	 */
 	public static StorageEntityCacheEvaluator New()
 	{
 		/*
