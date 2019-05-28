@@ -3,6 +3,7 @@ package one.microstream.storage.types;
 import static one.microstream.math.XMath.positive;
 
 import one.microstream.chars.VarString;
+import one.microstream.exceptions.NumberRangeException;
 
 /**
  * Function type that evaluates if a live entity (entity with cached data) shall be unloaded (its cache cleared).
@@ -54,9 +55,8 @@ public interface StorageEntityCacheEvaluator
 	 * 
 	 * @return {@docLink StorageEntityCacheEvaluator#New(long, long)@return}.
 	 * 
-	 * @see Storage#EntityCacheEvaluator(long)
-	 * @see Storage#EntityCacheEvaluator(long, long)
-	 * @see StorageEntityCacheEvaluator#New()
+	 * @see StorageEntityCacheEvaluator#New(long)
+	 * @see StorageEntityCacheEvaluator#New(long, long)
 	 * @see StorageEntityCacheEvaluator.Defaults
 	 */
 	public static StorageEntityCacheEvaluator New()
@@ -66,19 +66,69 @@ public interface StorageEntityCacheEvaluator
 		 * good defense against accidentally erroneous changes of the default value.
 		 */
 		return New(
-			Defaults.defaultTimeoutMs(),
+			Defaults.defaultTimeoutMs()     ,
 			Defaults.defaultCacheThreshold()
 		);
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
+	 * using the passed value and default values defined by {@link StorageEntityCacheEvaluator.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
+	 * 
+	 * @param timeoutMs {@docLink StorageEntityCacheEvaluator#New(long, long):}
+	 * 
+	 * @return {@docLink StorageEntityCacheEvaluator#New(long, long)@return}
+	 * 
+	 * @throws NumberRangeException if the passed value is equal to or lower than 0.
+	 * 
+	 * @see StorageEntityCacheEvaluator#New()
+	 * @see StorageEntityCacheEvaluator#New(long, long)
+	 * @see StorageEntityCacheEvaluator.Defaults
+	 */
 	public static StorageEntityCacheEvaluator New(final long timeoutMs)
 	{
 		return New(
-			positive(timeoutMs)    ,
+			positive(timeoutMs)             ,
 			Defaults.defaultCacheThreshold()
 		);
 	}
-	
+
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
+	 * using the passed values.
+	 * <p>
+	 * In the default implementation, two values are combined to calculate an entity's "cache weight":
+	 * its "age" (the time in milliseconds of not being read) and its size in bytes. The resulting value is
+	 * in turn compared to an abstract "free space" value, calculated by subtracting the current total cache size
+	 * in bytes from the abstract {@literal threshold} value defined here. If this comparison deems the tested entity
+	 * to be "too heavy" for the cache, its data is cleared from the cache. It is also cleared from the cache if its
+	 * "age" is greater than the {@literal timeout} defined here.<br>
+	 * This is a relatively simple and extremely fast algorithm to create the following behavior:<br>
+	 * <ol>
+	 * <li>Cached data that seems to not be used currently ("too old") is cleared.</li>
+	 * <li>Apart from that, as long as there is "enough space", nothing is cleared.</li>
+	 * <li>The old and bigger an entity's data is, the more likely it is to be cleared.</li>
+	 * <li>The less free space there is in the cache, the sooner cached entity data is cleared.</li>
+	 * </ol>
+	 * This combination of rules is relatively accurate on keeping cached what is needed and dropping the rest,
+	 * while being easily tailorable to suit an application's needs.
+	 * 
+	 * @param timeoutMs the time (in milliseconds, > 0) of not being read (the "age"), after which a particular
+	 *        entity's data will be cleared from the Storage's internal cache.
+	 * 
+	 * @param threshold an abstract value (> 0) to evaluate the product of size and age of an entity in relation
+	 *        to the current cache size in order to determine if the entity's data shall be cleared from the cache.
+	 * 
+	 * @return a new {@link StorageEntityCacheEvaluator} instance.
+	 * 
+	 * @throws NumberRangeException if any of the passed values is equal to or lower than 0.
+	 * 
+	 * @see StorageEntityCacheEvaluator#New()
+	 * @see StorageEntityCacheEvaluator#New(long)
+	 * @see StorageEntityCacheEvaluator.Defaults
+	 */
 	public static StorageEntityCacheEvaluator New(
 		final long timeoutMs,
 		final long threshold

@@ -19,17 +19,20 @@ public interface StorageChannelCountProvider extends _intReference
 			return 1;
 		}
 		
+		/**
+		 * What was that: <i>'640 KB ought to be enough RAM for anybody'</i>?<br>
+		 * Nevertheless, I'll stick with that bound for now.<br>
+		 * TM, 2013-06-20
+		 * <p>
+		 * On a more serious note:<br>
+		 * This check has no actual technical background, it is just a safety net against
+		 * oversight mistakes to prevent creation of hundreds of threads and files.<br>
+		 * Can be altered or removed anytime.
+		 * 
+		 * @return the default highest sane channel count value of {@literal 64}.
+		 */
 		public static int defaultHighestSaneChannelCount()
 		{
-			/* (20.06.2013 TM)NOTE:
-			 * What was that: '640 KB ought to be enough RAM for anybody'?
-			 * Nevertheless, I'll stick with that bound for now.
-			 * 
-			 * On a more serious note:
-			 * This check has no actual technical background, it is just a safety net against
-			 * versight mistakes to prevent creation of hundreds of threads and files.
-			 * Can be altered or removed anytime.
-			 */
 			return 64;
 		}
 	}
@@ -49,7 +52,7 @@ public interface StorageChannelCountProvider extends _intReference
 		return channelCount >= 1;
 	}
 	
-	public static int validateChannelCount(final int channelCount)
+	public static int validateChannelCount(final int channelCount) throws IllegalArgumentException
 	{
 		if(isValidChannelCount(channelCount))
 		{
@@ -61,6 +64,17 @@ public interface StorageChannelCountProvider extends _intReference
 	}
 	
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageChannelCountProvider} instance
+	 * using default values defined by {@link StorageChannelCountProvider.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageChannelCountProvider#New(int)}.
+	 * 
+	 * @return {@docLink StorageChannelCountProvider#New(int)@return}
+	 * 
+	 * @see StorageChannelCountProvider#New(int)
+	 * @see StorageChannelCountProvider.Defaults
+	 */
 	public static StorageChannelCountProvider New()
 	{
 		/*
@@ -72,6 +86,28 @@ public interface StorageChannelCountProvider extends _intReference
 		);
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageChannelCountProvider} instance
+	 * using the passed value.
+	 * <p>
+	 * A "channel" is the combination of exclusive storage {@link Thread} maintaining an entity registry, data cache,
+	 * and the like and a storage directory containing storage data files exclusively used by that thread.<br>
+	 * The more channels there are, the more parallel loading and storing operations will be executed and the faster
+	 * the application will become, provided a hardware that can effectively execute that many threads.
+	 * <p>
+	 * Since channels use bitwise modulo hashing, the number of channels must always be 2^n number with n >= 0.<br>
+	 * (Meaning 1, 2, 4, 8, 16, etc.)
+	 * 
+	 * @param channelCount the number of channels. Must be a 2^n number with n >= 0.
+	 * 
+	 * @return a new {@link StorageChannelCountProvider} instance.
+	 * 
+	 * @throws IllegalArgumentException if the passed value is higher than the value returned by
+	 *         {@link StorageChannelCountProvider.Defaults#defaultHighestSaneChannelCount()}
+	 * 
+	 * @see StorageChannelCountProvider#New()
+	 * @see StorageChannelCountProvider.Defaults
+	 */
 	public static StorageChannelCountProvider New(final int channelCount)
 	{
 		return new StorageChannelCountProvider.Default(

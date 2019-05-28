@@ -1,6 +1,6 @@
 Single-Master Clusteringkonzept
 Thomas Münz
-2019-10-25
+2018-10-25
 
 Eine laufende Multi-User-Datenbankanwendung besteht aus sehr viel Arbeit zur Laufzeit. Sowohl auf dem Client (egal ob Browser, Smartphone App, Fat Client oder was auchimmer) und auf dem Server. Der Client, der letztendlich nur ein Anzeigetool für einen einzelnen Benutzer ist, soll hier nicht das Thema sein. Es geht um den Server, der die Daten und Aktionen für alle Benutzer gleichzeitig irgendwie managen muss und dabei keine Fehler machen soll und das auch noch mit höchsten Ansprüchen an Geschwindigkeit und Ausfallsicherheit.
 Nur einige Beispiele für Serveraufgaben, man könnte die Liste bestimmt erweitern:
