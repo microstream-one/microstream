@@ -257,19 +257,15 @@ public final class Storage
 	{
 		return StorageEntityCacheEvaluator.New();
 	}
-	
-	// (27.05.2019 TM)FIXME: /!\ JavaDoc WIP.
 
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
-	 * using the passed value.<br>
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New()}.
+	 * {@docLink StorageEntityCacheEvaluator#New(long)}
 	 * 
-	 * @param timeoutMs the time (in milliseconds) of not being read (the "age"), after which a particular
-	 *        entity's data will be cleared from the Storage's internal cache.
+	 * @param timeoutMs {@docLink StorageEntityCacheEvaluator#New(long):}
 	 * 
-	 * @return a new {@link StorageEntityCacheEvaluator} instance.
+	 * @return {@docLink StorageEntityCacheEvaluator#New(long)@return}
+	 * 
+	 * @throws {@docLink StorageEntityCacheEvaluator#New(long)@throws}
 	 * 
 	 * @see Storage#EntityCacheEvaluator()
 	 * @see Storage#EntityCacheEvaluator(long, long)
@@ -281,20 +277,16 @@ public final class Storage
 	{
 		return StorageEntityCacheEvaluator.New(timeoutMs);
 	}
-
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
-	 * using the passed values.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
+	 * {@docLink StorageEntityCacheEvaluator#New(long, long)}
 	 * 
-	 * @param timeoutMs the time (in milliseconds) of not being read (the "age"), after which a particular
-	 *        entity's data will be cleared from the Storage's internal cache.
+	 * @param timeoutMs {@docLink StorageEntityCacheEvaluator#New(long, long):}
 	 * 
-	 * @param threshold an abstract value to evaluate the product of size and age of an entity in relation to the
-	 *        current cache size in order to determine if the entity's data shall be cleared from the cache.
+	 * @param threshold {@docLink StorageEntityCacheEvaluator#New(long, long):}
 	 * 
-	 * @return a new {@link StorageEntityCacheEvaluator} instance.
+	 * @return {@docLink StorageEntityCacheEvaluator#New(long, long)@return}
+	 * 
+	 * @throws {@docLink StorageEntityCacheEvaluator#New(long, long)@throws}
 	 * 
 	 * @see Storage#EntityCacheEvaluator()
 	 * @see Storage#EntityCacheEvaluator(long)
@@ -309,12 +301,9 @@ public final class Storage
 	}
 
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageChannelCountProvider} instance
-	 * using the default value of 1 (meaning a single storage thread).
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageChannelCountProvider#New()}.
+	 * {@docLink StorageChannelCountProvider#New()}
 	 * 
-	 * @return a new {@link StorageChannelCountProvider} instance.
+	 * @return {@docLink StorageChannelCountProvider#New(int)@return}
 	 * 
 	 * @see Storage#ChannelCountProvider(int)
 	 * @see StorageChannelCountProvider#New()
@@ -338,6 +327,8 @@ public final class Storage
 	{
 		return StorageChannelCountProvider.New(channelCount);
 	}
+	
+	// (28.05.2019 TM)FIXME: /!\ JavaDoc WIP.
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance

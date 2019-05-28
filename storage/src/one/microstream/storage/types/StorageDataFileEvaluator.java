@@ -27,7 +27,18 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 
 	public int fileMaximumSize();
 
-	
+
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
+	 * using default values specified by {@link StorageDataFileEvaluator.Defaults}<p>
+	 * To specify custom values, see {@link Storage#DataFileEvaluator(int, int, double)}.<p>
+	 * 
+	 * @return a new {@link StorageDataFileEvaluator} instance using default values.
+	 * 
+	 * @see Storage#DataFileEvaluator(int, int)
+	 * @see Storage#DataFileEvaluator(int, int, double)
+	 * @see StorageDataFileEvaluator#New()
+	 */
 	public static StorageDataFileEvaluator New()
 	{
 		/*
