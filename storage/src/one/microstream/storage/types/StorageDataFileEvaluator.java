@@ -30,10 +30,11 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
-	 * using default values specified by {@link StorageDataFileEvaluator.Defaults}<p>
-	 * To specify custom values, see {@link Storage#DataFileEvaluator(int, int, double)}.<p>
+	 * using default values specified by {@link StorageDataFileEvaluator.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
 	 * 
-	 * @return a new {@link StorageDataFileEvaluator} instance using default values.
+	 * @return {@docLink StorageDataFileEvaluator#New(int, int, double)@return}
 	 * 
 	 * @see Storage#DataFileEvaluator(int, int)
 	 * @see Storage#DataFileEvaluator(int, int, double)

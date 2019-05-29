@@ -368,7 +368,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageExceptionHandler ensureExceptionHandler()
 		{
-			return new StorageExceptionHandler.Default();
+			return StorageExceptionHandler.New();
 		}
 		
 		protected StorageLockFileSetup ensureLockFileSetup()

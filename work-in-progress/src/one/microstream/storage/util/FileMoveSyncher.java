@@ -50,6 +50,10 @@ public class FileMoveSyncher
 	}
 
 
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
 
 	public void moveSynch(final File sourceDirectory, final File targetDirectory)
 	{
@@ -59,12 +63,8 @@ public class FileMoveSyncher
 		final EqHashTable<String, HashEnum<File>> indexedFiles = EqHashTable.New();
 		indexFiles(targetDirectory, indexedFiles, this.fileIdentifier);
 		
-		// - iterate source directory, for each non-directory:
-		//  - lookup index files for each file
-		//  - select most suited file (fitting path, otherwise naively first)
-		//  - move selected file to fitting path (or no-op)
-		//  - handle rest (warn / delete, maybe functional)
-		// - for each directory: recurse
+		final String sourceDirectoryBase = sourceDirectory.getAbsolutePath();
+		synchMoveFiles(sourceDirectoryBase, sourceDirectory, targetDirectory, indexedFiles, this.fileIdentifier);
 	}
 	
 	static final void indexFiles(
@@ -93,5 +93,45 @@ public class FileMoveSyncher
 		}
 	}
 	
+	static final void synchMoveFiles(
+		final String                              sourceDirectoryBase,
+		final File                                sourceDirectory    ,
+		final File                                targetDirectoryBase,
+		final EqHashTable<String, HashEnum<File>> indexFiles     ,
+		final Function<File, String>              fileIdentifier
+	)
+	{
+		final File[] sourceFiles = sourceDirectory.listFiles();
+		
+		for(final File sourceFile : sourceFiles)
+		{
+			if(sourceFile.isDirectory())
+			{
+				continue;
+			}
+			
+			final String sourceFileIdentity = fileIdentifier.apply(sourceFile);
+			final HashEnum<File> matchingTargetFiles = indexFiles.get(sourceFileIdentity);
+			//  - select most suited file (already fitting path, otherwise naively first file)
+			//  - move selected file to fitting path (or no-op)
+			//  - handle rest (warn / delete, maybe functional)
+		}
+		
+		for(final File sourceFile : sourceFiles)
+		{
+			if(!sourceFile.isDirectory())
+			{
+				continue;
+			}
+			
+			final String sourceFilePath = sourceFile.getAbsolutePath();
+			final File targetDirectory = new File(
+				targetDirectoryBase,
+				sourceFilePath.substring(sourceDirectoryBase.length())
+			);
+			
+			synchMoveFiles(sourceDirectoryBase, sourceFile, targetDirectory, indexFiles, fileIdentifier);
+		}
+	}
 	
 }
