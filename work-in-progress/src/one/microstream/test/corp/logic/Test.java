@@ -294,13 +294,19 @@ public class Test
 		}
 	}
 
-	public static void printTransactionsFile(final File file)
+	public static String assembleTransactionsFile(final File file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
 		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
 		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs)
 			.lf().lf()
 		;
+		return s.toString();
+	}
+	
+	public static void printTransactionsFile(final File file)
+	{
+		final String s = assembleTransactionsFile(file);
 		System.out.println(s.toString());
 	}
 
