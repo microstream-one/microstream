@@ -92,50 +92,35 @@ public final class Storage
 	}
 	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with default values
-	 * provided by {@link StorageFileProvider.Defaults}.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
+	 * {@docLink StorageFileProvider#New()}
 	 * 
-	 * @return {@docLink Storage#FileProvider()@return}
+	 * @return {@docLink StorageFileProvider#New()@return}
 	 * 
 	 * @see Storage#FileProvider(File)
-	 * @see Storage#FileProviderBuilder()
+	 * @see StorageFileProvider#New()
 	 * @see StorageFileProvider.Builder
 	 * @see StorageFileProvider.Defaults
 	 */
 	public static final StorageFileProvider FileProvider()
 	{
-		return Storage.FileProviderBuilder()
-			.createFileProvider()
-		;
+		return StorageFileProvider.New();
 	}
 	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with the passed {@link File}
-	 * as the storage directory and defaults provided by {@link StorageFileProvider.Defaults}.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
+	 * {@docLink StorageFileProvider#New(File)}
 	 * 
-	 * @param storageDirectory the directory where storage will be located.
+	 * @param storageDirectory {@docLink StorageFileProvider#New(File):}
 	 * 
-	 * @return a new {@link StorageFileProvider} instance.
+	 * @return {@docLink StorageFileProvider#New(File)@return}
 	 * 
 	 * @see Storage#FileProvider()
-	 * @see Storage#FileProviderBuilder()
+	 * @see StorageFileProvider#New(File)
 	 * @see StorageFileProvider.Builder
 	 * @see StorageFileProvider.Defaults
 	 */
 	public static final StorageFileProvider FileProvider(final File storageDirectory)
 	{
-		/* (07.05.2019 TM)NOTE: string-based paths are planned to be replaced by an abstraction of
-		 * storage files and directories that will replace any direct references to the file-system.
-		 * Since that work is not completed, yet, the string approach has been used as a working temporary solution.
-		 */
-		return Storage.FileProviderBuilder()
-			.setBaseDirectory(storageDirectory.getPath())
-			.createFileProvider()
-		;
+		return StorageFileProvider.New(storageDirectory);
 	}
 		
 	/**
@@ -153,45 +138,35 @@ public final class Storage
 	}
 
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageConfiguration} instance
-	 * using default instances for its parts and <code>null</code> as the {@link StorageBackupSetup} part.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
+	 * {@docLink StorageConfiguration#New()}
 	 * 
-	 * @return {@docLink Configuration#Configuration(StorageFileProvider)@return}
+	 * @return {@docLink StorageConfiguration#New()@return}
 	 * 
 	 * @see Storage#Configuration(StorageFileProvider)
-	 * @see Storage#ConfigurationBuilder()
+	 * @see StorageConfiguration#New()
 	 * @see StorageConfiguration.Builder
 	 */
 	public static final StorageConfiguration Configuration()
 	{
-		return StorageConfiguration.Builder()
-			.createConfiguration()
-		;
+		return StorageConfiguration.New();
 	}
 	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageConfiguration} instance
-	 * using the passed {@link StorageFileProvider}, <code>null</code> as the {@link StorageBackupSetup} part
-	 * and default instances for everything else.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
+	 * {@docLink StorageConfiguration#New(StorageFileProvider)}
 	 * 
-	 * @return a new {@link StorageConfiguration} instance.
+	 * @param fileProvider {@docLink StorageConfiguration#New(StorageFileProvider):}
 	 * 
-	 * @see Storage#Configuration()
-	 * @see Storage#ConfigurationBuilder()
+	 * @return {@docLink StorageConfiguration#New(StorageFileProvider)@return}
+	 * 
+	 * @see StorageConfiguration#Configuration()
+	 * @see StorageConfiguration#New(StorageFileProvider)
 	 * @see StorageConfiguration.Builder
 	 */
 	public static final StorageConfiguration Configuration(
 		final StorageFileProvider fileProvider
 	)
 	{
-		return StorageConfiguration.Builder()
-			.setStorageFileProvider(fileProvider)
-			.createConfiguration()
-		;
+		return StorageConfiguration.New(fileProvider);
 	}
 	
 	/**
@@ -222,13 +197,11 @@ public final class Storage
 	{
 		return StorageHousekeepingController.New();
 	}
-	
 
 	/**
 	 * {@docLink StorageHousekeepingController#New(long, long)}
 	 * 
-	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long):}
-	 * 
+	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long):}	 *
 	 * @param housekeepingTimeBudgetNs {@docLink StorageHousekeepingController#New(long, long):}
 	 * 
 	 * @return {@docLink StorageHousekeepingController#New(long, long)@return}
@@ -277,11 +250,11 @@ public final class Storage
 	{
 		return StorageEntityCacheEvaluator.New(timeoutMs);
 	}
+	
 	/**
 	 * {@docLink StorageEntityCacheEvaluator#New(long, long)}
 	 * 
 	 * @param timeoutMs {@docLink StorageEntityCacheEvaluator#New(long, long):}
-	 * 
 	 * @param threshold {@docLink StorageEntityCacheEvaluator#New(long, long):}
 	 * 
 	 * @return {@docLink StorageEntityCacheEvaluator#New(long, long)@return}
@@ -303,7 +276,7 @@ public final class Storage
 	/**
 	 * {@docLink StorageChannelCountProvider#New()}
 	 * 
-	 * @return {@docLink StorageChannelCountProvider#New(int)@return}
+	 * @return {@docLink StorageChannelCountProvider#New()@return}
 	 * 
 	 * @see Storage#ChannelCountProvider(int)
 	 * @see StorageChannelCountProvider#New()
@@ -314,28 +287,21 @@ public final class Storage
 	}
 
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageChannelCountProvider} instance
-	 * using the passed value to specify the amount of channels (threads and their exclusive storage sub-directory).
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageChannelCountProvider#New(int)}.
+	 * {@docLink StorageChannelCountProvider#New(int)}
 	 * 
-	 * @param channelCount the amount of channels (threads and their exclusive storage sub-directory).
+	 * @param {@docLink StorageChannelCountProvider#New(int):}
 	 * 
-	 * @return a new {@link StorageChannelCountProvider} instance.
+	 * @return {@docLink StorageChannelCountProvider#New(int)@return}
 	 */
 	public static final StorageChannelCountProvider ChannelCountProvider(final int channelCount)
 	{
 		return StorageChannelCountProvider.New(channelCount);
 	}
 	
-	// (28.05.2019 TM)FIXME: /!\ JavaDoc WIP.
-	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
-	 * using default values specified by {@link StorageDataFileEvaluator.Defaults}<p>
-	 * To specify custom values, see {@link Storage#DataFileEvaluator(int, int, double)}.<p>
+	 * {@docLink StorageDataFileEvaluator#New()}
 	 * 
-	 * @return a new {@link StorageDataFileEvaluator} instance using default values.
+	 * @return {@docLink StorageDataFileEvaluator#New()@return}
 	 * 
 	 * @see Storage#DataFileEvaluator(int, int)
 	 * @see Storage#DataFileEvaluator(int, int, double)
@@ -347,21 +313,12 @@ public final class Storage
 	}
 	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
-	 * using the passed values.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int)}.
+	 * {@docLink StorageDataFileEvaluator#New(int, int)}
 	 * 
-	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
-	 *        will be dissolved by copying their content to the current head file and being deleted.
+	 * @param fileMinimumSize {@docLink StorageDataFileEvaluator#New(int, int):}
+	 * @param fileMaximumSize {@docLink StorageDataFileEvaluator#New(int, int):}
 	 * 
-	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
-	 *        will be dissolved by copying their content to the current head file and being deleted.<br>
-	 *        Note that a file can exceed this limit if it contains a single entity that exceeds the limit.
-	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
-	 *        limit of anything smaller than that.
-	 * 
-	 * @return a new {@link StorageDataFileEvaluator} instance.
+	 * @return {@docLink StorageDataFileEvaluator#New(int, int)@return}
 	 * 
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int, double)
@@ -376,28 +333,12 @@ public final class Storage
 	}
 	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
-	 * using the passed values.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.
+	 * {@docLink StorageDataFileEvaluator#New(int, int, double)}
 	 * 
-	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
-	 *        will be dissolved by copying their content to the current head file and being deleted.
+	 * @param fileMinimumSize {@docLink StorageDataFileEvaluator#New(int, int, double):}
+	 * @param fileMaximumSize {@docLink StorageDataFileEvaluator#New(int, int, double):}
 	 * 
-	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
-	 *        will be dissolved by copying their content to the current head file and being deleted.<br>
-	 *        Note that a file can exceed this limit if it contains a single entity that exceeds the limit.
-	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
-	 *        limit of anything smaller than that.
-	 * 
-	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
-	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
-	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
-	 *        as a negative value length header).<br>
-	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
-	 *        file dissolving (data transfers to new files) is required and vice versa.
-	 * 
-	 * @return a new {@link StorageDataFileEvaluator} instance.
+	 * @return {@docLink StorageDataFileEvaluator#New(int, int, double)@return}
 	 * 
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int)
@@ -412,6 +353,22 @@ public final class Storage
 		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio);
 	}
 
+	/**
+	 * {@docLink StorageDataFileEvaluator#New(int, int, double, boolean)}
+	 * 
+	 * @param fileMinimumSize {@docLink StorageDataFileEvaluator#New(int, int, double, boolean):}
+	 * @param fileMaximumSize {@docLink StorageDataFileEvaluator#New(int, int, double, boolean):}
+	 * @param minimumUseRatio {@docLink StorageDataFileEvaluator#New(int, int, double, boolean):}
+	 * @param dissolveHeadfile {@docLink StorageDataFileEvaluator#New(int, int, double, boolean):}
+	 * 
+	 * @return dissolveHeadfile {@docLink StorageDataFileEvaluator#New(int, int, double, boolean)@return}
+	 * 
+	 * @see Storage#DataFileEvaluator()
+	 * @see Storage#DataFileEvaluator(int, int)
+	 * @see Storage#DataFileEvaluator(double)
+	 * @see Storage#DataFileEvaluator(int, int, double)
+	 * @see StorageDataFileEvaluator#New(int, int, double, boolean)
+	 */
 	public static final StorageDataFileEvaluator DataFileEvaluator(
 		final int     fileMinimumSize ,
 		final int     fileMaximumSize ,
@@ -421,6 +378,8 @@ public final class Storage
 	{
 		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio, dissolveHeadfile);
 	}
+	
+	// (28.05.2019 TM)FIXME: /!\ JavaDoc WIP.
 	
 	public static final StorageBackupSetup BackupSetup(
 		final File backupDirectory
@@ -492,7 +451,7 @@ public final class Storage
 
 
 	/**
-	\* Consolidates the storage system represented by the passed {@link StorageConnection} by calling<br>
+	 * Consolidates the storage system represented by the passed {@link StorageConnection} by calling<br>
 	 * {@link StorageConnection#issueFullGarbageCollection()}<br>
 	 * {@link StorageConnection#issueFullFileCheck(StorageDataFileDissolvingEvaluator)}<br>
 	 * {@link StorageConnection#issueFullCacheCheck(StorageEntityCacheEvaluator)}<br>
@@ -508,7 +467,7 @@ public final class Storage
 	 * @param entityEvaluator   the function evaluating whether to clear an entity from the cache.
 	 *                          may be {@literal null} to indicate the use of the live configuration as a default.
 	 * @return the passed storageConnection instance.
-	\*/
+	 */
 	public static final <C extends StorageConnection> C consolidate(
 		final C                                  storageConnection,
 		final StorageDataFileDissolvingEvaluator fileDissolver    ,
@@ -558,7 +517,12 @@ public final class Storage
 	}
 	
 	
-
+	
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private Storage()
 	{
 		// static only

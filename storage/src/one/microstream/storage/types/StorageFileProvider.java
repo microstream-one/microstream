@@ -470,6 +470,51 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	}
 	
 	/**
+	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with default values
+	 * provided by {@link StorageFileProvider.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
+	 * 
+	 * @return {@docLink StorageFileProvider#New(File)@return}
+	 * 
+	 * @see StorageFileProvider#New(File)
+	 * @see StorageFileProvider.Builder
+	 * @see StorageFileProvider.Defaults
+	 */
+	public static StorageFileProvider New()
+	{
+		return Storage.FileProviderBuilder()
+			.createFileProvider()
+		;
+	}
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with the passed {@link File}
+	 * as the storage directory and defaults provided by {@link StorageFileProvider.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
+	 * 
+	 * @param storageDirectory the directory where the storage will be located.
+	 * 
+	 * @return a new {@link StorageFileProvider} instance.
+	 * 
+	 * @see StorageFileProvider#New()
+	 * @see StorageFileProvider.Builder
+	 * @see StorageFileProvider.Defaults
+	 */
+	public static StorageFileProvider New(final File storageDirectory)
+	{
+		/* (07.05.2019 TM)NOTE: string-based paths are planned to be replaced by an abstraction of
+		 * storage files and directories that will replace any direct references to the file-system.
+		 * Since that work is not completed, yet, the string approach has been used as a working temporary solution.
+		 */
+		return Storage.FileProviderBuilder()
+			.setBaseDirectory(storageDirectory.getPath())
+			.createFileProvider()
+		;
+	}
+	
+	/**
 	 * 
 	 * @param baseDirectory
 	 * @param deletionDirectory

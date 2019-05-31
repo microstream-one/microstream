@@ -24,6 +24,48 @@ public interface StorageConfiguration
 	public StorageBackupSetup backupSetup();
 
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageConfiguration} instance
+	 * using <code>null</code> as the {@link StorageBackupSetup} part and default instances for everything else.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
+	 * 
+	 * @return {@docLink StorageConfiguration#New(StorageFileProvider)@return}
+	 * 
+	 * @see StorageConfiguration#New(StorageFileProvider)
+	 * @see StorageConfiguration.Builder
+	 */
+	public static StorageConfiguration New()
+	{
+		return StorageConfiguration.Builder()
+			.createConfiguration()
+		;
+	}
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageConfiguration} instance
+	 * using the passed {@link StorageFileProvider}, <code>null</code> as the {@link StorageBackupSetup} part
+	 * and default instances for everything else.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
+	 * 
+	 * @param fileProvider the {@link StorageFileProvider} to provide directory and file names.
+	 * 
+	 * @return a new {@link StorageConfiguration} instance.
+	 * 
+	 * @see StorageConfiguration#New()
+	 * @see StorageConfiguration.Builder
+	 */
+	public static StorageConfiguration New(
+		final StorageFileProvider fileProvider
+	)
+	{
+		return StorageConfiguration.Builder()
+			.setStorageFileProvider(fileProvider)
+			.createConfiguration()
+		;
+	}
+	
 	public static StorageConfiguration New(
 		final StorageChannelCountProvider   channelCountProvider  ,
 		final StorageHousekeepingController housekeepingController,
