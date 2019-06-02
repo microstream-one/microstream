@@ -1,53 +1,16 @@
 package one.microstream.storage.util;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.function.Function;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingCollection;
-import one.microstream.files.XFiles;
 import one.microstream.meta.XDebug;
-import one.microstream.typing.KeyValue;
 
 
 public class FileMoveSyncher
 {
-	///////////////////////////////////////////////////////////////////////////
-	// constants //
-	//////////////
-	
-	private static final Function<String, HashEnum<File>> FILE_INDEX_SUPPLIER = f -> HashEnum.New();
-	
-	
-	
-	///////////////////////////////////////////////////////////////////////////
-	// static methods //
-	///////////////////
-	
-	public static File mustDirectory(final File file)
-	{
-		if(file.isDirectory())
-		{
-			return file;
-		}
-		
-		throw new RuntimeException("Not a directory: " + file);
-	}
-	
-	public static Function<File, String> fileIdentitySimpleNameSizeChangeTime()
-	{
-		return (final File file) ->
-		{
-			return file.getName() + " $" + file.length() + " @" + file.lastModified();
-		};
-	}
-	
-	
-	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
@@ -74,19 +37,29 @@ public class FileMoveSyncher
 
 	public void moveSynch(final File sourceDirectory, final File targetDirectory)
 	{
-		mustDirectory(sourceDirectory);
-		mustDirectory(targetDirectory);
+		UtilFileHandling.mustDirectory(sourceDirectory);
+		UtilFileHandling.mustDirectory(targetDirectory);
 		
 		final EqHashTable<String, HashEnum<File>> indexedFiles = EqHashTable.New();
 		
 		XDebug.println("Indexing files ...");
-		indexFiles(targetDirectory, indexedFiles, this.fileIdentifier);
+		UtilFileHandling.indexFiles(targetDirectory, indexedFiles, this.fileIdentifier);
 		XDebug.println("Indexed unique files: " + indexedFiles.size());
+
+		final String sourceDirectoryBase = sourceDirectory.getAbsolutePath();
+		
+		removePerfectMatches(
+			sourceDirectory,
+			targetDirectory,
+			sourceDirectoryBase.length(),
+			targetDirectory.getAbsolutePath().length(),
+			indexedFiles,
+			this.fileIdentifier
+		);
 		
 //		checkForDuplicates(indexedFiles);
 		
 		XDebug.println("Synching files ...");
-		final String sourceDirectoryBase = sourceDirectory.getAbsolutePath();
 		synchMoveDirectoryContent(
 			sourceDirectoryBase,
 			sourceDirectory,
@@ -98,56 +71,92 @@ public class FileMoveSyncher
 		);
 	}
 	
-	static final void indexFiles(
-		final File                                directory     ,
-		final EqHashTable<String, HashEnum<File>> indexedFiles  ,
+	private static String getRelativePath(final File f, final int directoryBaseLength)
+	{
+		return f.getAbsolutePath().substring(directoryBaseLength);
+	}
+	
+	/**
+	 * Perfect matches (alreary matching relative path) must be removed, otherwise, redundant copies
+	 * of the same file would get moved around with every execution.
+	 */
+	static void removePerfectMatches(
+		final File                                sourceBaseDirectory,
+		final File                                targetBaseDirectory,
+		final int                                 srcBaseLength      ,
+		final int                                 trgBaseLength      ,
+		final EqHashTable<String, HashEnum<File>> indexFiles         ,
 		final Function<File, String>              fileIdentifier
 	)
 	{
-//		XDebug.println("Indexing directory " + directory);
+		removePerfectMatches(
+			sourceBaseDirectory,
+			targetBaseDirectory,
+			srcBaseLength      ,
+			trgBaseLength      ,
+			sourceBaseDirectory,
+			indexFiles,
+			fileIdentifier
+		);
+	}
+	
+	static void removePerfectMatches(
+		final File                                sourceBaseDirectory,
+		final File                                targetBaseDirectory,
+		final int                                 srcBaseLength      ,
+		final int                                 trgBaseLength      ,
+		final File                                sourceDirectory    ,
+		final EqHashTable<String, HashEnum<File>> indexFiles         ,
+		final Function<File, String>              fileIdentifier
+	)
+	{
+		final File[] sourceFiles = sourceDirectory.listFiles();
 		
-		final File[] files = directory.listFiles();
-		for(final File file : files)
+		for(final File sourceFile : sourceFiles)
 		{
-			if(file.isDirectory())
+			if(sourceFile.isDirectory())
+			{
+				continue;
+			}
+
+			final String  sourceFileIdentity = fileIdentifier.apply(sourceFile);
+			final HashEnum<File> targetFiles = indexFiles.get(sourceFileIdentity);
+			if(targetFiles == null)
 			{
 				continue;
 			}
 			
-			final String fileIdentity = fileIdentifier.apply(file);
-			indexedFiles.ensure(fileIdentity, FILE_INDEX_SUPPLIER).add(file);
-			if(indexedFiles.size() % 1000 == 0)
+			final String relativeSourcePath = getRelativePath(sourceFile.getParentFile(), srcBaseLength);
+
+			// select most suited file ? (e.g. by relative path backwards)
+			targetFiles.removeBy(f ->
 			{
-				XDebug.println(indexedFiles.size() + " files processed.");
-			}
+				final String relativeTargetPath = getRelativePath(f.getParentFile(), trgBaseLength);
+				if(relativeSourcePath.equals(relativeTargetPath))
+				{
+					System.out.println("Removing perfect match " + f.getAbsolutePath());
+					return true;
+				}
+				return false;
+			});
 		}
-		for(final File file : files)
+		
+		for(final File sourceFile : sourceFiles)
 		{
-			if(file.isDirectory())
+			if(!sourceFile.isDirectory())
 			{
-				indexFiles(file, indexedFiles, fileIdentifier);
+				continue;
 			}
+			removePerfectMatches(
+				sourceBaseDirectory,
+				targetBaseDirectory,
+				srcBaseLength,
+				trgBaseLength,
+				sourceFile,
+				indexFiles,
+				fileIdentifier
+			);
 		}
-	}
-	
-	static final void checkForDuplicates(
-		final EqHashTable<String, HashEnum<File>> indexedFiles
-	)
-	{
-		for(final KeyValue<String, HashEnum<File>> e : indexedFiles)
-		{
-			if(e.value().size() > 1)
-			{
-				System.out.println("Duplicates:");
-				e.value().iterate(System.out::println);
-				System.out.println();
-			}
-		}
-	}
-	
-	private static String getRelativePath(final File f, final int directoryBaseLength)
-	{
-		return f.getAbsolutePath().substring(directoryBaseLength);
 	}
 	
 	static final void synchMoveDirectoryContent(
@@ -202,40 +211,12 @@ public class FileMoveSyncher
 			System.out.println("< " + matchingTargetFile.getAbsolutePath());
 			System.out.println();
 			
-			move(matchingTargetFile, newTargetFile);
+			UtilFileHandling.move(matchingTargetFile, newTargetFile);
 			
 			// handle other files in enum? (warn / delete, maybe functional)
 		}
 	}
-	
-	static void move(
-		final File targetSourceFile,
-		final File targetTargetFile
-	)
-	{
-		XFiles.ensureDirectory(targetTargetFile.getParentFile());
-		if(targetTargetFile.exists())
-		{
-			System.out.println("x already exists: " + targetTargetFile);
-			System.out.println();
-			return;
-		}
-
-		System.out.println("Moving " + targetSourceFile);
-		System.out.println(" to -> " + targetTargetFile);
-
-		final Path source = targetSourceFile.toPath();
-		final Path target = targetTargetFile.toPath();
-		try
-		{
-			Files.move(source, target);
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
-	
+		
 	static final void synchMoveSubDirs(
 		final String                              sourceDirectoryBase,
 		final File                                targetDirectoryBase,
@@ -298,7 +279,7 @@ public class FileMoveSyncher
 	
 	public static void main(final String[] args)
 	{
-		final FileMoveSyncher fms = new FileMoveSyncher(FileMoveSyncher.fileIdentitySimpleNameSizeChangeTime());
+		final FileMoveSyncher fms = new FileMoveSyncher(UtilFileHandling.fileIdentitySimpleNameSizeChangeTime());
 		fms.moveSynch(
 			new File("G:\\media"),
 			new File("H:\\media")
