@@ -371,7 +371,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return StorageExceptionHandler.New();
 		}
 		
-		protected StorageLockFileSetup ensureLockFileSetup()
+		// provide instead of ensure because the instance may be null (meaning no lock file)
+		protected StorageLockFileSetup provideLockFileSetup()
 		{
 			final StorageLockFileSetup.Provider lockFileSetupProvider = this.getLockFileSetupProvider();
 			
@@ -670,7 +671,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			if(this.lockFileSetup == null)
 			{
-				this.lockFileSetup = this.dispatch(this.ensureLockFileSetup());
+				this.lockFileSetup = this.dispatch(this.provideLockFileSetup());
 			}
 			return this.lockFileSetup;
 		}

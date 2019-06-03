@@ -2,6 +2,8 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import java.io.File;
+
 public interface StorageBackupSetup
 {
 	public StorageFileProvider backupFileProvider();
@@ -15,11 +17,45 @@ public interface StorageBackupSetup
 		StorageDataFileValidator   validator
 	);
 	
+
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageBackupSetup} instance
+	 * using the passed directory.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageBackupSetup#New(StorageFileProvider)}.
+	 * 
+	 * @param backupDirectory the directory where the backup shall be located.
+	 * 
+	 * @return {@docLink StorageBackupSetup#New(StorageFileProvider)@return}
+	 * 
+	 * @see StorageBackupSetup#New(StorageFileProvider)
+	 * @see StorageBackupHandler
+	 */
+	public static StorageBackupSetup New(final File backupDirectory)
+	{
+		final StorageFileProvider backupFileProvider = Storage
+			.FileProviderBuilder()
+			.setBaseDirectory(backupDirectory.getPath())
+			.createFileProvider()
+		;
+		return New(backupFileProvider);
+	}
 	
-	public static StorageBackupSetup New(
-		final StorageFileProvider backupFileProvider
-	)
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageBackupSetup} instance
+	 * using the passed {@link StorageFileProvider}.
+	 * <p>
+	 * A StorageBackupSetup basically defines where the backup files will be located by the {@link StorageBackupHandler}.
+	 * 
+	 * @param backupFileProvider the {@link StorageFileProvider} to define where the backup files will be located.
+	 * 
+	 * @return a new {@link StorageBackupSetup} instance.
+	 * 
+	 * @see StorageBackupSetup#New(File)
+	 * @see StorageBackupHandler
+	 */
+	public static StorageBackupSetup New(final StorageFileProvider backupFileProvider)
 	{
 		return new StorageBackupSetup.Default(
 			notNull(backupFileProvider) ,

@@ -1,7 +1,5 @@
 package one.microstream.storage.types;
 
-import static one.microstream.X.notNull;
-
 import java.io.File;
 import java.nio.charset.Charset;
 
@@ -379,36 +377,45 @@ public final class Storage
 		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio, dissolveHeadfile);
 	}
 	
+	/**
+	 * {@docLink StorageBackupSetup#New(File)}
+	 * 
+	 * @param backupDirectory {@docLink StorageBackupSetup#New(File):}
+	 * 
+	 * @return {@docLink StorageBackupSetup#New(File)@return}
+	 * 
+	 * @see StorageBackupSetup#New(StorageFileProvider)
+	 * @see StorageBackupHandler
+	 */
+	public static final StorageBackupSetup BackupSetup(final File backupDirectory)
+	{
+		return StorageBackupSetup.New(backupDirectory);
+	}
+
+	/**
+	 * {@docLink StorageBackupSetup#New(StorageFileProvider)}
+	 * 
+	 * @param fileProvider {@docLink StorageBackupSetup#New(StorageFileProvider):}
+	 * 
+	 * @return {@docLink StorageBackupSetup#New(StorageFileProvider)@return}
+	 * 
+	 * @see StorageBackupSetup#New(File)
+	 * @see StorageBackupHandler
+	 */
+	public static final StorageBackupSetup BackupSetup(final StorageFileProvider fileProvider)
+	{
+		return StorageBackupSetup.New(fileProvider);
+	}
+	
 	// (28.05.2019 TM)FIXME: /!\ JavaDoc WIP.
 	
-	public static final StorageBackupSetup BackupSetup(
-		final File backupDirectory
-	)
-	{
-		return BackupSetup(backupDirectory.getPath());
-	}
-	
-	public static final StorageBackupSetup BackupSetup(
-		final String backupDirectoryIdentifier
-	)
-	{
-		return StorageBackupSetup.New(
-			Storage
-			.FileProviderBuilder()
-			.setBaseDirectory(backupDirectoryIdentifier)
-			.createFileProvider()
-		);
-	}
-	
-	public static final StorageBackupSetup BackupSetup(
-		final StorageFileProvider fileProvider
-	)
-	{
-		return StorageBackupSetup.New(
-			notNull(fileProvider)
-		);
-	}
-			
+	/**
+	 * {@docLink StorageDataFileEvaluator#New(Charset, long)}
+	 * 
+	 * @return {@docLink StorageDataFileEvaluator#New(Charset, long)@return}
+	 * 
+	 * @see StorageLockFileSetup
+	 */
 	public static StorageLockFileSetup.Provider LockFileSetupProvider()
 	{
 		return StorageLockFileSetup.Provider();
