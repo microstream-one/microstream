@@ -127,6 +127,16 @@ public interface StorageLockFileSetup
 	
 	
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageLockFileSetup.Provider} instance
+	 * using default values specified by {@link StorageLockFileSetup.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageLockFileSetup.Provider(Charset, long)}.
+	 * 
+	 * @return {@docLink StorageLockFileSetup.Provider(Charset, long)@return}
+	 * 
+	 * @see StorageLockFileSetup
+	 */
 	public static StorageLockFileSetup.Provider Provider()
 	{
 		return Provider(
@@ -135,6 +145,18 @@ public interface StorageLockFileSetup
 		);
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageLockFileSetup.Provider} instance
+	 * using the passed values and default values specified by {@link StorageLockFileSetup.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(Charset, long)}.
+	 * 
+	 * @param charset {@docLink StorageDataFileEvaluator#New(Charset, long):}
+	 * 
+	 * @return {@docLink StorageDataFileEvaluator#New(Charset, long)@return}
+	 * 
+	 * @see StorageLockFileSetup
+	 */
 	public static StorageLockFileSetup.Provider Provider(
 		final Charset charset
 	)
@@ -145,6 +167,18 @@ public interface StorageLockFileSetup
 		);
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageLockFileSetup.Provider} instance
+	 * using the passed values and default values specified by {@link StorageLockFileSetup.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(Charset, long)}.
+	 * 
+	 * @param updateInterval {@docLink StorageDataFileEvaluator#New(Charset, long):}
+	 * 
+	 * @return {@docLink StorageDataFileEvaluator#New(Charset, long)@return}
+	 * 
+	 * @see StorageLockFileSetup
+	 */
 	public static StorageLockFileSetup.Provider Provider(
 		final long updateInterval
 	)
@@ -155,6 +189,20 @@ public interface StorageLockFileSetup
 		);
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageLockFileSetup.Provider} instance
+	 * using the passed values.
+	 * <p>
+	 * A {@link StorageLockFileSetup.Provider} instance created by this method provides new {@link StorageLockFileSetup}
+	 * instances that use the passed {@literal Charset} and {@literal updateInterval}.
+	 * 
+	 * @param charset the {@link Charset} to be used for the lock file content.
+	 * @param updateInterval the update interval in ms.
+	 * 
+	 * @return a new {@link StorageLockFileSetup.Provider} instance.
+	 * 
+	 * @see StorageLockFileSetup
+	 */
 	public static StorageLockFileSetup.Provider Provider(
 		final Charset charset       ,
 		final long    updateInterval
@@ -169,6 +217,7 @@ public interface StorageLockFileSetup
 	@FunctionalInterface
 	public interface Provider
 	{
+		// (03.06.2019 TM)TODO: every provider should be changed to this pattern of getting the foundation passed
 		public StorageLockFileSetup provideLockFileSetup(StorageFoundation<?> foundation);
 		
 		public final class Default implements StorageLockFileSetup.Provider
