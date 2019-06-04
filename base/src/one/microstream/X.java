@@ -1043,6 +1043,11 @@ public final class X
 	// constructors //
 	/////////////////
 
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private X()
 	{
 		// static only

@@ -399,6 +399,11 @@ public class Com
 	// constructors //
 	/////////////////
 
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private Com()
 	{
 		// static only

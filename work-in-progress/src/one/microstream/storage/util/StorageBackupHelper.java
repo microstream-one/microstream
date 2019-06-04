@@ -65,8 +65,17 @@ public final class StorageBackupHelper
 		AbstractIdProviderByFile            .writeId            (fileOid, nextObjectId  );
 	}
 
+	
 
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private StorageBackupHelper()
 	{
 		// static only

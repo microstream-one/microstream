@@ -11,33 +11,67 @@ import one.microstream.persistence.types.PersistenceTypeDictionaryIoHandler;
 import one.microstream.persistence.types.PersistenceTypeEvaluator;
 
 /**
- * {@link one.microstream.storage.types.EmbeddedStorage}
+ * Static utility class containing static pseudo-constructor methods (indicated by a capital first letter)
+ * and various utility methods to setup and start a database.
+ * <p>
+ * In the simplest case, the following call is enough to setup and start an embedded object graph database:<br>
+ * {@code EmbeddedStorageManager storage = EmbeddedStorage.start();}<br>
+ * Anything beyond that is optimization and customization. As it should be.
+ * 
  * @author TM
- *
  */
 public final class EmbeddedStorage
 {
 	/**
-	 * Creates an instance of an {@link EmbeddedStorageFoundation} implementation without any assembly parts set.
+	 * Creates an instance of an {@link EmbeddedStorageFoundation} default implementation without any assembly parts set.
 	 * 
-	 * @return
+	 * @return a new {@link EmbeddedStorageFoundation} instance.
 	 */
 	public static final EmbeddedStorageFoundation<?> createFoundation()
 	{
 		return EmbeddedStorageFoundation.New();
 	}
-	
+		
+	/**
+	 * Pseudo-constructor method to create a new {@link EmbeddedStorageConnectionFoundation} instance
+	 * using the passed {@link PersistenceTypeDictionaryIoHandler} and default method references provided by {@link Persistence}.
+	 * <p>
+	 * Calls {@link #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)}
+	 * with {@link Persistence#isPersistable(Class)} and {@link Persistence#isTypeIdMappable(Class)} method references
+	 * as the other two parameters.
+	 * <p>
+	 * For explanations and customizing values, see {@link #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)}.
+	 * 
+	 * @param typeDictionaryIoHandler {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator):}
+	 * 
+	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)@return}
+	 * 
+	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)
+	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler
 	)
 	{
 		return ConnectionFoundation(
-			typeDictionaryIoHandler,
-			Persistence::isPersistable     ,
+			typeDictionaryIoHandler      ,
+			Persistence::isPersistable   ,
 			Persistence::isTypeIdMappable
 		);
 	}
+
+	// (04.06.2019 TM)FIXME: /!\ JavaDoc W.i.P.
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link EmbeddedStorageConnectionFoundation} instance
+	 * using the passed instances.
+	 * <p>
+	 * 
+	 * @param typeDictionaryIoHandler
+	 * @param typeEvaluatorPersistable
+	 * @param typeEvaluatorTypeIdMappable
+	 * 
+	 * @return a new {@link EmbeddedStorageConnectionFoundation} instance.
+	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler    ,
 		final PersistenceTypeEvaluator           typeEvaluatorPersistable   ,
@@ -59,7 +93,6 @@ public final class EmbeddedStorage
 			PersistenceTypeDictionaryFileHandler.NewInDirectory(directory)
 		);
 	}
-
 
 
 	
@@ -141,6 +174,8 @@ public final class EmbeddedStorage
 		;
 	}
 			
+	
+	
 	public static final EmbeddedStorageManager start(
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
@@ -149,7 +184,6 @@ public final class EmbeddedStorage
 		return start(null, configuration, connectionFoundation);
 	}
 	
-
 	public static final EmbeddedStorageManager start(
 		final Object                                 explicitRoot        ,
 		final StorageConfiguration                   configuration       ,
@@ -240,6 +274,11 @@ public final class EmbeddedStorage
 	// constructors //
 	/////////////////
 
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private EmbeddedStorage()
 	{
 		// static only

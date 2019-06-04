@@ -402,6 +402,17 @@ public final class LittleEndianStringToAddress
 		return address + BYTE_LENGTH_2_CHARS;
 	}
 
+	
+
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private LittleEndianStringToAddress()
 	{
 		// static only

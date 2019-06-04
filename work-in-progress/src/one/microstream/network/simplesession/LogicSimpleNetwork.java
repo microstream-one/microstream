@@ -323,7 +323,17 @@ public final class LogicSimpleNetwork
 		return Network.wrapServerSocketChannel(openNioSocket());
 	}
 
+	
 
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private LogicSimpleNetwork()
 	{
 		// static only

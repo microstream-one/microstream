@@ -32,8 +32,17 @@ public final class XBytes
 		throw new IllegalArgumentException();
 	}
 
+	
 
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private XBytes()
 	{
 		// static only

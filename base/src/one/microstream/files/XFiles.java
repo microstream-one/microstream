@@ -433,8 +433,18 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 			throw new RuntimeException(e);
 		}
 	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
-
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private XFiles()
 	{
 		// static only

@@ -28,10 +28,23 @@ public interface Copyable
 			return copyable == null ? null : (T)copyable.copy(); // cast must be valid as defined by contract.
 		}
 
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		/**
+		 * Dummy constructor to prevent instantiation of this static-only utility class.
+		 * 
+		 * @throws UnsupportedOperationException
+		 */
 		private Static()
 		{
 			// static only
 			throw new UnsupportedOperationException();
 		}
+		
 	}
+	
 }

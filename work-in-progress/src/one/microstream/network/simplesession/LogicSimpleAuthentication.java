@@ -46,7 +46,17 @@ public final class LogicSimpleAuthentication
 		LogicSimpleNetwork.sendString(username + AUTH_PARTS_SEPERATOR + password, channel);
 	}
 
+	
 
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private LogicSimpleAuthentication()
 	{
 		// static only

@@ -147,8 +147,17 @@ public final class MemoryCharConversionUTF8
 		return writeUTF8(address, vs.data, 0, vs.size);
 	}
 
+	
 
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private MemoryCharConversionUTF8()
 	{
 		// static only

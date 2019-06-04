@@ -743,6 +743,11 @@ public final class XReflect
 	// constructors //
 	/////////////////
 	
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private XReflect()
 	{
 		// static only

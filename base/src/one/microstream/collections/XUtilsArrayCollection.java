@@ -598,8 +598,17 @@ public final class XUtilsArrayCollection
 
 	// TODO additional AbstractArraySequence-specific methods, maybe simple copy whole XUtilsCollection when done.
 
+	
 
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private XUtilsArrayCollection()
 	{
 		// static only

@@ -765,6 +765,11 @@ public class Persistence
 	// constructors //
 	/////////////////
 		
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	protected Persistence()
 	{
 		// static only

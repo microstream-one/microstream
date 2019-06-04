@@ -135,7 +135,17 @@ public final class DEBUG_BinaryPersistence
 		return "Offset = " + (offset - 16L) + " (without base offset)";
 	}
 
+	
 
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private DEBUG_BinaryPersistence()
 	{
 		// static only

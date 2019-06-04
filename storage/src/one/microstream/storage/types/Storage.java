@@ -44,6 +44,21 @@ public final class Storage
 	// static methods //
 	///////////////////
 	
+	static final long millisecondsToNanoseconds(final long milliseconds)
+	{
+		return milliseconds * ONE_MILLION;
+	}
+	
+	static final long nanosecondsToMilliseconds(final long nanoseconds)
+	{
+		return nanoseconds / ONE_MILLION;
+	}
+	
+	static final long millisecondsToSeconds(final long milliseconds)
+	{
+		return milliseconds / ONE_MILLION;
+	}
+	
 	/**
 	 * Returns the dummy file number for transaction files, which is the value {@value #TRANSACTIONS_FILE_NUMBER}.
 	 * <p>
@@ -399,6 +414,7 @@ public final class Storage
 	 * 
 	 * @return {@linkDoc StorageBackupSetup#New(File)@return}
 	 * 
+	 * @see StorageBackupSetup#New(File)
 	 * @see StorageBackupSetup#New(StorageFileProvider)
 	 * @see StorageBackupHandler
 	 */
@@ -422,14 +438,15 @@ public final class Storage
 		return StorageBackupSetup.New(fileProvider);
 	}
 	
-	// (28.05.2019 TM)FIXME: /!\ JavaDoc WIP.
-	
 	/**
 	 * {@linkDoc StorageLockFileSetup#Provider()}
 	 * 
 	 * @return {@linkDoc StorageLockFileSetup#Provider()@return}
 	 * 
 	 * @see StorageLockFileSetup
+	 * @see #LockFileSetupProvider(Charset)
+	 * @see #LockFileSetupProvider(long)
+	 * @see #LockFileSetupProvider(Charset, long)
 	 */
 	public static StorageLockFileSetup.Provider LockFileSetupProvider()
 	{
@@ -439,12 +456,14 @@ public final class Storage
 	/**
 	 * {@linkDoc StorageLockFileSetup#Provider(Charset)}
 	 * 
-	 * 
-	 * @param {@linkDoc StorageLockFileSetup#Provider(Charset):}
+	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset):}
 	 * 
 	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset)@return}
 	 * 
 	 * @see StorageLockFileSetup
+	 * @see #LockFileSetupProvider()
+	 * @see #LockFileSetupProvider(long)
+	 * @see #LockFileSetupProvider(Charset, long)
 	 */
 	public static StorageLockFileSetup.Provider LockFileSetupProvider(
 		final Charset charset
@@ -453,6 +472,18 @@ public final class Storage
 		return StorageLockFileSetup.Provider(charset);
 	}
 	
+	/**
+	 * {@linkDoc StorageLockFileSetup#Provider(long)}
+	 * 
+	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(long):}
+	 * 
+	 * @return {@linkDoc StorageLockFileSetup#Provider(long)@return}
+	 * 
+	 * @see StorageLockFileSetup
+	 * @see #LockFileSetupProvider()
+	 * @see #LockFileSetupProvider(Charset)
+	 * @see #LockFileSetupProvider(Charset, long)
+	 */
 	public static StorageLockFileSetup.Provider LockFileSetupProvider(
 		final long updateInterval
 	)
@@ -460,6 +491,19 @@ public final class Storage
 		return StorageLockFileSetup.Provider(updateInterval);
 	}
 	
+	/**
+	 * {@linkDoc StorageLockFileSetup#Provider(Charset, long)}
+	 * 
+	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
+	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
+	 * 
+	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
+	 * 
+	 * @see StorageLockFileSetup
+	 * @see #LockFileSetupProvider()
+	 * @see #LockFileSetupProvider(Charset)
+	 * @see #LockFileSetupProvider(long)
+	 */
 	public static StorageLockFileSetup.Provider LockFileSetupProvider(
 		final Charset charset       ,
 		final long    updateInterval
@@ -468,20 +512,6 @@ public final class Storage
 		return StorageLockFileSetup.Provider(charset, updateInterval);
 	}
 	
-
-	/**
-	 * Calls {@link Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)}
-	 * with {@literal null} as additional parameters (causing live configuration to be used instead).
-	 *
-	 * @param storageConnection the connection to the storage that shall be consolidated.
-	 * @return the passed storageConnection instance.
-	 */
-	public static final <C extends StorageConnection> C consolidate(final C storageConnection)
-	{
-		return consolidate(storageConnection, null, null);
-	}
-
-
 	/**
 	 * Consolidates the storage system represented by the passed {@link StorageConnection} by calling<br>
 	 * {@link StorageConnection#issueFullGarbageCollection()}<br>
@@ -493,11 +523,12 @@ public final class Storage
 	 * fully reorganize/optimize the storage files, clear the complete cache and making the storage virtually dormant
 	 * until the next store.
 	 *
-	 * @param storageConnection the connection to the storage that shall be consolidated.
-	 * @param fileDissolver     the function evaluating whether to dissolve a file.
-	 *                          may be {@literal null} to indicate the use of the live configuration as a default.
-	 * @param entityEvaluator   the function evaluating whether to clear an entity from the cache.
-	 *                          may be {@literal null} to indicate the use of the live configuration as a default.
+	 * @param storageConnection The connection to the storage that shall be consolidated.
+	 * @param fileDissolver     The function evaluating whether to dissolve a file.<br>
+	 *                          May be {@literal null} to indicate the use of the live configuration as a default.
+	 * @param entityEvaluator   The function evaluating whether to clear an entity from the cache.<br>
+	 *                          May be {@literal null} to indicate the use of the live configuration as a default.
+	 * 
 	 * @return the passed storageConnection instance.
 	 */
 	public static final <C extends StorageConnection> C consolidate(
@@ -517,6 +548,28 @@ public final class Storage
 		return storageConnection;
 	}
 
+	/**
+	 * Calls {@link Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)}
+	 * with {@literal null} as additional parameters (causing live configuration to be used instead).
+	 *
+	 * @param storageConnection {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator):}
+	 * 
+	 * @return {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)@return}
+	 */
+	public static final <C extends StorageConnection> C consolidate(final C storageConnection)
+	{
+		return consolidate(storageConnection, null, null);
+	}
+	
+	/**
+	 * Calls {@link Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)}
+	 * with {@literal null} as additional parameters (causing live configuration to be used instead).
+	 *
+	 * @param storageConnection {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator):}
+	 * @param fileDissolver     {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator):}
+	 * 
+	 * @return {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)@return}
+	 */
 	public static final <C extends StorageConnection> C consolidate(
 		final C                                  storageConnection,
 		final StorageDataFileDissolvingEvaluator fileDissolver
@@ -524,7 +577,16 @@ public final class Storage
 	{
 		return consolidate(storageConnection, fileDissolver, null);
 	}
-
+	
+	/**
+	 * Calls {@link Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)}
+	 * with {@literal null} as additional parameters (causing live configuration to be used instead).
+	 *
+	 * @param storageConnection {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator):}
+	 * @param entityEvaluator   {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator):}
+	 * 
+	 * @return {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)@return}
+	 */
 	public static final <C extends StorageConnection> C consolidate(
 		final C                           storageConnection,
 		final StorageEntityCacheEvaluator entityEvaluator
@@ -532,24 +594,13 @@ public final class Storage
 	{
 		return consolidate(storageConnection, null, entityEvaluator);
 	}
+
 	
-	static final long millisecondsToNanoseconds(final long milliseconds)
-	{
-		return milliseconds * ONE_MILLION;
-	}
-	
-	static final long nanosecondsToMilliseconds(final long nanoseconds)
-	{
-		return nanoseconds / ONE_MILLION;
-	}
-	
-	static final long millisecondsToSeconds(final long milliseconds)
-	{
-		return milliseconds / ONE_MILLION;
-	}
-	
-	
-	
+
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
