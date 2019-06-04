@@ -12,7 +12,7 @@ public class DocLink
 	static final char   JAVA_DOC_PARENTHESIS_OPEN  = '(';
 	static final char   JAVA_DOC_PARENTHESIS_CLOSE = ')';
 	static final char   JAVA_DOC_TAG_SIGNAL        = '@';
-	static final String DOC_LINK_TAG               = "@docLink";
+	static final String DOC_LINK_TAG               = "@linkDoc";
 	static final char[] DOC_LINK_TAG_CHARS         = DOC_LINK_TAG.toCharArray();
 	static final char   DOCLINK_TAG_REFERENCE      = JAVA_DOC_TAG_SIGNAL;
 	static final char   DOCLINK_EXTRA_SEPARATOR    = ':';

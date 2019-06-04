@@ -6,9 +6,9 @@ import doclink.DocLink;
  * TestTargetClass.
  * <p>
  * Some nested docLink tags:<br>
- * {@literal TestTargetClass#method1()} = {@docLink TestTargetClass#method1()}<br>
- * {@literal TestTargetClass#method1(int):value} = {@docLink TestTargetClass#method3(int):value}<br>
- * {@literal TestTargetClass#method1(int)@param:0} = {@docLink TestTargetClass#method3(int)@param:0}<br>
+ * {@literal TestTargetClass#method1()} = {@linkDoc TestTargetClass#method1()}<br>
+ * {@literal TestTargetClass#method1(int):value} = {@linkDoc TestTargetClass#method3(int):value}<br>
+ * {@literal TestTargetClass#method1(int)@param:0} = {@linkDoc TestTargetClass#method3(int)@param:0}<br>
  * 
  * 
  * @author TM
@@ -186,7 +186,7 @@ public class TestTargetClass
 	 * TestTargetClass method3(p2b) overloaded variant of method3.
 	 * <p>
 	 * Also text.
-	 * Nested docLink: {@docLink doclink.DocLink#determineEffectiveParameterName(String, String):extraIdentifier}
+	 * Nested docLink: {@linkDoc doclink.DocLink#determineEffectiveParameterName(String, String):extraIdentifier}
 	 * 
 	 * @param value1 dual-param method3's int parameter {@literal value1}.
 	 * @param value2 dual-param method3's int parameter {@literal value2}.

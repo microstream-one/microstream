@@ -25,7 +25,7 @@ public interface DocLinker
 	
 	
 	/* (22.05.2019 TM)TODO: DocLink: Make member and parameters omittable, too.
-	 * E.g. {@docLink TargetType#:)
+	 * E.g. {@linkDoc TargetType#:)
 	 * Meaning "Take the JavaDoc from the TargetType's member that corresponds to the current subject member".
 	 */
 	
@@ -37,6 +37,19 @@ public interface DocLinker
 	
 	/* (24.05.2019 TM)TODO: DocLink: @link tags with local reference have to have their reference transformed to
 	 * globally qualified, as well.
+	 */
+	
+	/* (04.06.2019 TM)TODO: DocLink: A way is required to reference specific sentences of a general desctiption,
+	 * at least the first one (which has a special meaning in JavaDoc).
+	 * E.g. {@linkDoc SomeType:1
+	 */
+	
+	/* (04.06.2019 TM)TODO: DocLink: A way is required to reference ALL tags of one kind, e.g. all @see tags.
+	 * E.g. {@linkDoc SomeType@see:all}
+	 */
+	
+	/* (04.06.2019 TM)TODO: DocLink: Simple type names must be resolved to full qualified types using the
+	 * subject class' imports.
 	 */
 	
 	public abstract class Abstract implements DocLinker, DocLinkTagContentHandler

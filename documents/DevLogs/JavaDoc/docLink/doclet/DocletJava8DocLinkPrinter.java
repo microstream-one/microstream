@@ -10,7 +10,7 @@ import doclink.UtilsDocLink;
 
 /**
  * Type pseudo-implementing the pseudo-interface Doclet for testing / proof-of-concept purposes that prints
- * the @docLink replacements to the console.
+ * the @linkDoc replacements to the console.
  * 
  * @author TM
  */

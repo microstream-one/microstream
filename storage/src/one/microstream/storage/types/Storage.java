@@ -90,9 +90,9 @@ public final class Storage
 	}
 	
 	/**
-	 * {@docLink StorageFileProvider#New()}
+	 * {@linkDoc StorageFileProvider#New()}
 	 * 
-	 * @return {@docLink StorageFileProvider#New()@return}
+	 * @return {@linkDoc StorageFileProvider#New()@return}
 	 * 
 	 * @see Storage#FileProvider(File)
 	 * @see StorageFileProvider#New()
@@ -105,11 +105,11 @@ public final class Storage
 	}
 	
 	/**
-	 * {@docLink StorageFileProvider#New(File)}
+	 * {@linkDoc StorageFileProvider#New(File)}
 	 * 
-	 * @param storageDirectory {@docLink StorageFileProvider#New(File):}
+	 * @param storageDirectory {@linkDoc StorageFileProvider#New(File):}
 	 * 
-	 * @return {@docLink StorageFileProvider#New(File)@return}
+	 * @return {@linkDoc StorageFileProvider#New(File)@return}
 	 * 
 	 * @see Storage#FileProvider()
 	 * @see StorageFileProvider#New(File)
@@ -122,9 +122,9 @@ public final class Storage
 	}
 		
 	/**
-	 * {@docLink StorageFileProvider#Builder()}
+	 * {@linkDoc StorageFileProvider#Builder()}
 	 * 
-	 * @return {@docLink StorageFileProvider#Builder()@return}
+	 * @return {@linkDoc StorageFileProvider#Builder()@return}
 	 * 
 	 * @see Storage#FileProvider()
 	 * @see Storage#FileProvider(File)
@@ -136,9 +136,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@docLink StorageConfiguration#New()}
+	 * {@linkDoc StorageConfiguration#New()}
 	 * 
-	 * @return {@docLink StorageConfiguration#New()@return}
+	 * @return {@linkDoc StorageConfiguration#New()@return}
 	 * 
 	 * @see Storage#Configuration(StorageFileProvider)
 	 * @see StorageConfiguration#New()
@@ -150,11 +150,11 @@ public final class Storage
 	}
 	
 	/**
-	 * {@docLink StorageConfiguration#New(StorageFileProvider)}
+	 * {@linkDoc StorageConfiguration#New(StorageFileProvider)}
 	 * 
-	 * @param fileProvider {@docLink StorageConfiguration#New(StorageFileProvider):}
+	 * @param fileProvider {@linkDoc StorageConfiguration#New(StorageFileProvider):}
 	 * 
-	 * @return {@docLink StorageConfiguration#New(StorageFileProvider)@return}
+	 * @return {@linkDoc StorageConfiguration#New(StorageFileProvider)@return}
 	 * 
 	 * @see StorageConfiguration#Configuration()
 	 * @see StorageConfiguration#New(StorageFileProvider)
@@ -168,9 +168,9 @@ public final class Storage
 	}
 	
 	/**
-	 * {@docLink StorageConfiguration#Builder()}
+	 * {@linkDoc StorageConfiguration#Builder()}
 	 * 
-	 * @return {@docLink StorageConfiguration#Builder()@return}
+	 * @return {@linkDoc StorageConfiguration#Builder()@return}
 	 * 
 	 * @see Storage#Configuration()
 	 * @see Storage#Configuration(StorageFileProvider)
@@ -183,9 +183,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@docLink StorageHousekeepingController#New()}
+	 * {@linkDoc StorageHousekeepingController#New()}
 	 * 
-	 * @return {@docLink StorageHousekeepingController#New()@return}
+	 * @return {@linkDoc StorageHousekeepingController#New()@return}
 	 * 
 	 * @see Storage#HousekeepingController(long, long)
 	 * @see StorageHousekeepingController#New()
@@ -197,12 +197,12 @@ public final class Storage
 	}
 
 	/**
-	 * {@docLink StorageHousekeepingController#New(long, long)}
+	 * {@linkDoc StorageHousekeepingController#New(long, long)}
 	 * 
-	 * @param housekeepingIntervalMs {@docLink StorageHousekeepingController#New(long, long):}	 *
-	 * @param housekeepingTimeBudgetNs {@docLink StorageHousekeepingController#New(long, long):}
+	 * @param housekeepingIntervalMs {@linkDoc StorageHousekeepingController#New(long, long):}	 *
+	 * @param housekeepingTimeBudgetNs {@linkDoc StorageHousekeepingController#New(long, long):}
 	 * 
-	 * @return {@docLink StorageHousekeepingController#New(long, long)@return}
+	 * @return {@linkDoc StorageHousekeepingController#New(long, long)@return}
 	 * 
 	 * @see Storage#HousekeepingController()
 	 * @see StorageHousekeepingController#New(long, long)
@@ -216,9 +216,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@docLink StorageEntityCacheEvaluator#New()}
+	 * {@linkDoc StorageEntityCacheEvaluator#New()}
 	 * 
-	 * @return {@docLink StorageEntityCacheEvaluator#New()@return}
+	 * @return {@linkDoc StorageEntityCacheEvaluator#New()@return}
 	 * 
 	 * @see Storage#EntityCacheEvaluator(long)
 	 * @see Storage#EntityCacheEvaluator(long, long)
@@ -230,13 +230,13 @@ public final class Storage
 	}
 
 	/**
-	 * {@docLink StorageEntityCacheEvaluator#New(long)}
+	 * {@linkDoc StorageEntityCacheEvaluator#New(long)}
 	 * 
-	 * @param timeoutMs {@docLink StorageEntityCacheEvaluator#New(long):}
+	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long):}
 	 * 
-	 * @return {@docLink StorageEntityCacheEvaluator#New(long)@return}
+	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long)@return}
 	 * 
-	 * @throws {@docLink StorageEntityCacheEvaluator#New(long)@throws}
+	 * @throws {@linkDoc StorageEntityCacheEvaluator#New(long)@throws}
 	 * 
 	 * @see Storage#EntityCacheEvaluator()
 	 * @see Storage#EntityCacheEvaluator(long, long)
@@ -250,14 +250,14 @@ public final class Storage
 	}
 	
 	/**
-	 * {@docLink StorageEntityCacheEvaluator#New(long, long)}
+	 * {@linkDoc StorageEntityCacheEvaluator#New(long, long)}
 	 * 
-	 * @param timeoutMs {@docLink StorageEntityCacheEvaluator#New(long, long):}
-	 * @param threshold {@docLink StorageEntityCacheEvaluator#New(long, long):}
+	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
+	 * @param threshold {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
 	 * 
-	 * @return {@docLink StorageEntityCacheEvaluator#New(long, long)@return}
+	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}
 	 * 
-	 * @throws {@docLink StorageEntityCacheEvaluator#New(long, long)@throws}
+	 * @throws {@linkDoc StorageEntityCacheEvaluator#New(long, long)@throws}
 	 * 
 	 * @see Storage#EntityCacheEvaluator()
 	 * @see Storage#EntityCacheEvaluator(long)
@@ -272,9 +272,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@docLink StorageChannelCountProvider#New()}
+	 * {@linkDoc StorageChannelCountProvider#New()}
 	 * 
-	 * @return {@docLink StorageChannelCountProvider#New()@return}
+	 * @return {@linkDoc StorageChannelCountProvider#New()@return}
 	 * 
 	 * @see Storage#ChannelCountProvider(int)
 	 * @see StorageChannelCountProvider#New()
@@ -285,11 +285,11 @@ public final class Storage
 	}
 
 	/**
-	 * {@docLink StorageChannelCountProvider#New(int)}
+	 * {@linkDoc StorageChannelCountProvider#New(int)}
 	 * 
-	 * @param {@docLink StorageChannelCountProvider#New(int):}
+	 * @param {@linkDoc StorageChannelCountProvider#New(int):}
 	 * 
-	 * @return {@docLink StorageChannelCountProvider#New(int)@return}
+	 * @return {@linkDoc StorageChannelCountProvider#New(int)@return}
 	 */
 	public static final StorageChannelCountProvider ChannelCountProvider(final int channelCount)
 	{
@@ -297,9 +297,9 @@ public final class Storage
 	}
 	
 	/**
-	 * {@docLink StorageDataFileEvaluator#New()}
+	 * {@linkDoc StorageDataFileEvaluator#New()}
 	 * 
-	 * @return {@docLink StorageDataFileEvaluator#New()@return}
+	 * @return {@linkDoc StorageDataFileEvaluator#New()@return}
 	 * 
 	 * @see Storage#DataFileEvaluator(int, int)
 	 * @see Storage#DataFileEvaluator(int, int, double)
@@ -311,12 +311,12 @@ public final class Storage
 	}
 	
 	/**
-	 * {@docLink StorageDataFileEvaluator#New(int, int)}
+	 * {@linkDoc StorageDataFileEvaluator#New(int, int)}
 	 * 
-	 * @param fileMinimumSize {@docLink StorageDataFileEvaluator#New(int, int):}
-	 * @param fileMaximumSize {@docLink StorageDataFileEvaluator#New(int, int):}
+	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int):}
+	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int):}
 	 * 
-	 * @return {@docLink StorageDataFileEvaluator#New(int, int)@return}
+	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int)@return}
 	 * 
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int, double)
@@ -331,12 +331,12 @@ public final class Storage
 	}
 	
 	/**
-	 * {@docLink StorageDataFileEvaluator#New(int, int, double)}
+	 * {@linkDoc StorageDataFileEvaluator#New(int, int, double)}
 	 * 
-	 * @param fileMinimumSize {@docLink StorageDataFileEvaluator#New(int, int, double):}
-	 * @param fileMaximumSize {@docLink StorageDataFileEvaluator#New(int, int, double):}
+	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
+	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * 
-	 * @return {@docLink StorageDataFileEvaluator#New(int, int, double)@return}
+	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
 	 * 
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int)
@@ -352,14 +352,14 @@ public final class Storage
 	}
 
 	/**
-	 * {@docLink StorageDataFileEvaluator#New(int, int, double, boolean)}
+	 * {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean)}
 	 * 
-	 * @param fileMinimumSize {@docLink StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * @param fileMaximumSize {@docLink StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * @param minimumUseRatio {@docLink StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * @param dissolveHeadfile {@docLink StorageDataFileEvaluator#New(int, int, double, boolean):}
+	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
+	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
+	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
+	 * @param dissolveHeadfile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
 	 * 
-	 * @return dissolveHeadfile {@docLink StorageDataFileEvaluator#New(int, int, double, boolean)@return}
+	 * @return dissolveHeadfile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean)@return}
 	 * 
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int)
@@ -378,11 +378,11 @@ public final class Storage
 	}
 	
 	/**
-	 * {@docLink StorageBackupSetup#New(File)}
+	 * {@linkDoc StorageBackupSetup#New(File)}
 	 * 
-	 * @param backupDirectory {@docLink StorageBackupSetup#New(File):}
+	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(File):}
 	 * 
-	 * @return {@docLink StorageBackupSetup#New(File)@return}
+	 * @return {@linkDoc StorageBackupSetup#New(File)@return}
 	 * 
 	 * @see StorageBackupSetup#New(StorageFileProvider)
 	 * @see StorageBackupHandler
@@ -391,13 +391,28 @@ public final class Storage
 	{
 		return StorageBackupSetup.New(backupDirectory);
 	}
+	
+	/**
+	 * {@linkDoc StorageBackupSetup#New(File)}
+	 * 
+	 * @param backupDirectoryPath the path to the backup directory
+	 * 
+	 * @return {@linkDoc StorageBackupSetup#New(File)@return}
+	 * 
+	 * @see StorageBackupSetup#New(StorageFileProvider)
+	 * @see StorageBackupHandler
+	 */
+	public static final StorageBackupSetup BackupSetup(final String backupDirectoryPath)
+	{
+		return StorageBackupSetup.New(new File(backupDirectoryPath));
+	}
 
 	/**
-	 * {@docLink StorageBackupSetup#New(StorageFileProvider)}
+	 * {@linkDoc StorageBackupSetup#New(StorageFileProvider)}
 	 * 
-	 * @param fileProvider {@docLink StorageBackupSetup#New(StorageFileProvider):}
+	 * @param fileProvider {@linkDoc StorageBackupSetup#New(StorageFileProvider):}
 	 * 
-	 * @return {@docLink StorageBackupSetup#New(StorageFileProvider)@return}
+	 * @return {@linkDoc StorageBackupSetup#New(StorageFileProvider)@return}
 	 * 
 	 * @see StorageBackupSetup#New(File)
 	 * @see StorageBackupHandler
@@ -410,9 +425,9 @@ public final class Storage
 	// (28.05.2019 TM)FIXME: /!\ JavaDoc WIP.
 	
 	/**
-	 * {@docLink StorageDataFileEvaluator#New(Charset, long)}
+	 * {@linkDoc StorageLockFileSetup#Provider()}
 	 * 
-	 * @return {@docLink StorageDataFileEvaluator#New(Charset, long)@return}
+	 * @return {@linkDoc StorageLockFileSetup#Provider()@return}
 	 * 
 	 * @see StorageLockFileSetup
 	 */
@@ -421,6 +436,16 @@ public final class Storage
 		return StorageLockFileSetup.Provider();
 	}
 	
+	/**
+	 * {@linkDoc StorageLockFileSetup#Provider(Charset)}
+	 * 
+	 * 
+	 * @param {@linkDoc StorageLockFileSetup#Provider(Charset):}
+	 * 
+	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset)@return}
+	 * 
+	 * @see StorageLockFileSetup
+	 */
 	public static StorageLockFileSetup.Provider LockFileSetupProvider(
 		final Charset charset
 	)

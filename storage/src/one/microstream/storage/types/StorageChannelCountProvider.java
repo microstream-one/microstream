@@ -70,7 +70,7 @@ public interface StorageChannelCountProvider extends _intReference
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageChannelCountProvider#New(int)}.
 	 * 
-	 * @return {@docLink StorageChannelCountProvider#New(int)@return}
+	 * @return {@linkDoc StorageChannelCountProvider#New(int)@return}
 	 * 
 	 * @see StorageChannelCountProvider#New(int)
 	 * @see StorageChannelCountProvider.Defaults
