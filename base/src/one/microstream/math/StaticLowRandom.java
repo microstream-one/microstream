@@ -62,7 +62,18 @@ public final class StaticLowRandom
 
 		return val;
 	}
+	
+	
 
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private StaticLowRandom()
 	{
 		// static only

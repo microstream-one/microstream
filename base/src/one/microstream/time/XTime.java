@@ -143,6 +143,17 @@ public final class XTime
 		return Calendar.getInstance().get(Calendar.YEAR);
 	}
 
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private XTime()
 	{
 		// static only

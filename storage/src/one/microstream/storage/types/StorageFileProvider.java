@@ -187,8 +187,17 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			collector.accept(StorageNumberedFile.New(hashIndex, fileNumber, file));
 		}
 
+		
 
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
+		/**
+		 * Dummy constructor to prevent instantiation of this static-only utility class.
+		 * 
+		 * @throws UnsupportedOperationException
+		 */
 		private Static()
 		{
 			// static only

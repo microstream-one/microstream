@@ -471,8 +471,17 @@ public final class MemoryCharConversion_doubleUTF8
 		return a + 1;
 	}
 
+	
 
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private MemoryCharConversion_doubleUTF8()
 	{
 		// static only

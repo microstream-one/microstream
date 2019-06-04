@@ -419,7 +419,17 @@ public final class CharConversion_double
 	}
 	// CHECKSTYLE.ON: FinalParameters
 
+	
 
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private CharConversion_double()
 	{
 		// static only

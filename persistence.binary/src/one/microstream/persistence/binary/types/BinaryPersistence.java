@@ -334,6 +334,11 @@ public final class BinaryPersistence extends Persistence
 	// constructors //
 	/////////////////
 
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private BinaryPersistence()
 	{
 		// static only
