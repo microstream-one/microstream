@@ -30,7 +30,7 @@ public interface StorageConfiguration
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
 	 * 
-	 * @return {@docLink StorageConfiguration#New(StorageFileProvider)@return}
+	 * @return {@linkDoc StorageConfiguration#New(StorageFileProvider)@return}
 	 * 
 	 * @see StorageConfiguration#New(StorageFileProvider)
 	 * @see StorageConfiguration.Builder

@@ -34,7 +34,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
 	 * 
-	 * @return {@docLink StorageDataFileEvaluator#New(int, int, double)@return}
+	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
 	 * 
 	 * @see StorageDataFileEvaluator#New(int, int)
 	 * @see StorageDataFileEvaluator#New(double)
@@ -61,9 +61,9 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
 	 * 
-	 * @param minimumUseRatio {@docLink StorageDataFileEvaluator#New(int, int, double):}
+	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * 
-	 * @return {@docLink StorageDataFileEvaluator#New(int, int, double)@return}
+	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
 	 * 
 	 * @see StorageDataFileEvaluator#New()
 	 * @see StorageDataFileEvaluator#New(int, int)
@@ -86,10 +86,10 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
 	 * 
-	 * @param fileMinimumSize {@docLink StorageDataFileEvaluator#New(int, int, double):}
-	 * @param fileMaximumSize {@docLink StorageDataFileEvaluator#New(int, int, double):}
+	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
+	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * 
-	 * @return {@docLink StorageDataFileEvaluator#New(int, int, double)@return}
+	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
 	 * 
 	 * @see StorageDataFileEvaluator#New()
 	 * @see StorageDataFileEvaluator#New(double)
@@ -167,13 +167,13 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.
 	 * 
-	 * @param fileMinimumSize {@docLink StorageDataFileEvaluator#New(int, int, double):}
-	 * @param fileMaximumSize {@docLink StorageDataFileEvaluator#New(int, int, double):}
-	 * @param minimumUseRatio {@docLink StorageDataFileEvaluator#New(int, int, double):}
+	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
+	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
+	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
 	 *        shall be subjected to file cleanups as well.
 	 * 
-	 * @return {@docLink StorageDataFileEvaluator#New(int, int, double)@return}
+	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
 	 * 
 	 * @see StorageDataFileEvaluator#New()
 	 * @see StorageDataFileEvaluator#New(double)

@@ -133,7 +133,7 @@ public interface StorageLockFileSetup
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLockFileSetup.Provider(Charset, long)}.
 	 * 
-	 * @return {@docLink StorageLockFileSetup.Provider(Charset, long)@return}
+	 * @return {@linkDoc StorageLockFileSetup.Provider(Charset, long)@return}
 	 * 
 	 * @see StorageLockFileSetup
 	 */
@@ -151,9 +151,9 @@ public interface StorageLockFileSetup
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(Charset, long)}.
 	 * 
-	 * @param charset {@docLink StorageDataFileEvaluator#New(Charset, long):}
+	 * @param charset {@linkDoc StorageDataFileEvaluator#New(Charset, long):}
 	 * 
-	 * @return {@docLink StorageDataFileEvaluator#New(Charset, long)@return}
+	 * @return {@linkDoc StorageDataFileEvaluator#New(Charset, long)@return}
 	 * 
 	 * @see StorageLockFileSetup
 	 */
@@ -173,9 +173,9 @@ public interface StorageLockFileSetup
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(Charset, long)}.
 	 * 
-	 * @param updateInterval {@docLink StorageDataFileEvaluator#New(Charset, long):}
+	 * @param updateInterval {@linkDoc StorageDataFileEvaluator#New(Charset, long):}
 	 * 
-	 * @return {@docLink StorageDataFileEvaluator#New(Charset, long)@return}
+	 * @return {@linkDoc StorageDataFileEvaluator#New(Charset, long)@return}
 	 * 
 	 * @see StorageLockFileSetup
 	 */

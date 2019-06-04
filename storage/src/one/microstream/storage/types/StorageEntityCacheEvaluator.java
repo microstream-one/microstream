@@ -53,7 +53,7 @@ public interface StorageEntityCacheEvaluator
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
 	 * 
-	 * @return {@docLink StorageEntityCacheEvaluator#New(long, long)@return}.
+	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}.
 	 * 
 	 * @see StorageEntityCacheEvaluator#New(long)
 	 * @see StorageEntityCacheEvaluator#New(long, long)
@@ -77,9 +77,9 @@ public interface StorageEntityCacheEvaluator
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
 	 * 
-	 * @param timeoutMs {@docLink StorageEntityCacheEvaluator#New(long, long):}
+	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
 	 * 
-	 * @return {@docLink StorageEntityCacheEvaluator#New(long, long)@return}
+	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}
 	 * 
 	 * @throws NumberRangeException if the passed value is equal to or lower than 0.
 	 * 
