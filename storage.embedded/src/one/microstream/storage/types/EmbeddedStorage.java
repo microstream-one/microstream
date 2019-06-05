@@ -7,6 +7,7 @@ import java.io.File;
 import one.microstream.files.XFiles;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
+import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeDictionaryIoHandler;
 import one.microstream.persistence.types.PersistenceTypeEvaluator;
 
@@ -46,7 +47,9 @@ public final class EmbeddedStorage
 	 * 
 	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)@return}
 	 * 
+	 * @see #ConnectionFoundation(File)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)
+	 * @see Persistence
 	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler
@@ -58,19 +61,46 @@ public final class EmbeddedStorage
 			Persistence::isTypeIdMappable
 		);
 	}
-
-	// (04.06.2019 TM)FIXME: /!\ JavaDoc W.i.P.
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageConnectionFoundation} instance
-	 * using the passed instances.
+	 * using the passed {@literal directory} and default method references provided by {@link Persistence}.
+	 * <p>
+	 * Calls {@link #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)} with a
+	 * {@link PersistenceTypeDictionaryIoHandler} instance constructed from the passed {@literal directory}.
+	 * 
+	 * @param directory the directory where the {@link PersistenceTypeDictionary} information will be stored.
+	 * 
+	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler)@return}
+	 * 
+	 * @see PersistenceTypeDictionaryFileHandler#NewInDirectory(File)
+	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
+	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)
+	 * @see Persistence
+	 */
+	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
+		final File directory
+	)
+	{
+		return ConnectionFoundation(
+			PersistenceTypeDictionaryFileHandler.NewInDirectory(directory)
+		);
+	}
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link EmbeddedStorageConnectionFoundation} instance
+	 * using the passed logic instances as its essential parts.
 	 * <p>
 	 * 
-	 * @param typeDictionaryIoHandler
-	 * @param typeEvaluatorPersistable
-	 * @param typeEvaluatorTypeIdMappable
+	 * @param typeDictionaryIoHandler a logic instance to handle a type dictionary's IO operations.
+	 * @param typeEvaluatorPersistable evaluator function to determine if instances of a type are persistable.
+	 * @param typeEvaluatorTypeIdMappable evaluator function to determine if a type may be encountered
+	 *        by the type analysis at all. See {@link}
 	 * 
 	 * @return a new {@link EmbeddedStorageConnectionFoundation} instance.
+	 * 
+	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
+	 * @see #ConnectionFoundation(File)
 	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler    ,
@@ -84,38 +114,57 @@ public final class EmbeddedStorage
 			.setTypeEvaluatorTypeIdMappable(typeEvaluatorTypeIdMappable)
 		;
 	}
-	
-	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final File directory
-	)
-	{
-		return ConnectionFoundation(
-			PersistenceTypeDictionaryFileHandler.NewInDirectory(directory)
-		);
-	}
+
+	// (04.06.2019 TM)FIXME: /!\ JavaDoc W.i.P.
 
 
 	
+	/**
+	 * Returns the default storage directory in the current working directory and with a filename defined by
+	 * {@link StorageFileProvider.Defaults#defaultStorageDirectory}.
+	 * 
+	 * @return the default storage directory located in the current working directory.
+	 */
 	public static File defaultStorageDirectory()
 	{
 		return new File(StorageFileProvider.Defaults.defaultStorageDirectory());
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
+	 * using {@link #defaultStorageDirectory()} as its storage directory and a {@link StorageConfiguration}
+	 * instance using defaults.
+	 * <p>
+	 * Calls {@link #ConnectionFoundation(File)} with {@link #defaultStorageDirectory()}.
+	 * 
+	 * @return a new all-default {@link EmbeddedStorageFoundation} instance.
+	 * 
+	 * @see #Foundation(File)
+	 * @see #Foundation(StorageConfiguration)
+	 * @see #Foundation(StorageConfiguration.Builder)
+	 * @see #Foundation(File, StorageConfiguration.Builder)
+	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
+	 */
 	public static final EmbeddedStorageFoundation<?> Foundation()
 	{
 		return Foundation(EmbeddedStorage.defaultStorageDirectory());
 	}
 	
-	public static final EmbeddedStorageFoundation<?> Foundation(
-		final StorageConfiguration.Builder<?> configuration
-	)
-	{
-		return Foundation(
-			EmbeddedStorage.defaultStorageDirectory(),
-			configuration
-		);
-	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
+	 * using the passed {@literal directory} and a defaults for the remaining configuration.
+	 * 
+	 * @param directory {@linkDoc EmbeddedStorage#Foundation(File, StorageConfiguration.Builder):}
+	 * 
+	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed storage directory.
+	 * 
+	 * @see #Foundation()
+	 * @see #Foundation(StorageConfiguration)
+	 * @see #Foundation(StorageConfiguration.Builder)
+	 * @see #Foundation(File, StorageConfiguration.Builder)
+	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
+	 */
 	public static final EmbeddedStorageFoundation<?> Foundation(
 		final File directory
 	)
@@ -129,6 +178,52 @@ public final class EmbeddedStorage
 		);
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
+	 * using the passed {@link StorageConfiguration.Builder}.
+	 * <p>
+	 * The {@link #defaultStorageDirectory()} will be set as the builder's storage directory and a
+	 * {@link StorageConfiguration} will be created from it.
+	 * 
+	 * @param configuration {@linkDoc EmbeddedStorage#Foundation(File, StorageConfiguration.Builder):}
+	 * 
+	 * @return {@linkDoc EmbeddedStorage#Foundation(File, StorageConfiguration.Builder)@return}
+	 * 
+	 * @see #Foundation()
+	 * @see #Foundation(File)
+	 * @see #Foundation(StorageConfiguration.Builder)
+	 * @see #Foundation(File, StorageConfiguration.Builder)
+	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
+	 */
+	public static final EmbeddedStorageFoundation<?> Foundation(
+		final StorageConfiguration.Builder<?> configuration
+	)
+	{
+		return Foundation(
+			EmbeddedStorage.defaultStorageDirectory(),
+			configuration
+		);
+	}
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
+	 * using the passed {@literal directory} and {@link StorageConfiguration.Builder}.
+	 * <p>
+	 * A new {@link StorageFileProvider} is created for the passed {@literal directory} and set to the passed
+	 * {@link StorageConfiguration.Builder}, which provides a {@link StorageConfiguration} to be passed to
+	 * {@link #Foundation(StorageConfiguration)}.
+	 * 
+	 * @param directory the directory where the storage will be located.
+	 * @param configuration the {@link StorageConfiguration.Builder} to be used.
+	 * 
+	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed configuration.
+	 * 
+	 * @see #Foundation()
+	 * @see #Foundation(File)
+	 * @see #Foundation(StorageConfiguration)
+	 * @see #Foundation(StorageConfiguration.Builder)
+	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
+	 */
 	public static final EmbeddedStorageFoundation<?> Foundation(
 		final File                            directory    ,
 		final StorageConfiguration.Builder<?> configuration
@@ -144,6 +239,20 @@ public final class EmbeddedStorage
 		);
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
+	 * using the passed {@link StorageConfiguration}.
+	 * 
+	 * @param configuration the {@link StorageConfiguration} to be used.
+	 * 
+	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed configuration.
+	 * 
+	 * @see #Foundation()
+	 * @see #Foundation(File)
+	 * @see #Foundation(StorageConfiguration.Builder)
+	 * @see #Foundation(File, StorageConfiguration.Builder)
+	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
+	 */
 	public static final EmbeddedStorageFoundation<?> Foundation(
 		final StorageConfiguration configuration
 	)
@@ -163,13 +272,30 @@ public final class EmbeddedStorage
 		);
 	}
 		
+	/**
+	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
+	 * using the passed {@link StorageConfiguration} and {@link EmbeddedStorageConnectionFoundation}.
+	 * 
+	 * @param configuration the {@link StorageConfiguration} to be used.
+	 * 
+	 * @param connectionFoundation the {@link EmbeddedStorageConnectionFoundation} instance to be used for creating new
+	 *        connections, i.e. context for storing and loading data.
+	 * 
+	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed configuration.
+	 * 
+	 * @see #Foundation()
+	 * @see #Foundation(File)
+	 * @see #Foundation(StorageConfiguration)
+	 * @see #Foundation(StorageConfiguration.Builder)
+	 * @see #Foundation(File, StorageConfiguration.Builder)
+	 */
 	public static final EmbeddedStorageFoundation<?> Foundation(
-		final StorageConfiguration                   storageConfiguration,
+		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
 		return createFoundation()
-			.setConfiguration(storageConfiguration)
+			.setConfiguration(configuration)
 			.setConnectionFoundation(connectionFoundation)
 		;
 	}
