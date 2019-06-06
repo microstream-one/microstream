@@ -114,10 +114,6 @@ public final class EmbeddedStorage
 			.setTypeEvaluatorTypeIdMappable(typeEvaluatorTypeIdMappable)
 		;
 	}
-
-	// (04.06.2019 TM)FIXME: /!\ JavaDoc W.i.P.
-
-
 	
 	/**
 	 * Returns the default storage directory in the current working directory and with a filename defined by
@@ -149,7 +145,6 @@ public final class EmbeddedStorage
 	{
 		return Foundation(EmbeddedStorage.defaultStorageDirectory());
 	}
-	
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
@@ -209,9 +204,9 @@ public final class EmbeddedStorage
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
 	 * using the passed {@literal directory} and {@link StorageConfiguration.Builder}.
 	 * <p>
-	 * A new {@link StorageFileProvider} is created for the passed {@literal directory} and set to the passed
-	 * {@link StorageConfiguration.Builder}, which provides a {@link StorageConfiguration} to be passed to
-	 * {@link #Foundation(StorageConfiguration)}.
+	 * A new {@link StorageFileProvider} is created from the passed {@literal directory} and default values,
+	 * then set to the passed {@link StorageConfiguration.Builder}, which then provides a {@link StorageConfiguration}
+	 * to be passed to {@link #Foundation(StorageConfiguration)}.
 	 * 
 	 * @param directory the directory where the storage will be located.
 	 * @param configuration the {@link StorageConfiguration.Builder} to be used.
@@ -300,66 +295,6 @@ public final class EmbeddedStorage
 		;
 	}
 			
-	
-	
-	public static final EmbeddedStorageManager start(
-		final StorageConfiguration                   configuration       ,
-		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
-	)
-	{
-		return start(null, configuration, connectionFoundation);
-	}
-	
-	public static final EmbeddedStorageManager start(
-		final Object                                 explicitRoot        ,
-		final StorageConfiguration                   configuration       ,
-		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
-	)
-	{
-		final EmbeddedStorageManager esm = Foundation(configuration, connectionFoundation)
-			.createEmbeddedStorageManager(explicitRoot)
-		;
-		esm.start();
-		
-		return esm;
-	}
-	
-	public static final EmbeddedStorageManager start(
-		final StorageFileProvider                    fileProvider        ,
-		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
-	)
-	{
-		return start(null, fileProvider, connectionFoundation);
-	}
-	
-	public static final EmbeddedStorageManager start(
-		final Object                                 explicitRoot        ,
-		final StorageFileProvider                    fileProvider        ,
-		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
-	)
-	{
-		final EmbeddedStorageManager esm = Foundation(Storage.Configuration(fileProvider), connectionFoundation)
-			.createEmbeddedStorageManager()
-		;
-		esm.start();
-		
-		return esm;
-	}
-	
-	public static final EmbeddedStorageManager start(final File directory)
-	{
-		return start(null, directory);
-	}
-	
-	public static final EmbeddedStorageManager start(final Object explicitRoot, final File directory)
-	{
-		final EmbeddedStorageManager esm = Foundation(directory)
-			.createEmbeddedStorageManager(explicitRoot)
-		;
-		esm.start();
-		
-		return esm;
-	}
 
 	/**
 	 * Uber-simplicity util method. See {@link #ensureStorageManager()} and {@link #Foundation()} variants for
@@ -372,9 +307,59 @@ public final class EmbeddedStorage
 		return start((Object)null); // no explicit root. Not to be confused with start(File)
 	}
 	
+	public static final EmbeddedStorageManager start(
+		final File directory
+	)
+	{
+		return start(null, directory);
+	}
+	
+	public static final EmbeddedStorageManager start(
+		final StorageConfiguration configuration
+	)
+	{
+		// (06.06.2019 TM)FIXME: synchronize #start variants and #Foundation variants
+		return start(null, fileProvider, connectionFoundation);
+	}
+	
+	public static final EmbeddedStorageManager start(
+		final StorageConfiguration.Builder<?> configuration
+	)
+	{
+		return start(null, fileProvider, connectionFoundation);
+	}
+	
+	public static final EmbeddedStorageManager start(
+		final File                            directory    ,
+		final StorageConfiguration.Builder<?> configuration
+	)
+	{
+		return start(null, fileProvider, connectionFoundation);
+	}
+	
+	public static final EmbeddedStorageManager start(
+		final StorageConfiguration                   configuration       ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
+	)
+	{
+		return start(null, configuration, connectionFoundation);
+	}
+	
+
+	
 	public static final EmbeddedStorageManager start(final Object explicitRoot)
 	{
 		final EmbeddedStorageManager esm = Foundation()
+			.createEmbeddedStorageManager(explicitRoot)
+		;
+		esm.start();
+		
+		return esm;
+	}
+	
+	public static final EmbeddedStorageManager start(final Object explicitRoot, final File directory)
+	{
+		final EmbeddedStorageManager esm = Foundation(directory)
 			.createEmbeddedStorageManager(explicitRoot)
 		;
 		esm.start();
@@ -389,7 +374,35 @@ public final class EmbeddedStorage
 	)
 	{
 		final EmbeddedStorageManager esm = Foundation(directory, configuration)
-		.createEmbeddedStorageManager(explicitRoot).start();
+			.createEmbeddedStorageManager(explicitRoot)
+			.start();
+		
+		return esm;
+	}
+	
+	public static final EmbeddedStorageManager start(
+		final Object                                 explicitRoot        ,
+		final StorageFileProvider                    fileProvider        ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
+	)
+	{
+		return start(
+			explicitRoot,
+			Storage.Configuration(fileProvider),
+			connectionFoundation
+		);
+	}
+	
+	public static final EmbeddedStorageManager start(
+		final Object                                 explicitRoot        ,
+		final StorageConfiguration                   configuration       ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
+	)
+	{
+		final EmbeddedStorageManager esm = Foundation(configuration, connectionFoundation)
+			.createEmbeddedStorageManager(explicitRoot)
+			.start()
+		;
 		
 		return esm;
 	}
