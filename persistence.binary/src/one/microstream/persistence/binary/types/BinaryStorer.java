@@ -371,8 +371,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			this.chunks = null;
 		}
 
-		@Override
-		public final void clearRegistered()
+		protected void clearRegistered()
 		{
 			// clear hash table
 			this.hashSlots = null;

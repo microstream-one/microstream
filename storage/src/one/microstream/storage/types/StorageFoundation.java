@@ -10,6 +10,25 @@ import one.microstream.storage.types.StorageFileWriter.Provider;
 import one.microstream.util.InstanceDispatcher;
 import one.microstream.util.ProcessIdentityProvider;
 
+
+/**
+ * A kind of factory type that holds and creates on demand all the parts that form a {@link StorageManager} instance,
+ * i.e. a functional database handling logic.
+ * <p>
+ * Additionally to the services of a mere factory type, a foundation type also keeps references to all parts
+ * after a {@link StorageManager} instance has been created. This is useful if some internal logic parts shall be
+ * accessed while the {@link StorageManager} logic is already running. Therefore, this type can best be thought of
+ * as a {@literal foundation} on which the running database handling logic stands.
+ * <p>
+ * All {@literal set~} methods are simple setter methods without any additional logic worth mentioning.<br>
+ * All {@literal set~} methods return {@literal this} to allow for easy method chaining to improve readability.<br>
+ * All {@literal get~} methods return a logic part instance, if present or otherwise creates and sets one beforehand
+ * via a default creation logic.
+ * 
+ * @author TM
+ *
+ * @param <F> the "self-type" of the  {@link StorageFoundation} implementation.
+ */
 public interface StorageFoundation<F extends StorageFoundation<?>>
 {
 	public StorageOperationController.Creator getOperationControllerCreator();
@@ -137,6 +156,15 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setExceptionHandler(StorageExceptionHandler exceptionHandler);
 
+	
+	/**
+	 * Creates and returns a new {@link StorageManager} instance by using the current state of all registered
+	 * logic part instances and by on-demand creating missing ones via a default logic.
+	 * <p>
+	 * The returned {@link StorageManager} instance will NOT yet be started.
+	 * 
+	 * @return a new {@link StorageManager} instance.
+	 */
 	public StorageManager createStorageManager();
 
 

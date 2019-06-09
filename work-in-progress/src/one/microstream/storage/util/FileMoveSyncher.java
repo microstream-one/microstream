@@ -134,7 +134,7 @@ public class FileMoveSyncher
 				final String relativeTargetPath = getRelativePath(f.getParentFile(), trgBaseLength);
 				if(relativeSourcePath.equals(relativeTargetPath))
 				{
-					System.out.println("Removing perfect match " + f.getAbsolutePath());
+//					System.out.println("Removing perfect match " + f.getAbsolutePath());
 					return true;
 				}
 				return false;
@@ -171,11 +171,11 @@ public class FileMoveSyncher
 	{
 		final File[] sourceFiles = sourceDirectory.listFiles();
 		final String relativeSourcePath = getRelativePath(sourceDirectory, srcBaseLength);
-		synchMoveRealFiles(srcDirBase, trgDirBase, srcBaseLength, trgBaseLength, relativeSourcePath, sourceFiles, indexFiles, fileIdentifier);
+		synchMoveActualFiles(srcDirBase, trgDirBase, srcBaseLength, trgBaseLength, relativeSourcePath, sourceFiles, indexFiles, fileIdentifier);
 		synchMoveSubDirs(srcDirBase, trgDirBase, srcBaseLength, trgBaseLength, sourceFiles, indexFiles, fileIdentifier);
 	}
 	
-	static final void synchMoveRealFiles(
+	static final void synchMoveActualFiles(
 		final String                              sourceDirectoryBase,
 		final File                                targetDirectoryBase,
 		final int                                 srcBaseLength      ,
@@ -260,7 +260,10 @@ public class FileMoveSyncher
 
 		final String relativeSourcePath = getRelativePath(sourceFile.getParentFile(), sourceDirectoryBaseLength);
 
-		// select most suited file ? (e.g. by relative path backwards)
+		/* (08.06.2019 TM)FIXME: select most suited file (e.g. by relative path backwards)
+		 * because otherwise for duplicate files, one gets moved to another location
+		 * and then it is missing (file not found exception) for the next location.
+		 */
 		for(final File f : targetFiles)
 		{
 			final String relativeTargetPath = getRelativePath(f.getParentFile(), targetDirectoryBaseLength);
@@ -282,7 +285,7 @@ public class FileMoveSyncher
 		final FileMoveSyncher fms = new FileMoveSyncher(UtilFileHandling.fileIdentitySimpleNameSizeChangeTime());
 		fms.moveSynch(
 			new File("G:\\media"),
-			new File("H:\\media")
+			new File("T:\\media")
 		);
 	}
 	

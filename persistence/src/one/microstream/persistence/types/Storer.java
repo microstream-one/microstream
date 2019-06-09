@@ -1,28 +1,76 @@
 package one.microstream.persistence.types;
 
 /**
- * A type extending the simple {@link PersistenceStoring} to have stateful store handling.
+ * A type extending the simple {@link PersistenceStoring} to enable stateful store handling.
  * This can be used to do what is generally called "transactions": preprocess data to be stored and then store
  * either all or nothing.<br>
- * It can also be used to skip certain references, etc.<br>
- * The naming (missing "Persistence" prefix) is intentional to support convenience on the application code level.
+ * It can also be used to skip certain references. See {@link #registerSkip(Object)}<br>
+ * The deviating naming (missing "Persistence" prefix) is intentional to support convenience
+ * on the application code level.
  *
  * @author TM
  */
 public interface Storer extends PersistenceStoring
 {
+	/**
+	 * Ends the data collection process and causes all collected data to be persisted.
+	 * <p>
+	 * This is an atomatic all-or-nothing operation: either all collected data will be persisted successfully,
+	 * or non of it will be persisted. Partially persisted data will be reverted / rolled back in case of a failure.
+	 * 
+	 * @return some kind of status information, potentially null.
+	 */
 	public Object commit();
 
+	/**
+	 * Clears all internal state regarding collected data and/or registered skips.
+	 */
 	public void clear();
 
-	public void registerSkip(Object instance, long oid);
+	/**
+	 * Registers the passed {@literal instance} under the passed {@literal objectId} without persisting its data.
+	 * <p>
+	 * This skip means that if the passed {@literal instance} is encountered while collecting data to be persisted,
+	 * its data will NOT be collected. References to the passed {@literal instance} will be persisted as the
+	 * passed {@literal objectId}.
+	 * 
+	 * @param instance the instance / reference to be skipped.
+	 * 
+	 * @param objectId the objectId to be used as a reference to the skipped instance.
+	 * 
+	 * @see #registerSkip(Object)
+	 */
+	public void registerSkip(Object instance, long objectId);
 
-	public void clearRegistered();
-
+	/**
+	 * Registers the passed {@literal instance} to be skipped from the data persisting process.
+	 * <p>
+	 * This skip means that if the passed {@literal instance} is encountered while collecting data to be persisted,
+	 * its data will NOT be collected.
+	 * 
+	 * @param instance the instance / reference to be skipped.
+	 * 
+	 * @see #registerSkip(Object, long)
+	 */
 	public void registerSkip(Object instance);
 
+	/**
+	 * @return the amount of unique instances / references that have already been registered by this
+	 * {@link Storer} instance. This includes both instances encountered during the data collection process and
+	 * instances that have explicitely been registered to be skipped.
+	 * 
+	 * @see #registerSkip(Object)
+	 * @see #registerSkip(Object, long)
+	 */
 	public long size();
 
+	/**
+	 * Queries, whether this {@link Storer} instance has no instances / references registered.
+	 * <p>
+	 * Calling this method is simply an alias for {@code this.size() == 0L}.
+	 * 
+	 * @return whether this {@link Storer} instance is empty.
+	 */
 	public default boolean isEmpty()
 	{
 		return this.size() == 0L;
@@ -46,6 +94,14 @@ public interface Storer extends PersistenceStoring
 	 */
 	public long maximumCapacity();
 
+	/**
+	 * Returns whether this {@link Storer} instance has been initialized.
+	 * <p>
+	 * That being initialized means exactely depends on the implementation. The general contract means to bring the
+	 * instance's internal data into a state with which the instance can be used to perform its actual tasks.
+	 * 
+	 * @return whether this {@link Storer} instance has been initialized.
+	 */
 	public boolean isInitialized();
 
 	/**
