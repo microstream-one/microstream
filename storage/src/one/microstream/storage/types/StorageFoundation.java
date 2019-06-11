@@ -31,131 +31,736 @@ import one.microstream.util.ProcessIdentityProvider;
  */
 public interface StorageFoundation<F extends StorageFoundation<?>>
 {
+	/* (11.06.2019 TM)NOTE:
+	 * JavaDoc-Note: all setters and getters use the same text with only the type name inserted.
+	 * The DocLink linking mechanism does not (yet) provide enough functionality to make parts
+	 * of a general description reusable, so it has to be copy&pasted nevertheless.
+	 * 
+	 * Sufficient functionality should be added in the future. E.g. allowing to link a set of paragraphs, like:
+	 * StorageFoundation#getConfiguration()§2
+	 * or even
+	 * StorageFoundation#getConfiguration()§2-4,6,8-11
+	 * 
+	 * Until then, maintenance of these JavaDocs must happen by modifying one and re-copy&pasting to all others.
+	 * Or by text / regExp replacements, of course.
+	 */
+	
+	/**
+	 * Returns the currently set {@link StorageConfiguration} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return the currently set instance, potentially created on-demand if required.
+	 * 
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
+	 */
+	public StorageConfiguration getConfiguration();
+	
+	/**
+	 * Returns the currently set {@link StorageOperationController.Creator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageOperationController.Creator getOperationControllerCreator();
 	
+	/**
+	 * Returns the currently set {@link StorageInitialDataFileNumberProvider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageInitialDataFileNumberProvider getInitialDataFileNumberProvider();
-
+	
+	/**
+	 * Returns the currently set {@link StorageRequestAcceptor.Creator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageRequestAcceptor.Creator getRequestAcceptorCreator();
-
+	
+	/**
+	 * Returns the currently set {@link StorageTaskBroker.Creator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageTaskBroker.Creator getTaskBrokerCreator();
-
+	
+	/**
+	 * Returns the currently set {@link StorageDataChunkValidator.Provider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageDataChunkValidator.Provider getDataChunkValidatorProvider();
 	
+	/**
+	 * Returns the currently set {@link StorageDataChunkValidator.Provider2} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageDataChunkValidator.Provider2 getDataChunkValidatorProvider2();
-
+	
+	/**
+	 * Returns the currently set {@link StorageChannelsCreator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageChannelsCreator getChannelCreator();
-
+	
+	/**
+	 * Returns the currently set {@link StorageChannelThreadProvider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageChannelThreadProvider getChannelThreadProvider();
-
+	
+	/**
+	 * Returns the currently set {@link StorageBackupThreadProvider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageBackupThreadProvider getBackupThreadProvider();
 	
+	/**
+	 * Returns the currently set {@link StorageLockFileManagerThreadProvider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageLockFileManagerThreadProvider getLockFileManagerThreadProvider();
 	
+	/**
+	 * Returns the currently set {@link StorageThreadProvider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageThreadProvider getThreadProvider();
-
+	
+	/**
+	 * Returns the currently set {@link StorageRequestTaskCreator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageRequestTaskCreator getRequestTaskCreator();
-
+	
+	/**
+	 * Returns the currently set {@link StorageTypeDictionary} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageTypeDictionary getTypeDictionary();
-
+	
+	/**
+	 * Returns the currently set {@link StorageRootTypeIdProvider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageRootTypeIdProvider getRootTypeIdProvider();
-
-	public StorageConfiguration getConfiguration();
-
+	
+	/**
+	 * Returns the currently set {@link StorageTimestampProvider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageTimestampProvider getTimestampProvider();
-
+	
+	/**
+	 * Returns the currently set {@link StorageObjectIdRangeEvaluator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageObjectIdRangeEvaluator getObjectIdRangeEvaluator();
-
+	
+	/**
+	 * Returns the currently set {@link StorageFileReader.Provider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageFileReader.Provider getReaderProvider();
-
+	
+	/**
+	 * Returns the currently set {@link StorageFileWriter.Provider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageFileWriter.Provider getWriterProvider();
-
+	
+	/**
+	 * Returns the currently set {@link StorageGCZombieOidHandler} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageGCZombieOidHandler getGCZombieOidHandler();
-
+	
+	/**
+	 * Returns the currently set {@link StorageRootOidSelector.Provider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageRootOidSelector.Provider getRootOidSelectorProvider();
-
+	
+	/**
+	 * Returns the currently set {@link StorageOidMarkQueue.Creator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageOidMarkQueue.Creator getOidMarkQueueCreator();
-
+	
+	/**
+	 * Returns the currently set {@link StorageEntityMarkMonitor.Creator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageEntityMarkMonitor.Creator getEntityMarkMonitorCreator();
-
+	
+	/**
+	 * Returns the currently set {@link StorageDataFileValidator.Creator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageDataFileValidator.Creator getDataFileValidatorCreator();
-
+	
+	/**
+	 * Returns the currently set {@link BinaryEntityRawDataIterator.Provider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public BinaryEntityRawDataIterator.Provider getEntityDataIteratorProvider();
 	
+	/**
+	 * Returns the currently set {@link StorageEntityDataValidator.Creator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageEntityDataValidator.Creator getEntityDataValidatorCreator();
 	
+	/**
+	 * Returns the currently set {@link ProcessIdentityProvider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public ProcessIdentityProvider getProcessIdentityProvider();
 	
+	/**
+	 * Returns the currently set {@link StorageLockFileSetup} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageLockFileSetup getLockFileSetup();
 	
+	/**
+	 * Returns the currently set {@link StorageLockFileSetup.Provider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageLockFileSetup.Provider getLockFileSetupProvider();
 	
+	/**
+	 * Returns the currently set {@link StorageLockFileManager.Creator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageLockFileManager.Creator getLockFileManagerCreator();
-
+	
+	/**
+	 * Returns the currently set {@link StorageExceptionHandler} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
 	public StorageExceptionHandler getExceptionHandler();
 
-
-	public F setOperationControllerCreator(StorageOperationController.Creator operationControllerProvider);
-
+	
+	
+	/**
+	 * Sets the {@link StorageConfiguration} instance to be used for the assembly.
+	 * 
+	 * @param configuration the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setConfiguration(StorageConfiguration configuration);
+	
+	/**
+	 * Sets the {@link StorageOperationController.Creator} instance to be used for the assembly.
+	 * 
+	 * @param operationControllerCreator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setOperationControllerCreator(StorageOperationController.Creator operationControllerCreator);
+	
+	/**
+	 * Sets the {@link StorageInitialDataFileNumberProvider} instance to be used for the assembly.
+	 * 
+	 * @param initDataFileNumberProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setInitialDataFileNumberProvider(StorageInitialDataFileNumberProvider initDataFileNumberProvider);
-
+	
+	/**
+	 * Sets the {@link StorageRequestAcceptor.Creator} instance to be used for the assembly.
+	 * 
+	 * @param requestAcceptorCreator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setRequestAcceptorCreator(StorageRequestAcceptor.Creator requestAcceptorCreator);
-
+	
+	/**
+	 * Sets the {@link StorageTaskBroker.Creator} instance to be used for the assembly.
+	 * 
+	 * @param taskBrokerCreator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setTaskBrokerCreator(StorageTaskBroker.Creator taskBrokerCreator);
-
+	
+	/**
+	 * Sets the {@link StorageDataChunkValidator.Provider} instance to be used for the assembly.
+	 * 
+	 * @param dataChunkValidatorProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setDataChunkValidatorProvider(StorageDataChunkValidator.Provider dataChunkValidatorProvider);
 	
+	/**
+	 * Sets the {@link StorageDataChunkValidator.Provider2} instance to be used for the assembly.
+	 * 
+	 * @param dataChunkValidatorProvider2 the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setDataChunkValidatorProvider2(StorageDataChunkValidator.Provider2 dataChunkValidatorProvider2);
-
+	
+	/**
+	 * Sets the {@link StorageChannelsCreator} instance to be used for the assembly.
+	 * 
+	 * @param channelCreator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setChannelCreator(StorageChannelsCreator channelCreator);
-
+	
+	/**
+	 * Sets the {@link StorageChannelThreadProvider} instance to be used for the assembly.
+	 * 
+	 * @param channelThreadProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setChannelThreadProvider(StorageChannelThreadProvider channelThreadProvider);
 	
+	/**
+	 * Sets the {@link StorageBackupThreadProvider} instance to be used for the assembly.
+	 * 
+	 * @param backupThreadProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setBackupThreadProvider(StorageBackupThreadProvider backupThreadProvider);
 	
+	/**
+	 * Sets the {@link StorageLockFileManagerThreadProvider} instance to be used for the assembly.
+	 * 
+	 * @param lockFileManagerThreadProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setLockFileManagerThreadProvider(StorageLockFileManagerThreadProvider lockFileManagerThreadProvider);
 	
+	/**
+	 * Sets the {@link StorageThreadProvider} instance to be used for the assembly.
+	 * 
+	 * @param threadProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setThreadProvider(StorageThreadProvider threadProvider);
-
-	public F setTaskCreator(StorageRequestTaskCreator taskCreator);
-
-	public F setTypeDictionary(StorageTypeDictionary typeDictionary);
-
-	public F setRootTypeIdProvider(StorageRootTypeIdProvider rootTypeIdProvider);
-
-	public F setConfiguration(StorageConfiguration configuration);
-
-	public F setTimestampProvider(StorageTimestampProvider timestampProvider);
-
-	public F setObjectIdRangeEvaluator(StorageObjectIdRangeEvaluator objectIdRangeEvaluator);
-
-	public F setReaderProvider(StorageFileReader.Provider readerProvider);
-
-	public F setWriterProvider(StorageFileWriter.Provider writerProvider);
-
-	public F setGCZombieOidHandler(StorageGCZombieOidHandler gCZombieOidHandler);
-
-	public F setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
-
-	public F setOidMarkQueueCreator(StorageOidMarkQueue.Creator oidMarkQueueCreator);
-
-	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
-
-	public F setDataFileValidatorCreator(StorageDataFileValidator.Creator dataFileValidatorCreator);
-
-	public F setEntityDataIteratorProvider(BinaryEntityRawDataIterator.Provider entityDataIteratorProvider);
 	
+	/**
+	 * Sets the {@link StorageRequestTaskCreator} instance to be used for the assembly.
+	 * 
+	 * @param taskCreator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setTaskCreator(StorageRequestTaskCreator taskCreator);
+	
+	/**
+	 * Sets the {@link StorageTypeDictionary} instance to be used for the assembly.
+	 * 
+	 * @param typeDictionary the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setTypeDictionary(StorageTypeDictionary typeDictionary);
+	
+	/**
+	 * Sets the {@link StorageRootTypeIdProvider} instance to be used for the assembly.
+	 * 
+	 * @param rootTypeIdProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setRootTypeIdProvider(StorageRootTypeIdProvider rootTypeIdProvider);
+	
+	/**
+	 * Sets the {@link StorageTimestampProvider} instance to be used for the assembly.
+	 * 
+	 * @param timestampProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setTimestampProvider(StorageTimestampProvider timestampProvider);
+	
+	/**
+	 * Sets the {@link StorageObjectIdRangeEvaluator} instance to be used for the assembly.
+	 * 
+	 * @param objectIdRangeEvaluator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setObjectIdRangeEvaluator(StorageObjectIdRangeEvaluator objectIdRangeEvaluator);
+	
+	/**
+	 * Sets the {@link StorageFileReader.Provider} instance to be used for the assembly.
+	 * 
+	 * @param readerProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setReaderProvider(StorageFileReader.Provider readerProvider);
+	
+	/**
+	 * Sets the {@link StorageFileWriter.Provider} instance to be used for the assembly.
+	 * 
+	 * @param writerProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setWriterProvider(StorageFileWriter.Provider writerProvider);
+	
+	/**
+	 * Sets the {@link StorageGCZombieOidHandler} instance to be used for the assembly.
+	 * 
+	 * @param gCZombieOidHandler the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setGCZombieOidHandler(StorageGCZombieOidHandler gCZombieOidHandler);
+	
+	/**
+	 * Sets the {@link StorageRootOidSelector.Provider} instance to be used for the assembly.
+	 * 
+	 * @param rootOidSelectorProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
+	
+	/**
+	 * Sets the {@link StorageOidMarkQueue.Creator} instance to be used for the assembly.
+	 * 
+	 * @param oidMarkQueueCreator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setOidMarkQueueCreator(StorageOidMarkQueue.Creator oidMarkQueueCreator);
+	
+	/**
+	 * Sets the {@link StorageEntityMarkMonitor.Creator} instance to be used for the assembly.
+	 * 
+	 * @param entityMarkMonitorCreator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
+	
+	/**
+	 * Sets the {@link StorageDataFileValidator.Creator} instance to be used for the assembly.
+	 * 
+	 * @param dataFileValidatorCreator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setDataFileValidatorCreator(StorageDataFileValidator.Creator dataFileValidatorCreator);
+	
+	/**
+	 * Sets the {@link BinaryEntityRawDataIterator.Provider} instance to be used for the assembly.
+	 * 
+	 * @param entityRawDataIteratorProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setEntityDataIteratorProvider(BinaryEntityRawDataIterator.Provider entityRawDataIteratorProvider);
+	
+	/**
+	 * Sets the {@link StorageEntityDataValidator.Creator} instance to be used for the assembly.
+	 * 
+	 * @param entityDataValidatorCreator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setEntityDataValidatorCreator(StorageEntityDataValidator.Creator entityDataValidatorCreator);
 	
+	/**
+	 * Sets the {@link ProcessIdentityProvider} instance to be used for the assembly.
+	 * 
+	 * @param processIdentityProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setProcessIdentityProvider(ProcessIdentityProvider processIdentityProvider);
 	
+	/**
+	 * Sets the {@link StorageLockFileSetup} instance to be used for the assembly.
+	 * 
+	 * @param lockFileSetup the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setLockFileSetup(StorageLockFileSetup lockFileSetup);
 	
+	/**
+	 * Sets the {@link StorageLockFileSetup.Provider} instance to be used for the assembly.
+	 * 
+	 * @param lockFileSetupProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setLockFileSetupProvider(StorageLockFileSetup.Provider lockFileSetupProvider);
 	
+	/**
+	 * Sets the {@link StorageLockFileManager.Creator} instance to be used for the assembly.
+	 * 
+	 * @param lockFileManagerCreator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setLockFileManagerCreator(StorageLockFileManager.Creator lockFileManagerCreator);
-
+	
+	/**
+	 * Sets the {@link StorageExceptionHandler} instance to be used for the assembly.
+	 * 
+	 * @param exceptionHandler the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setExceptionHandler(StorageExceptionHandler exceptionHandler);
 
+	
 	
 	/**
 	 * Creates and returns a new {@link StorageManager} instance by using the current state of all registered
