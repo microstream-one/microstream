@@ -40,7 +40,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	
 	/**
 	 * A reference to the application's explicit root. Potentially <code>null</code> if roots are resolved otherwise.
-	 * E.g. via custom {@link PersistenceRootResolver}, static {@link EmbeddedStorage}{@link #root()} or constants.
+	 * E.g. via custom {@link PersistenceRootResolver}, static {@link EmbeddedStorageManager#root()} or constants.
 	 * 
 	 * @return the explicit root.
 	 */

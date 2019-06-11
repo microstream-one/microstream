@@ -495,7 +495,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param operationControllerCreator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setOperationControllerCreator(StorageOperationController.Creator operationControllerCreator);
 	
@@ -504,7 +504,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param initDataFileNumberProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setInitialDataFileNumberProvider(StorageInitialDataFileNumberProvider initDataFileNumberProvider);
 	
@@ -513,7 +513,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param requestAcceptorCreator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setRequestAcceptorCreator(StorageRequestAcceptor.Creator requestAcceptorCreator);
 	
@@ -522,7 +522,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param taskBrokerCreator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setTaskBrokerCreator(StorageTaskBroker.Creator taskBrokerCreator);
 	
@@ -531,7 +531,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param dataChunkValidatorProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setDataChunkValidatorProvider(StorageDataChunkValidator.Provider dataChunkValidatorProvider);
 	
@@ -540,7 +540,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param dataChunkValidatorProvider2 the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setDataChunkValidatorProvider2(StorageDataChunkValidator.Provider2 dataChunkValidatorProvider2);
 	
@@ -549,7 +549,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param channelCreator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setChannelCreator(StorageChannelsCreator channelCreator);
 	
@@ -558,7 +558,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param channelThreadProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setChannelThreadProvider(StorageChannelThreadProvider channelThreadProvider);
 	
@@ -567,7 +567,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param backupThreadProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setBackupThreadProvider(StorageBackupThreadProvider backupThreadProvider);
 	
@@ -576,7 +576,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param lockFileManagerThreadProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setLockFileManagerThreadProvider(StorageLockFileManagerThreadProvider lockFileManagerThreadProvider);
 	
@@ -585,7 +585,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param threadProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setThreadProvider(StorageThreadProvider threadProvider);
 	
@@ -594,7 +594,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param taskCreator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setTaskCreator(StorageRequestTaskCreator taskCreator);
 	
@@ -603,7 +603,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param typeDictionary the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setTypeDictionary(StorageTypeDictionary typeDictionary);
 	
@@ -612,7 +612,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param rootTypeIdProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setRootTypeIdProvider(StorageRootTypeIdProvider rootTypeIdProvider);
 	
@@ -621,7 +621,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param timestampProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setTimestampProvider(StorageTimestampProvider timestampProvider);
 	
@@ -630,7 +630,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param objectIdRangeEvaluator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setObjectIdRangeEvaluator(StorageObjectIdRangeEvaluator objectIdRangeEvaluator);
 	
@@ -639,7 +639,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param readerProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setReaderProvider(StorageFileReader.Provider readerProvider);
 	
@@ -648,7 +648,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param writerProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setWriterProvider(StorageFileWriter.Provider writerProvider);
 	
@@ -657,7 +657,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param gCZombieOidHandler the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setGCZombieOidHandler(StorageGCZombieOidHandler gCZombieOidHandler);
 	
@@ -666,7 +666,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param rootOidSelectorProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
 	
@@ -675,7 +675,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param oidMarkQueueCreator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setOidMarkQueueCreator(StorageOidMarkQueue.Creator oidMarkQueueCreator);
 	
@@ -684,7 +684,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param entityMarkMonitorCreator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
 	
@@ -693,7 +693,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param dataFileValidatorCreator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setDataFileValidatorCreator(StorageDataFileValidator.Creator dataFileValidatorCreator);
 	
@@ -702,7 +702,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param entityRawDataIteratorProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setEntityDataIteratorProvider(BinaryEntityRawDataIterator.Provider entityRawDataIteratorProvider);
 	
@@ -711,7 +711,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param entityDataValidatorCreator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setEntityDataValidatorCreator(StorageEntityDataValidator.Creator entityDataValidatorCreator);
 	
@@ -720,7 +720,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param processIdentityProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setProcessIdentityProvider(ProcessIdentityProvider processIdentityProvider);
 	
@@ -729,7 +729,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param lockFileSetup the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setLockFileSetup(StorageLockFileSetup lockFileSetup);
 	
@@ -738,7 +738,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param lockFileSetupProvider the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setLockFileSetupProvider(StorageLockFileSetup.Provider lockFileSetupProvider);
 	
@@ -747,7 +747,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param lockFileManagerCreator the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setLockFileManagerCreator(StorageLockFileManager.Creator lockFileManagerCreator);
 	
@@ -756,7 +756,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param exceptionHandler the instance to be used.
 	 * 
-	 * @return {@literal this} to allow method chaining.
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setExceptionHandler(StorageExceptionHandler exceptionHandler);
 

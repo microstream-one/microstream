@@ -14,28 +14,144 @@ import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeManager;
 import one.microstream.reference.Reference;
 
+
+/**
+ * A kind of factory type that holds and creates on demand all the parts that form an {@link EmbeddedStorageManager}
+ * instance, i.e. a functional database handling logic embedded in the same process as the application using it.
+ * <p>
+ * Additionally to the services of a mere factory type, a foundation type also keeps references to all parts
+ * after a {@link EmbeddedStorageManager} instance has been created. This is useful if some internal logic parts
+ * shall be accessed while the {@link EmbeddedStorageManager} logic is already running. Therefore, this type can
+ * best be thought of as a {@literal foundation} on which the running database handling logic stands.
+ * <p>
+ * All {@literal set~} methods are simple setter methods without any additional logic worth mentioning.<br>
+ * All {@literal set~} methods return {@literal this} to allow for easy method chaining to improve readability.<br>
+ * All {@literal get~} methods return a logic part instance, if present or otherwise creates and sets one beforehand
+ * via a default creation logic.
+ * 
+ * @author TM
+ *
+ * @param <F> the "self-type" of the  {@link EmbeddedStorageManager} implementation.
+ */
 public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>
 {
+	/**
+	 * Returns the currently set {@link StorageConfiguration} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createEmbeddedStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return the currently set instance, potentially created on-demand if required.
+	 * 
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
+	 */
 	public EmbeddedStorageConnectionFoundation<?> getConnectionFoundation();
 	
-	// next level method chaining 8-)
+	/**
+	 * Executes the passed {@literal logic} on the {@link EmbeddedStorageConnectionFoundation} instance provided
+	 * by {@link #getConnectionFoundation()}.
+	 * <p>
+	 * This is a mere utility method to allow more concise syntax and multi-layered method chaining.
+	 * 
+	 * @param logic the {@literal logic} to be executed.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F onConnectionFoundation(Consumer<? super EmbeddedStorageConnectionFoundation<?>> logic);
 	
+	/**
+	 * Executes the passed {@literal logic} on {@literal this}.
+	 * <p>
+	 * This is a mere utility method to allow more concise syntax and multi-layered method chaining.
+	 * 
+	 * @param logic the {@literal logic} to be executed.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F onThis(Consumer<? super EmbeddedStorageFoundation<?>> logic);
 
+	/**
+	 * Creates and returns a new {@link EmbeddedStorageManager} instance by using the current state of all registered
+	 * logic part instances and by on-demand creating missing ones via a default logic.
+	 * <p>
+	 * Alias for {@code return this.createEmbeddedStorageManager(null);}
+	 * <p>
+	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
+	 * 
+	 * @return {@linkDoc EmbeddedStorageManager#createEmbeddedStorageManager(Object)@return}
+	 * 
+	 * @see #createEmbeddedStorageManager(Object)
+	 * @see #start()
+	 * @see #start(Object)
+	 */
 	public default EmbeddedStorageManager createEmbeddedStorageManager()
 	{
 		// no explicit root by default
 		return this.createEmbeddedStorageManager(null);
 	}
 	
+	/**
+	 * Creates and returns a new {@link EmbeddedStorageManager} instance by using the current state of all registered
+	 * logic part instances and by on-demand creating missing ones via a default logic.
+	 * <p>
+	 * If the passed {@literal explicitRoot} is {@literal null}, a default root instance will be created, see
+	 * {@link EmbeddedStorageManager#root()}.
+	 * <p>
+	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
+	 * 
+	 * @param explicitRoot the instance to be used as the persistent entity graph's root instance.
+	 * 
+	 * @return a new {@link EmbeddedStorageManager} instance.
+	 * 
+	 * @see #createEmbeddedStorageManager()
+	 * @see #start()
+	 * @see #start(Object)
+	 */
 	public EmbeddedStorageManager createEmbeddedStorageManager(Object explicitRoot);
 	
+	/**
+	 * Convenience method to create, start and return an {@link EmbeddedStorageManager} instance using a default
+	 * root instance.
+	 * 
+	 * @return {@linkDoc EmbeddedStorageManager#createEmbeddedStorageManager(Object)@return}
+	 * 
+	 * @see #start(Object)
+	 * @see #createEmbeddedStorageManager()
+	 * @see #createEmbeddedStorageManager(Object)
+	 */
 	public default EmbeddedStorageManager start()
 	{
 		return this.start(null);
 	}
 	
+	/*
+	 * Funny how they can't create a properly functioning way to write multi-lined code in a JavaDoc.
+	 * See https://reflectoring.io/howto-format-code-snippets-in-javadoc/ for a well-written overview
+	 * over <pre>, <code> and {@code}.
+	 * In addition to that, the <pre>{@code} combination causes weird things with spaces at the beginning
+	 * of lines. At least in the eclipse JavaDoc view, but that is almost as important as the HTML views.
+	 * In short: all variants are inadequat. The best solution is to write every line in its own @code tag.
+	 * A real shame. As usual in the JDK.
+	 */
+	/**
+	 * Convenience method to create, start and return an {@link EmbeddedStorageManager} instance using the
+	 * passed {@literal explicitRoot}
+	 * <p>
+	 * By default, it is an alias for:<br>
+	 * {@code EmbeddedStorageManager esm = this.createEmbeddedStorageManager(explicitRoot);}<br>
+	 * {@code esm.start();}<br>
+	 * {@code return esm;}
+	 * 
+	 * @param explicitRoot {@linkDoc EmbeddedStorageManager#createEmbeddedStorageManager(Object):}
+	 * 
+	 * @return {@linkDoc EmbeddedStorageManager#createEmbeddedStorageManager(Object)@return}
+	 * 
+	 * @see #start()
+	 * @see #createEmbeddedStorageManager()
+	 * @see #createEmbeddedStorageManager(Object)
+	 */
 	public default EmbeddedStorageManager start(final Object explicitRoot)
 	{
 		final EmbeddedStorageManager esm = this.createEmbeddedStorageManager(explicitRoot);
@@ -43,16 +159,60 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		return esm;
 	}
 
+	/**
+	 * Sets the {@link EmbeddedStorageConnectionFoundation} instance to be used for the assembly.
+	 * 
+	 * @param connectionFoundation the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
 	public F setConnectionFoundation(EmbeddedStorageConnectionFoundation<?> connectionFoundation);
 
+	/**
+	 * Sets the passed {@link PersistenceRootResolver} instance to the {@link EmbeddedStorageConnectionFoundation}
+	 * instance provided by {@link #getConnectionFoundation()}.
+	 * 
+	 * @param rootResolver the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 * 
+	 * @see EmbeddedStorageConnectionFoundation#setRootResolver(PersistenceRootResolver)
+	 */
 	public F setRootResolver(PersistenceRootResolver rootResolver);
 	
+	/**
+	 * Creates a {@link PersistenceRootResolver} instance wrapping the passed {@literal root} instance
+	 * and sets it to the {@link EmbeddedStorageConnectionFoundation} instance provided by
+	 * {@link #getConnectionFoundation()}.
+	 * 
+	 * @param root the instance to be used as the persistent entity graph's root instance.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 * 
+	 * @see #setRootResolver(PersistenceRootResolver)
+	 * @see EmbeddedStorageConnectionFoundation#setRootResolver(PersistenceRootResolver)
+	 */
 	public F setRoot(Object root);
 	
+	/**
+	 * Sets the passed {@link PersistenceRefactoringMappingProvider} instance to the
+	 * {@link EmbeddedStorageConnectionFoundation} instance provided by {@link #getConnectionFoundation()}.
+	 * 
+	 * @param refactoringMappingProvider the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 * 
+	 * @see EmbeddedStorageConnectionFoundation#setRefactoringMappingProvider(PersistenceRefactoringMappingProvider)
+	 */
 	public F setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
 
 	
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance with default implementation.
+	 * 
+	 * @return a new {@link EmbeddedStorageFoundation} instance.
+	 */
 	public static EmbeddedStorageFoundation<?> New()
 	{
 		return new EmbeddedStorageFoundation.Default<>();
