@@ -52,7 +52,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		
 		return root == null
 			? Persistence.nullId()
-			: this.store(this.root())
+			: this.store(root)
 		;
 	}
 
