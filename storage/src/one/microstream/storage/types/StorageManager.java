@@ -464,7 +464,7 @@ public interface StorageManager extends StorageController
 		{
 			synchronized(this.stateLock)
 			{
-				if(!this.isRunning())
+				if(this.isRunning())
 				{
 					throw new RuntimeException("already starting"); // (05.07.2014)EXCP: proper exception
 				}

@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceIdSet;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.util.UtilStackTrace;
 
 public interface StorageTaskBroker
@@ -86,6 +87,7 @@ public interface StorageTaskBroker
 		////////////////////
 
 		// can't have a strong reference to StorageManager since that would prevent automatic shutdown
+		private final StorageOperationController    operationController   ;
 		private final StorageDataFileEvaluator      fileEvaluator         ;
 		private final StorageObjectIdRangeEvaluator objectIdRangeEvaluator;
 		private final StorageRequestTaskCreator     taskCreator           ;
@@ -101,16 +103,18 @@ public interface StorageTaskBroker
 
 		Default(
 			final StorageRequestTaskCreator     taskCreator           ,
+			final StorageOperationController    operationController   ,
 			final StorageDataFileEvaluator      fileEvaluator         ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
 			final int                           channelCount
 		)
 		{
 			super();
+			this.taskCreator            = notNull(taskCreator);
+			this.operationController    = notNull(operationController);
 			this.fileEvaluator          = notNull(fileEvaluator);
 			this.objectIdRangeEvaluator = notNull(objectIdRangeEvaluator);
-			this.taskCreator            = notNull(taskCreator);
-			this.channelCount           = channelCount;
+			this.channelCount           =         channelCount;
 			this.currentHead            = new StorageTask.DummyTask();
 		}
 
@@ -180,6 +184,21 @@ public interface StorageTaskBroker
 		}
 
 		private StorageTask enqueueTask(final StorageTask nextTask, final StorageTask newHeadTask)
+		{
+			/* (12.06.2019 TM)NOTE:
+			 * prevents application threads from waiting forever for a storage
+			 * that is already shutdown due to an error (e.g. IO-location not reachable).
+			 */
+			if(!this.operationController.checkProcessingEnabled())
+			{
+				 // (12.06.2019 TM)EXCP: proper exception
+				throw new StorageException("Storage is shut down.");
+			}
+			
+			return this.uncheckedEnqueueTask(nextTask, newHeadTask);
+		}
+		
+		private StorageTask uncheckedEnqueueTask(final StorageTask nextTask, final StorageTask newHeadTask)
 		{
 			/* (15.02.2019 TM)FIXME: That single-head queue is dangerous. Probably the source for some hangups.
 			 * Just build a proper queue with head and tail, ffs.
@@ -410,8 +429,18 @@ public interface StorageTaskBroker
 				operationController
 			);
 			
-			// special case: cannot wait on the task before the channel threads are started
-			this.enqueueTaskAndNotifyAll(task);
+			/* (12.06.2019 TM)NOTE:
+			 * Even more special case:
+			 * Cannot check for running storage in the initialization that will cause it to run.
+			 * Plus the old special case:
+			 * Cannot wait on the task before the channel threads are started
+			 */
+			final StorageTask currentHead = this.uncheckedEnqueueTask(task, task);
+			synchronized(currentHead)
+			{
+				currentHead.notifyAll();
+			}
+			
 			return task;
 		}
 
@@ -456,6 +485,7 @@ public interface StorageTaskBroker
 			{
 				return new StorageTaskBroker.Default(
 					taskCreator,
+					storageManager.operationController(),
 					storageManager.configuration().fileEvaluator(),
 					storageManager.objectIdRangeEvaluator(),
 					storageManager.channelCountProvider().get()

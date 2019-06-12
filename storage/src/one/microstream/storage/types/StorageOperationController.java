@@ -112,7 +112,6 @@ public interface StorageOperationController
 		@Override
 		public final synchronized boolean checkProcessingEnabled() throws StorageExceptionDisruptingExceptions
 		{
-			
 			if(this.hasDisruptingProblems)
 			{
 				// registering a problem has already set the processing flag to false.
