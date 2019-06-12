@@ -91,15 +91,15 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		// instance fields //
 		////////////////////
 
-		private final int                               channelIndex             ;
-		private final StorageExceptionHandler           exceptionHandler         ;
-		private final StorageTaskBroker                 taskBroker               ;
-		private final StorageOperationController        operationController      ;
-		private final StorageHousekeepingController     housekeepingController   ;
-		private final StorageFileManager.Default fileManager              ;
-		private final StorageEntityCache.Default entityCache              ;
-		private final boolean                           switchByteOrder          ;
-		private final BufferSizeProviderIncremental     loadingBufferSizeProvider;
+		private final int                           channelIndex             ;
+		private final StorageExceptionHandler       exceptionHandler         ;
+		private final StorageTaskBroker             taskBroker               ;
+		private final StorageOperationController    operationController      ;
+		private final StorageHousekeepingController housekeepingController   ;
+		private final StorageFileManager.Default    fileManager              ;
+		private final StorageEntityCache.Default    entityCache              ;
+		private final boolean                       switchByteOrder          ;
+		private final BufferSizeProviderIncremental loadingBufferSizeProvider;
 
 		private final HousekeepingTask[] housekeepingTasks =
 		{
@@ -130,15 +130,15 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		/////////////////
 
 		public Default(
-			final int                               hashIndex                ,
-			final StorageExceptionHandler           exceptionHandler         ,
-			final StorageTaskBroker                 taskBroker               ,
-			final StorageOperationController        operationController      ,
-			final StorageHousekeepingController     housekeepingController   ,
-			final StorageEntityCache.Default entityCache              ,
-			final boolean                           switchByteOrder          ,
-			final BufferSizeProviderIncremental     loadingBufferSizeProvider,
-			final StorageFileManager.Default fileManager
+			final int                           hashIndex                ,
+			final StorageExceptionHandler       exceptionHandler         ,
+			final StorageTaskBroker             taskBroker               ,
+			final StorageOperationController    operationController      ,
+			final StorageHousekeepingController housekeepingController   ,
+			final StorageEntityCache.Default    entityCache              ,
+			final boolean                       switchByteOrder          ,
+			final BufferSizeProviderIncremental loadingBufferSizeProvider,
+			final StorageFileManager.Default    fileManager
 		)
 		{
 			super();
