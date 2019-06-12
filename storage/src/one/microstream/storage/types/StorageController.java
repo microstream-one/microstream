@@ -15,7 +15,10 @@ public interface StorageController
 
 	public boolean isShuttingDown();
 
-	public boolean isShutdown();
+	public default boolean isShutdown()
+	{
+		return !this.isRunning();
+	}
 
 	public void checkAcceptingTasks();
 	

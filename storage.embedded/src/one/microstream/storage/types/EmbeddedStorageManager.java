@@ -271,12 +271,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public final boolean isShutdown()
-		{
-			return this.storageManager.isShutdown();
-		}
-
-		@Override
 		public final void checkAcceptingTasks()
 		{
 			this.storageManager.checkAcceptingTasks();

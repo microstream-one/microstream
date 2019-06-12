@@ -76,12 +76,10 @@ public interface StorageManager extends StorageController
 
 
 		// state flags //
-		private volatile boolean isRunning         ;
 		private volatile boolean isStartingUp      ;
 		// (15.06.2013)TODO: isAcceptingTasks: either use (methode) or delete or comment
 		private volatile boolean isAcceptingTasks  ;
 		private volatile boolean isShuttingDown    ;
-		private volatile boolean isShutdown         = true ;
 		private final    Object  stateLock          = new Object();
 		private volatile long    initializationTime;
 		private volatile long    operationModeTime ;
@@ -181,19 +179,26 @@ public interface StorageManager extends StorageController
 		@Override
 		public final boolean isRunning()
 		{
-			return this.isRunning;
+			return this.isChannelProcessingEnabled();
+		}
+		
+		private boolean isChannelProcessingEnabled()
+		{
+			synchronized(this.stateLock)
+			{
+				if(this.operationController.isChannelProcessingEnabled())
+				{
+					return true;
+				}
+				
+				return false;
+			}
 		}
 
 		@Override
 		public final boolean isAcceptingTasks()
 		{
 			return this.isAcceptingTasks;
-		}
-
-		@Override
-		public final boolean isShutdown()
-		{
-			return this.isShutdown;
 		}
 
 		@Override
@@ -222,7 +227,7 @@ public interface StorageManager extends StorageController
 
 		private void ensureRunning()
 		{
-			if(this.isRunning)
+			if(this.isRunning())
 			{
 				return;
 			}
@@ -459,18 +464,18 @@ public interface StorageManager extends StorageController
 		{
 			synchronized(this.stateLock)
 			{
-				if(!this.isShutdown)
+				if(!this.isRunning())
 				{
 					throw new RuntimeException("already starting"); // (05.07.2014)EXCP: proper exception
 				}
+				
 				this.isStartingUp = true;
-				this.isShutdown = false;
 				try
 				{
 					this.initializationTime = System.currentTimeMillis();
+					// causes the internal state to switch to running
 					this.internalStartUp();
 					this.operationModeTime = System.currentTimeMillis();
-					this.isRunning = true;
 				}
 				catch(final InterruptedException e)
 				{
@@ -478,7 +483,7 @@ public interface StorageManager extends StorageController
 				}
 				catch(final Throwable t)
 				{
-					this.isShutdown = true;
+					this.operationController.deactivate();
 					throw t;
 				}
 				finally
@@ -486,6 +491,7 @@ public interface StorageManager extends StorageController
 					this.isStartingUp = false;
 				}
 			}
+			
 			return this;
 		}
 		
