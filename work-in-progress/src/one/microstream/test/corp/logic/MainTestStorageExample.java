@@ -38,7 +38,7 @@ public class MainTestStorageExample
 		}
 		
 		// no shutdown required, the storage concept is inherently crash-safe
-//		System.exit(0);
+		System.exit(0);
 	}
 	
 }
