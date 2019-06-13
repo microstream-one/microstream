@@ -77,8 +77,6 @@ public interface StorageManager extends StorageController
 
 		// state flags //
 		private volatile boolean isStartingUp      ;
-		// (15.06.2013)TODO: isAcceptingTasks: either use (methode) or delete or comment
-		private volatile boolean isAcceptingTasks  ;
 		private volatile boolean isShuttingDown    ;
 		private final    Object  stateLock          = new Object();
 		private volatile long    initializationTime;
@@ -198,7 +196,7 @@ public interface StorageManager extends StorageController
 		@Override
 		public final boolean isAcceptingTasks()
 		{
-			return this.isAcceptingTasks;
+			return this.isChannelProcessingEnabled();
 		}
 
 		@Override
@@ -452,7 +450,7 @@ public interface StorageManager extends StorageController
 		@Override
 		public final void checkAcceptingTasks()
 		{
-			if(this.isAcceptingTasks)
+			if(this.isAcceptingTasks())
 			{
 				return;
 			}
