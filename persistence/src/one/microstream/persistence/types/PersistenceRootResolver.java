@@ -3,7 +3,6 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -171,10 +170,10 @@ public interface PersistenceRootResolver
 			// instance fields //
 			////////////////////
 			
-			private final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider     ;
-			private final EqHashTable<String, PersistenceRootEntry>             rootEntries       ;
-			private       PersistenceRefactoringResolverProvider                refactoring       ;
-			private       PersistenceRefactoringMappingProvider                 refactoringMapping;
+			private final PersistenceRootEntry.Provider             entryProvider     ;
+			private final EqHashTable<String, PersistenceRootEntry> rootEntries       ;
+			private       PersistenceRefactoringResolverProvider    refactoring       ;
+			private       PersistenceRefactoringMappingProvider     refactoringMapping;
 			
 			
 			
@@ -182,7 +181,7 @@ public interface PersistenceRootResolver
 			// constructors //
 			/////////////////
 			
-			Default(final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider)
+			Default(final PersistenceRootEntry.Provider entryProvider)
 			{
 				super();
 				this.entryProvider = entryProvider;
@@ -204,7 +203,7 @@ public interface PersistenceRootResolver
 				
 				for(final KeyValue<String, Supplier<?>> entry : PersistenceMetaIdentifiers.defineConstantSuppliers())
 				{
-					entries.add(entry.key(), this.entryProvider.apply(entry.key(), entry.value()));
+					entries.add(entry.key(), this.entryProvider.provideRootEntry(entry.key(), entry.value()));
 				}
 								
 				return entries;
@@ -213,7 +212,7 @@ public interface PersistenceRootResolver
 			@Override
 			public final synchronized Builder registerRoot(final String identifier, final Supplier<?> instanceSupplier)
 			{
-				final PersistenceRootEntry entry = this.entryProvider.apply(identifier, instanceSupplier);
+				final PersistenceRootEntry entry = this.entryProvider.provideRootEntry(identifier, instanceSupplier);
 				this.addEntry(identifier, entry);
 				return this;
 			}
@@ -286,7 +285,7 @@ public interface PersistenceRootResolver
 	}
 	
 	public static PersistenceRootResolver.Builder Builder(
-		final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider
+		final PersistenceRootEntry.Provider entryProvider
 	)
 	{
 		return new PersistenceRootResolver.Builder.Default(
