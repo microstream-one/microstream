@@ -74,4 +74,11 @@ public interface PersistenceRootEntry
 		
 	}
 	
+	
+	@FunctionalInterface
+	public interface Provider
+	{
+		public PersistenceRootEntry provideRootEntry(String identifier, Supplier<?> instanceSupplier);
+	}
+	
 }
