@@ -166,9 +166,9 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 
 	@Override
 	public final void update(
-		final Binary                          bytes   ,
+		final Binary                   bytes   ,
 		final PersistenceRoots.Default instance,
-		final PersistenceLoadHandler          handler
+		final PersistenceLoadHandler   handler
 	)
 	{
 		/*
@@ -194,7 +194,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	@Override
 	public final void iterateInstanceReferences(
 		final PersistenceRoots.Default instance,
-		final PersistenceFunction                 iterator
+		final PersistenceFunction      iterator
 	)
 	{
 		// the identifier strings are not considered instances (that are worth iterating/knowing) but mere value types
