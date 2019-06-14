@@ -11,7 +11,7 @@ public interface PersistenceRoots
 	
 	public boolean hasChanged();
 	
-	public void updateEntries(final XGettingTable<String, Object> newEntries);
+	public void updateEntries(XGettingTable<String, Object> newEntries);
 
 
 
