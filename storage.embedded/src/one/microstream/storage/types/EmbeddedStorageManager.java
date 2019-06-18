@@ -178,14 +178,14 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			// if the loaded roots does not match the defined roots, its entries must be updated to catch up.
 			if(!equalContent)
 			{
-				loadedRoots.updateEntries(definedEntries);
+				loadedRoots.replaceEntries(definedEntries);
 			}
 			
 			/*
 			 * If the loaded roots had to change in any way to match the runtime state of the application,
 			 * it means that it has to be stored to update the persistent state to the current (changed) one.
 			 * The loaded roots instance is the one that has to be stored to maintain the associated ObjectId,
-			 * hence the entry synchronizsation instead of just storing the defined roots instance right away.
+			 * hence the entry synchronization instead of just storing the defined roots instance right away.
 			 * There are 3 possible cases for a change:
 			 * 1.) An entry has been explicitly removed by a refactoring mapping.
 			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.

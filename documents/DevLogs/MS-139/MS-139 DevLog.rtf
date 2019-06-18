@@ -140,5 +140,63 @@ Das (plus ausf\'fchrliche Kommentare) in Kombination mit der Spezialbehandlung f
 \par
 Und das notier ich mir hier, weil ich es jedes mal wieder nicht find!\par
 PersistenceMetaIdentifiers#defineConstantSuppliers\par
+\par
+\par
+2019-06-17\par
+\par
+Nochmal durchlesen. Ja, das passt so. Darauf \'e4nder ich das um.\par
+\par
+PersistenceRoots Implementierung und Erzeugung ge\'e4ndert.\par
+Jetzt wird die Supplier Logik nur noch einmal aufgerufen und das erst beim Laden/Synchen. Nicht vorher.\par
+\par
+Hm... Benamungen verbessern und zumindest paar Methoden JavaDocen, damit ich deren Verwendungszweck nicht jedes mal neu recherchieren muss.\par
+\par
+So. Jetzt nochmal nachlesen, wie das mit dem Hintergrund bzw. der Ersatzbarkeit der Reference<> ist.\par
+\par
+\par
+Ach JETZT wei\'df ich wieder, wieso das eine Reference<> ist:\par
+Wenn man keinen expliziten Root angibt, w\'e4re es sinnlos, als defautl ein new Object() zu machen, weil man dem nix setzen kann.\par
+Also muss es etwas sein, dem man was setzen kann und das einfachste Ding daf\'fcr ist eine XReference<Object>.\par
+Wenn dann der R\'fcckgabetyp von EmbeddedStorageManager#root nur Object w\'e4re, m\'fcsste man jedes mal casten und zwar auf was, das von internem Code definiert wird.\par
+Hei\'dft: Das w\'e4re SEHR "magic".\par
+\par
+Mir f\'e4llt keine einheitliche L\'f6sung daf\'fcr ein:\par
+- Beliebiger expliziter root setzbar, ohne in eine verwirrende und potenziell fehleranf\'e4llige XReference<Object> gewrappt (und zur\'fcckgegeben) zu werden.\par
+- Defaultroot muss zwangsweise eine XReference<Object> sein, die richtig typisiert zur\'fcckgegeben werden muss.\par
+\par
+Nur daf\'fcr den StorageManager typisieren w\'e4r bl\'f6d.\par
+Man kann auch nicht einfach eine neue Root Instanz setzbar machen, denn dann m\'fcsste man mit jedem setzen die kompletten PersistenceRoots neu abspeichern.\par
+Also das ginge zwar, aber das ist ja irgendwie eine d\'e4mliche L\'f6sung. Noch dazu, weil ein scheinbar transienter Vorgang (root setzen) dann zu einer Persistierung f\'fchren w\'fcrde.\par
+So Tricksereien anfangen wie die OID gleich lassen und eine neue Instanz unter der alten OID abspeichern, fang ich nicht an, weil das die Konsistenzgarantie killt.\par
+\par
+Vielleicht ginge folgendes:\par
+- Typisierung nach au\'dfen auf Object anstatt XReference\par
+- Intern wird IMMER eine XReference gehalten. Die h\'e4lt entweder den expliziten Root oder man gettet/settet da defaultm\'e4\'dfig rein. Die default root instanz ist dann null, weil man ja setten kann.\par
+- Die interne XReference ist das Ding, das immer dieselbe OID hat.\par
+- storeroot speichert IMMER explizit die XReference (falls sie einen neuen referent hat) und immer auch ihren Referent, falls nicht bzw. falls die Referent instanz schon ID-m\'e4\'dfig bekannt ist und darum beim impliziten rekursieren geskippt werden w\'fcrde. Die redundant mitgespeicherten 32 Byte sind nicht der Rede wert. Und wie oft speichert man so einen root schon au\'dferhalb eines Tests?\par
+\par
+Das sollte beide Anforderungen abdecken...\par
+Mal nochmal durchdenken...\par
+\par
+Ach, aber was ist, wenn man nur einen RootsResolver registriert...?\par
+\par
+Genau. Darum braucht schon der PersistenceRootResolver einen "main root" oder "application root" oder sowas. Und der wird dann an die PersistenceRoots weitergegeben.\par
+Oh, und: Dann muss das auch beim Synchen der loaded/defined roots nachgezogen werden: Loaded Roots haben keinen "main root". Aber die defined Roots definieren einen. Die loadedRoots ist aber die ma\'dfgebliche Instanz, weil die auch wieder gespeichert wird. D.h. der muss vom definedRoots aus der main root gesetzt werden, falls vorhanden.\par
+\par
+Dann m\'fcsste aber eine Ver\'e4nderung des roots im EmbeddedStorageManager auch eine andere Instanz in der PersistenceRoots Instanz bewirken, d.h. man m\'fcsste den roots dort setzen.\par
+Hm. Oder evtl. gleich nur dort?\par
+\par
+Oder moment mal: Die XReference ist dort ja schon von anfang an gesetzt. Und die \'e4ndert sich auch nicht mehr. Wenn sich ihr Inhalt \'e4ndert, dann ist das ja unabh\'e4ngig von der PersistenceRoots instanz bzw. gilt dort automatisch mit.\par
+Funktionweise von Referenzen und so.\par
+\par
+So mach ich das.\par
+\par
+\par
+2019-06-18\par
+\par
+Commit gestern vergessen. Nachholen.\par
+\par
+\par
+\par
 }
  

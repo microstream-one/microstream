@@ -1,5 +1,7 @@
 package one.microstream.persistence.types;
 
+import one.microstream.X;
+import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.typing.KeyValue;
@@ -11,14 +13,19 @@ public interface PersistenceRoots
 	
 	public boolean hasChanged();
 	
-	public void updateEntries(XGettingTable<String, Object> newEntries);
-
-
-
+	public void replaceEntries(XGettingTable<String, Object> newEntries);
 		
-	public static PersistenceRoots New(final XGettingTable<String, Object> roots)
+
+	
+	public static PersistenceRoots New(
+		final XGettingTable<String, PersistenceRootEntry> resolvableEntries
+	)
 	{
-		return PersistenceRoots.Default.New(roots);
+		return new PersistenceRoots.Default(
+			EqHashTable.New(resolvableEntries),
+			null,
+			false
+		);
 	}
 
 	public final class Default implements PersistenceRoots
@@ -30,14 +37,9 @@ public interface PersistenceRoots
 		public static PersistenceRoots.Default createUninitialized()
 		{
 			return new PersistenceRoots.Default(
-				EqHashTable.New()
-			);
-		}
-		
-		public static PersistenceRoots.Default New(final XGettingTable<String, Object> roots)
-		{
-			return new PersistenceRoots.Default(
-				EqHashTable.New(roots)
+				X.emptyTable(),
+				null,
+				false
 			);
 		}
 		
@@ -47,7 +49,8 @@ public interface PersistenceRoots
 		// instance fields //
 		////////////////////
 
-		private final EqHashTable<String, Object> roots;
+		private XGettingTable<String, PersistenceRootEntry> resolvableEntries;
+		private EqConstHashTable<String, Object>            resolvedEntries  ;
 		
 		transient boolean hasChanged;
 		
@@ -57,11 +60,16 @@ public interface PersistenceRoots
 		// constructors //
 		/////////////////
 		
-		Default(final EqHashTable<String, Object> roots)
+		Default(
+			final XGettingTable<String, PersistenceRootEntry> resolvableEntries,
+			final EqConstHashTable<String, Object>            resolvedEntries  ,
+			final boolean                                     hasChanged
+		)
 		{
 			super();
-			this.roots      = roots;
-			this.hasChanged = false;
+			this.resolvableEntries = resolvableEntries;
+			this.resolvedEntries   = resolvedEntries  ;
+			this.hasChanged        = hasChanged       ;
 		}
 
 		
@@ -69,34 +77,47 @@ public interface PersistenceRoots
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final synchronized boolean hasChanged()
+		{
+			return this.hasChanged;
+		}
 
 		@Override
-		public final XGettingTable<String, Object> entries()
+		public final synchronized XGettingTable<String, Object> entries()
 		{
+			if(this.resolvedEntries == null)
+			{
+				this.resolveRoots();
+			}
+			
 			/*
-			 * intentionally make internal collection publicly available
+			 * Internal collection is Intentionally publicly available
 			 * as this implementation is actually just a typed wrapper for it.
+			 * The instance is imutable, so there can be no harm done
 			 */
-			return this.roots;
+			return this.resolvedEntries;
 		}
 		
-		public final synchronized Object[] setResolvedRoots(
-			final XGettingTable<String, PersistenceRootEntry> resolvedRoots
-		)
+		private synchronized Object[] resolveRoots()
 		{
-			// inluding nulls to keep indexes consistent with objectIds.
-			final Object[] instances = new Object[resolvedRoots.intSize()];
-			
+			// internal state helpers
+			final XGettingTable<String, PersistenceRootEntry> resolvableEntries = this.resolvableEntries;
+			final EqHashTable<String, Object> resolvedEntries = EqHashTable.New();
 			boolean hasChanged = false;
 			
+			// return value helper instance, including nulls to keep indexes consistent with objectIds.
+			final Object[] instances = new Object[resolvableEntries.intSize()];
+			
 			int i = 0;
-			for(final KeyValue<String, PersistenceRootEntry> resolvedRoot : resolvedRoots)
+			for(final KeyValue<String, PersistenceRootEntry> resolvableEntry : resolvableEntries)
 			{
-				final String               identifier = resolvedRoot.key();
-				final PersistenceRootEntry rootEntry  = resolvedRoot.value();
-				final Object               instance   = rootEntry.instance(); // call supplier logic only once.
+				final String               identifier = resolvableEntry.key();
+				final PersistenceRootEntry rootEntry  = resolvableEntry.value();
+				final Object               instance   = rootEntry.instance(); // supplier may only be called once!
 				
-				// explicitly removed entry special case. Also represents a change. Index must be kept consistent!
+				// explicitly removed entry. Also represents a change. Array order must remain consistent to objectIds!
 				if((instances[i++] = instance) == null)
 				{
 					hasChanged = true;
@@ -104,7 +125,7 @@ public interface PersistenceRoots
 				}
 
 				// normal case: unremoved instances must be registered.
-				this.roots.put(identifier, instance);
+				resolvedEntries.put(identifier, instance);
 				
 				// if at least one entry has changed, the whole roots instance has changed.
 				if(!hasChanged && !identifier.equals(rootEntry.identifier()))
@@ -115,24 +136,43 @@ public interface PersistenceRoots
 			
 			// any change regarding mapping or removing root entries that requires an updating store later on.
 			this.hasChanged = hasChanged;
+			this.resolvedEntries = resolvedEntries.immure();
+			this.resolvableEntries = null;
 			
 			return instances;
 		}
 		
-		@Override
-		public final synchronized boolean hasChanged()
+		/**
+		 * Used for example by a type handler to set the actual state of an uninitialized instance.
+		 * 
+		 * @param resolvableEntries the resolvable entries to be set.
+		 * 
+		 * @return an array containing the actual root instances in the order of the passed entries,
+		 *         including {@literal nulls}.
+		 */
+		public final synchronized Object[] setResolvableRoots(
+			final XGettingTable<String, PersistenceRootEntry> resolvableEntries
+		)
 		{
-			return this.hasChanged;
+			this.resolvableEntries = resolvableEntries;
+			this.resolvedEntries   = null             ;
+			this.hasChanged        = false            ;
+			
+			return this.resolveRoots();
 		}
 		
+		/**
+		 * Used for example during roots synchronization when initializing an embedded storage instance.
+		 * 
+		 * @param newEntries the actual entries to be set.
+		 */
 		@Override
-		public final synchronized void updateEntries(final XGettingTable<String, Object> newEntries)
+		public final synchronized void replaceEntries(final XGettingTable<String, Object> newEntries)
 		{
-			this.roots.clear();
-			this.roots.addAll(newEntries);
-			
 			// having to replace/update the entries is a change as well.
-			this.hasChanged = true;
+			this.resolvableEntries = null;
+			this.resolvedEntries   = EqConstHashTable.New(newEntries);
+			this.hasChanged        = true;
 		}
 
 	}

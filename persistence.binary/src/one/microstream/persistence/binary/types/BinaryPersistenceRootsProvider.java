@@ -25,8 +25,8 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		// instance fields //
 		////////////////////
 		
-		final     PersistenceRootResolver  rootResolver;
-		transient PersistenceRoots.Default roots       ;
+		final     PersistenceRootResolver rootResolver;
+		transient PersistenceRoots        roots       ;
 		
 		
 		
@@ -47,12 +47,12 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		////////////
 
 		@Override
-		public final PersistenceRoots.Default provideRoots()
+		public final PersistenceRoots provideRoots()
 		{
 			if(this.roots == null)
 			{
 				// must always be consistent with #provideRootsClass
-				this.roots = PersistenceRoots.Default.New(this.rootResolver.getRootInstances());
+				this.roots = PersistenceRoots.New(this.rootResolver.entries());
 			}
 			
 			return this.roots;
