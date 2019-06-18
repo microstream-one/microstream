@@ -247,5 +247,20 @@ Nochmal nachlesen, wie das aktuell mit dem Wrappen l\'e4uft ...\par
 \par
 Eine explizite Root Instanz wird mit einer Reference gewrappt und die wird dann gespeichert.\par
 Moment mal: wie kann die dann \'fcberhaupt aktualisiert werden anstatt einfach durch eine generische ersetzt zu werden?\par
+\par
+Ach, das funktioniert dadurch, dass es gar keine explizite Root Instanz gibt, sondern nur eine Reference, die auf den passenden Typ typisiert ist.\par
+D.h. die generisch erzeugte wird da reingesetzt, man ruft .get() auf und es passt alles.\par
+Hm.\par
+Das ist eigentlich dann doch recht elegant.\par
+\par
+Hab ich jetzt da tagelang umsonst rumrecherchiert und rumgeplant?\par
+Eigentlich k\'f6nnte man wirklich einfach bei storeRoot einen doppel-store machen und fertig.\par
+\par
+Allerdings:\par
+- Was war nochmal das potenziell gef\'e4hrliche?\par
+- Es ist halt gerade f\'fcr den Einstieg ein bisschen schwer zu erkl\'e4ren, warum da eine Reference zur\'fcckgegeben wird.\par
+Vielleicht kann man es trotzdem so machen, dass die Reference nur intern gehandelt wird mit der Logik wie bisher, es sei denn, man setzt explizit eine, dann hat man seine Typisierung.\par
+\par
+Das muss ich morgen mal checken.\par
 }
  
