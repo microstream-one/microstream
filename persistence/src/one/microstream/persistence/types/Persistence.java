@@ -686,7 +686,7 @@ public class Persistence
 
 	public static final PersistenceRootResolver RootResolver(final Supplier<?> rootInstanceSupplier)
 	{
-		return RootResolver("root", rootInstanceSupplier);
+		return RootResolverBuilder(rootInstanceSupplier).build();
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
@@ -722,7 +722,26 @@ public class Persistence
 	
 	public static final PersistenceRootResolver.Builder RootResolverBuilder()
 	{
-		return PersistenceRootResolver.Builder();
+		// debugability line breaks, do not reduce!
+		return RootResolverBuilder(
+			() ->
+				null
+		);
+	}
+	
+	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+		final Supplier<?> rootInstanceSupplier
+	)
+	{
+		return RootResolverBuilder("root", rootInstanceSupplier);
+	}
+	
+	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+		final String      rootIdentifier      ,
+		final Supplier<?> rootInstanceSupplier
+	)
+	{
+		return PersistenceRootResolver.Builder(rootIdentifier, rootInstanceSupplier);
 	}
 	
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
