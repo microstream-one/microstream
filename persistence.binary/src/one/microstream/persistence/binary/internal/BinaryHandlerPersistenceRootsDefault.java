@@ -92,10 +92,10 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 
 	@Override
 	public final void store(
-		final Binary                          bytes   ,
+		final Binary                   bytes   ,
 		final PersistenceRoots.Default instance,
-		final long                            objectId,
-		final PersistenceStoreHandler         handler
+		final long                     objectId,
+		final PersistenceStoreHandler  handler
 	)
 	{
 		bytes.storeRoots(this.typeId(), objectId, instance.entries(), handler);
@@ -187,7 +187,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		final XGettingTable<String, PersistenceRootEntry> resolvedRoots = this.resolver.resolveRootInstances(
 			EqHashEnum.New(identifiers)
 		);
-		final Object[] instances = instance.setResolvedRoots(resolvedRoots);
+		final Object[] instances = instance.setResolvableRoots(resolvedRoots);
 		this.registerInstancesPerObjectId(objectIds, instances);
 	}
 
@@ -197,7 +197,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		final PersistenceFunction      iterator
 	)
 	{
-		// the identifier strings are not considered instances (that are worth iterating/knowing) but mere value types
+		// root identifiers are actually stored a an array of string values, not as string instances.
 		for(final Object object : instance.entries().values())
 		{
 			iterator.apply(object);

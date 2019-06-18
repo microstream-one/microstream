@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
+import one.microstream.collections.Singleton;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.reflect.XReflect;
@@ -16,9 +17,13 @@ import one.microstream.typing.KeyValue;
 
 public interface PersistenceRootResolver
 {
+	public String mainRootIdentifier();
+	
+	public Object mainRoot();
+	
 	public PersistenceRootEntry resolveRootInstance(String identifier);
 	
-	public XGettingTable<String, Object> getRootInstances();
+	public XGettingTable<String, PersistenceRootEntry> entries();
 	
 	public default XGettingTable<String, PersistenceRootEntry> resolveRootInstances(
 		final XGettingEnum<String> identifiers
@@ -306,8 +311,11 @@ public interface PersistenceRootResolver
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+		
 
-		private final EqConstHashTable<String, PersistenceRootEntry> rootEntries;
+		private final String                                         mainRootIdentifier;
+		private final Singleton<Object>                              mainRoot          ;
+		private final EqConstHashTable<String, PersistenceRootEntry> rootEntries       ;
 
 
 
@@ -315,10 +323,16 @@ public interface PersistenceRootResolver
 		// constructors //
 		/////////////////
 
-		Default(final EqConstHashTable<String, PersistenceRootEntry> rootEntries)
+		Default(
+			final String                                         mainRootIdentifier,
+			final Singleton<Object>                              mainRoot          ,
+			final EqConstHashTable<String, PersistenceRootEntry> rootEntries
+		)
 		{
 			super();
-			this.rootEntries = rootEntries;
+			this.mainRootIdentifier = mainRootIdentifier;
+			this.mainRoot           = mainRoot          ;
+			this.rootEntries        = rootEntries       ;
 		}
 
 
@@ -333,18 +347,26 @@ public interface PersistenceRootResolver
 			return this.rootEntries.get(identifier);
 		}
 		
+
 		@Override
-		public final XGettingTable<String, Object> getRootInstances()
+		public XGettingTable<String, PersistenceRootEntry> entries()
 		{
-			final EqHashTable<String, Object> rootInstances = EqHashTable.New();
-			
-			for(final PersistenceRootEntry entry : this.rootEntries.values())
-			{
-				rootInstances.add(entry.identifier(), entry.instance());
-			}
-			
-			return rootInstances;
+			return this.rootEntries;
 		}
+		
+		// (17.06.2019 TM)FIXME: /!\ MS-139: remove when refactored
+//		@Override
+//		public final XGettingTable<String, Object> getRootInstances()
+//		{
+//			final EqHashTable<String, Object> rootInstances = EqHashTable.New();
+//
+//			for(final PersistenceRootEntry entry : this.rootEntries.values())
+//			{
+//				rootInstances.add(entry.identifier(), entry.instance());
+//			}
+//
+//			return rootInstances;
+//		}
 
 	}
 	
@@ -387,11 +409,11 @@ public interface PersistenceRootResolver
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-				
+		
 		@Override
-		public final XGettingTable<String, Object> getRootInstances()
+		public XGettingTable<String, PersistenceRootEntry> entries()
 		{
-			return this.actualRootResolver.getRootInstances();
+			return this.actualRootResolver.entries();
 		}
 
 		@Override

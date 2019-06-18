@@ -671,7 +671,10 @@ public class Persistence
 	}
 	
 
-	public static final PersistenceRootResolver RootResolver(final String rootIdentifier, final Object rootInstance)
+	public static final PersistenceRootResolver RootResolver(
+		final String rootIdentifier,
+		final Object rootInstance
+	)
 	{
 		return RootResolver(rootIdentifier, () -> rootInstance);
 	}
@@ -695,8 +698,8 @@ public class Persistence
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
-		final String                                rootIdentifier      ,
-		final Supplier<?>                           rootInstanceSupplier,
+		final String                                 rootIdentifier      ,
+		final Supplier<?>                            rootInstanceSupplier,
 		final PersistenceRefactoringResolverProvider refactoringMapping
 	)
 	{
@@ -707,7 +710,7 @@ public class Persistence
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
-		final Supplier<?>                           rootInstanceSupplier,
+		final Supplier<?>                            rootInstanceSupplier,
 		final PersistenceRefactoringResolverProvider refactoringMapping
 	)
 	{
@@ -722,7 +725,9 @@ public class Persistence
 		return PersistenceRootResolver.Builder();
 	}
 	
-	public static final PersistenceRefactoringMappingProvider RefactoringMapping(final File refactoringsFile)
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+		final File refactoringsFile
+	)
 	{
 		return RefactoringMapping(
 			readRefactoringMappings(refactoringsFile)
