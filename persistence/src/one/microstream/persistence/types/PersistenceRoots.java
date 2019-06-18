@@ -9,6 +9,11 @@ import one.microstream.typing.KeyValue;
 
 public interface PersistenceRoots
 {
+	// (18.06.2019 TM)FIXME: MS-139 mainRoot in PersistenceRoots
+//	public String mainRootIdentifier();
+//
+//	public PersistenceRootEntry mainRootEntry();
+	
 	public XGettingTable<String, Object> entries();
 	
 	public boolean hasChanged();

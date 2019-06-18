@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
-import one.microstream.collections.Singleton;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.reflect.XReflect;
@@ -19,7 +18,7 @@ public interface PersistenceRootResolver
 {
 	public String mainRootIdentifier();
 	
-	public Object mainRoot();
+	public PersistenceRootEntry mainRootEntry();
 	
 	public PersistenceRootEntry resolveRootInstance(String identifier);
 	
@@ -144,6 +143,8 @@ public interface PersistenceRootResolver
 	
 	public interface Builder
 	{
+		public Builder registerMainRoot(String mainRootIdentifier, Supplier<?> instanceSupplier);
+		
 		public Builder registerRoot(String identifier, Supplier<?> instanceSupplier);
 		
 		public default Builder registerRoots(final XGettingTable<String, Supplier<?>> roots)
@@ -177,6 +178,8 @@ public interface PersistenceRootResolver
 			
 			private final PersistenceRootEntry.Provider             entryProvider     ;
 			private final EqHashTable<String, PersistenceRootEntry> rootEntries       ;
+			
+			private       String                                    mainRootIdentifier;
 			private       PersistenceRefactoringResolverProvider    refactoring       ;
 			private       PersistenceRefactoringMappingProvider     refactoringMapping;
 			
@@ -214,12 +217,42 @@ public interface PersistenceRootResolver
 				return entries;
 			}
 			
+
 			@Override
-			public final synchronized Builder registerRoot(final String identifier, final Supplier<?> instanceSupplier)
+			public final synchronized Builder registerMainRoot(
+				final String      mainRootIdentifier,
+				final Supplier<?> instanceSupplier
+			)
+			{
+				notNull(mainRootIdentifier);
+				
+				// current main root identifier must be removed in any case because of adding logic later.
+				this.rootEntries.removeFor(this.mainRootIdentifier);
+				this.addEntry(mainRootIdentifier, instanceSupplier);
+				this.mainRootIdentifier = mainRootIdentifier;
+				
+				return this;
+			}
+			
+			@Override
+			public final synchronized Builder registerRoot(
+				final String      identifier      ,
+				final Supplier<?> instanceSupplier
+			)
 			{
 				final PersistenceRootEntry entry = this.entryProvider.provideRootEntry(identifier, instanceSupplier);
 				this.addEntry(identifier, entry);
+				
 				return this;
+			}
+			
+			private void addEntry(
+				final String      identifier      ,
+				final Supplier<?> instanceSupplier
+			)
+			{
+				final PersistenceRootEntry entry = this.entryProvider.provideRootEntry(identifier, instanceSupplier);
+				this.addEntry(identifier, entry);
 			}
 			
 			private void addEntry(final String identifier, final PersistenceRootEntry entry)
@@ -228,6 +261,7 @@ public interface PersistenceRootResolver
 				{
 					return;
 				}
+				
 				throw new RuntimeException(); // (17.04.2018 TM)EXCP: proper exception
 			}
 						
@@ -235,6 +269,7 @@ public interface PersistenceRootResolver
 			public final synchronized PersistenceRootResolver build()
 			{
 				final PersistenceRootResolver resolver = new PersistenceRootResolver.Default(
+					this.mainRootIdentifier,
 					this.rootEntries.immure()
 				);
 				
@@ -284,24 +319,33 @@ public interface PersistenceRootResolver
 	
 
 	
-	public static PersistenceRootResolver.Builder Builder()
+	public static PersistenceRootResolver.Builder Builder(
+		final String      mainRootIdentifier,
+		final Supplier<?> mainRootSupplier
+	)
 	{
-		return Builder(PersistenceRootEntry::New);
+		return Builder(PersistenceRootEntry::New, mainRootIdentifier, mainRootSupplier);
 	}
 	
 	public static PersistenceRootResolver.Builder Builder(
-		final PersistenceRootEntry.Provider entryProvider
+		final PersistenceRootEntry.Provider entryProvider     ,
+		final String                        mainRootIdentifier,
+		final Supplier<?>                   mainRootSupplier
 	)
 	{
-		return new PersistenceRootResolver.Builder.Default(
+		final PersistenceRootResolver.Builder.Default builder = new PersistenceRootResolver.Builder.Default(
 			notNull(entryProvider)
 		);
+		
+		return builder.registerMainRoot(mainRootIdentifier, mainRootSupplier);
 	}
 		
-	public static PersistenceRootResolver New(final String identifier, final Supplier<?> instanceSupplier)
+	public static PersistenceRootResolver New(
+		final String      mainRootIdentifier,
+		final Supplier<?> mainRootSupplier
+	)
 	{
-		return Builder()
-			.registerRoot(identifier, instanceSupplier)
+		return Builder(mainRootIdentifier, mainRootSupplier)
 			.build()
 		;
 	}
@@ -314,7 +358,6 @@ public interface PersistenceRootResolver
 		
 
 		private final String                                         mainRootIdentifier;
-		private final Singleton<Object>                              mainRoot          ;
 		private final EqConstHashTable<String, PersistenceRootEntry> rootEntries       ;
 
 
@@ -325,13 +368,11 @@ public interface PersistenceRootResolver
 
 		Default(
 			final String                                         mainRootIdentifier,
-			final Singleton<Object>                              mainRoot          ,
 			final EqConstHashTable<String, PersistenceRootEntry> rootEntries
 		)
 		{
 			super();
 			this.mainRootIdentifier = mainRootIdentifier;
-			this.mainRoot           = mainRoot          ;
 			this.rootEntries        = rootEntries       ;
 		}
 
@@ -345,6 +386,18 @@ public interface PersistenceRootResolver
 		public final PersistenceRootEntry resolveRootInstance(final String identifier)
 		{
 			return this.rootEntries.get(identifier);
+		}
+		
+		@Override
+		public String mainRootIdentifier()
+		{
+			return this.mainRootIdentifier;
+		}
+		
+		@Override
+		public PersistenceRootEntry mainRootEntry()
+		{
+			return this.entries().get(this.mainRootIdentifier);
 		}
 		
 
@@ -414,6 +467,18 @@ public interface PersistenceRootResolver
 		public XGettingTable<String, PersistenceRootEntry> entries()
 		{
 			return this.actualRootResolver.entries();
+		}
+
+		@Override
+		public String mainRootIdentifier()
+		{
+			return this.actualRootResolver.mainRootIdentifier();
+		}
+
+		@Override
+		public PersistenceRootEntry mainRootEntry()
+		{
+			return this.actualRootResolver.mainRootEntry();
 		}
 
 		@Override
