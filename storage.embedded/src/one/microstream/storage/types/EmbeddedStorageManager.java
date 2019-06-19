@@ -9,9 +9,7 @@ import java.util.function.Predicate;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceManager;
-import one.microstream.persistence.types.PersistenceRootResolver;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
@@ -38,22 +36,26 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	@Override
 	public boolean shutdown();
 	
-	/**
-	 * A reference to the application's explicit root. Potentially <code>null</code> if roots are resolved otherwise.
-	 * E.g. via custom {@link PersistenceRootResolver}, static {@link EmbeddedStorageManager#root()} or constants.
-	 * 
-	 * @return the explicit root.
-	 */
-	public Reference<Object> root();
+	public Object root();
+	
+	public Reference<Object> defaultRoot();
 	
 	public default long storeRoot()
 	{
-		final Reference<Object> root = this.root();
+		Object effectiveRoot = this.root();
+		if(effectiveRoot == null)
+		{
+			effectiveRoot = this.defaultRoot();
+		}
 		
-		return root == null
-			? Persistence.nullId()
-			: this.store(root)
-		;
+		return this.store(effectiveRoot);
+		
+//		final Reference<Object> root = this.root();
+//
+//		return root == null
+//			? Persistence.nullId()
+//			: this.store(root)
+//		;
 	}
 
 	
@@ -84,7 +86,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		private final StorageManager                         storageManager      ;
 		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
 		private final PersistenceRoots                       definedRoots        ;
-		private final Reference<Object>                      explicitRoot        ;
 		
 		private StorageConnection singletonConnection;
 
@@ -97,8 +98,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		Default(
 			final StorageConfiguration                   configuration       ,
 			final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
-			final PersistenceRoots                       definedRoots        ,
-			final Reference<Object>                      explicitRoot
+			final PersistenceRoots                       definedRoots
 		)
 		{
 			super();
@@ -106,7 +106,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			this.storageManager       = connectionFoundation.getStorageManager(); // to ensure consistency
 			this.connectionFoundation = connectionFoundation                    ;
 			this.definedRoots         = definedRoots                            ;
-			this.explicitRoot         = explicitRoot                            ;
 		}
 
 
@@ -128,7 +127,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public Reference<Object> root()
 		{
-			return this.explicitRoot;
+			return this.definedRoots.customRoot();
 		}
 
 		@Override

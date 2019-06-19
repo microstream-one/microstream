@@ -5,9 +5,6 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Supplier;
 
-import one.microstream.chars.XChars;
-import one.microstream.meta.XDebug;
-
 public interface PersistenceRootEntry
 {
 	public String identifier();
@@ -69,7 +66,7 @@ public interface PersistenceRootEntry
 		@Override
 		public final Object instance()
 		{
-			XDebug.println("Calling supplier.get() from " + XChars.systemString(this));
+//			XDebug.println("Calling supplier.get() from " + XChars.systemString(this));
 			
 			return this.instanceSupplier != null
 				? this.instanceSupplier.get()
