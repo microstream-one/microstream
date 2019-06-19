@@ -262,5 +262,81 @@ Allerdings:\par
 Vielleicht kann man es trotzdem so machen, dass die Reference nur intern gehandelt wird mit der Logik wie bisher, es sei denn, man setzt explizit eine, dann hat man seine Typisierung.\par
 \par
 Das muss ich morgen mal checken.\par
+\par
+\par
+2019-06-19\par
+\par
+Aber Moment mal: das mit der Reference, die den generisch geladenen Root reingeneriert wird, mag schon elegant sein, aber man \'fcbergibt ja auf verschiedenen Wegen eine konkrete Root Instanz.\par
+Es wird aber nicht diese Instanz aus der Datenbank aktualisiert, sondern es wird eine neu generierte in die Reference gesetzt.\par
+Das ist zwar nicht direkt eine Fehler, aber ein unerwartetes Verhalten und wenn man es nicht ber\'fccksichtigt, entsteht ein Fehler.\par
+Das muss ich mal testen.\par
+\par
+Jup. Der wird momentan einfach ersetzt durch die geladene Instanz gleichen Typs.\par
+Also stimmen die \'dcberlegungen von oben \'fcber die konflikteten Anforderungen schon und es ist bist einfach falsch gebaut.\par
+Hmpfl.\par
+Also wieder alles durchdenken.\par
+Es muss doch m\'f6glich sein, eine Instanz zu \'fcbergeben und die dann aus der Datenbank als root updaten zu lassen.\par
+\par
+Vielleicht muss es statt einer generischen Reference (bzw. Singleton) eine spezifische StorageRoot Klasse sein und der Handler daf\'fcr special-handlet dann auch den Referenten.\par
+\par
+Oder es w\'e4re eine m\'f6glichkeiten, den main root per identifier zu registrieren, aber in dem die TypeId enthalten ist. Denn die \'e4ndert sich nicht und entspricht zwangsweise immer genau dem konkreten Datensatz, der abgespeichert wurde.\par
+Die ist unabh\'e4ngig von Typnamenged\'f6ns.\par
+\par
+Dann m\'fcsste aber die TypeId von Anfang an, vom Registrieren des Roots an, feststehen.\par
+Mit bissl trickserei sp\'e4testens beim Roots resolven.\par
+Mal schauen ...\par
+\par
+Also der EmbeddedStorageManager h\'e4tte f\'fcr seine #synchronizeRoots schon mal eine singletonConnection zur Verf\'fcgung.\par
+Die kennt den persistencemanager und der kennt den TypeHandlerManager.\par
+Man kann zwar nicht direkt darauf zugreifen, aber das lie\'dfe sich \'e4ndern oder es reicht evtl. auch, einen Registerer zu erzeugen und den dann die main root Instanz anschn\'fcffeln zu lassen, damit er eine TypeId sicherstellt.\par
+Oder es ist sowieso keine schlechte Idee, den PersistenceManager etwas zu \'f6ffnen und Zugriff auf den TypeHandlerManager zu erlauben, falls man jemand aus anderen Gr\'fcnden einen TypeHandler braucht. Eben f\'fcr die TypeId oder um an den registrierten selbstgebauten TypeHandler wieder ranzukommen.\par
+Wobei es da eigentlich schon zu sp\'e4t ist, weil die loadedRoots da schon feststehen. Also in den aufrufenden Kontext schauen.\par
+Ne, Moment mal: wenn schon was geladen wird, dann gibt es den Eintrag mit seiner TypeId ja eh schon. Die Frage ist ja, wenn zum ersten mal gespeichert wird bzw. wenn ein main Root eines neuen Typs dazukommt, wo kommt dann die TypeId her?\par
+Das konkrete Aufl\'f6sen zu dem String->Instanz Mapping findet ja im RootResolver selber statt. Entweder muss der Zugriff auf den TypeHandler haben oder der entries() Aufruf muss um einen Zugang zum TypeHandlerManager erweitert werden.\par
+Technisch w\'fcrde das so klappen.\par
+Die Frage ist, ob es "sch\'f6n" ist, oder ob es nicht einfachere (auch zuk\'fcnftig wieder einfacher zu verstehende / einzulesende) Wege gibt ...\par
+\par
+Hmpfl...\par
+\par
+Wie w\'e4re denn folgende Idee:\par
+Scheiss auf das Reference-Wrapping.\par
+Root Instanzen werden immer direkt registriert. Unter dem Identifier "root" bzw. einem selbst definierten.\par
+Dann darf die Methode root() nicht mehr Reference zur\'fcckgeben sondern entweder Object oder es gibt sie sogar gar nicht mehr\par
+\par
+Davon gibt es zwei Varianten:\par
+\par
+1.) Explizit \'fcbergebene Instanz.\par
+Die ist dann direkt der root, wird vom Ladevorgang aktualisiert, alles super. Fertig.\par
+root(), falls es sie noch gibt, gibt das Ding dann zur\'fcck, aber halt typisiert auf Object. Mei.\par
+Wer nicht casten will, soll sich seine Instanz richtig typisiert im Kontext der Anwendung merken. Fertig.\par
+Oder einen hauchd\'fcnnen Wrapper extenden, der diese eine Methode h\'fcbsch castet.\par
+Das w\'e4re dann auch ein Argument daf\'fcr, die root() zu lassen.\par
+\par
+2.) Keine explizit \'fcbergebene Instanz.\par
+Dann wird behelfsm\'e4\'dfig eine Reference (Singleton) Instanz erzeugt mit Referent null.\par
+Dann gibt die Methode root() nat\'fcrlich auch die Reference zur\'fcck, nur halt typisiert als Object.\par
+Um das ganze ein bisschen weniger "magic" und einsteigerfreundlicher zu machen, gibt es eine defaultRoot() Methode, die Reference<Object> zur\'fcckgibt.\par
+Die Frage w\'e4r nur noch: wann wei\'df ein EmbeddedStorageManager nach dem Laden, ob eine root Instanz default ist oder nicht?\par
+"instanceof Reference" w\'e4r bl\'f6d, denn falls ein selbstgebauter Root das Interface mal implementieren sollte, w\'fcrde der auf einmal zur\'fcckgegeben. Ist zwar nicht falsch und harmlos, aber bissl wirr.\par
+Vielleicht k\'f6nnte f\'fcr diesen Fall der Identifier von "root" auf "defaultRoot" ge\'e4ndert werden und darauf gepr\'fcft werden.\par
+\par
+Die Frage ist, was dann passiert, wenn sich der root mal \'e4ndern soll.\par
+Gut, man k\'f6nnte sagen: gleicher Root Identifier bedeutet es muss derselbe Typ der Root Instanz sein.\par
+Wer den \'e4ndern will, soll halt einen anderen Identifier verwenden ("root2"), dann wird beim roots synchen der alte durch den neuen ersetzt.\par
+Wenn der "root" dann frei ist, k\'f6nnte man den ja wieder umschreiben.\par
+Evtl. muss es da mal noch ein bisschen support-callbacks geben (oldRoot, newRoot).\par
+\par
+Ne, moment mal: es muss beim laden \'fcberhauptnicht festgestellt werden, ob es sich um einen default root handelt oder nicht. Denn es wird ja bei jedem start eine neue Instanz erzeugt und dann dynamisch mit den zu ladenden Daten verbandelt.\par
+Gut, aber was ist, wenn mal von defaultRoot auf nicht-default root gewechselt wird? Vielleicht sollte es daf\'fcr einen eigenen Identifier geben.\par
+\par
+Und, leider wieder mal das l\'e4stige Thema: Was ist mit der Migration bestehender Datenbanken?\par
+Aktuell gibt es Datenbanken, die den default identifier "root" benutzen und darin ihr root ged\'f6ns haben.\par
+\par
+Es m\'fcsste aber relativ sicher sein, dass bisher gilt:\par
+"root" = Reference<Object>\par
+\par
+Dann lass ich das und mach f\'fcr die custom roots den Identifier "customRoot".\par
+\par
+Und die beiden kommen dann aber in PersistenceRoots rein und nicht wieder lose/parallel in den EmbeddedStorageManager.\par
 }
  

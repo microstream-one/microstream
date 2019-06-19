@@ -328,7 +328,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
-		 * This can be especially critical if a custom roo resolver returns an instance that does not match
+		 * This can be especially critical if a custom root resolver returns an instance that does not match
 		 * the type defined by the typeId.
 		 */
 		if(!this.type().isInstance(instance))

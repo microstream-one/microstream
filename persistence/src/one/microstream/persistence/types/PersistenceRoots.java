@@ -1,32 +1,48 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.coalesce;
+import static one.microstream.X.notNull;
+
 import one.microstream.X;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.reference.Reference;
 import one.microstream.typing.KeyValue;
 
 
 public interface PersistenceRoots
 {
-	// (18.06.2019 TM)FIXME: MS-139 mainRoot in PersistenceRoots
-//	public String mainRootIdentifier();
-//
-//	public PersistenceRootEntry mainRootEntry();
+	public String defaultRootIdentifier();
+	
+	public Reference<Object> defaultRoot();
+	                                       
+	public String customRootIdentifier();
+	
+	public Object customRoot();
 	
 	public XGettingTable<String, Object> entries();
 	
 	public boolean hasChanged();
 	
 	public void replaceEntries(XGettingTable<String, Object> newEntries);
-		
+	
 
 	
 	public static PersistenceRoots New(
+		final String                                      defaultRootIdentifier,
+		final Reference<Object>                           defaultRoot          ,
+		final String                                      customRootIdentifier ,
 		final XGettingTable<String, PersistenceRootEntry> resolvableEntries
 	)
 	{
+		// (19.06.2019 TM)TODO: proper exception
+		notNull(coalesce(defaultRootIdentifier, customRootIdentifier));
+		
 		return new PersistenceRoots.Default(
+			defaultRootIdentifier             ,
+			defaultRoot                       ,
+			customRootIdentifier              ,
 			EqHashTable.New(resolvableEntries),
 			null,
 			false
@@ -42,6 +58,9 @@ public interface PersistenceRoots
 		public static PersistenceRoots.Default createUninitialized()
 		{
 			return new PersistenceRoots.Default(
+				null,
+				null,
+				null,
 				X.emptyTable(),
 				null,
 				false
@@ -53,6 +72,11 @@ public interface PersistenceRoots
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+
+		private final String            defaultRootIdentifier;
+		private final Reference<Object> defaultRoot          ;
+		private final String            customRootIdentifier ;
+		
 
 		private XGettingTable<String, PersistenceRootEntry> resolvableEntries;
 		private EqConstHashTable<String, Object>            resolvedEntries  ;
@@ -66,15 +90,21 @@ public interface PersistenceRoots
 		/////////////////
 		
 		Default(
-			final XGettingTable<String, PersistenceRootEntry> resolvableEntries,
-			final EqConstHashTable<String, Object>            resolvedEntries  ,
+			final String                                      defaultRootIdentifier,
+			final Reference<Object>                           defaultRoot          ,
+			final String                                      customRootIdentifier ,
+			final XGettingTable<String, PersistenceRootEntry> resolvableEntries    ,
+			final EqConstHashTable<String, Object>            resolvedEntries      ,
 			final boolean                                     hasChanged
 		)
 		{
 			super();
-			this.resolvableEntries = resolvableEntries;
-			this.resolvedEntries   = resolvedEntries  ;
-			this.hasChanged        = hasChanged       ;
+			this.defaultRootIdentifier = defaultRootIdentifier;
+			this.defaultRoot           = defaultRoot          ;
+			this.customRootIdentifier  = customRootIdentifier ;
+			this.resolvableEntries     = resolvableEntries    ;
+			this.resolvedEntries       = resolvedEntries      ;
+			this.hasChanged            = hasChanged           ;
 		}
 
 		
@@ -82,6 +112,30 @@ public interface PersistenceRoots
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+
+		@Override
+		public final String defaultRootIdentifier()
+		{
+			return this.defaultRootIdentifier;
+		}
+
+		@Override
+		public final Reference<Object> defaultRoot()
+		{
+			return this.defaultRoot;
+		}
+
+		@Override
+		public final String customRootIdentifier()
+		{
+			return this.customRootIdentifier;
+		}
+
+		@Override
+		public final Object customRoot()
+		{
+			return this.entries().get(this.customRootIdentifier);
+		}
 		
 		@Override
 		public final synchronized boolean hasChanged()
