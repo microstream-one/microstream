@@ -1,14 +1,12 @@
 package one.microstream.persistence.types;
 
-import static one.microstream.X.coalesce;
 import static one.microstream.X.notNull;
 
-import one.microstream.X;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.reference.Reference;
-import one.microstream.typing.KeyValue;
+import one.microstream.util.cql.CQL;
 
 
 public interface PersistenceRoots
@@ -29,24 +27,9 @@ public interface PersistenceRoots
 	
 
 	
-	public static PersistenceRoots New(
-		final String                                      defaultRootIdentifier,
-		final Reference<Object>                           defaultRoot          ,
-		final String                                      customRootIdentifier ,
-		final XGettingTable<String, PersistenceRootEntry> resolvableEntries
-	)
+	public static PersistenceRoots New(final PersistenceRootResolver rootResolver)
 	{
-		// (19.06.2019 TM)TODO: proper exception
-		notNull(coalesce(defaultRootIdentifier, customRootIdentifier));
-		
-		return new PersistenceRoots.Default(
-			defaultRootIdentifier             ,
-			defaultRoot                       ,
-			customRootIdentifier              ,
-			EqHashTable.New(resolvableEntries),
-			null,
-			false
-		);
+		return PersistenceRoots.Default.New(rootResolver);
 	}
 
 	public final class Default implements PersistenceRoots
@@ -55,33 +38,34 @@ public interface PersistenceRoots
 		// static methods //
 		///////////////////
 		
-		public static PersistenceRoots.Default createUninitialized()
+		public static PersistenceRoots.Default New(final PersistenceRootResolver rootResolver)
 		{
+			// theoretically, it is correct to have neither explicit root but only implicit ones via constants.
 			return new PersistenceRoots.Default(
-				null,
-				null,
-				null,
-				X.emptyTable(),
-				null,
+				notNull(rootResolver)               ,
+				rootResolver.defaultRootIdentifier(),
+				rootResolver.defaultRoot()          ,
+				rootResolver.customRootIdentifier() ,
+				null                                ,
 				false
 			);
 		}
 		
-		
-		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-
-		private final String            defaultRootIdentifier;
-		private final Reference<Object> defaultRoot          ;
-		private final String            customRootIdentifier ;
 		
+		/*
+		 * The transient actually doesn't matter at all since a custom TypeHandler is used.
+		 * Its only pupose here is to indicate that the fields are not directly persisted.
+		 */
 
-		private XGettingTable<String, PersistenceRootEntry> resolvableEntries;
-		private EqConstHashTable<String, Object>            resolvedEntries  ;
-		
-		transient boolean hasChanged;
+		final transient PersistenceRootResolver          rootResolver         ;
+		final transient String                           defaultRootIdentifier;
+		final transient Reference<Object>                defaultRoot          ;
+		final transient String                           customRootIdentifier ;
+		      transient EqConstHashTable<String, Object> resolvedEntries      ;
+		      transient boolean                          hasChanged           ;
 		
 		
 		
@@ -90,19 +74,19 @@ public interface PersistenceRoots
 		/////////////////
 		
 		Default(
-			final String                                      defaultRootIdentifier,
-			final Reference<Object>                           defaultRoot          ,
-			final String                                      customRootIdentifier ,
-			final XGettingTable<String, PersistenceRootEntry> resolvableEntries    ,
-			final EqConstHashTable<String, Object>            resolvedEntries      ,
-			final boolean                                     hasChanged
+			final PersistenceRootResolver          rootResolver         ,
+			final String                           defaultRootIdentifier,
+			final Reference<Object>                defaultRoot          ,
+			final String                           customRootIdentifier ,
+			final EqConstHashTable<String, Object> resolvedEntries      ,
+			final boolean                          hasChanged
 		)
 		{
 			super();
+			this.rootResolver          = rootResolver         ;
 			this.defaultRootIdentifier = defaultRootIdentifier;
 			this.defaultRoot           = defaultRoot          ;
 			this.customRootIdentifier  = customRootIdentifier ;
-			this.resolvableEntries     = resolvableEntries    ;
 			this.resolvedEntries       = resolvedEntries      ;
 			this.hasChanged            = hasChanged           ;
 		}
@@ -159,65 +143,34 @@ public interface PersistenceRoots
 			return this.resolvedEntries;
 		}
 		
-		private synchronized Object[] resolveRoots()
+		private void resolveRoots()
 		{
-			// internal state helpers
-			final XGettingTable<String, PersistenceRootEntry> resolvableEntries = this.resolvableEntries;
-			final EqHashTable<String, Object> resolvedEntries = EqHashTable.New();
-			boolean hasChanged = false;
+			final XGettingTable<String, Object> effectiveRoots = this.rootResolver.resolveRootInstances();
 			
-			// return value helper instance, including nulls to keep indexes consistent with objectIds.
-			final Object[] instances = new Object[resolvableEntries.intSize()];
-			
-			int i = 0;
-			for(final KeyValue<String, PersistenceRootEntry> resolvableEntry : resolvableEntries)
-			{
-				final String               identifier = resolvableEntry.key();
-				final PersistenceRootEntry rootEntry  = resolvableEntry.value();
-				final Object               instance   = rootEntry.instance(); // supplier may only be called once!
-				
-				// explicitly removed entry. Also represents a change. Array order must remain consistent to objectIds!
-				if((instances[i++] = instance) == null)
-				{
-					hasChanged = true;
-					continue;
-				}
-
-				// normal case: unremoved instances must be registered.
-				resolvedEntries.put(identifier, instance);
-				
-				// if at least one entry has changed, the whole roots instance has changed.
-				if(!hasChanged && !identifier.equals(rootEntry.identifier()))
-				{
-					hasChanged = true;
-				}
-			}
-			
-			// any change regarding mapping or removing root entries that requires an updating store later on.
-			this.hasChanged = hasChanged;
-			this.resolvedEntries = resolvedEntries.immure();
-			this.resolvableEntries = null;
-			
-			return instances;
+			this.resolvedEntries = EqConstHashTable.New(effectiveRoots);
+			this.hasChanged = false;
 		}
+		
 		
 		/**
 		 * Used for example by a type handler to set the actual state of an uninitialized instance.
 		 * 
-		 * @param resolvableEntries the resolvable entries to be set.
+		 * @param identifiers the root identifiers to be resolved.
 		 * 
 		 * @return an array containing the actual root instances in the order of the passed entries,
 		 *         including {@literal nulls}.
 		 */
-		public final synchronized Object[] setResolvableRoots(
-			final XGettingTable<String, PersistenceRootEntry> resolvableEntries
-		)
+		public final synchronized void updateEntries(final XGettingTable<String, Object> resolvedRoots)
 		{
-			this.resolvableEntries = resolvableEntries;
-			this.resolvedEntries   = null             ;
-			this.hasChanged        = false            ;
+			final XGettingTable<String, Object> effectiveRoots = CQL
+				.from(resolvedRoots)
+				.select(kv -> kv.value() != null)
+				.executeInto(EqHashTable.New())
+			;
 			
-			return this.resolveRoots();
+			// if at least one null entry was removed, the roots at runtime changed compared to the persistant state
+			this.resolvedEntries = EqConstHashTable.New(effectiveRoots);
+			this.hasChanged      = effectiveRoots.size() != resolvedRoots.size();
 		}
 		
 		/**
@@ -229,9 +182,8 @@ public interface PersistenceRoots
 		public final synchronized void replaceEntries(final XGettingTable<String, Object> newEntries)
 		{
 			// having to replace/update the entries is a change as well.
-			this.resolvableEntries = null;
-			this.resolvedEntries   = EqConstHashTable.New(newEntries);
-			this.hasChanged        = true;
+			this.resolvedEntries = EqConstHashTable.New(newEntries);
+			this.hasChanged      = true;
 		}
 
 	}

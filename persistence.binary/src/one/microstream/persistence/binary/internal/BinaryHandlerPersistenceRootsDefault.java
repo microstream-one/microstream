@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.X;
 import one.microstream.collections.EqHashEnum;
+import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -137,23 +138,23 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		bytes.buildStrings(offsetIdentifierList, identifiers);
 	}
 
-	private void registerInstancesPerObjectId(final long[] oids, final Object[] instances)
+	private void registerInstancesPerObjectId(final long[] oids, final XGettingSequence<Object> instances)
 	{
 		final PersistenceObjectRegistry registry = this.globalRegistry;
 
 		// lock the whole registry for the complete registration process because it is definitely used by other threads
 		synchronized(registry)
 		{
-			for(int i = 0; i < oids.length; i++)
+			int i = 0;
+			for(final Object instance : instances)
 			{
 				// instances can be null when they are explicitly registered to be null in the refactoring
-				if(instances[i] == null)
+				if(instance != null)
 				{
-					continue;
+					// all live instances are registered for their OID.
+					registry.registerConstant(oids[i], instance);
 				}
-				
-				// all still live instances are registered for their OID.
-				registry.registerConstant(oids[i], instances[i]);
+				i++;
 			}
 		}
 	}
@@ -161,7 +162,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	@Override
 	public final PersistenceRoots.Default create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return PersistenceRoots.Default.createUninitialized();
+		return PersistenceRoots.Default.New(this.resolver);
 	}
 
 	@Override
@@ -184,11 +185,13 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		this.fillObjectIds(objectIds, bytes);
 		this.fillIdentifiers(identifiers, bytes);
 
-		final XGettingTable<String, PersistenceRootEntry> resolvedRoots = this.resolver.resolveRootInstances(
+		final XGettingTable<String, PersistenceRootEntry> resolvableRoots = this.resolver.resolveRootEntries(
 			EqHashEnum.New(identifiers)
 		);
-		final Object[] instances = instance.setResolvableRoots(resolvedRoots);
-		this.registerInstancesPerObjectId(objectIds, instances);
+		final XGettingTable<String, Object> resolvedRoots = this.resolver.resolveRootInstances(resolvableRoots);
+			
+		instance.updateEntries(resolvedRoots);
+		this.registerInstancesPerObjectId(objectIds, resolvedRoots.values());
 	}
 
 	@Override

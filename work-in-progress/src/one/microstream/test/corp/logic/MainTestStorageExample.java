@@ -12,15 +12,15 @@ public class MainTestStorageExample
 	public static void main(final String[] args)
 	{
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
-		if(STORAGE.root().get() == null)
+		if(STORAGE.defaultRoot().get() == null)
 		{
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			STORAGE.root().set(Test.generateModelData(1_000));
+			STORAGE.defaultRoot().set(Test.generateModelData(1_000));
 			
 			Test.print("Storing ...");
-			STORAGE.store(STORAGE.root());
+			STORAGE.storeDefaultRoot();
 			Test.print("Storing completed.");
 		}
 		else
@@ -30,7 +30,7 @@ public class MainTestStorageExample
 			Test.printInitializationTime(STORAGE);
 			Test.printOperationModeTime(STORAGE);
 			Test.print("Model data loaded.");
-			Test.print("Root instance: " + STORAGE.root().get());
+			Test.print("Root instance: " + STORAGE.defaultRoot());
 			
 			Test.print("Exporting data ...");
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));

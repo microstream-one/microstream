@@ -29,7 +29,7 @@ public class MainTestStorageExampleCustomRoot
 		final EmbeddedStorageManager storage = EmbeddedStorage.start(ROOT);
 		
 		System.out.println(ROOT);
-		System.out.println(storage.root().get());
+		System.out.println(storage.defaultRoot().get());
 		// must print three times the same timestamp for the root instance to be handled correctly
 		
 		System.exit(0);

@@ -487,6 +487,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		{
 			// this is all a bit of clumsy detour due to conflicted initialization order. Maybe overhaul.
 			
+			// (21.06.2019 TM)FIXME: MS-139 decide on custom or default root and set (but where/how at this point?)
 			final Reference<Object> root = this.createRoot(explicitRoot);
 
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
@@ -515,7 +516,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			final PersistenceRoots roots = prp.provideRoots();
 				
 			// everything bundled together in the actual manager instance
-			return EmbeddedStorageManager.New(stm.configuration(), ecf, roots, root);
+			return EmbeddedStorageManager.New(stm.configuration(), ecf, roots);
 		}
 
 	}

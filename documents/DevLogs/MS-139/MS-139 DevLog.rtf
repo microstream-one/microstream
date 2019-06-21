@@ -1,4 +1,5 @@
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red255\green0\blue0;}
 {\*\generator Riched20 10.0.17763}\viewkind4\uc1 
 \pard\sl276\slmult1\f0\fs28\lang7 2019-06-12\par
 \par
@@ -338,5 +339,87 @@ Es m\'fcsste aber relativ sicher sein, dass bisher gilt:\par
 Dann lass ich das und mach f\'fcr die custom roots den Identifier "customRoot".\par
 \par
 Und die beiden kommen dann aber in PersistenceRoots rein und nicht wieder lose/parallel in den EmbeddedStorageManager.\par
+\par
+\par
+\par
+2019-06-20\par
+\par
+Feiertag\par
+\par
+\par
+2019-06-21\par
+\par
+Implementierung fortsetzen.\par
+\par
+\par
+Wenn das alles \'fcber PersistenceRoots laufen soll, muss aber EmbeddedStorageFoundation#createEmbeddedStorageManager bzw. das setzen des Roots ein bisschen anders laufen. Das muss schon in den PersistenceRootResolver bzw. in den Builder daf\'fcr rein.\par
+\par
+Hmm... an welcher Stelle wird dann letztendlich entschieden und sichergestellt, dass es einen defaultRoot anstatt einer customRoot gibt und mit welchem Identifier? Das muss ja eigentlich im RootResolver.Builder passieren.\par
+Aber dann h\'e4tte der spezifische Defaultlogik, was bl\'f6d ist.\par
+Oder l\'e4sst man den einfach "blank", weil es evtl. ja mal gew\'fcnscht ist, gar keinen root zu haben? Beispiel: der eigentliche Root ist eine Konstante und das ganze Root ged\'f6ns wird gar nicht verwendet.\par
+Ich glaub, so ist es am geschicktesten ...\par
+\par
+Eigentlich ist es ein Quatscht, dass PersistenceRoots eine interne Methode hat, roots zu resolven, wenn es extra einen RootsResolver gibt, der f\'fcr die Erstellung der PersistenceRoots "ausgeschlachtet" antatt \'fcbergeben wird.\par
+Anstatt diese seltsame Konstruktion mit resolvableRoots und resolvedRoots in PersistenceRoots zu machen, k\'f6nnte die Instanz gleich nur den RootsResolver kennen und DER macht on demand die Aufl\'f6serei.\par
+Dann w\'fcrde er sogar genau das machen, wie er benannt ist - unglaublich!\par
+\par
+So umbauen ...\par
+\par
+Hehe, witzig:\par
+Einerseits hab ich den Grund gefunden, warum das nicht schon gemacht worden ist:\par
+PersistenceRoots ist ja ein persistierbares Ding, das keine Referenz zu einem Laufzeit"bauteil" wie dem RootResolver haben soll/darf.\par
+Andererseis gibts daf\'fcr eh schon einen custom handler und der hat eh schon - \'dcberraschung -  die RootResolver Instanz, weil er ja dessen Logik braucht.\par
+Dann kann der die auch gleich wieder transient dazuweben und fertig.\par
+Also passt so.\par
+Ah, dann f\'e4llt sogar das "createUninitialized()" weg, weil das umgestaltet werden m\'fcsste zu dem gleichen, was schon der public pseudo-Konstruktor ist.\par
+Wenn sich solche Vereinfachungen automatisch ergeben, ist das immer ein gutes Zeichen, dass Struktur verbessert worden ist.\par
+\par
+Aber das #setResolvableRoots k\'f6nnte bissl knifflig werden.\par
+Man k\'f6nnte es zwar einfach durch #replaceEntries ersetzen, aber dann geht die "hasChanged" Evaluierung verloren. Als Logik des PersistenceRoots kann das resolven halt zwei Ergebnisse haben. Als rausgekapselte Methode wo anders nur einen. Oder man m\'fcsste einen Callback machen oder einen extra R\'fcckgabetyp. W\'e4r auch kein Beinbruch. Jetzt schau ich aber erst mal, wo das hasChanged wirklich mal relevant ist.\par
+\par
+Also man kann nat\'fcrlich einfach so machen:\par
+- RootResolver die Identifier \'fcbergeben\par
+- Dazu die bisherigen resolved Roots\par
+- der macht intern die Aufl\'f6sung und den Abgleich\par
+- Und dann gibt er einen Ergebnistyp zur\'fcck mit dem array und dem hasChanged flag. Und der Vollst\'e4ndigkeit halber auch noch den bisherigen ResolvedRoots als Referenz.\par
+\par
+Oder eigentlich noch einfacher:\par
+Identifier Array rein, instances Array raus.\par
+Danach dr\'fcber schleifen, ob das array eine null enth\'e4lt (was der aktuelle Algorithmus auch macht).\par
+Wenn ja, dann changed, ansonsten nein.\par
+Dann alle non-null eintr\'e4ge in eine HashTable packen und die in die Roots setzen.\par
+Bzw. das kann intern passieren, damit der sich sein hasChanged selber in Ruhe und sicher berechnet anstatt von au\'dfen gesetzt zu bekommen.\par
+\par
+Dann bau ich das Array ged\'f6ns gleich noch auf eine collection um. Die Performance ist wirklich komplett irrelevant bei dem dutzend oder so root Eintr\'e4gen.\par
+\par
+Seltsam: das bisherige resolveRootInstances l\'f6st zu resolvable Entries auf und wirft exceptions bei nulls.\par
+Sp\'e4ter werden die zu konkreten root instanzen aufgel\'f6st, dann bedeuten nulls nur eine \'c4nderung.\par
+Also es gibt da schon einen logischen Unterschied (n\'e4mlich "gibt es \'fcberhaupt einen entry?"), aber ist der in der praxis wirklich relevant?\par
+Was bedeutet es denn, wenn ein identifier nicht zu einem eintrag aufgefl\'f6st werden kann?\par
+Achso, hm, im Code f\'fcrs konkrete aufl\'f6sen steht "explicitely removed entry". Also ist es durchaus ein relevanter Unterschied.\par
+\par
+Dann mach ich es so:\par
+Zwei Schritte:\line - resolveEntries (darf kein null ergeben)\par
+- resolveRoots (darf null ergeben). Kann eigentlich eine statische Methode sein. Oder ich machs mal ins interface mit statischer Umleitung, um es modular ersetzen zu k\'f6nnen.\par
+\par
+Jetzt w\'e4r das soweit umgebaut. Jetzt ist nur noch die Frage wo wann wie ich customRoot und defaultRoot setz.\par
+\par
+Nat\'fcrlich in EmbeddedStorageFoundation#createEmbeddedStorageManager.\par
+\par
+Aber da gibts jetzt ein Problem:\par
+Dort wird ein expliziter Root \'fcbergeben. Anhand dessen kann entschieden werden, ob custom oder default root verwendet werden soll.\par
+Setzen kann man den aber nur bei einem RootResolver.Builder. Den gibts hier aber nicht und einen erzeugen und in die ConnectionFoundation setzen w\'fcrde einen vorher gesetzten custom RootResolver ersetzen. Bl\'f6d.\par
+Entweder muss ich dann den RootResolver selbst eine API zum setzen geben und damit mutable machen (doof) oder die ConnectionFoundation darf nur einen RootResolver.Builder halten, aus dem dann erst der RootResolver erzeugt wird.\par
+Was aber irgendwie auch doof ist. Was ist, wenn man selber einen schreiben und setzen will?\par
+Der Punkt ist wohl:\par
+Die M\'f6glichkeit f\'fcr einen eigenen RootResolver und die M\'f6glichkeit, einen eigenen Root an bequemer Stelle definieren zu k\'f6nnen, erzeugen einen Konflikt.\par
+\par
+Da muss ich mal \'fcberlegen, wie ich das l\'f6s. Das w\'e4r dann der letzte Aspekt, damit das Feature fertig ist.\par
+\par
+\cf1 Achja und:\par
+evtl. sollten die root~() Methoden im EmbeddedStorageManager doch ein shortcut f\'fcr defaultRoot().get() sein.\par
+\cf0\par
+\par
+\par
 }
  
