@@ -27,15 +27,15 @@ public class MainTestStorageMandatoryFields
 	public static void main(final String[] args)
 	{
 		// either loaded on startup from an existing DB or required to be generated.
-		if(STORAGE.root().get() == null)
+		if(STORAGE.defaultRoot().get() == null)
 		{
 			// first execution enters here
 
 			Test.print("TEST: model data required." );
 			final XList<Person> persons = createTestData();
-			STORAGE.root().set(persons);
+			STORAGE.defaultRoot().set(persons);
 			Test.print("STORAGE: storing #1 ...");
-			STORAGE.store(STORAGE.root());
+			STORAGE.storeDefaultRoot();
 			Test.print("STORAGE: storing #2 ...");
 			STORAGE.store(persons.at(0));
 			Test.print("STORAGE: storing completed.");
@@ -45,7 +45,7 @@ public class MainTestStorageMandatoryFields
 			// subsequent executions enter here
 
 			Test.print("TEST: model data loaded." );
-			Test.print(STORAGE.root().get());
+			Test.print(STORAGE.defaultRoot().get());
 			Test.print("TEST: exporting data ..." );
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testCorpExport"));
 			Test.print("TEST: data export completed.");

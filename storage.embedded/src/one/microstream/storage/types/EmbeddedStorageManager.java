@@ -1,6 +1,5 @@
 package one.microstream.storage.types;
 
-import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.io.File;
@@ -9,6 +8,7 @@ import java.util.function.Predicate;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.Storer;
@@ -42,20 +42,22 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	
 	public default long storeRoot()
 	{
-		Object effectiveRoot = this.root();
-		if(effectiveRoot == null)
-		{
-			effectiveRoot = this.defaultRoot();
-		}
-		
-		return this.store(effectiveRoot);
-		
-//		final Reference<Object> root = this.root();
-//
-//		return root == null
-//			? Persistence.nullId()
-//			: this.store(root)
-//		;
+		final Object root = this.root();
+
+		return root == null
+			? Persistence.nullId()
+			: this.store(root)
+		;
+	}
+	
+	public default long storeDefaultRoot()
+	{
+		final Reference<Object> root = this.defaultRoot();
+
+		return root == null
+			? Persistence.nullId()
+			: this.store(root)
+		;
 	}
 
 	
@@ -63,15 +65,13 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	public static EmbeddedStorageManager.Default New(
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
-		final PersistenceRoots                       definedRoots        ,
-		final Reference<Object>                      explicitRoot
+		final PersistenceRoots                       definedRoots
 	)
 	{
 		return new EmbeddedStorageManager.Default(
 			notNull(configuration)       ,
 			notNull(connectionFoundation),
-			notNull(definedRoots)        ,
-			mayNull(explicitRoot)
+			notNull(definedRoots)
 		);
 	}
 
@@ -123,11 +123,17 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+
 		@Override
-		public Reference<Object> root()
+		public Object root()
 		{
 			return this.definedRoots.customRoot();
+		}
+		
+		@Override
+		public Reference<Object> defaultRoot()
+		{
+			return this.definedRoots.defaultRoot();
 		}
 
 		@Override

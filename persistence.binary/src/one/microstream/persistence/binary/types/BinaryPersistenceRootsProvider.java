@@ -52,7 +52,7 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 			if(this.roots == null)
 			{
 				// must always be consistent with #provideRootsClass
-				this.roots = PersistenceRoots.New(this.rootResolver.entries());
+				this.roots = PersistenceRoots.New(this.rootResolver);
 			}
 			
 			return this.roots;
@@ -61,7 +61,7 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		@Override
 		public final void registerRootsTypeHandlerCreator(
 			final PersistenceCustomTypeHandlerRegistry<Binary> typeHandlerRegistry,
-			final PersistenceObjectRegistry                              objectRegistry
+			final PersistenceObjectRegistry                    objectRegistry
 		)
 		{
 			final BinaryHandlerPersistenceRootsDefault handler =

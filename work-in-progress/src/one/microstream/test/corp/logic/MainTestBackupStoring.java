@@ -67,9 +67,9 @@ public class MainTestBackupStoring
 	{
 //		printTransactionsFiles();
 		final Object[] array = createArray(100);
-		STORAGE.root().set(array);
+		STORAGE.defaultRoot().set(array);
 		Test.print("STORAGE: storing ...");
-		STORAGE.store(STORAGE.root());
+		STORAGE.storeDefaultRoot();
 		
 		for(int i = 0; i < 10; i++)
 		{
@@ -81,6 +81,4 @@ public class MainTestBackupStoring
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
 	
-
-		
 }

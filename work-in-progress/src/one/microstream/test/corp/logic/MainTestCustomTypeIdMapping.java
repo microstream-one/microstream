@@ -49,18 +49,18 @@ public class MainTestCustomTypeIdMapping
 
 	public static void main(final String[] args)
 	{
-		if(STORAGE.root().get() == null)
+		if(STORAGE.defaultRoot().get() == null)
 		{
 			Test.print("TEST: graph required." );
-			STORAGE.root().set(generateGraph());
+			STORAGE.defaultRoot().set(generateGraph());
 			Test.print("STORAGE: storing ...");
-			STORAGE.store(STORAGE.root());
+			STORAGE.storeDefaultRoot();
 			Test.print("STORAGE: storing completed.");
 		}
 		else
 		{
 			Test.print("TEST: graph loaded." );
-			Test.print(STORAGE.root().get());
+			Test.print(STORAGE.defaultRoot().get());
 			Test.print("TEST: done." );
 		}
 		

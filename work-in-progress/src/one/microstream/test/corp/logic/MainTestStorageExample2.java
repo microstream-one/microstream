@@ -31,14 +31,14 @@ public class MainTestStorageExample2
 	public static void main(final String[] args)
 	{
 		// either loaded on startup from an existing DB or required to be generated.
-		if(STORAGE.root().get() == null)
+		if(STORAGE.defaultRoot().get() == null)
 		{
 			// first execution enters here
 
 			Test.print("TEST: model data required." );
-			STORAGE.root().set(Test.generateModelData(1_000));
+			STORAGE.defaultRoot().set(Test.generateModelData(1_000));
 			Test.print("STORAGE: storing ...");
-			STORAGE.store(STORAGE.root());
+			STORAGE.storeDefaultRoot();
 //			STORAGE.issueFullFileCheck();
 			Test.print("STORAGE: storing completed.");
 //			printObjectRegistryStatistics();
@@ -48,7 +48,7 @@ public class MainTestStorageExample2
 			// subsequent executions enter here
 
 			Test.print("TEST: model data loaded." );
-			Test.print(STORAGE.root().get());
+			Test.print(STORAGE.defaultRoot().get());
 			Test.print("TEST: exporting data ..." );
 //			printObjectRegistryStatistics();
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testCorpExport"));
