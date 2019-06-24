@@ -2,7 +2,6 @@ package one.microstream.storage.types;
 
 import java.util.function.Consumer;
 
-import one.microstream.X;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
@@ -12,7 +11,7 @@ import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeManager;
-import one.microstream.reference.Reference;
+import one.microstream.storage.exceptions.StorageException;
 
 
 /**
@@ -268,9 +267,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public F setRoot(final Object root)
 		{
-			this.setRootResolver(
-				this.getConnectionFoundation().createRootResolver(root)
-			);
+			this.getConnectionFoundation().getRootResolverBuilder().registerMainRoot(root);
 			
 			return this.$();
 		}
@@ -449,48 +446,27 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 				}
 			};
 		}
-		
-		@SuppressWarnings("unchecked")
-		private static Reference<Object> ensureRootReference(final Object explicitRoot)
-		{
-			return explicitRoot instanceof Reference
-				? (Reference<Object>)explicitRoot
-				: X.Reference(explicitRoot)
-			;
-		}
-		
-		private Reference<Object> createRoot(final Object explicitRoot)
-		{
-			// if an explicit root is provided, it is used (set), no matter what
-			if(explicitRoot != null)
-			{
-				final Reference<Object> root = ensureRootReference(explicitRoot);
-				this.setRoot(root);
-				return root;
-			}
-			
-			// if there is no explicit root but an already set root resolver, no generic root is created
-			final PersistenceRootResolver rootResolver = this.getConnectionFoundation().rootResolver();
-			if(rootResolver != null)
-			{
-				return null;
-			}
-			
-			// if there is no root at all, yet, an empty generic one is created for later use.
-			final Reference<Object> root = X.Reference(null);
-			this.setRoot(root);
-			return root;
-		}
-		
+				
 		@Override
 		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object explicitRoot)
 		{
-			// this is all a bit of clumsy detour due to conflicted initialization order. Maybe overhaul.
-			
-			// (21.06.2019 TM)FIXME: MS-139 decide on custom or default root and set (but where/how at this point?)
-			final Reference<Object> root = this.createRoot(explicitRoot);
-
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
+			
+			// required checks and procedures for using an explicit root. The alternative is an implicitely created root.
+			if(explicitRoot != null)
+			{
+				final PersistenceRootResolver existingRootResolver = ecf.rootResolver();
+				if(existingRootResolver != null)
+				{
+					// (24.06.2019 TM)EXCP: proper exception
+					throw new StorageException(
+						"Cannot define a custom root instance and use a custom "
+						+ PersistenceRootResolver.class.getSimpleName()
+						+ " simultaneously."
+					);
+				}
+				ecf.getRootResolverBuilder().registerMainRoot(explicitRoot);
+			}
 			
 			// must be created BEFORE the type handler manager is initilized to register its custom type handler
 			final PersistenceRootsProvider<Binary> prp = ecf.getRootsProvider();

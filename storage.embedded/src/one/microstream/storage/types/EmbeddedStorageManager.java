@@ -42,12 +42,31 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	
 	public default long storeRoot()
 	{
-		final Object root = this.root();
+		final Object            mainRoot    = this.root();
+		final Reference<Object> defaultRoot = this.defaultRoot();
+		
+		if(mainRoot != null)
+		{
+			return this.store(mainRoot);
+		}
 
-		return root == null
-			? Persistence.nullId()
-			: this.store(root)
-		;
+		if(defaultRoot != null)
+		{
+			final Storer storer = this.createStorer();
+			final long defaultRootObjectId = storer.store(defaultRoot);
+			
+			final Object root = defaultRoot.get();
+			if(root != null)
+			{
+				storer.store(root);
+			}
+			
+			storer.commit();
+			
+			return defaultRootObjectId;
+		}
+
+		return Persistence.nullId();
 	}
 	
 	public default long storeDefaultRoot()
@@ -127,7 +146,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public Object root()
 		{
-			return this.definedRoots.customRoot();
+			return this.definedRoots.mainRoot();
 		}
 		
 		@Override

@@ -420,6 +420,46 @@ Da muss ich mal \'fcberlegen, wie ich das l\'f6s. Das w\'e4r dann der letzte Asp
 evtl. sollten die root~() Methoden im EmbeddedStorageManager doch ein shortcut f\'fcr defaultRoot().get() sein.\par
 \cf0\par
 \par
+2019-06-24\par
 \par
+Eigentlich k\'f6nnte die L\'f6sung einfach folgendes sein:\par
+- Die ConnectionFoundation h\'e4lt sich neben dem RootResolver auch einen Builder daf\'fcr.\par
+- Wenn explicitRoot null ist und es noch keinen RootResolver gibt, dann wird dem Builder ein DefaultRoot gesetzt.\par
+- Wenn explicitRoot null ist und es noch einen RootResolver gibt, dann wird der verwendet.\par
+- Wenn explicitRoot nicht null ist und es noch keinen RootResolver gibt, dann wird dem Builder ein CustomRoot gesetzt.\par
+- Wenn explicitRoot nicht null ist und es schon einen RootResolver gibt, dann wird ein Fehler geworfen mit dem Hinweis auf konfliktetes Roothandling.\par
+\par
+\par
+Kurzer Einschub zu Produktivit\'e4t:\par
+Jetzt sitzen nicht nur 3 Mann im winzigen 2-Mann-B\'fcro, sondern seit die Klimaanlage nicht mehr mir im R\'fccken steht, wo ich sie ausmachen "darf", sondern bei Felix, l\'e4uft die jetzt anscheinend durch.\par
+Erstens ist das zu kalt (24.5\'b0. Daf\'fcr, dass ich nur ein kurzes Hemd ohne Unterhemd dran hab, ist das zu kalt. Mich friert.) und zweitens surrt es hier jetzt wie in einem Serverraum.\par
+Zum einen versteh ich die Leute nicht: das dreiviertelte Jahr lang wird gejammert wie kleine Kinder, dass es nicht Sommer ist und dann, kaum wirds mal Sommer und die Temperaturen klettern \'fcber 22\'b0, schon wird gejammert und gek\'fchlt auf Teufel komm raus, als m\'fcsste man die Sahara vereisen. Hallo? Normale, warme, gute Temperaturen f\'fcr wenig Bekleidung gehen bei 25\'b0 los. Ab 28\'b0 wirds dann langsam m\'fchsam und ab 30\'b0 ist es zu warm, um produktiv zu arbeiten. Aber bis 28-30\'b0 kann man doch um Himmels Willen den sonst so herbeigejammerten Sommer Sommer sein lassen bzw. genie\'dfen und muss nicht gleich Serverraum\'e4hnliche K\'fchlungen anwerfen.\par
+Und zum anderen ist es einfach so: Wir sollen hier hochkomplexe geistige T\'e4tigkeiten ausf\'fchren und das m\'f6glichst fehlerfrei und trotzdem m\'f6glichst schnell. Und dann wird eine Ger\'e4uschkulisse wie eine Mischung aus einem Gro\'dfraumb\'fcro und einem Serverraum aufgebaut. Was soll das? Wei wenig konzentriert/leistungsf\'e4hig m\'fcssen Leute denn arbeiten, dass sie so eine Ger\'e4uschkulisse nicht st\'f6rt? Ich vergleich das mit der Kontentration immer gern mit folgendem Beispiel: Ein Traktor ist super unempfindlich gegen Bodenunebenheiten, aber f\'e4hrt halt nur so seine 60 km/h. Formel-1-Autos fahren 300 km/h, daf\'fcr kann jede Bodenwelle fatal enden. Ich wei\'df schon: Vorgesetzte wollen nat\'fcrlich Traktoren (unempfindliche Mitarbeiter), die m\'f6glichst 1000 km/h fahren, aber das geht halt nicht. Wir sollen super geistige Leistungen vollbringen (nicht nur quantitativ, auch qualitativ), d.h. eine m\'f6glichst hohe Leistung (Geschwindigkeit in der Metapher) ist ein MUSS. Dann geht halt auch die Empfindlichkeit gegen\'fcber St\'f6rungen hoch. Wenn alles auf Geschwindigkeit optimiert ist, leidet die St\'f6rungstoleranz. Ich soll in der Entwicklung m\'f6glichst 1000 km/h fahren und drunter wird das Gesicht verzogen, aber dann kommen Kasperler daher und stellen zur besten Sommerzeit unn\'f6tig Gr\'e4ben und Steine auf die Stra\'dfe. Hei\'dft: Produktivit\'e4t geht runter. Nicht nur durch Texte wie diesen hier, sondern auch durch permanentes Genervtsein, Abgelenktsein, usw.\par
+F\'fcr diese Woche nehm ich das mal hin, da rentiert es sich nicht, zu eskalieren. Wie es ab n\'e4chste Woche mit anderer Sitzordnung sein wird, wird sich dann zeigen.\par
+Ich wollt nur mal den Produktivit\'e4tsverlust aufgrund von st\'f6rendem Irrsinn zu Protokoll geben.\par
+\par
+\par
+Weiter im Text:\par
+Dann muss auch die Logik, wie aktuell ein RootResolver in der Foundation erzeugt wird, angepasst werden.\par
+Mal machen ...\par
+\par
+Hm. Die Bezeichnungen sind doch verwirrend:\par
+Jeder vom user registrierte root ist ein "custom root". Was das "custom root" ja eigentlich aussagen soll ist, dass das ein spezieller "main root" ist, der an entsprechender Stelle in der API prominent mitgegeben bzw. definiert erden kann.\par
+Also benenn ich das doch um auf "default root" und "main root".\par
+\par
+Aber das mit den verstreuten root identifiern passt mir nicht. Mal \'fcberlegen.\par
+Ach ja: ich mach in den Builder \'fcberladene Varianten als defaultmethoden rein und das w\'e4r dann die einzige stelle, wo auf die Default Identifier Methoden gezeigt wird.\par
+So gef\'e4llt mir das.\par
+\par
+Dann m\'fcssen aber die Persistence#RootResolver und ~Builder Methoden usw. \'fcberarbeitet werden.\par
+\par
+Damit fliegen auch ein paar umst\'e4ndliche Umwegsmethoden aus der Foundation raus, das ist super.\par
+Und die createStoragaManager verliert einen Gro\'dfteil der "clumsy Detour" Logik. Immer sch\'f6n zu sehen, dass sich sauber geplante Strukturen implizit vereinfachend auswirken.\par
+\par
+Noch bissl TODOs durchschauen und aufr\'e4umen.\par
+Achja und die storeRoot() special Logik noch schnell bauen. Das ist gar nicht mal so einfach. Sidn 4 F\'e4lle.\par
+Fertig.\par
+\par
+Morgen noch bissl testen.\par
 }
  
