@@ -729,11 +729,42 @@ public class Persistence
 		);
 	}
 	
+	public static final String defaultRootIdentifier()
+	{
+		return "root";
+	}
+	
+	public static final String mainRootIdentifier()
+	{
+		return "mainRoot";
+	}
+	
+	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+		final Object rootInstance
+	)
+	{
+		return PersistenceRootResolver.Builder()
+			.registerMainRoot(rootInstance)
+		;
+	}
+	
+	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+		final String rootIdentifier,
+		final Object rootInstance
+	)
+	{
+		return PersistenceRootResolver.Builder()
+			.registerMainRoot(rootIdentifier, rootInstance)
+		;
+	}
+	
 	public static final PersistenceRootResolver.Builder RootResolverBuilder(
 		final Supplier<?> rootInstanceSupplier
 	)
 	{
-		return RootResolverBuilder("root", rootInstanceSupplier);
+		return PersistenceRootResolver.Builder()
+			.registerMainRoot(rootInstanceSupplier)
+		;
 	}
 	
 	public static final PersistenceRootResolver.Builder RootResolverBuilder(
@@ -741,7 +772,9 @@ public class Persistence
 		final Supplier<?> rootInstanceSupplier
 	)
 	{
-		return PersistenceRootResolver.Builder(rootIdentifier, rootInstanceSupplier);
+		return PersistenceRootResolver.Builder()
+			.registerMainRoot(rootIdentifier, rootInstanceSupplier)
+		;
 	}
 	
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(

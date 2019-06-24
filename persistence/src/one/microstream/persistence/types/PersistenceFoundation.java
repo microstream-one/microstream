@@ -6,6 +6,7 @@ import one.microstream.collections.types.XEnum;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
+import one.microstream.persistence.types.PersistenceRootResolver.Builder;
 import one.microstream.typing.LambdaTypeRecognizer;
 import one.microstream.typing.TypeMapping;
 import one.microstream.typing.XTypes;
@@ -121,6 +122,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public BufferSizeProviderIncremental getBufferSizeProvider();
 
 	public PersistenceFieldEvaluator getFieldEvaluator();
+	
+	public PersistenceRootResolver.Builder getRootResolverBuilder();
 	
 	public PersistenceRootResolver getRootResolver();
 	
@@ -252,11 +255,11 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public F setReferenceFieldMandatoryEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
 
+	public F setRootResolver(PersistenceRootResolver.Builder rootResolverBuilder);
+	
 	public F setRootResolver(PersistenceRootResolver rootResolver);
 	
 	public F setLambdaTypeRecognizer(LambdaTypeRecognizer lambdaTypeRecognizer);
-	
-	public PersistenceRootResolver createRootResolver(Object root);
 
 	public F setRootsProvider(PersistenceRootsProvider<M> rootsProvider);
 	
@@ -359,6 +362,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private BufferSizeProviderIncremental           bufferSizeProvider         ;
 		private PersistenceFieldEvaluator               fieldEvaluator             ;
 		private PersistenceEagerStoringFieldEvaluator   eagerStoringFieldEvaluator ;
+		private PersistenceRootResolver.Builder         rootResolverBuilder        ;
 		private PersistenceRootResolver                 rootResolver               ;
 		private PersistenceRootsProvider<M>             rootsProvider              ;
 		private PersistenceSizedArrayLengthController   sizedArrayLengthController ;
@@ -837,6 +841,18 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			}
 			
 			return this.eagerStoringFieldEvaluator;
+		}
+		
+		@Override
+		public PersistenceRootResolver.Builder getRootResolverBuilder()
+		{
+
+			if(this.rootResolverBuilder == null)
+			{
+				this.rootResolverBuilder = this.dispatch(this.ensureRootResolverBuilder());
+			}
+			
+			return this.rootResolverBuilder;
 		}
 
 		@Override
@@ -1396,6 +1412,13 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			this.eagerStoringFieldEvaluator = evaluator;
 			return this.$();
 		}
+		
+		@Override
+		public F setRootResolver(final Builder rootResolverBuilder)
+		{
+			this.rootResolverBuilder = rootResolverBuilder;
+			return this.$();
+		}
 
 		@Override
 		public F setRootResolver(
@@ -1913,15 +1936,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			throw new MissingFoundationPartException(PersistenceFieldLengthResolver.class);
 		}
 		
+		protected PersistenceRootResolver.Builder ensureRootResolverBuilder()
+		{
+			return PersistenceRootResolver.Builder();
+		}
+		
 		protected PersistenceRootResolver ensureRootResolver()
 		{
 			throw new MissingFoundationPartException(PersistenceRootResolver.class);
-		}
-		
-		@Override
-		public PersistenceRootResolver createRootResolver(final Object root)
-		{
-			return Persistence.RootResolver(root);
 		}
 		
 		protected PersistenceRootsProvider<M> ensureRootsProviderInternal()

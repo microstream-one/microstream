@@ -15,9 +15,9 @@ public interface PersistenceRoots
 	
 	public Reference<Object> defaultRoot();
 	                                       
-	public String customRootIdentifier();
+	public String mainRootIdentifier();
 	
-	public Object customRoot();
+	public Object mainRoot();
 	
 	public XGettingTable<String, Object> entries();
 	
@@ -45,7 +45,7 @@ public interface PersistenceRoots
 				notNull(rootResolver)               ,
 				rootResolver.defaultRootIdentifier(),
 				rootResolver.defaultRoot()          ,
-				rootResolver.customRootIdentifier() ,
+				rootResolver.mainRootIdentifier() ,
 				null                                ,
 				false
 			);
@@ -63,7 +63,7 @@ public interface PersistenceRoots
 		final transient PersistenceRootResolver          rootResolver         ;
 		final transient String                           defaultRootIdentifier;
 		final transient Reference<Object>                defaultRoot          ;
-		final transient String                           customRootIdentifier ;
+		final transient String                           mainRootIdentifier   ;
 		      transient EqConstHashTable<String, Object> resolvedEntries      ;
 		      transient boolean                          hasChanged           ;
 		
@@ -77,7 +77,7 @@ public interface PersistenceRoots
 			final PersistenceRootResolver          rootResolver         ,
 			final String                           defaultRootIdentifier,
 			final Reference<Object>                defaultRoot          ,
-			final String                           customRootIdentifier ,
+			final String                           mainRootIdentifier   ,
 			final EqConstHashTable<String, Object> resolvedEntries      ,
 			final boolean                          hasChanged
 		)
@@ -86,7 +86,7 @@ public interface PersistenceRoots
 			this.rootResolver          = rootResolver         ;
 			this.defaultRootIdentifier = defaultRootIdentifier;
 			this.defaultRoot           = defaultRoot          ;
-			this.customRootIdentifier  = customRootIdentifier ;
+			this.mainRootIdentifier    = mainRootIdentifier   ;
 			this.resolvedEntries       = resolvedEntries      ;
 			this.hasChanged            = hasChanged           ;
 		}
@@ -110,15 +110,15 @@ public interface PersistenceRoots
 		}
 
 		@Override
-		public final String customRootIdentifier()
+		public final String mainRootIdentifier()
 		{
-			return this.customRootIdentifier;
+			return this.mainRootIdentifier;
 		}
 
 		@Override
-		public final Object customRoot()
+		public final Object mainRoot()
 		{
-			return this.entries().get(this.customRootIdentifier);
+			return this.entries().get(this.mainRootIdentifier);
 		}
 		
 		@Override

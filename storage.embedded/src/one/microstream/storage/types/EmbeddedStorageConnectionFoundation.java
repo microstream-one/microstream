@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Supplier;
 
+import one.microstream.X;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.BinaryLoader;
 import one.microstream.persistence.binary.types.BinaryPersistenceFoundation;
@@ -157,21 +158,26 @@ extends BinaryPersistenceFoundation<F>
 			}
 			return this.connectionRequestAcceptor;
 		}
-		
-		@Override
-		public PersistenceRootResolver createRootResolver(final Object root)
-		{
-			return PersistenceRootResolver.Wrap(
-				super.createRootResolver(root),
-				this.getRefactoringResolverProvider()
-			);
-		}
-		
+				
 		@Override
 		protected PersistenceRootResolver ensureRootResolver()
 		{
-			// default root is an empty reference that can be set afterwards
-			return this.createRootResolver(null);
+			final PersistenceRootResolver.Builder builder = this.getRootResolverBuilder();
+			if(!builder.hasRootRegistered())
+			{
+				builder.registerDefaultRoot(
+					X.Reference(null)
+				);
+			}
+			
+			final PersistenceRootResolver resolver = builder.build();
+			
+			final PersistenceRootResolver refactoringWrapper = PersistenceRootResolver.Wrap(
+				resolver,
+				this.getRefactoringResolverProvider()
+			);
+			
+			return refactoringWrapper;
 		}
 
 		@Override
