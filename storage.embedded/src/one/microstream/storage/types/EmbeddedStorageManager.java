@@ -14,6 +14,7 @@ import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.Reference;
+import one.microstream.storage.exceptions.StorageException;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -38,7 +39,11 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	
 	public Object root();
 	
+	public Object setRoot(Object newRoot);
+	
 	public Reference<Object> defaultRoot();
+	
+	public Object customRoot();
 	
 	public default long storeRoot()
 	{
@@ -146,13 +151,58 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public Object root()
 		{
-			return this.definedRoots.customRoot();
+			final Object customRoot = this.customRoot();
+			if(customRoot != null)
+			{
+				return customRoot;
+			}
+			
+			final Reference<Object> defaultRoot = this.defaultRoot();
+			if(defaultRoot != null)
+			{
+				return defaultRoot.get();
+			}
+			
+			return null;
+		}
+		
+		@Override
+		public Object setRoot(final Object newRoot)
+		{
+			final Object customRoot = this.customRoot();
+			if(customRoot != null)
+			{
+				if(customRoot == newRoot)
+				{
+					// no-op, graciously abort
+					return customRoot;
+				}
+				
+				// (25.06.2019 TM)EXCP: proper exception
+				throw new StorageException("Cannot replace an explicitely defined root instance.");
+			}
+			
+			final Reference<Object> defaultRoot = this.defaultRoot();
+			if(defaultRoot != null)
+			{
+				defaultRoot.set(newRoot);
+				return newRoot;
+			}
+
+			// (25.06.2019 TM)EXCP: proper exception
+			throw new StorageException("No default root (reference holder) present to reference the passed root.");
 		}
 		
 		@Override
 		public Reference<Object> defaultRoot()
 		{
 			return this.definedRoots.defaultRoot();
+		}
+		
+		@Override
+		public Object customRoot()
+		{
+			return this.definedRoots.customRoot();
 		}
 
 		@Override
