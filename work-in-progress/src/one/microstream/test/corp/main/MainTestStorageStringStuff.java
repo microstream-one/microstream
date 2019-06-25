@@ -1,7 +1,9 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.test.corp.logic.Test;
+import one.microstream.test.corp.logic.TestImportExport;
 
 
 public class MainTestStorageStringStuff

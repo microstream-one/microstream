@@ -1,4 +1,4 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import one.microstream.X;
 import one.microstream.concurrency.XThreads;
@@ -12,6 +12,7 @@ import one.microstream.storage.types.StorageDataChunkValidator;
 import one.microstream.storage.types.StorageDataFileValidator;
 import one.microstream.storage.types.StorageEntityDataValidator;
 import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.test.corp.logic.Test;
 
 
 public class MainTestBackupStoring

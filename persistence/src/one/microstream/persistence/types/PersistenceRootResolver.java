@@ -22,9 +22,9 @@ public interface PersistenceRootResolver
 	
 	public Reference<Object> defaultRoot();
 	
-	public String mainRootIdentifier();
+	public String customRootIdentifier();
 	
-	public PersistenceRootEntry mainRootEntry();
+	public PersistenceRootEntry customRootEntry();
 	
 	public PersistenceRootEntry resolveRootInstance(String identifier);
 	
@@ -171,22 +171,22 @@ public interface PersistenceRootResolver
 	
 	
 	public static PersistenceRootResolver New(
-		final Supplier<?> mainRootSupplier
+		final Supplier<?> customRootSupplier
 	)
 	{
 		return Builder()
-			.registerMainRoot(mainRootSupplier)
+			.registerCustomRootSupplier(customRootSupplier)
 			.build()
 		;
 	}
 	
 	public static PersistenceRootResolver New(
-		final String      mainRootIdentifier,
-		final Supplier<?> mainRootSupplier
+		final String      customRootIdentifier,
+		final Supplier<?> customRootSupplier
 	)
 	{
 		return Builder()
-			.registerMainRoot(mainRootIdentifier, mainRootSupplier)
+			.registerCustomRootSupplier(customRootIdentifier, customRootSupplier)
 			.build()
 		;
 	}
@@ -199,7 +199,7 @@ public interface PersistenceRootResolver
 		
 
 		private final String                                         defaultRootIdentifier;
-		private final String                                         mainRootIdentifier   ;
+		private final String                                         customRootIdentifier ;
 		private final Reference<Object>                              defaultRoot          ;
 		private final EqConstHashTable<String, PersistenceRootEntry> rootEntries          ;
 
@@ -211,14 +211,14 @@ public interface PersistenceRootResolver
 
 		Default(
 			final String                                         defaultRootIdentifier,
-			final String                                         mainRootIdentifier   ,
+			final String                                         customRootIdentifier ,
 			final Reference<Object>                              defaultRoot          ,
 			final EqConstHashTable<String, PersistenceRootEntry> rootEntries
 		)
 		{
 			super();
 			this.defaultRootIdentifier = defaultRootIdentifier;
-			this.mainRootIdentifier    = mainRootIdentifier   ;
+			this.customRootIdentifier  = customRootIdentifier ;
 			this.defaultRoot           = defaultRoot          ;
 			this.rootEntries           = rootEntries          ;
 		}
@@ -249,15 +249,15 @@ public interface PersistenceRootResolver
 		}
 		
 		@Override
-		public String mainRootIdentifier()
+		public String customRootIdentifier()
 		{
-			return this.mainRootIdentifier;
+			return this.customRootIdentifier;
 		}
 		
 		@Override
-		public PersistenceRootEntry mainRootEntry()
+		public PersistenceRootEntry customRootEntry()
 		{
-			return this.entries().get(this.mainRootIdentifier);
+			return this.entries().get(this.customRootIdentifier);
 		}
 		
 
@@ -395,18 +395,18 @@ public interface PersistenceRootResolver
 
 
 		@Override
-		public String mainRootIdentifier()
+		public String customRootIdentifier()
 		{
-			return this.actualRootResolver.mainRootIdentifier();
+			return this.actualRootResolver.customRootIdentifier();
 		}
 		
 
 
 
 		@Override
-		public PersistenceRootEntry mainRootEntry()
+		public PersistenceRootEntry customRootEntry()
 		{
-			return this.actualRootResolver.mainRootEntry();
+			return this.actualRootResolver.customRootEntry();
 		}
 				
 	}
@@ -431,14 +431,14 @@ public interface PersistenceRootResolver
 	/**
 	 * Central wrapping method mosty to have a unified and concisely named location for the lambda.
 	 * 
-	 * @param mainRootInstance
+	 * @param customRootInstance the instance to be used as the entity graph's root.
 	 * 
-	 * @return
+	 * @return a {@link Supplier} returning the passed {@literal customRootInstance} instance.
 	 */
-	public static Supplier<?> wrapMainRoot(final Object mainRootInstance)
+	public static Supplier<?> wrapCustomRoot(final Object customRootInstance)
 	{
 		return () ->
-			mainRootInstance
+			customRootInstance
 		;
 	}
 	
@@ -446,11 +446,11 @@ public interface PersistenceRootResolver
 	{
 		public String defaultRootIdentifier();
 		
-		public String mainRootIdentifier();
+		public String customRootIdentifier();
 		
 		public default boolean hasRootRegistered()
 		{
-			return this.defaultRootIdentifier() != null || this.mainRootIdentifier() != null;
+			return this.defaultRootIdentifier() != null || this.customRootIdentifier() != null;
 		}
 		
 		public default Builder registerDefaultRoot(final Reference<Object> defaultRoot)
@@ -458,23 +458,23 @@ public interface PersistenceRootResolver
 			return this.registerDefaultRoot(Persistence.defaultRootIdentifier(), defaultRoot);
 		}
 		
-		public default Builder registerMainRoot(final Object mainRoot)
+		public default Builder registerCustomRoot(final Object customRoot)
 		{
-			return this.registerMainRoot(wrapMainRoot(mainRoot));
+			return this.registerCustomRootSupplier(wrapCustomRoot(customRoot));
 		}
 		
-		public default Builder registerMainRoot(final Supplier<?> instanceSupplier)
+		public default Builder registerCustomRootSupplier(final Supplier<?> instanceSupplier)
 		{
-			return this.registerMainRoot(Persistence.mainRootIdentifier(), instanceSupplier);
+			return this.registerCustomRootSupplier(Persistence.customRootIdentifier(), instanceSupplier);
 		}
 		
 		public Builder registerDefaultRoot(String defaultRootIdentifier, Reference<Object> defaultRoot);
 		
-		public Builder registerMainRoot(String mainRootIdentifier, Supplier<?> instanceSupplier);
+		public Builder registerCustomRootSupplier(String customRootIdentifier, Supplier<?> instanceSupplier);
 		
-		public default Builder registerMainRoot(final String mainRootIdentifier, final Object mainRoot)
+		public default Builder registerCustomRoot(final String customRootIdentifier, final Object customRoot)
 		{
-			return this.registerMainRoot(mainRootIdentifier, wrapMainRoot(mainRoot));
+			return this.registerCustomRootSupplier(customRootIdentifier, wrapCustomRoot(customRoot));
 		}
 		
 		public Builder registerRoot(String identifier, Supplier<?> instanceSupplier);
@@ -511,7 +511,7 @@ public interface PersistenceRootResolver
 			private final PersistenceRootEntry.Provider             entryProvider        ;
 			private final EqHashTable<String, PersistenceRootEntry> rootEntries          ;
 			private       String                                    defaultRootIdentifier;
-			private       String                                    mainRootIdentifier   ;
+			private       String                                    customRootIdentifier ;
 			private       Reference<Object>                         defaultRoot          ;
 			private       PersistenceRefactoringResolverProvider    refactoring          ;
 			private       PersistenceRefactoringMappingProvider     refactoringMapping   ;
@@ -551,9 +551,9 @@ public interface PersistenceRootResolver
 			}
 			
 			@Override
-			public String mainRootIdentifier()
+			public String customRootIdentifier()
 			{
-				return this.mainRootIdentifier;
+				return this.customRootIdentifier;
 			}
 			
 			@Override
@@ -580,17 +580,17 @@ public interface PersistenceRootResolver
 			}
 			
 			@Override
-			public Builder registerMainRoot(
-				final String      mainRootIdentifier,
-				final Supplier<?> instanceSupplier
+			public Builder registerCustomRootSupplier(
+				final String      customRootIdentifier,
+				final Supplier<?> customRootSupplier
 			)
 			{
-				notNull(mainRootIdentifier);
+				notNull(customRootIdentifier);
 				
 				// current main root identifier must be removed in any case because of adding logic later.
-				this.rootEntries.removeFor(mainRootIdentifier);
-				this.addEntry(mainRootIdentifier, instanceSupplier);
-				this.mainRootIdentifier = mainRootIdentifier;
+				this.rootEntries.removeFor(customRootIdentifier);
+				this.addEntry(customRootIdentifier, customRootSupplier);
+				this.customRootIdentifier = customRootIdentifier;
 				
 				return this;
 			}
@@ -631,7 +631,7 @@ public interface PersistenceRootResolver
 			{
 				final PersistenceRootResolver resolver = new PersistenceRootResolver.Default(
 					this.defaultRootIdentifier,
-					this.mainRootIdentifier ,
+					this.customRootIdentifier ,
 					this.defaultRoot          ,
 					this.rootEntries.immure()
 				);

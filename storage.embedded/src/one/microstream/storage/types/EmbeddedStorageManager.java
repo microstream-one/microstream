@@ -42,12 +42,12 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	
 	public default long storeRoot()
 	{
-		final Object            mainRoot    = this.root();
+		final Object            customRoot  = this.root();
 		final Reference<Object> defaultRoot = this.defaultRoot();
 		
-		if(mainRoot != null)
+		if(customRoot != null)
 		{
-			return this.store(mainRoot);
+			return this.store(customRoot);
 		}
 
 		if(defaultRoot != null)
@@ -146,7 +146,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public Object root()
 		{
-			return this.definedRoots.mainRoot();
+			return this.definedRoots.customRoot();
 		}
 		
 		@Override
@@ -215,7 +215,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.
 			 * 3.) Loaded roots and defined roots do not match, so the loaded roots entries must be replaced/updated.
 			 */
-			return !loadedRoots.hasChanged();
+			return loadedRoots.hasChanged();
 		}
 		
 		private void ensureRequiredTypeHandlers()
@@ -254,7 +254,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 				loadedRoots = this.definedRoots;
 			}
-			else if(this.synchronizeRoots(loadedRoots))
+			else if(!this.synchronizeRoots(loadedRoots))
 			{
 				// loaded roots are perfectly synchronous to defined roots, no store update required.
 				return;

@@ -1,4 +1,4 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import java.io.File;
 
@@ -7,6 +7,8 @@ import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.Storage;
+import one.microstream.test.corp.logic.Test;
+import one.microstream.test.corp.logic.TestImportExport;
 import one.microstream.test.corp.model.ClientCorporation;
 
 public class MainTestStorageExampleMore
