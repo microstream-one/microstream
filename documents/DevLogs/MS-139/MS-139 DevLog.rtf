@@ -489,12 +489,19 @@ v EmbeddedStorageManager#root muss gleiche Identit\'e4t wie die Root instanz sei
 \par
 \par
 \par
-Noch zus\'e4tzliche Methode EmbeddedStorageManager#setRoot(Supplier) bauen.\par
+Noch zus\'e4tzliche Methode EmbeddedStorageFoundation#setRoot(Supplier) bauen.\par
 JavaDoc anpassen an gestrige \'c4nderungen (geht's schon wieder los ... aber in geringem Umfang l\'e4sst sich das nicht vermeiden). JavaDoc f\'fcr neue Methode schreiben.\par
 \par
 Haha und jetzt \'e4nder ich die Benamung doch wieder von "mainRoot" auf "customRoot" zur\'fcck.\par
 Denn:\par
 Beide, default und custom, sind "main roots". Die Frage ist eben nur, ob die Defaultvariante, oder ob selbst vorgegeben. Da passt "custom" besser als "main".\par
 \par
+Es muss doch noch eine EmbeddedStorageManager#setRoot geben, sonst ist das nicht angemessen einfach. Schnell bauen.\par
+Dann muss #root doch so eine doppel-logik haben: Falls es einen custom root gibt, den zur\'fcckgeben, ansonsten den Inhalt des defaultRoots.\par
+Damit man im Bedarfsfall trotzdem noch die M\'f6glichkeit f\'fcr eine Unterscheidung hat, muss es dann noch eine defaultRoot() geben.\par
+Das hier zu beschreiben hat l\'e4nger gedauert, als die 3 Mini-Methoden zu implementieren. Haha.\par
+Wobei: JavaDoc auch noch.\par
+\par
+Implementiert. Das vereinfacht die MainTestStorageExample (einfachstes Beispiel) erheblich. Sehr sch\'f6n.\par
 }
  
