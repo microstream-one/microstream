@@ -1,4 +1,4 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import one.microstream.concurrency.XThreads;
 import one.microstream.math.XMath;

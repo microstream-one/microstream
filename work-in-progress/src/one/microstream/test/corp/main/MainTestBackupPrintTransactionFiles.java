@@ -1,4 +1,4 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import java.io.File;
 

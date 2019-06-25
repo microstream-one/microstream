@@ -1,6 +1,7 @@
 package one.microstream.storage.types;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
@@ -180,18 +181,40 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	public F setRootResolver(PersistenceRootResolver rootResolver);
 	
 	/**
-	 * Creates a {@link PersistenceRootResolver} instance wrapping the passed {@literal root} instance
-	 * and sets it to the {@link EmbeddedStorageConnectionFoundation} instance provided by
-	 * {@link #getConnectionFoundation()}.
+	 * Registers the passed {@literal root} instance as the root instance at the
+	 * {@link EmbeddedStorageConnectionFoundation} instance provided by
+	 * {@link #getConnectionFoundation()}.<br>
+	 * Use {@link #setRootSupplier(Supplier)} for a more dynamic approach, i.e. if the actual root
+	 * instance must be created after setting up and creating the {@link EmbeddedStorageManager}.
 	 * 
 	 * @param root the instance to be used as the persistent entity graph's root instance.
 	 * 
 	 * @return {@literal this} to allow method chaining.
 	 * 
+	 * @see #setRootSupplier(Supplier)
 	 * @see #setRootResolver(PersistenceRootResolver)
 	 * @see EmbeddedStorageConnectionFoundation#setRootResolver(PersistenceRootResolver)
 	 */
 	public F setRoot(Object root);
+
+	/**
+	 * Registers the passed {@literal rootSupplier} {@link Supplier} as the root instance supplier at the
+	 * {@link EmbeddedStorageConnectionFoundation} instance provided by
+	 * {@link #getConnectionFoundation()}. The actual root instance will be queried during startup, not before.<br>
+	 * This technique allows a more dynamic approach than {@link #setRoot(Object)}, i.e. if the actual root
+	 * instance must be created after setting up and creating the {@link EmbeddedStorageManager}.
+	 * 
+	 * @param rootSupplier the supplying logic to obtain the instance to be used during startup
+	 *        as the persistent entity graph's root instance.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 * 
+	 * @see EmbeddedStorageManager#start()
+	 * @see #setRoot(Object)
+	 * @see #setRootResolver(PersistenceRootResolver)
+	 * @see EmbeddedStorageConnectionFoundation#setRootResolver(PersistenceRootResolver)
+	 */
+	public F setRootSupplier(Supplier<?> rootSupplier);
 	
 	/**
 	 * Sets the passed {@link PersistenceRefactoringMappingProvider} instance to the
@@ -267,7 +290,15 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public F setRoot(final Object root)
 		{
-			this.getConnectionFoundation().getRootResolverBuilder().registerMainRoot(root);
+			this.getConnectionFoundation().getRootResolverBuilder().registerCustomRoot(root);
+			
+			return this.$();
+		}
+		
+		@Override
+		public F setRootSupplier(final Supplier<?> rootSupplier)
+		{
+			this.getConnectionFoundation().getRootResolverBuilder().registerCustomRootSupplier(rootSupplier);
 			
 			return this.$();
 		}
@@ -465,7 +496,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 						+ " simultaneously."
 					);
 				}
-				ecf.getRootResolverBuilder().registerMainRoot(explicitRoot);
+				ecf.getRootResolverBuilder().registerCustomRoot(explicitRoot);
 			}
 			
 			// must be created BEFORE the type handler manager is initilized to register its custom type handler

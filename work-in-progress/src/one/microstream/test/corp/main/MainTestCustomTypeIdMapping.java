@@ -1,4 +1,4 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,6 +11,7 @@ import one.microstream.persistence.types.PersistenceTypeRegistry;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.test.corp.logic.Test;
 
 
 public class MainTestCustomTypeIdMapping

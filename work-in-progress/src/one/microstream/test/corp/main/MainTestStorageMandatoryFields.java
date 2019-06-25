@@ -1,10 +1,12 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import one.microstream.X;
 import one.microstream.collections.types.XList;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.util.StoreEager;
+import one.microstream.test.corp.logic.Test;
+import one.microstream.test.corp.logic.TestImportExport;
 import one.microstream.test.corp.model.Address;
 import one.microstream.test.corp.model.Person;
 import one.microstream.time.XTime;

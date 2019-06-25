@@ -461,5 +461,40 @@ Achja und die storeRoot() special Logik noch schnell bauen. Das ist gar nicht ma
 Fertig.\par
 \par
 Morgen noch bissl testen.\par
+\par
+\par
+2019-06-25\par
+\par
+Testf\'e4lle:\par
+\par
+1.) Default Root\par
+Es wird \'fcberhaupt keine Angabe zur Root Instanz gemacht.\par
+EmbeddedStorageManager#defaultRoot wird verwendet, um eine fachliche Root Instanz zu setzen.\par
+Beim Laden wird die fachliche Root Instanz generisch erzeugt. Es gibt keine explizit typisierte Referenz darauf.\par
+Test:\par
+v EmbeddedStorageManager#defaultRoot setzen, speichern, neustarten (laden) und dann get muss die in der ersten Ausf\'fchrung gesetzt Root Instanz zur\'fcckgeben.\par
+v EmbeddedStorageManager#storeRoot muss den defaultRoot und den daranh\'e4ngenden Graph speichen.\par
+\par
+2.) Explicit Root\par
+Es wird eine Instanz beliebigen Typs definiert und als explizite Root Instanz\par
+Test:\par
+v Instanz leer erzeugen, im ersten Durchlauf f\'fcllen, als explicit Root setzen, speichern, neustarten (laden) und dann muss im zweiten Durchlauf die Instanz gef\'fcllt sein\par
+v EmbeddedStorageManager#root muss gleiche Identit\'e4t wie die Root instanz sein ("==")\par
+\par
+3.) Indirect Root\par
+Es wird zur Setup Zeit der Storage nur ein Supplier f\'fcr eine Root Instanz \'fcbergeben, die aber noch gar nicht gibt. Erst vor dem Start wird diese erzeugt.\par
+Test:\par
+v Leeren Supplier registrieren, Instanz leer erzeugen, Datenbank starten, Instanz im ersten Durchlauf f\'fcllen, als explicit Root setzen, speichern, neustarten (laden) und dann muss im zweiten Durchlauf die Instanz gef\'fcllt sein\par
+v EmbeddedStorageManager#root muss gleiche Identit\'e4t wie die Root instanz sein ("==")\par
+\par
+\par
+\par
+Noch zus\'e4tzliche Methode EmbeddedStorageManager#setRoot(Supplier) bauen.\par
+JavaDoc anpassen an gestrige \'c4nderungen (geht's schon wieder los ... aber in geringem Umfang l\'e4sst sich das nicht vermeiden). JavaDoc f\'fcr neue Methode schreiben.\par
+\par
+Haha und jetzt \'e4nder ich die Benamung doch wieder von "mainRoot" auf "customRoot" zur\'fcck.\par
+Denn:\par
+Beide, default und custom, sind "main roots". Die Frage ist eben nur, ob die Defaultvariante, oder ob selbst vorgegeben. Da passt "custom" besser als "main".\par
+\par
 }
  

@@ -734,9 +734,9 @@ public class Persistence
 		return "root";
 	}
 	
-	public static final String mainRootIdentifier()
+	public static final String customRootIdentifier()
 	{
-		return "mainRoot";
+		return "customRoot";
 	}
 	
 	public static final PersistenceRootResolver.Builder RootResolverBuilder(
@@ -744,7 +744,7 @@ public class Persistence
 	)
 	{
 		return PersistenceRootResolver.Builder()
-			.registerMainRoot(rootInstance)
+			.registerCustomRoot(rootInstance)
 		;
 	}
 	
@@ -754,7 +754,7 @@ public class Persistence
 	)
 	{
 		return PersistenceRootResolver.Builder()
-			.registerMainRoot(rootIdentifier, rootInstance)
+			.registerCustomRoot(rootIdentifier, rootInstance)
 		;
 	}
 	
@@ -763,7 +763,7 @@ public class Persistence
 	)
 	{
 		return PersistenceRootResolver.Builder()
-			.registerMainRoot(rootInstanceSupplier)
+			.registerCustomRootSupplier(rootInstanceSupplier)
 		;
 	}
 	
@@ -773,7 +773,7 @@ public class Persistence
 	)
 	{
 		return PersistenceRootResolver.Builder()
-			.registerMainRoot(rootIdentifier, rootInstanceSupplier)
+			.registerCustomRootSupplier(rootIdentifier, rootInstanceSupplier)
 		;
 	}
 	
