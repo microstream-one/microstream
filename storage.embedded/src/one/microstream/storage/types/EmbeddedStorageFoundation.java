@@ -97,7 +97,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * logic part instances and by on-demand creating missing ones via a default logic.
 	 * <p>
 	 * If the passed {@literal explicitRoot} is {@literal null}, a default root instance will be created, see
-	 * {@link EmbeddedStorageManager#root()}.
+	 * {@link EmbeddedStorageManager#defaultRoot()}.
 	 * <p>
 	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
 	 * 
@@ -106,10 +106,39 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * @return a new {@link EmbeddedStorageManager} instance.
 	 * 
 	 * @see #createEmbeddedStorageManager()
+	 * @see #createEmbeddedStorageManager(Supplier)
 	 * @see #start()
 	 * @see #start(Object)
 	 */
-	public EmbeddedStorageManager createEmbeddedStorageManager(Object explicitRoot);
+	public default EmbeddedStorageManager createEmbeddedStorageManager(final Object explicitRoot)
+	{
+		return this.createEmbeddedStorageManager(
+			PersistenceRootResolver.wrapCustomRoot(explicitRoot)
+		);
+	}
+	
+	/**
+	 * Creates and returns a new {@link EmbeddedStorageManager} instance by using the current state of all registered
+	 * logic part instances and by on-demand creating missing ones via a default logic.
+	 * <p>
+	 * If the passed {@literal rootSupplier} is {@literal null}, a default root instance will be created, see
+	 * {@link EmbeddedStorageManager#defaultRoot()}. Otherwise, it will be used to resolve the root instance to be used
+	 * during {@link #start()}. This indirection is necessary if the actual root instance is not yet available at
+	 * the time the {@link EmbeddedStorageManager} is created, but will be at the time {@link #start()} is called.
+	 * <p>
+	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
+	 * 
+	 * @param rootSupplier an indirection logic to later supply the instance to be used
+	 *        as the persistent entity graph's root instance.
+	 * 
+	 * @return a new {@link EmbeddedStorageManager} instance.
+	 * 
+	 * @see #createEmbeddedStorageManager()
+	 * @see #createEmbeddedStorageManager(Object)
+	 * @see #start()
+	 * @see #start(Object)
+	 */
+	public EmbeddedStorageManager createEmbeddedStorageManager(Supplier<?> rootSupplier);
 	
 	/**
 	 * Convenience method to create, start and return an {@link EmbeddedStorageManager} instance using a default
@@ -477,14 +506,14 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 				}
 			};
 		}
-				
+						
 		@Override
-		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object explicitRoot)
+		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Supplier<?> rootSupplier)
 		{
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
 			
 			// required checks and procedures for using an explicit root. The alternative is an implicitely created root.
-			if(explicitRoot != null)
+			if(rootSupplier != null)
 			{
 				final PersistenceRootResolver existingRootResolver = ecf.rootResolver();
 				if(existingRootResolver != null)
@@ -496,7 +525,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 						+ " simultaneously."
 					);
 				}
-				ecf.getRootResolverBuilder().registerCustomRoot(explicitRoot);
+				ecf.getRootResolverBuilder().registerCustomRootSupplier(rootSupplier);
 			}
 			
 			// must be created BEFORE the type handler manager is initilized to register its custom type handler

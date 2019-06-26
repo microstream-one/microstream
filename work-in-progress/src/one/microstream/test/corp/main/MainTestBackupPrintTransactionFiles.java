@@ -8,6 +8,11 @@ import one.microstream.storage.types.StorageTransactionsFileAnalysis;
 
 public class MainTestBackupPrintTransactionFiles
 {
+	// local copy to prevent storage starting caused by referencing a constant in MainTestBackupStoring (crazy! :D)
+	static final String DIRECTORY_STORAGE = StorageFileProvider.Defaults.defaultStorageDirectory();
+	static final String DIRECTORY_BACKUP  = DIRECTORY_STORAGE + "/backup";
+	
+	
 	public static void main(final String[] args)
 	{
 		printTransactionsFiles();
@@ -15,8 +20,8 @@ public class MainTestBackupPrintTransactionFiles
 	
 	public static void printTransactionsFiles()
 	{
-		printTransactionsFiles(MainTestBackupStoring.DIRECTORY_STORAGE, 1);
-		printTransactionsFiles(MainTestBackupStoring.DIRECTORY_BACKUP, 1);
+		printTransactionsFiles(DIRECTORY_STORAGE, 1);
+		printTransactionsFiles(DIRECTORY_BACKUP, 1);
 	}
 	
 	public static void printTransactionsFiles(final String baseDirectory, final int channelCount)
