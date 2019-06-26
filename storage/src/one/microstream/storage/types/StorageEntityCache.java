@@ -1260,17 +1260,17 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 //			final long DEBUG_live = 0, DEBUG_unlive = 0;
 
-			// abort conditions for one housekeeping cycle: cursor is encountered again (full loop) or
+			// abort condition is checkd at the end to guarantee one entity progress to avoid starvation
 			do
 			{
-				// if the end of one file is reached, proceed to the next file.
+				// if the end of one file is reached, the next file gets checked. The last file connects to the first.
 				if(entity == tail)
 				{
 					// proceed to next file
 					file = file.next;
 					tail = file.tail;
 					entity = file.head.fileNext;
-					continue;
+					continue; // jumps to loop condition check. The next file's first entry might be the cursor!
 				}
 
 				// debug stuff
@@ -1289,7 +1289,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				// check for clearing the current entity's cache
 				if(this.entityRequiresCacheClearing(entity, evaluator, evalTime))
 				{
-//					DEBUGStorage.println(this.channelIndex + " clearing entity " + entity);
 					// entity has cached data but was deemed as having to be cleared, so clear it
 					// use ensure method for that for the purpose of uniformity / simplicity
 					this.ensureNoCachedData(entity);
@@ -1300,16 +1299,11 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 						break;
 					}
 				}
-
-				// made a full cycle. abort.
-				if((entity = entity.fileNext) == cursor)
-				{
-					break;
-				}
-
-				// check time budget at the end to make 1 entity progress in any case to avoid starvation
+				
+				entity = entity.fileNext;
 			}
-			while(System.nanoTime() < timeBudgetBound);
+			while(entity != cursor && System.nanoTime() < timeBudgetBound);
+			// abort conditions for one housekeeping cycle: cursor is encountered again (full loop) or time is up.
 
 //			DEBUGStorage.println(this.channelIndex + " quits live check. Live = " + DEBUG_live + ", unlive = " + DEBUG_unlive + ", cache size = " + this.usedCacheSize + ", time left = " + (System.nanoTime() - timeBudgetBound));
 			return this.quitLiveCheck(entity);
@@ -1347,9 +1341,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * Not cool :-[.
 		 */
 		private boolean entityRequiresCacheClearing(
-			final StorageEntity.Default entity   ,
-			final StorageEntityCacheEvaluator  evaluator,
-			final long                         evalTime
+			final StorageEntity.Default       entity   ,
+			final StorageEntityCacheEvaluator evaluator,
+			final long                        evalTime
 		)
 		{
 			if(!entity.isLive())
