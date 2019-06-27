@@ -372,7 +372,7 @@ public final class Storage
 	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
 	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
 	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * @param dissolveHeadfile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
+	 * @param cleanUpHeadFile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
 	 * 
 	 * @return dissolveHeadfile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean)@return}
 	 * 
@@ -383,13 +383,13 @@ public final class Storage
 	 * @see StorageDataFileEvaluator#New(int, int, double, boolean)
 	 */
 	public static final StorageDataFileEvaluator DataFileEvaluator(
-		final int     fileMinimumSize ,
-		final int     fileMaximumSize ,
-		final double  minimumUseRatio ,
-		final boolean dissolveHeadfile
+		final int     fileMinimumSize,
+		final int     fileMaximumSize,
+		final double  minimumUseRatio,
+		final boolean cleanUpHeadFile
 	)
 	{
-		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio, dissolveHeadfile);
+		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio, cleanUpHeadFile);
 	}
 	
 	/**
@@ -426,16 +426,16 @@ public final class Storage
 	/**
 	 * {@linkDoc StorageBackupSetup#New(StorageFileProvider)}
 	 * 
-	 * @param fileProvider {@linkDoc StorageBackupSetup#New(StorageFileProvider):}
+	 * @param backupFileProvider {@linkDoc StorageBackupSetup#New(StorageFileProvider):}
 	 * 
 	 * @return {@linkDoc StorageBackupSetup#New(StorageFileProvider)@return}
 	 * 
 	 * @see StorageBackupSetup#New(File)
 	 * @see StorageBackupHandler
 	 */
-	public static final StorageBackupSetup BackupSetup(final StorageFileProvider fileProvider)
+	public static final StorageBackupSetup BackupSetup(final StorageFileProvider backupFileProvider)
 	{
-		return StorageBackupSetup.New(fileProvider);
+		return StorageBackupSetup.New(backupFileProvider);
 	}
 	
 	/**

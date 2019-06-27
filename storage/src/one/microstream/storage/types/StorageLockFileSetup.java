@@ -133,7 +133,7 @@ public interface StorageLockFileSetup
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLockFileSetup.Provider(Charset, long)}.
 	 * 
-	 * @return {@linkDoc StorageLockFileSetup.Provider(Charset, long)@return}
+	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
 	 * 
 	 * @see StorageLockFileSetup
 	 */
@@ -149,11 +149,11 @@ public interface StorageLockFileSetup
 	 * Pseudo-constructor method to create a new {@link StorageLockFileSetup.Provider} instance
 	 * using the passed values and default values specified by {@link StorageLockFileSetup.Defaults}.
 	 * <p>
-	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(Charset, long)}.
+	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
 	 * 
-	 * @param charset {@linkDoc StorageDataFileEvaluator#New(Charset, long):}
+	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
 	 * 
-	 * @return {@linkDoc StorageDataFileEvaluator#New(Charset, long)@return}
+	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
 	 * 
 	 * @see StorageLockFileSetup
 	 */
@@ -171,11 +171,11 @@ public interface StorageLockFileSetup
 	 * Pseudo-constructor method to create a new {@link StorageLockFileSetup.Provider} instance
 	 * using the passed values and default values specified by {@link StorageLockFileSetup.Defaults}.
 	 * <p>
-	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(Charset, long)}.
+	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
 	 * 
-	 * @param updateInterval {@linkDoc StorageDataFileEvaluator#New(Charset, long):}
+	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
 	 * 
-	 * @return {@linkDoc StorageDataFileEvaluator#New(Charset, long)@return}
+	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
 	 * 
 	 * @see StorageLockFileSetup
 	 */
