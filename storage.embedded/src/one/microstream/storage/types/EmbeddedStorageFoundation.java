@@ -80,7 +80,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * <p>
 	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
 	 * 
-	 * @return {@linkDoc EmbeddedStorageManager#createEmbeddedStorageManager(Object)@return}
+	 * @return {@linkDoc EmbeddedStorageFoundation#createEmbeddedStorageManager(Object)@return}
 	 * 
 	 * @see #createEmbeddedStorageManager(Object)
 	 * @see #start()
@@ -144,7 +144,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * Convenience method to create, start and return an {@link EmbeddedStorageManager} instance using a default
 	 * root instance.
 	 * 
-	 * @return {@linkDoc EmbeddedStorageManager#createEmbeddedStorageManager(Object)@return}
+	 * @return {@linkDoc EmbeddedStorageFoundation#createEmbeddedStorageManager(Object)@return}
 	 * 
 	 * @see #start(Object)
 	 * @see #createEmbeddedStorageManager()
@@ -173,9 +173,9 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * {@code esm.start();}<br>
 	 * {@code return esm;}
 	 * 
-	 * @param explicitRoot {@linkDoc EmbeddedStorageManager#createEmbeddedStorageManager(Object):}
+	 * @param explicitRoot {@linkDoc EmbeddedStorageFoundation#createEmbeddedStorageManager(Object):}
 	 * 
-	 * @return {@linkDoc EmbeddedStorageManager#createEmbeddedStorageManager(Object)@return}
+	 * @return {@linkDoc EmbeddedStorageFoundation#createEmbeddedStorageManager(Object)@return}
 	 * 
 	 * @see #start()
 	 * @see #createEmbeddedStorageManager()
