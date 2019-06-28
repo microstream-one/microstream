@@ -1,6 +1,8 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import java.io.File;
+
+import one.microstream.test.corp.logic.Test;
 
 public class MainTestPrintTransactionFiles
 {

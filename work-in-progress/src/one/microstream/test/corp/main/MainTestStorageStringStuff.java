@@ -1,7 +1,9 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.test.corp.logic.Test;
+import one.microstream.test.corp.logic.TestImportExport;
 
 
 public class MainTestStorageStringStuff
@@ -10,17 +12,17 @@ public class MainTestStorageStringStuff
 
 	public static void main(final String[] args)
 	{
-		if(STORAGE.root().get() == null)
+		if(STORAGE.defaultRoot().get() == null)
 		{
-			STORAGE.root().set(createObjectGraph());
+			STORAGE.defaultRoot().set(createObjectGraph());
 			Test.print("STORAGE: storing ...");
-			STORAGE.store(STORAGE.root());
+			STORAGE.storeDefaultRoot();
 			Test.print("STORAGE: storing completed.");
 		}
 		else
 		{
 			Test.print("TEST: model data loaded." );
-			printObjectGraph((Object[])STORAGE.root().get());
+			printObjectGraph((Object[])STORAGE.defaultRoot().get());
 			Test.print("TEST: exporting data ..." );
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testCorpExport"));
 			Test.print("TEST: data export completed.");

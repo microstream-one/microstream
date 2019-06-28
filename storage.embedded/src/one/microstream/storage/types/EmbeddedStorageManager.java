@@ -1,6 +1,5 @@
 package one.microstream.storage.types;
 
-import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.io.File;
@@ -11,11 +10,11 @@ import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceManager;
-import one.microstream.persistence.types.PersistenceRootResolver;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.Reference;
+import one.microstream.storage.exceptions.StorageException;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -38,18 +37,47 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	@Override
 	public boolean shutdown();
 	
-	/**
-	 * A reference to the application's explicit root. Potentially <code>null</code> if roots are resolved otherwise.
-	 * E.g. via custom {@link PersistenceRootResolver}, static {@link EmbeddedStorageManager#root()} or constants.
-	 * 
-	 * @return the explicit root.
-	 */
-	public Reference<Object> root();
+	public Object root();
+	
+	public Object setRoot(Object newRoot);
+	
+	public Reference<Object> defaultRoot();
+	
+	public Object customRoot();
 	
 	public default long storeRoot()
 	{
-		final Reference<Object> root = this.root();
+		final Object            customRoot  = this.root();
+		final Reference<Object> defaultRoot = this.defaultRoot();
 		
+		if(customRoot != null)
+		{
+			return this.store(customRoot);
+		}
+
+		if(defaultRoot != null)
+		{
+			final Storer storer = this.createStorer();
+			final long defaultRootObjectId = storer.store(defaultRoot);
+			
+			final Object root = defaultRoot.get();
+			if(root != null)
+			{
+				storer.store(root);
+			}
+			
+			storer.commit();
+			
+			return defaultRootObjectId;
+		}
+
+		return Persistence.nullId();
+	}
+	
+	public default long storeDefaultRoot()
+	{
+		final Reference<Object> root = this.defaultRoot();
+
 		return root == null
 			? Persistence.nullId()
 			: this.store(root)
@@ -61,15 +89,13 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	public static EmbeddedStorageManager.Default New(
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
-		final PersistenceRoots                       definedRoots        ,
-		final Reference<Object>                      explicitRoot
+		final PersistenceRoots                       definedRoots
 	)
 	{
 		return new EmbeddedStorageManager.Default(
 			notNull(configuration)       ,
 			notNull(connectionFoundation),
-			notNull(definedRoots)        ,
-			mayNull(explicitRoot)
+			notNull(definedRoots)
 		);
 	}
 
@@ -84,7 +110,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		private final StorageManager                         storageManager      ;
 		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
 		private final PersistenceRoots                       definedRoots        ;
-		private final Reference<Object>                      explicitRoot        ;
 		
 		private StorageConnection singletonConnection;
 
@@ -97,8 +122,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		Default(
 			final StorageConfiguration                   configuration       ,
 			final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
-			final PersistenceRoots                       definedRoots        ,
-			final Reference<Object>                      explicitRoot
+			final PersistenceRoots                       definedRoots
 		)
 		{
 			super();
@@ -106,7 +130,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			this.storageManager       = connectionFoundation.getStorageManager(); // to ensure consistency
 			this.connectionFoundation = connectionFoundation                    ;
 			this.definedRoots         = definedRoots                            ;
-			this.explicitRoot         = explicitRoot                            ;
 		}
 
 
@@ -124,11 +147,62 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+
+		@Override
+		public Object root()
+		{
+			final Object customRoot = this.customRoot();
+			if(customRoot != null)
+			{
+				return customRoot;
+			}
+			
+			final Reference<Object> defaultRoot = this.defaultRoot();
+			if(defaultRoot != null)
+			{
+				return defaultRoot.get();
+			}
+			
+			return null;
+		}
 		
 		@Override
-		public Reference<Object> root()
+		public Object setRoot(final Object newRoot)
 		{
-			return this.explicitRoot;
+			final Object customRoot = this.customRoot();
+			if(customRoot != null)
+			{
+				if(customRoot == newRoot)
+				{
+					// no-op, graciously abort
+					return customRoot;
+				}
+				
+				// (25.06.2019 TM)EXCP: proper exception
+				throw new StorageException("Cannot replace an explicitely defined root instance.");
+			}
+			
+			final Reference<Object> defaultRoot = this.defaultRoot();
+			if(defaultRoot != null)
+			{
+				defaultRoot.set(newRoot);
+				return newRoot;
+			}
+
+			// (25.06.2019 TM)EXCP: proper exception
+			throw new StorageException("No default root (reference holder) present to reference the passed root.");
+		}
+		
+		@Override
+		public Reference<Object> defaultRoot()
+		{
+			return this.definedRoots.defaultRoot();
+		}
+		
+		@Override
+		public Object customRoot()
+		{
+			return this.definedRoots.customRoot();
 		}
 
 		@Override
@@ -178,20 +252,20 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			// if the loaded roots does not match the defined roots, its entries must be updated to catch up.
 			if(!equalContent)
 			{
-				loadedRoots.updateEntries(definedEntries);
+				loadedRoots.replaceEntries(definedEntries);
 			}
 			
 			/*
 			 * If the loaded roots had to change in any way to match the runtime state of the application,
 			 * it means that it has to be stored to update the persistent state to the current (changed) one.
 			 * The loaded roots instance is the one that has to be stored to maintain the associated ObjectId,
-			 * hence the entry synchronizsation instead of just storing the defined roots instance right away.
+			 * hence the entry synchronization instead of just storing the defined roots instance right away.
 			 * There are 3 possible cases for a change:
 			 * 1.) An entry has been explicitly removed by a refactoring mapping.
 			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.
 			 * 3.) Loaded roots and defined roots do not match, so the loaded roots entries must be replaced/updated.
 			 */
-			return !loadedRoots.hasChanged();
+			return loadedRoots.hasChanged();
 		}
 		
 		private void ensureRequiredTypeHandlers()
@@ -230,7 +304,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 				loadedRoots = this.definedRoots;
 			}
-			else if(this.synchronizeRoots(loadedRoots))
+			else if(!this.synchronizeRoots(loadedRoots))
 			{
 				// loaded roots are perfectly synchronous to defined roots, no store update required.
 				return;

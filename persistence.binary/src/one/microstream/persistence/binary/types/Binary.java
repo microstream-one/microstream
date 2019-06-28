@@ -502,15 +502,15 @@ public abstract class Binary implements Chunk
 	}
 	
 	public final void storeRoots(
-		final long                            typeId  ,
-		final long                            objectId,
-		final XGettingTable<String, Object>   entries ,
-		final PersistenceStoreHandler         handler
+		final long                          typeId  ,
+		final long                          objectId,
+		final XGettingTable<String, Object> entries ,
+		final PersistenceStoreHandler       handler
 	)
 	{
 		// performance is not important here as roots only get stored once per system start and are very few in numbers
-		final Object[] instances   = entries.values().toArray();
 		final String[] identifiers = entries.keys().toArray(String.class);
+		final Object[] instances   = entries.values().toArray();
 
 		// calculate all the lengths
 		final long instancesTotalBinLength     = Binary.calculateReferenceListTotalBinaryLength(instances.length);

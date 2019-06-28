@@ -3,7 +3,6 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -12,16 +11,26 @@ import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.collections.types.XTable;
+import one.microstream.reference.Reference;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
 
 public interface PersistenceRootResolver
 {
+	public String defaultRootIdentifier();
+	
+	public Reference<Object> defaultRoot();
+	
+	public String customRootIdentifier();
+	
+	public PersistenceRootEntry customRootEntry();
+	
 	public PersistenceRootEntry resolveRootInstance(String identifier);
 	
-	public XGettingTable<String, Object> getRootInstances();
+	public XGettingTable<String, PersistenceRootEntry> entries();
 	
-	public default XGettingTable<String, PersistenceRootEntry> resolveRootInstances(
+	public default XGettingTable<String, PersistenceRootEntry> resolveRootEntries(
 		final XGettingEnum<String> identifiers
 	)
 	{
@@ -55,6 +64,29 @@ public interface PersistenceRootResolver
 		return resolvedRoots;
 	}
 	
+	public default XTable<String, Object> resolveRootInstances()
+	{
+		return this.resolveRootInstances(this.entries());
+	}
+	
+	public default XTable<String, Object> resolveRootInstances(
+		final XGettingTable<String, PersistenceRootEntry> entries
+	)
+	{
+		final EqHashTable<String, Object> resolvedRoots = EqHashTable.New();
+		
+		for(final PersistenceRootEntry entry : entries.values())
+		{
+			// may be null if explicitely removed
+			final Object rootInstance = entry.instance();
+			resolvedRoots.add(entry.identifier(), rootInstance);
+		}
+		
+		return resolvedRoots;
+	}
+	
+	
+	
 	public static XGettingTable<String, Supplier<?>> deriveRoots(final Class<?>... types)
 	{
 		return deriveRoots(XReflect::deriveFieldIdentifier, types);
@@ -71,7 +103,7 @@ public interface PersistenceRootResolver
 		
 		return roots;
 	}
-
+	
 	public static void addRoots(
 		final EqHashTable<String, Supplier<?>> roots                ,
 		final Function<Field, String>          rootIdentifierDeriver,
@@ -138,166 +170,23 @@ public interface PersistenceRootResolver
 	}
 	
 	
-	public interface Builder
-	{
-		public Builder registerRoot(String identifier, Supplier<?> instanceSupplier);
-		
-		public default Builder registerRoots(final XGettingTable<String, Supplier<?>> roots)
-		{
-			synchronized(this)
-			{
-				roots.iterate(kv ->
-					this.registerRoot(kv.key(), kv.value())
-				);
-			}
-			return this;
-		}
-		
-		public default Builder registerRoot(final String identifier, final Object instance)
-		{
-			return this.registerRoot(identifier, () -> instance);
-		}
-		
-		public Builder setRefactoring(PersistenceRefactoringResolverProvider refactoring);
-		
-		public Builder setRefactoring(PersistenceRefactoringMappingProvider refactoringMapping);
-		
-				
-		public PersistenceRootResolver build();
-		
-		public final class Default implements PersistenceRootResolver.Builder
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields //
-			////////////////////
-			
-			private final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider     ;
-			private final EqHashTable<String, PersistenceRootEntry>             rootEntries       ;
-			private       PersistenceRefactoringResolverProvider                refactoring       ;
-			private       PersistenceRefactoringMappingProvider                 refactoringMapping;
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-			
-			Default(final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider)
-			{
-				super();
-				this.entryProvider = entryProvider;
-				this.rootEntries   = this.initializeRootEntries();
-			}
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-			
-			/**
-			 * System constants that must be present and may not be replaced by user logic are initially registered.
-			 */
-			private EqHashTable<String, PersistenceRootEntry> initializeRootEntries()
-			{
-				final EqHashTable<String, PersistenceRootEntry> entries = EqHashTable.New();
-				
-				for(final KeyValue<String, Supplier<?>> entry : PersistenceMetaIdentifiers.defineConstantSuppliers())
-				{
-					entries.add(entry.key(), this.entryProvider.apply(entry.key(), entry.value()));
-				}
-								
-				return entries;
-			}
-			
-			@Override
-			public final synchronized Builder registerRoot(final String identifier, final Supplier<?> instanceSupplier)
-			{
-				final PersistenceRootEntry entry = this.entryProvider.apply(identifier, instanceSupplier);
-				this.addEntry(identifier, entry);
-				return this;
-			}
-			
-			private void addEntry(final String identifier, final PersistenceRootEntry entry)
-			{
-				if(this.rootEntries.add(identifier, entry))
-				{
-					return;
-				}
-				throw new RuntimeException(); // (17.04.2018 TM)EXCP: proper exception
-			}
-						
-			@Override
-			public final synchronized PersistenceRootResolver build()
-			{
-				final PersistenceRootResolver resolver = new PersistenceRootResolver.Default(
-					this.rootEntries.immure()
-				);
-				
-				final PersistenceRefactoringResolverProvider refactoring = this.getBuildRefactoring();
-				
-				return refactoring == null
-					? resolver
-					: PersistenceRootResolver.Wrap(resolver, refactoring)
-				;
-			}
-			
-			protected PersistenceRefactoringResolverProvider getBuildRefactoring()
-			{
-				if(this.refactoring != null)
-				{
-					return this.refactoring;
-				}
-				
-				if(this.refactoringMapping != null)
-				{
-					return PersistenceRefactoringResolverProvider.Caching(this.refactoringMapping);
-				}
-				
-				return null;
-			}
-			
-			@Override
-			public final synchronized Builder setRefactoring(
-				final PersistenceRefactoringResolverProvider refactoring
-			)
-			{
-				this.refactoring = refactoring;
-				return this;
-			}
-			
-			@Override
-			public final synchronized Builder setRefactoring(
-				final PersistenceRefactoringMappingProvider refactoringMapping
-			)
-			{
-				this.refactoringMapping = refactoringMapping;
-				return this;
-			}
-		}
-	}
-	
-	
-
-	
-	public static PersistenceRootResolver.Builder Builder()
-	{
-		return Builder(PersistenceRootEntry::New);
-	}
-	
-	public static PersistenceRootResolver.Builder Builder(
-		final BiFunction<String, Supplier<?>, PersistenceRootEntry> entryProvider
+	public static PersistenceRootResolver New(
+		final Supplier<?> customRootSupplier
 	)
 	{
-		return new PersistenceRootResolver.Builder.Default(
-			notNull(entryProvider)
-		);
+		return Builder()
+			.registerCustomRootSupplier(customRootSupplier)
+			.build()
+		;
 	}
-		
-	public static PersistenceRootResolver New(final String identifier, final Supplier<?> instanceSupplier)
+	
+	public static PersistenceRootResolver New(
+		final String      customRootIdentifier,
+		final Supplier<?> customRootSupplier
+	)
 	{
 		return Builder()
-			.registerRoot(identifier, instanceSupplier)
+			.registerCustomRootSupplier(customRootIdentifier, customRootSupplier)
 			.build()
 		;
 	}
@@ -307,8 +196,12 @@ public interface PersistenceRootResolver
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+		
 
-		private final EqConstHashTable<String, PersistenceRootEntry> rootEntries;
+		private final String                                         defaultRootIdentifier;
+		private final String                                         customRootIdentifier ;
+		private final Reference<Object>                              defaultRoot          ;
+		private final EqConstHashTable<String, PersistenceRootEntry> rootEntries          ;
 
 
 
@@ -316,10 +209,18 @@ public interface PersistenceRootResolver
 		// constructors //
 		/////////////////
 
-		Default(final EqConstHashTable<String, PersistenceRootEntry> rootEntries)
+		Default(
+			final String                                         defaultRootIdentifier,
+			final String                                         customRootIdentifier ,
+			final Reference<Object>                              defaultRoot          ,
+			final EqConstHashTable<String, PersistenceRootEntry> rootEntries
+		)
 		{
 			super();
-			this.rootEntries = rootEntries;
+			this.defaultRootIdentifier = defaultRootIdentifier;
+			this.customRootIdentifier  = customRootIdentifier ;
+			this.defaultRoot           = defaultRoot          ;
+			this.rootEntries           = rootEntries          ;
 		}
 
 
@@ -334,20 +235,40 @@ public interface PersistenceRootResolver
 			return this.rootEntries.get(identifier);
 		}
 		
-		@Override
-		public final XGettingTable<String, Object> getRootInstances()
-		{
-			final EqHashTable<String, Object> rootInstances = EqHashTable.New();
-			
-			for(final PersistenceRootEntry entry : this.rootEntries.values())
-			{
-				rootInstances.add(entry.identifier(), entry.instance());
-			}
-			
-			return rootInstances;
-		}
 
+		@Override
+		public String defaultRootIdentifier()
+		{
+			return this.defaultRootIdentifier;
+		}
+		
+		@Override
+		public Reference<Object> defaultRoot()
+		{
+			return this.defaultRoot;
+		}
+		
+		@Override
+		public String customRootIdentifier()
+		{
+			return this.customRootIdentifier;
+		}
+		
+		@Override
+		public PersistenceRootEntry customRootEntry()
+		{
+			return this.entries().get(this.customRootIdentifier);
+		}
+		
+
+		@Override
+		public XGettingTable<String, PersistenceRootEntry> entries()
+		{
+			return this.rootEntries;
+		}
+		
 	}
+	
 	
 	
 	public static PersistenceRootResolver Wrap(
@@ -388,12 +309,14 @@ public interface PersistenceRootResolver
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-				
+		
 		@Override
-		public final XGettingTable<String, Object> getRootInstances()
+		public XGettingTable<String, PersistenceRootEntry> entries()
 		{
-			return this.actualRootResolver.getRootInstances();
+			return this.actualRootResolver.entries();
 		}
+
+		
 
 		@Override
 		public PersistenceRootEntry resolveRootInstance(final String identifier)
@@ -449,7 +372,311 @@ public interface PersistenceRootResolver
 			
 			return mappedEntry;
 		}
+		
+
+
+
+		@Override
+		public String defaultRootIdentifier()
+		{
+			return this.actualRootResolver.defaultRootIdentifier();
+		}
+		
+
+
+
+		@Override
+		public Reference<Object> defaultRoot()
+		{
+			return this.actualRootResolver.defaultRoot();
+		}
+		
+
+
+
+		@Override
+		public String customRootIdentifier()
+		{
+			return this.actualRootResolver.customRootIdentifier();
+		}
+		
+
+
+
+		@Override
+		public PersistenceRootEntry customRootEntry()
+		{
+			return this.actualRootResolver.customRootEntry();
+		}
 				
 	}
+	
+	
+	public static PersistenceRootResolver.Builder Builder()
+	{
+		return Builder(PersistenceRootEntry::New);
+	}
+	
+	public static PersistenceRootResolver.Builder Builder(
+		final PersistenceRootEntry.Provider entryProvider
+	)
+	{
+		final PersistenceRootResolver.Builder.Default builder = new PersistenceRootResolver.Builder.Default(
+			notNull(entryProvider)
+		);
+		
+		return builder;
+	}
+		
+	/**
+	 * Central wrapping method mosty to have a unified and concisely named location for the lambda.
+	 * 
+	 * @param customRootInstance the instance to be used as the entity graph's root.
+	 * 
+	 * @return a {@link Supplier} returning the passed {@literal customRootInstance} instance.
+	 */
+	public static Supplier<?> wrapCustomRoot(final Object customRootInstance)
+	{
+		return () ->
+			customRootInstance
+		;
+	}
+	
+	public interface Builder
+	{
+		public String defaultRootIdentifier();
+		
+		public String customRootIdentifier();
+		
+		public default boolean hasRootRegistered()
+		{
+			return this.defaultRootIdentifier() != null || this.customRootIdentifier() != null;
+		}
+		
+		public default Builder registerDefaultRoot(final Reference<Object> defaultRoot)
+		{
+			return this.registerDefaultRoot(Persistence.defaultRootIdentifier(), defaultRoot);
+		}
+		
+		public default Builder registerCustomRoot(final Object customRoot)
+		{
+			return this.registerCustomRootSupplier(wrapCustomRoot(customRoot));
+		}
+		
+		public default Builder registerCustomRootSupplier(final Supplier<?> instanceSupplier)
+		{
+			return this.registerCustomRootSupplier(Persistence.customRootIdentifier(), instanceSupplier);
+		}
+		
+		public Builder registerDefaultRoot(String defaultRootIdentifier, Reference<Object> defaultRoot);
+		
+		public Builder registerCustomRootSupplier(String customRootIdentifier, Supplier<?> instanceSupplier);
+		
+		public default Builder registerCustomRoot(final String customRootIdentifier, final Object customRoot)
+		{
+			return this.registerCustomRootSupplier(customRootIdentifier, wrapCustomRoot(customRoot));
+		}
+		
+		public Builder registerRoot(String identifier, Supplier<?> instanceSupplier);
+		
+		public default Builder registerRoots(final XGettingTable<String, Supplier<?>> roots)
+		{
+			synchronized(this)
+			{
+				roots.iterate(kv ->
+					this.registerRoot(kv.key(), kv.value())
+				);
+			}
+			return this;
+		}
+		
+		public default Builder registerRoot(final String identifier, final Object instance)
+		{
+			return this.registerRoot(identifier, () -> instance);
+		}
+		
+		public Builder setRefactoring(PersistenceRefactoringResolverProvider refactoring);
+		
+		public Builder setRefactoring(PersistenceRefactoringMappingProvider refactoringMapping);
+		
+				
+		public PersistenceRootResolver build();
+		
+		public final class Default implements PersistenceRootResolver.Builder
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private final PersistenceRootEntry.Provider             entryProvider        ;
+			private final EqHashTable<String, PersistenceRootEntry> rootEntries          ;
+			private       String                                    defaultRootIdentifier;
+			private       String                                    customRootIdentifier ;
+			private       Reference<Object>                         defaultRoot          ;
+			private       PersistenceRefactoringResolverProvider    refactoring          ;
+			private       PersistenceRefactoringMappingProvider     refactoringMapping   ;
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Default(final PersistenceRootEntry.Provider entryProvider)
+			{
+				super();
+				this.entryProvider = entryProvider;
+				this.rootEntries   = this.initializeRootEntries();
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
+			/**
+			 * System constants that must be present and may not be replaced by user logic are initially registered.
+			 */
+			private EqHashTable<String, PersistenceRootEntry> initializeRootEntries()
+			{
+				final EqHashTable<String, PersistenceRootEntry> entries = EqHashTable.New();
+				
+				for(final KeyValue<String, Supplier<?>> entry : PersistenceMetaIdentifiers.defineConstantSuppliers())
+				{
+					entries.add(entry.key(), this.entryProvider.provideRootEntry(entry.key(), entry.value()));
+				}
+								
+				return entries;
+			}
+			
+			@Override
+			public String customRootIdentifier()
+			{
+				return this.customRootIdentifier;
+			}
+			
+			@Override
+			public String defaultRootIdentifier()
+			{
+				return this.defaultRootIdentifier;
+			}
 
+			@Override
+			public Builder registerDefaultRoot(
+				final String            defaultRootIdentifier,
+				final Reference<Object> defaultRoot
+			)
+			{
+				notNull(defaultRootIdentifier);
+				
+				// current main root identifier must be removed in any case because of adding logic later.
+				this.rootEntries.removeFor(defaultRootIdentifier);
+				this.addEntry(defaultRootIdentifier, () -> defaultRoot);
+				this.defaultRootIdentifier = defaultRootIdentifier;
+				this.defaultRoot           = defaultRoot;
+				
+				return this;
+			}
+			
+			@Override
+			public Builder registerCustomRootSupplier(
+				final String      customRootIdentifier,
+				final Supplier<?> customRootSupplier
+			)
+			{
+				notNull(customRootIdentifier);
+				
+				// current main root identifier must be removed in any case because of adding logic later.
+				this.rootEntries.removeFor(customRootIdentifier);
+				this.addEntry(customRootIdentifier, customRootSupplier);
+				this.customRootIdentifier = customRootIdentifier;
+				
+				return this;
+			}
+			
+			@Override
+			public final synchronized Builder registerRoot(
+				final String      identifier      ,
+				final Supplier<?> instanceSupplier
+			)
+			{
+				final PersistenceRootEntry entry = this.entryProvider.provideRootEntry(identifier, instanceSupplier);
+				this.addEntry(identifier, entry);
+				
+				return this;
+			}
+			
+			private void addEntry(
+				final String      identifier      ,
+				final Supplier<?> instanceSupplier
+			)
+			{
+				final PersistenceRootEntry entry = this.entryProvider.provideRootEntry(identifier, instanceSupplier);
+				this.addEntry(identifier, entry);
+			}
+			
+			private void addEntry(final String identifier, final PersistenceRootEntry entry)
+			{
+				if(this.rootEntries.add(identifier, entry))
+				{
+					return;
+				}
+				
+				throw new RuntimeException(); // (17.04.2018 TM)EXCP: proper exception
+			}
+						
+			@Override
+			public final synchronized PersistenceRootResolver build()
+			{
+				final PersistenceRootResolver resolver = new PersistenceRootResolver.Default(
+					this.defaultRootIdentifier,
+					this.customRootIdentifier ,
+					this.defaultRoot          ,
+					this.rootEntries.immure()
+				);
+				
+				final PersistenceRefactoringResolverProvider refactoring = this.getBuildRefactoring();
+				
+				return refactoring == null
+					? resolver
+					: PersistenceRootResolver.Wrap(resolver, refactoring)
+				;
+			}
+			
+			protected PersistenceRefactoringResolverProvider getBuildRefactoring()
+			{
+				if(this.refactoring != null)
+				{
+					return this.refactoring;
+				}
+				
+				if(this.refactoringMapping != null)
+				{
+					return PersistenceRefactoringResolverProvider.Caching(this.refactoringMapping);
+				}
+				
+				return null;
+			}
+			
+			@Override
+			public final synchronized Builder setRefactoring(
+				final PersistenceRefactoringResolverProvider refactoring
+			)
+			{
+				this.refactoring = refactoring;
+				return this;
+			}
+			
+			@Override
+			public final synchronized Builder setRefactoring(
+				final PersistenceRefactoringMappingProvider refactoringMapping
+			)
+			{
+				this.refactoringMapping = refactoringMapping;
+				return this;
+			}
+		}
+	}
+	
 }

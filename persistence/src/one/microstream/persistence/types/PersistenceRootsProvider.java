@@ -12,7 +12,7 @@ public interface PersistenceRootsProvider<M>
 	 */
 	public void registerRootsTypeHandlerCreator(
 		PersistenceCustomTypeHandlerRegistry<M> typeHandlerRegistry,
-		PersistenceObjectRegistry                         objectRegistry
+		PersistenceObjectRegistry               objectRegistry
 	);
 
 }

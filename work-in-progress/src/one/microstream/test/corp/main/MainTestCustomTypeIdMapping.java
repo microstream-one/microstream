@@ -1,4 +1,4 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,6 +11,7 @@ import one.microstream.persistence.types.PersistenceTypeRegistry;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.test.corp.logic.Test;
 
 
 public class MainTestCustomTypeIdMapping
@@ -49,18 +50,18 @@ public class MainTestCustomTypeIdMapping
 
 	public static void main(final String[] args)
 	{
-		if(STORAGE.root().get() == null)
+		if(STORAGE.defaultRoot().get() == null)
 		{
 			Test.print("TEST: graph required." );
-			STORAGE.root().set(generateGraph());
+			STORAGE.defaultRoot().set(generateGraph());
 			Test.print("STORAGE: storing ...");
-			STORAGE.store(STORAGE.root());
+			STORAGE.storeDefaultRoot();
 			Test.print("STORAGE: storing completed.");
 		}
 		else
 		{
 			Test.print("TEST: graph loaded." );
-			Test.print(STORAGE.root().get());
+			Test.print(STORAGE.defaultRoot().get());
 			Test.print("TEST: done." );
 		}
 		

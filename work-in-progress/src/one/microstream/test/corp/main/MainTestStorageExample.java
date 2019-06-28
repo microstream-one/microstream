@@ -1,7 +1,9 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.test.corp.logic.Test;
+import one.microstream.test.corp.logic.TestImportExport;
 
 
 public class MainTestStorageExample
@@ -12,15 +14,15 @@ public class MainTestStorageExample
 	public static void main(final String[] args)
 	{
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
-		if(STORAGE.root().get() == null)
+		if(STORAGE.root() == null)
 		{
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			STORAGE.root().set(Test.generateModelData(1_000));
+			STORAGE.setRoot(Test.generateModelData(1_000));
 			
 			Test.print("Storing ...");
-			STORAGE.store(STORAGE.root());
+			STORAGE.storeRoot();
 			Test.print("Storing completed.");
 		}
 		else
@@ -30,7 +32,7 @@ public class MainTestStorageExample
 			Test.printInitializationTime(STORAGE);
 			Test.printOperationModeTime(STORAGE);
 			Test.print("Model data loaded.");
-			Test.print("Root instance: " + STORAGE.root().get());
+			Test.print("Root instance: " + STORAGE.root());
 			
 			Test.print("Exporting data ...");
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));

@@ -1,4 +1,4 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import one.microstream.X;
 import one.microstream.concurrency.XThreads;
@@ -12,6 +12,7 @@ import one.microstream.storage.types.StorageDataChunkValidator;
 import one.microstream.storage.types.StorageDataFileValidator;
 import one.microstream.storage.types.StorageEntityDataValidator;
 import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.test.corp.logic.Test;
 
 
 public class MainTestBackupStoring
@@ -67,9 +68,9 @@ public class MainTestBackupStoring
 	{
 //		printTransactionsFiles();
 		final Object[] array = createArray(100);
-		STORAGE.root().set(array);
+		STORAGE.defaultRoot().set(array);
 		Test.print("STORAGE: storing ...");
-		STORAGE.store(STORAGE.root());
+		STORAGE.storeDefaultRoot();
 		
 		for(int i = 0; i < 10; i++)
 		{
@@ -81,6 +82,4 @@ public class MainTestBackupStoring
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
 	
-
-		
 }
