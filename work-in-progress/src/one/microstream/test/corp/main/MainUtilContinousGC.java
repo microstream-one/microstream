@@ -1,4 +1,4 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import one.microstream.concurrency.XThreads;
 import one.microstream.math.XMath;
@@ -15,7 +15,7 @@ public class MainUtilContinousGC
 
 	public static void main(final String[] args)
 	{
-		final Object root = STORAGE.root();
+		final Object root = STORAGE.defaultRoot();
 		for(int i = 0; i < RUNS; i++)
 		{
 			// (24.06.2015 TM)TODO: adjust times according to entity count and housekeeping budgets

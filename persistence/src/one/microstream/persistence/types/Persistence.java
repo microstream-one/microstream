@@ -671,7 +671,10 @@ public class Persistence
 	}
 	
 
-	public static final PersistenceRootResolver RootResolver(final String rootIdentifier, final Object rootInstance)
+	public static final PersistenceRootResolver RootResolver(
+		final String rootIdentifier,
+		final Object rootInstance
+	)
 	{
 		return RootResolver(rootIdentifier, () -> rootInstance);
 	}
@@ -683,7 +686,7 @@ public class Persistence
 
 	public static final PersistenceRootResolver RootResolver(final Supplier<?> rootInstanceSupplier)
 	{
-		return RootResolver("root", rootInstanceSupplier);
+		return RootResolverBuilder(rootInstanceSupplier).build();
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
@@ -695,8 +698,8 @@ public class Persistence
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
-		final String                                rootIdentifier      ,
-		final Supplier<?>                           rootInstanceSupplier,
+		final String                                 rootIdentifier      ,
+		final Supplier<?>                            rootInstanceSupplier,
 		final PersistenceRefactoringResolverProvider refactoringMapping
 	)
 	{
@@ -707,7 +710,7 @@ public class Persistence
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
-		final Supplier<?>                           rootInstanceSupplier,
+		final Supplier<?>                            rootInstanceSupplier,
 		final PersistenceRefactoringResolverProvider refactoringMapping
 	)
 	{
@@ -719,10 +722,64 @@ public class Persistence
 	
 	public static final PersistenceRootResolver.Builder RootResolverBuilder()
 	{
-		return PersistenceRootResolver.Builder();
+		// debugability line breaks, do not reduce!
+		return RootResolverBuilder(
+			() ->
+				null
+		);
 	}
 	
-	public static final PersistenceRefactoringMappingProvider RefactoringMapping(final File refactoringsFile)
+	public static final String defaultRootIdentifier()
+	{
+		return "root";
+	}
+	
+	public static final String customRootIdentifier()
+	{
+		return "customRoot";
+	}
+	
+	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+		final Object rootInstance
+	)
+	{
+		return PersistenceRootResolver.Builder()
+			.registerCustomRoot(rootInstance)
+		;
+	}
+	
+	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+		final String rootIdentifier,
+		final Object rootInstance
+	)
+	{
+		return PersistenceRootResolver.Builder()
+			.registerCustomRoot(rootIdentifier, rootInstance)
+		;
+	}
+	
+	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+		final Supplier<?> rootInstanceSupplier
+	)
+	{
+		return PersistenceRootResolver.Builder()
+			.registerCustomRootSupplier(rootInstanceSupplier)
+		;
+	}
+	
+	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+		final String      rootIdentifier      ,
+		final Supplier<?> rootInstanceSupplier
+	)
+	{
+		return PersistenceRootResolver.Builder()
+			.registerCustomRootSupplier(rootIdentifier, rootInstanceSupplier)
+		;
+	}
+	
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+		final File refactoringsFile
+	)
 	{
 		return RefactoringMapping(
 			readRefactoringMappings(refactoringsFile)

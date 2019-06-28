@@ -1,7 +1,8 @@
-package one.microstream.test.corp.logic;
+package one.microstream.test.corp.main;
 
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.test.corp.logic.Test;
 
 public class MainTestStorageExampleTiny
 {
@@ -10,13 +11,13 @@ public class MainTestStorageExampleTiny
 
 	public static void main(final String[] args)
 	{
-		if(STORAGE.root().get() == null)
+		if(STORAGE.defaultRoot().get() == null)
 		{
 			Test.print("TEST: model data required." );
-			STORAGE.root().set(Test.generateModelData(100_000));
+			STORAGE.defaultRoot().set(Test.generateModelData(100_000));
 
 			Test.print("STORAGE: storing ...");
-			STORAGE.store(STORAGE.root());
+			STORAGE.storeDefaultRoot();
 			Test.print("STORAGE: storing completed.");
 		}
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe

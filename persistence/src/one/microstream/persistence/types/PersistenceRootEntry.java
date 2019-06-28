@@ -66,12 +66,21 @@ public interface PersistenceRootEntry
 		@Override
 		public final Object instance()
 		{
+//			XDebug.println("Calling supplier.get() from " + XChars.systemString(this));
+			
 			return this.instanceSupplier != null
 				? this.instanceSupplier.get()
 				: null
 			;
 		}
 		
+	}
+	
+	
+	@FunctionalInterface
+	public interface Provider
+	{
+		public PersistenceRootEntry provideRootEntry(String identifier, Supplier<?> instanceSupplier);
 	}
 	
 }

@@ -1,8 +1,8 @@
 package one.microstream.storage.types;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-import one.microstream.X;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
@@ -12,7 +12,7 @@ import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeManager;
-import one.microstream.reference.Reference;
+import one.microstream.storage.exceptions.StorageException;
 
 
 /**
@@ -97,7 +97,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * logic part instances and by on-demand creating missing ones via a default logic.
 	 * <p>
 	 * If the passed {@literal explicitRoot} is {@literal null}, a default root instance will be created, see
-	 * {@link EmbeddedStorageManager#root()}.
+	 * {@link EmbeddedStorageManager#defaultRoot()}.
 	 * <p>
 	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
 	 * 
@@ -106,10 +106,39 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * @return a new {@link EmbeddedStorageManager} instance.
 	 * 
 	 * @see #createEmbeddedStorageManager()
+	 * @see #createEmbeddedStorageManager(Supplier)
 	 * @see #start()
 	 * @see #start(Object)
 	 */
-	public EmbeddedStorageManager createEmbeddedStorageManager(Object explicitRoot);
+	public default EmbeddedStorageManager createEmbeddedStorageManager(final Object explicitRoot)
+	{
+		return this.createEmbeddedStorageManager(
+			PersistenceRootResolver.wrapCustomRoot(explicitRoot)
+		);
+	}
+	
+	/**
+	 * Creates and returns a new {@link EmbeddedStorageManager} instance by using the current state of all registered
+	 * logic part instances and by on-demand creating missing ones via a default logic.
+	 * <p>
+	 * If the passed {@literal rootSupplier} is {@literal null}, a default root instance will be created, see
+	 * {@link EmbeddedStorageManager#defaultRoot()}. Otherwise, it will be used to resolve the root instance to be used
+	 * during {@link #start()}. This indirection is necessary if the actual root instance is not yet available at
+	 * the time the {@link EmbeddedStorageManager} is created, but will be at the time {@link #start()} is called.
+	 * <p>
+	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
+	 * 
+	 * @param rootSupplier an indirection logic to later supply the instance to be used
+	 *        as the persistent entity graph's root instance.
+	 * 
+	 * @return a new {@link EmbeddedStorageManager} instance.
+	 * 
+	 * @see #createEmbeddedStorageManager()
+	 * @see #createEmbeddedStorageManager(Object)
+	 * @see #start()
+	 * @see #start(Object)
+	 */
+	public EmbeddedStorageManager createEmbeddedStorageManager(Supplier<?> rootSupplier);
 	
 	/**
 	 * Convenience method to create, start and return an {@link EmbeddedStorageManager} instance using a default
@@ -181,18 +210,40 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	public F setRootResolver(PersistenceRootResolver rootResolver);
 	
 	/**
-	 * Creates a {@link PersistenceRootResolver} instance wrapping the passed {@literal root} instance
-	 * and sets it to the {@link EmbeddedStorageConnectionFoundation} instance provided by
-	 * {@link #getConnectionFoundation()}.
+	 * Registers the passed {@literal root} instance as the root instance at the
+	 * {@link EmbeddedStorageConnectionFoundation} instance provided by
+	 * {@link #getConnectionFoundation()}.<br>
+	 * Use {@link #setRootSupplier(Supplier)} for a more dynamic approach, i.e. if the actual root
+	 * instance must be created after setting up and creating the {@link EmbeddedStorageManager}.
 	 * 
 	 * @param root the instance to be used as the persistent entity graph's root instance.
 	 * 
 	 * @return {@literal this} to allow method chaining.
 	 * 
+	 * @see #setRootSupplier(Supplier)
 	 * @see #setRootResolver(PersistenceRootResolver)
 	 * @see EmbeddedStorageConnectionFoundation#setRootResolver(PersistenceRootResolver)
 	 */
 	public F setRoot(Object root);
+
+	/**
+	 * Registers the passed {@literal rootSupplier} {@link Supplier} as the root instance supplier at the
+	 * {@link EmbeddedStorageConnectionFoundation} instance provided by
+	 * {@link #getConnectionFoundation()}. The actual root instance will be queried during startup, not before.<br>
+	 * This technique allows a more dynamic approach than {@link #setRoot(Object)}, i.e. if the actual root
+	 * instance must be created after setting up and creating the {@link EmbeddedStorageManager}.
+	 * 
+	 * @param rootSupplier the supplying logic to obtain the instance to be used during startup
+	 *        as the persistent entity graph's root instance.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 * 
+	 * @see EmbeddedStorageManager#start()
+	 * @see #setRoot(Object)
+	 * @see #setRootResolver(PersistenceRootResolver)
+	 * @see EmbeddedStorageConnectionFoundation#setRootResolver(PersistenceRootResolver)
+	 */
+	public F setRootSupplier(Supplier<?> rootSupplier);
 	
 	/**
 	 * Sets the passed {@link PersistenceRefactoringMappingProvider} instance to the
@@ -268,9 +319,15 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public F setRoot(final Object root)
 		{
-			this.setRootResolver(
-				this.getConnectionFoundation().createRootResolver(root)
-			);
+			this.getConnectionFoundation().getRootResolverBuilder().registerCustomRoot(root);
+			
+			return this.$();
+		}
+		
+		@Override
+		public F setRootSupplier(final Supplier<?> rootSupplier)
+		{
+			this.getConnectionFoundation().getRootResolverBuilder().registerCustomRootSupplier(rootSupplier);
 			
 			return this.$();
 		}
@@ -449,47 +506,27 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 				}
 			};
 		}
-		
-		@SuppressWarnings("unchecked")
-		private static Reference<Object> ensureRootReference(final Object explicitRoot)
-		{
-			return explicitRoot instanceof Reference
-				? (Reference<Object>)explicitRoot
-				: X.Reference(explicitRoot)
-			;
-		}
-		
-		private Reference<Object> createRoot(final Object explicitRoot)
-		{
-			// if an explicit root is provided, it is used (set), no matter what
-			if(explicitRoot != null)
-			{
-				final Reference<Object> root = ensureRootReference(explicitRoot);
-				this.setRoot(root);
-				return root;
-			}
-			
-			// if there is no explicit root but an already set root resolver, no generic root is created
-			final PersistenceRootResolver rootResolver = this.getConnectionFoundation().rootResolver();
-			if(rootResolver != null)
-			{
-				return null;
-			}
-			
-			// if there is no root at all, yet, an empty generic one is created for later use.
-			final Reference<Object> root = X.Reference(null);
-			this.setRoot(root);
-			return root;
-		}
-		
+						
 		@Override
-		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object explicitRoot)
+		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Supplier<?> rootSupplier)
 		{
-			// this is all a bit of clumsy detour due to conflicted initialization order. Maybe overhaul.
-			
-			final Reference<Object> root = this.createRoot(explicitRoot);
-
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
+			
+			// required checks and procedures for using an explicit root. The alternative is an implicitely created root.
+			if(rootSupplier != null)
+			{
+				final PersistenceRootResolver existingRootResolver = ecf.rootResolver();
+				if(existingRootResolver != null)
+				{
+					// (24.06.2019 TM)EXCP: proper exception
+					throw new StorageException(
+						"Cannot define a custom root instance and use a custom "
+						+ PersistenceRootResolver.class.getSimpleName()
+						+ " simultaneously."
+					);
+				}
+				ecf.getRootResolverBuilder().registerCustomRootSupplier(rootSupplier);
+			}
 			
 			// must be created BEFORE the type handler manager is initilized to register its custom type handler
 			final PersistenceRootsProvider<Binary> prp = ecf.getRootsProvider();
@@ -515,7 +552,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			final PersistenceRoots roots = prp.provideRoots();
 				
 			// everything bundled together in the actual manager instance
-			return EmbeddedStorageManager.New(stm.configuration(), ecf, roots, root);
+			return EmbeddedStorageManager.New(stm.configuration(), ecf, roots);
 		}
 
 	}
