@@ -5,12 +5,14 @@ import java.util.function.Supplier;
 
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceRefactoringMappingProvider;
 import one.microstream.persistence.types.PersistenceRootResolver;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
+import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
 import one.microstream.persistence.types.PersistenceTypeManager;
 import one.microstream.storage.exceptions.StorageException;
 
@@ -257,6 +259,17 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 */
 	public F setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
 
+	/**
+	 * Convenience method for {@code this.getConnectionFoundation().executeTypeHandlerRegistration(typeHandlerRegistration)}.
+	 * <p>
+	 * See {@link PersistenceFoundation#executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration)} for details.
+	 * 
+	 * @param typeHandlerRegistration the {@link PersistenceTypeHandlerRegistration} to be executed.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration);
+	
 	
 	
 	/**
@@ -505,6 +518,13 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 					oip.updateCurrentObjectId(max);
 				}
 			};
+		}
+		
+		@Override
+		public F executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration)
+		{
+			this.getConnectionFoundation().executeTypeHandlerRegistration(typeHandlerRegistration);
+			return this.$();
 		}
 						
 		@Override

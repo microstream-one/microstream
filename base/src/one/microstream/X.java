@@ -27,7 +27,6 @@ import one.microstream.collections.SynchSet;
 import one.microstream.collections.interfaces.Sized;
 import one.microstream.collections.old.AbstractBridgeXList;
 import one.microstream.collections.old.AbstractBridgeXSet;
-import one.microstream.collections.old.XArrayList;
 import one.microstream.collections.types.XCollection;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XList;
@@ -817,7 +816,8 @@ public final class X
 		}
 		else if(oldList instanceof ArrayList<?>)
 		{
-			return new XArrayList<>((ArrayList<E>)oldList);
+			throw new one.microstream.meta.NotImplementedYetError();
+//			return new XArrayList<>((ArrayList<E>)oldList);
 		}
 
 		throw new UnsupportedOperationException();

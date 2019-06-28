@@ -1,11 +1,11 @@
 package one.microstream.java.util;
 
-import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 import one.microstream.X;
 import one.microstream.collections.old.KeyValueFlatCollector;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemory;
+import one.microstream.memory.XMemoryJDK8;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -15,14 +15,15 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCollection<Hashtable<?, ?>>
+public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCustomCollection<LinkedHashMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR =                                       0;
-	static final long BINARY_OFFSET_ELEMENTS    = BINARY_OFFSET_LOAD_FACTOR + Float.BYTES;
+	static final long BINARY_OFFSET_LOAD_FACTOR  =                                        0;
+	static final long BINARY_OFFSET_ACCESS_ORDER = BINARY_OFFSET_LOAD_FACTOR  + Float.BYTES;
+	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_ACCESS_ORDER + Byte.BYTES ; // actually Boolean.BYTES
 
 
 
@@ -31,14 +32,19 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<Hashtable<?, ?>> typeWorkaround()
+	private static Class<LinkedHashMap<?, ?>> typeWorkaround()
 	{
-		return (Class)Hashtable.class; // no idea how to get ".class" to work otherwise
+		return (Class)LinkedHashMap.class; // no idea how to get ".class" to work otherwise
 	}
 
 	static final float getLoadFactor(final Binary bytes)
 	{
 		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
+	}
+
+	static final boolean getAccessOrder(final Binary bytes)
+	{
+		return bytes.get_boolean(BINARY_OFFSET_ACCESS_ORDER);
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -52,12 +58,13 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashtable()
+	public BinaryHandlerLinkedHashMap()
 	{
 		super(
 			typeWorkaround(),
 			keyValuesPseudoFields(
-				pseudoField(float.class, "loadFactor")
+				pseudoField(float.class,   "loadFactor"),
+				pseudoField(boolean.class, "accessOrder")
 			)
 		);
 	}
@@ -71,7 +78,7 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	@Override
 	public final void store(
 		final Binary                  bytes   ,
-		final Hashtable<?, ?>         instance,
+		final LinkedHashMap<?, ?>     instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
@@ -84,26 +91,28 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 			instance.entrySet()   ,
 			handler
 		);
-
-		// store load factor as (sole) header value
 		bytes.store_float(
 			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
-			XMemory.getLoadFactor(instance)
+			XMemoryJDK8.getLoadFactor(instance)
+		);
+		bytes.store_boolean(
+			contentAddress + BINARY_OFFSET_ACCESS_ORDER,
+			XMemoryJDK8.getAccessOrder(instance)
 		);
 	}
-	
 
 	@Override
-	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final LinkedHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return new Hashtable<>(
+		return new LinkedHashMap<>(
 			getElementCount(bytes),
-			getLoadFactor(bytes)
+			getLoadFactor(bytes),
+			getAccessOrder(bytes)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final LinkedHashMap<?, ?> instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
 		final int elementCount = getElementCount(bytes);
@@ -113,13 +122,13 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	}
 
 	@Override
-	public void complete(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final LinkedHashMap<?, ?> instance, final PersistenceLoadHandler handler)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final Hashtable<?, ?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final LinkedHashMap<?, ?> instance, final PersistenceFunction iterator)
 	{
 		Persistence.iterateReferencesMap(iterator, instance);
 	}

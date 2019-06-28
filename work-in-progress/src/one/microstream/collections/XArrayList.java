@@ -1,4 +1,4 @@
-package one.microstream.collections.old;
+package one.microstream.collections;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -11,21 +11,15 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import one.microstream.X;
-import one.microstream.collections.AbstractArrayStorage;
-import one.microstream.collections.AbstractSimpleArrayCollection;
-import one.microstream.collections.BulkList;
-import one.microstream.collections.ConstList;
-import one.microstream.collections.ListView;
-import one.microstream.collections.SubList;
-import one.microstream.collections.SubListView;
-import one.microstream.collections.XSort;
+import one.microstream.collections.old.AbstractBridgeXList;
+import one.microstream.collections.old.OldList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableList;
 import one.microstream.collections.types.XList;
 import one.microstream.equality.Equalator;
 import one.microstream.functional.IndexedAcceptor;
-import one.microstream.memory.XMemory;
+import one.microstream.memory.XMemoryJDK8;
 
 /**
  * Extended-Collection wrapper implementation for old {@link ArrayList}.
@@ -113,7 +107,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	protected E[] internalGetStorageArray()
 	{
-		return (E[])XMemory.accessArray(this.subject);
+		return (E[])XMemoryJDK8.accessArray(this.subject);
 	}
 
 	@Override

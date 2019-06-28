@@ -13,22 +13,12 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>work-in-progress</artifactId>
+	<artifactId>persistence.binary.jdk8</artifactId>
 	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
-			<artifactId>storage.embedded</artifactId>
-			<version>01.00.00-MS-RC2</version>
-		</dependency>
-		<dependency>
-			<groupId>one.microstream</groupId>
-			<artifactId>communication.binary</artifactId>
-			<version>01.00.00-MS-RC2</version>
-		</dependency>
-		<dependency>
-			<groupId>one.microstream</groupId>
-			<artifactId>persistence.binary.jdk8</artifactId>
+			<artifactId>persistence.binary</artifactId>
 			<version>01.00.00-MS-RC2</version>
 		</dependency>
 	</dependencies>
