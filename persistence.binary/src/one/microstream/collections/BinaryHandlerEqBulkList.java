@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import one.microstream.equality.Equalator;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollectionSizedArray;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterableSizedArray;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -21,7 +21,7 @@ import one.microstream.reflect.XReflect;
  * @author Thomas Muenz
  */
 public final class BinaryHandlerEqBulkList
-extends AbstractBinaryHandlerCustomCollectionSizedArray<EqBulkList<?>>
+extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //

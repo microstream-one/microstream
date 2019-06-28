@@ -79,4 +79,5 @@ public final class StaticLowRandom
 		// static only
 		throw new UnsupportedOperationException();
 	}
+	
 }

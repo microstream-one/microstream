@@ -1,9 +1,9 @@
 package one.microstream.java.util;
 
-import java.util.Stack;
+import java.util.Vector;
 
-import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollectionSizedArray;
+import one.microstream.memory.XMemoryJDK8;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterableSizedArray;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -13,7 +13,7 @@ import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollectionSizedArray<Stack<?>>
+public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterableSizedArray<Vector<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -29,9 +29,9 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollect
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<Stack<?>> typeWorkaround()
+	private static Class<Vector<?>> typeWorkaround()
 	{
-		return (Class)Stack.class; // no idea how to get ".class" to work otherwise
+		return (Class)Vector.class; // no idea how to get ".class" to work otherwise
 	}
 
 
@@ -40,7 +40,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollect
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerStack(final PersistenceSizedArrayLengthController controller)
+	public BinaryHandlerVector(final PersistenceSizedArrayLengthController controller)
 	{
 		super(
 			typeWorkaround(),
@@ -60,7 +60,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollect
 	@Override
 	public final void store(
 		final Binary                  bytes   ,
-		final Stack<?>                instance,
+		final Vector<?>               instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
@@ -69,41 +69,45 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomCollect
 			this.typeId()                ,
 			objectId                     ,
 			BINARY_OFFSET_SIZED_ARRAY    ,
-			XMemory.accessArray(instance),
+			XMemoryJDK8.accessArray(instance),
 			instance.size()              ,
 			handler
 		);
 		bytes.store_int(
 		    contentAddress + BINARY_OFFSET_CAPACITY_INCREMENT,
-		    XMemory.getCapacityIncrement(instance)
+		    XMemoryJDK8.getCapacityIncrement(instance)
 		);
 	}
 
 	@Override
-	public final Stack<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Vector<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return new Stack<>();
+		// capacityIncrement can be any int value, even negative. So no validation can be done here.
+		return new Vector<>(
+			1,
+			bytes.get_int(BINARY_OFFSET_CAPACITY_INCREMENT)
+		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Stack<?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final Vector<?> instance, final PersistenceLoadHandler handler)
 	{
 		// instance must be cleared and capacity-ensured in case an existing instance gets updated.
 		instance.clear();
-		instance.ensureCapacity(bytes.getSizedArrayLength(BINARY_OFFSET_SIZED_ARRAY));
+		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 		
 		final int size = bytes.updateSizedArrayObjectReferences(
-			BINARY_OFFSET_SIZED_ARRAY,
-			XMemory.accessArray(instance),
+			BINARY_OFFSET_SIZED_ARRAY    ,
+			XMemoryJDK8.accessArray(instance),
 			handler
 		);
-		XMemory.setElementCount(instance, size);
+		XMemoryJDK8.setElementCount(instance, size);
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final Stack<?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final Vector<?> instance, final PersistenceFunction iterator)
 	{
-		Persistence.iterateReferences(iterator, XMemory.accessArray(instance), 0, instance.size());
+		Persistence.iterateReferences(iterator, XMemoryJDK8.accessArray(instance), 0, instance.size());
 	}
 
 	@Override

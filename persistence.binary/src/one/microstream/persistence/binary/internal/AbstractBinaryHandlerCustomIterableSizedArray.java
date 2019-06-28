@@ -6,8 +6,8 @@ import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
 
 
-public abstract class AbstractBinaryHandlerCustomCollectionSizedArray<T>
-extends AbstractBinaryHandlerCustomCollection<T>
+public abstract class AbstractBinaryHandlerCustomIterableSizedArray<T extends Iterable<?>>
+extends AbstractBinaryHandlerCustomIterable<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -21,7 +21,7 @@ extends AbstractBinaryHandlerCustomCollection<T>
 	// constructors //
 	/////////////////
 
-	public AbstractBinaryHandlerCustomCollectionSizedArray(
+	public AbstractBinaryHandlerCustomIterableSizedArray(
 		final Class<T>                                                               type        ,
 		final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields,
 		final PersistenceSizedArrayLengthController                                  controller

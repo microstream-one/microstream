@@ -5,7 +5,7 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 import one.microstream.X;
-import one.microstream.memory.XMemory;
+import one.microstream.memory.XMemoryJDK8;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -126,7 +126,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	public final void iterateInstanceReferences(final PriorityQueue<?> instance, final PersistenceFunction iterator)
 	{
 		iterator.apply(instance.comparator());
-		Persistence.iterateReferences(iterator, XMemory.accessArray(instance), 0, instance.size());
+		Persistence.iterateReferences(iterator, XMemoryJDK8.accessArray(instance), 0, instance.size());
 	}
 
 	@Override
