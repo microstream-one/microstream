@@ -1,8 +1,9 @@
-package one.microstream.java.util;
+package one.microstream.jdk8.java.util;
 
-import java.util.HashSet;
+import java.util.Hashtable;
 
 import one.microstream.X;
+import one.microstream.collections.old.KeyValueFlatCollector;
 import one.microstream.collections.old.OldCollections;
 import one.microstream.memory.XMemoryJDK8;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
@@ -14,7 +15,7 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomCollection<HashSet<?>>
+public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCollection<Hashtable<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -30,9 +31,9 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<HashSet<?>> typeWorkaround()
+	private static Class<Hashtable<?, ?>> typeWorkaround()
 	{
-		return (Class)HashSet.class; // no idea how to get ".class" to work otherwise
+		return (Class)Hashtable.class; // no idea how to get ".class" to work otherwise
 	}
 
 	static final float getLoadFactor(final Binary bytes)
@@ -42,7 +43,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 
 	static final int getElementCount(final Binary bytes)
 	{
-		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
 
 
@@ -51,11 +52,11 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashSet()
+	public BinaryHandlerHashtable()
 	{
 		super(
 			typeWorkaround(),
-			simpleArrayPseudoFields(
+			keyValuesPseudoFields(
 				pseudoField(float.class, "loadFactor")
 			)
 		);
@@ -70,18 +71,17 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	@Override
 	public final void store(
 		final Binary                  bytes   ,
-		final HashSet<?>              instance,
+		final Hashtable<?, ?>         instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeIterableAsList(
+		final long contentAddress = bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
-			instance              ,
-			instance.size()       ,
+			instance.entrySet()   ,
 			handler
 		);
 
@@ -91,41 +91,43 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 			XMemoryJDK8.getLoadFactor(instance)
 		);
 	}
+	
 
 	@Override
-	public final HashSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return new HashSet<>(
+		return new Hashtable<>(
 			getElementCount(bytes),
 			getLoadFactor(bytes)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
-		final Object[] elementsHelper = new Object[getElementCount(bytes)];
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
-		bytes.registerHelper(instance, elementsHelper);
+		final int elementCount = getElementCount(bytes);
+		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
+		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
+		bytes.registerHelper(instance, collector.yield());
 	}
 
 	@Override
-	public void complete(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler loadHandler)
 	{
-		OldCollections.populateSetFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final HashSet<?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final Hashtable<?, ?> instance, final PersistenceFunction iterator)
 	{
-		Persistence.iterateReferencesIterable(iterator, instance);
+		Persistence.iterateReferencesMap(iterator, instance);
 	}
 
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
-
+	
 }

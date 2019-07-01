@@ -1,7 +1,7 @@
 package one.microstream.test.corp.main;
 
 import one.microstream.collections.old.OldCollections;
-import one.microstream.java.util.BinaryHandlersJDK8;
+import one.microstream.jdk8.java.util.BinaryHandlersJDK8;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;

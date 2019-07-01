@@ -1,4 +1,4 @@
-package one.microstream.java.util;
+package one.microstream.jdk8.java.util;
 
 import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;

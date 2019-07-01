@@ -1,9 +1,8 @@
-package one.microstream.java.util;
+package one.microstream.jdk8.java.util;
 
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 
 import one.microstream.X;
-import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
 import one.microstream.collections.old.OldCollections;
 import one.microstream.memory.XMemoryJDK8;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
@@ -15,15 +14,14 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHandlerCustomCollection<LinkedHashMap<?, ?>>
+public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomCollection<HashSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
 
-	static final long BINARY_OFFSET_LOAD_FACTOR  =                                        0;
-	static final long BINARY_OFFSET_ACCESS_ORDER = BINARY_OFFSET_LOAD_FACTOR  + Float.BYTES;
-	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_ACCESS_ORDER + Byte.BYTES ; // actually Boolean.BYTES
+	static final long BINARY_OFFSET_LOAD_FACTOR =                                       0;
+	static final long BINARY_OFFSET_ELEMENTS    = BINARY_OFFSET_LOAD_FACTOR + Float.BYTES;
 
 
 
@@ -32,19 +30,14 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<LinkedHashMap<?, ?>> typeWorkaround()
+	private static Class<HashSet<?>> typeWorkaround()
 	{
-		return (Class)LinkedHashMap.class; // no idea how to get ".class" to work otherwise
+		return (Class)HashSet.class; // no idea how to get ".class" to work otherwise
 	}
 
 	static final float getLoadFactor(final Binary bytes)
 	{
 		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
-	}
-
-	static final boolean getAccessOrder(final Binary bytes)
-	{
-		return bytes.get_boolean(BINARY_OFFSET_ACCESS_ORDER);
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -58,13 +51,12 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerLinkedHashMapFlattened()
+	public BinaryHandlerHashSet()
 	{
 		super(
 			typeWorkaround(),
 			simpleArrayPseudoFields(
-				pseudoField(float.class,   "loadFactor"),
-				pseudoField(boolean.class, "accessOrder")
+				pseudoField(float.class, "loadFactor")
 			)
 		);
 	}
@@ -78,7 +70,7 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	@Override
 	public final void store(
 		final Binary                  bytes   ,
-		final LinkedHashMap<?, ?>     instance,
+		final HashSet<?>              instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
@@ -88,33 +80,29 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
-			() ->
-				JavaUtilMapEntrySetFlattener.New(instance),
-			instance.size() * 2   ,
+			instance              ,
+			instance.size()       ,
 			handler
 		);
+
+		// store load factor as (sole) header value
 		bytes.store_float(
 			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
 			XMemoryJDK8.getLoadFactor(instance)
 		);
-		bytes.store_boolean(
-			contentAddress + BINARY_OFFSET_ACCESS_ORDER,
-			XMemoryJDK8.getAccessOrder(instance)
-		);
 	}
 
 	@Override
-	public final LinkedHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final HashSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return new LinkedHashMap<>(
-			getElementCount(bytes) / 2,
-			getLoadFactor(bytes),
-			getAccessOrder(bytes)
+		return new HashSet<>(
+			getElementCount(bytes),
+			getLoadFactor(bytes)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final LinkedHashMap<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];
@@ -123,15 +111,15 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	}
 
 	@Override
-	public void complete(final Binary bytes, final LinkedHashMap<?, ?> instance, final PersistenceLoadHandler handler)
+	public void complete(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
 	{
-		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateSetFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final LinkedHashMap<?, ?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final HashSet<?> instance, final PersistenceFunction iterator)
 	{
-		Persistence.iterateReferencesMap(iterator, instance);
+		Persistence.iterateReferencesIterable(iterator, instance);
 	}
 
 	@Override
@@ -139,5 +127,5 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
-	
+
 }
