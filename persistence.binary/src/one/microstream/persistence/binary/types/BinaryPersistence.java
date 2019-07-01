@@ -168,8 +168,8 @@ public final class BinaryPersistence extends Persistence
 			// (28.06.2019 TM)FIXME: MS-143: MOAR JDK Collections (empty, nested implementations, etc)
 			// creepy JDK 1.0 collections
 			new BinaryHandlerVector()               ,
-			new BinaryHandlerHashtable()            ,
 			new BinaryHandlerStack()                ,
+			new BinaryHandlerHashtable()            ,
 			new BinaryHandlerProperties()           ,
 			
 			// still creepy JDK 1.2 collections

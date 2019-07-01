@@ -1,4 +1,4 @@
-package one.microstream.java.util;
+package one.microstream.jdk8.java.util;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
