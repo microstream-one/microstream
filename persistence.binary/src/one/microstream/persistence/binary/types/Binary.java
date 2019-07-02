@@ -11,6 +11,7 @@ import one.microstream.X;
 import one.microstream.chars.XChars;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.math.XMath;
+import one.microstream.memory.JdkInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidListElements;
@@ -95,6 +96,16 @@ public abstract class Binary implements Chunk
 		CONTENT_ADDRESS_NEGATIVE_OFFSET_OID = OFFSET_OID - LENGTH_ENTITY_HEADER
 	;
 	
+	static
+	{
+		/* (02.07.2019 TM)NOTE: the binary persistence layer
+		 * requires the full usability of the JDK-internal accessing functionality
+		 * like calling the cleaner or accessing the direct byte buffer address.
+		 * Until they fix their sh*t to provide proper solutions for that, makeshift
+		 * solutions like this are required.
+		 */
+		JdkInternals.guaranteeUsability();
+	}
 	
 	
 	///////////////////////////////////////////////////////////////////////////

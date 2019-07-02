@@ -1,22 +1,19 @@
-package one.microstream.java.util.concurrent;
+package one.microstream.java.util;
 
 import java.util.Comparator;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.PriorityQueue;
 
 import one.microstream.X;
-import one.microstream.collections.old.KeyValueFlatCollector;
-import one.microstream.collections.old.OldCollections;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterable;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerConcurrentSkipListMap
-extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
+public final class BinaryHandlerPriorityQueue
+extends AbstractBinaryHandlerCustomIterable<PriorityQueue<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -24,24 +21,19 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 
 	static final long BINARY_OFFSET_COMPARATOR =                                                      0;
 	static final long BINARY_OFFSET_ELEMENTS   = BINARY_OFFSET_COMPARATOR + Binary.objectIdByteLength();
-	
-	
+
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<ConcurrentSkipListMap<?, ?>> typeWorkaround()
+	private static Class<PriorityQueue<?>> typeWorkaround()
 	{
-		return (Class)ConcurrentSkipListMap.class; // no idea how to get ".class" to work otherwise
+		return (Class)PriorityQueue.class; // no idea how to get ".class" to work otherwise
 	}
-
-	static final int getElementCount(final Binary bytes)
-	{
-		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
-	}
-		
+	
 	@SuppressWarnings("unchecked")
 	private static <E> Comparator<? super E> getComparator(
 		final Binary                 bytes  ,
@@ -51,20 +43,26 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 		return (Comparator<? super E>)handler.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
 	}
 
+	static final int getElementCount(final Binary bytes)
+	{
+		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
+	}
+
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerConcurrentSkipListMap()
+	public BinaryHandlerPriorityQueue()
 	{
 		super(
 			typeWorkaround(),
-			keyValuesPseudoFields(
+			simpleArrayPseudoFields(
 				pseudoField(Comparator.class, "comparator")
 			)
 		);
+		
 	}
 
 
@@ -75,18 +73,19 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 
 	@Override
 	public final void store(
-		final Binary                      bytes   ,
-		final ConcurrentSkipListMap<?, ?> instance,
-		final long                        objectId,
-		final PersistenceStoreHandler     handler
+		final Binary                  bytes   ,
+		final PriorityQueue<?>        instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeMapEntrySet(
+		final long contentAddress = bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
-			instance.entrySet()   ,
+			instance              ,
+			instance.size()       ,
 			handler
 		);
 		
@@ -97,21 +96,22 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	}
 	
 	@Override
-	public final ConcurrentSkipListMap<?, ?> create(
+	public final PriorityQueue<?> create(
 		final Binary                 bytes  ,
 		final PersistenceLoadHandler handler
 	)
 	{
-		return new ConcurrentSkipListMap<>(
+		return new PriorityQueue<>(
+			X.checkArrayRange(getElementCount(bytes)),
 			getComparator(bytes, handler)
 		);
 	}
 
 	@Override
 	public final void update(
-		final Binary                      bytes   ,
-		final ConcurrentSkipListMap<?, ?> instance,
-		final PersistenceLoadHandler      handler
+		final Binary                 bytes   ,
+		final PriorityQueue<?>       instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		instance.clear();
@@ -120,37 +120,26 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 		 * Tree collections don't use hashing, but their comparing logic still uses the elements' state,
 		 * which might not yet be available when this method is called. Hence the detour to #complete.
 		 */
-		final int elementCount = getElementCount(bytes);
-		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
-		bytes.registerHelper(instance, collector.yield());
-	}
-
-	@Override
-	public final void complete(
-		final Binary                      bytes   ,
-		final ConcurrentSkipListMap<?, ?> instance,
-		final PersistenceLoadHandler      builder
-	)
-	{
-		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
+		final Object[] elementsHelper = new Object[getElementCount(bytes)];
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
+		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
 	public final void iterateInstanceReferences(
-		final ConcurrentSkipListMap<?, ?> instance,
-		final PersistenceFunction         iterator
+		final PriorityQueue<?>    instance,
+		final PersistenceFunction iterator
 	)
 	{
 		iterator.apply(instance.comparator());
-		Persistence.iterateReferencesMap(iterator, instance);
+		super.iterateInstanceReferences(instance, iterator);
 	}
 
 	@Override
 	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_COMPARATOR));
-		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 }

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import one.microstream.X;
-import one.microstream.memory.XMemory;
+import one.microstream.memory.JdkInternals;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataAcceptor;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
@@ -137,7 +137,7 @@ public interface StorageFileEntityDataIterator
 		{
 			if(this.bufferCapacity() < requiredBufferCapacity)
 			{
-				XMemory.deallocateDirectByteBuffer(this.directByteBuffer);
+				JdkInternals.deallocateDirectBuffer(this.directByteBuffer);
 				this.directByteBuffer = ByteBuffer.allocateDirect(X.checkArrayRange(requiredBufferCapacity));
 			}
 			
@@ -234,7 +234,7 @@ public interface StorageFileEntityDataIterator
 			final BinaryEntityRawDataAcceptor            dataAcceptor
 		)
 		{
-			final long bufferStartAddress = XMemory.getDirectByteBufferAddress(this.directByteBuffer);
+			final long bufferStartAddress = JdkInternals.getDirectBufferAddress(this.directByteBuffer);
 			final long bufferBoundAddress = bufferStartAddress + this.directByteBuffer.position();
 			
 			return dataIterator.iterateEntityRawData(bufferStartAddress, bufferBoundAddress, dataAcceptor);

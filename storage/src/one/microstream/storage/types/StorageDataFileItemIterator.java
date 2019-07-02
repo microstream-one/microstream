@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 
+import one.microstream.memory.JdkInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 
@@ -222,7 +223,7 @@ public interface StorageDataFileItemIterator
 
 					// buffer is guaranteed to be filled exactely to its limit in any case
 					nextEntityLength = processBufferedEntities(
-						XMemory.getDirectByteBufferAddress(buffer),
+						JdkInternals.getDirectBufferAddress(buffer),
 						buffer.limit(),
 						fileChannel,
 						itemProcessor
