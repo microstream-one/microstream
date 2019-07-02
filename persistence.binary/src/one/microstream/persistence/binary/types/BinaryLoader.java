@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.math.XMath;
+import one.microstream.memory.JdkInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceInstanceHandler;
@@ -483,7 +484,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			 * of common case entities.
 			 */
 			final ByteBuffer dbb = Binary.allocateEntityHeaderDirectBuffer();
-			final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
+			final long dbbAddress = JdkInternals.getDirectBufferAddress(dbb);
 			
 			// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
 			final BinaryLoadItem skipItem = this.createLoadItem(dbbAddress + dbb.capacity());

@@ -555,9 +555,39 @@ public final class VarString implements CharSequence, Appendable, Serializable
 		return this;
 	}
 
-	public final <E> VarString add(final E element, final BiConsumer<VarString, ? super E> joiner)
+	public final <E> VarString add(
+		final E                                element,
+		final BiConsumer<VarString, ? super E> joiner
+	)
 	{
 		joiner.accept(this, element);
+		
+		return this;
+	}
+	
+	public final <E> VarString addAll(
+		final E[]                              elements,
+		final BiConsumer<VarString, ? super E> joiner
+	)
+	{
+		for(final E element : elements)
+		{
+			joiner.accept(this, element);
+		}
+		
+		return this;
+	}
+	
+	public final <E> VarString addAll(
+		final Iterable<? extends E>            elements,
+		final BiConsumer<VarString, ? super E> joiner
+	)
+	{
+		for(final E element : elements)
+		{
+			joiner.accept(this, element);
+		}
+		
 		return this;
 	}
 

@@ -3,7 +3,7 @@ package one.microstream.persistence.binary.types;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import one.microstream.memory.XMemory;
+import one.microstream.memory.JdkInternals;
 
 
 public class ChunksWrapper extends Binary
@@ -40,7 +40,7 @@ public class ChunksWrapper extends Binary
 		long totalLength = 0;
 		for(int i = 0; i < chunks.length; i++)
 		{
-			if(!XMemory.isDirectByteBuffer(chunks[i]))
+			if(!JdkInternals.isDirectBuffer(chunks[i]))
 			{
 				throw new IllegalArgumentException();
 			}
@@ -66,8 +66,8 @@ public class ChunksWrapper extends Binary
 		for(int i = 0; i < buffers.length; i++)
 		{
 			this.iterateBufferLoadItems(
-				XMemory.getDirectByteBufferAddress(buffers[i]),
-				XMemory.getDirectByteBufferAddress(buffers[i]) + buffers[i].position(),
+				JdkInternals.getDirectBufferAddress(buffers[i]),
+				JdkInternals.getDirectBufferAddress(buffers[i]) + buffers[i].position(),
 				reader
 			);
 		}

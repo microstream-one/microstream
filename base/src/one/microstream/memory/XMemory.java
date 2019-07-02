@@ -2,13 +2,11 @@ package one.microstream.memory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
 import sun.misc.Unsafe;
-import sun.nio.ch.DirectBuffer;
 
 
 /**
@@ -44,44 +42,6 @@ public final class XMemory
 	;
 
 
-	
-	private static DirectByteBufferDeallocator DIRECT_BYTEBUFFER_DEALLOCATOR = createDefaultDirectByteBufferDeallocator();
-	
-	/**
-	 * Allows to set the {@link DirectByteBufferDeallocator} used by
-	 * {@link #deallocateDirectByteBuffer(ByteBuffer)}.<br>
-	 * See {@link DirectByteBufferDeallocator} for details.
-	 * <p>
-	 * The passed instance "should" be immutable or better stateless to ensure concurrency-safe usage,
-	 * but ultimately, the responsibility resides with the author of the instance's implementation.
-	 * <p>
-	 * Passing <code>null</code> resets to the internal default implementation.
-	 * The used deallocator will never be null.
-	 * 
-	 * @param deallocator the deallocator to be used.
-	 * 
-	 * @see DirectByteBufferDeallocator
-	 */
-	public static synchronized void setDirectByteBufferDeallocator(
-		final DirectByteBufferDeallocator deallocator
-	)
-	{
-		// allows resetting to default without knowing what the default is.
-		DIRECT_BYTEBUFFER_DEALLOCATOR = deallocator != null
-			? deallocator
-			: createDefaultDirectByteBufferDeallocator()
-		;
-	}
-	
-	public static synchronized DirectByteBufferDeallocator getDirectByteBufferDeallocator()
-	{
-		return DIRECT_BYTEBUFFER_DEALLOCATOR;
-	}
-	
-	public static DirectByteBufferDeallocator createDefaultDirectByteBufferDeallocator()
-	{
-		return DirectByteBufferDeallocator.NoOp();
-	}
 	
 	
 	// return type not specified to avoid public API dependencies to sun implementation details
@@ -154,55 +114,7 @@ public final class XMemory
 		}
 		return VM.getObject(VM.staticFieldBase(field), VM.staticFieldOffset(field));
 	}
-	
-	/**
-	 * No idea if this method is really (still?) necesssary, but it sounds reasonable.
-	 * See
-	 * http://stackoverflow.com/questions/8462200/examples-of-forcing-freeing-of-native-memory-direct-bytebuffer-has-allocated-us
-	 *
-	 * @param directByteBuffer
-	 */
-	public static final void deallocateDirectByteBuffer(final ByteBuffer directByteBuffer)
-	{
-		DIRECT_BYTEBUFFER_DEALLOCATOR.deallocateDirectByteBuffer(directByteBuffer);
-	}
-
-	/**
-	 * Just to encapsulate that clumsy cast.
-	 *
-	 * @param directByteBuffer
-	 * @return
-	 */
-	public static final long getDirectByteBufferAddress(final ByteBuffer directByteBuffer)
-	{
-		return ((DirectBuffer)directByteBuffer).address();
-	}
-	
-	/**
-	 * Just to have all jdk internal types here at one place.
-	 * 
-	 * @param directByteBuffer
-	 * @return
-	 */
-	public static final boolean isDirectByteBuffer(final ByteBuffer directByteBuffer)
-	{
-		return directByteBuffer instanceof DirectBuffer;
-	}
-
-	public static final ByteBuffer ensureDirectByteBufferCapacity(final ByteBuffer current, final long capacity)
-	{
-		if(current.capacity() >= capacity)
-		{
-			return current;
-		}
 		
-		checkArrayRange(capacity);
-		deallocateDirectByteBuffer(current);
-		
-		return ByteBuffer.allocateDirect((int)capacity);
-	}
-
-
 	
 
 	
@@ -1115,17 +1027,6 @@ public final class XMemory
 			throw new InstantiationRuntimeException(e);
 		}
 	}
-
-	public static final byte[] directByteBufferToArray(final ByteBuffer directByteBuffer)
-	{
-		final byte[] bytes;
-		copyRangeToArray(
-			getDirectByteBufferAddress(directByteBuffer),
-			bytes = new byte[directByteBuffer.limit()]
-		);
-		return bytes;
-	}
-
 	
 
 	
@@ -1184,7 +1085,8 @@ public final class XMemory
 	/* (18.09.2018 TM)TODO: fieldOffsetWorkaroundDummy necessary?
 	 * Why is there no comment? If it is necessary, it has to be commented, why.
 	 */
-	Object fieldOffsetWorkaroundDummy;
+	// (02.07.2019 TM)NOTE: experimentally removed
+//	Object fieldOffsetWorkaroundDummy;
 
 	
 	
