@@ -21,7 +21,7 @@ import one.microstream.storage.types.StorageTransactionsFile;
 public class MainUtilRecoverStorageFiles
 {
 	static final String PATH_CORRUPTED =
-		"D:/_Allianz/2019-01-10/jetstreamdb_lcm_prod_v400"
+		"D:/_Corp/2019-01-10/db_lcm_prod_v400"
 	;
 	static final long
 		LENGTH_LOWER_VALUE   = Binary.entityHeaderLength()       ,
