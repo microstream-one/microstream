@@ -210,13 +210,13 @@ public class MainTestStorage extends TestStorage
 //		storageConnection.store(root);
 
 //		ROOT.set("rootstesthohoho");
-		////		ROOT.set(testGraph());
+////	ROOT.set(testGraph());
 //		for(int i = 1; i <= 1; i++)
 //		{
-//			final long tStart = System.nanoTime();
-//			final long oid    = storageConnection.store(ROOT);
-//			final long tStop  = System.nanoTime();
-//			System.out.println("Stored "+oid + " Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
+//			final long tStart   = System.nanoTime();
+//			final long objectId = storageConnection.store(ROOT);
+//			final long tStop    = System.nanoTime();
+//			System.out.println("Stored " + objectId + " Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 //		}
 
 //		STORAGE.shutdown();

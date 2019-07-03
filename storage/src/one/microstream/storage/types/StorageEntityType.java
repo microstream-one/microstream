@@ -227,8 +227,8 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		{
 			final StorageEntityTypeHandler typeHandler = this.typeHandler;
 
-			long maxOid = 0, maxCid = 0;
-			final long maxTid = 0;
+			long maxObjectId = 0, maxConstantId = 0;
+			final long maxTypeId = 0;
 			for(StorageEntity.Default entity = this.head; (entity = entity.typeNext) != null;)
 			{
 				final long entityLength   = entity.length;
@@ -236,19 +236,19 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 
 				typeHandler.validateEntityGuaranteedType(entityLength, entityObjectId);
 
-				final long oid = entity.objectId();
-				if(Persistence.IdType.OID.isInRange(oid))
+				final long objectId = entity.objectId();
+				if(Persistence.IdType.OID.isInRange(objectId))
 				{
-					if(oid >= maxOid)
+					if(objectId >= maxObjectId)
 					{
-						maxOid = oid;
+						maxObjectId = objectId;
 					}
 				}
-				else if(Persistence.IdType.CID.isInRange(oid))
+				else if(Persistence.IdType.CID.isInRange(objectId))
 				{
-					if(oid >= maxCid)
+					if(objectId >= maxConstantId)
 					{
-						maxCid = oid;
+						maxConstantId = objectId;
 					}
 				}
 				// (28.02.2019 TM)NOTE: this is no longer true since Legacy Type Mapping
@@ -265,11 +265,11 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 //				}
 				else
 				{
-					throw new StorageException("Invalid OID: " + oid);
+					throw new StorageException("Invalid OID: " + objectId);
 				}
 			}
 
-			return StorageIdAnalysis.New(maxTid, maxOid, maxCid);
+			return StorageIdAnalysis.New(maxTypeId, maxObjectId, maxConstantId);
 		}
 
 		@Override

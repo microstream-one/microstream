@@ -114,14 +114,14 @@ extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<Persistenc
 		}
 
 		@Override
-		public Object lookupObject(final long oid)
+		public Object lookupObject(final long objectId)
 		{
-//			XDebug.debugln(XChars.systemString(this) + " looking up \n" + oid
-//				+ " -> " + XChars.systemString(this.objectRegistry.lookupObject(oid))
+//			XDebug.debugln(XChars.systemString(this) + " looking up \n" + objectId
+//				+ " -> " + XChars.systemString(this.objectRegistry.lookupObject(objectId))
 //			);
 			synchronized(this.objectRegistry)
 			{
-				return this.objectRegistry.lookupObject(oid);
+				return this.objectRegistry.lookupObject(objectId);
 			}
 		}
 		
@@ -152,19 +152,19 @@ extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<Persistenc
 		{
 			synchronized(this.objectRegistry)
 			{
-				long oid;
-				if((oid = this.objectRegistry.lookupObjectId(object)) == Persistence.nullId())
+				long objectId;
+				if((objectId = this.objectRegistry.lookupObjectId(object)) == Persistence.nullId())
 				{
 					this.validate(object);
-					oid = this.oidProvider.provideNextObjectId();
+					objectId = this.oidProvider.provideNextObjectId();
 					if(newObjectIdCallback != null)
 					{
-						newObjectIdCallback.accept(oid, object);
+						newObjectIdCallback.accept(objectId, object);
 					}
-					this.objectRegistry.registerObject(oid, object);
+					this.objectRegistry.registerObject(objectId, object);
 				}
 				
-				return oid;
+				return objectId;
 			}
 		}
 

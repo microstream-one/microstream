@@ -13,20 +13,20 @@ public class MainTestObjectRegistryConcurrency
 	static final float HASH_DENSITY = 100F     ; // provoke collisions
 	static final int   DELAY        = 10       ;
 
-	static final Object[] objects = new Object[COUNT];
-	static final long[]   oids    = new long[COUNT];
+	static final Object[] objects   = new Object[COUNT];
+	static final long[]   objectIds = new long[COUNT];
 	static final DefaultObjectRegistry reg = DefaultObjectRegistry.New(HASH_DENSITY);
 	
 	static
 	{
-		long oid = 1_000_000_000_000L;
+		long objectId = 1_000_000_000_000L;
 		for(int i = 0; i < objects.length; i++)
 		{
-			oids[i] = ++oid;
+			objectIds[i] = ++objectId;
 			objects[i] = new Object();
 			if(i % 2 == 0)
 			{
-				reg.registerObject(oids[i], objects[i]);
+				reg.registerObject(objectIds[i], objects[i]);
 			}
 		}
 //		reg.DEBUG_analyze();
@@ -41,8 +41,8 @@ public class MainTestObjectRegistryConcurrency
 				while(true)
 				{
 					final int index = random(COUNT);
-					System.out.print("Looking up "+oids[index]+"... ");
-					System.out.println(reg.lookupObject(oids[index]));
+					System.out.print("Looking up "+objectIds[index]+"... ");
+					System.out.println(reg.lookupObject(objectIds[index]));
 
 					System.out.print("Looking up "+objects[index]+"... ");
 					System.out.println(reg.lookupObjectId(objects[index]));
@@ -56,8 +56,8 @@ public class MainTestObjectRegistryConcurrency
 				while(true)
 				{
 					final int index = random(COUNT);
-					System.err.println("Registering "+oids[index]);
-					reg.registerObject(oids[index], objects[index]);
+					System.err.println("Registering "+objectIds[index]);
+					reg.registerObject(objectIds[index], objects[index]);
 					XThreads.sleep(DELAY<<3);
 				}
 			}
@@ -68,7 +68,7 @@ public class MainTestObjectRegistryConcurrency
 				while(true)
 				{
 					final int index = random(COUNT);
-					System.err.println("Removing "+oids[index]);
+					System.err.println("Removing "+objectIds[index]);
 //					reg.removeObjectById(oids[index]);
 					XThreads.sleep(DELAY<<3);
 				}

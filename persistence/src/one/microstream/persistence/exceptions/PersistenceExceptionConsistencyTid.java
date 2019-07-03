@@ -6,10 +6,10 @@ public class PersistenceExceptionConsistencyTid extends PersistenceExceptionCons
 	// instance fields //
 	////////////////////
 
-	final Object reference;
-	final long   oid      ;
-	final long   actualTid;
-	final long   passedTid;
+	final Object reference   ;
+	final long   objectId    ;
+	final long   actualTypeId;
+	final long   passedTypeId;
 
 
 
@@ -18,19 +18,20 @@ public class PersistenceExceptionConsistencyTid extends PersistenceExceptionCons
 	/////////////////
 
 	public PersistenceExceptionConsistencyTid(
-		final long   oid      ,
-		final long   actualTid,
-		final long   passedTid,
+		final long   objectId ,
+		final long   actualTypeId,
+		final long   passedTypeId,
 		final Object reference
 	)
 	{
 		super();
-		this.reference = reference;
-		this.oid       = oid      ;
-		this.actualTid = actualTid;
-		this.passedTid = passedTid;
+		this.reference    = reference   ;
+		this.objectId     = objectId    ;
+		this.actualTypeId = actualTypeId;
+		this.passedTypeId = passedTypeId;
 	}
 
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
@@ -41,25 +42,28 @@ public class PersistenceExceptionConsistencyTid extends PersistenceExceptionCons
 		return this.reference;
 	}
 
-	public long oid()
+	public long objectId()
 	{
-		return this.oid;
+		return this.objectId;
 	}
 
-	public long actualTid()
+	public long actualTypeId()
 	{
-		return this.actualTid;
+		return this.actualTypeId;
 	}
 
-	public long passedTid()
+	public long passedTypeId()
 	{
-		return this.passedTid;
+		return this.passedTypeId;
 	}
 
 	@Override
 	public String assembleDetailString()
 	{
-		return "OID = " + this.oid() + ", actualTID = " + this.actualTid() + ", passedTID = " + this.passedTid();
+		return "ObjectId = " + this.objectId()
+			+ ", actual TypeId = " + this.actualTypeId()
+			+ ", passed TypeId = " + this.passedTypeId()
+		;
 	}
 
 }

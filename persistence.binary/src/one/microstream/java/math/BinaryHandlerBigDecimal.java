@@ -30,10 +30,10 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final BigDecimal instance, final long oid, final PersistenceStoreHandler handler)
+	public void store(final Binary bytes, final BigDecimal instance, final long objectId, final PersistenceStoreHandler handler)
 	{
 		// there's a char[] constructor but no char[] utility method, so there's no other option than this
-		bytes.storeStringValue(this.typeId(), oid, instance.toString());
+		bytes.storeStringValue(this.typeId(), objectId, instance.toString());
 	}
 
 	@Override

@@ -66,7 +66,7 @@ public interface StorageManager extends StorageController
 		private final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ;
 		private final StorageGCZombieOidHandler            zombieOidHandler              ;
 		private final StorageRootOidSelector.Provider      rootOidSelectorProvider       ;
-		private final StorageOidMarkQueue.Creator          oidMarkQueueCreator           ;
+		private final StorageobjectIdMarkQueue.Creator          oidMarkQueueCreator           ;
 		private final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ;
 		private final StorageDataFileValidator.Creator     backupDataFileValidatorCreator;
 		private final StorageBackupSetup                   backupSetup                   ;
@@ -118,7 +118,7 @@ public interface StorageManager extends StorageController
 			final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ,
 			final StorageGCZombieOidHandler            zombieOidHandler              ,
 			final StorageRootOidSelector.Provider      rootOidSelectorProvider       ,
-			final StorageOidMarkQueue.Creator          oidMarkQueueCreator           ,
+			final StorageobjectIdMarkQueue.Creator          oidMarkQueueCreator           ,
 			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ,
 			final boolean                              switchByteOrder               ,
 			final StorageLockFileSetup                 lockFileSetup                 ,

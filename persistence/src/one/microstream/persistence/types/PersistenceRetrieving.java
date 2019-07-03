@@ -23,9 +23,9 @@ public interface PersistenceRetrieving extends PersistenceObjectRetriever
 	public Object get();
 
 	@Override
-	public Object getObject(long oid);
+	public Object getObject(long objectId);
 
-	public <C extends Consumer<Object>> C collect(C collector, long... oids);
+	public <C extends Consumer<Object>> C collect(C collector, long... objectIds);
 
 //	public <T, C extends Collector<? super T>> C collectByType(C collector, Class<T> type);
 

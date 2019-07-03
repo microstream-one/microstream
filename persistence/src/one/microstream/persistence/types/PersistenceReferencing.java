@@ -7,6 +7,6 @@ public interface PersistenceReferencing<T> extends Referencing<T>
 	@Override
 	public T get();
 
-	public long oid();
+	public long objectId();
 
 }

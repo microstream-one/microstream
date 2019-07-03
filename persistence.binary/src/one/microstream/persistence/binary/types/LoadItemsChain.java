@@ -7,9 +7,9 @@ import one.microstream.persistence.types.PersistenceIdSet;
 
 public interface LoadItemsChain
 {
-	public boolean containsLoadItem(long oid);
+	public boolean containsLoadItem(long objectId);
 
-	public void addLoadItem(long oid);
+	public void addLoadItem(long objectId);
 
 	public boolean isEmpty();
 
@@ -26,7 +26,7 @@ public interface LoadItemsChain
 		// instance fields //
 		////////////////////
 
-		final long oid;
+		final long objectId;
 		Entry next, link;
 
 
@@ -35,12 +35,12 @@ public interface LoadItemsChain
 		// constructors //
 		/////////////////
 
-		Entry(final long oid)
+		Entry(final long objectId)
 		{
 			super();
-			this.oid  = oid ;
-			this.link = null;
-			this.next = null;
+			this.objectId = objectId;
+			this.link     = null    ;
+			this.next     = null    ;
 		}
 	}
 
@@ -77,8 +77,8 @@ public interface LoadItemsChain
 				for(Entry next; entry != null; entry = next)
 				{
 					next = entry.link;
-					entry.link = newSlots[(int)(entry.oid & newModulo)];
-					newSlots[(int)(entry.oid & newModulo)] = entry;
+					entry.link = newSlots[(int)(entry.objectId & newModulo)];
+					newSlots[(int)(entry.objectId & newModulo)] = entry;
 				}
 			}
 			this.hashSlots = newSlots;
@@ -99,13 +99,15 @@ public interface LoadItemsChain
 			this.size = 0;
 		}
 
-		protected abstract Entry enqueueEntry(final long oid, final Entry link);
+		protected abstract Entry enqueueEntry(final long objectId, final Entry link);
 
-		private void internalPutNewLoadItem(final long oid)
+		private void internalPutNewLoadItem(final long objectId)
 		{
-//			XDebug.debugln("load " + oid);
+//			XDebug.debugln("load " + objectId);
 
-			this.hashSlots[(int)(oid & this.hashRange)] = this.enqueueEntry(oid, this.hashSlots[(int)(oid & this.hashRange)]);
+			this.hashSlots[(int)(objectId & this.hashRange)] =
+				this.enqueueEntry(objectId, this.hashSlots[(int)(objectId & this.hashRange)])
+			;
 			if(++this.size >= this.hashRange)
 			{
 				this.rebuildLoadOidSet();
@@ -118,25 +120,25 @@ public interface LoadItemsChain
 		////////////
 
 		@Override
-		public final void addLoadItem(final long oid)
+		public final void addLoadItem(final long objectId)
 		{
-			for(Entry entry = this.hashSlots[(int)(oid & this.hashRange)]; entry != null; entry = entry.link)
+			for(Entry entry = this.hashSlots[(int)(objectId & this.hashRange)]; entry != null; entry = entry.link)
 			{
-				if(entry.oid == oid)
+				if(entry.objectId == objectId)
 				{
 					return;
 				}
 			}
-			this.internalPutNewLoadItem(oid);
+			this.internalPutNewLoadItem(objectId);
 		}
 
 		@Override
-		public final boolean containsLoadItem(final long oid)
+		public final boolean containsLoadItem(final long objectId)
 		{
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
-			for(Entry entry = this.hashSlots[(int)(oid & this.hashRange)]; entry != null; entry = entry.link)
+			for(Entry entry = this.hashSlots[(int)(objectId & this.hashRange)]; entry != null; entry = entry.link)
 			{
-				if(entry.oid == oid)
+				if(entry.objectId == objectId)
 				{
 					return true;
 				}
@@ -190,9 +192,9 @@ public interface LoadItemsChain
 
 		@Override
 		protected
-		final Entry enqueueEntry(final long oid, final Entry link)
+		final Entry enqueueEntry(final long objectId, final Entry link)
 		{
-			return (this.chainTail = this.chainTail.next = new Entry(oid)).link = link;
+			return (this.chainTail = this.chainTail.next = new Entry(objectId)).link = link;
 		}
 
 
@@ -207,7 +209,7 @@ public interface LoadItemsChain
 		{
 			for(Entry entry = this.chainHead.next; entry != null; entry = entry.next)
 			{
-				iterator.accept(entry.oid);
+				iterator.accept(entry.objectId);
 			}
 		}
 
@@ -282,12 +284,12 @@ public interface LoadItemsChain
 		}
 
 		@Override
-		protected Entry enqueueEntry(final long oid, final Entry link)
+		protected Entry enqueueEntry(final long objectId, final Entry link)
 		{
 			final Entry entry;
-			(entry = new Entry(oid)).link = link;
-			return this.hashChainTails[(int)(this.hashRange & oid)] =
-				this.hashChainTails[(int)(this.hashRange & oid)].next = entry
+			(entry = new Entry(objectId)).link = link;
+			return this.hashChainTails[(int)(this.hashRange & objectId)] =
+				this.hashChainTails[(int)(this.hashRange & objectId)].next = entry
 			;
 		}
 
@@ -350,7 +352,7 @@ public interface LoadItemsChain
 			{
 				for(Entry e = this.first; e != null; e = e.next)
 				{
-					iterator.accept(e.oid);
+					iterator.accept(e.objectId);
 				}
 			}
 

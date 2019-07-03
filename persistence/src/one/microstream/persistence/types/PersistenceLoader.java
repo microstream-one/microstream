@@ -4,7 +4,7 @@ public interface PersistenceLoader<M> extends PersistenceRetrieving
 {
 	public PersistenceRoots loadRoots();
 
-	public void registerSkip(long oid);
+	public void registerSkip(long objectId);
 
 
 

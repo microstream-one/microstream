@@ -238,9 +238,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 
 		@Override
-		public final Object lookupObject(final long oid)
+		public final Object lookupObject(final long objectId)
 		{
-			return this.getBuildInstance(oid);
+			return this.getBuildInstance(objectId);
 		}
 
 		private void build()
@@ -407,25 +407,25 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		 * - registered as to be skipped dummy build item
 		 * - decided by the context to be already present (e.g. a class/constant/entity that shall not be updated)
 		 */
-		private boolean isUnrequiredReference(final long oid)
+		private boolean isUnrequiredReference(final long objectId)
 		{
 			// spare pointless null reference roundtrips
-			if(oid == 0L)
+			if(objectId == 0L)
 			{
 				return true;
 			}
 
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
-			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
+			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(objectId & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(e.getBuildItemObjectId() == oid)
+				if(e.getBuildItemObjectId() == objectId)
 				{
 					return true;
 				}
 			}
 
 			// if a reference is unrequired (e.g. constant), simply register it as a build item right away
-			if(this.handleKnownObject(oid, this.skipObjectRegisterer))
+			if(this.handleKnownObject(objectId, this.skipObjectRegisterer))
 			{
 				return true;
 			}
@@ -447,12 +447,12 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			return true;
 		}
 
-		private Object getBuildInstance(final long oid)
+		private Object getBuildInstance(final long objectId)
 		{
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
-			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
+			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(objectId & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(e.getBuildItemObjectId() == oid)
+				if(e.getBuildItemObjectId() == objectId)
 				{
 					return this.getEffectiveInstance(e);
 				}
@@ -460,17 +460,17 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			return null;
 		}
 
-		private void registerSkipOid(final long oid)
+		private void registerSkipOid(final long objectId)
 		{
-			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(oid & this.buildItemsHashRange)]; e != null; e = e.link)
+			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(objectId & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
-				if(e.getBuildItemObjectId() == oid)
+				if(e.getBuildItemObjectId() == objectId)
 				{
 					return;
 				}
 			}
 			
-			this.putBuildItem(this.createSkipItem(oid, null));
+			this.putBuildItem(this.createSkipItem(objectId, null));
 		}
 		
 		private BinaryLoadItem createSkipItem(final long objectId, final Object instance)
@@ -659,12 +659,12 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
 		@Override
-		public final synchronized Object getObject(final long oid)
+		public final synchronized Object getObject(final long objectId)
 		{
-			this.requireReference(oid);
+			this.requireReference(objectId);
 			this.readLoadOidData();
 			this.build();
-			final Object instance = this.getBuildInstance(oid);
+			final Object instance = this.getBuildInstance(objectId);
 			this.clearBuildItems();
 			
 			return instance;
@@ -672,15 +672,15 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
 		@Override
-		public final synchronized <C extends Consumer<Object>> C collect(final C collector, final long... oids)
+		public final synchronized <C extends Consumer<Object>> C collect(final C collector, final long... objectIds)
 		{
-			for(int i = 0; i < oids.length; i++)
+			for(int i = 0; i < objectIds.length; i++)
 			{
-				this.requireReference(oids[i]);
+				this.requireReference(objectIds[i]);
 			}
 			this.readLoadOidData();
 			this.build();
-			this.populate(collector, oids);
+			this.populate(collector, objectIds);
 			this.clearBuildItems();
 			return collector;
 		}
@@ -712,15 +712,15 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 
 		@Override
-		public final void registerSkip(final long oid)
+		public final void registerSkip(final long objectId)
 		{
-			this.registerSkipOid(oid);
+			this.registerSkipOid(objectId);
 		}
 
-		private final void requireReference(final long refOid)
+		private final void requireReference(final long objectId)
 		{
 			// add-logic: only put if not contained yet (single-lookup)
-			this.loadItems.addLoadItem(refOid);
+			this.loadItems.addLoadItem(objectId);
 		}
 
 		@Override
