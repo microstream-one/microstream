@@ -12,7 +12,7 @@ public interface ComProtocol extends ComProtocolData
 {
 	public static String protocolName()
 	{
-		return "JETSTREAM-COMCHANNEL";
+		return "MICROSTREAM-COMCHANNEL";
 	}
 	
 	public static String protocolVersion()
