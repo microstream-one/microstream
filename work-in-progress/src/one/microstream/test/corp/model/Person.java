@@ -14,6 +14,12 @@ public final class Person extends Contact.Abstract
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
+	
+	Person()
+	{
+		// internal dummy constructor
+		this(null, null, null, null);
+	}
 
 	public Person(final String contactId, final String firstname, final String lastname, final Address address)
 	{

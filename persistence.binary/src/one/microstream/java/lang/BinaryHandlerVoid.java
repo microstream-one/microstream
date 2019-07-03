@@ -24,13 +24,13 @@ public final class BinaryHandlerVoid extends AbstractBinaryHandlerCustom<Void>
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Void instance, final long oid, final PersistenceStoreHandler handler)
+	public void store(final Binary bytes, final Void instance, final long objectId, final PersistenceStoreHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Void create(final Binary bytes, PersistenceLoadHandler handler)
+	public Void create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}

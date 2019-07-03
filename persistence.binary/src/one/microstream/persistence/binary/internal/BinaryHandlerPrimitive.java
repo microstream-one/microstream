@@ -70,7 +70,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 
 	@Override
-	public void store(final Binary bytes, final T instance, final long oid, final PersistenceStoreHandler handler)
+	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -16,18 +16,18 @@ import one.microstream.persistence.types.PersistenceTypeLink;
 @Deprecated
 public final class DEBUG_BinaryPersistence
 {
-	public static final String oidToString(final long oid)
+	public static final String oidToString(final long objectId)
 	{
 		final byte[] bytes = new byte[8];
-		XMemory.put_long(bytes, 0, oid);
-		return "OID = " + oid + " (" + New().addHexDec(bytes) + ")";
+		XMemory.put_long(bytes, 0, objectId);
+		return "OID = " + objectId + " (" + New().addHexDec(bytes) + ")";
 	}
 
-	public static final String tidToString(final long tid)
+	public static final String tidToString(final long typeId)
 	{
 		final byte[] bytes = new byte[8];
-		XMemory.put_long(bytes, 0, tid);
-		return "TID = " + tid + " (" + New().addHexDec(bytes) + ")";
+		XMemory.put_long(bytes, 0, typeId);
+		return "TID = " + typeId + " (" + New().addHexDec(bytes) + ")";
 	}
 
 

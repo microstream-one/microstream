@@ -867,10 +867,10 @@ public abstract class Binary implements Chunk
 		}
 	}
 
-	public final void storeArray_byte(final long tid, final long oid, final byte[] array)
+	public final void storeArray_byte(final long tid, final long objectId, final byte[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength(array.length);
-		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, oid);
+		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, objectId);
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
@@ -901,100 +901,100 @@ public abstract class Binary implements Chunk
 		this.store_shorts(toBinaryListElementsAddress(storeAddress), array);
 	}
 
-	public final void storeArray_char(final long tid, final long oid, final char[] array)
+	public final void storeArray_char(final long tid, final long objectId, final char[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Character.BYTES);
-		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, oid);
+		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, objectId);
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
 		this.store_chars(toBinaryListElementsAddress(storeAddress), array);
 	}
 
-	public final void storeArray_int(final long tid, final long oid, final int[] array)
+	public final void storeArray_int(final long tid, final long objectId, final int[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Integer.BYTES);
-		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, oid);
+		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, objectId);
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
 		this.store_ints(toBinaryListElementsAddress(storeAddress), array);
 	}
 
-	public final void storeArray_float(final long tid, final long oid, final float[] array)
+	public final void storeArray_float(final long tid, final long objectId, final float[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Float.BYTES);
-		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, oid);
+		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, objectId);
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
 		this.store_floats(toBinaryListElementsAddress(storeAddress),array);
 	}
 
-	public final void storeArray_long(final long tid, final long oid, final long[] array)
+	public final void storeArray_long(final long tid, final long objectId, final long[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Long.BYTES);
-		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, oid);
+		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, objectId);
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
 		this.store_longs(toBinaryListElementsAddress(storeAddress), array);
 	}
 
-	public final void storeArray_double(final long tid, final long oid, final double[] array)
+	public final void storeArray_double(final long tid, final long objectId, final double[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Double.BYTES);
-		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, oid);
+		final long storeAddress    = this.storeEntityHeader(totalByteLength, tid, objectId);
 
 		this.store_long(binaryListByteLengthAddress(storeAddress), totalByteLength);
 		this.store_long(binaryListElementCountAddress(storeAddress), array.length);
 		this.store_doubles(toBinaryListElementsAddress(storeAddress), array);
 	}
 	
-	public final void storeByte(final long tid, final long oid, final byte value)
+	public final void storeByte(final long tid, final long objectId, final byte value)
 	{
-		this.store_byte(this.storeEntityHeader(Byte.BYTES, tid, oid), value);
+		this.store_byte(this.storeEntityHeader(Byte.BYTES, tid, objectId), value);
 	}
 
-	public final void storeBoolean(final long tid, final long oid, final boolean value)
+	public final void storeBoolean(final long tid, final long objectId, final boolean value)
 	{
-		// where is Boolean.BYTES? Does a boolean not have a binary size? JDK pros... .
-		this.store_boolean(this.storeEntityHeader(Byte.BYTES, tid, oid), value);
+		// where is Boolean.BYTES? Does a boolean not have a binary objectId? JDK pros... .
+		this.store_boolean(this.storeEntityHeader(Byte.BYTES, tid, objectId), value);
 	}
 
-	public final void storeShort(final long tid, final long oid, final short value)
+	public final void storeShort(final long tid, final long objectId, final short value)
 	{
-		this.store_short(this.storeEntityHeader(Short.BYTES, tid, oid), value);
+		this.store_short(this.storeEntityHeader(Short.BYTES, tid, objectId), value);
 	}
 
-	public final void storeCharacter(final long tid, final long oid, final char value)
+	public final void storeCharacter(final long tid, final long objectId, final char value)
 	{
-		this.store_char(this.storeEntityHeader(Character.BYTES, tid, oid), value);
+		this.store_char(this.storeEntityHeader(Character.BYTES, tid, objectId), value);
 	}
 
-	public final void storeInteger(final long tid, final long oid, final int value)
+	public final void storeInteger(final long tid, final long objectId, final int value)
 	{
-		this.store_int(this.storeEntityHeader(Integer.BYTES, tid, oid), value);
+		this.store_int(this.storeEntityHeader(Integer.BYTES, tid, objectId), value);
 	}
 
-	public final void storeFloat(final long tid, final long oid, final float value)
+	public final void storeFloat(final long tid, final long objectId, final float value)
 	{
-		this.store_float(this.storeEntityHeader(Float.BYTES, tid, oid), value);
+		this.store_float(this.storeEntityHeader(Float.BYTES, tid, objectId), value);
 	}
 
-	public final void storeLong(final long tid, final long oid, final long value)
+	public final void storeLong(final long tid, final long objectId, final long value)
 	{
-		this.store_long(this.storeEntityHeader(Long.BYTES, tid, oid), value);
+		this.store_long(this.storeEntityHeader(Long.BYTES, tid, objectId), value);
 	}
 
-	public final void storeDouble(final long tid, final long oid, final double value)
+	public final void storeDouble(final long tid, final long objectId, final double value)
 	{
-		this.store_double(this.storeEntityHeader(Double.BYTES, tid, oid), value);
+		this.store_double(this.storeEntityHeader(Double.BYTES, tid, objectId), value);
 	}
 
-	public final void storeStateless(final long tid, final long oid)
+	public final void storeStateless(final long tid, final long objectId)
 	{
-		this.storeEntityHeader(0L, tid, oid); // so funny :D
+		this.storeEntityHeader(0L, tid, objectId); // so funny :D
 	}
 	
 	public final void storeStringValue(

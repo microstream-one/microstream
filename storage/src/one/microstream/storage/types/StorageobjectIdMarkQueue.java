@@ -2,11 +2,11 @@ package one.microstream.storage.types;
 
 import one.microstream.math.XMath;
 
-public interface StorageOidMarkQueue
+public interface StorageobjectIdMarkQueue
 {
-	public void enqueue(long oid);
+	public void enqueue(long objectId);
 
-	public void enqueueBulk(long[] oids, int size);
+	public void enqueueBulk(long[] objectIds, int size);
 
 	public int getNext(long[] buffer);
 
@@ -22,16 +22,16 @@ public interface StorageOidMarkQueue
 
 	public interface Creator
 	{
-		public StorageOidMarkQueue createOidMarkQueue(int segmentLength);
+		public StorageobjectIdMarkQueue createOidMarkQueue(int segmentLength);
 
 
 
-		public final class Default implements StorageOidMarkQueue.Creator
+		public final class Default implements StorageobjectIdMarkQueue.Creator
 		{
 			@Override
-			public StorageOidMarkQueue createOidMarkQueue(final int segmentLength)
+			public StorageobjectIdMarkQueue createOidMarkQueue(final int segmentLength)
 			{
-				return new StorageOidMarkQueue.Default(segmentLength);
+				return new StorageobjectIdMarkQueue.Default(segmentLength);
 			}
 
 		}
@@ -39,7 +39,7 @@ public interface StorageOidMarkQueue
 	}
 
 
-	final class Default implements StorageOidMarkQueue
+	final class Default implements StorageobjectIdMarkQueue
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -109,10 +109,10 @@ public interface StorageOidMarkQueue
 		}
 
 		@Override
-		public final synchronized void enqueue(final long oid)
+		public final synchronized void enqueue(final long objectId)
 		{
-//			debugln("enqueue "+oid + " ("+this.head.lowIndex+" / " +this.head.highIndex+")");
-			if(this.head.enqueue(oid))
+//			debugln("enqueue "+objectId + " ("+this.head.lowIndex+" / " +this.head.highIndex+")");
+			if(this.head.enqueue(objectId))
 			{
 //				debugln("segment full");
 
@@ -184,7 +184,7 @@ public interface StorageOidMarkQueue
 
 		static final class Segment
 		{
-			private final long[]  oids     ;
+			private final long[]  objectIds     ;
 			private final int     length   ;
 
 			private       int     lowIndex ;
@@ -194,7 +194,7 @@ public interface StorageOidMarkQueue
 			Segment(final int length, final Segment next)
 			{
 				super();
-				this.oids = new long[this.length = XMath.positive(length)];
+				this.objectIds = new long[this.length = XMath.positive(length)];
 				this.next = next;
 //				debugln("new segment");
 			}
@@ -237,7 +237,7 @@ public interface StorageOidMarkQueue
 				}
 
 				final int copyLength = Math.min(this.highIndex - this.lowIndex, buffer.length);
-				System.arraycopy(this.oids, this.lowIndex, buffer, 0, copyLength);
+				System.arraycopy(this.objectIds, this.lowIndex, buffer, 0, copyLength);
 
 //				debugln("get next "+copyLength);
 
@@ -257,22 +257,22 @@ public interface StorageOidMarkQueue
 				return (this.lowIndex += amount) == this.length;
 			}
 
-			final boolean enqueue(final long oid)
+			final boolean enqueue(final long objectId)
 			{
 				// store oid in the current bucket.
-				this.oids[this.highIndex] = oid;
+				this.objectIds[this.highIndex] = objectId;
 
 				// report whether this segment is filled.
 				return ++this.highIndex >= this.length;
 			}
 
-			final int enqueueBulk(final long[] oids, final int offset, final int bound)
+			final int enqueueBulk(final long[] objectIds, final int offset, final int bound)
 			{
 				final int copyLength;
 				System.arraycopy(
-					oids,
+					objectIds,
 					offset,
-					this.oids,
+					this.objectIds,
 					this.highIndex,
 					copyLength = Math.min(bound - offset, this.length - this.highIndex)
 				);

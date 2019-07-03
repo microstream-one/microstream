@@ -30,9 +30,9 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomVa
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final BigInteger instance, final long oid, final PersistenceStoreHandler handler)
+	public void store(final Binary bytes, final BigInteger instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeArray_byte(this.typeId(), oid, instance.toByteArray());
+		bytes.storeArray_byte(this.typeId(), objectId, instance.toByteArray());
 	}
 
 	@Override

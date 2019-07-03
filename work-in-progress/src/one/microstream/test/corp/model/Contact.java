@@ -26,11 +26,12 @@ public interface Contact
 		// instance fields //
 		////////////////////
 
-		private final String  contactId;
+		// effective final, setter is only for custom type handlers!
+		private String  contactId;
 		
 		@StoreEager
-		private       Address address  ;
-		private       String  note     ;
+		private Address address  ;
+		private String  note     ;
 
 
 
@@ -50,6 +51,11 @@ public interface Contact
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		protected void internalSetContactId(final String contactId)
+		{
+			this.contactId = contactId;
+		}
 
 		@Override
 		public String contactId()

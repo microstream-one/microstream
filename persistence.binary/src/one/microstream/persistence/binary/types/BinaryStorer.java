@@ -128,9 +128,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		// methods //
 		////////////
 
-		protected ChunksBuffer chunk(final long oid)
+		protected ChunksBuffer chunk(final long objectId)
 		{
-			return this.chunks[(int)(oid & this.chunksHashRange)];
+			return this.chunks[(int)(objectId & this.chunksHashRange)];
 		}
 
 		protected Binary complete()
@@ -155,10 +155,10 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				return Persistence.nullId();
 			}
 
-			final long oidLocal;
-			if((oidLocal = this.lookupOid(instance)) != Persistence.nullId())
+			final long objectIdLocal;
+			if((objectIdLocal = this.lookupOid(instance)) != Persistence.nullId())
 			{
-				return oidLocal;
+				return objectIdLocal;
 			}
 			
 			/*
@@ -185,10 +185,10 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			 * So "eager" can only mean to not check the global registry, but it must still mean to check
 			 * the local registry.
 			 */
-			final long oidLocal;
-			if((oidLocal = this.lookupOid(instance)) != Persistence.nullId())
+			final long objectIdLocal;
+			if((objectIdLocal = this.lookupOid(instance)) != Persistence.nullId())
 			{
-				return oidLocal;
+				return objectIdLocal;
 			}
 
 			/*
@@ -450,28 +450,28 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 		
 		@Override
-		public final void accept(final long oid, final Object instance)
+		public final void accept(final long objectId, final Object instance)
 		{
 			// ensure handler (or fail if type is not persistable) before ensuring an OID.
-			this.tail = this.tail.next = this.registerOid(
+			this.tail = this.tail.next = this.registerobjectId(
 				instance,
 				this.typeManager.ensureTypeHandler(instance),
-				oid
+				objectId
 			);
 		}
 		
 		protected final long registerAdd(final Object instance)
 		{
-			final long oid = this.objectManager.ensureObjectId(instance);
-			this.accept(oid, instance);
+			final long objectId = this.objectManager.ensureObjectId(instance);
+			this.accept(objectId, instance);
 
-			return oid;
+			return objectId;
 		}
 				
-		public final Item registerOid(
+		public final Item registerobjectId(
 			final Object                                 instance   ,
 			final PersistenceTypeHandler<Binary, Object> typeHandler,
-			final long                                   oid
+			final long                                   objectId
 		)
 		{
 			if(++this.itemCount >= this.hashRange)
@@ -480,14 +480,14 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			}
 
 			return this.hashSlots[identityHashCode(instance) & this.hashRange] =
-				new Item(instance, oid, typeHandler, this.hashSlots[identityHashCode(instance) & this.hashRange])
+				new Item(instance, objectId, typeHandler, this.hashSlots[identityHashCode(instance) & this.hashRange])
 			;
 		}
 		
 		@Override
-		public final void registerSkip(final Object instance, final long oid)
+		public final void registerSkip(final Object instance, final long objectId)
 		{
-			this.registerOid(instance, null, oid);
+			this.registerobjectId(instance, null, objectId);
 		}
 
 		@Override
@@ -499,7 +499,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			 * - if handler == null indicates a skip-entry, then handler must be checked for null.
 			 *   alternative: dummy handler that does nothing.
 			 */
-			this.registerOid(instance, null, this.objectManager.lookupObjectId(instance));
+			this.registerobjectId(instance, null, this.objectManager.lookupObjectId(instance));
 		}
 		
 	}
