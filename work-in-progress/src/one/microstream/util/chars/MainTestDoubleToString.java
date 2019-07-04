@@ -269,7 +269,7 @@ public class MainTestDoubleToString
 //				break;
 //			}
 //		}
-//		return referenceValue == value ?exponent :exponent + 1;
+//		return referenceValue == value ? exponent : exponent + 1;
 //	}
 //
 //	static void printExpTest(final double d)

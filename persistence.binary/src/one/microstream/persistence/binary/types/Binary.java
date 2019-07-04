@@ -11,7 +11,7 @@ import one.microstream.X;
 import one.microstream.chars.XChars;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.math.XMath;
-import one.microstream.memory.JdkInternals;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidListElements;
@@ -104,7 +104,7 @@ public abstract class Binary implements Chunk
 		 * Until they fix their sh*t to provide proper solutions for that, makeshift
 		 * solutions like this are required.
 		 */
-		JdkInternals.guaranteeUsability();
+		PlatformInternals.guaranteeUsability();
 	}
 	
 	

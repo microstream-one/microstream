@@ -48,7 +48,7 @@ public class MainTestThreadedPool
 		final long lastCloseTime
 	)
 	{
-		final int closeCount = System.currentTimeMillis() - lastGetTime > 100000 ?1 :0;
+		final int closeCount = System.currentTimeMillis() - lastGetTime > 100000 ? 1 :0;
 		if(closeCount > 0)
 		{
 			System.out.println("pool closing "+closeCount);

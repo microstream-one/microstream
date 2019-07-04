@@ -12,7 +12,7 @@ public class MainTestStorageExampleLegacyTypeHandler
 		.Foundation()
 		.onConnectionFoundation(f ->
 			f
-			.getTypeHandlerRegistry()
+			.getCustomTypeHandlerRegistry()
 			.registerLegacyTypeHandler(
 				new LegacyTypeHandlerPerson()
 			)

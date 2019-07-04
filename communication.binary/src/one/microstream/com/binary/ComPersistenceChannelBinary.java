@@ -11,7 +11,7 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.com.ComException;
 import one.microstream.com.ComPersistenceChannel;
 import one.microstream.com.XSockets;
-import one.microstream.memory.JdkInternals;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
@@ -218,7 +218,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		static void DEBUG_printBufferBinaryValues(final ByteBuffer bb)
 		{
 			final byte[] bytes = new byte[bb.limit()];
-			XMemory.copyRangeToArray(JdkInternals.getDirectBufferAddress(bb), bytes);
+			XMemory.copyRangeToArray(PlatformInternals.getDirectBufferAddress(bb), bytes);
 			final VarString vs = VarString.New().addHexDec(bytes);
 			XDebug.println(vs.toString(), 1);
 		}
@@ -228,7 +228,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		{
 			XDebug.println(
 				"TargetByteOrder = " + this.byteOrderTargeting.getTargetByteOrder()
-				+ " (requires switching: " + (this.byteOrderTargeting.isByteOrderMismatch() ?"yes" :"no")+")",
+				+ " (requires switching: " + (this.byteOrderTargeting.isByteOrderMismatch() ? "yes" : "no") + ")",
 				1
 			);
 		}

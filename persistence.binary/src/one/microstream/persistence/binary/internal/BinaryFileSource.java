@@ -13,7 +13,7 @@ import one.microstream.X;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.Constant;
 import one.microstream.collections.types.XGettingCollection;
-import one.microstream.memory.JdkInternals;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import one.microstream.persistence.binary.types.Binary;
@@ -123,7 +123,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 		 */
 
 		// good thing is: doing it manually gets rid of the clumsy flipping in this case
-		return XMemory.get_long(JdkInternals.getDirectBufferAddress(lengthBuffer));
+		return XMemory.get_long(PlatformInternals.getDirectBufferAddress(lengthBuffer));
 	}
 
 	private static final void fillBuffer(

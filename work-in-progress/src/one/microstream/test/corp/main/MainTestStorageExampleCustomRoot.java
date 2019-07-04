@@ -24,13 +24,24 @@ public class MainTestStorageExampleCustomRoot
 
 	public static void main(final String[] args)
 	{
-		System.out.println(ROOT);
+		System.out.println("Pre -start() custom root state: " + ROOT);
 		
 		final EmbeddedStorageManager storage = EmbeddedStorage.start(ROOT);
 		
-		System.out.println(ROOT);
-		System.out.println(storage.defaultRoot().get());
-		// must print three times the same timestamp for the root instance to be handled correctly
+		System.out.println("Post-start() custom root state: " + ROOT);
+		System.out.println("Post-start() default root     : " + storage.defaultRoot());
+		/*
+		 * Must be:
+		 * 1.) First run
+		 * - some timestamp
+		 * - same timestamp again
+		 * - null as default root (no default root is created in the first place)
+		 * 
+		 * 2.) Second run
+		 * - new timestamp
+		 * - previous timestamp
+		 * - null as default root (no default root is created in the first place)
+		 */
 		
 		System.exit(0);
 	}

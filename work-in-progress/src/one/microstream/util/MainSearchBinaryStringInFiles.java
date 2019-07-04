@@ -37,17 +37,17 @@ public class MainSearchBinaryStringInFiles
 		searchStringsInFiles(
 			DIRECT,
 			X.array(new File("D:/_Corp/20190313_2330_Rollback/garbage/").listFiles()),
-			XMemory.toByteArray(objectId)
+			XMemory.asByteArray(objectId)
 		);
 		searchStringsInFiles(
 			DIRECT,
 			X.array(new File("D:/_Corp/20190313_2330_Rollback/cleaned/channel_0_864.dat")),
-			XMemory.toByteArray(objectId)
+			XMemory.asByteArray(objectId)
 		);
 		searchStringsInFiles(
 			DIRECT,
 			X.array(new File("D:/_Corp/2019-03-14_ProdDb/20190313_2330_autobackup_prod_kaputt/backup_daily_2019-03-13Z/channel_0/channel_0_872.dat")),
-			XMemory.toByteArray(objectId)
+			XMemory.asByteArray(objectId)
 		);
 	}
 	

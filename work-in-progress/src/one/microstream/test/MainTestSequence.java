@@ -9,7 +9,7 @@ import one.microstream.math.XMath;
 
 public class MainTestSequence
 {
-	public static void main(String[] args)
+	public static void main(final String[] args)
 	{
 		printTestSequence( 0,  0);
 		printTestSequence( 8,  8);
@@ -22,14 +22,14 @@ public class MainTestSequence
 		printTestSequence(-5,  9);
 		printTestSequence( 0, -5);
 		printTestSequence(-5,  0);
-		
-
 	}
 	
-	static void printTestSequence(int from, int to)
+	static void printTestSequence(final int from, final int to)
 	{
 		System.out.println(
-			(from<0?"":" ")+from+" -> "+(to<0?"":" ")+to+" = "+Arrays.toString(XMath.sequence(from, to))
+			(from < 0 ? "" : " ") + from + " -> "
+			+ (to < 0 ? "" : " ") + to
+			+ " = " + Arrays.toString(XMath.sequence(from, to))
 		);
 	}
 

@@ -2,7 +2,7 @@ package one.microstream.test;
 
 import java.nio.ByteBuffer;
 
-import one.microstream.memory.JdkInternals;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import sun.misc.Unsafe;
 
@@ -20,7 +20,7 @@ public class MainTestUnsafeWrappingPerformance
 	{
 		final ByteBuffer bb = ByteBuffer.allocateDirect((int)(SIZE * 4));
 //		final ByteBuffer bb = ByteBuffer.allocateDirect(SIZE * 4);
-		final long address = JdkInternals.getDirectBufferAddress(bb);
+		final long address = PlatformInternals.getDirectBufferAddress(bb);
 
 
 		for(int r = 0; r < RUNS; r++)

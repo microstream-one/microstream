@@ -326,7 +326,7 @@ public class TestIntegerToString
 	{
 		if(value >= 1000000000)
 		{
-			target[targetOffset++] = value >= 2_000_000_000 ?'2' :'1';
+			target[targetOffset++] = value >= 2_000_000_000 ? '2' : '1';
 			value %= 1000000000;
 		}
 		if(value >=  100000000)
@@ -380,7 +380,7 @@ public class TestIntegerToString
 	//	{
 	//		if(value >= 1000000000)
 	//		{
-	//			target[targetOffset++] = value >= 2_000_000_000 ?'2' :'1';
+	//			target[targetOffset++] = value >= 2_000_000_000 ? '2' : '1';
 	//			value %= 1000000000;
 	//		}
 	//		if(value >=  100000000)
@@ -436,17 +436,17 @@ public class TestIntegerToString
 		{
 			if(value >= 8*factor)
 			{
-				return value >= 9*factor ?'9' :'8';
+				return value >= 9*factor ? '9' : '8';
 			}
 			else if(value >= 6*factor){
-				return value >= 7*factor ?'7' :'6';
+				return value >= 7*factor ? '7' : '6';
 			}
-			return value >= 5*factor ?'5' :'4';
+			return value >= 5*factor ? '5' : '4';
 		}
 		else if(value >= 2*factor){
-			return value >= 3*factor ?'3' :'2';
+			return value >= 3*factor ? '3' : '2';
 		}
-		return value >= factor ?'1' :'0';
+		return value >= factor ? '1' : '0';
 	}
 	
 	

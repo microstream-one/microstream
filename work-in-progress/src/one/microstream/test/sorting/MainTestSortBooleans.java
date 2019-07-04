@@ -29,7 +29,7 @@ public class MainTestSortBooleans
 	{
 		for(final boolean b : booleans)
 		{
-			System.out.print(b ?'1' :'0');
+			System.out.print(b ? '1' : '0');
 		}
 		System.out.println();
 	}

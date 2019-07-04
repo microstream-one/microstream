@@ -53,7 +53,7 @@ public final class PrototypeHashMap<E> implements Composition
 	{
 		super();
 		this.slots = newSlots(storageLength);
-		this.range = storageLength >= Integer.MAX_VALUE ?Integer.MAX_VALUE :storageLength - 1;
+		this.range = storageLength >= Integer.MAX_VALUE ? Integer.MAX_VALUE : storageLength - 1;
 	}
 
 
@@ -111,7 +111,7 @@ public final class PrototypeHashMap<E> implements Composition
 
 	private void rebuildStorage(final int newLength)
 	{
-		final int newRange = newLength == Integer.MAX_VALUE ?newLength :newLength - 1;
+		final int newRange = newLength == Integer.MAX_VALUE ? newLength : newLength - 1;
 		final Entry<E>[] oldSlots = this.slots, newSlots = newSlots(newLength);
 		for(int i = 0; i < oldSlots.length; i++)
 		{

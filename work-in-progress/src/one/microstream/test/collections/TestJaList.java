@@ -415,7 +415,7 @@ public class TestJaList
 	{
 		final int sizeTestee = XTypes.to_int(this.testee.size());
 		final int sizeMatcher = XTypes.to_int(this.matcher.size());
-		this.check(testName == null ?null :testName+" ensureSameSize", sizeTestee, sizeMatcher);
+		this.check(testName == null ? null : testName + " ensureSameSize", sizeTestee, sizeMatcher);
 		return sizeTestee;
 	}
 

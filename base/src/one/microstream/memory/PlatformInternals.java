@@ -16,17 +16,18 @@ import one.microstream.reflect.XReflect;
  * This class provides static utility functionality to access certain required access to internal JDK logic
  * without using JDK-version-specific dependencies. E.g. JDK-internal classes in the "sun.*" package were moved to
  * the "jdk.*" package but access to those is required to compensate for certain shortcomings in the JDK's public
- * API.<p>
+ * API.
+ * <p>
  * This class does the magic trick of allowing JDK-specific access without having JDK-specific dependencies in the
  * source code. Congratulations and felicitation always welcomed.
+ * <p>
+ * In more general terms, this class abstracts platform-version-specific details.
  * 
  * @author TM
  *
  */
-public class JdkInternals
+public class PlatformInternals
 {
-	// (02.07.2019 TM)FIXME: MS-139: cleanup method order and blank lines
-	
 	/*
 	 * A basic principle of this class is to never throw exceptions if the resolving attempts should fail.
 	 * The reason is that doing so would prevent using the library in an absolute fashion, even if the low-level
@@ -67,11 +68,12 @@ public class JdkInternals
 	static final String METHOD_NAME_clean   = "clean"  ;
 
 	// Note java.nio.Buffer comment: "Used only by direct buffers. Hoisted here for speed in JNI GetDirectBufferAddress"
-	static final long   FIELD_OFFSET_Buffer_address = tryInternalGetFieldOffset(Buffer.class, FIELD_NAME_address);
+	static final long   FIELD_OFFSET_Buffer_address = tryGetFieldOffset(Buffer.class, FIELD_NAME_address);
 	
 	static final Method METHOD_DirectBuffer_address = tryResolveMethod(CLASS_DirectBuffer, METHOD_NAME_address);
 	static final Method METHOD_DirectBuffer_cleaner = tryResolveMethod(CLASS_DirectBuffer, METHOD_NAME_cleaner);
 	static final Method METHOD_Cleaner_clean        = tryResolveMethod(CLASS_Cleaner, METHOD_NAME_clean);
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -84,8 +86,8 @@ public class JdkInternals
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// static methods //
-	///////////////////
+	// initializing methods //
+	/////////////////////////
 	
 	static final Class<?> tryIterativeResolveType(final String... typeNames)
 	{
@@ -102,51 +104,8 @@ public class JdkInternals
 		
 		return null;
 	}
-	
-	/**
-	 * Just to have all jdk internal types here at one place.
-	 * 
-	 * @param directBuffer
-	 * @return
-	 */
-	public static final boolean isDirectBuffer(final ByteBuffer directBuffer)
-	{
-		if(CLASS_DirectBuffer == null)
-		{
-			throw new Error();
-		}
-		
-		notNull(directBuffer);
-		
-		return CLASS_DirectBuffer.isInstance(directBuffer);
-	}
-	
-	public static final <DB extends ByteBuffer> DB guaranteeDirectBuffer(final DB directBuffer)
-	{
-		if(isDirectBuffer(directBuffer))
-		{
-			return directBuffer;
-		}
-		
-		throw new ClassCastException(
-			directBuffer.getClass().getName() + " cannot be cast to " + CLASS_DirectBuffer.getName()
-		);
-	}
 
-	public static final ByteBuffer ensureDirectBufferCapacity(final ByteBuffer current, final long capacity)
-	{
-		if(current.capacity() >= capacity)
-		{
-			return current;
-		}
-		
-		X.checkArrayRange(capacity);
-		deallocateDirectBuffer(current);
-		
-		return ByteBuffer.allocateDirect((int)capacity);
-	}
-	
-	static final long tryInternalGetFieldOffset(final Class<?> type, final String declaredFieldName)
+	static final long tryGetFieldOffset(final Class<?> type, final String declaredFieldName)
 	{
 		if(type == null)
 		{
@@ -236,6 +195,154 @@ public class JdkInternals
 	}
 		
 	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static getters & setters //
+	/////////////////////////////
+	
+	/**
+	 * Allows to set the {@link DirectBufferDeallocator} used by
+	 * {@link #deallocateDirectBuffer(ByteBuffer)} as an override to the means this class inherently tries to provide.<br>
+	 * See {@link DirectBufferDeallocator} for details.
+	 * <p>
+	 * The passed instance "should" be immutable or better stateless to ensure concurrency-safe usage,
+	 * but ultimately, the responsibility resides with the author of the instance's implementation.
+	 * <p>
+	 * Passing a {@literal null} resets the behavior of {@link #deallocateDirectBuffer(ByteBuffer)} to the inherent logic.
+	 * 
+	 * @param deallocator the deallocator to be used, potentially {@literal null}.
+	 * 
+	 * @see DirectBufferDeallocator
+	 */
+	public static synchronized void setDirectBufferDeallocator(
+		final DirectBufferDeallocator deallocator
+	)
+	{
+		directBufferDeallocator = mayNull(deallocator);
+	}
+	
+	public static synchronized DirectBufferDeallocator getDirectBufferDeallocator()
+	{
+		return directBufferDeallocator;
+	}
+	
+	/**
+	 * Allows to set the {@link DirectBufferAddressGetter} used by
+	 * {@link #getDirectBufferAddress(ByteBuffer)} as an override to the means this class inherently tries to provide.<br>
+	 * See {@link DirectBufferAddressGetter} for details.
+	 * <p>
+	 * The passed instance "should" be immutable or better stateless to ensure concurrency-safe usage,
+	 * but ultimately, the responsibility resides with the author of the instance's implementation.
+	 * <p>
+	 * Passing a {@literal null} resets the behavior of {@link #getDirectBufferAddress(ByteBuffer)} to the inherent logic.
+	 * 
+	 * @param addressGetter the addressGetter to be used, potentially {@literal null}.
+	 * 
+	 * @see DirectBufferDeallocator
+	 */
+	public static synchronized void setDirectBufferAddressGetter(
+		final DirectBufferAddressGetter addressGetter
+	)
+	{
+		directBufferAddressGetter = mayNull(addressGetter);
+	}
+	
+	public static synchronized DirectBufferAddressGetter getDirectBufferAddressGetter()
+	{
+		return directBufferAddressGetter;
+	}
+	
+	public static Class<?> getClassDirectbuffer()
+	{
+		return CLASS_DirectBuffer;
+	}
+	
+	public static Class<?> getClassCleaner()
+	{
+		return CLASS_Cleaner;
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static API methods //
+	///////////////////////
+	
+	/**
+	 * Guarantees the usability of this class by validating if all functionality is usable.
+	 * This does not necessarily mean that all attempts to resolve JDK-internal code structures were successful.
+	 * Some have alternative options that are used as a fallback.
+	 * 
+	 * @throws Error
+	 */
+	public static void guaranteeUsability()
+	{
+		if(CLASS_DirectBuffer == null
+		&& FIELD_OFFSET_Buffer_address < 0
+		&& METHOD_DirectBuffer_address == null
+		&& directBufferAddressGetter == null
+		)
+		{
+			throw new Error(
+				"No means to obtain the DirectBuffer address value. Use #setDirectBufferAddressGetter."
+			);
+		}
+		
+		if(CLASS_DirectBuffer == null
+		&& METHOD_DirectBuffer_cleaner == null
+		&& METHOD_Cleaner_clean == null
+		&& directBufferDeallocator == null
+		)
+		{
+			throw new Error(
+				"No means to deallocate the DirectBuffer off-heap memory. Use #setDirectBufferDeallocator."
+			);
+		}
+	}
+	
+	/**
+	 * Just to have all jdk internal types here at one place.
+	 * 
+	 * @param directBuffer
+	 * @return
+	 */
+	public static final boolean isDirectBuffer(final ByteBuffer directBuffer)
+	{
+		if(CLASS_DirectBuffer == null)
+		{
+			throw new Error();
+		}
+		
+		notNull(directBuffer);
+		
+		return CLASS_DirectBuffer.isInstance(directBuffer);
+	}
+	
+	public static final <DB extends ByteBuffer> DB guaranteeDirectBuffer(final DB directBuffer)
+	{
+		if(isDirectBuffer(directBuffer))
+		{
+			return directBuffer;
+		}
+		
+		throw new ClassCastException(
+			directBuffer.getClass().getName() + " cannot be cast to " + CLASS_DirectBuffer.getName()
+		);
+	}
+
+	public static final ByteBuffer ensureDirectBufferCapacity(final ByteBuffer current, final long capacity)
+	{
+		if(current.capacity() >= capacity)
+		{
+			return current;
+		}
+		
+		X.checkArrayRange(capacity);
+		deallocateDirectBuffer(current);
+		
+		return ByteBuffer.allocateDirect((int)capacity);
+	}
+		
 	/**
 	 * No idea if this method is really (still?) necesssary, but it sounds reasonable.
 	 * See
@@ -312,34 +419,7 @@ public class JdkInternals
 			"No means to access " + CLASS_DirectBuffer.getName() + "." + FIELD_NAME_address + " available."
 		);
 	}
-	
-	/**
-	 * Allows to set the {@link DirectBufferDeallocator} used by
-	 * {@link #deallocateDirectBuffer(ByteBuffer)} as an override to the means this class inherently tries to provide.<br>
-	 * See {@link DirectBufferDeallocator} for details.
-	 * <p>
-	 * The passed instance "should" be immutable or better stateless to ensure concurrency-safe usage,
-	 * but ultimately, the responsibility resides with the author of the instance's implementation.
-	 * <p>
-	 * Passing a {@literal null} resets the behavior of {@link #deallocateDirectBuffer(ByteBuffer)} to the inherent logic.
-	 * 
-	 * @param deallocator the deallocator to be used, potentially {@literal null}.
-	 * 
-	 * @see DirectBufferDeallocator
-	 */
-	public static synchronized void setDirectBufferDeallocator(
-		final DirectBufferDeallocator deallocator
-	)
-	{
-		directBufferDeallocator = mayNull(deallocator);
-	}
-	
-	public static synchronized DirectBufferDeallocator getDirectBufferDeallocator()
-	{
-		return directBufferDeallocator;
-	}
-	
-	
+			
 	public static final byte[] directBufferToArray(final ByteBuffer directBuffer)
 	{
 		final byte[] bytes;
@@ -350,62 +430,16 @@ public class JdkInternals
 		return bytes;
 	}
 	
-	/**
-	 * Allows to set the {@link DirectBufferAddressGetter} used by
-	 * {@link #getDirectBufferAddress(ByteBuffer)} as an override to the means this class inherently tries to provide.<br>
-	 * See {@link DirectBufferAddressGetter} for details.
-	 * <p>
-	 * The passed instance "should" be immutable or better stateless to ensure concurrency-safe usage,
-	 * but ultimately, the responsibility resides with the author of the instance's implementation.
-	 * <p>
-	 * Passing a {@literal null} resets the behavior of {@link #getDirectBufferAddress(ByteBuffer)} to the inherent logic.
-	 * 
-	 * @param addressGetter the addressGetter to be used, potentially {@literal null}.
-	 * 
-	 * @see DirectBufferDeallocator
-	 */
-	public static synchronized void setDirectBufferAddressGetter(
-		final DirectBufferAddressGetter addressGetter
-	)
+	public static final String getResolvingStatus()
 	{
-		directBufferAddressGetter = mayNull(addressGetter);
-	}
-	
-	public static synchronized DirectBufferAddressGetter getDirectBufferAddressGetter()
-	{
-		return directBufferAddressGetter;
-	}
-	
-	/**
-	 * Guarantees the usability of this class by validating if all functionality is usable.
-	 * This does not necessarily mean that all attempts to resolve JDK-internal code structures were successful.
-	 * Some have alternative options that are used as a fallback.
-	 * 
-	 * @throws Error
-	 */
-	public static void guaranteeUsability()
-	{
-		if(CLASS_DirectBuffer == null
-		&& FIELD_OFFSET_Buffer_address < 0
-		&& METHOD_DirectBuffer_address == null
-		&& directBufferAddressGetter == null
-		)
-		{
-			throw new Error(
-				"No means to obtain the DirectBuffer address value. Use #setDirectBufferAddressGetter."
-			);
-		}
-		
-		if(CLASS_DirectBuffer == null
-		&& METHOD_DirectBuffer_cleaner == null
-		&& METHOD_Cleaner_clean == null
-		&& directBufferDeallocator == null
-		)
-		{
-			throw new Error(
-				"No means to deallocate the DirectBuffer off-heap memory. Use #setDirectBufferDeallocator."
-			);
-		}
+		return
+			"Class DirectBuffer           : " + CLASS_DirectBuffer          + '\n' +
+			"Class Cleaner                : " + CLASS_Cleaner               + '\n' +
+			"field offset Buffer#address  : " + FIELD_OFFSET_Buffer_address + '\n' +
+			"Method DirectBuffer#address(): " + METHOD_DirectBuffer_address + '\n' +
+			"Method DirectBuffer#cleaner(): " + METHOD_DirectBuffer_cleaner + '\n' +
+			"Method Cleaner#clean()       : " + METHOD_Cleaner_clean        + '\n'
+		;
 	}
 	
 	
@@ -419,7 +453,7 @@ public class JdkInternals
 	 * 
 	 * @throws UnsupportedOperationException
 	 */
-	private JdkInternals()
+	private PlatformInternals()
 	{
 		// static only
 		throw new UnsupportedOperationException();

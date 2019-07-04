@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 
 import one.microstream.chars.XChars;
 
-public class Maintest
+public class MainTestDirectBufferReflectiveAccess
 {
 	public static void main(final String[] args) throws Exception
 	{
