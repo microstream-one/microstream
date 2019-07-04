@@ -437,6 +437,7 @@ public interface PersistenceRootResolver
 	 */
 	public static Supplier<?> wrapCustomRoot(final Object customRootInstance)
 	{
+		notNull(customRootInstance);
 		return () ->
 			customRootInstance
 		;

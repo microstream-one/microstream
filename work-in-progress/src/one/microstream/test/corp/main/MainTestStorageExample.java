@@ -8,7 +8,7 @@ import one.microstream.test.corp.logic.TestImportExport;
 
 public class MainTestStorageExample
 {
-	// creates and start an embedded storage manager with all-default-settings.
+	// creates and starts an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 
 	public static void main(final String[] args)
@@ -27,7 +27,7 @@ public class MainTestStorageExample
 		}
 		else
 		{
-			// subsequent executions enter here (database reuse)
+			// subsequent executions enter here (database reading)
 
 			Test.printInitializationTime(STORAGE);
 			Test.printOperationModeTime(STORAGE);

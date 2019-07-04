@@ -47,7 +47,10 @@ public class GettersAndSetters
 	 */
 	public Value getValue(final Value defaultValue)
 	{
-		return this.value != null ?this.value :defaultValue;
+		return this.value != null
+			? this.value
+			: defaultValue
+		;
 	}
 
 	/** Optional Setter

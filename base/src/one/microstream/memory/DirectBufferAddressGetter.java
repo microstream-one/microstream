@@ -13,19 +13,19 @@ public interface DirectBufferAddressGetter
 		
 	
 	
-	public final class Java8Makeshift implements DirectBufferAddressGetter
-	{
-		public Java8Makeshift()
-		{
-			super();
-		}
-
-		@Override
-		public long getDirectBufferAddress(final ByteBuffer directBuffer)
-		{
-			return ((sun.nio.ch.DirectBuffer)directBuffer).address();
-		}
-
-	}
+//	public final class Java8Makeshift implements DirectBufferAddressGetter
+//	{
+//		public Java8Makeshift()
+//		{
+//			super();
+//		}
+//
+//		@Override
+//		public long getDirectBufferAddress(final ByteBuffer directBuffer)
+//		{
+//			return ((sun.nio.ch.DirectBuffer)directBuffer).address();
+//		}
+//
+//	}
 	
 }

@@ -28,6 +28,7 @@ public final class XMemory
 	private static final int BYTE_SIZE_OBJECT_HEADER = calculateByteSizeObjectHeader();
 
 	// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
+	// (04.07.2019 TM)NOTE: since these past investigations were naively JDK-specific, that is a dangerous assumption.
 	private static final int
 		MEMORY_ALIGNMENT_FACTOR =                           8,
 		MEMORY_ALIGNMENT_MODULO = MEMORY_ALIGNMENT_FACTOR - 1,
@@ -41,8 +42,10 @@ public final class XMemory
 		BITS3 = 3
 	;
 
-
-	
+	static final String fieldNameUnsafe()
+	{
+		return "theUnsafe";
+	}
 	
 	// return type not specified to avoid public API dependencies to sun implementation details
 	public static final Object getSystemInstance()
@@ -54,13 +57,13 @@ public final class XMemory
 		}
 		try
 		{
-			final Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+			final Field theUnsafe = Unsafe.class.getDeclaredField(fieldNameUnsafe());
 			theUnsafe.setAccessible(true);
-			return theUnsafe.get(XMemory.class);
+			return theUnsafe.get(null); // static field, no argument needed, may be null (see #get JavaDoc)
 		}
 		catch(final Exception e)
 		{
-			throw new Error("Could not obtain access to sun.misc.Unsafe", e);
+			throw new Error("Could not obtain access to \"" + fieldNameUnsafe() + "\"", e);
 		}
 	}
 	
@@ -441,14 +444,14 @@ public final class XMemory
 		return offsets;
 	}
 
-	public static byte[] toByteArray(final long[] longArray)
+	public static byte[] asByteArray(final long[] longArray)
 	{
 		final byte[] bytes = new byte[checkArrayRange((long)longArray.length << BITS3)];
 		VM.copyMemory(longArray, Unsafe.ARRAY_LONG_BASE_OFFSET, bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET, bytes.length);
 		return bytes;
 	}
 
-	public static byte[] toByteArray(final long value)
+	public static byte[] asByteArray(final long value)
 	{
 		final byte[] bytes = new byte[byteSize_long()];
 		put_long(bytes, 0, value);
@@ -512,12 +515,12 @@ public final class XMemory
 
 	public static void _longInByteArray(final byte[] bytes, final long value)
 	{
-		VM.putLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET, value);
+		VM.putLong(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET, value);
 	}
 
 	public static long _longFromByteArray(final byte[] bytes)
 	{
-		return VM.getLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET);
+		return VM.getLong(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET);
 	}
 
 
@@ -1082,11 +1085,8 @@ public final class XMemory
 
 
 
-	/* (18.09.2018 TM)TODO: fieldOffsetWorkaroundDummy necessary?
-	 * Why is there no comment? If it is necessary, it has to be commented, why.
-	 */
-	// (02.07.2019 TM)NOTE: experimentally removed
-//	Object fieldOffsetWorkaroundDummy;
+	// implicitely used in #calculateByteSizeObjectHeader
+	Object calculateByteSizeObjectHeaderFieldOffsetDummy;
 
 	
 	

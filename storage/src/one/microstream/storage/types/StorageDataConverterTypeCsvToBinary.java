@@ -20,7 +20,7 @@ import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.files.XFiles;
 import one.microstream.functional._charRangeProcedure;
-import one.microstream.memory.JdkInternals;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -169,7 +169,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			// the * 2 is important for simplifying the flush check
 			this.bufferSize                      = Math.max(bufferSize, 2 * XMemory.defaultBufferSize())          ;
 			this.byteBuffer                      = ByteBuffer.allocateDirect(this.bufferSize)                     ;
-			this.byteBufferStartAddress          = JdkInternals.getDirectBufferAddress(this.byteBuffer)            ;
+			this.byteBufferStartAddress          = PlatformInternals.getDirectBufferAddress(this.byteBuffer)            ;
 			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + XMemory.defaultBufferSize()      ;
 			this.simpleValueWriters              = this.deriveSimpleValueWriters(configuration)                   ;
 			this.theMappingNeverEnds             = this.derivePrimitiveToArrayWriters(this.simpleValueWriters)    ;
@@ -183,9 +183,9 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.escaper                         = configuration.csvConfiguration().escaper()                     ;
 			this.escapeHandler                   = configuration.csvConfiguration().escapeHandler()               ;
 			this.listHeaderUpdateBuffer          = ByteBuffer.allocateDirect((int)Binary.binaryListMinimumLength());
-			this.addressListHeaderUpdateBuffer   = JdkInternals.getDirectBufferAddress(this.listHeaderUpdateBuffer)  ;
+			this.addressListHeaderUpdateBuffer   = PlatformInternals.getDirectBufferAddress(this.listHeaderUpdateBuffer)  ;
 			this.entityLengthUpdateBuffer        = ByteBuffer.allocateDirect(Binary.lengthLength())               ;
-			this.addressEntityLengthUpdateBuffer = JdkInternals.getDirectBufferAddress(this.entityLengthUpdateBuffer);
+			this.addressEntityLengthUpdateBuffer = PlatformInternals.getDirectBufferAddress(this.entityLengthUpdateBuffer);
 			this.objectIdValueHandler            = this.simpleValueWriters.get(long.class.getName())              ;
 			this.currentBufferAddress            = this.byteBufferStartAddress                                    ;
 		}

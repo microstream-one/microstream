@@ -33,7 +33,7 @@ public class MainTestOversizedArray
 
 	static int calculate8alignedBlockCount(final int size)
 	{
-		return (size & 7) != 0 ?(size>>>3)+1 :size>>>3;
+		return (size & 7) != 0 ? (size>>>3)+1 : size>>>3;
 	}
 
 	static void test2()

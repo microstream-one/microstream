@@ -114,8 +114,9 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 */
 	public default EmbeddedStorageManager createEmbeddedStorageManager(final Object explicitRoot)
 	{
-		return this.createEmbeddedStorageManager(
-			PersistenceRootResolver.wrapCustomRoot(explicitRoot)
+		return this.createEmbeddedStorageManager(explicitRoot == null
+			? null
+			: PersistenceRootResolver.wrapCustomRoot(explicitRoot)
 		);
 	}
 	

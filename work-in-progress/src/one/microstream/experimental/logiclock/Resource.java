@@ -58,7 +58,7 @@ public abstract class Resource<O>
 
 	public static final <T> Resource<T> Shared(final Resource<T> lock)
 	{
-		return lock instanceof Shared ?lock :new Shared<>(lock);
+		return lock instanceof Shared ? lock : new Shared<>(lock);
 	}
 
 

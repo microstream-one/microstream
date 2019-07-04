@@ -45,7 +45,7 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 //	static <T> T loadOneByType(final PersistenceManager<Binary> persistenceManager, final Class<T> type)
 //	{
 //		final BulkList<T> result = persistenceManager.collectByType(new BulkList<T>(), type);
-//		return result.isEmpty() ?null :result.get();
+//		return result.isEmpty() ? null : result.get();
 //	}
 
 	static void debugPrintGraph(

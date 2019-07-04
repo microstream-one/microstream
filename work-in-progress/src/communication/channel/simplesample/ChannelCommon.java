@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import one.microstream.memory.JdkInternals;
+import one.microstream.memory.PlatformInternals;
 
 
 public class ChannelCommon
@@ -49,7 +49,7 @@ public class ChannelCommon
 		buffer.flip();
 		final byte[] bytes;
 		buffer.get(bytes = new byte[buffer.limit()]);
-		JdkInternals.deallocateDirectBuffer(buffer);
+		PlatformInternals.deallocateDirectBuffer(buffer);
 		return new String(bytes, CHARSET);
 	}
 

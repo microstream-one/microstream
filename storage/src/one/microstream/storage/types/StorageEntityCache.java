@@ -11,7 +11,7 @@ import one.microstream.X;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.math.XMath;
-import one.microstream.memory.JdkInternals;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.ChunksBuffer;
 import one.microstream.persistence.types.Persistence;
@@ -1073,7 +1073,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageDataFile.Default file
 		)
 		{
-			final long chunkStartAddress = JdkInternals.getDirectBufferAddress(chunk);
+			final long chunkStartAddress = PlatformInternals.getDirectBufferAddress(chunk);
 			final long chunkLength       = chunk.limit();
 
 			// calculated offset difference, may even be negative, doesn't matter

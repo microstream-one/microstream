@@ -20,7 +20,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.files.XFiles;
-import one.microstream.memory.JdkInternals;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
 import one.microstream.storage.exceptions.StorageExceptionIoWritingChunk;
@@ -154,11 +154,11 @@ public interface StorageFileManager
 		;
 
 		private final long
-			entryBufferFileCreationAddress   = JdkInternals.getDirectBufferAddress(this.entryBufferFileCreation[0])  ,
-			entryBufferStoreAddress          = JdkInternals.getDirectBufferAddress(this.entryBufferStore[0])         ,
-			entryBufferTransferAddress       = JdkInternals.getDirectBufferAddress(this.entryBufferTransfer[0])      ,
-			entryBufferFileDeletionAddress   = JdkInternals.getDirectBufferAddress(this.entryBufferFileDeletion[0])  ,
-			entryBufferFileTruncationAddress = JdkInternals.getDirectBufferAddress(this.entryBufferFileTruncation[0])
+			entryBufferFileCreationAddress   = PlatformInternals.getDirectBufferAddress(this.entryBufferFileCreation[0])  ,
+			entryBufferStoreAddress          = PlatformInternals.getDirectBufferAddress(this.entryBufferStore[0])         ,
+			entryBufferTransferAddress       = PlatformInternals.getDirectBufferAddress(this.entryBufferTransfer[0])      ,
+			entryBufferFileDeletionAddress   = PlatformInternals.getDirectBufferAddress(this.entryBufferFileDeletion[0])  ,
+			entryBufferFileTruncationAddress = PlatformInternals.getDirectBufferAddress(this.entryBufferFileTruncation[0])
 		;
 
 		{
@@ -349,7 +349,7 @@ public interface StorageFileManager
 			buffer.clear();
 			if(buffer != this.standardByteBuffer)
 			{
-				JdkInternals.deallocateDirectBuffer(buffer); // hope this works, not tested yet
+				PlatformInternals.deallocateDirectBuffer(buffer); // hope this works, not tested yet
 			}
 		}
 
@@ -647,7 +647,7 @@ public interface StorageFileManager
 			try
 			{
 				this.reader.readStorage(dataFile, entity.storagePosition, dataBuffer, this);
-				this.putLiveEntityData(entity, JdkInternals.getDirectBufferAddress(dataBuffer), length, cacheChange);
+				this.putLiveEntityData(entity, PlatformInternals.getDirectBufferAddress(dataBuffer), length, cacheChange);
 			}
 			catch(final Exception e)
 			{

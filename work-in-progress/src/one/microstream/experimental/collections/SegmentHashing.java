@@ -44,8 +44,8 @@ public class SegmentHashing<E>
 	{
 		final Segment<E> e;
 		return (e = this.slots[this.hashRange & System.identityHashCode(element)]) == null
-			?false
-			:e.contains(element)
+			? false
+			: e.contains(element)
 		;
 	}
 
@@ -86,7 +86,7 @@ public class SegmentHashing<E>
 			{
 				return true;
 			}
-			return this.link == null ?false :this.link.contains(element);
+			return this.link == null ? false : this.link.contains(element);
 		}
 
 		final void add(final E element)
