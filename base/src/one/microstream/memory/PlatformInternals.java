@@ -427,14 +427,12 @@ public class PlatformInternals
 	{
 		if(FIELD_OFFSET_Cleaner_thunk >= 0)
 		{
-			System.out.println("deallocating by thunk");
 			internalDeallocateDirectBufferByThunk(directBuffer);
 			return;
 		}
 		
 		if(METHOD_Cleaner_clean != null)
 		{
-			System.out.println("deallocating by clean()");
 			internalDeallocateDirectBufferByClean(directBuffer);
 			return;
 		}
