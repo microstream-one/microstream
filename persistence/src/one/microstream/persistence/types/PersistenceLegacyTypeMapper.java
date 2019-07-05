@@ -275,12 +275,52 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeDefinition legacyTypeDefinition
 		)
 		{
+			PersistenceLegacyTypeHandler<M, T> matchingHandler = lookupCustomHandlerByTypeId(legacyTypeDefinition);
+			if(matchingHandler == null)
+			{
+				matchingHandler = this.lookupCustomHandlerByStructure(legacyTypeDefinition);
+			}
+			
+			return matchingHandler;
+		}
+		
+		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandlerByTypeId(
+			final PersistenceTypeDefinition legacyTypeDefinition
+		)
+		{
+			final long typeId = legacyTypeDefinition.typeId();
+			
+			// cast safety ensured by checking the typename, which "is" the T.
+			@SuppressWarnings("unchecked")
+			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandlerbyId = (PersistenceLegacyTypeHandler<M, T>)
+				this.customTypeHandlerRegistry.legacyTypeHandlers()
+				.search(h ->
+					h.typeId() == typeId
+				)
+			;
+			
+			// validate if the found handler with matching explicit typeId also has matching structure
+			if(!PersistenceTypeDescription.equalStructure(legacyTypeHandlerbyId, legacyTypeDefinition))
+			{
+				// (05.07.2019 TM)EXCP: proper exception
+				throw new PersistenceExceptionTypeConsistency(
+					"Type handler structure mismatch for " + legacyTypeDefinition.toTypeIdentifier()
+				);
+			}
+			
+			return legacyTypeHandlerbyId;
+		}
+		
+		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandlerByStructure(
+			final PersistenceTypeDefinition legacyTypeDefinition
+		)
+		{
 			// cast safety ensured by checking the typename, which "is" the T.
 			@SuppressWarnings("unchecked")
 			final PersistenceLegacyTypeHandler<M, T> matchingLegacyTypeHandler = (PersistenceLegacyTypeHandler<M, T>)
 				this.customTypeHandlerRegistry.legacyTypeHandlers()
 				.search(h ->
-					PersistenceTypeDescription.equalDescription(h, legacyTypeDefinition)
+					PersistenceTypeDescription.equalStructure(h, legacyTypeDefinition)
 				)
 			;
 			

@@ -12,7 +12,6 @@ import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
-import one.microstream.reflect.XReflect;
 
 
 /**
@@ -36,9 +35,9 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field
-		FIELD_EQUALATOR = XReflect.getInstanceFieldOfType(EqConstHashTable.class, HashEqualator.class)          ,
-		FIELD_KEYS      = XReflect.getInstanceFieldOfType(EqConstHashTable.class, EqConstHashTable.Keys.class)  ,
-		FIELD_VALUES    = XReflect.getInstanceFieldOfType(EqConstHashTable.class, EqConstHashTable.Values.class)
+		FIELD_EQUALATOR = getInstanceFieldOfType(EqConstHashTable.class, HashEqualator.class)          ,
+		FIELD_KEYS      = getInstanceFieldOfType(EqConstHashTable.class, EqConstHashTable.Keys.class)  ,
+		FIELD_VALUES    = getInstanceFieldOfType(EqConstHashTable.class, EqConstHashTable.Values.class)
 	;
 
 

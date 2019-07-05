@@ -12,7 +12,6 @@ import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
-import one.microstream.reflect.XReflect;
 
 
 /**
@@ -34,7 +33,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 	static final long BINARY_OFFSET_ELEMENTS     = BINARY_OFFSET_HASH_DENSITY + Float.BYTES                ;
 
 	// field type detour because there are sadly no field literals in Java (yet?).
-	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqConstHashEnum.class, HashEqualator.class);
+	static final Field FIELD_EQULATOR = getInstanceFieldOfType(EqConstHashEnum.class, HashEqualator.class);
 
 
 

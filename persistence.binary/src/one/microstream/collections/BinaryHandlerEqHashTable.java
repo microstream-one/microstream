@@ -12,7 +12,6 @@ import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
-import one.microstream.reflect.XReflect;
 
 
 /**
@@ -36,9 +35,9 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field
-		FIELD_EQUALATOR = XReflect.getInstanceFieldOfType(EqHashTable.class, HashEqualator.class)     ,
-		FIELD_KEYS      = XReflect.getInstanceFieldOfType(EqHashTable.class, EqHashTable.Keys.class)  ,
-		FIELD_VALUES    = XReflect.getInstanceFieldOfType(EqHashTable.class, EqHashTable.Values.class)
+		FIELD_EQUALATOR = getInstanceFieldOfType(EqHashTable.class, HashEqualator.class)     ,
+		FIELD_KEYS      = getInstanceFieldOfType(EqHashTable.class, EqHashTable.Keys.class)  ,
+		FIELD_VALUES    = getInstanceFieldOfType(EqHashTable.class, EqHashTable.Values.class)
 	;
 
 
@@ -145,6 +144,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 		final EqHashTable<Object, Object> collectingInstance = (EqHashTable<Object, Object>)instance;
 
 		// set single instances (must be done on memory-level due to final modifier. Little hacky, but okay)
+		// (05.07.2019 TM)NOTE: not true. Field#setAccessible circumvents the final check. I DID know that back then ...
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQUALATOR),

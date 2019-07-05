@@ -11,7 +11,6 @@ import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
-import one.microstream.reflect.XReflect;
 
 
 /**
@@ -34,8 +33,8 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 
 	// field type detour because there are sadly no field literals in Java (yet?).
 	static final Field
-		FIELD_KEYS   = XReflect.getInstanceFieldOfType(ConstHashTable.class, ConstHashTable.Keys.class)  ,
-		FIELD_VALUES = XReflect.getInstanceFieldOfType(ConstHashTable.class, ConstHashTable.Values.class)
+		FIELD_KEYS   = getInstanceFieldOfType(ConstHashTable.class, ConstHashTable.Keys.class)  ,
+		FIELD_VALUES = getInstanceFieldOfType(ConstHashTable.class, ConstHashTable.Values.class)
 	;
 
 

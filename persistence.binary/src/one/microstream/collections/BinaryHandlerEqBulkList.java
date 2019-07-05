@@ -13,7 +13,6 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
-import one.microstream.reflect.XReflect;
 
 
 /**
@@ -31,7 +30,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 	static final long BINARY_OFFSET_SIZED_ARRAY = BINARY_OFFSET_EQUALATOR + Binary.objectIdByteLength();
 
 	// field type detour because there are sadly no field literals in Java (yet?).
-	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqBulkList.class, Equalator.class);
+	static final Field FIELD_EQULATOR = getInstanceFieldOfType(EqBulkList.class, Equalator.class);
 
 
 

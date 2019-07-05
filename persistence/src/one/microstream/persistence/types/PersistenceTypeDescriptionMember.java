@@ -59,6 +59,7 @@ public interface PersistenceTypeDescriptionMember
 		;
 	}
 	
+	// (05.07.2019 TM)FIXME: MS-156: consolidate weirdly redundant Description comparisons
 	public static boolean equalDescriptions(
 		final PersistenceTypeDescriptionMember m1,
 		final PersistenceTypeDescriptionMember m2
@@ -235,6 +236,14 @@ public interface PersistenceTypeDescriptionMember
 	}
 	
 	public static boolean equalDescriptions(
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members1,
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members2
+	)
+	{
+		return equalMembers(members1, members2, PersistenceTypeDescriptionMember::equalDescriptions);
+	}
+	
+	public static boolean equalStructure(
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members1,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members2
 	)
