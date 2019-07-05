@@ -15,7 +15,8 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerConcurrentSkipListMap extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
+public final class BinaryHandlerConcurrentSkipListMap
+extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //

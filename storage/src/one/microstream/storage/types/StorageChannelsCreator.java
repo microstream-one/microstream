@@ -22,7 +22,7 @@ public interface StorageChannelsCreator
 		StorageFileWriter.Provider           writerProvider               ,
 		StorageGCZombieOidHandler            zombieOidHandler             ,
 		StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
-		StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
+		StorageobjectIdMarkQueue.Creator          oidMarkQueueCreator          ,
 		StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
 		StorageBackupHandler                 backupHandler                ,
 		boolean                              switchByteOrder              ,
@@ -54,7 +54,7 @@ public interface StorageChannelsCreator
 			final StorageFileWriter.Provider           writerProvider               ,
 			final StorageGCZombieOidHandler            zombieOidHandler             ,
 			final StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
-			final StorageOidMarkQueue.Creator          oidMarkQueueCreator          ,
+			final StorageobjectIdMarkQueue.Creator          oidMarkQueueCreator          ,
 			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
 			final StorageBackupHandler                 backupHandler                ,
 			final boolean                              switchByteOrder              ,
@@ -69,7 +69,7 @@ public interface StorageChannelsCreator
 
 			final StorageChannel.Default[]     channels = new StorageChannel.Default[channelCount];
 
-			final StorageOidMarkQueue[]    markQueues = new StorageOidMarkQueue[channels.length];
+			final StorageobjectIdMarkQueue[]    markQueues = new StorageobjectIdMarkQueue[channels.length];
 			for(int i = 0; i < markQueues.length; i++)
 			{
 				markQueues[i] = oidMarkQueueCreator.createOidMarkQueue(markBufferLength);

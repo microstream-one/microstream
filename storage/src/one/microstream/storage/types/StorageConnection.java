@@ -202,9 +202,9 @@ public interface StorageConnection extends PersistenceStoring
 //		}
 //
 //		@Override
-//		public final Object lookupObject(final long oid)
+//		public final Object lookupObject(final long objectId)
 //		{
-//			return this.delegate.lookupObject(oid);
+//			return this.delegate.lookupObject(objectId);
 //		}
 //
 //		@Override
@@ -256,9 +256,9 @@ public interface StorageConnection extends PersistenceStoring
 //		}
 //
 //		@Override
-//		public final Object get(final long oid)
+//		public final Object get(final long objectId)
 //		{
-//			return this.delegate.get(oid);
+//			return this.delegate.get(objectId);
 //		}
 //
 //		@Override

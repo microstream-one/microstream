@@ -64,7 +64,7 @@ public interface Human
 		@Override
 		public int hashCode()
 		{
-			return this.name == null ?0 :this.name.hashCode();
+			return this.name == null ? 0 : this.name.hashCode();
 		}
 
 		@Override

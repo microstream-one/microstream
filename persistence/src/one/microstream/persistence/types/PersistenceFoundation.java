@@ -298,6 +298,17 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public F setSizedArrayLengthController(PersistenceSizedArrayLengthController sizedArrayLengthController);
 
 	
+	/**
+	 * Executes the passed {@link PersistenceTypeHandlerRegistration} logic while supplying this instance's
+	 * {@link PersistenceCustomTypeHandlerRegistry} and {@link PersistenceSizedArrayLengthController} instances.
+	 * The passed instance itself will not be referenced after the method exits.
+	 * 
+	 * @param typeHandlerRegistration the {@link PersistenceTypeHandlerRegistration} to be executed.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<M> typeHandlerRegistration);
+	
 
 	/*
 	 * generic name is intentional as the role of the created instance may change in extended types
@@ -1977,6 +1988,17 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		///////////////////////////////////////////////////////////////////////////
 		// methods // (with logic worth mentioning)
 		////////////
+
+		@Override
+		public F executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<M> typeHandlerRegistration)
+		{
+			typeHandlerRegistration.registerTypeHandlers(
+				this.getCustomTypeHandlerRegistry(),
+				this.getSizedArrayLengthController()
+			);
+			
+			return this.$();
+		}
 		
 		@Override
 		public PersistenceManager<M> createPersistenceManager()

@@ -601,7 +601,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		int orphanCount = 0;
 		for(int h = 0; h < oidHashTable.length; h++)
 		{
-			// the primary branch (per oids) is used to determine the orphan count.
+			// the primary branch (per objectIds) is used to determine the orphan count.
 			orphanCount += consolidateOidHashChain(oidHashTable, h);
 			
 			// the secondard branch is just updated to avoid counting the same orphan entry twice.

@@ -28,7 +28,7 @@ public final class OldVarList<E>
 
 	private static int segmentSize(final int desiredSegmentSize)
 	{
-		return desiredSegmentSize < MIN_SEGMENT_SIZE ?MIN_SEGMENT_SIZE :desiredSegmentSize;
+		return desiredSegmentSize < MIN_SEGMENT_SIZE ? MIN_SEGMENT_SIZE : desiredSegmentSize;
 	}
 
 	private static <E> E forwardGet(Segment<E> seg, int index)
@@ -56,7 +56,7 @@ public final class OldVarList<E>
 		{
 			c += seg.data.length;
 		}
-		return c > Integer.MAX_VALUE ?Integer.MAX_VALUE :(int)c;
+		return c > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)c;
 	}
 
 
@@ -286,7 +286,7 @@ public final class OldVarList<E>
 		System.arraycopy(
 			array,
 			0,
-			data = new Object[array.length < this.dataCapacity ?this.dataCapacity :array.length],
+			data = new Object[array.length < this.dataCapacity ? this.dataCapacity : array.length],
 			0,
 			array.length
 		);
@@ -300,7 +300,7 @@ public final class OldVarList<E>
 		System.arraycopy(
 			array,
 			srcPos,
-			data = new Object[length < this.dataCapacity ?this.dataCapacity :length],
+			data = new Object[length < this.dataCapacity ? this.dataCapacity : length],
 			0,
 			length
 		);
@@ -325,8 +325,8 @@ public final class OldVarList<E>
 		checkIndex(index, this.size);
 //		return forwardGet(this.head, index);
 		return index < this.size>>>1
-			?forwardGet(this.head, index)
-			:reverseGet(this.head, index - this.size)
+			? forwardGet(this.head, index)
+			: reverseGet(this.head, index - this.size)
 		;
 	}
 
@@ -603,7 +603,7 @@ public final class OldVarList<E>
 		{
 			return this; // no-op
 		}
-		this.idxSpan = positive(indexSpan) < this.dataCapacity ?this.dataCapacity :indexSpan;
+		this.idxSpan = positive(indexSpan) < this.dataCapacity ? this.dataCapacity : indexSpan;
 		this.rebuildIndex();
 		return this;
 	}

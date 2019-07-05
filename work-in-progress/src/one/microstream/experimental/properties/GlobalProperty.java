@@ -75,7 +75,7 @@ public interface GlobalProperty
 		{
 			// assemble value, but if no component was found/added whatsoever, return null to indicate not found.
 			final VarString vc;
-			return this.appendTo(vc = VarString.New()).length() == 0 ?null :vc.toString();
+			return this.appendTo(vc = VarString.New()).length() == 0 ? null : vc.toString();
 		}
 		
 	}
@@ -112,7 +112,7 @@ public interface GlobalProperty
 		@Override
 		public String name()
 		{
-			return this.extension == null ?null :this.extension.toString();
+			return this.extension == null ? null : this.extension.toString();
 		}
 		
 		

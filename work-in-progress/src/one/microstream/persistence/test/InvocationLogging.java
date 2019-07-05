@@ -29,7 +29,7 @@ public class InvocationLogging
 
 	protected static final <T> T dispatch(final T instance)
 	{
-		return LOGGING_ENABLED ?LOGGING.addLoggingAspect(instance) :instance; // revolutionary! :D
+		return LOGGING_ENABLED ? LOGGING.addLoggingAspect(instance) : instance; // revolutionary! :D
 	}
 
 

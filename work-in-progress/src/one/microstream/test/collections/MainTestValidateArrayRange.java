@@ -59,7 +59,7 @@ public class MainTestValidateArrayRange
 		vc.add(", offset=").padLeft(Integer.toString(offset), 3, ' ');
 		vc.add(", length=").padLeft(Integer.toString(length), 3, ' ');
 		vc.add("  [").padLeft(Integer.toString(offset), 2, ' ');
-		vc.add(";").padLeft(Integer.toString(offset+length-(length < 0?-1 : length > 0 ?1 :0)), 2, ' ');
+		vc.add(";").padLeft(Integer.toString(offset+length-(length < 0 ? -1 : length > 0 ? 1 : 0)), 2, ' ');
 		vc.add("]"+" => ");
 		System.out.print(vc);
 	}

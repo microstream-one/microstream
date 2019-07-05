@@ -64,6 +64,9 @@ public class ScalaGrampf
 
 	static int fib(final int n)
 	{
-		return n < 2 ?1 :fib(n - 1) + fib(n - 2);
+		return n < 2
+			? 1
+			: fib(n - 1) + fib(n - 2)
+		;
 	}
 }

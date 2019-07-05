@@ -27,8 +27,8 @@ public class DebugGraphPrinter implements PersistenceFunction
 
 	private final PersistenceObjectManager         objectManager     ;
 	private final PersistenceTypeHandlerManager<?> typeHandlerManager;
-	private final DebugGraphPrinter.Entry[]        oidsSlots         ;
-	private final int                              oidsModulo        ;
+	private final DebugGraphPrinter.Entry[]        objectIdsSlots    ;
+	private final int                              objectIdsModulo   ;
 	private       int                              level             ;
 	private final VarString                        vc                 = VarString.New();
 
@@ -46,8 +46,8 @@ public class DebugGraphPrinter implements PersistenceFunction
 		super();
 		this.objectManager      = notNull(objectManager)      ;
 		this.typeHandlerManager = notNull(typeManager)        ;
-		this.oidsSlots          = new DebugGraphPrinter.Entry[1];
-		this.oidsModulo         = 0       ;
+		this.objectIdsSlots     = new DebugGraphPrinter.Entry[1];
+		this.objectIdsModulo    = 0       ;
 	}
 
 	public DebugGraphPrinter(
@@ -57,10 +57,10 @@ public class DebugGraphPrinter implements PersistenceFunction
 	)
 	{
 		super();
-		this.objectManager = notNull(objectManager);
-		this.typeHandlerManager   = notNull(typeManager  );
-		this.oidsSlots     = new DebugGraphPrinter.Entry[XMath.pow2BoundCapped(hashRange)];
-		this.oidsModulo    = this.oidsSlots.length - 1;
+		this.objectManager      = notNull(objectManager);
+		this.typeHandlerManager = notNull(typeManager  );
+		this.objectIdsSlots     = new DebugGraphPrinter.Entry[XMath.pow2BoundCapped(hashRange)];
+		this.objectIdsModulo    = this.objectIdsSlots.length - 1;
 	}
 
 
@@ -86,8 +86,8 @@ public class DebugGraphPrinter implements PersistenceFunction
 			return 0L;
 		}
 
-		final long oid = this.objectManager.ensureObjectId(instance);
-		this.vc.padLeft(Long.toString(oid), MAX_LITERAL_LENGTH_LONG, '0').blank().add(XChars.systemString(instance));
+		final long objectId = this.objectManager.ensureObjectId(instance);
+		this.vc.padLeft(Long.toString(objectId), MAX_LITERAL_LENGTH_LONG, '0').blank().add(XChars.systemString(instance));
 		if(!instance.getClass().isArray())
 		{
 			this.vc.tab(2).add(instance);
@@ -123,7 +123,7 @@ public class DebugGraphPrinter implements PersistenceFunction
 
 	private boolean isRegisteredLocal(final Object instance)
 	{
-		for(DebugGraphPrinter.Entry e = this.oidsSlots[identityHashCode(instance) & this.oidsModulo]; e != null; e = e.link)
+		for(DebugGraphPrinter.Entry e = this.objectIdsSlots[identityHashCode(instance) & this.objectIdsModulo]; e != null; e = e.link)
 		{
 			if(e.ref == instance)
 			{
@@ -137,9 +137,9 @@ public class DebugGraphPrinter implements PersistenceFunction
 	{
 		final int index;
 		DebugGraphPrinter.Entry e;
-		if((e = this.oidsSlots[index = identityHashCode(instance) & this.oidsModulo]) == null)
+		if((e = this.objectIdsSlots[index = identityHashCode(instance) & this.objectIdsModulo]) == null)
 		{
-			this.oidsSlots[index] = new Entry(instance);
+			this.objectIdsSlots[index] = new Entry(instance);
 			return;
 		}
 		do
@@ -150,12 +150,12 @@ public class DebugGraphPrinter implements PersistenceFunction
 			}
 		}
 		while((e = e.link) != null);
-		this.oidsSlots[index] = new Entry(instance, this.oidsSlots[index]);
+		this.objectIdsSlots[index] = new Entry(instance, this.objectIdsSlots[index]);
 	}
 
 //	private void clearRegistry()
 //	{
-//		final DebugGraphPrinter.Entry[] slots = this.oidsSlots;
+//		final DebugGraphPrinter.Entry[] slots = this.objectIdsSlots;
 //		for(int i = 0; i < slots.length; i++)
 //		{
 //			slots[i] = null;

@@ -85,7 +85,7 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 		public abstract void closeTarget();
 		
 		@Override
-		public XGettingCollection<? extends M> readByObjectIds(final PersistenceIdSet[] oids)
+		public XGettingCollection<? extends M> readByObjectIds(final PersistenceIdSet[] objectIds)
 			throws PersistenceExceptionTransfer
 		{
 			/* (08.08.2018 TM)NOTE:

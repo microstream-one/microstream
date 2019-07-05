@@ -60,7 +60,7 @@ public class Sort
 		final int max = size / toothCount;
 		for(int i = 0, s = 0; i < size; i++)
 		{
-			ints[i] = ++s == max ?s=0 :s;
+			ints[i] = ++s == max ? s = 0 : s;
 		}
 		return ints;
 	}
@@ -73,7 +73,7 @@ public class Sort
 		for(int i = 0, s = 0, offset=0; i < size; i++)
 		{
 			if(s == 0) offset = rnd.nextInt(101);
-			ints[i] = (++s == max ?s=0 :s) + offset;
+			ints[i] = (++s == max ? s = 0 : s) + offset;
 		}
 		return ints;
 	}
@@ -85,7 +85,7 @@ public class Sort
 
 		for(int i = 1, len = size-3; i < len; i+=3)
 		{
-			final int t = ints[i], r = i+(rnd.nextInt(100)<50?-1:+1);
+			final int t = ints[i], r = i + (rnd.nextInt(100) < 50 ? -1 : +1);
 			ints[i] = ints[r];
 			ints[r] = t;
 		}
@@ -117,11 +117,11 @@ public class Sort
 
 	static void print(final int[] values)
 	{
-		System.out.println(TestSortUtils.toString(30, values) + (isSorted(values) ?"" :" (NOT sorted)"));
+		System.out.println(TestSortUtils.toString(30, values) + (isSorted(values) ? "" : " (NOT sorted)"));
 	}
 	static void print(final String s, final int[] values)
 	{
-		System.out.print(s+" ");
+		System.out.print(s + " ");
 		print(values);
 	}
 }

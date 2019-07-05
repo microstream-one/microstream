@@ -439,19 +439,19 @@ public class Persistence
 	}
 
 	public static final boolean getCached(
-		final PersistenceObjectIdResolver oidResolver ,
-		final Object[]                  target      ,
-		final int                       targetOffset,
-		final long[]                    oids
+		final PersistenceObjectIdResolver objectIdResolver,
+		final Object[]                    target          ,
+		final int                         targetOffset    ,
+		final long[]                      objectIds
 	)
 	{
-		for(int i = 0; i < oids.length; i++)
+		for(int i = 0; i < objectIds.length; i++)
 		{
 			final Object cachedInstance;
-			if((cachedInstance = oidResolver.lookupObject(oids[i])) != null)
+			if((cachedInstance = objectIdResolver.lookupObject(objectIds[i])) != null)
 			{
 				target[targetOffset + i] = cachedInstance;
-				oids[i] = 0L;
+				objectIds[i] = 0L;
 			}
 		}
 		for(int i = targetOffset; i < target.length; i++)

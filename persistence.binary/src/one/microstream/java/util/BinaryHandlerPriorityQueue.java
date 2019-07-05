@@ -2,20 +2,18 @@ package one.microstream.java.util;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
-import java.util.Queue;
 
 import one.microstream.X;
-import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterable;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCustomCollection<PriorityQueue<?>>
+public final class BinaryHandlerPriorityQueue
+extends AbstractBinaryHandlerCustomIterable<PriorityQueue<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -23,8 +21,8 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 
 	static final long BINARY_OFFSET_COMPARATOR =                                                      0;
 	static final long BINARY_OFFSET_ELEMENTS   = BINARY_OFFSET_COMPARATOR + Binary.objectIdByteLength();
-	
-	
+
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -35,11 +33,6 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	{
 		return (Class)PriorityQueue.class; // no idea how to get ".class" to work otherwise
 	}
-
-	static final int getElementCount(final Binary bytes)
-	{
-		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
-	}
 	
 	@SuppressWarnings("unchecked")
 	private static <E> Comparator<? super E> getComparator(
@@ -49,7 +42,12 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	{
 		return (Comparator<? super E>)handler.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
 	}
-	
+
+	static final int getElementCount(final Binary bytes)
+	{
+		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
+	}
+
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -61,17 +59,18 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 		super(
 			typeWorkaround(),
 			simpleArrayPseudoFields(
-			    pseudoField(Comparator.class, "comparator")
+				pseudoField(Comparator.class, "comparator")
 			)
 		);
+		
 	}
 
 
-	
+
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
+
 	@Override
 	public final void store(
 		final Binary                  bytes   ,
@@ -89,44 +88,51 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 			instance.size()       ,
 			handler
 		);
+		
 		bytes.store_long(
 			contentAddress + BINARY_OFFSET_COMPARATOR,
 			handler.apply(instance.comparator())
 		);
 	}
-
+	
 	@Override
-	public final PriorityQueue<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final PriorityQueue<?> create(
+		final Binary                 bytes  ,
+		final PersistenceLoadHandler handler
+	)
 	{
 		return new PriorityQueue<>(
-			bytes.getSizedArrayLength(BINARY_OFFSET_ELEMENTS),
+			X.checkArrayRange(getElementCount(bytes)),
 			getComparator(bytes, handler)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final PriorityQueue<?> instance, final PersistenceLoadHandler handler)
+	public final void update(
+		final Binary                 bytes   ,
+		final PriorityQueue<?>       instance,
+		final PersistenceLoadHandler handler
+	)
 	{
-		// instance must be cleared in case an existing one is updated
 		instance.clear();
 		
-		@SuppressWarnings("unchecked")
-		final Queue<Object> castedInstance = (Queue<Object>)instance;
-		
-		bytes.collectObjectReferences(
-			BINARY_OFFSET_ELEMENTS,
-			X.checkArrayRange(getElementCount(bytes)),
-			handler,
-			e ->
-				castedInstance.add(e)
-		);
+		/*
+		 * Tree collections don't use hashing, but their comparing logic still uses the elements' state,
+		 * which might not yet be available when this method is called. Hence the detour to #complete.
+		 */
+		final Object[] elementsHelper = new Object[getElementCount(bytes)];
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
+		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final PriorityQueue<?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(
+		final PriorityQueue<?>    instance,
+		final PersistenceFunction iterator
+	)
 	{
 		iterator.apply(instance.comparator());
-		Persistence.iterateReferences(iterator, XMemory.accessArray(instance), 0, instance.size());
+		super.iterateInstanceReferences(instance, iterator);
 	}
 
 	@Override

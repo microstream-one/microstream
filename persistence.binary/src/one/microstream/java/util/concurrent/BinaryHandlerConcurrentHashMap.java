@@ -3,10 +3,12 @@ package one.microstream.java.util.concurrent;
 import java.util.concurrent.ConcurrentHashMap;
 
 import one.microstream.X;
-import one.microstream.java.util.BinaryHandlerMap;
+import one.microstream.java.util.AbstractBinaryHandlerMap;
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
-public final class BinaryHandlerConcurrentHashMap extends BinaryHandlerMap<ConcurrentHashMap<?, ?>>
+public final class BinaryHandlerConcurrentHashMap extends AbstractBinaryHandlerMap<ConcurrentHashMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -18,14 +20,7 @@ public final class BinaryHandlerConcurrentHashMap extends BinaryHandlerMap<Concu
 		return (Class)ConcurrentHashMap.class; // no idea how to get ".class" to work otherwise
 	}
 	
-	public static final ConcurrentHashMap<?, ?> instantiate(final long elementCount)
-	{
-		return new ConcurrentHashMap<>(
-			X.checkArrayRange(elementCount)
-		);
-	}
-
-
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -34,8 +29,21 @@ public final class BinaryHandlerConcurrentHashMap extends BinaryHandlerMap<Concu
 	public BinaryHandlerConcurrentHashMap()
 	{
 		super(
-			typeWorkaround(),
-			BinaryHandlerConcurrentHashMap::instantiate
+			typeWorkaround()
+		);
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
+	
+	@Override
+	public ConcurrentHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	{
+		return new ConcurrentHashMap<>(
+			X.checkArrayRange(getElementCount(bytes))
 		);
 	}
 	

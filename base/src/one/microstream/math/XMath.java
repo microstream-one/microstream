@@ -304,7 +304,7 @@ public final class XMath
 	 * @param value
 	 * @return
 	 */
-	public static final int log10(final int value) throws IllegalArgumentException
+	public static final int log10discrete(final int value) throws IllegalArgumentException
 	{
 		// hardcoded binary search with 3 to 4 comparisons (linear search costs 10 comparisons for small values)
 		if(value >= 10000)
@@ -359,11 +359,11 @@ public final class XMath
 	{
 		if(value > 0)
 		{
-			return log10(+value) + 1;
+			return log10discrete(+value) + 1;
 		}
 		else if(value < 0)
 		{
-			return log10(-value) + 2; // additional digit for the "-"
+			return log10discrete(-value) + 2; // additional digit for the "-"
 		}
 		return 1;
 	}

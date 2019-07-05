@@ -23,7 +23,7 @@ public class MainTestObjectRegistry
 
 		for(int r = RUNS; r --> 0;)
 		{
-			long oid = 1_000_000_000_000L;
+			long objectId = 1_000_000_000_000L;
 			long tStart, tStop;
 			reg.clear();
 			System.gc();
@@ -31,7 +31,7 @@ public class MainTestObjectRegistry
 			tStart = System.nanoTime();
 			for(int i = 0; i < objects.length; i++)
 			{
-				reg.registerObject(++oid, objects[i]);
+				reg.registerObject(++objectId, objects[i]);
 			}
 			tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));

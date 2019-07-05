@@ -164,14 +164,16 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerNativeArray_long()   ,
 			new BinaryHandlerNativeArray_double() ,
 			
+			// (28.06.2019 TM)FIXME: MS-138: implement remaining collections generically
+			// (28.06.2019 TM)FIXME: MS-143: MOAR JDK Collections (empty, nested implementations, etc)
 			// creepy JDK 1.0 collections
-			new BinaryHandlerVector(controller)     ,
+			new BinaryHandlerVector()               ,
+			new BinaryHandlerStack()                ,
 			new BinaryHandlerHashtable()            ,
-			new BinaryHandlerStack(controller)      ,
 			new BinaryHandlerProperties()           ,
 			
 			// still creepy JDK 1.2 collections
-			new BinaryHandlerArrayList(controller)  ,
+			new BinaryHandlerArrayList(),
 			new BinaryHandlerHashSet()              ,
 			new BinaryHandlerHashMap()              ,
 			new BinaryHandlerLinkedList()           ,

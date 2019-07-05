@@ -1,11 +1,13 @@
 package one.microstream.reflect;
 
 
+import static one.microstream.X.notEmpty;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -17,6 +19,7 @@ import one.microstream.collections.types.XPrependingSequence;
 import one.microstream.collections.types.XReference;
 import one.microstream.exceptions.IllegalAccessRuntimeException;
 import one.microstream.exceptions.NoSuchFieldRuntimeException;
+import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.typing.XTypes;
 import one.microstream.util.UtilStackTrace;
 
@@ -377,7 +380,7 @@ public final class XReflect
 		
 		throw new NoSuchFieldRuntimeException(new NoSuchFieldException());
 	}
-
+	
 	public static final Field getInstanceFieldOfType(final Class<?> declaringType, final Class<?> fieldType)
 		throws NoSuchFieldRuntimeException
 	{
@@ -396,6 +399,91 @@ public final class XReflect
 				)
 			);
 		}
+	}
+	
+	public static final Method getAnyMethod(
+		final Class<?> c   ,
+		final String   name
+	)
+		throws NoSuchMethodRuntimeException
+	{
+		notNull(name);
+		
+		try
+		{
+			return getAnyMethod(c, method ->
+			name.equals(method.getName())
+		);
+		}
+		catch(final NoSuchFieldRuntimeException e)
+		{
+			// (28.10.2013 TM)EXCP: proper exception (OMG).
+			throw new NoSuchMethodRuntimeException(
+				new NoSuchMethodException("No method with name " + name + " found in type " + c)
+			);
+		}
+	}
+	
+	public static final Method getAnyMethod(
+		final Class<?>                  c        ,
+		final Predicate<? super Method> predicate
+	)
+		throws NoSuchMethodRuntimeException
+	{
+		final XReference<Method> result = X.Reference(null);
+		iterateAllClassMethods(c, field ->
+		{
+			if(predicate.test(field))
+			{
+				result.set(field);
+				throw X.BREAK();
+			}
+		});
+		
+		if(result.get() != null)
+		{
+			return result.get();
+		}
+		
+		throw new NoSuchMethodRuntimeException(new NoSuchMethodException());
+	}
+	
+	public static final <C extends Consumer<? super Method>> C iterateAllClassMethods(
+		final Class<?> clazz,
+		final C        logic
+	)
+	{
+		return iterateAllClassMethods(clazz, Object.class, logic);
+	}
+
+	public static final <C extends Consumer<? super Method>> C iterateAllClassMethods(
+		final Class<?> clazz,
+		final Class<?> bound,
+		final C        logic
+	)
+	{
+		// applies to Object.class, Void.class, interfaces, primitives. See Class.getSuperclass() JavaDoc.
+		if(clazz.isArray() || clazz.getSuperclass() == null)
+		{
+			return logic;
+		}
+		
+		try
+		{
+			for(Class<?> currentClass = clazz; currentClass != bound; currentClass = currentClass.getSuperclass())
+			{
+				for(final Method method : currentClass.getDeclaredMethods())
+				{
+					logic.accept(method);
+				}
+			}
+		}
+		catch(final ThrowBreak b)
+		{
+			/* abort inner iteration */
+		}
+		
+		return logic;
 	}
 
 	public static final boolean isFinal(final Field field)
@@ -575,6 +663,80 @@ public final class XReflect
 		}
 	}
 	
+	/**
+	 * Alias for {@link #tryIterativeResolveType(String...)} with the following difference:<br>
+	 * If none of the passed {@literal typeNames} can be resolved, a {@link ClassNotFoundException} listing
+	 * all passed {@literal typeNames} is thrown.
+	 * 
+	 * @param typeNames the full qualified type names to be attempted to be resolved one by one.
+	 * 
+	 * @return the first successfully resolved {@link Class} instance.
+	 * 
+	 * @throws ClassNotFoundException if none of the passed {@literal typeNames} could have been resolved.
+	 * 
+	 * @see Class#forName(String)
+	 */
+	public static final Class<?> iterativeResolveType(final String... typeNames)
+		throws ClassNotFoundException
+	{
+		final Class<?> type = tryIterativeResolveType(typeNames);
+		if(type != null)
+		{
+			return type;
+		}
+		
+		// if none of the provided type names resulted in a match, a combined ClassNotFoundException is thrown
+		throw new ClassNotFoundException(Arrays.toString(typeNames));
+	}
+	
+	/**
+	 * This methods attempts to resolve the passed {@literal typeNames} to {@link Class} instances using
+	 * {@link Class#forName(String)} one by one.
+	 * The {@link Class} instance of the first successful attempt is returned.
+	 * If none of the passed {@literal typeNames} can be resolved, {@literal null} is returned.
+	 * See {@link #iterativeResolveType(String...)} for an exception-throwing version.
+	 * <p>
+	 * <b>Note:</b><br>
+	 * While it is generally a bad idea to just use a trial and error approach until something works,
+	 * a logic like this is required to resolve types whose packages changes accross different versions of a library.
+	 * If the different full qualified class names are known, they can be used in an iterative attempt to resolve
+	 * the class, hence avoiding hard dependencies to certain library versions in the using code by moving
+	 * type names from imports at compile time to dynamic class resolving at runtime.<br>
+	 * However, this approach has its limits, of course. If too much changes (field names, method names, parameters,
+	 * behavior) the dynamic strategy results in chaos as the compiler gets more and more circumvented and more and
+	 * more source code is transformed into contextless plain strings.<br>
+	 * Therefore, when in doubt, it is preferable to stick to the general notion of this method being a "bad idea"
+	 * and finding a more reliable solution.
+	 * 
+	 * @param typeNames the full qualified type names to be attempted to be resolved one by one.
+	 * 
+	 * @return the first successfully resolved {@link Class} instance or {@literal null}
+	 * 
+	 * @see Class#forName(String)
+	 */
+	public static final Class<?> tryIterativeResolveType(final String... typeNames)
+	{
+		notNull(typeNames);
+		notEmpty(typeNames);
+		
+		for(final String typeName : typeNames)
+		{
+			try
+			{
+				// just a debug hook
+				final Class<?> type = Class.forName(typeName);
+				return type;
+			}
+			catch(final ClassNotFoundException e)
+			{
+				// class not found for the current type name, continue with next one.
+				continue;
+			}
+		}
+		
+		return null;
+	}
+		
 	public static final Field tryGetDeclaredField(final Class<?> declaringClass, final String fieldName)
 	{
 		if(declaringClass == null)
@@ -649,7 +811,12 @@ public final class XReflect
 
 	public static String deriveFieldIdentifier(final java.lang.reflect.Field field)
 	{
-		return field.getDeclaringClass().getName() + fieldIdentifierDelimiter() + field.getName();
+		return toFullQualifiedFieldName(field.getDeclaringClass(), field.getName());
+	}
+	
+	public static String toFullQualifiedFieldName(final Class<?> c, final String fieldName)
+	{
+		return c.getName() + fieldIdentifierDelimiter() + fieldName;
 	}
 
 	public static int getFieldIdentifierDelimiterIndex(final String identifier)

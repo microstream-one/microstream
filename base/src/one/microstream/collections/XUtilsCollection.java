@@ -1293,7 +1293,7 @@ public final class XUtilsCollection
 	{
 //		if(target instanceof XAddingList<?> && target instanceof AbstractSimpleArrayCollection<?>)
 //		{
-//			target.ensureFreeCapacity(length < 0 ?-length :length); // problem if length is huge but only few are picked
+//			target.ensureFreeCapacity(length < 0 ? -length : length); // problem if length is huge but only few are picked
 //
 //			DelegateSimpleArrayLogic.rngAggregate(elements, elements.length, offset, length, new Aggregate<E, Integer>()
 //			{

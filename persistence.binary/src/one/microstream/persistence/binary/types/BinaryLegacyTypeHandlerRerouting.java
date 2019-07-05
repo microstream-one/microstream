@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 import one.microstream.X;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.memory.XMemory;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -77,7 +77,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final ByteBuffer directByteBuffer = ByteBuffer.allocateDirect(
 			X.checkArrayRange(entityTotalLength)
 		);
-		final long newEntityAddress = XMemory.getDirectByteBufferAddress(directByteBuffer);
+		final long newEntityAddress = PlatformInternals.getDirectBufferAddress(directByteBuffer);
 		
 		// replacement binary content is filled and afterwards set as the productive content
 		final long targetContentAddress = Binary.entityContentAddress(newEntityAddress);

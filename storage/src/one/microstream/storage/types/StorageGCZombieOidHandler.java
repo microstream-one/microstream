@@ -20,33 +20,33 @@ import one.microstream.persistence.types.Persistence;
 @FunctionalInterface
 public interface StorageGCZombieOidHandler
 {
-	public boolean handleZombieOid(long oid);
+	public boolean handleZombieOid(long objectId);
 
 
 
 	public final class Default implements StorageGCZombieOidHandler
 	{
 		@Override
-		public final boolean handleZombieOid(final long oid)
+		public final boolean handleZombieOid(final long objectId)
 		{
 			/*
 			 * Note that types and constants are intentionally not represented in the persistent form
 			 * but are resolved at runtime by the loading mechanism.
 			 * It is NOT an error that these OIDs cannot be resolved on the persistent form level.
 			 */
-			if(Persistence.IdType.TID.isInRange(oid))
+			if(Persistence.IdType.TID.isInRange(objectId))
 			{
 				// debug hook for TypeIDs
 				return true;
 			}
-			if(Persistence.IdType.CID.isInRange(oid))
+			if(Persistence.IdType.CID.isInRange(objectId))
 			{
 				// debug hook for ConstantIDs
 				return true;
 			}
 
 			// default implementation just naively warns about the problem
-			DEBUGStorage.println("GC marking encountered zombie OID " + oid);
+			DEBUGStorage.println("GC marking encountered zombie ObjectId " + objectId);
 
 			return true;
 		}

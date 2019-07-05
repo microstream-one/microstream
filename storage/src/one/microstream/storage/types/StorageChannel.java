@@ -637,10 +637,10 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		////////////
 
 		@Override
-		public final void accept(final long oid)
+		public final void accept(final long objectId)
 		{
 			final StorageEntityCacheItem<?> entry;
-			if((entry = this.entityCache.getEntry(oid)) == null)
+			if((entry = this.entityCache.getEntry(objectId)) == null)
 			{
 				/* (14.01.2015 TM)NOTE: this actually is an error, as every oid request comes
 				 * from a referencing entity from inside the same database. So if any load request lookup
@@ -652,7 +652,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				 * with optional results.
 				 */
 				// (14.01.2015 TM)EXCP: proper exception
-				throw new StorageException("No entity found for objectId " + oid);
+				throw new StorageException("No entity found for objectId " + objectId);
 			}
 			entry.copyCachedData(this.dataCollector);
 		}

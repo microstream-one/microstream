@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import one.microstream.X;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionStateInvalidLength;
 import one.microstream.util.BufferSizeProviderIncremental;
@@ -91,7 +92,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 
 	private void setCurrent(final ByteBuffer byteBuffer)
 	{
-		this.currentBound = (this.currentAddress = XMemory.getDirectByteBufferAddress(this.currentBuffer = byteBuffer))
+		this.currentBound = (this.currentAddress = PlatformInternals.getDirectBufferAddress(this.currentBuffer = byteBuffer))
 			+ byteBuffer.capacity()
 		;
 		byteBuffer.clear();
@@ -99,7 +100,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 	
 	private void updateCurrentBufferPosition()
 	{
-		final long contentLength = this.currentAddress - XMemory.getDirectByteBufferAddress(this.currentBuffer);
+		final long contentLength = this.currentAddress - PlatformInternals.getDirectBufferAddress(this.currentBuffer);
 		
 		this.currentBuffer.position(X.checkArrayRange(contentLength)).flip();
 		
@@ -108,7 +109,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 
 	private boolean isEmptyCurrentBuffer()
 	{
-		return this.currentAddress == XMemory.getDirectByteBufferAddress(this.currentBuffer);
+		return this.currentAddress == PlatformInternals.getDirectBufferAddress(this.currentBuffer);
 	}
 
 	private void enlargeBufferCapacity(final int bufferCapacity)
@@ -116,7 +117,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		// if current buffer is still empty, replace it instead of enqueing a new one to avoid storing "dummy" chunks
 		if(this.isEmptyCurrentBuffer())
 		{
-			XMemory.deallocateDirectByteBuffer(this.currentBuffer);
+			PlatformInternals.deallocateDirectBuffer(this.currentBuffer);
 			this.allocateNewCurrent(bufferCapacity);
 			return;
 		}
@@ -172,7 +173,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		final ByteBuffer[] buffers = this.buffers;
 		for(int i = this.currentBuffersIndex; i >= 1; i--)
 		{
-			XMemory.deallocateDirectByteBuffer(buffers[i]);
+			PlatformInternals.deallocateDirectBuffer(buffers[i]);
 			buffers[i] = null;
 		}
 		this.setCurrent(buffers[this.currentBuffersIndex = 0]);
@@ -268,8 +269,8 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		{
 			// buffer is already flipped
 			this.iterateBufferLoadItems(
-				XMemory.getDirectByteBufferAddress(buffers[i]),
-				XMemory.getDirectByteBufferAddress(buffers[i]) + buffers[i].limit(),
+				PlatformInternals.getDirectBufferAddress(buffers[i]),
+				PlatformInternals.getDirectBufferAddress(buffers[i]) + buffers[i].limit(),
 				reader
 			);
 		}

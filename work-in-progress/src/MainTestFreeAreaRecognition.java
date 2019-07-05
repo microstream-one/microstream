@@ -157,7 +157,7 @@ public class MainTestFreeAreaRecognition
 		{
 			for(int x = 0; x < source[y].length; x++)
 			{
-				source[y][x] = source[y][x]< 0 ?0 :source[y][x]*range/factor;
+				source[y][x] = source[y][x]< 0 ? 0 : source[y][x]*range/factor;
 			}
 		}
 		return source;
@@ -174,7 +174,7 @@ public class MainTestFreeAreaRecognition
 		{
 			for(int x = 0; x < source[y].length; x++)
 			{
-				source[y][x] = source[y][x]< 0 ?0 :source[y][x]*100/factor;
+				source[y][x] = source[y][x]< 0 ? 0 : source[y][x]*100/factor;
 			}
 		}
 		return source;
@@ -186,7 +186,7 @@ public class MainTestFreeAreaRecognition
 		{
 			for(int x = 0; x < source[y].length; x++)
 			{
-				source[y][x] = source[y][x]< 0 ?0 :source[y][x];
+				source[y][x] = source[y][x]< 0 ? 0 : source[y][x];
 			}
 		}
 		return source;
@@ -248,7 +248,7 @@ public class MainTestFreeAreaRecognition
 		{
 			for(int x = 0; x < source[y].length; x++)
 			{
-				target[y][x] = source[y][x] == 0 ?WEIGHT_FREE :WEIGHT_BLOCKED;
+				target[y][x] = source[y][x] == 0 ? WEIGHT_FREE : WEIGHT_BLOCKED;
 			}
 		}
 		return target;
@@ -271,14 +271,14 @@ public class MainTestFreeAreaRecognition
 			{
 				if(src[y][x] <= 0) continue;
 				target[y][x] = (
-					(src[y-1][x-1]*DIAG) + (src[y-1][x  ]*NEXT) + (src[y-1][x+1]*DIAG) +
-					(src[y  ][x-1]*NEXT) + (src[y  ][x  ]*SELF) + (src[y  ][x+1]*NEXT) +
-					(src[y+1][x-1]*DIAG) + (src[y+1][x  ]*NEXT) + (src[y+1][x+1]*DIAG)
+					src[y-1][x-1]*DIAG + src[y-1][x  ]*NEXT + src[y-1][x+1]*DIAG +
+					src[y  ][x-1]*NEXT + src[y  ][x  ]*SELF + src[y  ][x+1]*NEXT +
+					src[y+1][x-1]*DIAG + src[y+1][x  ]*NEXT + src[y+1][x+1]*DIAG
 				)/DIV;
 			}
 		}
-//		print("current(range="+r+")",target); // (23.04.2011)XXX: debug
-		return r == range ?target : internalAnalyzeBound(target, copy(target, src), r+1, range);
+//		print("current(range=" + r + ")",target); // (23.04.2011)XXX: debug
+		return r == range ? target : internalAnalyzeBound(target, copy(target, src), r + 1, range);
 	}
 
 	static final int[][] internalAnalyzeFading(final int[][] src, final int[][] target, final int range)
@@ -295,9 +295,9 @@ public class MainTestFreeAreaRecognition
 			{
 				if(src[y][x] <= 0) continue;
 				target[y][x] = (
-					(src[y-1][x-1]*DIAG) + (src[y-1][x  ]*NEXT) + (src[y-1][x+1]*DIAG) +
-					(src[y  ][x-1]*NEXT) + (src[y  ][x  ]*SELF) + (src[y  ][x+1]*NEXT) +
-					(src[y+1][x-1]*DIAG) + (src[y+1][x  ]*NEXT) + (src[y+1][x+1]*DIAG)
+					src[y-1][x-1]*DIAG + src[y-1][x  ]*NEXT + src[y-1][x+1]*DIAG +
+					src[y  ][x-1]*NEXT + src[y  ][x  ]*SELF + src[y  ][x+1]*NEXT +
+					src[y+1][x-1]*DIAG + src[y+1][x  ]*NEXT + src[y+1][x+1]*DIAG
 				)/DIV;
 			}
 		}
@@ -306,35 +306,35 @@ public class MainTestFreeAreaRecognition
 		for(int x = 1; x < eX; x++)
 		{
 			target[0][x] = (
-				(src[0][x-1]*NEXT) + (src[0][x]*SELF) + (src[0][x+1]*NEXT) +
-				(src[1][x-1]*DIAG) + (src[1][x]*NEXT) + (src[1][x+1]*DIAG)
+				src[0][x-1]*NEXT + src[0][x]*SELF + src[0][x+1]*NEXT +
+				src[1][x-1]*DIAG + src[1][x]*NEXT + src[1][x+1]*DIAG
 			)/DIV;
 			target[eY][x] = (
-				(src[eY-1][x-1]*DIAG) + (src[eY-1][x]*NEXT) + (src[eY-1][x+1]*DIAG) +
-				(src[eY  ][x-1]*NEXT) + (src[eY  ][x]*SELF) + (src[eY  ][x+1]*NEXT)
+				src[eY-1][x-1]*DIAG + src[eY-1][x]*NEXT + src[eY-1][x+1]*DIAG +
+				src[eY  ][x-1]*NEXT + src[eY  ][x]*SELF + src[eY  ][x+1]*NEXT
 			)/DIV;
 		}
 		for(int y = 1; y < eY; y++)
 		{
 			target[y][0] = (
-				(src[y-1][0]*NEXT) + (src[y-1][1]*DIAG) +
-				(src[y  ][0]*SELF) + (src[y  ][1]*NEXT) +
-				(src[y+1][0]*NEXT) + (src[y+1][1]*DIAG)
+				src[y-1][0]*NEXT + src[y-1][1]*DIAG +
+				src[y  ][0]*SELF + src[y  ][1]*NEXT +
+				src[y+1][0]*NEXT + src[y+1][1]*DIAG
 			)/DIV;
 			target[y][eX] = (
-				(src[y-1][eX-1]*DIAG) + (src[y-1][eX]*NEXT) +
-				(src[y  ][eX-1]*NEXT) + (src[y  ][eX]*SELF) +
-				(src[y+1][eX-1]*DIAG) + (src[y+1][eX]*NEXT)
+				src[y-1][eX-1]*DIAG + src[y-1][eX]*NEXT +
+				src[y  ][eX-1]*NEXT + src[y  ][eX]*SELF +
+				src[y+1][eX-1]*DIAG + src[y+1][eX]*NEXT
 			)/DIV;
 		}
 
 		// 3. corners
-		target[0 ][0 ] = ((src[0 ][0 ]*SELF) + (src[0 ][1   ]*NEXT) + (src[1   ][0 ]*NEXT) + (src[1   ][1   ]*DIAG))/DIV;
-		target[0 ][eX] = ((src[0 ][eX]*SELF) + (src[0 ][eX-1]*NEXT) + (src[1   ][eX]*NEXT) + (src[1   ][eX-1]*DIAG))/DIV;
-		target[eY][0 ] = ((src[eY][0 ]*SELF) + (src[eY][1   ]*NEXT) + (src[eY-1][0 ]*NEXT) + (src[eY-1][1   ]*DIAG))/DIV;
-		target[eY][eX] = ((src[eY][eX]*SELF) + (src[eY][eX-1]*NEXT) + (src[eY-1][eX]*NEXT) + (src[eY-1][eX-1]*DIAG))/DIV;
+		target[0 ][0 ] = (src[0 ][0 ]*SELF + src[0 ][1   ]*NEXT + src[1   ][0 ]*NEXT + src[1   ][1   ]*DIAG)/DIV;
+		target[0 ][eX] = (src[0 ][eX]*SELF + src[0 ][eX-1]*NEXT + src[1   ][eX]*NEXT + src[1   ][eX-1]*DIAG)/DIV;
+		target[eY][0 ] = (src[eY][0 ]*SELF + src[eY][1   ]*NEXT + src[eY-1][0 ]*NEXT + src[eY-1][1   ]*DIAG)/DIV;
+		target[eY][eX] = (src[eY][eX]*SELF + src[eY][eX-1]*NEXT + src[eY-1][eX]*NEXT + src[eY-1][eX-1]*DIAG)/DIV;
 
-		return range == 1 ?target : internalAnalyzeFading(target, src, range-1);
+		return range == 1 ? target : internalAnalyzeFading(target, src, range-1);
 	}
 
 
@@ -390,7 +390,7 @@ public class MainTestFreeAreaRecognition
 //		target[eY][0 ] = src[eY][0 ] + src[eY][1   ] + src[eY-1][0 ] + src[eY-1][1   ];
 //		target[eY][eX] = src[eY][eX] + src[eY][eX-1] + src[eY-1][eX] + src[eY-1][eX-1];
 //
-//		return range == 1 ?target : internalAnalyze(target, src, range-1);
+//		return range == 1 ? target : internalAnalyze(target, src, range-1);
 //	}
 //
 //	static final int[][] internalAnalyzeWeighted_s7m181(final int[][] src, final int[][] target, final int range)
@@ -444,7 +444,7 @@ public class MainTestFreeAreaRecognition
 //		target[eY][0 ] = ((src[eY][0 ]<< 7) + (src[eY][1   ]<< 7) + (src[eY-1][0 ]<< 7) + (src[eY-1][1   ]*181))>>>7;
 //		target[eY][eX] = ((src[eY][eX]<< 7) + (src[eY][eX-1]<< 7) + (src[eY-1][eX]<< 7) + (src[eY-1][eX-1]*181))>>>7;
 //
-//		return range == 1 ?target : internalAnalyze(target, src, range-1);
+//		return range == 1 ? target : internalAnalyze(target, src, range - 1);
 //	}
 
 
