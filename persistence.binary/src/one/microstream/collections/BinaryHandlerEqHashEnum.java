@@ -14,7 +14,6 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
-import one.microstream.reflect.XReflect;
 
 
 /**
@@ -35,7 +34,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	;
 	
 	// field type detour because there are sadly no field literals in Java (yet?).
-	static final Field FIELD_EQULATOR = XReflect.getInstanceFieldOfType(EqHashEnum.class, HashEqualator.class);
+	static final Field FIELD_EQULATOR = getInstanceFieldOfType(EqHashEnum.class, HashEqualator.class);
 
 
 

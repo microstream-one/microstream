@@ -70,6 +70,26 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 		;
 	}
 	
+	/**
+	 * Equal structure, regardless of the member's definition type (Field-derived or pseudo-field-custom-defined)
+	 * 
+	 * @param td1
+	 * @param td2
+	 * @return
+	 */
+	public static boolean equalStructure(
+		final PersistenceTypeDescription td1,
+		final PersistenceTypeDescription td2
+	)
+	{
+		// FIXME MS-156 PersistenceTypeDescription#equalStructure()
+		throw new one.microstream.meta.NotImplementedYetError();
+//		return td1 == td2 || td1 != null && td2 != null
+//			&& td1.typeName().equals(td1.typeName())
+//			&& PersistenceTypeDescriptionMember.equalDescriptions(td1.members(), td2.members())
+//		;
+	}
+	
 	
 	public static PersistenceTypeDescription Identity(final long typeId, final String typeName)
 	{

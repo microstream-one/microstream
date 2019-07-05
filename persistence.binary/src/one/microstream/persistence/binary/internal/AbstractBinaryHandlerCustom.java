@@ -16,6 +16,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.collections.types.XImmutableSequence;
+import one.microstream.exceptions.NoSuchFieldRuntimeException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.binary.types.BinaryTypeHandler;
@@ -30,6 +31,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFi
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFieldVariableLength;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import one.microstream.reflect.XReflect;
 
 
 public abstract class AbstractBinaryHandlerCustom<T>
@@ -197,8 +199,19 @@ extends BinaryTypeHandler.Abstract<T>
 		return BinaryField.Chars(name);
 	}
 	
+	protected static final Field getInstanceFieldOfType(
+		final Class<?> declaringType,
+		final Class<?> fieldType
+	)
+		throws NoSuchFieldRuntimeException
+	{
+		return XReflect.setAccessible(
+			XReflect.getInstanceFieldOfType(declaringType, fieldType)
+		);
+	}
 
 
+	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
