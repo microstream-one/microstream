@@ -55,12 +55,11 @@ public class PlatformInternals
 		// future changes here ... (maybe other JDKs as well? Android?)
 	);
 	
-	// not needed (yet?)
-//	static final Class<?> CLASS_DirectByteBuffer = XReflect.tryIterativeResolveType(
-//		// initial type name
-//		"java.nio.DirectByteBuffer"
-//		// future changes here ... (maybe other JDKs as well? Android?)
-//	);
+	static final Class<?> CLASS_DirectByteBuffer = XReflect.tryIterativeResolveType(
+		// initial type name
+		"java.nio.DirectByteBuffer"
+		// future changes here ... (maybe other JDKs as well? Android?)
+	);
 	
 	static final Class<?> CLASS_Cleaner = tryIterativeResolveType(
 		// initial type name
@@ -71,18 +70,27 @@ public class PlatformInternals
 	);
 	
 	static final String FIELD_NAME_address  = "address";
+	static final String FIELD_NAME_cleaner  = "cleaner";
 	static final String FIELD_NAME_thunk    = "thunk"  ;
-	static final String METHOD_NAME_address = "address";
-	static final String METHOD_NAME_cleaner = "cleaner";
-	static final String METHOD_NAME_clean   = "clean"  ;
 
 	// Note java.nio.Buffer comment: "Used only by direct buffers. Hoisted here for speed in JNI GetDirectBufferAddress"
-	static final long   FIELD_OFFSET_Buffer_address = tryGetFieldOffset(Buffer.class, FIELD_NAME_address);
-	static final long   FIELD_OFFSET_Cleaner_thunk  = tryGetFieldOffset(CLASS_Cleaner, FIELD_NAME_thunk);
+	static final long FIELD_OFFSET_Buffer_address           = tryGetFieldOffset(Buffer.class, FIELD_NAME_address);
+	static final long FIELD_OFFSET_DirectByteBuffer_cleaner = tryGetFieldOffset(CLASS_DirectByteBuffer, FIELD_NAME_cleaner);
+	static final long FIELD_OFFSET_Cleaner_thunk            = tryGetFieldOffset(CLASS_Cleaner, FIELD_NAME_thunk);
 	
-	static final Method METHOD_DirectBuffer_address = tryResolveMethod(CLASS_DirectBuffer, METHOD_NAME_address);
-	static final Method METHOD_DirectBuffer_cleaner = tryResolveMethod(CLASS_DirectBuffer, METHOD_NAME_cleaner);
-	static final Method METHOD_Cleaner_clean        = tryResolveMethod(CLASS_Cleaner, METHOD_NAME_clean);
+
+	/* (05.07.2019 TM)NOTE: on second thought ... I'm fed up with the thought of having the console
+	 * cluttered by their ridiculous illegal access warnings and future release fearmongering, that will cause
+	 * countless questions and "bug reports" about this library being broken or whatever.
+	 * I just rely on the unsafely queried fields directly.
+	 * If that breaks in a future moron release, it will be investigated accordingly.
+	 */
+//	static final String METHOD_NAME_address = "address";
+//	static final String METHOD_NAME_cleaner = "cleaner";
+//	static final String METHOD_NAME_clean   = "clean"  ;
+//	static final Method METHOD_DirectBuffer_address = tryResolveMethod(CLASS_DirectBuffer, METHOD_NAME_address);
+//	static final Method METHOD_DirectBuffer_cleaner = tryResolveMethod(CLASS_DirectBuffer, METHOD_NAME_cleaner);
+//	static final Method METHOD_Cleaner_clean        = tryResolveMethod(CLASS_Cleaner, METHOD_NAME_clean);
 		
 	/*
 	 * Note on Java 9:
@@ -339,20 +347,22 @@ public class PlatformInternals
 	 */
 	public static void guaranteeUsability()
 	{
-		if(CLASS_DirectBuffer == null
+		if(CLASS_DirectByteBuffer == null
 		&& FIELD_OFFSET_Buffer_address < 0
-		&& METHOD_DirectBuffer_address == null
+//		&& METHOD_DirectBuffer_address == null
 		&& directBufferAddressGetter == null
 		)
 		{
 			throw new Error(
-				"No means to obtain the DirectBuffer address value. Use #setDirectBufferAddressGetter."
+				"No means to obtain the DirectByteBuffer address value. Use #setDirectBufferAddressGetter."
 			);
 		}
 		
-		if(CLASS_DirectBuffer == null
-		&& METHOD_DirectBuffer_cleaner == null
-		&& METHOD_Cleaner_clean == null
+		if(CLASS_DirectByteBuffer == null
+		&& FIELD_OFFSET_DirectByteBuffer_cleaner < 0
+		&& FIELD_OFFSET_Cleaner_thunk < 0
+//		&& METHOD_DirectBuffer_cleaner == null
+//		&& METHOD_Cleaner_clean == null
 		&& directBufferDeallocator == null
 		)
 		{
@@ -431,41 +441,41 @@ public class PlatformInternals
 			return;
 		}
 		
-		if(METHOD_Cleaner_clean != null)
-		{
-			internalDeallocateDirectBufferByClean(directBuffer);
-			return;
-		}
+//		if(METHOD_Cleaner_clean != null)
+//		{
+//			internalDeallocateDirectBufferByClean(directBuffer);
+//			return;
+//		}
 		
 		throw new Error("No means to explicitely deallocate a DirectBuffer available.");
 	}
 	
-	static final void internalDeallocateDirectBufferByClean(final ByteBuffer directBuffer)
-	{
-		final Object cleaner;
-		try
-		{
-			cleaner = METHOD_DirectBuffer_cleaner.invoke(directBuffer);
-			METHOD_Cleaner_clean.invoke(cleaner);
-		}
-		catch(final ReflectiveOperationException e)
-		{
-			throw new Error(e);
-		}
-	}
+//	static final void internalDeallocateDirectBufferByClean(final ByteBuffer directBuffer)
+//	{
+//		final Object cleaner = XMemory.getObject(directBuffer, FIELD_OFFSET_DirectByteBuffer_cleaner);
+//		try
+//		{
+//			METHOD_Cleaner_clean.invoke(cleaner);
+//		}
+//		catch(final ReflectiveOperationException e)
+//		{
+//			throw new Error(e);
+//		}
+//	}
 	
 	static final void internalDeallocateDirectBufferByThunk(final ByteBuffer directBuffer)
 	{
-		final Object cleaner;
-		try
-		{
-			cleaner = METHOD_DirectBuffer_cleaner.invoke(directBuffer);
-		}
-		catch(final ReflectiveOperationException e)
-		{
-			throw new Error(e);
-		}
+//		final Object cleaner;
+//		try
+//		{
+//			cleaner = METHOD_DirectBuffer_cleaner.invoke(directBuffer);
+//		}
+//		catch(final ReflectiveOperationException e)
+//		{
+//			throw new Error(e);
+//		}
 		
+		final Object cleaner = XMemory.getObject(directBuffer, FIELD_OFFSET_DirectByteBuffer_cleaner);
 		final Object cleanerThunkDeallocatorRunnable = XMemory.getObject(cleaner, FIELD_OFFSET_Cleaner_thunk);
 		
 		if(!(cleanerThunkDeallocatorRunnable instanceof Runnable))
@@ -512,19 +522,20 @@ public class PlatformInternals
 			return XMemory.get_long(directBuffer, FIELD_OFFSET_Buffer_address);
 		}
 		
-		if(METHOD_DirectBuffer_address != null)
-		{
-			try
-			{
-				// this variable is intended to emphasize the intermediately created Long instance, which is inefficient.
-				final Long addressValue = (Long)METHOD_DirectBuffer_address.invoke(directBuffer);
-				return addressValue.longValue();
-			}
-			catch(final ReflectiveOperationException e)
-			{
-				throw new Error(e);
-			}
-		}
+		// see comment at constant definition
+//		if(METHOD_DirectBuffer_address != null)
+//		{
+//			try
+//			{
+//				// this variable is intended to emphasize the intermediately created Long instance, which is inefficient.
+//				final Long addressValue = (Long)METHOD_DirectBuffer_address.invoke(directBuffer);
+//				return addressValue.longValue();
+//			}
+//			catch(final ReflectiveOperationException e)
+//			{
+//				throw new Error(e);
+//			}
+//		}
 		
 		throw new Error(
 			"No means to access " + CLASS_DirectBuffer.getName() + "." + FIELD_NAME_address + " available."
@@ -544,13 +555,17 @@ public class PlatformInternals
 	public static final String getResolvingStatus()
 	{
 		return
-			"Class DirectBuffer           : " + CLASS_DirectBuffer          + '\n' +
-			"Class Cleaner                : " + CLASS_Cleaner               + '\n' +
-			"field offset Buffer#address  : " + FIELD_OFFSET_Buffer_address + '\n' +
-			"field offset Cleaner#thunk   : " + FIELD_OFFSET_Cleaner_thunk  + '\n' +
-			"Method DirectBuffer#address(): " + METHOD_DirectBuffer_address + '\n' +
-			"Method DirectBuffer#cleaner(): " + METHOD_DirectBuffer_cleaner + '\n' +
-			"Method Cleaner#clean()       : " + METHOD_Cleaner_clean        + '\n'
+			"Class DirectBuffer                   : " + CLASS_DirectBuffer                    + '\n' +
+			"Class DirectByteBuffer               : " + CLASS_DirectByteBuffer                + '\n' +
+			"Class Cleaner                        : " + CLASS_Cleaner                         + '\n' +
+			"field offset Buffer#address          : " + FIELD_OFFSET_Buffer_address           + '\n' +
+			"field offset DirectByteBuffer#cleaner: " + FIELD_OFFSET_DirectByteBuffer_cleaner + '\n' +
+			"field offset Cleaner#thunk           : " + FIELD_OFFSET_Cleaner_thunk            + '\n'
+			
+			// see comment at constants definitions
+//			"Method DirectBuffer#address(): " + METHOD_DirectBuffer_address + '\n' +
+//			"Method DirectBuffer#cleaner(): " + METHOD_DirectBuffer_cleaner + '\n' +
+//			"Method Cleaner#clean()       : " + METHOD_Cleaner_clean        + '\n'
 		;
 	}
 	

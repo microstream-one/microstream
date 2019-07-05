@@ -23,6 +23,5 @@ public class MainTestPlatformInternals
         System.out.println("Deallocating " + XChars.systemString(dbb));
         PlatformInternals.deallocateDirectBuffer(dbb);
         System.out.println(XChars.systemString(dbb) + "#address = " + PlatformInternals.getDirectBufferAddress(dbb));
-
 	}
 }
