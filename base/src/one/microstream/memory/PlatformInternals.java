@@ -1,8 +1,10 @@
 package one.microstream.memory;
 
+import static one.microstream.X.coalesce;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.Buffer;
@@ -10,7 +12,10 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import one.microstream.X;
+import one.microstream.collections.BulkList;
+import one.microstream.collections.types.XGettingSequence;
 import one.microstream.reflect.XReflect;
+
 
 /**
  * This class provides static utility functionality to access certain required access to internal JDK logic
@@ -40,8 +45,11 @@ public class PlatformInternals
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
+
+	// must be initialized first for the initializing methods to be able to use it.
+	static final BulkList<Warning> INITIALIZATION_WARNINGS = BulkList.New();
 	
-	static final Class<?> CLASS_DirectBuffer = XReflect.tryIterativeResolveType(
+	static final Class<?> CLASS_DirectBuffer = tryIterativeResolveType(
 		// initial type name
 		"sun.nio.ch.DirectBuffer"
 		// future changes here ... (maybe other JDKs as well? Android?)
@@ -54,7 +62,7 @@ public class PlatformInternals
 //		// future changes here ... (maybe other JDKs as well? Android?)
 //	);
 	
-	static final Class<?> CLASS_Cleaner = XReflect.tryIterativeResolveType(
+	static final Class<?> CLASS_Cleaner = tryIterativeResolveType(
 		// initial type name
 		"sun.misc.Cleaner",
 		// Java 9+ type name
@@ -63,16 +71,65 @@ public class PlatformInternals
 	);
 	
 	static final String FIELD_NAME_address  = "address";
+	static final String FIELD_NAME_thunk    = "thunk"  ;
 	static final String METHOD_NAME_address = "address";
 	static final String METHOD_NAME_cleaner = "cleaner";
 	static final String METHOD_NAME_clean   = "clean"  ;
 
 	// Note java.nio.Buffer comment: "Used only by direct buffers. Hoisted here for speed in JNI GetDirectBufferAddress"
 	static final long   FIELD_OFFSET_Buffer_address = tryGetFieldOffset(Buffer.class, FIELD_NAME_address);
+	static final long   FIELD_OFFSET_Cleaner_thunk  = tryGetFieldOffset(CLASS_Cleaner, FIELD_NAME_thunk);
 	
 	static final Method METHOD_DirectBuffer_address = tryResolveMethod(CLASS_DirectBuffer, METHOD_NAME_address);
 	static final Method METHOD_DirectBuffer_cleaner = tryResolveMethod(CLASS_DirectBuffer, METHOD_NAME_cleaner);
 	static final Method METHOD_Cleaner_clean        = tryResolveMethod(CLASS_Cleaner, METHOD_NAME_clean);
+		
+	/*
+	 * Note on Java 9:
+	 * Cleaner#clean is no longer accessible. Error message:
+	 * Unable to make public void jdk.internal.ref.Cleaner.clean() accessible:
+	 * module java.base does not "exports jdk.internal.ref" to unnamed module [...]
+	 * 
+	 * ...
+	 * "does not exports"
+	 * ...
+	 * anyway ...
+	 * 
+	 * The problem here is that the morons simple don't understand that if you explicitely allocate off-heap memory,
+	 * you also have to deallocate it explicitely since the GC does not manage it. Calling the Cleaner upon object
+	 * destruction solves "most" cases, but no "all". Every lousy C++ newbie learns that you have to deallocate
+	 * the memory you allocated, clean up your mess, care for your memory. But no, not the JDK morons.
+	 * 
+	 * There are, of course, numerous discussions and adressings of this issue.
+	 * See for example:
+	 * http://mail.openjdk.java.net/pipermail/core-libs-dev/2016-February/038669.html
+	 * https://issues.apache.org/jira/browse/LUCENE-6989
+	 * Discussions and "ideas" up and down of maybe making the DirectByteBuffer implement "AutoCloseable" or whatever.
+	 * Morons.
+	 * If you provide a means to directly allocate memory (which can be necessary in some libraries like this one here),
+	 * you also have to provide a means to deallocate it. Otherwise, you're just a newbie lacking basic understand
+	 * of (low-level) software development. Morons.
+	 * 
+	 * There even is a Cleaner$Cleanable in another package, but the DirectByteBuffer Cleaner does not implement it.
+	 * Morons.
+	 * 
+	 * There is the Runnable "thunk" (actually Deallocator) that can actually be called.
+	 * It even checks to be executed only once (with the hilarious comment "Paranoia". You newbie.)
+	 * This works, but with two potential problems:
+	 * 1.) Should that little "if" ever be removed, the Deallocator might be run twice, potentially messing up memory,
+	 *     crashing the JVM.
+	 * 2.) The code is not synchronized (because newbies don't do that), so it can theoretically happen that
+	 *     the code is run twice in a race condition.
+	 *     Maybe this can't happen since one call would always come from a non-GC thread and one call from a GC
+	 *     thread. However, if someone writes a Finalizer with an explicit deallocation, it's GC-thread vs. GC-thread.
+	 *     IF there's only one GC thread, then, it's perfectly safe again.
+	 *     But if there are more than one GC threads, it might crash.
+	 * 
+	 * Conclusion:
+	 * Given all that multitudes of moronity in the JDK, the best I can do is "SHOULD work reliable".
+	 * It can, however, also potentially crash your whole process.
+	 * This can happen if you have to rely on the work of morons who don't understand basic memory management.
+	 */
 	
 	
 	
@@ -97,25 +154,30 @@ public class PlatformInternals
 			return type;
 		}
 		
-		System.err.println(
-			"Warning. No runtime type could have been found for the given type name list "
+		addInitializationWarning("No runtime type could have been found for the given type name list "
 			+ Arrays.toString(typeNames)
 		);
 		
 		return null;
+	}
+	
+	static final String localWarningHeader()
+	{
+		return "WARNING (" + PlatformInternals.class.getName()+"): ";
 	}
 
 	static final long tryGetFieldOffset(final Class<?> type, final String declaredFieldName)
 	{
 		if(type == null)
 		{
-			System.err.println(
-				"Warning. Cannot resolve declared field \""
+			addInitializationWarning("Cannot resolve declared field \""
 				+ declaredFieldName
 				+ "\" in an unresolved type."
 			);
 			return -1;
 		}
+		
+		Throwable cause = null;
 					
 		// minimal algorithm, only for local use
 		for(Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass())
@@ -132,16 +194,15 @@ public class PlatformInternals
 			}
 			catch(final Exception e)
 			{
-				// fall through to return
-				e.printStackTrace();
+				cause = e;
 			}
 		}
 
-		System.err.println(
-			"Warning. No declared field with name \""
+		addInitializationWarning("No declared field with name \""
 			+ declaredFieldName
 			+ "\" could have been found in the class hierarchy beginning at "
-			+ type
+			+ type,
+			cause
 		);
 		return -1;
 	}
@@ -154,13 +215,14 @@ public class PlatformInternals
 	{
 		if(type == null)
 		{
-			System.err.println(
-				"Warning. Cannot resolve declared method \""
+			addInitializationWarning("Cannot resolve declared method \""
 				+ methodName
 				+ "\" in an unresolved type."
 			);
 			return null;
 		}
+		
+		Throwable cause = null;
 		
 		// minimal algorithm, only for local use
 		for(Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass())
@@ -180,17 +242,17 @@ public class PlatformInternals
 			}
 			catch(final Exception e)
 			{
-				// fall through to return
-				e.printStackTrace();
+				cause = e;
 			}
 		}
 
-		System.err.println(
-			"Warning. No declared method with name \""
+		addInitializationWarning("No (usable) declared method with name \""
 			+ methodName
 			+ "\" could have been found in the class hierarchy beginning at "
-			+ type.toString()
+			+ type.toString(),
+			cause
 		);
+		
 		return null;
 	}
 		
@@ -363,13 +425,25 @@ public class PlatformInternals
 	
 	static final void internalDeallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
-		if(METHOD_DirectBuffer_cleaner == null || METHOD_Cleaner_clean == null)
+		if(FIELD_OFFSET_Cleaner_thunk >= 0)
 		{
-			throw new Error(
-				"No means to explicitely deallocate a DirectBuffer available."
-			);
+			System.out.println("deallocating by thunk");
+			internalDeallocateDirectBufferByThunk(directBuffer);
+			return;
 		}
 		
+		if(METHOD_Cleaner_clean != null)
+		{
+			System.out.println("deallocating by clean()");
+			internalDeallocateDirectBufferByClean(directBuffer);
+			return;
+		}
+		
+		throw new Error("No means to explicitely deallocate a DirectBuffer available.");
+	}
+	
+	static final void internalDeallocateDirectBufferByClean(final ByteBuffer directBuffer)
+	{
 		final Object cleaner;
 		try
 		{
@@ -379,6 +453,45 @@ public class PlatformInternals
 		catch(final ReflectiveOperationException e)
 		{
 			throw new Error(e);
+		}
+	}
+	
+	static final void internalDeallocateDirectBufferByThunk(final ByteBuffer directBuffer)
+	{
+		final Object cleaner;
+		try
+		{
+			cleaner = METHOD_DirectBuffer_cleaner.invoke(directBuffer);
+		}
+		catch(final ReflectiveOperationException e)
+		{
+			throw new Error(e);
+		}
+		
+		final Object cleanerThunkDeallocatorRunnable = XMemory.getObject(cleaner, FIELD_OFFSET_Cleaner_thunk);
+		
+		if(!(cleanerThunkDeallocatorRunnable instanceof Runnable))
+		{
+			// better to not deallocate and hope the DBB will get cleaned up by the GC instead of an exception
+			return;
+		}
+		
+		// at least secure this call externally against race conditions if the geniuses can't do it internally
+		synchronized(cleanerThunkDeallocatorRunnable)
+		{
+			((Runnable)cleanerThunkDeallocatorRunnable).run();
+			
+			/* must be set explicitely since the deallocator only sets his copy of the address to 0.
+			 * It might seem dangerous to zero out the address of a still reachable and potentially used
+			 * direct byte buffer, but this logic here is only executed if the DirectByteBuffer is explicitely
+			 * deallocated. If it is still used after that, it is simple a programming error, not different
+			 * from writing to a wrong memory address.
+			 * So zeroing out the address is the correct thing to do to one the one hand keep the state consistent
+			 * and on the other hand prevent access to allegedly still allocated memory while in fact, it has
+			 * already been deallocated. It is much better to encounter a zero address in such a case than to
+			 * chaotically read or even write from/to memory that might already have been allocated for something else.
+			 */
+			XMemory.set_long(directBuffer, FIELD_OFFSET_Buffer_address, 0);
 		}
 	}
 	
@@ -436,10 +549,90 @@ public class PlatformInternals
 			"Class DirectBuffer           : " + CLASS_DirectBuffer          + '\n' +
 			"Class Cleaner                : " + CLASS_Cleaner               + '\n' +
 			"field offset Buffer#address  : " + FIELD_OFFSET_Buffer_address + '\n' +
+			"field offset Cleaner#thunk   : " + FIELD_OFFSET_Cleaner_thunk  + '\n' +
 			"Method DirectBuffer#address(): " + METHOD_DirectBuffer_address + '\n' +
 			"Method DirectBuffer#cleaner(): " + METHOD_DirectBuffer_cleaner + '\n' +
 			"Method Cleaner#clean()       : " + METHOD_Cleaner_clean        + '\n'
 		;
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// warning handling //
+	/////////////////////
+	
+	private static void addInitializationWarning(final String message)
+	{
+		addInitializationWarning(message, null);
+	}
+	
+	private static void addInitializationWarning(final String message, final Throwable cause)
+	{
+		INITIALIZATION_WARNINGS.add(new Warning.Default(message, cause));
+	}
+	
+	public static final XGettingSequence<Warning> initializationWarnings()
+	{
+		return INITIALIZATION_WARNINGS;
+	}
+	
+	public static final void printInitializationWarnings(final PrintStream printStream)
+	{
+		for(final Warning warning : INITIALIZATION_WARNINGS)
+		{
+			warning.print(printStream);
+			printStream.println();
+		}
+	}
+	
+	public interface Warning
+	{
+		public String message();
+		
+		public Throwable cause();
+		
+		public void print(PrintStream printStream);
+		
+		
+		
+		final class Default implements Warning
+		{
+			final String    message;
+			final Throwable cause  ;
+			
+			Default(final String message, final Throwable cause)
+			{
+				super();
+				this.message = message;
+				this.cause = cause;
+			}
+
+			@Override
+			public String message()
+			{
+				return this.message;
+			}
+
+			@Override
+			public Throwable cause()
+			{
+				return this.cause;
+			}
+			
+			@Override
+			public final void print(final PrintStream printStream)
+			{
+				final String printMessage = localWarningHeader() + coalesce(this.message, "");
+				printStream.println(printMessage);
+				if(this.cause != null)
+				{
+					this.cause.printStackTrace(printStream);
+				}
+			}
+			
+		}
+		
 	}
 	
 	
@@ -458,5 +651,7 @@ public class PlatformInternals
 		// static only
 		throw new UnsupportedOperationException();
 	}
+	
+	// all that makeshift code just because they don't understand basic memory management ...
 	
 }
