@@ -340,7 +340,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public StorageRootOidSelector.Provider getRootOidSelectorProvider();
 	
 	/**
-	 * Returns the currently set {@link StorageOidMarkQueue.Creator} instance.
+	 * Returns the currently set {@link StorageobjectIdMarkQueue.Creator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
 	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
@@ -351,7 +351,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
 	 */
-	public StorageOidMarkQueue.Creator getOidMarkQueueCreator();
+	public StorageobjectIdMarkQueue.Creator getOidMarkQueueCreator();
 	
 	/**
 	 * Returns the currently set {@link StorageEntityMarkMonitor.Creator} instance.
@@ -671,13 +671,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public F setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
 	
 	/**
-	 * Sets the {@link StorageOidMarkQueue.Creator} instance to be used for the assembly.
+	 * Sets the {@link StorageobjectIdMarkQueue.Creator} instance to be used for the assembly.
 	 * 
 	 * @param oidMarkQueueCreator the instance to be used.
 	 * 
 	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
-	public F setOidMarkQueueCreator(StorageOidMarkQueue.Creator oidMarkQueueCreator);
+	public F setOidMarkQueueCreator(StorageobjectIdMarkQueue.Creator oidMarkQueueCreator);
 	
 	/**
 	 * Sets the {@link StorageEntityMarkMonitor.Creator} instance to be used for the assembly.
@@ -804,7 +804,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageFileWriter.Provider            writerProvider               ;
 		private StorageGCZombieOidHandler             gCZombieOidHandler           ;
 		private StorageRootOidSelector.Provider       rootOidSelectorProvider      ;
-		private StorageOidMarkQueue.Creator           oidMarkQueueCreator          ;
+		private StorageobjectIdMarkQueue.Creator           oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageDataFileValidator.Creator      dataFileValidatorCreator     ;
 		private BinaryEntityRawDataIterator.Provider  entityDataIteratorProvider   ;
@@ -967,9 +967,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return new StorageRootOidSelector.Provider.Default();
 		}
 
-		protected StorageOidMarkQueue.Creator ensureOidMarkQueueCreator()
+		protected StorageobjectIdMarkQueue.Creator ensureOidMarkQueueCreator()
 		{
-			return new StorageOidMarkQueue.Creator.Default();
+			return new StorageobjectIdMarkQueue.Creator.Default();
 		}
 
 		protected StorageEntityMarkMonitor.Creator ensureEntityMarkMonitorCreator()
@@ -1249,7 +1249,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 
 		@Override
-		public StorageOidMarkQueue.Creator getOidMarkQueueCreator()
+		public StorageobjectIdMarkQueue.Creator getOidMarkQueueCreator()
 		{
 			if(this.oidMarkQueueCreator == null)
 			{
@@ -1503,7 +1503,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		@Override
 		public F setOidMarkQueueCreator(
-			final StorageOidMarkQueue.Creator oidMarkQueueCreator)
+			final StorageobjectIdMarkQueue.Creator oidMarkQueueCreator)
 		{
 			this.oidMarkQueueCreator = oidMarkQueueCreator;
 			return this.$();

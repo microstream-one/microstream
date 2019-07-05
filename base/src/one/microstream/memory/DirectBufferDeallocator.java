@@ -60,18 +60,18 @@ import java.nio.ByteBuffer;
  * 
  * @author TM
  */
-public interface DirectByteBufferDeallocator
+public interface DirectBufferDeallocator
 {
-	public void deallocateDirectByteBuffer(ByteBuffer directByteBuffer);
+	public void deallocateDirectBuffer(ByteBuffer directBuffer);
 	
 	
 	
-	public static DirectByteBufferDeallocator NoOp()
+	public static DirectBufferDeallocator NoOp()
 	{
-		return new DirectByteBufferDeallocator.NoOp();
+		return new DirectBufferDeallocator.NoOp();
 	}
 	
-	public final class NoOp implements DirectByteBufferDeallocator
+	public final class NoOp implements DirectBufferDeallocator
 	{
 		NoOp()
 		{
@@ -80,7 +80,7 @@ public interface DirectByteBufferDeallocator
 		}
 		
 		@Override
-		public void deallocateDirectByteBuffer(final ByteBuffer directByteBuffer)
+		public void deallocateDirectBuffer(final ByteBuffer directBuffer)
 		{
 			// no-op by default because of too many design errors in JDK to provide a sane solution out of the box.
 		}
@@ -89,22 +89,21 @@ public interface DirectByteBufferDeallocator
 	
 //	public final class Java8Makeshift implements DirectByteBufferDeallocator
 //	{
-//		Java8Makeshift()
+//		public Java8Makeshift()
 //		{
-//			// constructors are an implementation detail that are to be hidden just like fields.
 //			super();
 //		}
 //
 //		@Override
-//		public void deallocateDirectByteBuffer(final ByteBuffer directByteBuffer)
+//		public void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
 //		{
 //			// compensate missing proper typing in JDK
-//			if(!(directByteBuffer instanceof sun.nio.ch.DirectBuffer))
+//			if(!(directBuffer instanceof sun.nio.ch.DirectBuffer))
 //			{
 //				return; // or throw exception
 //			}
 //
-//			final sun.misc.Cleaner cleaner = ((sun.nio.ch.DirectBuffer)directByteBuffer).cleaner();
+//			final sun.misc.Cleaner cleaner = ((sun.nio.ch.DirectBuffer)directBuffer).cleaner();
 //
 //			// cleaner can be null
 //			if(cleaner != null)
@@ -117,22 +116,21 @@ public interface DirectByteBufferDeallocator
 	
 //	public final class Java9Makeshift implements DirectByteBufferDeallocator
 //	{
-//		Java9Makeshift()
+//		public Java9Makeshift()
 //		{
-//			// constructors are an implementation detail that are to be hidden just like fields.
 //			super();
 //		}
 //
 //		@Override
-//		public void deallocateDirectByteBuffer(final ByteBuffer directByteBuffer)
+//		public void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
 //		{
 //			// compensate missing proper typing in JDK
-//			if(!(directByteBuffer instanceof sun.nio.ch.DirectBuffer))
+//			if(!(directBuffer instanceof sun.nio.ch.DirectBuffer))
 //			{
 //				return; // or throw exception
 //			}
 //
-//			final jdk.internal.ref.Cleaner cleaner = ((sun.nio.ch.DirectBuffer)directByteBuffer).cleaner();
+//			final jdk.internal.ref.Cleaner cleaner = ((sun.nio.ch.DirectBuffer)directBuffer).cleaner();
 //
 //			// cleaner can be null
 //			if(cleaner != null)

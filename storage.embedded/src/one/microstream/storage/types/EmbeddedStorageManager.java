@@ -47,14 +47,8 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	
 	public default long storeRoot()
 	{
-		final Object            customRoot  = this.root();
+		// if a default root is present, there cannot be a custom root, so store the default root
 		final Reference<Object> defaultRoot = this.defaultRoot();
-		
-		if(customRoot != null)
-		{
-			return this.store(customRoot);
-		}
-
 		if(defaultRoot != null)
 		{
 			final Storer storer = this.createStorer();
@@ -69,6 +63,13 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			storer.commit();
 			
 			return defaultRootObjectId;
+		}
+
+		// if a custom root is present, store that
+		final Object customRoot = this.customRoot();
+		if(customRoot != null)
+		{
+			return this.store(customRoot);
 		}
 
 		return Persistence.nullId();

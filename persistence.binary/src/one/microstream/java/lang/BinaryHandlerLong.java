@@ -23,9 +23,9 @@ public final class BinaryHandlerLong extends AbstractBinaryHandlerCustomValueFix
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Long instance, final long oid, final PersistenceStoreHandler handler)
+	public void store(final Binary bytes, final Long instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeLong(this.typeId(), oid, instance.longValue());
+		bytes.storeLong(this.typeId(), objectId, instance.longValue());
 	}
 
 	@Override

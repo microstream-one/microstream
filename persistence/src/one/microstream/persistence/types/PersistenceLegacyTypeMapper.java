@@ -270,7 +270,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			
 			return match;
 		}
-				
+		
 		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandler(
 			final PersistenceTypeDefinition legacyTypeDefinition
 		)
@@ -286,7 +286,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			
 			return matchingLegacyTypeHandler;
 		}
-						
+		
 		@Override
 		public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
 			final PersistenceTypeDefinition    legacyTypeDefinition,
@@ -303,7 +303,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			// at this point a legacy handler must be creatable or something went wrong.
 			return this.createLegacyTypeHandler(legacyTypeDefinition, currentTypeHandler);
 		}
-				
+		
 	}
 	
 }

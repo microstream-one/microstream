@@ -56,7 +56,7 @@ public class MainTestRTF
 		s = s.replaceAll("\\r","");
 		
 		// remove marked meta text
-		s = Pattern.compile(INVALIDATOR_REGEX+".*?"+INVALIDATOR_REGEX, Pattern.DOTALL).matcher(s).replaceAll("");
+		s = Pattern.compile(INVALIDATOR_REGEX + ".*?" + INVALIDATOR_REGEX, Pattern.DOTALL).matcher(s).replaceAll("");
 		
 		// cut spaces and remove everything beyond one blank line
 		s = s.replaceAll("\\n\\s+\\n", "\n\n").replaceAll("(\\n){3,}+", "\n\n");

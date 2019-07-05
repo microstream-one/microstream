@@ -196,7 +196,7 @@ public final class ExperimentalLockFreeConcurrentHashMap<K,V> implements Concurr
 			}
 
 			// storage rebuild completion
-			this.capacity = newSlots.length == 1<<30 ?Integer.MAX_VALUE :(int)(newSlots.length * this.hashDensity);
+			this.capacity = newSlots.length == 1<<30 ? Integer.MAX_VALUE : (int)(newSlots.length * this.hashDensity);
 			System.out.println("slots = "+newSlots.length+", capacity = "+this.capacity);
 			this.slots = newSlots;
 			this.wait = false;

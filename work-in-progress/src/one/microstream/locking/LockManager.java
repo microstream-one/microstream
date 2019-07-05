@@ -210,7 +210,7 @@ public interface LockManager<O> extends LockOwnerTypeHolder<O>
 		{
 			final KeyValue<Object, O> entry = this.lockTable.addGet(object, owner);
 
-			return entry == null ?owner :entry.value();
+			return entry == null ? owner : entry.value();
 		}
 
 		/**

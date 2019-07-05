@@ -11,7 +11,7 @@ import one.microstream.X;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.math.XMath;
-import one.microstream.memory.XMemory;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.ChunksBuffer;
 import one.microstream.persistence.types.Persistence;
@@ -65,7 +65,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private final StorageTypeDictionary              typeDictionary    ;
 		private final StorageEntityMarkMonitor           markMonitor       ;
 		private final StorageReferenceMarker             referenceMarker   ;
-		private final StorageOidMarkQueue                oidMarkQueue      ;
+		private final StorageobjectIdMarkQueue                oidMarkQueue      ;
 		private final long[]                             markingOidBuffer  ;
 		private final StorageGCZombieOidHandler          zombieOidHandler  ;
 		private final StorageRootOidSelector             rootOidSelector   ;
@@ -111,7 +111,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageGCZombieOidHandler   zombieOidHandler   ,
 			final StorageRootOidSelector      rootOidSelector    ,
 			final long                        rootTypeId         ,
-			final StorageOidMarkQueue         oidMarkQueue       ,
+			final StorageobjectIdMarkQueue         oidMarkQueue       ,
 			final int                         markingBufferLength,
 			final long                        markingWaitTimeMs
 		)
@@ -363,34 +363,34 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return hash(tid, tidModulo);
 		}
 
-		static final int oidHashIndex(final long oid, final int bitShiftCount, final int oidModulo)
+		static final int oidHashIndex(final long objectId, final int bitShiftCount, final int oidModulo)
 		{
-			return hashNormalized(oid, bitShiftCount, oidModulo);
+			return hashNormalized(objectId, bitShiftCount, oidModulo);
 		}
 
-		static final int oidChannelIndex(final long oid, final int channelHashModulo)
+		static final int oidChannelIndex(final long objectId, final int channelHashModulo)
 		{
-			return hash(oid, channelHashModulo);
+			return hash(objectId, channelHashModulo);
 		}
 
-		private int oidHashIndex(final long oid)
+		private int oidHashIndex(final long objectId)
 		{
-			return oidHashIndex(oid, this.channelHashShift, this.oidModulo);
+			return oidHashIndex(objectId, this.channelHashShift, this.oidModulo);
 		}
 
-		private int oidChannelIndex(final long oid)
+		private int oidChannelIndex(final long objectId)
 		{
-			return oidChannelIndex(oid, this.channelHashModulo);
+			return oidChannelIndex(objectId, this.channelHashModulo);
 		}
 
-		private StorageEntity.Default getOidHashChainHead(final long oid)
+		private StorageEntity.Default getOidHashChainHead(final long objectId)
 		{
-			return this.oidHashTable[this.oidHashIndex(oid)];
+			return this.oidHashTable[this.oidHashIndex(objectId)];
 		}
 
-		private void setOidHashChainHead(final long oid, final StorageEntity.Default head)
+		private void setOidHashChainHead(final long objectId, final StorageEntity.Default head)
 		{
-			this.oidHashTable[this.oidHashIndex(oid)] = head;
+			this.oidHashTable[this.oidHashIndex(objectId)] = head;
 		}
 
 
@@ -860,7 +860,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			final long                   evalTime        = System.currentTimeMillis();
 			final StorageReferenceMarker referenceMarker = this.referenceMarker      ;
-			final StorageOidMarkQueue    oidMarkQueue    = this.oidMarkQueue         ;
+			final StorageobjectIdMarkQueue    oidMarkQueue    = this.oidMarkQueue         ;
 			final long[]                 oidsBuffer      = this.markingOidBuffer     ;
 
 			// total amount of oids to mark in the current batch. Range: [0; oids.length]
@@ -1073,7 +1073,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageDataFile.Default file
 		)
 		{
-			final long chunkStartAddress = XMemory.getDirectByteBufferAddress(chunk);
+			final long chunkStartAddress = PlatformInternals.getDirectBufferAddress(chunk);
 			final long chunkLength       = chunk.limit();
 
 			// calculated offset difference, may even be negative, doesn't matter

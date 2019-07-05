@@ -18,8 +18,8 @@ public final class SortValue
 	};
 
 	private static final int DEFAULT_PRINT_LENGTH = 100;
-	private static final FastRandom rnd = new FastRandom();
-	private static final VarString vc = VarString.New(1000*1000*10);
+	private static final FastRandom RND = new FastRandom();
+	private static final VarString  VS  = VarString.New(1000*1000*10);
 
 
 
@@ -65,14 +65,14 @@ public final class SortValue
 	{
 		alreadySorted(values);
 		for(int i = 0; i < values.length; i++)
-			swap(values, i, rnd.nextInt(values.length));
+			swap(values, i, RND.nextInt(values.length));
 		return values;
 	}
 	public static SortValue[] random(final SortValue[] values)
 	{
 		for(int i = 0; i < values.length;)
 		{
-			values[i++].set(rnd.nextInt(values.length), i);
+			values[i++].set(RND.nextInt(values.length), i);
 		}
 		return values;
 	}
@@ -80,7 +80,7 @@ public final class SortValue
 	{
 		for(int i = 0; i < values.length;)
 		{
-			values[i].set(1+rnd.nextInt(distinctAmount), ++i);
+			values[i].set(1+RND.nextInt(distinctAmount), ++i);
 		}
 		return values;
 	}
@@ -90,7 +90,7 @@ public final class SortValue
 		int value = 0;
 		for(int i = 0, d = 0; i < values.length;)
 		{
-			if(d == 0) value = 1+rnd.nextInt(distinctAmount);
+			if(d == 0) value = 1+RND.nextInt(distinctAmount);
 			values[i].set(value, ++i);
 			if(++d == distinctSegment) d = 0;
 		}
@@ -115,7 +115,7 @@ public final class SortValue
 		alreadySorted(values);
 		for(int i = 0; i < values.length; i++)
 		{
-			swap(values, i, rnd.nextInt(values.length));
+			swap(values, i, RND.nextInt(values.length));
 		}
 		return values;
 	}
@@ -125,7 +125,7 @@ public final class SortValue
 		final int max = values.length / toothCount;
 		for(int i = 0, s = 0; i < values.length;)
 		{
-			values[i].set(++s == max ?s=0 :s, ++i);
+			values[i].set(++s == max ? s = 0 : s, ++i);
 		}
 		return values;
 	}
@@ -135,8 +135,8 @@ public final class SortValue
 		final int max = values.length / toothCount;
 		for(int i = 0, s = 0, offset=0; i < values.length; i++)
 		{
-			if(s == 0) offset = rnd.nextInt(101);
-			values[i].set((++s == max ?s=0 :s)+offset, ++i);
+			if(s == 0) offset = RND.nextInt(101);
+			values[i].set((++s == max ? s = 0 : s) + offset, ++i);
 		}
 		return values;
 	}
@@ -147,7 +147,7 @@ public final class SortValue
 		for(int i = 1, len = values.length - 3; i < len; i+=3)
 		{
 			final SortValue t = values[i];
-			final int r = i+(rnd.nextInt(100)<50?-1:+1);
+			final int r = i+(RND.nextInt(100) < 50 ? -1 : +1);
 			values[i] = values[r];
 			values[r] = t;
 		}
@@ -164,18 +164,18 @@ public final class SortValue
 
 
 	static final int unstableCompare(final SortValue o1, final SortValue o2) {
-		return o1.value > o2.value ?1 : o1.value < o2.value ?-1 :0;
+		return o1.value > o2.value ? 1 : o1.value < o2.value ? -1 : 0;
 	}
 	static final int stableCompare(final SortValue o1, final SortValue o2) {
 		return o1.value > o2.value
-		?1
+		? 1
 			: o1.value < o2.value
-			?-1
-				:o1.order > o2.order
-				?1
+			? -1
+				: o1.order > o2.order
+				? 1
 					: o1.order < o2.order
-					?-1
-						:0;
+					? -1
+						: 0;
 	}
 
 	static final boolean isSorted(final SortValue[] values)
@@ -241,40 +241,40 @@ public final class SortValue
 	public static final void printSimple(final String s, int limit, final SortValue[] values)
 	{
 		if(limit > values.length) limit = values.length;
-		vc.clear();
-		vc.add(s).append(' ');
-		vc.append('[');
+		VS.clear();
+		VS.add(s).append(' ');
+		VS.append('[');
 		for(int i = 0; i < limit; i++)
 		{
-			vc.add(values[i]).add(',', ' ');
+			VS.add(values[i]).add(',', ' ');
 		}
-		(limit < values.length ?vc.add("... ").add(values[values.length-1]) :vc.deleteLast(2))
+		(limit < values.length ? VS.add("... ").add(values[values.length-1]) : VS.deleteLast(2))
 		.append(']')
 		.append('(').add(values.length).append(')');
-		System.out.println(vc.toString());
+		System.out.println(VS.toString());
 	}
 
 
 	public static final void print(final String s, int limit, final SortValue[] values, final boolean stable)
 	{
 		if(limit > values.length) limit = values.length;
-		vc.clear();
-		vc.add(s).append(' ');
+		VS.clear();
+		VS.add(s).append(' ');
 
-		if(isStableSorted(values)) vc.add(" STABLE\t");
-		else if(isSorted(values))  vc.add(" sorted\t");
-		else                       vc.add("       \t");
+		if(isStableSorted(values)) VS.add(" STABLE\t");
+		else if(isSorted(values))  VS.add(" sorted\t");
+		else                       VS.add("       \t");
 
 
-		vc.append('[');
+		VS.append('[');
 		for(int i = 0; i < limit; i++)
 		{
-			vc.add(stable ?values[i].toOrderString() :values[i].toString()).add(',', ' ');
+			VS.add(stable ? values[i].toOrderString() : values[i].toString()).add(',', ' ');
 		}
-		(limit < values.length ?vc.add("... ").add(values[values.length-1]) :vc.deleteLast(2))
+		(limit < values.length ? VS.add("... ").add(values[values.length-1]) : VS.deleteLast(2))
 		.append(']')
 		.append('(').add(values.length).append(')');
-		System.out.println(vc.toString());
+		System.out.println(VS.toString());
 	}
 
 

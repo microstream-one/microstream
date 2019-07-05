@@ -23,31 +23,31 @@ public class MainSearchBinaryStringInFiles
 	static final BiConsumer<File, Consumer<? super File>> DIRECT = (f, p) -> p.accept(f);
 
 	
-	private static void searchLCM(final long... oids)
+	private static void searchLCM(final long... objectIds)
 	{
-		for(final long oid : oids)
+		for(final long objectId : objectIds)
 		{
-			searchLCM(oid);
+			searchLCM(objectId);
 		}
 	}
 	
-	private static void searchLCM(final long oid)
+	private static void searchLCM(final long objectId)
 	{
-		System.out.println("\nSearching for " + oid);
+		System.out.println("\nSearching for " + objectId);
 		searchStringsInFiles(
 			DIRECT,
-			X.array(new File("D:/_Allianz/20190313_2330_Rollback/garbage/").listFiles()),
-			XMemory.toByteArray(oid)
+			X.array(new File("D:/_Corp/20190313_2330_Rollback/garbage/").listFiles()),
+			XMemory.asByteArray(objectId)
 		);
 		searchStringsInFiles(
 			DIRECT,
-			X.array(new File("D:/_Allianz/20190313_2330_Rollback/cleaned/channel_0_864.dat")),
-			XMemory.toByteArray(oid)
+			X.array(new File("D:/_Corp/20190313_2330_Rollback/cleaned/channel_0_864.dat")),
+			XMemory.asByteArray(objectId)
 		);
 		searchStringsInFiles(
 			DIRECT,
-			X.array(new File("D:/_Allianz/2019-03-14_ProdDb/20190313_2330_autobackup_prod_kaputt/backup_daily_2019-03-13Z/channel_0/channel_0_872.dat")),
-			XMemory.toByteArray(oid)
+			X.array(new File("D:/_Corp/2019-03-14_ProdDb/20190313_2330_autobackup_prod_kaputt/backup_daily_2019-03-13Z/channel_0/channel_0_872.dat")),
+			XMemory.asByteArray(objectId)
 		);
 	}
 	

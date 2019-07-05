@@ -2,21 +2,11 @@ package one.microstream.memory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import java.util.PriorityQueue;
-import java.util.Properties;
-import java.util.Vector;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
 import sun.misc.Unsafe;
-import sun.nio.ch.DirectBuffer;
 
 
 /**
@@ -31,12 +21,14 @@ public final class XMemory
 	// constants //
 	//////////////
 
-	private static final Unsafe VM = (Unsafe)getSystemInstance();
+	// used by other classes in other projects but same package
+	static final Unsafe VM = (Unsafe)getSystemInstance();
 
 	// better calculate it once instead of making wild assumptions that can change (e.g. 64 bit coops has only 12 byte)
 	private static final int BYTE_SIZE_OBJECT_HEADER = calculateByteSizeObjectHeader();
 
 	// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
+	// (04.07.2019 TM)NOTE: since these past investigations were naively JDK-specific, that is a dangerous assumption.
 	private static final int
 		MEMORY_ALIGNMENT_FACTOR =                           8,
 		MEMORY_ALIGNMENT_MODULO = MEMORY_ALIGNMENT_FACTOR - 1,
@@ -50,62 +42,10 @@ public final class XMemory
 		BITS3 = 3
 	;
 
-	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
-	private static final long
-		OFFSET_ArrayList_elementData     = internalGetFieldOffset(ArrayList.class    , "elementData"      ),
-		OFFSET_ArrayList_size            = internalGetFieldOffset(ArrayList.class    , "size"             ),
-		OFFSET_HashSet_map               = internalGetFieldOffset(HashSet.class      , "map"              ),
-		OFFSET_HashMap_loadFactor        = internalGetFieldOffset(HashMap.class      , "loadFactor"       ),
-		OFFSET_Hashtable_loadFactor      = internalGetFieldOffset(Hashtable.class    , "loadFactor"       ),
-		OFFSET_LinkedHashMap_loadFactor  = internalGetFieldOffset(LinkedHashMap.class, "loadFactor"       ),
-		OFFSET_LinkedHashMap_accessOrder = internalGetFieldOffset(LinkedHashMap.class, "accessOrder"      ),
-		OFFSET_PriorityQueue_queue       = internalGetFieldOffset(PriorityQueue.class, "queue"            ),
-		OFFSET_PriorityQueue_size        = internalGetFieldOffset(PriorityQueue.class, "size"             ),
-		OFFSET_Vector_elementData        = internalGetFieldOffset(Vector.class       , "elementData"      ),
-		OFFSET_Vector_elementCount       = internalGetFieldOffset(Vector.class       , "elementCount"     ),
-		OFFSET_Vector_capacityIncrement  = internalGetFieldOffset(Vector.class       , "capacityIncrement"),
-		OFFSET_Properties_Defaults       = internalGetFieldOffset(Properties.class   , "defaults"         )
-	;
-	// CHECKSTYLE.ON: ConstantName
-	
-	private static DirectByteBufferDeallocator DIRECT_BYTEBUFFER_DEALLOCATOR = createDefaultDirectByteBufferDeallocator();
-	
-	/**
-	 * Allows to set the {@link DirectByteBufferDeallocator} used by
-	 * {@link #deallocateDirectByteBuffer(ByteBuffer)}.<br>
-	 * See {@link DirectByteBufferDeallocator} for details.
-	 * <p>
-	 * The passed instance "should" be immutable or better stateless to ensure concurrency-safe usage,
-	 * but ultimately, the responsibility resides with the author of the instance's implementation.
-	 * <p>
-	 * Passing <code>null</code> resets to the internal default implementation.
-	 * The used deallocator will never be null.
-	 * 
-	 * @param deallocator the deallocator to be used.
-	 * 
-	 * @see DirectByteBufferDeallocator
-	 */
-	public static synchronized void setDirectByteBufferDeallocator(
-		final DirectByteBufferDeallocator deallocator
-	)
+	static final String fieldNameUnsafe()
 	{
-		// allows resetting to default without knowing what the default is.
-		DIRECT_BYTEBUFFER_DEALLOCATOR = deallocator != null
-			? deallocator
-			: createDefaultDirectByteBufferDeallocator()
-		;
+		return "theUnsafe";
 	}
-	
-	public static synchronized DirectByteBufferDeallocator getDirectByteBufferDeallocator()
-	{
-		return DIRECT_BYTEBUFFER_DEALLOCATOR;
-	}
-	
-	public static DirectByteBufferDeallocator createDefaultDirectByteBufferDeallocator()
-	{
-		return DirectByteBufferDeallocator.NoOp();
-	}
-	
 	
 	// return type not specified to avoid public API dependencies to sun implementation details
 	public static final Object getSystemInstance()
@@ -117,13 +57,13 @@ public final class XMemory
 		}
 		try
 		{
-			final Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+			final Field theUnsafe = Unsafe.class.getDeclaredField(fieldNameUnsafe());
 			theUnsafe.setAccessible(true);
-			return theUnsafe.get(XMemory.class);
+			return theUnsafe.get(null); // static field, no argument needed, may be null (see #get JavaDoc)
 		}
 		catch(final Exception e)
 		{
-			throw new Error("Could not obtain access to sun.misc.Unsafe", e);
+			throw new Error("Could not obtain access to \"" + fieldNameUnsafe() + "\"", e);
 		}
 	}
 	
@@ -146,7 +86,7 @@ public final class XMemory
 		return offsets;
 	}
 
-	private static long internalGetFieldOffset(final Class<?> type, final String declaredFieldName)
+	static final long internalGetFieldOffset(final Class<?> type, final String declaredFieldName)
 	{
 		// minimal algorithm, only for local use
 		for(Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass())
@@ -177,165 +117,7 @@ public final class XMemory
 		}
 		return VM.getObject(VM.staticFieldBase(field), VM.staticFieldOffset(field));
 	}
-	
-	/**
-	 * No idea if this method is really (still?) necesssary, but it sounds reasonable.
-	 * See
-	 * http://stackoverflow.com/questions/8462200/examples-of-forcing-freeing-of-native-memory-direct-bytebuffer-has-allocated-us
-	 *
-	 * @param directByteBuffer
-	 */
-	public static final void deallocateDirectByteBuffer(final ByteBuffer directByteBuffer)
-	{
-		DIRECT_BYTEBUFFER_DEALLOCATOR.deallocateDirectByteBuffer(directByteBuffer);
-	}
-
-	/**
-	 * Just to encapsulate that clumsy cast.
-	 *
-	 * @param directByteBuffer
-	 * @return
-	 */
-	public static final long getDirectByteBufferAddress(final ByteBuffer directByteBuffer)
-	{
-		return ((DirectBuffer)directByteBuffer).address();
-	}
-	
-	/**
-	 * Just to have all jdk internal types here at one place.
-	 * 
-	 * @param directByteBuffer
-	 * @return
-	 */
-	public static final boolean isDirectByteBuffer(final ByteBuffer directByteBuffer)
-	{
-		return directByteBuffer instanceof DirectBuffer;
-	}
-
-	public static final ByteBuffer ensureDirectByteBufferCapacity(final ByteBuffer current, final long capacity)
-	{
-		if(current.capacity() >= capacity)
-		{
-			return current;
-		}
 		
-		checkArrayRange(capacity);
-		deallocateDirectByteBuffer(current);
-		
-		return ByteBuffer.allocateDirect((int)capacity);
-	}
-
-	public static Object[] accessArray(final ArrayList<?> arrayList)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return (Object[])VM.getObject(notNull(arrayList), OFFSET_ArrayList_elementData);
-	}
-
-	public static void setSize(final ArrayList<?> arrayList, final int size)
-	{
-		// must check not null here explictely to prevent VM crashes
-		VM.putInt(notNull(arrayList), OFFSET_ArrayList_size, size);
-	}
-
-	/**
-	 * My god. How incompetent can one be: they provide a constructor for configuring the load factor,
-	 * but they provide no means to querying it. So if a hashset instance shall be transformed to another
-	 * context and back (e.g. persistence), what is one supposed to do? Ignore the load factor and change
-	 * the program behavior? What harm would it do to add an implementation-specific getter?
-	 * <p>
-	 * Not to mention the set wraps a map internally which is THE most moronic thing to do both memory-
-	 * and performance-wise.
-	 * <p>
-	 * So another hack method has to provide basic functionality that is missing in the JDK.
-	 * And should they ever get the idea to implement the set properly, this method will break.
-	 *
-	 * @param hashSet
-	 * @return
-	 */
-	public static float getLoadFactor(final HashSet<?> hashSet)
-	{
-		// must check not null here explictely to prevent VM crashes
-		final HashMap<?, ?> map = (HashMap<?, ?>)VM.getObject(notNull(hashSet), OFFSET_HashSet_map);
-		return getLoadFactor(map);
-	}
-
-	public static float getLoadFactor(final HashMap<?, ?> hashMap)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return VM.getFloat(notNull(hashMap), OFFSET_HashMap_loadFactor);
-	}
-
-	public static float getLoadFactor(final Hashtable<?, ?> hashtable)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return VM.getFloat(notNull(hashtable), OFFSET_Hashtable_loadFactor);
-	}
-
-	public static float getLoadFactor(final LinkedHashMap<?, ?> linkedHashMap)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return VM.getFloat(notNull(linkedHashMap), OFFSET_LinkedHashMap_loadFactor);
-	}
-
-	public static boolean getAccessOrder(final LinkedHashMap<?, ?> linkedHashMap)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return VM.getBoolean(notNull(linkedHashMap), OFFSET_LinkedHashMap_accessOrder);
-	}
-	
-	public static Object[] accessArray(final Vector<?> vector)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return (Object[])VM.getObject(notNull(vector), OFFSET_Vector_elementData);
-	}
-	
-	public static int getElementCount(final Vector<?> vector)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return VM.getInt(notNull(vector), OFFSET_Vector_elementCount);
-	}
-
-	public static void setElementCount(final Vector<?> vector, final int size)
-	{
-		// must check not null here explictely to prevent VM crashes
-		VM.putInt(notNull(vector), OFFSET_Vector_elementCount, size);
-	}
-	
-	public static int getCapacityIncrement(final Vector<?> vector)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return VM.getInt(notNull(vector), OFFSET_Vector_capacityIncrement);
-	}
-
-	public static void setCapacityIncrement(final Vector<?> vector, final int size)
-	{
-		// must check not null here explictely to prevent VM crashes
-		VM.putInt(notNull(vector), OFFSET_Vector_capacityIncrement, size);
-	}
-	
-	public static Properties accessDefaults(final Properties properties)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return (Properties)VM.getObject(notNull(properties), OFFSET_Properties_Defaults);
-	}
-
-	public static void setDefaults(final Properties properties, final Properties defaults)
-	{
-		// must check not null here explictely to prevent VM crashes
-		VM.putObject(notNull(properties), OFFSET_Properties_Defaults, defaults);
-	}
-
-	public static Object[] accessArray(final PriorityQueue<?> priorityQueue)
-	{
-		// must check not null here explictely to prevent VM crashes
-		return (Object[])VM.getObject(notNull(priorityQueue), OFFSET_PriorityQueue_queue);
-	}
-
-	public static void setSize(final PriorityQueue<?> priorityQueue, final int size)
-	{
-		// must check not null here explictely to prevent VM crashes
-		VM.putInt(notNull(priorityQueue), OFFSET_PriorityQueue_size, size);
-	}
 	
 
 	
@@ -662,14 +444,14 @@ public final class XMemory
 		return offsets;
 	}
 
-	public static byte[] toByteArray(final long[] longArray)
+	public static byte[] asByteArray(final long[] longArray)
 	{
 		final byte[] bytes = new byte[checkArrayRange((long)longArray.length << BITS3)];
 		VM.copyMemory(longArray, Unsafe.ARRAY_LONG_BASE_OFFSET, bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET, bytes.length);
 		return bytes;
 	}
 
-	public static byte[] toByteArray(final long value)
+	public static byte[] asByteArray(final long value)
 	{
 		final byte[] bytes = new byte[byteSize_long()];
 		put_long(bytes, 0, value);
@@ -733,12 +515,12 @@ public final class XMemory
 
 	public static void _longInByteArray(final byte[] bytes, final long value)
 	{
-		VM.putLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET, value);
+		VM.putLong(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET, value);
 	}
 
 	public static long _longFromByteArray(final byte[] bytes)
 	{
-		return VM.getLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET);
+		return VM.getLong(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET);
 	}
 
 
@@ -1248,17 +1030,6 @@ public final class XMemory
 			throw new InstantiationRuntimeException(e);
 		}
 	}
-
-	public static final byte[] directByteBufferToArray(final ByteBuffer directByteBuffer)
-	{
-		final byte[] bytes;
-		copyRangeToArray(
-			getDirectByteBufferAddress(directByteBuffer),
-			bytes = new byte[directByteBuffer.limit()]
-		);
-		return bytes;
-	}
-
 	
 
 	
@@ -1314,14 +1085,24 @@ public final class XMemory
 
 
 
-	/* (18.09.2018 TM)TODO: fieldOffsetWorkaroundDummy necessary?
-	 * Why is there no comment? If it is necessary, it has to be commented, why.
-	 */
-	Object fieldOffsetWorkaroundDummy;
+	// implicitely used in #calculateByteSizeObjectHeader
+	Object calculateByteSizeObjectHeaderFieldOffsetDummy;
 
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 * 
+	 * @throws UnsupportedOperationException
+	 */
 	private XMemory()
 	{
-		throw new Error();
+		// static only
+		throw new UnsupportedOperationException();
 	}
 
 }

@@ -23,9 +23,9 @@ public final class BinaryHandlerDouble extends AbstractBinaryHandlerCustomValueF
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Double instance, final long oid, final PersistenceStoreHandler handler)
+	public void store(final Binary bytes, final Double instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeDouble(this.typeId(), oid, instance.doubleValue());
+		bytes.storeDouble(this.typeId(), objectId, instance.doubleValue());
 	}
 
 	@Override

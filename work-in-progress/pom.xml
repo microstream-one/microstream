@@ -26,6 +26,11 @@
 			<artifactId>communication.binary</artifactId>
 			<version>01.00.00-MS-RC2</version>
 		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>persistence.binary.jdk8</artifactId>
+			<version>01.00.00-MS-RC2</version>
+		</dependency>
 	</dependencies>
 	
 </project>

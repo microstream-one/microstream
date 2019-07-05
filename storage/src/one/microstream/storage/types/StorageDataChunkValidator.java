@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
 
-import one.microstream.memory.XMemory;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.storage.exceptions.StorageException;
@@ -71,8 +71,8 @@ public interface StorageDataChunkValidator
 			for(final ByteBuffer bb : cc.buffers())
 			{
 				final long remainingLength = iterator.iterateEntityRawData(
-					XMemory.getDirectByteBufferAddress(bb),
-					XMemory.getDirectByteBufferAddress(bb) + bb.limit(),
+					PlatformInternals.getDirectBufferAddress(bb),
+					PlatformInternals.getDirectBufferAddress(bb) + bb.limit(),
 					validator
 				);
 				if(remainingLength != 0)

@@ -27,14 +27,14 @@ public class MainTestObjectRegistryPerformance
 
 		for(int r = 1; r <= RUNS; r++)
 		{
-			long oid = Persistence.defaultStartObjectId();
+			long objectId = Persistence.defaultStartObjectId();
 			long tStart, tStop;
 			reg.clear();
 			System.gc();
 			tStart = System.nanoTime();
 			for(int i = 0; i < objects.length; i++)
 			{
-				reg.registerObject(++oid, objects[i]);
+				reg.registerObject(++objectId, objects[i]);
 			}
 			tStop = System.nanoTime();
 			System.out.println(

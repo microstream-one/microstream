@@ -13,7 +13,10 @@ public class OuterJoin
 {
 	private static final <E> E advance(final Iterator<E> iterator)
 	{
-		return iterator.hasNext() ?iterator.next() :null;
+		return iterator.hasNext()
+			? iterator.next()
+			: null
+		;
 	}
 
 	public static final <
@@ -59,7 +62,7 @@ public class OuterJoin
 			final int order; // assignment inlined for performance
 
 			// common case (#1): match
-			if((order = right == null ?-1 :left == null ?1 :comparator.compare(left, right)) == 0)
+			if((order = right == null ? -1 : left == null ? 1 : comparator.compare(left, right)) == 0)
 			{
 				matchHandler.accept(left, right);
 				left  = advance(itrLeft);

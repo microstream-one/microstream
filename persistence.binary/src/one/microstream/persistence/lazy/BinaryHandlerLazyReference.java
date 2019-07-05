@@ -29,7 +29,12 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerCusto
 	/////////////////////
 
 	@Override
-	public void store(final Binary bytes, final Lazy<?> instance, final long oid, final PersistenceStoreHandler handler)
+	public void store(
+		final Binary                  bytes   ,
+		final Lazy<?>                 instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
 	{
 		/* (29.09.2015 TM)NOTE: There are several cases that have to be handled here correctly:
 		 *
@@ -75,13 +80,13 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerCusto
 
 		// lazy reference instance must be stored in any case
 		bytes.store_long(
-			bytes.storeEntityHeader(Binary.referenceBinaryLength(1), this.typeId(), oid),
+			bytes.storeEntityHeader(Binary.referenceBinaryLength(1), this.typeId(), objectId),
 			referenceOid
 		);
 	}
 
 	@Override
-	public Lazy<?> create(final Binary bytes, PersistenceLoadHandler handler)
+	public Lazy<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		/* (27.04.2016 TM)NOTE: registering a Lazy instance with a reference manager
 		 * without having the object supplier set yet might cause an inconsistency if the

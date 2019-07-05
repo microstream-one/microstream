@@ -22,7 +22,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	public void resetCompletion();
 
-	public void advanceMarking(StorageOidMarkQueue oidMarkQueue, int amount);
+	public void advanceMarking(StorageobjectIdMarkQueue objectIdMarkQueue, int amount);
 
 	public void clearPendingStoreUpdate(StorageEntityCache<?> channel);
 
@@ -33,16 +33,16 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 	public boolean isPendingSweep(StorageEntityCache<?> channel);
 
 	public void completeSweep(
-		StorageEntityCache<?>  channel        ,
-		StorageRootOidSelector rootOidSelector,
-		long                   channelRootOid
+		StorageEntityCache<?>  channel             ,
+		StorageRootOidSelector rootObjectIdSelector,
+		long                   channelRootObjectId
 	);
 
 	public boolean isMarkingComplete();
 
 	public StorageReferenceMarker provideReferenceMarker(StorageEntityCache<?> channel);
 
-	public void enqueue(StorageOidMarkQueue oidMarkQueue, long oid);
+	public void enqueue(StorageobjectIdMarkQueue objectIdMarkQueue, long objectId);
 
 //	public String DEBUG_state();
 
@@ -50,16 +50,16 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	public interface Creator
 	{
-		public StorageEntityMarkMonitor createEntityMarkMonitor(StorageOidMarkQueue[] oidMarkQueues);
+		public StorageEntityMarkMonitor createEntityMarkMonitor(StorageobjectIdMarkQueue[] oidMarkQueues);
 
 
 
 		public final class Default implements StorageEntityMarkMonitor.Creator
 		{
 			@Override
-			public StorageEntityMarkMonitor createEntityMarkMonitor(final StorageOidMarkQueue[] oidMarkQueues)
+			public StorageEntityMarkMonitor createEntityMarkMonitor(final StorageobjectIdMarkQueue[] objectIdMarkQueues)
 			{
-				return new StorageEntityMarkMonitor.Default(oidMarkQueues.clone());
+				return new StorageEntityMarkMonitor.Default(objectIdMarkQueues.clone());
 			}
 
 		}
@@ -73,7 +73,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		// instance fields //
 		////////////////////
 
-		private final StorageOidMarkQueue[] oidMarkQueues          ;
+		private final StorageobjectIdMarkQueue[] oidMarkQueues          ;
 		private final int                   channelCount           ;
 		private final int                   channelHash            ;
 		private       long                  pendingMarksCount      ;
@@ -118,7 +118,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		// constructors //
 		/////////////////
 
-		Default(final StorageOidMarkQueue[] oidMarkQueues)
+		Default(final StorageobjectIdMarkQueue[] oidMarkQueues)
 		{
 			super();
 			this.oidMarkQueues       = oidMarkQueues                 ;
@@ -141,7 +141,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		}
 
 		@Override
-		public final synchronized void advanceMarking(final StorageOidMarkQueue oidMarkQueue, final int amount)
+		public final synchronized void advanceMarking(final StorageobjectIdMarkQueue oidMarkQueue, final int amount)
 		{
 //			DEBUGStorage.println(System.identityHashCode(oidMarkQueue) + " >-  " + this.pendingMarksCount + " " + oidMarkQueue.size());
 
@@ -336,22 +336,22 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			this.sweepingChannelCount = this.needsSweep.length;
 		}
 
-		final synchronized void determineAndEnqueueRootOid(final StorageRootOidSelector rootOidSelector)
+		final synchronized void determineAndEnqueueRootOid(final StorageRootOidSelector rootObjectIdSelector)
 		{
 			/*
 			 * note that no lock on the selector instance is required because every channel thread
 			 * brings his own exclusive instance and only uses it "in here" by itself.
 			 */
-			rootOidSelector.resetGlobal();
+			rootObjectIdSelector.resetGlobal();
 			for(int i = 0; i < this.channelRootOids.length; i++)
 			{
-				rootOidSelector.acceptGlobal(this.channelRootOids[i]);
+				rootObjectIdSelector.acceptGlobal(this.channelRootOids[i]);
 			}
 
 			// at least one channel MUST have a non-null root oid, otherwise the whole database would be wiped.
-			final long currentMaxRootOid = rootOidSelector.yieldGlobal();
+			final long currentMaxRootObjectId = rootObjectIdSelector.yieldGlobal();
 
-			if(currentMaxRootOid == Persistence.nullId())
+			if(currentMaxRootObjectId == Persistence.nullId())
 			{
 				/*
 				 * no error here. Strictly seen, an empty or cleared database is valid.
@@ -367,27 +367,27 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			 * this initializes the next marking.
 			 * From here on, pendingMarksCount can only be 0 again if marking is complete.
 			 */
-			this.acceptObjectId(currentMaxRootOid);
+			this.acceptObjectId(currentMaxRootObjectId);
 		}
 
 		@Override
-		public final void acceptObjectId(final long oid)
+		public final void acceptObjectId(final long objectId)
 		{
 			// do not enqueue null oids, not even get the lock
-			if(oid == Persistence.nullId())
+			if(objectId == Persistence.nullId())
 			{
 				return;
 			}
 
-			this.enqueue(this.oidMarkQueues[(int)(oid & this.channelHash)], oid);
+			this.enqueue(this.oidMarkQueues[(int)(objectId & this.channelHash)], objectId);
 		}
 
 		@Override
-		public final void enqueue(final StorageOidMarkQueue oidMarkQueue, final long oid)
+		public final void enqueue(final StorageobjectIdMarkQueue objectIdMarkQueue, final long objectId)
 		{
 			this.incrementPendingMarksCount();
 			// no need to keep the lock longer than necessary or nested with the queue lock.
-			oidMarkQueue.enqueue(oid);
+			objectIdMarkQueue.enqueue(objectId);
 		}
 
 		@Override
@@ -417,7 +417,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				this.pendingMarksCount += totalSize;
 			}
 
-			final StorageOidMarkQueue[] oidMarkQueues = this.oidMarkQueues;
+			final StorageobjectIdMarkQueue[] oidMarkQueues = this.oidMarkQueues;
 
 			// lock for every queue is only acquired once and all oids are enqueued efficiently
 			for(int i = 0; i < oidsPerChannel.length; i++)
@@ -482,17 +482,17 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			}
 
 			@Override
-			public final void acceptObjectId(final long oid)
+			public final void acceptObjectId(final long objectId)
 			{
 				// do not enqueue null oids
-				if(oid == Persistence.nullId())
+				if(objectId == Persistence.nullId())
 				{
 					return;
 				}
 
-				final int i = (int)(oid & this.channelHash);
+				final int i = (int)(objectId & this.channelHash);
 
-				this.oidsPerChannel[i][this.oidsPerChannelSizes[i]] = oid;
+				this.oidsPerChannel[i][this.oidsPerChannelSizes[i]] = objectId;
 				if((this.oidsPerChannelSizes[i] = this.oidsPerChannelSizes[i] + 1) == this.bufferLength)
 				{
 					this.flush();

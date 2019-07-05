@@ -22,9 +22,9 @@ public final class BinaryHandlerNativeArray_short extends AbstractBinaryHandlerN
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final short[] array, final long oid, final PersistenceStoreHandler handler)
+	public void store(final Binary bytes, final short[] array, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeArray_short(this.typeId(), oid, array);
+		bytes.storeArray_short(this.typeId(), objectId, array);
 	}
 
 	@Override

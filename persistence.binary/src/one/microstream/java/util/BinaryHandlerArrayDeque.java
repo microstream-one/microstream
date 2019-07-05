@@ -2,6 +2,9 @@ package one.microstream.java.util;
 
 import java.util.ArrayDeque;
 
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+
 
 /*
  * Since there is no way of ensuring capacity in the once again hilariously bad JDK code that is the ArrayDeque
@@ -9,7 +12,7 @@ import java.util.ArrayDeque;
  * the first place, the ArrayDeque is, after long attempts of implementing it efficiently, hereby handled generically.
  * On any complaints, write a custom type handler and use that.
  */
-public final class BinaryHandlerArrayDeque extends BinaryHandlerQueue<ArrayDeque<?>>
+public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerQueue<ArrayDeque<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -21,11 +24,6 @@ public final class BinaryHandlerArrayDeque extends BinaryHandlerQueue<ArrayDeque
 		return (Class)ArrayDeque.class; // no idea how to get ".class" to work otherwise
 	}
 	
-	public static final ArrayDeque<?> instantiate(final long elementCount)
-	{
-		return new ArrayDeque<>();
-	}
-
 
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -35,9 +33,20 @@ public final class BinaryHandlerArrayDeque extends BinaryHandlerQueue<ArrayDeque
 	public BinaryHandlerArrayDeque()
 	{
 		super(
-			typeWorkaround(),
-			BinaryHandlerArrayDeque::instantiate
+			typeWorkaround()
 		);
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
+	
+	@Override
+	public ArrayDeque<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	{
+		return new ArrayDeque<>();
 	}
 	
 }

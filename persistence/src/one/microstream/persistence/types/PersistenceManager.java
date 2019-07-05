@@ -225,18 +225,18 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		public final long store(final Object object)
 		{
 			final PersistenceStorer<M> persister;
-			final long oid = (persister = this.createStorer()).store(object);
+			final long objectId = (persister = this.createStorer()).store(object);
 			persister.commit();
-			return oid;
+			return objectId;
 		}
 		
 		@Override
 		public final long[] storeAll(final Object... instances)
 		{
 			final PersistenceStorer<M> persister;
-			final long[] oids = (persister = this.createStorer()).storeAll(instances);
+			final long[] objectIds = (persister = this.createStorer()).storeAll(instances);
 			persister.commit();
-			return oids;
+			return objectIds;
 		}
 		
 		@Override
@@ -274,9 +274,9 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		}
 
 		@Override
-		public final Object lookupObject(final long oid)
+		public final Object lookupObject(final long objectId)
 		{
-			return this.objectRegistry.lookupObject(oid);
+			return this.objectRegistry.lookupObject(objectId);
 		}
 
 		@Override
@@ -286,20 +286,20 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		}
 
 		@Override
-		public final <C extends Consumer<Object>> C collect(final C collector, final long... oids)
+		public final <C extends Consumer<Object>> C collect(final C collector, final long... objectIds)
 		{
-			return this.createLoader().collect(collector, oids);
+			return this.createLoader().collect(collector, objectIds);
 		}
 
 		@Override
-		public final Object getObject(final long oid)
+		public final Object getObject(final long objectId)
 		{
 			final Object cachedInstance;
-			if((cachedInstance = this.objectManager.lookupObject(oid)) != null)
+			if((cachedInstance = this.objectManager.lookupObject(objectId)) != null)
 			{
 				return cachedInstance;
 			}
-			return this.createLoader().getObject(oid);
+			return this.createLoader().getObject(objectId);
 		}
 
 		@Override

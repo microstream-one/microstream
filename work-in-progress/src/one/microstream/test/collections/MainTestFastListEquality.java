@@ -14,9 +14,9 @@ public class MainTestFastListEquality
 //		public int compare(final String o1, final String o2) {
 //			if(o1 == null)
 //			{
-//				return o2 == null ?0 :-1;
+//				return o2 == null ? 0 : -1;
 //			}
-//			return o1.equals(o2) ?0 :1;
+//			return o1.equals(o2) ? 0 : 1;
 //		}
 //	};
 

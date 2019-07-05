@@ -1,11 +1,10 @@
-package one.microstream.java.util;
+package one.microstream.jdk8.java.util;
 
-import java.util.Hashtable;
+import java.util.LinkedHashSet;
 
 import one.microstream.X;
-import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemory;
+import one.microstream.memory.XMemoryJDK8;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -15,7 +14,7 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandlerCustomCollection<Hashtable<?, ?>>
+public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCustomCollection<LinkedHashSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -31,9 +30,9 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<Hashtable<?, ?>> typeWorkaround()
+	private static Class<LinkedHashSet<?>> typeWorkaround()
 	{
-		return (Class)Hashtable.class; // no idea how to get ".class" to work otherwise
+		return (Class)LinkedHashSet.class; // no idea how to get ".class" to work otherwise
 	}
 
 	static final float getLoadFactor(final Binary bytes)
@@ -52,7 +51,7 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashtableFlattened()
+	public BinaryHandlerLinkedHashSet()
 	{
 		super(
 			typeWorkaround(),
@@ -71,7 +70,7 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	@Override
 	public final void store(
 		final Binary                  bytes   ,
-		final Hashtable<?, ?>         instance,
+		final LinkedHashSet<?>        instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
@@ -81,31 +80,29 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
-			() ->
-				JavaUtilMapEntrySetFlattener.New(instance),
-			instance.size() * 2   ,
+			instance              ,
+			instance.size()       ,
 			handler
 		);
 
 		// store load factor as (sole) header value
 		bytes.store_float(
 			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
-			XMemory.getLoadFactor(instance)
+			XMemoryJDK8.getLoadFactor(instance)
 		);
 	}
-	
 
 	@Override
-	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final LinkedHashSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return new Hashtable<>(
-			getElementCount(bytes) / 2,
+		return new LinkedHashSet<>(
+			getElementCount(bytes),
 			getLoadFactor(bytes)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];
@@ -114,15 +111,15 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	}
 
 	@Override
-	public void complete(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler loadHandler)
 	{
-		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateSetFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final Hashtable<?, ?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(final LinkedHashSet<?> instance, final PersistenceFunction iterator)
 	{
-		Persistence.iterateReferencesMap(iterator, instance);
+		Persistence.iterateReferencesIterable(iterator, instance);
 	}
 
 	@Override

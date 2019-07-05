@@ -84,7 +84,7 @@ public final class RingQueue<E>
 		}
 
 		final int oi = this.setIndex, ni; // oldIndex, newIndex
-		if((ni = oi == this.lastIndex ?0 :oi+1) != this.getIndex)
+		if((ni = oi == this.lastIndex ? 0 : oi + 1) != this.getIndex)
 		{
 			this.data[oi] = element;
 			this.setIndex = ni;
@@ -117,7 +117,7 @@ public final class RingQueue<E>
 		}
 
 		final int oi = this.setIndex, ni;
-		if((ni = oi == this.lastIndex ?0 :oi+1) != this.getIndex)
+		if((ni = oi == this.lastIndex ? 0 : oi + 1) != this.getIndex)
 		{
 			this.data[oi] = element;
 			this.setIndex = ni;
@@ -136,7 +136,7 @@ public final class RingQueue<E>
 		}
 		final E e = (E)this.data[i];
 		this.data[i] = null;
-		this.getIndex = i == this.lastIndex ?0 : i+1;
+		this.getIndex = i == this.lastIndex ? 0 : i + 1;
 		return e;
 	}
 
@@ -158,7 +158,7 @@ public final class RingQueue<E>
 		if((i = this.getIndex) == this.setIndex) throw new NoSuchElementException();
 		final E e = (E)this.data[i];
 		this.data[i] = null;
-		this.getIndex = i == this.lastIndex ?0 : i+1;
+		this.getIndex = i == this.lastIndex ? 0 : i + 1;
 		return e;
 	}
 
@@ -173,7 +173,7 @@ public final class RingQueue<E>
 	public int size()
 	{
 		final int len;
-		return (len = this.setIndex - this.getIndex) >= 0 ?len :this.capacity + len + 1;
+		return (len = this.setIndex - this.getIndex) >= 0 ? len :this.capacity + len + 1;
 	}
 
 	public boolean isEmpty()
@@ -293,7 +293,7 @@ public final class RingQueue<E>
 
 		final Object[] data = this.data;
 		final int last = this.lastIndex;
-		for(int i = this.getIndex; i != this.setIndex; i = i == last ?0 :i+1)
+		for(int i = this.getIndex; i != this.setIndex; i = i == last ? 0 :i+1)
 		{
 			vc.add(data[i]).append(',');
 		}

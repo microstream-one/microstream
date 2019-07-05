@@ -2,10 +2,12 @@ package one.microstream.java.util.concurrent;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import one.microstream.java.util.BinaryHandlerQueue;
+import one.microstream.java.util.AbstractBinaryHandlerQueue;
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
-public final class BinaryHandlerConcurrentLinkedDeque extends BinaryHandlerQueue<ConcurrentLinkedDeque<?>>
+public final class BinaryHandlerConcurrentLinkedDeque extends AbstractBinaryHandlerQueue<ConcurrentLinkedDeque<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -15,11 +17,6 @@ public final class BinaryHandlerConcurrentLinkedDeque extends BinaryHandlerQueue
 	private static Class<ConcurrentLinkedDeque<?>> typeWorkaround()
 	{
 		return (Class)ConcurrentLinkedDeque.class; // no idea how to get ".class" to work otherwise
-	}
-	
-	public static final ConcurrentLinkedDeque<?> instantiate(final long elementCount)
-	{
-		return new ConcurrentLinkedDeque<>();
 	}
 
 
@@ -31,9 +28,19 @@ public final class BinaryHandlerConcurrentLinkedDeque extends BinaryHandlerQueue
 	public BinaryHandlerConcurrentLinkedDeque()
 	{
 		super(
-			typeWorkaround(),
-			BinaryHandlerConcurrentLinkedDeque::instantiate
+			typeWorkaround()
 		);
+	}
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
+
+	@Override
+	public ConcurrentLinkedDeque<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	{
+		return new ConcurrentLinkedDeque<>();
 	}
 	
 }

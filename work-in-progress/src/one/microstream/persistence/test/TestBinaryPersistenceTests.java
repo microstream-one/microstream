@@ -31,21 +31,21 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 		{
 			long tStart, tStop;
 			tStart = System.nanoTime();
-			final long oid = persistenceManager.store(testObject());
+			final long objectId = persistenceManager.store(testObject());
 
 //			persistenceManager.staticStore(
 //				TestPerson.class,
 //				AbstractPerson.class
 //			);
 			tStop = System.nanoTime();
-			System.out.println(oid+" Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
+			System.out.println(objectId+" Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 		}
 	}
 
 //	static <T> T loadOneByType(final PersistenceManager<Binary> persistenceManager, final Class<T> type)
 //	{
 //		final BulkList<T> result = persistenceManager.collectByType(new BulkList<T>(), type);
-//		return result.isEmpty() ?null :result.get();
+//		return result.isEmpty() ? null : result.get();
 //	}
 
 	static void debugPrintGraph(

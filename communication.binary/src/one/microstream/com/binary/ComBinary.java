@@ -14,6 +14,7 @@ import one.microstream.com.ComFoundation;
 import one.microstream.com.ComHost;
 import one.microstream.com.ComHostChannelAcceptor;
 import one.microstream.com.XSockets;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 
@@ -41,8 +42,8 @@ public class ComBinary
 	)
 	{
 		return switchedByteOrder
-			? Long.reverseBytes(XMemory.get_long(XMemory.getDirectByteBufferAddress(directByteBuffer)))
-			:                   XMemory.get_long(XMemory.getDirectByteBufferAddress(directByteBuffer))
+			? Long.reverseBytes(XMemory.get_long(PlatformInternals.getDirectBufferAddress(directByteBuffer)))
+			:                   XMemory.get_long(PlatformInternals.getDirectBufferAddress(directByteBuffer))
 		;
 	}
 	
@@ -54,7 +55,7 @@ public class ComBinary
 	{
 		directByteBuffer.clear().limit(ComBinary.chunkHeaderLength());
 		XMemory.set_long(
-			XMemory.getDirectByteBufferAddress(directByteBuffer),
+			PlatformInternals.getDirectBufferAddress(directByteBuffer),
 			switchedByteOrder
 			? Long.reverseBytes(contentLength)
 			:                   contentLength
