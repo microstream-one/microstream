@@ -85,6 +85,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 			final XGettingSequence<M> members
 		)
 		{
+			// (08.07.2019 TM)FIXME: MS-156 why identity instead of unique name?
 			final EqHashEnum<M> validatedMembers = EqHashEnum.New(
 				PersistenceTypeDescriptionMember.identityHashEqualator()
 			);

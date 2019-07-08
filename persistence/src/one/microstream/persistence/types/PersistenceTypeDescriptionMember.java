@@ -13,9 +13,8 @@ public interface PersistenceTypeDescriptionMember
 	public String typeName();
 	
 	/**
-	 * A type-internal qualifier. Despite this abstract description, this virtually only makes sense for
-	 * reflection-based type handling where fields names are only unique in combination with their declaring class.
-	 * But who knows what a type-internal qualifier might be useful for, too.
+	 * A type-internal qualifier to distinct different members with equal "primary" name. E.g. reflection-based
+	 * type handling where fields names are only unique in combination with their declaring class.
 	 * 
 	 * @return
 	 */
@@ -25,7 +24,7 @@ public interface PersistenceTypeDescriptionMember
 	}
 
 	/**
-	 * The direct, simple name of the member. E.g. "lastName".
+	 * The simple or "pimary" name of the member. E.g. "lastName".
 	 * 
 	 * @return the member's simple name.
 	 */
@@ -45,10 +44,23 @@ public interface PersistenceTypeDescriptionMember
 	
 	public default boolean equalsDescription(final PersistenceTypeDescriptionMember other)
 	{
-		return equalDescriptions(this, other);
+		return equalDescription(this, other);
 	}
-		
-	public static boolean equalDescription(
+	
+	/**
+	 * Tests whether the passed  {@link PersistenceTypeDescriptionMember} have the same "intended" structure, meaning
+	 * same order of fields with same simple name (PersistenceTypeDescriptionMember{@link #name()}) and type name. <br>
+	 * For example:<br>
+	 * A {@link PersistenceTypeDescriptionMemberField} and a {@link PersistenceTypeDescriptionMemberPseudoField}
+	 * with different member qualifiers are still considered equal.<br>
+	 * This is necessary for legacy type mapping to being able to write a custom legacy type handler that is
+	 * compatible with a generic type handler derived from reflective information.
+	 * 
+	 * @param m1
+	 * @param m2
+	 * @return
+	 */
+	public static boolean equalStructure(
 		final PersistenceTypeDescriptionMember m1,
 		final PersistenceTypeDescriptionMember m2
 	)
@@ -60,12 +72,14 @@ public interface PersistenceTypeDescriptionMember
 	}
 	
 	// (05.07.2019 TM)FIXME: MS-156: consolidate weirdly redundant Description comparisons
-	public static boolean equalDescriptions(
+	public static boolean equalDescription(
 		final PersistenceTypeDescriptionMember m1,
 		final PersistenceTypeDescriptionMember m2
 	)
 	{
-		return m1 == m2 || m1 != null && m2 != null && m1.equalsDescription(m2);
+		return m1 == m2 || m1 != null && m2 != null
+			&& m1.equalsDescription(m2)
+		;
 	}
 	
 	
@@ -170,14 +184,22 @@ public interface PersistenceTypeDescriptionMember
 		return isIdentical(this, other);
 	}
 
-	public static boolean isIdentical(final PersistenceTypeDescriptionMember m1, final PersistenceTypeDescriptionMember m2)
+	public static boolean isIdentical(
+		final PersistenceTypeDescriptionMember m1,
+		final PersistenceTypeDescriptionMember m2
+	)
 	{
-		return m1 == m2 || m1 != null && m2 != null && m1.uniqueName().equals(m2.uniqueName());
+		return m1 == m2 || m1 != null && m2 != null
+			&& m1.uniqueName().equals(m2.uniqueName())
+		;
 	}
 	
 	public static int identityHash(final PersistenceTypeDescriptionMember member)
 	{
-		return member == null ? 0 : member.uniqueName().hashCode();
+		return member == null
+			? 0
+			: member.uniqueName().hashCode()
+		;
 	}
 	
 	public static IdentityHashEqualator identityHashEqualator()
@@ -198,24 +220,16 @@ public interface PersistenceTypeDescriptionMember
 		}
 
 		@Override
-		public final boolean equal(final PersistenceTypeDescriptionMember m1, final PersistenceTypeDescriptionMember m2)
+		public final boolean equal(
+			final PersistenceTypeDescriptionMember m1,
+			final PersistenceTypeDescriptionMember m2
+		)
 		{
 			return isIdentical(m1, m2);
 		}
 		
 	}
-	
-	public static boolean equalTypeAndName(
-		final PersistenceTypeDescriptionMember m1,
-		final PersistenceTypeDescriptionMember m2
-	)
-	{
-		return m1 == m2 || m1 != null && m2 != null
-			&& m1.typeName().equals(m2.typeName())
-			&& m1.name().equals(m2.name())
-		;
-	}
-	
+		
 	public static boolean determineHasReferences(final Iterable<? extends PersistenceTypeDescriptionMember> members)
 	{
 		for(final PersistenceTypeDescriptionMember member : members)
@@ -240,7 +254,7 @@ public interface PersistenceTypeDescriptionMember
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members2
 	)
 	{
-		return equalMembers(members1, members2, PersistenceTypeDescriptionMember::equalDescriptions);
+		return equalMembers(members1, members2, PersistenceTypeDescriptionMember::equalDescription);
 	}
 	
 	public static boolean equalStructure(
@@ -248,7 +262,7 @@ public interface PersistenceTypeDescriptionMember
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members2
 	)
 	{
-		return equalMembers(members1, members2, PersistenceTypeDescriptionMember::equalDescriptions);
+		return equalMembers(members1, members2, PersistenceTypeDescriptionMember::equalStructure);
 	}
 	
 	public static boolean equalMembers(
@@ -288,6 +302,7 @@ public interface PersistenceTypeDescriptionMember
 		////////////////////
 
 		private final String   typeName               ;
+		private final String   qualifier              ;
 		private final String   name                   ;
 		private final boolean  isReference            ;
 		private final boolean  isPrimitive            ;
@@ -295,7 +310,7 @@ public interface PersistenceTypeDescriptionMember
 		private final boolean  hasReferences          ;
 		private final long     persistentMinimumLength;
 		private final long     persistentMaximumLength;
-
+		private final String   qualifiedFieldName     ;
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -304,6 +319,7 @@ public interface PersistenceTypeDescriptionMember
 
 		protected Abstract(
 			final String   typeName               ,
+			final String   qualifier              ,
 			final String   name                   ,
 			final boolean  isReference            ,
 			final boolean  isPrimitive            ,
@@ -315,6 +331,7 @@ public interface PersistenceTypeDescriptionMember
 		{
 			super();
 			this.typeName                = typeName               ;
+			this.qualifier               = qualifier              ;
 			this.name                    = name                   ;
 			this.isReference             = isReference            ;
 			this.isPrimitive             = isPrimitive            ;
@@ -322,6 +339,7 @@ public interface PersistenceTypeDescriptionMember
 			this.hasReferences           = hasReferences          ;
 			this.persistentMinimumLength = persistentMinimumLength;
 			this.persistentMaximumLength = persistentMaximumLength;
+			this.qualifiedFieldName      = PersistenceTypeDictionary.fullQualifiedFieldName(qualifier, name);
 		}
 
 
@@ -335,6 +353,12 @@ public interface PersistenceTypeDescriptionMember
 		public final String typeName()
 		{
 			return this.typeName;
+		}
+		
+		@Override
+		public final String qualifier()
+		{
+			return this.qualifier;
 		}
 
 		@Override

@@ -25,7 +25,7 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 		final PersistenceTypeDescriptionMemberPseudoFieldComplex m2
 	)
 	{
-		return PersistenceTypeDescriptionMember.equalDescription(m1, m2)
+		return PersistenceTypeDescriptionMember.equalStructure(m1, m2)
 			&& PersistenceTypeDescriptionMember.equalDescriptions(m1.members(), m2.members())
 		;
 	}

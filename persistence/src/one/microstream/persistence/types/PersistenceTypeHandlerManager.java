@@ -247,6 +247,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 					);
 				}
 
+				// (08.07.2019 TM)FIXME: MS-156: equal desciption or just structure?
 				if(m1.equalsDescription(m2))
 				{
 					return true;
@@ -713,6 +714,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 						
 			for(final PersistenceTypeDefinition typeDefinition : typeLineage.entries().values())
 			{
+				// (08.07.2019 TM)FIXME: MS-156: really exact match or better equal structure?
 				// exact match including field order
 				final boolean isMatched = PersistenceTypeDescriptionMember.equalDescriptions(
 					handler.members(),
