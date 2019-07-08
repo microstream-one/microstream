@@ -471,11 +471,16 @@ public interface PersistenceTypeDictionary
 	}
 
 	public static String fullQualifiedFieldName(
-		final String declaringTypeName,
+		final String qualifier,
 		final String fieldName
 	)
 	{
-		return fullQualifiedFieldName(VarString.New(), declaringTypeName, fieldName).toString();
+		if(qualifier == null)
+		{
+			return fieldName;
+		}
+		
+		return fullQualifiedFieldName(VarString.New(), qualifier, fieldName).toString();
 	}
 	
 	public static char fullQualifiedFieldNameSeparator()
@@ -484,12 +489,17 @@ public interface PersistenceTypeDictionary
 	}
 
 	public static VarString fullQualifiedFieldName(
-		final VarString vc               ,
-		final String    declaringTypeName,
+		final VarString vc       ,
+		final String    qualifier,
 		final String    fieldName
 	)
 	{
-		return vc.add(declaringTypeName).add(fullQualifiedFieldNameSeparator()).add(fieldName);
+		if(qualifier != null)
+		{
+			vc.add(qualifier).add(fullQualifiedFieldNameSeparator());
+		}
+		
+		return vc.add(fieldName);
 	}
 	
 	public static KeyValue<String, String> splitFullQualifiedFieldName(

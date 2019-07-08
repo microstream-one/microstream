@@ -27,7 +27,7 @@ extends PersistenceTypeDescriptionMemberPseudoField
 	)
 	{
 		// currently no specific checking logic
-		return PersistenceTypeDescriptionMember.equalDescription(m1, m2);
+		return PersistenceTypeDescriptionMember.equalStructure(m1, m2);
 	}
 	
 	@Override

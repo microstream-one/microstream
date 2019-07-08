@@ -34,7 +34,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		final PersistenceTypeDescriptionMemberField m2
 	)
 	{
-		return PersistenceTypeDescriptionMember.equalDescription(m1, m2)
+		return PersistenceTypeDescriptionMember.equalStructure(m1, m2)
 			&& m1.declaringTypeName().equals(m2.declaringTypeName())
 		;
 	}
@@ -96,6 +96,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		{
 			super(
 				typeName           ,
+				declaringTypeName  ,
 				name               ,
 				isReference        ,
 				!isReference       ,

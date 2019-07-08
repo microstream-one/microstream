@@ -10,11 +10,15 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 	@Override
 	public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(String name);
 	
+	@Override
+	public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(String qualifier, String name);
+	
 	
 	
 	public static PersistenceTypeDefinitionMemberPseudoFieldSimple New(
-		final String   name                   ,
 		final String   typeName               ,
+		final String   qualifier              ,
+		final String   name                   ,
 		final Class<?> type                   ,
 		final boolean  isReference            ,
 		final long     persistentMinimumLength,
@@ -22,8 +26,9 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 	)
 	{
 		return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Default(
-			 notNull(name)                   ,
 			 notNull(typeName)               ,
+			 mayNull(qualifier)              ,
+			 notNull(name)                   ,
 			 mayNull(type)                   ,
 			         isReference             ,
 			positive(persistentMinimumLength),
@@ -48,15 +53,16 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		/////////////////
 
 		protected Default(
-			final String   name               ,
 			final String   typeName           ,
+			final String   qualifier          ,
+			final String   name               ,
 			final Class<?> type               ,
 			final boolean  isReference        ,
 			final long     persistentMinLength,
 			final long     persistentMaxLength
 		)
 		{
-			super(typeName, name, isReference, !isReference, isReference, persistentMinLength, persistentMaxLength);
+			super(typeName, qualifier, name, isReference, !isReference, isReference, persistentMinLength, persistentMaxLength);
 			this.type = type;
 		}
 
@@ -79,13 +85,14 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(final String name)
+		public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(final String qualifier, final String name)
 		{
 			return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Default(
-				name,
-				this.typeName(),
-				this.type,
-				this.isReference(),
+				this.typeName()               ,
+				qualifier                     ,
+				name				          ,
+				this.type                     ,
+				this.isReference()            ,
 				this.persistentMinimumLength(),
 				this.persistentMaximumLength()
 			);
