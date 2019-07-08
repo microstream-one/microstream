@@ -8,7 +8,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>01.00.00-MS-RC2</version>
+	<version>01.00.00-MS-RC3</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -35,6 +35,7 @@
 		<module>communication.binary</module>
 		<module>persistence</module>
 		<module>persistence.binary</module>
+		<module>persistence.binary.jdk8</module>
 		<module>storage</module>
 		<module>storage.embedded</module>
 		<module>storage.embedded.configuration</module>

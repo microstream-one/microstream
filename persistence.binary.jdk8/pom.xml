@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>01.00.00-MS-RC2</version>
+		<version>01.00.00-MS-RC3</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>persistence.binary</artifactId>
-			<version>01.00.00-MS-RC2</version>
+			<version>01.00.00-MS-RC3</version>
 		</dependency>
 	</dependencies>
 	
