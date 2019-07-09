@@ -15,7 +15,7 @@ public interface PersistenceTypeAnalyzer
 {
 	public XGettingEnum<Field> collectPersistableFields(
 		Class<?>                                               type             ,
-		XPrependingEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions
+		XPrependingEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions
 	);
 
 
@@ -78,7 +78,7 @@ public interface PersistenceTypeAnalyzer
 		@Override
 		public XGettingEnum<Field> collectPersistableFields(
 			final Class<?>                                               type             ,
-			final XPrependingEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions
+			final XPrependingEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions
 		)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();

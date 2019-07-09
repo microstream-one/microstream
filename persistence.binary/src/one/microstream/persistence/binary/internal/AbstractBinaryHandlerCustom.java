@@ -30,7 +30,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFi
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFieldSimple;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFieldVariableLength;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
 import one.microstream.reflect.XReflect;
 
 
@@ -89,7 +89,7 @@ extends BinaryTypeHandler.Abstract<T>
 	public static final PersistenceTypeDefinitionMemberPseudoFieldComplex
 	complex(
 		final String                                         name        ,
-		final PersistenceTypeDescriptionMemberPseudoField... pseudoFields
+		final PersistenceTypeDescriptionMemberFieldGeneric... pseudoFields
 	)
 	{
 		return PersistenceTypeDefinitionMemberPseudoFieldComplex.New(

@@ -148,7 +148,7 @@ public interface PersistenceTypeHandlerCreator<M>
 		
 		protected <T> PersistenceTypeHandler<M, T> createGenericHandler(final Class<T> type)
 		{
-			final HashEnum<PersistenceTypeDescriptionMemberField> fieldDescriptions = HashEnum.New();
+			final HashEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions = HashEnum.New();
 
 			final XGettingEnum<Field> persistableFields =
 				this.typeAnalyzer.collectPersistableFields(type, fieldDescriptions)

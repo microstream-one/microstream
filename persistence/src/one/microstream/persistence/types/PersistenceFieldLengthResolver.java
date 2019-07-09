@@ -125,13 +125,13 @@ public interface PersistenceFieldLengthResolver
 	public long resolveComplexMemberMinimumLength(
 		String                                                                  memberName   ,
 		String                                                                  typeName     ,
-		XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> nestedMembers
+		XGettingSequence<? extends PersistenceTypeDescriptionMemberFieldGeneric> nestedMembers
 	);
 
 	public long resolveComplexMemberMaximumLength(
 		String                                                                  memberName   ,
 		String                                                                  typeName     ,
-		XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> nestedMembers
+		XGettingSequence<? extends PersistenceTypeDescriptionMemberFieldGeneric> nestedMembers
 	);
 
 }

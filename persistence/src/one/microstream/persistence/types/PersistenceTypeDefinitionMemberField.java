@@ -7,7 +7,7 @@ import static one.microstream.math.XMath.positive;
 import java.lang.reflect.Field;
 
 public interface PersistenceTypeDefinitionMemberField
-extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
+extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberFieldReflective
 {
 	public String runtimeDeclaringClassName();
 	
@@ -72,7 +72,7 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 	}
 
 	public final class Default
-	extends PersistenceTypeDescriptionMemberField.Default
+	extends PersistenceTypeDescriptionMemberFieldReflective.Default
 	implements PersistenceTypeDefinitionMemberField
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -106,8 +106,8 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		{
 			super(
 				typeName           ,
-				name               ,
 				declaringTypeName  ,
+				name               ,
 				isReference        ,
 				persistentMinLength,
 				persistentMaxLength

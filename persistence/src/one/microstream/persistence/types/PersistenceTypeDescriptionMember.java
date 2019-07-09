@@ -1,6 +1,7 @@
 package one.microstream.persistence.types;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.equality.Equalator;
@@ -18,10 +19,7 @@ public interface PersistenceTypeDescriptionMember
 	 * 
 	 * @return
 	 */
-	public default String qualifier()
-	{
-		return null;
-	}
+	public String qualifier();
 
 	/**
 	 * The simple or "pimary" name of the member. E.g. "lastName".
@@ -36,11 +34,7 @@ public interface PersistenceTypeDescriptionMember
 	 * 
 	 * @return the member's uniquely identifying name.
 	 */
-	public default String uniqueName()
-	{
-		// should be the same as the simple name. With the exception of ambiguities via inheritance.
-		return this.name();
-	}
+	public String uniqueName();
 	
 	public default boolean equalsDescription(final PersistenceTypeDescriptionMember other)
 	{
@@ -51,7 +45,7 @@ public interface PersistenceTypeDescriptionMember
 	 * Tests whether the passed  {@link PersistenceTypeDescriptionMember} have the same "intended" structure, meaning
 	 * same order of fields with same simple name (PersistenceTypeDescriptionMember{@link #name()}) and type name. <br>
 	 * For example:<br>
-	 * A {@link PersistenceTypeDescriptionMemberField} and a {@link PersistenceTypeDescriptionMemberPseudoField}
+	 * A {@link PersistenceTypeDescriptionMemberFieldReflective} and a {@link PersistenceTypeDescriptionMemberFieldGeneric}
 	 * with different member qualifiers are still considered equal.<br>
 	 * This is necessary for legacy type mapping to being able to write a custom legacy type handler that is
 	 * compatible with a generic type handler derived from reflective information.
@@ -65,20 +59,20 @@ public interface PersistenceTypeDescriptionMember
 		final PersistenceTypeDescriptionMember m2
 	)
 	{
+		// must be null-safe equals because of primitive definitions
 		return m1 == m2 || m1 != null && m2 != null
-			&& m1.typeName().equals(m2.typeName())
-			&& m1.name().equals(m2.name())
+			&& Objects.equals(m1.typeName(), m2.typeName())
+			&& Objects.equals(m1.name()    , m2.name()    )
 		;
 	}
 	
-	// (05.07.2019 TM)FIXME: MS-156: consolidate weirdly redundant Description comparisons
 	public static boolean equalDescription(
 		final PersistenceTypeDescriptionMember m1,
 		final PersistenceTypeDescriptionMember m2
 	)
 	{
-		return m1 == m2 || m1 != null && m2 != null
-			&& m1.equalsDescription(m2)
+		return PersistenceTypeDescriptionMember.equalStructure(m1, m2)
+			&& m1.qualifier().equals(m2.qualifier())
 		;
 	}
 	
@@ -365,6 +359,12 @@ public interface PersistenceTypeDescriptionMember
 		public final String name()
 		{
 			return this.name;
+		}
+		
+		@Override
+		public final String uniqueName()
+		{
+			return this.qualifiedFieldName;
 		}
 
 		@Override

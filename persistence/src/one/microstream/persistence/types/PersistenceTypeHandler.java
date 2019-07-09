@@ -111,8 +111,8 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 			);
 		}
 
-		public static final XImmutableSequence<PersistenceTypeDescriptionMemberField> declaredFields(
-			final PersistenceTypeDescriptionMemberField... declaredFields
+		public static final XImmutableSequence<PersistenceTypeDescriptionMemberFieldReflective> declaredFields(
+			final PersistenceTypeDescriptionMemberFieldReflective... declaredFields
 		)
 		{
 			return X.ConstList(declaredFields);

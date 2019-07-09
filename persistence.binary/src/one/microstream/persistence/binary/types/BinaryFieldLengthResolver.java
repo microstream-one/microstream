@@ -3,7 +3,7 @@ package one.microstream.persistence.binary.types;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
 
 public interface BinaryFieldLengthResolver extends PersistenceFieldLengthResolver
 {
@@ -45,7 +45,7 @@ public interface BinaryFieldLengthResolver extends PersistenceFieldLengthResolve
 	public default long resolveComplexMemberMinimumLength(
 		final String                                                                  memberName   ,
 		final String                                                                  typeName     ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> nestedMembers
+		final XGettingSequence<? extends PersistenceTypeDescriptionMemberFieldGeneric> nestedMembers
 	)
 	{
 		return Binary.binaryListMinimumLength();
@@ -55,7 +55,7 @@ public interface BinaryFieldLengthResolver extends PersistenceFieldLengthResolve
 	public default long resolveComplexMemberMaximumLength(
 		final String                                                                  memberName   ,
 		final String                                                                  typeName     ,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> nestedMembers
+		final XGettingSequence<? extends PersistenceTypeDescriptionMemberFieldGeneric> nestedMembers
 	)
 	{
 		return Binary.binaryListMaximumLength();

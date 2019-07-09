@@ -4,8 +4,8 @@ import one.microstream.chars.VarString;
 import one.microstream.functional.Aggregator;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberAppender;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberField;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldReflective;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
 
 public final class TypeDictionaryAppenderBuilder
 implements Aggregator<PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMemberAppender>
@@ -59,14 +59,14 @@ implements Aggregator<PersistenceTypeDescriptionMember, PersistenceTypeDescripti
 		}
 	}
 
-	private void measureFieldStrings(final PersistenceTypeDescriptionMemberField member)
+	private void measureFieldStrings(final PersistenceTypeDescriptionMemberFieldReflective member)
 	{
 		this.measureTypeName         (member.typeName());
 		this.measureDeclaringTypeName(member.declaringTypeName());
 		this.measureFieldName        (member.name());
 	}
 
-	private void measurePseudoFieldStrings(final PersistenceTypeDescriptionMemberPseudoField member)
+	private void measurePseudoFieldStrings(final PersistenceTypeDescriptionMemberFieldGeneric member)
 	{
 		this.measureTypeName (member.typeName());
 		this.measureFieldName(member.name());
@@ -76,13 +76,13 @@ implements Aggregator<PersistenceTypeDescriptionMember, PersistenceTypeDescripti
 	public final void accept(final PersistenceTypeDescriptionMember member)
 	{
 		// (21.03.2013)XXX: type dictionary member field measurement uses awkward instanceoffing
-		if(member instanceof PersistenceTypeDescriptionMemberField)
+		if(member instanceof PersistenceTypeDescriptionMemberFieldReflective)
 		{
-			this.measureFieldStrings((PersistenceTypeDescriptionMemberField)member);
+			this.measureFieldStrings((PersistenceTypeDescriptionMemberFieldReflective)member);
 		}
-		else if(member instanceof PersistenceTypeDescriptionMemberPseudoField)
+		else if(member instanceof PersistenceTypeDescriptionMemberFieldGeneric)
 		{
-			this.measurePseudoFieldStrings((PersistenceTypeDescriptionMemberPseudoField)member);
+			this.measurePseudoFieldStrings((PersistenceTypeDescriptionMemberFieldGeneric)member);
 		}
 		// otherwise, leave all lengths at 0 (e.g. primitive definition)
 	}

@@ -3,39 +3,32 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
-public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDescriptionMember
+public interface PersistenceTypeDescriptionMemberFieldReflective extends PersistenceTypeDescriptionMember
 {
-	public String declaringTypeName();
-
-	@Override
-	public default String qualifier()
-	{
-		return this.declaringTypeName();
-	}
-
 	@Override
 	public String uniqueName();
 	
 
 	// (14.08.2015 TM)TODO: include Generics, Field#getGenericType
-//	public String typeParamterString();
+//	public String typeParameterString();
 
 
 	@Override
 	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
 	{
-		return member instanceof PersistenceTypeDescriptionMemberField
-			&& equalDescription(this, (PersistenceTypeDescriptionMemberField)member)
+		return member instanceof PersistenceTypeDescriptionMemberFieldReflective
+			&& equalDescription(this, (PersistenceTypeDescriptionMemberFieldReflective)member)
 		;
 	}
 	
+	// (09.07.2019 TM)FIXME: MS-156: check all description comparisons for type checks
 	public static boolean equalDescription(
-		final PersistenceTypeDescriptionMemberField m1,
-		final PersistenceTypeDescriptionMemberField m2
+		final PersistenceTypeDescriptionMemberFieldReflective m1,
+		final PersistenceTypeDescriptionMemberFieldReflective m2
 	)
 	{
 		return PersistenceTypeDescriptionMember.equalStructure(m1, m2)
-			&& m1.declaringTypeName().equals(m2.declaringTypeName())
+			&& m1.qualifier().equals(m2.qualifier())
 		;
 	}
 	
@@ -49,19 +42,19 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 	
 	
 	
-	public static PersistenceTypeDescriptionMemberField New(
+	public static PersistenceTypeDescriptionMemberFieldReflective New(
 		final String  typeName               ,
-		final String  name                   ,
 		final String  declaringTypeName      ,
+		final String  name                   ,
 		final boolean isReference            ,
 		final long    persistentMinimumLength,
 		final long    persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDescriptionMemberField.Default(
+		return new PersistenceTypeDescriptionMemberFieldReflective.Default(
 			 notNull(typeName)               ,
-			 notNull(name)                   ,
 			 notNull(declaringTypeName)      ,
+			 notNull(name)                   ,
 			         isReference             ,
 			positive(persistentMinimumLength),
 			positive(persistentMaximumLength)
@@ -70,28 +63,19 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 	
 	public class Default
 	extends PersistenceTypeDescriptionMember.Abstract
-	implements PersistenceTypeDescriptionMemberField
+	implements PersistenceTypeDescriptionMemberFieldReflective
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		private final           String declaringTypeName ;
-		private final transient String qualifiedFieldName;
-
-
-
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
 		protected Default(
-			final String   typeName           ,
-			final String   name               ,
-			final String   declaringTypeName  ,
-			final boolean  isReference        ,
-			final long     persistentMinLength,
-			final long     persistentMaxLength
+			final String  typeName           ,
+			final String  declaringTypeName  ,
+			final String  name               ,
+			final boolean isReference        ,
+			final long    persistentMinLength,
+			final long    persistentMaxLength
 		)
 		{
 			super(
@@ -105,9 +89,6 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 				persistentMinLength,
 				persistentMaxLength
 			);
-						
-			this.declaringTypeName  = declaringTypeName;
-			this.qualifiedFieldName = PersistenceTypeDictionary.fullQualifiedFieldName(declaringTypeName, name);
 		}
 
 
@@ -116,18 +97,6 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		// methods //
 		////////////
 		
-		@Override
-		public final String declaringTypeName()
-		{
-			return this.declaringTypeName;
-		}
-
-		@Override
-		public final String uniqueName()
-		{
-			return this.qualifiedFieldName;
-		}
-
 		@Override
 		public void assembleTypeDescription(final PersistenceTypeDescriptionMemberAppender assembler)
 		{

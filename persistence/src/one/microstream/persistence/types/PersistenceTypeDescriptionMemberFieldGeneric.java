@@ -2,11 +2,11 @@ package one.microstream.persistence.types;
 
 
 
-public interface PersistenceTypeDescriptionMemberPseudoField extends PersistenceTypeDescriptionMember
+public interface PersistenceTypeDescriptionMemberFieldGeneric extends PersistenceTypeDescriptionMember
 {
 	public abstract class Abstract
 	extends PersistenceTypeDescriptionMember.Abstract
-	implements PersistenceTypeDescriptionMemberPseudoField
+	implements PersistenceTypeDescriptionMemberFieldGeneric
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
