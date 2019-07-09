@@ -1,28 +1,29 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableSequence;
 
-public interface PersistenceTypeDescriptionMemberPseudoFieldComplex
+public interface PersistenceTypeDescriptionMemberFieldGenericComplex
 extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 {
-	public XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members();
+	public XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members();
 
 	
 	@Override
 	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
 	{
-		return member instanceof PersistenceTypeDescriptionMemberPseudoFieldComplex
-			&& equalDescription(this, (PersistenceTypeDescriptionMemberPseudoFieldComplex)member)
+		return member instanceof PersistenceTypeDescriptionMemberFieldGenericComplex
+			&& equalDescription(this, (PersistenceTypeDescriptionMemberFieldGenericComplex)member)
 		;
 	}
 	
 	public static boolean equalDescription(
-		final PersistenceTypeDescriptionMemberPseudoFieldComplex m1,
-		final PersistenceTypeDescriptionMemberPseudoFieldComplex m2
+		final PersistenceTypeDescriptionMemberFieldGenericComplex m1,
+		final PersistenceTypeDescriptionMemberFieldGenericComplex m2
 	)
 	{
 		return PersistenceTypeDescriptionMember.equalStructure(m1, m2)
@@ -37,16 +38,27 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 	{
 		return creator.createDefinitionMember(this);
 	}
-
 	
-	public static PersistenceTypeDescriptionMemberPseudoFieldComplex New(
+	public static PersistenceTypeDescriptionMemberFieldGenericComplex New(
 		final String                                                        name                   ,
-		final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members                ,
+		final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members                ,
 		final long                                                          persistentMinimumLength,
 		final long                                                          persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDescriptionMemberPseudoFieldComplex.Default(
+		return New(null, name, members, persistentMinimumLength, persistentMaximumLength);
+	}
+	
+	public static PersistenceTypeDescriptionMemberFieldGenericComplex New(
+		final String                                                        qualifier              ,
+		final String                                                        name                   ,
+		final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members                ,
+		final long                                                          persistentMinimumLength,
+		final long                                                          persistentMaximumLength
+	)
+	{
+		return new PersistenceTypeDescriptionMemberFieldGenericComplex.Default(
+			 mayNull(qualifier)              ,
 			 notNull(name)                   ,
 			 notNull(members)                ,
 			positive(persistentMinimumLength),
@@ -56,13 +68,13 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 
 	public class Default
 	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default
-	implements PersistenceTypeDescriptionMemberPseudoFieldComplex
+	implements PersistenceTypeDescriptionMemberFieldGenericComplex
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		final XImmutableSequence<PersistenceTypeDescriptionMemberPseudoField> members;
+		final XImmutableSequence<PersistenceTypeDescriptionMemberFieldGeneric> members;
 
 
 
@@ -71,14 +83,16 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 		/////////////////
 
 		Default(
+			final String                                                        qualifier              ,
 			final String                                                        name                   ,
-			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members                ,
+			final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members                ,
 			final long                                                          persistentMinimumLength,
 			final long                                                          persistentMaximumLength
 		)
 		{
 			super(
 				PersistenceTypeDictionary.Symbols.TYPE_COMPLEX,
+				qualifier,
 				name,
 				PersistenceTypeDescriptionMember.determineHasReferences(members),
 				persistentMinimumLength,
@@ -94,7 +108,7 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 		////////////
 
 		@Override
-		public final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members()
+		public final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members()
 		{
 			return this.members;
 		}

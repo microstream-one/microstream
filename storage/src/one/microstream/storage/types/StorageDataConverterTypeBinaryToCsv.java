@@ -31,8 +31,8 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.XTypes;
@@ -366,9 +366,9 @@ public interface StorageDataConverterTypeBinaryToCsv
 			// check for reference field must already happened before
 
 			// naste instanceof, but well
-			if(field instanceof PersistenceTypeDescriptionMemberPseudoFieldComplex)
+			if(field instanceof PersistenceTypeDescriptionMemberFieldGenericComplex)
 			{
-				return this.deriveComplexValueWriter((PersistenceTypeDescriptionMemberPseudoFieldComplex)field);
+				return this.deriveComplexValueWriter((PersistenceTypeDescriptionMemberFieldGenericComplex)field);
 			}
 			final ValueWriter valueWriter = this.valueWriterMap.get(field.typeName());
 			if(valueWriter == null)
@@ -379,9 +379,9 @@ public interface StorageDataConverterTypeBinaryToCsv
 			return valueWriter;
 		}
 
-		private ValueWriter deriveComplexValueWriter(final PersistenceTypeDescriptionMemberPseudoFieldComplex field)
+		private ValueWriter deriveComplexValueWriter(final PersistenceTypeDescriptionMemberFieldGenericComplex field)
 		{
-			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members = field.members();
+			final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members = field.members();
 
 			if(XTypes.to_int(members.size()) == 1)
 			{

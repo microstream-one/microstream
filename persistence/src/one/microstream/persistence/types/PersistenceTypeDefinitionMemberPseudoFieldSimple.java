@@ -5,7 +5,7 @@ import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
 public interface PersistenceTypeDefinitionMemberPseudoFieldSimple
-extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMemberPseudoFieldSimple
+extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMemberFieldGenericSimple
 {
 	@Override
 	public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(String name);
@@ -37,7 +37,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 	}
 	
 	public class Default
-	extends PersistenceTypeDescriptionMemberPseudoField.Abstract
+	extends PersistenceTypeDescriptionMemberFieldGeneric.Abstract
 	implements PersistenceTypeDefinitionMemberPseudoFieldSimple
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -96,6 +96,12 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 				this.persistentMinimumLength(),
 				this.persistentMaximumLength()
 			);
+		}
+		
+		@Override
+		public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(final String name)
+		{
+			return this.copyForName(null, name);
 		}
 
 	}

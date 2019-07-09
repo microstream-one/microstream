@@ -1,10 +1,11 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
 public interface PersistenceTypeDescriptionMemberPseudoFieldVariableLength
-extends PersistenceTypeDescriptionMemberPseudoField
+extends PersistenceTypeDescriptionMemberFieldGeneric
 {
 	@Override
 	public default boolean isVariableLength()
@@ -38,7 +39,7 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		return creator.createDefinitionMember(this);
 	}
 
-
+	
 
 	public static PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default New(
 		final String typeName               ,
@@ -47,8 +48,20 @@ extends PersistenceTypeDescriptionMemberPseudoField
 		final long   persistentMaximumLength
 	)
 	{
+		return New(typeName, null, name, persistentMinimumLength, persistentMaximumLength);
+	}
+
+	public static PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default New(
+		final String typeName               ,
+		final String qualifier              ,
+		final String name                   ,
+		final long   persistentMinimumLength,
+		final long   persistentMaximumLength
+	)
+	{
 		return new PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default(
 			 notNull(typeName),
+			 mayNull(qualifier),
 			 notNull(name),
 			         false,
 			positive(persistentMinimumLength),
@@ -57,7 +70,7 @@ extends PersistenceTypeDescriptionMemberPseudoField
 	}
 
 	public class Default
-	extends PersistenceTypeDescriptionMemberPseudoField.Abstract
+	extends PersistenceTypeDescriptionMemberFieldGeneric.Abstract
 	implements PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -66,13 +79,23 @@ extends PersistenceTypeDescriptionMemberPseudoField
 
 		Default(
 			final String  typeName               ,
+			final String  qualifier              ,
 			final String  name                   ,
 			final boolean hasReferences          ,
 			final long    persistentMinimumLength,
 			final long    persistentMaximumLength
 		)
 		{
-			super(typeName, name, false, false, hasReferences, persistentMinimumLength, persistentMaximumLength);
+			super(
+				typeName               ,
+				qualifier              ,
+				name                   ,
+				false                  ,
+				false                  ,
+				hasReferences          ,
+				persistentMinimumLength,
+				persistentMaximumLength
+			);
 		}
 
 

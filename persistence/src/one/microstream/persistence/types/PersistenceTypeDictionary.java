@@ -485,7 +485,7 @@ public interface PersistenceTypeDictionary
 	
 	public static char fullQualifiedFieldNameSeparator()
 	{
-		return Symbols.MEMBER_FIELD_DECL_TYPE_SEPERATOR;
+		return Symbols.MEMBER_FIELD_QUALIFIER_SEPERATOR;
 	}
 
 	public static VarString fullQualifiedFieldName(
@@ -525,7 +525,7 @@ public interface PersistenceTypeDictionary
 		// redundant code here to avoid unnecessary padding in normal case
 		return vc
 			.padRight(declaringTypeName, maxDeclaringTypeNameLength, ' ')
-			.add(Symbols.MEMBER_FIELD_DECL_TYPE_SEPERATOR)
+			.add(Symbols.MEMBER_FIELD_QUALIFIER_SEPERATOR)
 			.padRight(fieldName        , maxFieldNameLength        , ' ')
 		;
 	}
@@ -551,7 +551,7 @@ public interface PersistenceTypeDictionary
 	{
 		protected static final transient char   TYPE_START                       = '{';
 		protected static final transient char   TYPE_END                         = '}';
-		protected static final transient char   MEMBER_FIELD_DECL_TYPE_SEPERATOR = XReflect.fieldIdentifierDelimiter();
+		protected static final transient char   MEMBER_FIELD_QUALIFIER_SEPERATOR = XReflect.fieldIdentifierDelimiter();
 		protected static final transient char   MEMBER_TERMINATOR                = ','; // cannot be ";" as array names are terminated by it
 		protected static final transient char   MEMBER_COMPLEX_DEF_START         = '(';
 		protected static final transient char   MEMBER_COMPLEX_DEF_END           = ')';

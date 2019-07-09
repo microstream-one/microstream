@@ -8,7 +8,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
 import one.microstream.reflect.XReflect;
 
@@ -817,7 +817,7 @@ public interface BinaryReferenceTraverser
 		}
 
 		public static final BinaryReferenceTraverser deriveComplexVariableLengthTraversers(
-			final PersistenceTypeDescriptionMemberPseudoFieldComplex member         ,
+			final PersistenceTypeDescriptionMemberFieldGenericComplex member         ,
 			final boolean                                            switchByteOrder
 		)
 		{
@@ -960,11 +960,11 @@ public interface BinaryReferenceTraverser
 
 				this.finishSkipRange();
 				this.finishReferenceRange();
-				if(member instanceof PersistenceTypeDescriptionMemberPseudoFieldComplex)
+				if(member instanceof PersistenceTypeDescriptionMemberFieldGenericComplex)
 				{
 					this.traversers.add(
 						Static.deriveComplexVariableLengthTraversers(
-							(PersistenceTypeDescriptionMemberPseudoFieldComplex)member,
+							(PersistenceTypeDescriptionMemberFieldGenericComplex)member,
 							this.switchByteOrder
 						)
 					);

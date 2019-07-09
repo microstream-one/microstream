@@ -1,5 +1,6 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
@@ -30,8 +31,20 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		final long   persistentMaximumLength
 	)
 	{
+		return New(typeName, null, name, persistentMinimumLength, persistentMaximumLength);
+	}
+	
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default New(
+		final String typeName               ,
+		final String qualifier              ,
+		final String name                   ,
+		final long   persistentMinimumLength,
+		final long   persistentMaximumLength
+	)
+	{
 		return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default(
 			 notNull(typeName)               ,
+			 mayNull(qualifier)              ,
 			 notNull(name)                   ,
 			         false                   ,
 			positive(persistentMinimumLength),
@@ -45,9 +58,25 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		final long   persistentMaximumLength
 	)
 	{
+		return Bytes(
+			null                   ,
+			name                   ,
+			persistentMinimumLength,
+			persistentMaximumLength
+		);
+	}
+	
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default Bytes(
+		final String qualifier              ,
+		final String name                   ,
+		final long   persistentMinimumLength,
+		final long   persistentMaximumLength
+	)
+	{
 		return New(
 			PersistenceTypeDictionary.Symbols.TYPE_BYTES,
-			name                   ,
+			qualifier,
+			name,
 			persistentMinimumLength,
 			persistentMaximumLength
 		);
@@ -59,8 +88,19 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		final long   persistentMaximumLength
 	)
 	{
+		return Chars(null, name, persistentMinimumLength, persistentMaximumLength);
+	}
+	
+	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default Chars(
+		final String qualifier              ,
+		final String name                   ,
+		final long   persistentMinimumLength,
+		final long   persistentMaximumLength
+	)
+	{
 		return New(
 			PersistenceTypeDictionary.Symbols.TYPE_CHARS,
+			qualifier              ,
 			name                   ,
 			persistentMinimumLength,
 			persistentMaximumLength
@@ -79,13 +119,14 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 
 		Default(
 			final String  typeName               ,
+			final String  qualifier              ,
 			final String  name                   ,
 			final boolean hasReferences          ,
 			final long    persistentMinimumLength,
 			final long    persistentMaximumLength
 		)
 		{
-			super(typeName, name, hasReferences, persistentMinimumLength, persistentMaximumLength);
+			super(typeName, qualifier, name, hasReferences, persistentMinimumLength, persistentMaximumLength);
 		}
 
 
@@ -101,15 +142,25 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldVariableLength copyForName(final String name)
+		public PersistenceTypeDefinitionMemberPseudoFieldVariableLength copyForName(
+			final String qualifier,
+			final String name
+		)
 		{
 			return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default(
 				this.typeName(),
+				qualifier,
 				name,
 				this.isReference(),
 				this.persistentMinimumLength(),
 				this.persistentMaximumLength()
 			);
+		}
+		
+		@Override
+		public PersistenceTypeDefinitionMemberPseudoFieldVariableLength copyForName(final String name)
+		{
+			return this.copyForName(null, name);
 		}
 
 	}

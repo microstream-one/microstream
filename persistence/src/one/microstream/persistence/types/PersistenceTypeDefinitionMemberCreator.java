@@ -14,11 +14,11 @@ public interface PersistenceTypeDefinitionMemberCreator
 	);
 	
 	public PersistenceTypeDefinitionMemberField createDefinitionMember(
-		PersistenceTypeDescriptionMemberField description
+		PersistenceTypeDescriptionMemberFieldReflective description
 	);
 	
 	public PersistenceTypeDefinitionMemberPseudoFieldSimple createDefinitionMember(
-		PersistenceTypeDescriptionMemberPseudoFieldSimple description
+		PersistenceTypeDescriptionMemberFieldGenericSimple description
 	);
 	
 	public PersistenceTypeDefinitionMemberPseudoFieldVariableLength createDefinitionMember(
@@ -26,7 +26,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 	);
 	
 	public PersistenceTypeDefinitionMemberPseudoFieldComplex createDefinitionMember(
-		PersistenceTypeDescriptionMemberPseudoFieldComplex description
+		PersistenceTypeDescriptionMemberFieldGenericComplex description
 	);
 	
 	
@@ -148,7 +148,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 		
 		@Override
 		public PersistenceTypeDefinitionMemberField createDefinitionMember(
-			final PersistenceTypeDescriptionMemberField description
+			final PersistenceTypeDescriptionMemberFieldReflective description
 		)
 		{
 			final Class<?> currentType = this.tryResolveCurrentType(description.typeName());
@@ -185,14 +185,15 @@ public interface PersistenceTypeDefinitionMemberCreator
 
 		@Override
 		public PersistenceTypeDefinitionMemberPseudoFieldSimple createDefinitionMember(
-			final PersistenceTypeDescriptionMemberPseudoFieldSimple description
+			final PersistenceTypeDescriptionMemberFieldGenericSimple description
 		)
 		{
 			final Class<?> currentType = this.tryResolveCurrentType(description.typeName());
 			
 			return PersistenceTypeDefinitionMemberPseudoFieldSimple.New(
-				description.name()                   ,
 				description.typeName()               ,
+				description.qualifier()              ,
+				description.name()                   ,
 				currentType                          ,
 				description.isReference()            ,
 				description.persistentMinimumLength(),
@@ -210,7 +211,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 		
 		@Override
 		public PersistenceTypeDefinitionMemberPseudoFieldComplex createDefinitionMember(
-			final PersistenceTypeDescriptionMemberPseudoFieldComplex description
+			final PersistenceTypeDescriptionMemberFieldGenericComplex description
 		)
 		{
 			return PersistenceTypeDefinitionMemberPseudoFieldComplex.New(description);

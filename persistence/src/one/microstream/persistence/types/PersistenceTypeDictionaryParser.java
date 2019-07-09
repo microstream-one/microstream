@@ -196,7 +196,7 @@ public interface PersistenceTypeDictionaryParser
 			int p = i;
 			while(input[p] > ' '
 			   && input[p] != MEMBER_TERMINATOR
-			   && input[p] != MEMBER_FIELD_DECL_TYPE_SEPERATOR
+			   && input[p] != MEMBER_FIELD_QUALIFIER_SEPERATOR
 			   && input[p] != TYPE_END
 			)
 			{
@@ -274,7 +274,7 @@ public interface PersistenceTypeDictionaryParser
 			int p = i;
 			while(input[p] > ' '
 			   && input[p] != MEMBER_TERMINATOR
-			   && input[p] != MEMBER_FIELD_DECL_TYPE_SEPERATOR
+			   && input[p] != MEMBER_FIELD_QUALIFIER_SEPERATOR
 			   && input[p] != TYPE_END
 			)
 			{
@@ -282,9 +282,9 @@ public interface PersistenceTypeDictionaryParser
 			}
 
 			// check for declaring type name, parse actual field name externally
-			if(input[skipWhiteSpaces(input, p)] == MEMBER_FIELD_DECL_TYPE_SEPERATOR)
+			if(input[skipWhiteSpaces(input, p)] == MEMBER_FIELD_QUALIFIER_SEPERATOR)
 			{
-				member.setDeclaringTypeName(new String(input, i, p - i));
+				member.setQualifier(new String(input, i, p - i));
 				p = skipWhiteSpaces(input, skipWhiteSpaces(input, p) + 1); // skip white spaces, separator, whitespaces
 				return parseMemberName(input, p, member);
 			}
@@ -528,7 +528,7 @@ public interface PersistenceTypeDictionaryParser
 		////////////////////
 
 		boolean                                                     isVariableLength, isComplex;
-		private String                                              declrTypeName, typeName, fieldName;
+		private String                                              qualifier, typeName, fieldName;
 		final BulkList<PersistenceTypeDescriptionMemberPseudoField> nestedMembers = new BulkList<>();
 		final PersistenceFieldLengthResolver                        lengthResolver;
 		final Substituter<String>                                   stringSubstitutor;
@@ -554,9 +554,9 @@ public interface PersistenceTypeDictionaryParser
 		// methods //
 		////////////
 		
-		final void setDeclaringTypeName(final String declrTypeName)
+		final void setQualifier(final String qualifier)
 		{
-			this.declrTypeName = this.stringSubstitutor.substitute(declrTypeName);
+			this.qualifier = this.stringSubstitutor.substitute(qualifier);
 		}
 		
 		final void setTypeName(final String typeName)
@@ -569,9 +569,9 @@ public interface PersistenceTypeDictionaryParser
 			this.fieldName = this.stringSubstitutor.substitute(fieldName);
 		}
 		
-		final String declaringTypeName()
+		final String qualifier()
 		{
-			return this.declrTypeName;
+			return this.qualifier;
 		}
 		
 		final String typeName()
@@ -586,7 +586,7 @@ public interface PersistenceTypeDictionaryParser
 		
 		AbstractMemberBuilder reset()
 		{
-			this.declrTypeName    = null ;
+			this.qualifier        = null ;
 			this.isVariableLength = false;
 			this.isComplex        = false;
 			this.typeName         = null ;
@@ -601,12 +601,14 @@ public interface PersistenceTypeDictionaryParser
 			{
 				return this.isComplex
 					? PersistenceTypeDescriptionMemberPseudoFieldComplex.New(
+						this.qualifier,
 						this.fieldName,
 						this.nestedMembers,
 						this.lengthResolver.resolveComplexMemberMinimumLength(this.fieldName, this.typeName, this.nestedMembers),
 						this.lengthResolver.resolveComplexMemberMaximumLength(this.fieldName, this.typeName, this.nestedMembers)
 					)
 					: PersistenceTypeDescriptionMemberPseudoFieldVariableLength.New(
+						this.qualifier,
 						this.typeName,
 						this.fieldName,
 						this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.fieldName, this.typeName),
@@ -616,6 +618,7 @@ public interface PersistenceTypeDictionaryParser
 			}
 
 			return PersistenceTypeDescriptionMemberPseudoFieldSimple.New(
+				this.qualifier,
 				this.fieldName,
 				this.typeName,
 				!XReflect.isPrimitiveTypeName(this.typeName),
@@ -685,7 +688,7 @@ public interface PersistenceTypeDictionaryParser
 				return this.buildMemberPrimitiveDefinition();
 			}
 
-			if(this.declaringTypeName() != null)
+			if(this.qualifier() != null)
 			{
 				return this.buildMemberField();
 			}
@@ -707,8 +710,8 @@ public interface PersistenceTypeDictionaryParser
 			// any failure to resolve the field means the type dictionary information is outdated, so field is null.
 			return PersistenceTypeDescriptionMemberField.New(
 				this.typeName(),
+				this.qualifier(),
 				this.fieldName(),
-				this.declaringTypeName(),
 				!XReflect.isPrimitiveTypeName(this.typeName()),
 				this.resolveMemberMinimumLength(),
 				this.resolveMemberMaximumLength()
@@ -740,7 +743,7 @@ public interface PersistenceTypeDictionaryParser
 			}
 			
 			return this.lengthResolver.resolveMinimumLengthFromDictionary(
-				this.declaringTypeName(),
+				this.qualifier(),
 				this.fieldName()        ,
 				this.typeName()
 			);
@@ -755,7 +758,7 @@ public interface PersistenceTypeDictionaryParser
 			}
 			
 			return this.lengthResolver.resolveMaximumLengthFromDictionary(
-				this.declaringTypeName(),
+				this.qualifier(),
 				this.fieldName()        ,
 				this.typeName()
 			);

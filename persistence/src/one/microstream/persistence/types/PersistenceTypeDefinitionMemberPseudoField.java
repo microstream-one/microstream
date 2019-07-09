@@ -3,7 +3,7 @@ package one.microstream.persistence.types;
 
 
 public interface PersistenceTypeDefinitionMemberPseudoField
-extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberPseudoField
+extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberFieldGeneric
 {
 	public default PersistenceTypeDefinitionMemberPseudoField copyForName(final String name)
 	{

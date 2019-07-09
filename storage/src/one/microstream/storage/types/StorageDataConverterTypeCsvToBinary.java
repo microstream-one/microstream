@@ -25,8 +25,8 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoField;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldComplex;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.util.csv.CsvConfiguration;
 import one.microstream.util.csv.CsvRecordParserCharArray;
@@ -1184,19 +1184,19 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				return this.objectIdValueHandler;
 			}
 
-			if(!(member instanceof PersistenceTypeDescriptionMemberPseudoFieldComplex))
+			if(!(member instanceof PersistenceTypeDescriptionMemberFieldGenericComplex))
 			{
 				// (15.11.2014)EXCP: proper exception
 				throw new RuntimeException("Unhandled non-complex persistence field type: " + typeName);
 			}
 
-			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members =
-				((PersistenceTypeDescriptionMemberPseudoFieldComplex)member).members()
+			final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members =
+				((PersistenceTypeDescriptionMemberFieldGenericComplex)member).members()
 			;
 
 			if(members.size() == 1)
 			{
-				final PersistenceTypeDescriptionMemberPseudoField singletonField = members.first();
+				final PersistenceTypeDescriptionMemberFieldGeneric singletonField = members.first();
 
 				// check for reference
 				if(singletonField.isReference())
@@ -1221,13 +1221,13 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		}
 
 		final ValueHandler deriveComplexValueHandlerMulti(
-			final XGettingSequence<PersistenceTypeDescriptionMemberPseudoField> members
+			final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members
 		)
 		{
 			final ValueHandler[] valueHandlers = new ValueHandler[X.checkArrayRange(members.size())];
 
 			int i = 0;
-			for(final PersistenceTypeDescriptionMemberPseudoField member : members)
+			for(final PersistenceTypeDescriptionMemberFieldGeneric member : members)
 			{
 				valueHandlers[i++] = this.deriveValueWriter(member);
 			}

@@ -14,13 +14,13 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 	@Override
 	public void accept(PersistenceTypeDescriptionMember typeMember);
 	
-	public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberField typeMember);
-
-	public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPseudoFieldSimple typeMember);
+	public void appendTypeMemberDescription(PersistenceTypeDescriptionMember typeMember);
+	
+	public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberFieldReflective typeMember);
 
 	public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPseudoFieldVariableLength typeMember);
 
-	public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPseudoFieldComplex typeMember);
+	public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberFieldGenericComplex typeMember);
 
 	public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPrimitiveDefinition typeMember);
 	
@@ -86,18 +86,18 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 			this.vc.add(MEMBER_TERMINATOR).lf();
 		}
 
-		private void appendField(final PersistenceTypeDescriptionMemberField member)
+		private void appendField(final PersistenceTypeDescriptionMember member)
 		{
 			PersistenceTypeDictionary.paddedFullQualifiedFieldName(
 				this.vc.padRight(member.typeName(), this.maxFieldTypeNameLength, ' ').blank(),
-				member.declaringTypeName(),
+				member.qualifier(),
 				this.maxDeclaringTypeNameLength,
 				member.name(),
 				this.maxFieldNameLength
 			);
 		}
 
-		private void appendPseudoField(final PersistenceTypeDescriptionMemberPseudoField member)
+		private void appendPseudoField(final PersistenceTypeDescriptionMemberFieldGeneric member)
 		{
 			this.vc
 			.padRight(member.typeName(), this.maxFieldTypeNameLength, ' ').blank()
@@ -118,17 +118,17 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 			typeMember.assembleTypeDescription(this);
 			this.terminateMember();
 		}
-
+		
 		@Override
-		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberField typeMember)
+		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMember typeMember)
 		{
 			this.appendField(typeMember);
 		}
 
 		@Override
-		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberPseudoFieldSimple typeMember)
+		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberFieldReflective typeMember)
 		{
-			this.appendPseudoField(typeMember);
+			this.appendField(typeMember);
 		}
 
 		@Override
@@ -138,11 +138,11 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 		}
 
 		@Override
-		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberPseudoFieldComplex typeMember)
+		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberFieldGenericComplex typeMember)
 		{
 			this.appendPseudoField(typeMember);
 			this.vc.add(MEMBER_COMPLEX_DEF_START).lf();
-			final XGettingSequence<? extends PersistenceTypeDescriptionMemberPseudoField> members = typeMember.members();
+			final XGettingSequence<? extends PersistenceTypeDescriptionMemberFieldGeneric> members = typeMember.members();
 			final PersistenceTypeDescriptionMemberAppender appender = members.iterate(
 				new TypeDictionaryAppenderBuilder(this.vc, this.level + 1)
 			).yield();
