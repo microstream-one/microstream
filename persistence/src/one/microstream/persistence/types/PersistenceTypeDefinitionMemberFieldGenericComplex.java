@@ -6,15 +6,15 @@ import static one.microstream.math.XMath.positive;
 
 import one.microstream.collections.types.XGettingSequence;
 
-public interface PersistenceTypeDefinitionMemberPseudoFieldComplex
-extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTypeDescriptionMemberFieldGenericComplex
+public interface PersistenceTypeDefinitionMemberFieldGenericComplex
+extends PersistenceTypeDefinitionMemberFieldGenericVariableLength, PersistenceTypeDescriptionMemberFieldGenericComplex
 {
 	@Override
-	public PersistenceTypeDefinitionMemberPseudoFieldComplex copyForName(String name);
+	public PersistenceTypeDefinitionMemberFieldGenericComplex copyForName(String name);
 	
 	
 	
-	public static PersistenceTypeDefinitionMemberPseudoFieldComplex New(
+	public static PersistenceTypeDefinitionMemberFieldGenericComplex New(
 		final PersistenceTypeDescriptionMemberFieldGenericComplex description
 	)
 	{
@@ -27,7 +27,7 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		);
 	}
 	
-	public static PersistenceTypeDefinitionMemberPseudoFieldComplex New(
+	public static PersistenceTypeDefinitionMemberFieldGenericComplex New(
 		final String                                                        name                   ,
 		final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members                ,
 		final long                                                          persistentMinimumLength,
@@ -37,7 +37,7 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		return New(null, name, members, persistentMinimumLength, persistentMaximumLength);
 	}
 	
-	public static PersistenceTypeDefinitionMemberPseudoFieldComplex New(
+	public static PersistenceTypeDefinitionMemberFieldGenericComplex New(
 		final String                                                        qualifier              ,
 		final String                                                        name                   ,
 		final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members                ,
@@ -45,7 +45,7 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		final long                                                          persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPseudoFieldComplex.Default(
+		return new PersistenceTypeDefinitionMemberFieldGenericComplex.Default(
 			 mayNull(qualifier)              ,
 			 notNull(name)                   ,
 			 notNull(members)                ,
@@ -56,7 +56,7 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 	
 	public class Default
 	extends PersistenceTypeDescriptionMemberFieldGenericComplex.Default
-	implements PersistenceTypeDefinitionMemberPseudoFieldComplex
+	implements PersistenceTypeDefinitionMemberFieldGenericComplex
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -92,12 +92,12 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldComplex copyForName(
+		public PersistenceTypeDefinitionMemberFieldGenericComplex copyForName(
 			final String qualifier,
 			final String name
 		)
 		{
-			return new PersistenceTypeDefinitionMemberPseudoFieldComplex.Default(
+			return new PersistenceTypeDefinitionMemberFieldGenericComplex.Default(
 				qualifier,
 				name,
 				this.members(),
@@ -107,7 +107,7 @@ extends PersistenceTypeDefinitionMemberPseudoFieldVariableLength, PersistenceTyp
 		}
 		
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldComplex copyForName(final String name)
+		public PersistenceTypeDefinitionMemberFieldGenericComplex copyForName(final String name)
 		{
 			return this.copyForName(null, name);
 		}

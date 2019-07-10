@@ -9,7 +9,7 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberPseudoFieldVariableLength;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericVariableLength;
 import one.microstream.reflect.XReflect;
 
 
@@ -950,7 +950,7 @@ public interface BinaryReferenceTraverser
 		{
 			if(member.isVariableLength())
 			{
-				if(!(member instanceof PersistenceTypeDescriptionMemberPseudoFieldVariableLength))
+				if(!(member instanceof PersistenceTypeDescriptionMemberFieldGenericVariableLength))
 				{
 					// (20.12.2014)EXCP: proper exception
 					throw new RuntimeException(

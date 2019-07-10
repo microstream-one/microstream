@@ -60,8 +60,8 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	{
 		super(
 			typeWorkaround(),
-			simpleArrayPseudoFields(
-			    pseudoField(Comparator.class, "comparator")
+			SimpleArrayFields(
+			    CustomField(Comparator.class, "comparator")
 			)
 		);
 	}

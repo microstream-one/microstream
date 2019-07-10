@@ -62,9 +62,9 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 	{
 		super(
 			typeWorkaround(),
-			keyValuesPseudoFields(
-				pseudoField(float.class,   "loadFactor"),
-				pseudoField(boolean.class, "accessOrder")
+			keyValuesFields(
+				CustomField(float.class,   "loadFactor"),
+				CustomField(boolean.class, "accessOrder")
 			)
 		);
 	}

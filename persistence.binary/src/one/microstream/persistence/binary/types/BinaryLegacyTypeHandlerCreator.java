@@ -17,7 +17,7 @@ import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResult;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberField;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 import one.microstream.util.similarity.Similarity;
@@ -89,11 +89,11 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		}
 				
 		private static HashTable<PersistenceTypeDefinitionMember, Long> createFieldOffsetMap(
-			final XGettingEnum<? extends PersistenceTypeDefinitionMemberField> members
+			final XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> members
 		)
 		{
 			final HashTable<PersistenceTypeDefinitionMember, Long> memberOffsets = HashTable.New();
-			for(final PersistenceTypeDefinitionMemberField member : members)
+			for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
 			{
 				final Field field = notNull(member.field());
 				final long fieldOffset = XMemory.objectFieldOffset(field);

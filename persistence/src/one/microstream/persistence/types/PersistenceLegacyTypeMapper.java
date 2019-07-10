@@ -191,7 +191,7 @@ public interface PersistenceLegacyTypeMapper<M>
 				{
 					// (11.10.2018 TM)EXCP: proper exception
 					throw new RuntimeException(
-						"Duplicate target entry " + resolved.value().uniqueName()
+						"Duplicate target entry " + resolved.value().identifier()
 						+ " for type " + currentTypeHandler.toTypeIdentifier() + "."
 					);
 				}
@@ -199,7 +199,7 @@ public interface PersistenceLegacyTypeMapper<M>
 				{
 					// (10.09.2018 TM)EXCP: proper exception
 					throw new PersistenceExceptionTypeConsistency(
-						"Duplicate member mapping for legacy/source member \"" + sourceMember.uniqueName() + "\""
+						"Duplicate member mapping for legacy/source member \"" + sourceMember.identifier() + "\""
 						+ " in legacy type " + legacyTypeDefinition.toTypeIdentifier()
 					);
 				}

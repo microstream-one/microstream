@@ -60,8 +60,8 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	{
 		super(
 			typeWorkaround(),
-			keyValuesPseudoFields(
-				pseudoField(Comparator.class, "comparator")
+			keyValuesFields(
+				CustomField(Comparator.class, "comparator")
 			)
 		);
 	}

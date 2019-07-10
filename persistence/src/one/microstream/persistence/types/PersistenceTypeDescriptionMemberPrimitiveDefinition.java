@@ -8,7 +8,7 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 	public String primitiveDefinition();
 	
 	@Override
-	public default String uniqueName()
+	public default String identifier()
 	{
 		return this.primitiveDefinition();
 	}

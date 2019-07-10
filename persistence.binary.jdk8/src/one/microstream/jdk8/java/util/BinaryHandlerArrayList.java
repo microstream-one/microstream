@@ -44,7 +44,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 	{
 		super(
 			typeWorkaround(),
-			sizedArrayPseudoFields(),
+			SizedArrayFields(),
 			controller
 		);
 	}

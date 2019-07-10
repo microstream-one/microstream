@@ -59,11 +59,11 @@ public interface PersistenceRefactoringMemberIdentifierBuilder
 	
 	public static String toTypeInternalIdentifier(final PersistenceTypeDescriptionMember member)
 	{
-		return member.uniqueName();
+		return member.identifier();
 	}
 	
 	public static String toUniqueUnqualifiedIdentifier(
-		final PersistenceTypeDefinition     typeDefinition,
+		final PersistenceTypeDefinition        typeDefinition,
 		final PersistenceTypeDescriptionMember member
 	)
 	{

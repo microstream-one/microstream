@@ -85,11 +85,12 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	private Constant<Binary> read(final long fileLength, final ReadableByteChannel channel)
 		throws IOException
 	{
+		// (10.07.2019 TM)FIXME: there is no more chunk length. Re-add in FileTarget or remove here?
 		final BulkList<ByteBuffer> chunks = new BulkList<>();
 		for(long readCount = 0, chunkTotalLength = 0; readCount < fileLength; readCount += chunkTotalLength)
 		{
 			chunkTotalLength = readChunkLength(this.chunkDataBuffer, channel, this);
-			chunks.add(this.readChunk(channel, chunkTotalLength));
+			chunks.add(this.readChunk(channel, fileLength));
 		}
 		return X.<Binary>Constant(this.createChunksWrapper(chunks.toArray(ByteBuffer.class)));
 	}
@@ -181,7 +182,10 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 		throws PersistenceExceptionTransfer
 	{
 		// simple input file reading implementation can't do complex queries
-		throw new UnsupportedOperationException();
+				
+		// (10.07.2019 TM)NOTE: loader calls this here in loadOnce, so exception is not viable. Sufficient to return X.empty()?
+		return X.empty();
+//		throw new UnsupportedOperationException();
 	}
 
 	@Override

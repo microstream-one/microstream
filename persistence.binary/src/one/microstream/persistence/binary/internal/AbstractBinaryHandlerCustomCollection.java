@@ -1,7 +1,7 @@
 package one.microstream.persistence.binary.internal;
 
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 
 
 public abstract class AbstractBinaryHandlerCustomCollection<T>
@@ -12,11 +12,11 @@ extends AbstractBinaryHandlerCustom<T>
 	/////////////////
 
 	public AbstractBinaryHandlerCustomCollection(
-		final Class<T>                                                               type        ,
-		final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields
+		final Class<T>                                                                type        ,
+		final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldGeneric> customFields
 	)
 	{
-		super(type, pseudoFields);
+		super(type, customFields);
 	}
 	
 	

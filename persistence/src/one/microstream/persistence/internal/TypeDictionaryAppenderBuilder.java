@@ -66,7 +66,7 @@ implements Aggregator<PersistenceTypeDescriptionMember, PersistenceTypeDescripti
 		this.measureFieldName        (member.name());
 	}
 
-	private void measurePseudoFieldStrings(final PersistenceTypeDescriptionMemberFieldGeneric member)
+	private void measureGenericFieldStrings(final PersistenceTypeDescriptionMemberFieldGeneric member)
 	{
 		this.measureTypeName (member.typeName());
 		this.measureFieldName(member.name());
@@ -82,7 +82,7 @@ implements Aggregator<PersistenceTypeDescriptionMember, PersistenceTypeDescripti
 		}
 		else if(member instanceof PersistenceTypeDescriptionMemberFieldGeneric)
 		{
-			this.measurePseudoFieldStrings((PersistenceTypeDescriptionMemberFieldGeneric)member);
+			this.measureGenericFieldStrings((PersistenceTypeDescriptionMemberFieldGeneric)member);
 		}
 		// otherwise, leave all lengths at 0 (e.g. primitive definition)
 	}

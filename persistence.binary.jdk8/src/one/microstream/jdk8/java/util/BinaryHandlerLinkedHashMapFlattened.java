@@ -62,9 +62,9 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	{
 		super(
 			typeWorkaround(),
-			simpleArrayPseudoFields(
-				pseudoField(float.class,   "loadFactor"),
-				pseudoField(boolean.class, "accessOrder")
+			SimpleArrayFields(
+				CustomField(float.class,   "loadFactor"),
+				CustomField(boolean.class, "accessOrder")
 			)
 		);
 	}

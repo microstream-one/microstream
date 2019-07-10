@@ -58,8 +58,8 @@ extends AbstractBinaryHandlerCustomIterable<PriorityQueue<?>>
 	{
 		super(
 			typeWorkaround(),
-			simpleArrayPseudoFields(
-				pseudoField(Comparator.class, "comparator")
+			SimpleArrayFields(
+				CustomField(Comparator.class, "comparator")
 			)
 		);
 		

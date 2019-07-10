@@ -59,8 +59,8 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	{
 		super(
 			typeWorkaround(),
-			simpleArrayPseudoFields(
-				pseudoField(Comparator.class, "comparator")
+			SimpleArrayFields(
+				CustomField(Comparator.class, "comparator")
 			)
 		);
 		

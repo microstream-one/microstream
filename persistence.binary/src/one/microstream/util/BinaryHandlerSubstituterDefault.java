@@ -37,7 +37,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			BinaryHandlerEqHashEnum.pseudoFields()
+			BinaryHandlerEqHashEnum.Fields()
 		);
 	}
 

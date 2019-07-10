@@ -47,7 +47,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			sizedArrayPseudoFields(),
+			SizedArrayFields(),
 			controller
 		);
 	}

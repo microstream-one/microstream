@@ -119,7 +119,7 @@ public interface PersistenceTypeDictionaryBuilder
 			if(!definitionMembers.add(definitionMember))
 			{
 				// (08.10.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Duplicate type member entry: " + member.uniqueName());
+				throw new RuntimeException("Duplicate type member entry: " + member.identifier());
 			}
 		}
 		

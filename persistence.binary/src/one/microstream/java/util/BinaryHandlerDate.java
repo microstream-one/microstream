@@ -37,8 +37,8 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 	{
 		super(
 			Date.class,
-			pseudoFields(
-				pseudoField(long.class, "timestamp")
+			CustomFields(
+				CustomField(long.class, "timestamp")
 			)
 		);
 

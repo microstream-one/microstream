@@ -8,7 +8,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableSequence;
 
 public interface PersistenceTypeDescriptionMemberFieldGenericComplex
-extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
+extends PersistenceTypeDescriptionMemberFieldGenericVariableLength
 {
 	public XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members();
 
@@ -32,7 +32,7 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 	}
 	
 	@Override
-	public default PersistenceTypeDefinitionMemberPseudoFieldComplex createDefinitionMember(
+	public default PersistenceTypeDefinitionMemberFieldGenericComplex createDefinitionMember(
 		final PersistenceTypeDefinitionMemberCreator creator
 	)
 	{
@@ -67,7 +67,7 @@ extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength
 	}
 
 	public class Default
-	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default
+	extends PersistenceTypeDescriptionMemberFieldGenericVariableLength.Default
 	implements PersistenceTypeDescriptionMemberFieldGenericComplex
 	{
 		///////////////////////////////////////////////////////////////////////////

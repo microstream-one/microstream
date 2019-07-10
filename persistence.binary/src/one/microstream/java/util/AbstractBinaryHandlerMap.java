@@ -44,7 +44,7 @@ extends AbstractBinaryHandlerCustomCollection<T>
 	{
 		super(
 			type,
-			keyValuesPseudoFields()
+			keyValuesFields()
 		);
 	}
 

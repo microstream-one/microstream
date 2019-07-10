@@ -72,11 +72,11 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	{
 		super(
 			PersistenceRoots.Default.class,
-			pseudoFields( // instances first to easy ref-only loading in storage
-				complex("instances",
-					pseudoField(Object.class, "instance")
+			CustomFields( // instances first to easy ref-only loading in storage
+				Complex("instances",
+					CustomField(Object.class, "instance")
 				),
-				complex("identifiers",
+				Complex("identifiers",
 					chars("identifier")
 				)
 			)

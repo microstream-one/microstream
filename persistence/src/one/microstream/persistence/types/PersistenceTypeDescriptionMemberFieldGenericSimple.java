@@ -7,25 +7,7 @@ public interface PersistenceTypeDescriptionMemberFieldGenericSimple
 extends PersistenceTypeDescriptionMemberFieldGeneric
 {
 	@Override
-	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
-	{
-		// the type check is the only specific thing here.
-		return member instanceof PersistenceTypeDescriptionMemberFieldGenericSimple
-			&& equalDescription(this, (PersistenceTypeDescriptionMemberFieldGenericSimple)member)
-		;
-	}
-	
-	public static boolean equalDescription(
-		final PersistenceTypeDescriptionMemberFieldGenericSimple m1,
-		final PersistenceTypeDescriptionMemberFieldGenericSimple m2
-	)
-	{
-		// currently no specific checking logic
-		return PersistenceTypeDescriptionMember.equalStructure(m1, m2);
-	}
-	
-	@Override
-	public default PersistenceTypeDefinitionMemberPseudoFieldSimple createDefinitionMember(
+	public default PersistenceTypeDefinitionMemberFieldGenericSimple createDefinitionMember(
 		final PersistenceTypeDefinitionMemberCreator creator
 	)
 	{

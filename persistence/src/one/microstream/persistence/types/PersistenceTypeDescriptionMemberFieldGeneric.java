@@ -2,10 +2,10 @@ package one.microstream.persistence.types;
 
 
 
-public interface PersistenceTypeDescriptionMemberFieldGeneric extends PersistenceTypeDescriptionMember
+public interface PersistenceTypeDescriptionMemberFieldGeneric extends PersistenceTypeDescriptionMemberField
 {
 	public abstract class Abstract
-	extends PersistenceTypeDescriptionMember.Abstract
+	extends PersistenceTypeDescriptionMemberField.Abstract
 	implements PersistenceTypeDescriptionMemberFieldGeneric
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,6 @@ public interface PersistenceTypeDescriptionMemberFieldGeneric extends Persistenc
 				name               ,
 				isReference        ,
 				isPrimitive        ,
-				false              ,
 				hasReferences      ,
 				persistentMinLength,
 				persistentMaxLength
