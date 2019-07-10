@@ -30,7 +30,7 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberField;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 import one.microstream.reflect.XReflect;
 
@@ -116,12 +116,12 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		return Binary.referenceBinaryLength(r) + primitiveTotalBinaryLength;
 	}
 	
-	protected static final XGettingTable<Field, PersistenceTypeDefinitionMemberField> createTypeDescriptionMembers(
+	protected static final XGettingTable<Field, PersistenceTypeDefinitionMemberFieldReflective> createTypeDescriptionMembers(
 		final Field[]                        persistentOrderFields,
 		final PersistenceFieldLengthResolver lengthResolver
 	)
 	{
-		final HashTable<Field, PersistenceTypeDefinitionMemberField> members = HashTable.New();
+		final HashTable<Field, PersistenceTypeDefinitionMemberFieldReflective> members = HashTable.New();
 		
 		for(final Field field : persistentOrderFields)
 		{
@@ -148,8 +148,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	private final long                                                 binaryContentLength    ;
 	private final BinaryValueStorer[]                                  binaryStorers          ;
 	private final BinaryValueSetter[]                                  memorySetters          ;
-	private final XImmutableEnum<PersistenceTypeDefinitionMemberField> membersInPersistdOrder ;
-	private final XImmutableEnum<PersistenceTypeDefinitionMemberField> membersInDeclaredOrder ;
+	private final XImmutableEnum<PersistenceTypeDefinitionMemberFieldReflective> membersInPersistdOrder ;
+	private final XImmutableEnum<PersistenceTypeDefinitionMemberFieldReflective> membersInDeclaredOrder ;
 	private final boolean                                              hasReferences          ;
 
 
@@ -196,7 +196,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			switchByteOrder
 		);
 		
-		final XGettingTable<Field, PersistenceTypeDefinitionMemberField> typeDescriptionMembers =
+		final XGettingTable<Field, PersistenceTypeDefinitionMemberFieldReflective> typeDescriptionMembers =
 			createTypeDescriptionMembers(fieldsPersistdOrder, lengthResolver)
 		;
 		
@@ -219,12 +219,12 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	// methods //
 	////////////
 	
-	protected static XImmutableEnum<PersistenceTypeDefinitionMemberField> resolveMembersInDeclaredOrder(
+	protected static XImmutableEnum<PersistenceTypeDefinitionMemberFieldReflective> resolveMembersInDeclaredOrder(
 		final Field[]                                                    fieldsDeclaredOrder                 ,
-		final XGettingTable<Field, PersistenceTypeDefinitionMemberField> typeDescriptionMembersPersistedOrder
+		final XGettingTable<Field, PersistenceTypeDefinitionMemberFieldReflective> typeDescriptionMembersPersistedOrder
 	)
 	{
-		final BulkList<PersistenceTypeDefinitionMemberField> membersDeclaredOrder = BulkList.New(fieldsDeclaredOrder.length);
+		final BulkList<PersistenceTypeDefinitionMemberFieldReflective> membersDeclaredOrder = BulkList.New(fieldsDeclaredOrder.length);
 		
 		for(final Field field : fieldsDeclaredOrder)
 		{
@@ -259,7 +259,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 	
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDefinitionMemberField> members()
+	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> members()
 	{
 		return this.membersInPersistdOrder;
 	}

@@ -13,19 +13,19 @@ public interface PersistenceTypeDefinitionMemberCreator
 		PersistenceTypeDescriptionMemberPrimitiveDefinition description
 	);
 	
-	public PersistenceTypeDefinitionMemberField createDefinitionMember(
+	public PersistenceTypeDefinitionMemberFieldReflective createDefinitionMember(
 		PersistenceTypeDescriptionMemberFieldReflective description
 	);
 	
-	public PersistenceTypeDefinitionMemberPseudoFieldSimple createDefinitionMember(
+	public PersistenceTypeDefinitionMemberFieldGenericSimple createDefinitionMember(
 		PersistenceTypeDescriptionMemberFieldGenericSimple description
 	);
 	
-	public PersistenceTypeDefinitionMemberPseudoFieldVariableLength createDefinitionMember(
-		PersistenceTypeDescriptionMemberPseudoFieldVariableLength description
+	public PersistenceTypeDefinitionMemberFieldGenericVariableLength createDefinitionMember(
+		PersistenceTypeDescriptionMemberFieldGenericVariableLength description
 	);
 	
-	public PersistenceTypeDefinitionMemberPseudoFieldComplex createDefinitionMember(
+	public PersistenceTypeDefinitionMemberFieldGenericComplex createDefinitionMember(
 		PersistenceTypeDescriptionMemberFieldGenericComplex description
 	);
 	
@@ -147,7 +147,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 		}
 		
 		@Override
-		public PersistenceTypeDefinitionMemberField createDefinitionMember(
+		public PersistenceTypeDefinitionMemberFieldReflective createDefinitionMember(
 			final PersistenceTypeDescriptionMemberFieldReflective description
 		)
 		{
@@ -167,7 +167,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 				: null
 			;
 			
-			return PersistenceTypeDefinitionMemberField.New(
+			return PersistenceTypeDefinitionMemberFieldReflective.New(
 				runtimeDeclaringType                 ,
 				field == null
 					? null
@@ -184,13 +184,13 @@ public interface PersistenceTypeDefinitionMemberCreator
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldSimple createDefinitionMember(
+		public PersistenceTypeDefinitionMemberFieldGenericSimple createDefinitionMember(
 			final PersistenceTypeDescriptionMemberFieldGenericSimple description
 		)
 		{
 			final Class<?> currentType = this.tryResolveCurrentType(description.typeName());
 			
-			return PersistenceTypeDefinitionMemberPseudoFieldSimple.New(
+			return PersistenceTypeDefinitionMemberFieldGenericSimple.New(
 				description.typeName()               ,
 				description.qualifier()              ,
 				description.name()                   ,
@@ -202,19 +202,19 @@ public interface PersistenceTypeDefinitionMemberCreator
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldVariableLength createDefinitionMember(
-			final PersistenceTypeDescriptionMemberPseudoFieldVariableLength description
+		public PersistenceTypeDefinitionMemberFieldGenericVariableLength createDefinitionMember(
+			final PersistenceTypeDescriptionMemberFieldGenericVariableLength description
 		)
 		{
-			return PersistenceTypeDefinitionMemberPseudoFieldVariableLength.New(description);
+			return PersistenceTypeDefinitionMemberFieldGenericVariableLength.New(description);
 		}
 		
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldComplex createDefinitionMember(
+		public PersistenceTypeDefinitionMemberFieldGenericComplex createDefinitionMember(
 			final PersistenceTypeDescriptionMemberFieldGenericComplex description
 		)
 		{
-			return PersistenceTypeDefinitionMemberPseudoFieldComplex.New(description);
+			return PersistenceTypeDefinitionMemberFieldGenericComplex.New(description);
 		}
 		
 	}

@@ -57,8 +57,8 @@ extends AbstractBinaryHandlerCustomCollection<HashEnum<?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			simpleArrayPseudoFields(
-				pseudoField(float.class, "hashDensity")
+			SimpleArrayFields(
+				CustomField(float.class, "hashDensity")
 			)
 		);
 	}

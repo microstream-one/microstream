@@ -4,7 +4,7 @@ import one.microstream.collections.types.XImmutableSequence;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 
 public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends AbstractBinaryHandlerNativeArray<A>
 {
@@ -13,11 +13,11 @@ public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends Abstr
 	/////////////////
 
 	public AbstractBinaryHandlerNativeArrayPrimitive(
-		final Class<A>                                                                 arrayType   ,
-		final XImmutableSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields
+		final Class<A>                                                                  arrayType   ,
+		final XImmutableSequence<? extends PersistenceTypeDefinitionMemberFieldGeneric> customFields
 	)
 	{
-		super(arrayType, pseudoFields);
+		super(arrayType, customFields);
 	}
 
 

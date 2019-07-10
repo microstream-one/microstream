@@ -44,8 +44,8 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 	{
 		super(
 			typeWorkaround(),
-			sizedArrayPseudoFields(
-			    pseudoField(int.class, "capacityIncrement")
+			SizedArrayFields(
+			    CustomField(int.class, "capacityIncrement")
 			),
 			controller
 		);

@@ -13,7 +13,7 @@ import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 
 
 /**
@@ -153,11 +153,11 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
-	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields()
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldGeneric> Fields()
 	{
-		return simpleArrayPseudoFields(
-			pseudoField(HashEqualator.class, "hashEqualator"),
-			pseudoField(float.class, "hashDensity")
+		return SimpleArrayFields(
+			CustomField(HashEqualator.class, "hashEqualator"),
+			CustomField(float.class, "hashDensity")
 		);
 	}
 
@@ -172,7 +172,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			pseudoFields()
+			Fields()
 		);
 	}
 

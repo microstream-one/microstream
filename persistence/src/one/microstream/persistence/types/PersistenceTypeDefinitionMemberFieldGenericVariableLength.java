@@ -4,19 +4,19 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
-public interface PersistenceTypeDefinitionMemberPseudoFieldVariableLength
-extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMemberPseudoFieldVariableLength
+public interface PersistenceTypeDefinitionMemberFieldGenericVariableLength
+extends PersistenceTypeDefinitionMemberFieldGeneric, PersistenceTypeDescriptionMemberFieldGenericVariableLength
 {
 	@Override
-	public PersistenceTypeDefinitionMemberPseudoFieldVariableLength copyForName(String name);
+	public PersistenceTypeDefinitionMemberFieldGenericVariableLength copyForName(String name);
 	
 	
 
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default New(
-		final PersistenceTypeDescriptionMemberPseudoFieldVariableLength description
+	public static PersistenceTypeDefinitionMemberFieldGenericVariableLength.Default New(
+		final PersistenceTypeDescriptionMemberFieldGenericVariableLength description
 	)
 	{
-		return PersistenceTypeDefinitionMemberPseudoFieldVariableLength.New(
+		return PersistenceTypeDefinitionMemberFieldGenericVariableLength.New(
 			description.typeName()               ,
 			description.name()                   ,
 			description.persistentMinimumLength(),
@@ -24,7 +24,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		);
 	}
 	
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default New(
+	public static PersistenceTypeDefinitionMemberFieldGenericVariableLength.Default New(
 		final String typeName               ,
 		final String name                   ,
 		final long   persistentMinimumLength,
@@ -34,7 +34,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		return New(typeName, null, name, persistentMinimumLength, persistentMaximumLength);
 	}
 	
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default New(
+	public static PersistenceTypeDefinitionMemberFieldGenericVariableLength.Default New(
 		final String typeName               ,
 		final String qualifier              ,
 		final String name                   ,
@@ -42,7 +42,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		final long   persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default(
+		return new PersistenceTypeDefinitionMemberFieldGenericVariableLength.Default(
 			 notNull(typeName)               ,
 			 mayNull(qualifier)              ,
 			 notNull(name)                   ,
@@ -52,7 +52,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		);
 	}
 
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default Bytes(
+	public static PersistenceTypeDefinitionMemberFieldGenericVariableLength.Default Bytes(
 		final String name                   ,
 		final long   persistentMinimumLength,
 		final long   persistentMaximumLength
@@ -66,7 +66,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		);
 	}
 	
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default Bytes(
+	public static PersistenceTypeDefinitionMemberFieldGenericVariableLength.Default Bytes(
 		final String qualifier              ,
 		final String name                   ,
 		final long   persistentMinimumLength,
@@ -82,7 +82,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		);
 	}
 
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default Chars(
+	public static PersistenceTypeDefinitionMemberFieldGenericVariableLength.Default Chars(
 		final String name                   ,
 		final long   persistentMinimumLength,
 		final long   persistentMaximumLength
@@ -91,7 +91,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		return Chars(null, name, persistentMinimumLength, persistentMaximumLength);
 	}
 	
-	public static PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default Chars(
+	public static PersistenceTypeDefinitionMemberFieldGenericVariableLength.Default Chars(
 		final String qualifier              ,
 		final String name                   ,
 		final long   persistentMinimumLength,
@@ -110,8 +110,8 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 
 
 	public class Default
-	extends PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default
-	implements PersistenceTypeDefinitionMemberPseudoFieldVariableLength
+	extends PersistenceTypeDescriptionMemberFieldGenericVariableLength.Default
+	implements PersistenceTypeDefinitionMemberFieldGenericVariableLength
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -142,12 +142,12 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldVariableLength copyForName(
+		public PersistenceTypeDefinitionMemberFieldGenericVariableLength copyForName(
 			final String qualifier,
 			final String name
 		)
 		{
-			return new PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Default(
+			return new PersistenceTypeDefinitionMemberFieldGenericVariableLength.Default(
 				this.typeName(),
 				qualifier,
 				name,
@@ -158,7 +158,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		}
 		
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldVariableLength copyForName(final String name)
+		public PersistenceTypeDefinitionMemberFieldGenericVariableLength copyForName(final String name)
 		{
 			return this.copyForName(null, name);
 		}

@@ -16,8 +16,8 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerCusto
 	{
 		super(
 			Lazy.genericType(),
-			pseudoFields(
-				pseudoField(Object.class, "subject")
+			CustomFields(
+				CustomField(Object.class, "subject")
 			)
 		);
 	}

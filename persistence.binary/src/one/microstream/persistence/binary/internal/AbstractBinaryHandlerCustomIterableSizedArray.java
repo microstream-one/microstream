@@ -3,7 +3,7 @@ package one.microstream.persistence.binary.internal;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 
 
 public abstract class AbstractBinaryHandlerCustomIterableSizedArray<T extends Iterable<?>>
@@ -22,12 +22,12 @@ extends AbstractBinaryHandlerCustomIterable<T>
 	/////////////////
 
 	public AbstractBinaryHandlerCustomIterableSizedArray(
-		final Class<T>                                                               type        ,
-		final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields,
-		final PersistenceSizedArrayLengthController                                  controller
+		final Class<T>                                                                type        ,
+		final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldGeneric> customFields,
+		final PersistenceSizedArrayLengthController                                   controller
 	)
 	{
-		super(type, pseudoFields);
+		super(type, customFields);
 		this.controller = controller;
 	}
 	

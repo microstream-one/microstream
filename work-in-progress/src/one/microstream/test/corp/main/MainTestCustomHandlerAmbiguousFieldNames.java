@@ -23,8 +23,8 @@ final class MyTypeHandler extends AbstractBinaryHandlerCustom<String>
 	protected MyTypeHandler()
 	{
 		super(String.class, X.List(
-			pseudoField(String.class, "value"),
-			pseudoField(String.class, "value")
+			CustomField(String.class, "value"),
+			CustomField(String.class, "value")
 		));
 	}
 

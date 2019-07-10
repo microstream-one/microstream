@@ -67,10 +67,10 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			keyValuesPseudoFields(
-				pseudoField(HashTable.Keys.class, "keys"),
-				pseudoField(HashTable.Values.class, "values"),
-				pseudoField(float.class, "hashDensity")
+			keyValuesFields(
+				CustomField(HashTable.Keys.class, "keys"),
+				CustomField(HashTable.Values.class, "values"),
+				CustomField(float.class, "hashDensity")
 			)
 
 		);

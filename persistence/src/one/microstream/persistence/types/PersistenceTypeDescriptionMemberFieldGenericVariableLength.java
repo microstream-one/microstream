@@ -4,7 +4,7 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
-public interface PersistenceTypeDescriptionMemberPseudoFieldVariableLength
+public interface PersistenceTypeDescriptionMemberFieldGenericVariableLength
 extends PersistenceTypeDescriptionMemberFieldGeneric
 {
 	@Override
@@ -17,14 +17,14 @@ extends PersistenceTypeDescriptionMemberFieldGeneric
 	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
 	{
 		// the type check is the only specific thing here.
-		return member instanceof PersistenceTypeDescriptionMemberPseudoFieldVariableLength
-			&& equalDescription(this, (PersistenceTypeDescriptionMemberPseudoFieldVariableLength)member)
+		return member instanceof PersistenceTypeDescriptionMemberFieldGenericVariableLength
+			&& equalDescription(this, (PersistenceTypeDescriptionMemberFieldGenericVariableLength)member)
 		;
 	}
 	
 	public static boolean equalDescription(
-		final PersistenceTypeDescriptionMemberPseudoFieldVariableLength m1,
-		final PersistenceTypeDescriptionMemberPseudoFieldVariableLength m2
+		final PersistenceTypeDescriptionMemberFieldGenericVariableLength m1,
+		final PersistenceTypeDescriptionMemberFieldGenericVariableLength m2
 	)
 	{
 		// currently no specific checking logic
@@ -32,7 +32,7 @@ extends PersistenceTypeDescriptionMemberFieldGeneric
 	}
 	
 	@Override
-	public default PersistenceTypeDefinitionMemberPseudoFieldVariableLength createDefinitionMember(
+	public default PersistenceTypeDefinitionMemberFieldGenericVariableLength createDefinitionMember(
 		final PersistenceTypeDefinitionMemberCreator creator
 	)
 	{
@@ -41,7 +41,7 @@ extends PersistenceTypeDescriptionMemberFieldGeneric
 
 	
 
-	public static PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default New(
+	public static PersistenceTypeDescriptionMemberFieldGenericVariableLength.Default New(
 		final String typeName               ,
 		final String name                   ,
 		final long   persistentMinimumLength,
@@ -51,7 +51,7 @@ extends PersistenceTypeDescriptionMemberFieldGeneric
 		return New(typeName, null, name, persistentMinimumLength, persistentMaximumLength);
 	}
 
-	public static PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default New(
+	public static PersistenceTypeDescriptionMemberFieldGenericVariableLength.Default New(
 		final String typeName               ,
 		final String qualifier              ,
 		final String name                   ,
@@ -59,7 +59,7 @@ extends PersistenceTypeDescriptionMemberFieldGeneric
 		final long   persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDescriptionMemberPseudoFieldVariableLength.Default(
+		return new PersistenceTypeDescriptionMemberFieldGenericVariableLength.Default(
 			 notNull(typeName),
 			 mayNull(qualifier),
 			 notNull(name),
@@ -71,7 +71,7 @@ extends PersistenceTypeDescriptionMemberFieldGeneric
 
 	public class Default
 	extends PersistenceTypeDescriptionMemberFieldGeneric.Abstract
-	implements PersistenceTypeDescriptionMemberPseudoFieldVariableLength
+	implements PersistenceTypeDescriptionMemberFieldGenericVariableLength
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //

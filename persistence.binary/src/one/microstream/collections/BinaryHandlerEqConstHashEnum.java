@@ -69,9 +69,9 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			simpleArrayPseudoFields(
-				pseudoField(HashEqualator.class, "hashEqualator"),
-				pseudoField(float.class        , "hashDensity"  )
+			SimpleArrayFields(
+				CustomField(HashEqualator.class, "hashEqualator"),
+				CustomField(float.class        , "hashDensity"  )
 			)
 		);
 	}

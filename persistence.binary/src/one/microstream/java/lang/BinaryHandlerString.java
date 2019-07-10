@@ -15,7 +15,7 @@ public final class BinaryHandlerString extends AbstractBinaryHandlerCustomValueV
 	{
 		super(
 			String.class,
-			pseudoFields(
+			CustomFields(
 				chars("value")
 			)
 		);

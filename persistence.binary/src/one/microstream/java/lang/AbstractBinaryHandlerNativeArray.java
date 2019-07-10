@@ -4,8 +4,8 @@ import one.microstream.X;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableSequence;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFieldComplex;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGenericComplex;
 
 
 public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinaryHandlerCustom<A>
@@ -14,15 +14,15 @@ public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinary
 	// static methods //
 	///////////////////
 
-	protected static final XImmutableSequence<PersistenceTypeDefinitionMemberPseudoFieldComplex>
+	protected static final XImmutableSequence<PersistenceTypeDefinitionMemberFieldGenericComplex>
 	defineElementsType(final Class<?> componentType)
 	{
 		// admitted, this is a little crazy. But also very compact.
 		return
 			X.Constant(
-				complex(
+				Complex(
 					"elements",
-					pseudoField(componentType, "element")
+					CustomField(componentType, "element")
 				)
 			)
 		;
@@ -35,11 +35,11 @@ public abstract class AbstractBinaryHandlerNativeArray<A> extends AbstractBinary
 	/////////////////
 
 	public AbstractBinaryHandlerNativeArray(
-		final Class<A>                                                               arrayType   ,
-		final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields
+		final Class<A>                                                                arrayType   ,
+		final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldGeneric> customFields
 	)
 	{
-		super(arrayType, pseudoFields);
+		super(arrayType, customFields);
 	}
 
 

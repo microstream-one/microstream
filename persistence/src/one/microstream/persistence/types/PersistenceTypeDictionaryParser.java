@@ -270,7 +270,7 @@ public interface PersistenceTypeDictionaryParser
 
 		private static int parseInstanceMemberName(final char[] input, final int i, final AbstractMemberBuilder member)
 		{
-			// parse next symbol (either declaring type name or pseudo field member name)
+			// parse next symbol (either field qualifier or field member name)
 			int p = i;
 			while(input[p] > ' '
 			   && input[p] != MEMBER_TERMINATOR
@@ -281,17 +281,16 @@ public interface PersistenceTypeDictionaryParser
 				p++;
 			}
 
-			// check for declaring type name, parse actual field name externally
+			// check for qualifier, parse actual field name externally
 			if(input[skipWhiteSpaces(input, p)] == MEMBER_FIELD_QUALIFIER_SEPERATOR)
 			{
 				member.setQualifier(new String(input, i, p - i));
-				p = skipWhiteSpaces(input, skipWhiteSpaces(input, p) + 1); // skip white spaces, separator, whitespaces
+				p = skipWhiteSpaces(input, skipWhiteSpaces(input, p) + 1); // skip whitespaces, separator, whitespaces
 				return parseMemberName(input, p, member);
 			}
 
-			// otherwise must be pseudo field name, set member name
+			// otherwise must be qualifierless field name, set member name here
 			member.setFieldName(new String(input, i, p - i));
-
 
 			// check for terminator
 			return parseMemberTermination(input, p);
@@ -342,7 +341,7 @@ public interface PersistenceTypeDictionaryParser
 			while(input[p = skipWhiteSpaces(input, p)] != MEMBER_COMPLEX_DEF_END)
 			{
 				p = parseNestedMember(input, p, nestedMemberBuilder);
-				member.nestedMembers.add(nestedMemberBuilder.buildPseudoFieldMember());
+				member.nestedMembers.add(nestedMemberBuilder.buildGenericFieldMember());
 			}
 
 			return parseMemberTermination(input, p + 1); // +1 to skip complex definition end
@@ -529,7 +528,7 @@ public interface PersistenceTypeDictionaryParser
 
 		boolean                                                     isVariableLength, isComplex;
 		private String                                              qualifier, typeName, fieldName;
-		final BulkList<PersistenceTypeDescriptionMemberPseudoField> nestedMembers = new BulkList<>();
+		final BulkList<PersistenceTypeDescriptionMemberFieldGeneric> nestedMembers = new BulkList<>();
 		final PersistenceFieldLengthResolver                        lengthResolver;
 		final Substituter<String>                                   stringSubstitutor;
 
@@ -595,19 +594,19 @@ public interface PersistenceTypeDictionaryParser
 			return this;
 		}
 		
-		final PersistenceTypeDescriptionMemberPseudoField buildPseudoFieldMember()
+		final PersistenceTypeDescriptionMemberFieldGeneric buildGenericFieldMember()
 		{
 			if(this.isVariableLength)
 			{
 				return this.isComplex
-					? PersistenceTypeDescriptionMemberPseudoFieldComplex.New(
+					? PersistenceTypeDescriptionMemberFieldGenericComplex.New(
 						this.qualifier,
 						this.fieldName,
 						this.nestedMembers,
 						this.lengthResolver.resolveComplexMemberMinimumLength(this.fieldName, this.typeName, this.nestedMembers),
 						this.lengthResolver.resolveComplexMemberMaximumLength(this.fieldName, this.typeName, this.nestedMembers)
 					)
-					: PersistenceTypeDescriptionMemberPseudoFieldVariableLength.New(
+					: PersistenceTypeDescriptionMemberFieldGenericVariableLength.New(
 						this.qualifier,
 						this.typeName,
 						this.fieldName,
@@ -617,7 +616,7 @@ public interface PersistenceTypeDictionaryParser
 				;
 			}
 
-			return PersistenceTypeDescriptionMemberPseudoFieldSimple.New(
+			return PersistenceTypeDescriptionMemberFieldGenericSimple.New(
 				this.qualifier,
 				this.fieldName,
 				this.typeName,
@@ -688,12 +687,12 @@ public interface PersistenceTypeDictionaryParser
 				return this.buildMemberPrimitiveDefinition();
 			}
 
-			if(this.qualifier() != null)
+			if(!this.isVariableLength)
 			{
 				return this.buildMemberField();
 			}
 
-			return this.buildPseudoFieldMember();
+			return this.buildGenericFieldMember();
 		}
 		
 		final PersistenceTypeDescriptionMemberPrimitiveDefinition buildMemberPrimitiveDefinition()
@@ -705,10 +704,11 @@ public interface PersistenceTypeDictionaryParser
 			);
 		}
 		
-		final PersistenceTypeDescriptionMemberField buildMemberField()
+		final PersistenceTypeDescriptionMemberFieldReflective buildMemberField()
 		{
-			// any failure to resolve the field means the type dictionary information is outdated, so field is null.
-			return PersistenceTypeDescriptionMemberField.New(
+			// might be a reflective field or a generic simple field. No way to determine at the description level.
+			// (10.07.2019 TM)FIXME: MS-156: return unspecific MemberField implementation
+			return PersistenceTypeDescriptionMemberFieldReflective.New(
 				this.typeName(),
 				this.qualifier(),
 				this.fieldName(),
@@ -718,8 +718,6 @@ public interface PersistenceTypeDictionaryParser
 			);
 		}
 		
-		
-
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -744,7 +742,7 @@ public interface PersistenceTypeDictionaryParser
 			
 			return this.lengthResolver.resolveMinimumLengthFromDictionary(
 				this.qualifier(),
-				this.fieldName()        ,
+				this.fieldName(),
 				this.typeName()
 			);
 		}

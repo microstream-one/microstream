@@ -74,11 +74,11 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			keyValuesPseudoFields(
-				pseudoField(HashEqualator.class, "hashEqualator"),
-				pseudoField(EqConstHashTable.Keys.class, "keys"),
-				pseudoField(EqConstHashTable.Values.class, "values"),
-				pseudoField(float.class, "hashDensity")
+			keyValuesFields(
+				CustomField(HashEqualator.class, "hashEqualator"),
+				CustomField(EqConstHashTable.Keys.class, "keys"),
+				CustomField(EqConstHashTable.Values.class, "values"),
+				CustomField(float.class, "hashDensity")
 			)
 
 		);

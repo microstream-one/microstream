@@ -11,35 +11,41 @@ import one.microstream.math.XMath;
 
 public interface PersistenceTypeDescriptionMember
 {
+
 	public String typeName();
 	
 	/**
 	 * A type-internal qualifier to distinct different members with equal "primary" name. E.g. reflection-based
 	 * type handling where fields names are only unique in combination with their declaring class.
+	 * <p>
+	 * May be {@code null} if not applicable.
 	 * 
-	 * @return
+	 * @return the member's qualifier string to ensure a unique {@link #identifier()} in a group of members.
 	 */
 	public String qualifier();
-
+	
 	/**
-	 * The simple or "pimary" name of the member. E.g. "lastName".
+	 * The name of the member identifying it in its parent group of members.<br>
+	 * E.g. "com.my.app.entities.Person#lastname".
+	 * <p>
+	 * May never be {@code null}.
+	 * 
+	 * @return the member's uniquely identifying name.
+	 */
+	public String identifier();
+	
+	/**
+	 * The simple or "primary" name of the member, if applicable. E.g. "lastName".
+	 * <p>
+	 * May be {@code null} if not applicable.
 	 * 
 	 * @return the member's simple name.
 	 */
 	public String name();
 	
-	/**
-	 * The type-wide unique (or identifying or full qualified) name of the member.<br>
-	 * E.g. "com.my.app.entities.Person#lastname"
-	 * 
-	 * @return the member's uniquely identifying name.
-	 */
-	public String uniqueName();
-	
-	public default boolean equalsDescription(final PersistenceTypeDescriptionMember other)
-	{
-		return equalDescription(this, other);
-	}
+
+	// (09.07.2019 TM)FIXME: MS-156: check all description comparisons for type checks
+	public boolean equalsDescription(PersistenceTypeDescriptionMember other);
 	
 	/**
 	 * Tests whether the passed  {@link PersistenceTypeDescriptionMember} have the same "intended" structure, meaning
@@ -71,8 +77,8 @@ public interface PersistenceTypeDescriptionMember
 		final PersistenceTypeDescriptionMember m2
 	)
 	{
-		return PersistenceTypeDescriptionMember.equalStructure(m1, m2)
-			&& m1.qualifier().equals(m2.qualifier())
+		return equalStructure(m1, m2)
+			&& Objects.equals(m1.qualifier(), m2.qualifier())
 		;
 	}
 	
@@ -124,7 +130,7 @@ public interface PersistenceTypeDescriptionMember
 	public boolean isPrimitive();
 
 	/**
-	 * Determines if this member is a pseudo field defining a primitive type
+	 * Determines if this member is a primitive type definition instead of a field definition.
 	 *
 	 * @return
 	 */
@@ -184,7 +190,7 @@ public interface PersistenceTypeDescriptionMember
 	)
 	{
 		return m1 == m2 || m1 != null && m2 != null
-			&& m1.uniqueName().equals(m2.uniqueName())
+			&& m1.identifier().equals(m2.identifier())
 		;
 	}
 	
@@ -192,7 +198,7 @@ public interface PersistenceTypeDescriptionMember
 	{
 		return member == null
 			? 0
-			: member.uniqueName().hashCode()
+			: member.identifier().hashCode()
 		;
 	}
 	
@@ -362,7 +368,7 @@ public interface PersistenceTypeDescriptionMember
 		}
 		
 		@Override
-		public final String uniqueName()
+		public final String identifier()
 		{
 			return this.qualifiedFieldName;
 		}
@@ -426,7 +432,7 @@ public interface PersistenceTypeDescriptionMember
 		@Override
 		public String toString()
 		{
-			return this.typeName() + ' ' + this.uniqueName();
+			return this.typeName() + ' ' + this.identifier();
 		}
 
 	}

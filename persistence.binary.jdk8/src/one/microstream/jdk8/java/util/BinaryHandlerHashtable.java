@@ -56,8 +56,8 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	{
 		super(
 			typeWorkaround(),
-			keyValuesPseudoFields(
-				pseudoField(float.class, "loadFactor")
+			keyValuesFields(
+				CustomField(float.class, "loadFactor")
 			)
 		);
 	}

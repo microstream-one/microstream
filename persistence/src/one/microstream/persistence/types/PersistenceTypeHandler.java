@@ -99,12 +99,12 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 			return validatedMembers.immure();
 		}
 		
-		public static final PersistenceTypeDefinitionMemberField declaredField(
+		public static final PersistenceTypeDefinitionMemberFieldReflective declaredField(
 			final Field                          field         ,
 			final PersistenceFieldLengthResolver lengthResolver
 		)
 		{
-			return PersistenceTypeDefinitionMemberField.New(
+			return PersistenceTypeDefinitionMemberFieldReflective.New(
 				field                                              ,
 				lengthResolver.resolveMinimumLengthFromField(field),
 				lengthResolver.resolveMaximumLengthFromField(field)

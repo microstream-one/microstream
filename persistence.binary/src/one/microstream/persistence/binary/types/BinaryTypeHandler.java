@@ -2,7 +2,7 @@ package one.microstream.persistence.binary.types;
 
 import java.lang.reflect.Field;
 
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberField;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.reflect.XReflect;
 
@@ -16,7 +16,7 @@ public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 		// static methods //
 		///////////////////
 		
-		public static final PersistenceTypeDefinitionMemberField declaredField(
+		public static final PersistenceTypeDefinitionMemberFieldReflective declaredField(
 			final Class<?> declaringClass,
 			final String   fieldName
 		)
@@ -25,7 +25,7 @@ public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 			return declaredField(field, BinaryPersistence.createFieldLengthResolver());
 		}
 		
-		public static final PersistenceTypeDefinitionMemberField declaredField(final Field field)
+		public static final PersistenceTypeDefinitionMemberFieldReflective declaredField(final Field field)
 		{
 			return declaredField(field, BinaryPersistence.createFieldLengthResolver());
 		}

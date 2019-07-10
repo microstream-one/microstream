@@ -5,10 +5,10 @@ import static one.microstream.X.notNull;
 import one.microstream.math.XMath;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberCreator;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberAppender;
 
-public interface BinaryField extends PersistenceTypeDefinitionMemberPseudoField
+public interface BinaryField extends PersistenceTypeDefinitionMemberFieldGeneric
 {
 	// (17.04.2019 TM)FIXME: MS-130: must have a connection to or even itself be a PersistenceTypeDefinitionMember.
 	
@@ -19,9 +19,15 @@ public interface BinaryField extends PersistenceTypeDefinitionMemberPseudoField
 	public String name();
 	
 	public long offset();
+
+	@Override
+	public default BinaryField copyForName(final String name)
+	{
+		return this.copyForName(null, name);
+	}
 	
 	@Override
-	public BinaryField copyForName(String name);
+	public BinaryField copyForName(String qualifier, String name);
 	
 	
 	
@@ -71,25 +77,25 @@ public interface BinaryField extends PersistenceTypeDefinitionMemberPseudoField
 	)
 	{
 		return new BinaryField.Default(
-			AbstractBinaryHandlerCustom.pseudoField(type, notNull(name)),
+			AbstractBinaryHandlerCustom.CustomField(type, notNull(name)),
 			Defaults.defaultUninitializedOffset()
 		);
 	}
 	
 	public static BinaryField Complex(
-		final PersistenceTypeDefinitionMemberPseudoField... nestedPseudoFields
+		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
 	)
 	{
-		return Complex(Defaults.defaultUninitializedName(), nestedPseudoFields);
+		return Complex(Defaults.defaultUninitializedName(), nestedFields);
 	}
 	
 	public static BinaryField Complex(
-		final String                                        name              ,
-		final PersistenceTypeDefinitionMemberPseudoField... nestedPseudoFields
+		final String                                         name        ,
+		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
 	)
 	{
 		return new BinaryField.Default(
-			AbstractBinaryHandlerCustom.complex(notNull(name), nestedPseudoFields),
+			AbstractBinaryHandlerCustom.Complex(notNull(name), nestedFields),
 			Defaults.defaultUninitializedOffset()
 		);
 	}
@@ -134,7 +140,7 @@ public interface BinaryField extends PersistenceTypeDefinitionMemberPseudoField
 		// instance fields //
 		////////////////////
 		
-		private PersistenceTypeDefinitionMemberPseudoField actual;
+		private PersistenceTypeDefinitionMemberFieldGeneric actual;
 		private long offset;
 		
 		
@@ -143,7 +149,7 @@ public interface BinaryField extends PersistenceTypeDefinitionMemberPseudoField
 		// constructors //
 		/////////////////
 		
-		Default(final PersistenceTypeDefinitionMemberPseudoField actual, final long offset)
+		Default(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
 		{
 			super();
 			this.actual = actual;
@@ -199,12 +205,12 @@ public interface BinaryField extends PersistenceTypeDefinitionMemberPseudoField
 		{
 			return XMath.notNegative(this.offset);
 		}
-
+		
 		@Override
-		public BinaryField copyForName(final String name)
+		public BinaryField copyForName(final String qualifier, final String name)
 		{
 			return new BinaryField.Default(
-				this.actual.copyForName(name),
+				this.actual.copyForName(qualifier, name),
 				this.offset
 			);
 		}
@@ -214,17 +220,29 @@ public interface BinaryField extends PersistenceTypeDefinitionMemberPseudoField
 		{
 			return this.actual.type();
 		}
+
+		@Override
+		public String typeName()
+		{
+			return this.actual.typeName();
+		}
+		
+		@Override
+		public final String qualifier()
+		{
+			return this.actual.qualifier();
+		}
 		
 		@Override
 		public final String name()
 		{
 			return this.actual.name();
 		}
-
+		
 		@Override
-		public String typeName()
+		public final String identifier()
 		{
-			return this.actual.typeName();
+			return this.actual.identifier();
 		}
 
 		@Override

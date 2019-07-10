@@ -56,8 +56,8 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	{
 		super(
 			typeWorkaround(),
-			simpleArrayPseudoFields(
-				pseudoField(float.class, "loadFactor")
+			SimpleArrayFields(
+				CustomField(float.class, "loadFactor")
 			)
 		);
 	}

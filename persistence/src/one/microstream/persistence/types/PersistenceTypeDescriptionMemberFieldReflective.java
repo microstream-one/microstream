@@ -3,42 +3,29 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
-public interface PersistenceTypeDescriptionMemberFieldReflective extends PersistenceTypeDescriptionMember
+public interface PersistenceTypeDescriptionMemberFieldReflective
+extends PersistenceTypeDescriptionMemberField
 {
 	@Override
-	public String uniqueName();
+	public String identifier();
 	
-
-	// (14.08.2015 TM)TODO: include Generics, Field#getGenericType
-//	public String typeParameterString();
-
-
-	@Override
-	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
+	public default String declaringTypeName()
 	{
-		return member instanceof PersistenceTypeDescriptionMemberFieldReflective
-			&& equalDescription(this, (PersistenceTypeDescriptionMemberFieldReflective)member)
-		;
-	}
-	
-	// (09.07.2019 TM)FIXME: MS-156: check all description comparisons for type checks
-	public static boolean equalDescription(
-		final PersistenceTypeDescriptionMemberFieldReflective m1,
-		final PersistenceTypeDescriptionMemberFieldReflective m2
-	)
-	{
-		return PersistenceTypeDescriptionMember.equalStructure(m1, m2)
-			&& m1.qualifier().equals(m2.qualifier())
-		;
+		return this.qualifier();
 	}
 	
 	@Override
-	public default PersistenceTypeDefinitionMemberField createDefinitionMember(
+	public default PersistenceTypeDefinitionMemberFieldReflective createDefinitionMember(
 		final PersistenceTypeDefinitionMemberCreator creator
 	)
 	{
 		return creator.createDefinitionMember(this);
 	}
+	
+	
+
+	// (14.08.2015 TM)TODO: include Generics, Field#getGenericType
+//	public String typeParameterString();
 	
 	
 	
@@ -62,7 +49,7 @@ public interface PersistenceTypeDescriptionMemberFieldReflective extends Persist
 	}
 	
 	public class Default
-	extends PersistenceTypeDescriptionMember.Abstract
+	extends PersistenceTypeDescriptionMemberField.Abstract
 	implements PersistenceTypeDescriptionMemberFieldReflective
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -84,7 +71,6 @@ public interface PersistenceTypeDescriptionMemberFieldReflective extends Persist
 				name               ,
 				isReference        ,
 				!isReference       ,
-				false              ,
 				isReference        ,
 				persistentMinLength,
 				persistentMaxLength

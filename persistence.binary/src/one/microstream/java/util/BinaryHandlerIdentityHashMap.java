@@ -49,7 +49,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	{
 		super(
 			typeWorkaround(),
-			keyValuesPseudoFields()
+			keyValuesFields()
 		);
 	}
 

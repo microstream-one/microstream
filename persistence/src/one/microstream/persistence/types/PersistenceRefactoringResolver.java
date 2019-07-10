@@ -214,7 +214,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 			// (05.10.2018 TM)EXCP: proper exception
 			throw new RuntimeException(
 				"Unresolvable type member refactoring mapping: "
-				+ sourceType.toTypeIdentifier() + '#' + sourceMember.uniqueName()
+				+ sourceType.toTypeIdentifier() + '#' + sourceMember.identifier()
 				+ " -> \"" + targetMemberIdentifier + "\" in type "
 				+ targetType.toRuntimeTypeIdentifier()
 			);

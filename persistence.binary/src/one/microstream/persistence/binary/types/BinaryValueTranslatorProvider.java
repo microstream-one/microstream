@@ -261,7 +261,7 @@ public interface BinaryValueTranslatorProvider
 		private static String toTypedIdentifier(final PersistenceTypeDescriptionMember member)
 		{
 			return member.typeName() + "\" of "
-				+ PersistenceTypeDescriptionMember.class.getSimpleName() + " " + member.uniqueName()
+				+ PersistenceTypeDescriptionMember.class.getSimpleName() + " " + member.identifier()
 			;
 		}
 		

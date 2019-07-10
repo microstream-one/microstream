@@ -93,7 +93,7 @@ public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTy
 			}
 			
 			// (11.10.2018 TM)EXCP: proper exception
-			throw new RuntimeException("Inconsistent current type member mapping: " + member.uniqueName());
+			throw new RuntimeException("Inconsistent current type member mapping: " + member.identifier());
 		}
 		
 		for(final PersistenceTypeDefinitionMember e : result.discardedLegacyMembers())
@@ -107,7 +107,7 @@ public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTy
 	
 	public static final void assembleMember(final VarString vs, final PersistenceTypeDefinitionMember member)
 	{
-		vs.add(member.typeName()).blank().add(member.uniqueName());
+		vs.add(member.typeName()).blank().add(member.identifier());
 	}
 	
 	public static <M> PrintingLegacyTypeMappingResultor<M> New(

@@ -56,8 +56,8 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			sizedArrayPseudoFields(
-				pseudoField(HashEqualator.class, "hashEqualator")
+			SizedArrayFields(
+				CustomField(HashEqualator.class, "hashEqualator")
 			),
 			controller
 		);

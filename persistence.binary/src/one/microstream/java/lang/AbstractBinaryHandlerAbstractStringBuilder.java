@@ -29,8 +29,8 @@ extends AbstractBinaryHandlerCustom<B>
 	{
 		super(
 			type,
-			pseudoFields(
-				pseudoField(long.class, "capacity"),
+			CustomFields(
+				CustomField(long.class, "capacity"),
 				chars("value")
 			)
 		);

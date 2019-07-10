@@ -25,10 +25,10 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFieldComplex;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFieldSimple;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoFieldVariableLength;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGenericComplex;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGenericSimple;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGenericVariableLength;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
 import one.microstream.reflect.XReflect;
@@ -41,20 +41,30 @@ extends BinaryTypeHandler.Abstract<T>
 	// static methods //
 	///////////////////
 	
-	public static final XImmutableSequence<PersistenceTypeDefinitionMemberPseudoField>
+	public static final XImmutableSequence<PersistenceTypeDefinitionMemberFieldGeneric>
 	defineValueType(final Class<?> valueType)
 	{
-		return X.Constant(pseudoField(valueType, "value"));
+		return X.Constant(CustomField(valueType, "value"));
 	}
 	
-	public static final PersistenceTypeDefinitionMemberPseudoFieldSimple pseudoField(
+	public static final PersistenceTypeDefinitionMemberFieldGenericSimple CustomField(
 		final Class<?> type,
 		final String   name
 	)
 	{
-		return PersistenceTypeDefinitionMemberPseudoFieldSimple.New(
-			name,
+		return CustomField(type, null, name);
+	}
+	
+	public static final PersistenceTypeDefinitionMemberFieldGenericSimple CustomField(
+		final Class<?> type     ,
+		final String   qualifier,
+		final String   name
+	)
+	{
+		return PersistenceTypeDefinitionMemberFieldGenericSimple.New(
 			type.getName(),
+			qualifier,
+			name,
 			type,
 			!type.isPrimitive(),
 			BinaryPersistence.resolveFieldBinaryLength(type),
@@ -62,80 +72,80 @@ extends BinaryTypeHandler.Abstract<T>
 		);
 	}
 	
-	public static final PersistenceTypeDefinitionMemberPseudoField chars(final String name)
+	public static final PersistenceTypeDefinitionMemberFieldGeneric chars(final String name)
 	{
-		return PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Chars(
+		return PersistenceTypeDefinitionMemberFieldGenericVariableLength.Chars(
 			name,
 			Binary.binaryListMinimumLength(),
 			Binary.binaryListMaximumLength()
 		);
 	}
 
-	public static final PersistenceTypeDefinitionMemberPseudoField bytes(final String name)
+	public static final PersistenceTypeDefinitionMemberFieldGeneric bytes(final String name)
 	{
-		return PersistenceTypeDefinitionMemberPseudoFieldVariableLength.Bytes(
+		return PersistenceTypeDefinitionMemberFieldGenericVariableLength.Bytes(
 			name,
 			Binary.binaryListMinimumLength(),
 			Binary.binaryListMaximumLength()
 		);
 	}
 
-	public static final XImmutableSequence<PersistenceTypeDefinitionMemberPseudoField>
-	pseudoFields(final PersistenceTypeDefinitionMemberPseudoField... pseudoFields)
+	public static final XImmutableSequence<PersistenceTypeDefinitionMemberFieldGeneric>
+	CustomFields(final PersistenceTypeDefinitionMemberFieldGeneric... customFields)
 	{
-		return X.ConstList(pseudoFields);
+		return X.ConstList(customFields);
 	}
 
-	public static final PersistenceTypeDefinitionMemberPseudoFieldComplex
-	complex(
-		final String                                         name        ,
-		final PersistenceTypeDescriptionMemberFieldGeneric... pseudoFields
+	public static final PersistenceTypeDefinitionMemberFieldGenericComplex
+	Complex(
+		final String                                          name        ,
+		final PersistenceTypeDescriptionMemberFieldGeneric... customFields
 	)
 	{
-		return PersistenceTypeDefinitionMemberPseudoFieldComplex.New(
+		return PersistenceTypeDefinitionMemberFieldGenericComplex.New(
 			name,
-			X.ConstList(pseudoFields),
+			X.ConstList(customFields),
 			Binary.binaryListMinimumLength(),
 			Binary.binaryListMaximumLength()
 		);
 	}
 	
-	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> sizedArrayPseudoFields(
-		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldGeneric> SizedArrayFields(
+		final PersistenceTypeDefinitionMemberFieldGeneric... preHeaderFields
 	)
 	{
-		return simpleArrayPseudoFields(
+		return SimpleArrayFields(
 			XArrays.add(
 				preHeaderFields,
-				AbstractBinaryHandlerCustom.pseudoField(long.class, "capacity")
+				AbstractBinaryHandlerCustom.CustomField(long.class, "capacity")
 			)
 		);
 	}
 
-	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> simpleArrayPseudoFields(
-		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldGeneric> SimpleArrayFields(
+		final PersistenceTypeDefinitionMemberFieldGeneric... preHeaderFields
 	)
 	{
-		return AbstractBinaryHandlerCustom.pseudoFields(
+		return AbstractBinaryHandlerCustom.CustomFields(
 			XArrays.add(
 				preHeaderFields,
-				AbstractBinaryHandlerCustom.complex("elements",
-					AbstractBinaryHandlerCustom.pseudoField(Object.class, "element")
+				AbstractBinaryHandlerCustom.Complex("elements",
+					AbstractBinaryHandlerCustom.CustomField(Object.class, "element")
 				)
 			)
 		);
 	}
 	
-	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> keyValuesPseudoFields(
-		final PersistenceTypeDefinitionMemberPseudoField... preHeaderFields
+	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldGeneric> keyValuesFields(
+		final PersistenceTypeDefinitionMemberFieldGeneric... preHeaderFields
 	)
 	{
-		return AbstractBinaryHandlerCustom.pseudoFields(
+		return AbstractBinaryHandlerCustom.CustomFields(
 			XArrays.add(
 				preHeaderFields,
-				AbstractBinaryHandlerCustom.complex("elements",
-					AbstractBinaryHandlerCustom.pseudoField(Object.class, "key"),
-					AbstractBinaryHandlerCustom.pseudoField(Object.class, "value")
+				AbstractBinaryHandlerCustom.Complex("elements",
+					AbstractBinaryHandlerCustom.CustomField(Object.class, "key"),
+					AbstractBinaryHandlerCustom.CustomField(Object.class, "value")
 				)
 			)
 		);
@@ -165,18 +175,18 @@ extends BinaryTypeHandler.Abstract<T>
 	}
 	
 	protected static final BinaryField FieldComplex(
-		final PersistenceTypeDefinitionMemberPseudoField... nestedPseudoFields
+		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
 	)
 	{
-		return BinaryField.Complex(nestedPseudoFields);
+		return BinaryField.Complex(nestedFields);
 	}
 	
 	protected static final BinaryField FieldComplex(
-		final String                                        name              ,
-		final PersistenceTypeDefinitionMemberPseudoField... nestedPseudoFields
+		final String                                         name        ,
+		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
 	)
 	{
-		return BinaryField.Complex(name, nestedPseudoFields);
+		return BinaryField.Complex(name, nestedFields);
 	}
 	
 	protected static final BinaryField FieldBytes()

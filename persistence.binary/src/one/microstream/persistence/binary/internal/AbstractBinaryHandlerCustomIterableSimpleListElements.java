@@ -35,7 +35,7 @@ extends AbstractBinaryHandlerCustomIterable<T>
 	{
 		super(
 			type,
-			simpleArrayPseudoFields()
+			SimpleArrayFields()
 		);
 	}
 	

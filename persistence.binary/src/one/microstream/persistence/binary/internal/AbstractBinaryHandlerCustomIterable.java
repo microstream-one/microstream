@@ -3,7 +3,7 @@ package one.microstream.persistence.binary.internal;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPseudoField;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 
 
 public abstract class AbstractBinaryHandlerCustomIterable<T extends Iterable<?>>
@@ -14,11 +14,11 @@ extends AbstractBinaryHandlerCustomCollection<T>
 	/////////////////
 
 	public AbstractBinaryHandlerCustomIterable(
-		final Class<T>                                                               type        ,
-		final XGettingSequence<? extends PersistenceTypeDefinitionMemberPseudoField> pseudoFields
+		final Class<T>                                                                type        ,
+		final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldGeneric> customFields
 	)
 	{
-		super(type, pseudoFields);
+		super(type, customFields);
 	}
 	
 	

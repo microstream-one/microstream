@@ -17,7 +17,7 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	{
 		super(
 			BigDecimal.class,
-			pseudoFields(
+			CustomFields(
 				chars("value")
 			)
 		);

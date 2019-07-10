@@ -61,8 +61,8 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	{
 		super(
 			typeWorkaround(),
-			keyValuesPseudoFields(
-				pseudoField(Comparator.class, "comparator")
+			keyValuesFields(
+				CustomField(Comparator.class, "comparator")
 			)
 		);
 	}

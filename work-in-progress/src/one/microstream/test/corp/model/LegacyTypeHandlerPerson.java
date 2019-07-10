@@ -31,11 +31,11 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 		super(Person.class,
 			X.List(
 				// ugly two-part prototype binary field definitions. See type "BinaryField" for overhauled version
-				pseudoField(String.class , "contactId"),
-				pseudoField(Address.class, "address"  ),
-				pseudoField(String.class , "note"     ),
-				pseudoField(String.class , "firstname"),
-				pseudoField(String.class , "lastname" )
+				CustomField(String.class , "contactId"),
+				CustomField(Address.class, "address"  ),
+				CustomField(String.class , "note"     ),
+				CustomField(String.class , "firstname"),
+				CustomField(String.class , "lastname" )
 			)
 		);
 		

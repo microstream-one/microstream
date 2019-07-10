@@ -4,18 +4,18 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
-public interface PersistenceTypeDefinitionMemberPseudoFieldSimple
-extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMemberFieldGenericSimple
+public interface PersistenceTypeDefinitionMemberFieldGenericSimple
+extends PersistenceTypeDefinitionMemberFieldGeneric, PersistenceTypeDescriptionMemberFieldGenericSimple
 {
 	@Override
-	public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(String name);
+	public PersistenceTypeDefinitionMemberFieldGenericSimple copyForName(String name);
 	
 	@Override
-	public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(String qualifier, String name);
+	public PersistenceTypeDefinitionMemberFieldGenericSimple copyForName(String qualifier, String name);
 	
 	
 	
-	public static PersistenceTypeDefinitionMemberPseudoFieldSimple New(
+	public static PersistenceTypeDefinitionMemberFieldGenericSimple New(
 		final String   typeName               ,
 		final String   qualifier              ,
 		final String   name                   ,
@@ -25,7 +25,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		final long     persistentMaximumLength
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Default(
+		return new PersistenceTypeDefinitionMemberFieldGenericSimple.Default(
 			 notNull(typeName)               ,
 			 mayNull(qualifier)              ,
 			 notNull(name)                   ,
@@ -38,7 +38,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 	
 	public class Default
 	extends PersistenceTypeDescriptionMemberFieldGeneric.Abstract
-	implements PersistenceTypeDefinitionMemberPseudoFieldSimple
+	implements PersistenceTypeDefinitionMemberFieldGenericSimple
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -85,9 +85,9 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(final String qualifier, final String name)
+		public PersistenceTypeDefinitionMemberFieldGenericSimple copyForName(final String qualifier, final String name)
 		{
-			return new PersistenceTypeDefinitionMemberPseudoFieldSimple.Default(
+			return new PersistenceTypeDefinitionMemberFieldGenericSimple.Default(
 				this.typeName()               ,
 				qualifier                     ,
 				name				          ,
@@ -99,7 +99,7 @@ extends PersistenceTypeDefinitionMemberPseudoField, PersistenceTypeDescriptionMe
 		}
 		
 		@Override
-		public PersistenceTypeDefinitionMemberPseudoFieldSimple copyForName(final String name)
+		public PersistenceTypeDefinitionMemberFieldGenericSimple copyForName(final String name)
 		{
 			return this.copyForName(null, name);
 		}

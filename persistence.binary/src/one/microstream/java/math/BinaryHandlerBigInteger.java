@@ -17,7 +17,7 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomVa
 	{
 		super(
 			BigInteger.class,
-			pseudoFields(
+			CustomFields(
 				bytes("value")
 			)
 		);

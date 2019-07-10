@@ -47,7 +47,7 @@ extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 		// binary layout definition
 		super(
 			typeWorkaround(),
-			simpleArrayPseudoFields()
+			SimpleArrayFields()
 		);
 	}
 

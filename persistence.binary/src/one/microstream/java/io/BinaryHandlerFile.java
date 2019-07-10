@@ -17,7 +17,7 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVar
 	{
 		super(
 			File.class,
-			pseudoFields(
+			CustomFields(
 				chars("path")
 			)
 		);
