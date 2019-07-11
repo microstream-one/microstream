@@ -8,6 +8,13 @@ import one.microstream.chars.XChars;
 public interface PersistenceTypeDefinitionMemberPrimitiveDefinition
 extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefinitionMember
 {
+	@Override
+	public default String identifier()
+	{
+		return this.primitiveDefinition();
+	}
+	
+	
 	public static PersistenceTypeDefinitionMemberPrimitiveDefinition New(
 		final PersistenceTypeDescriptionMemberPrimitiveDefinition description
 	)
@@ -185,7 +192,7 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 		@Override
 		public final Class<?> type()
 		{
-			// a definition does not have a member / field type. The defined primitive type is in the owner type.
+			// a definition does not have a type of a member field. The defined primitive type is in the owner type.
 			return null;
 		}
 		

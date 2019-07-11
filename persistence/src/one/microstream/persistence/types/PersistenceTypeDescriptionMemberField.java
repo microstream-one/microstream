@@ -25,13 +25,7 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 	 */
 	@Override
 	public String name();
-	
-	@Override
-	public default boolean equalsDescription(final PersistenceTypeDescriptionMember other)
-	{
-		return PersistenceTypeDescriptionMember.equalDescription(this, other);
-	}
-	
+			
 	
 	
 	public abstract class Abstract

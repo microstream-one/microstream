@@ -247,8 +247,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 					);
 				}
 
-				// (08.07.2019 TM)FIXME: MS-156: equal desciption or just structure?
-				if(m1.equalsDescription(m2))
+				// structure is enough since qualifiers are just required for intra-type identification
+				if(m1.equalsStructure(m2))
 				{
 					return true;
 				}
@@ -714,9 +714,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 						
 			for(final PersistenceTypeDefinition typeDefinition : typeLineage.entries().values())
 			{
-				// (08.07.2019 TM)FIXME: MS-156: really exact match or better equal structure?
-				// exact match including field order
-				final boolean isMatched = PersistenceTypeDescriptionMember.equalDescriptions(
+				// exact matching structure including field order. no matching of field qualifiers needed
+				final boolean isMatched = PersistenceTypeDescriptionMember.equalStructures(
 					handler.members(),
 					typeDefinition.members()
 				);

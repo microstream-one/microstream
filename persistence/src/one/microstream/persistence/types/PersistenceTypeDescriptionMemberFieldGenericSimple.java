@@ -1,5 +1,6 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
@@ -13,6 +14,24 @@ extends PersistenceTypeDescriptionMemberFieldGeneric
 	{
 		return creator.createDefinitionMember(this);
 	}
+	
+	public static boolean equalDescription(
+		final PersistenceTypeDescriptionMemberFieldGenericSimple m1,
+		final PersistenceTypeDescriptionMemberFieldGenericSimple m2
+	)
+	{
+		return PersistenceTypeDescriptionMember.equalDescription(m1, m2);
+	}
+	
+	public static boolean equalStructure(
+		final PersistenceTypeDescriptionMemberFieldGenericSimple m1,
+		final PersistenceTypeDescriptionMemberFieldGenericSimple m2
+	)
+	{
+		return PersistenceTypeDescriptionMember.equalStructure(m1, m2);
+	}
+	
+	
 
 	public static PersistenceTypeDescriptionMemberFieldGenericSimple.Default New(
 		final String  typeName               ,
@@ -36,7 +55,7 @@ extends PersistenceTypeDescriptionMemberFieldGeneric
 	{
 		return new PersistenceTypeDescriptionMemberFieldGenericSimple.Default(
 			 notNull(typeName)               ,
-			 notNull(qualifier)              ,
+			 mayNull(qualifier)              ,
 			 notNull(name)                   ,
 			         isReference             ,
 			positive(persistentMinimumLength),

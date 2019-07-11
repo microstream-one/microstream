@@ -128,7 +128,7 @@ public interface PersistenceTypeLineage
 				return true;
 			}
 			
-			return PersistenceTypeDescriptionMember.equalDescriptions(
+			return PersistenceTypeDescriptionMember.equalStructures(
 				typeDefinition.members(),
 				alreadyRegistered.members()
 			);

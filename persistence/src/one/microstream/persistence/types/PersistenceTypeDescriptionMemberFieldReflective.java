@@ -22,6 +22,23 @@ extends PersistenceTypeDescriptionMemberField
 		return creator.createDefinitionMember(this);
 	}
 	
+
+	
+	public static boolean equalDescription(
+		final PersistenceTypeDescriptionMemberFieldReflective m1,
+		final PersistenceTypeDescriptionMemberFieldReflective m2
+	)
+	{
+		return PersistenceTypeDescriptionMember.equalDescription(m1, m2);
+	}
+	
+	public static boolean equalStructure(
+		final PersistenceTypeDescriptionMemberFieldReflective m1,
+		final PersistenceTypeDescriptionMemberFieldReflective m2
+	)
+	{
+		return PersistenceTypeDescriptionMember.equalStructure(m1, m2);
+	}
 	
 
 	// (14.08.2015 TM)TODO: include Generics, Field#getGenericType

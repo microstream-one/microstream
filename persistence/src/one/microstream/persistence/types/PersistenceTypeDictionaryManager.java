@@ -31,8 +31,8 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		// Only the TypeId is the unique identifier. The type name only identifies the TypeLineage.
 		final PersistenceTypeDefinition registered = dictionary.lookupTypeById(typeDefinition.typeId());
 
-		// Any type definition (e.g. a custom TypeHandler) must match the definition in the dictionary.
-		if(registered != null && !PersistenceTypeDescription.equalDescription(registered, typeDefinition))
+		// Any type definition (e.g. a custom TypeHandler) must match the structural description in the dictionary.
+		if(registered != null && !PersistenceTypeDescription.equalStructure(registered, typeDefinition))
 		{
 			// (31.07.2014 TM)EXCP: proper exception
 			throw new RuntimeException("Type Definition mismatch: " + typeDefinition);
@@ -418,7 +418,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 				// Only the TypeId is the unique identifier. The type name only identifies the TypeLineage.
 				final PersistenceTypeDefinition registered = typeDictionary.lookupTypeById(td.typeId());
 
-				// Any type definition (e.g. a custom TypeHandler) must match the definition in the dictionary.
+				// Any type definition (e.g. a custom TypeHandler) must match the (exact) description in the dictionary.
 				if(registered == null || !PersistenceTypeDescription.equalDescription(registered, td))
 				{
 					// (31.07.2014 TM)EXCP: proper exception

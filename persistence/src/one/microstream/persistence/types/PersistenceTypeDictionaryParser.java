@@ -607,8 +607,8 @@ public interface PersistenceTypeDictionaryParser
 						this.lengthResolver.resolveComplexMemberMaximumLength(this.fieldName, this.typeName, this.nestedMembers)
 					)
 					: PersistenceTypeDescriptionMemberFieldGenericVariableLength.New(
-						this.qualifier,
 						this.typeName,
+						this.qualifier,
 						this.fieldName,
 						this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.fieldName, this.typeName),
 						this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.fieldName, this.typeName)
@@ -617,9 +617,9 @@ public interface PersistenceTypeDictionaryParser
 			}
 
 			return PersistenceTypeDescriptionMemberFieldGenericSimple.New(
+				this.typeName,
 				this.qualifier,
 				this.fieldName,
-				this.typeName,
 				!XReflect.isPrimitiveTypeName(this.typeName),
 				this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.fieldName, this.typeName),
 				this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.fieldName, this.typeName)
@@ -704,18 +704,34 @@ public interface PersistenceTypeDictionaryParser
 			);
 		}
 		
-		final PersistenceTypeDescriptionMemberFieldReflective buildMemberField()
+		final PersistenceTypeDescriptionMemberField buildMemberField()
 		{
-			// might be a reflective field or a generic simple field. No way to determine at the description level.
-			// (10.07.2019 TM)FIXME: MS-156: return unspecific MemberField implementation
-			return PersistenceTypeDescriptionMemberFieldReflective.New(
-				this.typeName(),
-				this.qualifier(),
-				this.fieldName(),
-				!XReflect.isPrimitiveTypeName(this.typeName()),
-				this.resolveMemberMinimumLength(),
-				this.resolveMemberMaximumLength()
-			);
+			final String   qualifier               = this.qualifier();
+			final Class<?> resolvableDeclaringType = qualifier == null
+				? null
+				: XReflect.tryResolveType(qualifier)
+			;
+		
+			/* If the qualifier is resolvable to a class, the field is reflectivly derivable.
+			 * If not, it must be a generic simple field. Even if that field was reflectively derived in the past.
+			 * It is not (or no longer), it cannot be handled reflectively, but only generically.
+			 * And, of course, should a type formerly being a class have changed to being an interface,
+			 * the field cannot be handled reflectively, either. Whatever future improvements might come to interfaces
+			 * (like protected methods, since they already can have private ones, now), it should be pretty much
+			 * out of the question that they could possibly ever have instance fields. That would make them identical
+			 * to classes and defeat their purpose of implementing multiple inheritance.
+			 */
+			
+			final String  tName  = this.typeName();
+			final boolean isPrim = XReflect.isPrimitiveTypeName(tName);
+			final String  fName  = this.fieldName();
+			final long    minLen = this.resolveMemberMinimumLength();
+			final long    maxLen = this.resolveMemberMaximumLength();
+			
+			return resolvableDeclaringType != null && !resolvableDeclaringType.isInterface()
+				? PersistenceTypeDescriptionMemberFieldReflective.New(tName, qualifier, fName, !isPrim, minLen, maxLen)
+				: PersistenceTypeDescriptionMemberFieldGenericSimple.New(tName, qualifier, fName, !isPrim, minLen, maxLen)
+			;
 		}
 		
 

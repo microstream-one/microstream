@@ -514,22 +514,6 @@ public interface PersistenceTypeDictionary
 		;
 	}
 
-	public static VarString paddedFullQualifiedFieldName(
-		final VarString vc                        ,
-		final String    declaringTypeName         ,
-		final int       maxDeclaringTypeNameLength,
-		final String    fieldName                 ,
-		final int       maxFieldNameLength
-	)
-	{
-		// redundant code here to avoid unnecessary padding in normal case
-		return vc
-			.padRight(declaringTypeName, maxDeclaringTypeNameLength, ' ')
-			.add(Symbols.MEMBER_FIELD_QUALIFIER_SEPERATOR)
-			.padRight(fieldName        , maxFieldNameLength        , ' ')
-		;
-	}
-
 	// type is primarily defined by the dictionary string. Parser must guarantee to create the appropriate member types
 	public static boolean isInlinedComplexType(final String typeName)
 	{

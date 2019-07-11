@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.internal.TypeDictionaryAppenderBuilder;
+import one.microstream.persistence.types.PersistenceTypeDictionary.Symbols;
 
 
 public interface PersistenceTypeDescriptionMemberAppender extends Consumer<PersistenceTypeDescriptionMember>
@@ -46,7 +47,7 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 		// instance fields //
 		////////////////////
 
-		private final VarString vc;
+		private final VarString vs;
 		private final int maxFieldTypeNameLength    ;
 		private final int maxDeclaringTypeNameLength;
 		private final int maxFieldNameLength        ;
@@ -67,7 +68,7 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 		)
 		{
 			super();
-			this.vc = vc;
+			this.vs = vc;
 			this.level = level;
 			this.maxFieldTypeNameLength     = notNegative(maxFieldTypeNameLength    );
 			this.maxDeclaringTypeNameLength = notNegative(maxDeclaringTypeNameLength);
@@ -76,34 +77,33 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 
 		private void indentMember()
 		{
-			this.vc.repeat(this.level, '\t');
+			this.vs.repeat(this.level, '\t');
 		}
 
 		private void terminateMember()
 		{
-			this.vc.add(MEMBER_TERMINATOR).lf();
+			this.vs.add(MEMBER_TERMINATOR).lf();
 		}
 
 		private void appendField(final PersistenceTypeDescriptionMemberField member)
 		{
-			PersistenceTypeDictionary.paddedFullQualifiedFieldName(
-				this.vc.padRight(member.typeName(), this.maxFieldTypeNameLength, ' ').blank(),
-				member.qualifier(),
-				this.maxDeclaringTypeNameLength,
-				member.name(),
-				this.maxFieldNameLength
-			);
+			// field type name gets assembled in any case
+			this.vs.padRight(member.typeName(), this.maxFieldTypeNameLength, ' ').blank();
+			
+			// field qualifier (e.g. declaring type name) is optional
+			final String qualifier = member.qualifier();
+			if(qualifier != null)
+			{
+				this.vs
+				.padRight(qualifier, this.maxDeclaringTypeNameLength, ' ')
+				.add(Symbols.MEMBER_FIELD_QUALIFIER_SEPERATOR)
+				;
+			}
+			
+			this.vs.padRight(member.name(), this.maxFieldNameLength, ' ');
 		}
 
-		private void appendGenericField(final PersistenceTypeDescriptionMemberFieldGeneric member)
-		{
-			this.vc
-			.padRight(member.typeName(), this.maxFieldTypeNameLength, ' ').blank()
-			.padRight(member.name()    , this.maxFieldNameLength    , ' ')
-			;
-		}
-
-
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// override methods //
@@ -126,27 +126,27 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 		@Override
 		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberFieldGenericVariableLength typeMember)
 		{
-			this.appendGenericField(typeMember);
+			this.appendField(typeMember);
 		}
 
 		@Override
 		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberFieldGenericComplex typeMember)
 		{
-			this.appendGenericField(typeMember);
-			this.vc.add(MEMBER_COMPLEX_DEF_START).lf();
+			this.appendField(typeMember);
+			this.vs.add(MEMBER_COMPLEX_DEF_START).lf();
 			final XGettingSequence<? extends PersistenceTypeDescriptionMemberFieldGeneric> members = typeMember.members();
 			final PersistenceTypeDescriptionMemberAppender appender = members.iterate(
-				new TypeDictionaryAppenderBuilder(this.vc, this.level + 1)
+				new TypeDictionaryAppenderBuilder(this.vs, this.level + 1)
 			).yield();
 			members.iterate(appender);
 			this.indentMember();
-			this.vc.add(MEMBER_COMPLEX_DEF_END);
+			this.vs.add(MEMBER_COMPLEX_DEF_END);
 		}
 
 		@Override
 		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberPrimitiveDefinition typeMember)
 		{
-			this.vc.add(PRIMITIVE_).add(typeMember.primitiveDefinition());
+			this.vs.add(PRIMITIVE_).add(typeMember.primitiveDefinition());
 		}
 
 	}
