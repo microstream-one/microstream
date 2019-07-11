@@ -5,8 +5,6 @@ import java.lang.reflect.Field;
 public interface PersistenceTypeDefinitionMemberField
 extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 {
-	// (10.07.2019 TM)FIXME: MS-156: fill as needed
-		
 	public default Field field()
 	{
 		/*
@@ -15,4 +13,5 @@ extends PersistenceTypeDefinitionMember, PersistenceTypeDescriptionMemberField
 		 */
 		return null;
 	}
+	
 }

@@ -153,7 +153,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			{
 				for(final PersistenceTypeDefinition typeDesc : typeDictionary.allTypeDefinitions().values())
 				{
-					if(PersistenceTypeDescription.equalDescription(typeDesc, this.registry.get(typeDesc.typeId())))
+					if(PersistenceTypeDescription.equalStructure(typeDesc, this.registry.get(typeDesc.typeId())))
 					{
 						continue;
 					}

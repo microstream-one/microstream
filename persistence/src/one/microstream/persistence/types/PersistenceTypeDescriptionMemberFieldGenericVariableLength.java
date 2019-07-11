@@ -14,11 +14,11 @@ extends PersistenceTypeDescriptionMemberFieldGeneric
 	}
 	
 	@Override
-	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
+	public default boolean equalsStructure(final PersistenceTypeDescriptionMember other)
 	{
 		// the type check is the only specific thing here.
-		return member instanceof PersistenceTypeDescriptionMemberFieldGenericVariableLength
-			&& equalDescription(this, (PersistenceTypeDescriptionMemberFieldGenericVariableLength)member)
+		return other instanceof PersistenceTypeDescriptionMemberFieldGenericVariableLength
+			&& PersistenceTypeDescriptionMemberFieldGeneric.super.equalsStructure(other)
 		;
 	}
 	
@@ -27,7 +27,14 @@ extends PersistenceTypeDescriptionMemberFieldGeneric
 		final PersistenceTypeDescriptionMemberFieldGenericVariableLength m2
 	)
 	{
-		// currently no specific checking logic
+		return PersistenceTypeDescriptionMember.equalDescription(m1, m2);
+	}
+	
+	public static boolean equalStructure(
+		final PersistenceTypeDescriptionMemberFieldGenericVariableLength m1,
+		final PersistenceTypeDescriptionMemberFieldGenericVariableLength m2
+	)
+	{
 		return PersistenceTypeDescriptionMember.equalStructure(m1, m2);
 	}
 	

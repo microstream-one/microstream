@@ -13,8 +13,6 @@ import one.microstream.X;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.Constant;
 import one.microstream.collections.types.XGettingCollection;
-import one.microstream.memory.PlatformInternals;
-import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.ChunksWrapper;
@@ -49,9 +47,11 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// instance fields //
 	////////////////////
 
-	private final File       file           ;
-	private final boolean    switchByteOrder;
-	private final ByteBuffer chunkDataBuffer = ByteBuffer.allocateDirect(INITIAL_BUFFER_SIZE);
+	private final File    file           ;
+	private final boolean switchByteOrder;
+	
+	// (11.07.2019 TM)NOTE: removed, see comments at occurance for reason.
+//	private final ByteBuffer chunkDataBuffer = ByteBuffer.allocateDirect(INITIAL_BUFFER_SIZE);
 
 
 
@@ -85,13 +85,15 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	private Constant<Binary> read(final long fileLength, final ReadableByteChannel channel)
 		throws IOException
 	{
-		// (10.07.2019 TM)FIXME: there is no more chunk length. Re-add in FileTarget or remove here?
 		final BulkList<ByteBuffer> chunks = new BulkList<>();
-		for(long readCount = 0, chunkTotalLength = 0; readCount < fileLength; readCount += chunkTotalLength)
-		{
-			chunkTotalLength = readChunkLength(this.chunkDataBuffer, channel, this);
-			chunks.add(this.readChunk(channel, fileLength));
-		}
+
+		// (10.07.2019 TM)NOTE: there is no more chunk length, just read all at once. Or re-add in FileTarget?
+		chunks.add(this.readChunk(channel, fileLength));
+//		for(long readCount = 0, chunkTotalLength = 0; readCount < fileLength; readCount += chunkTotalLength)
+//		{
+//			chunkTotalLength = readChunkLength(this.chunkDataBuffer, channel, this);
+//			chunks.add(this.readChunk(channel, fileLength));
+//		}
 		return X.<Binary>Constant(this.createChunksWrapper(chunks.toArray(ByteBuffer.class)));
 	}
 	
@@ -103,29 +105,30 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 		;
 	}
 	
-	private static final long readChunkLength(
-		final ByteBuffer          lengthBuffer ,
-		final ReadableByteChannel channel      ,
-		final MessageWaiter       messageWaiter
-	)
-		throws IOException
-	{
-		// not complicated to read a long from a channel. Not complicated at all. Just crap.
-		lengthBuffer.clear().limit(Binary.lengthLength());
-		fillBuffer(lengthBuffer, channel, messageWaiter);
-//		return lengthBuffer.getLong();
-		/* OMG they convert every single primitive to big endian, even if it's just from the same machine
-		 * to the same machine. With checking global "aligned" state like noobs and what not.
-		 * Giant runtime effort ruining everything just to avoid caring about / communicating local endianess.
-		 * Which is especially stupid as 90% of all machines are little endian anyway.
-		 * Who cares about negligible overpriced SUN hardware and other exotics.
-		 * They simply have to synchronize endianess in network communication via communication protocol.
-		 * Messing up the standard case with RUNTIME effort just for those is so stupid I can't tell.
-		 */
-
-		// good thing is: doing it manually gets rid of the clumsy flipping in this case
-		return XMemory.get_long(PlatformInternals.getDirectBufferAddress(lengthBuffer));
-	}
+//	private static final long readChunkLength(
+//		final ByteBuffer          lengthBuffer ,
+//		final ReadableByteChannel channel      ,
+//		final MessageWaiter       messageWaiter
+//	)
+//		throws IOException
+//	{
+//		// not complicated to read a long from a channel. Not complicated at all. Just crap.
+//		lengthBuffer.clear().limit(Binary.lengthLength());
+//		fillBuffer(lengthBuffer, channel, messageWaiter);
+////		return lengthBuffer.getLong();
+//		/* They convert every single primitive to big endian, even if it's just from the same machine
+//		 * to the same machine.
+//		 * Giant runtime effort ruining everything just to avoid caring about / communicating local endianess.
+//		 * Which is especially stupid as something like 90% of all machines are little endian anyway and
+//		 * wouldn't requiere any endianess transformation at all.
+//		 * Who cares about negligible overpriced SUN hardware and other exotics or some naive "network endianess".
+//		 * They simply have to synchronize endianess in network communication via communication protocol.
+//		 * Messing up the overwhelming normal case with RUNTIME effort just for those is so stupid I can't tell.
+//		 */
+//
+//		// good thing is: doing it manually gets rid of the clumsy flipping in this case
+//		return XMemory.get_long(PlatformInternals.getDirectBufferAddress(lengthBuffer));
+//	}
 
 	private static final void fillBuffer(
 		final ByteBuffer          buffer       ,

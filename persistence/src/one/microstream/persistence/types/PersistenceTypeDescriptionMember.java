@@ -7,11 +7,11 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.equality.Equalator;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.math.XMath;
+import one.microstream.meta.XDebug;
 
 
 public interface PersistenceTypeDescriptionMember
 {
-
 	public String typeName();
 	
 	/**
@@ -42,10 +42,60 @@ public interface PersistenceTypeDescriptionMember
 	 * @return the member's simple name.
 	 */
 	public String name();
-	
+		
+	/**
+	 * {@link #equalsStructure(PersistenceTypeDescriptionMember)} plus {@link #qualifier()} equality,
+	 * to check if a member is really content-wise equal.
+	 * 
+	 * @param other
+	 * @return
+	 * 
+	 * @see #equalsStructure(PersistenceTypeDescriptionMember)
+	 */
+	public default boolean equalsDescription(final PersistenceTypeDescriptionMember other)
+	{
+		// calls #equalsStructure to include inheritance overrides. Important!
+		return this.equalsStructure(other) && other != null
+			&& Objects.equals(this.qualifier(), other.qualifier())
+		;
+	}
 
-	// (09.07.2019 TM)FIXME: MS-156: check all description comparisons for type checks
-	public boolean equalsDescription(PersistenceTypeDescriptionMember other);
+	/**
+	 * Structure means equal order of members by type name and simple name.<br>
+	 * Not qualifier, since that is only required for intra-type field identification
+	 * 
+	 * @param other
+	 * @return
+	 * 
+	 * @see #equalDescription(PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember)
+	 */
+	public default boolean equalsStructure(final PersistenceTypeDescriptionMember other)
+	{
+		return equalTypeAndName(this, other);
+	}
+	
+	public static boolean equalTypeAndName(
+		final PersistenceTypeDescriptionMember m1,
+		final PersistenceTypeDescriptionMember m2
+	)
+	{
+		// attribute checks must be null-safe equals because of primitive definitions
+		return m1 == m2 || m2 != null
+			&& Objects.equals(m1.typeName(), m2.typeName())
+			&& Objects.equals(m1.name()    , m2.name()    )
+		;
+	}
+	
+	public static boolean equalTypeAndNameAndQualifier(
+		final PersistenceTypeDescriptionMember m1,
+		final PersistenceTypeDescriptionMember m2
+	)
+	{
+		// attribute checks must be null-safe equals because of primitive definitions
+		return equalTypeAndName(m1, m2) && m2 != null
+			&& Objects.equals(m1.qualifier(), m2.qualifier())
+		;
+	}
 	
 	/**
 	 * Tests whether the passed  {@link PersistenceTypeDescriptionMember} have the same "intended" structure, meaning
@@ -65,11 +115,8 @@ public interface PersistenceTypeDescriptionMember
 		final PersistenceTypeDescriptionMember m2
 	)
 	{
-		// must be null-safe equals because of primitive definitions
-		return m1 == m2 || m1 != null && m2 != null
-			&& Objects.equals(m1.typeName(), m2.typeName())
-			&& Objects.equals(m1.name()    , m2.name()    )
-		;
+		// must delegate to the implementation since complex fields must deep-check their nested fields
+		return m1 == m2 || m1 != null && m1.equalsStructure(m2);
 	}
 	
 	public static boolean equalDescription(
@@ -77,9 +124,8 @@ public interface PersistenceTypeDescriptionMember
 		final PersistenceTypeDescriptionMember m2
 	)
 	{
-		return equalStructure(m1, m2)
-			&& Objects.equals(m1.qualifier(), m2.qualifier())
-		;
+		// must delegate to the implementation since complex fields must deep-check their nested fields
+		return m1 == m2 || m1 != null && m1.equalsDescription(m2);
 	}
 	
 	
@@ -196,6 +242,12 @@ public interface PersistenceTypeDescriptionMember
 	
 	public static int identityHash(final PersistenceTypeDescriptionMember member)
 	{
+		// (11.07.2019 TM)FIXME: /!\ MS-156: DEBUG
+		if(member != null && member.identifier() == null)
+		{
+			XDebug.println("null");
+		}
+		
 		return member == null
 			? 0
 			: member.identifier().hashCode()
@@ -257,7 +309,7 @@ public interface PersistenceTypeDescriptionMember
 		return equalMembers(members1, members2, PersistenceTypeDescriptionMember::equalDescription);
 	}
 	
-	public static boolean equalStructure(
+	public static boolean equalStructures(
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members1,
 		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members2
 	)

@@ -13,11 +13,29 @@ extends PersistenceTypeDescriptionMemberFieldGenericVariableLength
 	public XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members();
 
 	
+	
 	@Override
-	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
+	public default boolean equalsDescription(final PersistenceTypeDescriptionMember other)
 	{
-		return member instanceof PersistenceTypeDescriptionMemberFieldGenericComplex
-			&& equalDescription(this, (PersistenceTypeDescriptionMemberFieldGenericComplex)member)
+		// does NOT call #equalsStructure to avoid redundant member iteration
+		return PersistenceTypeDescriptionMember.equalTypeAndNameAndQualifier(this, other)
+			&& other instanceof PersistenceTypeDescriptionMemberFieldGenericComplex
+			&& PersistenceTypeDescriptionMember.equalDescriptions(
+				this.members(),
+				((PersistenceTypeDescriptionMemberFieldGenericComplex)other).members()
+			)
+		;
+	}
+	
+	@Override
+	public default boolean equalsStructure(final PersistenceTypeDescriptionMember other)
+	{
+		return PersistenceTypeDescriptionMemberFieldGenericVariableLength.super.equalsStructure(other)
+			&& other instanceof PersistenceTypeDescriptionMemberFieldGenericComplex
+			&& PersistenceTypeDescriptionMember.equalStructures(
+				this.members(),
+				((PersistenceTypeDescriptionMemberFieldGenericComplex)other).members()
+			)
 		;
 	}
 	
@@ -26,9 +44,15 @@ extends PersistenceTypeDescriptionMemberFieldGenericVariableLength
 		final PersistenceTypeDescriptionMemberFieldGenericComplex m2
 	)
 	{
-		return PersistenceTypeDescriptionMember.equalStructure(m1, m2)
-			&& PersistenceTypeDescriptionMember.equalDescriptions(m1.members(), m2.members())
-		;
+		return PersistenceTypeDescriptionMember.equalDescription(m1, m2);
+	}
+	
+	public static boolean equalStructure(
+		final PersistenceTypeDescriptionMemberFieldGenericComplex m1,
+		final PersistenceTypeDescriptionMemberFieldGenericComplex m2
+	)
+	{
+		return PersistenceTypeDescriptionMember.equalStructure(m1, m2);
 	}
 	
 	@Override
@@ -40,21 +64,21 @@ extends PersistenceTypeDescriptionMemberFieldGenericVariableLength
 	}
 	
 	public static PersistenceTypeDescriptionMemberFieldGenericComplex New(
-		final String                                                        name                   ,
+		final String                                                         name                   ,
 		final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members                ,
-		final long                                                          persistentMinimumLength,
-		final long                                                          persistentMaximumLength
+		final long                                                           persistentMinimumLength,
+		final long                                                           persistentMaximumLength
 	)
 	{
 		return New(null, name, members, persistentMinimumLength, persistentMaximumLength);
 	}
 	
 	public static PersistenceTypeDescriptionMemberFieldGenericComplex New(
-		final String                                                        qualifier              ,
-		final String                                                        name                   ,
+		final String                                                         qualifier              ,
+		final String                                                         name                   ,
 		final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members                ,
-		final long                                                          persistentMinimumLength,
-		final long                                                          persistentMaximumLength
+		final long                                                           persistentMinimumLength,
+		final long                                                           persistentMaximumLength
 	)
 	{
 		return new PersistenceTypeDescriptionMemberFieldGenericComplex.Default(
@@ -83,11 +107,11 @@ extends PersistenceTypeDescriptionMemberFieldGenericVariableLength
 		/////////////////
 
 		Default(
-			final String                                                        qualifier              ,
-			final String                                                        name                   ,
+			final String                                                         qualifier              ,
+			final String                                                         name                   ,
 			final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members                ,
-			final long                                                          persistentMinimumLength,
-			final long                                                          persistentMaximumLength
+			final long                                                           persistentMinimumLength,
+			final long                                                           persistentMaximumLength
 		)
 		{
 			super(

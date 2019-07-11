@@ -84,7 +84,7 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	{
 		return td1 == td2 || td1 != null && td2 != null
 			&& td1.typeName().equals(td1.typeName())
-			&& PersistenceTypeDescriptionMember.equalStructure(td1.members(), td2.members())
+			&& PersistenceTypeDescriptionMember.equalStructures(td1.members(), td2.members())
 		;
 	}
 	

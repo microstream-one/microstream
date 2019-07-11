@@ -3,6 +3,8 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
+import java.util.Objects;
+
 public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends PersistenceTypeDescriptionMember
 {
 	public String primitiveDefinition();
@@ -95,14 +97,16 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 		{
 			assembler.appendTypeMemberDescription(this);
 		}
-
+		
 		@Override
-		public boolean equalsDescription(final PersistenceTypeDescriptionMember member)
+		public boolean equalsStructure(final PersistenceTypeDescriptionMember other)
 		{
-			return member instanceof PersistenceTypeDescriptionMemberPrimitiveDefinition
-				&& PersistenceTypeDescriptionMemberPrimitiveDefinition.equalDescription(
-					this,
-					(PersistenceTypeDescriptionMemberPrimitiveDefinition)member
+			// the check for equal (namely null) typename and name is still valid here.
+			return super.equalsStructure(other)
+				&& other instanceof PersistenceTypeDescriptionMemberPrimitiveDefinition
+				&& Objects.equals(
+					this.primitiveDefinition(),
+					((PersistenceTypeDescriptionMemberPrimitiveDefinition)other).primitiveDefinition()
 				)
 			;
 		}
