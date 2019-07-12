@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -542,7 +541,7 @@ public class Persistence
 	}
 	
 	/**
-	 * types that may never be encountered by the persistance layer at all (not yet complete)
+	 * Types that may never be encountered by the persistance layer at all (not yet complete).
 	 * 
 	 * @return
 	 */
@@ -572,7 +571,7 @@ public class Persistence
 	}
 
 	/**
-	 * Types that may never need to be analyzed generically (custom handler must be present)
+	 * Types (or super types of types) that may never need to be analyzed generically (custom handler must be present).
 	 * 
 	 * @return
 	 */
@@ -581,9 +580,7 @@ public class Persistence
 		// why permanently occupy additional memory with fields and instances for constant values?
 		return XArrays.add(
 			notIdMappableTypes(),
-			Composition.class,
-			// (12.07.2019 TM)FIXME: MS-143: remove Collection.class here
-			Collection.class
+			Composition.class
 		);
 	}
 
