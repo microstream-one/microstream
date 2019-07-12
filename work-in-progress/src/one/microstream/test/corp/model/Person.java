@@ -8,7 +8,7 @@ public final class Person extends Contact.Abstract
 
 	private String firstname;
 	private String lastname ;
-	private int    newField;
+//	private int    newField; // to test MainTestStorageExampleLegacyTypeHandler / LegacyTypeHandlerPerson
 
 
 
