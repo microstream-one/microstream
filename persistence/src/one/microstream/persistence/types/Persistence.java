@@ -582,6 +582,7 @@ public class Persistence
 		return XArrays.add(
 			notIdMappableTypes(),
 			Composition.class,
+			// (12.07.2019 TM)FIXME: MS-143: remove Collection.class here
 			Collection.class
 		);
 	}
