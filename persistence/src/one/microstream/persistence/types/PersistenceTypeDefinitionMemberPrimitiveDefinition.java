@@ -2,6 +2,7 @@ package one.microstream.persistence.types;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.math.XMath;
 
 
 
@@ -19,23 +20,25 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 		final PersistenceTypeDescriptionMemberPrimitiveDefinition description
 	)
 	{
-		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Default(
-			description.primitiveDefinition()    ,
+		final long persistentLength = XMath.equal(
 			description.persistentMinimumLength(),
 			description.persistentMaximumLength()
+		);
+		
+		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Default(
+			description.primitiveDefinition(),
+			persistentLength
 		);
 	}
 	
 	public static PersistenceTypeDefinitionMemberPrimitiveDefinition New(
-		final Class<?> primitiveType          ,
-		final long     persistentMinimumLength,
-		final long     persistentMaximumLength
+		final Class<?> primitiveType   ,
+		final long     persistentLength
 	)
 	{
 		return new PersistenceTypeDefinitionMemberPrimitiveDefinition.Default(
 			Default.assemblePrimitiveDefinition(primitiveType),
-			persistentMinimumLength,
-			persistentMaximumLength
+			persistentLength
 		);
 	}
 
@@ -175,12 +178,11 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 		/////////////////
 
 		protected Default(
-			final String primitiveDefinition    ,
-			final long   persistentMinimumLength,
-			final long   persistentMaximumLength
+			final String primitiveDefinition,
+			final long   persistentLength
 		)
 		{
-			super(primitiveDefinition, persistentMinimumLength, persistentMaximumLength);
+			super(primitiveDefinition, persistentLength);
 		}
 
 

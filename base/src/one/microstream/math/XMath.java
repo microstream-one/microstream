@@ -1450,6 +1450,17 @@ public final class XMath
 		// (27.03.2019 TM)EXCP: proper exception
 		throw new NumberRangeException();
 	}
+	
+	public static long equal(final long value1, final long value2) throws IllegalArgumentException
+	{
+		if(value1 == value2)
+		{
+			return value1;
+		}
+		
+		// (12.07.2019 TM)EXCP: proper exception
+		throw new IllegalArgumentException("Unequal values: " + value1 + " != " + value2);
+	}
 
 	public static double[] column(final int columnIndex, final double[]... matrix)
 	{

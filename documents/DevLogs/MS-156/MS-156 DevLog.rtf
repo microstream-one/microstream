@@ -151,5 +151,26 @@ Das bau ich so um.\par
 Aber morgen, weil's schon 18 Uhr ist ...\par
 \par
 Das sollte dann aber eins der letzten Test-Problemchen sein, dann ist das Issue fertig.\par
+\par
+\par
+\par
+2019-07-11\par
+\par
+Klassenhierarchie bei PersistenceTypeDescriptionMemberField aufsplitten, bzw. die PersistenceTypeDescriptionMember#Abstract ist dann \'fcberfl\'fcssig, weil alles von Field abweichende gleich in die PrimitiveDefinition rein kommt.\par
+Dort dann gleich einzelnen "persistentLength" Wert machen anstatt Minimum und Maximum.\par
+Testen.\par
+Passt.\par
+\par
+LegacyTypeHandler mit expliziter TypeId funktioniert.\par
+Aber dabei Idee: Es m\'fcsste auch reichen, die TypeId wegzulassen und den nur nach Structure zu matchen.\par
+Bzw. anders gesagt: Das matching nach Structure gibt es schon, aber daf\'fcr muss die TypeId 0 sein.\par
+Testen.\par
+Hm. Ja, geht, aber danach wird der handler nicht mehr mit der betreffenden TypeId initialisiert.\par
+Mal schauen, wo ich das einbauen muss.\par
+Oh, und: Der TypeHandlerManager pr\'fcft beim registrieren des effektiv zu verwendenden TypeHandlers nach TypeId nicht auf TypeId != 0. Das ist ein Bug, den Check muss ich noch einbauen.\par
+\par
+So. Beides eingebaut und getestet. Custom LegacyTypeHandler funktioniert. Mit und ohne expliziter TypeId. Sehr sch\'f6n.\par
+Fertig.\par
+\par
 }
  

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -434,6 +435,92 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		}
 	}
 	
+	public static ByteBuffer determineLastNonEmpty(final ByteBuffer[] byteBuffers)
+	{
+		for(int i = byteBuffers.length - 1; i >= 0; i--)
+		{
+			if(byteBuffers[i].hasRemaining())
+			{
+				return byteBuffers[i];
+			}
+		}
+		
+		// either the array is empty or only contains empty buffers. Either way, no suitable buffer found.
+		return null;
+	}
+	
+	/**
+	 * Sets the passed {@link FileChannel}'s position to its current length and repeatedly calls
+	 * {@link FileChannel#write(ByteBuffer[])} until the last non-empty buffer has no remaining bytes.<br>
+	 * This is necessary because JDK's {@link FileChannel#write(ByteBuffer[])} seems to arbitrarily stop processing
+	 * the passed {@link ByteBuffer}s even though they have remaining bytes left to be written.
+	 * <p>
+	 * The reason for this behavior is unknown, but looking at countless other issues in the JDK code,
+	 * one might guess... .
+	 * 
+	 * @param fileChannel
+	 * @param byteBuffers
+	 * @return
+	 * @throws IOException
+	 */
+	public static long appendAll(final FileChannel fileChannel, final ByteBuffer[] byteBuffers)
+		throws IOException
+	{
+		// determine last non-empty buffer to be used as a write-completion check point
+		final ByteBuffer lastNonEmpty = determineLastNonEmpty(byteBuffers);
+		if(lastNonEmpty == null)
+		{
+			return 0L;
+		}
+		
+		final long oldLength = fileChannel.size();
+		
+		long writeCount = 0;
+		fileChannel.position(oldLength);
+		while(lastNonEmpty.hasRemaining())
+		{
+			writeCount += fileChannel.write(byteBuffers);
+		}
+		
+		return writeCount;
+	}
+	
+	/**
+	 * Calls {@link #appendAll(FileChannel, ByteBuffer[])}, then {@link FileChannel#force(boolean)}, then validates
+	 * if the actual new file size is really exactely what it should be based on old file size and the amount of bytes
+	 * written.<p>
+	 * In short: this method "guarantees" that every byte contained in the passed {@link ByteBuffer}s was appended
+	 * to the passed {@link FileChannel} and actually reached the physical file.
+	 * 
+	 * @param fileChannel
+	 * @param byteBuffers
+	 * @return
+	 * @throws IOException
+	 */
+	public static long appendAllGuaranteed(final FileChannel fileChannel, final ByteBuffer[] byteBuffers)
+		throws IOException
+	{
+		final long oldLength  = fileChannel.size();
+		final long writeCount = XFiles.appendAll(fileChannel, byteBuffers);
+		
+		// this is the right place for a data-safety-securing force/flush.
+		fileChannel.force(false);
+		
+		final long newTotalLength = fileChannel.size();
+		
+		if(newTotalLength != oldLength + writeCount)
+		{
+			 // (01.10.2014)EXCP: proper exception
+			throw new IOException(
+				"Inconsistent post-write file length:"
+				+ " New total length " + newTotalLength +
+				" is not equal " + oldLength + " + " + writeCount + " (old length and write count)"
+			);
+		}
+		
+		return writeCount;
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -450,4 +537,5 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		// static only
 		throw new UnsupportedOperationException();
 	}
+	
 }

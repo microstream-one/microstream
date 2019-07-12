@@ -12,6 +12,7 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
+import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
@@ -216,9 +217,24 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			}
 		}
 		
+		private void validateTypeHandlerTypeId(final PersistenceTypeHandler<M, ?> typeHandler)
+		{
+			if(typeHandler.typeId() != Persistence.nullId())
+			{
+				return;
+			}
+			
+			throw new PersistenceExceptionTypeHandlerConsistency(
+				"Invalid 0-TypeId " + PersistenceTypeHandler.class.getSimpleName()
+				+ " " + typeHandler.typeName()
+			);
+		}
+		
 		@Override
 		public final void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
+			this.validateTypeHandlerTypeId(typeHandler);
+			
 			final PersistenceTypeDefinition registeredTd =
 				this.typeDictionaryManager.provideTypeDictionary().lookupTypeByName(typeHandler.typeName())
 			;
@@ -472,6 +488,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		@Override
 		public final boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler)
 		{
+			this.validateTypeHandlerTypeId(legacyTypeHandler);
 			return this.typeHandlerRegistry.registerLegacyTypeHandler(legacyTypeHandler);
 		}
 
