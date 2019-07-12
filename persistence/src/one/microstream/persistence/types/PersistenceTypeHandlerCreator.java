@@ -3,6 +3,7 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
@@ -116,7 +117,11 @@ public interface PersistenceTypeHandlerCreator<M>
 				);
 			}
 			
-			// (12.07.2019 TM)FIXME: MS-143: check for Collecion here and analyse accordingly.
+			if(Collection.class.isAssignableFrom(type))
+			{
+				return this.createCollectionHandler(type);
+			}
+			
 			
 			/* (25.03.2019 TM)NOTE:
 			 * Note on lambdas:
@@ -148,12 +153,23 @@ public interface PersistenceTypeHandlerCreator<M>
 			return this.createGenericHandler(type);
 		}
 		
+		protected <T> PersistenceTypeHandler<M, T> createCollectionHandler(final Class<T> type)
+		{
+			final HashEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions = HashEnum.New();
+
+			final XGettingEnum<Field> persistableFields =
+				this.typeAnalyzer.collectPersistableFieldsReflectiveCollection(type, fieldDescriptions)
+			;
+			
+			return this.createTypeHandlerReflective(type, persistableFields);
+		}
+		
 		protected <T> PersistenceTypeHandler<M, T> createGenericHandler(final Class<T> type)
 		{
 			final HashEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions = HashEnum.New();
 
 			final XGettingEnum<Field> persistableFields =
-				this.typeAnalyzer.collectPersistableFields(type, fieldDescriptions)
+				this.typeAnalyzer.collectPersistableFieldsReflective(type, fieldDescriptions)
 			;
 			
 			return this.createTypeHandlerReflective(type, persistableFields);

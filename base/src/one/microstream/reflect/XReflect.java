@@ -296,7 +296,7 @@ public final class XReflect
 		final Predicate<Field> predicate
 	)
 	{
-		//applies to Object.class, Void.class, interfaces, primitives. See Class.getSuperclass() JavaDoc.
+		// applies to Object.class, Void.class, interfaces, primitives. See Class.getSuperclass() JavaDoc.
 		if(type.isArray() || type.getSuperclass() == null)
 		{
 			return collection;
