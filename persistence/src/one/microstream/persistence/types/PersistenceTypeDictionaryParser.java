@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingSequence;
+import one.microstream.math.XMath;
 import one.microstream.persistence.exceptions.PersistenceExceptionParser;
 import one.microstream.persistence.exceptions.PersistenceExceptionParserIncompleteInput;
 import one.microstream.persistence.exceptions.PersistenceExceptionParserMissingComplexTypeDefinition;
@@ -697,10 +698,14 @@ public interface PersistenceTypeDictionaryParser
 		
 		final PersistenceTypeDescriptionMemberPrimitiveDefinition buildMemberPrimitiveDefinition()
 		{
-			return PersistenceTypeDescriptionMemberPrimitiveDefinition.New(
-				this.primitiveDefinition,
+			final long persistentLength = XMath.equal(
 				this.resolveMinimumPrimitiveLength(),
 				this.resolveMaximumPrimitiveLength()
+			);
+			
+			return PersistenceTypeDescriptionMemberPrimitiveDefinition.New(
+				this.primitiveDefinition,
+				persistentLength
 			);
 		}
 		

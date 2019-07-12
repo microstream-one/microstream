@@ -2,11 +2,11 @@ package one.microstream.storage.types;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import one.microstream.files.XFiles;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
 
@@ -34,61 +34,15 @@ public interface StorageFileWriter
 	
 	public default long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
 	{
-//		DEBUGStorage.println("storage write multiple buffers");
-
-		// determine last non-empty buffer to be used as a write-completion check point
-		final ByteBuffer lastNonEmpty = determineLastNonEmpty(byteBuffers);
-		if(lastNonEmpty == null)
-		{
-			return 0L;
-		}
-		
-		final FileChannel channel   = file.fileChannel();
-		final long        oldLength = file.length();
-		
-		long writeCount = 0;
 		try
 		{
-			channel.position(oldLength);
-			while(lastNonEmpty.hasRemaining())
-			{
-				writeCount += channel.write(byteBuffers);
-			}
-			
-			// this is the right place for a data-safety-securing force/flush.
-			channel.force(false);
-			
-			final long newTotalLength = file.length();
-			if(newTotalLength != oldLength + writeCount)
-			{
-				 // (01.10.2014)EXCP: proper exception
-				throw new RuntimeException(
-					"Inconsistent post-write file length:"
-					+ " New total length " + newTotalLength +
-					" is not equal " + oldLength + " + " + writeCount + " (old length and write count)"
-				);
-			}
-			
-			return writeCount;
+			return XFiles.appendAllGuaranteed(file.fileChannel(), byteBuffers);
 		}
 		catch(final IOException e)
 		{
-			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+			// (01.10.2014)EXCP: proper exception
+			throw new RuntimeException(e);
 		}
-	}
-
-	public static ByteBuffer determineLastNonEmpty(final ByteBuffer[] byteBuffers)
-	{
-		for(int i = byteBuffers.length - 1; i >= 0; i--)
-		{
-			if(byteBuffers[i].hasRemaining())
-			{
-				return byteBuffers[i];
-			}
-		}
-		
-		// either the array is empty or only contains empty buffers. Either way, no suitable buffer found.
-		return null;
 	}
 
 	public default long copy(

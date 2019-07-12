@@ -33,7 +33,6 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 		this.member = X.Constant(
 			PersistenceTypeDefinitionMemberPrimitiveDefinition.New(
 				type,
-				primitiveBinaryLength,
 				primitiveBinaryLength
 			)
 		);

@@ -39,8 +39,8 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 			)
 		);
 		
-		// read manually from TypeDictionaryFile
-		this.initialize(100037);
+		// optionally initializeable to a specific TypeId ("type version"). Otherwise, TypeId is assigned implicitely.
+//		this.initialize(1000040);
 	}
 	
 	

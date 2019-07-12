@@ -299,6 +299,11 @@ public interface PersistenceLegacyTypeMapper<M>
 				)
 			;
 			
+			if(legacyTypeHandlerbyId == null)
+			{
+				return null;
+			}
+			
 			// validate if the found handler with matching explicit typeId also has matching structure
 			if(!PersistenceTypeDescription.equalStructure(legacyTypeHandlerbyId, legacyTypeDefinition))
 			{
@@ -324,6 +329,7 @@ public interface PersistenceLegacyTypeMapper<M>
 				)
 			;
 			
+			// intentionally no validation of 0-TypeId here, since the following initialization already does validation.
 			return matchingLegacyTypeHandler;
 		}
 		
@@ -337,7 +343,11 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceLegacyTypeHandler<M, T> customHandler = this.lookupCustomHandler(legacyTypeDefinition);
 			if(customHandler != null)
 			{
-				return customHandler;
+				/*
+				 * must initialize TypeHandler with given TypeId
+				 * (potentially creating an initialized instance from an uninitialized prototype handler instance)
+				 */
+				return customHandler.initialize(legacyTypeDefinition.typeId());
 			}
 			
 			// at this point a legacy handler must be creatable or something went wrong.

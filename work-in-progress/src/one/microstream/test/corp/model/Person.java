@@ -8,6 +8,7 @@ public final class Person extends Contact.Abstract
 
 	private String firstname;
 	private String lastname ;
+	private int    newField;
 
 
 

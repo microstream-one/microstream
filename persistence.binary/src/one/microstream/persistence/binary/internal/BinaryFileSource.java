@@ -39,7 +39,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// constants //
 	//////////////
 
-	private static final int INITIAL_BUFFER_SIZE = 1_048_576; // or "1 << 20" or 2^20. 1 MB should be a good init size
+//	private static final int INITIAL_BUFFER_SIZE = 1_048_576; // or "1 << 20" or 2^20. 1 MB should be a good init size
 
 
 
