@@ -1,15 +1,15 @@
 package one.microstream.entity;
 
-public class EntityLayerTransactional<E extends Entity<E>>
-extends EntityLayer<E>
-implements EntityTransaction.Committable<E>
+public class EntityLayerTransactional
+extends EntityLayer
+implements EntityTransaction.Committable
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
 	private final TransactionContext transactionContext;
-	private final Entity<E>          identityLayer     ;
+	private final Entity             identityLayer     ;
 	
 	
 	
@@ -17,7 +17,7 @@ implements EntityTransaction.Committable<E>
 	// constructors //
 	/////////////////
 	
-	protected EntityLayerTransactional(final Entity<E> innerLayer, final TransactionContext transactionContext)
+	protected EntityLayerTransactional(final Entity innerLayer, final TransactionContext transactionContext)
 	{
 		super(innerLayer);
 		this.transactionContext = transactionContext  ;
@@ -31,7 +31,7 @@ implements EntityTransaction.Committable<E>
 	////////////
 	
 	@Override
-	public final E $data()
+	public final Entity $data()
 	{
 		synchronized(this.identityLayer)
 		{
@@ -40,7 +40,7 @@ implements EntityTransaction.Committable<E>
 	}
 	
 	@Override
-	public final E actualData()
+	public final Entity actualData()
 	{
 		synchronized(this.$entity())
 		{
@@ -49,13 +49,13 @@ implements EntityTransaction.Committable<E>
 	}
 	
 	@Override
-	public E $entity()
+	public Entity $entity()
 	{
 		return this.actualData().$entity();
 	}
 	
 	@Override
-	public final boolean $updateData(final E newData)
+	public final boolean $updateData(final Entity newData)
 	{
 		synchronized(this.$entity())
 		{
@@ -70,7 +70,7 @@ implements EntityTransaction.Committable<E>
 	{
 		synchronized(this.$entity())
 		{
-			final E local = this.transactionContext.lookupData(this);
+			final Entity local = this.transactionContext.lookupData(this);
 			if(local == null)
 			{
 				// no-op due to no entry at all, return.

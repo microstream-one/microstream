@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XIterable;
 
-public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>, TransactionContext
+public interface EntityTransaction extends XIterable<EntityTransaction.Entry>, TransactionContext
 {
 	public boolean isCommitted();
 	
@@ -19,11 +19,11 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 	 */
 //	public boolean isCommittable();
 	
-	public interface Entry<E extends Entity<E>>
+	public interface Entry
 	{
-		public E original();
+		public Entity original();
 		
-		public E local();
+		public Entity local();
 		
 		public boolean isCommittable();
 		
@@ -33,32 +33,32 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 	@FunctionalInterface
 	public interface DataConflictAcceptor
 	{
-		public <E extends Entity<E>> void acceptConflict(
-			Entity<E> localOriginalData,
-			Entity<E> localModifiedData,
-			Entity<E> currentData
+		public void acceptConflict(
+			Entity localOriginalData,
+			Entity localModifiedData,
+			Entity currentData
 		);
 	}
 	
-	public interface DataConflict<E extends Entity<E>>
+	public interface DataConflict
 	{
-		public Entity<E> localOriginalData();
+		public Entity localOriginalData();
 		
-		public Entity<E> localModifiedData();
+		public Entity localModifiedData();
 		
-		public Entity<E> currentData();
+		public Entity currentData();
 		
 		
 		
-		public final class Default<E extends Entity<E>> implements DataConflict<E>
+		public final class Default implements DataConflict
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
-			private final Entity<E> localOriginalData;
-			private final Entity<E> localModifiedData;
-			private final Entity<E> currentData      ;
+			private final Entity localOriginalData;
+			private final Entity localModifiedData;
+			private final Entity currentData      ;
 			
 			
 			
@@ -67,9 +67,9 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 			/////////////////
 			
 			Default(
-				final Entity<E> localOriginalData,
-				final Entity<E> localModifiedData,
-				final Entity<E> currentData
+				final Entity localOriginalData,
+				final Entity localModifiedData,
+				final Entity currentData
 			)
 			{
 				super();
@@ -79,19 +79,19 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 			}
 			
 			@Override
-			public final Entity<E> localModifiedData()
+			public final Entity localModifiedData()
 			{
 				return this.localModifiedData;
 			}
 			
 			@Override
-			public final Entity<E> localOriginalData()
+			public final Entity localOriginalData()
 			{
 				return this.localOriginalData;
 			}
 			
 			@Override
-			public final Entity<E> currentData()
+			public final Entity currentData()
 			{
 				return this.currentData;
 			}
@@ -113,8 +113,8 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 		// instance fields //
 		////////////////////
 		
-		private final HashTable<Entity<?>, Entry<?>> entries     = HashTable.New();
-		private       boolean                        isCommitted;
+		private final HashTable<Entity, Entry> entries     = HashTable.New();
+		private       boolean                  isCommitted;
 		
 		private static final Comparator<Object> compareHashCode = (final Object o1, final Object o2) ->
 		{
@@ -128,27 +128,26 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 		////////////
 
 		@Override
-		public synchronized <P extends Consumer<? super EntityTransaction.Entry<?>>> P iterate(final P procedure)
+		public synchronized <P extends Consumer<? super EntityTransaction.Entry>> P iterate(final P procedure)
 		{
 			return this.entries.values().iterate(procedure);
 		}
 		
 		@Override
-		@SuppressWarnings("unchecked") // cast safety is guaranteed by logic.
-		public synchronized <E extends Entity<E>> E lookupData(final Committable<E> entity)
+		public synchronized Entity lookupData(final Committable entity)
 		{
-			final Entry<E> entry = (Entry<E>)this.entries.get(entity);
+			final Entry entry = (Entry)this.entries.get(entity);
 			return entry == null ? null : entry.local();
 		}
 		
 		@Override
-		public synchronized <E extends Entity<E>> E ensureData(final Committable<E> entity)
+		public synchronized Entity ensureData(final Committable entity)
 		{
 			return this.ensureEntryUnsynched(entity).local();
 		}
 		
 		@Override
-		public synchronized <E extends Entity<E>> E updateData(final Committable<E> entity, final E newData)
+		public synchronized Entity updateData(final Committable entity, final Entity newData)
 		{
 			// $data() is called again just to make sure that an actual data instance is set.
 			/* Note:
@@ -159,13 +158,12 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 			return this.ensureEntryUnsynched(entity).local(newData.$data());
 		}
 		
-		private <E extends Entity<E>> Entry<E> ensureEntryUnsynched(final Committable<E> entity)
+		private Entry ensureEntryUnsynched(final Committable entity)
 		{
-			@SuppressWarnings("unchecked") // cast safety is guaranteed by logic.
-			Entry<E> entry = (Entry<E>)this.entries.get(entity.$entity());
+			Entry entry = this.entries.get(entity.$entity());
 			if(entry == null)
 			{
-				this.entries.add(entity, entry = new Entry<>(entity));
+				this.entries.add(entity, entry = new Entry(entity));
 				
 				/* (28.11.2017 TM)NOTE: potential deadlock.
 				 * Recursively or iteratively, locking a lot of instances might generically cause deadlocks.
@@ -193,7 +191,7 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 				throw new EntityTransactionExceptionAlreadyCommitted();
 			}
 			
-			final HashTable<Entity<?>, DataConflict<?>> conflicts = HashTable.New();
+			final HashTable<Entity, DataConflict> conflicts = HashTable.New();
 			
 			// quick check without lock to find stable conflicts without causing too much locking
 			this.checkCommittable(conflicts);
@@ -240,11 +238,11 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 			this.recursivelyLockAndExecute(this.entries.values().iterator(), logic);
 		}
 		
-		private void recursivelyLockAndExecute(final Iterator<Entry<?>> iterator, final Runnable logic)
+		private void recursivelyLockAndExecute(final Iterator<Entry> iterator, final Runnable logic)
 		{
 			if(iterator.hasNext())
 			{
-				final EntityTransaction.Entry<?> entry = iterator.next();
+				final EntityTransaction.Entry entry = iterator.next();
 				
 				// recursive multi-instance-lock. Better not have too many entities.
 				synchronized(entry.original().$entity())
@@ -259,20 +257,20 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 		}
 		
 		
-		private void checkCommittable(final HashTable<Entity<?>, DataConflict<?>> conflicts)
+		private void checkCommittable(final HashTable<Entity, DataConflict> conflicts)
 		{
 			final DataConflictAcceptor acceptor = new DataConflictAcceptor()
 			{
 				@Override
-				public <E extends Entity<E>> void acceptConflict(
-					final Entity<E> localOriginalData,
-					final Entity<E> localModifiedData,
-					final Entity<E> currentData
+				public void acceptConflict(
+					final Entity localOriginalData,
+					final Entity localModifiedData,
+					final Entity currentData
 				)
 				{
 					conflicts.add(
 						localOriginalData.$entity(),
-						new DataConflict.Default<>(
+						new DataConflict.Default(
 							localOriginalData,
 							localModifiedData,
 							currentData
@@ -293,15 +291,15 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 		}
 
 		// (28.11.2017 TM)NOTE: possible optimization: the entry could be
-		static final class Entry<E extends Entity<E>> implements EntityTransaction.Entry<E>
+		static final class Entry implements EntityTransaction.Entry
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
-			private final Committable<E> committable ;
-			private final E              originalData;
-			private       E              localData   ;
+			private final Committable committable ;
+			private final Entity      originalData;
+			private       Entity      localData   ;
 			
 			
 			
@@ -309,20 +307,20 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 			// constructors //
 			/////////////////
 
-			Entry(final Committable<E> committable)
+			Entry(final Committable committable)
 			{
 				super();
 				this.localData = this.originalData = (this.committable = committable).actualData();
 			}
 
 			@Override
-			public final E original()
+			public final Entity original()
 			{
 				return this.originalData;
 			}
 
 			@Override
-			public final E local()
+			public final Entity local()
 			{
 				return this.localData;
 			}
@@ -338,7 +336,7 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 			public void checkCommittable(final DataConflictAcceptor acceptor)
 			{
 				// must be exactely one $data() call to guarantee consistency.
-				final E currentData = this.committable.actualData();
+				final Entity currentData = this.committable.actualData();
 				
 				if(this.originalData != currentData)
 				{
@@ -351,9 +349,9 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry<?>>
 				this.committable.commit();
 			}
 			
-			final E local(final E local)
+			final Entity local(final Entity local)
 			{
-				final E current = this.localData;
+				final Entity current = this.localData;
 				this.localData = local;
 				return current;
 			}

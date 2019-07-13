@@ -9,7 +9,7 @@ public class EntityTransactionExceptionDataConflict extends EntityTransactionExc
 	// instance fields //
 	////////////////////
 	
-	private final HashTable<Entity<?>, DataConflict<?>> conflicts;
+	private final HashTable<Entity, DataConflict> conflicts;
 	
 	
 	
@@ -17,7 +17,7 @@ public class EntityTransactionExceptionDataConflict extends EntityTransactionExc
 	// constructors //
 	/////////////////
 	
-	public EntityTransactionExceptionDataConflict(final HashTable<Entity<?>, DataConflict<?>> conflicts)
+	public EntityTransactionExceptionDataConflict(final HashTable<Entity, DataConflict> conflicts)
 	{
 		super();
 		this.conflicts = conflicts;
@@ -29,7 +29,7 @@ public class EntityTransactionExceptionDataConflict extends EntityTransactionExc
 	// methods //
 	////////////
 	
-	public HashTable<Entity<?>, DataConflict<?>> conflicts()
+	public HashTable<Entity, DataConflict> conflicts()
 	{
 		return this.conflicts;
 	}

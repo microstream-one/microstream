@@ -1,12 +1,12 @@
 package one.microstream.entity;
 
-public abstract class EntityData<E extends Entity<E>> implements Entity<E>
+public abstract class EntityData implements Entity
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 
-	private final E entity;
+	private final Entity entity;
 	
 	
 	
@@ -14,7 +14,7 @@ public abstract class EntityData<E extends Entity<E>> implements Entity<E>
 	// constructors //
 	/////////////////
 
-	protected EntityData(final E entity)
+	protected EntityData(final Entity entity)
 	{
 		super();
 		this.entity = entity.$entity();
@@ -27,23 +27,27 @@ public abstract class EntityData<E extends Entity<E>> implements Entity<E>
 	////////////
 	
 	@Override
-	public final E $entity()
+	public final Entity $entity()
 	{
 		return this.entity;
 	}
-			
-	@SuppressWarnings("unchecked")
+	
 	@Override
-	public final E $data()
+	public final Entity $data()
 	{
-		return (E)this;
+		return (Entity)this;
 	}
 	
 	@Override
-	public final boolean $updateData(final E newData)
+	public final boolean $updateData(final Entity newData)
 	{
 		// updating an entity's data means to replace the data instance, not mutate it. Data itself is immutable.
 		return false;
 	}
 	
+	@Override
+	public abstract boolean equals(Object obj);
+		
+	@Override
+	public abstract int hashCode();
 }
