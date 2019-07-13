@@ -15,7 +15,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 	}
 	
 	@Override
-	public default <E extends Entity<E>> EntityLayerProvider<E> provideEntityLayerProvider()
+	public default EntityLayerProvider provideEntityLayerProvider()
 	{
 		return e ->
 			new EntityLayerVersioning<>(e, this)

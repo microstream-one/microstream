@@ -3,11 +3,17 @@ package some.app.entities._generated._Person;
 import one.microstream.entity.EntityLayerIdentity;
 import some.app.entities.Person;
 
-public final class _Entity extends EntityLayerIdentity<Person> implements Person
+public class PersonEntity extends EntityLayerIdentity implements Person
 {
-	_Entity()
+	protected PersonEntity()
 	{
 		super();
+	}
+	
+	@Override
+	public Person $data()
+	{
+		return (Person)super.$data();
 	}
 
 	@Override
@@ -20,6 +26,5 @@ public final class _Entity extends EntityLayerIdentity<Person> implements Person
 	public final String lastName()
 	{
 		return this.$data().lastName();
-	}
-	
+	}	
 }

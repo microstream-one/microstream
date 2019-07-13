@@ -2,25 +2,25 @@ package one.microstream.entity;
 
 public interface TransactionContext extends EntityLayerProviderProvider
 {
-	public <E extends Entity<E>> E lookupData(Committable<E> entity);
+	public Entity lookupData(Committable entity);
 	
-	public <E extends Entity<E>> E ensureData(Committable<E> entity);
+	public Entity ensureData(Committable entity);
 	
-	public <E extends Entity<E>> E updateData(Committable<E> entity, E newData);
+	public Entity updateData(Committable entity, Entity newData);
 
 	@Override
-	public default <E extends Entity<E>> EntityLayerProvider<E> provideEntityLayerProvider()
+	public default EntityLayerProvider provideEntityLayerProvider()
 	{
 		return e ->
-			new EntityLayerTransactional<>(e, this)
+			new EntityLayerTransactional(e, this)
 		;
 	}
 	
 	
 	
-	public interface Committable<E extends Entity<E>> extends Entity<E>
+	public interface Committable extends Entity
 	{
-		public E actualData();
+		public Entity actualData();
 		
 		public void commit();
 	}

@@ -1,22 +1,20 @@
 package one.microstream.entity;
 
-public abstract class EntityLayerIdentity<E extends Entity<E>> extends EntityLayer<E>
+public abstract class EntityLayerIdentity extends EntityLayer
 {
 	protected EntityLayerIdentity()
 	{
 		super(null);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public final E $entity()
+	public final Entity $entity()
 	{
-		// the safety of this cast has to be guaranteed by the extending implementation.
-		return (E)this;
+		return this;
 	}
 	
 	@Override
-	public boolean $updateData(final E newData)
+	public boolean $updateData(final Entity newData)
 	{
 		// the passed data instance must be validated before it gets passed to any other layer logic.
 		this.$validateNewData(newData.$data());

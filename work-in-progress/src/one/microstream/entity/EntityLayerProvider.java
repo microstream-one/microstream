@@ -1,6 +1,6 @@
 package one.microstream.entity;
 
-public interface EntityLayerProvider<E extends Entity<E>>
+public interface EntityLayerProvider
 {
-	public Entity<E> provideEntityLayer(Entity<E> innerInstance);
+	public Entity provideEntityLayer(Entity innerInstance);
 }

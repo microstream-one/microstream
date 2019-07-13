@@ -36,16 +36,14 @@ import one.microstream.collections.types.XIterable;
  * that contains the desired new data.
  * 
  * @author TM
- *
- * @param <E>
  */
-public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
+public interface Entity extends ReadableEntity
 {
 	@SuppressWarnings("unchecked")
 	public static <E> E identity(final E instance)
 	{
-		return instance instanceof Entity<?>
-			? (E)((Entity<?>)instance).$entity()
+		return instance instanceof Entity
+			? (E)((Entity)instance).$entity()
 			: instance
 		;
 	}
@@ -53,18 +51,25 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 	@SuppressWarnings("unchecked")
 	public static <E> E data(final E instance)
 	{
-		return instance instanceof Entity<?>
-			? (E)((Entity<?>)instance).$data()
+		return instance instanceof Entity
+			? (E)((Entity)instance).$data()
 			: instance
 		;
 	}
 	
-	public default boolean isSameIdentity(final Entity<E> newData)
+	public static <E> boolean updateData(E entity, E data)
+	{
+		return entity instanceof Entity && data instanceof Entity
+			? ((Entity)entity).$updateData((Entity)data)
+			: false;
+	}
+	
+	public default boolean isSameIdentity(final Entity newData)
 	{
 		return newData.$entity() == this.$entity();
 	}
 	
-	public default void validateIdentity(final Entity<E> newData)
+	public default void validateIdentity(final Entity newData)
 	{
 		// empty default implementation
 		if(!isSameIdentity(newData))
@@ -75,13 +80,16 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 	}
 	
 	@Override
-	public E $entity();
+	public Entity $entity();
 	
-	boolean $updateData(E data);
+	@Override
+	public Entity $data();
+	
+	boolean $updateData(Entity data);
 	
 
 	
-	public interface Creator<E extends Entity<E>, C extends Creator<E, C>> extends XIterable<EntityLayerProvider<E>>
+	public interface Creator<E extends Entity, C extends Creator<E, C>> extends XIterable<EntityLayerProvider>
 	{
 		public E create();
 		
@@ -89,27 +97,29 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 		
 		public E createData();
 		
-		public Creator<E, C> entity(Entity<E> identity);
+		public C entity(E identity);
 		
-
+		public C copy(E other);
+		
 		@SuppressWarnings("unchecked")
 		public default C $()
 		{
 			return (C)this;
 		}
 		
-		public default C $addLayer(final EntityLayerProvider<E> layerProvider)
+		
+		public default C $addLayer(final EntityLayerProvider layerProvider)
 		{
 			synchronized(this)
 			{
-				final XCollection<EntityLayerProvider<E>> layerProviders = this.$layers();
+				final XCollection<EntityLayerProvider> layerProviders = this.$layers();
 				synchronized(layerProviders)
 				{
 					layerProviders.add(layerProvider);
 				}
 			}
 			
-			return this.$();
+			return $();
 		}
 		
 		public default C $addLayer(final EntityLayerProviderProvider layerProviderProvider)
@@ -118,11 +128,11 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 		}
 		
 		@Override
-		public default <P extends Consumer<? super EntityLayerProvider<E>>> P iterate(final P procedure)
+		public default <P extends Consumer<? super EntityLayerProvider>> P iterate(final P procedure)
 		{
 			synchronized(this)
 			{
-				final XCollection<EntityLayerProvider<E>> layerProviders = this.$layers();
+				final XCollection<EntityLayerProvider> layerProviders = this.$layers();
 				synchronized(layerProviders)
 				{
 					layerProviders.iterate(procedure);
@@ -132,19 +142,19 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 			return procedure;
 		}
 				
-		public XCollection<EntityLayerProvider<E>> $layers();
+		public XCollection<EntityLayerProvider> $layers();
 				
 		
 		
-		public abstract class Abstract<E extends Entity<E>, C extends Creator<E, C>>
+		public abstract class Abstract<E extends Entity, C extends Creator<E, C>>
 		implements Entity.Creator<E, C>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
-			private final BulkList<EntityLayerProvider<E>> layerProviders = BulkList.New();
-			private       Entity<E>                        entityIdentity                 ;
+			private final BulkList<EntityLayerProvider> layerProviders = BulkList.New();
+			private       E                             entityIdentity                 ;
 
 			
 			
@@ -153,15 +163,15 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 			////////////
 
 			@Override
-			public XCollection<EntityLayerProvider<E>> $layers()
+			public XCollection<EntityLayerProvider> $layers()
 			{
 				return this.layerProviders;
 			}
 			
-			protected Entity<E> dispatchDataInstance(final Entity<E> dataInstance)
+			protected Entity dispatchDataInstance(final Entity dataInstance)
 			{
-				Entity<E> innerLayer = dataInstance;
-				for(final EntityLayerProvider<E> lp : this.layerProviders)
+				Entity innerLayer = dataInstance;
+				for(final EntityLayerProvider lp : this.layerProviders)
 				{
 					innerLayer = lp.provideEntityLayer(innerLayer);
 				}
@@ -169,37 +179,39 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 				return innerLayer;
 			}
 			
+			@SuppressWarnings("unchecked")
 			@Override
 			public E create()
 			{
-				final EntityLayerIdentity<E> entity = this.createEntityInstance();
+				final EntityLayerIdentity entity = this.createEntityInstance();
 				
-				final Entity<E> data          = this.createData(entity.$entity());
-				final Entity<E> innerInstance = this.dispatchDataInstance(data);
+				final Entity data          = this.createData((E)entity.$entity());
+				final Entity innerInstance = this.dispatchDataInstance(data);
 				
 				entity.$setInner(innerInstance);
 				
-				return entity.$entity();
+				return (E)entity.$entity();
 			}
 			
 			@Override
-			public Creator<E, C> entity(final Entity<E> entity)
+			public C entity(final E entity)
 			{
 				this.entityIdentity = entity;
-				return this;
+				return $();
 			}
 			
+			@SuppressWarnings("unchecked")
 			@Override
 			public E createData()
 			{
-				return this.createData(this.entityIdentity.$entity());
+				return this.createData((E)this.entityIdentity.$entity());
 			}
 			
-			protected abstract EntityLayerIdentity<E> createEntityInstance();
+			protected abstract EntityLayerIdentity createEntityInstance();
 			
 			
 			@Override
-			public <P extends Consumer<? super EntityLayerProvider<E>>> P iterate(final P procedure)
+			public <P extends Consumer<? super EntityLayerProvider>> P iterate(final P procedure)
 			{
 				return Entity.Creator.super.iterate(procedure);
 			}
