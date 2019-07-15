@@ -80,7 +80,7 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 	}
 
 	@Override
-	public final void iteratePersistedReferences(
+	public final void iterateLoadableReferences(
 		final Binary                      bytes   ,
 		final PersistenceObjectIdAcceptor iterator
 	)

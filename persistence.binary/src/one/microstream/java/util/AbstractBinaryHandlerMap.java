@@ -106,7 +106,7 @@ extends AbstractBinaryHandlerCustomCollection<T>
 	}
 
 	@Override
-	public void iteratePersistedReferences(
+	public void iterateLoadableReferences(
 		final Binary                      bytes   ,
 		final PersistenceObjectIdAcceptor iterator
 	)

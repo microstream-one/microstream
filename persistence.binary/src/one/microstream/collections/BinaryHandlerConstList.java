@@ -97,7 +97,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_LIST, iterator);
 	}

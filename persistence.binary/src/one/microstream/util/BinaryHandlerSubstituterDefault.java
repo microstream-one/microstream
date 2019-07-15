@@ -98,7 +98,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	}
 
 	@Override
-	public final void iteratePersistedReferences(
+	public final void iterateLoadableReferences(
 		final Binary                      bytes   ,
 		final PersistenceObjectIdAcceptor iterator
 	)

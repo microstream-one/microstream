@@ -124,7 +124,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}

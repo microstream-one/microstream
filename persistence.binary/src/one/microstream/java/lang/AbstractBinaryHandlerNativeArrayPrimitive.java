@@ -33,7 +33,7 @@ public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends Abstr
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
 	{
 		// no references to iterate in arrays with primitive component type
 	}

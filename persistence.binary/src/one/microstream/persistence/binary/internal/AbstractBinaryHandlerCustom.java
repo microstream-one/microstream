@@ -22,7 +22,6 @@ import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.binary.types.BinaryTypeHandler;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
@@ -285,12 +284,6 @@ extends BinaryTypeHandler.Abstract<T>
 
 	@Override
 	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
-	{
-		// no-op, no references
-	}
-
-	@Override
-	public void iteratePersistedReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
 	{
 		// no-op, no references
 	}

@@ -104,7 +104,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}

@@ -72,7 +72,7 @@ extends AbstractBinaryHandlerCustomIterable<T>
 	}
 
 	@Override
-	public void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		bytes.iterateListElementReferences(this.binaryOffsetElements(), iterator);
 	}

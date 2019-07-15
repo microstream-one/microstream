@@ -49,7 +49,7 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
 	{
 		// no-op, no references
 	}
