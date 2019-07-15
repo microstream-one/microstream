@@ -4,6 +4,7 @@ import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 
 public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCustom<Person>
 {
@@ -77,8 +78,20 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 		instance.setLastname         (lastname) ;
 		instance.setNote             (note)     ;
 	}
-	
-	
+
+	@Override
+	public final void iteratePersistedReferences(
+		final Binary                      bytes   ,
+		final PersistenceObjectIdAcceptor iterator
+	)
+	{
+		// clumsy offset code redundancy to be replaced by BinaryField w.i.p concept ...
+		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_contactId));
+		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_address  ));
+		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_note     ));
+		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_firstname));
+		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_lastname ));
+	}
 
 	@Override
 	public boolean hasInstanceReferences()
