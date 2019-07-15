@@ -121,7 +121,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public BufferSizeProviderIncremental getBufferSizeProvider();
 
-	public PersistenceFieldEvaluator getFieldEvaluator();
+	public PersistenceFieldEvaluator getFieldEvaluatorEntity();
+	
+	public PersistenceFieldEvaluator getFieldEvaluatorCollection();
 	
 	public PersistenceRootResolver.Builder getRootResolverBuilder();
 	
@@ -251,7 +253,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public F setFieldFixedLengthResolver(PersistenceFieldLengthResolver fieldFixedLengthResolver);
 
-	public F setFieldEvaluator(PersistenceFieldEvaluator fieldEvaluator);
+	public F setFieldEvaluatorEntity(PersistenceFieldEvaluator fieldEvaluator);
+	
+	public F setFieldEvaluatorCollection(PersistenceFieldEvaluator fieldEvaluator);
 
 	public F setReferenceFieldMandatoryEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
 
@@ -371,7 +375,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
 		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
 		private BufferSizeProviderIncremental           bufferSizeProvider         ;
-		private PersistenceFieldEvaluator               fieldEvaluator             ;
+		private PersistenceFieldEvaluator               fieldEvaluatorEntity       ;
+		private PersistenceFieldEvaluator               fieldEvaluatorCollection   ;
 		private PersistenceEagerStoringFieldEvaluator   eagerStoringFieldEvaluator ;
 		private PersistenceRootResolver.Builder         rootResolverBuilder        ;
 		private PersistenceRootResolver                 rootResolver               ;
@@ -833,14 +838,25 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceFieldEvaluator getFieldEvaluator()
+		public PersistenceFieldEvaluator getFieldEvaluatorEntity()
 		{
-			if(this.fieldEvaluator == null)
+			if(this.fieldEvaluatorEntity == null)
 			{
-				this.fieldEvaluator = this.dispatch(this.ensureFieldEvaluator());
+				this.fieldEvaluatorEntity = this.dispatch(this.ensureFieldEvaluatorEntity());
 			}
 			
-			return this.fieldEvaluator;
+			return this.fieldEvaluatorEntity;
+		}
+		
+		@Override
+		public PersistenceFieldEvaluator getFieldEvaluatorCollection()
+		{
+			if(this.fieldEvaluatorCollection == null)
+			{
+				this.fieldEvaluatorCollection = this.dispatch(this.ensureFieldEvaluatorCollection());
+			}
+			
+			return this.fieldEvaluatorCollection;
 		}
 		
 		@Override
@@ -1407,11 +1423,20 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public F setFieldEvaluator(
+		public F setFieldEvaluatorEntity(
 			final PersistenceFieldEvaluator fieldEvaluator
 		)
 		{
-			this.fieldEvaluator = fieldEvaluator;
+			this.fieldEvaluatorEntity = fieldEvaluator;
+			return this.$();
+		}
+
+		@Override
+		public F setFieldEvaluatorCollection(
+			final PersistenceFieldEvaluator fieldEvaluator
+		)
+		{
+			this.fieldEvaluatorCollection = fieldEvaluator;
 			return this.$();
 		}
 		
@@ -1745,7 +1770,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		{
 			return new PersistenceTypeAnalyzer.Default(
 				this.getTypeEvaluatorPersistable(),
-				this.getFieldEvaluator()
+				this.getFieldEvaluatorEntity(),
+				this.getFieldEvaluatorCollection()
 			);
 		}
 
@@ -1801,9 +1827,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return new BufferSizeProviderIncremental.Default();
 		}
 
-		protected PersistenceFieldEvaluator ensureFieldEvaluator()
+		protected PersistenceFieldEvaluator ensureFieldEvaluatorEntity()
 		{
-			return Persistence.defaultFieldEvaluator();
+			return Persistence.defaultFieldEvaluatorEntity();
+		}
+
+		protected PersistenceFieldEvaluator ensureFieldEvaluatorCollection()
+		{
+			return Persistence.defaultFieldEvaluatorCollection();
 		}
 		
 		protected PersistenceEagerStoringFieldEvaluator ensureReferenceFieldMandatoryEvaluator()

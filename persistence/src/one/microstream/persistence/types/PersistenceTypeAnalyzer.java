@@ -44,21 +44,28 @@ public interface PersistenceTypeAnalyzer
 		// static methods //
 		///////////////////
 
-		public static final void collectPersistableInstanceFields(
-			final XPrependingSequence<Field> persistableFieldCollector,
-			final Class<?>                   entityType               ,
+		public static final void iterateInstanceFields(
+			final Class<?>                   entityType                 ,
+			final XPrependingSequence<Field> persistableFieldCollector  ,
+			final XPrependingSequence<Field> unpersistableFieldCollector,
 			final PersistenceFieldEvaluator  isPersistable
 		)
 		{
-			XReflect.collectTypedFields(persistableFieldCollector, entityType, field ->
+			XReflect.iterateDeclaredFieldsUpwards(entityType, field ->
 			{
-				if(!XReflect.isInstanceField(field) || !isPersistable.isPersistable(entityType, field))
+				if(!XReflect.isInstanceField(field))
 				{
-					return false;
+					return;
 				}
 				
-//				typeManager.ensureTypeId(field.getType());
-				return true;
+				if(isPersistable.isPersistable(entityType, field))
+				{
+					persistableFieldCollector.prepend(field);
+				}
+				else if(unpersistableFieldCollector != null)
+				{
+					unpersistableFieldCollector.prepend(field);
+				}
 			});
 		}
 
@@ -68,9 +75,9 @@ public interface PersistenceTypeAnalyzer
 		// instance fields //
 		////////////////////
 
+		private final PersistenceTypeEvaluator  isPersistable;
 		private final PersistenceFieldEvaluator fieldSelectorReflectiveEntity    ;
 		private final PersistenceFieldEvaluator fieldSelectorReflectiveCollection;
-		private final PersistenceTypeEvaluator  isPersistable;
 
 
 
@@ -104,37 +111,44 @@ public interface PersistenceTypeAnalyzer
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
 
-			if(!this.isValidTypesNonAbstractType(type))
+			if(!this.isNonAbstractTypeValidating(type))
 			{
 				// handle abstract types as having no fields at all / stateless types.
 				return persistableFields;
 			}
 
-			collectPersistableInstanceFields(persistableFields, type,this.fieldSelectorReflectiveEntity);
+			iterateInstanceFields(type, persistableFields, null, this.fieldSelectorReflectiveEntity);
 
 			return persistableFields;
 		}
 		
-		private boolean isValidTypesNonAbstractType(final Class<?> type)
+		private boolean isNonAbstractTypeValidating(final Class<?> type)
 		{
-			if(!this.isPersistable.isPersistableType(type))
-			{
-				throw new PersistenceExceptionTypeNotPersistable(type);
-			}
-			
 			/*
 			 * tricky:
 			 * all abstract types (both interfaces and classes) can be handled as having no fields at all
 			 * because there can never be actual instances of exactely (only) that type encountered
 			 * that would have to be persistet.
 			 * However, a type entry for those abstract classes is still necessary for typeId validation purposes.
+			 * 
 			 * Checking for abstract types comes even before checking for persistability intentionally as
 			 * a persistence layer only has to handle concrete types anyway.
 			 * This means for example a type definition string is exported for them, but it will be empty.
 			 * This is meant by design and not an error. If it turns out to cause problems, it has to be fixed
 			 * and commented in here accordingly.
 			 */
-			return !XReflect.isAbstract(type);
+			if(XReflect.isAbstract(type))
+			{
+				return false;
+			}
+			
+			if(!this.isPersistable.isPersistableType(type))
+			{
+				throw new PersistenceExceptionTypeNotPersistable(type);
+			}
+			
+			// non-abstract and persistable type
+			return true;
 		}
 
 		@Override
@@ -143,18 +157,25 @@ public interface PersistenceTypeAnalyzer
 			final XPrependingEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions
 		)
 		{
-			final HashEnum<Field> persistableFields = HashEnum.New();
+			final HashEnum<Field> persistableFields   = HashEnum.New();
+			final HashEnum<Field> unpersistableFields = HashEnum.New();
 
-			if(!this.isValidTypesNonAbstractType(type))
+			if(!this.isNonAbstractTypeValidating(type))
 			{
 				// handle abstract types as having no fields at all / stateless types.
 				return persistableFields;
 			}
 
-			// (12.07.2019 TM)FIXME: MS-143: collect unpersistable fields as well and throw exception if not emptys
-			collectPersistableInstanceFields(persistableFields, type,this.fieldSelectorReflectiveCollection);
+			iterateInstanceFields(type, persistableFields, unpersistableFields, this.fieldSelectorReflectiveCollection);
+			
+			// there must at least be one properly peristabel collection field and no unpersistable field.
+			if(!persistableFields.isEmpty() & unpersistableFields.isEmpty())
+			{
+				return persistableFields;
+			}
 
-			return persistableFields;
+			// (15.07.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Encountered collection cannot be handled generically: " + type.getClass());
 		}
 
 	}

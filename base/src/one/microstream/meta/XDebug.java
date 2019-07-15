@@ -529,7 +529,7 @@ public final class XDebug
 			XMemory.byteSizeInstance(c) + " byte size of one instance of "
 			+ c.getName()
 		);
-		XReflect.reverseIterateAllClassFields(c, f ->
+		XReflect.iterateDeclaredFieldsUpwards(c, f ->
 		{
 			if(!Modifier.isStatic(f.getModifiers()))
 			{

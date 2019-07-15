@@ -3,10 +3,15 @@ package one.microstream.persistence.types;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -15,10 +20,12 @@ import one.microstream.X;
 import one.microstream.chars.StringTable;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
+import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.interfaces.ChainStorage;
 import one.microstream.collections.types.XGettingSequence;
+import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
 import one.microstream.files.XFiles;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
@@ -634,11 +641,88 @@ public class Persistence
 		;
 	}
 
-	public static final PersistenceFieldEvaluator defaultFieldEvaluator()
+	public static final PersistenceFieldEvaluator defaultFieldEvaluatorEntity()
 	{
 		return (entityType, field) ->
 			!XReflect.isTransient(field)
 		;
+	}
+	
+	public static boolean isHandleableCollectionField(final Class<?> collectionClass, final Field field)
+	{
+		final Class<?> fieldType = field.getType();
+		
+		// primitives are, of course, never a problem
+		if(fieldType.isPrimitive())
+		{
+			return true;
+		}
+		
+		// having a Comparator type of any sort is unproblematic and occurs in sorted collections
+		if(Comparator.class.isAssignableFrom(collectionClass))
+		{
+			return true;
+		}
+		
+		// referencing another collection means the collection type being analyzed is just a wrapper implementation.
+		if(Collection.class.isAssignableFrom(collectionClass))
+		{
+			return true;
+		}
+		
+		// referencing element types directly is also not a problem
+		final XGettingSet<Type> entityClassTypeVairable = getTypeVariales(collectionClass);
+		if(entityClassTypeVairable.contains(field.getGenericType()))
+		{
+			return true;
+		}
+		
+		/*
+		 * Kind of an overkill / backdoor, but the idea is that mutex references are usually just Object-typed
+		 * fields. It is highly unlikely that an internal collection structure (array, Entry type, etc.) would
+		 * be referenced by just an Object-typed field instead of a properly typed field.
+		 */
+		if(collectionClass == Object.class)
+		{
+			return true;
+		}
+		
+		/*
+		 * Any other typed field is assumed to point to a complex data structure (like arrays,
+		 * lists/trees of Entry instances, etc.). While technically handleable, this is rejected by the
+		 * analyzing logic in order to prevent extremely inefficient storing structures.
+		 * Consider a LinkedList, for example: persisting every Node instance directly would store an additional
+		 * amount of instances equal to the list's size. Like storing a list with size 1 million would store
+		 * 1 million and 1 instances just for the list instead of only one instance, the list itself.
+		 * It would also cause 24 bytes of overhead (3 references) for every single element contained in the list.
+		 * The loading would be catastrophically slow since every single Node instance would represent one layer
+		 * of recursive loading.
+		 * A single array (like in ArrayList) would be acceptable efficiency-wise, but in the end, consistency is
+		 * more important: every collection that cannot be generically handled (e.g. a wrapper implementation) must
+		 * have a tailored TypeHandler registered for it. At least an explicitely registered generic handler like
+		 * BinaryHandlerList and the like.
+		 */
+		return false;
+	}
+	
+	public static final PersistenceFieldEvaluator defaultFieldEvaluatorCollection()
+	{
+		return (entityType, field) ->
+			!XReflect.isTransient(field)
+			&& isHandleableCollectionField(entityType, field)
+		;
+	}
+	
+	private static XGettingSet<Type> getTypeVariales(final Class<?> entityType)
+	{
+		final TypeVariable<?>[] tvs = AClass.class.getTypeParameters();
+		if(tvs == null || tvs.length == 0)
+		{
+			return X.empty();
+		}
+		
+		// identity equality is sufficient, tested via debugger
+		return HashEnum.New(tvs);
 	}
 	
 	public static final PersistenceEagerStoringFieldEvaluator defaultReferenceFieldMandatoryEvaluator()
