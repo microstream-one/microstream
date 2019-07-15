@@ -3,6 +3,7 @@ package one.microstream.persistence.lazy;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -61,13 +62,6 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerCusto
 		{
 			// (29.09.2015 TM)NOTE: The special casing below is wrong: the lazy instance must be stored in any case.
 			referenceOid = instance.objectId;
-
-//			// if the lazy instance already knows the OID and its reference has simply been cleared, don't store null!
-//			if(instance.objectId != Persistence.nullId())
-//			{
-//				return;
-//			}
-//			referenceOid = Persistence.nullId();
 		}
 		else
 		{
@@ -136,6 +130,14 @@ public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerCusto
 	{
 		return false;
 	}
-	
+
+	@Override
+	public void iterateLoadableReferences(
+		final Binary                      offset  ,
+		final PersistenceObjectIdAcceptor iterator
+	)
+	{
+		// the lazy reference is not naturally loadable, but special-handled by this handler
+	}
 
 }

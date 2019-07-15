@@ -148,7 +148,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				{
 					continue;
 				}
-				this.handleReferences(item); // register references of each new item
+				this.loadReferences(item); // register references of each new item
 			}
 		}
 		// CHECKSTYLE.ON: FinalParameters
@@ -195,7 +195,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			return handler;
 		}
 
-		protected void handleReferences(final BinaryLoadItem entry)
+		protected void loadReferences(final BinaryLoadItem entry)
 		{
 			/*
 			 * Custom handler implementation can decide whether references of a particular field shall be loaded.
@@ -205,7 +205,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 
 //			XDebug.debugln("refs of " + entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.oid);
 
-			entry.handler.iteratePersistedReferences(entry, this);
+			entry.handler.iterateLoadableReferences(entry, this);
 		}
 				
 		

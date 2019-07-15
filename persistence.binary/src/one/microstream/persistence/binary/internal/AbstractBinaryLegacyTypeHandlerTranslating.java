@@ -149,7 +149,7 @@ extends PersistenceLegacyTypeHandler.Abstract<Binary, T>
 	// persisted-form-related methods, so the old type definition (or derivatives of it) has be used //
 
 	@Override
-	public final void iteratePersistedReferences(final Binary rawData, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary rawData, final PersistenceObjectIdAcceptor iterator)
 	{
 		BinaryReferenceTraverser.iterateReferences(
 			rawData.loadItemEntityContentAddress(),

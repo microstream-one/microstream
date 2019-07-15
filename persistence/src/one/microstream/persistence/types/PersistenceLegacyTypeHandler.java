@@ -187,10 +187,10 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public void iteratePersistedReferences(final M medium, final PersistenceObjectIdAcceptor iterator)
+		public void iterateLoadableReferences(final M medium, final PersistenceObjectIdAcceptor iterator)
 		{
 			// current type handler perfectly fits the old types structure, so it can be used here.
-			this.typeHandler.iteratePersistedReferences(medium, iterator);
+			this.typeHandler.iterateLoadableReferences(medium, iterator);
 		}
 
 		@Override

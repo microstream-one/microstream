@@ -136,7 +136,7 @@ extends AbstractBinaryHandlerCustomIterable<PriorityQueue<?>>
 	}
 
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_COMPARATOR));
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);

@@ -352,7 +352,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		// "bytes" points to the entity content address, the offsets are relative to the content address.
 		bytes.iterateReferenceRange(
