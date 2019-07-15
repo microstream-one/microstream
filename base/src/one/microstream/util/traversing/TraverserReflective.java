@@ -1,5 +1,6 @@
 package one.microstream.util.traversing;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 
 import one.microstream.collections.HashEnum;
@@ -300,14 +301,18 @@ public final class TraverserReflective<T> implements TypeTraverser<T>
 		private final Field[] collectFields(final Class<?> type)
 		{
 			final HashEnum<Field> selectedFields = HashEnum.New();
-			XReflect.collectTypedFields(selectedFields, type, field ->
-				XReflect.isInstanceField(field)
-				&& this.fieldSelector.test(type, field))
-			;
+			XReflect.iterateDeclaredFieldsUpwards(type, field ->
+			{
+				if(XReflect.isInstanceField(field) && this.fieldSelector.test(type, field))
+				{
+					selectedFields.prepend(field);
+				}
+			});
 			
-			selectedFields.iterate(f -> f.setAccessible(true));
+			final Field[] fields = selectedFields.toArray(Field.class);
+			AccessibleObject.setAccessible(fields, true);
 			
-			return selectedFields.toArray(Field.class);
+			return fields;
 		}
 		
 		protected final <T> TypeTraverser<T> internalCreateTraverser(final Class<T> type)

@@ -12,10 +12,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import one.microstream.X;
-import one.microstream.branching.AbstractBranchingThrow;
 import one.microstream.branching.ThrowBreak;
 import one.microstream.collections.BulkList;
-import one.microstream.collections.types.XPrependingSequence;
 import one.microstream.collections.types.XReference;
 import one.microstream.exceptions.IllegalAccessRuntimeException;
 import one.microstream.exceptions.NoSuchFieldRuntimeException;
@@ -167,90 +165,64 @@ public final class XReflect
 		}
 		return false;
 	}
-
+	
 	/**
-	 * Iterates over all declared fields of all classes upwards starting at c until class {@link Object} is reached
-	 * and executes the passed {@link Consumer} on it.
-	 * <p>
-	 * The declared fields of each class are iterated by looping over {@link Class#getDeclaredFields()} from index
-	 * {@code 0} to index {@link Class#getDeclaredFields()}{@code .length}.
-	 * <p>
-	 * {@link AbstractBranchingThrow} effects:<br>
-	 * {@link ThrowContinue} iteration proceeds with next field (i.e. no effect).<br>
-	 * {@link ThrowBreak} iteration breaks current class fields loop and proceeds with next class.<br>
-	 * {@link ThrowReturn} iteration is aborted, methods returns.
-	 *
-	 * @param clazz the class whose fields shall be iterated
+	 * Alias for {@code iterateDeclaredFieldsUpwards(startingClass, Object.class, logic)}.
+	 * 
+	 * @param <L> The logic's contextual type.
+	 * 
+	 * @param startingClass the class whose fields shall be iterated.
 	 * @param logic the {@link Consumer} to be executed on each field.
+	 * 
+	 * @return the passed {@literal logic}.
 	 */
-	public static final <C extends Consumer<? super Field>> C iterateAllClassFields(
-		final Class<?> clazz,
-		final C        logic
+	public static final <L extends Consumer<Field>> L iterateDeclaredFieldsUpwards(
+		final Class<?> startingClass ,
+		final L        logic
 	)
 	{
-		return iterateAllClassFields(clazz, Object.class, logic);
+		return iterateDeclaredFieldsUpwards(startingClass, Object.class, logic);
 	}
 
-	public static final <C extends Consumer<? super Field>> C iterateAllClassFields(
-		final Class<?> clazz,
-		final Class<?> bound,
-		final C        logic
+	/**
+	 * Iterates over every declared field of all classes upwards starting at {@literal startingClass}
+	 * until class {@literal boundingClass} is reached and executes the passed {@link Consumer} on it.
+	 * <p>
+	 * The declared fields of each class are iterated in reverse order
+	 * (from index {@link Class#getDeclaredFields()}{@code .length - 1} to index {@code 0} ).
+	 * <p>
+	 * This method is useful to maintain the natural declaration order of the fields, iterating from the last
+	 * declared field of the lowest class (the passed class itself) to the first declared field of the highest class
+	 * declaring a field.
+	 * 
+	 * @param <L> The logic's contextual type.
+	 * 
+	 * @param startingClass the class whose fields shall be iterated.
+	 * @param boundingClass the class in the hierarchy at which to stop iterating, exclusive bound.
+	 * @param logic the {@link Consumer} to be executed on each field.
+	 * 
+	 * @return the passed {@literal logic}.
+	 */
+	public static final <L extends Consumer<Field>> L iterateDeclaredFieldsUpwards(
+		final Class<?> startingClass,
+		final Class<?> boundingClass,
+		final L        logic
 	)
 	{
 		// applies to Object.class, Void.class, interfaces, primitives. See Class.getSuperclass() JavaDoc.
-		if(clazz.isArray() || clazz.getSuperclass() == null)
+		if(startingClass.isArray() || startingClass.getSuperclass() == null)
 		{
 			return logic;
 		}
 		
 		try
 		{
-			for(Class<?> currentClass = clazz; currentClass != bound; currentClass = currentClass.getSuperclass())
-			{
-				for(final Field field : currentClass.getDeclaredFields())
-				{
-					logic.accept(field);
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			/* abort inner iteration */
-		}
-		
-		return logic;
-	}
-
-	/**
-	 * Same as {@link #iterateAllClassFields(Class, Consumer)}, except that the {@link Class#getDeclaredFields()}
-	 * arrays are each iterated in reverse order (from index {@link Class#getDeclaredFields()}{@code .length - 1}
-	 * to index {@code 0} ).
-	 * <p>
-	 * This method is useful to maintain the natural declaration order of the fields, iterating from the last
-	 * declared field of the lowest class (the passed class itself) to the first declared field of the highest class
-	 * declaring a field.
-	 *
-	 * @param c the class whose fields shall be iterated.
-	 * @param fieldOperation the {@link Consumer} to be executed on each field.
-	 */
-	public static final void reverseIterateAllClassFields(final Class<?> c, final Consumer<Field> fieldOperation)
-	{
-		// applies to Object.class, Void.class, interfaces, primitives. See Class.getSuperclass() JavaDoc.
-		if(c.isArray() || c.getSuperclass() == null)
-		{
-			return;
-		}
-		
-		try
-		{
-			for(Class<?> currentClass = c; currentClass != Object.class; currentClass = currentClass.getSuperclass())
+			for(Class<?> currentClass = startingClass; currentClass != Object.class; currentClass = currentClass.getSuperclass())
 			{
 				final Field[] fields = currentClass.getDeclaredFields();
-				
-				int i = fields.length;
-				while(i > 0)
+				for(int i = fields.length; i-- > 0;)
 				{
-					fieldOperation.accept(fields[--i]);
+					logic.accept(fields[i]);
 				}
 			}
 				
@@ -259,62 +231,8 @@ public final class XReflect
 		{
 			// abort iteration
 		}
-	}
-
-	public static final <C extends XPrependingSequence<Field>> C collectFields(
-		final C                collection,
-		final Class<?>         type      ,
-		final Predicate<Field> predicate
-	)
-	{
-		XReflect.reverseIterateAllClassFields(type, field ->
-		{
-			if(predicate.test(field))
-			{
-				collection.prepend(field);
-			}
-		});
 		
-		return collection;
-	}
-
-	public static final <C extends XPrependingSequence<Field>> C collectFields(
-		final C        collection,
-		final Class<?> type
-	)
-	{
-		XReflect.reverseIterateAllClassFields(type, field ->
-			collection.prepend(field)
-		);
-		
-		return collection;
-	}
-
-	public static final <C extends XPrependingSequence<Field>> C collectTypedFields(
-		final C                collection,
-		final Class<?>         type      ,
-		final Predicate<Field> predicate
-	)
-	{
-		// applies to Object.class, Void.class, interfaces, primitives. See Class.getSuperclass() JavaDoc.
-		if(type.isArray() || type.getSuperclass() == null)
-		{
-			return collection;
-		}
-
-		for(Class<?> currentClass = type; currentClass != Object.class; currentClass = currentClass.getSuperclass())
-		{
-			final Field[] fields = currentClass.getDeclaredFields();
-			for(int i = fields.length; --i >= 0;)
-			{
-				if(predicate.test(fields[i]))
-				{
-					collection.prepend(fields[i]);
-				}
-			}
-		}
-		
-		return collection;
+		return logic;
 	}
 
 	public static final Field getDeclaredField(final Class<?> c, final String name) throws NoSuchFieldRuntimeException
@@ -364,7 +282,7 @@ public final class XReflect
 		throws NoSuchFieldRuntimeException
 	{
 		final XReference<Field> result = X.Reference(null);
-		iterateAllClassFields(c, field ->
+		iterateDeclaredFieldsUpwards(c, field ->
 		{
 			if(predicate.test(field))
 			{
