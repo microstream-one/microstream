@@ -640,7 +640,7 @@ public class Persistence
 		;
 	}
 
-	public static final PersistenceFieldEvaluator defaultFieldEvaluatorEntity()
+	public static final PersistenceFieldEvaluator defaultFieldEvaluatorPersistable()
 	{
 		return (entityType, field) ->
 			!XReflect.isTransient(field)

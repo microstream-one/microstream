@@ -3,6 +3,7 @@ package one.microstream.test.collections;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +43,7 @@ public class MainTestStorageJDKCollections
 		{
 			System.out.println("Storing collections ...");
 			ROOT.set(createRoot());
-			STORAGE.store(ROOT);
+			STORAGE.storeRoot();
 			System.out.println("Stored collections.");
 		}
 		else
@@ -65,16 +66,21 @@ public class MainTestStorageJDKCollections
 	
 	private static Object[] createRoot()
 	{
+		final ArrayList<String>        arrayList  = populate(new ArrayList<>());
+		final HashSet<String>          hashSet    = populate(new HashSet<>());
+		final HashMap<Integer, String> hashMap    = populate(new HashMap<>());
+		final LinkedList<String>       linkedList = populate(new LinkedList<>());
+
 		return new Object[]{
-			populate(new ArrayList<>())            ,
-			populate(new HashSet<>())              ,
+			arrayList                              ,
+			hashSet                                ,
+			hashMap                                ,
 			populate(new ArrayDeque<>())           ,
-			populate(new HashMap<>())              ,
 			populate(new Hashtable<>())            ,
 			populate(new LinkedHashSet<>())        ,
 			populate(new LinkedHashMap<>())        ,
 			populate(new IdentityHashMap<>())      ,
-			populate(new LinkedList<>())           ,
+			linkedList                             ,
 			populate(new PriorityQueue<>())        ,
 			populate(new TreeMap<>())              ,
 			populate(new TreeSet<>())              ,
@@ -85,25 +91,40 @@ public class MainTestStorageJDKCollections
 			populate(new ConcurrentLinkedQueue<>()),
 			populate(new ConcurrentLinkedDeque<>()),
 			populate(new ConcurrentSkipListSet<>()),
-			populate(new ConcurrentSkipListMap<Integer, String>(new IntegerComparator()))
+			populate(new ConcurrentSkipListMap<Integer, String>(new IntegerComparator())),
+
+			Collections.emptyList(),
+			Collections.emptyMap(),
+			Collections.emptyNavigableMap(),
+			Collections.emptyNavigableSet(),
+			Collections.emptySet(),
+			Collections.emptySortedMap(),
+			Collections.emptySortedSet(),
+
+			Collections.synchronizedList(arrayList),  // RandomAccess
+			Collections.synchronizedList(linkedList), // normal
+			Collections.synchronizedSet(hashSet),
+			Collections.synchronizedMap(hashMap)
 		};
 	}
 	
-	private static Collection<String> populate(final Collection<String> collection)
+	private static <C extends Collection<String>> C populate(final C collection)
 	{
 		for(int i = 0; i < 50; i++)
 		{
 			collection.add(UUID.randomUUID().toString());
 		}
+		
 		return collection;
 	}
 	
-	private static Map<Integer, String> populate(final Map<Integer, String> map)
+	private static <M extends Map<Integer, String>> M populate(final M map)
 	{
 		for(int i = 0; i < 50; i++)
 		{
 			map.put(i, UUID.randomUUID().toString());
 		}
+		
 		return map;
 	}
 	
@@ -113,6 +134,7 @@ public class MainTestStorageJDKCollections
 		{
 			properties.put("" + i, UUID.randomUUID().toString());
 		}
+		
 		return properties;
 	}
 	

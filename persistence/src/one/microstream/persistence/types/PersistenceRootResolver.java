@@ -316,8 +316,6 @@ public interface PersistenceRootResolver
 			return this.actualRootResolver.entries();
 		}
 
-		
-
 		@Override
 		public PersistenceRootEntry resolveRootInstance(final String identifier)
 		{
@@ -373,35 +371,23 @@ public interface PersistenceRootResolver
 			return mappedEntry;
 		}
 		
-
-
-
 		@Override
 		public String defaultRootIdentifier()
 		{
 			return this.actualRootResolver.defaultRootIdentifier();
 		}
-		
-
-
 
 		@Override
 		public Reference<Object> defaultRoot()
 		{
 			return this.actualRootResolver.defaultRoot();
 		}
-		
-
-
 
 		@Override
 		public String customRootIdentifier()
 		{
 			return this.actualRootResolver.customRootIdentifier();
 		}
-		
-
-
 
 		@Override
 		public PersistenceRootEntry customRootEntry()

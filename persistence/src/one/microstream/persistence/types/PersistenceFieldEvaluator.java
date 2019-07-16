@@ -10,6 +10,6 @@ import java.lang.reflect.Field;
 @FunctionalInterface
 public interface PersistenceFieldEvaluator
 {
-	public boolean isPersistable(Class<?> entityType, Field field);
+	public boolean applies(Class<?> entityType, Field field);
 
 }
