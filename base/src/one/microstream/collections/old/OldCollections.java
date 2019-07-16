@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import one.microstream.X;
@@ -525,7 +524,10 @@ public final class OldCollections
 		}
 	}
 	
-	public static final void populateSetFromHelperArray(final Set<?> instance, final Object elementsHelper)
+	public static final void populateCollectionFromHelperArray(
+		final Collection<?> instance      ,
+		final Object        elementsHelper
+	)
 	{
 		if(elementsHelper == null)
 		{
@@ -544,11 +546,11 @@ public final class OldCollections
 		}
 		
 		@SuppressWarnings("unchecked")
-		final Set<Object> castedInstance = (Set<Object>)instance;
-		populateSet(castedInstance, (Object[])elementsHelper);
+		final Collection<Object> castedInstance = (Collection<Object>)instance;
+		populateCollection(castedInstance, (Object[])elementsHelper);
 	}
 	
-	public static final void populateSet(final Set<Object> instance, final Object[] elements)
+	public static final void populateCollection(final Collection<Object> instance, final Object[] elements)
 	{
 		for(int i = 0; i < elements.length; i++)
 		{
@@ -556,7 +558,7 @@ public final class OldCollections
 			{
 				// (22.04.2016 TM)EXCP: proper exception
 				throw new RuntimeException(
-					"Element hashing inconsistency in " + XChars.systemString(instance)
+					"Error in adding logic (e.g. element hashing inconsistency) in " + XChars.systemString(instance)
 				);
 			}
 		}

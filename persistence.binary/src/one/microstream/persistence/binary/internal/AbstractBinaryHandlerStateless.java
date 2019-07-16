@@ -3,6 +3,7 @@ package one.microstream.persistence.binary.internal;
 import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHandlerCustom<T>
@@ -23,7 +24,7 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	/////////////////////
 
 	@Override
-	public final void store(
+	public void store(
 		final Binary                  bytes   ,
 		final T                       instance,
 		final long                    objectId,
@@ -34,7 +35,7 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	}
 
 	@Override
-	public final void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op
 	}
@@ -62,11 +63,14 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	{
 		return false;
 	}
-
-//	@Override
-//	public final void copy(final T source, final T target)
-//	{
-//		// well it can be called, no problem, but it won't (can't) do anything.
-//	}
+	
+	@Override
+	public final void iterateLoadableReferences(
+		final Binary                      medium  ,
+		final PersistenceObjectIdAcceptor iterator
+	)
+	{
+		// no state, no reference, no-op.
+	}
 
 }

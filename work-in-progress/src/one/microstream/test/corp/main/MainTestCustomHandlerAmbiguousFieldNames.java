@@ -1,7 +1,7 @@
 package one.microstream.test.corp.main;
 
 import one.microstream.X;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
@@ -17,7 +17,7 @@ public class MainTestCustomHandlerAmbiguousFieldNames
 }
 
 
-final class MyTypeHandler extends AbstractBinaryHandlerCustom<String>
+final class MyTypeHandler extends AbstractBinaryHandlerCustomValueFixedLength<String>
 {
 
 	protected MyTypeHandler()
@@ -26,24 +26,6 @@ final class MyTypeHandler extends AbstractBinaryHandlerCustom<String>
 			CustomField(String.class, "value"),
 			CustomField(String.class, "value")
 		));
-	}
-
-	@Override
-	public boolean hasInstanceReferences()
-	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME PersistenceTypeHandler<Binary,String>#hasInstanceReferences()
-	}
-
-	@Override
-	public boolean hasPersistedReferences()
-	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME PersistenceTypeDefinition#hasPersistedReferences()
-	}
-
-	@Override
-	public boolean hasVaryingPersistedLengthInstances()
-	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME PersistenceTypeDefinition#hasVaryingPersistedLengthInstances()
 	}
 
 	@Override

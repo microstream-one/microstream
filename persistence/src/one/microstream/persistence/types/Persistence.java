@@ -10,7 +10,6 @@ import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -665,7 +664,7 @@ public class Persistence
 		}
 		
 		// referencing another collection means the collection type being analyzed is just a wrapper implementation.
-		if(Collection.class.isAssignableFrom(collectionClass))
+		if(XReflect.isJavaUtilCollectionType(collectionClass))
 		{
 			return true;
 		}
@@ -715,7 +714,7 @@ public class Persistence
 	
 	private static XGettingSet<Type> getTypeVariales(final Class<?> entityType)
 	{
-		final TypeVariable<?>[] tvs = AClass.class.getTypeParameters();
+		final TypeVariable<?>[] tvs = entityType.getTypeParameters();
 		if(tvs == null || tvs.length == 0)
 		{
 			return X.empty();

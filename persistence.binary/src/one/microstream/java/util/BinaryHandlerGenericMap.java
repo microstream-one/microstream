@@ -1,0 +1,86 @@
+package one.microstream.java.util;
+
+import static one.microstream.X.notNull;
+
+import java.util.Map;
+
+import one.microstream.exceptions.NoSuchMethodRuntimeException;
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.reflect.XReflect;
+
+
+public class BinaryHandlerGenericMap<T extends Map<?, ?>> extends AbstractBinaryHandlerMap<T>
+{
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static final <T extends Map<?, ?>> BinaryHandlerGenericMap<T> New(
+		final Class<T> type
+	)
+		throws NoSuchMethodRuntimeException
+	{
+		final one.microstream.functional.Instantiator<T> instantiator = XReflect.WrapDefaultConstructor(type);
+		
+		return New(type, l ->
+			instantiator.instantiate()
+		);
+	}
+	
+	public static final <T extends Map<?, ?>> BinaryHandlerGenericMap<T> New(
+		final Class<T>        type,
+		final Instantiator<T> instantiator
+	)
+	{
+		return new BinaryHandlerGenericMap<>(
+			notNull(type),
+			notNull(instantiator)
+		);
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+	
+	public Instantiator<T> instantiator;
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	public BinaryHandlerGenericMap(final Class<T> type, final Instantiator<T> instantiator)
+	{
+		super(type);
+		this.instantiator = instantiator;
+	}
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
+
+	@Override
+	public T create(
+		final Binary                 bytes  ,
+		final PersistenceLoadHandler handler
+	)
+	{
+		return this.instantiator.instantiateMap(
+			getElementCount(bytes)
+		);
+	}
+	
+	
+	
+	public interface Instantiator<T extends Map<?, ?>>
+	{
+		public T instantiateMap(long elementCount);
+	}
+	
+}

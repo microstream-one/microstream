@@ -3,11 +3,11 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import one.microstream.reflect.XReflect;
 import one.microstream.typing.LambdaTypeRecognizer;
 
 public interface PersistenceTypeHandlerCreator<M>
@@ -117,11 +117,10 @@ public interface PersistenceTypeHandlerCreator<M>
 				);
 			}
 			
-			if(Collection.class.isAssignableFrom(type))
+			if(XReflect.isJavaUtilCollectionType(type))
 			{
-				return this.createCollectionHandler(type);
+				return this.deriveTypeHandlerCollection(type);
 			}
-			
 			
 			/* (25.03.2019 TM)NOTE:
 			 * Note on lambdas:
@@ -150,29 +149,28 @@ public interface PersistenceTypeHandlerCreator<M>
 			 */
 
 			// create generic handler for all other cases ("normal" classes without predefined handler)
-			return this.createGenericHandler(type);
+			return this.deriveTypeHandlerEntity(type);
 		}
 		
-		protected <T> PersistenceTypeHandler<M, T> createCollectionHandler(final Class<T> type)
+		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerEntity(final Class<T> type)
 		{
-			final HashEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions = HashEnum.New();
+			final HashEnum<Field> persistableFields   = HashEnum.New();
+			final HashEnum<Field> unpersistableFields = HashEnum.New();
+			this.typeAnalyzer.collectPersistableEntityFields(type, persistableFields, unpersistableFields);
 
-			final XGettingEnum<Field> persistableFields =
-				this.typeAnalyzer.collectPersistableFieldsReflectiveCollection(type, fieldDescriptions)
-			;
-			
 			return this.createTypeHandlerReflective(type, persistableFields);
 		}
 		
-		protected <T> PersistenceTypeHandler<M, T> createGenericHandler(final Class<T> type)
+		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerCollection(final Class<T> type)
 		{
-			final HashEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions = HashEnum.New();
-
-			final XGettingEnum<Field> persistableFields =
-				this.typeAnalyzer.collectPersistableFieldsReflective(type, fieldDescriptions)
-			;
+			final HashEnum<Field> persistableFields   = HashEnum.New();
+			final HashEnum<Field> unpersistableFields = HashEnum.New();
+			this.typeAnalyzer.collectPersistableCollectionFields(type, persistableFields, unpersistableFields);
 			
-			return this.createTypeHandlerReflective(type, persistableFields);
+			return unpersistableFields.isEmpty()
+				? this.createTypeHandlerReflective(type, persistableFields)
+				: this.createTypeHandlerGenericCollection(type)
+			;
 		}
 		
 		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerArray(Class<T> type);
@@ -180,6 +178,10 @@ public interface PersistenceTypeHandlerCreator<M>
 		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerReflective(
 			Class<T>            type             ,
 			XGettingEnum<Field> persistableFields
+		);
+		
+		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGenericCollection(
+			Class<T> type
 		);
 		
 	}

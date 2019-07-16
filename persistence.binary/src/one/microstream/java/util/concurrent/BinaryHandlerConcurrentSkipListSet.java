@@ -132,7 +132,7 @@ public final class BinaryHandlerConcurrentSkipListSet extends AbstractBinaryHand
 		final PersistenceLoadHandler   handler
 	)
 	{
-		OldCollections.populateSetFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateCollectionFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override
