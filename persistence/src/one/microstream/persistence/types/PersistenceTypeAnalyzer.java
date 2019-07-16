@@ -4,6 +4,8 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 
+import one.microstream.collections.types.XAddingEnum;
+import one.microstream.collections.types.XAddingSequence;
 import one.microstream.collections.types.XPrependingEnum;
 import one.microstream.collections.types.XPrependingSequence;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
@@ -12,15 +14,14 @@ import one.microstream.reflect.XReflect;
 public interface PersistenceTypeAnalyzer
 {
 	public <C extends XPrependingEnum<Field>> C collectPersistableEntityFields(
-		Class<?>               type               ,
-		C                      persistableFields  ,
-		XPrependingEnum<Field> unpersistableFields
+		Class<?> type             ,
+		C        persistableFields
 	);
 	
 	public <C extends XPrependingEnum<Field>> C collectPersistableCollectionFields(
-		Class<?>               type               ,
-		C                      persistableFields  ,
-		XPrependingEnum<Field> unpersistableFields
+		Class<?>           type             ,
+		C                  persistableFields,
+		XAddingEnum<Field> problematicFields
 	);
 
 
@@ -43,29 +44,47 @@ public interface PersistenceTypeAnalyzer
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
 		///////////////////
+		
+		public static final void iterateInstanceFields(
+			final Class<?>                   entityType       ,
+			final PersistenceFieldEvaluator  isPersistable    ,
+			final XPrependingSequence<Field> persistableFields
+		)
+		{
+			iterateInstanceFields(entityType, isPersistable, persistableFields, null, null);
+		}
 
 		public static final void iterateInstanceFields(
-			final Class<?>                   entityType                 ,
-			final XPrependingSequence<Field> persistableFieldCollector  ,
-			final XPrependingSequence<Field> unpersistableFieldCollector,
-			final PersistenceFieldEvaluator  isPersistable
+			final Class<?>                   entityType       ,
+			final PersistenceFieldEvaluator  isPersistable    ,
+			final XPrependingSequence<Field> persistableFields,
+			final PersistenceFieldEvaluator  isProblematic    ,
+			final XAddingSequence<Field>     problematicFields
 		)
 		{
 			XReflect.iterateDeclaredFieldsUpwards(entityType, field ->
 			{
+				// non-instance fielsd are always discarded
 				if(!XReflect.isInstanceField(field))
 				{
 					return;
 				}
 				
-				if(isPersistable.isPersistable(entityType, field))
+				// non-persistable fields are discard
+				if(!isPersistable.applies(entityType, field))
 				{
-					persistableFieldCollector.prepend(field);
+					return;
 				}
-				else if(unpersistableFieldCollector != null)
+				
+				// if there is a "problematic" filter and it applies, the field is registered as such
+				if(isProblematic != null && isProblematic.applies(entityType, field))
 				{
-					unpersistableFieldCollector.prepend(field);
+					problematicFields.add(field);
+					return;
 				}
+				
+				// persistable, non-problematic instance-field
+				persistableFields.prepend(field);
 			});
 		}
 
@@ -76,7 +95,7 @@ public interface PersistenceTypeAnalyzer
 		////////////////////
 
 		private final PersistenceTypeEvaluator  isPersistable;
-		private final PersistenceFieldEvaluator fieldSelectorReflectiveEntity    ;
+		private final PersistenceFieldEvaluator fieldSelectorPersistable;
 		private final PersistenceFieldEvaluator fieldSelectorReflectiveCollection;
 
 
@@ -87,13 +106,13 @@ public interface PersistenceTypeAnalyzer
 
 		Default(
 			final PersistenceTypeEvaluator  isPersistable                    ,
-			final PersistenceFieldEvaluator fieldSelectorReflectiveEntity    ,
+			final PersistenceFieldEvaluator fieldSelectorPersistable         ,
 			final PersistenceFieldEvaluator fieldSelectorReflectiveCollection
 		)
 		{
 			super();
 			this.isPersistable                     = isPersistable;
-			this.fieldSelectorReflectiveEntity     = fieldSelectorReflectiveEntity;
+			this.fieldSelectorPersistable          = fieldSelectorPersistable;
 			this.fieldSelectorReflectiveCollection = fieldSelectorReflectiveCollection;
 		}
 
@@ -105,9 +124,8 @@ public interface PersistenceTypeAnalyzer
 
 		@Override
 		public <C extends XPrependingEnum<Field>> C collectPersistableEntityFields(
-			final Class<?>               type               ,
-			final C                      persistableFields  ,
-			final XPrependingEnum<Field> unpersistableFields
+			final Class<?> type             ,
+			final C        persistableFields
 		)
 		{
 			if(!this.isNonAbstractTypeValidating(type))
@@ -116,7 +134,7 @@ public interface PersistenceTypeAnalyzer
 				return persistableFields;
 			}
 
-			iterateInstanceFields(type, persistableFields, unpersistableFields, this.fieldSelectorReflectiveEntity);
+			iterateInstanceFields(type, this.fieldSelectorPersistable, persistableFields);
 
 			return persistableFields;
 		}
@@ -152,9 +170,9 @@ public interface PersistenceTypeAnalyzer
 
 		@Override
 		public <C extends XPrependingEnum<Field>> C collectPersistableCollectionFields(
-			final Class<?>               type               ,
-			final C                      persistableFields  ,
-			final XPrependingEnum<Field> unpersistableFields
+			final Class<?>           type             ,
+			final C                  persistableFields,
+			final XAddingEnum<Field> problematicFields
 		)
 		{
 			if(!this.isNonAbstractTypeValidating(type))
@@ -163,8 +181,15 @@ public interface PersistenceTypeAnalyzer
 				return persistableFields;
 			}
 
-			iterateInstanceFields(type, persistableFields, unpersistableFields, this.fieldSelectorReflectiveCollection);
-			
+			iterateInstanceFields(
+				type,
+				this.fieldSelectorPersistable,
+				persistableFields,
+				(t, f) ->
+					!this.fieldSelectorReflectiveCollection.applies(type, f),
+				problematicFields
+			);
+						
 			return persistableFields;
 		}
 

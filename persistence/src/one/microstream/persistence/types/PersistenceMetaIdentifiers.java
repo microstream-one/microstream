@@ -45,6 +45,8 @@ public interface PersistenceMetaIdentifiers
 		entries.add("XEmpty:Collection"                             , X::empty                                 );
 		entries.add("XEmpty:Table"                                  , X::emptyTable                            );
 		
+		// (16.07.2019 TM)FIXME: MS-143: register all the constants related to java.util.Collections (Comparators etc!)
+		
 		return entries;
 	}
 }

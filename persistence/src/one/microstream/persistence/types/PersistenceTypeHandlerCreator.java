@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.LambdaTypeRecognizer;
@@ -154,9 +155,8 @@ public interface PersistenceTypeHandlerCreator<M>
 		
 		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerEntity(final Class<T> type)
 		{
-			final HashEnum<Field> persistableFields   = HashEnum.New();
-			final HashEnum<Field> unpersistableFields = HashEnum.New();
-			this.typeAnalyzer.collectPersistableEntityFields(type, persistableFields, unpersistableFields);
+			final HashEnum<Field> persistableFields = HashEnum.New();
+			this.typeAnalyzer.collectPersistableEntityFields(type, persistableFields);
 
 			return this.createTypeHandlerReflective(type, persistableFields);
 		}
@@ -167,10 +167,14 @@ public interface PersistenceTypeHandlerCreator<M>
 			final HashEnum<Field> unpersistableFields = HashEnum.New();
 			this.typeAnalyzer.collectPersistableCollectionFields(type, persistableFields, unpersistableFields);
 			
-			return unpersistableFields.isEmpty()
-				? this.createTypeHandlerReflective(type, persistableFields)
-				: this.createTypeHandlerGenericCollection(type)
-			;
+			if(!unpersistableFields.isEmpty())
+			{
+				XDebug.println("Creating generic collection type handler for " + type);
+				this.createTypeHandlerGenericCollection(type);
+			}
+
+			XDebug.println("Creating reflective collection type handler for " + type);
+			return this.createTypeHandlerReflective(type, persistableFields);
 		}
 		
 		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerArray(Class<T> type);
