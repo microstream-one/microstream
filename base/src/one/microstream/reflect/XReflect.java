@@ -8,16 +8,20 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
 import one.microstream.collections.BulkList;
+import one.microstream.collections.types.XMap;
 import one.microstream.collections.types.XReference;
 import one.microstream.exceptions.IllegalAccessRuntimeException;
 import one.microstream.exceptions.NoSuchFieldRuntimeException;
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
+import one.microstream.functional.Instantiator;
 import one.microstream.typing.XTypes;
 import one.microstream.util.UtilStackTrace;
 
@@ -820,6 +824,46 @@ public final class XReflect
 			);
 		}
 		return primitiveType;
+	}
+	
+	public static <T> Instantiator<T> WrapDefaultConstructor(final Class<T> type)
+		throws NoSuchMethodRuntimeException
+	{
+		try
+		{
+			return Instantiator.WrapDefaultConstructor(
+				type.getConstructor()
+			);
+		}
+		catch(final NoSuchMethodException e)
+		{
+			throw new NoSuchMethodRuntimeException(e);
+		}
+		catch(final SecurityException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Checks if the passed type is equal to or a sub type of {@link Collection} or {@link Map}.
+	 * <p>
+	 * <i>Sad that such a method is necessary in the first place, but here we are.</i>
+	 * <br>(See {@link XMap} for an example on how to do it correctly.)
+	 * 
+	 * @param type the type to be checked.
+	 * 
+	 * @return whether or not the passed type is a java.util collection "in the broader sense".
+	 * 
+	 * @see Collection
+	 * @see Map
+	 */
+	public static boolean isJavaUtilCollectionType(final Class<?> type)
+	{
+		// because the geniuses failed to make Map a collection. Hilarious.
+		return Collection.class.isAssignableFrom(type)
+			|| Map.class.isAssignableFrom(type)
+		;
 	}
 	
 

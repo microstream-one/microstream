@@ -188,7 +188,7 @@ public class ThreadedInstantiating<E> extends Threaded<E>
 		synchronized(this.instantiator)
 		{
 			// lock on instantiator instead of "this" to not prolong structural lock time
-			element = this.instantiator.newInstance();
+			element = this.instantiator.instantiate();
 		}
 
 		// add and return the newly created instance for the current thread

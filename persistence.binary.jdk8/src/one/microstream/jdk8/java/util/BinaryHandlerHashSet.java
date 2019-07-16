@@ -113,7 +113,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	@Override
 	public void complete(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler loadHandler)
 	{
-		OldCollections.populateSetFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateCollectionFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override

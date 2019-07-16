@@ -1,12 +1,11 @@
 package one.microstream.java.lang;
 
-import one.microstream.X;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerStateless;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerVoid extends AbstractBinaryHandlerCustom<Void>
+public final class BinaryHandlerVoid extends AbstractBinaryHandlerStateless<Void>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -14,7 +13,7 @@ public final class BinaryHandlerVoid extends AbstractBinaryHandlerCustom<Void>
 
 	public BinaryHandlerVoid()
 	{
-		super(Void.class, X.empty());
+		super(Void.class);
 	}
 
 
@@ -24,39 +23,33 @@ public final class BinaryHandlerVoid extends AbstractBinaryHandlerCustom<Void>
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final Void instance, final long objectId, final PersistenceStoreHandler handler)
+	public final void store(
+		final Binary                  bytes   ,
+		final Void                    instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Void create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Void create(
+		final Binary                 bytes  ,
+		final PersistenceLoadHandler handler
+	)
 	{
 		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public boolean hasPersistedReferences()
+	public void update(
+		final Binary                 bytes   ,
+		final Void                   instance,
+		final PersistenceLoadHandler handler
+	)
 	{
-		return false;
-	}
-	
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
-	}
-	
-	@Override
-	public final boolean hasPersistedVariableLength()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean hasVaryingPersistedLengthInstances()
-	{
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
 }

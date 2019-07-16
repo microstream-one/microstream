@@ -42,7 +42,7 @@ extends AbstractBinaryHandlerCustomIterableSimpleListElements<T>
 		final List<Object> castedInstance = (List<Object>)instance;
 		
 		bytes.collectObjectReferences(
-			binaryOffsetElements(),
+			this.binaryOffsetElements(),
 			X.checkArrayRange(getElementCount(bytes)),
 			handler,
 			e ->

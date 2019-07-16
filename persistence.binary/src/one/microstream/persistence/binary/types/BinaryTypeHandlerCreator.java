@@ -3,10 +3,21 @@ package one.microstream.persistence.binary.types;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.java.BinaryHandlerEnum;
 import one.microstream.java.lang.BinaryHandlerNativeArrayObject;
+import one.microstream.java.util.BinaryHandlerGenericCollection;
+import one.microstream.java.util.BinaryHandlerGenericList;
+import one.microstream.java.util.BinaryHandlerGenericMap;
+import one.microstream.java.util.BinaryHandlerGenericQueue;
+import one.microstream.java.util.BinaryHandlerGenericSet;
 import one.microstream.persistence.binary.internal.BinaryHandlerGenericType;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
@@ -115,6 +126,62 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				this.eagerStoringFieldEvaluator()              ,
 				BinaryPersistence.blankMemoryInstantiator(type),
 				this.switchByteOrder
+			);
+		}
+		
+		// all casts are type checked dynamically, but the compiler doesn't understand that
+		@SuppressWarnings("unchecked")
+		@Override
+		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGenericCollection(
+			final Class<T> type
+		)
+		{
+			Throwable cause;
+			try
+			{
+				if(Queue.class.isAssignableFrom(type))
+				{
+					return (PersistenceTypeHandler<Binary, T>)BinaryHandlerGenericQueue.New((Class<Queue<?>>)type);
+				}
+				if(List.class.isAssignableFrom(type))
+				{
+					return (PersistenceTypeHandler<Binary, T>)BinaryHandlerGenericList.New((Class<List<?>>)type);
+				}
+				if(Set.class.isAssignableFrom(type))
+				{
+					return (PersistenceTypeHandler<Binary, T>)BinaryHandlerGenericSet.New((Class<Set<?>>)type);
+				}
+				if(Map.class.isAssignableFrom(type))
+				{
+					return (PersistenceTypeHandler<Binary, T>)BinaryHandlerGenericMap.New((Class<Map<?, ?>>)type);
+				}
+				
+				/*
+				 * Since this method is only entered if type is either a Collection or a Map, this check should
+				 * be superfluos. But it's a nice defense against an unforeseen change in the checking method.
+				 */
+				if(Collection.class.isAssignableFrom(type))
+				{
+					return (PersistenceTypeHandler<Binary, T>)BinaryHandlerGenericCollection.New((Class<Collection<?>>)type);
+				}
+				
+				// (16.07.2019 TM)EXCP: proper exception
+				cause = new RuntimeException("Unhandled collection type: " + type);
+			}
+			catch(final NoSuchMethodRuntimeException e)
+			{
+				// fall through to exception
+				cause = e;
+			}
+			
+			// this is as far as generic type analysis gets. Surrender.
+			
+			// (16.07.2019 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Collection type cannot be handled generically and required a custom "
+				+ PersistenceTypeHandler.class.getName() + " to be registered: "
+				+ type,
+				cause
 			);
 		}
 

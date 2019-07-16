@@ -121,7 +121,7 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	@Override
 	public final void complete(final Binary bytes, final TreeSet<?> instance, final PersistenceLoadHandler handler)
 	{
-		OldCollections.populateSetFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateCollectionFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override

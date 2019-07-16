@@ -4,8 +4,6 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 
-import one.microstream.collections.HashEnum;
-import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XPrependingEnum;
 import one.microstream.collections.types.XPrependingSequence;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
@@ -13,14 +11,16 @@ import one.microstream.reflect.XReflect;
 
 public interface PersistenceTypeAnalyzer
 {
-	public XGettingEnum<Field> collectPersistableFieldsReflective(
-		Class<?>                                                         type             ,
-		XPrependingEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions
+	public <C extends XPrependingEnum<Field>> C collectPersistableEntityFields(
+		Class<?>               type               ,
+		C                      persistableFields  ,
+		XPrependingEnum<Field> unpersistableFields
 	);
 	
-	public XGettingEnum<Field> collectPersistableFieldsReflectiveCollection(
-		Class<?>                                                         type             ,
-		XPrependingEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions
+	public <C extends XPrependingEnum<Field>> C collectPersistableCollectionFields(
+		Class<?>               type               ,
+		C                      persistableFields  ,
+		XPrependingEnum<Field> unpersistableFields
 	);
 
 
@@ -104,20 +104,19 @@ public interface PersistenceTypeAnalyzer
 		////////////
 
 		@Override
-		public XGettingEnum<Field> collectPersistableFieldsReflective(
-			final Class<?>                                                         type             ,
-			final XPrependingEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions
+		public <C extends XPrependingEnum<Field>> C collectPersistableEntityFields(
+			final Class<?>               type               ,
+			final C                      persistableFields  ,
+			final XPrependingEnum<Field> unpersistableFields
 		)
 		{
-			final HashEnum<Field> persistableFields = HashEnum.New();
-
 			if(!this.isNonAbstractTypeValidating(type))
 			{
 				// handle abstract types as having no fields at all / stateless types.
 				return persistableFields;
 			}
 
-			iterateInstanceFields(type, persistableFields, null, this.fieldSelectorReflectiveEntity);
+			iterateInstanceFields(type, persistableFields, unpersistableFields, this.fieldSelectorReflectiveEntity);
 
 			return persistableFields;
 		}
@@ -152,14 +151,12 @@ public interface PersistenceTypeAnalyzer
 		}
 
 		@Override
-		public XGettingEnum<Field> collectPersistableFieldsReflectiveCollection(
-			final Class<?>                                                         type             ,
-			final XPrependingEnum<PersistenceTypeDescriptionMemberFieldReflective> fieldDescriptions
+		public <C extends XPrependingEnum<Field>> C collectPersistableCollectionFields(
+			final Class<?>               type               ,
+			final C                      persistableFields  ,
+			final XPrependingEnum<Field> unpersistableFields
 		)
 		{
-			final HashEnum<Field> persistableFields   = HashEnum.New();
-			final HashEnum<Field> unpersistableFields = HashEnum.New();
-
 			if(!this.isNonAbstractTypeValidating(type))
 			{
 				// handle abstract types as having no fields at all / stateless types.
@@ -168,14 +165,7 @@ public interface PersistenceTypeAnalyzer
 
 			iterateInstanceFields(type, persistableFields, unpersistableFields, this.fieldSelectorReflectiveCollection);
 			
-			// there must at least be one properly peristabel collection field and no unpersistable field.
-			if(!persistableFields.isEmpty() & unpersistableFields.isEmpty())
-			{
-				return persistableFields;
-			}
-
-			// (15.07.2019 TM)EXCP: proper exception
-			throw new RuntimeException("Encountered collection cannot be handled generically: " + type.getClass());
+			return persistableFields;
 		}
 
 	}
