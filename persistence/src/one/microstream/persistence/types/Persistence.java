@@ -11,6 +11,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -583,10 +584,28 @@ public class Persistence
 	 */
 	public static Class<?>[] unanalyzableTypes()
 	{
+		/*
+		 * Rationale:
+		 * 
+		 * Composition:
+		 * The very nature of this interface is to indicate that instances of that type are NOT meant
+		 * to be treated as autonomous entities. It's like a "NoEntity" type and therefore not allowed to be
+		 * treated as one.
+		 * 
+		 * Iterator:
+		 * Iterators are basically logic-helpers, like an implemented for loop on a complex structure.
+		 * Such a thing can never meant to be a reasonably persistable entity.
+		 * Additionally, Iterator implementations typically access instances, that are actually meant to be unshared.
+		 * In other words: The Iterator implementation is a composition type of an actual entity-worthy type.
+		 * Should the special case ever occur, that a proper entity type implements Iterator (despite not being
+		 * supposed to do so), it can still be handled by explicitely registering a custom type handler for it.
+		 */
+		
 		// why permanently occupy additional memory with fields and instances for constant values?
 		return XArrays.add(
 			notIdMappableTypes(),
-			Composition.class
+			Composition.class,
+			Iterator.class
 		);
 	}
 

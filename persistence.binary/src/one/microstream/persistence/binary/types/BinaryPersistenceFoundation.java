@@ -220,7 +220,8 @@ extends PersistenceFoundation<Binary, F>
 		{
 			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry(
 				this.getTypeRegistry()              ,
-				this.getSizedArrayLengthController()
+				this.getSizedArrayLengthController(),
+				this.getTypeHandlerCreator()
 			);
 		}
 
