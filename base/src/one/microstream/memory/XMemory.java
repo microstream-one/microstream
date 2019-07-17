@@ -266,47 +266,47 @@ public final class XMemory
 
 	public static final long byteSizeArray_byte(final long elementCount)
 	{
-		return Unsafe.ARRAY_BYTE_BASE_OFFSET + Unsafe.ARRAY_BYTE_INDEX_SCALE * elementCount;
+		return ARRAY_BYTE_BASE_OFFSET + elementCount;
 	}
 
 	public static final long byteSizeArray_boolean(final long elementCount)
 	{
-		return Unsafe.ARRAY_BOOLEAN_BASE_OFFSET + Unsafe.ARRAY_BOOLEAN_INDEX_SCALE * elementCount;
+		return ARRAY_BOOLEAN_BASE_OFFSET + elementCount;
 	}
 
 	public static final long byteSizeArray_short(final long elementCount)
 	{
-		return Unsafe.ARRAY_SHORT_BASE_OFFSET + Unsafe.ARRAY_SHORT_INDEX_SCALE * elementCount;
+		return ARRAY_SHORT_BASE_OFFSET + (elementCount << BITS1);
 	}
 
 	public static final long byteSizeArray_char(final long elementCount)
 	{
-		return Unsafe.ARRAY_CHAR_BASE_OFFSET + Unsafe.ARRAY_CHAR_INDEX_SCALE * elementCount;
+		return ARRAY_CHAR_BASE_OFFSET + (elementCount << BITS1);
 	}
 
 	public static final long byteSizeArray_int(final long elementCount)
 	{
-		return Unsafe.ARRAY_INT_BASE_OFFSET + Unsafe.ARRAY_INT_INDEX_SCALE * elementCount;
+		return ARRAY_INT_BASE_OFFSET + (elementCount << BITS2);
 	}
 
 	public static final long byteSizeArray_float(final long elementCount)
 	{
-		return Unsafe.ARRAY_FLOAT_BASE_OFFSET + Unsafe.ARRAY_FLOAT_INDEX_SCALE * elementCount;
+		return ARRAY_FLOAT_BASE_OFFSET + (elementCount << BITS2);
 	}
 
 	public static final long byteSizeArray_long(final long elementCount)
 	{
-		return Unsafe.ARRAY_LONG_BASE_OFFSET + Unsafe.ARRAY_LONG_INDEX_SCALE * elementCount;
+		return ARRAY_LONG_BASE_OFFSET + (elementCount << BITS3);
 	}
 
 	public static final long byteSizeArray_double(final long elementCount)
 	{
-		return Unsafe.ARRAY_DOUBLE_BASE_OFFSET + Unsafe.ARRAY_DOUBLE_INDEX_SCALE * elementCount;
+		return ARRAY_DOUBLE_BASE_OFFSET + (elementCount << BITS3);
 	}
 
 	public static final long byteSizeArrayObject(final long elementCount)
 	{
-		return Unsafe.ARRAY_OBJECT_BASE_OFFSET + Unsafe.ARRAY_OBJECT_INDEX_SCALE * elementCount;
+		return ARRAY_OBJECT_BASE_OFFSET + elementCount * byteSizeReference();
 	}
 
 	private static final int calculateByteSizeObjectHeader()
@@ -447,7 +447,7 @@ public final class XMemory
 	public static byte[] asByteArray(final long[] longArray)
 	{
 		final byte[] bytes = new byte[checkArrayRange((long)longArray.length << BITS3)];
-		VM.copyMemory(longArray, Unsafe.ARRAY_LONG_BASE_OFFSET, bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET, bytes.length);
+		VM.copyMemory(longArray, ARRAY_LONG_BASE_OFFSET, bytes, ARRAY_BYTE_BASE_OFFSET, bytes.length);
 		return bytes;
 	}
 
@@ -482,45 +482,79 @@ public final class XMemory
 	{
 		return VM.pageSize();
 	}
+	
+	/*
+	 * Rationale for these local constants:
+	 * For Unsafe putting methods like Unsafe#putInt etc, there were two versions before Java 9:
+	 * One with an int offset (deprecated) and one with a long offset.
+	 * The base offset constants are ints, so they have to be casted for the compiler to select the corrent
+	 * method option.
+	 * However, in Java 9, the int variant disappeared (finally). That now causes an "unnecessary cast" warning.
+	 * But removing it would mean in Java 8 and below, the int variant would be chosen and a deprecation warning would
+	 * be displayed.
+	 * So the only way to use those methods without warnings in either version is to have a constant that is
+	 * naturally of type long.
+	 */
+	private static final long
+		ARRAY_BYTE_BASE_OFFSET    = Unsafe.ARRAY_BYTE_BASE_OFFSET   ,
+		ARRAY_BOOLEAN_BASE_OFFSET = Unsafe.ARRAY_BOOLEAN_BASE_OFFSET,
+		ARRAY_SHORT_BASE_OFFSET   = Unsafe.ARRAY_SHORT_BASE_OFFSET  ,
+		ARRAY_CHAR_BASE_OFFSET    = Unsafe.ARRAY_CHAR_BASE_OFFSET   ,
+		ARRAY_INT_BASE_OFFSET     = Unsafe.ARRAY_INT_BASE_OFFSET    ,
+		ARRAY_FLOAT_BASE_OFFSET   = Unsafe.ARRAY_FLOAT_BASE_OFFSET  ,
+		ARRAY_LONG_BASE_OFFSET    = Unsafe.ARRAY_LONG_BASE_OFFSET   ,
+		ARRAY_DOUBLE_BASE_OFFSET  = Unsafe.ARRAY_DOUBLE_BASE_OFFSET ,
+		ARRAY_OBJECT_BASE_OFFSET  = Unsafe.ARRAY_OBJECT_BASE_OFFSET
+	;
+	
+	public static void put_byte(final byte[] bytes, final int index, final short value)
+	{
+		VM.putShort(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
+	}
+	
+	public static void put_boolean(final byte[] bytes, final int index, final char value)
+	{
+		VM.putChar(bytes, ARRAY_BOOLEAN_BASE_OFFSET + index, value);
+	}
 
 	public static void put_short(final byte[] bytes, final int index, final short value)
 	{
-		VM.putShort(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
+		VM.putShort(bytes, ARRAY_SHORT_BASE_OFFSET+ index, value);
 	}
 
 	public static void put_char(final byte[] bytes, final int index, final char value)
 	{
-		VM.putChar(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
+		VM.putChar(bytes, ARRAY_CHAR_BASE_OFFSET + index, value);
 	}
 
 	public static void put_int(final byte[] bytes, final int index, final int value)
 	{
-		VM.putInt(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
+		VM.putInt(bytes, ARRAY_INT_BASE_OFFSET + index, value);
 	}
 
 	public static void put_float(final byte[] bytes, final int index, final float value)
 	{
-		VM.putFloat(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
+		VM.putFloat(bytes, ARRAY_FLOAT_BASE_OFFSET + index, value);
 	}
 
 	public static void put_long(final byte[] bytes, final int index, final long value)
 	{
-		VM.putLong(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
+		VM.putLong(bytes, ARRAY_LONG_BASE_OFFSET + index, value);
 	}
 
 	public static void put_double(final byte[] bytes, final int index, final double value)
 	{
-		VM.putDouble(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + index, value);
+		VM.putDouble(bytes, ARRAY_DOUBLE_BASE_OFFSET + index, value);
 	}
 
 	public static void _longInByteArray(final byte[] bytes, final long value)
 	{
-		VM.putLong(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET, value);
+		VM.putLong(bytes, ARRAY_BYTE_BASE_OFFSET, value);
 	}
 
 	public static long _longFromByteArray(final byte[] bytes)
 	{
-		return VM.getLong(bytes, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET);
+		return VM.getLong(bytes, ARRAY_BYTE_BASE_OFFSET);
 	}
 
 
@@ -723,7 +757,7 @@ public final class XMemory
 
 	public static final void copyRangeToArray(final long sourceAddress, final byte[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_BYTE_BASE_OFFSET, target.length);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_BYTE_BASE_OFFSET, target.length);
 	}
 	
 	public static final void copyRangeToArray(
@@ -733,22 +767,22 @@ public final class XMemory
 		final long   length
 	)
 	{
-		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_BYTE_BASE_OFFSET + targetIndex, length);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_BYTE_BASE_OFFSET + targetIndex, length);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final boolean[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_BOOLEAN_BASE_OFFSET, target.length);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_BOOLEAN_BASE_OFFSET, target.length);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final short[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_SHORT_BASE_OFFSET, target.length << BITS1);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_SHORT_BASE_OFFSET, target.length << BITS1);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final char[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_CHAR_BASE_OFFSET, target.length << BITS1);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET, target.length << BITS1);
 	}
 	
 	public static final void copyRangeToArray(
@@ -758,27 +792,27 @@ public final class XMemory
 		final long   targetLength
 	)
 	{
-		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_CHAR_BASE_OFFSET + (targetIndex << BITS1), targetLength << BITS1);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET + (targetIndex << BITS1), targetLength << BITS1);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final int[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_INT_BASE_OFFSET, target.length << BITS2);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_INT_BASE_OFFSET, target.length << BITS2);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final float[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_FLOAT_BASE_OFFSET, target.length << BITS2);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_FLOAT_BASE_OFFSET, target.length << BITS2);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final long[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_LONG_BASE_OFFSET, target.length << BITS3);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_LONG_BASE_OFFSET, target.length << BITS3);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final double[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, Unsafe.ARRAY_DOUBLE_BASE_OFFSET, target.length << BITS3);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_DOUBLE_BASE_OFFSET, target.length << BITS3);
 	}
 
 	
@@ -787,7 +821,7 @@ public final class XMemory
 
 	public static final void copyArrayToAddress(final byte[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_BYTE_BASE_OFFSET, null, targetAddress, array.length);
+		VM.copyMemory(array, ARRAY_BYTE_BASE_OFFSET, null, targetAddress, array.length);
 	}
 
 	public static final void copyArrayToAddress(
@@ -797,12 +831,12 @@ public final class XMemory
 		final long   targetAddress
 	)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, null, targetAddress, length);
+		VM.copyMemory(array, ARRAY_BYTE_BASE_OFFSET + offset, null, targetAddress, length);
 	}
 	
 	public static final void copyArrayToAddress(final boolean[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_BOOLEAN_BASE_OFFSET, null, targetAddress, array.length);
+		VM.copyMemory(array, ARRAY_BOOLEAN_BASE_OFFSET, null, targetAddress, array.length);
 	}
 
 	public static final void copyArrayToAddress(
@@ -812,12 +846,12 @@ public final class XMemory
 		final long      targetAddress
 	)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_BOOLEAN_BASE_OFFSET + offset, null, targetAddress, length);
+		VM.copyMemory(array, ARRAY_BOOLEAN_BASE_OFFSET + offset, null, targetAddress, length);
 	}
 	
 	public static final void copyArrayToAddress(final short[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_SHORT_BASE_OFFSET, null, targetAddress, array.length << BITS1);
+		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET, null, targetAddress, array.length << BITS1);
 	}
 
 	public static final void copyArrayToAddress(
@@ -827,12 +861,12 @@ public final class XMemory
 		final long    targetAddress
 	)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_SHORT_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
+		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
 	}
 
 	public static final void copyArrayToAddress(final char[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_CHAR_BASE_OFFSET, null, targetAddress, array.length << BITS1);
+		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET, null, targetAddress, array.length << BITS1);
 	}
 	
 	public static final void copyArrayToAddress(
@@ -842,12 +876,12 @@ public final class XMemory
 		final long   targetAddress
 	)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_CHAR_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
+		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
 	}
 	
 	public static final void copyArrayToAddress(final int[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_INT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
+		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
 	}
 
 	public static final void copyArrayToAddress(
@@ -857,12 +891,12 @@ public final class XMemory
 		final long  targetAddress
 	)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_INT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
+		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
 	}
 	
 	public static final void copyArrayToAddress(final float[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
+		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
 	}
 
 	public static final void copyArrayToAddress(
@@ -872,12 +906,12 @@ public final class XMemory
 		final long    targetAddress
 	)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_FLOAT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
+		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
 	}
 	
 	public static final void copyArrayToAddress(final long[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_LONG_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET, null, targetAddress, array.length << BITS3);
 	}
 
 	public static final void copyArrayToAddress(
@@ -887,12 +921,12 @@ public final class XMemory
 		final long     targetAddress
 	)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_LONG_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
+		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
 	}
 	
 	public static final void copyArrayToAddress(final double[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length << BITS3);
 	}
 
 	public static final void copyArrayToAddress(
@@ -902,49 +936,49 @@ public final class XMemory
 		final long     targetAddress
 	)
 	{
-		VM.copyMemory(array, Unsafe.ARRAY_DOUBLE_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
+		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
 	}
 
 	
 
 	public static final byte get_byteFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getByte(data, (long)Unsafe.ARRAY_BYTE_BASE_OFFSET + offset);
+		return VM.getByte(data, ARRAY_BYTE_BASE_OFFSET + offset);
 	}
 
 	public static final boolean get_booleanFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getBoolean(data, (long)Unsafe.ARRAY_BOOLEAN_BASE_OFFSET + offset);
+		return VM.getBoolean(data, ARRAY_BOOLEAN_BASE_OFFSET + offset);
 	}
 
 	public static final short get_shortFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getShort(data, (long)Unsafe.ARRAY_SHORT_BASE_OFFSET + offset);
+		return VM.getShort(data, ARRAY_SHORT_BASE_OFFSET + offset);
 	}
 
 	public static final char get_charFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getChar(data, (long)Unsafe.ARRAY_CHAR_BASE_OFFSET + offset);
+		return VM.getChar(data, ARRAY_CHAR_BASE_OFFSET + offset);
 	}
 
 	public static final int get_intFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getInt(data, (long)Unsafe.ARRAY_INT_BASE_OFFSET + offset);
+		return VM.getInt(data, ARRAY_INT_BASE_OFFSET + offset);
 	}
 
 	public static final float get_floatFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getFloat(data, (long)Unsafe.ARRAY_FLOAT_BASE_OFFSET + offset);
+		return VM.getFloat(data, ARRAY_FLOAT_BASE_OFFSET + offset);
 	}
 
 	public static final long get_longFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getLong(data, (long)Unsafe.ARRAY_LONG_BASE_OFFSET + offset);
+		return VM.getLong(data, ARRAY_LONG_BASE_OFFSET + offset);
 	}
 
 	public static final double get_doubleFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getDouble(data, (long)Unsafe.ARRAY_DOUBLE_BASE_OFFSET + offset);
+		return VM.getDouble(data, ARRAY_DOUBLE_BASE_OFFSET + offset);
 	}
 
 	public static final long allocate(final long bytes)
