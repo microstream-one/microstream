@@ -1291,42 +1291,74 @@ public abstract class Binary implements Chunk
 	
 	public final Byte buildByte()
 	{
+		/*
+		 * Deprecated with Java 9, with the hint "It is rarely appropriate to use this constructor".
+		 * 
+		 * The problem is: This is one of those occasions where it is appropriate.
+		 * Cached value instances are already covered by using their unique objectId,
+		 * but there are occasions where instance identity matters, hence a loading/building
+		 * process must stay true to what it received during storing, otherwise it
+		 * can potentially (or WILL in respective cases) change the program behavior.
+		 * Whether or not that is a good idea in the first place is not the point, here.
+		 * It is a decision of the application developer and a library like this has to
+		 * transparently handle whatever he/she decided to do (maybe for a good reason of a certain special case).
+		 * A library that alters design choices of a using developer and changes the application's behavior
+		 * is nothing but bugged.
+		 * That must be avoided as thoroughly as possible.
+		 * In this case, that means to maintain the identities of the received application instances, no matter what.
+		 * 
+		 * Sadly, using JDK 9 causes a deprecation warning here. Suppressing that causes an unnecessary suppression
+		 * in JDK < 9 which apparently cannot be suppressed itself (except with deactivating compiler settings).
+		 * So either way, there will be a warning somewhere.
+		 * 
+		 * Should the constructor really disappear in a future version,
+		 * then either valueOf() can be used (since there will be no more way to even create instances explicitely)
+		 * or yet another hack has to be applied by low-level-instantiating an instance and low-level setting
+		 * its value into the final field.
+		 */
 		return new Byte(this.read_byte(this.loadItemEntityContentAddress()));
 	}
 
 	public final Boolean buildBoolean()
 	{
+		// see comment in #buildByte()
 		return new Boolean(this.read_boolean(this.loadItemEntityContentAddress()));
 	}
 
 	public final Short buildShort()
 	{
+		// see comment in #buildByte()
 		return new Short(this.read_short(this.loadItemEntityContentAddress()));
 	}
 
 	public final Character buildCharacter()
 	{
+		// see comment in #buildByte()
 		return new Character(this.read_char(this.loadItemEntityContentAddress()));
 	}
 
 	public final Integer buildInteger()
 	{
+		// see comment in #buildByte()
 		return new Integer(this.read_int(this.loadItemEntityContentAddress()));
 	}
 
 	public final Float buildFloat()
 	{
-		return new Float(this.read_float(this.loadItemEntityContentAddress()));
+		// decimal value instances are not chached, so #valueOf() can be used safely.
+		return Float.valueOf(this.read_float(this.loadItemEntityContentAddress()));
 	}
 
 	public final Long buildLong()
 	{
+		// see comment in #buildByte()
 		return new Long(this.read_long(this.loadItemEntityContentAddress()));
 	}
 
 	public final Double buildDouble()
 	{
-		return new Double(this.read_double(this.loadItemEntityContentAddress()));
+		// decimal value instances are not chached, so #valueOf() can be used safely.
+		return Double.valueOf(this.read_double(this.loadItemEntityContentAddress()));
 	}
 	
 	public final byte[] buildArray_byte()
