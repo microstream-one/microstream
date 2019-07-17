@@ -2,6 +2,9 @@ package one.microstream.persistence.binary.types;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Optional;
 
 import one.microstream.collections.BinaryHandlerBulkList;
 import one.microstream.collections.BinaryHandlerConstHashEnum;
@@ -54,12 +57,14 @@ import one.microstream.java.util.BinaryHandlerIdentityHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashSet;
 import one.microstream.java.util.BinaryHandlerLinkedList;
+import one.microstream.java.util.BinaryHandlerOptionalInt;
 import one.microstream.java.util.BinaryHandlerPriorityQueue;
 import one.microstream.java.util.BinaryHandlerProperties;
 import one.microstream.java.util.BinaryHandlerStack;
 import one.microstream.java.util.BinaryHandlerTreeMap;
 import one.microstream.java.util.BinaryHandlerTreeSet;
 import one.microstream.java.util.BinaryHandlerVector;
+import one.microstream.java.util.BinaryHandlerWeakHashMap;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentHashMap;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentLinkedDeque;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentLinkedQueue;
@@ -67,6 +72,7 @@ import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListMap;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListSet;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
+import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.lazy.BinaryHandlerLazyReference;
 import one.microstream.persistence.types.Persistence;
@@ -75,6 +81,7 @@ import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeHandler;
+import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
 import one.microstream.persistence.types.PersistenceTypeIdLookup;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BinaryHandlerSubstituterDefault;
@@ -96,12 +103,13 @@ public final class BinaryPersistence extends Persistence
 	
 	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
 		final PersistenceTypeIdLookup               nativeTypeIdLookup,
-		final PersistenceSizedArrayLengthController controller
+		final PersistenceSizedArrayLengthController controller        ,
+		final PersistenceTypeHandlerCreator<Binary> typeHandlerCreator
 	)
 	{
 		final PersistenceCustomTypeHandlerRegistry.Default<Binary> defaultCustomTypeHandlerRegistry =
 			PersistenceCustomTypeHandlerRegistry.<Binary>New()
-			.registerTypeHandlers(createNativeHandlers(nativeTypeIdLookup, controller))
+			.registerTypeHandlers(createNativeHandlers(nativeTypeIdLookup, controller, typeHandlerCreator))
 			.registerTypeHandlers(defaultCustomHandlers(controller))
 		;
 		return defaultCustomTypeHandlerRegistry;
@@ -124,7 +132,8 @@ public final class BinaryPersistence extends Persistence
 	
 	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> createNativeHandlers(
 		final PersistenceTypeIdLookup               nativeTypeIdLookup,
-		final PersistenceSizedArrayLengthController controller
+		final PersistenceSizedArrayLengthController controller        ,
+		final PersistenceTypeHandlerCreator<Binary> typeHandlerCreator
 	)
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers = ConstList.New(
@@ -146,14 +155,12 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerFloat()    ,
 			new BinaryHandlerLong()     ,
 			new BinaryHandlerDouble()   ,
-			
 			new BinaryHandlerVoid()     ,
-			
 			new BinaryHandlerObject()   ,
 			
-			new BinaryHandlerString()   ,
-			new BinaryHandlerStringBuffer()   ,
-			new BinaryHandlerStringBuilder()  ,
+			new BinaryHandlerString()      ,
+			new BinaryHandlerStringBuffer() ,
+			new BinaryHandlerStringBuilder(),
 
 			new BinaryHandlerNativeArray_byte()   ,
 			new BinaryHandlerNativeArray_boolean(),
@@ -164,7 +171,6 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerNativeArray_long()   ,
 			new BinaryHandlerNativeArray_double() ,
 			
-			// (28.06.2019 TM)FIXME: MS-138: implement remaining collections generically
 			// (28.06.2019 TM)FIXME: MS-143: MOAR JDK Collections (empty, nested implementations, etc)
 			// creepy JDK 1.0 collections
 			new BinaryHandlerVector()               ,
@@ -176,6 +182,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerArrayList(),
 			new BinaryHandlerHashSet()              ,
 			new BinaryHandlerHashMap()              ,
+			new BinaryHandlerWeakHashMap()          ,
 			new BinaryHandlerLinkedList()           ,
 			new BinaryHandlerTreeMap()              ,
 			new BinaryHandlerTreeSet()              ,
@@ -190,6 +197,14 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerConcurrentHashMap()    ,
 			new BinaryHandlerConcurrentLinkedQueue(),
 			
+			// would work, but Iterators are unanalyzable for good reason. See Persistence#unanalyzableTypes
+//			new BinaryHandlerStateless<>(Collections.emptyEnumeration().getClass()),
+//			new BinaryHandlerStateless<>(Collections.emptyIterator().getClass()),
+//			new BinaryHandlerStateless<>(Collections.emptyListIterator().getClass()),
+			
+			new BinaryHandlerStateless<>(Collections.reverseOrder().getClass()),
+			new BinaryHandlerStateless<>(Comparator.naturalOrder().getClass()),
+						
 			// still creepy JDK 1.6 collections
 			new BinaryHandlerArrayDeque()           ,
 			new BinaryHandlerConcurrentSkipListMap(),
@@ -203,8 +218,15 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerFile()      ,
 			new BinaryHandlerDate()      ,
 
-			new BinaryHandlerLazyReference()
-			// (24.10.2013 TM)TODO: more native handlers (Path, Instant and whatnot)
+			new BinaryHandlerLazyReference(),
+			// (24.10.2013 TM)TODO: MS-161 more native handlers (Path, Instant and whatnot)
+			
+			// the way Optional is implemented, only a generically working handler can handle it correctly
+			typeHandlerCreator.createTypeHandler(Optional.class),
+			new BinaryHandlerOptionalInt(),
+			// (17.07.2019 TM)FIXME: MS-143: copy&paste Optional special types
+			new BinaryHandlerOptionalLong(),
+			new BinaryHandlerOptionalDouble()
 		);
 		
 		nativeHandlers.iterate(handler ->

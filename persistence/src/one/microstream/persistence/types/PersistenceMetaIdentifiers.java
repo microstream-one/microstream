@@ -1,5 +1,13 @@
 package one.microstream.persistence.types;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.function.Supplier;
 
 import one.microstream.X;
@@ -45,8 +53,34 @@ public interface PersistenceMetaIdentifiers
 		entries.add("XEmpty:Collection"                             , X::empty                                 );
 		entries.add("XEmpty:Table"                                  , X::emptyTable                            );
 		
-		// (16.07.2019 TM)FIXME: MS-143: register all the constants related to java.util.Collections (Comparators etc!)
-		
+		/*
+		 * JDK constants (narrow selection of default-wise "worthy" for an entity graph)
+		 * E.g. Iterators are not. See Persistence#unanalyzableTypes for a rationale on that.
+		 * Also note:
+		 * Collections#emptySortedSet is the same instance as Collections#emptyNavigableSet
+		 * Collections#emptySortedMap is the same instance as Collections#emptyNavigableMap
+		 * Arrays$NaturalOrder#NaturalOrder is unshared and only used by logic, not in data structures.
+		 * MutableBigInteger does not have any shared instance constants.
+		 */
+		entries.add("JDK.Collections:emptyList"        , Collections::emptyList        ); // stateless!
+		entries.add("JDK.Collections:emptySet"         , Collections::emptySet         ); // stateless!
+		entries.add("JDK.Collections:emptyMap"         , Collections::emptyMap         ); // stateless!
+		entries.add("JDK.Collections:emptyNavigableSet", Collections::emptyNavigableSet); // stateless!
+		entries.add("JDK.Collections:emptyNavigableMap", Collections::emptyNavigableMap); // stateless!
+		entries.add("JDK.Collections:reverseOrder"     , Collections::reverseOrder     ); // stateless!
+		entries.add("JDK.Comparator:naturalOrder"      , Comparator::naturalOrder      ); // stateless!
+		entries.add("JDK.BigDecimal:ZERO"              , () -> BigDecimal.ZERO         ); // no-op update()!
+		entries.add("JDK.BigDecimal:ONE"               , () -> BigDecimal.ONE          ); // no-op update()!
+		entries.add("JDK.BigDecimal:TEN"               , () -> BigDecimal.TEN          ); // no-op update()!
+		entries.add("JDK.BigInteger:ZERO"              , () -> BigInteger.ZERO         ); // no-op update()!
+		entries.add("JDK.BigInteger:ONE"               , () -> BigInteger.ONE          ); // no-op update()!
+		entries.add("JDK.BigInteger:TEN"               , () -> BigInteger.TEN          ); // no-op update()!
+		entries.add("JDK.Optional:empty"               , Optional::empty               ); // stateless!
+		entries.add("JDK.OptionalInt:empty"            , OptionalInt::empty            ); // stateless!
+		entries.add("JDK.OptionalLong:empty"           , OptionalLong::empty           ); // stateless!
+		entries.add("JDK.OptionalDouble:empty"         , OptionalDouble::empty         ); // stateless!
+				
 		return entries;
 	}
+	
 }
