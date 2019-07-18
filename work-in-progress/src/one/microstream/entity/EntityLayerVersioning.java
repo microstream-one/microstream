@@ -2,14 +2,14 @@ package one.microstream.entity;
 
 import one.microstream.collections.EqHashTable;
 
-public class EntityLayerVersioning<E extends Entity<E>, K> extends EntityLayer<E>
+public class EntityLayerVersioning<K> extends EntityLayer
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
 	private final EntityVersionContext<K> versionContext;
-	private final EqHashTable<K, E>       versions     ;
+	private final EqHashTable<K, Entity>  versions     ;
 	
 	
 	
@@ -17,7 +17,7 @@ public class EntityLayerVersioning<E extends Entity<E>, K> extends EntityLayer<E
 	// constructors //
 	/////////////////
 	
-	protected EntityLayerVersioning(final Entity<E> data, final EntityVersionContext<K> versionContext)
+	protected EntityLayerVersioning(final Entity data, final EntityVersionContext<K> versionContext)
 	{
 		super(data);
 		this.versionContext = versionContext;
@@ -42,15 +42,15 @@ public class EntityLayerVersioning<E extends Entity<E>, K> extends EntityLayer<E
 	////////////
 
 	@Override
-	public synchronized E $data()
+	public synchronized Entity $entityData()
 	{
 		final K versionKey = this.versionContext.currentVersion();
 		if(versionKey == null)
 		{
-			return super.$data();
+			return super.$entityData();
 		}
 		
-		final E versionedData = this.versions.get(versionKey);
+		final Entity versionedData = this.versions.get(versionKey);
 		if(versionedData == null)
 		{
 			// (30.11.2017 TM)EXCP: proper exception
@@ -61,12 +61,12 @@ public class EntityLayerVersioning<E extends Entity<E>, K> extends EntityLayer<E
 	}
 
 	@Override
-	public synchronized boolean $updateData(final E data)
+	public synchronized boolean $updateEntityData(final Entity data)
 	{
 		final K versionKey = this.versionContext.currentVersion();
 		if(versionKey == null)
 		{
-			super.$updateData(data);
+			super.$updateEntityData(data);
 		}
 		else
 		{

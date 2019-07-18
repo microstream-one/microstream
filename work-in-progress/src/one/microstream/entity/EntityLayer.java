@@ -1,12 +1,12 @@
 package one.microstream.entity;
 
-public abstract class EntityLayer<E extends Entity<E>> implements Entity<E>
+public abstract class EntityLayer extends Entity.AbstractAccessible
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
-	private Entity<E> inner;
+	private Entity inner;
 	
 	
 	
@@ -14,7 +14,7 @@ public abstract class EntityLayer<E extends Entity<E>> implements Entity<E>
 	// constructors //
 	/////////////////
 	
-	public EntityLayer(final Entity<E> inner)
+	public EntityLayer(final Entity inner)
 	{
 		super();
 		this.inner = inner; // may be null in case of delayed initialization.
@@ -27,57 +27,58 @@ public abstract class EntityLayer<E extends Entity<E>> implements Entity<E>
 	////////////
 	
 	@Override
-	public E $entity()
+	protected Entity $entityIdentity()
 	{
 		// the data instance (and only that) has a back-reference to the actual entity instance it belongs to.
-		return this.inner.$entity();
+		return Entity.identity(this.inner);
 	}
 	
 	@Override
-	public E $data()
+	protected Entity $entityData()
 	{
-		return this.inner.$data();
-	}
-	
-	protected Entity<E> $inner()
-	{
-		return this.inner;
-	}
-	
-	protected void $validateNewData(final E newData)
-	{
-		// empty default implementation
-		if(newData.$entity() != this.$entity())
-		{
-			// (10.12.2017 TM)EXCP: proper exception
-			throw new RuntimeException("Entity identity mismatch.");
-		}
-	}
-	
-	protected void $updateDataValidating(final E newData)
-	{
-		final E actualNewData = newData.$data();
-		this.$validateNewData(actualNewData);
-		this.$setInner(actualNewData);
-	}
-	
-	protected void $setInner(final Entity<E> inner)
-	{
-		this.inner = inner;
+		return Entity.data(this.inner);
 	}
 	
 	@Override
-	public boolean $updateData(final E newData)
+	protected boolean $updateEntityData(final Entity newData)
 	{
 		/*
 		 *  if the inner layer instance reports success, it is an intermediate layer.
 		 *  Otherwise, it is the data itself and needs to be replaced.
 		 */
-		if(!this.inner.$updateData(newData))
+		if(!Entity.updateData(this.inner, newData))
 		{
 			this.$updateDataValidating(newData);
 		}
 		
 		return true;
 	}
+	
+	protected Entity $inner()
+	{
+		return this.inner;
+	}
+	
+	protected void $validateNewData(final Entity newData)
+	{
+		// (18.07.2019 TM)FIXME: check for same data class necessary?
+		if(Entity.identity(newData) != this.$entityIdentity())
+		{
+			// (10.12.2017 TM)EXCP: proper exception
+			throw new RuntimeException("Entity identity mismatch.");
+		}
+	}
+	
+	protected void $updateDataValidating(final Entity newData)
+	{
+		final Entity actualNewData = Entity.data(newData);
+		this.$validateNewData(actualNewData);
+		this.$setInner(actualNewData);
+	}
+	
+	protected void $setInner(final Entity inner)
+	{
+		this.inner = inner;
+	}
+	
 }

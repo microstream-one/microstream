@@ -1,6 +1,7 @@
 package some.app.entities;
 
 import one.microstream.entity.Entity;
+import some.app.entities._generated._Person.PersonCreator;
 
 
 /**
@@ -9,9 +10,29 @@ import one.microstream.entity.Entity;
  * 
  * @author TM
  */
-public interface Person extends Entity<Person>
+public interface Person extends Entity
 {
-	String firstName();
+	public String firstName();
 	
-	String lastName();
+	public String lastName();
+		
+	
+	
+	
+	// -------------------------------------------------------------------//
+	
+	// (18.07.2019 TM)NOTE: example for an optional convenience setter
+	public default Person setFirstName(final String firstName)
+	{
+		Entity.updateData(this, New(this).lastName(firstName).createData());
+		
+		return this;
+	}
+	
+	// (18.07.2019 TM)NOTE: example for an optional pseudo-constructor
+	public static PersonCreator New(final Person other)
+	{
+		return PersonCreator.New(other);
+	}
+	
 }
