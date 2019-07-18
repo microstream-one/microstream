@@ -20,6 +20,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -87,6 +88,7 @@ public class MainTestStorageJDKCollections
 			populate(new Vector<>())               ,
 			populate(new Stack<>())                ,
 			populate(new Properties())             ,
+			populate(new WeakHashMap<>())          ,
 			populate(new ConcurrentHashMap<>())    ,
 			populate(new ConcurrentLinkedQueue<>()),
 			populate(new ConcurrentLinkedDeque<>()),

@@ -148,6 +148,7 @@ public class Persistence
 	static final long TID_java_util_ConcurrentLinkedQueue  = 64L;
 	static final long TID_java_util_ConcurrentSkipListMap  = 65L;
 	static final long TID_java_util_ConcurrentSkipListSet  = 66L;
+	static final long TID_java_util_WeakHashMap            = 67L;
 
 	// arrays (only 1D) of common types
 	static final long TID_ARRAY_byte           = 100L + TID_PRIMITIVE_byte   ;
@@ -286,7 +287,6 @@ public class Persistence
 		NATIVE_TYPES.add(StringBuffer   .class, TID_StringBuffer     );
 		NATIVE_TYPES.add(StringBuilder  .class, TID_StringBuilder    );
 
-
 		NATIVE_TYPES.add(java.io  .File      .class, TID_java_io_File        );
 		NATIVE_TYPES.add(java.util.Date      .class, TID_java_util_Date      );
 
@@ -316,21 +316,26 @@ public class Persistence
 		NATIVE_TYPES.add(java.util.Vector                   .class, TID_java_util_Vector                );
 		NATIVE_TYPES.add(java.util.Stack                    .class, TID_java_util_Stack                 );
 		NATIVE_TYPES.add(java.util.Properties               .class, TID_java_util_Properties            );
+		
+		/*
+		 * (18.07.2019 TM)NOTE: intentionally no native TypeId for the later added WeakHashMap
+		 * A special runtime construct like that should not be part of a persistent entity graph
+		 * and if it is nonetheless, it's perfectly fine to assign a dynamic typeId to it instead
+		 * of glueing a native id entry to it.
+		 * Actually, it is questionable if natively defined TypeIds beyond BigDecimal are reasonable
+		 * in the first place.
+		 */
 
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentHashMap    .class, TID_java_util_ConcurrentHashMap    );
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentLinkedDeque.class, TID_java_util_ConcurrentLinkedDeque);
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentLinkedQueue.class, TID_java_util_ConcurrentLinkedQueue);
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentSkipListMap.class, TID_java_util_ConcurrentSkipListMap);
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentSkipListSet.class, TID_java_util_ConcurrentSkipListSet);
+
 		
 		/* (27.03.2012)FIXME more native types
-		 *
-		 * And appropriate type handlers in persistence, of course
-		 *
-		 * more jdk collections
-		 * XCollections here as well?
-		 * what about Thread? Is it persistable? Hardly ^^
-		 * java.nio.Path
+		 * java.nio.Path etc.
+		 * Also see class BinaryPersistence for TypeHandlers
 		 */
 
 		// basic array types (arrays of java.lang. types)
