@@ -57,7 +57,9 @@ import one.microstream.java.util.BinaryHandlerIdentityHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashSet;
 import one.microstream.java.util.BinaryHandlerLinkedList;
+import one.microstream.java.util.BinaryHandlerOptionalDouble;
 import one.microstream.java.util.BinaryHandlerOptionalInt;
+import one.microstream.java.util.BinaryHandlerOptionalLong;
 import one.microstream.java.util.BinaryHandlerPriorityQueue;
 import one.microstream.java.util.BinaryHandlerProperties;
 import one.microstream.java.util.BinaryHandlerStack;
@@ -171,7 +173,6 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerNativeArray_long()   ,
 			new BinaryHandlerNativeArray_double() ,
 			
-			// (28.06.2019 TM)FIXME: MS-143: MOAR JDK Collections (empty, nested implementations, etc)
 			// creepy JDK 1.0 collections
 			new BinaryHandlerVector()               ,
 			new BinaryHandlerStack()                ,
@@ -197,6 +198,8 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerConcurrentHashMap()    ,
 			new BinaryHandlerConcurrentLinkedQueue(),
 			
+			// remaining JDK collections (wrappers and the like) are handled dynamically
+			
 			// would work, but Iterators are unanalyzable for good reason. See Persistence#unanalyzableTypes
 //			new BinaryHandlerStateless<>(Collections.emptyEnumeration().getClass()),
 //			new BinaryHandlerStateless<>(Collections.emptyIterator().getClass()),
@@ -219,20 +222,22 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerDate()      ,
 
 			new BinaryHandlerLazyReference(),
-			// (24.10.2013 TM)TODO: MS-161 more native handlers (Path, Instant and whatnot)
+			/* (24.10.2013 TM)TODO: MS-161 more native handlers (Path, Instant and whatnot)
+			 * Also see class Persistence for default TypeIds
+			 */
 			
 			// the way Optional is implemented, only a generically working handler can handle it correctly
 			typeHandlerCreator.createTypeHandler(Optional.class),
 			new BinaryHandlerOptionalInt(),
-			// (17.07.2019 TM)FIXME: MS-143: copy&paste Optional special types
 			new BinaryHandlerOptionalLong(),
 			new BinaryHandlerOptionalDouble()
 		);
 		
-		nativeHandlers.iterate(handler ->
-		{
-			BinaryPersistence.initializeNativeTypeId(handler, nativeTypeIdLookup);
-		});
+		// (18.07.2019 TM)FIXME: /!\ DEBUG WeakHashMap
+//		nativeHandlers.iterate(handler ->
+//		{
+//			BinaryPersistence.initializeNativeTypeId(handler, nativeTypeIdLookup);
+//		});
 		
 		return nativeHandlers;
 	}

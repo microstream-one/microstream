@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.LambdaTypeRecognizer;
@@ -169,11 +168,9 @@ public interface PersistenceTypeHandlerCreator<M>
 			
 			if(!unpersistableFields.isEmpty())
 			{
-				XDebug.println("Creating generic collection type handler for " + type);
 				this.createTypeHandlerGenericCollection(type);
 			}
 
-			XDebug.println("Creating reflective collection type handler for " + type);
 			return this.createTypeHandlerReflective(type, persistableFields);
 		}
 		

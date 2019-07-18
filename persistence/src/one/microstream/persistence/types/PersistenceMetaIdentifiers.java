@@ -75,10 +75,10 @@ public interface PersistenceMetaIdentifiers
 		entries.add("JDK.BigInteger:ZERO"              , () -> BigInteger.ZERO         ); // no-op update()!
 		entries.add("JDK.BigInteger:ONE"               , () -> BigInteger.ONE          ); // no-op update()!
 		entries.add("JDK.BigInteger:TEN"               , () -> BigInteger.TEN          ); // no-op update()!
-		entries.add("JDK.Optional:empty"               , Optional::empty               ); // stateless!
-		entries.add("JDK.OptionalInt:empty"            , OptionalInt::empty            ); // stateless!
-		entries.add("JDK.OptionalLong:empty"           , OptionalLong::empty           ); // stateless!
-		entries.add("JDK.OptionalDouble:empty"         , OptionalDouble::empty         ); // stateless!
+		entries.add("JDK.Optional:empty"               , Optional::empty               ); // no-op update()!
+		entries.add("JDK.OptionalInt:empty"            , OptionalInt::empty            ); // no-op update()!
+		entries.add("JDK.OptionalLong:empty"           , OptionalLong::empty           ); // no-op update()!
+		entries.add("JDK.OptionalDouble:empty"         , OptionalDouble::empty         ); // no-op update()!
 				
 		return entries;
 	}
