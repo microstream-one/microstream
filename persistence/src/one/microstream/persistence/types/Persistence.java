@@ -710,6 +710,27 @@ public class Persistence
 			return true;
 		}
 		
+		// required to handle wrappers like Arrays$ArrayList correctly and not a big overhead in general
+		if(fieldType.isArray())
+		{
+			final Class<?> componentType = fieldType.getComponentType();
+			
+			// check for element type
+			if(entityClassTypeVairable.contains(componentType))
+			{
+				return true;
+			}
+			
+			// assume an Object[] is a non-type-parametrized element array
+			if(componentType == Object.class)
+			{
+				return true;
+			}
+			
+			// anything else (like Entry[] of a complex datastructure] is intentionally not supported.
+			return false;
+		}
+		
 		/*
 		 * Any other typed field is assumed to point to a complex data structure (like arrays,
 		 * lists/trees of Entry instances, etc.). While technically handleable, this is rejected by the
