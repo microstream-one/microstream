@@ -32,7 +32,7 @@ public class EntityLogger extends EntityLayer
 	public EntityLogger(final Entity innerInstance)
 	{
 		super(innerInstance);
-		this.declaringClassname = innerInstance.$entity().getClass().getName();
+		this.declaringClassname = Entity.identity(innerInstance).getClass().getName();
 	}
 	
 	
@@ -45,24 +45,24 @@ public class EntityLogger extends EntityLayer
 	{
 		System.out.println(
 			"Thread \"" + Thread.currentThread().getName()
-			+ "\" " + action + XChars.systemString(this.$entity())
+			+ "\" " + action + XChars.systemString(this.$entityIdentity())
 			+ (methodName != null ? " via #" + methodName: "")
 			+ "."
 		);
 	}
 	
 	@Override
-	public Entity $data()
+	public Entity $entityData()
 	{
 		this.logAction("reads data of ", XThreads.getMethodNameForDeclaringClassName(this.declaringClassname));
-		return super.$data();
+		return super.$entityData();
 	}
 	
 	@Override
-	public boolean $updateData(final Entity newData)
+	public boolean $updateEntityData(final Entity newData)
 	{
 		this.logAction("updates data of ", null);
-		return super.$updateData(newData);
+		return super.$updateEntityData(newData);
 	}
 	
 }

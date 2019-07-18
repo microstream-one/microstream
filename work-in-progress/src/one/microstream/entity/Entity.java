@@ -2,6 +2,7 @@ package one.microstream.entity;
 
 import java.util.function.Consumer;
 
+import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XCollection;
 import one.microstream.collections.types.XIterable;
@@ -37,56 +38,122 @@ import one.microstream.collections.types.XIterable;
  * 
  * @author TM
  */
-public interface Entity extends ReadableEntity
+public interface Entity
 {
 	@SuppressWarnings("unchecked")
-	public static <E> E identity(final E instance)
+	public static <E extends Entity> E identity(final E instance)
 	{
-		return instance instanceof Entity
-			? (E)((Entity)instance).$entity()
-			: instance
-		;
+		if(instance instanceof Entity.AbstractAccessible)
+		{
+			return (E)((Entity.AbstractAccessible)instance).$entityIdentity();
+		}
+		
+		if(instance instanceof Entity.Accessible)
+		{
+			return (E)((Entity.Accessible)instance).$entityIdentity();
+		}
+		
+		if(instance == null)
+		{
+			// null is consistently its own identity
+			return null;
+		}
+
+		// (18.07.2019 TM)EXCP: proper exception
+		throw new RuntimeException("Unaccessable entity type: " + XChars.systemString(instance));
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <E> E data(final E instance)
+	public static <E extends Entity> E data(final E instance)
 	{
-		return instance instanceof Entity
-			? (E)((Entity)instance).$data()
-			: instance
-		;
+		if(instance instanceof Entity.AbstractAccessible)
+		{
+			return (E)((Entity.AbstractAccessible)instance).$entityData();
+		}
+
+		// tiny redundancy as a tiny price for convenient visibility magic plus still possible multiple inheritance
+		if(instance instanceof Entity.Accessible)
+		{
+			return (E)((Entity.Accessible)instance).$entityData();
+		}
+		
+		if(instance == null)
+		{
+			// null is consistently its own data
+			return null;
+		}
+
+		// (18.07.2019 TM)EXCP: proper exception
+		throw new RuntimeException("Unaccessable entity type: " + XChars.systemString(instance));
 	}
 	
-	public static <E> boolean updateData(E entity, E data)
+	public static <E extends Entity> boolean updateData(final E entity, final E data)
 	{
-		return entity instanceof Entity && data instanceof Entity
-			? ((Entity)entity).$updateData((Entity)data)
-			: false;
+		if(entity instanceof Entity.AbstractAccessible)
+		{
+			// data instance validation is done inside (has to be, anyway)
+			return ((Entity.Accessible)entity).$updateEntityData(data);
+		}
+		
+		// tiny redundancy as a tiny price for convenient visibility magic plus still possible multiple inheritance
+		if(entity instanceof Entity.Accessible)
+		{
+			// data instance validation is done inside (has to be, anyway)
+			return ((Entity.Accessible)entity).$updateEntityData(data);
+		}
+
+		// (18.07.2019 TM)EXCP: proper exception
+		throw new RuntimeException("Unaccessable entity type: " + XChars.systemString(entity));
 	}
 	
-	public default boolean isSameIdentity(final Entity newData)
+	public default boolean isSameIdentity(final Entity other)
 	{
-		return newData.$entity() == this.$entity();
+		return identity(this) == identity(other);
 	}
 	
 	public default void validateIdentity(final Entity newData)
 	{
-		// empty default implementation
-		if(!isSameIdentity(newData))
+		if(this.isSameIdentity(newData))
 		{
-			// (10.12.2017 TM)EXCP: proper exception
-			throw new RuntimeException("Entity identity mismatch.");
+			return;
 		}
+		
+		// (10.12.2017 TM)EXCP: proper exception
+		throw new RuntimeException("Entity identity mismatch.");
 	}
 	
-	@Override
-	public Entity $entity();
 	
-	@Override
-	public Entity $data();
+
+	/**
+	 * Primary means to convenience-hide framework-internal methods from the user entity's public API
+	 * 
+	 * @author TM
+	 */
+	public abstract class AbstractAccessible implements Entity
+	{
+		protected abstract Entity $entityIdentity();
+		
+		protected abstract Entity $entityData();
+		
+		protected abstract boolean $updateEntityData(Entity data);
+	}
 	
-	boolean $updateData(Entity data);
 	
+	/**
+	 * Fallback means to convenience-hide framework-internal methods from the user entity's public API
+	 * for classes that cannot extend {@link AbstractAccessible} for whatever reason
+	 * 
+	 * @author TM
+	 */
+	public interface Accessible extends Entity
+	{
+		public Entity $entityIdentity();
+		
+		public Entity $entityData();
+		
+		public boolean $updateEntityData(Entity data);
+	}
+		
 
 	
 	public interface Creator<E extends Entity, C extends Creator<E, C>> extends XIterable<EntityLayerProvider>
@@ -185,12 +252,12 @@ public interface Entity extends ReadableEntity
 			{
 				final EntityLayerIdentity entity = this.createEntityInstance();
 				
-				final Entity data          = this.createData((E)entity.$entity());
+				final Entity data          = this.createData((E)entity.$entityIdentity());
 				final Entity innerInstance = this.dispatchDataInstance(data);
 				
 				entity.$setInner(innerInstance);
 				
-				return (E)entity.$entity();
+				return (E)entity.$entityIdentity();
 			}
 			
 			@Override
@@ -200,11 +267,10 @@ public interface Entity extends ReadableEntity
 				return $();
 			}
 			
-			@SuppressWarnings("unchecked")
 			@Override
 			public E createData()
 			{
-				return this.createData((E)this.entityIdentity.$entity());
+				return this.createData(Entity.identity(this.entityIdentity));
 			}
 			
 			protected abstract EntityLayerIdentity createEntityInstance();

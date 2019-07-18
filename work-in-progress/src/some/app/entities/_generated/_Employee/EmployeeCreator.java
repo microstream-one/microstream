@@ -4,7 +4,7 @@ import one.microstream.entity.Entity;
 import one.microstream.entity.EntityLayerIdentity;
 import some.app.entities.Employee;
 
-public interface EmployeeCreator extends Entity.Creator<Employee,EmployeeCreator>
+public interface EmployeeCreator extends Entity.Creator<Employee, EmployeeCreator>
 {
 	public EmployeeCreator firstName(String value);
 	
@@ -26,7 +26,7 @@ public interface EmployeeCreator extends Entity.Creator<Employee,EmployeeCreator
 	
 	
 	public class Default
-	extends Entity.Creator.Abstract<Employee,EmployeeCreator>
+	extends Entity.Creator.Abstract<Employee, EmployeeCreator>
 	implements EmployeeCreator
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ public interface EmployeeCreator extends Entity.Creator<Employee,EmployeeCreator
 		@Override
 		public EmployeeCreator copy(final Employee other)
 		{
-			final Employee data = (Employee)other.$data();
+			final Employee data = Entity.data(other);
 			this.firstName = data.firstName();
 			this.lastName  = data.lastName() ;
 			this.employer  = data.employer() ;

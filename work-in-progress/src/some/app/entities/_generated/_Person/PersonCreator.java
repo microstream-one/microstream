@@ -4,7 +4,7 @@ import one.microstream.entity.Entity;
 import one.microstream.entity.EntityLayerIdentity;
 import some.app.entities.Person;
 
-public interface PersonCreator extends Entity.Creator<Person,PersonCreator>
+public interface PersonCreator extends Entity.Creator<Person, PersonCreator>
 {
 	public PersonCreator firstName(String value);
 	
@@ -69,7 +69,7 @@ public interface PersonCreator extends Entity.Creator<Person,PersonCreator>
 		@Override
 		public PersonCreator copy(final Person other)
 		{
-			final Person data = (Person)other.$data();
+			final Person data = Entity.data(other);
 			this.firstName = data.firstName();
 			this.lastName  = data.lastName() ;
 			

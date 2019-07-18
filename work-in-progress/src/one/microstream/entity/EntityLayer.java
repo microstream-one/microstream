@@ -1,6 +1,6 @@
 package one.microstream.entity;
 
-public abstract class EntityLayer implements Entity
+public abstract class EntityLayer extends Entity.AbstractAccessible
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -27,16 +27,31 @@ public abstract class EntityLayer implements Entity
 	////////////
 	
 	@Override
-	public Entity $entity()
+	protected Entity $entityIdentity()
 	{
 		// the data instance (and only that) has a back-reference to the actual entity instance it belongs to.
-		return this.inner.$entity();
+		return Entity.identity(this.inner);
 	}
 	
 	@Override
-	public Entity $data()
+	protected Entity $entityData()
 	{
-		return this.inner.$data();
+		return Entity.data(this.inner);
+	}
+	
+	@Override
+	protected boolean $updateEntityData(final Entity newData)
+	{
+		/*
+		 *  if the inner layer instance reports success, it is an intermediate layer.
+		 *  Otherwise, it is the data itself and needs to be replaced.
+		 */
+		if(!Entity.updateData(this.inner, newData))
+		{
+			this.$updateDataValidating(newData);
+		}
+		
+		return true;
 	}
 	
 	protected Entity $inner()
@@ -46,8 +61,8 @@ public abstract class EntityLayer implements Entity
 	
 	protected void $validateNewData(final Entity newData)
 	{
-		// empty default implementation
-		if(newData.$entity() != this.$entity())
+		// (18.07.2019 TM)FIXME: check for same data class necessary?
+		if(Entity.identity(newData) != this.$entityIdentity())
 		{
 			// (10.12.2017 TM)EXCP: proper exception
 			throw new RuntimeException("Entity identity mismatch.");
@@ -56,7 +71,7 @@ public abstract class EntityLayer implements Entity
 	
 	protected void $updateDataValidating(final Entity newData)
 	{
-		final Entity actualNewData = newData.$data();
+		final Entity actualNewData = Entity.data(newData);
 		this.$validateNewData(actualNewData);
 		this.$setInner(actualNewData);
 	}
@@ -66,18 +81,4 @@ public abstract class EntityLayer implements Entity
 		this.inner = inner;
 	}
 	
-	@Override
-	public boolean $updateData(final Entity newData)
-	{
-		/*
-		 *  if the inner layer instance reports success, it is an intermediate layer.
-		 *  Otherwise, it is the data itself and needs to be replaced.
-		 */
-		if(!this.inner.$updateData(newData))
-		{
-			this.$updateDataValidating(newData);
-		}
-		
-		return true;
-	}
 }

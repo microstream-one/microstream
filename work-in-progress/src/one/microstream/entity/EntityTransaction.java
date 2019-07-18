@@ -136,7 +136,7 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry>, T
 		@Override
 		public synchronized Entity lookupData(final Committable entity)
 		{
-			final Entry entry = (Entry)this.entries.get(entity);
+			final Entry entry = this.entries.get(entity);
 			return entry == null ? null : entry.local();
 		}
 		
@@ -155,12 +155,12 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry>, T
 			 * routes back here. In the end, the local data instance is looked up and used and that is exactely
 			 * the desired behavior.
 			 */
-			return this.ensureEntryUnsynched(entity).local(newData.$data());
+			return this.ensureEntryUnsynched(entity).local(Entity.data(newData));
 		}
 		
 		private Entry ensureEntryUnsynched(final Committable entity)
 		{
-			Entry entry = this.entries.get(entity.$entity());
+			Entry entry = this.entries.get(Entity.identity(entity));
 			if(entry == null)
 			{
 				this.entries.add(entity, entry = new Entry(entity));
@@ -245,7 +245,7 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry>, T
 				final EntityTransaction.Entry entry = iterator.next();
 				
 				// recursive multi-instance-lock. Better not have too many entities.
-				synchronized(entry.original().$entity())
+				synchronized(Entity.identity(entry.original()))
 				{
 					recursivelyLockAndExecute(iterator, logic);
 				}
@@ -269,7 +269,7 @@ public interface EntityTransaction extends XIterable<EntityTransaction.Entry>, T
 				)
 				{
 					conflicts.add(
-						localOriginalData.$entity(),
+						Entity.identity(localOriginalData),
 						new DataConflict.Default(
 							localOriginalData,
 							localModifiedData,

@@ -1,7 +1,5 @@
 package some.app.entities._generated._Employee;
 
-import java.util.Objects;
-
 import some.app.entities.Employee;
 import some.app.entities._generated._Person.PersonData;
 
@@ -25,19 +23,14 @@ public class EmployeeData extends PersonData implements Employee
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(
-			this.firstName(), 
-			this.lastName (),
-			this.employer ()
-		);
+		return EmployeeHashEqualator.Default.hashCode(this);
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		return this == obj
-			|| (	obj instanceof EmployeeData 
-				&&  EmployeeEqualator.INSTANCE.equal(this, (EmployeeData)obj)
-			   );
+			|| obj instanceof EmployeeData
+			&&  EmployeeHashEqualator.Default.equals(this, (EmployeeData)obj);
 	}
 }
