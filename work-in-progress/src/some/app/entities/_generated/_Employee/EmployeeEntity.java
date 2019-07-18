@@ -11,15 +11,15 @@ public class EmployeeEntity extends PersonEntity implements Employee
 	}
 	
 	@Override
-	public Employee $data()
+	public Employee $entityData()
 	{
-		return (Employee)super.$data();
+		return (Employee)super.$entityData();
 	}
 
 	@Override
 	public final String employer()
 	{
-		return this.$data().employer();
+		return this.$entityData().employer();
 	}
 	
 }

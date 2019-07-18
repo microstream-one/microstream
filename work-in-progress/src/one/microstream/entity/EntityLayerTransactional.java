@@ -21,7 +21,7 @@ implements EntityTransaction.Committable
 	{
 		super(innerLayer);
 		this.transactionContext = transactionContext  ;
-		this.identityLayer      = innerLayer.$entity();
+		this.identityLayer      = Entity.identity(innerLayer);
 	}
 	
 	
@@ -31,7 +31,7 @@ implements EntityTransaction.Committable
 	////////////
 	
 	@Override
-	public final Entity $data()
+	public final Entity $entityData()
 	{
 		synchronized(this.identityLayer)
 		{
@@ -42,22 +42,22 @@ implements EntityTransaction.Committable
 	@Override
 	public final Entity actualData()
 	{
-		synchronized(this.$entity())
+		synchronized(this.$entityIdentity())
 		{
-			return super.$data();
+			return super.$entityData();
 		}
 	}
 	
 	@Override
-	public Entity $entity()
+	public Entity $entityIdentity()
 	{
-		return this.actualData().$entity();
+		return Entity.identity(this.actualData());
 	}
 	
 	@Override
-	public final boolean $updateData(final Entity newData)
+	public final boolean $updateEntityData(final Entity newData)
 	{
-		synchronized(this.$entity())
+		synchronized(this.$entityIdentity())
 		{
 			this.$validateNewData(newData);
 			this.transactionContext.updateData(this, newData);
@@ -68,7 +68,7 @@ implements EntityTransaction.Committable
 	@Override
 	public final void commit()
 	{
-		synchronized(this.$entity())
+		synchronized(this.$entityIdentity())
 		{
 			final Entity local = this.transactionContext.lookupData(this);
 			if(local == null)
@@ -76,7 +76,7 @@ implements EntityTransaction.Committable
 				// no-op due to no entry at all, return.
 				return;
 			}
-			else if(local == this.$data())
+			else if(local == this.$entityData())
 			{
 				// no-op due to same instances, return.
 				return;

@@ -1,7 +1,5 @@
 package some.app.entities._generated._Person;
 
-import java.util.Objects;
-
 import one.microstream.entity.EntityData;
 import some.app.entities.Person;
 
@@ -29,22 +27,23 @@ public class PersonData extends EntityData implements Person
 	{
 		return this.lastName;
 	}
+	
+	
+	// (18.07.2019 TM)FIXME: see explanation in EntityData
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(
-			this.firstName(), 
-			this.lastName ()
-		);
+		return PersonHashEqualator.Default.hashCode(this);
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		return this == obj
-			|| (	obj instanceof PersonData 
-				&&  PersonEqualator.INSTANCE.equal(this, (PersonData)obj)
-			   );
+			|| obj instanceof PersonData
+			&&  PersonHashEqualator.Default.equals(this, (PersonData)obj)
+		;
 	}
+	
 }

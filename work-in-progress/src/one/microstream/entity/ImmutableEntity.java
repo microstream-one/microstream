@@ -5,7 +5,7 @@ package one.microstream.entity;
  * 
  * @author TM
  */
-public interface ImmutableEntity extends ReadableEntity
+public interface ImmutableEntity extends Entity
 {
 	// so far only a typing interface to define a more specific contract
 }

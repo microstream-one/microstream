@@ -8,16 +8,16 @@ public abstract class EntityLayerIdentity extends EntityLayer
 	}
 	
 	@Override
-	public final Entity $entity()
+	public final Entity $entityIdentity()
 	{
 		return this;
 	}
 	
 	@Override
-	public boolean $updateData(final Entity newData)
+	public boolean $updateEntityData(final Entity newData)
 	{
 		// the passed data instance must be validated before it gets passed to any other layer logic.
-		this.$validateNewData(newData.$data());
-		return super.$updateData(newData);
+		this.$validateNewData(Entity.data(newData));
+		return super.$updateEntityData(newData);
 	}
 }
