@@ -1,6 +1,7 @@
 package some.app.entities;
 
-import some.app.entities._generated._Person.Creator_Person;
+import some.app.entities._generated._Employee.EmployeeCreator;
+import some.app.entities._generated._Person.PersonCreator;
 
 /**
  * Central usability class containing util methods for various entity creator.
@@ -10,13 +11,23 @@ import some.app.entities._generated._Person.Creator_Person;
  */
 public class AppEntities
 {
-	public static Creator_Person Person()
+	public static PersonCreator Person()
 	{
-		return Creator_Person.New();
+		return PersonCreator.New();
 	}
 	
-	public static Creator_Person Person(final Person other)
+	public static PersonCreator Person(final Person other)
 	{
-		return Creator_Person.New(other);
+		return PersonCreator.New(other);
+	}
+	
+	public static EmployeeCreator Employee()
+	{
+		return EmployeeCreator.New();
+	}
+	
+	public static EmployeeCreator Employee(final Employee other)
+	{
+		return EmployeeCreator.New(other);
 	}
 }

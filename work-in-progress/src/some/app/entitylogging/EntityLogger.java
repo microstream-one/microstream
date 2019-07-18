@@ -6,12 +6,12 @@ import one.microstream.entity.Entity;
 import one.microstream.entity.EntityLayer;
 import one.microstream.entity.EntityLayerProvider;
 
-public class EntityLogger<E extends Entity<E>> extends EntityLayer<E>
+public class EntityLogger extends EntityLayer
 {
-	public static <E extends Entity<E>> EntityLayerProvider<E> provideLogging()
+	public static EntityLayerProvider provideLogging()
 	{
 		return e ->
-			new EntityLogger<>(e)
+			new EntityLogger(e)
 		;
 	}
 	
@@ -29,10 +29,10 @@ public class EntityLogger<E extends Entity<E>> extends EntityLayer<E>
 	// constructors //
 	/////////////////
 	
-	public EntityLogger(final Entity<E> innerInstance)
+	public EntityLogger(final Entity innerInstance)
 	{
 		super(innerInstance);
-		this.declaringClassname = innerInstance.$entity().getClass().getName();
+		this.declaringClassname = Entity.identity(innerInstance).getClass().getName();
 	}
 	
 	
@@ -45,24 +45,24 @@ public class EntityLogger<E extends Entity<E>> extends EntityLayer<E>
 	{
 		System.out.println(
 			"Thread \"" + Thread.currentThread().getName()
-			+ "\" " + action + XChars.systemString(this.$entity())
+			+ "\" " + action + XChars.systemString(this.$entityIdentity())
 			+ (methodName != null ? " via #" + methodName: "")
 			+ "."
 		);
 	}
 	
 	@Override
-	public E $data()
+	public Entity $entityData()
 	{
 		this.logAction("reads data of ", XThreads.getMethodNameForDeclaringClassName(this.declaringClassname));
-		return super.$data();
+		return super.$entityData();
 	}
 	
 	@Override
-	public boolean $updateData(final E newData)
+	public boolean $updateEntityData(final Entity newData)
 	{
 		this.logAction("updates data of ", null);
-		return super.$updateData(newData);
+		return super.$updateEntityData(newData);
 	}
 	
 }

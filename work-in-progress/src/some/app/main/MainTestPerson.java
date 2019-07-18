@@ -82,12 +82,12 @@ public class MainTestPerson
 	{
 		System.out.println("\n\n---[Entity Versioning]-------");
 		
-		final Person aliceData = p.$data();
+		final Person aliceData = Entity.data(p);
 
 		versions.currentVersion(1);
-		p.$updateData(AppEntities.Person(aliceData).lastName(aliceData.lastName() + "-v1").createData());
+		Entity.updateData(p, AppEntities.Person(aliceData).lastName(aliceData.lastName() + "-v1").createData());
 		versions.currentVersion(2);
-		p.$updateData(AppEntities.Person(aliceData).lastName(aliceData.lastName() + "-v2").createData());
+		Entity.updateData(p, AppEntities.Person(aliceData).lastName(aliceData.lastName() + "-v2").createData());
 		System.out.println("Version " + versions.currentVersion() + ": " + p.lastName());
 		
 		versions.currentVersion(1);

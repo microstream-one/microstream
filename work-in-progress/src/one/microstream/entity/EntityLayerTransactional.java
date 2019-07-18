@@ -1,15 +1,15 @@
 package one.microstream.entity;
 
-public class EntityLayerTransactional<E extends Entity<E>>
-extends EntityLayer<E>
-implements EntityTransaction.Committable<E>
+public class EntityLayerTransactional
+extends EntityLayer
+implements EntityTransaction.Committable
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
 	private final TransactionContext transactionContext;
-	private final Entity<E>          identityLayer     ;
+	private final Entity             identityLayer     ;
 	
 	
 	
@@ -17,11 +17,11 @@ implements EntityTransaction.Committable<E>
 	// constructors //
 	/////////////////
 	
-	protected EntityLayerTransactional(final Entity<E> innerLayer, final TransactionContext transactionContext)
+	protected EntityLayerTransactional(final Entity innerLayer, final TransactionContext transactionContext)
 	{
 		super(innerLayer);
 		this.transactionContext = transactionContext  ;
-		this.identityLayer      = innerLayer.$entity();
+		this.identityLayer      = Entity.identity(innerLayer);
 	}
 	
 	
@@ -31,7 +31,7 @@ implements EntityTransaction.Committable<E>
 	////////////
 	
 	@Override
-	public final E $data()
+	public final Entity $entityData()
 	{
 		synchronized(this.identityLayer)
 		{
@@ -40,24 +40,24 @@ implements EntityTransaction.Committable<E>
 	}
 	
 	@Override
-	public final E actualData()
+	public final Entity actualData()
 	{
-		synchronized(this.$entity())
+		synchronized(this.$entityIdentity())
 		{
-			return super.$data();
+			return super.$entityData();
 		}
 	}
 	
 	@Override
-	public E $entity()
+	public Entity $entityIdentity()
 	{
-		return this.actualData().$entity();
+		return Entity.identity(this.actualData());
 	}
 	
 	@Override
-	public final boolean $updateData(final E newData)
+	public final boolean $updateEntityData(final Entity newData)
 	{
-		synchronized(this.$entity())
+		synchronized(this.$entityIdentity())
 		{
 			this.$validateNewData(newData);
 			this.transactionContext.updateData(this, newData);
@@ -68,15 +68,15 @@ implements EntityTransaction.Committable<E>
 	@Override
 	public final void commit()
 	{
-		synchronized(this.$entity())
+		synchronized(this.$entityIdentity())
 		{
-			final E local = this.transactionContext.lookupData(this);
+			final Entity local = this.transactionContext.lookupData(this);
 			if(local == null)
 			{
 				// no-op due to no entry at all, return.
 				return;
 			}
-			else if(local == this.$data())
+			else if(local == this.$entityData())
 			{
 				// no-op due to same instances, return.
 				return;

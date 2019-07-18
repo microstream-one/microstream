@@ -2,6 +2,7 @@ package one.microstream.entity;
 
 import java.util.function.Consumer;
 
+import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XCollection;
 import one.microstream.collections.types.XIterable;
@@ -36,52 +37,126 @@ import one.microstream.collections.types.XIterable;
  * that contains the desired new data.
  * 
  * @author TM
- *
- * @param <E>
  */
-public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
+public interface Entity
 {
 	@SuppressWarnings("unchecked")
-	public static <E> E identity(final E instance)
+	public static <E extends Entity> E identity(final E instance)
 	{
-		return instance instanceof Entity<?>
-			? (E)((Entity<?>)instance).$entity()
-			: instance
-		;
+		if(instance instanceof Entity.AbstractAccessible)
+		{
+			return (E)((Entity.AbstractAccessible)instance).$entityIdentity();
+		}
+		
+		if(instance instanceof Entity.Accessible)
+		{
+			return (E)((Entity.Accessible)instance).$entityIdentity();
+		}
+		
+		if(instance == null)
+		{
+			// null is consistently its own identity
+			return null;
+		}
+
+		// (18.07.2019 TM)EXCP: proper exception
+		throw new RuntimeException("Unaccessable entity type: " + XChars.systemString(instance));
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <E> E data(final E instance)
+	public static <E extends Entity> E data(final E instance)
 	{
-		return instance instanceof Entity<?>
-			? (E)((Entity<?>)instance).$data()
-			: instance
-		;
-	}
-	
-	public default boolean isSameIdentity(final Entity<E> newData)
-	{
-		return newData.$entity() == this.$entity();
-	}
-	
-	public default void validateIdentity(final Entity<E> newData)
-	{
-		// empty default implementation
-		if(!isSameIdentity(newData))
+		if(instance instanceof Entity.AbstractAccessible)
 		{
-			// (10.12.2017 TM)EXCP: proper exception
-			throw new RuntimeException("Entity identity mismatch.");
+			return (E)((Entity.AbstractAccessible)instance).$entityData();
 		}
+
+		// tiny redundancy as a tiny price for convenient visibility magic plus still possible multiple inheritance
+		if(instance instanceof Entity.Accessible)
+		{
+			return (E)((Entity.Accessible)instance).$entityData();
+		}
+		
+		if(instance == null)
+		{
+			// null is consistently its own data
+			return null;
+		}
+
+		// (18.07.2019 TM)EXCP: proper exception
+		throw new RuntimeException("Unaccessable entity type: " + XChars.systemString(instance));
 	}
 	
-	@Override
-	public E $entity();
+	public static <E extends Entity> boolean updateData(final E entity, final E data)
+	{
+		if(entity instanceof Entity.AbstractAccessible)
+		{
+			// data instance validation is done inside (has to be, anyway)
+			return ((Entity.Accessible)entity).$updateEntityData(data);
+		}
+		
+		// tiny redundancy as a tiny price for convenient visibility magic plus still possible multiple inheritance
+		if(entity instanceof Entity.Accessible)
+		{
+			// data instance validation is done inside (has to be, anyway)
+			return ((Entity.Accessible)entity).$updateEntityData(data);
+		}
+
+		// (18.07.2019 TM)EXCP: proper exception
+		throw new RuntimeException("Unaccessable entity type: " + XChars.systemString(entity));
+	}
 	
-	boolean $updateData(E data);
+	public default boolean isSameIdentity(final Entity other)
+	{
+		return identity(this) == identity(other);
+	}
+	
+	public default void validateIdentity(final Entity newData)
+	{
+		if(this.isSameIdentity(newData))
+		{
+			return;
+		}
+		
+		// (10.12.2017 TM)EXCP: proper exception
+		throw new RuntimeException("Entity identity mismatch.");
+	}
+	
 	
 
+	/**
+	 * Primary means to convenience-hide framework-internal methods from the user entity's public API
+	 * 
+	 * @author TM
+	 */
+	public abstract class AbstractAccessible implements Entity
+	{
+		protected abstract Entity $entityIdentity();
+		
+		protected abstract Entity $entityData();
+		
+		protected abstract boolean $updateEntityData(Entity data);
+	}
 	
-	public interface Creator<E extends Entity<E>, C extends Creator<E, C>> extends XIterable<EntityLayerProvider<E>>
+	
+	/**
+	 * Fallback means to convenience-hide framework-internal methods from the user entity's public API
+	 * for classes that cannot extend {@link AbstractAccessible} for whatever reason
+	 * 
+	 * @author TM
+	 */
+	public interface Accessible extends Entity
+	{
+		public Entity $entityIdentity();
+		
+		public Entity $entityData();
+		
+		public boolean $updateEntityData(Entity data);
+	}
+		
+
+	
+	public interface Creator<E extends Entity, C extends Creator<E, C>> extends XIterable<EntityLayerProvider>
 	{
 		public E create();
 		
@@ -89,27 +164,29 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 		
 		public E createData();
 		
-		public Creator<E, C> entity(Entity<E> identity);
+		public C entity(E identity);
 		
-
+		public C copy(E other);
+		
 		@SuppressWarnings("unchecked")
 		public default C $()
 		{
 			return (C)this;
 		}
 		
-		public default C $addLayer(final EntityLayerProvider<E> layerProvider)
+		
+		public default C $addLayer(final EntityLayerProvider layerProvider)
 		{
 			synchronized(this)
 			{
-				final XCollection<EntityLayerProvider<E>> layerProviders = this.$layers();
+				final XCollection<EntityLayerProvider> layerProviders = this.$layers();
 				synchronized(layerProviders)
 				{
 					layerProviders.add(layerProvider);
 				}
 			}
 			
-			return this.$();
+			return $();
 		}
 		
 		public default C $addLayer(final EntityLayerProviderProvider layerProviderProvider)
@@ -118,11 +195,11 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 		}
 		
 		@Override
-		public default <P extends Consumer<? super EntityLayerProvider<E>>> P iterate(final P procedure)
+		public default <P extends Consumer<? super EntityLayerProvider>> P iterate(final P procedure)
 		{
 			synchronized(this)
 			{
-				final XCollection<EntityLayerProvider<E>> layerProviders = this.$layers();
+				final XCollection<EntityLayerProvider> layerProviders = this.$layers();
 				synchronized(layerProviders)
 				{
 					layerProviders.iterate(procedure);
@@ -132,19 +209,19 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 			return procedure;
 		}
 				
-		public XCollection<EntityLayerProvider<E>> $layers();
+		public XCollection<EntityLayerProvider> $layers();
 				
 		
 		
-		public abstract class Abstract<E extends Entity<E>, C extends Creator<E, C>>
+		public abstract class Abstract<E extends Entity, C extends Creator<E, C>>
 		implements Entity.Creator<E, C>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
-			private final BulkList<EntityLayerProvider<E>> layerProviders = BulkList.New();
-			private       Entity<E>                        entityIdentity                 ;
+			private final BulkList<EntityLayerProvider> layerProviders = BulkList.New();
+			private       E                             entityIdentity                 ;
 
 			
 			
@@ -153,15 +230,15 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 			////////////
 
 			@Override
-			public XCollection<EntityLayerProvider<E>> $layers()
+			public XCollection<EntityLayerProvider> $layers()
 			{
 				return this.layerProviders;
 			}
 			
-			protected Entity<E> dispatchDataInstance(final Entity<E> dataInstance)
+			protected Entity dispatchDataInstance(final Entity dataInstance)
 			{
-				Entity<E> innerLayer = dataInstance;
-				for(final EntityLayerProvider<E> lp : this.layerProviders)
+				Entity innerLayer = dataInstance;
+				for(final EntityLayerProvider lp : this.layerProviders)
 				{
 					innerLayer = lp.provideEntityLayer(innerLayer);
 				}
@@ -169,37 +246,38 @@ public interface Entity<E extends Entity<E>> extends ReadableEntity<E>
 				return innerLayer;
 			}
 			
+			@SuppressWarnings("unchecked")
 			@Override
 			public E create()
 			{
-				final EntityLayerIdentity<E> entity = this.createEntityInstance();
+				final EntityLayerIdentity entity = this.createEntityInstance();
 				
-				final Entity<E> data          = this.createData(entity.$entity());
-				final Entity<E> innerInstance = this.dispatchDataInstance(data);
+				final Entity data          = this.createData((E)entity.$entityIdentity());
+				final Entity innerInstance = this.dispatchDataInstance(data);
 				
 				entity.$setInner(innerInstance);
 				
-				return entity.$entity();
+				return (E)entity.$entityIdentity();
 			}
 			
 			@Override
-			public Creator<E, C> entity(final Entity<E> entity)
+			public C entity(final E entity)
 			{
 				this.entityIdentity = entity;
-				return this;
+				return $();
 			}
 			
 			@Override
 			public E createData()
 			{
-				return this.createData(this.entityIdentity.$entity());
+				return this.createData(Entity.identity(this.entityIdentity));
 			}
 			
-			protected abstract EntityLayerIdentity<E> createEntityInstance();
+			protected abstract EntityLayerIdentity createEntityInstance();
 			
 			
 			@Override
-			public <P extends Consumer<? super EntityLayerProvider<E>>> P iterate(final P procedure)
+			public <P extends Consumer<? super EntityLayerProvider>> P iterate(final P procedure)
 			{
 				return Entity.Creator.super.iterate(procedure);
 			}
