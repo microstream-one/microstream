@@ -2,6 +2,7 @@ package one.microstream.test.collections;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -71,20 +72,23 @@ public class MainTestStorageJDKCollections
 		final HashSet<String>          hashSet    = populate(new HashSet<>());
 		final HashMap<Integer, String> hashMap    = populate(new HashMap<>());
 		final LinkedList<String>       linkedList = populate(new LinkedList<>());
+		final TreeMap<Integer, String> treeMap    = populate(new TreeMap<>());
+		final TreeSet<String>          treeSet    = populate(new TreeSet<>());
 
 		return new Object[]{
 			arrayList                              ,
 			hashSet                                ,
 			hashMap                                ,
+			linkedList                             ,
+			treeMap                                ,
+			treeSet                                ,
+			Arrays.asList("A", "B", "C")           ,
 			populate(new ArrayDeque<>())           ,
 			populate(new Hashtable<>())            ,
 			populate(new LinkedHashSet<>())        ,
 			populate(new LinkedHashMap<>())        ,
 			populate(new IdentityHashMap<>())      ,
-			linkedList                             ,
 			populate(new PriorityQueue<>())        ,
-			populate(new TreeMap<>())              ,
-			populate(new TreeSet<>())              ,
 			populate(new Vector<>())               ,
 			populate(new Stack<>())                ,
 			populate(new Properties())             ,
@@ -95,18 +99,31 @@ public class MainTestStorageJDKCollections
 			populate(new ConcurrentSkipListSet<>()),
 			populate(new ConcurrentSkipListMap<Integer, String>(new IntegerComparator())),
 
-			Collections.emptyList(),
-			Collections.emptyMap(),
+			Collections.emptyList()        ,
+			Collections.emptyMap()         ,
 			Collections.emptyNavigableMap(),
 			Collections.emptyNavigableSet(),
-			Collections.emptySet(),
-			Collections.emptySortedMap(),
-			Collections.emptySortedSet(),
+			Collections.emptySet()         ,
+			Collections.emptySortedMap()   ,
+			Collections.emptySortedSet()   ,
 
-			Collections.synchronizedList(arrayList),  // RandomAccess
-			Collections.synchronizedList(linkedList), // normal
-			Collections.synchronizedSet(hashSet),
-			Collections.synchronizedMap(hashMap)
+			Collections.synchronizedCollection(arrayList),
+			Collections.synchronizedList(arrayList)      , // RandomAccess
+			Collections.synchronizedList(linkedList)     , // normal
+			Collections.synchronizedSet(hashSet)         ,
+			Collections.synchronizedMap(hashMap)         ,
+			Collections.synchronizedNavigableMap(treeMap),
+			Collections.synchronizedNavigableSet(treeSet),
+			Collections.synchronizedSortedMap(treeMap)   ,
+			Collections.synchronizedSortedSet(treeSet)   ,
+
+			Collections.singleton    ("singleton")  ,
+			Collections.singletonList("singletonL") ,
+			Collections.singletonMap ("sKey", "Val"),
+			
+			// (18.07.2019 TM)FIXME: Collections.unmodifyable~
+			
+			// (18.07.2019 TM)FIXME: Collections.checked~ (requires MS-153)
 		};
 	}
 	
