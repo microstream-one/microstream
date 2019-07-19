@@ -175,23 +175,23 @@ public interface Entity
 		}
 		
 		
-		public default C $addLayer(final EntityLayerProvider layerProvider)
+		public default C addLayer(final EntityLayerProvider layerProvider)
 		{
 			synchronized(this)
 			{
-				final XCollection<EntityLayerProvider> layerProviders = this.$layers();
+				final XCollection<EntityLayerProvider> layerProviders = this.layers();
 				synchronized(layerProviders)
 				{
 					layerProviders.add(layerProvider);
 				}
 			}
 			
-			return $();
+			return this.$();
 		}
 		
-		public default C $addLayer(final EntityLayerProviderProvider layerProviderProvider)
+		public default C addLayer(final EntityLayerProviderProvider layerProviderProvider)
 		{
-			return this.$addLayer(layerProviderProvider.provideEntityLayerProvider());
+			return this.addLayer(layerProviderProvider.provideEntityLayerProvider());
 		}
 		
 		@Override
@@ -199,7 +199,7 @@ public interface Entity
 		{
 			synchronized(this)
 			{
-				final XCollection<EntityLayerProvider> layerProviders = this.$layers();
+				final XCollection<EntityLayerProvider> layerProviders = this.layers();
 				synchronized(layerProviders)
 				{
 					layerProviders.iterate(procedure);
@@ -209,7 +209,7 @@ public interface Entity
 			return procedure;
 		}
 				
-		public XCollection<EntityLayerProvider> $layers();
+		public XCollection<EntityLayerProvider> layers();
 				
 		
 		
@@ -230,7 +230,7 @@ public interface Entity
 			////////////
 
 			@Override
-			public XCollection<EntityLayerProvider> $layers()
+			public XCollection<EntityLayerProvider> layers()
 			{
 				return this.layerProviders;
 			}
@@ -264,7 +264,7 @@ public interface Entity
 			public C entity(final E entity)
 			{
 				this.entityIdentity = entity;
-				return $();
+				return this.$();
 			}
 			
 			@Override
