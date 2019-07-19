@@ -30,7 +30,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<BulkList<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<BulkList<?>> typeWorkaround()
+	private static Class<BulkList<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)BulkList.class;
@@ -46,7 +46,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<BulkList<?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			SizedArrayFields(),
 			controller
 		);

@@ -27,6 +27,7 @@ import one.microstream.java.io.BinaryHandlerFile;
 import one.microstream.java.lang.BinaryHandlerBoolean;
 import one.microstream.java.lang.BinaryHandlerByte;
 import one.microstream.java.lang.BinaryHandlerCharacter;
+import one.microstream.java.lang.BinaryHandlerClass;
 import one.microstream.java.lang.BinaryHandlerDouble;
 import one.microstream.java.lang.BinaryHandlerFloat;
 import one.microstream.java.lang.BinaryHandlerInteger;
@@ -80,11 +81,14 @@ import one.microstream.persistence.lazy.BinaryHandlerLazyReference;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceFunction;
+import one.microstream.persistence.types.PersistenceRefactoringResolverProvider;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
+import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeIdLookup;
+import one.microstream.reference.Referencing;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BinaryHandlerSubstituterDefault;
 
@@ -104,16 +108,22 @@ public final class BinaryPersistence extends Persistence
 	}
 	
 	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
-		final PersistenceTypeIdLookup               nativeTypeIdLookup,
-		final PersistenceSizedArrayLengthController controller        ,
-		final PersistenceTypeHandlerCreator<Binary> typeHandlerCreator
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager         ,
+		final PersistenceRefactoringResolverProvider             refactoringResolverProvider,
+		final PersistenceSizedArrayLengthController              controller                 ,
+		final PersistenceTypeHandlerCreator<Binary>              typeHandlerCreator
 	)
 	{
+		final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers =
+			createNativeHandlers(typeHandlerManager, refactoringResolverProvider, controller, typeHandlerCreator)
+		;
+		
 		final PersistenceCustomTypeHandlerRegistry.Default<Binary> defaultCustomTypeHandlerRegistry =
 			PersistenceCustomTypeHandlerRegistry.<Binary>New()
-			.registerTypeHandlers(createNativeHandlers(nativeTypeIdLookup, controller, typeHandlerCreator))
+			.registerTypeHandlers(nativeHandlers)
 			.registerTypeHandlers(defaultCustomHandlers(controller))
 		;
+		
 		return defaultCustomTypeHandlerRegistry;
 	}
 		
@@ -133,9 +143,10 @@ public final class BinaryPersistence extends Persistence
 	}
 	
 	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> createNativeHandlers(
-		final PersistenceTypeIdLookup               nativeTypeIdLookup,
-		final PersistenceSizedArrayLengthController controller        ,
-		final PersistenceTypeHandlerCreator<Binary> typeHandlerCreator
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager         ,
+		final PersistenceRefactoringResolverProvider             refactoringResolverProvider,
+		final PersistenceSizedArrayLengthController              controller                 ,
+		final PersistenceTypeHandlerCreator<Binary>              typeHandlerCreator
 	)
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers = ConstList.New(
@@ -148,7 +159,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerPrimitive<>(long   .class),
 			new BinaryHandlerPrimitive<>(double .class),
 
-//			new BinaryHandlerNativeClass()    , // see PersistenceTypeHandlerCreator#createTypeHandler
+			BinaryHandlerClass.New(typeHandlerManager, refactoringResolverProvider),
 			new BinaryHandlerByte()     ,
 			new BinaryHandlerBoolean()  ,
 			new BinaryHandlerShort()    ,

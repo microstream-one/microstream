@@ -31,7 +31,7 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<HashMap<?, ?>> typeWorkaround()
+	private static Class<HashMap<?, ?>> handledType()
 	{
 		return (Class)HashMap.class; // no idea how to get ".class" to work otherwise
 	}
@@ -55,7 +55,7 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	public BinaryHandlerHashMapFlattened()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields(
 				CustomField(float.class, "loadFactor")
 			)

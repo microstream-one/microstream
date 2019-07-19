@@ -30,7 +30,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<ConstList<?>> typeWorkaround()
+	private static Class<ConstList<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)ConstList.class;
@@ -46,7 +46,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields()
 		);
 	}

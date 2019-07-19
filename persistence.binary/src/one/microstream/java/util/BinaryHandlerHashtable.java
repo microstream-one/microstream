@@ -14,7 +14,7 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerMap<Hasht
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<Hashtable<?, ?>> typeWorkaround()
+	private static Class<Hashtable<?, ?>> handledType()
 	{
 		return (Class)Hashtable.class; // no idea how to get ".class" to work otherwise
 	}
@@ -28,7 +28,7 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerMap<Hasht
 	public BinaryHandlerHashtable()
 	{
 		super(
-			typeWorkaround()
+			handledType()
 		);
 	}
 

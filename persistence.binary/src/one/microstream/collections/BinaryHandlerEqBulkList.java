@@ -39,7 +39,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<EqBulkList<?>> typeWorkaround()
+	private static Class<EqBulkList<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)EqBulkList.class;
@@ -55,7 +55,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			SizedArrayFields(
 				CustomField(HashEqualator.class, "hashEqualator")
 			),

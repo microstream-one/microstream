@@ -30,7 +30,7 @@ extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<FixedList<?>> typeWorkaround()
+	private static Class<FixedList<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)FixedList.class;
@@ -46,7 +46,7 @@ extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields()
 		);
 	}

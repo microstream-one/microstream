@@ -30,7 +30,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<HashSet<?>> typeWorkaround()
+	private static Class<HashSet<?>> handledType()
 	{
 		return (Class)HashSet.class; // no idea how to get ".class" to work otherwise
 	}
@@ -54,7 +54,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	public BinaryHandlerHashSet()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields(
 				CustomField(float.class, "loadFactor")
 			)

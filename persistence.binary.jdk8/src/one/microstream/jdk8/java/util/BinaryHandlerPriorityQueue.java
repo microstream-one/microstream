@@ -31,7 +31,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<PriorityQueue<?>> typeWorkaround()
+	private static Class<PriorityQueue<?>> handledType()
 	{
 		return (Class)PriorityQueue.class; // no idea how to get ".class" to work otherwise
 	}
@@ -59,7 +59,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	public BinaryHandlerPriorityQueue()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields(
 			    CustomField(Comparator.class, "comparator")
 			)

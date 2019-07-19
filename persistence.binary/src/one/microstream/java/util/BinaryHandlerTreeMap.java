@@ -31,7 +31,7 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<TreeMap<?, ?>> typeWorkaround()
+	private static Class<TreeMap<?, ?>> handledType()
 	{
 		return (Class)TreeMap.class; // no idea how to get ".class" to work otherwise
 	}
@@ -59,7 +59,7 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	public BinaryHandlerTreeMap()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			keyValuesFields(
 				CustomField(Comparator.class, "comparator")
 			)

@@ -2,11 +2,13 @@ package one.microstream.persistence.types;
 
 import java.nio.ByteOrder;
 
+import one.microstream.X;
 import one.microstream.collections.types.XEnum;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import one.microstream.persistence.types.PersistenceRootResolver.Builder;
+import one.microstream.reference.Reference;
 import one.microstream.typing.LambdaTypeRecognizer;
 import one.microstream.typing.TypeMapping;
 import one.microstream.typing.XTypes;
@@ -335,6 +337,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		// instance fields //
 		////////////////////
 
+		// required to resolve a TypeHandlerManager dependancy loop
+		private final Reference<PersistenceTypeHandlerManager<M>> referenceTypeHandlerManager = X.Reference(null);
+		
 		private PersistenceObjectIdProvider oidProvider;
 		private PersistenceTypeIdProvider   tidProvider;
 
@@ -348,6 +353,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceLoader.Creator<M>     builderCreator    ;
 		private PersistenceTarget<M>             target            ;
 		private PersistenceSource<M>             source            ;
+		
 
 		// second level assembly parts (used as a fallback to build missing first level parts) \\
 		private PersistenceTypeManager                  typeManager                ;
@@ -436,11 +442,16 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		///////////////////////////////////////////////////////////////////////////
 		// getters //
 		////////////
-
+		
 		@Override
 		public InstanceDispatcherLogic getInstanceDispatcherLogic()
 		{
 			return this.getInstanceDispatcherLogic();
+		}
+		
+		protected Reference<PersistenceTypeHandlerManager<M>> referenceTypeHandlerManager()
+		{
+			return this.referenceTypeHandlerManager;
 		}
 
 		@Override
@@ -512,7 +523,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		{
 			if(this.typeHandlerManager == null)
 			{
-				this.typeHandlerManager = this.dispatch(this.ensureTypeHandlerManager());
+				this.internalSetTypeHandlerManager(
+					this.dispatch(this.ensureTypeHandlerManager())
+				);
 			}
 			
 			return this.typeHandlerManager;
@@ -1152,8 +1165,19 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			final PersistenceTypeHandlerManager<M> typeHandlerManager
 		)
 		{
-			this.typeHandlerManager = typeHandlerManager;
+			this.internalSetTypeHandlerManager(typeHandlerManager);
 			return this.$();
+		}
+		
+		private void internalSetTypeHandlerManager(
+			final PersistenceTypeHandlerManager<M> typeHandlerManager
+		)
+		{
+			synchronized(this.referenceTypeHandlerManager)
+			{
+				this.typeHandlerManager = typeHandlerManager;
+				this.referenceTypeHandlerManager.set(typeHandlerManager);
+			}
 		}
 		
 		@Override

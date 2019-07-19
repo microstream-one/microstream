@@ -74,7 +74,7 @@ public class MainTestStorageJDKCollections
 		final LinkedList<String>       linkedList = populate(new LinkedList<>());
 		final TreeMap<Integer, String> treeMap    = populate(new TreeMap<>());
 		final TreeSet<String>          treeSet    = populate(new TreeSet<>());
-
+		
 		return new Object[]{
 			arrayList                              ,
 			hashSet                                ,

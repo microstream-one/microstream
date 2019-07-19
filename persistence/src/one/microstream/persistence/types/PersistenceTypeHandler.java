@@ -12,6 +12,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.collections.types.XImmutableSequence;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
+import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 
 public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 {
@@ -72,6 +73,22 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 * @return
 	 */
 	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(C logic);
+	
+	/**
+	 * Guarantees that the {@link PersistenceTypeHandler} implementation is actually viably usable to handle instances.
+	 * That is the natural purpose of type handlers, but there are exceptions, like type handlers created for
+	 * abstract types or unpersistable types just to have a metadata representation that links a type and a type id.
+	 * <p>
+	 * See occurances of {@link PersistenceExceptionTypeNotPersistable}.
+	 * 
+	 * @throws PersistenceExceptionTypeNotPersistable
+	 * 
+	 * @see PersistenceExceptionTypeNotPersistable
+	 */
+	public default void guaranteeInstanceViablity() throws PersistenceExceptionTypeNotPersistable
+	{
+		// no-op by default, meaning it is viable to be used with instances.
+	}
 	
 	
 	

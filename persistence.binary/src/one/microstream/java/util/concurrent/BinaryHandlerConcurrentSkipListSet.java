@@ -30,7 +30,7 @@ public final class BinaryHandlerConcurrentSkipListSet extends AbstractBinaryHand
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<ConcurrentSkipListSet<?>> typeWorkaround()
+	private static Class<ConcurrentSkipListSet<?>> handledType()
 	{
 		return (Class)ConcurrentSkipListSet.class; // no idea how to get ".class" to work otherwise
 	}
@@ -58,7 +58,7 @@ public final class BinaryHandlerConcurrentSkipListSet extends AbstractBinaryHand
 	public BinaryHandlerConcurrentSkipListSet()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields(
 				CustomField(Comparator.class, "comparator")
 			)

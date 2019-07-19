@@ -124,22 +124,6 @@ extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<Persistenc
 				return this.objectRegistry.lookupObject(objectId);
 			}
 		}
-		
-		private void validate(final Object object)
-		{
-			if(object instanceof Class<?>)
-			{
-				/* (23.11.2018 TM)FIXME: proper check for invalid types
-				 * There are more invalid types than just Classes.
-				 * All have to be checked, probably by consolidating this implementation with the already
-				 * existing registry for invalid types.
-				 * Or the check has to be done in the calling context, documented by a comment here.
-				 */
-				
-				// (23.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Invalid Class metadata instance: " + object.toString());
-			}
-		}
 
 		@Override
 		public long ensureObjectId(final Object object)
@@ -155,7 +139,16 @@ extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<Persistenc
 				long objectId;
 				if((objectId = this.objectRegistry.lookupObjectId(object)) == Persistence.nullId())
 				{
-					this.validate(object);
+					/* (19.07.2019 TM)NOTE:
+					 * The objectId is provided prior to ensuring the TypeHandler (which happens via the callback),
+					 * meaning even instances of types that throw an exception upon type analysis will get
+					 * cause an objectId to be reserved/allocated.
+					 * However, if the type analysis throws an exception, the instance is not registered at the
+					 * object registry, hence not causing any inconsistent state.
+					 * The objectId is "lost", but that is not a problem since it is no different from a
+					 * deleted entity. And there's the type analysis exception, anyway which stops the whole process.
+					 * See PersistenceTypeHandler#guaranteeInstanceViablity.
+					 */
 					objectId = this.oidProvider.provideNextObjectId();
 					if(newObjectIdCallback != null)
 					{

@@ -29,7 +29,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<IdentityHashMap<?, ?>> typeWorkaround()
+	private static Class<IdentityHashMap<?, ?>> handledType()
 	{
 		return (Class)IdentityHashMap.class; // no idea how to get ".class" to work otherwise
 	}
@@ -48,7 +48,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	public BinaryHandlerIdentityHashMap()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			keyValuesFields()
 		);
 	}

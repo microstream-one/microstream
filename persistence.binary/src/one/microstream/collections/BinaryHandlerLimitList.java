@@ -30,7 +30,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<LimitList<?>> typeWorkaround()
+	private static Class<LimitList<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)LimitList.class;
@@ -46,7 +46,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			SizedArrayFields(),
 			controller
 		);

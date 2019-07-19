@@ -29,7 +29,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<ArrayList<?>> typeWorkaround()
+	private static Class<ArrayList<?>> handledType()
 	{
 		return (Class)ArrayList.class; // no idea how to get ".class" to work otherwise
 	}
@@ -43,7 +43,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 	public BinaryHandlerArrayList(final PersistenceSizedArrayLengthController controller)
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			SizedArrayFields(),
 			controller
 		);

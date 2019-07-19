@@ -219,7 +219,8 @@ extends PersistenceFoundation<Binary, F>
 		protected PersistenceCustomTypeHandlerRegistry<Binary> ensureCustomTypeHandlerRegistry()
 		{
 			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry(
-				this.getTypeRegistry()              ,
+				this.referenceTypeHandlerManager(),
+				this.getRefactoringResolverProvider(),
 				this.getSizedArrayLengthController(),
 				this.getTypeHandlerCreator()
 			);

@@ -13,7 +13,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerList<Stack<?>
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<Stack<?>> typeWorkaround()
+	private static Class<Stack<?>> handledType()
 	{
 		return (Class)Stack.class; // no idea how to get ".class" to work otherwise
 	}
@@ -26,7 +26,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerList<Stack<?>
 
 	public BinaryHandlerStack()
 	{
-		super(typeWorkaround());
+		super(handledType());
 	}
 
 

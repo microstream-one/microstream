@@ -13,7 +13,7 @@ public final class BinaryHandlerWeakHashMap extends AbstractBinaryHandlerMap<Wea
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<WeakHashMap<?, ?>> typeWorkaround()
+	private static Class<WeakHashMap<?, ?>> handledType()
 	{
 		return (Class)WeakHashMap.class; // no idea how to get ".class" to work otherwise
 	}
@@ -26,7 +26,7 @@ public final class BinaryHandlerWeakHashMap extends AbstractBinaryHandlerMap<Wea
 
 	public BinaryHandlerWeakHashMap()
 	{
-		super(typeWorkaround());
+		super(handledType());
 	}
 
 

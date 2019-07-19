@@ -30,7 +30,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<LinkedHashSet<?>> typeWorkaround()
+	private static Class<LinkedHashSet<?>> handledType()
 	{
 		return (Class)LinkedHashSet.class; // no idea how to get ".class" to work otherwise
 	}
@@ -54,7 +54,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	public BinaryHandlerLinkedHashSet()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields(
 				CustomField(float.class, "loadFactor")
 			)

@@ -32,7 +32,7 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<LinkedHashMap<?, ?>> typeWorkaround()
+	private static Class<LinkedHashMap<?, ?>> handledType()
 	{
 		return (Class)LinkedHashMap.class; // no idea how to get ".class" to work otherwise
 	}
@@ -61,7 +61,7 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	public BinaryHandlerLinkedHashMapFlattened()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields(
 				CustomField(float.class,   "loadFactor"),
 				CustomField(boolean.class, "accessOrder")

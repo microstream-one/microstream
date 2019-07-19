@@ -44,5 +44,11 @@ public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());
 	}
+	
+	@Override
+	public final void guaranteeInstanceViablity()
+	{
+		throw new PersistenceExceptionTypeNotPersistable(this.type());
+	}
 
 }

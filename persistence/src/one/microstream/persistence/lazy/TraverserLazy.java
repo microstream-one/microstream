@@ -10,7 +10,7 @@ import one.microstream.util.traversing.TypeTraverser;
 public final class TraverserLazy implements TypeTraverser<Lazy<?>>
 {
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	public static Class<Lazy<?>> typeWorkaround()
+	public static Class<Lazy<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)Lazy.class;

@@ -13,7 +13,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerList<Arra
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<ArrayList<?>> typeWorkaround()
+	private static Class<ArrayList<?>> handledType()
 	{
 		return (Class)ArrayList.class; // no idea how to get ".class" to work otherwise
 	}
@@ -26,7 +26,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerList<Arra
 
 	public BinaryHandlerArrayList()
 	{
-		super(typeWorkaround());
+		super(handledType());
 	}
 
 
