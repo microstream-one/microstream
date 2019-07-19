@@ -14,7 +14,7 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerMap<L
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<LinkedHashMap<?, ?>> typeWorkaround()
+	private static Class<LinkedHashMap<?, ?>> handledType()
 	{
 		return (Class)LinkedHashMap.class; // no idea how to get ".class" to work otherwise
 	}
@@ -27,7 +27,7 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerMap<L
 
 	public BinaryHandlerLinkedHashMap()
 	{
-		super(typeWorkaround());
+		super(handledType());
 	}
 
 

@@ -13,7 +13,7 @@ public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerList<Lin
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<LinkedList<?>> typeWorkaround()
+	private static Class<LinkedList<?>> handledType()
 	{
 		return (Class)LinkedList.class; // no idea how to get ".class" to work otherwise
 	}
@@ -26,7 +26,7 @@ public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerList<Lin
 
 	public BinaryHandlerLinkedList()
 	{
-		super(typeWorkaround());
+		super(handledType());
 	}
 
 

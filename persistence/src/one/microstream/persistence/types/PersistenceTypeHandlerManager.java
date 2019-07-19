@@ -195,6 +195,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		{
 			if(!this.typeEvaluator.isPersistableType(type))
 			{
+				// (19.07.2019 TM)FIXME: MS-153: craete Unpersistable Handler instead.
 				throw new PersistenceExceptionTypeNotPersistable(type);
 			}
 			
@@ -287,8 +288,12 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		@Override
 		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final T instance)
 		{
-			// standard implementation does not consider actual objects
-			return this.ensureTypeHandler(XReflect.getClass(instance));
+			// standard implementation does not consider actual objects, only their types
+			
+			final PersistenceTypeHandler<M, T> typeHandler = this.ensureTypeHandler(XReflect.getClass(instance));
+			typeHandler.guaranteeInstanceViablity();
+			
+			return typeHandler;
 		}
 		
 		@Override

@@ -30,7 +30,7 @@ extends AbstractBinaryHandlerCustomCollection<HashEnum<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<HashEnum<?>> typeWorkaround()
+	private static Class<HashEnum<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)HashEnum.class;
@@ -56,7 +56,7 @@ extends AbstractBinaryHandlerCustomCollection<HashEnum<?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields(
 				CustomField(float.class, "hashDensity")
 			)

@@ -31,7 +31,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<HashMap<?, ?>> typeWorkaround()
+	private static Class<HashMap<?, ?>> handledType()
 	{
 		return (Class)HashMap.class; // no idea how to get ".class" to work otherwise
 	}
@@ -55,7 +55,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	public BinaryHandlerHashMap()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			keyValuesFields(
 				CustomField(float.class, "loadFactor")
 			)

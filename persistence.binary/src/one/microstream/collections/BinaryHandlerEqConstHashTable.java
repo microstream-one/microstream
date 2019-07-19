@@ -47,7 +47,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<EqConstHashTable<?, ?>> typeWorkaround()
+	private static Class<EqConstHashTable<?, ?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)EqConstHashTable.class;
@@ -73,7 +73,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			keyValuesFields(
 				CustomField(HashEqualator.class, "hashEqualator"),
 				CustomField(EqConstHashTable.Keys.class, "keys"),

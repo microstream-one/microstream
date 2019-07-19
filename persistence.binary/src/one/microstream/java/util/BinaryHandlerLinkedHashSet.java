@@ -13,7 +13,7 @@ public class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerSet<LinkedH
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<LinkedHashSet<?>> typeWorkaround()
+	private static Class<LinkedHashSet<?>> handledType()
 	{
 		return (Class)LinkedHashSet.class; // no idea how to get ".class" to work otherwise
 	}
@@ -27,7 +27,7 @@ public class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerSet<LinkedH
 	public BinaryHandlerLinkedHashSet()
 	{
 		super(
-			typeWorkaround()
+			handledType()
 		);
 	}
 

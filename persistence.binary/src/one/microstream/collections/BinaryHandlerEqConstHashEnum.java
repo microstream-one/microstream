@@ -42,7 +42,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<EqConstHashEnum<?>> typeWorkaround()
+	private static Class<EqConstHashEnum<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)EqConstHashEnum.class;
@@ -68,7 +68,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields(
 				CustomField(HashEqualator.class, "hashEqualator"),
 				CustomField(float.class        , "hashDensity"  )

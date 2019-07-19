@@ -15,7 +15,7 @@ public final class BinaryHandlerConcurrentHashMap extends AbstractBinaryHandlerM
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<ConcurrentHashMap<?, ?>> typeWorkaround()
+	private static Class<ConcurrentHashMap<?, ?>> handledType()
 	{
 		return (Class)ConcurrentHashMap.class; // no idea how to get ".class" to work otherwise
 	}
@@ -29,7 +29,7 @@ public final class BinaryHandlerConcurrentHashMap extends AbstractBinaryHandlerM
 	public BinaryHandlerConcurrentHashMap()
 	{
 		super(
-			typeWorkaround()
+			handledType()
 		);
 	}
 	

@@ -44,7 +44,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<ConstHashTable<?, ?>> typeWorkaround()
+	private static Class<ConstHashTable<?, ?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)ConstHashTable.class;
@@ -70,7 +70,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			keyValuesFields(
 				CustomField(ConstHashTable.Keys.class, "keys"),
 				CustomField(ConstHashTable.Values.class, "values"),

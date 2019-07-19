@@ -29,7 +29,7 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<Vector<?>> typeWorkaround()
+	private static Class<Vector<?>> handledType()
 	{
 		return (Class)Vector.class; // no idea how to get ".class" to work otherwise
 	}
@@ -43,7 +43,7 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 	public BinaryHandlerVector(final PersistenceSizedArrayLengthController controller)
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			SizedArrayFields(
 			    CustomField(int.class, "capacityIncrement")
 			),

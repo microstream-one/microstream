@@ -19,7 +19,7 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerQueue<Ar
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<ArrayDeque<?>> typeWorkaround()
+	private static Class<ArrayDeque<?>> handledType()
 	{
 		return (Class)ArrayDeque.class; // no idea how to get ".class" to work otherwise
 	}
@@ -33,7 +33,7 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerQueue<Ar
 	public BinaryHandlerArrayDeque()
 	{
 		super(
-			typeWorkaround()
+			handledType()
 		);
 	}
 	

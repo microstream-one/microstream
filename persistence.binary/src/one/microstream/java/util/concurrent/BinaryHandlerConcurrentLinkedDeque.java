@@ -14,7 +14,7 @@ public final class BinaryHandlerConcurrentLinkedDeque extends AbstractBinaryHand
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<ConcurrentLinkedDeque<?>> typeWorkaround()
+	private static Class<ConcurrentLinkedDeque<?>> handledType()
 	{
 		return (Class)ConcurrentLinkedDeque.class; // no idea how to get ".class" to work otherwise
 	}
@@ -28,7 +28,7 @@ public final class BinaryHandlerConcurrentLinkedDeque extends AbstractBinaryHand
 	public BinaryHandlerConcurrentLinkedDeque()
 	{
 		super(
-			typeWorkaround()
+			handledType()
 		);
 	}
 	

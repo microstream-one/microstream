@@ -43,7 +43,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<EqHashEnum<?>> typeWorkaround()
+	private static Class<EqHashEnum<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)EqHashEnum.class;
@@ -171,7 +171,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			Fields()
 		);
 	}

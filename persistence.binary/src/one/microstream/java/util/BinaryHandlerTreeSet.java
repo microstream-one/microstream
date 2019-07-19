@@ -30,7 +30,7 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<TreeSet<?>> typeWorkaround()
+	private static Class<TreeSet<?>> handledType()
 	{
 		return (Class)TreeSet.class; // no idea how to get ".class" to work otherwise
 	}
@@ -58,7 +58,7 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	public BinaryHandlerTreeSet()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			SimpleArrayFields(
 				CustomField(Comparator.class, "comparator")
 			)

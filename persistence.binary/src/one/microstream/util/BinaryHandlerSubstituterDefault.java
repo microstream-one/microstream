@@ -20,7 +20,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<Substituter.Default<?>> typeWorkaround()
+	private static Class<Substituter.Default<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)Substituter.Default.class;
@@ -36,7 +36,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	{
 		// binary layout definition
 		super(
-			typeWorkaround(),
+			handledType(),
 			BinaryHandlerEqHashEnum.Fields()
 		);
 	}

@@ -32,7 +32,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<ConcurrentSkipListMap<?, ?>> typeWorkaround()
+	private static Class<ConcurrentSkipListMap<?, ?>> handledType()
 	{
 		return (Class)ConcurrentSkipListMap.class; // no idea how to get ".class" to work otherwise
 	}
@@ -60,7 +60,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	public BinaryHandlerConcurrentSkipListMap()
 	{
 		super(
-			typeWorkaround(),
+			handledType(),
 			keyValuesFields(
 				CustomField(Comparator.class, "comparator")
 			)

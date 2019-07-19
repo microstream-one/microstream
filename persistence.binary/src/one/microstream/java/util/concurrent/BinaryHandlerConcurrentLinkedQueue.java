@@ -15,7 +15,7 @@ extends AbstractBinaryHandlerQueue<ConcurrentLinkedQueue<?>>
 	///////////////////
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Class<ConcurrentLinkedQueue<?>> typeWorkaround()
+	private static Class<ConcurrentLinkedQueue<?>> handledType()
 	{
 		return (Class)ConcurrentLinkedQueue.class; // no idea how to get ".class" to work otherwise
 	}
@@ -29,7 +29,7 @@ extends AbstractBinaryHandlerQueue<ConcurrentLinkedQueue<?>>
 	public BinaryHandlerConcurrentLinkedQueue()
 	{
 		super(
-			typeWorkaround()
+			handledType()
 		);
 	}
 	
