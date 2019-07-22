@@ -28,10 +28,10 @@ public class MainTestPerson
 			.lastName("Allison")
 
 			// add versioning
-			.$addLayer(versions)
+			.addLayer(versions)
 			
 			// add logging
-			.$addLayer(EntityLogger.provideLogging())
+			.addLayer(EntityLogger.provideLogging())
 						
 			// add a generic transactional layer for concurrency handling
 //			.$addLayer(transaction)
@@ -53,7 +53,7 @@ public class MainTestPerson
 			
 			.create()
 		;
-		
+				
 		testSimpleGetterCall(alice);
 		testCopy(alice);
 		testVersioning(alice);
