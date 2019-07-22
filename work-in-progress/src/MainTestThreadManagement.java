@@ -2,7 +2,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
 
-public class AAAManagement
+public class MainTestThreadManagement
 {
 	public static void main(final String[] args)
 	{
