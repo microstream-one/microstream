@@ -36,6 +36,7 @@ import one.microstream.collections.types.XSet;
 import one.microstream.concurrency.ThreadSafe;
 import one.microstream.exceptions.ArrayCapacityException;
 import one.microstream.exceptions.WrapperRuntimeException;
+import one.microstream.functional.BooleanTerm;
 import one.microstream.functional._intIndexedSupplier;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing._longKeyValue;
@@ -1037,6 +1038,57 @@ public final class X
 		return subject;
 	}
 	
+	/**
+	 * Forces the passed {@literal condition} to evaluate to true by throwing an {@link Error} otherwise.
+	 * 
+	 * @param condition
+	 * 
+	 * @throws Error if the passed {@literal condition} fails.
+	 */
+	public static void check(final BooleanTerm condition)
+		throws Error
+	{
+		check(condition, null, 1);
+	}
+	
+	/**
+	 * Forces the passed {@literal condition} to evaluate to true by throwing an {@link Error} otherwise.
+	 * 
+	 * @param condition
+	 * @param message
+	 * 
+	 * @throws Error if the passed {@literal condition} fails.
+	 */
+	public static void check(final BooleanTerm condition, final String message)
+		throws Error
+	{
+		check(condition, message, 1);
+	}
+	
+	/**
+	 * Forces the passed {@literal condition} to evaluate to true by throwing an {@link Error} otherwise.
+	 * 
+	 * @param condition
+	 * @param message
+	 * @param stackLevels
+	 * 
+	 * @throws Error if the passed {@literal condition} fails.
+	 */
+	public static void check(final BooleanTerm condition, final String message, final int stackLevels)
+		throws Error
+	{
+		if(condition.evaluate())
+		{
+			// debug-friendly abort-condition
+			return;
+		}
+		
+		throw UtilStackTrace.cutStacktraceByN(
+			new Error("Check failed" + (message == null ? "." : ": " + message)),
+			stackLevels + 1
+		);
+	}
+
 	
 
 	///////////////////////////////////////////////////////////////////////////
