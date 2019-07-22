@@ -83,12 +83,11 @@ public interface PersistenceTypeHandlerCreator<M>
 			 */
 			if(type == Class.class)
 			{
-				// (12.07.2019 TM)FIXME: MS-153 gives a solution
 				// (18.09.2018 TM)EXCP: proper exception
 				throw new RuntimeException(
-					"Class instances are system meta data and should not be stored as user data in a database. "
-					+ "Register a custom handler if you absolutely must and accept full responsibility "
-					+ "for all details and problems associated with it."
+					"Persisting Class instances requires a special-tailored "
+					+ PersistenceTypeHandler.class.getSimpleName()
+					+ " and cannot be done in a generic way."
 				);
 			}
 			
@@ -100,7 +99,9 @@ public interface PersistenceTypeHandlerCreator<M>
 				{
 					// (01.04.2013)EXCP: proper exception
 					throw new RuntimeException(
-						"Primitive component type arrays must be handled by default handler implementations."
+						"Persisting primitive component type arrays requires a special-tailored "
+						+ PersistenceTypeHandler.class.getSimpleName()
+						+ " and cannot be done in a generic way."
 					);
 				}
 				

@@ -11,6 +11,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -22,7 +23,6 @@ import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
-import one.microstream.collections.XArrays;
 import one.microstream.collections.interfaces.ChainStorage;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
@@ -553,13 +553,34 @@ public class Persistence
 	}
 	
 	/**
-	 * Types that may never be encountered by the persistance layer at all (not yet complete).
+	 * Types whose instances cannot be persisted. E.g. {@link Unpersistable}, {@link Thread}, {@link ClassLoader}, etc.
+	 * 
+	 * Note that the {@link Class} instances representing these types are very well persistable and will get
+	 * empty type descriptions to assign type ids to them. Only their instances cannot be persisted.
 	 * 
 	 * @return
 	 */
-	public static Class<?>[] notIdMappableTypes()
+	public static Class<?>[] unpersistableTypes()
 	{
 		// (20.04.2018 TM)TODO: add NOT_ID_MAPPABLE_TYPES list
+		
+		/*
+		 * Rationale:
+		 * 
+		 * Composition:
+		 * The very nature of this interface is to indicate that instances of that type are NOT meant
+		 * to be treated as autonomous entities. It's like a "NoEntity" type and therefore not allowed to be
+		 * treated as one.
+		 * 
+		 * Enumerations and Iterators:
+		 * Iterators are basically logic-helpers, like an implemented for loop on a complex structure.
+		 * Such a thing can never meant to be a reasonably persistable entity.
+		 * Additionally, Iterator implementations typically access instances, that are actually meant to be unshared.
+		 * In other words: The Iterator implementation is a composition type of an actual entity-worthy type.
+		 * Should the special case ever occur, that a proper entity type implements Iterator (despite not being
+		 * supposed to do so), it can still be handled by explicitely registering a custom type handler for it.
+		 */
+		
 		// why permanently occupy additional memory with fields and instances for constant values?
 		return new Class<?>[]
 		{
@@ -577,41 +598,16 @@ public class Persistence
 			Socket.class,
 
 			// unshared composition types (those are internal helper class instances, not entities)
-			ChainStorage.class,
-			ChainStorage.Entry.class
-		};
-	}
-
-	/**
-	 * Types (or super types of types) that may never need to be analyzed generically (custom handler must be present).
-	 * 
-	 * @return
-	 */
-	public static Class<?>[] unanalyzableTypes()
-	{
-		/*
-		 * Rationale:
-		 * 
-		 * Composition:
-		 * The very nature of this interface is to indicate that instances of that type are NOT meant
-		 * to be treated as autonomous entities. It's like a "NoEntity" type and therefore not allowed to be
-		 * treated as one.
-		 * 
-		 * Iterator:
-		 * Iterators are basically logic-helpers, like an implemented for loop on a complex structure.
-		 * Such a thing can never meant to be a reasonably persistable entity.
-		 * Additionally, Iterator implementations typically access instances, that are actually meant to be unshared.
-		 * In other words: The Iterator implementation is a composition type of an actual entity-worthy type.
-		 * Should the special case ever occur, that a proper entity type implements Iterator (despite not being
-		 * supposed to do so), it can still be handled by explicitely registering a custom type handler for it.
-		 */
-		
-		// why permanently occupy additional memory with fields and instances for constant values?
-		return XArrays.add(
-			notIdMappableTypes(),
 			Composition.class,
+			ChainStorage.class,
+			ChainStorage.Entry.class,
+			Map.Entry.class,
+			
+			Enumeration.class,
 			Iterator.class
-		);
+			
+			// note: lambdas don't have a super class as such. See usages of "LambdaTypeRecognizer" instead
+		};
 	}
 
 	
@@ -622,29 +618,12 @@ public class Persistence
 
 	public static boolean isPersistable(final Class<?> type)
 	{
-		return !isNotPersistable(type);
+		return !isUnpersistable(type);
 	}
 
-	public static boolean isTypeIdMappable(final Class<?> type)
+	public static boolean isUnpersistable(final Class<?> type)
 	{
-		return !isNotTypeIdMappable(type);
-	}
-
-	public static boolean isNotPersistable(final Class<?> type)
-	{
-		return XReflect.isOfAnyType(type, unanalyzableTypes());
-	}
-
-	public static boolean isNotTypeIdMappable(final Class<?> type)
-	{
-		return XReflect.isOfAnyType(type, notIdMappableTypes());
-	}
-
-	public static final PersistenceTypeEvaluator defaultTypeEvaluatorTypeIdMappable()
-	{
-		return type ->
-			isTypeIdMappable(type)
-		;
+		return XReflect.isOfAnyType(type, unpersistableTypes());
 	}
 	
 	public static final <M> PersistenceTypeMismatchValidator<M> typeMismatchValidatorFailing()

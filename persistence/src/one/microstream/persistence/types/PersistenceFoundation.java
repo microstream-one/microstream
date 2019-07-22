@@ -109,7 +109,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public PersistenceTypeAnalyzer getTypeAnalyzer();
 
-	public PersistenceTypeEvaluator getTypeEvaluatorTypeIdMappable();
 	
 	public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator();
 	
@@ -229,8 +228,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	}
 	
 	public F setTypeLineageCreator(PersistenceTypeLineageCreator typeLineageCreator);
-
-	public F setTypeEvaluatorTypeIdMappable(PersistenceTypeEvaluator typeEvaluatorTypeIdMappable);
 	
 	public F setTypeMismatchValidator(PersistenceTypeMismatchValidator<M> typeMismatchValidator);
 	
@@ -375,7 +372,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceTypeHandlerCreator<M>        typeHandlerCreator         ;
 		private PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
 		private PersistenceTypeAnalyzer                 typeAnalyzer               ;
-		private PersistenceTypeEvaluator                typeEvaluatorTypeIdMappable;
 		private PersistenceTypeMismatchValidator<M>     typeMismatchValidator      ;
 		private PersistenceTypeDefinitionCreator        typeDefinitionCreator      ;
 		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
@@ -782,17 +778,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			}
 			
 			return this.typeAnalyzer;
-		}
-
-		@Override
-		public PersistenceTypeEvaluator getTypeEvaluatorTypeIdMappable()
-		{
-			if(this.typeEvaluatorTypeIdMappable == null)
-			{
-				this.typeEvaluatorTypeIdMappable = this.dispatch(this.ensureTypeEvaluatorTypeIdMappable());
-			}
-			
-			return this.typeEvaluatorTypeIdMappable;
 		}
 		
 		@Override
@@ -1393,15 +1378,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public F setTypeEvaluatorTypeIdMappable(
-			final PersistenceTypeEvaluator typeEvaluatorTypeIdMappable
-		)
-		{
-			this.typeEvaluatorTypeIdMappable = typeEvaluatorTypeIdMappable;
-			return this.$();
-		}
-
-		@Override
 		public F setTypeMismatchValidator(
 			final PersistenceTypeMismatchValidator<M> typeMismatchValidator
 		)
@@ -1693,7 +1669,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 					this.getTypeHandlerRegistry()        , // holds actually used (potentially generically created) handlers
 					this.getTypeHandlerProvider()        , // knows/contains the Custom~Registry w. default handlers/definitions
 					this.getTypeDictionaryManager()      , // only manages loading, storing and registering
-					this.getTypeEvaluatorTypeIdMappable(),
 					this.getTypeMismatchValidator()      ,
 					this.getLegacyTypeMapper()           ,
 					this.getUnreachableTypeHandlerCreator()
@@ -1822,11 +1797,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 				this.getTypeDictionaryParser() ,
 				this.getTypeDictionaryBuilder()
 			);
-		}
-
-		protected PersistenceTypeEvaluator ensureTypeEvaluatorTypeIdMappable()
-		{
-			return Persistence.defaultTypeEvaluatorTypeIdMappable();
 		}
 		
 		protected PersistenceTypeMismatchValidator<M> ensureTypeMismatchValidator()

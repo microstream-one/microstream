@@ -141,11 +141,10 @@ public class TestComponentProvider extends InvocationLogging
 	public final <F extends PersistenceFoundation<Binary, ?>> F initialize(final F foundation)
 	{
 		foundation
-			.setIdProvider          (this.idProvider()     )
-			.setTypeDictionaryIoHandling      (this.dictionaryStorage()     )
-			.setPersistenceChannel         (this.persistenceStorage()    )
-			.setTypeEvaluatorPersistable   (Persistence::isPersistable   )
-			.setTypeEvaluatorTypeIdMappable(Persistence::isTypeIdMappable)
+			.setIdProvider              (this.idProvider()         )
+			.setTypeDictionaryIoHandling(this.dictionaryStorage()  )
+			.setPersistenceChannel      (this.persistenceStorage() )
+			.setTypeEvaluatorPersistable(Persistence::isPersistable)
 		;
 		return foundation;
 	}

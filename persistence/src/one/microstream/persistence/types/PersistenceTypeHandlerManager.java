@@ -13,7 +13,6 @@ import one.microstream.equality.Equalator;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
-import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
 
@@ -69,12 +68,11 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 
 
 	public static <M> PersistenceTypeHandlerManager.Default<M> New(
-		final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ,
-		final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ,
-		final PersistenceTypeDictionaryManager    typeDictionaryManager,
-		final PersistenceTypeEvaluator            typeEvaluator        ,
-		final PersistenceTypeMismatchValidator<M> typeMismatchValidator,
-		final PersistenceLegacyTypeMapper<M>      legacyTypeMapper     ,
+		final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry  ,
+		final PersistenceTypeHandlerProvider<M>           typeHandlerProvider  ,
+		final PersistenceTypeDictionaryManager            typeDictionaryManager,
+		final PersistenceTypeMismatchValidator<M>         typeMismatchValidator,
+		final PersistenceLegacyTypeMapper<M>              legacyTypeMapper     ,
 		final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
 	)
 	{
@@ -82,7 +80,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			notNull(typeHandlerRegistry)  ,
 			notNull(typeHandlerProvider)  ,
 			notNull(typeDictionaryManager),
-			notNull(typeEvaluator)        ,
 			notNull(typeMismatchValidator),
 			notNull(legacyTypeMapper)     ,
 			notNull(unreachableTypeHandlerCreator)
@@ -98,7 +95,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		        final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry          ;
 		private final PersistenceTypeHandlerProvider<M>           typeHandlerProvider          ;
 		private final PersistenceTypeDictionaryManager            typeDictionaryManager        ;
-		private final PersistenceTypeEvaluator                    typeEvaluator                ;
 		private final PersistenceTypeMismatchValidator<M>         typeMismatchValidator        ;
 		private final PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ;
 		private final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
@@ -112,22 +108,20 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		/////////////////
 
 		Default(
-			final PersistenceTypeHandlerRegistry<M>   typeHandlerRegistry  ,
-			final PersistenceTypeHandlerProvider<M>   typeHandlerProvider  ,
-			final PersistenceTypeDictionaryManager    typeDictionaryManager,
-			final PersistenceTypeEvaluator            typeEvaluator        ,
-			final PersistenceTypeMismatchValidator<M> typeMismatchValidator,
-			final PersistenceLegacyTypeMapper<M>      legacyTypeMapper,
+			final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry  ,
+			final PersistenceTypeHandlerProvider<M>           typeHandlerProvider  ,
+			final PersistenceTypeDictionaryManager            typeDictionaryManager,
+			final PersistenceTypeMismatchValidator<M>         typeMismatchValidator,
+			final PersistenceLegacyTypeMapper<M>              legacyTypeMapper     ,
 			final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
 		)
 		{
 			super();
-			this.typeHandlerRegistry   = typeHandlerRegistry  ;
-			this.typeHandlerProvider   = typeHandlerProvider  ;
-			this.typeDictionaryManager = typeDictionaryManager;
-			this.typeEvaluator         = typeEvaluator        ;
-			this.typeMismatchValidator = typeMismatchValidator;
-			this.legacyTypeMapper      = legacyTypeMapper     ;
+			this.typeHandlerRegistry           = typeHandlerRegistry  ;
+			this.typeHandlerProvider           = typeHandlerProvider  ;
+			this.typeDictionaryManager         = typeDictionaryManager;
+			this.typeMismatchValidator         = typeMismatchValidator;
+			this.legacyTypeMapper              = legacyTypeMapper     ;
 			this.unreachableTypeHandlerCreator = unreachableTypeHandlerCreator;
 		}
 
@@ -193,21 +187,19 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 
 		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandler(final Class<T> type)
 		{
-			if(!this.typeEvaluator.isPersistableType(type))
-			{
-				// (19.07.2019 TM)FIXME: MS-153: craete Unpersistable Handler instead.
-				throw new PersistenceExceptionTypeNotPersistable(type);
-			}
-			
 			synchronized(this.typeHandlerRegistry)
 			{
-				if(type.getSuperclass() != null)
-				{
-					// (03.11.2014)NOTE: changed from synchEnsureTypeHandler to internalEnsureTypeHandler to ensure recursion
-					this.internalEnsureTypeHandler(type.getSuperclass());
-				}
+				/* (22.07.2019 TM)NOTE:
+				 * With unpersistable types getting an empty dummy type handler ... and actually even since the
+				 * very beginning, it is actually superfluous to recursively analyze super classes, as
+				 * every class is handled isolated from validity of its super classes.
+				 */
+//				if(type.getSuperclass() != null)
+//				{
+//					this.internalEnsureTypeHandler(type.getSuperclass());
+//				}
 				/* Note about interfaces:
-				 * (Regarding a classe's directly implemented interfaces as well as all super interfaces
+				 * (Regarding a class' directly implemented interfaces as well as all super interfaces
 				 * of an interface type)
 				 * As long as an interface doesn't get passed here explicitly (e.g. as a field's type),
 				 * it is ignored intentionally because it can be assumed that it is of no concern for

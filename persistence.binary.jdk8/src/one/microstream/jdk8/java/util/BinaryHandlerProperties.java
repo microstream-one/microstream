@@ -121,9 +121,9 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 		iterator.apply(XMemoryJDK8.accessDefaults(instance));
 		Persistence.iterateReferencesMap(iterator, instance);
 	}
-
+	
 	@Override
-	public final void iteratePersistedReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
 		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_DEFAULTS));
 		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
