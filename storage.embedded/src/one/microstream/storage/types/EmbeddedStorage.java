@@ -57,9 +57,8 @@ public final class EmbeddedStorage
 	)
 	{
 		return ConnectionFoundation(
-			typeDictionaryIoHandler      ,
-			Persistence::isPersistable   ,
-			Persistence::isTypeIdMappable
+			typeDictionaryIoHandler   ,
+			Persistence::isPersistable
 		);
 	}
 	
@@ -106,15 +105,13 @@ public final class EmbeddedStorage
 	 * @see #ConnectionFoundation(File)
 	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler    ,
-		final PersistenceTypeEvaluator           typeEvaluatorPersistable   ,
-		final PersistenceTypeEvaluator           typeEvaluatorTypeIdMappable
+		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler ,
+		final PersistenceTypeEvaluator           typeEvaluatorPersistable
 	)
 	{
 		return EmbeddedStorageConnectionFoundation.New()
 			.setTypeDictionaryIoHandler    (typeDictionaryIoHandler)
 			.setTypeEvaluatorPersistable   (typeEvaluatorPersistable)
-			.setTypeEvaluatorTypeIdMappable(typeEvaluatorTypeIdMappable)
 		;
 	}
 	

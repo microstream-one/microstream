@@ -8,7 +8,6 @@ import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XAddingSequence;
 import one.microstream.collections.types.XPrependingEnum;
 import one.microstream.collections.types.XPrependingSequence;
-import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 
 public interface PersistenceTypeAnalyzer
@@ -111,8 +110,8 @@ public interface PersistenceTypeAnalyzer
 		)
 		{
 			super();
-			this.isPersistable                     = isPersistable;
-			this.fieldSelectorPersistable          = fieldSelectorPersistable;
+			this.isPersistable                     = isPersistable                    ;
+			this.fieldSelectorPersistable          = fieldSelectorPersistable         ;
 			this.fieldSelectorReflectiveCollection = fieldSelectorReflectiveCollection;
 		}
 
@@ -128,9 +127,9 @@ public interface PersistenceTypeAnalyzer
 			final C        persistableFields
 		)
 		{
-			if(!this.isNonAbstractTypeValidating(type))
+			if(!this.isPersistable(type))
 			{
-				// handle abstract types as having no fields at all / stateless types.
+				// handle unpersistable types as having no fields at all / stateless types.
 				return persistableFields;
 			}
 
@@ -139,8 +138,10 @@ public interface PersistenceTypeAnalyzer
 			return persistableFields;
 		}
 		
-		private boolean isNonAbstractTypeValidating(final Class<?> type)
+		private boolean isPersistable(final Class<?> type)
 		{
+			// (22.07.2019 TM)FIXME: MS-153: check must be moved to way before getting here.
+			
 			/*
 			 * tricky:
 			 * all abstract types (both interfaces and classes) can be handled as having no fields at all
@@ -161,7 +162,7 @@ public interface PersistenceTypeAnalyzer
 			
 			if(!this.isPersistable.isPersistableType(type))
 			{
-				throw new PersistenceExceptionTypeNotPersistable(type);
+				return false;
 			}
 			
 			// non-abstract and persistable type
@@ -175,7 +176,7 @@ public interface PersistenceTypeAnalyzer
 			final XAddingEnum<Field> problematicFields
 		)
 		{
-			if(!this.isNonAbstractTypeValidating(type))
+			if(!this.isPersistable(type))
 			{
 				// handle abstract types as having no fields at all / stateless types.
 				return persistableFields;
