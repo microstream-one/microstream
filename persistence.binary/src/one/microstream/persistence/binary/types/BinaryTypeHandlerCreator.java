@@ -27,7 +27,6 @@ import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceTypeAnalyzer;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
-import one.microstream.reflect.XReflect;
 import one.microstream.typing.LambdaTypeRecognizer;
 
 
@@ -122,15 +121,6 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final XGettingEnum<Field> persistableFields
 		)
 		{
-			if(XReflect.isAbstract(type))
-			{
-				// (16.07.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Cannot create a non-stateless instances type handler for abstract type "
-					+ type
-				);
-			}
-			
 			/* (16.07.2019 TM)TODO: ensure type handler for persistable field type?
 			 * This is not done yet. For example: Analysing JDK collections that have a field of type
 			 * java.util.Comparator don't cause the Comparator itself to be analyzed about its persistability.
@@ -259,12 +249,16 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			 */
 //			return this.createEnumHandler(type, persistableFields);
 			// (12.07.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
-				"Handling Java language enums is currently not supported since changes to the enum constants,"
-				+ " a part of the type definition, would require changes to data and might even be ambiguous."
-				+ " Please consider that enums are merely a syntax sugar helper for building logic,"
-				+ " not a suitable construct to be used in a persisted entity graph."
-			);
+			
+			// (23.07.2019 TM)NOTE: temporarily disabled for existing projects until proper handling is implemented.
+//			throw new RuntimeException(
+//				"Handling Java language enums is currently not supported since changes to the enum constants,"
+//				+ " a part of the type definition, would require changes to data and might even be ambiguous."
+//				+ " Please consider that enums are merely a syntax sugar helper for building logic,"
+//				+ " not a suitable construct to be used in a persisted entity graph."
+//			);
+			
+			return this.createTypeHandlerGeneric(type, persistableFields);
 			
 //			return this.createTypeHandlerEnum(type, persistableFields);
 		}
