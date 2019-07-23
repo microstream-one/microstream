@@ -282,7 +282,9 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		{
 			// standard implementation does not consider actual objects, only their types
 			
-			final PersistenceTypeHandler<M, T> typeHandler = this.ensureTypeHandler(XReflect.getClass(instance));
+			final PersistenceTypeHandler<M, T> typeHandler = this.ensureTypeHandler(
+				XReflect.getClass(instance)
+			);
 			typeHandler.guaranteeInstanceViablity();
 			
 			return typeHandler;

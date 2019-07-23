@@ -123,7 +123,15 @@ public class MainTestStorageJDKCollections
 			
 			// (18.07.2019 TM)FIXME: Collections.unmodifyable~
 			
-			// (18.07.2019 TM)FIXME: Collections.checked~ (requires MS-153)
+			Collections.checkedCollection(arrayList, String.class)               ,
+			Collections.checkedList(arrayList, String.class)                     , // RandomAccess
+			Collections.checkedList(linkedList, String.class)                    , // normal
+			Collections.checkedSet(hashSet, String.class)                        ,
+			Collections.checkedMap(hashMap, Integer.class, String.class)         ,
+			Collections.checkedNavigableMap(treeMap, Integer.class, String.class),
+			Collections.checkedNavigableSet(treeSet, String.class)               ,
+			Collections.checkedSortedMap(treeMap, Integer.class, String.class)   ,
+			Collections.checkedSortedSet(treeSet, String.class)                  ,
 		};
 	}
 	

@@ -12,16 +12,29 @@ import one.microstream.reflect.XReflect;
 
 public interface PersistenceTypeAnalyzer
 {
-	public <C extends XPrependingEnum<Field>> C collectPersistableEntityFields(
-		Class<?> type             ,
-		C        persistableFields
-	);
+	public boolean isUnpersistable(Class<?> type);
 	
-	public <C extends XPrependingEnum<Field>> C collectPersistableCollectionFields(
+	public <C extends XPrependingEnum<Field>> C collectPersistableFieldsEntity(
 		Class<?>           type             ,
 		C                  persistableFields,
 		XAddingEnum<Field> problematicFields
 	);
+	
+	public <C extends XPrependingEnum<Field>> C collectPersistableFieldsCollection(
+		Class<?>           type             ,
+		C                  persistableFields,
+		XAddingEnum<Field> problematicFields
+	);
+	
+	public default <C extends XPrependingEnum<Field>> C collectPersistableFieldsEnum(
+		final Class<?>           type             ,
+		final C                  persistableFields,
+		final XAddingEnum<Field> problematicFields
+	)
+	{
+		// enum types are handled as entity types by default, but there may be implementations that distinct here further.
+		return this.collectPersistableFieldsEntity(type, persistableFields, problematicFields);
+	}
 
 
 	
@@ -43,15 +56,6 @@ public interface PersistenceTypeAnalyzer
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
 		///////////////////
-		
-		public static final void iterateInstanceFields(
-			final Class<?>                   entityType       ,
-			final PersistenceFieldEvaluator  isPersistable    ,
-			final XPrependingSequence<Field> persistableFields
-		)
-		{
-			iterateInstanceFields(entityType, isPersistable, persistableFields, null, null);
-		}
 
 		public static final void iterateInstanceFields(
 			final Class<?>                   entityType       ,
@@ -75,7 +79,13 @@ public interface PersistenceTypeAnalyzer
 					return;
 				}
 				
-				// if there is a "problematic" filter and it applies, the field is registered as such
+				/*
+				 * if there is a "problematic" filter and it applies, the field is registered as such
+				 * Note: there is a difference between beind not persistable and being problematic.
+				 * Not persistable fields are simply ignored, e.g. transient fields.
+				 * Problematic fields cannot be ignored but require special behavior as a consequence,
+				 * usually an exception about the time not being generically analyzable.s
+				 */
 				if(isProblematic != null && isProblematic.applies(entityType, field))
 				{
 					problematicFields.add(field);
@@ -120,68 +130,40 @@ public interface PersistenceTypeAnalyzer
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		@Override
-		public <C extends XPrependingEnum<Field>> C collectPersistableEntityFields(
-			final Class<?> type             ,
-			final C        persistableFields
-		)
-		{
-			if(!this.isPersistable(type))
-			{
-				// handle unpersistable types as having no fields at all / stateless types.
-				return persistableFields;
-			}
-
-			iterateInstanceFields(type, this.fieldSelectorPersistable, persistableFields);
-
-			return persistableFields;
-		}
 		
-		private boolean isPersistable(final Class<?> type)
+		@Override
+		public boolean isUnpersistable(final Class<?> type)
 		{
-			// (22.07.2019 TM)FIXME: MS-153: check must be moved to way before getting here.
-			
-			/*
-			 * tricky:
-			 * all abstract types (both interfaces and classes) can be handled as having no fields at all
-			 * because there can never be actual instances of exactely (only) that type encountered
-			 * that would have to be persistet.
-			 * However, a type entry for those abstract classes is still necessary for typeId validation purposes.
-			 * 
-			 * Checking for abstract types comes even before checking for persistability intentionally as
-			 * a persistence layer only has to handle concrete types anyway.
-			 * This means for example a type definition string is exported for them, but it will be empty.
-			 * This is meant by design and not an error. If it turns out to cause problems, it has to be fixed
-			 * and commented in here accordingly.
-			 */
-			if(XReflect.isAbstract(type))
-			{
-				return false;
-			}
-			
-			if(!this.isPersistable.isPersistableType(type))
-			{
-				return false;
-			}
-			
-			// non-abstract and persistable type
-			return true;
+			return !this.isPersistable.isPersistableType(type);
 		}
 
 		@Override
-		public <C extends XPrependingEnum<Field>> C collectPersistableCollectionFields(
+		public <C extends XPrependingEnum<Field>> C collectPersistableFieldsEntity(
 			final Class<?>           type             ,
 			final C                  persistableFields,
 			final XAddingEnum<Field> problematicFields
 		)
 		{
-			if(!this.isPersistable(type))
-			{
-				// handle abstract types as having no fields at all / stateless types.
-				return persistableFields;
-			}
+			iterateInstanceFields(
+				type,
+				this.fieldSelectorPersistable,
+				persistableFields,
+				null,
+				problematicFields
+			);
 
+			return persistableFields;
+		}
+		
+	
+
+		@Override
+		public <C extends XPrependingEnum<Field>> C collectPersistableFieldsCollection(
+			final Class<?>           type             ,
+			final C                  persistableFields,
+			final XAddingEnum<Field> problematicFields
+		)
+		{
 			iterateInstanceFields(
 				type,
 				this.fieldSelectorPersistable,

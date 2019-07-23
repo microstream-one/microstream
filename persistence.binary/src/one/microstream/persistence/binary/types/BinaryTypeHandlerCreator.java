@@ -91,46 +91,37 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		////////////
 		
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerArray(final Class<T> type)
+		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerUnpersistable(
+			final Class<T> type
+		)
+		{
+			// type gets a type id assigned and an empty type description, but its instances cannot be persisted.
+			return new BinaryHandlerUnpersistable<>(type);
+		}
+		
+		@Override
+		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerArray(
+			final Class<T> type
+		)
 		{
 			// array types can never change and therefore can never have obsolete types.
 			return new BinaryHandlerNativeArrayObject<>(type);
 		}
 		
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerReflective(
+		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGenericStateless(
+			final Class<T> type
+		)
+		{
+			return new BinaryHandlerStateless<>(type);
+		}
+		
+		@Override
+		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGeneric(
 			final Class<T>            type             ,
 			final XGettingEnum<Field> persistableFields
 		)
 		{
-			if(type.isEnum())
-			{
-				/* (09.06.2017 TM)TODO: enum BinaryHandler special case implementation once completed
-				 * (10.06.2017 TM)NOTE: not sure if handling enums (constants) in an entity graph
-				 * makes sense in the first place. The whole enum concept (the identity of an instance depending
-				 * on the name and/or the order of the field referencing it) is just too wacky for an entity graph.
-				 * Use enums for logic, if you must, but keep them out of proper entity graphs.
-				 */
-//				return this.createEnumHandler(type, persistableFields);
-				// (12.07.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Handling Java language enums is currently not supported since changes to the enum constants,"
-					+ " a part of the type definition, would require changes to data and might even be ambiguous."
-					+ " Please consider that enums are merely a syntax sugar helper for building logic,"
-					+ " not a suitable construct to be used in a persisted entity graph."
-				);
-			}
-			
-			if(persistableFields.isEmpty())
-			{
-				if(XReflect.isAbstract(type))
-				{
-					return new BinaryHandlerUnpersistable<>(type);
-				}
-				
-				return new BinaryHandlerStateless<>(type);
-			}
-			
 			if(XReflect.isAbstract(type))
 			{
 				// (16.07.2019 TM)EXCP: proper exception
@@ -144,11 +135,10 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			 * This is not done yet. For example: Analysing JDK collections that have a field of type
 			 * java.util.Comparator don't cause the Comparator itself to be analyzed about its persistability.
 			 * 
-			 * A recursive mechanism similar to super class in PersistenceTypeHandlerManager#internalEnsureTypeHandler
-			 * is required.
-			 * However, this would be more complex, since there might be looping type references:
+			 * A recursive mechanism would be is required to ensure that.
+			 * However, this would be rather complex, since there might be looping type references:
 			 * A has a field of type B, but B has a field of type A.
-			 * So a kind of "pending types" XEnum<Class<?>> would have to be passed along to prevent a stack overflow
+			 * So a kind of "pending types" XEnum<Class<?>> would have to be passed along to prevent a stack overflow.
 			 * Also, the type handling ensuring logic called here would have to register a created TypeHandler
 			 * for it to be lookup'able when the type is encountered the next time.
 			 * 
@@ -158,8 +148,10 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			 * 
 			 * When analyzing A, type B would have to be analyzed accordingly.
 			 * A is a "pending" type assumed to be persistable, so B gets a type handler created.
-			 * The analying process comes back to A and now needs to analyse type C.
-			 * However, C is unpersistable (e.g. refernces a Thread)
+			 * Without such an assumption, nothing no type handler could be created, since B would wait for A
+			 * and A would wait for B.
+			 * The analyzing process comes back to A and now needs to analyze type C.
+			 * However, C is unpersistable (e.g. references a Thread)
 			 * So A is not persistable, either.
 			 * And that in turn means, that B is actually not persistable, despite its TypeHandler having been
 			 * created already.
@@ -167,7 +159,14 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			 * The solution would be:
 			 * TypeHandlers created by the recursive analysis here must be registered in a preliminary lookup (simple map).
 			 * Only after all reachable types are determined to be properly persistable, all the preliminary
-			 * Type handlers may be registered as being "valid".
+			 * Type handlers may be seen as "valid" and be registered.
+			 * 
+			 * OR the assumption above would have to be replaced by a two-phased type analysis:
+			 * First analyze all pending types ignoring the pending types themselves.
+			 * If no more new pending type is encountered and there was no error regarding persistability of any of the
+			 * pending types, then all pending types can have type handlers created and registered right away.
+			 * However, this seems to be much more complicated than the approach with the temporary type handlers
+			 * and later registration
 			 * 
 			 * The change wouldn't have to be that big, actually:
 			 * The recursive thing is something internal in here.
@@ -220,10 +219,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 					return (PersistenceTypeHandler<Binary, T>)BinaryHandlerGenericMap.New((Class<Map<?, ?>>)type);
 				}
 				
-				/*
-				 * Since this method is only entered if type is either a Collection or a Map, this check should
-				 * be superfluos. But it's a nice defense against an unforeseen change in the checking method.
-				 */
+				// Fallback-fallback for collections that are neither a Queue, List, Set or Map.
 				if(Collection.class.isAssignableFrom(type))
 				{
 					return (PersistenceTypeHandler<Binary, T>)BinaryHandlerGenericCollection.New((Class<Collection<?>>)type);
@@ -242,23 +238,47 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			
 			// (16.07.2019 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Collection type cannot be handled generically and required a custom "
+				"Collection type cannot be handled generically and requires a custom "
 				+ PersistenceTypeHandler.class.getName() + " to be registered: "
 				+ type,
 				cause
 			);
 		}
+		
+		@Override
+		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerEnum(
+			final Class<T>            type             ,
+			final XGettingEnum<Field> persistableFields
+		)
+		{
+			/* (09.06.2017 TM)TODO: enum BinaryHandler special case implementation once completed
+			 * (10.06.2017 TM)NOTE: not sure if handling enums (constants) in an entity graph
+			 * makes sense in the first place. The whole enum concept (the identity of an instance depending
+			 * on the name and/or the order of the field referencing it) is just too wacky for an entity graph.
+			 * Use enums for logic, if you must, but keep them out of proper entity graphs.
+			 */
+//			return this.createEnumHandler(type, persistableFields);
+			// (12.07.2019 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Handling Java language enums is currently not supported since changes to the enum constants,"
+				+ " a part of the type definition, would require changes to data and might even be ambiguous."
+				+ " Please consider that enums are merely a syntax sugar helper for building logic,"
+				+ " not a suitable construct to be used in a persisted entity graph."
+			);
+			
+//			return this.createTypeHandlerEnum(type, persistableFields);
+		}
 
 		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering
 		final <T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
-			final Class<?>            type     ,
-			final XGettingEnum<Field> allFields
+			final Class<?>            type             ,
+			final XGettingEnum<Field> persistableFields
 		)
 		{
 			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerEnum.New(
-				(Class<E>)type                ,
-				allFields                     ,
-				this.lengthResolver()         ,
+				(Class<E>)type                   ,
+				persistableFields                ,
+				this.lengthResolver()            ,
 				this.eagerStoringFieldEvaluator(),
 				this.switchByteOrder
 			);
