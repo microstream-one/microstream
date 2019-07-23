@@ -66,7 +66,7 @@ public interface PersistenceTypeHandlerCreator<M>
 		@Override
 		public <T> PersistenceTypeHandler<M, T> createTypeHandler(final Class<T> type)
 		{
-			// should never happen or more precisely: should only happen for unhandled primitives
+			// should never happen or more precisely: should only happen for unhandled primitive types
 			if(type.isPrimitive())
 			{
 				// (29.04.2017 TM)EXCP: proper exception
@@ -75,12 +75,7 @@ public interface PersistenceTypeHandlerCreator<M>
 				);
 			}
 			
-			/*
-			 * Since type refactoring, the old and simple strategy to handle Class instances does not work any more.
-			 * Class instances are system meta data and should not be stored as user data in a database, anyway.
-			 * Register a custom handler if you absolutely must and accept full responsibility for all details and
-			 * problems associated with it.
-			 */
+			// class meta data instances special handling
 			if(type == Class.class)
 			{
 				// (18.09.2018 TM)EXCP: proper exception
@@ -109,26 +104,12 @@ public interface PersistenceTypeHandlerCreator<M>
 				return this.createTypeHandlerArray(type);
 			}
 			
-			if(this.lambdaTypeRecognizer.isLambdaType(type))
-			{
-				// (17.04.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Lambdas are not supported as they cannot be resolved during loading"
-					+ " due to insufficient reflection mechanisms provided by Java."
-				);
-			}
-			
-			if(XReflect.isJavaUtilCollectionType(type))
-			{
-				return this.deriveTypeHandlerCollection(type);
-			}
-			
 			/* (25.03.2019 TM)NOTE:
 			 * Note on lambdas:
 			 * There is (currently) no way of determining if an instance is a lambda.
 			 * Any checks on the name are best guesses, not reliable logic.
 			 * It may work in certain (even most) applications absolutely correctly, but it is not
-			 * absolutely reliable to not be ambiguous and hence wrong.
+			 * absolutely reliable to not being ambiguous and hence wrong.
 			 * 
 			 * Here (https://stackoverflow.com/questions/23870478/how-to-correctly-determine-that-an-object-is-a-lambda),
 			 * Brian Goetz babbles some narrow-minded stuff about that it should not matter if an instance is
@@ -141,45 +122,127 @@ public interface PersistenceTypeHandlerCreator<M>
 			 * The only problem is that the JVM cannot resolve the type name it itself generated to describe the lambda.
 			 * That is simply a shortcoming of the (current) JVM that may get fixed in the future.
 			 * (also, it directly proves the good Brian oh so wrong. If the JVM cannot resolve its own lambda type,
-			 * as opposed to inner class types etc., there IS a need to recognize lambdas.)
-			 * Or it might not, as long as they maintain their displayed level of competence.
+			 * as opposed to inner class types etc., there IS a need to recognize lambdas for performing generic
+			 * processes like serialization or other reflective analyzing.)
+			 * Or it might not, given the displayed level of competence.
 			 * 
 			 * Until then:
-			 * If required, a a simple solution would be to register a custom LambdaTypeRecognizer
-			 * that checks for lambdas with whatever logic works in the particular case.
+			 * If required, a simple solution would be to register a custom implementation of the modular
+			 * LambdaTypeRecognizer that checks for lambdas with whatever logic works in the particular case.
 			 */
+			
+			if(this.lambdaTypeRecognizer.isLambdaType(type))
+			{
+				// (17.04.2019 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Lambdas are not supported as they cannot be resolved during loading"
+					+ " due to insufficient reflection mechanisms provided by Java."
+				);
+			}
+			
+			// checked first to allow custom logic to intervene prior to any generic decision
+			if(this.typeAnalyzer.isUnpersistable(type))
+			{
+				return this.createTypeHandlerUnpersistable(type);
+			}
+
+			// by default same as unpersistable
+			if(XReflect.isAbstract(type))
+			{
+				return this.createTypeHandlerAbstract(type);
+			}
+			
+			// collections need special handling to avoid dramatically inefficient generic structures
+			if(XReflect.isJavaUtilCollectionType(type))
+			{
+				return this.deriveTypeHandlerCollection(type);
+			}
+			
+			// and another special case
+			if(type.isEnum())
+			{
+				return this.deriveTypeHandlerEnum(type);
+			}
 
 			// create generic handler for all other cases ("normal" classes without predefined handler)
 			return this.deriveTypeHandlerEntity(type);
 		}
 		
+		private static void checkNoProblematicFields(final Class<?> type, final XGettingEnum<Field> problematicFields)
+		{
+			if(problematicFields.isEmpty())
+			{
+				return;
+			}
+			
+			// (23.07.2019 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Type \"" + type.getName() +
+				"\" not persistable due to problematic fields "
+				+ problematicFields.toString()
+			);
+		}
+		
 		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerEntity(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
-			this.typeAnalyzer.collectPersistableEntityFields(type, persistableFields);
+			final HashEnum<Field> problematicFields = HashEnum.New();
+			this.typeAnalyzer.collectPersistableFieldsEntity(type, persistableFields, problematicFields);
+			checkNoProblematicFields(type, problematicFields);
 
-			return this.createTypeHandlerReflective(type, persistableFields);
+			return this.createTypeHandlerGeneric(type, persistableFields);
+		}
+		
+		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerEnum(final Class<T> type)
+		{
+			final HashEnum<Field> persistableFields = HashEnum.New();
+			final HashEnum<Field> problematicFields = HashEnum.New();
+			this.typeAnalyzer.collectPersistableFieldsEnum(type, persistableFields, problematicFields);
+			checkNoProblematicFields(type, problematicFields);
+
+			return this.createTypeHandlerEnum(type, persistableFields);
 		}
 		
 		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerCollection(final Class<T> type)
 		{
-			final HashEnum<Field> persistableFields   = HashEnum.New();
-			final HashEnum<Field> unpersistableFields = HashEnum.New();
-			this.typeAnalyzer.collectPersistableCollectionFields(type, persistableFields, unpersistableFields);
+			final HashEnum<Field> persistableFields = HashEnum.New();
+			final HashEnum<Field> problematicFields = HashEnum.New();
+			this.typeAnalyzer.collectPersistableFieldsCollection(type, persistableFields, problematicFields);
 			
-			if(!unpersistableFields.isEmpty())
+			if(!problematicFields.isEmpty())
 			{
 				this.createTypeHandlerGenericCollection(type);
 			}
 
-			return this.createTypeHandlerReflective(type, persistableFields);
+			return this.createTypeHandlerGeneric(type, persistableFields);
 		}
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerArray(Class<T> type);
+
+		protected <T> PersistenceTypeHandler<M, T> createTypeHandlerAbstract(final Class<T> type)
+		{
+			return this.createTypeHandlerUnpersistable(type);
+		}
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerReflective(
+		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerUnpersistable(
+			Class<T> type
+		);
+		
+		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerEnum(
 			Class<T>            type             ,
 			XGettingEnum<Field> persistableFields
+		);
+		
+		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerArray(
+			Class<T> type
+		);
+		
+		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGeneric(
+			Class<T>            type             ,
+			XGettingEnum<Field> persistableFields
+		);
+		
+		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGenericStateless(
+			Class<T> type
 		);
 		
 		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGenericCollection(

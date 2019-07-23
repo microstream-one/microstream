@@ -12,3 +12,4 @@ one.microstream.test.legacy.Person#kundennummer	one.microstream.test.legacy.Pers
 one.microstream.test.legacy.Person#comment	
 one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name	one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name1
 one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name	one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name2
+one.microstream.test.corp.model.Person	one.microstream.test.corp.model.Person1

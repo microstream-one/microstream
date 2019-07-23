@@ -44,7 +44,10 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	 * instead (e.g. a simple integer) and resolving that to the desired enum instance and keeping it in a
 	 * transient field. Perfect functionality, tiny effort.
 	 * As compared to gigantic effort for tiny functionality gain for a generic handlig solution.
+	 * 
+	 * (23.07.2019 TM)NOTE: see Issue private#23
 	 */
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -115,13 +118,12 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	}
 	
 	@Override
-	public final T create(final Binary bytes, PersistenceLoadHandler handler)
+	public final T create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		// enum constant do not get created, but only looked up instead.
-		
-		final String enumConstantName = this.getEnumName(bytes);
-		final T enumConstant = this.cachedEnumReferences.get(enumConstantName);
-		return enumConstant;
+		// (23.07.2019 TM)EXCP: proper exception
+		throw new UnsupportedOperationException(
+			"Instances of an enum type NEVER get created by the library. Only the JVM does that."
+		);
 	}
 	
 	@Override

@@ -87,7 +87,17 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 */
 	public default void guaranteeInstanceViablity() throws PersistenceExceptionTypeNotPersistable
 	{
-		// no-op by default, meaning it is viable to be used with instances.
+		/*
+		 * no-op by default, meaning the handler is viable to be used with instances
+		 * not checkin #isInstanceViable is intentional because this method gets called for every
+		 * encountered instance and therefore should not execute any logic if no exception is thrown.
+		 */
+	}
+	
+	public default boolean isInstanceViable()
+	{
+		// true for virtually all handlers except a special-cased "unpersistable" handler.
+		return true;
 	}
 	
 	

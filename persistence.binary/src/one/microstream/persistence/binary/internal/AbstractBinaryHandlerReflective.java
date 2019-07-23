@@ -169,6 +169,16 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		super(type);
 		
 		// (17.05.2018 TM)TODO: why does this constructor contain so much logic? WTF ^^.
+		/* (23.07.2019 TM)TODO: consolidate "allFields"
+		 * Only already filtered "persistable fields" get passed here. Should be consolidated.
+		 */
+		
+		
+		// (23.07.2019 TM)FIXME: /!\ DEBUG priv#109
+		if(type.getSimpleName().contains("Person1"))
+		{
+			System.out.println("Generic handler Person1");
+		}
 
 		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
 		XMemory.ensureClassInitialized(type);

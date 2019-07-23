@@ -46,9 +46,15 @@ public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<
 	}
 	
 	@Override
-	public final void guaranteeInstanceViablity()
+	public final void guaranteeInstanceViablity() throws PersistenceExceptionTypeNotPersistable
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());
+	}
+	
+	@Override
+	public final boolean isInstanceViable()
+	{
+		return false;
 	}
 
 }
