@@ -99,12 +99,14 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				 */
 //				return this.createEnumHandler(type, persistableFields);
 				// (12.07.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Handling Java language enums is currently not supported since changes to the enum constants,"
-					+ " a part of the type definition, would require changes to data and might even be ambiguous."
-					+ " Please consider that enums are merely a syntax sugar helper for building logic,"
-					+ " not a suitable construct to be used in a persisted entity graph."
-				);
+				
+				// (23.07.2019 TM)NOTE: temporarily disabled for existing projects until proper handling is implemented.
+//				throw new RuntimeException(
+//					"Handling Java language enums is currently not supported since changes to the enum constants,"
+//					+ " a part of the type definition, would require changes to data and might even be ambiguous."
+//					+ " Please consider that enums are merely a syntax sugar helper for building logic,"
+//					+ " not a suitable construct to be used in a persisted entity graph."
+//				);
 			}
 
 			// default implementation simply always uses a blank memory instantiator
