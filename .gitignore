@@ -4,3 +4,4 @@ sonar-project.properties
 /.flattened-pom.xml
 /.metadata/
 /DocLink/
+settings.xml
