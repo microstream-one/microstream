@@ -32,7 +32,7 @@ public class MainTestStoreClass
 			Test.print("Model data required.");
 			STORAGE.setRoot(
 				X.array(
-					Thread.class,
+//					Thread.class,
 //					Thread.currentThread() /* only for testing, must throw a TypeNotPersistable exception */
 					Person.class
 				)

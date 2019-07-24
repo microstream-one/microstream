@@ -10,6 +10,7 @@ import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
@@ -616,6 +617,12 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			// derive a type handler for every runtime type lineage and try to match an existing type definition
 			for(final PersistenceTypeLineage typeLineage : runtimeTypeLineages)
 			{
+				// (24.07.2019 TM)FIXME: /!\ DEBUG
+				if(typeLineage.typeName().contains("Person"))
+				{
+					XDebug.println(typeLineage.toString());
+				}
+				
 				this.deriveRuntimeTypeHandler(typeLineage, matches, newTypeHandlers);
 			}
 			

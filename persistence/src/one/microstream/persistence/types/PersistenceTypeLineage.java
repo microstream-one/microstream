@@ -204,6 +204,12 @@ public interface PersistenceTypeLineage
 			return PersistenceTypeLineageView.New(this);
 		}
 		
+		@Override
+		public String toString()
+		{
+			return PersistenceTypeLineage.class.getSimpleName() + " " + this.runtimeTypeName + " " + this.entries.keys();
+		}
+		
 	}
 
 }
