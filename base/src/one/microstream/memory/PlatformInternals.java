@@ -424,6 +424,15 @@ public class PlatformInternals
 	 */
 	public static final void deallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
+		/*
+		 * This method may never crash, since that would kill the whole JVM process.
+		 * If no buffer to be deallocated is passed, no code is executed at all.
+		 */
+		if(directBuffer == null)
+		{
+			return;
+		}
+		
 		if(directBufferDeallocator != null)
 		{
 			directBufferDeallocator.deallocateDirectBuffer(directBuffer);
@@ -465,15 +474,11 @@ public class PlatformInternals
 	
 	static final void internalDeallocateDirectBufferByThunk(final ByteBuffer directBuffer)
 	{
-//		final Object cleaner;
-//		try
-//		{
-//			cleaner = METHOD_DirectBuffer_cleaner.invoke(directBuffer);
-//		}
-//		catch(final ReflectiveOperationException e)
-//		{
-//			throw new Error(e);
-//		}
+		// better check again in here, in case this method ever gets called from another context, e.g. reflective.
+		if(directBuffer == null)
+		{
+			return;
+		}
 		
 		final Object cleaner = XMemory.getObject(directBuffer, FIELD_OFFSET_DirectByteBuffer_cleaner);
 		final Object cleanerThunkDeallocatorRunnable = XMemory.getObject(cleaner, FIELD_OFFSET_Cleaner_thunk);
