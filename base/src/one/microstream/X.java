@@ -20,6 +20,7 @@ import one.microstream.collections.Constant;
 import one.microstream.collections.Empty;
 import one.microstream.collections.EmptyTable;
 import one.microstream.collections.HashEnum;
+import one.microstream.collections.LimitList;
 import one.microstream.collections.Singleton;
 import one.microstream.collections.SynchCollection;
 import one.microstream.collections.SynchList;
@@ -666,7 +667,55 @@ public final class X
 		return elements;
 	}
 	
+	/**
+	 * Utility method to create a list of integers from 1 to the passed {@literl n} value.
+	 * Useful for executing a logic via {@link XList#iterate(Consumer)} exactely {@literl n} times.
+	 * 
+	 * @param n
+	 * @return
+	 */
+	public static XList<Integer> times(final int n)
+	{
+		final LimitList<Integer> integers = LimitList.New(n);
+		for(int i = 1; i <= n; i++)
+		{
+			integers.add(Integer.valueOf(i));
+		}
+		
+		return integers;
+	}
 	
+	/**
+	 * Utility method to create a list of integers from {@literl firstValue} to {@literl lastValue}.
+	 * 
+	 * @param firstValue
+	 * @param lastValue
+	 * @return
+	 */
+	public static XList<Integer> range(final int firstValue, final int lastValue)
+	{
+		final int low, high, direction;
+		if(firstValue <= lastValue)
+		{
+			low = firstValue;
+			high = lastValue;
+			direction = 1;
+		}
+		else
+		{
+			high = firstValue;
+			low  = lastValue ;
+			direction = -1;
+		}
+		
+		final LimitList<Integer> integers = LimitList.New(high - low + 1);
+		for(int i = firstValue - direction; i != lastValue;)
+		{
+			integers.add(Integer.valueOf(i += direction));
+		}
+		
+		return integers;
+	}
 	
 	@SafeVarargs
 	public static <E> XList<E> List(final E... elements)
