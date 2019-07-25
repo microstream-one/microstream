@@ -12,7 +12,6 @@ import one.microstream.collections.XArrays;
 import one.microstream.concurrency.XThreads;
 import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
-import one.microstream.meta.XDebug;
 
 public interface StorageLockFileManager extends Runnable
 {
@@ -140,8 +139,6 @@ public interface StorageLockFileManager extends Runnable
 			{
 				this.checkInitialized();
 				
-				XDebug.println("Lock File Manager is running ...");
-				
 				// wait first after the intial write, then perform the regular update
 				while(this.checkIsRunning())
 				{
@@ -193,7 +190,7 @@ public interface StorageLockFileManager extends Runnable
 		
 		private ByteBuffer ensureReadingBuffer(final int fileLength)
 		{
-			ensureBufferCapacity(fileLength);
+			this.ensureBufferCapacity(fileLength);
 			if(this.stringReadBuffer.length != fileLength)
 			{
 				this.stringReadBuffer = new byte[fileLength];
@@ -206,7 +203,7 @@ public interface StorageLockFileManager extends Runnable
 		
 		private ByteBuffer[] ensureWritingBuffer(final byte[] bytes)
 		{
-			ensureBufferCapacity(bytes.length);
+			this.ensureBufferCapacity(bytes.length);
 			this.directByteBuffer.limit(bytes.length);
 			
 			this.stringWriteBuffer = bytes;
@@ -394,7 +391,7 @@ public interface StorageLockFileManager extends Runnable
 			{
 				// wait one interval and try a second time
 				XThreads.sleep(existingFiledata.updateInterval);
-				validateExistingLockFileData(false);
+				this.validateExistingLockFileData(false);
 				
 				// reaching here means no exception (but expiration) on the second attempt, meaning success.
 				return;

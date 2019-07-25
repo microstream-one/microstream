@@ -10,7 +10,6 @@ import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
@@ -165,6 +164,15 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		
 		private <T> void recursiveEnsureTypeHandlers(final PersistenceTypeHandler<M, T> typeHandler)
 		{
+			/* (25.07.2019 TM)TODO: priv#122: potential problems with recursively ensured type handlers for field types
+			 * See considerations in BinaryTypeHandlerCreator#createTypeHandlerGeneric
+			 * At the very least, instance viability would have to be checked/guaranteed here, BEFORE registering
+			 * the created type handler.
+			 * Adding it here as a makeshift solution does not prevent the registration of an invalid handler.
+			 * The proper solution would be to register any type handler not before all its handled fields
+			 * have been checked for properly persistable types (i.e. a proper type handler) and then bulk-register
+			 * them all at once.
+			 */
 			/*
 			 * Must ensure type handlers for all field types as well to keep type definitions consistent.
 			 * If some field's type is "too abstract" to be persisted, is has to be registered to an
@@ -177,7 +185,10 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			{
 				try
 				{
-					this.ensureTypeHandler(t);
+					final PersistenceTypeHandler<?, ?> fieldTypeHandler = this.ensureTypeHandler(t);
+					
+					// (25.07.2019 TM)NOTE: since fields can reference instances, this must be checked. But see above.
+					fieldTypeHandler.guaranteeInstanceViablity();
 				}
 				catch(final RuntimeException e)
 				{
@@ -617,12 +628,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			// derive a type handler for every runtime type lineage and try to match an existing type definition
 			for(final PersistenceTypeLineage typeLineage : runtimeTypeLineages)
 			{
-				// (24.07.2019 TM)FIXME: /!\ DEBUG
-				if(typeLineage.typeName().contains("Person"))
-				{
-					XDebug.println(typeLineage.toString());
-				}
-				
 				this.deriveRuntimeTypeHandler(typeLineage, matches, newTypeHandlers);
 			}
 			

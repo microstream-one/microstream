@@ -1,4 +1,5 @@
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red204\green204\blue204;\red255\green0\blue0;}
 {\*\generator Riched20 10.0.17763}\viewkind4\uc1 
 \pard\sl276\slmult1\f0\fs28\lang7 2019-07-19\par
 \par
@@ -93,11 +94,10 @@ Funktioniert, aber paar allgemeine Auff\'e4lligkeiten. Das LegacyTypeMapping mac
 TODO:\par
 
 \pard PersistenceTypeHandlerManager#initializeFromDictionary:\par
-- warum ist die TypeDefinition f\'fcr den nicht mehr existierenden type "Person" ein TypeHandlerGeneric f\'fcr die aktuelle "Person1", aber mit alter TypeId? wenn, dann m\'fcsste das ein LegacyTypeHandler sein...\par
-- warum werden immer noch Map usw. Typen im dictionary definiert? Denen d\'fcrfte die Typanalyse nie begegnen im simplen Class Beispiel\par
-- \par
+\cf1 v warum ist die TypeDefinition f\'fcr den nicht mehr existierenden type "Person" ein TypeHandlerGeneric f\'fcr die aktuelle "Person1", aber mit alter TypeId? wenn, dann m\'fcsste das ein LegacyTypeHandler sein...\par
+v warum werden immer noch Map usw. Typen im dictionary definiert? Denen d\'fcrfte die Typanalyse nie begegnen im simplen Class Beispiel\par
 
-\pard\sl276\slmult1\par
+\pard\sl276\slmult1\cf0\par
 \par
 2019-07-24\par
 \par
@@ -113,9 +113,25 @@ Mir ist daheim eingefallen: was soll passieren, wenn eine typeId nicht mehr zu e
 Das kann dann eigentlich nur ein vergessener Refactoring Eintrag sein, ansonsten h\'e4tte sich jemand ja sein Typegef\'fcge kaputt gemacht (und m\'fcsste zumindest wieder einen Dummytyp nachr\'fcsten).\par
 Das Problem ist halt: Soll der Handler eine exception werfen und das ganzen Laden abbrechen, ggf. sogar einen ablauf der anwendungslogik damit ruinieren?\par
 Oder soll er einfach null zur\'fcckgeben? Wenn die Instanz nicht gebraucht wird, super, wenn doch, dann ist das halt ein NPE, so als w\'fcrde man in einer "type()" Methode null zur\'fcckgeben, weil man den Typ gel\'f6scht hat.\par
-Klingt eigentlich konsistent, oder? Hm...\par
+Klingt eigentlich konsistent, oder?\par
+\par
+\cf2\b TODO: Hm... muss ich mal noch \'fcberlegen.\cf0\b0\par
 \par
 Weitertesten...\par
 #1 mit ver\'e4nderter Feldstruktur\par
+Passt: mit ge\'e4nderter Feldstruktur hat die alte TypeId nur noch eine Typedefinition und als Handler wird ein von der neu angelegten TypeDescription Handler verwendet und mit der neuen TypeId initialisiert.\par
+\par
+Das mit der neuen Class in der alten TypeDefinition passt auch schon so: Die alte TypeDescription mit alter TypeId und altem TypeName bekommt in der TypeDefinition die ge\'e4nderte Klasseninstanz, falls m\'f6glich, weil das ja ihre (neue) Identit\'e4t in der laufenden Anwendung ist.\par
+\par
+Jetzt schauen wegen #2: Wieso sind Feldtypen im Dictionary?\par
+\par
+Ach! Es gibt in PersistenceTypeHandlerManager$Default#internalRegisterTypeHandler ja doch schon so ein rekursives Feldtypen abklappern.\par
+Hm. Das ist aber etwas naiv bzgl. der \'dcberlegungen von neulich. Mal suchen und untereinander verlinken ...\par
+\par
+Issue priv#122 erstellen...\par
+\par
+\par
+\par
+Morgen noch die 2 priv#109 TODOs und checkedCollections testen.\par
 }
  

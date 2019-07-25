@@ -140,6 +140,7 @@ public interface PersistenceTypeHandlerCreator<M>
 				);
 			}
 			
+			
 			// checked first to allow custom logic to intervene prior to any generic decision
 			if(this.typeAnalyzer.isUnpersistable(type))
 			{
