@@ -170,6 +170,7 @@ public interface PersistenceRootResolver
 	}
 	
 	
+	
 	public static PersistenceRootResolver New(
 		final Supplier<?> customRootSupplier
 	)
@@ -489,7 +490,7 @@ public interface PersistenceRootResolver
 				
 		public PersistenceRootResolver build();
 		
-		public final class Default implements PersistenceRootResolver.Builder
+		public class Default implements PersistenceRootResolver.Builder
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //

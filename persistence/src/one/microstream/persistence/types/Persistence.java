@@ -836,12 +836,14 @@ public class Persistence
 	
 	public static final String defaultRootIdentifier()
 	{
-		return "root";
+		// assumed to be the "special case", hence specifically named.
+		return "defaultRoot";
 	}
 	
 	public static final String customRootIdentifier()
 	{
-		return "customRoot";
+		// assumed to be the "normal" case, hence generically named "root".
+		return "root";
 	}
 	
 	public static final PersistenceRootResolver.Builder RootResolverBuilder(
