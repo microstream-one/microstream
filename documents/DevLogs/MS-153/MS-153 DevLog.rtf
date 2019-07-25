@@ -105,5 +105,17 @@ Untersuchen ...\par
 \par
 Ah:\par
 #1 ist so, wenn der abgeleitete Handler noch genau auf die alte struktur passt. Dann hat sich sozusagen nur der Name ge\'e4ndert und es gibt keinen Grund, eine neue Typversion anzulegen.\par
+\par
+\par
+2019-07-25\par
+\par
+Mir ist daheim eingefallen: was soll passieren, wenn eine typeId nicht mehr zu einer runtime type instanz aufgel\'f6st werden kann?\par
+Das kann dann eigentlich nur ein vergessener Refactoring Eintrag sein, ansonsten h\'e4tte sich jemand ja sein Typegef\'fcge kaputt gemacht (und m\'fcsste zumindest wieder einen Dummytyp nachr\'fcsten).\par
+Das Problem ist halt: Soll der Handler eine exception werfen und das ganzen Laden abbrechen, ggf. sogar einen ablauf der anwendungslogik damit ruinieren?\par
+Oder soll er einfach null zur\'fcckgeben? Wenn die Instanz nicht gebraucht wird, super, wenn doch, dann ist das halt ein NPE, so als w\'fcrde man in einer "type()" Methode null zur\'fcckgeben, weil man den Typ gel\'f6scht hat.\par
+Klingt eigentlich konsistent, oder? Hm...\par
+\par
+Weitertesten...\par
+#1 mit ver\'e4nderter Feldstruktur\par
 }
  

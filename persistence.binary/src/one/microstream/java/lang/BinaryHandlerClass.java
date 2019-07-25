@@ -88,6 +88,9 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 	{
 		final long typeId = bytes.get_long(0);
 		
+		// (25.07.2019 TM)FIXME: priv#109: cleanup/simplify to just use runtime type
+		// (25.07.2019 TM)FIXME: priv#109: what if runtime type is null (unresolvable old type)?
+		
 		final PersistenceTypeDefinition typeDefinition = this.typeHandlerManager.get()
 			.typeDictionary()
 			.lookupTypeById(typeId)
