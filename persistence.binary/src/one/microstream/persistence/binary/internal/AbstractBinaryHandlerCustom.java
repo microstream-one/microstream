@@ -150,7 +150,7 @@ extends BinaryTypeHandler.Abstract<T>
 		);
 	}
 	
-	/* (04.04.2019 TM)TODO: MS-130 BinaryField value-get/set-support
+	/* (04.04.2019 TM)TODO: priv#88 BinaryField value-get/set-support
 	 * To get rid of explicit offsets altogether, BinaryField could provide
 	 * 9 methods to store the 8 primitives and the reference case.
 	 * That would require 2 subclasses of BinaryField.
@@ -243,7 +243,7 @@ extends BinaryTypeHandler.Abstract<T>
 	)
 	{
 		super(type);
-		// (18.04.2019 TM)FIXME: MS-130: replace by on-demand member-initialization
+		// (18.04.2019 TM)FIXME: priv#88: replace by on-demand member-initialization
 		this.members = validateAndImmure(members);
 		this.binaryLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, members);
 		this.binaryLengthMaximum = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, members);
@@ -344,7 +344,7 @@ extends BinaryTypeHandler.Abstract<T>
 		final EqHashTable<String, BinaryField.Initializable> binaryFieldsInOrder = EqHashTable.New();
 		this.defineBinaryFieldOrder(binaryFieldsPerClass, (name, field) ->
 		{
-			/* (17.04.2019 TM)FIXME: MS-130: name must be unique.
+			/* (17.04.2019 TM)FIXME: priv#88: name must be unique.
 			 * Also see about PersistenceTypeDefinitionMember in BinaryField.
 			 */
 			if(!binaryFieldsInOrder.add(name, field))
@@ -357,7 +357,7 @@ extends BinaryTypeHandler.Abstract<T>
 		});
 		
 		this.initializeBinaryFieldOffsets(binaryFieldsInOrder);
-		// (18.04.2019 TM)FIXME: MS-130: assign to members field here or somewhere appropriate.
+		// (18.04.2019 TM)FIXME: priv#88: assign to members field here or somewhere appropriate.
 	}
 	
 	private void collectBinaryFields(

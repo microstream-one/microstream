@@ -233,7 +233,7 @@ public final class BinaryPersistence extends Persistence
 			new BinaryHandlerDate()      ,
 
 			new BinaryHandlerLazyReference(),
-			/* (24.10.2013 TM)TODO: MS-161 more native handlers (Path, Instant and whatnot)
+			/* (24.10.2013 TM)TODO: priv#117 more native handlers (Path, Instant and whatnot)
 			 * Also see class Persistence for default TypeIds
 			 */
 			
