@@ -1,9 +1,6 @@
 package one.microstream.test.corp.main;
 
-import java.io.File;
-
 import one.microstream.X;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
@@ -16,9 +13,9 @@ public class MainTestStoreClass
 	// creates and starts an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation()
-		.setRefactoringMappingProvider(
-			Persistence.RefactoringMapping(new File("Refactorings.csv"))
-		)
+//		.setRefactoringMappingProvider(
+//			Persistence.RefactoringMapping(new File("Refactorings.csv"))
+//		)
 		.start()
 	;
 
@@ -32,7 +29,7 @@ public class MainTestStoreClass
 			Test.print("Model data required.");
 			STORAGE.setRoot(
 				X.array(
-//					Thread.class,
+					Thread.class,
 //					Thread.currentThread() /* only for testing, must throw a TypeNotPersistable exception */
 					Person.class
 				)

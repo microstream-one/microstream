@@ -121,9 +121,13 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final XGettingEnum<Field> persistableFields
 		)
 		{
-			/* (16.07.2019 TM)TODO: ensure type handler for persistable field type?
+			/* (16.07.2019 TM)TODO: priv#122 ensure type handler for persistable field type?
 			 * This is not done yet. For example: Analysing JDK collections that have a field of type
 			 * java.util.Comparator don't cause the Comparator itself to be analyzed about its persistability.
+			 * 
+			 * Note: it actually is already done, see PersistenceTypeHandlerManager$Default#internalRegisterTypeHandler.
+			 * But that seems to be a rather naive approch, ignoring all considerations about interlinked
+			 * persistability problems below.
 			 * 
 			 * A recursive mechanism would be is required to ensure that.
 			 * However, this would be rather complex, since there might be looping type references:
