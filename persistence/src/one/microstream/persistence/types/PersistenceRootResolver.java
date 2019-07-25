@@ -170,6 +170,7 @@ public interface PersistenceRootResolver
 	}
 	
 	
+	
 	public static PersistenceRootResolver New(
 		final Supplier<?> customRootSupplier
 	)
@@ -316,8 +317,6 @@ public interface PersistenceRootResolver
 			return this.actualRootResolver.entries();
 		}
 
-		
-
 		@Override
 		public PersistenceRootEntry resolveRootInstance(final String identifier)
 		{
@@ -373,35 +372,23 @@ public interface PersistenceRootResolver
 			return mappedEntry;
 		}
 		
-
-
-
 		@Override
 		public String defaultRootIdentifier()
 		{
 			return this.actualRootResolver.defaultRootIdentifier();
 		}
-		
-
-
 
 		@Override
 		public Reference<Object> defaultRoot()
 		{
 			return this.actualRootResolver.defaultRoot();
 		}
-		
-
-
 
 		@Override
 		public String customRootIdentifier()
 		{
 			return this.actualRootResolver.customRootIdentifier();
 		}
-		
-
-
 
 		@Override
 		public PersistenceRootEntry customRootEntry()
@@ -503,7 +490,7 @@ public interface PersistenceRootResolver
 				
 		public PersistenceRootResolver build();
 		
-		public final class Default implements PersistenceRootResolver.Builder
+		public class Default implements PersistenceRootResolver.Builder
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
