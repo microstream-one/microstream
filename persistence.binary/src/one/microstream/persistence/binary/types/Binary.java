@@ -317,7 +317,7 @@ public abstract class Binary implements Chunk
 		
 	public final long getListElementCountKeyValue(final long listStartOffset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		return this.getBinaryListElementCountValidating(
 			listStartOffset,
@@ -339,49 +339,49 @@ public abstract class Binary implements Chunk
 
 	public final byte get_byte(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		return this.read_byte(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final boolean get_boolean(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		return this.read_boolean(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final short get_short(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		return this.read_short(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final char get_char(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		return this.read_char(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final int get_int(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		return this.read_int(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final float get_float(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		return this.read_float(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final long get_long(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		return this.read_long(this.loadItemEntityContentAddress() + offset);
 	}
 
 	public final double get_double(final long offset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		return this.read_double(this.loadItemEntityContentAddress() + offset);
 	}
 					
@@ -402,7 +402,7 @@ public abstract class Binary implements Chunk
 		final PersistenceFunction                persister
 	)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		// store entity header including the complete content size (headerOffset + entries)
 		final long contentAddress = this.storeEntityHeader(
@@ -427,7 +427,7 @@ public abstract class Binary implements Chunk
 		final PersistenceFunction  persister
 	)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		final int size = entrySet.size();
 		
@@ -487,7 +487,7 @@ public abstract class Binary implements Chunk
 		final PersistenceStoreHandler persister
 	)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		// store entity header including the complete content size (8 + elements)
 		final long contentAddress = this.storeEntityHeader(
@@ -553,7 +553,7 @@ public abstract class Binary implements Chunk
 		final PersistenceFunction persister
 	)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		// store entity header including the complete content size (headerOffset + elements)
 		final long contentAddress = this.storeEntityHeader(
@@ -571,7 +571,7 @@ public abstract class Binary implements Chunk
 
 	public int getSizedArrayElementCount(final long headerOffset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		return X.checkArrayRange(this.getBinaryListElementCountValidating(
 			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
@@ -593,7 +593,7 @@ public abstract class Binary implements Chunk
 		final PersistenceLoadHandler handler
 	)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		final int size = this.getSizedArrayElementCount(headerOffset);
 		if(array.length < size)
@@ -614,7 +614,7 @@ public abstract class Binary implements Chunk
 
 	public final int getSizedArrayLength(final long sizedArrayOffset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		/* Note on length validation for "array bombs" prevention
 		 * (see BinaryPersistence#getBinaryListElementCountValidating)
@@ -637,14 +637,14 @@ public abstract class Binary implements Chunk
 
 	public final long getSizedArrayElementsAddress(final long headerOffset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		return this.binaryListElementsAddress(headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS);
 	}
 
 	public final void validateArrayLength(final Object[] array, final long headerOffset)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		if(array.length == this.getListElementCountReferences(headerOffset))
 		{
@@ -821,7 +821,7 @@ public abstract class Binary implements Chunk
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
-		// (29.01.2019 TM)FIXME: MS-64: offset validation
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
 		
 		final long elementCount = this.getBinaryListElementCountValidating(
 			listOffset,
@@ -848,7 +848,7 @@ public abstract class Binary implements Chunk
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
-		// (01.02.2019 TM)FIXME: MS-64: offset validations
+		// (01.02.2019 TM)FIXME: priv#70: offset validations
 		this.iterateReferenceRangeUnvalidated(startOffset, boundOffset, iterator);
 	}
 	
@@ -1458,7 +1458,7 @@ public abstract class Binary implements Chunk
 
 	public final char[] buildArray_char(final long listOffset)
 	{
-		// (01.02.2019 TM)FIXME: MS-64: offset validation
+		// (01.02.2019 TM)FIXME: priv#70: offset validation
 		final char[] array = this.createArray_char(listOffset);
 		this.updateArray_charUnvalidating(array, listOffset);
 		

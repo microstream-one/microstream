@@ -10,7 +10,7 @@ import one.microstream.persistence.types.PersistenceTypeDescriptionMemberAppende
 
 public interface BinaryField extends PersistenceTypeDefinitionMemberFieldGeneric
 {
-	// (17.04.2019 TM)FIXME: MS-130: must have a connection to or even itself be a PersistenceTypeDefinitionMember.
+	// (17.04.2019 TM)FIXME: priv#88: must have a connection to or even itself be a PersistenceTypeDefinitionMember.
 	
 	@Override
 	public Class<?> type();

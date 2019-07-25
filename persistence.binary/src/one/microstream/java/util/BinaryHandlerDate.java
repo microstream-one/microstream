@@ -15,7 +15,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 
 	private static final long LENGTH_TIMESTAMP = Long.BYTES;
 
-	// (07.05.2019 TM)XXX: MS-130 work-in-progress test code. Complete feature and remove.
+	// (07.05.2019 TM)XXX: priv#88 work-in-progress test code. Complete feature and remove.
 //	private final BinaryField
 //		prim1   = Field(int.class),
 //		string1 = Field(String.class),
@@ -42,7 +42,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 			)
 		);
 
-		// (07.05.2019 TM)XXX: MS-130 work-in-progress test code. Complete feature and remove.
+		// (07.05.2019 TM)XXX: priv#88 work-in-progress test code. Complete feature and remove.
 //		this.initializeBinaryFields();
 //		System.out.println(this.prim1.name() + "   = " + this.prim1.offset());
 //		System.out.println(this.string1.name() + " = " + this.string1.offset());
