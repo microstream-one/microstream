@@ -188,7 +188,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 					final PersistenceTypeHandler<?, ?> fieldTypeHandler = this.ensureTypeHandler(t);
 					
 					// (25.07.2019 TM)NOTE: since fields can reference instances, this must be checked. But see above.
-					fieldTypeHandler.guaranteeInstanceViablity();
+					fieldTypeHandler.guaranteeSubTypeInstanceViablity();
 				}
 				catch(final RuntimeException e)
 				{
@@ -297,7 +297,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			final PersistenceTypeHandler<M, T> typeHandler = this.ensureTypeHandler(
 				XReflect.getClass(instance)
 			);
-			typeHandler.guaranteeInstanceViablity();
+			typeHandler.guaranteeSpecificInstanceViablity();
 			
 			return typeHandler;
 		}

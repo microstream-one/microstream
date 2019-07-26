@@ -50,6 +50,7 @@ import one.microstream.java.math.BinaryHandlerBigDecimal;
 import one.microstream.java.math.BinaryHandlerBigInteger;
 import one.microstream.java.util.BinaryHandlerArrayDeque;
 import one.microstream.java.util.BinaryHandlerArrayList;
+import one.microstream.java.util.BinaryHandlerCopyOnWriteArrayList;
 import one.microstream.java.util.BinaryHandlerDate;
 import one.microstream.java.util.BinaryHandlerHashMap;
 import one.microstream.java.util.BinaryHandlerHashSet;
@@ -205,10 +206,14 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerPriorityQueue.New()        ,
 			BinaryHandlerConcurrentHashMap.New()    ,
 			BinaryHandlerConcurrentLinkedQueue.New(),
+			BinaryHandlerCopyOnWriteArrayList.New() ,
 			
 			// remaining JDK collections (wrappers and the like) are handled dynamically
 			
-			// would work, but Iterators are unanalyzable for good reason. See Persistence#unanalyzableTypes
+			/*
+			 * Would work for these, but Iterators are generally unpersistable for good reason.
+			 * See Persistence#unpersistableTypes
+			 */
 //			BinaryHandlerStateless.New(Collections.emptyEnumeration().getClass()),
 //			BinaryHandlerStateless.New(Collections.emptyIterator().getClass()),
 //			BinaryHandlerStateless.New(Collections.emptyListIterator().getClass()),
@@ -234,29 +239,16 @@ public final class BinaryPersistence extends Persistence
 			 * Also see class Persistence for default TypeIds
 			 */
 			
-			// the way Optional is implemented, only a generically working handler can handle it correctly
+			// the way Optional is implemented, only a generically (low-level) working handler can handle it correctly
 			typeHandlerCreator.createTypeHandler(Optional.class),
 			BinaryHandlerOptionalInt.New(),
 			BinaryHandlerOptionalLong.New(),
 			BinaryHandlerOptionalDouble.New()
 		);
 		
-		// (18.07.2019 TM)FIXME: /!\ DEBUG WeakHashMap
-//		nativeHandlers.iterate(handler ->
-//		{
-//			BinaryPersistence.initializeNativeTypeId(handler, nativeTypeIdLookup);
-//		});
-		
 		return nativeHandlers;
 	}
 
-	/* (17.04.2013 TM)FIXME: register NotPersistable Handler instances
-	 * instances (not just classes) for unpersistable types (like Thread, WeakReference, etc.)
-	 * have to be registered somewhere.
-	 * Also unpersistable:
-	 * - class loader
-	 * - any kind of io stream, channel, etc.
-	 */
 	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> defaultCustomHandlers(
 		final PersistenceSizedArrayLengthController controller
 	)
@@ -277,7 +269,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerEqConstHashTable.New()    ,
 
 			BinaryHandlerSubstituterDefault.New()
-			/* (29.10.2013 TM)TODO: more framework default custom handlers
+			/* (29.10.2013 TM)TODO: more MicroStream default custom handlers
 			 * - VarString
 			 * - VarByte
 			 * - _intList etc.
