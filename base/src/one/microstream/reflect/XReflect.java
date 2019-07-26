@@ -702,7 +702,10 @@ public final class XReflect
 		return tryResolvePrimitiveType(typeName) != null;
 	}
 
-	public static final boolean isOfAnyType(final Class<?> subject, final Class<?>... supertypes)
+	public static final boolean isOfAnyType(
+		final Class<?>    subject   ,
+		final Class<?>... supertypes
+	)
 	{
 		for(final Class<?> s : supertypes)
 		{
@@ -711,6 +714,23 @@ public final class XReflect
 				return true;
 			}
 		}
+		
+		return false;
+	}
+	
+	public static final boolean isOfAnyType(
+		final Class<?>           subject   ,
+		final Iterable<Class<?>> supertypes
+	)
+	{
+		for(final Class<?> s : supertypes)
+		{
+			if(s.isAssignableFrom(subject))
+			{
+				return true;
+			}
+		}
+		
 		return false;
 	}
 	

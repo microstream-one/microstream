@@ -1,5 +1,6 @@
 package one.microstream.test.collections;
 
+import java.lang.reflect.Field;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,8 +28,11 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import one.microstream.reference.Reference;
+import one.microstream.reflect.XReflect;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
@@ -59,12 +63,15 @@ public class MainTestStorageJDKCollections
 		{
 			System.out.println(e.getClass().getSimpleName() + ":");
 			System.out.println(e);
+			if(e.getClass().getSimpleName().startsWith("Checked"))
+			{
+				printCheckedType(e);
+			}
 			System.out.println("\n");
 		}
 		
 		System.exit(0);
 	}
-	
 	
 	private static Object[] createRoot()
 	{
@@ -74,6 +81,10 @@ public class MainTestStorageJDKCollections
 		final LinkedList<String>       linkedList = populate(new LinkedList<>());
 		final TreeMap<Integer, String> treeMap    = populate(new TreeMap<>());
 		final TreeSet<String>          treeSet    = populate(new TreeSet<>());
+		final ArrayDeque<String>       arrayDeque = populate(new ArrayDeque<>());
+
+		final CopyOnWriteArrayList<String> cowrayList = new CopyOnWriteArrayList<>(arrayList);
+		final CopyOnWriteArraySet<String>  cowraySet  = new CopyOnWriteArraySet<>(hashSet);
 		
 		return new Object[]{
 			arrayList                              ,
@@ -82,8 +93,8 @@ public class MainTestStorageJDKCollections
 			linkedList                             ,
 			treeMap                                ,
 			treeSet                                ,
+			arrayDeque                             ,
 			Arrays.asList("A", "B", "C")           ,
-			populate(new ArrayDeque<>())           ,
 			populate(new Hashtable<>())            ,
 			populate(new LinkedHashSet<>())        ,
 			populate(new LinkedHashMap<>())        ,
@@ -121,17 +132,31 @@ public class MainTestStorageJDKCollections
 			Collections.singletonList("singletonL") ,
 			Collections.singletonMap ("sKey", "Val"),
 			
-			// (18.07.2019 TM)FIXME: Collections.unmodifyable~
+			Collections.unmodifiableCollection(arrayList),
+			Collections.unmodifiableList(arrayList)      , // RandomAccess
+			Collections.unmodifiableList(linkedList)     , // normal
+			Collections.unmodifiableSet(hashSet)         ,
+			Collections.unmodifiableMap(hashMap)         ,
+			Collections.unmodifiableNavigableMap(treeMap),
+			Collections.unmodifiableNavigableSet(treeSet),
+			Collections.unmodifiableSortedMap(treeMap)   ,
+			Collections.unmodifiableSortedSet(treeSet)   ,
 			
 			Collections.checkedCollection(arrayList, String.class)               ,
 			Collections.checkedList(arrayList, String.class)                     , // RandomAccess
 			Collections.checkedList(linkedList, String.class)                    , // normal
 			Collections.checkedSet(hashSet, String.class)                        ,
+			Collections.checkedQueue(arrayDeque, String.class)                   ,
 			Collections.checkedMap(hashMap, Integer.class, String.class)         ,
 			Collections.checkedNavigableMap(treeMap, Integer.class, String.class),
 			Collections.checkedNavigableSet(treeSet, String.class)               ,
 			Collections.checkedSortedMap(treeMap, Integer.class, String.class)   ,
 			Collections.checkedSortedSet(treeSet, String.class)                  ,
+			
+			cowrayList,
+			cowraySet
+			
+			// the cows hereby conclude this list of crazy-sh*t-collections. Anything else only on demand and review.
 		};
 	}
 	
@@ -174,6 +199,16 @@ public class MainTestStorageJDKCollections
 			// nulls ignored for simple example
 			return o1.compareTo(o2);
 		}
+	}
+		
+	static void printCheckedType(final Object e)
+	{
+		final Field field = XReflect.getAnyField(e.getClass(), f -> f.getName().toUpperCase().contains("TYPE"));
+		
+		System.out.println(
+			"Checked collection #" + field.getName() + ": "
+			+ XReflect.getFieldValue(XReflect.setAccessible(field), e)
+		);
 	}
 	
 }

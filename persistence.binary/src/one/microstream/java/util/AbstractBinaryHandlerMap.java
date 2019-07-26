@@ -88,9 +88,9 @@ extends AbstractBinaryHandlerCustomCollection<T>
 
 	@Override
 	public void complete(
-		final Binary                  bytes   ,
-		final T                       instance,
-		final PersistenceLoadHandler  handler
+		final Binary                 bytes   ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));

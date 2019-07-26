@@ -10,10 +10,14 @@ import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -21,9 +25,11 @@ import one.microstream.X;
 import one.microstream.chars.StringTable;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
+import one.microstream.collections.ConstHashEnum;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.interfaces.ChainStorage;
+import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
@@ -552,6 +558,63 @@ public class Persistence
 		return "PersistenceTypeDictionary.ptd";
 	}
 	
+	
+
+	/*
+	 * Rationale:
+	 * 
+	 * Composition:
+	 * The very nature of this interface is to indicate that instances of that type are NOT meant
+	 * to be treated as autonomous entities. It's like a "NoEntity" type and therefore not allowed to be
+	 * treated as one.
+	 * 
+	 * Enumerations and Iterators:
+	 * Iterators are basically logic-helpers, like an implemented for loop on a complex structure.
+	 * Such a thing can never meant to be a reasonably persistable entity.
+	 * Additionally, Iterator implementations typically access instances, that are actually meant to be unshared.
+	 * In other words: The Iterator implementation is a composition type of an actual entity-worthy type.
+	 * Should the special case ever occur, that a proper entity type implements Iterator (despite not being
+	 * supposed to do so), it can still be handled by explicitely registering a custom type handler for it.
+	 * 
+	 * Various SubLists:
+	 * The JDK in its usual progamming quality, lacking use of proper interfaces, etc., sadly provides no way
+	 * of reading the offset values used in sub lists (similar to loadFactor in hashing collections).
+	 * Thus, there is no way to store the required data of JDK sub lists in generic way.
+	 * A tailored (and JDK-version-specific) custom handler implementation can always be registered as an override
+	 */
+	private static final ConstHashEnum<Class<?>> UNPERSISTABLE_TYPES = ConstHashEnum.New(
+		
+		// types that are explicitly marked as unpersistable. E.g. the persistence logic itself!
+		Unpersistable.class,
+		
+		// system stuff (cannot be restored intrinsically due to ties to JVM internals)
+		ClassLoader.class,
+		Thread.class,
+
+		// IO stuff (cannot be restored intrinsically due to ties to external resources like files, etc.)
+		InputStream.class,
+		OutputStream.class,
+		FileChannel.class,
+		Socket.class,
+
+		// unshared composition types (those are internal helper class instances, not entities)
+		Composition.class,
+		ChainStorage.class,
+		ChainStorage.Entry.class,
+		Map.Entry.class,
+		
+		// there is sadly no (plain-string-independant) sane way to get these. Classical JDK.
+		new LinkedList<>().subList(0, 0).getClass()          , // java.util.SubList
+		new ArrayList<>(0).subList(0, 0).getClass()          , // java.util.ArrayList$SubList
+		Collections.emptyList().subList(0, 0).getClass()     , // java.util.RandomAccessSubList
+		new CopyOnWriteArrayList<>().subList(0, 0).getClass(), // java.util.concurrent.CopyOnWriteArrayList$COWSubList
+		
+		Enumeration.class,
+		Iterator.class
+		
+		// note: lambdas don't have a super class as such. See usages of "LambdaTypeRecognizer" instead
+	);
+	
 	/**
 	 * Types whose instances cannot be persisted. E.g. {@link Unpersistable}, {@link Thread}, {@link ClassLoader}, etc.
 	 * 
@@ -560,54 +623,9 @@ public class Persistence
 	 * 
 	 * @return
 	 */
-	public static Class<?>[] unpersistableTypes()
+	public static XGettingEnum<Class<?>> unpersistableTypes()
 	{
-		// (20.04.2018 TM)TODO: add NOT_ID_MAPPABLE_TYPES list
-		
-		/*
-		 * Rationale:
-		 * 
-		 * Composition:
-		 * The very nature of this interface is to indicate that instances of that type are NOT meant
-		 * to be treated as autonomous entities. It's like a "NoEntity" type and therefore not allowed to be
-		 * treated as one.
-		 * 
-		 * Enumerations and Iterators:
-		 * Iterators are basically logic-helpers, like an implemented for loop on a complex structure.
-		 * Such a thing can never meant to be a reasonably persistable entity.
-		 * Additionally, Iterator implementations typically access instances, that are actually meant to be unshared.
-		 * In other words: The Iterator implementation is a composition type of an actual entity-worthy type.
-		 * Should the special case ever occur, that a proper entity type implements Iterator (despite not being
-		 * supposed to do so), it can still be handled by explicitely registering a custom type handler for it.
-		 */
-		
-		// why permanently occupy additional memory with fields and instances for constant values?
-		return new Class<?>[]
-		{
-			// types that are explicitly marked as unpersistable. E.g. the persistence logic itself!
-			Unpersistable.class,
-			
-			// system stuff (cannot be restored intrinsically due to ties to JVM internals)
-			ClassLoader.class,
-			Thread.class,
-
-			// IO stuff (cannot be restored intrinsically due to ties to external resources like files, etc.)
-			InputStream.class,
-			OutputStream.class,
-			FileChannel.class,
-			Socket.class,
-
-			// unshared composition types (those are internal helper class instances, not entities)
-			Composition.class,
-			ChainStorage.class,
-			ChainStorage.Entry.class,
-			Map.Entry.class,
-			
-			Enumeration.class,
-			Iterator.class
-			
-			// note: lambdas don't have a super class as such. See usages of "LambdaTypeRecognizer" instead
-		};
+		return UNPERSISTABLE_TYPES;
 	}
 
 	

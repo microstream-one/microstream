@@ -67,6 +67,8 @@ public interface PersistenceMetaIdentifiers
 		entries.add("JDK.Collections:emptyMap"         , Collections::emptyMap         ); // stateless!
 		entries.add("JDK.Collections:emptyNavigableSet", Collections::emptyNavigableSet); // stateless!
 		entries.add("JDK.Collections:emptyNavigableMap", Collections::emptyNavigableMap); // stateless!
+//		Collections#emptySortedSet is the same instance as Collections#emptyNavigableSet
+//		Collections#emptySortedMap is the same instance as Collections#emptyNavigableMap
 		entries.add("JDK.Collections:reverseOrder"     , Collections::reverseOrder     ); // stateless!
 		entries.add("JDK.Comparator:naturalOrder"      , Comparator::naturalOrder      ); // stateless!
 		entries.add("JDK.BigDecimal:ZERO"              , () -> BigDecimal.ZERO         ); // no-op update()!

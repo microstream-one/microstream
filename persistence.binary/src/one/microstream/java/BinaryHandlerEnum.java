@@ -29,7 +29,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 		);
 	}
 	
-	/* (07.11.2013 TM)TODO: enum BinaryHandler special case implementation
+	/* (07.11.2013 TM)TODO: priv#23: enum BinaryHandler special case implementation
 	 * (09.06.2017 TM)NOTE:
 	 * This is more complex than it appeared at first.
 	 * ordinal and name have to be validated instead of being overwritten.
@@ -45,7 +45,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	 * transient field. Perfect functionality, tiny effort.
 	 * As compared to gigantic effort for tiny functionality gain for a generic handlig solution.
 	 * 
-	 * (23.07.2019 TM)NOTE: see Issue private#23
+	 * (23.07.2019 TM)NOTE: see Issue priv#23
 	 */
 	
 	
@@ -107,7 +107,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	
 	private String getEnumName(final Binary bytes)
 	{
-		/* (09.06.2017 TM)FIXME: BinaryHandlerEnum#getEnumName()
+		/* (09.06.2017 TM)FIXME: priv#23: BinaryHandlerEnum#getEnumName()
 		 * Must use bytes.buildItemAddress() plus offset to the Enum#name field
 		 * Hm. But that is a String reference and not present, yet.
 		 * Maybe use the ordinal after all? In the end, that has to be consistent, anyway.
@@ -129,7 +129,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	@Override
 	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
-		/* (09.06.2017 TM)FIXME: BinaryHandlerEnum#update()
+		/* (09.06.2017 TM)FIXME: priv#23: BinaryHandlerEnum#update()
 		 * must not set Enum#ordinal and Enum#name, but rather validate the loaded data's consistency in regard
 		 * to them.
 		 * Only the other fields may get updated.

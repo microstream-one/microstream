@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 import one.microstream.X;
+import one.microstream.collections.old.OldCollections;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterable;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -128,6 +129,16 @@ extends AbstractBinaryHandlerCustomIterable<PriorityQueue<?>>
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];
 		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
 		bytes.registerHelper(instance, elementsHelper);
+	}
+	
+	@Override
+	public final void complete(
+		final Binary                 bytes   ,
+		final PriorityQueue<?>       instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		OldCollections.populateCollectionFromHelperArray(instance, bytes.getHelper(instance));
 	}
 
 	@Override

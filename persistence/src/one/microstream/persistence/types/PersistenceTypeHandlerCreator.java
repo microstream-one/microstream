@@ -150,7 +150,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			// by default same as unpersistable
 			if(XReflect.isAbstract(type))
 			{
-				return this.createTypeHandlerAbstract(type);
+				return this.createTypeHandlerAbstractType(type);
 			}
 			
 			// collections need special handling to avoid dramatically inefficient generic structures
@@ -219,10 +219,9 @@ public interface PersistenceTypeHandlerCreator<M>
 		}
 		
 
-		protected <T> PersistenceTypeHandler<M, T> createTypeHandlerAbstract(final Class<T> type)
-		{
-			return this.createTypeHandlerUnpersistable(type);
-		}
+		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerAbstractType(
+			Class<T> type
+		);
 		
 		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerUnpersistable(
 			Class<T> type

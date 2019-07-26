@@ -143,5 +143,65 @@ Aach, dann kann der PersistenceRefactoringResolverProvider im Handler wieder rau
 Bei der Gelegenheit endlich mal priv#123 erstellen und umsetzen.\par
 \par
 CheckedCollections testen.\par
+Erst mal wieder per reflection hack auf den CheckedCollection type zugreifen k\'f6nnen, weil die JDK Boum wieder mal zu bl\'f6d sind, interfaces zu benutzen.\par
+\par
+Jetzt testen:\par
+Oh, interessant: Exception beim roots speichern:\par
+Type not persistable: "interface java.util.Collection"\par
+Muss ich dann mal debuggen ...\par
+\par
+Aaaach, mir ist beim D\'f6sen in der Mittagspause eingefallen, wieso: Felder mit abstraktem Typ d\'fcrfen nat\'fcrlich nicht hart gepr\'fcft werden, ob Instanzen von genau diesem Typ persistierbar sind, sondern Instanzen von Subtypen persistierbar sind. Das ist bei Abstrakten typen true, bei "echt unperstitable" Typen false. Also doch einen extra handler f\'fcr abstrakte typen bauen. Passt.\par
+\par
+Testen...\par
+Bissl an dem reflection hacking rumbasteln, damit auch maps gehen ...\par
+Funktioniert.\par
+\par
+Jetzt noch restliche Collections testen:\par
+Collections.unmodifiable~\par
+\par
+Und gleich noch die restlichen collections mit rein.\par
+CheckeQueue hab ich vergessen. Nachr\'fcsten.\par
+Da f\'e4llt mir auf: ich hab bisher 2 Konstanten vergessen. Mal nachr\'fcsten.\par
+Ach, Moment mal: Ne, die 2 zus\'e4tzlichen Methoden geben dieselbe Instanz zur\'fcck wie die anderen. Also wieder rausmachen und den Kommentar direkt in die Konstantenregistrierungszeilen rein...\par
+\par
+Weiterschauen ...\par
+\par
+Ah, interessant: \par
+CopyOnWriteArrayList hat nur transient felder. Darum gibts bei der keine Exception (das Lock Feld ist eigentlich nicht persistable). Es wird einfach ein stateless handler erzeugt und nix gespeichert.\par
+Hei\'dft: Die braucht auch einen explizit registrierten Handler. Halt dann einen generischen, der einfach den Konstruktor aufruft. Dann ist auch gleich das Lock wieder da. Passt.\par
+\par
+Next ...\par
+Okay, die COWSubList wird ein Problem:\par
+Wenn man sie generisch handelt, speichert sie ihr sinnlos bl\'f6dsinniges redundantes Array mit ab und beim Laden gibt es dann eine ConcurrentModificationException, weil die JDK Leute zu dumm zum programmieren sind.\par
+Custom handeln kann man sie nicht, weil man, wie \'fcblich, nicht an die n\'f6tigen internenWerte (offset und l) rankommt.\par
+Hm. Eigentlich gilt das f\'fcr alle SubList Implementierungen, die auf ihre parent collection zeigen und sich einen offset merken. Hm...\par
+Vielleicht sollte ich alle Sub~ Typen als unpersistable registrieren. Wenn sich einer einen JDK-spezifischen CustomHandler schreibt, kann er den ja als Override registrieren.\par
+Das mach ich so.\par
+Erst mal zusammenfieseln, was es alles so an Deppenimplementierungen von SubLists gibt und dann rumfieseln, wie man an jede davon rankommt.\par
+Z.B. lustig: Die RandomAccess ArrayList$SubList leitet NICHT von RandomAccessSubList ab. Das w\'e4re ja sinnvoll, das darf man auch keinen Fall machen.\par
+\par
+Rationale Kommentar der Unpersistable Typen um SubLists Punkt erweitern.\par
+\par
+Jetzt CopyOnWriteArraySet...\par
+Aach, Moment: das wrappt ja nur eine CowrayList. Dann braucht das keinen special handler.\par
+\par
+Mal weiterschauen ...\par
+Also SubMaps tu ich mir nicht an.\par
+Die crazy Shit ProcessEnvironment HashMap auch nicht.\par
+Ich w\'fcrd sagen, dann wars das.\par
+Mal nochmal den Test laufen lassen ...\par
+\par
+Hm, PriorityQueue ist nach dem Laden leer.\par
+Untersuchen ..\par
+\par
+\'d6h ... da fehlte die complete Methode ... ^^.\par
+Nachr\'fcsten und gleich mal bei allen anderen checken.\line War der einzige Fall.\par
+Testen. Passt.\par
+\par
+priv#109 und priv#101 updaten und schlie\'dfen.\par
+Fertig.\par
+\par
+\par
+\par
 }
  

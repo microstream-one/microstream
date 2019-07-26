@@ -18,6 +18,7 @@ import one.microstream.java.util.BinaryHandlerGenericList;
 import one.microstream.java.util.BinaryHandlerGenericMap;
 import one.microstream.java.util.BinaryHandlerGenericQueue;
 import one.microstream.java.util.BinaryHandlerGenericSet;
+import one.microstream.persistence.binary.internal.BinaryHandlerAbstractType;
 import one.microstream.persistence.binary.internal.BinaryHandlerGenericType;
 import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
 import one.microstream.persistence.binary.internal.BinaryHandlerUnpersistable;
@@ -88,6 +89,13 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerAbstractType(final Class<T> type)
+		{
+			// type gets a type id assigned and an empty type description, but its instances cannot be persisted.
+			return BinaryHandlerAbstractType.New(type);
+		}
 		
 		@Override
 		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerUnpersistable(
