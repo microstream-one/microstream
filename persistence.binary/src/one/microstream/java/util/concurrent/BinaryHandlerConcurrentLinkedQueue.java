@@ -20,13 +20,18 @@ extends AbstractBinaryHandlerQueue<ConcurrentLinkedQueue<?>>
 		return (Class)ConcurrentLinkedQueue.class; // no idea how to get ".class" to work otherwise
 	}
 	
+	public static BinaryHandlerConcurrentLinkedQueue New()
+	{
+		return new BinaryHandlerConcurrentLinkedQueue();
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerConcurrentLinkedQueue()
+	BinaryHandlerConcurrentLinkedQueue()
 	{
 		super(
 			handledType()

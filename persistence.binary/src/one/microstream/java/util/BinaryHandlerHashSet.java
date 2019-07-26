@@ -6,7 +6,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
-public class BinaryHandlerHashSet extends AbstractBinaryHandlerSet<HashSet<?>>
+public final class BinaryHandlerHashSet extends AbstractBinaryHandlerSet<HashSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -17,6 +17,11 @@ public class BinaryHandlerHashSet extends AbstractBinaryHandlerSet<HashSet<?>>
 	{
 		return (Class)HashSet.class; // no idea how to get ".class" to work otherwise
 	}
+	
+	public static BinaryHandlerHashSet New()
+	{
+		return new BinaryHandlerHashSet();
+	}
 
 
 	
@@ -24,7 +29,7 @@ public class BinaryHandlerHashSet extends AbstractBinaryHandlerSet<HashSet<?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashSet()
+	BinaryHandlerHashSet()
 	{
 		super(
 			handledType()

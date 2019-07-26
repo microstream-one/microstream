@@ -19,13 +19,18 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerMap<L
 		return (Class)LinkedHashMap.class; // no idea how to get ".class" to work otherwise
 	}
 	
+	public static BinaryHandlerLinkedHashMap New()
+	{
+		return new BinaryHandlerLinkedHashMap();
+	}
+	
 	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerLinkedHashMap()
+	BinaryHandlerLinkedHashMap()
 	{
 		super(handledType());
 	}

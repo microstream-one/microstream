@@ -7,10 +7,21 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerNativeArray_byte extends AbstractBinaryHandlerNativeArrayPrimitive<byte[]>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerNativeArray_byte New()
+	{
+		return new BinaryHandlerNativeArray_byte();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerNativeArray_byte()
+	BinaryHandlerNativeArray_byte()
 	{
 		super(byte[].class, defineElementsType(byte.class));
 	}

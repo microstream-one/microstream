@@ -18,13 +18,18 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerMap<HashMap
 		return (Class)HashMap.class; // no idea how to get ".class" to work otherwise
 	}
 	
+	public static BinaryHandlerHashMap New()
+	{
+		return new BinaryHandlerHashMap();
+	}
+	
 	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashMap()
+	BinaryHandlerHashMap()
 	{
 		super(handledType());
 	}

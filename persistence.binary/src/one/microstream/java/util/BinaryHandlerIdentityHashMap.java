@@ -38,6 +38,11 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	{
 		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerIdentityHashMap New()
+	{
+		return new BinaryHandlerIdentityHashMap();
+	}
 
 
 
@@ -45,7 +50,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerIdentityHashMap()
+	BinaryHandlerIdentityHashMap()
 	{
 		super(
 			handledType(),

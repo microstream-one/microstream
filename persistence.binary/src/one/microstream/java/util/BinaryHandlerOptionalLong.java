@@ -19,14 +19,23 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 		BINARY_OFFSET_VALUE      = BINARY_OFFSET_IS_PRESENT + Byte.BYTES, // Boolean.BYTES does not exist
 		BINARY_LENGTH            = BINARY_OFFSET_VALUE      + Long.BYTES
 	;
-	
-	
 
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerOptionalLong New()
+	{
+		return new BinaryHandlerOptionalLong();
+	}
+	
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerOptionalLong()
+	BinaryHandlerOptionalLong()
 	{
 		/*
 		 * Note on fields:

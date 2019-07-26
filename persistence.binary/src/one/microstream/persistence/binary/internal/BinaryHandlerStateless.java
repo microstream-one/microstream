@@ -1,5 +1,7 @@
 package one.microstream.persistence.binary.internal;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -9,10 +11,22 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivial<T>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static <T> BinaryHandlerStateless<T> New(final Class<T> type)
+	{
+		return new BinaryHandlerStateless<>(
+			notNull(type)
+		);
+	}
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerStateless(final Class<T> type)
+	BinaryHandlerStateless(final Class<T> type)
 	{
 		super(type);
 	}

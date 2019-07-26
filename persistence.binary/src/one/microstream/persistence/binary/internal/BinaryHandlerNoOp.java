@@ -1,5 +1,7 @@
 package one.microstream.persistence.binary.internal;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
@@ -7,10 +9,23 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static <T> BinaryHandlerNoOp<T> New(final Class<T> type)
+	{
+		return new BinaryHandlerNoOp<>(
+			notNull(type)
+		);
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerNoOp(final Class<T> type)
+	BinaryHandlerNoOp(final Class<T> type)
 	{
 		super(type);
 	}

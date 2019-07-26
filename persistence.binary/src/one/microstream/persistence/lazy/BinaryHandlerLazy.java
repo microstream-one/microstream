@@ -7,13 +7,24 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerLazyReference extends AbstractBinaryHandlerCustom<Lazy<?>>
+public final class BinaryHandlerLazy extends AbstractBinaryHandlerCustom<Lazy<?>>
 {
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerLazy New()
+	{
+		return new BinaryHandlerLazy();
+	}
+	
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerLazyReference()
+	BinaryHandlerLazy()
 	{
 		super(
 			Lazy.genericType(),

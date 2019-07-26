@@ -95,7 +95,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		)
 		{
 			// type gets a type id assigned and an empty type description, but its instances cannot be persisted.
-			return new BinaryHandlerUnpersistable<>(type);
+			return BinaryHandlerUnpersistable.New(type);
 		}
 		
 		@Override
@@ -104,7 +104,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		)
 		{
 			// array types can never change and therefore can never have obsolete types.
-			return new BinaryHandlerNativeArrayObject<>(type);
+			return BinaryHandlerNativeArrayObject.New(type);
 		}
 		
 		@Override
@@ -112,7 +112,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final Class<T> type
 		)
 		{
-			return new BinaryHandlerStateless<>(type);
+			return BinaryHandlerStateless.New(type);
 		}
 		
 		@Override

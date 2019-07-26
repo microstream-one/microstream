@@ -50,13 +50,18 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 		return (Comparator<? super E>)handler.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
 	}
 	
+	public static BinaryHandlerPriorityQueue New()
+	{
+		return new BinaryHandlerPriorityQueue();
+	}
+	
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerPriorityQueue()
+	BinaryHandlerPriorityQueue()
 	{
 		super(
 			handledType(),

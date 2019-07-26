@@ -1,17 +1,32 @@
 package one.microstream.persistence.binary.internal;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<T>
+public final class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<T>
 {
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static <T> BinaryHandlerUnpersistable<T> New(final Class<T> type)
+	{
+		return new BinaryHandlerUnpersistable<>(
+			notNull(type)
+		);
+	}
+	
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerUnpersistable(final Class<T> type)
+	BinaryHandlerUnpersistable(final Class<T> type)
 	{
 		super(type);
 	}

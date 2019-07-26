@@ -25,6 +25,11 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 		// no idea how to get ".class" to work otherwise
 		return (Class)Substituter.Default.class;
 	}
+	
+	public static BinaryHandlerSubstituterDefault New()
+	{
+		return new BinaryHandlerSubstituterDefault();
+	}
 
 
 
@@ -32,7 +37,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerSubstituterDefault()
+	BinaryHandlerSubstituterDefault()
 	{
 		// binary layout definition
 		super(

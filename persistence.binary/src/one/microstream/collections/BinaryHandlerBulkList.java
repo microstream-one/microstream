@@ -1,5 +1,7 @@
 package one.microstream.collections;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterableSizedArray;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -36,13 +38,20 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<BulkList<?>>
 		return (Class)BulkList.class;
 	}
 	
+	public static BinaryHandlerBulkList New(final PersistenceSizedArrayLengthController controller)
+	{
+		return new BinaryHandlerBulkList(
+			notNull(controller)
+		);
+	}
+	
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 	
-	public BinaryHandlerBulkList(final PersistenceSizedArrayLengthController controller)
+	BinaryHandlerBulkList(final PersistenceSizedArrayLengthController controller)
 	{
 		// binary layout definition
 		super(

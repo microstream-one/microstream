@@ -19,14 +19,23 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 		BINARY_OFFSET_VALUE      = BINARY_OFFSET_IS_PRESENT + Byte  .BYTES, // Boolean.BYTES does not exist
 		BINARY_LENGTH            = BINARY_OFFSET_VALUE      + Double.BYTES
 	;
-	
-	
 
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerOptionalDouble New()
+	{
+		return new BinaryHandlerOptionalDouble();
+	}
+	
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerOptionalDouble()
+	BinaryHandlerOptionalDouble()
 	{
 		/*
 		 * Note on fields:

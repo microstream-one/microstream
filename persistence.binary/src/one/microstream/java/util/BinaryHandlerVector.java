@@ -18,13 +18,18 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerList<Vector<
 		return (Class)Vector.class; // no idea how to get ".class" to work otherwise
 	}
 	
+	public static BinaryHandlerVector New()
+	{
+		return new BinaryHandlerVector();
+	}
+	
 	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerVector()
+	BinaryHandlerVector()
 	{
 		super(handledType());
 	}

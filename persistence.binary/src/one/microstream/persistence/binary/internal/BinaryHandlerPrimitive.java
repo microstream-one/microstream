@@ -1,6 +1,8 @@
 package one.microstream.persistence.binary.internal;
 
 
+import static one.microstream.X.notNull;
+
 import one.microstream.X;
 import one.microstream.collections.Constant;
 import one.microstream.collections.types.XGettingEnum;
@@ -14,6 +16,19 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPrimitiv
 public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivial<T>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static <T> BinaryHandlerPrimitive<T> New(final Class<T> type)
+	{
+		return new BinaryHandlerPrimitive<>(
+			notNull(type)
+		);
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
@@ -25,7 +40,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerPrimitive(final Class<T> type)
+	BinaryHandlerPrimitive(final Class<T> type)
 	{
 		super(type);
 

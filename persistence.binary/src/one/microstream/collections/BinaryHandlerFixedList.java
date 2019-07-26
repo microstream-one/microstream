@@ -35,6 +35,11 @@ extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 		// no idea how to get ".class" to work otherwise
 		return (Class)FixedList.class;
 	}
+	
+	public static BinaryHandlerFixedList New()
+	{
+		return new BinaryHandlerFixedList();
+	}
 
 
 
@@ -42,7 +47,7 @@ extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerFixedList()
+	BinaryHandlerFixedList()
 	{
 		// binary layout definition
 		super(

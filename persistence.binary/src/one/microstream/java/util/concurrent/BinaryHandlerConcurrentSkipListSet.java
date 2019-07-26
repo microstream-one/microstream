@@ -48,6 +48,11 @@ public final class BinaryHandlerConcurrentSkipListSet extends AbstractBinaryHand
 	{
 		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerConcurrentSkipListSet New()
+	{
+		return new BinaryHandlerConcurrentSkipListSet();
+	}
 
 
 
@@ -55,7 +60,7 @@ public final class BinaryHandlerConcurrentSkipListSet extends AbstractBinaryHand
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerConcurrentSkipListSet()
+	BinaryHandlerConcurrentSkipListSet()
 	{
 		super(
 			handledType(),

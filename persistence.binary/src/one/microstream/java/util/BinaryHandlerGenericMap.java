@@ -53,10 +53,10 @@ public class BinaryHandlerGenericMap<T extends Map<?, ?>> extends AbstractBinary
 	// constructors //
 	/////////////////
 	
-	public BinaryHandlerGenericMap(final Class<T> type, final Instantiator<T> instantiator)
+	protected BinaryHandlerGenericMap(final Class<T> type, final Instantiator<T> instantiator)
 	{
 		super(type);
-		this.instantiator = instantiator;
+		this.instantiator = notNull(instantiator);
 	}
 
 

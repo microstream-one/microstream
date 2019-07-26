@@ -47,14 +47,19 @@ extends AbstractBinaryHandlerCustomIterable<PriorityQueue<?>>
 	{
 		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerPriorityQueue New()
+	{
+		return new BinaryHandlerPriorityQueue();
+	}
 
 
-
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerPriorityQueue()
+	BinaryHandlerPriorityQueue()
 	{
 		super(
 			handledType(),

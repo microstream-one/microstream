@@ -48,6 +48,11 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	{
 		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerTreeSet New()
+	{
+		return new BinaryHandlerTreeSet();
+	}
 
 
 
@@ -55,7 +60,7 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerTreeSet()
+	BinaryHandlerTreeSet()
 	{
 		super(
 			handledType(),

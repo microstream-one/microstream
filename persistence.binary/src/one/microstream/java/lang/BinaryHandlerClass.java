@@ -5,7 +5,6 @@ import static one.microstream.X.notNull;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
-import one.microstream.persistence.types.PersistenceRefactoringResolverProvider;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
@@ -26,13 +25,11 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 	}
 	
 	public static BinaryHandlerClass New(
-		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager         ,
-		final PersistenceRefactoringResolverProvider             refactoringResolverProvider
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager
 	)
 	{
 		return new BinaryHandlerClass(
-			notNull(typeHandlerManager)         ,
-			notNull(refactoringResolverProvider)
+			notNull(typeHandlerManager)
 		);
 	}
 	
@@ -42,8 +39,7 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 	// instance fields //
 	////////////////////
 
-	private final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager         ;
-	private final PersistenceRefactoringResolverProvider             refactoringResolverProvider;
+	private final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager;
 	
 	
 	
@@ -52,13 +48,11 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 	/////////////////
 
 	BinaryHandlerClass(
-		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager         ,
-		final PersistenceRefactoringResolverProvider             refactoringResolverProvider
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager
 	)
 	{
 		super(handledType(), defineValueType(long.class));
-		this.typeHandlerManager          = typeHandlerManager         ;
-		this.refactoringResolverProvider = refactoringResolverProvider;
+		this.typeHandlerManager = typeHandlerManager;
 	}
 
 
@@ -88,16 +82,13 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 	{
 		final long typeId = bytes.get_long(0);
 		
-		// (25.07.2019 TM)FIXME: priv#109: cleanup/simplify to just use runtime type
-		// (25.07.2019 TM)FIXME: priv#109: what if runtime type is null (unresolvable old type)?
-		
 		final PersistenceTypeDefinition typeDefinition = this.typeHandlerManager.get()
 			.typeDictionary()
 			.lookupTypeById(typeId)
 		;
-		final Class<?> resolvedInstance = this.refactoringResolverProvider.provideResolver()
-			.resolveRuntimeType(typeDefinition)
-		;
+		
+		// can be null for unmapped legacy types. Nothing to do about that, here. Let application logic decide/react.
+		final Class<?> resolvedInstance = typeDefinition.type();
 		
 		return resolvedInstance;
 	}

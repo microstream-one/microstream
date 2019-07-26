@@ -1,5 +1,7 @@
 package one.microstream.jdk8.java.util;
 
+import static one.microstream.X.notNull;
+
 import java.util.Stack;
 
 import one.microstream.memory.XMemoryJDK8;
@@ -33,6 +35,13 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 	{
 		return (Class)Stack.class; // no idea how to get ".class" to work otherwise
 	}
+	
+	public static BinaryHandlerStack New(final PersistenceSizedArrayLengthController controller)
+	{
+		return new BinaryHandlerStack(
+			notNull(controller)
+		);
+	}
 
 
 
@@ -40,7 +49,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerStack(final PersistenceSizedArrayLengthController controller)
+	BinaryHandlerStack(final PersistenceSizedArrayLengthController controller)
 	{
 		super(
 			handledType(),

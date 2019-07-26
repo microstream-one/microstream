@@ -8,10 +8,21 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomValueFixedLength<Character>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerCharacter New()
+	{
+		return new BinaryHandlerCharacter();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerCharacter()
+	BinaryHandlerCharacter()
 	{
 		super(Character.class, defineValueType(char.class));
 	}

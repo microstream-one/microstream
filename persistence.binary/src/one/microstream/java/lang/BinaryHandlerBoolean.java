@@ -8,10 +8,21 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerBoolean extends AbstractBinaryHandlerCustomValueFixedLength<Boolean>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerBoolean New()
+	{
+		return new BinaryHandlerBoolean();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerBoolean()
+	BinaryHandlerBoolean()
 	{
 		super(Boolean.class, defineValueType(boolean.class));
 	}

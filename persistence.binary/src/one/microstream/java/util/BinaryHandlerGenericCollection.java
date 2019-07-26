@@ -53,10 +53,10 @@ public class BinaryHandlerGenericCollection<T extends Collection<?>> extends Abs
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerGenericCollection(final Class<T> type, final Instantiator<T> instantiator)
+	protected BinaryHandlerGenericCollection(final Class<T> type, final Instantiator<T> instantiator)
 	{
 		super(type);
-		this.instantiator = instantiator;
+		this.instantiator = notNull(instantiator);
 	}
 
 

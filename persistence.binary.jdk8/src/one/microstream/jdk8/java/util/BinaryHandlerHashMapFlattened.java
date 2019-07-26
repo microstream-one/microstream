@@ -15,6 +15,14 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
+/**
+ * Premature prototype implementation that has to be kept for live projects using it.
+ * <p>
+ * Do not use! Use {@link BinaryHandlerHashMap} instead.
+ * 
+ * @author FH
+ * @author TM
+ */
 public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCustomCollection<HashMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -45,6 +53,11 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	{
 		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerHashMapFlattened New()
+	{
+		return new BinaryHandlerHashMapFlattened();
+	}
 
 
 
@@ -52,7 +65,7 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashMapFlattened()
+	BinaryHandlerHashMapFlattened()
 	{
 		super(
 			handledType(),

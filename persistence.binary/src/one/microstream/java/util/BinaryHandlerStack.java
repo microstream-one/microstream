@@ -18,13 +18,18 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerList<Stack<?>
 		return (Class)Stack.class; // no idea how to get ".class" to work otherwise
 	}
 	
+	public static BinaryHandlerStack New()
+	{
+		return new BinaryHandlerStack();
+	}
+	
 	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerStack()
+	BinaryHandlerStack()
 	{
 		super(handledType());
 	}

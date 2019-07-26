@@ -50,6 +50,11 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	{
 		return (Comparator<? super E>)handler.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
 	}
+	
+	public static BinaryHandlerConcurrentSkipListMap New()
+	{
+		return new BinaryHandlerConcurrentSkipListMap();
+	}
 
 
 
@@ -57,7 +62,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerConcurrentSkipListMap()
+	BinaryHandlerConcurrentSkipListMap()
 	{
 		super(
 			handledType(),

@@ -160,6 +160,11 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 			CustomField(float.class, "hashDensity")
 		);
 	}
+	
+	public static BinaryHandlerEqHashEnum New()
+	{
+		return new BinaryHandlerEqHashEnum();
+	}
 
 
 
@@ -167,7 +172,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerEqHashEnum()
+	BinaryHandlerEqHashEnum()
 	{
 		// binary layout definition
 		super(

@@ -1,5 +1,7 @@
 package one.microstream.jdk8.java.util;
 
+import static one.microstream.X.notNull;
+
 import java.util.Vector;
 
 import one.microstream.memory.XMemoryJDK8;
@@ -33,6 +35,13 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 	{
 		return (Class)Vector.class; // no idea how to get ".class" to work otherwise
 	}
+	
+	public static BinaryHandlerVector New(final PersistenceSizedArrayLengthController controller)
+	{
+		return new BinaryHandlerVector(
+			notNull(controller)
+		);
+	}
 
 
 
@@ -40,7 +49,7 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerVector(final PersistenceSizedArrayLengthController controller)
+	BinaryHandlerVector(final PersistenceSizedArrayLengthController controller)
 	{
 		super(
 			handledType(),

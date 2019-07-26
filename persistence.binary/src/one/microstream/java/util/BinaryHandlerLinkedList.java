@@ -18,13 +18,18 @@ public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerList<Lin
 		return (Class)LinkedList.class; // no idea how to get ".class" to work otherwise
 	}
 	
+	public static BinaryHandlerLinkedList New()
+	{
+		return new BinaryHandlerLinkedList();
+	}
+	
 	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerLinkedList()
+	BinaryHandlerLinkedList()
 	{
 		super(handledType());
 	}

@@ -45,6 +45,11 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	{
 		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerHashtable New()
+	{
+		return new BinaryHandlerHashtable();
+	}
 
 
 
@@ -52,7 +57,7 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashtable()
+	BinaryHandlerHashtable()
 	{
 		super(
 			handledType(),

@@ -17,7 +17,7 @@ public class MainTestStorageJDK8Properties
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.Foundation()
 		.onConnectionFoundation(f ->
 		{
-			f.getCustomTypeHandlerRegistry().registerTypeHandler(new BinaryHandlerProperties());
+			f.getCustomTypeHandlerRegistry().registerTypeHandler(BinaryHandlerProperties.New());
 		})
 		.start(ROOT);
 

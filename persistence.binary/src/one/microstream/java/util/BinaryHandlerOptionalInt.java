@@ -19,14 +19,23 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 		BINARY_OFFSET_VALUE      = BINARY_OFFSET_IS_PRESENT + Byte   .BYTES, // Boolean.BYTES does not exist
 		BINARY_LENGTH            = BINARY_OFFSET_VALUE      + Integer.BYTES
 	;
-	
-	
 
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerOptionalInt New()
+	{
+		return new BinaryHandlerOptionalInt();
+	}
+	
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerOptionalInt()
+	BinaryHandlerOptionalInt()
 	{
 		/*
 		 * Note on fields:
