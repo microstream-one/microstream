@@ -45,6 +45,11 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	{
 		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerHashMap New()
+	{
+		return new BinaryHandlerHashMap();
+	}
 
 
 
@@ -52,7 +57,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashMap()
+	BinaryHandlerHashMap()
 	{
 		super(
 			handledType(),

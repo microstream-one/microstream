@@ -18,13 +18,18 @@ public final class BinaryHandlerWeakHashMap extends AbstractBinaryHandlerMap<Wea
 		return (Class)WeakHashMap.class; // no idea how to get ".class" to work otherwise
 	}
 	
+	public static BinaryHandlerWeakHashMap New()
+	{
+		return new BinaryHandlerWeakHashMap();
+	}
+	
 	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerWeakHashMap()
+	BinaryHandlerWeakHashMap()
 	{
 		super(handledType());
 	}

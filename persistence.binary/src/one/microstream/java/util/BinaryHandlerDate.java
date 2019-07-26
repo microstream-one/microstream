@@ -26,14 +26,22 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 //			Field(String.class, "value")
 //		)
 //	;
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerDate New()
+	{
+		return new BinaryHandlerDate();
+	}
 
 	
-
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerDate()
+	BinaryHandlerDate()
 	{
 		super(
 			Date.class,

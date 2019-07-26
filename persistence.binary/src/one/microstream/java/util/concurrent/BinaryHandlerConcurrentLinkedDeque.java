@@ -18,6 +18,11 @@ public final class BinaryHandlerConcurrentLinkedDeque extends AbstractBinaryHand
 	{
 		return (Class)ConcurrentLinkedDeque.class; // no idea how to get ".class" to work otherwise
 	}
+	
+	public static BinaryHandlerConcurrentLinkedDeque New()
+	{
+		return new BinaryHandlerConcurrentLinkedDeque();
+	}
 
 
 	
@@ -25,7 +30,7 @@ public final class BinaryHandlerConcurrentLinkedDeque extends AbstractBinaryHand
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerConcurrentLinkedDeque()
+	BinaryHandlerConcurrentLinkedDeque()
 	{
 		super(
 			handledType()

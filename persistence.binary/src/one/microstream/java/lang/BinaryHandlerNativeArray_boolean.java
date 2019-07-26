@@ -7,10 +7,21 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandlerNativeArrayPrimitive<boolean[]>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerNativeArray_boolean New()
+	{
+		return new BinaryHandlerNativeArray_boolean();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerNativeArray_boolean()
+	BinaryHandlerNativeArray_boolean()
 	{
 		super(boolean[].class, defineElementsType(boolean.class));
 	}

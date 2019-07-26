@@ -46,6 +46,11 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 	{
 		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
 	}
+	
+	public static BinaryHandlerConstHashEnum New()
+	{
+		return new BinaryHandlerConstHashEnum();
+	}
 
 
 
@@ -53,7 +58,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerConstHashEnum()
+	BinaryHandlerConstHashEnum()
 	{
 		// binary layout definition
 		super(

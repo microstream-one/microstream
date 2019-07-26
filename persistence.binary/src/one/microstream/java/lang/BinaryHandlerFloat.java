@@ -8,10 +8,21 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerFloat extends AbstractBinaryHandlerCustomValueFixedLength<Float>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerFloat New()
+	{
+		return new BinaryHandlerFloat();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerFloat()
+	BinaryHandlerFloat()
 	{
 		super(Float.class, defineValueType(float.class));
 	}

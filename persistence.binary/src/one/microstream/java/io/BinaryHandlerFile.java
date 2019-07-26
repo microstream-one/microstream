@@ -10,10 +10,21 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVariableLength<File>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerFile New()
+	{
+		return new BinaryHandlerFile();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerFile()
+	BinaryHandlerFile()
 	{
 		super(
 			File.class,

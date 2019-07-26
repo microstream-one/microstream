@@ -35,6 +35,11 @@ extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 		// no idea how to get ".class" to work otherwise
 		return (Class)ConstList.class;
 	}
+	
+	public static BinaryHandlerConstList New()
+	{
+		return new BinaryHandlerConstList();
+	}
 
 
 
@@ -42,7 +47,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerConstList()
+	BinaryHandlerConstList()
 	{
 		// binary layout definition
 		super(

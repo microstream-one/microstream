@@ -1,5 +1,7 @@
 package one.microstream.collections;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterableSizedArray;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -35,6 +37,13 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 		// no idea how to get ".class" to work otherwise
 		return (Class)LimitList.class;
 	}
+	
+	public static BinaryHandlerLimitList New(final PersistenceSizedArrayLengthController controller)
+	{
+		return new BinaryHandlerLimitList(
+			notNull(controller)
+		);
+	}
 
 
 
@@ -42,7 +51,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerLimitList(final PersistenceSizedArrayLengthController controller)
+	BinaryHandlerLimitList(final PersistenceSizedArrayLengthController controller)
 	{
 		// binary layout definition
 		super(

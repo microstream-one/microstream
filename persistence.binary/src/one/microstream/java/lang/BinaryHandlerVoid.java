@@ -8,10 +8,21 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public final class BinaryHandlerVoid extends AbstractBinaryHandlerStateless<Void>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerVoid New()
+	{
+		return new BinaryHandlerVoid();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerVoid()
+	BinaryHandlerVoid()
 	{
 		super(Void.class);
 	}

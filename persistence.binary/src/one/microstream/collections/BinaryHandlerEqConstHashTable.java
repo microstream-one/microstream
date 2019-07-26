@@ -62,6 +62,11 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 	{
 		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
 	}
+	
+	public static BinaryHandlerEqConstHashTable New()
+	{
+		return new BinaryHandlerEqConstHashTable();
+	}
 
 
 
@@ -69,7 +74,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerEqConstHashTable()
+	BinaryHandlerEqConstHashTable()
 	{
 		// binary layout definition
 		super(

@@ -18,13 +18,18 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerList<Arra
 		return (Class)ArrayList.class; // no idea how to get ".class" to work otherwise
 	}
 	
+	public static BinaryHandlerArrayList New()
+	{
+		return new BinaryHandlerArrayList();
+	}
+	
 	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerArrayList()
+	BinaryHandlerArrayList()
 	{
 		super(handledType());
 	}

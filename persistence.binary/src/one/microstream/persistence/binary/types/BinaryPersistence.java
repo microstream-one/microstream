@@ -77,11 +77,10 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import one.microstream.persistence.lazy.BinaryHandlerLazyReference;
+import one.microstream.persistence.lazy.BinaryHandlerLazy;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceRefactoringResolverProvider;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeHandler;
@@ -108,14 +107,13 @@ public final class BinaryPersistence extends Persistence
 	}
 	
 	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
-		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager         ,
-		final PersistenceRefactoringResolverProvider             refactoringResolverProvider,
-		final PersistenceSizedArrayLengthController              controller                 ,
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager,
+		final PersistenceSizedArrayLengthController              controller        ,
 		final PersistenceTypeHandlerCreator<Binary>              typeHandlerCreator
 	)
 	{
 		final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers =
-			createNativeHandlers(typeHandlerManager, refactoringResolverProvider, controller, typeHandlerCreator)
+			createNativeHandlers(typeHandlerManager, controller, typeHandlerCreator)
 		;
 		
 		final PersistenceCustomTypeHandlerRegistry.Default<Binary> defaultCustomTypeHandlerRegistry =
@@ -143,105 +141,104 @@ public final class BinaryPersistence extends Persistence
 	}
 	
 	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> createNativeHandlers(
-		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager         ,
-		final PersistenceRefactoringResolverProvider             refactoringResolverProvider,
-		final PersistenceSizedArrayLengthController              controller                 ,
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager,
+		final PersistenceSizedArrayLengthController              controller        ,
 		final PersistenceTypeHandlerCreator<Binary>              typeHandlerCreator
 	)
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers = ConstList.New(
-			new BinaryHandlerPrimitive<>(byte   .class),
-			new BinaryHandlerPrimitive<>(boolean.class),
-			new BinaryHandlerPrimitive<>(short  .class),
-			new BinaryHandlerPrimitive<>(char   .class),
-			new BinaryHandlerPrimitive<>(int    .class),
-			new BinaryHandlerPrimitive<>(float  .class),
-			new BinaryHandlerPrimitive<>(long   .class),
-			new BinaryHandlerPrimitive<>(double .class),
+			BinaryHandlerPrimitive.New(byte   .class),
+			BinaryHandlerPrimitive.New(boolean.class),
+			BinaryHandlerPrimitive.New(short  .class),
+			BinaryHandlerPrimitive.New(char   .class),
+			BinaryHandlerPrimitive.New(int    .class),
+			BinaryHandlerPrimitive.New(float  .class),
+			BinaryHandlerPrimitive.New(long   .class),
+			BinaryHandlerPrimitive.New(double .class),
 
-			BinaryHandlerClass.New(typeHandlerManager, refactoringResolverProvider),
-			new BinaryHandlerByte()     ,
-			new BinaryHandlerBoolean()  ,
-			new BinaryHandlerShort()    ,
-			new BinaryHandlerCharacter(),
-			new BinaryHandlerInteger()  ,
-			new BinaryHandlerFloat()    ,
-			new BinaryHandlerLong()     ,
-			new BinaryHandlerDouble()   ,
-			new BinaryHandlerVoid()     ,
-			new BinaryHandlerObject()   ,
+			BinaryHandlerClass.New(typeHandlerManager),
+			BinaryHandlerByte.New()     ,
+			BinaryHandlerBoolean.New()  ,
+			BinaryHandlerShort.New()    ,
+			BinaryHandlerCharacter.New(),
+			BinaryHandlerInteger.New()  ,
+			BinaryHandlerFloat.New()    ,
+			BinaryHandlerLong.New()     ,
+			BinaryHandlerDouble.New()   ,
+			BinaryHandlerVoid.New()     ,
+			BinaryHandlerObject.New()   ,
 			
-			new BinaryHandlerString()      ,
-			new BinaryHandlerStringBuffer() ,
-			new BinaryHandlerStringBuilder(),
+			BinaryHandlerString.New()      ,
+			BinaryHandlerStringBuffer.New() ,
+			BinaryHandlerStringBuilder.New(),
 
-			new BinaryHandlerNativeArray_byte()   ,
-			new BinaryHandlerNativeArray_boolean(),
-			new BinaryHandlerNativeArray_short()  ,
-			new BinaryHandlerNativeArray_char()   ,
-			new BinaryHandlerNativeArray_int()    ,
-			new BinaryHandlerNativeArray_float()  ,
-			new BinaryHandlerNativeArray_long()   ,
-			new BinaryHandlerNativeArray_double() ,
+			BinaryHandlerNativeArray_byte.New()   ,
+			BinaryHandlerNativeArray_boolean.New(),
+			BinaryHandlerNativeArray_short.New()  ,
+			BinaryHandlerNativeArray_char.New()   ,
+			BinaryHandlerNativeArray_int.New()    ,
+			BinaryHandlerNativeArray_float.New()  ,
+			BinaryHandlerNativeArray_long.New()   ,
+			BinaryHandlerNativeArray_double.New() ,
 			
 			// creepy JDK 1.0 collections
-			new BinaryHandlerVector()               ,
-			new BinaryHandlerStack()                ,
-			new BinaryHandlerHashtable()            ,
-			new BinaryHandlerProperties()           ,
+			BinaryHandlerVector.New()               ,
+			BinaryHandlerStack.New()                ,
+			BinaryHandlerHashtable.New()            ,
+			BinaryHandlerProperties.New()           ,
 			
 			// still creepy JDK 1.2 collections
-			new BinaryHandlerArrayList(),
-			new BinaryHandlerHashSet()              ,
-			new BinaryHandlerHashMap()              ,
-			new BinaryHandlerWeakHashMap()          ,
-			new BinaryHandlerLinkedList()           ,
-			new BinaryHandlerTreeMap()              ,
-			new BinaryHandlerTreeSet()              ,
+			BinaryHandlerArrayList.New(),
+			BinaryHandlerHashSet.New()              ,
+			BinaryHandlerHashMap.New()              ,
+			BinaryHandlerWeakHashMap.New()          ,
+			BinaryHandlerLinkedList.New()           ,
+			BinaryHandlerTreeMap.New()              ,
+			BinaryHandlerTreeSet.New()              ,
 			
 			// still creepy JDK 1.4 collections
-			new BinaryHandlerIdentityHashMap()      ,
-			new BinaryHandlerLinkedHashMap()        ,
-			new BinaryHandlerLinkedHashSet()        ,
+			BinaryHandlerIdentityHashMap.New()      ,
+			BinaryHandlerLinkedHashMap.New()        ,
+			BinaryHandlerLinkedHashSet.New()        ,
 			
 			// still creepy JDK 1.5 collections
-			new BinaryHandlerPriorityQueue()        ,
-			new BinaryHandlerConcurrentHashMap()    ,
-			new BinaryHandlerConcurrentLinkedQueue(),
+			BinaryHandlerPriorityQueue.New()        ,
+			BinaryHandlerConcurrentHashMap.New()    ,
+			BinaryHandlerConcurrentLinkedQueue.New(),
 			
 			// remaining JDK collections (wrappers and the like) are handled dynamically
 			
 			// would work, but Iterators are unanalyzable for good reason. See Persistence#unanalyzableTypes
-//			new BinaryHandlerStateless<>(Collections.emptyEnumeration().getClass()),
-//			new BinaryHandlerStateless<>(Collections.emptyIterator().getClass()),
-//			new BinaryHandlerStateless<>(Collections.emptyListIterator().getClass()),
+//			BinaryHandlerStateless.New(Collections.emptyEnumeration().getClass()),
+//			BinaryHandlerStateless.New(Collections.emptyIterator().getClass()),
+//			BinaryHandlerStateless.New(Collections.emptyListIterator().getClass()),
 			
-			new BinaryHandlerStateless<>(Collections.reverseOrder().getClass()),
-			new BinaryHandlerStateless<>(Comparator.naturalOrder().getClass()),
+			BinaryHandlerStateless.New(Collections.reverseOrder().getClass()),
+			BinaryHandlerStateless.New(Comparator.naturalOrder().getClass()),
 						
 			// still creepy JDK 1.6 collections
-			new BinaryHandlerArrayDeque()           ,
-			new BinaryHandlerConcurrentSkipListMap(),
-			new BinaryHandlerConcurrentSkipListSet(),
+			BinaryHandlerArrayDeque.New()           ,
+			BinaryHandlerConcurrentSkipListMap.New(),
+			BinaryHandlerConcurrentSkipListSet.New(),
 			
 			// still creepy JDK 1.7 collections
-			new BinaryHandlerConcurrentLinkedDeque(),
+			BinaryHandlerConcurrentLinkedDeque.New(),
 			
-			new BinaryHandlerBigInteger(),
-			new BinaryHandlerBigDecimal(),
-			new BinaryHandlerFile()      ,
-			new BinaryHandlerDate()      ,
+			BinaryHandlerBigInteger.New(),
+			BinaryHandlerBigDecimal.New(),
+			BinaryHandlerFile.New()      ,
+			BinaryHandlerDate.New()      ,
 
-			new BinaryHandlerLazyReference(),
+			BinaryHandlerLazy.New(),
 			/* (24.10.2013 TM)TODO: priv#117 more native handlers (Path, Instant and whatnot)
 			 * Also see class Persistence for default TypeIds
 			 */
 			
 			// the way Optional is implemented, only a generically working handler can handle it correctly
 			typeHandlerCreator.createTypeHandler(Optional.class),
-			new BinaryHandlerOptionalInt(),
-			new BinaryHandlerOptionalLong(),
-			new BinaryHandlerOptionalDouble()
+			BinaryHandlerOptionalInt.New(),
+			BinaryHandlerOptionalLong.New(),
+			BinaryHandlerOptionalDouble.New()
 		);
 		
 		// (18.07.2019 TM)FIXME: /!\ DEBUG WeakHashMap
@@ -265,21 +262,21 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> defaultHandlers = ConstList.New(
-			new BinaryHandlerBulkList(controller)  ,
-			new BinaryHandlerLimitList(controller) ,
-			new BinaryHandlerFixedList()           ,
-			new BinaryHandlerConstList()           ,
-			new BinaryHandlerEqBulkList(controller),
-			new BinaryHandlerHashEnum()            ,
-			new BinaryHandlerConstHashEnum()       ,
-			new BinaryHandlerEqHashEnum()          ,
-			new BinaryHandlerEqConstHashEnum()     ,
-			new BinaryHandlerHashTable()           ,
-			new BinaryHandlerConstHashTable()      ,
-			new BinaryHandlerEqHashTable()         ,
-			new BinaryHandlerEqConstHashTable()    ,
+			BinaryHandlerBulkList.New(controller)  ,
+			BinaryHandlerLimitList.New(controller) ,
+			BinaryHandlerFixedList.New()           ,
+			BinaryHandlerConstList.New()           ,
+			BinaryHandlerEqBulkList.New(controller),
+			BinaryHandlerHashEnum.New()            ,
+			BinaryHandlerConstHashEnum.New()       ,
+			BinaryHandlerEqHashEnum.New()          ,
+			BinaryHandlerEqConstHashEnum.New()     ,
+			BinaryHandlerHashTable.New()           ,
+			BinaryHandlerConstHashTable.New()      ,
+			BinaryHandlerEqHashTable.New()         ,
+			BinaryHandlerEqConstHashTable.New()    ,
 
-			new BinaryHandlerSubstituterDefault()
+			BinaryHandlerSubstituterDefault.New()
 			/* (29.10.2013 TM)TODO: more framework default custom handlers
 			 * - VarString
 			 * - VarByte

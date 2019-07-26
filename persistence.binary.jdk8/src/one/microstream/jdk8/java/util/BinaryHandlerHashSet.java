@@ -44,6 +44,11 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	{
 		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerHashSet New()
+	{
+		return new BinaryHandlerHashSet();
+	}
 
 
 
@@ -51,7 +56,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashSet()
+	BinaryHandlerHashSet()
 	{
 		super(
 			handledType(),

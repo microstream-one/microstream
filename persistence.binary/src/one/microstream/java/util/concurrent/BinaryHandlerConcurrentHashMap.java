@@ -20,13 +20,18 @@ public final class BinaryHandlerConcurrentHashMap extends AbstractBinaryHandlerM
 		return (Class)ConcurrentHashMap.class; // no idea how to get ".class" to work otherwise
 	}
 	
+	public static BinaryHandlerConcurrentHashMap New()
+	{
+		return new BinaryHandlerConcurrentHashMap();
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerConcurrentHashMap()
+	BinaryHandlerConcurrentHashMap()
 	{
 		super(
 			handledType()

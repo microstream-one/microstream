@@ -15,6 +15,14 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
+/**
+ * Premature prototype implementation that has to be kept for live projects using it.
+ * <p>
+ * Do not use! Use {@link BinaryHandlerHashtable} instead.
+ * 
+ * @author FH
+ * @author TM
+ */
 public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandlerCustomCollection<Hashtable<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -45,6 +53,11 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	{
 		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerHashtableFlattened New()
+	{
+		return new BinaryHandlerHashtableFlattened();
+	}
 
 
 
@@ -52,7 +65,7 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerHashtableFlattened()
+	BinaryHandlerHashtableFlattened()
 	{
 		super(
 			handledType(),

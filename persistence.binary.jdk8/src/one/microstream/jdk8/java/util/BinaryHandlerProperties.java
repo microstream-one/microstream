@@ -40,6 +40,11 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	{
 		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerProperties New()
+	{
+		return new BinaryHandlerProperties();
+	}
 
 
 
@@ -47,7 +52,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerProperties()
+	BinaryHandlerProperties()
 	{
 		super(
 			typeWorkaround(),

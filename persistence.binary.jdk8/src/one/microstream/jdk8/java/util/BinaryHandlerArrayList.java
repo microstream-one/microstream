@@ -1,5 +1,7 @@
 package one.microstream.jdk8.java.util;
 
+import static one.microstream.X.notNull;
+
 import java.util.ArrayList;
 
 import one.microstream.memory.XMemoryJDK8;
@@ -33,6 +35,13 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 	{
 		return (Class)ArrayList.class; // no idea how to get ".class" to work otherwise
 	}
+	
+	public static BinaryHandlerArrayList New(final PersistenceSizedArrayLengthController controller)
+	{
+		return new BinaryHandlerArrayList(
+			notNull(controller)
+		);
+	}
 
 
 
@@ -40,7 +49,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerArrayList(final PersistenceSizedArrayLengthController controller)
+	BinaryHandlerArrayList(final PersistenceSizedArrayLengthController controller)
 	{
 		super(
 			handledType(),

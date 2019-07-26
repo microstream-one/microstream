@@ -7,10 +7,21 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 public final class BinaryHandlerObject extends AbstractBinaryHandlerStateless<Object>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerObject New()
+	{
+		return new BinaryHandlerObject();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerObject()
+	BinaryHandlerObject()
 	{
 		super(Object.class);
 	}

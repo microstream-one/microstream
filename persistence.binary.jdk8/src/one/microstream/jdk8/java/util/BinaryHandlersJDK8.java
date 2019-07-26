@@ -11,19 +11,19 @@ public final class BinaryHandlersJDK8
 		foundation.executeTypeHandlerRegistration((r, c) ->
 			r.registerTypeHandlers(X.List(
 				// JDK 1.0 collections
-				new BinaryHandlerVector(c)      ,
-				new BinaryHandlerHashtable()    ,
-				new BinaryHandlerStack(c)       ,
-				new BinaryHandlerProperties()   ,
+				BinaryHandlerVector.New(c)      ,
+				BinaryHandlerHashtable.New()    ,
+				BinaryHandlerStack.New(c)       ,
+				BinaryHandlerProperties.New()   ,
 				
 				// JDK 1.2 collections
-				new BinaryHandlerArrayList(c)   ,
-				new BinaryHandlerHashSet()      ,
-				new BinaryHandlerHashMap()      ,
+				BinaryHandlerArrayList.New(c)   ,
+				BinaryHandlerHashSet.New()      ,
+				BinaryHandlerHashMap.New()      ,
 				
 				// JDK 1.4 collections
-				new BinaryHandlerLinkedHashMap(),
-				new BinaryHandlerLinkedHashSet()
+				BinaryHandlerLinkedHashMap.New(),
+				BinaryHandlerLinkedHashSet.New()
 			))
 		);
 		

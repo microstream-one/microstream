@@ -1,5 +1,7 @@
 package one.microstream.java.lang;
 
+import static one.microstream.X.notNull;
+
 import java.lang.reflect.Array;
 
 import one.microstream.X;
@@ -18,7 +20,20 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	//////////////
 	
 	static final long BINARY_OFFSET_ELEMENTS = 0L;
+
 	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static <T> BinaryHandlerNativeArrayObject<T> New(final Class<T> type)
+	{
+		return new BinaryHandlerNativeArrayObject<>(
+			notNull(type)
+		);
+	}
+			
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -34,7 +49,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerNativeArrayObject(final Class<A> arrayType)
+	BinaryHandlerNativeArrayObject(final Class<A> arrayType)
 	{
 		super(
 			XReflect.validateArrayType(arrayType),

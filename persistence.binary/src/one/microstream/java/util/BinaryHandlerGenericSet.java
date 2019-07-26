@@ -53,10 +53,10 @@ public class BinaryHandlerGenericSet<T extends Set<?>> extends AbstractBinaryHan
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerGenericSet(final Class<T> type, final Instantiator<T> instantiator)
+	protected BinaryHandlerGenericSet(final Class<T> type, final Instantiator<T> instantiator)
 	{
 		super(type);
-		this.instantiator = instantiator;
+		this.instantiator = notNull(instantiator);
 	}
 
 

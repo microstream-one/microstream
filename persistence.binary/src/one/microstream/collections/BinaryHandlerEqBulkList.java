@@ -1,5 +1,7 @@
 package one.microstream.collections;
 
+import static one.microstream.X.notNull;
+
 import java.lang.reflect.Field;
 
 import one.microstream.equality.Equalator;
@@ -44,6 +46,13 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 		// no idea how to get ".class" to work otherwise
 		return (Class)EqBulkList.class;
 	}
+	
+	public static BinaryHandlerEqBulkList New(final PersistenceSizedArrayLengthController controller)
+	{
+		return new BinaryHandlerEqBulkList(
+			notNull(controller)
+		);
+	}
 
 
 
@@ -51,7 +60,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerEqBulkList(final PersistenceSizedArrayLengthController controller)
+	BinaryHandlerEqBulkList(final PersistenceSizedArrayLengthController controller)
 	{
 		// binary layout definition
 		super(

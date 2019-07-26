@@ -49,6 +49,11 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	{
 		return (Comparator<? super E>)handler.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
 	}
+	
+	public static BinaryHandlerTreeMap New()
+	{
+		return new BinaryHandlerTreeMap();
+	}
 
 
 
@@ -56,7 +61,7 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerTreeMap()
+	BinaryHandlerTreeMap()
 	{
 		super(
 			handledType(),

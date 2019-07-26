@@ -24,13 +24,18 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerQueue<Ar
 		return (Class)ArrayDeque.class; // no idea how to get ".class" to work otherwise
 	}
 	
-
+	public static BinaryHandlerArrayDeque New()
+	{
+		return new BinaryHandlerArrayDeque();
+	}
+	
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerArrayDeque()
+	BinaryHandlerArrayDeque()
 	{
 		super(
 			handledType()

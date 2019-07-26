@@ -18,10 +18,21 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 public final class BinaryHandlerProperties extends AbstractBinaryHandlerMap<Properties>
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static BinaryHandlerProperties New()
+	{
+		return new BinaryHandlerProperties();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerProperties()
+	BinaryHandlerProperties()
 	{
 		super(Properties.class);
 	}

@@ -53,10 +53,10 @@ public class BinaryHandlerGenericList<T extends List<?>> extends AbstractBinaryH
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerGenericList(final Class<T> type, final Instantiator<T> instantiator)
+	protected BinaryHandlerGenericList(final Class<T> type, final Instantiator<T> instantiator)
 	{
 		super(type);
-		this.instantiator = instantiator;
+		this.instantiator = notNull(instantiator);
 	}
 
 

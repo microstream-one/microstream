@@ -51,6 +51,11 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 	{
 		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
+	
+	public static BinaryHandlerLinkedHashMap New()
+	{
+		return new BinaryHandlerLinkedHashMap();
+	}
 
 
 
@@ -58,7 +63,7 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 	// constructors //
 	/////////////////
 
-	public BinaryHandlerLinkedHashMap()
+	BinaryHandlerLinkedHashMap()
 	{
 		super(
 			handledType(),
