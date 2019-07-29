@@ -2,6 +2,7 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingSequence;
@@ -9,12 +10,17 @@ import one.microstream.math.XMath;
 import one.microstream.persistence.exceptions.PersistenceExceptionParser;
 import one.microstream.persistence.exceptions.PersistenceExceptionParserIncompleteInput;
 import one.microstream.persistence.exceptions.PersistenceExceptionParserMissingComplexTypeDefinition;
+import one.microstream.persistence.exceptions.PersistenceExceptionParserMissingEnumName;
+import one.microstream.persistence.exceptions.PersistenceExceptionParserMissingMemberName;
 import one.microstream.persistence.exceptions.PersistenceExceptionParserMissingMemberTerminator;
+import one.microstream.persistence.exceptions.PersistenceExceptionParserMissingMemberType;
+import one.microstream.persistence.exceptions.PersistenceExceptionParserMissingPrimitiveDefinition;
 import one.microstream.persistence.exceptions.PersistenceExceptionParserMissingType;
 import one.microstream.persistence.exceptions.PersistenceExceptionParserMissingTypeBody;
 import one.microstream.persistence.exceptions.PersistenceExceptionParserMissingTypeId;
 import one.microstream.reflect.XReflect;
 import one.microstream.util.Substituter;
+import one.microstream.util.UtilStackTrace;
 
 public interface PersistenceTypeDictionaryParser
 {
@@ -22,14 +28,24 @@ public interface PersistenceTypeDictionaryParser
 		throws PersistenceExceptionParser
 	;
 
-
+	public static PersistenceTypeDictionaryParser.Default New(
+		final PersistenceFieldLengthResolver fieldLengthResolver
+	)
+	{
+		return New(
+			fieldLengthResolver,
+			Substituter.New()
+		);
+	}
 	
 	public static PersistenceTypeDictionaryParser.Default New(
-		final PersistenceFieldLengthResolver lengthResolver
+		final PersistenceFieldLengthResolver fieldLengthResolver,
+		final Substituter<String>            stringSubstitutor
 	)
 	{
 		return new PersistenceTypeDictionaryParser.Default(
-			notNull(lengthResolver)
+			notNull(fieldLengthResolver),
+			notNull(stringSubstitutor)
 		);
 	}
 
@@ -44,355 +60,668 @@ public interface PersistenceTypeDictionaryParser
 		///////////////////
 
 		// util methods //
-
-		// (16.04.2013 TM)XXX: improve all parsing methods with iStart, iEnd pattern like in CsvParser implementation
-
-		private static int skipWhiteSpacesEoFSafe(final char[] input, int i)
+		
+		private static void checkForIncompleteInput(final int i, final int iBound)
 		{
-			while(i < input.length && input[i] <= ' ')
+			if(i < iBound)
+			{
+				return;
+			}
+			throw UtilStackTrace.cutStacktraceByOne(
+				new PersistenceExceptionParserIncompleteInput(i)
+			);
+		}
+		
+
+		private static int skipWhitespaces(final char[] input, int i, final int iBound)
+		{
+			while(i < iBound && input[i] <= ' ')
 			{
 				i++;
 			}
+			
 			return i;
 		}
-
-		private static int skipWhiteSpaces(final char[] input, int i)
+		
+		private static int skipTerminated(final char[] input, int i, final int iBound, final char terminator)
 		{
-			while(input[i] <= ' ')
+			while(i < iBound && input[i] > ' ' && input[i] != terminator)
 			{
 				i++;
 			}
+			
 			return i;
 		}
-
+		
+		private static int skipTerminated(
+			final char[] input ,
+			      int    i     ,
+			final int    iBound,
+			final char   t1    ,
+			final char   t2    ,
+			final char   t3
+		)
+		{
+			while(i < iBound && input[i] > ' ' && input[i] != t1 && input[i] != t2 && input[i] != t3)
+			{
+				i++;
+			}
+			
+			return i;
+		}
+				
 		// keyword methods //
 
-		private static boolean equalsCharSequence(final char[] input, final int i, final char[] sample)
+		private static boolean equalsCharSequence(
+			final char[] input ,
+			final int    iStart,
+			final int    iBound,
+			final char[] sample
+		)
 		{
-			for(int s = 0; s < sample.length; s++)
+			final int sampleLength;
+			if(iStart + (sampleLength = sample.length) > iBound)
 			{
-				if(input[i + s] != sample[s])
+				return false;
+			}
+			
+			for(int i = 0; i < sampleLength; i++)
+			{
+				if(input[iStart + i] != sample[i])
 				{
 					return false;
 				}
 			}
+			
 			return true;
 		}
 
-		private static boolean isPrimitive(final char[] input, final int i)
+		private static boolean isNonComplexVariableLengthType(
+			final char[] input ,
+			final int    iStart,
+			final int    iBound
+		)
 		{
-			return equalsCharSequence(input, i, ARRAY_KEYWORD_PRIMITIVE);
-		}
-
-		private static boolean isVariableLengthType(final char[] input, final int i)
-		{
-			return equalsCharSequence(input, i, ARRAY_TYPE_BYTES  )
-				|| equalsCharSequence(input, i, ARRAY_TYPE_CHARS  )
-				|| equalsCharSequence(input, i, ARRAY_TYPE_COMPLEX)
+			return equalsCharSequence(input, iStart, iBound, ARRAY_TYPE_BYTES)
+				|| equalsCharSequence(input, iStart, iBound, ARRAY_TYPE_CHARS)
 			;
-		}
-
-		private static boolean isComplexType(final char[] input, final int i)
-		{
-			return equalsCharSequence(input, i, ARRAY_TYPE_COMPLEX);
 		}
 
 		// parser methods //
 
 		private static void parseTypes(
-			final char[]                                   input         ,
-			final PersistenceFieldLengthResolver           lengthResolver,
+			final char[]                                   input            ,
+			final int                                      iStart           ,
+			final int                                      iBound           ,
+			final PersistenceFieldLengthResolver           lengthResolver   ,
+			final Substituter<String>                      stringSubstitutor,
 			final BulkList<PersistenceTypeDictionaryEntry> entries
 		)
 		{
-			final Substituter<String> stringSubstitutor = Substituter.New();
-			
-			for(int i = 0; (i = skipWhiteSpacesEoFSafe(input, i)) < input.length;)
+			int i = iStart;
+			while(i < iBound)
 			{
-				final TypeEntry typeEntry = new TypeEntry(stringSubstitutor);
-				i = parseType(input, i, typeEntry, lengthResolver);
+				final TypeEntry typeEntry = new TypeEntry(stringSubstitutor, lengthResolver);
+				i = parseType(input, i, iBound, typeEntry);
 				entries.add(typeEntry);
+				
+				// skip trailing whitespaces before bound is checked again
+				i = skipWhitespaces(input, i, iBound);
 			}
+			
+			// input may actually end here, no incompleteness check!
 		}
 			
 		private static int parseType(
-			final char[]                         input         ,
-			final int                            i             ,
-			final TypeEntry                      typeEntry     ,
-			final PersistenceFieldLengthResolver lengthResolver
+			final char[]    input    ,
+			final int       iStart   ,
+			final int       iBound   ,
+			final TypeEntry typeEntry
 		)
 		{
-			int p = i;
-			p = parseTypeId     (input, p, typeEntry);
-			p = skipWhiteSpaces (input, p);
-			p = parseTypeName   (input, p, typeEntry);
-			p = skipWhiteSpaces (input, p);
-			p = parseTypeMembers(input, p, typeEntry, lengthResolver);
-			return p;
+			int i = iStart;
+			i = skipWhitespaces (input, i, iBound);
+			i = parseTypeId     (input, i, iBound, typeEntry);
+			i = skipWhitespaces (input, i, iBound);
+			i = parseTypeName   (input, i, iBound, typeEntry);
+			i = skipWhitespaces (input, i, iBound);
+			i = parseTypeMembers(input, i, iBound, typeEntry);
+			
+			return i;
 		}
 
-		private static int parseTypeId(final char[] input, final int i, final TypeEntry typeBuilder)
+		private static int parseTypeId(
+			final char[]    input    ,
+			final int       iStart   ,
+			final int       iBound   ,
+			final TypeEntry typeEntry
+		)
 		{
-			int p = i;
-			while(input[p] >= '0' && input[p] <= '9')
+			int i = iStart;
+			
+			// scroll to end of and validate typeId. Terminator only for "smarter" error messages.
+			i = skipTerminated(input, i, iBound, TYPE_START);
+			if(i == iStart)
 			{
-				p++;
+				throw new PersistenceExceptionParserMissingTypeId(iStart);
 			}
-			if(p == i)
-			{
-				throw new PersistenceExceptionParserMissingTypeId(i);
-			}
-			typeBuilder.setTid(Long.parseLong(new String(input, i, p - i)));
-			return p;
+			
+			final long typeId = Long.parseLong(new String(input, iStart, i - iStart));
+			typeEntry.setTid(typeId);
+			
+			return i;
 		}
 
-		private static int parseTypeName(final char[] input, final int i, final TypeEntry typeBuilder)
+		private static int parseTypeName(
+			final char[]    input    ,
+			final int       iStart   ,
+			final int       iBound   ,
+			final TypeEntry typeEntry
+		)
 		{
-			int p = i;
-			while(input[p] > ' ' && input[p] != TYPE_START)
+			int i = iStart;
+			
+			// scroll to end of and validate type name (either whitespace or type body start character)
+			i = skipTerminated(input, i, iBound, TYPE_START);
+			if(i == iStart)
 			{
-				p++;
+				throw new PersistenceExceptionParserMissingType(iStart);
 			}
-			if(p == i)
-			{
-				throw new PersistenceExceptionParserMissingType(i);
-			}
-			typeBuilder.setTypeName(new String(input, i, p - i));
-			if(input[p = skipWhiteSpaces(input, p)] != TYPE_START)
-			{
-				throw new PersistenceExceptionParserMissingTypeBody(p);
-			}
-			return p + 1;
+			
+			// set valid type name
+			typeEntry.setTypeName(new String(input, iStart, i - iStart));
+			
+			return i;
 		}
 
 		private static int parseTypeMembers(
-			final char[]                         input         ,
-			      int                            i             ,
-			final TypeEntry                      typeEntry     ,
-			final PersistenceFieldLengthResolver lengthResolver
+			final char[]    input    ,
+			final int       iStart   ,
+			final int       iBound   ,
+			final TypeEntry typeEntry
 		)
 		{
-			final TypeMemberBuilder member = new TypeMemberBuilder(lengthResolver, typeEntry.stringSubstitutor);
-			while(input[i = skipWhiteSpaces(input, i)] != TYPE_END)
+			final TypeMemberBuilder member = typeEntry.createTypeMemberBuilder();
+			
+			int i = iStart;
+			
+			// validate and skip type start charater
+			if(i >= iBound || input[i] != TYPE_START)
 			{
-				i = parseTypeMember(input, i, member.reset());
-				typeEntry.members.add(member.buildTypeMember());
+				throw new PersistenceExceptionParserMissingTypeBody(i);
 			}
+			i++;
+			
+			// parse member entries until type end character
+			while(i < iBound)
+			{
+				if(input[i] == TYPE_END)
+				{
+					break;
+				}
+				
+				member.reset();
+				i = skipWhitespaces(input, i, iBound);
+				i = parseTypeMember(input, i, iBound, member);
+				typeEntry.members.add(member.buildTypeMember());
+				
+				// skip trailing whitespaces before bound is checked again
+				i = skipWhitespaces(input, i, iBound);
+			}
+			checkForIncompleteInput(i, iBound);
+			
+			// current character must be the type end character at this point, so it is skipped
 			return i + 1;
 		}
 
-		private static int parseTypeMember(final char[] input, final int i, final TypeMemberBuilder member)
+		private static int parseTypeMember(
+			final char[]            input ,
+			final int               iStart,
+			final int               iBound,
+			final TypeMemberBuilder member
+		)
 		{
-			int p;
-			p = parsePrimitiveDefinition(input, i, member);
-			if(p != i)
+			int i;
+			i = parsePrimitiveDefinition(input, iStart, iBound, member);
+			if(i != iStart)
 			{
-				return p;
+				return i;
 			}
-			return parseInstanceMember(input, i, member);
+			
+			i = parseEnumDefinition(input, iStart, iBound, member);
+			if(i != iStart)
+			{
+				return i;
+			}
+			
+			return parseFieldDefinition(input, iStart, iBound, member);
 		}
 
-		private static int parseMemberTypeName(final char[] input, final int i, final AbstractMemberBuilder member)
+		private static int parseFieldTypeName(
+			final char[]                input ,
+			final int                   iStart,
+			final int                   iBound,
+			final AbstractMemberBuilder member
+		)
 		{
-			int p = i;
-			while(input[p] > ' '
-			   && input[p] != MEMBER_TERMINATOR
-			   && input[p] != MEMBER_FIELD_QUALIFIER_SEPERATOR
-			   && input[p] != TYPE_END
-			)
+			final int i = skipTerminated(input, iStart, iBound, MEMBER_TERMINATOR, TYPE_END, MEMBER_FIELD_QUALIFIER_SEPERATOR);
+			if(i == iStart)
 			{
-				p++;
+				// a type only containing Whitespaces gets to this point
+				return iStart;
 			}
-			member.setTypeName(new String(input, i, p - i));
-			return p;
+			
+			final int a = skipWhitespaces(input, i, iBound);
+			checkForIncompleteInput(a, iBound);
+			
+			if(input[a] == MEMBER_FIELD_QUALIFIER_SEPERATOR)
+			{
+				throw new PersistenceExceptionParserMissingMemberType(i);
+			}
+			
+			member.setTypeName(new String(input, iStart, i - iStart));
+			
+			return a;
 		}
 
-		private static int parsePrimitiveDefinition(final char[] input, final int i, final TypeMemberBuilder member)
+		private static int parsePrimitiveDefinition(
+			final char[]            input ,
+			final int               iStart,
+			final int               iBound,
+			final TypeMemberBuilder member
+		)
 		{
-			if(!isPrimitive(input, i))
+			if(!equalsCharSequence(input, iStart, iBound, ARRAY_KEYWORD_PRIMITIVE))
+			{
+				return iStart;
+			}
+			member.setTypeName(KEYWORD_PRIMITIVE);
+
+			final int i = skipWhitespaces(input, iStart + ARRAY_KEYWORD_PRIMITIVE.length, iBound);
+			return parsePrimitiveDefinitionDetails(input, i, iBound, member);
+		}
+		
+		private static int parsePrimitiveDefinitionDetails(
+			final char[]            input ,
+			final int               iStart,
+			final int               iBound,
+			final TypeMemberBuilder member
+		)
+		{
+			int i = iStart;
+			while(i < iBound && input[i] != MEMBER_TERMINATOR && input[i] != TYPE_END)
+			{
+				// whitespaces allowed, hence the trim() below
+				i++;
+			}
+			
+			if(i == iStart)
+			{
+				throw new PersistenceExceptionParserMissingPrimitiveDefinition(i);
+			}
+			checkForIncompleteInput(i, iBound);
+			
+			member.primitiveDefinition = new String(input, iStart, i - iStart).trim();
+			
+			return parseMemberTermination(input, i, iBound);
+		}
+		
+		private static int parseEnumDefinition(
+			final char[]            input ,
+			final int               iStart,
+			final int               iBound,
+			final TypeMemberBuilder member
+		)
+		{
+			if(!equalsCharSequence(input, iStart, iBound, ARRAY_KEYWORD_ENUM))
+			{
+				return iStart;
+			}
+			member.setTypeName(KEYWORD_ENUM);
+
+			final int i = skipWhitespaces(input, iStart + ARRAY_KEYWORD_ENUM.length, iBound);
+			return parseEnumDefinitionDetails(input, i, iBound, member);
+		}
+		
+		private static int parseEnumDefinitionDetails(
+			final char[]            input ,
+			final int               iStart,
+			final int               iBound,
+			final TypeMemberBuilder member
+		)
+		{
+			/* (29.07.2019 TM)FIXME: priv#23: parseEnumDefinition
+			 * Undelimited string until ":" or member end or type_end
+			 * if ":": undelimeted or delimited String until member end or type_end
+			 * set constant persistent name
+			 * optionally set constant runtime name
+			 */
+			
+			// parse enum persisted name
+			int i = skipTerminated(input, iStart, iBound, MEMBER_TERMINATOR, TYPE_END, ENUM_IDENTIFIER_SEPARATOR);
+			if(i == iStart)
+			{
+				throw new PersistenceExceptionParserMissingEnumName(i);
+			}
+			
+			int a = skipWhitespaces(input, i, iBound);
+			checkForIncompleteInput(a, iBound);
+			
+			// the first thing is always the enum name
+			setFieldName(input, iStart, i, member);
+
+			// check for qualifier#fieldname pattern, actual field name parsed subsequently.
+			if(input[a] == ENUM_IDENTIFIER_SEPARATOR)
+			{
+				// skip separator and whitespaces after it
+				i = skipWhitespaces(input, a + 1, iBound);
+				checkForIncompleteInput(i, iBound);
+				
+				a = parseEnumRuntimeIdentifier(input, i, iBound, member);
+			}
+			
+			// enum runtime name must be not null as it is abused to check for enum members, similar to primitives
+			if(member.enumRuntimeName == null)
+			{
+				member.enumRuntimeName = member.fieldName();
+			}
+
+			// check for terminator
+			return parseMemberTermination(input, a, iBound);
+		}
+		
+		private static int parseEnumRuntimeIdentifier(
+			final char[]            input ,
+			final int               iStart,
+			final int               iBound,
+			final TypeMemberBuilder member
+		)
+		{
+			final int i;
+			final String enumRuntimeName;
+			
+			if(input[iStart] != LITERAL_DELIMITER)
+			{
+				i = skipTerminated(input, iStart, iBound, MEMBER_TERMINATOR, TYPE_END, TYPE_END);
+				if(i == iStart)
+				{
+					member.enumDeleted = true;
+					checkForIncompleteInput(i, iBound);
+					
+					return i;
+				}
+				checkForIncompleteInput(i, iBound);
+				
+				enumRuntimeName = new String(input, iStart, i - iStart);
+			}
+			else
+			{
+				i = parseLiteral(input, iStart, iBound, member.literalCollector.reset());
+				enumRuntimeName = member.literalCollector.toString();
+			}
+			
+			member.enumRuntimeName = enumRuntimeName;
+
+			// terminator check is done by calling context
+			return i;
+		}
+		
+		private static int parseLiteral(
+			final char[]    input ,
+			final int       iStart,
+			final int       iBound,
+			final VarString string
+		)
+		{
+			// opening literal delimiter is skipped
+			int i = iStart + 1;
+			
+			while(i < iBound)
+			{
+				if(input[i] == LITERAL_DELIMITER)
+				{
+					break;
+				}
+				if(input[i] == LITERAL_ESCAPER)
+				{
+					if(++i == iBound)
+					{
+						break;
+					}
+				}
+				string.add(input[i]);
+				i++;
+			}
+			checkForIncompleteInput(i, iBound);
+
+			// closing literal delimiter is skipped
+			return i + 1;
+		}
+
+		private static int parseMemberName(
+			final char[]                input ,
+			final int                   iStart,
+			final int                   iBound,
+			final AbstractMemberBuilder member
+		)
+		{
+			final int i = skipTerminated(input, iStart, iBound, MEMBER_TERMINATOR, TYPE_END, MEMBER_COMPLEX_DEF_END);
+			if(i == iStart)
+			{
+				throw new PersistenceExceptionParserMissingMemberName(i);
+			}
+			setFieldName(input, iStart, i, member);
+
+			return parseMemberTermination(input, i, iBound);
+		}
+
+		private static int parseFieldDefinition(
+			final char[]            input ,
+			final int               iStart,
+			final int               iBound,
+			final TypeMemberBuilder member
+		)
+		{
+			final int i = parseFieldVariableLength(input, iStart, iBound, member);
+			if(i != iStart)
 			{
 				return i;
 			}
 
-			final int p = skipWhiteSpaces(input, i + 9);
-			member.setTypeName(KEYWORD_PRIMITIVE);
-
-			int p2 = p;
-			while(input[p2] != MEMBER_TERMINATOR && input[p2] != TYPE_END)
-			{
-				p2++;
-			}
-			member.primitiveDefinition = new String(input, p, p2 - p).trim();
-			return parseMemberTermination(input, p2);
+			return parseFieldSimple(input, iStart, iBound, member);
 		}
 
-		private static int parseMemberName(final char[] input, final int i, final AbstractMemberBuilder member)
-		{
-			int p = i;
-			while(input[p] > ' '
-			   && input[p] != MEMBER_TERMINATOR
-			   && input[p] != TYPE_END
-			   && input[p] != MEMBER_COMPLEX_DEF_END
-			)
-			{
-				p++;
-			}
-
-			member.setFieldName(new String(input, i, p - i));
-
-			return parseMemberTermination(input, p);
-		}
-
-		private static int parseInstanceMember(final char[] input, final int i, final TypeMemberBuilder member)
-		{
-			final int p = parseMemberVariableLength(input, i, member);
-			if(p != i)
-			{
-				return p;
-			}
-
-			return parseInstanceMemberSimpleType(input, i, member);
-		}
-
-		private static int parseInstanceMemberSimpleType(
+		private static int parseFieldSimple(
 			final char[]                input ,
-			final int                   i     ,
+			final int                   iStart,
+			final int                   iBound,
 			final AbstractMemberBuilder member
 		)
 		{
 			// parse member type name
-			int p = i;
-			p = parseMemberTypeName(input, p, member);
-			p = skipWhiteSpaces    (input, p);
+			final int i = parseFieldTypeName(input, iStart, iBound, member);
 
 			// parse member name
-			return parseInstanceMemberName(input, p, member);
+			return parseFieldName(input, i, iBound, member);
 		}
 
-		private static int parseInstanceMemberName(final char[] input, final int i, final AbstractMemberBuilder member)
-		{
-			// parse next symbol (either field qualifier or field member name)
-			int p = i;
-			while(input[p] > ' '
-			   && input[p] != MEMBER_TERMINATOR
-			   && input[p] != MEMBER_FIELD_QUALIFIER_SEPERATOR
-			   && input[p] != TYPE_END
-			)
-			{
-				p++;
-			}
-
-			// check for qualifier, parse actual field name externally
-			if(input[skipWhiteSpaces(input, p)] == MEMBER_FIELD_QUALIFIER_SEPERATOR)
-			{
-				member.setQualifier(new String(input, i, p - i));
-				p = skipWhiteSpaces(input, skipWhiteSpaces(input, p) + 1); // skip whitespaces, separator, whitespaces
-				return parseMemberName(input, p, member);
-			}
-
-			// otherwise must be qualifierless field name, set member name here
-			member.setFieldName(new String(input, i, p - i));
-
-			// check for terminator
-			return parseMemberTermination(input, p);
-		}
-
-		private static int parseMemberVariableLength(
+		private static int parseFieldName(
 			final char[]                input ,
-			final int                   i     ,
+			final int                   iStart,
+			final int                   iBound,
 			final AbstractMemberBuilder member
 		)
 		{
-			if(!isVariableLengthType(input, i))
+			// parse next symbol (either field qualifier or field member name)
+			final int i = skipTerminated(input, iStart, iBound, MEMBER_TERMINATOR, TYPE_END, MEMBER_FIELD_QUALIFIER_SEPERATOR);
+			if(i == iStart)
+			{
+				throw new PersistenceExceptionParserMissingMemberName(i);
+			}
+			
+			int a = skipWhitespaces(input, i, iBound);
+			checkForIncompleteInput(a, iBound);
+
+			// check for qualifier#fieldname pattern, actual field name parsed subsequently.
+			if(input[a] == MEMBER_FIELD_QUALIFIER_SEPERATOR)
+			{
+				member.setQualifier(new String(input, iStart, i - iStart));
+				
+				// skip separator and whitespaces after it
+				a = skipWhitespaces(input, a + 1, iBound);
+				return parseMemberName(input, a, iBound, member);
+			}
+
+			// otherwise must be qualifierless simple field name, member name is set right away
+			setFieldName(input, iStart, i, member);
+
+			// check for terminator
+			return parseMemberTermination(input, i, iBound);
+		}
+		
+		private static void setFieldName(
+			final char[]                input ,
+			final int                   iStart,
+			final int                   iBound,
+			final AbstractMemberBuilder member
+		)
+		{
+			member.setFieldName(new String(input, iStart, iBound - iStart));
+		}
+
+		private static int parseFieldVariableLength(
+			final char[]                input ,
+			final int                   iStart,
+			final int                   iBound,
+			final AbstractMemberBuilder member
+		)
+		{
+			final int i = parseMemberComplexType(input, iStart, iBound, member);
+			if(i != iStart)
 			{
 				return i;
+			}
+			
+			if(!isNonComplexVariableLengthType(input, iStart, iBound))
+			{
+				return iStart;
 			}
 
 			member.isVariableLength = true;
 
-			final int p = parseMemberComplexType(input, i, member);
-			if(p != i)
-			{
-				return p;
-			}
-
 			// can be parsed as simple type, variable length marker has already been set. Rest is no different.
-			return parseInstanceMemberSimpleType(input, i, member);
+			return parseFieldSimple(input, iStart, iBound, member);
 		}
 
-		private static int parseMemberComplexType(final char[] input, final int i, final AbstractMemberBuilder member)
+		private static int parseMemberComplexType(
+			final char[]                input ,
+			final int                   iStart,
+			final int                   iBound,
+			final AbstractMemberBuilder member
+		)
 		{
-			if(!isComplexType(input, i))
+			if(!equalsCharSequence(input, iStart, iBound, ARRAY_TYPE_COMPLEX))
+			{
+				return iStart;
+			}
+
+			int i = skipWhitespaces(input, iStart + ARRAY_TYPE_COMPLEX.length, iBound);
+			member.setTypeName(TYPE_COMPLEX);
+			member.isVariableLength = true;
+			member.isComplex        = true;
+
+			i = parseComplexMemberName(input, i, iBound, member);
+			
+			final NestedMemberBuilder nestedMemberBuilder = member.createNestedMemberBuilder();
+			while(i < iBound)
+			{
+				if(input[i] == MEMBER_COMPLEX_DEF_END)
+				{
+					break;
+				}
+				
+				i = parseNestedMember(input, i, iBound, nestedMemberBuilder);
+				member.nestedMembers.add(nestedMemberBuilder.buildGenericFieldMember());
+				
+				// skip trailing whitespaces before bound is checked again
+				i = skipWhitespaces(input, i, iBound);
+			}
+			checkForIncompleteInput(i, iBound);
+
+			// +1 to skip complex definition end
+			return parseMemberTermination(input, i + 1, iBound);
+		}
+
+		private static int parseComplexMemberName(
+			final char[]                input ,
+			final int                   iStart,
+			final int                   iBound,
+			final AbstractMemberBuilder member
+		)
+		{
+			final int i = skipTerminated(input, iStart, iBound, MEMBER_TERMINATOR, TYPE_END, MEMBER_COMPLEX_DEF_START);
+			if(i == iStart)
+			{
+				throw new PersistenceExceptionParserMissingMemberName(i);
+			}
+			
+			final int a = skipWhitespaces(input, i, iBound);
+			if(a == iBound)
+			{
+				throw new PersistenceExceptionParserMissingMemberName(i);
+			}
+						
+			if(input[a] != MEMBER_COMPLEX_DEF_START)
+			{
+				throw new PersistenceExceptionParserMissingComplexTypeDefinition(i);
+			}
+
+			setFieldName(input, iStart, i, member);
+			
+			return skipWhitespaces(input, a + 1, iBound);
+		}
+
+		private static int parseNestedMember(
+			final char[]                input ,
+			final int                   iStart,
+			final int                   iBound,
+			final AbstractMemberBuilder member
+		)
+		{
+			final int i = parseFieldVariableLength(input, iStart, iBound, member);
+			if(i != iStart)
 			{
 				return i;
 			}
-
-			member.setTypeName(TYPE_COMPLEX);
-			member.isComplex = true;
-
-			int p;
-			p = skipWhiteSpaces       (input, i + LITERAL_LENGTH_TYPE_COMPLEX);
-			p = parseComplexMemberName(input, p, member);
-
-			final NestedMemberBuilder nestedMemberBuilder = new NestedMemberBuilder(
-				member.lengthResolver   ,
-				member.stringSubstitutor
-			);
-
-			while(input[p = skipWhiteSpaces(input, p)] != MEMBER_COMPLEX_DEF_END)
-			{
-				p = parseNestedMember(input, p, nestedMemberBuilder);
-				member.nestedMembers.add(nestedMemberBuilder.buildGenericFieldMember());
-			}
-
-			return parseMemberTermination(input, p + 1); // +1 to skip complex definition end
+			return parseNestedSimpleType(input, iStart, iBound, member);
 		}
 
-		private static int parseComplexMemberName(final char[] input, final int i, final AbstractMemberBuilder member)
+		private static int parseNestedSimpleType(
+			final char[]                input ,
+			final int                   iStart,
+			final int                   iBound,
+			final AbstractMemberBuilder member
+		)
 		{
-			int p = i;
-			while(input[p] > ' '
-			   && input[p] != MEMBER_TERMINATOR
-			   && input[p] != MEMBER_COMPLEX_DEF_START
-			   && input[p] != TYPE_END
-			)
-			{
-				p++;
-			}
-			member.setFieldName(new String(input, i, p - i));
-			if(input[p = skipWhiteSpaces(input, p)] != MEMBER_COMPLEX_DEF_START)
-			{
-				throw new PersistenceExceptionParserMissingComplexTypeDefinition(p);
-			}
-			return skipWhiteSpaces(input, p + 1);
+			final int i = parseFieldTypeName(input, iStart, iBound, member);
+			
+			return parseMemberName(input, i, iBound, member);
 		}
 
-		private static int parseNestedMember(final char[] input, final int i, final AbstractMemberBuilder member)
+		private static int parseMemberTermination(
+			final char[] input ,
+			final int    iStart,
+			final int    iBound
+		)
 		{
-			final int p = parseMemberVariableLength(input, i, member);
-			if(p != i)
+			final int i = skipWhitespaces(input, iStart, iBound);
+			if(i == iBound || input[i] != MEMBER_TERMINATOR)
 			{
-				return p;
+				throw new PersistenceExceptionParserMissingMemberTerminator(i);
 			}
-			return parseNestedSimpleType(input, i, member);
-		}
-
-		private static int parseNestedSimpleType(final char[] input, final int i, final AbstractMemberBuilder member)
-		{
-			int p;
-			p = parseMemberTypeName(input, i, member);
-			p = skipWhiteSpaces(input, p);
-			return parseMemberName(input, p, member);
-		}
-
-		private static int parseMemberTermination(final char[] input, final int i)
-		{
-			int p = i;
-			if(input[p = skipWhiteSpaces(input, p)] != MEMBER_TERMINATOR)
-			{
-				throw new PersistenceExceptionParserMissingMemberTerminator(p);
-			}
-			return p + 1; // +1 to skip complex definition end
+			
+			// +1 to skip terminator
+			return i + 1;
 		}
 
 
@@ -401,7 +730,8 @@ public interface PersistenceTypeDictionaryParser
 		// instance fields //
 		////////////////////
 
-		final PersistenceFieldLengthResolver lengthResolver;
+		final PersistenceFieldLengthResolver fieldLengthResolver;
+		final Substituter<String>            stringSubstitutor  ;
 
 
 
@@ -409,10 +739,14 @@ public interface PersistenceTypeDictionaryParser
 		// constructors //
 		/////////////////
 
-		Default(final PersistenceFieldLengthResolver lengthResolver)
+		Default(
+			final PersistenceFieldLengthResolver fieldLengthResolver,
+			final Substituter<String>            stringSubstitutor
+		)
 		{
 			super();
-			this.lengthResolver = lengthResolver;
+			this.fieldLengthResolver = fieldLengthResolver;
+			this.stringSubstitutor   = stringSubstitutor  ;
 		}
 
 
@@ -423,25 +757,26 @@ public interface PersistenceTypeDictionaryParser
 
 		@Override
 		public XGettingSequence<? extends PersistenceTypeDictionaryEntry> parseTypeDictionaryEntries(
-			final String input
+			final String inputString
 		)
 			throws PersistenceExceptionParser
 		{
-			if(input == null)
+			if(inputString == null)
 			{
 				return null;
 			}
-			
+						
 			// no unique TypeId constraint here in order to collect all entries, even if with inconsistencies.
 			final BulkList<PersistenceTypeDictionaryEntry> entries = BulkList.New();
 			
 			try
 			{
-				parseTypes(XChars.readChars(input), this.lengthResolver, entries);
+				final char[] input = XChars.readChars(inputString);
+				parseTypes(input, 0, input.length, this.fieldLengthResolver, this.stringSubstitutor, entries);
 			}
 			catch(final ArrayIndexOutOfBoundsException e)
 			{
-				throw new PersistenceExceptionParserIncompleteInput(input.length(), e);
+				throw new PersistenceExceptionParserIncompleteInput(inputString.length(), e);
 			}
 			catch(final PersistenceExceptionParser e)
 			{
@@ -469,7 +804,8 @@ public interface PersistenceTypeDictionaryParser
 		private String                                   typeName;
 		final BulkList<PersistenceTypeDescriptionMember> members  = new BulkList<>();
 		
-		final Substituter<String>                        stringSubstitutor;
+		final Substituter<String>                        stringSubstitutor  ;
+		final PersistenceFieldLengthResolver             fieldLengthResolver;
 
 		
 		
@@ -477,10 +813,14 @@ public interface PersistenceTypeDictionaryParser
 		// constructors //
 		/////////////////
 		
-		TypeEntry(final Substituter<String> stringSubstitutor)
+		TypeEntry(
+			final Substituter<String>            stringSubstitutor  ,
+			final PersistenceFieldLengthResolver fieldLengthResolver
+		)
 		{
 			super();
-			this.stringSubstitutor = stringSubstitutor;
+			this.stringSubstitutor   = stringSubstitutor  ;
+			this.fieldLengthResolver = fieldLengthResolver;
 		}
 		
 		
@@ -516,6 +856,11 @@ public interface PersistenceTypeDictionaryParser
 		{
 			this.tid = tid;
 		}
+		
+		final TypeMemberBuilder createTypeMemberBuilder()
+		{
+			return new TypeMemberBuilder(this.fieldLengthResolver, this.stringSubstitutor);
+		}
 
 	}
 
@@ -527,12 +872,13 @@ public interface PersistenceTypeDictionaryParser
 		// instance fields //
 		////////////////////
 
-		boolean                                                     isVariableLength, isComplex;
-		private String                                              qualifier, typeName, fieldName;
+		boolean                                                      isVariableLength, isComplex;
+		private String                                               qualifier, typeName, fieldName;
 		final BulkList<PersistenceTypeDescriptionMemberFieldGeneric> nestedMembers = new BulkList<>();
-		final PersistenceFieldLengthResolver                        lengthResolver;
-		final Substituter<String>                                   stringSubstitutor;
+		final PersistenceFieldLengthResolver                         lengthResolver;
+		final Substituter<String>                                    stringSubstitutor;
 
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -595,6 +941,11 @@ public interface PersistenceTypeDictionaryParser
 			return this;
 		}
 		
+		final NestedMemberBuilder createNestedMemberBuilder()
+		{
+			return new NestedMemberBuilder(this.lengthResolver, this.stringSubstitutor);
+		}
+		
 		final PersistenceTypeDescriptionMemberFieldGeneric buildGenericFieldMember()
 		{
 			if(this.isVariableLength)
@@ -642,6 +993,10 @@ public interface PersistenceTypeDictionaryParser
 		////////////////////
 
 		String primitiveDefinition;
+		String enumRuntimeName    ;
+		boolean enumDeleted       ;
+		
+		VarString literalCollector = VarString.New(64);
 
 
 
@@ -687,6 +1042,11 @@ public interface PersistenceTypeDictionaryParser
 			{
 				return this.buildMemberPrimitiveDefinition();
 			}
+			
+			if(this.enumRuntimeName != null)
+			{
+				return this.buildMemberEnumConstant();
+			}
 
 			if(!this.isVariableLength)
 			{
@@ -706,6 +1066,15 @@ public interface PersistenceTypeDictionaryParser
 			return PersistenceTypeDescriptionMemberPrimitiveDefinition.New(
 				this.primitiveDefinition,
 				persistentLength
+			);
+		}
+		
+		final PersistenceTypeDescriptionMemberEnumConstant buildMemberEnumConstant()
+		{
+			return PersistenceTypeDescriptionMemberEnumConstant.New(
+				this.fieldName(),
+				this.enumRuntimeName,
+				this.enumDeleted
 			);
 		}
 		
@@ -749,7 +1118,9 @@ public interface PersistenceTypeDictionaryParser
 		final TypeMemberBuilder reset()
 		{
 			super.reset();
-			this.primitiveDefinition   = null;
+			this.primitiveDefinition = null ;
+			this.enumRuntimeName     = null ;
+			this.enumDeleted         = false;
 			return this;
 		}
 
@@ -778,7 +1149,7 @@ public interface PersistenceTypeDictionaryParser
 			
 			return this.lengthResolver.resolveMaximumLengthFromDictionary(
 				this.qualifier(),
-				this.fieldName()        ,
+				this.fieldName(),
 				this.typeName()
 			);
 		}
@@ -809,6 +1180,7 @@ public interface PersistenceTypeDictionaryParser
 		final NestedMemberBuilder reset()
 		{
 			super.reset();
+			
 			return this;
 		}
 
