@@ -1750,7 +1750,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceTypeDictionaryParser ensureTypeDictionaryParser()
 		{
 			final PersistenceTypeDictionaryParser newTypeDictionaryParser =
-				new PersistenceTypeDictionaryParser.Default(
+				PersistenceTypeDictionaryParser.New(
 					this.getFieldFixedLengthResolver()
 				)
 			;
