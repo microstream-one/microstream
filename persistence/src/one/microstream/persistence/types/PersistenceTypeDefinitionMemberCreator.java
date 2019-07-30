@@ -13,6 +13,10 @@ public interface PersistenceTypeDefinitionMemberCreator
 		PersistenceTypeDescriptionMemberPrimitiveDefinition description
 	);
 	
+	public PersistenceTypeDefinitionMemberEnumConstant createDefinitionMember(
+		PersistenceTypeDescriptionMemberEnumConstant description
+	);
+	
 	public PersistenceTypeDefinitionMemberFieldReflective createDefinitionMember(
 		PersistenceTypeDescriptionMemberFieldReflective description
 	);
@@ -79,6 +83,14 @@ public interface PersistenceTypeDefinitionMemberCreator
 		)
 		{
 			return PersistenceTypeDefinitionMemberPrimitiveDefinition.New(description);
+		}
+		
+		@Override
+		public PersistenceTypeDefinitionMemberEnumConstant createDefinitionMember(
+			final PersistenceTypeDescriptionMemberEnumConstant description
+		)
+		{
+			return PersistenceTypeDefinitionMemberEnumConstant.New(description.name());
 		}
 		
 		private PersistenceTypeDescription determineLatestTypeEntry(final String typeName)

@@ -22,6 +22,8 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 	public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberFieldGenericComplex typeMember);
 
 	public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberPrimitiveDefinition typeMember);
+
+	public void appendTypeMemberDescription(PersistenceTypeDescriptionMemberEnumConstant typeMember);
 	
 	
 	
@@ -33,13 +35,9 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 		// constants //
 		//////////////
 
-		// equal-length predefined char sequences
-//		private static final char[] static_final_  = (KEYWORD_STATIC+' '+KEYWORD_FINAL+' ').toCharArray();
-//		private static final char[] static_______  = (KEYWORD_STATIC + "       ")          .toCharArray();
-//		private static final char[] INSTANCE_FIELD = "             "                       .toCharArray();
-
 		// primitive definition special case char sequence
-		private static final char[] PRIMITIVE_     = (KEYWORD_PRIMITIVE + ' ')             .toCharArray();
+		private static final char[] PRIMITIVE_ = (KEYWORD_PRIMITIVE + ' ').toCharArray();
+		private static final char[] ENUM_      = (KEYWORD_ENUM + ' ')     .toCharArray();
 
 
 
@@ -48,10 +46,10 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 		////////////////////
 
 		private final VarString vs;
-		private final int maxFieldTypeNameLength    ;
-		private final int maxDeclaringTypeNameLength;
-		private final int maxFieldNameLength        ;
-		private final int level;
+		private final int       maxFieldTypeNameLength;
+		private final int       maxDeclaringTypeNameLength;
+		private final int       maxFieldNameLength;
+		private final int       level;
 
 
 
@@ -60,16 +58,16 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 		/////////////////
 
 		public Default(
-			final VarString vc,
-			final int level,
-			final int maxFieldTypeNameLength,
-			final int maxDeclaringTypeNameLength,
-			final int maxFieldNameLength
+			final VarString vs                        ,
+			final int       level                     ,
+			final int       maxFieldTypeNameLength    ,
+			final int       maxDeclaringTypeNameLength,
+			final int       maxFieldNameLength
 		)
 		{
 			super();
-			this.vs = vc;
-			this.level = level;
+			this.vs                         =             vs                         ;
+			this.level                      =             level                      ;
 			this.maxFieldTypeNameLength     = notNegative(maxFieldTypeNameLength    );
 			this.maxDeclaringTypeNameLength = notNegative(maxDeclaringTypeNameLength);
 			this.maxFieldNameLength         = notNegative(maxFieldNameLength        );
@@ -147,6 +145,13 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberPrimitiveDefinition typeMember)
 		{
 			this.vs.add(PRIMITIVE_).add(typeMember.primitiveDefinition());
+		}
+		
+
+		@Override
+		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberEnumConstant typeMember)
+		{
+			this.vs.add(ENUM_).add(typeMember.name());
 		}
 
 	}

@@ -67,7 +67,7 @@ public interface PersistenceTypeAnalyzer
 		{
 			XReflect.iterateDeclaredFieldsUpwards(entityType, field ->
 			{
-				// non-instance fielsd are always discarded
+				// non-instance fields are always discarded
 				if(!XReflect.isInstanceField(field))
 				{
 					return;

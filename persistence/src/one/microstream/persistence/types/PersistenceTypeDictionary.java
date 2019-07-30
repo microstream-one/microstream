@@ -536,12 +536,13 @@ public interface PersistenceTypeDictionary
 		protected static final transient char   TYPE_START                       = '{';
 		protected static final transient char   TYPE_END                         = '}';
 		protected static final transient char   MEMBER_FIELD_QUALIFIER_SEPERATOR = XReflect.fieldIdentifierDelimiter();
-		protected static final transient char   ENUM_IDENTIFIER_SEPARATOR        = ':';
 		protected static final transient char   MEMBER_TERMINATOR                = ','; // cannot be ";" as array names are terminated by it
 		protected static final transient char   MEMBER_COMPLEX_DEF_START         = '(';
 		protected static final transient char   MEMBER_COMPLEX_DEF_END           = ')';
-		protected static final transient char   LITERAL_DELIMITER                = '"';
-		protected static final transient char   LITERAL_ESCAPER                  = '\\';
+		
+		// (30.07.2019 TM)NOTE: literal parsing implemented but then not needed. Kept around a while.
+//		protected static final transient char   LITERAL_DELIMITER                = '"';
+//		protected static final transient char   LITERAL_ESCAPER                  = '\\';
 
 		protected static final transient String KEYWORD_PRIMITIVE                = "primitive";
 		protected static final transient String KEYWORD_ENUM                     = "enum"     ;

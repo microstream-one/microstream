@@ -16,7 +16,9 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	@Override
 	public String typeName();
 	
-	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
+	public XGettingSequence<? extends PersistenceTypeDescriptionMember> allMembers();
+	
+	public XGettingSequence<? extends PersistenceTypeDescriptionMember> instanceMembers();
 	
 	/* (30.06.2015 TM)TODO: PersistenceTypeDescription Generics
 	 * Must consider Generics Type information as well, at least as a simple normalized String for
@@ -66,7 +68,7 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	{
 		return td1 == td2 || td1 != null && td2 != null
 			&& td1.typeName().equals(td1.typeName())
-			&& PersistenceTypeDescriptionMember.equalDescriptions(td1.members(), td2.members())
+			&& PersistenceTypeDescriptionMember.equalDescriptions(td1.instanceMembers(), td2.instanceMembers())
 		;
 	}
 	
@@ -84,7 +86,7 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	{
 		return td1 == td2 || td1 != null && td2 != null
 			&& td1.typeName().equals(td1.typeName())
-			&& PersistenceTypeDescriptionMember.equalStructures(td1.members(), td2.members())
+			&& PersistenceTypeDescriptionMember.equalStructures(td1.instanceMembers(), td2.instanceMembers())
 		;
 	}
 	
@@ -133,9 +135,15 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 		{
 			return this.typeName;
 		}
+		
+		@Override
+		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> allMembers()
+		{
+			return this.instanceMembers();
+		}
 
 		@Override
-		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> instanceMembers()
 		{
 			return X.empty();
 		}

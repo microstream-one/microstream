@@ -10,7 +10,8 @@ public interface PersistenceTypeDefinitionCreator
 		String                                                  typeName       ,
 		String                                                  runtimeTypeName,
 		Class<?>                                                runtimeType    ,
-		XGettingEnum<? extends PersistenceTypeDefinitionMember> members
+		XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers     ,
+		XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers
 	);
 	
 	
@@ -43,10 +44,11 @@ public interface PersistenceTypeDefinitionCreator
 			final String                                                  typeName       ,
 			final String                                                  runtimeTypeName,
 			final Class<?>                                                runtimeType    ,
-			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers     ,
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers
 		)
 		{
-			return PersistenceTypeDefinition.New(typeId, typeName, runtimeTypeName, runtimeType, members);
+			return PersistenceTypeDefinition.New(typeId, typeName, runtimeTypeName, runtimeType, allMembers, instanceMembers);
 		}
 		
 	}

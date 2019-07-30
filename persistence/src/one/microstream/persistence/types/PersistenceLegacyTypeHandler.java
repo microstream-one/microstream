@@ -94,9 +94,15 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public final XGettingEnum<? extends PersistenceTypeDefinitionMember> members()
+		public final XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers()
 		{
-			return this.typeDefinition.members();
+			return this.typeDefinition.allMembers();
+		}
+
+		@Override
+		public final XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers()
+		{
+			return this.typeDefinition.instanceMembers();
 		}
 		
 		@Override

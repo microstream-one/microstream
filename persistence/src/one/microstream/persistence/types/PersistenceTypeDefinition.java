@@ -52,6 +52,9 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * Wouldn't it be enough to store it in the member description?
 	 * E.g. Type "Lazy" PLUS type parameter "[full qualified] Person"
 	 */
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers();
 
 	/**
 	 * Enum (unique elements with order), using {@link PersistenceTypeDescriptionMember#identityHashEqualator()}.
@@ -61,7 +64,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * @return
 	 */
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDefinitionMember> members();
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers();
 
 	public boolean hasPersistedReferences();
 
@@ -139,10 +142,10 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	}
 
 	public static boolean determineIsPrimitive(
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+		final XGettingSequence<? extends PersistenceTypeDescriptionMember> allMembers
 	)
 	{
-		return members.size() == 1 && members.get().isPrimitiveDefinition();
+		return allMembers.size() == 1 && allMembers.get().isPrimitiveDefinition();
 	}
 	
 	
@@ -151,27 +154,32 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 		final String                                                  typeName       ,
 		final String                                                  runtimeTypeName,
 		final Class<?>                                                type           ,
-		final XGettingEnum<? extends PersistenceTypeDefinitionMember> members
+		final XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers     ,
+		final XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers
 	)
 	{
 		// as defined by interface contract.
-		if(members.equality() != PersistenceTypeDescriptionMember.identityHashEqualator())
+		if(allMembers.equality() != PersistenceTypeDescriptionMember.identityHashEqualator()
+		|| instanceMembers.equality() != PersistenceTypeDescriptionMember.identityHashEqualator()
+		)
 		{
 			throw new IllegalArgumentException();
 		}
 		
 		// no-op for already immutable collection type (e.g. PersistenceTypeDescriptionMember#validateAndImmure)
 		// type may be null for the sole case of an explicitly mapped to be deleted type.
-		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> internalMembers = members.immure();
+		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> immutAllMembers = allMembers.immure();
+		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> immutInsMembers = instanceMembers.immure();
 		return new PersistenceTypeDefinition.Default(
 			                                                         typeId          ,
 			                                                 notNull(typeName)       ,
 			                                                 mayNull(runtimeTypeName),
 			                                                 mayNull(type)           ,
-			                                                         internalMembers ,
-			PersistenceTypeDescriptionMember.determineHasReferences (internalMembers),
-			PersistenceTypeDefinition       .determineIsPrimitive   (internalMembers),
-			PersistenceTypeDefinition       .determineVariableLength(internalMembers)
+			                                                         immutAllMembers ,
+			                                                         immutInsMembers ,
+			PersistenceTypeDescriptionMember.determineHasReferences (immutInsMembers),
+			PersistenceTypeDefinition       .determineIsPrimitive   (immutAllMembers),
+			PersistenceTypeDefinition       .determineVariableLength(immutInsMembers)
 		);
 	}
 
@@ -187,9 +195,10 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 		final String                                                    typeName            ;
 		final String                                                    runtimeTypeName     ;
 		final Class<?>                                                  runtimeType         ;
-		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members             ;
-		final long                                                      membersLengthMinimum;
-		final long                                                      membersLengthMaximum;
+		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> allMembers          ;
+		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> instanceMembers     ;
+		final long                                                      membersMinLength;
+		final long                                                      membersMaxLength;
 		final boolean                                                   hasReferences       ;
 		final boolean                                                   isPrimitive         ;
 		final boolean                                                   variableLength      ;
@@ -205,23 +214,25 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 			final String                                                    typeName       ,
 			final String                                                    runtimeTypeName,
 			final Class<?>                                                  runtimeType    ,
-			final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members        ,
+			final XImmutableEnum<? extends PersistenceTypeDefinitionMember> allMembers     ,
+			final XImmutableEnum<? extends PersistenceTypeDefinitionMember> instanceMembers,
 			final boolean                                                   hasReferences  ,
 			final boolean                                                   isPrimitive    ,
 			final boolean                                                   variableLength
 		)
 		{
 			super();
-			this.typeId          = typeId         ;
-			this.typeName        = typeName       ;
-			this.runtimeTypeName = runtimeTypeName;
-			this.runtimeType     = runtimeType    ;
-			this.members         = members        ;
-			this.hasReferences   = hasReferences  ;
-			this.isPrimitive     = isPrimitive    ;
-			this.variableLength  = variableLength ;
-			this.membersLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, members);
-			this.membersLengthMaximum = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, members);
+			this.typeId           = typeId         ;
+			this.typeName         = typeName       ;
+			this.runtimeTypeName  = runtimeTypeName;
+			this.runtimeType      = runtimeType    ;
+			this.allMembers       = allMembers     ;
+			this.instanceMembers  = instanceMembers;
+			this.hasReferences    = hasReferences  ;
+			this.isPrimitive      = isPrimitive    ;
+			this.variableLength   = variableLength ;
+			this.membersMinLength = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, instanceMembers);
+			this.membersMaxLength = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, instanceMembers);
 		}
 
 		
@@ -255,9 +266,15 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 		}
 		
 		@Override
-		public final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members()
+		public final XImmutableEnum<? extends PersistenceTypeDefinitionMember> allMembers()
 		{
-			return this.members;
+			return this.allMembers;
+		}
+		
+		@Override
+		public final XImmutableEnum<? extends PersistenceTypeDefinitionMember> instanceMembers()
+		{
+			return this.instanceMembers;
 		}
 
 		@Override
@@ -293,13 +310,13 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 		@Override
 		public final long membersPersistedLengthMinimum()
 		{
-			return this.membersLengthMinimum;
+			return this.membersMinLength;
 		}
 
 		@Override
 		public final long membersPersistedLengthMaximum()
 		{
-			return this.membersLengthMaximum;
+			return this.membersMaxLength;
 		}
 		
 

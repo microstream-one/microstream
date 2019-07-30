@@ -6,7 +6,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
-import one.microstream.collections.types.XGettingEnum;
+import one.microstream.collections.types.XAddingSequence;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
 
@@ -75,10 +75,15 @@ public interface PersistenceTypeDictionaryBuilder
 			 * but it would be the wrong one.
 			 */
 			
-			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members = buildDefinitionMembers(
-				memberCreator,
-				e.members()
-			);
+
+			final EqHashEnum<PersistenceTypeDefinitionMember> allMembers =
+				EqHashEnum.New(PersistenceTypeDescriptionMember.identityHashEqualator())
+			;
+			final EqHashEnum<PersistenceTypeDefinitionMember> instanceMembers =
+				EqHashEnum.New(PersistenceTypeDescriptionMember.identityHashEqualator())
+			;
+			
+			buildDefinitionMembers(memberCreator, e, allMembers, instanceMembers);
 			
 			final String   runtimeTypeName = typeResolver.resolveRuntimeTypeName(e);
 			final Class<?> type            = runtimeTypeName == null
@@ -91,7 +96,8 @@ public interface PersistenceTypeDictionaryBuilder
 				e.typeName()   ,
 				runtimeTypeName,
 				type           ,
-				members
+				allMembers     ,
+				instanceMembers
 			);
 			
 			typeDefs.add(typeDef);
@@ -104,26 +110,26 @@ public interface PersistenceTypeDictionaryBuilder
 		return typeDictionary;
 	}
 	
-	public static XGettingEnum<? extends PersistenceTypeDefinitionMember> buildDefinitionMembers(
-		final PersistenceTypeDefinitionMemberCreator                       memberCreator,
-		final XGettingSequence<? extends PersistenceTypeDescriptionMember> members
+	public static void buildDefinitionMembers(
+		final PersistenceTypeDefinitionMemberCreator                   memberCreator  ,
+		final PersistenceTypeDescription                               typeDescription,
+		final XAddingSequence<? super PersistenceTypeDefinitionMember> allMembers     ,
+		final XAddingSequence<? super PersistenceTypeDefinitionMember> instanceMembers
 	)
 	{
-		final EqHashEnum<PersistenceTypeDefinitionMember> definitionMembers =
-			EqHashEnum.New(PersistenceTypeDescriptionMember.identityHashEqualator())
-		;
-		
-		for(final PersistenceTypeDescriptionMember member : members)
+		for(final PersistenceTypeDescriptionMember member : typeDescription.allMembers())
 		{
 			final PersistenceTypeDefinitionMember definitionMember = member.createDefinitionMember(memberCreator);
-			if(!definitionMembers.add(definitionMember))
+			if(!allMembers.add(definitionMember))
 			{
 				// (08.10.2018 TM)EXCP: proper exception
 				throw new RuntimeException("Duplicate type member entry: " + member.identifier());
 			}
+			if(definitionMember.isInstanceMember())
+			{
+				instanceMembers.add(definitionMember);
+			}
 		}
-		
-		return definitionMembers;
 	}
 	
 	

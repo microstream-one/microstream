@@ -281,7 +281,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				);
 			};
 
-			if(!PersistenceTypeDescriptionMember.equalMembers(registeredTd.members(), typeHandler.members(), memberValidator))
+			if(!PersistenceTypeDescriptionMember.equalMembers(registeredTd.instanceMembers(), typeHandler.instanceMembers(), memberValidator))
 			{
 				// throw generic exception in case the equalator returns false instead of throwing an exception
 				// (07.04.2013)EXCP proper exception
@@ -744,8 +744,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			{
 				// exact matching structure including field order. no matching of field qualifiers needed
 				final boolean isMatched = PersistenceTypeDescriptionMember.equalStructures(
-					handler.members(),
-					typeDefinition.members()
+					handler.instanceMembers(),
+					typeDefinition.instanceMembers()
 				);
 				
 				if(isMatched)

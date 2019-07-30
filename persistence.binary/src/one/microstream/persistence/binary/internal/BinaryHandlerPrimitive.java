@@ -60,7 +60,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	////////////
 
 	@Override
-	public final XGettingEnum<? extends PersistenceTypeDefinitionMemberPrimitiveDefinition> members()
+	public final XGettingEnum<? extends PersistenceTypeDefinitionMemberPrimitiveDefinition> instanceMembers()
 	{
 		return this.member;
 	}

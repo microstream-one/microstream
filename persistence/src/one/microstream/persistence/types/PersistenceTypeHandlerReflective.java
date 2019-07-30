@@ -7,7 +7,7 @@ import one.microstream.collections.types.XGettingEnum;
 public interface PersistenceTypeHandlerReflective<M, T> extends PersistenceTypeHandlerGeneric<M, T>
 {
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> members();
+	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> instanceMembers();
 	
 	public XGettingEnum<Field> instanceFields();
 

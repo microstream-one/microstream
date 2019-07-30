@@ -262,7 +262,14 @@ extends BinaryTypeHandler.Abstract<T>
 	}
 	
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDefinitionMember> members()
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers()
+	{
+		// with the exception of some special types (primitive definition and enums), there are only instance members.
+		return this.instanceMembers();
+	}
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers()
 	{
 		return this.members;
 	}

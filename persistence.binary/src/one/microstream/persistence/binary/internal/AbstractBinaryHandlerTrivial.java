@@ -55,7 +55,13 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 	
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDefinitionMember> members()
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers()
+	{
+		return X.empty();
+	}
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers()
 	{
 		return X.empty();
 	}

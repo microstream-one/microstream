@@ -10,6 +10,12 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 	public String primitiveDefinition();
 	
 	@Override
+	public default boolean isInstanceMember()
+	{
+		return false;
+	}
+	
+	@Override
 	public default String identifier()
 	{
 		return this.primitiveDefinition();
@@ -162,6 +168,12 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 		{
 			return true;
 		}
+		
+		@Override
+		public final boolean isEnumConstant()
+		{
+			return false;
+		}
 
 		@Override
 		public final boolean hasReferences()
@@ -181,6 +193,12 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 				"Invalid persistent length: " + persistentLength
 				+ " != " + this.persistentLength + "."
 			);
+		}
+		
+		@Override
+		public final boolean isInstanceMember()
+		{
+			return false;
 		}
 
 	}

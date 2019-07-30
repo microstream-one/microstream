@@ -10,7 +10,7 @@ public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssemble
 	@Override
 	public VarString assemble(VarString vc, PersistenceTypeDictionary typeDictionary);
 
-	public VarString assembleTypeDescription(VarString vc, PersistenceTypeDefinition typeDescription);
+	public VarString assembleTypeDescription(VarString vc, PersistenceTypeDescription typeDescription);
 
 
 	
@@ -91,15 +91,21 @@ public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssemble
 		}
 
 		@Override
-		public VarString assembleTypeDescription(final VarString vc, final PersistenceTypeDefinition typeDescription)
+		public VarString assembleTypeDescription(
+			final VarString                  vc             ,
+			final PersistenceTypeDescription typeDescription
+		)
 		{
 			this.appendTypeDefinitionStart  (vc, typeDescription);
-			this.appendTypeDictionaryMembers(vc, typeDescription.members());
+			this.appendTypeDictionaryMembers(vc, typeDescription.allMembers());
 			this.appendTypeDefinitionEnd    (vc, typeDescription);
 			return vc;
 		}
 
-		protected void appendTypeDefinitionStart(final VarString vc, final PersistenceTypeDefinition typeDescription)
+		protected void appendTypeDefinitionStart(
+			final VarString                  vc             ,
+			final PersistenceTypeDescription typeDescription
+		)
 		{
 			this.appendPaddedId(vc, typeDescription.typeId())
 				.blank().add(typeDescription.typeName())
@@ -107,7 +113,10 @@ public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssemble
 			;
 		}
 
-		protected void appendTypeDefinitionEnd(final VarString vc, final PersistenceTypeDefinition typeDescription)
+		protected void appendTypeDefinitionEnd(
+			final VarString                  vc             ,
+			final PersistenceTypeDescription typeDescription
+		)
 		{
 			vc.append(TYPE_END).lf();
 		}
