@@ -457,7 +457,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 					throw new RuntimeException("Unknown TypeId: " + typeId);
 				}
 				this.typeId = typeId;
-				this.valueWriters = this.createValueWriters(this.typeDescription.members());
+				this.valueWriters = this.createValueWriters(this.typeDescription.instanceMembers());
 				this.openChannel();
 				this.writeCsvHeader();
 			}
@@ -480,7 +480,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			.add(this.oidColumnName).add(valueSeparator)
 			;
 
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.typeDescription.members();
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.typeDescription.instanceMembers();
 			final LimitList<String> refColumnNames = new LimitList<>(XTypes.to_int(members.size()));
 			final LimitList<String> prmColumnNames = new LimitList<>(XTypes.to_int(members.size()));
 			final LimitList<String> refColumnTypes = new LimitList<>(XTypes.to_int(members.size()));

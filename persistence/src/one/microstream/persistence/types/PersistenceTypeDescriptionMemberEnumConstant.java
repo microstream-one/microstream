@@ -6,30 +6,39 @@ import java.util.Objects;
 
 public interface PersistenceTypeDescriptionMemberEnumConstant extends PersistenceTypeDescriptionMember
 {
-	public String enumRuntimeName();
+	@Override
+	public default boolean isInstanceMember()
+	{
+		return false;
+	}
 	
-	public boolean isDeleted();
-
-	
+	@Override
+	public default boolean equalsStructure(final PersistenceTypeDescriptionMember other)
+	{
+		return other instanceof PersistenceTypeDescriptionMemberEnumConstant
+			&& equalName(this, (PersistenceTypeDescriptionMemberEnumConstant)other)
+		;
+	}
 	
 	@Override
 	public default boolean equalsDescription(final PersistenceTypeDescriptionMember member)
 	{
-		return member instanceof PersistenceTypeDescriptionMemberEnumConstant
-			&& equalDescription(this, (PersistenceTypeDescriptionMemberEnumConstant)member)
-		;
+		return this.equalsStructure(member);
 	}
 	
-	public static boolean equalDescription(
+	public static boolean equalName(
 		final PersistenceTypeDescriptionMemberEnumConstant m1,
 		final PersistenceTypeDescriptionMemberEnumConstant m2
 	)
 	{
-		return m1.primitiveDefinition().equals(m2.primitiveDefinition());
+		// attribute checks must be null-safe equals because of primitive definitions
+		return m1 == m2 || m2 != null
+			&& Objects.equals(m1.name(), m2.name())
+		;
 	}
 	
 	@Override
-	public default PersistenceTypeDefinitionMemberPrimitiveDefinition createDefinitionMember(
+	public default PersistenceTypeDefinitionMemberEnumConstant createDefinitionMember(
 		final PersistenceTypeDefinitionMemberCreator creator
 	)
 	{
@@ -38,15 +47,11 @@ public interface PersistenceTypeDescriptionMemberEnumConstant extends Persistenc
 
 	
 	public static PersistenceTypeDescriptionMemberEnumConstant New(
-		final String  enumPersistentName,
-		final String  enumRuntimeName   ,
-		final boolean isDeleted
+		final String enumPersistentName
 	)
 	{
 		return new PersistenceTypeDescriptionMemberEnumConstant.Default(
-			 notNull(enumPersistentName),
-			 notNull(enumRuntimeName   ),
-			         isDeleted
+			 notNull(enumPersistentName)
 		);
 	}
 
@@ -57,9 +62,7 @@ public interface PersistenceTypeDescriptionMemberEnumConstant extends Persistenc
 		// instance fields //
 		////////////////////
 
-		private final String  enumPersistentName;
-		private final String  enumRuntimeName   ;
-		private final boolean isDeleted         ;
+		private final String enumName;
 
 
 
@@ -67,16 +70,10 @@ public interface PersistenceTypeDescriptionMemberEnumConstant extends Persistenc
 		// constructors //
 		/////////////////
 
-		protected Default(
-			final String  enumPersistentName,
-			final String  enumRuntimeName   ,
-			final boolean isDeleted
-		)
+		protected Default(final String enumName)
 		{
 			super();
-			this.enumPersistentName = notNull(enumPersistentName);
-			this.enumRuntimeName    = notNull(enumRuntimeName   );
-			this.isDeleted          =         isDeleted          ;
+			this.enumName = notNull(enumName);
 		}
 
 
@@ -88,19 +85,7 @@ public interface PersistenceTypeDescriptionMemberEnumConstant extends Persistenc
 		@Override
 		public String name()
 		{
-			return this.enumPersistentName;
-		}
-
-		@Override
-		public String enumRuntimeName()
-		{
-			return this.enumRuntimeName;
-		}
-		
-		@Override
-		public boolean isDeleted()
-		{
-			return this.isDeleted;
+			return this.enumName;
 		}
 
 		@Override
@@ -112,32 +97,27 @@ public interface PersistenceTypeDescriptionMemberEnumConstant extends Persistenc
 		@Override
 		public long persistentMinimumLength()
 		{
-			return this.persistentLength;
+			// does not enlarge an instance of the described type. It's only a constant field name validation vehicle.
+			return 0L;
 		}
 		
 		@Override
 		public long persistentMaximumLength()
 		{
-			return this.persistentLength;
+			// does not enlarge an instance of the described type. It's only a constant field name validation vehicle.
+			return 0L;
 		}
 
 		@Override
 		public boolean isValidPersistentLength(final long persistentLength)
 		{
-			return persistentLength == this.persistentLength;
+			return persistentLength == this.persistentMinimumLength();
 		}
 		
 		@Override
-		public boolean equalsStructure(final PersistenceTypeDescriptionMember other)
+		public final boolean isInstanceMember()
 		{
-			// the check for equal (namely null) typename and name is still valid here.
-			return PersistenceTypeDescriptionMemberEnumConstant.super.equalsStructure(other)
-				&& other instanceof PersistenceTypeDescriptionMemberEnumConstant
-				&& Objects.equals(
-					this.primitiveDefinition(),
-					((PersistenceTypeDescriptionMemberEnumConstant)other).primitiveDefinition()
-				)
-			;
+			return false;
 		}
 
 		@Override
@@ -150,6 +130,12 @@ public interface PersistenceTypeDescriptionMemberEnumConstant extends Persistenc
 		public String qualifier()
 		{
 			return null;
+		}
+		
+		@Override
+		public String identifier()
+		{
+			return this.name();
 		}
 
 		@Override
@@ -166,6 +152,12 @@ public interface PersistenceTypeDescriptionMemberEnumConstant extends Persistenc
 
 		@Override
 		public final boolean isPrimitiveDefinition()
+		{
+			return false;
+		}
+		
+		@Override
+		public final boolean isEnumConstant()
 		{
 			return true;
 		}
@@ -186,8 +178,16 @@ public interface PersistenceTypeDescriptionMemberEnumConstant extends Persistenc
 			// (02.05.2014)EXCP: proper exception
 			throw new RuntimeException(
 				"Invalid persistent length: " + persistentLength
-				+ " != " + this.persistentLength + "."
+				+ " != " + this.persistentMinimumLength() + "."
 			);
+		}
+		
+
+		
+		@Override
+		public String toString()
+		{
+			return "enum " + this.name();
 		}
 
 	}

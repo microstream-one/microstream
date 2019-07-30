@@ -41,6 +41,8 @@ public interface PersistenceTypeDescriptionMember
 	 * @return the member's simple name.
 	 */
 	public String name();
+	
+	public boolean isInstanceMember();
 		
 	/**
 	 * {@link #equalsStructure(PersistenceTypeDescriptionMember)} plus {@link #qualifier()} equality,
@@ -180,6 +182,13 @@ public interface PersistenceTypeDescriptionMember
 	 * @return
 	 */
 	public boolean isPrimitiveDefinition();
+
+	/**
+	 * Determines if this member is a enum constant name definition instead of an isntance field definition.
+	 *
+	 * @return
+	 */
+	public boolean isEnumConstant();
 
 	/**
 	 * Determines if this field contains references. Either because it is a reference itself,

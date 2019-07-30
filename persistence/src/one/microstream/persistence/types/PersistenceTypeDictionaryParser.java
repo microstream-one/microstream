@@ -2,7 +2,6 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
-import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingSequence;
@@ -263,7 +262,7 @@ public interface PersistenceTypeDictionaryParser
 				member.reset();
 				i = skipWhitespaces(input, i, iBound);
 				i = parseTypeMember(input, i, iBound, member);
-				typeEntry.members.add(member.buildTypeMember());
+				typeEntry.addMember(member.buildTypeMember());
 				
 				// skip trailing whitespaces before bound is checked again
 				i = skipWhitespaces(input, i, iBound);
@@ -380,123 +379,65 @@ public interface PersistenceTypeDictionaryParser
 			member.setTypeName(KEYWORD_ENUM);
 
 			final int i = skipWhitespaces(input, iStart + ARRAY_KEYWORD_ENUM.length, iBound);
-			return parseEnumDefinitionDetails(input, i, iBound, member);
+			return parseEnumConstantName(input, i, iBound, member);
 		}
 		
-		private static int parseEnumDefinitionDetails(
+		private static int parseEnumConstantName(
 			final char[]            input ,
 			final int               iStart,
 			final int               iBound,
 			final TypeMemberBuilder member
 		)
 		{
-			/* (29.07.2019 TM)FIXME: priv#23: parseEnumDefinition
-			 * Undelimited string until ":" or member end or type_end
-			 * if ":": undelimeted or delimited String until member end or type_end
-			 * set constant persistent name
-			 * optionally set constant runtime name
-			 */
-			
 			// parse enum persisted name
-			int i = skipTerminated(input, iStart, iBound, MEMBER_TERMINATOR, TYPE_END, ENUM_IDENTIFIER_SEPARATOR);
+			final int i = skipTerminated(input, iStart, iBound, MEMBER_TERMINATOR, TYPE_END, MEMBER_FIELD_QUALIFIER_SEPERATOR);
 			if(i == iStart)
 			{
 				throw new PersistenceExceptionParserMissingEnumName(i);
 			}
 			
-			int a = skipWhitespaces(input, i, iBound);
+			final int a = skipWhitespaces(input, i, iBound);
 			checkForIncompleteInput(a, iBound);
 			
 			// the first thing is always the enum name
 			setFieldName(input, iStart, i, member);
 
-			// check for qualifier#fieldname pattern, actual field name parsed subsequently.
-			if(input[a] == ENUM_IDENTIFIER_SEPARATOR)
-			{
-				// skip separator and whitespaces after it
-				i = skipWhitespaces(input, a + 1, iBound);
-				checkForIncompleteInput(i, iBound);
-				
-				a = parseEnumRuntimeIdentifier(input, i, iBound, member);
-			}
-			
-			// enum runtime name must be not null as it is abused to check for enum members, similar to primitives
-			if(member.enumRuntimeName == null)
-			{
-				member.enumRuntimeName = member.fieldName();
-			}
-
 			// check for terminator
 			return parseMemberTermination(input, a, iBound);
 		}
-		
-		private static int parseEnumRuntimeIdentifier(
-			final char[]            input ,
-			final int               iStart,
-			final int               iBound,
-			final TypeMemberBuilder member
-		)
-		{
-			final int i;
-			final String enumRuntimeName;
-			
-			if(input[iStart] != LITERAL_DELIMITER)
-			{
-				i = skipTerminated(input, iStart, iBound, MEMBER_TERMINATOR, TYPE_END, TYPE_END);
-				if(i == iStart)
-				{
-					member.enumDeleted = true;
-					checkForIncompleteInput(i, iBound);
-					
-					return i;
-				}
-				checkForIncompleteInput(i, iBound);
 				
-				enumRuntimeName = new String(input, iStart, i - iStart);
-			}
-			else
-			{
-				i = parseLiteral(input, iStart, iBound, member.literalCollector.reset());
-				enumRuntimeName = member.literalCollector.toString();
-			}
-			
-			member.enumRuntimeName = enumRuntimeName;
-
-			// terminator check is done by calling context
-			return i;
-		}
-		
-		private static int parseLiteral(
-			final char[]    input ,
-			final int       iStart,
-			final int       iBound,
-			final VarString string
-		)
-		{
-			// opening literal delimiter is skipped
-			int i = iStart + 1;
-			
-			while(i < iBound)
-			{
-				if(input[i] == LITERAL_DELIMITER)
-				{
-					break;
-				}
-				if(input[i] == LITERAL_ESCAPER)
-				{
-					if(++i == iBound)
-					{
-						break;
-					}
-				}
-				string.add(input[i]);
-				i++;
-			}
-			checkForIncompleteInput(i, iBound);
-
-			// closing literal delimiter is skipped
-			return i + 1;
-		}
+		// (30.07.2019 TM)NOTE: literal parsing implemented but then not needed. Kept around a while.
+//		private static int parseLiteral(
+//			final char[]    input ,
+//			final int       iStart,
+//			final int       iBound,
+//			final VarString string
+//		)
+//		{
+//			// opening literal delimiter is skipped
+//			int i = iStart + 1;
+//
+//			while(i < iBound)
+//			{
+//				if(input[i] == LITERAL_DELIMITER)
+//				{
+//					break;
+//				}
+//				if(input[i] == LITERAL_ESCAPER)
+//				{
+//					if(++i == iBound)
+//					{
+//						break;
+//					}
+//				}
+//				string.add(input[i]);
+//				i++;
+//			}
+//			checkForIncompleteInput(i, iBound);
+//
+//			// closing literal delimiter is skipped
+//			return i + 1;
+//		}
 
 		private static int parseMemberName(
 			final char[]                input ,
@@ -800,12 +741,13 @@ public interface PersistenceTypeDictionaryParser
 		// instance fields //
 		////////////////////
 		
-		private long                                     tid     ;
-		private String                                   typeName;
-		final BulkList<PersistenceTypeDescriptionMember> members  = new BulkList<>();
+		private long                                             tid     ;
+		private String                                           typeName;
+		private final BulkList<PersistenceTypeDescriptionMember> allMembers      = new BulkList<>();
+		private final BulkList<PersistenceTypeDescriptionMember> instanceMembers = new BulkList<>();
 		
-		final Substituter<String>                        stringSubstitutor  ;
-		final PersistenceFieldLengthResolver             fieldLengthResolver;
+		final Substituter<String>            stringSubstitutor  ;
+		final PersistenceFieldLengthResolver fieldLengthResolver;
 
 		
 		
@@ -842,9 +784,24 @@ public interface PersistenceTypeDictionaryParser
 		}
 		
 		@Override
-		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> members()
+		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> instanceMembers()
 		{
-			return this.members;
+			return this.instanceMembers;
+		}
+		
+		@Override
+		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> allMembers()
+		{
+			return this.allMembers;
+		}
+		
+		final void addMember(final PersistenceTypeDescriptionMember member)
+		{
+			this.allMembers.add(member);
+			if(member.isInstanceMember())
+			{
+				this.instanceMembers.add(member);
+			}
 		}
 		
 		void setTypeName(final String typeName)
@@ -993,10 +950,9 @@ public interface PersistenceTypeDictionaryParser
 		////////////////////
 
 		String primitiveDefinition;
-		String enumRuntimeName    ;
-		boolean enumDeleted       ;
 		
-		VarString literalCollector = VarString.New(64);
+		// (30.07.2019 TM)NOTE: literal parsing implemented but then not needed. Kept around a while.
+//		VarString literalCollector = VarString.New(64);
 
 
 
@@ -1043,7 +999,8 @@ public interface PersistenceTypeDictionaryParser
 				return this.buildMemberPrimitiveDefinition();
 			}
 			
-			if(this.enumRuntimeName != null)
+			// identity comparison suffices since only that particular instance is set.
+			if(this.typeName() == PersistenceTypeDictionary.Symbols.KEYWORD_ENUM)
 			{
 				return this.buildMemberEnumConstant();
 			}
@@ -1072,9 +1029,7 @@ public interface PersistenceTypeDictionaryParser
 		final PersistenceTypeDescriptionMemberEnumConstant buildMemberEnumConstant()
 		{
 			return PersistenceTypeDescriptionMemberEnumConstant.New(
-				this.fieldName(),
-				this.enumRuntimeName,
-				this.enumDeleted
+				this.fieldName()
 			);
 		}
 		
@@ -1118,9 +1073,7 @@ public interface PersistenceTypeDictionaryParser
 		final TypeMemberBuilder reset()
 		{
 			super.reset();
-			this.primitiveDefinition = null ;
-			this.enumRuntimeName     = null ;
-			this.enumDeleted         = false;
+			this.primitiveDefinition = null;
 			return this;
 		}
 

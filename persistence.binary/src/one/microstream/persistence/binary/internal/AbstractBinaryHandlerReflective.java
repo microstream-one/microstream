@@ -46,11 +46,11 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 
 	@SafeVarargs
 	protected static final EqConstHashEnum<Field> filter(
-		final XGettingEnum<Field> allFields,
+		final XGettingEnum<Field> fields    ,
 		final Predicate<Field>... predicates
 	)
 	{
-		return allFields.filterTo(EqHashEnum.<Field>New(), XFunc.all(predicates)).immure();
+		return fields.filterTo(EqHashEnum.New(), XFunc.all(predicates)).immure();
 	}
 
 	/**
@@ -138,19 +138,19 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	////////////////////
 
 	// instance persistence context //
-	private final EqConstHashEnum<Field>                               instanceFields         ;
-	private final EqConstHashEnum<Field>                               instanceReferenceFields;
-	private final EqConstHashEnum<Field>                               instancePrimitiveFields;
-	private final long[]                                               allBinaryOffsets       ;
-	private final long[]                                               refBinaryOffsets       ;
-	private final long                                                 referenceOffsetStart   ;
-	private final long                                                 referenceOffsetBound   ;
-	private final long                                                 binaryContentLength    ;
-	private final BinaryValueStorer[]                                  binaryStorers          ;
-	private final BinaryValueSetter[]                                  memorySetters          ;
-	private final XImmutableEnum<PersistenceTypeDefinitionMemberFieldReflective> membersInPersistdOrder ;
-	private final XImmutableEnum<PersistenceTypeDefinitionMemberFieldReflective> membersInDeclaredOrder ;
-	private final boolean                                              hasReferences          ;
+	private final EqConstHashEnum<Field> instanceFields         ;
+	private final EqConstHashEnum<Field> instanceReferenceFields;
+	private final EqConstHashEnum<Field> instancePrimitiveFields;
+	private final long[]                 allBinaryOffsets       ;
+	private final long[]                 refBinaryOffsets       ;
+	private final long                   referenceOffsetStart   ;
+	private final long                   referenceOffsetBound   ;
+	private final long                   binaryContentLength    ;
+	private final BinaryValueStorer[]    binaryStorers          ;
+	private final BinaryValueSetter[]    memorySetters          ;
+	private final boolean                hasReferences          ;
+	private final XImmutableEnum<PersistenceTypeDefinitionMemberFieldReflective> membersInPersistdOrder;
+	private final XImmutableEnum<PersistenceTypeDefinitionMemberFieldReflective> membersInDeclaredOrder;
 
 
 
@@ -160,7 +160,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 
 	protected AbstractBinaryHandlerReflective(
 		final Class<T>                              type                      ,
-		final XGettingEnum<Field>                   allFields                 ,
+		final XGettingEnum<Field>                   persistableFields         ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
 		final boolean                               switchByteOrder
@@ -169,16 +169,14 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		super(type);
 		
 		// (17.05.2018 TM)TODO: why does this constructor contain so much logic? WTF ^^.
-		/* (23.07.2019 TM)TODO: consolidate "allFields"
-		 * Only already filtered "persistable fields" get passed here. Should be consolidated.
-		 */
 		
 		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
 		XMemory.ensureClassInitialized(type);
 
-		this.instanceFields          = filter(allFields, not(XReflect::isStatic)                            );
-		this.instanceReferenceFields = filter(allFields, not(XReflect::isStatic), not(XReflect::isPrimitive));
-		this.instancePrimitiveFields = filter(allFields, not(XReflect::isStatic),     XReflect::isPrimitive );
+		// filtering for static should not be necessary, but it is a simply done precaution, so why not.
+		this.instanceFields          = filter(persistableFields, not(XReflect::isStatic)                            );
+		this.instanceReferenceFields = filter(persistableFields, not(XReflect::isStatic), not(XReflect::isPrimitive));
+		this.instancePrimitiveFields = filter(persistableFields, not(XReflect::isStatic),     XReflect::isPrimitive );
 		this.hasReferences           = !this.instanceReferenceFields.isEmpty();
 		
 		final Field[]
@@ -223,11 +221,13 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	////////////
 	
 	protected static XImmutableEnum<PersistenceTypeDefinitionMemberFieldReflective> resolveMembersInDeclaredOrder(
-		final Field[]                                                    fieldsDeclaredOrder                 ,
+		final Field[]                                                              fieldsDeclaredOrder                 ,
 		final XGettingTable<Field, PersistenceTypeDefinitionMemberFieldReflective> typeDescriptionMembersPersistedOrder
 	)
 	{
-		final BulkList<PersistenceTypeDefinitionMemberFieldReflective> membersDeclaredOrder = BulkList.New(fieldsDeclaredOrder.length);
+		final BulkList<PersistenceTypeDefinitionMemberFieldReflective> membersDeclaredOrder =
+			BulkList.New(fieldsDeclaredOrder.length)
+		;
 		
 		for(final Field field : fieldsDeclaredOrder)
 		{
@@ -236,7 +236,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		
 		return ConstHashEnum.New(membersDeclaredOrder);
 	}
-	
+		
 	@Override
 	public XGettingEnum<Field> instanceFields()
 	{
@@ -262,7 +262,14 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 	
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> members()
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers()
+	{
+		// "normal" entity types (non-enums) only have instance members
+		return this.instanceMembers();
+	}
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> instanceMembers()
 	{
 		return this.membersInPersistdOrder;
 	}

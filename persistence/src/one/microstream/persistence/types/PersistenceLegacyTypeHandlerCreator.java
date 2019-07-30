@@ -43,7 +43,7 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 		
 		private static boolean isUnchangedStructure(final PersistenceLegacyTypeMappingResult<?, ?> result)
 		{
-			if(result.legacyTypeDefinition().members().size() != result.currentTypeHandler().members().size())
+			if(result.legacyTypeDefinition().instanceMembers().size() != result.currentTypeHandler().instanceMembers().size())
 			{
 				// if there are differing members counts, the structure cannot be unchanged.
 				return false;
@@ -53,10 +53,10 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 				result.legacyToCurrentMembers()
 			;
 			final Iterator<? extends PersistenceTypeDefinitionMember> legacy =
-				result.legacyTypeDefinition().members().iterator()
+				result.legacyTypeDefinition().instanceMembers().iterator()
 			;
 			final Iterator<? extends PersistenceTypeDefinitionMember> current =
-				result.currentTypeHandler().members().iterator()
+				result.currentTypeHandler().instanceMembers().iterator()
 			;
 			
 			// check as long as both collections have order-wise corresponding entries (ensured by size check above)

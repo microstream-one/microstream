@@ -268,6 +268,12 @@ public interface BinaryField extends PersistenceTypeDefinitionMemberFieldGeneric
 		{
 			return this.actual.isPrimitiveDefinition();
 		}
+		
+		@Override
+		public boolean isEnumConstant()
+		{
+			return this.actual.isEnumConstant();
+		}
 
 		@Override
 		public boolean hasReferences()

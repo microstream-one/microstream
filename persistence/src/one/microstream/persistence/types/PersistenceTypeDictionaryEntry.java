@@ -18,7 +18,7 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 	public String typeName();
 
 	@Override
-	public XGettingSequence<? extends PersistenceTypeDescriptionMember> members();
+	public XGettingSequence<? extends PersistenceTypeDescriptionMember> instanceMembers();
 
 	
 	
@@ -28,10 +28,10 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 	public static VarString assembleDictionaryString(final VarString vs, final PersistenceTypeDictionaryEntry e)
 	{
 		vs.add(e.typeId()).blank().add(e.typeName()).blank().add('{');
-		if(!e.members().isEmpty())
+		if(!e.instanceMembers().isEmpty())
 		{
 			vs.lf();
-			for(final PersistenceTypeDescriptionMember member : e.members())
+			for(final PersistenceTypeDescriptionMember member : e.instanceMembers())
 			{
 				vs.tab().add(member).add(';').lf();
 			}

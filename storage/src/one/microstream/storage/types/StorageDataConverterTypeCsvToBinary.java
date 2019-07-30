@@ -1099,7 +1099,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		final void validateTypeNames(final XGettingList<String> dataColumntypes)
 		{
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.currentType.members();
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.currentType.instanceMembers();
 
 			if(members.size() != dataColumntypes.size())
 			{
@@ -1142,7 +1142,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		final void deriveValueHandlers()
 		{
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.currentType.members();
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members = this.currentType.instanceMembers();
 			final ValueHandler[] valueHandlers = new ValueHandler[X.checkArrayRange(members.size()) + 1];
 			valueHandlers[0] = this.objectIdValueHandler;
 			int i = 1;

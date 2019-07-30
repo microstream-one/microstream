@@ -15,7 +15,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 {
 	public static <T> BinaryHandlerGenericType<T> New(
 		final Class<T>                              type                      ,
-		final XGettingEnum<Field>                   allFields                 ,
+		final XGettingEnum<Field>                   persistableFields         ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
 		final BinaryInstantiator<T>                 instantiator              ,
@@ -24,7 +24,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	{
 		return new BinaryHandlerGenericType<>(
 			type                      ,
-			allFields                 ,
+			persistableFields         ,
 			lengthResolver            ,
 			eagerStoringFieldEvaluator,
 			instantiator              ,
@@ -48,14 +48,14 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 
 	protected BinaryHandlerGenericType(
 		final Class<T>                              type                      ,
-		final XGettingEnum<Field>                   allFields                 ,
+		final XGettingEnum<Field>                   persistableFields         ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
 		final BinaryInstantiator<T>                 instantiator              ,
 		final boolean                               switchByteOrder
 	)
 	{
-		super(type, allFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
+		super(type, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
 		this.instantiator = notNull(instantiator);
 	}
 
@@ -66,7 +66,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	////////////
 	
 	@Override
-	public final T create(final Binary bytes, PersistenceLoadHandler handler)
+	public final T create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return this.instantiator.newInstance(bytes.loadItemEntityContentAddress());
 	}

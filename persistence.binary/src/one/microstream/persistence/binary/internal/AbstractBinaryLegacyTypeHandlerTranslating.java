@@ -49,7 +49,7 @@ extends PersistenceLegacyTypeHandler.Abstract<Binary, T>
 	{
 		final BinaryReferenceTraverser[] referenceTraversers =
 			BinaryReferenceTraverser.Static.deriveReferenceTraversers(
-				typeDefinition.members(),
+				typeDefinition.instanceMembers(),
 				switchByteOrder
 			)
 		;

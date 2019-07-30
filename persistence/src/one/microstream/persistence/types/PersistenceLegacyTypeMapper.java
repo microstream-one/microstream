@@ -168,7 +168,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		{
 			final PersistenceRefactoringResolver resolver = this.refactoringResolverProvider.provideResolver();
 			
-			for(final PersistenceTypeDefinitionMember currentMember : currentTypeHandler.members())
+			for(final PersistenceTypeDefinitionMember currentMember : currentTypeHandler.instanceMembers())
 			{
 				if(resolver.isNewCurrentTypeMember(currentTypeHandler, currentMember))
 				{
@@ -176,7 +176,7 @@ public interface PersistenceLegacyTypeMapper<M>
 				}
 			}
 			
-			for(final PersistenceTypeDefinitionMember sourceMember : legacyTypeDefinition.members())
+			for(final PersistenceTypeDefinitionMember sourceMember : legacyTypeDefinition.instanceMembers())
 			{
 				// value might be null to indicate deletion. Member might not be resolvable (= mapped) at all.
 				final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> resolved =
@@ -219,10 +219,10 @@ public interface PersistenceLegacyTypeMapper<M>
 		)
 		{
 			final BulkList<? extends PersistenceTypeDefinitionMember> sourceMembers = BulkList.New(
-				legacyTypeDefinition.members()
+				legacyTypeDefinition.instanceMembers()
 			);
 			final BulkList<? extends PersistenceTypeDefinitionMember> targetMembers = BulkList.New(
-				currentTypeHandler.members()
+				currentTypeHandler.instanceMembers()
 			);
 			
 			// null out all explicitly mapped members before matching

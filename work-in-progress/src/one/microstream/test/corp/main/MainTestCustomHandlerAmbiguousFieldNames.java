@@ -12,7 +12,7 @@ public class MainTestCustomHandlerAmbiguousFieldNames
 	public static void main(final String[] args)
 	{
 		final MyTypeHandler th = new MyTypeHandler();
-		System.out.println(th.members());
+		System.out.println(th.instanceMembers());
 	}
 }
 

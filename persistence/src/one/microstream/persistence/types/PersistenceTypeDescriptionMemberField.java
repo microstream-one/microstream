@@ -25,6 +25,13 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 	 */
 	@Override
 	public String name();
+	
+
+	@Override
+	public default boolean isInstanceMember()
+	{
+		return true;
+	}
 			
 	
 	
@@ -122,6 +129,12 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 		{
 			return false;
 		}
+		
+		@Override
+		public final boolean isEnumConstant()
+		{
+			return false;
+		}
 
 		@Override
 		public boolean hasReferences()
@@ -159,6 +172,12 @@ public interface PersistenceTypeDescriptionMemberField extends PersistenceTypeDe
 				"Invalid persistent length: " + persistentLength
 				+ " not in [" + this.persistentMinimumLength + ";" + this.persistentMaximumLength + "]"
 			);
+		}
+		
+		@Override
+		public final boolean isInstanceMember()
+		{
+			return true;
 		}
 		
 		@Override

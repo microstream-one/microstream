@@ -115,7 +115,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			
 			final BinaryValueTranslatorProvider creator = this.valueTranslatorProvider;
 
-			for(final PersistenceTypeDefinitionMember legacyMember : legacyTypeDefinition.members())
+			for(final PersistenceTypeDefinitionMember legacyMember : legacyTypeDefinition.instanceMembers())
 			{
 				// currentMember null means the value is to be discarded.
 				final PersistenceTypeDefinitionMember currentMember = Similarity.targetElement(
@@ -149,7 +149,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			}
 			
 			final HashTable<PersistenceTypeDefinitionMember, Long> targetMemberOffsets = createBinaryOffsetMap(
-				mappingResult.currentTypeHandler().members()
+				mappingResult.currentTypeHandler().instanceMembers()
 			);
 			
 			final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets = this.deriveValueTranslators(
@@ -176,7 +176,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		)
 		{
 			final HashTable<PersistenceTypeDefinitionMember, Long> targetMemberOffsets = createFieldOffsetMap(
-				typeHandler.members()
+				typeHandler.instanceMembers()
 			);
 			
 			final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets = this.deriveValueTranslators(
