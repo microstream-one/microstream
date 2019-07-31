@@ -1,7 +1,5 @@
 package one.microstream.persistence.binary.internal;
 
-import static one.microstream.functional.XFunc.not;
-
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -9,12 +7,10 @@ import java.util.function.Predicate;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashEnum;
 import one.microstream.collections.EqHashEnum;
-import one.microstream.collections.types.XAddingSequence;
+import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.exceptions.TypeCastException;
-import one.microstream.functional.XFunc;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistence;
@@ -22,6 +18,7 @@ import one.microstream.persistence.binary.types.BinaryTypeHandler;
 import one.microstream.persistence.binary.types.BinaryValueFunctions;
 import one.microstream.persistence.binary.types.BinaryValueSetter;
 import one.microstream.persistence.binary.types.BinaryValueStorer;
+import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -30,106 +27,127 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 import one.microstream.reflect.XReflect;
+import one.microstream.util.UtilStackTrace;
 
 public abstract class AbstractBinaryHandlerReflective<T>
 extends BinaryTypeHandler.Abstract<T>
 implements PersistenceTypeHandlerReflective<Binary, T>
 {
-	// (21.05.2013)XXX: AbstractBinaryHandlerReflective clean up static handling massacre mess
-
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
-
-	@SafeVarargs
-	protected static final EqConstHashEnum<Field> filter(
-		final XGettingEnum<Field> fields    ,
-		final Predicate<Field>... predicates
-	)
+	
+	protected static EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> MemberEnum()
 	{
-		return fields.filterTo(EqHashEnum.New(), XFunc.all(predicates)).immure();
+		return EqHashEnum.New(
+			PersistenceTypeDescriptionMember.identityHashEqualator()
+		);
 	}
-
-	/**
-	 * The persisted order of the fields differs from the declared order. For efficiency reasons, all
-	 * reference fields come first, the primitive fields come second. The benefit from this is that the
-	 * storage's garbage collector does not need to load primitive field data for traversing the entity graph.
-	 * It might seem irrelevant if a few bytes more or less are loaded, but considering millions of entities
-	 * have to be loaded, the savings can amass to a substantial amount.
-	 * The relative order of reference fields and primitive fields respectively is maintained.
-	 */
-	protected static long fillArraysAndCalculateOffsets(
-		final Class<?>                                                        entityType         ,
-		final Iterable<Field>                                                 fieldsDeclaredOrder,
-		final Field[]                                                         fieldsPersistdOrder,
-		final BinaryValueStorer[]                                             storers            ,
-		final BinaryValueSetter[]                                             setters            ,
-		final PersistenceEagerStoringFieldEvaluator                           eagerStoreEvaluator,
-		final PersistenceFieldLengthResolver                                  lengthResolver,
-		final XAddingSequence<PersistenceTypeDefinitionMemberFieldReflective> membersInPersistdOrder,
-		final XAddingSequence<PersistenceTypeDefinitionMemberFieldReflective> membersInDeclaredOrder,
-		final boolean                                                         switchByteOrder
+	
+	protected static EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> deriveMembers(
+		final XGettingEnum<Field>            fields        ,
+		final PersistenceFieldLengthResolver lengthResolver
 	)
 	{
-		final BinaryValueStorer[] refStorers = new BinaryValueStorer[      storers.length];
-		final BinaryValueSetter[] refSetters = new BinaryValueSetter[      setters.length];
-		final Field[]             refFields  = new Field[      fieldsPersistdOrder.length];
-		final PersistenceTypeDefinitionMemberFieldReflective[] refMembers =
-			new PersistenceTypeDefinitionMemberFieldReflective[fieldsPersistdOrder.length];
+		final EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> members = MemberEnum();
 		
-		final BinaryValueStorer[] prmStorers = new BinaryValueStorer[      storers.length];
-		final BinaryValueSetter[] prmSetters = new BinaryValueSetter[      setters.length];
-		final Field[]             prmFields  = new Field[      fieldsPersistdOrder.length];
-		final PersistenceTypeDefinitionMemberFieldReflective[] prmMembers =
-			new PersistenceTypeDefinitionMemberFieldReflective[fieldsPersistdOrder.length];
-
-		long primitiveTotalBinaryLength = 0;
-		int r = 0, p = 0;
-		for(final Field field : fieldsDeclaredOrder)
+		for(final Field field : fields)
 		{
-			final Class<?> fieldType = field.getType();
-			final boolean  isEager   = eagerStoreEvaluator.isEagerStoring(entityType, field);
+			// just a precaution
+			if(XReflect.isStatic(field))
+			{
+				// (31.07.2019 TM)EXCP: proper exception
+				throw new PersistenceExceptionTypeConsistency("static fields are not persistable.");
+			}
 			
-			final BinaryValueStorer storer = BinaryValueFunctions.getObjectValueStorer(fieldType, isEager, switchByteOrder);
-			final BinaryValueSetter setter = BinaryValueFunctions.getObjectValueSetter(fieldType, switchByteOrder);
 			final PersistenceTypeDefinitionMemberFieldReflective member = declaredField(field, lengthResolver);
 			
-			if(fieldType.isPrimitive())
+			if(!members.add(member))
 			{
-				primitiveTotalBinaryLength += XMemory.byteSizePrimitive(fieldType);
-				prmStorers[p] = storer;
-				prmSetters[p] = setter;
-				prmFields [p] = field ;
-				prmMembers[p] = member;
-				p++;
+				// (07.09.2018 TM)EXCP: proper exception
+				throw new PersistenceExceptionTypeConsistency("Duplicate member descriptions.");
 			}
-			else
-			{
-				refStorers[r] = storer;
-				refSetters[r] = setter;
-				refFields [r] = field ;
-				refMembers[r] = member;
-				r++;
-			}
-			membersInDeclaredOrder.add(member);
 		}
 		
-		// persistent order is simply: first all reference fields in decl. order, then all primitives in decl. order.
-		System.arraycopy(refStorers, 0, storers            , 0, r);
-		System.arraycopy(refSetters, 0, setters            , 0, r);
-		System.arraycopy(refFields , 0, fieldsPersistdOrder, 0, r);
-		System.arraycopy(prmStorers, 0, storers            , r, p);
-		System.arraycopy(prmSetters, 0, setters            , r, p);
-		System.arraycopy(prmFields , 0, fieldsPersistdOrder, r, p);
-		membersInPersistdOrder
-			.addAll(refMembers, 0, r)
-			.addAll(prmMembers, 0, p)
-		;
-
-		// the values' total length is the length of all references plus the accumulated length of all primitives.
-		return Binary.referenceBinaryLength(r) + primitiveTotalBinaryLength;
+		return members.immure();
+	}
+	
+	protected static final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filter(
+		final XGettingCollection<? extends PersistenceTypeDefinitionMemberFieldReflective> fields    ,
+		final Predicate<? super PersistenceTypeDefinitionMemberFieldReflective>            predicate
+	)
+	{
+		return fields.filterTo(EqHashEnum.<PersistenceTypeDefinitionMemberFieldReflective>New(), predicate).immure();
+	}
+	
+	protected static final <C extends Consumer<? super Field>> C unbox(
+		final XGettingCollection<? extends PersistenceTypeDefinitionMemberFieldReflective> members,
+		final C collector
+	)
+	{
+		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
+		{
+			collector.accept(member.field());
+		}
+		
+		return collector;
+	}
+	
+	protected static final long equal(final long value1, final long value2) throws IllegalArgumentException
+	{
+		if(value1 != value2)
+		{
+			throw UtilStackTrace.cutStacktraceByOne(new IllegalArgumentException());
+		}
+		
+		return value1;
+	}
+		
+	protected static void createSetters(
+		final Iterable<PersistenceTypeDefinitionMemberFieldReflective> settingMembers ,
+		final BinaryValueSetter[]                                      setters        ,
+		final boolean                                                  switchByteOrder
+	)
+	{
+		int t = 0;
+		for(final PersistenceTypeDefinitionMemberFieldReflective member : settingMembers)
+		{
+			setters[t++] = BinaryValueFunctions.getObjectValueSetter(member.type(), switchByteOrder);
+		}
+	}
+	
+	protected static void createStorers(
+		final Class<?>                                                 entityType     ,
+		final Iterable<PersistenceTypeDefinitionMemberFieldReflective> storingMembers ,
+		final BinaryValueStorer[]                                      storers        ,
+		final PersistenceEagerStoringFieldEvaluator                    eagerEvaluator ,
+		final boolean                                                  switchByteOrder
+	)
+	{
+		int o = 0;
+		for(final PersistenceTypeDefinitionMemberFieldReflective member : storingMembers)
+		{
+			final boolean isEager = eagerEvaluator.isEagerStoring(entityType, member.field());
+			storers[o++] = BinaryValueFunctions.getObjectValueStorer(member.type(), isEager, switchByteOrder);
+		}
+	}
+	
+	protected static long calculcateBinaryContentLength(
+		final Iterable<PersistenceTypeDefinitionMemberFieldReflective> storingMembers
+	)
+	{
+		long binaryContentLength = 0;
+		
+		for(final PersistenceTypeDefinitionMemberFieldReflective member : storingMembers)
+		{
+			final long fixedBinaryLength = equal(member.persistentMinimumLength(), member.persistentMaximumLength());
+			binaryContentLength += fixedBinaryLength;
+		}
+		
+		return binaryContentLength;
 	}
 	
 	protected static final XGettingSequence<PersistenceTypeDefinitionMemberFieldReflective> createTypeDescriptionMembers(
@@ -147,26 +165,73 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		return members;
 	}
 	
+	protected static final long[] objectFieldOffsets(
+		final XGettingSequence<PersistenceTypeDefinitionMemberFieldReflective> members
+	)
+	{
+		final long[] offsets = new long[members.intSize()];
+		final int i = 0;
+		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
+		{
+			offsets[i] = XMemory.objectFieldOffset(member.field());
+		}
+		
+		return offsets;
+	}
+	
+	protected static long first(final long[] values)
+	{
+		return values == null || values.length == 0
+			? 0
+			: values[0]
+		;
+	}
+	
+	protected static long last(final long[] values)
+	{
+		return values == null || values.length == 0
+			? 0
+			: values[values.length - 1]
+		;
+	}
 
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
+	
+	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> declOrderMembers;
+	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> referenceMembers;
+	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> primitiveMembers;
+	
+	/*
+	 * The persisted order of the fields differs from the declared order. For efficiency reasons, all
+	 * reference fields come first, the primitive fields come second. The benefit from this is that the
+	 * storage's garbage collector does not need to load primitive field data for traversing the entity graph.
+	 * It might seem irrelevant if a few bytes more or less are loaded, but considering millions of entities
+	 * have to be loaded, the savings can amass to a substantial amount.
+	 * The relative order of reference fields and primitive fields respectively is maintained.
+	 */
+	
+	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> storingMembers;
+	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> settingMembers;
+		
+	private final long[] storingMemoryOffsets;
+	private final long[] settingMemoryOffsets;
+	private final long[] refrnceMemoryOffsets;
+	private final long   binaryContentLength ;
+	private final long   refBinaryOffsetStart;
+	private final long   refBinaryOffsetBound;
+	
+	private final BinaryValueStorer[] storers;
+	private final BinaryValueSetter[] setters;
+	
+	private final boolean hasReferences;
 
-	// instance persistence context //
-	private final EqConstHashEnum<Field> fields              ;
-	private final EqConstHashEnum<Field> referenceFields     ;
-	private final EqConstHashEnum<Field> primitiveFields     ;
-	private final long[]                 allBinaryOffsets    ;
-	private final long[]                 refBinaryOffsets    ;
-	private final long                   referenceOffsetStart;
-	private final long                   referenceOffsetBound;
-	private final long                   binaryContentLength ;
-	private final BinaryValueStorer[]    binaryStorers       ;
-	private final BinaryValueSetter[]    memorySetters       ;
-	private final boolean                hasReferences       ;
-	private final XImmutableEnum<PersistenceTypeDefinitionMemberFieldReflective> membersInPersistdOrder;
-	private final XImmutableEnum<PersistenceTypeDefinitionMemberFieldReflective> membersInDeclaredOrder;
+	private final EqConstHashEnum<Field> declOrderFields;
+	private final EqConstHashEnum<Field> referenceFields;
+	private final EqConstHashEnum<Field> primitiveFields;
 
 
 
@@ -175,10 +240,10 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	/////////////////
 
 	protected AbstractBinaryHandlerReflective(
-		final Class<T>                              type                      ,
-		final XGettingEnum<Field>                   persistableFields         ,
-		final PersistenceFieldLengthResolver        lengthResolver            ,
-		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final Class<T>                              type             ,
+		final XGettingEnum<Field>                   persistableFields,
+		final PersistenceFieldLengthResolver        lengthResolver   ,
+		final PersistenceEagerStoringFieldEvaluator eagerEvaluator   ,
 		final boolean                               switchByteOrder
 	)
 	{
@@ -186,79 +251,103 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		
 		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
 		XMemory.ensureClassInitialized(type);
-
-		// filtering for static should not be necessary, but it is a simply done precaution, so why not.
-		this.fields          = this.filterInstanceFields         (persistableFields);
-		this.referenceFields = this.filterInstanceReferenceFields(persistableFields);
-		this.primitiveFields = this.filterInstancePrimitiveFields(persistableFields);
 		
-		final int memberCount = this.fields.intSize();
+		// member instances are created from the persistable fields and splitted into references and primitives
+		this.declOrderMembers = deriveMembers(persistableFields, lengthResolver);
+		this.referenceMembers = this.filterReferenceMembers(this.declOrderMembers, MemberEnum()).immure();
+		this.primitiveMembers = this.filterPrimitiveMembers(this.declOrderMembers, MemberEnum()).immure();
 		
-		final Field[]                                                  fieldsPersistdOrder = new Field[memberCount];
-		final BulkList<PersistenceTypeDefinitionMemberFieldReflective> collectorPersOrder  = BulkList.New();
-		final BulkList<PersistenceTypeDefinitionMemberFieldReflective> collectorDeclOrder  = BulkList.New();
+		// persistent order is all reference fields in declared order, then all primitive fields in declared order.
+		this.storingMembers = MemberEnum().addAll(this.referenceMembers).addAll(this.primitiveMembers).immure();
+		this.settingMembers = this.filterSettingMembers(this.storingMembers);
 		
-		this.binaryStorers       = new BinaryValueStorer[memberCount];
-		this.memorySetters       = new BinaryValueSetter[memberCount];
-		this.binaryContentLength = fillArraysAndCalculateOffsets(
-			type                      ,
-			this.fields       ,
-			fieldsPersistdOrder       ,
-			this.binaryStorers        ,
-			this.memorySetters        ,
-			eagerStoringFieldEvaluator,
-			lengthResolver            ,
-			collectorPersOrder        ,
-			collectorDeclOrder        ,
-			switchByteOrder
-		);
-		
-		// member fields are created in persistent order, collected, validated and immured.
-		this.membersInPersistdOrder = validateAndImmure(collectorPersOrder);
-		this.membersInDeclaredOrder = validateAndImmure(collectorDeclOrder);
-		
-		// reference field offsets fit either way, because the relative order of reference fields is maintained.
-		this.allBinaryOffsets = XMemory.objectFieldOffsets(fieldsPersistdOrder);
-		this.refBinaryOffsets = XMemory.objectFieldOffsets(this.referenceFields.toArray(Field.class));
+		// storing/setting memory offsets initialization must be overridable for enum special casing
+		this.storingMemoryOffsets = this.initializeStoringMemoryOffsets();
+		this.settingMemoryOffsets = this.initializeSettingMemoryOffsets();
+		this.refrnceMemoryOffsets = this.initializeStoringRefMemOffsets();
 		
 		// references are always stored at the beginnnig of the content (0 bytes after header)
-		this.referenceOffsetStart = 0;
-		this.referenceOffsetBound = Binary.referenceBinaryLength(this.referenceFields.size());
-		this.hasReferences        = !this.referenceFields.isEmpty();
-	}
-	
-	private EqConstHashEnum<Field> filterInstanceFields(final XGettingEnum<Field> persistableFields)
-	{
-		return filter(persistableFields, this::isValid);
-	}
-	
-	private EqConstHashEnum<Field> filterInstanceReferenceFields(final XGettingEnum<Field> persistableFields)
-	{
-		return filter(persistableFields, this::isValid, not(XReflect::isPrimitive));
-	}
-	
-	private EqConstHashEnum<Field> filterInstancePrimitiveFields(final XGettingEnum<Field> persistableFields)
-	{
-		return filter(persistableFields, this::isValid, XReflect::isPrimitive);
-	}
-	
-	
-	protected boolean isValid(final Field field)
-	{
-		// only safety-net instance filtering in default implementation. Enum fields special casing uses this more.
-		return !XReflect.isStatic(field);
-	}
+		this.refBinaryOffsetStart = 0;
+		this.refBinaryOffsetBound = Binary.referenceBinaryLength(this.referenceMembers.size());
+		this.hasReferences        = !this.referenceMembers.isEmpty();
 
+		// storers set a field's value from the instance in memory to a buffered persistent form.
+		this.storers = new BinaryValueStorer[this.storingMembers.intSize()];
+		createStorers(type, this.storingMembers, this.storers, eagerEvaluator, switchByteOrder);
+		
+		// setters set a field's value from a buffered persistent form to the instance in memory.
+		this.setters = new BinaryValueSetter[this.settingMembers.intSize()];
+		createSetters(this.settingMembers, this.setters, switchByteOrder);
+
+		// binary content length (without the entity header) is calculated based on the storing ("all") members.
+		this.binaryContentLength = calculcateBinaryContentLength(this.storingMembers);
+
+		// lots of data copying detour, but only once per handler and nicely readable
+		this.declOrderFields = unbox(this.declOrderMembers, EqHashEnum.New()).immure();
+		this.referenceFields = unbox(this.referenceMembers, EqHashEnum.New()).immure();
+		this.primitiveFields = unbox(this.primitiveMembers, EqHashEnum.New()).immure();
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// methods //
+	// initializer logic //
+	//////////////////////
+		
+	protected long[] initializeStoringMemoryOffsets()
+	{
+		return objectFieldOffsets(this.storingMembers);
+	}
+	
+	protected long[] initializeSettingMemoryOffsets()
+	{
+		// no difference for "normal" (non-enum) types
+		return this.storingMemoryOffsets;
+	}
+	
+	protected long[] initializeStoringRefMemOffsets()
+	{
+		return objectFieldOffsets(this.referenceMembers);
+	}
+	
+	protected EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterSettingMembers(
+		final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> members
+	)
+	{
+		// no difference for "normal" (non-enum) types
+		return members;
+	}
+	
+	protected EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterReferenceMembers(
+		final XGettingCollection<PersistenceTypeDefinitionMemberFieldReflective> members,
+		final EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective>         target
+	)
+	{
+		return members.filterTo(target, m ->
+			m.isReference()
+		);
+	}
+	
+	protected EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterPrimitiveMembers(
+		final XGettingCollection<PersistenceTypeDefinitionMemberFieldReflective> members,
+		final EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective>         target
+	)
+	{
+		return members.filterTo(target, m ->
+			m.isPrimitive()
+		);
+	}
+	
+		
+	
+	///////////////////////////////////////////////////////////////////////////
+	// getters //
 	////////////
 			
 	@Override
 	public XGettingEnum<Field> instanceFields()
 	{
-		return this.fields;
+		return this.declOrderFields;
 	}
 
 	@Override
@@ -289,13 +378,13 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> instanceMembers()
 	{
-		return this.membersInPersistdOrder;
+		return this.storingMembers;
 	}
 	
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
 	{
-		return this.membersInDeclaredOrder;
+		return this.declOrderMembers;
 	}
 
 	@Override
@@ -333,18 +422,23 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	{
 		return false;
 	}
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// actual operating logic //
+	///////////////////////////
 
 	@Override
 	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
 		bytes.storeFixedSize(
-			handler                  ,
+			handler                 ,
 			this.binaryContentLength,
 			this.typeId()           ,
 			objectId                ,
 			instance                ,
-			this.allBinaryOffsets   ,
-			this.binaryStorers
+			this.storingMemoryOffsets  ,
+			this.storers
 		);
 	}
 
@@ -364,7 +458,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			throw new TypeCastException(this.type(), instance);
 		}
 
-		bytes.updateFixedSize(instance, this.memorySetters, this.allBinaryOffsets, handler);
+		bytes.updateFixedSize(instance, this.setters, this.settingMemoryOffsets, handler);
 	}
 
 	@Override
@@ -376,7 +470,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	@Override
 	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
-		BinaryPersistence.iterateInstanceReferences(iterator, instance, this.refBinaryOffsets);
+		BinaryPersistence.iterateInstanceReferences(iterator, instance, this.refrnceMemoryOffsets);
 	}
 
 	@Override
@@ -384,8 +478,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	{
 		// "bytes" points to the entity content address, the offsets are relative to the content address.
 		bytes.iterateReferenceRange(
-			this.referenceOffsetStart,
-			this.referenceOffsetBound,
+			this.refBinaryOffsetStart,
+			this.refBinaryOffsetBound,
 			iterator
 		);
 	}

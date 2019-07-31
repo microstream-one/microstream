@@ -21,8 +21,6 @@ extends PersistenceTypeDefinitionMemberField, PersistenceTypeDescriptionMemberFi
 	
 	@Override
 	public Field field();
-	
-	
 		
 	public static PersistenceTypeDefinitionMemberFieldReflective New(
 		final String   runtimeDeclaringClass  ,

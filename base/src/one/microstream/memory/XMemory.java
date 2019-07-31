@@ -81,11 +81,11 @@ public final class XMemory
 			{
 				throw new IllegalArgumentException("Not an instance field: " + fields[i]);
 			}
-			offsets[i] = (int)VM.objectFieldOffset(fields[i]);
+			offsets[i] = VM.objectFieldOffset(fields[i]);
 		}
 		return offsets;
 	}
-
+	
 	static final long internalGetFieldOffset(final Class<?> type, final String declaredFieldName)
 	{
 		// minimal algorithm, only for local use

@@ -215,7 +215,6 @@ public final class X
 	{
 		if(object == null)
 		{
-			// removing this method's stack trace entry is kind of a hack. On the other hand, it's not.
 			throw UtilStackTrace.cutStacktraceByOne(new NullPointerException());
 		}
 		return object;

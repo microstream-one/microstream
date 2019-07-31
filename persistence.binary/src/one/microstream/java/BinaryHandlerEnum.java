@@ -3,6 +3,7 @@ package one.microstream.java;
 import java.lang.reflect.Field;
 
 import one.microstream.collections.BulkList;
+import one.microstream.collections.EqConstHashEnum;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
@@ -151,6 +152,19 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	@Override
+	protected EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterSettingMembers(
+		final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> members
+	)
+	{
+		/*
+		 * FIXME priv#23: BinaryHandlerEnum#filterSettingMembers()
+		 * remove Enum fields ordinal and name.
+		 * set in dedicated fields instead
+		 */
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
 	
 	@Override
 	public final XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers()
