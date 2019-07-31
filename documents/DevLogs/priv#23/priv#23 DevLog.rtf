@@ -170,5 +170,11 @@ Dann muss man auch unterscheiden zwischen allStoringBinaryOffsets und allSetting
 Und das dann wieder \'fcber eine Instanzmethode, damit die enum Implementierung das overriden kann, w\'e4hrend die default einfach zweimal dassselbe Array hernimmt, damit nicht noch mehr speicher von den eh schon ziemlich gro\'dfen Handlern belegt wird.\par
 \par
 Dann muss es auch zwei referenceOffsetStart geben...\par
+\par
+Ne, muss es nicht, weil die (aktuell) nur f\'fcr eine Variante gebraucht werden. Nur vorsichtshalber umbenennen.\par
+\par
+Baustelle aufr\'e4umen, alles bissl ordentlich machen und Kommentare schreiben.\par
+\par
+Damit w\'e4re die AbstractBinaryHandlerReflective Klasse fertig vorbereitet f\'fcr das enum special handling. Und ENDLICH mal aufger\'e4umt. Nach ... 6 Jahren ... .\par
 }
  
