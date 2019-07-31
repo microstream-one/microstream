@@ -162,5 +162,13 @@ Zwei \'dcberlegungen:\par
 Dabei gleich mal den AbstractBinaryHandlerReflective Konstruktur aufr\'e4umen und das l\'e4stige TODO damit loswerden.\par
 \par
 Beim Testen kleinen Bug von gestern entdeckt: Primitive Definitions werden nicht mehr assembled. Schnell suchen und fixen.\par
+Jup, Kleinigkeit.\par
+\line Weiter im Text.\par
+\par
+Das mit dem Enum Felder rauswerfen zieht weitere Kreise:\par
+Dann muss man auch unterscheiden zwischen allStoringBinaryOffsets und allSettingBinaryOffsets.\par
+Und das dann wieder \'fcber eine Instanzmethode, damit die enum Implementierung das overriden kann, w\'e4hrend die default einfach zweimal dassselbe Array hernimmt, damit nicht noch mehr speicher von den eh schon ziemlich gro\'dfen Handlern belegt wird.\par
+\par
+Dann muss es auch zwei referenceOffsetStart geben...\par
 }
  
