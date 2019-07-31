@@ -201,10 +201,6 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	// instance fields //
 	////////////////////
 	
-	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> declOrderMembers;
-	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> referenceMembers;
-	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> primitiveMembers;
-	
 	/*
 	 * The persisted order of the fields differs from the declared order. For efficiency reasons, all
 	 * reference fields come first, the primitive fields come second. The benefit from this is that the
@@ -214,27 +210,37 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	 * The relative order of reference fields and primitive fields respectively is maintained.
 	 */
 	
-	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> storingMembers;
-	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> settingMembers;
-		
-	private final long[] storingMemoryOffsets;
-	private final long[] settingMemoryOffsets;
-	private final long[] refrnceMemoryOffsets;
-	private final long   binaryContentLength ;
-	private final long   refBinaryOffsetStart;
-	private final long   refBinaryOffsetBound;
+	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective>
+		declOrderMembers,
+		referenceMembers,
+		primitiveMembers,
+		storingMembers  ,
+		settingMembers
+	;
+	private final long[]
+		storingMemoryOffsets,
+		settingMemoryOffsets,
+		refrnceMemoryOffsets
+	;
+	private final long
+		refBinaryOffsetStart,
+		refBinaryOffsetBound,
+		binaryContentLength
+	;
+	private final BinaryValueStorer[]
+		storers
+	;
+	private final BinaryValueSetter[]
+		setters
+	;
+	private final EqConstHashEnum<Field>
+		declOrderFields,
+		referenceFields,
+		primitiveFields
+	;
+
+
 	
-	private final BinaryValueStorer[] storers;
-	private final BinaryValueSetter[] setters;
-	
-	private final boolean hasReferences;
-
-	private final EqConstHashEnum<Field> declOrderFields;
-	private final EqConstHashEnum<Field> referenceFields;
-	private final EqConstHashEnum<Field> primitiveFields;
-
-
-
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
@@ -269,7 +275,6 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		// references are always stored at the beginnnig of the content (0 bytes after header)
 		this.refBinaryOffsetStart = 0;
 		this.refBinaryOffsetBound = Binary.referenceBinaryLength(this.referenceMembers.size());
-		this.hasReferences        = !this.referenceMembers.isEmpty();
 
 		// storers set a field's value from the instance in memory to a buffered persistent form.
 		this.storers = new BinaryValueStorer[this.storingMembers.intSize()];
@@ -390,13 +395,13 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	@Override
 	public final boolean hasInstanceReferences()
 	{
-		return this.hasReferences;
+		return !this.referenceMembers.isEmpty();
 	}
 	
 	@Override
 	public final boolean hasPersistedReferences()
 	{
-		return this.hasReferences;
+		return !this.referenceMembers.isEmpty();
 	}
 	
 	@Override
