@@ -1,4 +1,5 @@
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red255\green0\blue0;}
 {\*\generator Riched20 10.0.17763}\viewkind4\uc1 
 \pard\sl276\slmult1\f0\fs28\lang7 2019-07-26\par
 \par
@@ -149,5 +150,17 @@ Wie jetzt weiter?\par
 Erst mal Lookup-Code f\'fcr die beiden java.lang.Enum Instanzfelder schreiben. Die braucht die update Methode f\'fcr die Validierung.\par
 \par
 \par
+2019-07-31\par
+\par
+Zwei \'dcberlegungen:\par
+1.) Der "normale" BinaryHandlerEnum macht kein Lookup und Mapping und Stuff. Daf\'fcr gibts LTM und wahrscheinlich dann einen extra LegacyEnumHandler, mal sehen.\par
+\cf1\b 2.) Das ganze LTM Strukturvergleichszeug muss Enum Felder mit ber\'fccksichtigen, bzw. "all" statt "instance".\cf0\b0\par
+3.) Der Reflective TypeHandler braucht eine Filtermethode f\'fcr "updatingFields", die normalerweise no-op ist, aber bei enums die beiden Enum Felder ausfiltert, sonst \'fcberschreibt der die in der Instanz.\par
+\par
+\par
+#3 implementieren.\par
+Dabei gleich mal den AbstractBinaryHandlerReflective Konstruktur aufr\'e4umen und das l\'e4stige TODO damit loswerden.\par
+\par
+Beim Testen kleinen Bug von gestern entdeckt: Primitive Definitions werden nicht mehr assembled. Schnell suchen und fixen.\par
 }
  

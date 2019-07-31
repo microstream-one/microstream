@@ -106,6 +106,14 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 
 	public static final <E> EqConstHashEnum<E> New(
 		final HashEqualator<? super E>        hashEqualator,
+		final XGettingCollection<? extends E> entries
+	)
+	{
+		return New(hashEqualator, DEFAULT_HASH_FACTOR, entries);
+	}
+
+	public static final <E> EqConstHashEnum<E> New(
+		final HashEqualator<? super E>        hashEqualator,
 		final float                           hashDensity  ,
 		final XGettingCollection<? extends E> entries
 	)

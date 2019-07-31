@@ -16,7 +16,6 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
-import one.microstream.reflect.XReflect;
 
 public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHandlerReflective<T>
 {
@@ -39,19 +38,6 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 		
 	// (30.07.2019 TM)FIXME: priv#23: enum BinaryHandler special case implementation
 
-	public static void main(final String[] args)
-	{
-		XReflect.iterateDeclaredFieldsUpwards(MyEnum.class, f ->
-		{
-			// non-instance fields are always discarded
-			if(!XReflect.isInstanceField(f))
-			{
-				return;
-			}
-			
-			System.out.println(f.getType() + " " + f.getName());
-		});
-	}
 	
 	
 	///////////////////////////////////////////////////////////////////////////
