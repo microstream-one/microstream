@@ -10,6 +10,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPrimitiveDefinition;
 
 
@@ -58,11 +59,17 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	@Override
+	public final XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers()
+	{
+		return this.member;
+	}
 
 	@Override
 	public final XGettingEnum<? extends PersistenceTypeDefinitionMemberPrimitiveDefinition> instanceMembers()
 	{
-		return this.member;
+		return X.empty();
 	}
 	
 	@Override
@@ -82,7 +89,7 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	{
 		return true;
 	}
-
+	
 	@Override
 	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
