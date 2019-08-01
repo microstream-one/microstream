@@ -40,11 +40,18 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	// static methods //
 	///////////////////
 	
-	protected static EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> MemberEnum()
+	protected static <M extends PersistenceTypeDefinitionMember> EqHashEnum<M> MemberEnum()
 	{
 		return EqHashEnum.New(
 			PersistenceTypeDescriptionMember.identityHashEqualator()
 		);
+	}
+	
+	protected static <M extends PersistenceTypeDefinitionMember> EqHashEnum<M> MemberEnum(
+		final XGettingCollection<M> initialMembers
+	)
+	{
+		return AbstractBinaryHandlerReflective.<M>MemberEnum().addAll(initialMembers);
 	}
 	
 	protected static EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> deriveMembers(
@@ -112,10 +119,10 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final boolean                                                  switchByteOrder
 	)
 	{
-		int t = 0;
+		int i = 0;
 		for(final PersistenceTypeDefinitionMemberFieldReflective member : settingMembers)
 		{
-			setters[t++] = BinaryValueFunctions.getObjectValueSetter(member.type(), switchByteOrder);
+			setters[i++] = BinaryValueFunctions.getObjectValueSetter(member.type(), switchByteOrder);
 		}
 	}
 	
@@ -127,11 +134,11 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final boolean                                                  switchByteOrder
 	)
 	{
-		int o = 0;
+		int i = 0;
 		for(final PersistenceTypeDefinitionMemberFieldReflective member : storingMembers)
 		{
 			final boolean isEager = eagerEvaluator.isEagerStoring(entityType, member.field());
-			storers[o++] = BinaryValueFunctions.getObjectValueStorer(member.type(), isEager, switchByteOrder);
+			storers[i++] = BinaryValueFunctions.getObjectValueStorer(member.type(), isEager, switchByteOrder);
 		}
 	}
 	
@@ -166,33 +173,18 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 	
 	protected static final long[] objectFieldOffsets(
-		final XGettingSequence<PersistenceTypeDefinitionMemberFieldReflective> members
+		final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldReflective> members
 	)
 	{
 		final long[] offsets = new long[members.intSize()];
-		final int i = 0;
+		
+		int i = 0;
 		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
 		{
-			offsets[i] = XMemory.objectFieldOffset(member.field());
+			offsets[i++] = XMemory.objectFieldOffset(member.field());
 		}
 		
 		return offsets;
-	}
-	
-	protected static long first(final long[] values)
-	{
-		return values == null || values.length == 0
-			? 0
-			: values[0]
-		;
-	}
-	
-	protected static long last(final long[] values)
-	{
-		return values == null || values.length == 0
-			? 0
-			: values[values.length - 1]
-		;
 	}
 
 	
@@ -264,7 +256,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		this.primitiveMembers = this.filterPrimitiveMembers(this.declOrderMembers, MemberEnum()).immure();
 		
 		// persistent order is all reference fields in declared order, then all primitive fields in declared order.
-		this.storingMembers = MemberEnum().addAll(this.referenceMembers).addAll(this.primitiveMembers).immure();
+		this.storingMembers = MemberEnum(this.referenceMembers).addAll(this.primitiveMembers).immure();
 		this.settingMembers = this.filterSettingMembers(this.storingMembers);
 		
 		// storing/setting memory offsets initialization must be overridable for enum special casing
@@ -385,6 +377,11 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	{
 		return this.storingMembers;
 	}
+
+	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> instanceSettingMembers()
+	{
+		return this.settingMembers;
+	}
 	
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
@@ -437,12 +434,12 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
 		bytes.storeFixedSize(
-			handler                 ,
-			this.binaryContentLength,
-			this.typeId()           ,
-			objectId                ,
-			instance                ,
-			this.storingMemoryOffsets  ,
+			handler                  ,
+			this.binaryContentLength ,
+			this.typeId()            ,
+			objectId                 ,
+			instance                 ,
+			this.storingMemoryOffsets,
 			this.storers
 		);
 	}

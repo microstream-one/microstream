@@ -1,14 +1,17 @@
 package one.microstream.java;
 
+import static one.microstream.X.notNull;
+
 import java.lang.reflect.Field;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashEnum;
-import one.microstream.collections.EqHashTable;
-import one.microstream.collections.HashEnum;
+import one.microstream.collections.EqHashEnum;
+import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableEnum;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerReflective;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
@@ -20,82 +23,59 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldRef
 
 public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHandlerReflective<T>
 {
-	public static <T extends Enum<T>> BinaryHandlerEnum<T> New(
-		final Class<T>                              type                      ,
-		final XGettingEnum<Field>                   allFields                 ,
-		final PersistenceFieldLengthResolver        lengthResolver            ,
-		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
-		final boolean                               switchByteOrder
-	)
-	{
-		return new BinaryHandlerEnum<>(
-			type                      ,
-			allFields                 ,
-			lengthResolver            ,
-			eagerStoringFieldEvaluator,
-			switchByteOrder
-		);
-	}
-		
-	// (30.07.2019 TM)FIXME: priv#23: enum BinaryHandler special case implementation
-
+	///////////////////////////////////////////////////////////////////////////
+	// constants //
+	//////////////
+	
+	private static final String JAVA_LANG_ENUM_FIELD_NAME_NAME    = "name"   ;
+	private static final String JAVA_LANG_ENUM_FIELD_NAME_ORDINAL = "ordinal";
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	private static <E extends Enum<E>> EqHashTable<String, E> initializeEnumReferencesCache(final Class<E> type)
+	public static boolean isJavaLangEnumMember(final PersistenceTypeDefinitionMemberFieldReflective member)
 	{
-		final EqHashTable<String, E> cachedEnumReferences = EqHashTable.New();
-		
-		final E[] enumConstants = type.getEnumConstants();
-		for(final E e : enumConstants)
-		{
-			cachedEnumReferences.add(e.name(), e);
-		}
-		
-		return cachedEnumReferences;
+		return member != null
+			&& member.declaringClass() == java.lang.Enum.class
+		;
 	}
 	
+	public static boolean isJavaLangEnumName(final PersistenceTypeDefinitionMemberFieldReflective member)
+	{
+		return isJavaLangEnumMember(member)
+			&& JAVA_LANG_ENUM_FIELD_NAME_NAME.equals(member.name())
+		;
+	}
 	
+	public static boolean isJavaLangEnumOrdinal(final PersistenceTypeDefinitionMemberFieldReflective member)
+	{
+		return isJavaLangEnumMember(member)
+			&& JAVA_LANG_ENUM_FIELD_NAME_ORDINAL.equals(member.name())
+		;
+	}
 	
-	///////////////////////////////////////////////////////////////////////////
-	// instance fields //
-	////////////////////
-	
-	/*
-	 * Cached, because the weird tinkering in the JDK's enumConstantDirectory code is creepy.
-	 */
-	private final EqHashTable<String, T> cachedEnumReferences;
-	
-	private final PersistenceTypeDefinitionMemberFieldReflective java_lang_Enum_name   ;
-	private final PersistenceTypeDefinitionMemberFieldReflective java_lang_Enum_ordinal;
-	
-	private final XImmutableEnum<PersistenceTypeDefinitionMember> allMembers;
-	
-	// (09.06.2017 TM)NOTE: would have to hold fields to orinal and name here as special cases
-	
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// constructors //
-	/////////////////
-
-	protected BinaryHandlerEnum(
-		final Class<T>                              type                      ,
-		final XGettingEnum<Field>                   persistableFields         ,
-		final PersistenceFieldLengthResolver        lengthResolver            ,
-		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
-		final boolean                               switchByteOrder
+	public static long calculateBinaryOffset(
+		final PersistenceTypeDefinitionMemberFieldReflective                               member ,
+		final XGettingCollection<? extends PersistenceTypeDefinitionMemberFieldReflective> members
 	)
 	{
-		super(type, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
-		this.cachedEnumReferences   = initializeEnumReferencesCache(type);
-		this.allMembers             = deriveAllMembers(type, this.instanceMembers());
-		this.java_lang_Enum_name    = this.searchMemberField("name");
-		this.java_lang_Enum_ordinal = this.searchMemberField("ordinal");
+		long binaryOffset = 0;
+		
+		for(final PersistenceTypeDefinitionMemberFieldReflective m : members)
+		{
+			if(m == member)
+			{
+				return binaryOffset;
+			}
+			
+			binaryOffset += equal(m.persistentMinimumLength(), m.persistentMaximumLength());
+		}
+		
+		// (01.08.2019 TM)EXCP: proper exception
+		throw new RuntimeException("Member not found in member list: " + member.identifier());
 	}
 	
 	private static <E extends Enum<E>> XImmutableEnum<PersistenceTypeDefinitionMember> deriveAllMembers(
@@ -105,26 +85,12 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	{
 		final XGettingSequence<PersistenceTypeDefinitionMemberEnumConstant> enumConstants = deriveEnumMembers(type);
 		
-		final HashEnum<PersistenceTypeDefinitionMember> allMembers = HashEnum.<PersistenceTypeDefinitionMember>New()
+		final EqHashEnum<PersistenceTypeDefinitionMember> allMembers = MemberEnum()
 			.addAll(enumConstants)
 			.addAll(instanceMembers)
 		;
 		
 		return allMembers.immure();
-	}
-	
-	private PersistenceTypeDefinitionMemberFieldReflective searchMemberField(final String name)
-	{
-		for(final PersistenceTypeDefinitionMemberFieldReflective memberField : this.instanceMembers())
-		{
-			if(memberField.declaringClass() == java.lang.Enum.class && memberField.field().getName().equals(name))
-			{
-				return memberField;
-			}
-		}
-		
-		// (30.07.2019 TM)EXCP: proper exception
-		throw new RuntimeException("Enum-intrinsic field \"" + name + "\" not found in type " + this.type());
 	}
 	
 	public static <T extends Enum<T>> XGettingSequence<PersistenceTypeDefinitionMemberEnumConstant> deriveEnumMembers(
@@ -146,6 +112,84 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 		
 		return enumConstants;
 	}
+	
+	
+	
+	public static <T extends Enum<T>> BinaryHandlerEnum<T> New(
+		final Class<T>                              type                      ,
+		final XGettingEnum<Field>                   allFields                 ,
+		final PersistenceFieldLengthResolver        lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final boolean                               switchByteOrder
+	)
+	{
+		return new BinaryHandlerEnum<>(
+			type                      ,
+			allFields                 ,
+			lengthResolver            ,
+			eagerStoringFieldEvaluator,
+			switchByteOrder
+		);
+	}
+		
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+		
+	private final PersistenceTypeDefinitionMemberFieldReflective java_lang_Enum_name   ;
+	private final PersistenceTypeDefinitionMemberFieldReflective java_lang_Enum_ordinal;
+	
+	// offsets must be determined per handler instance since different types have different persistent form offsets.
+	// (01.08.2019 TM)FIXME: priv#23: what about binaryOffsetName?
+	private final long binaryOffsetName   ;
+	private final long binaryOffsetOrdinal;
+	
+	private final XImmutableEnum<PersistenceTypeDefinitionMember> allMembers;
+	
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	protected BinaryHandlerEnum(
+		final Class<T>                              type                      ,
+		final XGettingEnum<Field>                   persistableFields         ,
+		final PersistenceFieldLengthResolver        lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final boolean                               switchByteOrder
+	)
+	{
+		super(type, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
+		this.allMembers             = deriveAllMembers(type, this.instanceMembers());
+		this.java_lang_Enum_name    = notNull(this.instanceMembers().search(BinaryHandlerEnum::isJavaLangEnumName));
+		this.java_lang_Enum_ordinal = notNull(this.instanceMembers().search(BinaryHandlerEnum::isJavaLangEnumOrdinal));
+		this.binaryOffsetName       = calculateBinaryOffset(this.java_lang_Enum_name   , this.instanceMembers());
+		this.binaryOffsetOrdinal    = calculateBinaryOffset(this.java_lang_Enum_ordinal, this.instanceMembers());
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// initializer logic //
+	//////////////////////
+	
+	@Override
+	protected EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterSettingMembers(
+		final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> members
+	)
+	{
+		return members.filterTo(MemberEnum(), this::notJavaLangEnumField).immure();
+	}
+	
+	@Override
+	protected long[] initializeSettingMemoryOffsets()
+	{
+		// additional long[] must be created instead of referencing that for storing offsets
+		return objectFieldOffsets(this.instanceSettingMembers());
+	}
 
 
 	
@@ -153,35 +197,31 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	// methods //
 	////////////
 	
-	@Override
-	protected EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterSettingMembers(
-		final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> members
-	)
+	protected final boolean notJavaLangEnumField(final PersistenceTypeDefinitionMemberFieldReflective m)
 	{
-		/*
-		 * FIXME priv#23: BinaryHandlerEnum#filterSettingMembers()
-		 * remove Enum fields ordinal and name.
-		 * set in dedicated fields instead
-		 */
-		throw new one.microstream.meta.NotImplementedYetError();
+		// (01.08.2019 TM)FIXME: priv#23: DEBUG
+		XDebug.println(m.identifier() + " declaring class = " + m.declaringClass());
+		
+		// quick check for "normal" members but also essential for the checking logic below
+		if(m.declaringClass() != java.lang.Enum.class)
+		{
+			return true;
+		}
+		
+		// should Enum fields ever change, it is important to at least notice it and abort.
+		if(isJavaLangEnumName(m) || isJavaLangEnumOrdinal(m))
+		{
+			return false;
+		}
+		
+		// (01.08.2019 TM)EXCP: proper exception
+		throw new RuntimeException("Unknown " + java.lang.Enum.class.getName() + " field: " + m.name());
 	}
 	
 	@Override
 	public final XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers()
 	{
 		return this.allMembers;
-	}
-	
-	private String getEnumName(final Binary bytes)
-	{
-		/* (09.06.2017 TM)FIXME: priv#23: BinaryHandlerEnum#getEnumName()
-		 * Must use bytes.buildItemAddress() plus offset to the Enum#name field
-		 * Hm. But that is a String reference and not present, yet.
-		 * Maybe use the ordinal after all? In the end, that has to be consistent, anyway.
-		 */
-//		return this.instantiator.newInstance();
-		
-		throw new one.microstream.meta.NotImplementedYetError();
 	}
 	
 	@Override
@@ -193,16 +233,27 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 		);
 	}
 	
+	private void validateOrdinal(final Binary bytes, final T instance)
+	{
+		final int ordinal = bytes.get_int(this.binaryOffsetOrdinal);
+		if(ordinal == instance.ordinal())
+		{
+			return;
+		}
+		
+		// (01.08.2019 TM)EXCP: proper exception
+		throw new RuntimeException(
+			"Inconcistency for " + instance.getDeclaringClass().getName() + "." + instance.name()
+		);
+	}
+	
 	@Override
 	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
-		/* (09.06.2017 TM)FIXME: priv#23: BinaryHandlerEnum#update()
-		 * must not set Enum#ordinal and Enum#name, but rather validate the loaded data's consistency in regard
-		 * to them.
-		 * Only the other fields may get updated.
-		 * 
-		 */
-		throw new one.microstream.meta.NotImplementedYetError();
+		this.validateOrdinal(bytes, instance);
+		
+		// super class logic already uses only setting members, i.e. not ordinal and name.
+		super.update(bytes, instance, handler);
 	}
 
 }

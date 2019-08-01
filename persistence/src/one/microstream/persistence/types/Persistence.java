@@ -34,6 +34,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
 import one.microstream.files.XFiles;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
@@ -668,6 +669,50 @@ public class Persistence
 		;
 	}
 	
+	public static boolean isHandleableEnumField(final Class<?> enumClass, final Field field)
+	{
+		// just in case and to guarantee the correctness of the algorithm below
+		if(!XReflect.isEnum(enumClass)) // Class#isEnum is bugged!
+		{
+			return true;
+		}
+		
+		// a "normal", "top level" enum class. No restrictions on their instance fields, so return true
+		if(enumClass.getSuperclass() == java.lang.Enum.class)
+		{
+			return true;
+		}
+		
+		// below here is the "dungeon" of crazy sh*t enum subtypes, defined like an anonymous class instance.
+		
+		// exception to the exception: all fields declared "above" the crazy subtype are unproblematic.
+		if(field.getDeclaringClass() != enumClass)
+		{
+			return true;
+		}
+		
+		// (01.08.2019 TM)FIXME: priv#23: test!
+		XDebug.println("Unhandleable enum field: " + enumClass.getName() + "." + field.getName());
+		
+		/*
+		 * transient (actually: not persistable) fields are already filtered out before,
+		 * hence ANY field reaching this point is not handleable.
+		 */
+		return false;
+	}
+
+	public static final PersistenceFieldEvaluator defaultFieldEvaluatorEnum()
+	{
+		/* No transient check necessary since transient fields are filtered out in general
+		 * Or more precisely:
+		 * What is considered transient must be defined at one place / by one logic (isPersistable)
+		 * and may not be sneakily reverted to just checking the transient keyword.
+		 */
+		return (entityType, field) ->
+			isHandleableEnumField(entityType, field)
+		;
+	}
+	
 	public static boolean isHandleableCollectionField(final Class<?> collectionClass, final Field field)
 	{
 		final Class<?> fieldType = field.getType();
@@ -748,9 +793,13 @@ public class Persistence
 	
 	public static final PersistenceFieldEvaluator defaultFieldEvaluatorCollection()
 	{
+		/* No transient check necessary since transient fields are filtered out in general
+		 * Or more precisely:
+		 * What is considered transient must be defined at one place / by one logic (isPersistable)
+		 * and may not be sneakily reverted to just checking the transient keyword.
+		 */
 		return (entityType, field) ->
-			!XReflect.isTransient(field)
-			&& isHandleableCollectionField(entityType, field)
+			isHandleableCollectionField(entityType, field)
 		;
 	}
 	

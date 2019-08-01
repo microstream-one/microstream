@@ -26,27 +26,25 @@ public interface PersistenceTypeAnalyzer
 		XAddingEnum<Field> problematicFields
 	);
 	
-	public default <C extends XPrependingEnum<Field>> C collectPersistableFieldsEnum(
-		final Class<?>           type             ,
-		final C                  persistableFields,
-		final XAddingEnum<Field> problematicFields
-	)
-	{
-		// enum types are handled as entity types by default, but there may be implementations that distinct here further.
-		return this.collectPersistableFieldsEntity(type, persistableFields, problematicFields);
-	}
+	public <C extends XPrependingEnum<Field>> C collectPersistableFieldsEnum(
+		Class<?>           type             ,
+		C                  persistableFields,
+		XAddingEnum<Field> problematicFields
+	);
 
 
 	
 	public static PersistenceTypeAnalyzer New(
 		final PersistenceTypeEvaluator  isPersistable                    ,
-		final PersistenceFieldEvaluator fieldSelectorReflectiveEntity    ,
+		final PersistenceFieldEvaluator fieldSelectorPersistable         ,
+		final PersistenceFieldEvaluator fieldSelectorEnum                ,
 		final PersistenceFieldEvaluator fieldSelectorReflectiveCollection
 	)
 	{
 		return new PersistenceTypeAnalyzer.Default(
 			notNull(isPersistable),
-			notNull(fieldSelectorReflectiveEntity),
+			notNull(fieldSelectorPersistable),
+			notNull(fieldSelectorEnum),
 			notNull(fieldSelectorReflectiveCollection)
 		);
 	}
@@ -105,6 +103,7 @@ public interface PersistenceTypeAnalyzer
 
 		private final PersistenceTypeEvaluator  isPersistable;
 		private final PersistenceFieldEvaluator fieldSelectorPersistable;
+		private final PersistenceFieldEvaluator fieldSelectorEnum;
 		private final PersistenceFieldEvaluator fieldSelectorReflectiveCollection;
 
 
@@ -116,12 +115,14 @@ public interface PersistenceTypeAnalyzer
 		Default(
 			final PersistenceTypeEvaluator  isPersistable                    ,
 			final PersistenceFieldEvaluator fieldSelectorPersistable         ,
+			final PersistenceFieldEvaluator fieldSelectorEnum                ,
 			final PersistenceFieldEvaluator fieldSelectorReflectiveCollection
 		)
 		{
 			super();
 			this.isPersistable                     = isPersistable                    ;
 			this.fieldSelectorPersistable          = fieldSelectorPersistable         ;
+			this.fieldSelectorEnum                 = fieldSelectorEnum                ;
 			this.fieldSelectorReflectiveCollection = fieldSelectorReflectiveCollection;
 		}
 
@@ -152,6 +153,25 @@ public interface PersistenceTypeAnalyzer
 				problematicFields
 			);
 
+			return persistableFields;
+		}
+		
+		@Override
+		public <C extends XPrependingEnum<Field>> C collectPersistableFieldsEnum(
+			final Class<?>           type             ,
+			final C                  persistableFields,
+			final XAddingEnum<Field> problematicFields
+		)
+		{
+			iterateInstanceFields(
+				type,
+				this.fieldSelectorPersistable,
+				persistableFields,
+				(t, f) ->
+					!this.fieldSelectorEnum.applies(type, f),
+				problematicFields
+			);
+						
 			return persistableFields;
 		}
 		
