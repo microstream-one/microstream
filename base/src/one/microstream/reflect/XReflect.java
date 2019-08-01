@@ -149,6 +149,7 @@ public final class XReflect
 		{
 			return false;
 		}
+		
 		return c == superclass ? true : isSubClassOf(c, superclass);
 	}
 
@@ -167,7 +168,39 @@ public final class XReflect
 				return true;
 			}
 		}
+		
 		return false;
+	}
+	
+	/**
+	 * Utility method fixing the WRONGLY implemented {@link Class#isEnum()}.
+	 * <p>
+	 * Their description is weird (<i>"if this class was declared as an enum in the source code"</i>) and the
+	 * implemented behavior is dangerous and useless to identify all classes of instances that are enums.
+	 * <p>
+	 * For enum anonymous inner class instances (writing { ... } behind an enum constant), {@link Class#isEnum()}
+	 * returns {@literal false} on the generated type. That is a bug since the type is still an enum, a sub class
+	 * of {@link java.lang.Enum}. So the correct way of testing a class for being an enum is using
+	 * {@code java.lang.Enum.class.isAssignableFrom(...)}. This method does that.
+	 * 
+	 * @param c the {@link Class} to be tested.
+	 * 
+	 * @return whether the passed {@link Class} is a sub class of {@link java.lang.Enum}, i.e. an {@literal enum}.
+	 */
+	public static boolean isEnum(final Class<?> c)
+	{
+		/*
+		 * Slowly feels like EVERYTHING in the JDK has to be replaced by custom code doing the job properly...
+		 * If they really want their weird version, then two cleanly named methods are required:
+		 * #isEnum()
+		 * #isDeclaredEnum()
+		 * The latter ("theirs") is probably useful, too, but the primary meaning of "isEnum" is THIS logic here.
+		 * 
+		 * Since they made their ENUM bit mask unusable (as usual in their reflection code), it can't be used here.
+		 * It has to be assumed that only proper enum types extend Enum. If not, blame it on the incompetent
+		 * JDK reflection code lacking proper separation of concerns concepts. Amateurs.
+		 */
+		return java.lang.Enum.class.isAssignableFrom(c);
 	}
 	
 	/**

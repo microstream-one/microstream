@@ -124,6 +124,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public PersistenceFieldEvaluator getFieldEvaluatorPersistable();
 	
+	public PersistenceFieldEvaluator getFieldEvaluatorEnum();
+	
 	public PersistenceFieldEvaluator getFieldEvaluatorCollection();
 	
 	public PersistenceRootResolver.Builder getRootResolverBuilder();
@@ -253,6 +255,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public F setFieldFixedLengthResolver(PersistenceFieldLengthResolver fieldFixedLengthResolver);
 
 	public F setFieldEvaluatorPersistable(PersistenceFieldEvaluator fieldEvaluator);
+
+	public F setFieldEvaluatorEnum(PersistenceFieldEvaluator fieldEvaluator);
 	
 	public F setFieldEvaluatorCollection(PersistenceFieldEvaluator fieldEvaluator);
 
@@ -378,6 +382,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
 		private BufferSizeProviderIncremental           bufferSizeProvider         ;
 		private PersistenceFieldEvaluator               fieldEvaluatorPersistable  ;
+		private PersistenceFieldEvaluator               fieldEvaluatorEnum         ;
 		private PersistenceFieldEvaluator               fieldEvaluatorCollection   ;
 		private PersistenceEagerStoringFieldEvaluator   eagerStoringFieldEvaluator ;
 		private PersistenceRootResolver.Builder         rootResolverBuilder        ;
@@ -844,6 +849,17 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			}
 			
 			return this.fieldEvaluatorPersistable;
+		}
+
+		@Override
+		public PersistenceFieldEvaluator getFieldEvaluatorEnum()
+		{
+			if(this.fieldEvaluatorEnum == null)
+			{
+				this.fieldEvaluatorEnum = this.dispatch(this.ensureFieldEvaluatorEnum());
+			}
+			
+			return this.fieldEvaluatorEnum;
 		}
 		
 		@Override
@@ -1432,6 +1448,15 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
+		public F setFieldEvaluatorEnum(
+			final PersistenceFieldEvaluator fieldEvaluator
+		)
+		{
+			this.fieldEvaluatorEnum = fieldEvaluator;
+			return this.$();
+		}
+
+		@Override
 		public F setFieldEvaluatorCollection(
 			final PersistenceFieldEvaluator fieldEvaluator
 		)
@@ -1768,8 +1793,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceTypeAnalyzer ensureTypeAnalyzer()
 		{
 			return new PersistenceTypeAnalyzer.Default(
-				this.getTypeEvaluatorPersistable(),
+				this.getTypeEvaluatorPersistable() ,
 				this.getFieldEvaluatorPersistable(),
+				this.getFieldEvaluatorEnum()       ,
 				this.getFieldEvaluatorCollection()
 			);
 		}
@@ -1824,6 +1850,11 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceFieldEvaluator ensureFieldEvaluatorPersistable()
 		{
 			return Persistence.defaultFieldEvaluatorPersistable();
+		}
+
+		protected PersistenceFieldEvaluator ensureFieldEvaluatorEnum()
+		{
+			return Persistence.defaultFieldEvaluatorEnum();
 		}
 
 		protected PersistenceFieldEvaluator ensureFieldEvaluatorCollection()

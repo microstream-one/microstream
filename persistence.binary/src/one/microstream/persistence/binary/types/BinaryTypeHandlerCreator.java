@@ -18,6 +18,7 @@ import one.microstream.java.util.BinaryHandlerGenericList;
 import one.microstream.java.util.BinaryHandlerGenericMap;
 import one.microstream.java.util.BinaryHandlerGenericQueue;
 import one.microstream.java.util.BinaryHandlerGenericSet;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.internal.BinaryHandlerAbstractType;
 import one.microstream.persistence.binary.internal.BinaryHandlerGenericType;
 import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
@@ -253,26 +254,11 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final XGettingEnum<Field> persistableFields
 		)
 		{
-			/* (09.06.2017 TM)TODO: enum BinaryHandler special case implementation once completed
-			 * (10.06.2017 TM)NOTE: not sure if handling enums (constants) in an entity graph
-			 * makes sense in the first place. The whole enum concept (the identity of an instance depending
-			 * on the name and/or the order of the field referencing it) is just too wacky for an entity graph.
-			 * Use enums for logic, if you must, but keep them out of proper entity graphs.
-			 */
-//			return this.createEnumHandler(type, persistableFields);
-			// (12.07.2019 TM)EXCP: proper exception
+			// (01.08.2019 TM)FIXME: priv#23: must deploy as generic handler until special casing is completed.
+			XDebug.println("enum handling testing " + type.getName());
+//			return this.createTypeHandlerGeneric(type, persistableFields);
 			
-			// (23.07.2019 TM)NOTE: temporarily disabled for existing projects until proper handling is implemented.
-//			throw new RuntimeException(
-//				"Handling Java language enums is currently not supported since changes to the enum constants,"
-//				+ " a part of the type definition, would require changes to data and might even be ambiguous."
-//				+ " Please consider that enums are merely a syntax sugar helper for building logic,"
-//				+ " not a suitable construct to be used in a persisted entity graph."
-//			);
-			
-			return this.createTypeHandlerGeneric(type, persistableFields);
-			
-//			return this.createTypeHandlerEnum(type, persistableFields);
+			return this.createEnumHandler(type, persistableFields);
 		}
 
 		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering

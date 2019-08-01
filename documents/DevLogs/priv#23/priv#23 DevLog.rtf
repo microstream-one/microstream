@@ -176,5 +176,112 @@ Ne, muss es nicht, weil die (aktuell) nur f\'fcr eine Variante gebraucht werden.
 Baustelle aufr\'e4umen, alles bissl ordentlich machen und Kommentare schreiben.\par
 \par
 Damit w\'e4re die AbstractBinaryHandlerReflective Klasse fertig vorbereitet f\'fcr das enum special handling. Und ENDLICH mal aufger\'e4umt. Nach ... 6 Jahren ... .\par
+\par
+\par
+2019-08-01\par
+\par
+BinaryHandlerEnum implementieren.\par
+Binary Offsets m\'fcssen dynamisch festgestellt werden, weil unterschiedliche enum Typen unterschiedliche persistent form offsets haben k\'f6nnen.\par
+\par
+Hm. Eigentlich m\'fcsste der enum Name f\'fcr die Validierung im update() irrelevant sein. Denn:\par
+- Ordinal kann validiert werden, damit ist die Instanz schon eindeutig definiert.\par
+- Die JVM-erzeugte enum Instanz hat einen Name, der z\'e4hlt und der allein.\par
+- Was im persistierten Datensatz als Namensstring verlinkt ist, ist -  zumindest zum Laden der sonstigen Daten in die enum Instanz - herzlich egal.\par
+- Bei der Validierung der Roots Instanzen usw. zu Beginn ist das nochmal was anderes, aber das findet ja eben nicht im update() statt.\par
+\par
+Also update() Methode so bauen.\par
+Hm, das ist eigentlich nur die ordinal Validierung und der Rest findet ja in der Superklasse statt. Nice. Dann ist das schon fertig.\par
+\par
+\par
+\par
+Uff! Per Zufall wichtigen Hinweis entdeckt.\par
+Siehe Enum#getDeclaringClass.\par
+Das wird ein riesiges Problem f\'fcr das Persistence TypeHandling. Klassen, die "eigentlich" eine andere Klasse sind, aber trotzdem als eigenst\'e4ndige Klasse gehandelt werden m\'fcssen, um special state darin richtig abzubilden.\par
+Oder erst mal testen, ob man da \'fcberhaupt noch extra Felder reinpacken kann. Wenn nicht und das ganze nur eine Syntax Hackerei der JVM f\'fcr Methoden ist, dann kann ich das insgesamt ausklammern...\par
+Wobei ich dann nirgends im TypeHandling mehr ".getClass()" aufrufen d\'fcrfte ... na mal sehen, was bei de Researcherei rauskommt.\par
+\par
+Ergebnis:\par
+Ja, man kann in solche Enum-AICs nochmal Felder reinpacken und die normal verwenden.\par
+Also das schlie\'df ich aus. Da gibts dann einfach eine not supported Exception.\par
+99% aller Enums haben gar keinen State.\par
+Und 99,99% aller Enums haben wenn \'fcberhaupt, dann nur nicht-crazy state. Die zwei F\'e4lle, wo einer crazy shit baut, muss man nicht supporten und da wirds auch Verst\'e4ndnis geben, dass so ein Mist nicht unterst\'fctzt wird.\par
+Ich wette, das kann auch keine andere Persistierungsl\'f6sung.\par
+\par
+Die Frage ist jetzt nur: Wie schmei\'dft man die Klasse am einfachsten raus?\par
+Es w\'e4re ja unproblematisch, eine MyEnum$1 Instanz ohne extra state als MyEnum Instanz abzuspeichern und beim laden dann die JVM-erzeugte MyEnum$1 Instanz mit dem MyEnum Datensatz zu bef\'fcllen.\par
+Aber \'fcberall, wo .getClass() aufgerufen wird, m\'fcsste dann ein Specialcasing rein...\par
+Vielleicht w\'e4re aber folgendes geschickter:\par
+- Enum-AIC Felder werden ausgeschlossen, d.h. das Feld-Layout ist immer identisch zu der Enum selbst.\par
+- Die Klasse wird einfach 1-zu-1 durchgeschleust.\par
+- Die Instanzenzuordnung findet ja von der Enum "Hauptklasse" aus statt.\par
+- Es gibt halt dann einen redundanten BinaryHandler mit anderer TypeId, aber der kriegt letztendlich die richtige Instanz zum updaten und die Struktur passt ja genau. Selbst, wenn sich codem\'e4\'dfig mal was \'e4ndern sollte.\par
+\par
+\par
+Hm... f\'fcr das Felder ausfiltern nehm ich einfach den "problematic fields" Mechanismus f\'fcr die Collections her. Hehe.\par
+\par
+Oh, dabei gleich potenziellen Bug im Fall einer custom persistable Logik entdeckt:\par
+f\'fcr handleable Collection Felder darf NICHT transient gepr\'fcft werden, denn das wird von der isPersistable Logik schon entschieden. Sollte da mal eine andere als der transient keyword check verwendet werden,\par
+darf die collction special Logik nicht einfach trotzdem wieder transient checken. \'c4ndern und kommentieren.\par
+Das gleiche gilt dann auch f\'fcr die Enum Feld Checks.\par
+\par
+Default Check in Persistence Klasse einbauen und kommentieren.\par
+\par
+Foundation entsprechend erweitern.\par
+\par
+Ok, dann h\'e4tt ich das schon mal.\par
+\par
+Jetzt noch checken, ob ich im BinaryHandlerEnum irgendwo sicherstellen muss, dass die "top level" enum Klasse anstatt der AIC verwendet wird.\par
+Ne, sollte passen.\par
+\par
+Dann ... bau jetzt ich eine MainTest, w\'fcrd ich sagen.\par
+\par
+Testen ... oh, JVM Crash, noch vor irgendeinem Breakpoints.\par
+Dump anschauen ...\par
+\par
+Ah, schnell gefunden: storing Offsets [16, 0] kann nicht stimmen f\'fcr die zwei Referenzen in EmptyTable. Da hab ich gestern irgendwas ruiniert. Seltsam, dass es gestern beim Testen geklappt hat. Evtl. danach ruiniert? Na mal schauen ...\par
+Ah. Arrayindex nicht inkrementiert, lol.\par
+[12, 16] sieht schon sehr viel sinnvoller aus als [16, 0].\par
+\par
+Testen ... und scho gehts.\par
+\par
+Wenn jetzt sogar noch die Enum Analyse Logik betreten werden w\'fcrde, w\'e4r das super...\par
+Mal im Code schauen.\par
+\par
+Achja! Da wird ja auf den Generic umgeleitet, damit der JM seine Enums generisch speichern und inkonsistent laden kann.\par
+FIXME und debugout hinmachen und auf testcode umstellen.\par
+\par
+Seltsam: CrazyEnum erzeugt keine Exception und wird nicht als enum gehandelt.\par
+Untersuchen.\par
+\par
+OMFG: bei der Klasse gibt .isEnum() false zur\'fcck. Wie bl\'f6d kann man sein?\par
+\par
+Also korrekte Version implementierung und sorgf\'e4ltig dokumentieren.\par
+Alle Vorkommen des kaputten Class#isEnum ersetzen durch XReflect#isEnum(Class).\par
+\par
+Test erweitern um persistierbare CrazyEnum mit transient Feld.\par
+Benamungen verbessern.\par
+\par
+Da f\'e4llt mir auf:\par
+\cf1\b Sobald das Typehandling der ersten neuen Enum begegnet, muss es ALLE enum Instanzen des Typs durchchecken, damit nicht "halb persistierte" enum Listen entstehen.\cf0\b0\par
+So ein Shit.\par
+\par
+Erst mal weiter testen.\par
+\par
+Und noch ein Sonderfall im Sonderfall: Felder in einem Crazy Shit Enum Subtype, die in Superklassen deklariert sind, m\'fcssen akzeptiert werden, die bilden ja die kompatible Struktur.\par
+\par
+Damit l\'e4uft das Storen durch, wie geplant.\par
+Allerdings: Im Crazy Shit $1 Typ fehlden die Enum Konstanten. Die Frage ist jetzt, ob das so sein muss, oder ob das ein Fehler ist ... hm ...\par
+\par
+Und noch ein Problem: das $1 ist gef\'e4hrlich. \'c4ndert sich mal die Reihenfolge der Enums, zeit das $1 auf einmal auf eine andere Implementierung, d.h. potenziall andere Logik, aber $1 (alt) wird nat\'fcrlich trotzdem problemlos zu $1 (neu) aufgel\'f6st und schwups, hat die geladene Enum Instanz den falschen Typ.\par
+\par
+Wobei ... ne, denn:\par
+1.) Das w\'e4re eine LTM Sache, die ich erst noch handeln muss.\par
+2.) Es werden keine Enum Instanzen erzeugt, sondern die Datens\'e4tze nur anhand des Namens und der OID auf existierende Instanzen gemappt. Dann ist der Typ immer richtig.\par
+Hm. Aber dann \'e4ndert sich ja ggf. der Typ, d.h. die TypeId im Datensatz passt nicht mehr zur TypeId des Handlers, obwohl es gar kein LTM gab.\par
+\par
+Man, ist das alles kompliziert ...\par
+\par
+Zeit f\'fcr Feierabend :-[\par
+\par
 }
  

@@ -160,7 +160,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			}
 			
 			// and another special case
-			if(type.isEnum())
+			if(XReflect.isEnum(type)) // Class#isEnum is bugged!
 			{
 				return this.deriveTypeHandlerEnum(type);
 			}
