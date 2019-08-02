@@ -174,7 +174,7 @@ extends BinaryPersistenceFoundation<F>
 			
 			final PersistenceRootResolver refactoringWrapper = PersistenceRootResolver.Wrap(
 				resolver,
-				this.getRefactoringResolverProvider()
+				this.getTypeDescriptionResolverProvider()
 			);
 			
 			return refactoringWrapper;

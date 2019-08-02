@@ -44,7 +44,7 @@ public interface PersistenceTypeDictionaryBuilder
 	public static PersistenceTypeDictionary buildTypeDictionary(
 		final PersistenceTypeDictionaryCreator                           typeDictionaryCreator,
 		final PersistenceTypeDefinitionCreator                           typeDefinitionCreator,
-		final PersistenceTypeResolver                                    typeResolver,
+		final PersistenceTypeDescriptionResolver                             typeResolver,
 		final XGettingSequence<? extends PersistenceTypeDictionaryEntry> entries
 	)
 	{
@@ -137,7 +137,7 @@ public interface PersistenceTypeDictionaryBuilder
 	public static PersistenceTypeDictionaryBuilder.Default New(
 		final PersistenceTypeDictionaryCreator typeDictionaryCreator,
 		final PersistenceTypeDefinitionCreator typeDefinitionCreator,
-		final PersistenceTypeResolverProvider  typeResolverProvider
+		final PersistenceTypeDescriptionResolverProvider  typeResolverProvider
 	)
 	{
 		return new PersistenceTypeDictionaryBuilder.Default(
@@ -155,7 +155,7 @@ public interface PersistenceTypeDictionaryBuilder
 
 		final PersistenceTypeDictionaryCreator typeDictionaryCreator;
 		final PersistenceTypeDefinitionCreator typeDefinitionCreator;
-		final PersistenceTypeResolverProvider  typeResolverProvider ;
+		final PersistenceTypeDescriptionResolverProvider typeResolverProvider ;
 		
 		
 		
@@ -166,7 +166,7 @@ public interface PersistenceTypeDictionaryBuilder
 		Default(
 			final PersistenceTypeDictionaryCreator typeDictionaryCreator,
 			final PersistenceTypeDefinitionCreator typeDefinitionCreator,
-			final PersistenceTypeResolverProvider  typeResolverProvider
+			final PersistenceTypeDescriptionResolverProvider  typeResolverProvider
 		)
 		{
 			super();
@@ -199,7 +199,7 @@ public interface PersistenceTypeDictionaryBuilder
 			return PersistenceTypeDictionaryBuilder.buildTypeDictionary(
 				this.typeDictionaryCreator                 ,
 				this.typeDefinitionCreator                 ,
-				this.typeResolverProvider.provideResolver(),
+				this.typeResolverProvider.provideTypeDescriptionResolver(),
 				entries
 			);
 		}

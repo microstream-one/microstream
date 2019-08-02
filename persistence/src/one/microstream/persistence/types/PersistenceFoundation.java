@@ -108,7 +108,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public PersistenceCustomTypeHandlerRegistry<M> getCustomTypeHandlerRegistry();
 
 	public PersistenceTypeAnalyzer getTypeAnalyzer();
-
+	
+	public PersistenceTypeResolver getTypeResolver();
 	
 	public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator();
 	
@@ -140,7 +141,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
 
-	public PersistenceRefactoringResolverProvider getRefactoringResolverProvider();
+	public PersistenceTypeDescriptionResolverProvider getTypeDescriptionResolverProvider();
 
 	public XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>  getRefactoringLegacyTypeIdentifierBuilders();
 	
@@ -185,6 +186,11 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public F setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup);
 	
 	public F setTypeHandlerCreator(PersistenceTypeHandlerCreator<M> typeHandlerCreator);
+	
+	public F setTypeAnalyzer(PersistenceTypeAnalyzer typeAnalyzer);
+	
+	public F setTypeResolver(PersistenceTypeResolver typeResolver);
+	
 
 	public F setTypeHandlerRegistry(PersistenceTypeHandlerRegistry<M> typeHandlerRegistry);
 
@@ -270,15 +276,25 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public F setRootsProvider(PersistenceRootsProvider<M> rootsProvider);
 	
-	public F setUnreachableTypeHandlerCreator(PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator);
+	public F setUnreachableTypeHandlerCreator(
+		PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
+	);
 	
-	public F setLegacyTypeMapper(PersistenceLegacyTypeMapper<M> legacyTypeMapper);
+	public F setLegacyTypeMapper(
+		PersistenceLegacyTypeMapper<M> legacyTypeMapper
+	);
 	
-	public F setTypeSimilarity(TypeMapping<Float> typeSimilarity);
+	public F setTypeSimilarity(
+		TypeMapping<Float> typeSimilarity
+	);
 	
-	public F setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
+	public F setRefactoringMappingProvider(
+		PersistenceRefactoringMappingProvider refactoringMappingProvider
+	);
 	
-	public F setRefactoringResolverProvider(PersistenceRefactoringResolverProvider refactoringResolverProvider);
+	public F setTypeDescriptionResolverProvider(
+		PersistenceTypeDescriptionResolverProvider typeDescriptionResolverProvider
+	);
 	
 	public F setRefactoringLegacyTypeIdentifierBuilders(
 		XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder> typeIdentifierBuilders
@@ -376,6 +392,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceTypeHandlerCreator<M>        typeHandlerCreator         ;
 		private PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
 		private PersistenceTypeAnalyzer                 typeAnalyzer               ;
+		private PersistenceTypeResolver                 typeResolver               ;
 		private PersistenceTypeMismatchValidator<M>     typeMismatchValidator      ;
 		private PersistenceTypeDefinitionCreator        typeDefinitionCreator      ;
 		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
@@ -392,10 +409,10 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private LambdaTypeRecognizer                    lambdaTypeRecognizer       ;
 		
 		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
-		private PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
-		private PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ;
-		private PersistenceRefactoringMappingProvider       refactoringMappingProvider   ;
-		private PersistenceRefactoringResolverProvider      refactoringResolverProvider  ;
+		private PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator  ;
+		private PersistenceLegacyTypeMapper<M>              legacyTypeMapper               ;
+		private PersistenceRefactoringMappingProvider       refactoringMappingProvider     ;
+		private PersistenceTypeDescriptionResolverProvider  typeDescriptionResolverProvider;
 
 		private XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   refactoringLegacyTypeIdentifierBuilders   ;
 		private XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringLegacyMemberIdentifierBuilders ;
@@ -786,6 +803,17 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
+		public PersistenceTypeResolver getTypeResolver()
+		{
+			if(this.typeResolver == null)
+			{
+				this.typeResolver = this.dispatch(this.ensureTypeResolver());
+			}
+			
+			return this.typeResolver;
+		}
+		
+		@Override
 		public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator()
 		{
 			if(this.typeMismatchValidator == null)
@@ -941,14 +969,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceRefactoringResolverProvider getRefactoringResolverProvider()
+		public PersistenceTypeDescriptionResolverProvider getTypeDescriptionResolverProvider()
 		{
-			if(this.refactoringResolverProvider == null)
+			if(this.typeDescriptionResolverProvider == null)
 			{
-				this.refactoringResolverProvider = this.dispatch(this.ensureRefactoringResolverProvider());
+				this.typeDescriptionResolverProvider = this.dispatch(this.ensureTypeDescriptionResolverProvider());
 			}
 			
-			return this.refactoringResolverProvider;
+			return this.typeDescriptionResolverProvider;
 		}
 		
 		@Override
@@ -1158,6 +1186,20 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		)
 		{
 			this.typeHandlerCreator = typeHandlerCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setTypeAnalyzer(final PersistenceTypeAnalyzer typeAnalyzer)
+		{
+			this.typeAnalyzer = typeAnalyzer;
+			return this.$();
+		}
+		
+		@Override
+		public F setTypeResolver(final PersistenceTypeResolver typeResolver)
+		{
+			this.typeResolver = typeResolver;
 			return this.$();
 		}
 
@@ -1536,11 +1578,11 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public F setRefactoringResolverProvider(
-			final PersistenceRefactoringResolverProvider refactoringResolverProvider
+		public F setTypeDescriptionResolverProvider(
+			final PersistenceTypeDescriptionResolverProvider typeDescriptionResolverProvi
 		)
 		{
-			this.refactoringResolverProvider = refactoringResolverProvider;
+			this.typeDescriptionResolverProvider = typeDescriptionResolverProvi;
 			return this.$();
 		}
 		
@@ -1799,6 +1841,11 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 				this.getFieldEvaluatorCollection()
 			);
 		}
+		
+		protected PersistenceTypeResolver ensureTypeResolver()
+		{
+			return new PersistenceTypeResolver.Default();
+		}
 
 		protected PersistenceTypeHandlerEnsurer<M> ensureTypeHandlerEnsurer()
 		{
@@ -1813,7 +1860,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return PersistenceTypeDictionaryBuilder.New(
 				this.getTypeDictionaryCreator(),
 				this.getTypeDefinitionCreator(),
-				this.getRefactoringResolverProvider()
+				this.getTypeDescriptionResolverProvider()
 			);
 		}
 		
@@ -1875,7 +1922,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceLegacyTypeMapper<M> ensureLegacyTypeMapper()
 		{
 			return PersistenceLegacyTypeMapper.New(
-				this.getRefactoringResolverProvider() ,
+				this.getTypeDescriptionResolverProvider() ,
 				this.getTypeSimilarity()              ,
 				this.getCustomTypeHandlerRegistry()   ,
 				this.getLegacyMemberMatchingProvider(),
@@ -1890,9 +1937,10 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return PersistenceRefactoringMappingProvider.NewEmpty();
 		}
 		
-		protected PersistenceRefactoringResolverProvider ensureRefactoringResolverProvider()
+		protected PersistenceTypeDescriptionResolverProvider ensureTypeDescriptionResolverProvider()
 		{
-			return PersistenceRefactoringResolverProvider.Caching(
+			return PersistenceTypeDescriptionResolverProvider.Caching(
+				this.getTypeResolver()                              ,
 				this.getRefactoringMappingProvider()                ,
 				this.getRefactoringLegacyTypeIdentifierBuilders()   ,
 				this.getRefactoringLegacyMemberIdentifierBuilders() ,

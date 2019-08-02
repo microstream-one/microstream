@@ -274,7 +274,7 @@ public interface PersistenceRootResolver
 	
 	public static PersistenceRootResolver Wrap(
 		final PersistenceRootResolver                actualRootResolver,
-		final PersistenceRefactoringResolverProvider refactoringMappingProvider
+		final PersistenceTypeDescriptionResolverProvider refactoringMappingProvider
 	)
 	{
 		return new MappingWrapper(actualRootResolver, refactoringMappingProvider);
@@ -287,7 +287,7 @@ public interface PersistenceRootResolver
 		////////////////////
 		
 		final PersistenceRootResolver                actualRootResolver        ;
-		final PersistenceRefactoringResolverProvider refactoringMappingProvider;
+		final PersistenceTypeDescriptionResolverProvider refactoringMappingProvider;
 		
 		
 		
@@ -297,7 +297,7 @@ public interface PersistenceRootResolver
 		
 		MappingWrapper(
 			final PersistenceRootResolver                actualRootResolver        ,
-			final PersistenceRefactoringResolverProvider refactoringMappingProvider
+			final PersistenceTypeDescriptionResolverProvider refactoringMappingProvider
 		)
 		{
 			super();
@@ -332,7 +332,7 @@ public interface PersistenceRootResolver
 			 * would be mapped to B, which is an error. However, the source of the error is not a bug,
 			 * but an outdated mapping rule defined by the using developer).
 			 */
-			final PersistenceRefactoringResolver resolver         = this.refactoringMappingProvider.provideResolver();
+			final PersistenceTypeDescriptionResolver resolver         = this.refactoringMappingProvider.provideTypeDescriptionResolver();
 			final String                         sourceIdentifier = PersistenceMetaIdentifiers.normalizeIdentifier(
 				identifier
 			);
@@ -398,17 +398,25 @@ public interface PersistenceRootResolver
 				
 	}
 	
-	
 	public static PersistenceRootResolver.Builder Builder()
 	{
-		return Builder(PersistenceRootEntry::New);
+		return Builder(PersistenceTypeResolver.Default());
 	}
 	
 	public static PersistenceRootResolver.Builder Builder(
+		final PersistenceTypeResolver typeResolver
+	)
+	{
+		return Builder(typeResolver, PersistenceRootEntry::New);
+	}
+	
+	public static PersistenceRootResolver.Builder Builder(
+		final PersistenceTypeResolver       typeResolver ,
 		final PersistenceRootEntry.Provider entryProvider
 	)
 	{
 		final PersistenceRootResolver.Builder.Default builder = new PersistenceRootResolver.Builder.Default(
+			notNull(typeResolver) ,
 			notNull(entryProvider)
 		);
 		
@@ -483,7 +491,7 @@ public interface PersistenceRootResolver
 			return this.registerRoot(identifier, () -> instance);
 		}
 		
-		public Builder setRefactoring(PersistenceRefactoringResolverProvider refactoring);
+		public Builder setRefactoring(PersistenceTypeDescriptionResolverProvider refactoring);
 		
 		public Builder setRefactoring(PersistenceRefactoringMappingProvider refactoringMapping);
 		
@@ -497,11 +505,12 @@ public interface PersistenceRootResolver
 			////////////////////
 			
 			private final PersistenceRootEntry.Provider             entryProvider        ;
+			private final PersistenceTypeResolver                   typeResolver         ;
 			private final EqHashTable<String, PersistenceRootEntry> rootEntries          ;
 			private       String                                    defaultRootIdentifier;
 			private       String                                    customRootIdentifier ;
 			private       Reference<Object>                         defaultRoot          ;
-			private       PersistenceRefactoringResolverProvider    refactoring          ;
+			private       PersistenceTypeDescriptionResolverProvider    refactoring          ;
 			private       PersistenceRefactoringMappingProvider     refactoringMapping   ;
 			
 			
@@ -510,9 +519,13 @@ public interface PersistenceRootResolver
 			// constructors //
 			/////////////////
 			
-			Default(final PersistenceRootEntry.Provider entryProvider)
+			Default(
+				final PersistenceTypeResolver       typeResolver ,
+				final PersistenceRootEntry.Provider entryProvider
+			)
 			{
 				super();
+				this.typeResolver  = typeResolver;
 				this.entryProvider = entryProvider;
 				this.rootEntries   = this.initializeRootEntries();
 			}
@@ -624,7 +637,7 @@ public interface PersistenceRootResolver
 					this.rootEntries.immure()
 				);
 				
-				final PersistenceRefactoringResolverProvider refactoring = this.getBuildRefactoring();
+				final PersistenceTypeDescriptionResolverProvider refactoring = this.getBuildRefactoring();
 				
 				return refactoring == null
 					? resolver
@@ -632,7 +645,7 @@ public interface PersistenceRootResolver
 				;
 			}
 			
-			protected PersistenceRefactoringResolverProvider getBuildRefactoring()
+			protected PersistenceTypeDescriptionResolverProvider getBuildRefactoring()
 			{
 				if(this.refactoring != null)
 				{
@@ -641,7 +654,10 @@ public interface PersistenceRootResolver
 				
 				if(this.refactoringMapping != null)
 				{
-					return PersistenceRefactoringResolverProvider.Caching(this.refactoringMapping);
+					return PersistenceTypeDescriptionResolverProvider.Caching(
+						this.typeResolver,
+						this.refactoringMapping
+					);
 				}
 				
 				return null;
@@ -649,7 +665,7 @@ public interface PersistenceRootResolver
 			
 			@Override
 			public final synchronized Builder setRefactoring(
-				final PersistenceRefactoringResolverProvider refactoring
+				final PersistenceTypeDescriptionResolverProvider refactoring
 			)
 			{
 				this.refactoring = refactoring;

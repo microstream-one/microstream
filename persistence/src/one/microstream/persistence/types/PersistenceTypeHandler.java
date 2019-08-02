@@ -169,6 +169,9 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		// basic type swizzling //
 		private final Class<T> type;
 		
+		// differs from Class#getName to properly identify synthetic classes instead using of those "$1,2,3..." names.
+		private final String typeName;
+		
 		// effectively final / immutable: gets only initialized once later on and is never mutated again. initially 0.
 		private long           typeId = Persistence.nullId();
 
@@ -177,11 +180,17 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
-
+		
 		protected Abstract(final Class<T> type)
 		{
+			this(type, type.getName());
+		}
+
+		protected Abstract(final Class<T> type, final String typeName)
+		{
 			super();
-			this.type = notNull(type);
+			this.type     = notNull(type)    ;
+			this.typeName = notNull(typeName);
 		}
 
 
@@ -214,7 +223,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		@Override
 		public final String typeName()
 		{
-			return this.type.getName();
+			return this.typeName;
 		}
 		
 		protected void internalInitialize()

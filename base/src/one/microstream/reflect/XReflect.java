@@ -203,6 +203,26 @@ public final class XReflect
 		return java.lang.Enum.class.isAssignableFrom(c);
 	}
 	
+	public static boolean isDeclaredEnum(final Class<?> c)
+	{
+		return c != null && c.isEnum();
+	}
+	
+	public static boolean isSubEnum(final Class<?> c)
+	{
+		return c != null && isDeclaredEnum(c.getSuperclass());
+	}
+	
+	public static Class<?> getDeclaredEnum(final Class<?> c)
+	{
+		return !isEnum(c)
+			? null
+			: isDeclaredEnum(c)
+				? c
+				: c.getSuperclass()
+		;
+	}
+	
 	/**
 	 * Alias for {@code iterateDeclaredFieldsUpwards(startingClass, Object.class, logic)}.
 	 * 
@@ -783,6 +803,11 @@ public final class XReflect
 	{
 		return '#';
 	}
+	
+	public static char nestedClassNameSeparator()
+	{
+		return '$';
+	}
 
 	public static String deriveFieldIdentifier(final java.lang.reflect.Field field)
 	{
@@ -919,6 +944,7 @@ public final class XReflect
 		;
 	}
 	
+		
 
 
 	///////////////////////////////////////////////////////////////////////////

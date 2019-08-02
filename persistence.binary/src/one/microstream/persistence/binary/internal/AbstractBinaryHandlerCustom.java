@@ -242,7 +242,17 @@ extends BinaryTypeHandler.Abstract<T>
 		final XGettingSequence<? extends PersistenceTypeDefinitionMember> members
 	)
 	{
-		super(type);
+		this(type, type.getName(), members);
+	}
+	
+	protected AbstractBinaryHandlerCustom(
+		final Class<T>                                                    type    ,
+		final String                                                      typeName,
+		final XGettingSequence<? extends PersistenceTypeDefinitionMember> members
+	)
+	{
+		super(type, typeName);
+		
 		// (18.04.2019 TM)FIXME: priv#88: replace by on-demand member-initialization
 		this.members = validateAndImmure(members);
 		this.binaryLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, members);

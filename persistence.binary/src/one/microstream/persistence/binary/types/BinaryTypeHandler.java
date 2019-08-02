@@ -41,6 +41,11 @@ public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 			super(type);
 		}
 		
+		protected Abstract(final Class<T> type, final String typeName)
+		{
+			super(type, typeName);
+		}
+		
 	}
 
 }

@@ -20,6 +20,17 @@ public final class BinaryHandlerAbstractType<T> extends AbstractBinaryHandlerTri
 		);
 	}
 	
+	public static <T> BinaryHandlerAbstractType<T> New(
+		final Class<T> type,
+		final String   typeName
+	)
+	{
+		return new BinaryHandlerAbstractType<>(
+			notNull(type)    ,
+			notNull(typeName)
+		);
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -29,6 +40,11 @@ public final class BinaryHandlerAbstractType<T> extends AbstractBinaryHandlerTri
 	BinaryHandlerAbstractType(final Class<T> type)
 	{
 		super(type);
+	}
+	
+	BinaryHandlerAbstractType(final Class<T> type, final String typeName)
+	{
+		super(type, typeName);
 	}
 
 

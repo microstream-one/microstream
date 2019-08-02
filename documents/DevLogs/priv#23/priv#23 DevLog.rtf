@@ -262,7 +262,7 @@ Test erweitern um persistierbare CrazyEnum mit transient Feld.\par
 Benamungen verbessern.\par
 \par
 Da f\'e4llt mir auf:\par
-\cf1\b Sobald das Typehandling der ersten neuen Enum begegnet, muss es ALLE enum Instanzen des Typs durchchecken, damit nicht "halb persistierte" enum Listen entstehen.\cf0\b0\par
+Sobald das Typehandling der ersten neuen Enum begegnet, muss es ALLE enum Instanzen des Typs durchchecken, damit nicht "halb persistierte" enum Listen entstehen.\par
 So ein Shit.\par
 \par
 Erst mal weiter testen.\par
@@ -282,6 +282,109 @@ Hm. Aber dann \'e4ndert sich ja ggf. der Typ, d.h. die TypeId im Datensatz passt
 Man, ist das alles kompliziert ...\par
 \par
 Zeit f\'fcr Feierabend :-[\par
+\par
+\par
+\par
+2019-08-02\par
+\par
+Paar Einf\'e4lle von daheim:\par
+\par
+1.)\par
+Die Enum crazy shit subtypes einfach so wie der Compiler sie benennt, also $1, $2, usw. abspeichern, w\'e4re fatal bzw. zumindest sehr ung\'fcnstig und verwirrend.\par
+Sagen wir ordinal 0 ist eine "normale" Enum, ordinal 1 eine crazy shit enum.\par
+Dann wird die Subklasse f\'fcr ordinal 1 als $1 generiert und auch dementsprechend abgespeichert.\par
+\'c4ndert man nun das Programm, dass auch ordinal 0 so ein crazy shit type ist, dann wird auf einmal der ordinal 0 type die $1 und der ordinal 1 wird die $2.\par
+F\'fcr die JVM spielt das keine Rolle. F\'fcr die beginnt bei jedem Start das Universum komplett von Neuem und was davor war, spielt keine Rolle mehr. Sowas wie fr\'fcher mal persistierte und sp\'e4ter wieder zu verkn\'fcpfende Typnamen kennt die JVM nicht, darum muss der Compiler darauf keine R\'fccksicht nehmen.\par
+Mit MS gibt es das aber nun doch und der Versuch, $1 zu einem Runtime Type aufzul\'f6sen, ergibt nicht den - inzwischen - n\'f6tigen Typ $2, sondern nat\'fcrlich einfach die $1. Und schwups, hat die zweite Enum Konstante den crazy shit typ der ersten Enum Konstante. Das ist dann h\'f6chstwahrscheinlich ein Bug, denn wenn die Subtypen sich nicht unterscheiden w\'fcrden, w\'e4ren sie ja gleich nicht gemacht worden.\par
+\par
+L\'f6sung (leider):\par
+Den Typnamen selber bauen.\par
+Anstatt com.app.MyEnum$1 sowas wie com.app.MyEnum$:TYPE_A\par
+\par
+Die Class resolving Logik muss daf\'fcr ein klein bisschen aufgebohrt werden:\par
+if contains "$:", dann erst mal das davor als Typ aufl\'f6sen und dann das danach als Identifier innerhalb dieses Typs aufl\'f6sen.\par
+Wenn der Typ ein Enum ist, dann ist der Identifier ein Enum Konstantennamen.\par
+Wenn der Typ kein Enum ist, dann Klasse und alle Membes darin mit eine modularen Reflection Funktion nach einem Persistence Identifier durchsuchen (typischerweise Annotation, aber das ist frei w\'e4hlbar).\par
+Damit kann man dann n\'e4mlich auch gleich die Anonymous Inner Class Instances ordentlich identifizieren, die dieses Problem genauso haben.\par
+\par
+2.)\par
+Aus #1 ... oder vielleicht sogar unabh\'e4ngig davon ... folgt auch eine andere Erkenntnis:\par
+Den State der Crazy Shit Enum Subtypes kann man sehr wohl mitpersistieren. Wenn der Typ eh seinen eigenen handler bekommt und auf nur genau die richtige Instanz angewendet wird, dann spricht ja nichts dagegen, noch ein paar Felder mehr mitzunehmen.\par
+\par
+\par
+Der erste Schritt f\'fcr die Implementierung ist, erst mal eine XReflect Methode zu schreiben, die die crazy SubTypes erkennt, damit man die Fallunterscheidung bauen kann.\par
+Und dann gleich noch eine Methode, um immer die enum top-level Klasse zu holen. Das brauch ich dann, um bei der ersten Begegnung mit einer enum gleich alle Konstanteninstanzen durchzuanalysieren, damit Enumtypen nicht "halb" persistiert werden und die andere H\'e4lfte sp\'e4ter vielleicht mal eine Exception erzeugt.\par
+\par
+\par
+\par
+TODOS:\par
+v XReflect Enum Subtyp Erkennungsmethode\par
+v XReflect Methode zum holen der top-level Enum Klasse\par
+v TODO: Alle RefactoringResolver umbenennen zu TypeDescriptionResolver.\par
+v Explizit benannte Enum Subtypen\par
+v Class Resolving um explizite Benamungen erweitern\par
+- Bei Begegnung mit einem neuen Enum Typen gleich alle Enum Instanzen analysieren\par
+- Bei Begegnung mit einem neuen Enum Typen persistence root erweitern um ein Array daf\'fcr\par
+- Root Initialisierung um einen Abgleich mit den aktuellen JVM-generierten enum Konstanteninstanzen des Typs erweitern\par
+- Und dann noch das ganze Thema Legacy Type Mapping f\'fcr \'c4nderungen an Enums.\par
+- Das ganze LTM Strukturvergleichszeug muss Enum Felder mit ber\'fccksichtigen, bzw. "all" statt "instance".\par
+(offene Punkte unten repliziert)\par
+\par
+... Nach einer Woche Enum Handling Implementierung ist es mehr Arbeit als zu Beginn. Aber daf\'fcr ist jetzt der Umfang klar, alles ist sauber l\'f6sbar und das Licht am Ende des Tunnels ist zu sehen.\par
+\par
+XReflect Erweiterungen gebaut.\par
+\par
+Jetzt expliziten Typename einbauen und durch alle beteiligten Konstruktoren ziehen.\par
+\par
+PersistenceTypeNameDeriver anlegen und in der Foundation verbandeln.\par
+\par
+Hm... oder Moment mal: Sollte PersistenceTypeNameDeriver und TypeResolver nicht zwangsweise dieselber Implementierung sein? Ansonsten k\'f6nnen die inkonsistent zueinander gesetzt werden, so dass der Resolver die Strings\par
+des NameDerivers nicht erkennt...\par
+Jup, mach ich so.\par
+\par
+PersistenceTypeResolver entsprechend erweitern und umbenennen zu PesistenceTypeNameMapper.\par
+Hm. Das sind zwei Stufen beteiligt und f\'fcr beide Richtungen sehen die Methoden f\'fcr unterschiedliche Stufen so aus, als w\'e4ren sie Equivalente f\'fcr dieselbe Stufe, was falsch ist.\par
+Beide ordentlich kommentieren, sonst verwirrt das zu sehr.\par
+\par
+Projektweit umbennen und nameDeriver wieder rausschmeissen.\par
+\par
+Aber das alles \'fcber den PersistenceRefactoringResolver laufen zu lassen ist unn\'f6tig kompliziert, namentlich verwirrend und evtl. sogar mal durch die Initialisierungsreihenfolge problematisch.\par
+Also das eigentliche type<->name mapping als eigenes, kombiniertes Ding rausziehen. Dann sind auch gleich diese zwei Stufen sauber getrennt.\par
+\par
+Dann benenn ich das Ding doch wieder auf TypeResolver um, weil "TypeNameMapper" zu ... kurz gegriffen klingt.\par
+\par
+Irgendwie ist das beim TypeDictionaryBuilder ein bisschen wirr. Nur deswegen muss der TypeResolver einen Provider haben. Das ist alles bissl seltsam.\par
+Au\'dferdem muss der nur wegen dem Builder eine resolve Methode f\'fcr TypeDescriptions haben.\par
+Und letztendlich wird dem Builder ja doch gleich RefactoringResolver \'fcbergeben.\par
+Alles wirr...\par
+\par
+\par
+Ah, jetzt hab ichs:\par
+PersistenceRefactoringResolver wird umbenannt zu PersistenceTypeDescriptionResolver\par
+Und der wrappt einen simplen PersistenceTypeResolver.\par
+Der TypeHandlerCreator verwendet dann nur den (selben) PersistenceTypeResolver, ohne PersistenceTypeDescriptionResolver drum rum.\par
+So passts.\par
+\par
+Umsetzen. Fertig.\par
+\par
+Jetzt das Benamungszeug bauen: deriver Methode erweitern und resolver Methode analog.\par
+Testen.\par
+Geht.\par
+\par
+handleable Enum Logik drin lassen, aber body durch return true ersetzen.\par
+Testen.\par
+Passt.\par
+\par
+Okay, dann sollte das Enum Handling jetzt grunds\'e4tzlich passen. Fehlt nur noch:\par
+\par
+\cf1\b TODOS:\par
+\b0 - Bei Begegnung mit einem neuen Enum Typen gleich alle Enum Instanzen analysieren\par
+- Bei Begegnung mit einem neuen Enum Typen persistence root erweitern um ein Array daf\'fcr\par
+- Root Initialisierung um einen Abgleich mit den aktuellen JVM-generierten enum Konstanteninstanzen des Typs erweitern\par
+- Und dann noch das ganze Thema Legacy Type Mapping f\'fcr \'c4nderungen an Enums.\par
+- Das ganze LTM Strukturvergleichszeug muss Enum Felder mit ber\'fccksichtigen, bzw. "all" statt "instance".\par
+\cf0\par
+\par
 \par
 }
  

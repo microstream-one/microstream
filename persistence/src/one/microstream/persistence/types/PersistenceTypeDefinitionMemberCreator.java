@@ -37,12 +37,12 @@ public interface PersistenceTypeDefinitionMemberCreator
 	
 	public static PersistenceTypeDefinitionMemberCreator.Default New(
 		final XGettingSequence<? extends PersistenceTypeDescription> ascendingOrderTypeIdEntries,
-		final PersistenceTypeResolver                                typeResolver
+		final PersistenceTypeDescriptionResolver                         resolver
 	)
 	{
 		return new PersistenceTypeDefinitionMemberCreator.Default(
 			XUtilsCollection.toArray(ascendingOrderTypeIdEntries, PersistenceTypeDescription.class),
-			notNull(typeResolver)
+			notNull(resolver)
 		);
 	}
 	
@@ -52,8 +52,8 @@ public interface PersistenceTypeDefinitionMemberCreator
 		// instance fields //
 		////////////////////
 
-		private final PersistenceTypeDescription[] ascendingOrderTypeIdEntries;
-		private final PersistenceTypeResolver      typeResolver               ;
+		private final PersistenceTypeDescription[]   ascendingOrderTypeIdEntries;
+		private final PersistenceTypeDescriptionResolver resolver                   ;
 
 		
 		
@@ -62,13 +62,13 @@ public interface PersistenceTypeDefinitionMemberCreator
 		/////////////////
 		
 		Default(
-			final PersistenceTypeDescription[] ascendingOrderTypeIdEntries,
-			final PersistenceTypeResolver      typeResolver
+			final PersistenceTypeDescription[]   ascendingOrderTypeIdEntries,
+			final PersistenceTypeDescriptionResolver resolver
 		)
 		{
 			super();
 			this.ascendingOrderTypeIdEntries = ascendingOrderTypeIdEntries;
-			this.typeResolver                = typeResolver               ;
+			this.resolver                    = resolver                   ;
 		}
 
 		
@@ -118,7 +118,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 			
 			return effectiveLatestTypeName == null
 				? null
-				: this.typeResolver.tryResolveType(effectiveLatestTypeName)
+				: this.resolver.tryResolveType(effectiveLatestTypeName)
 			;
 		}
 		
@@ -129,8 +129,8 @@ public interface PersistenceTypeDefinitionMemberCreator
 						
 			// can be null for types explicitly marked as no more having a runtime type (unreachable / "deleted")
 			final String runtimeTypeName = latestTypeEntry == null
-				? this.typeResolver.resolveRuntimeTypeName(typeName)
-				: this.typeResolver.resolveRuntimeTypeName(latestTypeEntry)
+				? this.resolver.resolveRuntimeTypeName(typeName)
+				: this.resolver.resolveRuntimeTypeName(latestTypeEntry)
 			;
 			
 			return runtimeTypeName;
@@ -138,7 +138,7 @@ public interface PersistenceTypeDefinitionMemberCreator
 		
 		private Field resolveField(final String declaringClassName, final String fieldName)
 		{
-			final Class<?> declaringClass = this.typeResolver.tryResolveType(declaringClassName);
+			final Class<?> declaringClass = this.resolver.tryResolveType(declaringClassName);
 			if(declaringClass == null)
 			{
 				// declaring class name might no longer be resolvable

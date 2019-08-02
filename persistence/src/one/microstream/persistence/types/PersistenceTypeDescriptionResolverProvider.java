@@ -4,18 +4,19 @@ import static one.microstream.X.notNull;
 
 import one.microstream.collections.types.XGettingEnum;
 
-public interface PersistenceRefactoringResolverProvider extends PersistenceTypeResolverProvider
+public interface PersistenceTypeDescriptionResolverProvider
 {
-	@Override
-	public PersistenceRefactoringResolver provideResolver();
+	public PersistenceTypeDescriptionResolver provideTypeDescriptionResolver();
 	
 	
 	
-	public static PersistenceRefactoringResolverProvider New(
+	public static PersistenceTypeDescriptionResolverProvider New(
+		final PersistenceTypeResolver               typeResolver              ,
 		final PersistenceRefactoringMappingProvider refactoringMappingProvider
 	)
 	{
-		return new PersistenceRefactoringResolverProvider.Default(
+		return new PersistenceTypeDescriptionResolverProvider.Default(
+			notNull(typeResolver),
 			notNull(refactoringMappingProvider),
 			PersistenceRefactoringTypeIdentifierBuilder.createDefaultRefactoringLegacyTypeIdentifierBuilders(),
 			PersistenceRefactoringMemberIdentifierBuilder.createDefaultRefactoringLegacyMemberIdentifierBuilders(),
@@ -23,14 +24,16 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		);
 	}
 	
-	public static PersistenceRefactoringResolverProvider New(
+	public static PersistenceTypeDescriptionResolverProvider New(
+		final PersistenceTypeResolver                                               typeResolver                  ,
 		final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ,
 		final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders
 	)
 	{
-		return new PersistenceRefactoringResolverProvider.Default(
+		return new PersistenceTypeDescriptionResolverProvider.Default(
+			notNull(typeResolver)                  ,
 			notNull(refactoringMappingProvider)    ,
 			notNull(sourceTypeIdentifierBuilders)  ,
 			notNull(sourceMemberIdentifierBuilders),
@@ -38,11 +41,13 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		);
 	}
 	
-	public static PersistenceRefactoringResolverProvider Caching(
+	public static PersistenceTypeDescriptionResolverProvider Caching(
+		final PersistenceTypeResolver               typeResolver              ,
 		final PersistenceRefactoringMappingProvider refactoringMappingProvider
 	)
 	{
-		return new PersistenceRefactoringResolverProvider.Caching(
+		return new PersistenceTypeDescriptionResolverProvider.Caching(
+			notNull(typeResolver),
 			notNull(refactoringMappingProvider),
 			PersistenceRefactoringTypeIdentifierBuilder.createDefaultRefactoringLegacyTypeIdentifierBuilders(),
 			PersistenceRefactoringMemberIdentifierBuilder.createDefaultRefactoringLegacyMemberIdentifierBuilders(),
@@ -50,14 +55,16 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		);
 	}
 	
-	public static PersistenceRefactoringResolverProvider Caching(
+	public static PersistenceTypeDescriptionResolverProvider Caching(
+		final PersistenceTypeResolver                                               typeResolver                  ,
 		final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ,
 		final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> targetMemberIdentifierBuilders
 	)
 	{
-		return new PersistenceRefactoringResolverProvider.Caching(
+		return new PersistenceTypeDescriptionResolverProvider.Caching(
+			notNull(typeResolver)                  ,
 			notNull(refactoringMappingProvider)    ,
 			notNull(sourceTypeIdentifierBuilders)  ,
 			notNull(sourceMemberIdentifierBuilders),
@@ -65,12 +72,13 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		);
 	}
 	
-	public class Default implements PersistenceRefactoringResolverProvider
+	public class Default implements PersistenceTypeDescriptionResolverProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
+
+		final PersistenceTypeResolver                                               typeResolver                  ;
 		final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ;
 		final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ;
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders;
@@ -84,6 +92,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		/////////////////
 		
 		protected Default(
+			final PersistenceTypeResolver                                               typeResolver                  ,
 			final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ,
 			final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 			final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
@@ -91,6 +100,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		)
 		{
 			super();
+			this.typeResolver                   = typeResolver                  ;
 			this.refactoringMappingProvider     = refactoringMappingProvider    ;
 			this.sourceTypeIdentifierBuilders   = sourceTypeIdentifierBuilders  ;
 			this.sourceMemberIdentifierBuilders = sourceMemberIdentifierBuilders;
@@ -104,10 +114,11 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		////////////
 
 		@Override
-		public PersistenceRefactoringResolver provideResolver()
+		public PersistenceTypeDescriptionResolver provideTypeDescriptionResolver()
 		{
 			// nifty: immure at creation time, not before.
-			return new PersistenceRefactoringResolver.Default(
+			return new PersistenceTypeDescriptionResolver.Default(
+				this.typeResolver                                          ,
 				this.refactoringMappingProvider.provideRefactoringMapping(),
 				this.sourceTypeIdentifierBuilders  .immure(),
 				this.sourceMemberIdentifierBuilders.immure(),
@@ -123,7 +134,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		// instance fields //
 		////////////////////
 
-		transient PersistenceRefactoringResolver cachedResolver;
+		transient PersistenceTypeDescriptionResolver cachedResolver;
 		
 		
 		
@@ -132,6 +143,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		/////////////////
 		
 		protected Caching(
+			final PersistenceTypeResolver                                               typeResolver                  ,
 			final PersistenceRefactoringMappingProvider                                 refactoringMappingProvider    ,
 			final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 			final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
@@ -139,6 +151,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		)
 		{
 			super(
+				typeResolver                  ,
 				refactoringMappingProvider    ,
 				sourceTypeIdentifierBuilders  ,
 				sourceMemberIdentifierBuilders,
@@ -153,11 +166,11 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 		////////////
 
 		@Override
-		public synchronized PersistenceRefactoringResolver provideResolver()
+		public synchronized PersistenceTypeDescriptionResolver provideTypeDescriptionResolver()
 		{
 			if(this.cachedResolver == null)
 			{
-				this.cachedResolver = super.provideResolver();
+				this.cachedResolver = super.provideTypeDescriptionResolver();
 			}
 			
 			return this.cachedResolver;
@@ -177,7 +190,7 @@ public interface PersistenceRefactoringResolverProvider extends PersistenceTypeR
 				return false;
 			}
 			
-			this.provideResolver();
+			this.provideTypeDescriptionResolver();
 			
 			return true;
 		}

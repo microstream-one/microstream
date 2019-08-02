@@ -15,6 +15,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 {
 	public static <T> BinaryHandlerGenericType<T> New(
 		final Class<T>                              type                      ,
+		final String                                typeName                  ,
 		final XGettingEnum<Field>                   persistableFields         ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
@@ -24,6 +25,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	{
 		return new BinaryHandlerGenericType<>(
 			type                      ,
+			typeName                  ,
 			persistableFields         ,
 			lengthResolver            ,
 			eagerStoringFieldEvaluator,
@@ -48,6 +50,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 
 	protected BinaryHandlerGenericType(
 		final Class<T>                              type                      ,
+		final String                                typeName                  ,
 		final XGettingEnum<Field>                   persistableFields         ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
@@ -55,7 +58,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 		final boolean                               switchByteOrder
 	)
 	{
-		super(type, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
+		super(type, typeName, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
 		this.instantiator = notNull(instantiator);
 	}
 

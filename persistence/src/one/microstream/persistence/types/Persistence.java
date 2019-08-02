@@ -1,5 +1,7 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.notNull;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,7 +36,6 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
 import one.microstream.files.XFiles;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
@@ -671,34 +672,36 @@ public class Persistence
 	
 	public static boolean isHandleableEnumField(final Class<?> enumClass, final Field field)
 	{
-		// just in case and to guarantee the correctness of the algorithm below
-		if(!XReflect.isEnum(enumClass)) // Class#isEnum is bugged!
-		{
-			return true;
-		}
+		// actually, even the crazy sh*t enum sub types with persistent state should be safely handleable.
+		return true;
 		
-		// a "normal", "top level" enum class. No restrictions on their instance fields, so return true
-		if(enumClass.getSuperclass() == java.lang.Enum.class)
-		{
-			return true;
-		}
-		
-		// below here is the "dungeon" of crazy sh*t enum subtypes, defined like an anonymous class instance.
-		
-		// exception to the exception: all fields declared "above" the crazy subtype are unproblematic.
-		if(field.getDeclaringClass() != enumClass)
-		{
-			return true;
-		}
-		
-		// (01.08.2019 TM)FIXME: priv#23: test!
-		XDebug.println("Unhandleable enum field: " + enumClass.getName() + "." + field.getName());
-		
-		/*
-		 * transient (actually: not persistable) fields are already filtered out before,
-		 * hence ANY field reaching this point is not handleable.
-		 */
-		return false;
+//		// just in case and to guarantee the correctness of the algorithm below
+//		if(!XReflect.isEnum(enumClass)) // Class#isEnum is bugged!
+//		{
+//			return true;
+//		}
+//
+//		// a "normal", "top level" enum class. No restrictions on their instance fields, so return true
+//		if(enumClass.getSuperclass() == java.lang.Enum.class)
+//		{
+//			return true;
+//		}
+//
+//		// below here is the "dungeon" of crazy sh*t enum subtypes, defined like an anonymous class instance.
+//
+//		// exception to the exception: all fields declared "above" the crazy subtype are unproblematic.
+//		if(field.getDeclaringClass() != enumClass)
+//		{
+//			return true;
+//		}
+//
+//		XDebug.println("Unhandleable enum field: " + enumClass.getName() + "." + field.getName());
+//
+//		/*
+//		 * transient (actually: not persistable) fields are already filtered out before,
+//		 * hence ANY field reaching this point is not handleable.
+//		 */
+//		return false;
 	}
 
 	public static final PersistenceFieldEvaluator defaultFieldEvaluatorEnum()
@@ -823,9 +826,41 @@ public class Persistence
 		;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" }) // type safety guaranteed by the passed typename. The typename String "is" the T.
+	public static <T> Class<T> resolveEnumeratedClassIdentifierSeparatedType(final String typeName)
+	{
+		// there can only be one at the most, so a simple indexOf is sufficient.
+		final int sepIndex = typeName.indexOf(enumeratedClassIdentifierSeparator());
+		if(sepIndex < 0)
+		{
+			return null;
+		}
+		
+		final String properTypeName = typeName.substring(0, sepIndex);
+		final Class<?> type = resolveType(properTypeName);
+		
+		if(!XReflect.isDeclaredEnum(type))
+		{
+			// it could also be used for anonymous inner classes, but Class provides no way to query those...
+			throw new UnsupportedOperationException("EnumeratedClassIdentifierNaming is only supported for sub enums");
+		}
+		
+		final String enumConstantName = typeName.substring(sepIndex + enumeratedClassIdentifierSeparator().length());
+		
+		final Enum<?> enumConstant = Enum.valueOf((Class<Enum>)type, enumConstantName);
+		
+		return (Class<T>)enumConstant.getClass();
+	}
+
 	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> resolveType(final String typeName)
 	{
+		final Class<?> c = resolveEnumeratedClassIdentifierSeparatedType(typeName);
+		if(c != null)
+		{
+			return (Class<T>)c;
+		}
+		
 		try
 		{
 			return (Class<T>)XReflect.resolveType(typeName);
@@ -836,10 +871,17 @@ public class Persistence
 		}
 	}
 	
-	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> tryResolveType(final String typeName)
 	{
-		return (Class<T>)XReflect.tryResolveType(typeName);
+		try
+		{
+			return Persistence.resolveType(typeName);
+		}
+		catch(final PersistenceExceptionTypeConsistencyDefinitionResolveTypeName e)
+		{
+			// intentionally return null
+			return null;
+		}
 	}
 	
 
@@ -872,7 +914,7 @@ public class Persistence
 	public static final PersistenceRootResolver RootResolver(
 		final String                                 rootIdentifier      ,
 		final Supplier<?>                            rootInstanceSupplier,
-		final PersistenceRefactoringResolverProvider refactoringMapping
+		final PersistenceTypeDescriptionResolverProvider refactoringMapping
 	)
 	{
 		return PersistenceRootResolver.Wrap(
@@ -883,7 +925,7 @@ public class Persistence
 	
 	public static final PersistenceRootResolver RootResolver(
 		final Supplier<?>                            rootInstanceSupplier,
-		final PersistenceRefactoringResolverProvider refactoringMapping
+		final PersistenceTypeDescriptionResolverProvider refactoringMapping
 	)
 	{
 		return PersistenceRootResolver.Wrap(
@@ -988,6 +1030,41 @@ public class Persistence
 		);
 		
 		return entries;
+	}
+	
+	/**
+	 * Persistence-specific separator between a class name and a proper identifier
+	 * that replaces enumeratnig class name suffixes like "$1", "$2" etc.
+	 * 
+	 * @return
+	 */
+	public static final String enumeratedClassIdentifierSeparator()
+	{
+		return "$:";
+	}
+	
+	public static final String derivePersistentTypeName(final Class<?> type)
+	{
+		notNull(type);
+		
+		// simple case
+		if(!XReflect.isSubEnum(type))
+		{
+			return type.getName();
+		}
+		
+		final Class<?> declaredEnumType = XReflect.getDeclaredEnum(type);
+		
+		for(final Object enumConstant : declaredEnumType.getEnumConstants())
+		{
+			if(enumConstant.getClass() == type)
+			{
+				return declaredEnumType.getName() + enumeratedClassIdentifierSeparator() + ((Enum<?>)enumConstant).name();
+			}
+		}
+		
+		// (02.08.2019 TM)EXCP: proper exception
+		throw new RuntimeException("Orphan sub enum type: " + type.getName());
 	}
 
 	

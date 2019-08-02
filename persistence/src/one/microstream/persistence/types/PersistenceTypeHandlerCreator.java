@@ -23,9 +23,12 @@ public interface PersistenceTypeHandlerCreator<M>
 		////////////////////
 
 		final PersistenceTypeAnalyzer               typeAnalyzer              ;
+		final PersistenceTypeResolver               typeResolver              ;
 		final PersistenceFieldLengthResolver        lengthResolver            ;
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator;
 		final LambdaTypeRecognizer                  lambdaTypeRecognizer      ;
+		
+
 		
 		
 		
@@ -35,6 +38,7 @@ public interface PersistenceTypeHandlerCreator<M>
 		
 		protected Abstract(
 			final PersistenceTypeAnalyzer               typeAnalyzer              ,
+			final PersistenceTypeResolver               typeResolver              ,
 			final PersistenceFieldLengthResolver        lengthResolver            ,
 			final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
 			final LambdaTypeRecognizer                  lambdaTypeRecognizer
@@ -42,6 +46,7 @@ public interface PersistenceTypeHandlerCreator<M>
 		{
 			super();
 			this.typeAnalyzer               = notNull(typeAnalyzer)              ;
+			this.typeResolver               = notNull(typeResolver)              ;
 			this.lengthResolver             = notNull(lengthResolver)            ;
 			this.eagerStoringFieldEvaluator = notNull(eagerStoringFieldEvaluator);
 			this.lambdaTypeRecognizer       = notNull(lambdaTypeRecognizer)      ;
@@ -52,6 +57,11 @@ public interface PersistenceTypeHandlerCreator<M>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+				
+		public String deriveTypeName(final Class<?> type)
+		{
+			return this.typeResolver.deriveTypeName(type);
+		}
 		
 		public PersistenceFieldLengthResolver lengthResolver()
 		{
