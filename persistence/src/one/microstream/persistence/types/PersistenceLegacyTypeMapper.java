@@ -61,20 +61,20 @@ public interface PersistenceLegacyTypeMapper<M>
 	
 	
 	public static <M> PersistenceLegacyTypeMapper<M> New(
-		final PersistenceRefactoringResolverProvider  refactoringResolverProvider,
-		final TypeMappingLookup<Float>                typeSimilarity             ,
-		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ,
-		final PersistenceMemberMatchingProvider       memberMatchingProvider     ,
-		final PersistenceLegacyTypeMappingResultor<M> resultor                   ,
-		final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator
+		final PersistenceTypeDescriptionResolverProvider  typeDescriptionResolverProvider,
+		final TypeMappingLookup<Float>                    typeSimilarity             ,
+		final PersistenceCustomTypeHandlerRegistry<M>     customTypeHandlerRegistry  ,
+		final PersistenceMemberMatchingProvider           memberMatchingProvider     ,
+		final PersistenceLegacyTypeMappingResultor<M>     resultor                   ,
+		final PersistenceLegacyTypeHandlerCreator<M>      legacyTypeHandlerCreator
 	)
 	{
 		return new PersistenceLegacyTypeMapper.Default<>(
-			notNull(refactoringResolverProvider),
-			notNull(typeSimilarity)             ,
-			notNull(customTypeHandlerRegistry)  ,
-			notNull(memberMatchingProvider)     ,
-			notNull(resultor)                   ,
+			notNull(typeDescriptionResolverProvider),
+			notNull(typeSimilarity)                 ,
+			notNull(customTypeHandlerRegistry)      ,
+			notNull(memberMatchingProvider)         ,
+			notNull(resultor)                       ,
 			notNull(legacyTypeHandlerCreator)
 		);
 	}
@@ -85,12 +85,12 @@ public interface PersistenceLegacyTypeMapper<M>
 		// instance fields //
 		////////////////////
 
-		private final PersistenceRefactoringResolverProvider  refactoringResolverProvider;
-		private final TypeMappingLookup<Float>                typeSimilarity             ;
-		private final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
-		private final PersistenceMemberMatchingProvider       memberMatchingProvider     ;
-		private final PersistenceLegacyTypeMappingResultor<M> resultor                   ;
-		private final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator   ;
+		private final PersistenceTypeDescriptionResolverProvider typeDescriptionResolverProvider;
+		private final TypeMappingLookup<Float>                   typeSimilarity                 ;
+		private final PersistenceCustomTypeHandlerRegistry<M>    customTypeHandlerRegistry      ;
+		private final PersistenceMemberMatchingProvider          memberMatchingProvider         ;
+		private final PersistenceLegacyTypeMappingResultor<M>    resultor                       ;
+		private final PersistenceLegacyTypeHandlerCreator<M>     legacyTypeHandlerCreator       ;
 
 		
 		
@@ -99,21 +99,21 @@ public interface PersistenceLegacyTypeMapper<M>
 		/////////////////
 		
 		protected Default(
-			final PersistenceRefactoringResolverProvider  refactoringResolverProvider,
-			final TypeMappingLookup<Float>                typeSimilarity             ,
-			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ,
-			final PersistenceMemberMatchingProvider       memberMatchingProvider     ,
-			final PersistenceLegacyTypeMappingResultor<M> resultor                   ,
-			final PersistenceLegacyTypeHandlerCreator<M>  legacyTypeHandlerCreator
+			final PersistenceTypeDescriptionResolverProvider typeDescriptionResolverProvider,
+			final TypeMappingLookup<Float>                   typeSimilarity                 ,
+			final PersistenceCustomTypeHandlerRegistry<M>    customTypeHandlerRegistry      ,
+			final PersistenceMemberMatchingProvider          memberMatchingProvider         ,
+			final PersistenceLegacyTypeMappingResultor<M>    resultor                       ,
+			final PersistenceLegacyTypeHandlerCreator<M>     legacyTypeHandlerCreator
 		)
 		{
 			super();
-			this.refactoringResolverProvider = refactoringResolverProvider;
-			this.typeSimilarity              = typeSimilarity             ;
-			this.customTypeHandlerRegistry   = customTypeHandlerRegistry  ;
-			this.memberMatchingProvider      = memberMatchingProvider     ;
-			this.resultor                    = resultor                   ;
-			this.legacyTypeHandlerCreator    = legacyTypeHandlerCreator   ;
+			this.typeDescriptionResolverProvider = typeDescriptionResolverProvider;
+			this.typeSimilarity                  = typeSimilarity                 ;
+			this.customTypeHandlerRegistry       = customTypeHandlerRegistry      ;
+			this.memberMatchingProvider          = memberMatchingProvider         ;
+			this.resultor                        = resultor                       ;
+			this.legacyTypeHandlerCreator        = legacyTypeHandlerCreator       ;
 		}
 		
 		
@@ -139,7 +139,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			);
 
 			// heuristical matching is a applied to the remaining unmapped members
-			final MultiMatch<PersistenceTypeDefinitionMember> match = match(
+			final MultiMatch<PersistenceTypeDefinitionMember> match = this.match(
 				legacyTypeDefinition,
 				currentTypeHandler  ,
 				explicitMappings    ,
@@ -166,7 +166,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeHandler<M, ?>                                                currentTypeHandler
 		)
 		{
-			final PersistenceRefactoringResolver resolver = this.refactoringResolverProvider.provideResolver();
+			final PersistenceTypeDescriptionResolver resolver = this.typeDescriptionResolverProvider.provideTypeDescriptionResolver();
 			
 			for(final PersistenceTypeDefinitionMember currentMember : currentTypeHandler.instanceMembers())
 			{
@@ -275,7 +275,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeDefinition legacyTypeDefinition
 		)
 		{
-			PersistenceLegacyTypeHandler<M, T> matchingHandler = lookupCustomHandlerByTypeId(legacyTypeDefinition);
+			PersistenceLegacyTypeHandler<M, T> matchingHandler = this.lookupCustomHandlerByTypeId(legacyTypeDefinition);
 			if(matchingHandler == null)
 			{
 				matchingHandler = this.lookupCustomHandlerByStructure(legacyTypeDefinition);

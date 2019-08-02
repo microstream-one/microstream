@@ -1,26 +1,12 @@
 package one.microstream.persistence.types;
 
-@FunctionalInterface
+
 public interface PersistenceTypeResolver
 {
-	public default String resolveRuntimeTypeName(final String descriptionTypeName)
-	{
-		// basic implementation does not perform any mapping here.
-		return descriptionTypeName;
-	}
 	
-	public String resolveRuntimeTypeName(PersistenceTypeDescription typeDescription);
-	
-	public default Class<?> resolveRuntimeType(final PersistenceTypeDescription typeDescription)
+	public default String deriveTypeName(final Class<?> type)
 	{
-		final String runtimeTypeName = this.resolveRuntimeTypeName(typeDescription);
-		return this.resolveType(runtimeTypeName);
-	}
-	
-	public default Class<?> tryResolveRuntimeType(final PersistenceTypeDescription typeDescription)
-	{
-		final String runtimeTypeName = this.resolveRuntimeTypeName(typeDescription);
-		return this.tryResolveType(runtimeTypeName);
+		return Persistence.derivePersistentTypeName(type);
 	}
 	
 	public default Class<?> resolveType(final String typeName)
@@ -31,6 +17,23 @@ public interface PersistenceTypeResolver
 	public default Class<?> tryResolveType(final String typeName)
 	{
 		return Persistence.tryResolveType(typeName);
+	}
+	
+	
+	public static PersistenceTypeResolver Default()
+	{
+		return new PersistenceTypeResolver.Default();
+	}
+	
+	public final class Default implements PersistenceTypeResolver
+	{
+		Default()
+		{
+			super();
+		}
+
+		// well, lol
+		
 	}
 		
 }

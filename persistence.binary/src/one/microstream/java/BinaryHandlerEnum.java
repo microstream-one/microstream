@@ -117,6 +117,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	
 	public static <T extends Enum<T>> BinaryHandlerEnum<T> New(
 		final Class<T>                              type                      ,
+		final String                                typeName                  ,
 		final XGettingEnum<Field>                   allFields                 ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
@@ -125,6 +126,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	{
 		return new BinaryHandlerEnum<>(
 			type                      ,
+			typeName                  ,
 			allFields                 ,
 			lengthResolver            ,
 			eagerStoringFieldEvaluator,
@@ -156,13 +158,14 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 
 	protected BinaryHandlerEnum(
 		final Class<T>                              type                      ,
+		final String                                typeName                  ,
 		final XGettingEnum<Field>                   persistableFields         ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
 		final boolean                               switchByteOrder
 	)
 	{
-		super(type, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
+		super(type, typeName, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
 		this.allMembers             = deriveAllMembers(type, this.instanceMembers());
 		this.java_lang_Enum_name    = notNull(this.instanceMembers().search(BinaryHandlerEnum::isJavaLangEnumName));
 		this.java_lang_Enum_ordinal = notNull(this.instanceMembers().search(BinaryHandlerEnum::isJavaLangEnumOrdinal));

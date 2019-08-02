@@ -12,7 +12,7 @@ import one.microstream.typing.KeyValue;
  * @author TM
  *
  */
-public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
+public interface PersistenceTypeDescriptionResolver extends PersistenceTypeResolver
 {
 	/**
 	 * Returns a key-value pair with the passed source identifier as the key and a mapped target identifier
@@ -24,7 +24,8 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 	 */
 	public KeyValue<String, String> lookup(String sourceIdentifier);
 	
-	@Override
+	public String resolveRuntimeTypeName(PersistenceTypeDescription typeDescription);
+	
 	public default String resolveRuntimeTypeName(final String descriptionTypeName)
 	{
 		final KeyValue<String, String> entry = this.lookup(descriptionTypeName);
@@ -37,6 +38,20 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 
 		// can be null for types explicitly marked as no more having a runtime type (unreachable / "deleted")
 		return entry.value();
+	}
+	
+
+	
+	public default Class<?> resolveRuntimeType(final PersistenceTypeDescription typeDescription)
+	{
+		final String runtimeTypeName = this.resolveRuntimeTypeName(typeDescription);
+		return this.resolveType(runtimeTypeName);
+	}
+	
+	public default Class<?> tryResolveRuntimeType(final PersistenceTypeDescription typeDescription)
+	{
+		final String runtimeTypeName = this.resolveRuntimeTypeName(typeDescription);
+		return this.tryResolveType(runtimeTypeName);
 	}
 	
 	/**
@@ -62,7 +77,8 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 	
 
 		
-	public static PersistenceRefactoringResolver New(
+	public static PersistenceTypeDescriptionResolver New(
+		final PersistenceTypeResolver                                               typeResolver                  ,
 		final PersistenceRefactoringMapping                                         refactoringMapping            ,
 		final XGettingEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 		final XGettingEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
@@ -70,6 +86,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 	)
 	{
 		return new Default(
+			typeResolver                           ,
 			refactoringMapping                     ,
 			sourceTypeIdentifierBuilders  .immure(),
 			sourceMemberIdentifierBuilders.immure(),
@@ -77,12 +94,13 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		);
 	}
 	
-	public final class Default implements PersistenceRefactoringResolver
+	public final class Default implements PersistenceTypeDescriptionResolver
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
+		final PersistenceTypeResolver                                                 typeResolver                  ;
 		final PersistenceRefactoringMapping                                           refactoringMapping            ;
 		final XImmutableEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ;
 		final XImmutableEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders;
@@ -95,6 +113,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		/////////////////
 		
 		Default(
+			final PersistenceTypeResolver                                                 typeResolver                  ,
 			final PersistenceRefactoringMapping                                           refactoringMapping            ,
 			final XImmutableEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   sourceTypeIdentifierBuilders  ,
 			final XImmutableEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> sourceMemberIdentifierBuilders,
@@ -102,6 +121,7 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 		)
 		{
 			super();
+			this.typeResolver                   = typeResolver                  ;
 			this.refactoringMapping             = refactoringMapping            ;
 			this.sourceTypeIdentifierBuilders   = sourceTypeIdentifierBuilders  ;
 			this.sourceMemberIdentifierBuilders = sourceMemberIdentifierBuilders;

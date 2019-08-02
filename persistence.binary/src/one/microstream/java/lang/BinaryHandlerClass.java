@@ -69,11 +69,11 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 		final PersistenceStoreHandler handler
 	)
 	{
-		final PersistenceTypeHandler<?, ?> typeTypeHandler = this.typeHandlerManager.get().ensureTypeHandler(instance);
+		final PersistenceTypeHandler<?, ?> typeHandler = this.typeHandlerManager.get().ensureTypeHandler(instance);
 		bytes.storeLong(
 			this.typeId(),
 			objectId,
-			typeTypeHandler.typeId()
+			typeHandler.typeId()
 		);
 	}
 

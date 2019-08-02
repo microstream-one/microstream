@@ -208,6 +208,7 @@ extends PersistenceFoundation<Binary, F>
 		{
 			return new BinaryTypeHandlerCreator.Default(
 				this.getTypeAnalyzer(),
+				this.getTypeResolver(),
 				this.getFieldFixedLengthResolver(),
 				this.getReferenceFieldMandatoryEvaluator(),
 				this.getLambdaTypeRecognizer(),

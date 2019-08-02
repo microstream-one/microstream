@@ -17,9 +17,14 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	// constructors //
 	/////////////////
 
-	public AbstractBinaryHandlerTrivial(final Class<T> type)
+	protected AbstractBinaryHandlerTrivial(final Class<T> type)
 	{
 		super(type);
+	}
+	
+	protected AbstractBinaryHandlerTrivial(final Class<T> type, final String typeName)
+	{
+		super(type, typeName);
 	}
 
 

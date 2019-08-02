@@ -239,13 +239,14 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 
 	protected AbstractBinaryHandlerReflective(
 		final Class<T>                              type             ,
+		final String                                typeName         ,
 		final XGettingEnum<Field>                   persistableFields,
 		final PersistenceFieldLengthResolver        lengthResolver   ,
 		final PersistenceEagerStoringFieldEvaluator eagerEvaluator   ,
 		final boolean                               switchByteOrder
 	)
 	{
-		super(type);
+		super(type, typeName);
 		
 		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
 		XMemory.ensureClassInitialized(type);
