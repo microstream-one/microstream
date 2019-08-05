@@ -1,7 +1,6 @@
 
 package one.microstream.storage.configuration;
 
-
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.notEmpty;
 
@@ -14,19 +13,23 @@ import one.microstream.bytes.ByteMultiple;
 import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
 
 
+@FunctionalInterface
 public interface ConfigurationPropertyParser
 {
 	public void parseProperty(String name, String value, Configuration configuration);
-		
-	
+			
 	public static ConfigurationPropertyParser New()
 	{
-		return new Implementation();
+		return new Default();
 	}
-		
 	
-	public static class Implementation implements ConfigurationPropertyParser, ConfigurationPropertyNames
+	public static class Default implements ConfigurationPropertyParser, ConfigurationPropertyNames
 	{
+		protected Default()
+		{
+			super();
+		}
+		
 		@Override
 		public void parseProperty(final String name, final String value, final Configuration configuration)
 		{
@@ -116,37 +119,37 @@ public interface ConfigurationPropertyParser
 			
 				case HOUSEKEEPING_INTERVAL:
 				{
-					configuration.setHouseKeepingInterval(parseDurationMillies(value).toMillis());
+					configuration.setHouseKeepingInterval(this.parseDurationMillies(value).toMillis());
 				}
 				break;
 			
 				case HOUSEKEEPING_NANO_TIME_BUDGET:
 				{
-					configuration.setHouseKeepingNanoTimeBudget(parseDurationNanos(value).toNanos());
+					configuration.setHouseKeepingNanoTimeBudget(this.parseDurationNanos(value).toNanos());
 				}
 				break;
 			
 				case ENTITY_CACHE_THRESHOLD:
 				{
-					configuration.setEntityCacheThreshold(parseFileSize_long(value));
+					configuration.setEntityCacheThreshold(this.parseFileSize_long(value));
 				}
 				break;
 			
 				case ENTITY_CACHE_TIMEOUT:
 				{
-					configuration.setEntityCacheTimeout(parseDurationMillies(value).toMillis());
+					configuration.setEntityCacheTimeout(this.parseDurationMillies(value).toMillis());
 				}
 				break;
 			
 				case DATA_FILE_MIN_SIZE:
 				{
-					configuration.setDataFileMinSize(parseFileSize_int(value));
+					configuration.setDataFileMinSize(this.parseFileSize_int(value));
 				}
 				break;
 			
 				case DATA_FILE_MAX_SIZE:
 				{
-					configuration.setDataFileMaxSize(parseFileSize_int(value));
+					configuration.setDataFileMaxSize(this.parseFileSize_int(value));
 				}
 				break;
 			
@@ -160,7 +163,6 @@ public interface ConfigurationPropertyParser
 					throw new StorageExceptionInvalidConfiguration("Unknown property: " + name);
 			}
 		}
-		
 		
 		protected Duration parseDurationMillies(final String value)
 		{
@@ -183,7 +185,6 @@ public interface ConfigurationPropertyParser
 			throw new StorageExceptionInvalidConfiguration("Invalid duration: " + value);
 		}
 		
-		
 		protected Duration parseDurationNanos(final String value)
 		{
 			try
@@ -205,13 +206,11 @@ public interface ConfigurationPropertyParser
 			throw new StorageExceptionInvalidConfiguration("Invalid duration: " + value);
 		}
 		
-		
 		protected int parseFileSize_int(final String value)
 		{
-			final long fileSize = parseFileSize_long(value);
+			final long fileSize = this.parseFileSize_long(value);
 			return fileSize >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)fileSize;
 		}
-		
 		
 		protected long parseFileSize_long(final String value)
 		{
