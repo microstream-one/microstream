@@ -386,5 +386,28 @@ Okay, dann sollte das Enum Handling jetzt grunds\'e4tzlich passen. Fehlt nur noc
 \cf0\par
 \par
 \par
+2019-08-05\par
+\par
+Wieder mal eine Idee aus dem Wochenende:\par
+Ich wollte das mit den Konzept Identifiern ja auch benutzen, um optional Anonymous Inner Classes eindeutig zu identifizieren.\par
+Das ist ja aber nicht, weil es in der Class API keine M\'f6glichkeit gibt, alle member types zu iterieren.\par
+Durchnummeriert benannte Klassennamen sind aber brandgef\'e4hrlich, weil sie nicht einfach nicht aufgel\'f6st werden, sondern potenziell falsch aufgel\'f6st werden, einfach nur dadurch, dass sich die Reihenfolge von Sourcecode Teilen \'e4ndert.\par
+Darum folgende Idee:\par
+\'c4hnlich dem Lambda Recognizer einen TypeNameMapper oder sowas machen.\par
+Defaultm\'e4\'dfig reicht der alles unver\'e4ndert durch, nur bei $1 etc. Namen wirft er eine Exception mit einer detaillierten Erkl\'e4rung.\par
+Hei\'dft: AICs sind dann nicht mehr persistierbar. Macht ja eigentlich auch keinen Sinn, wenn es um ein Entity Datenmodell geht.\par
+Alles, was man mit AICs machen kann, kann man auch zu ordentlich benannten Klassen umformen und dann geht es. Z.B. Comparators definieren, wenn man die unbedingt mitpersistieren muss.\par
+Falls doch jemand unbedingt AICs unordentlich persistieren will, kann er das "auf eigene Gefahr" machen, indem er den TypeNameMapper durch einen ersetzt, der ALLES einfach durchreicht, inklusive AICs.\par
+Oder der sich irgendwie eine Implementierung schreibt, die die Dinger ordentlich aufl\'f6st.\par
+Beispiel: Brute-force-m\'e4\'dfig alle $1... dynamisch durchiterieren, bis keine so benannte Klasse mehr gefunden werden kann und all diese Klassen dann durchanalysieren, welche von denen wohl zu der im Dictionary beschriebenen passt.\par
+Das geht, k\'f6nnte ich auch gleich so machen, aber mal ehrlich:\par
+AIC Instanzen persistieren wollen ist schon ein bisschen d\'e4mlich. Die sind technisch zwar Klassen mit Instanzen, aber logisch sind es eigentlich nur Logik-Bestandteile. Wer ordentlich handlebare Klassen will, soll in Gott's Namen einen Klassennamen dranschreiben.\par
+\par
+Bzw., nach einem kurzen Blick in den aktuellen Sourcecode muss das gar kein zus\'e4tzlicher Typ werden, sondern das macht der PersistenceTypeResolver gleich direkt mit. Das ist ja genau das Ding, das die Transformation Class <-> Classname durchf\'fchrt. Bzw. die tats\'e4chliche Fallunterscheidung kommt in  Persistence#derivePersistentTypeName rein, neben die f\'fcr enums. Passt.\par
+\par
+Implementiert und getestet. Passt.\par
+Noch priv#23 updaten, priv#124 erstellen und verlinken. Fertig.\par
+\par
+\par
 }
  
