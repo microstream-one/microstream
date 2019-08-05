@@ -829,7 +829,7 @@ public class Persistence
 	public static <T> Class<T> resolveEnumeratedClassIdentifierSeparatedType(final String typeName)
 	{
 		// there can only be one at the most, so a simple indexOf is sufficient.
-		final int sepIndex = typeName.indexOf(enumeratedClassIdentifierSeparator());
+		final int sepIndex = typeName.indexOf(substituteClassIdentifierSeparator());
 		if(sepIndex < 0)
 		{
 			return null;
@@ -844,7 +844,7 @@ public class Persistence
 			throw new UnsupportedOperationException("EnumeratedClassIdentifierNaming is only supported for sub enums");
 		}
 		
-		final String enumConstantName = typeName.substring(sepIndex + enumeratedClassIdentifierSeparator().length());
+		final String enumConstantName = typeName.substring(sepIndex + substituteClassIdentifierSeparator().length());
 		
 		final Enum<?> enumConstant = Enum.valueOf((Class<Enum>)type, enumConstantName);
 		
@@ -1033,23 +1033,24 @@ public class Persistence
 	
 	/**
 	 * Persistence-specific separator between a class name and a proper identifier
-	 * that replaces enumeratnig class name suffixes like "$1", "$2" etc.
+	 * that replaces unreliable class names (like "$1", "$2" etc.) by a reliably identifying substitute name.
 	 * 
 	 * @return
 	 */
-	public static final String enumeratedClassIdentifierSeparator()
+	public static final String substituteClassIdentifierSeparator()
 	{
 		return "$:";
 	}
 	
 	public static final String derivePersistentTypeName(final Class<?> type)
 	{
-		// simple case
+		// handleable special case of sub-enum classes with enumerating class names.
 		if(XReflect.isSubEnum(type))
 		{
 			return derivePersistentTypeNameEnum(type);
 		}
 		
+		// unhandleable general case of classes with enumerating class names.
 		if(XReflect.hasEnumeratedTypeName(type))
 		{
 			// (05.08.2019 TM)EXCP: proper exception
@@ -1063,6 +1064,7 @@ public class Persistence
 			);
 		}
 		
+		// "normal" types without problematic enumerating class names.
 		return type.getName();
 	}
 	
@@ -1080,7 +1082,7 @@ public class Persistence
 		{
 			if(enumConstant.getClass() == type)
 			{
-				return declaredEnumType.getName() + enumeratedClassIdentifierSeparator() + ((Enum<?>)enumConstant).name();
+				return declaredEnumType.getName() + substituteClassIdentifierSeparator() + ((Enum<?>)enumConstant).name();
 			}
 		}
 		
