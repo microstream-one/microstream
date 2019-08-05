@@ -944,6 +944,27 @@ public final class XReflect
 		;
 	}
 	
+	public static boolean hasEnumeratedTypeName(final Class<?> type)
+	{
+		final String typeName  = type.getName();
+		final int    lastIndex = typeName.length() - 1;
+		for(int i = 0; i < lastIndex; i++)
+		{
+			i = typeName.indexOf(nestedClassNameSeparator(), i);
+			if(i < 0)
+			{
+				return false;
+			}
+			
+			final char c = typeName.charAt(i + 1);
+			if(c >= '0' && c <= '9')
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
 		
 
 

@@ -1,7 +1,5 @@
 package one.microstream.persistence.types;
 
-import static one.microstream.X.notNull;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,6 +37,7 @@ import one.microstream.files.XFiles;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
+import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.lazy.Lazy;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.Composition;
@@ -1045,12 +1044,34 @@ public class Persistence
 	
 	public static final String derivePersistentTypeName(final Class<?> type)
 	{
-		notNull(type);
-		
 		// simple case
+		if(XReflect.isSubEnum(type))
+		{
+			return derivePersistentTypeNameEnum(type);
+		}
+		
+		if(XReflect.hasEnumeratedTypeName(type))
+		{
+			// (05.08.2019 TM)EXCP: proper exception
+			throw new PersistenceExceptionTypeNotPersistable(type,
+				"Synthetic classes ($1 etc.) are not reliably persistence since a simple reordering of source code"
+				+ " elements would change the name identity of a class. For a type system that has to rely upon"
+				+ " resolving types by their identifying name, this would silently cause a potentially fatal error."
+				+ " If handling synthetic classes (e.g. anonymous inner classes) is absolutely necessary, a custom "
+				+ PersistenceTypeResolver.class.getName() + " can be used to remove the exception and assume "
+				+ " complete responsibility for correctly handling synthetic class names."
+			);
+		}
+		
+		return type.getName();
+	}
+	
+	public static final String derivePersistentTypeNameEnum(final Class<?> type)
+	{
 		if(!XReflect.isSubEnum(type))
 		{
-			return type.getName();
+			// (05.08.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Not an Enum type: " + type.getName());
 		}
 		
 		final Class<?> declaredEnumType = XReflect.getDeclaredEnum(type);
