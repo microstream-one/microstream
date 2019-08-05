@@ -25,22 +25,22 @@ import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
 
-public interface ConfigurationParser 
+@FunctionalInterface
+public interface ConfigurationParser
 {
-	public default Configuration parse(String data)
+	public default Configuration parse(final String data)
 	{
-		return parse(Configuration.Default(),data);
+		return this.parse(Configuration.Default(), data);
 	}
 	
 	public Configuration parse(Configuration configuration, String data);
 	
-	
 	public static ConfigurationParser Ini()
 	{
 		return Ini(ConfigurationPropertyParser.New());
-	}	
+	}
 	
-	public static ConfigurationParser Ini(ConfigurationPropertyParser propertyParser)
+	public static ConfigurationParser Ini(final ConfigurationPropertyParser propertyParser)
 	{
 		return new IniConfigurationParser(propertyParser);
 	}
@@ -48,47 +48,46 @@ public interface ConfigurationParser
 	public static ConfigurationParser Xml()
 	{
 		return Xml(ConfigurationPropertyParser.New());
-	}	
+	}
 	
-	public static ConfigurationParser Xml(ConfigurationPropertyParser propertyParser)
+	public static ConfigurationParser Xml(final ConfigurationPropertyParser propertyParser)
 	{
 		return new XmlConfigurationParser(propertyParser);
 	}
 	
-	
 	public static class IniConfigurationParser implements ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
-
-		public IniConfigurationParser(ConfigurationPropertyParser propertyParser) 
+		
+		protected IniConfigurationParser(final ConfigurationPropertyParser propertyParser)
 		{
 			super();
 			this.propertyParser = notNull(propertyParser);
 		}
 		
 		@Override
-		public Configuration parse(Configuration configuration, String data) 
+		public Configuration parse(Configuration configuration, final String data)
 		{
 			if(configuration == null)
 			{
 				configuration = Configuration.Default();
 			}
 			
-			Properties properties = new Properties();
-			try 
+			final Properties properties = new Properties();
+			try
 			{
 				properties.load(new StringReader(data));
-			} 
-			catch (IOException e) 
+			}
+			catch(final IOException e)
 			{
 				throw new StorageExceptionIo(e);
 			}
-			removeSections(properties);
+			this.removeSections(properties);
 			
-			for(Object key : properties.keySet()) 
+			for(final Object key : properties.keySet())
 			{
-				String name  = (String)key;
-				String value = properties.getProperty(name);
+				final String name  = (String)key;
+				final String value = properties.getProperty(name);
 				this.propertyParser.parseProperty(name, value, configuration);
 			}
 			
@@ -98,57 +97,56 @@ public interface ConfigurationParser
 		/**
 		 * Removes ini [section]s from properties, java.util.Properties doesn't parse them properly.
 		 */
-		protected void removeSections(Properties properties)
+		protected void removeSections(final Properties properties)
 		{
-			Pattern sectionPattern = Pattern.compile("(?ms)^\\[[^]\\r\\n]+](?:(?!^\\[[^]\\r\\n]+]).)*");
-			List<Object> sectionKeys = properties.keySet().stream()
-					.filter(key -> sectionPattern.matcher((String)key).matches())
-					.collect(Collectors.toList());
+			final Pattern      sectionPattern = Pattern.compile("(?ms)^\\[[^]\\r\\n]+](?:(?!^\\[[^]\\r\\n]+]).)*");
+			final List<Object> sectionKeys    = properties.keySet().stream()
+				.filter(key -> sectionPattern.matcher((String)key).matches())
+				.collect(Collectors.toList());
 			sectionKeys.forEach(properties::remove);
 		}
 	}
 	
-	
 	public static class XmlConfigurationParser implements ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
-
-		public XmlConfigurationParser(ConfigurationPropertyParser propertyParser) 
+		
+		protected XmlConfigurationParser(final ConfigurationPropertyParser propertyParser)
 		{
 			super();
 			this.propertyParser = notNull(propertyParser);
 		}
 		
 		@Override
-		public Configuration parse(Configuration configuration, String data) 
+		public Configuration parse(Configuration configuration, final String data)
 		{
 			if(configuration == null)
 			{
 				configuration = Configuration.Default();
 			}
 			
-			try 
+			try
 			{
-				final DocumentBuilder        builder   = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-				final Document               document  = builder.parse(new InputSource(new StringReader(data)));
-				final Element                documentElement;
+				final DocumentBuilder builder  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				final Document        document = builder.parse(new InputSource(new StringReader(data)));
+				final Element         documentElement;
 				if((documentElement = document.getDocumentElement()) != null)
 				{
-					NodeList propertyNodes = documentElement.getElementsByTagName("property");
+					final NodeList propertyNodes = documentElement.getElementsByTagName("property");
 					for(int i = 0, c = propertyNodes.getLength(); i < c; i++)
 					{
-						Element propertyElement = (Element)propertyNodes.item(i);
-						String name             = notEmpty(propertyElement.getAttribute("name"));
-						String value            = notEmpty(propertyElement.getAttribute("value"));
+						final Element propertyElement = (Element)propertyNodes.item(i);
+						final String  name            = notEmpty(propertyElement.getAttribute("name"));
+						final String  value           = notEmpty(propertyElement.getAttribute("value"));
 						this.propertyParser.parseProperty(name, value, configuration);
 					}
 				}
 			}
-			catch (ParserConfigurationException | SAXException e) 
+			catch(ParserConfigurationException | SAXException e)
 			{
 				throw new StorageExceptionInvalidConfiguration(e);
 			}
-			catch (IOException e) 
+			catch(final IOException e)
 			{
 				throw new StorageExceptionIo(e);
 			}
