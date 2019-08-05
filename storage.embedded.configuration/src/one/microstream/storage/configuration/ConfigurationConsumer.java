@@ -1,3 +1,4 @@
+
 package one.microstream.storage.configuration;
 
 import static one.microstream.chars.XChars.isEmpty;
@@ -20,93 +21,128 @@ import one.microstream.storage.types.StorageEntityCacheEvaluator;
 import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.storage.types.StorageHousekeepingController;
 
+
+@FunctionalInterface
 public interface ConfigurationConsumer extends Consumer<Configuration>
 {
 	@Override
 	public void accept(Configuration configuration);
-	
-	
 	
 	public static ConfigurationConsumer FoundationUpdater(final EmbeddedStorageFoundation<?> storageFoundation)
 	{
 		return new FoundationUpdater(storageFoundation);
 	}
 	
-	
 	public static class FoundationUpdater implements ConfigurationConsumer
 	{
 		private final EmbeddedStorageFoundation<?> storageFoundation;
-
-		public FoundationUpdater(final EmbeddedStorageFoundation<?> storageFoundation)
+		
+		protected FoundationUpdater(final EmbeddedStorageFoundation<?> storageFoundation)
 		{
 			super();
+			
 			this.storageFoundation = storageFoundation;
 		}
 		
 		@Override
 		public void accept(final Configuration configuration)
 		{
-			final File baseDir = ensureDirectory(new File(configuration.getBaseDirectory()));
-									
-			final StorageFileProvider fileProvider = Storage.FileProviderBuilder()
-					.setBaseDirectory(baseDir.getAbsolutePath())
-					.setDeletionDirectory(configuration.getDeletionDirectory())
-					.setTruncationDirectory(configuration.getTruncationDirectory())
-					.setChannelDirectoryPrefix(configuration.getChannelDirectoryPrefix())
-					.setStorageFilePrefix(configuration.getDataFilePrefix())
-					.setStorageFileSuffix(configuration.getDataFileSuffix())
-					.setTransactionsFilePrefix(configuration.getTransactionFilePrefix())
-					.setTransactionsFileSuffix(configuration.getTransactionFileSuffix())
-					.setTypeDictionaryFileName(configuration.getTypeDictionaryFilename())
-					.createFileProvider();
+			final File                            baseDir                = ensureDirectory(new File(configuration.getBaseDirectory()));
+			final StorageFileProvider             fileProvider           = this.createFileProvider(configuration, baseDir);
+			final StorageChannelCountProvider     channelCountProvider   = this.createChannelCountProvider(configuration);
+			final StorageHousekeepingController   housekeepingController = this.createHousekeepingController(configuration);
+			final StorageDataFileEvaluator        dataFileEvaluator      = this.createDataFileEvaluator(configuration);
+			final StorageEntityCacheEvaluator     entityCacheEvaluator   = this.createEntityCacheEvaluator(configuration);
 			
-			final StorageChannelCountProvider channelCountProvider = Storage.ChannelCountProvider(
-					configuration.getChannelCount());
-			
-			final StorageHousekeepingController housekeepingController = Storage.HousekeepingController(
-					configuration.getHouseKeepingInterval(),
-					configuration.getHouseKeepingNanoTimeBudget());
-			
-			final StorageDataFileEvaluator dataFileEvaluator = Storage.DataFileEvaluator(
-					configuration.getDataFileMinSize(),
-					configuration.getDataFileMaxSize(),
-					configuration.getDataFileDissolveRatio());
-			
-			final StorageEntityCacheEvaluator entityCacheEvaluator = Storage.EntityCacheEvaluator(
-					configuration.getEntityCacheTimeout(),
-					configuration.getEntityCacheThreshold());
-			
-			final StorageConfiguration.Builder<?> storageConfigurationBuilder = Storage.ConfigurationBuilder()
-					.setStorageFileProvider(fileProvider)
-					.setChannelCountProvider(channelCountProvider)
-					.setHousekeepingController(housekeepingController)
-					.setFileEvaluator(dataFileEvaluator)
-					.setEntityCacheEvaluator(entityCacheEvaluator);
+			final StorageConfiguration.Builder<?> configBuilder = Storage.ConfigurationBuilder()
+				.setStorageFileProvider   (fileProvider          )
+				.setChannelCountProvider  (channelCountProvider  )
+				.setHousekeepingController(housekeepingController)
+				.setFileEvaluator         (dataFileEvaluator     )
+				.setEntityCacheEvaluator  (entityCacheEvaluator  );
 			
 			String backupDirectory;
 			if(!isEmpty(backupDirectory = configuration.getBackupDirectory()))
 			{
-				storageConfigurationBuilder.setBackupSetup(Storage.BackupSetup(backupDirectory));
+				configBuilder.setBackupSetup(Storage.BackupSetup(backupDirectory));
 			}
 			
-			final StorageConfiguration storageConfiguration = storageConfigurationBuilder.createConfiguration();
-			
-			final PersistenceTypeDictionaryFileHandler typeDictionaryFileHandler = PersistenceTypeDictionaryFileHandler
-					.New(new File(baseDir,configuration.getTypeDictionaryFilename()));
-			
-			final PersistenceTypeIdProvider typeIdProvider = FileTypeIdStrategy
-					.New(baseDir, configuration.getTypeIdFilename())
-					.createTypeIdProvider();
-						
-			final PersistenceObjectIdProvider objectIdProvider = FileObjectIdStrategy
-					.New(baseDir, configuration.getObjectIdFilename())
-					.createObjectIdProvider();
+			final StorageConfiguration                 storageConfiguration      = configBuilder.createConfiguration();
+			final PersistenceTypeDictionaryFileHandler typeDictionaryFileHandler = this.createTypeDictionaryFileHandlery(configuration, baseDir);
+			final PersistenceTypeIdProvider            typeIdProvider            = this.createTypeIdProvider(configuration, baseDir);
+			final PersistenceObjectIdProvider          objectIdProvider          = this.createObjectIdProvider(configuration, baseDir);
 			
 			this.storageFoundation.setConfiguration(storageConfiguration)
 				.getConnectionFoundation()
-					.setTypeDictionaryIoHandler(typeDictionaryFileHandler)
-					.setTypeIdProvider(typeIdProvider)
-					.setObjectIdProvider(objectIdProvider);
+				.setTypeDictionaryIoHandler(typeDictionaryFileHandler)
+				.setTypeIdProvider         (typeIdProvider           )
+				.setObjectIdProvider       (objectIdProvider         );
+		}
+		
+		protected StorageFileProvider createFileProvider(final Configuration configuration, final File baseDir)
+		{
+			return Storage.FileProviderBuilder()
+				.setBaseDirectory         (baseDir      .getAbsolutePath()          )
+				.setDeletionDirectory     (configuration.getDeletionDirectory()     )
+				.setTruncationDirectory   (configuration.getTruncationDirectory()   )
+				.setChannelDirectoryPrefix(configuration.getChannelDirectoryPrefix())
+				.setStorageFilePrefix     (configuration.getDataFilePrefix()        )
+				.setStorageFileSuffix     (configuration.getDataFileSuffix()        )
+				.setTransactionsFilePrefix(configuration.getTransactionFilePrefix() )
+				.setTransactionsFileSuffix(configuration.getTransactionFileSuffix() )
+				.setTypeDictionaryFileName(configuration.getTypeDictionaryFilename())
+				.createFileProvider();
+		}
+		
+		protected StorageChannelCountProvider createChannelCountProvider(final Configuration configuration)
+		{
+			return Storage.ChannelCountProvider(configuration.getChannelCount());
+		}
+		
+		protected StorageHousekeepingController createHousekeepingController(final Configuration configuration)
+		{
+			return Storage.HousekeepingController(
+				configuration.getHouseKeepingInterval      (),
+				configuration.getHouseKeepingNanoTimeBudget()
+			);
+		}
+		
+		protected StorageDataFileEvaluator createDataFileEvaluator(final Configuration configuration)
+		{
+			return Storage.DataFileEvaluator(
+				configuration.getDataFileMinSize      (),
+				configuration.getDataFileMaxSize      (),
+				configuration.getDataFileDissolveRatio()
+			);
+		}
+		
+		protected StorageEntityCacheEvaluator createEntityCacheEvaluator(final Configuration configuration)
+		{
+			return Storage.EntityCacheEvaluator(
+				configuration.getEntityCacheTimeout  (),
+				configuration.getEntityCacheThreshold()
+			);
+		}
+
+		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryFileHandlery(final Configuration configuration, final File baseDir)
+		{
+			return PersistenceTypeDictionaryFileHandler.New(
+				new File(baseDir, configuration.getTypeDictionaryFilename())
+			);
+		}
+
+		protected PersistenceTypeIdProvider createTypeIdProvider(final Configuration configuration, final File baseDir)
+		{
+			return FileTypeIdStrategy
+				.New(baseDir, configuration.getTypeIdFilename())
+				.createTypeIdProvider();
+		}
+
+		protected PersistenceObjectIdProvider createObjectIdProvider(final Configuration configuration, final File baseDir)
+		{
+			return FileObjectIdStrategy
+				.New(baseDir, configuration.getObjectIdFilename())
+				.createObjectIdProvider();
 		}
 	}
 }
