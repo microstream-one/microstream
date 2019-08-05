@@ -1,7 +1,5 @@
 package one.microstream.storage.exceptions;
 
-import one.microstream.storage.exceptions.StorageException;
-
 public class StorageExceptionInvalidConfiguration extends StorageException
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -37,7 +35,4 @@ public class StorageExceptionInvalidConfiguration extends StorageException
 	{
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
-
-
-
 }
