@@ -27,12 +27,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	public void initialize();
 
 	@Override
-	public default EmbeddedStorageManager start()
-	{
-		return this.start(null);
-	}
-
-	public EmbeddedStorageManager start(XGettingEnum<File> initialImportFiles);
+	public EmbeddedStorageManager start();
 
 	@Override
 	public boolean shutdown();
@@ -219,25 +214,14 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public final EmbeddedStorageManager.Default start(final XGettingEnum<File> initialImportFiles)
+		public final EmbeddedStorageManager.Default start()
 		{
 			this.storageManager.start();
-
-			// special initial import for refactoring purposes: after validation but before roots loading.
-			if(initialImportFiles != null && !initialImportFiles.isEmpty())
-			{
-				this.initialImport(initialImportFiles);
-			}
 
 			this.ensureRequiredTypeHandlers();
 			this.initialize();
 			
 			return this;
-		}
-
-		private void initialImport(final XGettingEnum<File> initialImportFiles)
-		{
-			this.connectionFoundation.createStorageConnection().importFiles(initialImportFiles);
 		}
 
 		private boolean synchronizeRoots(final PersistenceRoots loadedRoots)
