@@ -265,6 +265,8 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		public final void initialize()
 		{
 			final StorageConnection initConnection = this.createConnection();
+			
+			// (06.08.2019 TM)FIXME: priv#23: check typehandlermanager for pending root storing
 
 			/* (22.09.2014 TM)NOTE: Constants OID consistency conflict
 			 * If more than one roots instance exists, all are loaded and all are built,
@@ -294,6 +296,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 				// loaded roots are perfectly synchronous to defined roots, no store update required.
 				return;
 			}
+			
 
 			// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized
 			initConnection.store(loadedRoots);

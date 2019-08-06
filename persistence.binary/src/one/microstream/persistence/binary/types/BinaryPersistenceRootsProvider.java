@@ -59,6 +59,12 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		}
 		
 		@Override
+		public final PersistenceRoots peekRoots()
+		{
+			return this.roots;
+		}
+		
+		@Override
 		public final void registerRootsTypeHandlerCreator(
 			final PersistenceCustomTypeHandlerRegistry<Binary> typeHandlerRegistry,
 			final PersistenceObjectRegistry                    objectRegistry

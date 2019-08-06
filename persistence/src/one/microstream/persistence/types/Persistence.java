@@ -1076,7 +1076,7 @@ public class Persistence
 			throw new RuntimeException("Not an Enum type: " + type.getName());
 		}
 		
-		final Class<?> declaredEnumType = XReflect.getDeclaredEnum(type);
+		final Class<?> declaredEnumType = XReflect.getDeclaredEnumClass(type);
 		
 		for(final Object enumConstant : declaredEnumType.getEnumConstants())
 		{

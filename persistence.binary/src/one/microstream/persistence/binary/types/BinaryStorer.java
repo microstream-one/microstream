@@ -135,8 +135,10 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 		protected Binary complete()
 		{
-			// (21.03.2016 TM)NOTE: added to avoid NPEs
+			// required to prevent NPE
 			this.ensureInitialized();
+						
+			// (06.08.2019 TM)FIXME: priv#23: check for pending enum root synching
 
 			for(final ChunksBuffer chunk : this.chunks)
 			{
@@ -346,7 +348,12 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		{
 			if(!this.isEmpty())
 			{
+				this.typeManager.checkForPendingRootInstances();
+				this.typeManager.checkForPendingRootsStoring(this);
+				
 				this.target.write(this.complete());
+				
+				this.typeManager.clearStorePendingRoots();
 			}
 			this.clear();
 			return null;
