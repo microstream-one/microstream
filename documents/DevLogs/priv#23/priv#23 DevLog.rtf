@@ -409,5 +409,132 @@ Implementiert und getestet. Passt.\par
 Noch priv#23 updaten, priv#124 erstellen und verlinken. Fertig.\par
 \par
 \par
+2019-08-06\par
+\par
+Jetzt Root Handling erweitern.\par
+\par
+Idee dazu:\par
+Es m\'fcsste f\'fcr enum Konstanteninstanzen eigentlich gar keinen eintrag in den Roots geben, weil man einfach von allen Enum Typen alle Konstanteninstanzen pauschal als Roots behandeln kann.\par
+D.h. es m\'fcsste beim Roots synchen eigentlich nur eine Abfrage nach Typ oder evtl. eine special Abfrage (loadRootTypeInstances oder so) geben. Dann w\'fcrden in den PersistenceRoots wirklich nur "echte" Roots drinstehen und nicht endlose Array an allen m\'f6glichen enumn.\par
+\par
+Hm, allerdings:\par
+Die PersistenceRoots werden auch gebraucht als Ausgangspunkt f\'fcr den GC. Und das sollte m\'f6glichst einfach gehalten sein ("starte beim root") und nicht wieder extra special verteile Logik brauchen ("starte beim Root, aber dann schau auch noch in alle m\'f6glichen Root-haften Typen rein").\par
+\par
+Das hei\'dft, der Tradeoff w\'e4re\line + Schlanke PersistenceRoot Instanzen\par
+- zweifache Verkomplizierung von Logik\par
+\par
+Das dr\'e4ngt die Frage auf: Interessiert es eigentlich irgendwen, wie schlank oder fett die eine PersistenceRoots instanz ist?\par
+Hm... das macht die Antwort, glaub ich, klar: Keine Sonderbehandlung, sondern lieber Roots Instanz aufblasen, wie geplant.\par
+\par
+Hm, gro\'dfes Problem bzgl. Enum Roots und LTM aufgefallen:\par
+Wenn es eine aktuellere Version einer Enum gibt, sollen dann nur deren Konstanten als Roots registriert werden und die alten rausfliegen?\par
+Aber was ist dann, wenn doch mal wieder die alte Version die aktuell passende w\'fcrde?\par
+Dann w\'e4ren alle Root-Mappings von fr\'fcher weg. Man m\'fcsste ein neu -> alt mapping der Konstanten machen und h\'e4tte nur noch die zur Verf\'fcgung, die in beiden Versionen vorkommen.\par
+Oder man m\'fcsste alle root Eintr\'e4ge von allen Versionen von enum typen drin lassen. Dann ist aber die Frage: Wann sind die wirklich veraltete? Wie kriegt man sie aus den Roots wieder raus? Oder sammeln sich enums f\'fcr immer root-gesichert an?\par
+F\'fcr eine simple stateless enum mag das marginal sein, aber was ist, wenn eine enum mal ein Feld hat und da eine Referenz auf einen riesigen Subgraph drin ist? Dann bleibt der f\'fcr alle Ewigkeit, obwohl man von der Klassendefinition her davon ausgehen k\'f6nnte/w\'fcrde/m\'fcsste, dass die enum Instanz weg ist und das Zeug gel\'f6scht wird.\par
+\par
+Hm ... beides ist irgendwie ... bl\'f6d.\par
+\par
+Besonders knifflig w\'e4re: Eine veraltete enum Instanz kann ja durchaus noch von anderen Instanzen referenziert werden, sie ist nur nicht mehr als root registriert (hm, wobei das sp\'e4testens beim Laden eine Exception geben w\'fcrde ...)\par
+\par
+---\par
+... Moment mal, das ist nochmal ein wichtiger Punkt f\'fcr sich:\par
+\par
+Sagen wir, es gibt drei enum Instanzen\par
+MyEnum#A, #B, #C.\par
+Alle drei werden referenziert.\par
+Nun wird die enum Klasse MyEnum ver\'e4ndert, so dass es nur noch #A und #B gibt.\par
+#C gibt es nicht mehr, aber der Datensatz daf\'fcr liegt nach wie vor in der Datenbank und wird referenziert.\par
+Damit das beim Laden keine Exception gibt, m\'fcsste es eine explizite "Deleted" Markierung geben und eine entsprechende Registry, in der das Laden einen Lookup rein macht.\par
+Aber damit nicht genug:\line Die Instanz #C wird ja auch noch "normal" \'fcber den Objektgraph referenziert. Der GC klappert die Referenzen ab und trifft dabei auch auf C. Und klappert dann braf weiter dessen Referenzen ab.\par
+D.h. eigentlich m\'fcsste es f\'fcr den GC eine "deleted instances" Registry geben, die f\'fcr jede Instanz abgeklappert wird und falls die darin registriert ist, werden zumindest ihre Referenzen wiederum nicht mehr weiter abgeklappert.\par
+Dann liegt zwar immer noch die gel\'f6schte Instanz datensatzm\'e4\'dfig rum, aber immerhin nur noch garantiert shallow, ohne Referenzen und beim Laden wird sie ja dann durch den Handler ignoriert.\par
+\par
+Oder ist das Quatsch, weil man sich um "gel\'f6schte" (bzw. "zu l\'f6schende") Instanzen in einem Objektgraph selber k\'fcmmern muss, indem man ausnullt und abspeichert? Hm... Dann m\'fcsste es den Check aber trotzdem geben und der m\'fcsste eine Exception werfen. Wobei eine Exception im Storage Channel Thread beim GC niemandem was hilft. Also doch beim Laden ausnullen? Hm...\par
+---\par
+\par
+Aber zur\'fcck zur vorherigen \'dcberlegung:\par
+Eine veraltete enum Instanz kann ja durchaus noch von anderen Instanzen referenziert werden, sie ist nur nicht mehr als root registriert.\par
+Der persistente Datensatz k\'f6nnte wieder geladen werden, aber dann ist die Root-Verkn\'fcpfung zur JVM-generierten Instanz weg und es m\'fcsste eine neue, nicht-root, Instanz dynamisch erzeugt werden. Das gibt aber eine Exception ...\par
+\par
+Also m\'fcsste es doch so sein, dass enum Instanzen nicht \'fcber einen expliziten Root, sondern implizit \'fcber die Aufl\'f6sung \'fcber den Type root-verkn\'fcpft werden?\par
+\par
+Wobei auch da wieder ein Problem ist:\par
+Eine Instanz kann nur eine TypeId haben. N\'e4mlich die der aktuellen enum Version, zu der sie geh\'f6rt.\par
+Dann kann die aber nicht in mehreren Types referenziert sein. Immer nur in einem.\par
+\par
+Also l\'e4uft wohl doch alles auf die simple Variante raus:\par
+Es werden nur von der aktuellen Version einer enum Instanzen Root-Verlinkt. Alle \'e4lteren Versionen eines enum Typs haben keine Instanzen bzw. die m\'fcssen bei Bedarf "zur\'fcckgemappt" werden ...\par
+Echt knifflig ...\par
+\par
+\par
+Zur\'fcck zum konkreten n\'e4chsten Schritt f\'fcr das Root Handling\par
+\par
+Vielleicht w\'e4re aber eine Mischung der Ideen gut, damit der TypeHandler nicht live im Betrieb die PersistenceRoot Instanz erweitern muss:\par
+- Beim Root Initialisieren werden alle aktuellen Versionen von enum typen festgestellt\par
+- F\'fcr diese Typen werden alle existierenden Instanzen (= alle enums) geladen.\par
+- alle in der Root Instanz vorhandenen enums werden durchlaufen und mit den aktuellen versionen ihrer Typen abgeglichen und ggf. aktualisiert.\par
+- alle nicht gematchten enum Instanzen werden in die Root Instanz f\'fcr ihren Typ via Object[] eingetragen.\par
+\par
+Allerdings hat das ein Problem: Zur Laufzeit neu abgespeicherte enum instanzen sind nicht root-gesichert. D.h. der GC k\'f6nnte die wegl\'f6schen.\par
+Wobei eigentlich irgendwie die Frage ist: Ist es denn \'fcberhaupt relevant, eine enum zu verlieren, die niemand referenziert? Beim n\'e4chsten root initialisieren kann sie ja dann wieder angelegt und abgespeichert werden.\par
+\par
+Hm, ja, doch, kann einen Unterschied machen:\par
+- Enum referenziert einen subgraph\par
+- andere Instanz referenziert den subgraph auch\par
+- aber niemand referenziert die enum (mehr)\par
+- enum wird gel\'f6scht, subgraph aber nicht.\par
+- neustart: root synch speichert die enum wieder ab und zwar mit einer neuen, redundanten version des referenzierten Subgraphs.\par
+- Nun gibt es den subgraph zweimal mit unterschiedlichen Ident\'e4titen anstatt konsistent nur einmal.\par
+\par
+Also dann muss der TypeHandler Creator gleich sauber sofort den root Eintrag machen. Alles andere wird irgendwann mal Probleme machen...\par
+\par
+So umsetzen.\par
+\par
+Besser gesagt der TypeHandlerManager.\par
+Dabei gleich mal #internalEnsureTypeHandler aufr\'e4umen.\par
+\par
+Jetzt Referenz zum RootResolver reinbauen.\par
+\par
+Oh Mann, Moment mal:\par
+Wenn der TypeHandlerManager die Roots Instanz updaten muss, dann muss der ja eine Referenz zu einem Storer haben.\par
+Das passt mir irgendwie gar nicht, dass ein interner Typsystem-Teil auf einmal eine aktiv persistierende Logik werden soll.\par
+\par
+Eine andere M\'f6glichkeit w\'e4re, dass der Storer das selber macht, inklusive Pr\'fcfung auf Enum Type.\par
+Oder, dass er sich erst mal nur den TypeHandler holt und wenn der null ist, dann ensuret er ihn bim typehandler, mit sich selber als storing callback.\par
+Aber dann h\'e4ngt halt in der ganzen API ein storing callback drin.\par
+Und was ist, wenn der Commit dann nicht gemacht wird? Also d\'fcrfte der Storer sich nicht selbst mitliefern, sondern es m\'fcsste ein extra Storer sein, der dann auch garantiert committet wird.\par
+Aber hoffentlich macht das dann mal nicht irgendwelche Reihenfolge Probleme, dass Transaction n+1 vor Transaction n committet wird ... Momentan nicht, aber wer wei\'df.\par
+\par
+Und: Was ist, wenn ein neuer Typ nicht direkt von einem Storer aus analysiert wird, sondern von einem anderen kontext?\par
+Naja gut, man k\'f6nnte im Fall einer enum bei einem \'fcbergebenen null-callback dann eine exception werfen, also den storing callback erzwingen.\par
+Andererseits: Typsystem Zeug wird schon schon auch mal aufgerufen, wenn es noch gar keine laufende Storage gibt. Was dann?\par
+\par
+Folgendes w\'e4re vielleicht eine gute L\'f6sung:\par
+Der TypeHandlerManager hat eine Liste an "pendingInstanceSynchEnums".\par
+Die ist normal immer leer, aber wenn ein TypeHandler f\'fcr eine neue Enum dazukommt, kommt der da rein.\par
+An verschiedenen Stellen in der Library wird gecheckt, ob die leer ist und wenn nicht, dann werden die n\'f6tigen enum Instanzen als neue Root f\'fcr die enum abgespeichert:\par
+- Beim anf\'e4nglichen roots synchen (um vorab registrierte TypeHandler abzudecken)\par
+- Bei jedem Commit eines storers (um im laufenden Betrieb registrierter TypeHandler abzudecken..\par
+\par
+Wird ein Commit nicht gemacht, checkt einfach der n\'e4chste Commit.\par
+Wird die ganze Storage vor dem n\'e4chsten Commit beendet, macht die n\'e4chste Initialisierung den Check.\par
+\par
+Das sollte so wasserdicht sein.\par
+Knifflig. Nochmal durchdenken ...\par
+\par
+Das m\'fcsste dann aber zweistufig sein:\par
+Roots Instanz updaten und Roots instanz speichern.\par
+Oder wird die Roots Instanz gleich beim Handler erzeugen geupdatet? Aber was ist, wenn es zu dem Zeitpunkt (vor dem Start) noch keine Roots instanz gibt? Darum evtl. doch zweistufig...\par
+Evtl. d\'fcrfte der TypeHandler die roots dann nicht "hart" on-demand providen lassen, sondern eher peeken: sobald es eine roots instanz gibt, enum konstanten darin updaten, aber nicht von selber ...\par
+\par
+Dann w\'e4r die Reihenfolge:\par
+- Bei Enum Handler Erzeugung pending enum registrieren\par
+- Bei Commit auf pending enums checken, falls ja dann roots peeken, falls vorhanden, roots erweitern und als pending roots registrieren und pending enums clearen\par
+- Bei Commit auf pending roots pr\'fcfen (storer \'fcbergeben)\par
+- Nach Commit pending roots clearen\par
+\par
+Das sichert auch ab, dass der commit zwar die pending roots veranlasst hat, dieser aber aufgrund eines problems nicht gespeichert hat.\par
+Hm. Wobei das Problem daran ist: dann w\'fcrde ein neu eingetragenes Object[] nicht mehr als neu erkannt werden. D.h. der pending Eintrag muss jedes neu dazugekommene bzw. ver\'e4ndert enum-konstanten-Object[] mit registrieren und dem storer explizit setzen.\par
 }
  

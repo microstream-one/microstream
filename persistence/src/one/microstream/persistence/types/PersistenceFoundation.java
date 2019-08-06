@@ -1731,14 +1731,16 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		protected PersistenceTypeHandlerManager<M> ensureTypeHandlerManager()
 		{
+			
 			final PersistenceTypeHandlerManager<M> newTypeHandlerManager =
 				PersistenceTypeHandlerManager.New(
-					this.getTypeHandlerRegistry()        , // holds actually used (potentially generically created) handlers
-					this.getTypeHandlerProvider()        , // knows/contains the Custom~Registry w. default handlers/definitions
-					this.getTypeDictionaryManager()      , // only manages loading, storing and registering
-					this.getTypeMismatchValidator()      ,
-					this.getLegacyTypeMapper()           ,
-					this.getUnreachableTypeHandlerCreator()
+					this.getTypeHandlerRegistry()          , // holds actually used (potentially generically created) handlers
+					this.getTypeHandlerProvider()          , // knows/contains the Custom~Registry w. default handlers/definitions
+					this.getTypeDictionaryManager()        , // only manages loading, storing and registering
+					this.getTypeMismatchValidator()        ,
+					this.getLegacyTypeMapper()             ,
+					this.getUnreachableTypeHandlerCreator(),
+					this.getRootsProvider()                  // only required for updating enum constant roots
 				)
 			;
 			return newTypeHandlerManager;

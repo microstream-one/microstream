@@ -64,25 +64,33 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			this.validateTypeHandler(typeHandler);
 		}
 	}
+	
+	public void checkForPendingRootInstances();
+	
+	public void checkForPendingRootsStoring(PersistenceStoring storingCallback);
+	
+	public void clearStorePendingRoots();
 
 
 
 	public static <M> PersistenceTypeHandlerManager.Default<M> New(
-		final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry  ,
-		final PersistenceTypeHandlerProvider<M>           typeHandlerProvider  ,
-		final PersistenceTypeDictionaryManager            typeDictionaryManager,
-		final PersistenceTypeMismatchValidator<M>         typeMismatchValidator,
-		final PersistenceLegacyTypeMapper<M>              legacyTypeMapper     ,
-		final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
+		final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry          ,
+		final PersistenceTypeHandlerProvider<M>           typeHandlerProvider          ,
+		final PersistenceTypeDictionaryManager            typeDictionaryManager        ,
+		final PersistenceTypeMismatchValidator<M>         typeMismatchValidator        ,
+		final PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ,
+		final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator,
+		final PersistenceRootsProvider<M>                 rootsProvider
 	)
 	{
 		return new PersistenceTypeHandlerManager.Default<>(
-			notNull(typeHandlerRegistry)  ,
-			notNull(typeHandlerProvider)  ,
-			notNull(typeDictionaryManager),
-			notNull(typeMismatchValidator),
-			notNull(legacyTypeMapper)     ,
-			notNull(unreachableTypeHandlerCreator)
+			notNull(typeHandlerRegistry)          ,
+			notNull(typeHandlerProvider)          ,
+			notNull(typeDictionaryManager)        ,
+			notNull(typeMismatchValidator)        ,
+			notNull(legacyTypeMapper)             ,
+			notNull(unreachableTypeHandlerCreator),
+			notNull(rootsProvider)
 		);
 	}
 
@@ -98,6 +106,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		private final PersistenceTypeMismatchValidator<M>         typeMismatchValidator        ;
 		private final PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ;
 		private final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
+		private final PersistenceRootsProvider<M>                 rootsProvider                ;
 		
 		private boolean initialized;
 
@@ -108,21 +117,23 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		/////////////////
 
 		Default(
-			final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry  ,
-			final PersistenceTypeHandlerProvider<M>           typeHandlerProvider  ,
-			final PersistenceTypeDictionaryManager            typeDictionaryManager,
-			final PersistenceTypeMismatchValidator<M>         typeMismatchValidator,
-			final PersistenceLegacyTypeMapper<M>              legacyTypeMapper     ,
-			final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
+			final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry          ,
+			final PersistenceTypeHandlerProvider<M>           typeHandlerProvider          ,
+			final PersistenceTypeDictionaryManager            typeDictionaryManager        ,
+			final PersistenceTypeMismatchValidator<M>         typeMismatchValidator        ,
+			final PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ,
+			final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator,
+			final PersistenceRootsProvider<M>                 rootsProvider
 		)
 		{
 			super();
-			this.typeHandlerRegistry           = typeHandlerRegistry  ;
-			this.typeHandlerProvider           = typeHandlerProvider  ;
-			this.typeDictionaryManager         = typeDictionaryManager;
-			this.typeMismatchValidator         = typeMismatchValidator;
-			this.legacyTypeMapper              = legacyTypeMapper     ;
+			this.typeHandlerRegistry           = typeHandlerRegistry          ;
+			this.typeHandlerProvider           = typeHandlerProvider          ;
+			this.typeDictionaryManager         = typeDictionaryManager        ;
+			this.typeMismatchValidator         = typeMismatchValidator        ;
+			this.legacyTypeMapper              = legacyTypeMapper             ;
 			this.unreachableTypeHandlerCreator = unreachableTypeHandlerCreator;
+			this.rootsProvider                 = rootsProvider                ;
 		}
 
 
@@ -130,19 +141,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		private <T> PersistenceTypeHandler<M, T> synchEnsureTypeHandler(final Class<T> type)
-		{
-			PersistenceTypeHandler<M, T> handler;
-			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
-			{
-				handler = this.typeHandlerProvider.provideTypeHandler(type);
-				this.internalRegisterTypeHandler(handler);
-			}
-			
-			return handler;
-		}
-		
+				
 		/*
 		 * Logic moved from calling it externally in the TypeHandlerProvider to be called internally, where it belongs.
 		 */
@@ -199,26 +198,33 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 
 		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandler(final Class<T> type)
 		{
+			/*
+			 * Note on super classes and the hiararchy of implemented interface:
+			 * Since every class is handled isolated from its super class, it is not necessary to
+			 * recursively analyze all super classes, here. It might even be wrong, since a super class
+			 * can actually be unpersistable and would throw an exception during analyzing, but an unjustified one
+			 * if instances of that super classes would never be persisted by the application.
+			 * In short: only concrete classes of to be persisted instances are relevant, not super classes.
+			 * Interfaces are only analyzed (as stateless and unpersistably abstract types) if encountered directly,
+			 * e.g. as a field type. Regarding implemented interfaces, the same rationale applies as with super classes.
+			 */
+			
 			synchronized(this.typeHandlerRegistry)
 			{
-				/* (22.07.2019 TM)NOTE:
-				 * With unpersistable types getting an empty dummy type handler ... and actually even since the
-				 * very beginning, it is actually superfluous to recursively analyze super classes, as
-				 * every class is handled isolated from validity of its super classes.
-				 */
-//				if(type.getSuperclass() != null)
-//				{
-//					this.internalEnsureTypeHandler(type.getSuperclass());
-//				}
-				/* Note about interfaces:
-				 * (Regarding a class' directly implemented interfaces as well as all super interfaces
-				 * of an interface type)
-				 * As long as an interface doesn't get passed here explicitly (e.g. as a field's type),
-				 * it is ignored intentionally because it can be assumed that it is of no concern for
-				 * persistence (i.e. a consistent persistent type hierarchy).
-				 * If this will be proved to be wrong, ensuring type's interfaces can be inserted here.
-				 */
-				return this.synchEnsureTypeHandler(type);
+				// tricky: must ensure a handler for the declared enum class for enum sub classes.
+				if(XReflect.isEnum(type) && !XReflect.isDeclaredEnum(type))
+				{
+					this.ensureTypeHandler(XReflect.getDeclaredEnumClass(type));
+				}
+				
+				PersistenceTypeHandler<M, T> handler;
+				if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
+				{
+					handler = this.typeHandlerProvider.provideTypeHandler(type);
+					this.internalRegisterTypeHandler(handler);
+				}
+				
+				return handler;
 			}
 		}
 		
@@ -491,9 +497,72 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			{
 				// a (up to date) handler is always the runtime type definition
 				this.typeDictionaryManager.registerRuntimeTypeDefinition(typeHandler);
+				this.registerEnumContantRoots(typeHandler);
 				return true;
 			}
 			return false;
+		}
+		
+
+		
+		@Override
+		public void checkForPendingRootInstances()
+		{
+			// (06.08.2019 TM)FIXME: priv#23 root registering
+		}
+		
+		@Override
+		public void checkForPendingRootsStoring(final PersistenceStoring storingCallback)
+		{
+			// (06.08.2019 TM)FIXME: priv#23 root registering
+		}
+		
+		@Override
+		public void clearStorePendingRoots()
+		{
+			// pendingEnumConstantRootStoringHandlers is stored by synching logic
+			this.pendingStoreRoot = null;
+		}
+		
+		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers = HashTable.New();
+		
+		private transient PersistenceRoots pendingStoreRoot;
+				
+		private void registerEnumContantRoots(final PersistenceTypeHandler<M, ?> typeHandler)
+		{
+			/*
+			 * #internalEnsureTypeHandler ensures that every enum sub class causes
+			 * a handler to be ensured for the actual declared enum class.
+			 */
+			if(!XReflect.isDeclaredEnum(typeHandler.type()))
+			{
+				// nothing to do for non-enums.
+				return;
+			}
+			
+			synchronized(this.typeHandlerRegistry)
+			{
+				this.synchRegisterPendingEnumConstantStoring(typeHandler);
+			}
+			
+		}
+		
+		private void synchRegisterPendingEnumConstantStoring(final PersistenceTypeHandler<M, ?> typeHandler)
+		{
+			// might fail if meanwhile already added. Should not happen, but who knows ...
+			this.pendingEnumConstantRootStoringHandlers.add(typeHandler.type(), typeHandler);
+			
+			final PersistenceRoots existingRoots = this.rootsProvider.peekRoots();
+			if(existingRoots == null)
+			{
+				return;
+			}
+			
+			/* (06.08.2019 TM)FIXME: priv#23 root registering
+			 * - check if (meanwhile) already contained
+			 * - if not, register
+			 * - set as pendingStoreRoot
+			 */
 		}
 		
 		@Override

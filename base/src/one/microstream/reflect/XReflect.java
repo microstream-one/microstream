@@ -213,7 +213,7 @@ public final class XReflect
 		return c != null && isDeclaredEnum(c.getSuperclass());
 	}
 	
-	public static Class<?> getDeclaredEnum(final Class<?> c)
+	public static Class<?> getDeclaredEnumClass(final Class<?> c)
 	{
 		return !isEnum(c)
 			? null
