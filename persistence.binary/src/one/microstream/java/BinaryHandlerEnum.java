@@ -16,7 +16,7 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerReflecti
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
@@ -228,7 +228,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	}
 	
 	@Override
-	public final T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		// (23.07.2019 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(
@@ -251,12 +251,12 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	}
 	
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
 		this.validateOrdinal(bytes, instance);
 		
 		// super class logic already uses only setting members, i.e. not ordinal and name.
-		super.update(bytes, instance, handler);
+		super.update(bytes, instance, idResolver);
 	}
 
 }

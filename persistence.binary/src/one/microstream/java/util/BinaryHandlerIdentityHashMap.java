@@ -8,8 +8,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -83,7 +83,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	}
 	
 	@Override
-	public final IdentityHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final IdentityHashMap<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new IdentityHashMap<>(
 			getElementCount(bytes)
@@ -94,7 +94,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	public final void update(
 		final Binary                 bytes   ,
 		final IdentityHashMap<?, ?>  instance,
-		final PersistenceLoadHandler handler
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		instance.clear();
@@ -106,7 +106,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 		bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
 			getElementCount(bytes),
-			handler,
+			idResolver,
 			(k, v) ->
 			{
 				if(castedInstance.putIfAbsent(k, v) != null)

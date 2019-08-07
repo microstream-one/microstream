@@ -6,7 +6,7 @@ import java.util.Collection;
 
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.reflect.XReflect;
 
 
@@ -66,7 +66,7 @@ public class BinaryHandlerGenericCollection<T extends Collection<?>> extends Abs
 	////////////
 
 	@Override
-	public T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return this.instantiator.instantiateCollection(
 			getElementCount(bytes)

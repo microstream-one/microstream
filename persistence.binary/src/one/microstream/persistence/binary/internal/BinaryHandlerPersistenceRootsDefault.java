@@ -8,7 +8,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceRootEntry;
@@ -160,7 +160,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	}
 
 	@Override
-	public final PersistenceRoots.Default create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final PersistenceRoots.Default create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return PersistenceRoots.Default.New(this.resolver);
 	}
@@ -169,7 +169,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	public final void update(
 		final Binary                   bytes   ,
 		final PersistenceRoots.Default instance,
-		final PersistenceLoadHandler   handler
+		final PersistenceObjectIdResolver   handler
 	)
 	{
 		/*

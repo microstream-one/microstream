@@ -1,6 +1,6 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceObjectLookup extends PersistenceObjectIdLookup, PersistenceObjectIdResolver
+public interface PersistenceObjectLookup
 {
-	// only typing interface so far.
+	public Object lookupObject(long objectId);
 }

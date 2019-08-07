@@ -2,6 +2,7 @@ package one.microstream.persistence.binary.types;
 
 import one.microstream.X;
 import one.microstream.memory.XMemory;
+import one.microstream.persistence.lazy.Lazy;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.typing.TypeMapping;
@@ -231,6 +232,30 @@ public final class BinaryValueTranslators
 		 * With primitive wrapper arrays, near 1300.
 		 * Hm...
 		 */
+		
+		/* (07.08.2019 TM)NOTE: priv#126:
+		 * This makes no sense to do, here.
+		 * Not only is removeLazyReference currently not implementable, but even if it will be in the future,
+		 * the mapping would only cover the target / source types of EXACTLY Object. E.g. not String, Person, etc.
+		 * The two translators can be registered explicitely for a given type (albeit the removing does not work),
+		 * but there can be no generic logic doing the mapping.
+		 * A generic logic could do a fallback lookup:
+		 * If no specific "Lazy <-> T" can be found, look again for a "Lazy <-> Object" mapping.
+		 * However, that would introduce ambiguties and unsafe assumptions:
+		 * It would, for example, assume, that a Lazy<String> field was changed to a String field, so that the
+		 * instance referenced by the lazy reference can be directly mapped.
+		 * If, however, the field is changed from Lazy<String> to char[], the setter sets a wrongly typed instance
+		 * to the field's heap address.
+		 * Hm... althouth this applies to an explicit "Lazy <-> T" mapping as well, since the Lazy type does not have
+		 * its generic type checked.
+		 * In any case: mapping from or to Lazy references must be done at the user's explicit responsibility,
+		 * not mapped implicitely.
+		 * 
+		 */
+//		mapping
+//		.register(Lazy  .class, Object.class, BinaryValueTranslators::removeLazyReference  ) // not implementable!
+//		.register(Object.class, Lazy  .class, BinaryValueTranslators::wrapWithLazyReference)
+//		;
 	}
 	
 	private static int to_int(final boolean value)
@@ -1214,6 +1239,47 @@ public final class BinaryValueTranslators
 	)
 	{
 		XMemory.set_double(target, targetOffset, X.unbox((Double)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		return sourceAddress + Binary.objectIdByteLength();
+	}
+	
+	public static long removeLazyReference(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		/* (07.08.2019 TM)FIXME: priv#126: remove lazy Reference
+		 * This is not trivial.
+		 * The entity record and thus the corresponding instance referenced by the Lazy's objectId is potentially
+		 * not loaded, yet. It can't be loaded here, since these methods are used during an ongoing loading process.
+		 * The lazy reference to be replaced would have to be loaded (get its #get called) in advance during
+		 * the iteration of an entity's loadable references to ensure the instance's existing at this point in the
+		 * loading process. In short, the Lazy character would have to be "ignored" / switched to eager specifically
+		 * for this use case.
+		 * Such a mechanism does not exist, yet and is not easy to implement.
+		 */
+//		final Lazy<?> lazyReference = (Lazy<?>)idResolver.lookupObject(XMemory.get_long(sourceAddress));
+//		final Object potentiallyNotThereYet = idResolver.lookupObject(lazyReference.objectId());
+//		final Object notCallableAtThisPoint = Lazy.get(lazyReference);
+//		XMemory.setObject(target, targetOffset, ???);
+		
+//		return sourceAddress + Binary.objectIdByteLength();
+		
+		throw new UnsupportedOperationException("Architecture does not support a new loading during loading.");
+	}
+	
+	public static long wrapWithLazyReference(
+		final long                        sourceAddress,
+		final Object                      target       ,
+		final long                        targetOffset ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		final long objectId = XMemory.get_long(sourceAddress);
+		final Lazy<?> wrappingLazyReference = Lazy.New(objectId, idResolver.getObjectRetriever());
+		XMemory.setObject(target, targetOffset, wrappingLazyReference);
+		
 		return sourceAddress + Binary.objectIdByteLength();
 	}
 	

@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -99,7 +99,7 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	
 
 	@Override
-	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new Hashtable<>(
 			getElementCount(bytes),
@@ -108,17 +108,17 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		instance.clear();
 		final int elementCount = getElementCount(bytes);
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
+		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, idResolver, collector);
 		bytes.registerHelper(instance, collector.yield());
 	}
 
 	@Override
-	public void complete(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}

@@ -8,7 +8,7 @@ import one.microstream.collections.Constant;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistence;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberPrimitiveDefinition;
@@ -97,13 +97,13 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 
 	@Override
-	public T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
 		throw new UnsupportedOperationException();
 	}

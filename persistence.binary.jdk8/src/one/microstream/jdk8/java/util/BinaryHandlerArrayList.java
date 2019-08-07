@@ -9,8 +9,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIt
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -83,7 +83,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 	}
 
 	@Override
-	public final ArrayList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final ArrayList<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		final int arrayLength = this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY);
 		
@@ -103,7 +103,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		// instance must be cleared in case an existing one is updated
 		instance.clear();
@@ -124,7 +124,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
 			XMemoryJDK8.accessArray(instance),
-			handler
+			idResolver
 		);
 		XMemoryJDK8.setSize(instance, size);
 	}

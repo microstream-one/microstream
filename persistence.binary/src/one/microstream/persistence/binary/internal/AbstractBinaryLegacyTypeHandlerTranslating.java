@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.types.BinaryValueSetter;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
@@ -161,18 +161,18 @@ extends PersistenceLegacyTypeHandler.Abstract<Binary, T>
 	// end of persisted-form-related methods //
 	
 	@Override
-	public final T create(final Binary rawData, final PersistenceLoadHandler handler)
+	public final T create(final Binary rawData, final PersistenceObjectIdResolver idResolver)
 	{
 		// the method splitting might help jitting out the not occuring case.
 		return this.listener == null
-			? this.internalCreate(rawData, handler)
-			: this.internalCreateListening(rawData, handler)
+			? this.internalCreate(rawData, idResolver)
+			: this.internalCreateListening(rawData, idResolver)
 		;
 	}
 	
-	private final T internalCreateListening(final Binary rawData, final PersistenceLoadHandler handler)
+	private final T internalCreateListening(final Binary rawData, final PersistenceObjectIdResolver idResolver)
 	{
-		final T instance = this.internalCreate(rawData, handler);
+		final T instance = this.internalCreate(rawData, idResolver);
 		this.listener.registerLegacyTypeHandlingCreation(
 			rawData.getBuildItemObjectId(),
 			instance,
@@ -183,6 +183,6 @@ extends PersistenceLegacyTypeHandler.Abstract<Binary, T>
 		return instance;
 	}
 	
-	protected abstract T internalCreate(Binary rawData, PersistenceLoadHandler handler);
+	protected abstract T internalCreate(Binary rawData, PersistenceObjectIdResolver idResolver);
 	
 }

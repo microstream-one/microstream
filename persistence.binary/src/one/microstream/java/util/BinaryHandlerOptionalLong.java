@@ -5,7 +5,7 @@ import java.util.OptionalLong;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustomValueFixedLength<OptionalLong>
@@ -79,7 +79,7 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 	}
 
 	@Override
-	public OptionalLong create(final Binary bytes, final PersistenceLoadHandler handler)
+	public OptionalLong create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		final boolean isPresent = bytes.get_boolean(BINARY_OFFSET_IS_PRESENT);
 		

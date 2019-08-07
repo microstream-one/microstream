@@ -9,8 +9,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -131,7 +131,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 	}
 
 	@Override
-	public final EqHashTable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final EqHashTable<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return EqHashTable.NewCustom(
 			getBuildItemElementCount(bytes),
@@ -140,7 +140,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqHashTable<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final EqHashTable<?, ?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		// must clear to ensure consistency
 		instance.clear();
@@ -153,29 +153,29 @@ extends AbstractBinaryHandlerCustomCollection<EqHashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQUALATOR),
-			handler.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
+			idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			handler.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
+			idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			handler.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
+			idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
 		);
 		instance.size = bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
-			handler,
+			idResolver,
 			collectingInstance::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqHashTable<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void complete(final Binary medium, final EqHashTable<?, ?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		// rehash all previously unhashed collected elements
 		instance.rehash();

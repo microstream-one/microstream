@@ -5,8 +5,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -80,19 +80,19 @@ extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 	}
 
 	@Override
-	public final ConstList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final ConstList<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return ConstList.New(X.checkArrayRange(bytes.getListElementCountReferences(0)));
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ConstList<?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final ConstList<?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		final Object[] arrayInstance = instance.data;
 
 		// Length must be checked for consistency reasons. No clear required.
 		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_LIST);
-		bytes.collectElementsIntoArray(BINARY_OFFSET_LIST, handler, arrayInstance);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_LIST, idResolver, arrayInstance);
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import one.microstream.util.Cloneable;
  *
  * @author Thomas Muenz
  */
-public interface PersistenceObjectRegistry extends PersistenceObjectLookup, Cloneable<PersistenceObjectRegistry>
+public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, Cloneable<PersistenceObjectRegistry>
 {
 	/* funny find:
 	 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4990451

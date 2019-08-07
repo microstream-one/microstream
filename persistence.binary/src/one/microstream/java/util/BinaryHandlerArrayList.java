@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.ArrayList;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 
 
 public final class BinaryHandlerArrayList extends AbstractBinaryHandlerList<ArrayList<?>>
@@ -41,7 +41,7 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerList<Arra
 	////////////
 
 	@Override
-	public final ArrayList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final ArrayList<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		final long elementCount = getElementCount(bytes);
 		

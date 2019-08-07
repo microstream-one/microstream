@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.Properties;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 
 
 /**
@@ -44,7 +44,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerMap<Prop
 	////////////
 
 	@Override
-	public final Properties create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Properties create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new Properties();
 	}

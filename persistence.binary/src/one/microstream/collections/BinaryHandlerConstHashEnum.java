@@ -5,8 +5,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -99,7 +99,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 	}
 
 	@Override
-	public final ConstHashEnum<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final ConstHashEnum<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return ConstHashEnum.NewCustom(
 			getBuildItemElementCount(bytes),
@@ -108,7 +108,11 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ConstHashEnum<?> instance, final PersistenceLoadHandler handler)
+	public final void update(
+		final Binary                      bytes     ,
+		final ConstHashEnum<?>            instance  ,
+		final PersistenceObjectIdResolver idResolver
+	)
 	{
 		// validate to the best of possibilities (or should an immutable instance be updatedable from outside?)
 		if(instance.size != 0)
@@ -121,7 +125,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 
 		instance.size = bytes.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
-			handler               ,
+			idResolver               ,
 			casted::internalAdd
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)

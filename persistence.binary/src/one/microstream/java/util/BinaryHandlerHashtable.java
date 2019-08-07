@@ -4,7 +4,7 @@ import java.util.Hashtable;
 
 import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 
 
 public final class BinaryHandlerHashtable extends AbstractBinaryHandlerMap<Hashtable<?, ?>>
@@ -44,7 +44,7 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerMap<Hasht
 	////////////
 
 	@Override
-	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new Hashtable<>(
 			X.checkArrayRange(getElementCount(bytes))

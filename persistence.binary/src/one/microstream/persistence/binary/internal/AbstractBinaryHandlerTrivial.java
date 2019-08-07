@@ -7,7 +7,7 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryTypeHandler;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 
@@ -34,13 +34,13 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	////////////
 
 	@Override
-	public void update(final Binary medium, final T instance, final PersistenceLoadHandler handler)
+	public void update(final Binary medium, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
 		// no-op, no state to update
 	}
 	
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler handler)
+	public final void complete(final Binary medium, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
 		/* any "trival" implementation cannot have the need for a completion step
 		 * (see non-reference-hashing collections for other examples)

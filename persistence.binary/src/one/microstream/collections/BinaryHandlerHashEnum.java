@@ -4,8 +4,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -100,7 +100,7 @@ extends AbstractBinaryHandlerCustomCollection<HashEnum<?>>
 	}
 
 	@Override
-	public final HashEnum<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final HashEnum<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return HashEnum.NewCustom(
 			getBuildItemElementCount(bytes),
@@ -109,7 +109,11 @@ extends AbstractBinaryHandlerCustomCollection<HashEnum<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashEnum<?> instance, final PersistenceLoadHandler handler)
+	public final void update(
+		final Binary                      bytes     ,
+		final HashEnum<?>                 instance  ,
+		final PersistenceObjectIdResolver idResolver
+	)
 	{
 		// must clear to ensure consistency
 		instance.clear();
@@ -122,7 +126,7 @@ extends AbstractBinaryHandlerCustomCollection<HashEnum<?>>
 
 		instance.size = bytes.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
-			handler               ,
+			idResolver,
 			collectingInstance::add
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)

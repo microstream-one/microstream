@@ -1,7 +1,7 @@
 package one.microstream.java.lang;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerNativeArray_double extends AbstractBinaryHandlerNativeArrayPrimitive<double[]>
@@ -39,13 +39,13 @@ public final class BinaryHandlerNativeArray_double extends AbstractBinaryHandler
 	}
 
 	@Override
-	public double[] create(final Binary bytes, final PersistenceLoadHandler handler)
+	public double[] create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return bytes.createArray_double();
 	}
 
 	@Override
-	public void update(final Binary bytes, final double[] instance, final PersistenceLoadHandler handler)
+	public void update(final Binary bytes, final double[] instance, final PersistenceObjectIdResolver idResolver)
 	{
 		bytes.updateArray_double(instance);
 	}

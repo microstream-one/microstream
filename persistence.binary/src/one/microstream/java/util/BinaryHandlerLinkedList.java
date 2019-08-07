@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.LinkedList;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 
 
 public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerList<LinkedList<?>>
@@ -41,7 +41,7 @@ public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerList<Lin
 	////////////
 
 	@Override
-	public final LinkedList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final LinkedList<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new LinkedList<>();
 	}

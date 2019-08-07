@@ -12,7 +12,7 @@ import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceInstanceHandler;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceLoader;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
@@ -24,7 +24,7 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerLookup;
 import one.microstream.reference._intReference;
 
-public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoadHandler
+public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObjectIdResolver
 {
 	public interface Creator extends PersistenceLoader.Creator<Binary>
 	{

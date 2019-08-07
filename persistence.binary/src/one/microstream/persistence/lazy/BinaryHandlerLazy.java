@@ -2,8 +2,8 @@ package one.microstream.persistence.lazy;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -91,7 +91,7 @@ public final class BinaryHandlerLazy extends AbstractBinaryHandlerCustom<Lazy<?>
 	}
 
 	@Override
-	public Lazy<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public Lazy<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		/* (27.04.2016 TM)NOTE: registering a Lazy instance with a reference manager
 		 * without having the object supplier set yet might cause an inconsistency if the
@@ -103,17 +103,17 @@ public final class BinaryHandlerLazy extends AbstractBinaryHandlerCustom<Lazy<?>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Lazy<?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final Lazy<?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		/* intentionally no subject lookup here as premature strong referencing
 		 * might defeat the purpose of memory freeing lazy referencing if no
 		 * other strong reference to the subject is present at the moment.
 		 */
-		instance.setLoader(handler.getObjectRetriever());
+		instance.setLoader(idResolver.getObjectRetriever());
 	}
 
 	@Override
-	public final void complete(final Binary medium, final Lazy<?> instance, final PersistenceLoadHandler handler)
+	public final void complete(final Binary medium, final Lazy<?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}

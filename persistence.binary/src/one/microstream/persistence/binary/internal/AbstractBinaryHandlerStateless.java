@@ -2,7 +2,7 @@ package one.microstream.persistence.binary.internal;
 
 import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -35,7 +35,7 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	}
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
 		// no-op
 	}

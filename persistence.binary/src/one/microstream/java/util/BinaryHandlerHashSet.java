@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.HashSet;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 
 
 public final class BinaryHandlerHashSet extends AbstractBinaryHandlerSet<HashSet<?>>
@@ -43,7 +43,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerSet<HashSet
 	////////////
 
 	@Override
-	public final HashSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final HashSet<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new HashSet<>();
 	}
