@@ -6,7 +6,7 @@ import java.util.Set;
 
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.reflect.XReflect;
 
 
@@ -66,7 +66,7 @@ public class BinaryHandlerGenericSet<T extends Set<?>> extends AbstractBinaryHan
 	////////////
 
 	@Override
-	public T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return this.instantiator.instantiateSet(
 			getElementCount(bytes)

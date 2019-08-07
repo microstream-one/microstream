@@ -200,21 +200,21 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		}
 
 		@Override
-		public T create(final M medium, final PersistenceLoadHandler handler)
+		public T create(final M medium, final PersistenceObjectIdResolver idResolver)
 		{
-			return this.typeHandler.create(medium, handler);
+			return this.typeHandler.create(medium, idResolver);
 		}
 
 		@Override
-		public void update(final M medium, final T instance, final PersistenceLoadHandler handler)
+		public void update(final M medium, final T instance, final PersistenceObjectIdResolver idResolver)
 		{
-			this.typeHandler.update(medium, instance, handler);
+			this.typeHandler.update(medium, instance, idResolver);
 		}
 
 		@Override
-		public void complete(final M medium, final T instance, final PersistenceLoadHandler handler)
+		public void complete(final M medium, final T instance, final PersistenceObjectIdResolver idResolver)
 		{
-			this.typeHandler.complete(medium, instance, handler);
+			this.typeHandler.complete(medium, instance, idResolver);
 		}
 		
 		@Override

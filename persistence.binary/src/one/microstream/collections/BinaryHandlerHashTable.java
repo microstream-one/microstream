@@ -8,8 +8,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -119,7 +119,7 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 	}
 
 	@Override
-	public final HashTable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final HashTable<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return HashTable.NewCustom(
 			getBuildItemElementCount(bytes),
@@ -128,7 +128,11 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashTable<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void update(
+		final Binary                      bytes     ,
+		final HashTable<?, ?>             instance  ,
+		final PersistenceObjectIdResolver idResolver
+	)
 	{
 		// must clear to ensure consistency
 		instance.clear();
@@ -140,17 +144,17 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			handler.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
+			idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			handler.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
+			idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
 		);
 		bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
-			handler,
+			idResolver,
 			collectingInstance::internalAdd
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)

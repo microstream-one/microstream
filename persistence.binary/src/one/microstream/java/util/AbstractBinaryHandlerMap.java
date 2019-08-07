@@ -9,8 +9,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -74,23 +74,23 @@ extends AbstractBinaryHandlerCustomCollection<T>
 
 	@Override
 	public void update(
-		final Binary                 bytes   ,
-		final T                      instance,
-		final PersistenceLoadHandler handler
+		final Binary                      bytes     ,
+		final T                           instance  ,
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		instance.clear();
 		final int elementCount = X.checkArrayRange(getElementCount(bytes));
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
+		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, idResolver, collector);
 		bytes.registerHelper(instance, collector.yield());
 	}
 
 	@Override
 	public void complete(
-		final Binary                 bytes   ,
-		final T                      instance,
-		final PersistenceLoadHandler handler
+		final Binary                      bytes     ,
+		final T                           instance  ,
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));

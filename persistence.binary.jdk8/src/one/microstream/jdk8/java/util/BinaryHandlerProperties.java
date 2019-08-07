@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -93,29 +93,33 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	
 
 	@Override
-	public final Properties create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Properties create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new Properties();
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Properties instance, final PersistenceLoadHandler handler)
+	public final void update(
+		final Binary                      bytes     ,
+		final Properties                  instance  ,
+		final PersistenceObjectIdResolver idResolver
+	)
 	{
 		instance.clear();
 		
-		final Object defaults = handler.lookupObject(bytes.get_long(BINARY_OFFSET_DEFAULTS));
+		final Object defaults = idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_DEFAULTS));
 		
 		// the cast is important to ensure the type validity of the resolved defaults instance.
 		XMemoryJDK8.setDefaults(instance, (Properties)defaults);
 		
 		final int elementCount = getElementCount(bytes);
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
+		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, idResolver, collector);
 		bytes.registerHelper(instance, collector.yield());
 	}
 
 	@Override
-	public void complete(final Binary bytes, final Properties instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final Properties instance, final PersistenceObjectIdResolver idResolver)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}

@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -108,7 +108,7 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	}
 
 	@Override
-	public final HashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final HashMap<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new HashMap<>(
 			getElementCount(bytes) / 2,
@@ -117,16 +117,16 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashMap<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final HashMap<?, ?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		instance.clear();
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, idResolver, elementsHelper);
 		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public void complete(final Binary bytes, final HashMap<?, ?> instance, final PersistenceLoadHandler loadHandler)
+	public void complete(final Binary bytes, final HashMap<?, ?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}

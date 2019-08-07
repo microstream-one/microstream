@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 
 
 public final class BinaryHandlerCopyOnWriteArrayList extends AbstractBinaryHandlerList<CopyOnWriteArrayList<?>>
@@ -41,7 +41,7 @@ public final class BinaryHandlerCopyOnWriteArrayList extends AbstractBinaryHandl
 	////////////
 
 	@Override
-	public final CopyOnWriteArrayList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final CopyOnWriteArrayList<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new CopyOnWriteArrayList<>();
 	}

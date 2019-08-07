@@ -20,6 +20,7 @@ import one.microstream.collections.Constant;
 import one.microstream.collections.Empty;
 import one.microstream.collections.EmptyTable;
 import one.microstream.collections.HashEnum;
+import one.microstream.collections.HashTable;
 import one.microstream.collections.LimitList;
 import one.microstream.collections.Singleton;
 import one.microstream.collections.SynchCollection;
@@ -770,6 +771,21 @@ public final class X
 			return ConstHashEnum.New();
 		}
 		return ConstHashEnum.<E>New(elements);
+	}
+
+	public static <K, V> HashTable<K, V> Table(final K key, final V value)
+	{
+		return HashTable.New(KeyValue(key, value));
+	}
+	
+	@SafeVarargs
+	public static <K, V> HashTable<K, V> Table(final KeyValue<? extends K, ? extends V>... elements)
+	{
+		if(elements == null || elements.length == 0)
+		{
+			return HashTable.New();
+		}
+		return HashTable.<K, V>New(elements);
 	}
 
 	public static <T> XReference<T> Reference(final T object)

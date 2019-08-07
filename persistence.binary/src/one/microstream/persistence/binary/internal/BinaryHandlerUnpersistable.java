@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTrivial<T>
@@ -49,13 +49,13 @@ public final class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTr
 	}
 
 	@Override
-	public final T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());
 	}
 
 	@Override
-	public final void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());
 	}

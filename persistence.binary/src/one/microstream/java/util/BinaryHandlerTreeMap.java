@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -43,11 +43,11 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 		
 	@SuppressWarnings("unchecked")
 	private static <E> Comparator<? super E> getComparator(
-		final Binary                 bytes  ,
-		final PersistenceLoadHandler handler
+		final Binary                      bytes     ,
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return (Comparator<? super E>)handler.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
+		return (Comparator<? super E>)idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
 	}
 	
 	public static BinaryHandlerTreeMap New()
@@ -101,15 +101,19 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	}
 	
 	@Override
-	public final TreeMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final TreeMap<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new TreeMap<>(
-			getComparator(bytes, handler)
+			getComparator(bytes, idResolver)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final TreeMap<?, ?> instance, final PersistenceLoadHandler handler)
+	public final void update(
+		final Binary                      bytes     ,
+		final TreeMap<?, ?>               instance  ,
+		final PersistenceObjectIdResolver idResolver
+	)
 	{
 		instance.clear();
 		
@@ -119,12 +123,12 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 		 */
 		final int elementCount = getElementCount(bytes);
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
+		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, idResolver, collector);
 		bytes.registerHelper(instance, collector.yield());
 	}
 
 	@Override
-	public final void complete(final Binary bytes, final TreeMap<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void complete(final Binary bytes, final TreeMap<?, ?> instance, final PersistenceObjectIdResolver builder)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}

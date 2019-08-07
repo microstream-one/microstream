@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.HashMap;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 
 
 public final class BinaryHandlerHashMap extends AbstractBinaryHandlerMap<HashMap<?, ?>>
@@ -41,7 +41,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerMap<HashMap
 	////////////
 
 	@Override
-	public final HashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final HashMap<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new HashMap<>();
 	}

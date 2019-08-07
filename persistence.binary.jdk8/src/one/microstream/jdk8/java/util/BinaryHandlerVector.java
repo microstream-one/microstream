@@ -9,8 +9,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIt
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -89,7 +89,7 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 	}
 
 	@Override
-	public final Vector<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Vector<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		// capacityIncrement can be any int value, even negative. So no validation can be done here.
 		return new Vector<>(
@@ -99,7 +99,7 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Vector<?> instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final Vector<?> instance, final PersistenceObjectIdResolver idResolver)
 	{
 		// instance must be cleared and capacity-ensured in case an existing instance gets updated.
 		instance.clear();
@@ -108,7 +108,7 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY    ,
 			XMemoryJDK8.accessArray(instance),
-			handler
+			idResolver
 		);
 		XMemoryJDK8.setElementCount(instance, size);
 	}

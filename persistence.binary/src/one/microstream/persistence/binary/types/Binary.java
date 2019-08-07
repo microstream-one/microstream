@@ -18,7 +18,6 @@ import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionI
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
@@ -513,10 +512,10 @@ public abstract class Binary implements Chunk
 	}
 	
 	public final void storeRoots(
-		final long                          typeId  ,
-		final long                          objectId,
-		final XGettingTable<String, Object> entries ,
-		final PersistenceStoreHandler       handler
+		final long                          typeId    ,
+		final long                          objectId  ,
+		final XGettingTable<String, Object> entries   ,
+		final PersistenceStoreHandler       idResolver
 	)
 	{
 		// performance is not important here as roots only get stored once per system start and are very few in numbers
@@ -534,7 +533,7 @@ public abstract class Binary implements Chunk
 		final long contentAddress = this.storeEntityHeader(totalContentLength, typeId, objectId);
 
 		// store instances first to allow efficient references-only caching
-		this.internalStoreReferencesAsList(contentAddress, handler, instances, 0, instances.length);
+		this.internalStoreReferencesAsList(contentAddress, idResolver, instances, 0, instances.length);
 
 		// store identifiers as list of inlined [char]s
 		this.storeStringsAsList(
@@ -588,9 +587,9 @@ public abstract class Binary implements Chunk
 	 * @return
 	 */
 	public final int updateSizedArrayObjectReferences(
-		final long                   headerOffset,
-		final Object[]               array       ,
-		final PersistenceLoadHandler handler
+		final long                        headerOffset,
+		final Object[]                    array       ,
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
 		// (29.01.2019 TM)FIXME: priv#70: offset validation
@@ -603,7 +602,7 @@ public abstract class Binary implements Chunk
 		
 		this.updateArrayObjectReferences(
 			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
-			handler,
+			idResolver,
 			array,
 			0,
 			size
@@ -1040,18 +1039,18 @@ public abstract class Binary implements Chunk
 		final long                    typeId      ,
 		final long                    objectId    ,
 		final long                    binaryOffset,
-		final PersistenceStoreHandler handler     ,
+		final PersistenceStoreHandler idResolver  ,
 		final Object[]                array
 	)
 	{
-		return this.storeReferences(typeId, objectId, binaryOffset, handler, array, 0, array.length);
+		return this.storeReferences(typeId, objectId, binaryOffset, idResolver, array, 0, array.length);
 	}
 
 	public final long storeReferences(
 		final long                    typeId      ,
 		final long                    objectId    ,
 		final long                    binaryOffset,
-		final PersistenceStoreHandler handler     ,
+		final PersistenceStoreHandler idResolver  ,
 		final Object[]                array       ,
 		final int                     arrayOffset ,
 		final int                     arrayLength
@@ -1063,7 +1062,7 @@ public abstract class Binary implements Chunk
 			objectId
 		);
 
-		this.internalStoreReferencesAsList(contentAddress + binaryOffset, handler, array, arrayOffset, arrayLength);
+		this.internalStoreReferencesAsList(contentAddress + binaryOffset, idResolver, array, arrayOffset, arrayLength);
 
 		return contentAddress;
 	}
@@ -1253,13 +1252,13 @@ public abstract class Binary implements Chunk
 	}
 	
 	public final void storeFixedSize(
-		final PersistenceStoreHandler  handler      ,
-		final long                     contentLength,
-		final long                     typeId       ,
-		final long                     objectId     ,
-		final Object                   instance     ,
-		final long[]                   memoryOffsets,
-		final BinaryValueStorer[]      storers
+		final PersistenceStoreHandler handler      ,
+		final long                    contentLength,
+		final long                    typeId       ,
+		final long                    objectId     ,
+		final Object                  instance     ,
+		final long[]                  memoryOffsets,
+		final BinaryValueStorer[]     storers
 	)
 	{
 		long address = this.storeEntityHeader(contentLength, typeId, objectId);

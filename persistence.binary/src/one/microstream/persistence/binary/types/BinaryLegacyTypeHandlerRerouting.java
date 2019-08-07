@@ -10,7 +10,7 @@ import one.microstream.collections.types.XGettingTable;
 import one.microstream.memory.PlatformInternals;
 import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
@@ -64,7 +64,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	////////////
 
 	@Override
-	protected T internalCreate(final Binary rawData, final PersistenceLoadHandler handler)
+	protected T internalCreate(final Binary rawData, final PersistenceObjectIdResolver idResolver)
 	{
 		final long entityContentLength = this.typeHandler().membersPersistedLengthMaximum();
 		
@@ -100,23 +100,23 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		rawData.registerHelper(directByteBuffer, directByteBuffer);
 
 		// the current type handler can now create a new instance with correctly rearranged raw values
-		final T instance = this.typeHandler().create(rawData, handler);
+		final T instance = this.typeHandler().create(rawData, idResolver);
 		
 		return instance;
 	}
 
 	@Override
-	public final void update(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary rawData, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
 		// rawData is rerouted to the newly allocated memory (handled by a DirectByteBuffer) with rearranged values.
-		this.typeHandler().update(rawData, instance, handler);
+		this.typeHandler().update(rawData, instance, idResolver);
 	}
 
 	@Override
-	public final void complete(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
+	public final void complete(final Binary rawData, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
 		// rawData is rerouted to the newly allocated memory (handled by a DirectByteBuffer) with rearranged values.
-		this.typeHandler().complete(rawData, instance, handler);
+		this.typeHandler().complete(rawData, instance, idResolver);
 	}
 	
 }

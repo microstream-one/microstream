@@ -1,10 +1,7 @@
 package one.microstream.storage.types;
 
-import static one.microstream.X.notNull;
-
 import java.io.File;
 
-import one.microstream.files.XFiles;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
@@ -170,7 +167,7 @@ public final class EmbeddedStorage
 		final File directory
 	)
 	{
-		XFiles.ensureDirectory(notNull(directory));
+		// no directory ensuring required since the file provider does that internally
 
 		return Foundation(
 			Storage.Configuration(
@@ -190,7 +187,6 @@ public final class EmbeddedStorage
 	 * @see #Foundation()
 	 * @see #Foundation(File)
 	 * @see #Foundation(StorageConfiguration.Builder)
-	 * @see #Foundation(File, StorageConfiguration.Builder)
 	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageFoundation<?> Foundation(
@@ -211,44 +207,12 @@ public final class EmbeddedStorage
 			ConnectionFoundation(tdih)
 		);
 	}
-	
+		
 	/**
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
 	 * using the passed {@link StorageConfiguration.Builder} to build its {@link StorageConfiguration}.
 	 * <p>
-	 * The {@link #defaultStorageDirectory()} will be set as the builder's storage directory, after which
-	 * a {@link StorageConfiguration} will be created from it.
-	 * 
-	 * @param configuration {@linkDoc EmbeddedStorage#Foundation(File, StorageConfiguration.Builder):}
-	 * 
-	 * @return {@linkDoc EmbeddedStorage#Foundation(File, StorageConfiguration.Builder)@return}
-	 * 
-	 * @see #Foundation()
-	 * @see #Foundation(File)
-	 * @see #Foundation(StorageConfiguration.Builder)
-	 * @see #Foundation(File, StorageConfiguration.Builder)
-	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
-	 */
-	public static final EmbeddedStorageFoundation<?> Foundation(
-		final StorageConfiguration.Builder<?> configuration
-	)
-	{
-		return Foundation(
-			EmbeddedStorage.defaultStorageDirectory(),
-			configuration
-		);
-	}
-	
-	/**
-	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
-	 * using the passed {@literal directory} and {@link StorageConfiguration.Builder} to build its
-	 * {@link StorageConfiguration}.
-	 * <p>
-	 * A new {@link StorageFileProvider} is created from the passed {@literal directory} and default values,
-	 * then set to the passed {@link StorageConfiguration.Builder}, which then provides a {@link StorageConfiguration}
-	 * to be passed to {@link #Foundation(StorageConfiguration)}.
-	 * 
-	 * @param directory     the directory where the storage will be located.
+	 * This is merely a convenience alias for {@code Foundation(configuration.createConfiguration());}
 	 * 
 	 * @param configuration the {@link StorageConfiguration.Builder} to be used.
 	 * 
@@ -257,21 +221,14 @@ public final class EmbeddedStorage
 	 * @see #Foundation()
 	 * @see #Foundation(File)
 	 * @see #Foundation(StorageConfiguration)
-	 * @see #Foundation(StorageConfiguration.Builder)
 	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageFoundation<?> Foundation(
-		final File                            directory    ,
 		final StorageConfiguration.Builder<?> configuration
 	)
 	{
-		XFiles.ensureDirectory(directory);
-		final StorageFileProvider fileProvider = Storage.FileProvider(directory);
-
 		return Foundation(
-			configuration
-			.setStorageFileProvider(fileProvider)
-			.createConfiguration()
+			configuration.createConfiguration()
 		);
 	}
 		
@@ -290,7 +247,6 @@ public final class EmbeddedStorage
 	 * @see #Foundation(File)
 	 * @see #Foundation(StorageConfiguration)
 	 * @see #Foundation(StorageConfiguration.Builder)
-	 * @see #Foundation(File, StorageConfiguration.Builder)
 	 */
 	public static final EmbeddedStorageFoundation<?> Foundation(
 		final StorageConfiguration                   configuration       ,
@@ -392,34 +348,7 @@ public final class EmbeddedStorage
 	{
 		return start(null, configuration);
 	}
-	
-	/**
-	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
-	 * the passed {@literal directory} and {@link StorageConfiguration.Builder} to build its
-	 * {@link StorageConfiguration}.
-	 * <p>
-	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
-	 * 
-	 * @param directory     the directory where the storage will be located.
-	 * 
-	 * @param configuration the {@link StorageConfiguration.Builder} to be used.
-	 * 
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
-	 * 
-	 * @see #start()
-	 * @see #start(File)
-	 * @see #start(StorageConfiguration)
-	 * @see #start(StorageConfiguration.Builder)
-	 * @see #start(StorageConfiguration, EmbeddedStorageConnectionFoundation)
-	 */
-	public static final EmbeddedStorageManager start(
-		final File                            directory    ,
-		final StorageConfiguration.Builder<?> configuration
-	)
-	{
-		return start(null, directory, configuration);
-	}
-	
+		
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
 	 * the passed {@link StorageConfiguration} and {@link EmbeddedStorageConnectionFoundation}.
@@ -565,41 +494,7 @@ public final class EmbeddedStorage
 			root
 		);
 	}
-		
-	/**
-	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
-	 * the passed {@literal root} as the persistent entity graph's root instance and
-	 * the passed {@literal directory} and {@link StorageConfiguration.Builder} to build its
-	 * {@link StorageConfiguration}.
-	 * <p>
-	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
-	 * 
-	 * @param root          {@linkDoc EmbeddedStorage#start(Object):}
-	 * 
-	 * @param directory     {@linkDoc EmbeddedStorage#start(File):}
-	 * 
-	 * @param configuration {@linkDoc EmbeddedStorage#start(StorageConfiguration.Builder):}
-	 * 
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
-	 * 
-	 * @see #start(Object)
-	 * @see #start(Object, File)
-	 * @see #start(Object, StorageConfiguration)
-	 * @see #start(Object, StorageConfiguration.Builder)
-	 * @see #start(Object, StorageConfiguration, EmbeddedStorageConnectionFoundation)
-	 */
-	public static final EmbeddedStorageManager start(
-		final Object                          root         ,
-		final File                            directory    ,
-		final StorageConfiguration.Builder<?> configuration
-	)
-	{
-		return createAndStartStorageManager(
-			Foundation(directory, configuration),
-			root
-		);
-	}
-	
+			
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
 	 * the passed {@literal root} as the persistent entity graph's root instance,

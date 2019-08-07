@@ -7,7 +7,7 @@ import one.microstream.collections.types.XGettingTable;
 import one.microstream.exceptions.TypeCastException;
 import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 
@@ -68,14 +68,14 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 	
 	@Override
-	protected T internalCreate(final Binary rawData, final PersistenceLoadHandler handler)
+	protected T internalCreate(final Binary rawData, final PersistenceObjectIdResolver idResolver)
 	{
 		// (21.03.2019 TM)XXX: just passing to the type handler (in the end to BinaryInstantiator) can be dangerous
-		return this.typeHandler().create(rawData, handler);
+		return this.typeHandler().create(rawData, idResolver);
 	}
 	
 	@Override
-	public final void update(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary rawData, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
@@ -87,11 +87,11 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 			throw new TypeCastException(this.type(), instance);
 		}
 
-		rawData.updateFixedSize(instance, this.valueTranslators(), this.targetOffsets(), handler);
+		rawData.updateFixedSize(instance, this.valueTranslators(), this.targetOffsets(), idResolver);
 	}
 
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler handler)
+	public final void complete(final Binary medium, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
 		// no-op for reflective logic
 	}

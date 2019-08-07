@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.ArrayDeque;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 
 
 /*
@@ -49,7 +49,7 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerQueue<Ar
 	////////////
 	
 	@Override
-	public ArrayDeque<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public ArrayDeque<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new ArrayDeque<>();
 	}

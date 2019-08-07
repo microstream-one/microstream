@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 
 import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 
 
 public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerMap<LinkedHashMap<?, ?>>
@@ -42,7 +42,7 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerMap<L
 	////////////
 
 	@Override
-	public final LinkedHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final LinkedHashMap<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new LinkedHashMap<>(
 			X.checkArrayRange(getElementCount(bytes))

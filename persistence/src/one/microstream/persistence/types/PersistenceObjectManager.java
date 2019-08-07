@@ -5,7 +5,7 @@ import static one.microstream.X.notNull;
 import one.microstream.util.Cloneable;
 
 public interface PersistenceObjectManager
-extends PersistenceObjectLookup, PersistenceObjectIdHolder, Cloneable<PersistenceObjectManager>
+extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<PersistenceObjectManager>
 {
 	public default long ensureObjectId(final Object object)
 	{

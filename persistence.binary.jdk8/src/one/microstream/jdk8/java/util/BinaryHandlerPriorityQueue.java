@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -43,11 +43,11 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	
 	@SuppressWarnings("unchecked")
 	private static <E> Comparator<? super E> getComparator(
-		final Binary                 bytes  ,
-		final PersistenceLoadHandler handler
+		final Binary                      bytes     ,
+		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return (Comparator<? super E>)handler.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
+		return (Comparator<? super E>)idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
 	}
 	
 	public static BinaryHandlerPriorityQueue New()
@@ -101,16 +101,20 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public final PriorityQueue<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final PriorityQueue<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return new PriorityQueue<>(
 			bytes.getSizedArrayLength(BINARY_OFFSET_ELEMENTS),
-			getComparator(bytes, handler)
+			getComparator(bytes, idResolver)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final PriorityQueue<?> instance, final PersistenceLoadHandler handler)
+	public final void update(
+		final Binary                      bytes     ,
+		final PriorityQueue<?>            instance  ,
+		final PersistenceObjectIdResolver idResolver
+	)
 	{
 		// instance must be cleared in case an existing one is updated
 		instance.clear();
@@ -121,7 +125,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 		bytes.collectObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
 			X.checkArrayRange(getElementCount(bytes)),
-			handler,
+			idResolver,
 			e ->
 				castedInstance.add(e)
 		);
