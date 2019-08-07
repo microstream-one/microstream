@@ -191,17 +191,17 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 		// instance fields //
 		////////////////////
 
-		final long                                                      typeId              ;
-		final String                                                    typeName            ;
-		final String                                                    runtimeTypeName     ;
-		final Class<?>                                                  runtimeType         ;
-		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> allMembers          ;
-		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> instanceMembers     ;
+		final long                                                      typeId          ;
+		final String                                                    typeName        ;
+		final String                                                    runtimeTypeName ;
+		final Class<?>                                                  runtimeType     ;
+		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> allMembers      ;
+		final XImmutableEnum<? extends PersistenceTypeDefinitionMember> instanceMembers ;
 		final long                                                      membersMinLength;
 		final long                                                      membersMaxLength;
-		final boolean                                                   hasReferences       ;
-		final boolean                                                   isPrimitive         ;
-		final boolean                                                   variableLength      ;
+		final boolean                                                   hasReferences   ;
+		final boolean                                                   isPrimitive     ;
+		final boolean                                                   variableLength  ;
 
 
 

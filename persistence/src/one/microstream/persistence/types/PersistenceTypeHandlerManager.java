@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Consumer;
 
+import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XAddingEnum;
@@ -508,7 +509,61 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		@Override
 		public void checkForPendingRootInstances()
 		{
-			// (06.08.2019 TM)FIXME: priv#23 root registering
+			if(this.pendingEnumConstantRootStoringHandlers.isEmpty())
+			{
+				return;
+			}
+			
+			synchronized(this.typeHandlerRegistry)
+			{
+				// check again after acquiring the lock
+				if(this.pendingEnumConstantRootStoringHandlers.isEmpty())
+				{
+					return;
+				}
+				
+				final PersistenceRoots existingRoots = this.rootsProvider.peekRoots();
+				if(existingRoots == null)
+				{
+					return;
+				}
+				
+				final EqHashTable<String, Object> modifiedRootEntries = EqHashTable.New(existingRoots.entries());
+				boolean modified = false;
+				
+				for(final PersistenceTypeHandler<M, ?> typeHandler : this.pendingEnumConstantRootStoringHandlers.values())
+				{
+					final String enumRootIdentifier = Persistence.deriveEnumRootIdentifier(typeHandler);
+					final Object enumRootEntry      = modifiedRootEntries.get(enumRootIdentifier);
+					if(enumRootEntry != null)
+					{
+						this.validateEnumInstances(enumRootEntry, typeHandler);
+						return;
+					}
+					
+					final Object[] enumRootEntries = this.collectEnumInstances(typeHandler);
+					modifiedRootEntries.add(enumRootIdentifier, enumRootEntries);
+					modified = true;
+				}
+				
+				if(modified)
+				{
+					existingRoots.replaceEntries(modifiedRootEntries);
+					this.pendingStoreRoot = existingRoots;
+				}
+			}
+		}
+		
+		private void validateEnumInstances(final Object existingEntry, final PersistenceTypeHandler<M, ?> typeHandler)
+		{
+			// FIXME priv#23: PersistenceTypeHandlerManager.Default#validateEnumInstances()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+		
+		private Object[] collectEnumInstances(final PersistenceTypeHandler<M, ?> typeHandler)
+		{
+			// FIXME priv#23: PersistenceTypeHandlerManager.Default#collectEnumInstances()
+			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 		@Override
@@ -542,7 +597,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			
 			synchronized(this.typeHandlerRegistry)
 			{
-				this.synchRegisterPendingEnumConstantStoring(typeHandler);
+				// might fail if meanwhile already added. Should not happen, but who knows ...
+				this.pendingEnumConstantRootStoringHandlers.add(typeHandler.type(), typeHandler);
 			}
 			
 		}
@@ -557,6 +613,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			{
 				return;
 			}
+			
+			final String enumRootIdentifier = Persistence.deriveEnumRootIdentifier(typeHandler);
 			
 			/* (06.08.2019 TM)FIXME: priv#23 root registering
 			 * - check if (meanwhile) already contained
