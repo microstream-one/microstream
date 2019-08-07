@@ -804,6 +804,11 @@ public final class XReflect
 		return '#';
 	}
 	
+	public static String typename_enum()
+	{
+		return "enum";
+	}
+	
 	public static char nestedClassNameSeparator()
 	{
 		return '$';

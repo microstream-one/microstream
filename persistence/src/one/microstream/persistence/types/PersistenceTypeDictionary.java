@@ -545,7 +545,7 @@ public interface PersistenceTypeDictionary
 //		protected static final transient char   LITERAL_ESCAPER                  = '\\';
 
 		protected static final transient String KEYWORD_PRIMITIVE                = "primitive";
-		protected static final transient String KEYWORD_ENUM                     = "enum"     ;
+		protected static final transient String KEYWORD_ENUM                     = XReflect.typename_enum();
 		protected static final transient String TYPE_CHARS                       = "[char]"   ;
 		protected static final transient String TYPE_BYTES                       = "[byte]"   ;
 		protected static final transient String TYPE_COMPLEX                     = "[list]"   ;

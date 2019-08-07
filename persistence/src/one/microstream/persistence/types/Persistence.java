@@ -883,6 +883,40 @@ public class Persistence
 		}
 	}
 	
+	public static String deriveEnumRootIdentifier(final PersistenceTypeHandler<?, ?> typeHandler)
+	{
+		if(!XReflect.isEnum(typeHandler.type()))
+		{
+			// (07.08.2019 TM)EXCP: proper exception
+			throw new IllegalArgumentException("Not an enum type: " + typeHandler.type());
+		}
+		if(typeHandler.typeId() == Persistence.nullId())
+		{
+			// (07.08.2019 TM)EXCP: proper exception
+			throw new IllegalArgumentException("Type handler not initialized for type " + typeHandler.type());
+		}
+		
+		return XReflect.typename_enum() + " " + typeHandler.typeId();
+	}
+	
+	public static Long extractEnumRootIdentifierTypeId(final String enumRootIdentifier)
+	{
+		if(enumRootIdentifier == null || !enumRootIdentifier.startsWith(XReflect.typename_enum()))
+		{
+			return null;
+		}
+		
+		final String typeIdPart = enumRootIdentifier.substring(XReflect.typename_enum().length() + 1);
+		
+		try
+		{
+			return Long.valueOf(Long.parseLong(typeIdPart));
+		}
+		catch(final NumberFormatException e)
+		{
+			return null;
+		}
+	}
 
 	public static final PersistenceRootResolver RootResolver(
 		final String rootIdentifier,

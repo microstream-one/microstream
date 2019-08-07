@@ -37,7 +37,7 @@ public class MainTestStorageExample2
 		{
 			// first execution enters here
 
-			Test.print("TEST: model data required." );
+			Test.print("TEST: model data required.");
 			STORAGE.defaultRoot().set(Test.generateModelData(1_000));
 			Test.print("STORAGE: storing ...");
 			STORAGE.storeDefaultRoot();
