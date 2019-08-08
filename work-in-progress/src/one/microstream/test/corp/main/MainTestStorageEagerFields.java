@@ -12,14 +12,15 @@ import one.microstream.test.corp.model.Person;
 import one.microstream.time.XTime;
 
 
-public class MainTestStorageMandatoryFields
+public class MainTestStorageEagerFields
 {
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = X.on(
 		EmbeddedStorage.Foundation(),
 		esf ->
-			esf.getConnectionFoundation().setReferenceFieldMandatoryEvaluator((clazz, field) ->
+			esf.getConnectionFoundation().setReferenceFieldEagerEvaluator((clazz, field) ->
 //				clazz == Person.class && field.getType() == Address.class
+//				field.getName().startsWith("eager_") // example for application-specific convention without annotation
 				field.getAnnotation(StoreEager.class) != null
 			)
 		)

@@ -108,9 +108,10 @@ public final class BinaryPersistence extends Persistence
 	}
 	
 	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
-		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager,
-		final PersistenceSizedArrayLengthController              controller        ,
-		final PersistenceTypeHandlerCreator<Binary>              typeHandlerCreator
+		final Referencing<PersistenceTypeHandlerManager<Binary>>            typeHandlerManager,
+		final PersistenceSizedArrayLengthController                         controller        ,
+		final PersistenceTypeHandlerCreator<Binary>                         typeHandlerCreator,
+		final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> customHandlers
 	)
 	{
 		final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers =
@@ -121,6 +122,7 @@ public final class BinaryPersistence extends Persistence
 			PersistenceCustomTypeHandlerRegistry.<Binary>New()
 			.registerTypeHandlers(nativeHandlers)
 			.registerTypeHandlers(defaultCustomHandlers(controller))
+			.registerTypeHandlers(customHandlers)
 		;
 		
 		return defaultCustomTypeHandlerRegistry;
