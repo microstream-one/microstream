@@ -536,5 +536,27 @@ Dann w\'e4r die Reihenfolge:\par
 \par
 Das sichert auch ab, dass der commit zwar die pending roots veranlasst hat, dieser aber aufgrund eines problems nicht gespeichert hat.\par
 Hm. Wobei das Problem daran ist: dann w\'fcrde ein neu eingetragenes Object[] nicht mehr als neu erkannt werden. D.h. der pending Eintrag muss jedes neu dazugekommene bzw. ver\'e4ndert enum-konstanten-Object[] mit registrieren und dem storer explizit setzen.\par
+\par
+\par
+\par
+2019-08-07\par
+\par
+Neben priv#126, priv#127 und verschiedenem anderem Zeug Root Registrierung beim TypeHandler erzeugen implementieren.\par
+\par
+2019-08-08\par
+Neben Besprechungen, priv#128 und verschiedenem anderen Zeug Root Registrierung beim TypeHandler weiter implementieren.\par
+Testen.\par
+Oh, aufgefallen: "$:" ist kein g\'fcltiger String f\'fcr Dateinamen, z.B. beim Export. Das muss was anderes werden. Bzw. eigentlich m\'fcsste es konfigurierbar sein ...\par
+Ich mach es zumindest mal "ein bisschen" konfigurierbar, indem der PersistenceTypeResolver in der Defaultimplementierung nicht die Konstante aus Persistence nimmt, sondern eine eigene Methode, die dorthin umleitet.\par
+Die kann man dann in dem winzigen interface \'fcber eine Klasse anders implementieren und schon ist es customizebar.\par
+Au\'dferdem ist so sichergestellt, dass beide Methoden des Interfaces (Type -> TypeName und TypeName -> Type) wirklich dasselbe Ding aufrufen.\par
+\par
+Wieder testen. Jetzt siehts gut aus. Root Registrierung sieht auch korrekt aus.\par
+Dann jetzt Root Synchronisierung in EmbeddedStorageManager#initialize anschauen...\par
+\par
+Erst mal Methode aufr\'e4umen, Struktur f\'fcr enum validierung und updaten reinziehen.\par
+Kommentar Notizen f\'fcr Konzept machen ...\par
+\par
+\par
 }
  

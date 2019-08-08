@@ -224,7 +224,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			return this;
 		}
 
-		private boolean synchronizeRoots(final PersistenceRoots loadedRoots)
+		private void synchronizeRoots(final PersistenceRoots loadedRoots)
 		{
 			final XGettingTable<String, Object> loadedEntries  = loadedRoots.entries();
 			final XGettingTable<String, Object> definedEntries = this.definedRoots.entries();
@@ -250,7 +250,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.
 			 * 3.) Loaded roots and defined roots do not match, so the loaded roots entries must be replaced/updated.
 			 */
-			return loadedRoots.hasChanged();
 		}
 		
 		private void ensureRequiredTypeHandlers()
@@ -260,46 +259,64 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			final XGettingEnum<Long> occuringTypeIds = idAnalysis.occuringTypeIds();
 			this.connectionFoundation.getTypeHandlerManager().ensureTypeHandlersByTypeIds(occuringTypeIds);
 		}
+		
+		private PersistenceRoots loadExistingRoots(final StorageConnection initConnection)
+		{
+			return initConnection.persistenceManager().createLoader().loadRoots();
+		}
+		
+		private PersistenceRoots validateEmptyDatabaseAndReturnDefinedRoots(final StorageConnection initConnection)
+		{
+			// no loaded roots is only valid if there is no data yet at all (no database files / content)
+			final StorageRawFileStatistics statistics = initConnection.createStorageStatistics();
+			if(statistics.liveDataLength() != 0)
+			{
+				// (14.09.2015 TM)EXCP: proper exception
+				throw new RuntimeException("No roots found for existing data.");
+			}
+
+			return this.definedRoots;
+		}
 
 		@Override
 		public final void initialize()
 		{
 			final StorageConnection initConnection = this.createConnection();
-			
-			// (06.08.2019 TM)FIXME: priv#23: check typehandlermanager for pending root storing
 
-			/* (22.09.2014 TM)NOTE: Constants OID consistency conflict
-			 * If more than one roots instance exists, all are loaded and all are built,
-			 * even if afterwards only the first one is considered.
-			 * Of course for multiple roots instances, different OIDs can point to the
-			 * same (<- !) runtime constant instance, hence causing a consistency error on validation in the registry.
-			 * Solution:
-			 * Storage may only send at most one roots instance. Must be strictly ensured:
-			 * - independently from roots GC
-			 * - GC must collect all but one roots instance (already does but not testet yet)
-			 */
-			PersistenceRoots loadedRoots = initConnection.persistenceManager().createLoader().loadRoots();
+			PersistenceRoots loadedRoots = this.loadExistingRoots(initConnection);
 			if(loadedRoots == null)
 			{
-				// no loaded roots is only valid if there is no data yet at all (no database files / content)
-				final StorageRawFileStatistics statistics = initConnection.createStorageStatistics();
-				if(statistics.liveDataLength() != 0)
-				{
-					// (14.09.2015 TM)EXCP: proper exception
-					throw new RuntimeException("No roots found for existing data.");
-				}
-
-				loadedRoots = this.definedRoots;
+				loadedRoots = this.validateEmptyDatabaseAndReturnDefinedRoots(initConnection);
 			}
-			else if(!this.synchronizeRoots(loadedRoots))
+			else
 			{
-				// loaded roots are perfectly synchronous to defined roots, no store update required.
-				return;
+				this.synchronizeRoots(loadedRoots);
 			}
 			
-
-			// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized
-			initConnection.store(loadedRoots);
+			// update enum constants root entries in any case (newly created or loaded and synched)
+			this.validateAndUpdateEnumConstants(loadedRoots);
+			
+			if(loadedRoots.hasChanged())
+			{
+				// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized
+				initConnection.store(loadedRoots);
+			}
+		}
+		
+		private void validateAndUpdateEnumConstants(final PersistenceRoots roots)
+		{
+			/* (06.08.2019 TM)FIXME: priv#23: check typehandlermanager for pending root storing
+			 * - scan type dictionary for all already existing / known enum types
+			 * - validate and insert / update their enum constants entry
+			 * - any change must always result in a completely new Object[] for the storer to store it
+			 * - merge with synchronizeRoots() or modify it to ignore enums?
+			 * ? what about legacy enum types? Actually, only a lineage's most current enums may be stored (exist!)
+			 * ? what about the pending enums in the TypeHandlerManager from TypeHandler creation?
+			 *   does that make the dictionary check unnecessary because there is a handler for every
+			 *   dictionary entry, anyway?
+			 * - is that a fluid transition to LTM-handling enum constants?
+			 */
+			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
 		@Override

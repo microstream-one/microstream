@@ -43,6 +43,7 @@ public class MainTestStoreEnum
 			Test.print("Storing ...");
 			storage.storeRoot();
 			Test.print("Storing completed.");
+			TestImportExport.testExport(storage, Test.provideTimestampedDirectory("testExport"));
 		}
 		else
 		{
