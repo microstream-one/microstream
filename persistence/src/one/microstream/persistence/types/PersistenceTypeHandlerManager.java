@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
+import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
@@ -533,7 +534,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				
 				for(final PersistenceTypeHandler<M, ?> typeHandler : this.pendingEnumConstantRootStoringHandlers.values())
 				{
-					final String enumRootIdentifier = Persistence.deriveEnumRootIdentifier(typeHandler);
+					final String enumRootIdentifier = this.deriveEnumRootIdentifier(typeHandler);
 					final Object enumRootEntry      = modifiedRootEntries.get(enumRootIdentifier);
 					if(enumRootEntry != null)
 					{
@@ -554,16 +555,49 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			}
 		}
 		
-		private void validateEnumInstances(final Object existingEntry, final PersistenceTypeHandler<M, ?> typeHandler)
+		private String deriveEnumRootIdentifier(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
-			// FIXME priv#23: PersistenceTypeHandlerManager.Default#validateEnumInstances()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return Persistence.deriveEnumRootIdentifier(typeHandler);
+		}
+		
+		private void validateEnumInstances(
+			final Object                       existingEntry,
+			final PersistenceTypeHandler<M, ?> typeHandler
+		)
+		{
+			if(!(existingEntry instanceof Object[]))
+			{
+				// (08.08.2019 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Invalid root instance of type " + existingEntry.getClass().getName()
+					+ " for enum type entry " + this.deriveEnumRootIdentifier(typeHandler)
+					+ " of type " + typeHandler.type().getName()
+				);
+			}
+			
+			// reference/identity comparison is important! Arrays#equals does it wrong.
+			if(!XArrays.equals((Object[])existingEntry, typeHandler.getClass().getEnumConstants()))
+			{
+				// (08.08.2019 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Root entry already exists with inconsistent enum constants"
+					+ " for enum type entry " + this.deriveEnumRootIdentifier(typeHandler)
+					+ " of type " + typeHandler.type().getName()
+				);
+			}
+			
+			// reaching here (returning) means the entry is valid.
 		}
 		
 		private Object[] collectEnumInstances(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
-			// FIXME priv#23: PersistenceTypeHandlerManager.Default#collectEnumInstances()
-			throw new one.microstream.meta.NotImplementedYetError();
+			final Object[] enumConstants = typeHandler.type().getEnumConstants();
+			
+			// intentionally type Object[], not some T[] in covariant disguise.
+			final Object[] copy = new Object[enumConstants.length];
+			System.arraycopy(enumConstants, 0, copy, 0, enumConstants.length);
+
+			return copy;
 		}
 		
 		@Override
