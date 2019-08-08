@@ -4,6 +4,8 @@ import static one.microstream.X.notNull;
 
 import java.io.File;
 
+import one.microstream.meta.XDebug;
+
 
 public interface StorageEntityTypeExportFileProvider
 {
@@ -59,6 +61,12 @@ public interface StorageEntityTypeExportFileProvider
 		@Override
 		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler entityType)
 		{
+			// (08.08.2019 TM)FIXME: /!\ DEBUGpriv#23
+			if(entityType.typeName().contains(":"))
+			{
+				XDebug.println("ups");
+			}
+			
 			// TypeId must be included since only that is the unique identifier of a type.
 			final File file = new File(this.directory, entityType.typeName() + "_" + entityType.typeId() + this.cachedFileSuffix);
 			return StorageLockedFile.openLockedFile(file);

@@ -110,6 +110,9 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		private final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
 		private final PersistenceRootsProvider<M>                 rootsProvider                ;
 		
+		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers = HashTable.New();
+		private transient PersistenceRoots pendingStoreRoot;
+		
 		private boolean initialized;
 
 
@@ -258,7 +261,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			
 			if(typeHandler.typeId() != registeredTd.typeId())
 			{
-				// (07.04.2013)EXCP proper exception
+				// (07.04.2013 TM)EXCP: proper exception
 				throw new PersistenceExceptionTypeConsistency(
 					"TypeId inconsistency for " + typeHandler.typeName()
 					+ ": typeDictionary type definition typeId = " + registeredTd.typeId()
@@ -270,7 +273,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			{
 				if(m1 == null || m2 == null)
 				{
-					// (01.07.2015)EXCP proper exception
+					// (01.07.2015 TM)EXCP: proper exception
 					throw new PersistenceExceptionTypeConsistency(
 						"Member count mismatch of type " + typeHandler.typeName()
 					);
@@ -282,7 +285,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 					return true;
 				}
 				
-				// (07.04.2013)EXCP proper exception
+				// (07.04.2013 TM)EXCP: proper exception
 				throw new PersistenceExceptionTypeConsistency(
 					"Inconsistent member in type description for type "
 					+ typeHandler.typeName() + ": " + m1 + " != " + m2
@@ -292,7 +295,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			if(!PersistenceTypeDescriptionMember.equalMembers(registeredTd.instanceMembers(), typeHandler.instanceMembers(), memberValidator))
 			{
 				// throw generic exception in case the equalator returns false instead of throwing an exception
-				// (07.04.2013)EXCP proper exception
+				// (07.04.2013 TM)EXCP: proper exception
 				throw new PersistenceExceptionTypeConsistency("Member inconsistency for " + typeHandler.typeName());
 			}
 		}
@@ -603,7 +606,13 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		@Override
 		public void checkForPendingRootsStoring(final PersistenceStoring storingCallback)
 		{
-			// (06.08.2019 TM)FIXME: priv#23 root registering
+			if(this.pendingStoreRoot == null)
+			{
+				// nothing pending
+				return;
+			}
+			
+			storingCallback.store(this.pendingStoreRoot);
 		}
 		
 		@Override
@@ -612,10 +621,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			// pendingEnumConstantRootStoringHandlers is stored by synching logic
 			this.pendingStoreRoot = null;
 		}
-		
-		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers = HashTable.New();
-		
-		private transient PersistenceRoots pendingStoreRoot;
 				
 		private void registerEnumContantRoots(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
@@ -634,29 +639,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				// might fail if meanwhile already added. Should not happen, but who knows ...
 				this.pendingEnumConstantRootStoringHandlers.add(typeHandler.type(), typeHandler);
 			}
-			
 		}
-		
-		private void synchRegisterPendingEnumConstantStoring(final PersistenceTypeHandler<M, ?> typeHandler)
-		{
-			// might fail if meanwhile already added. Should not happen, but who knows ...
-			this.pendingEnumConstantRootStoringHandlers.add(typeHandler.type(), typeHandler);
-			
-			final PersistenceRoots existingRoots = this.rootsProvider.peekRoots();
-			if(existingRoots == null)
-			{
-				return;
-			}
-			
-			final String enumRootIdentifier = Persistence.deriveEnumRootIdentifier(typeHandler);
-			
-			/* (06.08.2019 TM)FIXME: priv#23 root registering
-			 * - check if (meanwhile) already contained
-			 * - if not, register
-			 * - set as pendingStoreRoot
-			 */
-		}
-		
+				
 		@Override
 		public final boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler)
 		{

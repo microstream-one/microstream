@@ -1,5 +1,7 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.notNull;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -826,17 +828,20 @@ public class Persistence
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" }) // type safety guaranteed by the passed typename. The typename String "is" the T.
-	public static <T> Class<T> resolveEnumeratedClassIdentifierSeparatedType(final String typeName)
+	public static <T> Class<T> resolveEnumeratedClassIdentifierSeparatedType(
+		final String typeName,
+		final String substituteClassIdentifierSeparator
+	)
 	{
 		// there can only be one at the most, so a simple indexOf is sufficient.
-		final int sepIndex = typeName.indexOf(substituteClassIdentifierSeparator());
+		final int sepIndex = typeName.indexOf(substituteClassIdentifierSeparator);
 		if(sepIndex < 0)
 		{
 			return null;
 		}
 		
 		final String properTypeName = typeName.substring(0, sepIndex);
-		final Class<?> type = resolveType(properTypeName);
+		final Class<?> type = resolveType(properTypeName, substituteClassIdentifierSeparator);
 		
 		if(!XReflect.isDeclaredEnum(type))
 		{
@@ -844,17 +849,26 @@ public class Persistence
 			throw new UnsupportedOperationException("EnumeratedClassIdentifierNaming is only supported for sub enums");
 		}
 		
-		final String enumConstantName = typeName.substring(sepIndex + substituteClassIdentifierSeparator().length());
+		final String enumConstantName = typeName.substring(sepIndex + substituteClassIdentifierSeparator.length());
 		
 		final Enum<?> enumConstant = Enum.valueOf((Class<Enum>)type, enumConstantName);
 		
 		return (Class<T>)enumConstant.getClass();
 	}
-
-	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
+	
+	// type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> resolveType(final String typeName)
 	{
-		final Class<?> c = resolveEnumeratedClassIdentifierSeparatedType(typeName);
+		return resolveType(typeName, substituteClassIdentifierSeparator());
+	}
+
+	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
+	public static <T> Class<T> resolveType(
+		final String typeName,
+		final String substituteClassIdentifierSeparator
+	)
+	{
+		final Class<?> c = resolveEnumeratedClassIdentifierSeparatedType(typeName, substituteClassIdentifierSeparator);
 		if(c != null)
 		{
 			return (Class<T>)c;
@@ -1073,15 +1087,23 @@ public class Persistence
 	 */
 	public static final String substituteClassIdentifierSeparator()
 	{
-		return "$:";
+		return "$§";
 	}
 	
 	public static final String derivePersistentTypeName(final Class<?> type)
 	{
+		return derivePersistentTypeName(type, substituteClassIdentifierSeparator());
+	}
+	
+	public static final String derivePersistentTypeName(
+		final Class<?> type,
+		final String   substituteClassIdentifierSeparator
+	)
+	{
 		// handleable special case of sub-enum classes with enumerating class names.
 		if(XReflect.isSubEnum(type))
 		{
-			return derivePersistentTypeNameEnum(type);
+			return derivePersistentTypeNameEnum(type, substituteClassIdentifierSeparator);
 		}
 		
 		// unhandleable general case of classes with enumerating class names.
@@ -1102,7 +1124,10 @@ public class Persistence
 		return type.getName();
 	}
 	
-	public static final String derivePersistentTypeNameEnum(final Class<?> type)
+	public static final String derivePersistentTypeNameEnum(
+		final Class<?> type,
+		final String   substituteClassIdentifierSeparator
+	)
 	{
 		if(!XReflect.isSubEnum(type))
 		{
@@ -1110,13 +1135,15 @@ public class Persistence
 			throw new RuntimeException("Not an Enum type: " + type.getName());
 		}
 		
+		notNull(substituteClassIdentifierSeparator);
+		
 		final Class<?> declaredEnumType = XReflect.getDeclaredEnumClass(type);
 		
 		for(final Object enumConstant : declaredEnumType.getEnumConstants())
 		{
 			if(enumConstant.getClass() == type)
 			{
-				return declaredEnumType.getName() + substituteClassIdentifierSeparator() + ((Enum<?>)enumConstant).name();
+				return declaredEnumType.getName() + substituteClassIdentifierSeparator + ((Enum<?>)enumConstant).name();
 			}
 		}
 		
