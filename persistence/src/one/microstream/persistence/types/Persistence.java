@@ -766,9 +766,9 @@ public class Persistence
 		return HashEnum.New(tvs);
 	}
 	
-	public static final PersistenceEagerStoringFieldEvaluator defaultReferenceFieldMandatoryEvaluator()
+	public static final PersistenceEagerStoringFieldEvaluator defaultReferenceFieldEagerEvaluator()
 	{
-		// by default, no field is mandatory
+		// by default, no field is eager
 		return (entityType, field) ->
 			false
 		;

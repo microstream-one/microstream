@@ -3,6 +3,7 @@ package one.microstream.persistence.types;
 import java.nio.ByteOrder;
 
 import one.microstream.X;
+import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XEnum;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
@@ -38,7 +39,19 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public InstanceDispatcherLogic getInstanceDispatcherLogic(); // (14.04.2013)XXX: move dispatching aspect to separate super type
 
+	
+	public HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers();
+	
+	public F registerCustomTypeHandlers(HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers);
+	
+	@SuppressWarnings("unchecked")
+	public F registerCustomTypeHandlers(PersistenceTypeHandler<M, ?>... customTypeHandlers);
+	
+	public F registerCustomTypeHandlers(Iterable<? extends PersistenceTypeHandler<M, ?>> customTypeHandlers);
+	
+	public F registerCustomTypeHandlers(PersistenceTypeHandler<M, ?> customTypeHandler);
 
+	
 	public PersistenceObjectIdProvider getObjectIdProvider();
 
 	public PersistenceTypeIdProvider getTypeIdProvider();
@@ -118,7 +131,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public PersistenceFieldLengthResolver getFieldFixedLengthResolver();
 	
-	public PersistenceEagerStoringFieldEvaluator getReferenceFieldMandatoryEvaluator();
+	public PersistenceEagerStoringFieldEvaluator getReferenceFieldEagerEvaluator();
 
 	public BufferSizeProviderIncremental getBufferSizeProvider();
 
@@ -256,7 +269,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	
 	public F setFieldEvaluatorCollection(PersistenceFieldEvaluator fieldEvaluator);
 
-	public F setReferenceFieldMandatoryEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
+	public F setReferenceFieldEagerEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
 
 	public F setRootResolver(PersistenceRootResolver.Builder rootResolverBuilder);
 	
@@ -337,6 +350,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		// required to resolve a TypeHandlerManager dependancy loop
 		private final Reference<PersistenceTypeHandlerManager<M>> referenceTypeHandlerManager = X.Reference(null);
 		
+		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers = HashTable.New();
+				
 		private PersistenceObjectIdProvider oidProvider;
 		private PersistenceTypeIdProvider   tidProvider;
 
@@ -433,6 +448,64 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return new PersistenceFoundation.Default<>();
 		}
 
+		
+		///////////////////////////////////////////////////////////////////////////
+		// property getters and related convenience methods //
+		/////////////////////////////////////////////////////
+		
+		@Override
+		public HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers()
+		{
+			return this.customTypeHandlers;
+		}
+		
+		@Override
+		public synchronized F registerCustomTypeHandlers(
+			final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers
+		)
+		{
+			this.customTypeHandlers.putAll(customTypeHandlers);
+			
+			return this.$();
+		}
+		
+		@Override
+		@SuppressWarnings("unchecked")
+		public synchronized F registerCustomTypeHandlers(
+			 final PersistenceTypeHandler<M, ?>... customTypeHandlers
+		)
+		{
+			for(final PersistenceTypeHandler<M, ?> customTypeHandler : customTypeHandlers)
+			{
+				this.registerCustomTypeHandlers(customTypeHandler);
+			}
+			
+			return this.$();
+		}
+		
+		@Override
+		public synchronized F registerCustomTypeHandlers(
+			 final Iterable<? extends PersistenceTypeHandler<M, ?>> customTypeHandlers
+		)
+		{
+			for(final PersistenceTypeHandler<M, ?> customTypeHandler : customTypeHandlers)
+			{
+				this.registerCustomTypeHandlers(customTypeHandler);
+			}
+			
+			return this.$();
+		}
+		
+		@Override
+		public synchronized F registerCustomTypeHandlers(
+			final PersistenceTypeHandler<M, ?> customTypeHandler
+		)
+		{
+			this.customTypeHandlers.put(customTypeHandler.type(), customTypeHandler);
+			
+			return this.$();
+		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -858,11 +931,11 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceEagerStoringFieldEvaluator getReferenceFieldMandatoryEvaluator()
+		public PersistenceEagerStoringFieldEvaluator getReferenceFieldEagerEvaluator()
 		{
 			if(this.eagerStoringFieldEvaluator == null)
 			{
-				this.eagerStoringFieldEvaluator = this.dispatch(this.ensureReferenceFieldMandatoryEvaluator());
+				this.eagerStoringFieldEvaluator = this.dispatch(this.ensureReferenceFieldEagerEvaluator());
 			}
 			
 			return this.eagerStoringFieldEvaluator;
@@ -1441,7 +1514,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public F setReferenceFieldMandatoryEvaluator(
+		public F setReferenceFieldEagerEvaluator(
 			final PersistenceEagerStoringFieldEvaluator evaluator
 		)
 		{
@@ -1831,9 +1904,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return Persistence.defaultFieldEvaluatorCollection();
 		}
 		
-		protected PersistenceEagerStoringFieldEvaluator ensureReferenceFieldMandatoryEvaluator()
+		protected PersistenceEagerStoringFieldEvaluator ensureReferenceFieldEagerEvaluator()
 		{
-			return Persistence.defaultReferenceFieldMandatoryEvaluator();
+			return Persistence.defaultReferenceFieldEagerEvaluator();
 		}
 		
 		protected PersistenceUnreachableTypeHandlerCreator<M> ensureUnreachableTypeHandlerCreator()
