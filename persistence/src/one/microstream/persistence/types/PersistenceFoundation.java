@@ -49,7 +49,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	
 	public F registerCustomTypeHandlers(Iterable<? extends PersistenceTypeHandler<M, ?>> customTypeHandlers);
 	
-	public F registerCustomTypeHandlers(PersistenceTypeHandler<M, ?> customTypeHandler);
+	public F registerCustomTypeHandler(PersistenceTypeHandler<M, ?> customTypeHandler);
 
 	
 	public PersistenceObjectIdProvider getObjectIdProvider();
@@ -499,7 +499,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		{
 			for(final PersistenceTypeHandler<M, ?> customTypeHandler : customTypeHandlers)
 			{
-				this.registerCustomTypeHandlers(customTypeHandler);
+				this.registerCustomTypeHandler(customTypeHandler);
 			}
 			
 			return this.$();
@@ -512,14 +512,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		{
 			for(final PersistenceTypeHandler<M, ?> customTypeHandler : customTypeHandlers)
 			{
-				this.registerCustomTypeHandlers(customTypeHandler);
+				this.registerCustomTypeHandler(customTypeHandler);
 			}
 			
 			return this.$();
 		}
 		
 		@Override
-		public synchronized F registerCustomTypeHandlers(
+		public synchronized F registerCustomTypeHandler(
 			final PersistenceTypeHandler<M, ?> customTypeHandler
 		)
 		{
