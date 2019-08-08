@@ -118,6 +118,15 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public PersistenceTypeHandlerCreator<M> getTypeHandlerCreator();
 
+	/**
+	 * Creates if required and returns the {@link PersistenceCustomTypeHandlerRegistry} containing all custom tailored
+	 * {@link PersistenceTypeHandler} instances for specialized handling of instances.<p>
+	 * To avoid order problems caused by internal implicit dependencies (e.g. creating the default custom type handlers
+	 * required {@link #getReferenceFieldEagerEvaluator()}), use {@link #customTypeHandlers()}
+	 * or one of the {@code registerCustomTypeHandler~} methods.
+	 * 
+	 * @return the (on-demand created) {@link PersistenceCustomTypeHandlerRegistry} instance.
+	 */
 	public PersistenceCustomTypeHandlerRegistry<M> getCustomTypeHandlerRegistry();
 
 	public PersistenceTypeAnalyzer getTypeAnalyzer();
