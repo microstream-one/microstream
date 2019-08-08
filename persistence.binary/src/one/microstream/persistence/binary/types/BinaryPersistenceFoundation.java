@@ -210,19 +210,20 @@ extends PersistenceFoundation<Binary, F>
 				this.getTypeAnalyzer(),
 				this.getTypeResolver(),
 				this.getFieldFixedLengthResolver(),
-				this.getReferenceFieldMandatoryEvaluator(),
+				this.getReferenceFieldEagerEvaluator(),
 				this.getLambdaTypeRecognizer(),
 				this.isByteOrderMismatch()
 			);
 		}
 
 		@Override
-		protected PersistenceCustomTypeHandlerRegistry<Binary> ensureCustomTypeHandlerRegistry()
+		protected synchronized PersistenceCustomTypeHandlerRegistry<Binary> ensureCustomTypeHandlerRegistry()
 		{
 			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry(
 				this.referenceTypeHandlerManager(),
 				this.getSizedArrayLengthController(),
-				this.getTypeHandlerCreator()
+				this.getTypeHandlerCreator(),
+				this.customTypeHandlers().values()
 			);
 		}
 
