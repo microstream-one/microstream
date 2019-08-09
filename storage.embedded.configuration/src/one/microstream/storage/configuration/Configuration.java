@@ -6,6 +6,9 @@ import static one.microstream.math.XMath.positive;
 import static one.microstream.math.XMath.positiveMax1;
 
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.time.Duration;
 
 import one.microstream.math.XMath;
@@ -22,12 +25,97 @@ import one.microstream.storage.types.StorageHousekeepingController;
 
 public interface Configuration
 {
+	public static Configuration LoadIni(final File file)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.loadFromFile(file)
+		);
+	}
+	
+	public static Configuration LoadIni(final File file, final Charset charset)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.loadFromFile(file, charset)
+		);
+	}
+	
+	public static Configuration LoadIni(final URL url)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.loadFromUrl(url)
+		);
+	}
+	
+	public static Configuration LoadIni(final URL url, final Charset charset)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.loadFromUrl(url, charset)
+		);
+	}
+	
+	public static Configuration LoadIni(final InputStream inputStream)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
+		);
+	}
+	
+	public static Configuration LoadIni(final InputStream inputStream, final Charset charset)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
+		);
+	}
+	
+	public static Configuration LoadXml(final File file)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.loadFromFile(file)
+		);
+	}
+	
+	public static Configuration LoadXml(final File file, final Charset charset)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.loadFromFile(file, charset)
+		);
+	}
+	
+	public static Configuration LoadXml(final URL url)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.loadFromUrl(url)
+		);
+	}
+	
+	public static Configuration LoadXml(final URL url, final Charset charset)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.loadFromUrl(url, charset)
+		);
+	}
+	
+	public static Configuration LoadXml(final InputStream inputStream)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
+		);
+	}
+	
+	public static Configuration LoadXml(final InputStream inputStream, final Charset charset)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
+		);
+	}
+	
 	public default EmbeddedStorageFoundation<?> createEmbeddedStorageFoundation()
 	{
 		return this.updateEmbeddedStorageFoundation(EmbeddedStorage.Foundation());
 	}
 	
-	public default EmbeddedStorageFoundation<?> updateEmbeddedStorageFoundation(final EmbeddedStorageFoundation<?> foundation)
+	public default EmbeddedStorageFoundation<?>
+		updateEmbeddedStorageFoundation(final EmbeddedStorageFoundation<?> foundation)
 	{
 		ConfigurationConsumer.FoundationUpdater(foundation).accept(this);
 		return foundation;
@@ -361,7 +449,11 @@ public interface Configuration
 		private String baseDirectory            = StorageFileProvider.Defaults.defaultStorageDirectory();
 		private String deletionDirectory        = StorageFileProvider.Defaults.defaultDeletionDirectory();
 		private String truncationDirectory      = StorageFileProvider.Defaults.defaultTruncationDirectory();
-		private String backupDirectory          = null; // no on-the-fly backup by default
+		private String backupDirectory          = null;                                                        // no
+																												// on-the-fly
+																												// backup
+																												// by
+																												// default
 		private String channelDirectoryPrefix   = StorageFileProvider.Defaults.defaultChannelDirectoryPrefix();
 		private String dataFilePrefix           = StorageFileProvider.Defaults.defaultStorageFilePrefix();
 		private String dataFileSuffix           = StorageFileProvider.Defaults.defaultStorageFileSuffix();
@@ -371,8 +463,10 @@ public interface Configuration
 		private int    channelCount             = StorageChannelCountProvider.Defaults.defaultChannelCount();
 		private String typeIdFilename           = FileTypeIdStrategy.defaultFilename();
 		private String objectIdFilename         = FileObjectIdStrategy.defaultFilename();
-		private long   houseKeepingIntervalMs   = StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs();
-		private long   houseKeepingTimeBudgetNs = StorageHousekeepingController.Defaults.defaultHousekeepingTimeBudgetNs();
+		private long   houseKeepingIntervalMs   =
+			StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs();
+		private long   houseKeepingTimeBudgetNs =
+			StorageHousekeepingController.Defaults.defaultHousekeepingTimeBudgetNs();
 		private long   entityCacheTimeout       = StorageEntityCacheEvaluator.Defaults.defaultTimeoutMs();
 		private long   entityCacheThreshold     = StorageEntityCacheEvaluator.Defaults.defaultCacheThreshold();
 		private int    dataFileMinSize          = StorageDataFileEvaluator.Defaults.defaultFileMinimumSize();
