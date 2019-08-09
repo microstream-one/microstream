@@ -646,19 +646,19 @@ Ah, aber problem:\par
 - Der TypeHandlerManager hat  - seit der \'c4nderung hier - eine Abh\'e4ngigkeit zu dem Roots Zeug.\par
 => D.h. das Roots Zeug kann nicht einfach so wieder eine Abh\'e4ngigkeit zum TypeHandlerManager haben. Das w\'e4r ein dependency Zirkel.\par
 \par
-Aaaber, hehe: Es gibt aus anderem Grund schon die referenceTypeHandlerManager, die diesen Zirkel durch die Indirektion aufl\'f6st.\par
+\cf1 Aaaber, hehe: Es gibt aus anderem Grund schon die referenceTypeHandlerManager, die diesen Zirkel durch die Indirektion aufl\'f6st.\par
 Die k\'f6nnte ich einfach mitverwenden.\par
-\par
+\cf0\par
 Allerdings: die rootEntries werden bereits im Konstruktor von PersistenceRootResolver$Default erzeugt. Zu diesem Zeitpunkt w\'fcrde die Referenz aber auch nicht bringen.\par
 \par
-Aller-Allerdings: Soweit ich das sehe, ist das unn\'f6tig. Die Entries k\'f6nnten auch erst on demand beim getter aufruf erzeugt werden. Dann w\'e4r der TypeHandlerManager vorhanden, der enum eintrag k\'f6nnte mit reingesteckt werden.\par
+\cf1 Aller-Allerdings: Soweit ich das sehe, ist das unn\'f6tig. Die Entries k\'f6nnten auch erst on demand beim getter aufruf erzeugt werden. Dann w\'e4r der TypeHandlerManager vorhanden, der enum eintrag k\'f6nnte mit reingesteckt werden.\cf0\par
 \par
 Aller-Aller-Allerdings:\par
 Der TypeHandlerManager hat nach der Initialisierung bisher keine pending enum Eintr\'e4ge, weil die TypeHandler initial vor seiner Erzeugung instanziert werden.\par
-Aber dann m\'fcsste halt im TypeHandlerManager Konstruktor einmal alle schon existierenden TypeHandler durchlaufen, auf enum gepr\'fcft und entsprechende Pending eintr\'e4ge angelegt werden.\par
+\cf1 Aber dann m\'fcsste halt im TypeHandlerManager Konstruktor einmal alle schon existierenden TypeHandler durchlaufen, auf enum gepr\'fcft und entsprechende Pending eintr\'e4ge angelegt werden.\cf0\par
 Die k\'f6nnte der RootResolver dann f\'fcr seine Entries mitverwenden und voil\'e0, die definedRoots w\'e4ren gegen\'fcber den loadedRoots wieder vollst\'e4ndig/synchron von ihren Eintr\'e4ge her.\par
 Dann kann man die Eintr\'e4ge an sich miteinander vergleichen, das ist dann der Punkt von weite oben bzw. gesten.\par
-Aber das muss ich dann am Montag bauen, weil ich daf\'fcr jetzt keine Zeit mehr hab,.\par
-\par
+Aber das muss ich dann am Montag bauen, weil ich daf\'fcr jetzt keine Zeit mehr hab.\par
+\cf1 TODOs oben in rot.\cf0\par
 }
  
