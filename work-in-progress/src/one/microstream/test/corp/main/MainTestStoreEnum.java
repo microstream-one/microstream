@@ -65,14 +65,14 @@ public class MainTestStoreEnum
 	static Object[] createGraph()
 	{
 		return X.array(
-			SimpleEnum.TypeA,
-			SimpleEnum.TypeB,
-			SimpleEnum.TypeC,
-			CrazyEnum.ShouldWorkNormal,
-			CrazyEnum.ShouldWorkSpecial,
-			CrazyEnumSpecialState.SpecialState,
-			CrazyEnumSpecialState.Normal2,
-			CrazyEnumSpecialState.Normal3,
+//			SimpleEnum.TypeA,
+//			SimpleEnum.TypeB,
+//			SimpleEnum.TypeC,
+//			CrazyEnum.ShouldWorkNormal,
+//			CrazyEnum.ShouldWorkSpecial,
+//			CrazyEnumSpecialState.SpecialState,
+//			CrazyEnumSpecialState.Normal2,
+//			CrazyEnumSpecialState.Normal3,
 			StatefulEnum.Type1,
 			StatefulEnum.Type2,
 			StatefulEnum.Type3
@@ -116,9 +116,9 @@ enum SimpleEnum
 
 enum StatefulEnum
 {
-	Type1(100),
-	Type2(200),
-	Type3(300);
+	Type1(177),
+	Type2(277),
+	Type3(377);
 	
 	
 	
@@ -126,7 +126,8 @@ enum StatefulEnum
 	// instance fields //
 	////////////////////
 	
-	private int state;
+	private final int state;
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -137,6 +138,7 @@ enum StatefulEnum
 	{
 		this.state = state;
 	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////

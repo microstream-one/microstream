@@ -558,5 +558,107 @@ Erst mal Methode aufr\'e4umen, Struktur f\'fcr enum validierung und updaten rein
 Kommentar Notizen f\'fcr Konzept machen ...\par
 \par
 \par
+2019-08-09\par
+\par
+Wichtiger als das Roots synchen ist aber erst mal, den RootResolver zu erweitern, damit die IDs aus dem root-Array auch mit den JVM-generierten Instanzen assoziiert werden.\par
+Das Roots synchen geht dann quasi schon in LTM \'fcber bzw. ist eigentlich nur bei \'c4nderungen an Typen n\'f6tig.\par
+\par
+Ah. Problem: Der geht zum Laden und vor dem Synchen des Roots nat\'fcrlich in die BinaryHandlerEnum#create rein, weil erst mal der Objektgraph geladen und erzeugt wird, bevor es weiter geht.\par
+D.h. man darf eigentlich keine Instanzen speichern, sondern nur eine Liste an ObjectIds. Mehr braucht man ja auch nicht, weil die ja nur mit den enum Instanzen assoziiert werden m\'fcssen.\par
+Hm, oder m\'fcssten die als Root-Konstanten dann nicht eigentlich schon gleich zu Beginn geladen werden? Hei\'dft evtl. nachgelagert ... Hm...\par
+\par
+Wobei auch eine OID-Liste nicht reichen w\'fcrde, wenn man ordinal und fieldname validieren will.\par
+Oder man verwendet daf\'fcr die Konstants name liste aus dem TypeHandler. Daf\'fcr ist die ja eigentlich da... \par
+Hm...\par
+\par
+Wobei dann auch ein Problem ist: wenn die Enum Konstanten nur "weak" via Ids und nicht "strong" referenziert werden, dann wirft der Storage GC die weg. Also eine harte Referenz muss in die Root Eintr\'e4ge mit rein.\par
+Das hei\'dft, es muss wohl einen extra Typ "EnumRootEntry" geben, der eine long[] und eine Lazy<Object[]> hat.\par
+\par
+Ooooder ... die create Methode w\'fcrde einfach den Lookup machen. Im Fehlerfall macht die nichts, weil die Validierung sp\'e4ter dann an ordentlicher, zentraler Stelle einen Fehler mit kompletter Analyse wirft.\par
+Eigentlich hat der TypeHandler ja eh schon alles, was er braucht:\par
+- Enum Konstanteninstanzen holt er sich \'fcber den Typ.\par
+- Ordinal steht in den geladenen "Bytes" drin.\par
+- Konstantennamen stehen in den TypeHandler Members und wenn man will, kann man sogar noch den namen einer Enum Instanz validieren, bevor man der falschen Instanz die geladenen Werte reinsetzt...\par
+Das w\'e4r eigentlich ziemlich elegant.\par
+\par
+Das ignoriert nat\'fcrlich v\'f6llig Typ\'e4nderungen, aber das soll es ja auch, denn hier geht es um den Handler f\'fcr den Normalfall. Typ\'e4nderungen werden dann von einem LTM Handler abgedeckt. Mit mapped Instance resolving und stuff.\par
+\par
+Das bau ich so sein, das ist super und macht den Normalfall ziemlich einfach.\par
+Also eigentlich ziemlich das, was ich fr\'fcher hatte, nur dem fr\'fchere Ansatz fehlten die Grundlagen f\'fcr LTM. Die hab ich nachger\'fcstet, aber den einfachen Fall trotzdem einfach gelassen. H\'e4tte mir fr\'fcher einfallen k\'f6nnen, aber egal.\par
+\par
+Hm, noch eine \'dcberlegung:\par
+Sollten andere final primitive Felder von enum instanzen \'fcberhaupt gesetzt werden? Sagen wir eine "final int uniqueId". Die darf ja nicht \'fcberschrieben werden, sondern muss eher validiert werden.\par
+Bei final reference fields ist es ein bisschen trickreicher, weil die ja eine "stub" Instanz f\'fcr einen Entity Graph sein k\'f6nnen (z.B. eine Collections), die durch das Laden wieder gef\'fcllt werden soll.\par
+Aber bei primitives ist es eindeutig.\par
+\par
+Eigentlich muss ich das gleich implementieren. Das ist sonst ein reiner Bug ohne Interpretationsspielraum, der nur im g\'fcnstigsten Fall (meistens) keine Auswirkung hat.\par
+Mach ich mal ...\par
+\par
+Hm: m\'fcssen die primitive Werte wirklich validiert werden?\par
+In die Instanzen gesetzt werden sie auf keinen Fall. Aber reicht das nicht schon aus?\par
+D.h: Ist es es wirklich wert, das Programm mit einer Exception abzubrechen, weil in der Datenbank in ein paar Konstanten veraltete primtive (= konsistenzirrelevante) Werte drin stehen?\par
+Eigentlich nicht.\par
+Was eher Sinn macht, ist beim roots synchen zu schauen, ob die Werte sich ver\'e4ndert haben und dann die aktuelle enum instanz neu abzuspeichern, damit die neuen Werte in der Datenbank stehen.\par
+\par
+Wenn man sich mal folgendes Szenario vorstellt:\par
+Sagen wir, ein Enum Typ hat einen final int uniqueId. Da stand bisher 1, 2, 3, usw. drin und das wurde in der enum ge\'e4ndert zu 1001, 1002, 1003, usw., weil n\'e4mlich auch noch enums dazukommen werden mit 2001, 2002, usw.\par
+Die 1001 steht schon als konstanter Wert in der Klasse, d.h. in der Konstante. Passt schon alles. Alles aktuell, alles korrekt, alles sicher.\par
+Nun werden die enums geladen und verkn\'fcpft. In den geladenen Daten stehen noch die IDs 1, 2, 3 drin.\par
+F\'fcr die Zuordnung werden die nicht benutzt, daf\'fcr reicht die ordinal. Das sind reine User-Daten.\par
+Soll da wirklich die Storage Logik Alarm schlagen, dass der irrelevante Wert, den sie eh ignorieren wird, nicht mehr zu der aktuellen Version des relevanten Werts passt?\par
+Das w\'e4re ziemlich klugscheisserisch kontraproduktiv, oder? "Ich wollt nur mal sagen: Da ist ein Wert, der eh egal ist, aber der ist veraltet, darum brech ich jetzt alles ab."\par
+Meh.\par
+\par
+Nachtr\'e4glichen checken und aktualisieren ja, aber keine Exception.\par
+Hei\'dft ich mach auch erst mal \'fcberhaupt nichts mit Validierung. Das macht die \'c4nderung am Code sehr viel einfacher.\par
+Fertig. Testen.\par
+\par
+Debuggen beim Speichern sieht gut aus. Final int field ist kein setting Member.\par
+Dann jetzt create und update Methoden beim Laden checken.\par
+create geht.\par
+Ach, hehe, in den update kommt er nicht, weil vorher das PersistenceRoots update kommt. In dem findet das root resolving statt und den key "enum 1000056" kann er noch nicht aufl\'f6sen. Klar.\par
+Dann das als n\'e4chstes machen.\par
+\par
+Mal schauen, wie ich das einbau. Das ist nicht so einfach. Der RootsRsolver br\'e4uchte eine Referenz auf den TypeHandlerManager, um sich f\'fcr die im Identifier angegebene enum TypeId den Type bzw. TypeHandler holen zu k\'f6nnen f\'fcr Validierung usw. \par
+Mal suchen ...\par
+Letztendlich w\'e4re das wohl PersistenceFoundation#ensureRootResolverBuilder. Also dort, wo der builder f\'fcr den resolver gebaut wird, muss eine Referenz auf das Typsystem rein, damit der Resolver dann den Lookup machen kann.\par
+\par
+Hm oder moment mal: w\'fcrde es nicht reichen, f\'fcr jeden Roots Eintrag mit Beginn "enum" einfach das Object[] zu laden? Hier muss ja keine wirklich Konstante mit einem final static Feld aufgel\'f6st werden, sondern das Array h\'e4ngt einfach nur als Anker rum, damit die enum instanzen nicht storage-garbage-collectet werden... hm... nochmal im BinaryHandler schauen ...\par
+\par
+Hm... knifflig:\par
+Der BinaryHandler kennt den RootResolver.\par
+Der h\'e4lt sich intern eine eigene Map an Root Instanzen, die von der Logik bei der Initialisierung erzeugt worden sind.\par
+Mit denen m\'fcssen die geladenen Daten quasi gematcht werden.\par
+Nun ist es so:\par
+In den initial erzeugten Roots sind 23 Eintr\'e4ge drin.\par
+In den geladenen 24, weil 23 plus der eine enum Eintrag.\par
+Bzw. nat\'fcrlich alle enum Eintr\'e4ge und ich hab aktuell nur einen.\par
+\par
+Jetzt gibts zwei M\'f6glichkeiten:\par
+1.) enum eintr\'e4ge resolven ist kein lookup in den initial erzeugten, sondern ein Lookup des enum typs und von dem dann die enum Konstanten.\par
+2.) die enum Konstanten m\'fcssen gleich in die initial erzeugten root eintr\'e4ge mit rein. Das w\'e4r sauberer.\par
+\par
+Hm, mit Punkt 2 w\'e4r ich aber wieder an der Stelle von oben: Der Resolver muss bei seiner erzeugung enum stuff mitgegegeben bekommen.\par
+Welche enums, das sagt ihm der TypeHandlerManager, in dem ja vom typehandlers createn her pending eintr\'e4ge sein m\'fcssten.\par
+Das muss ich mal checken. Das w\'e4r super.\par
+Ah, aber problem:\par
+- Das Roots Zeug wird zuerst instanziert.\par
+- Der TypeHandlerManager hat  - seit der \'c4nderung hier - eine Abh\'e4ngigkeit zu dem Roots Zeug.\par
+=> D.h. das Roots Zeug kann nicht einfach so wieder eine Abh\'e4ngigkeit zum TypeHandlerManager haben. Das w\'e4r ein dependency Zirkel.\par
+\par
+Aaaber, hehe: Es gibt aus anderem Grund schon die referenceTypeHandlerManager, die diesen Zirkel durch die Indirektion aufl\'f6st.\par
+Die k\'f6nnte ich einfach mitverwenden.\par
+\par
+Allerdings: die rootEntries werden bereits im Konstruktor von PersistenceRootResolver$Default erzeugt. Zu diesem Zeitpunkt w\'fcrde die Referenz aber auch nicht bringen.\par
+\par
+Aller-Allerdings: Soweit ich das sehe, ist das unn\'f6tig. Die Entries k\'f6nnten auch erst on demand beim getter aufruf erzeugt werden. Dann w\'e4r der TypeHandlerManager vorhanden, der enum eintrag k\'f6nnte mit reingesteckt werden.\par
+\par
+Aller-Aller-Allerdings:\par
+Der TypeHandlerManager hat nach der Initialisierung bisher keine pending enum Eintr\'e4ge, weil die TypeHandler initial vor seiner Erzeugung instanziert werden.\par
+Aber dann m\'fcsste halt im TypeHandlerManager Konstruktor einmal alle schon existierenden TypeHandler durchlaufen, auf enum gepr\'fcft und entsprechende Pending eintr\'e4ge angelegt werden.\par
+Die k\'f6nnte der RootResolver dann f\'fcr seine Entries mitverwenden und voil\'e0, die definedRoots w\'e4ren gegen\'fcber den loadedRoots wieder vollst\'e4ndig/synchron von ihren Eintr\'e4ge her.\par
+Dann kann man die Eintr\'e4ge an sich miteinander vergleichen, das ist dann der Punkt von weite oben bzw. gesten.\par
+Aber das muss ich dann am Montag bauen, weil ich daf\'fcr jetzt keine Zeit mehr hab,.\par
+\par
 }
  

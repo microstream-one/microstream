@@ -11,7 +11,6 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableEnum;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerReflective;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
@@ -20,6 +19,7 @@ import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
+import one.microstream.reflect.XReflect;
 
 public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHandlerReflective<T>
 {
@@ -184,7 +184,7 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 		final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> members
 	)
 	{
-		return members.filterTo(MemberEnum(), this::notJavaLangEnumField).immure();
+		return members.filterTo(MemberEnum(), this::settableField).immure();
 	}
 	
 	@Override
@@ -200,25 +200,40 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	// methods //
 	////////////
 	
-	protected final boolean notJavaLangEnumField(final PersistenceTypeDefinitionMemberFieldReflective m)
+	protected final boolean settableField(final PersistenceTypeDefinitionMemberFieldReflective m)
 	{
-		// (01.08.2019 TM)FIXME: priv#23: DEBUG
-		XDebug.println(m.identifier() + " declaring class = " + m.declaringClass());
-		
+		/*
+		 * Final primitive fields ("primitive instance constants") may not be settable, either.
+		 * E.g. a final int holding some kind of business-logical uniqueId. That may not be changed.
+		 * Final-ly referenced instances might be a different story since they might be meant as a kind of "stub"
+		 * instance for an entity (sub-)graph and are probably expected to be filled upon loading the enum instance.
+		 * Any mutable field must be loaded and set, that is no question.
+		 * But silently changing a final primitive field's value ... that can actually only be a bug.
+		 */
+		return !this.isJavaLangEnumField(m) && !this.isFinalPrimitiveField(m);
+	}
+	
+	protected final boolean isJavaLangEnumField(final PersistenceTypeDefinitionMemberFieldReflective m)
+	{
 		// quick check for "normal" members but also essential for the checking logic below
 		if(m.declaringClass() != java.lang.Enum.class)
 		{
-			return true;
+			return false;
 		}
 		
 		// should Enum fields ever change, it is important to at least notice it and abort.
 		if(isJavaLangEnumName(m) || isJavaLangEnumOrdinal(m))
 		{
-			return false;
+			return true;
 		}
 		
 		// (01.08.2019 TM)EXCP: proper exception
 		throw new RuntimeException("Unknown " + java.lang.Enum.class.getName() + " field: " + m.name());
+	}
+	
+	protected final boolean isFinalPrimitiveField(final PersistenceTypeDefinitionMemberFieldReflective m)
+	{
+		return m.field().getType().isPrimitive() && XReflect.isFinal(m.field());
 	}
 	
 	@Override
@@ -230,30 +245,58 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	@Override
 	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		// (23.07.2019 TM)EXCP: proper exception
-		throw new UnsupportedOperationException(
-			"Instances of an enum type NEVER get created by the library. Only the JVM does that."
-		);
+		final T[] jvmEnumConstants  = this.type().getEnumConstants();
+		final int persistentOrdinal = this.getOrdinal(bytes);
+		
+		// can't validate here since the name String instance might not have been created, yet. See #update.
+		return jvmEnumConstants[persistentOrdinal];
 	}
 	
-	private void validateOrdinal(final Binary bytes, final T instance)
+	public int getOrdinal(final Binary bytes)
 	{
-		final int ordinal = bytes.get_int(this.binaryOffsetOrdinal);
-		if(ordinal == instance.ordinal())
+		return bytes.get_int(this.binaryOffsetOrdinal);
+	}
+	
+	public String getName(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	{
+		return (String)idResolver.lookupObject(bytes.get_long(this.binaryOffsetName));
+	}
+	
+	private void validate(
+		final Binary                      bytes     ,
+		final T                           instance  ,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		// validate ordinal, just in case.
+		final int persistentOrdinal = this.getOrdinal(bytes);
+		if(persistentOrdinal != instance.ordinal())
 		{
-			return;
+			// (01.08.2019 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Inconcistency for " + instance.getDeclaringClass().getName() + "." + instance.name()
+			);
 		}
 		
-		// (01.08.2019 TM)EXCP: proper exception
-		throw new RuntimeException(
-			"Inconcistency for " + instance.getDeclaringClass().getName() + "." + instance.name()
-		);
+		final String persistentName = this.getName(bytes, idResolver);
+		if(!instance.name().equals(persistentName))
+		{
+			// (09.08.2019 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Enum constant inconsistency:"
+				+ " in type " + this.type().getName()
+				+ " persisted instance with ordinal " + persistentOrdinal + ", name \"" + persistentName + "\""
+				+ " does not match"
+				+ " JVM-created instance with ordinal " + instance.ordinal() + ", name \"" + instance.name() + "\""
+			);
+		}
 	}
-	
+		
 	@Override
 	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
 	{
-		this.validateOrdinal(bytes, instance);
+		// must thoroughly validate the linked jvm-generated(!) instance before modifying its state!
+		this.validate(bytes, instance, idResolver);
 		
 		// super class logic already uses only setting members, i.e. not ordinal and name.
 		super.update(bytes, instance, idResolver);

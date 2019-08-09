@@ -959,25 +959,25 @@ public class Persistence
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
-		final String                                 rootIdentifier      ,
-		final Supplier<?>                            rootInstanceSupplier,
-		final PersistenceTypeDescriptionResolverProvider refactoringMapping
+		final String                                     rootIdentifier         ,
+		final Supplier<?>                                rootInstanceSupplier   ,
+		final PersistenceTypeDescriptionResolverProvider typeDescriptionResolver
 	)
 	{
 		return PersistenceRootResolver.Wrap(
 			RootResolver(rootIdentifier, rootInstanceSupplier),
-			refactoringMapping
+			typeDescriptionResolver
 		);
 	}
 	
 	public static final PersistenceRootResolver RootResolver(
-		final Supplier<?>                            rootInstanceSupplier,
-		final PersistenceTypeDescriptionResolverProvider refactoringMapping
+		final Supplier<?>                                rootInstanceSupplier   ,
+		final PersistenceTypeDescriptionResolverProvider typeDescriptionResolver
 	)
 	{
 		return PersistenceRootResolver.Wrap(
 			RootResolver(rootInstanceSupplier),
-			refactoringMapping
+			typeDescriptionResolver
 		);
 	}
 	

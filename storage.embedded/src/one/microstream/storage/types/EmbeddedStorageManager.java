@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceManager;
@@ -316,7 +317,8 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			 *   dictionary entry, anyway?
 			 * - is that a fluid transition to LTM-handling enum constants?
 			 */
-			throw new one.microstream.meta.NotImplementedYetError();
+			XDebug.println("TODO: validateAndUpdateEnumConstants()");
+//			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
 		@Override
