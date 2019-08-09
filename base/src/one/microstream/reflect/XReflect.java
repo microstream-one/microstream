@@ -51,31 +51,6 @@ public final class XReflect
 		return field.getName();
 	}
 
-	public static final boolean isFinalField(final Field field)
-	{
-		return Modifier.isFinal(field.getModifiers());
-	}
-
-	public static final boolean isVariableField(final Field field)
-	{
-		return !Modifier.isFinal(field.getModifiers());
-	}
-
-	public static final boolean isPrimitiveField(final Field field)
-	{
-		return field.getType().isPrimitive();
-	}
-
-	public static final boolean isReferenceField(final Field field)
-	{
-		return !field.getType().isPrimitive();
-	}
-	
-	public static boolean isInstanceReferenceField(final Field field)
-	{
-		return isInstanceField(field) && isReference(field);
-	}
-
 	public static final boolean isInterfaceOfType(
 		final Class<?> interfaceClass           ,
 		final Class<?> implementedSuperInterface

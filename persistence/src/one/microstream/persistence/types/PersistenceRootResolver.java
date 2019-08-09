@@ -235,7 +235,6 @@ public interface PersistenceRootResolver
 		{
 			return this.rootEntries.get(identifier);
 		}
-		
 
 		@Override
 		public String defaultRootIdentifier()
@@ -273,7 +272,7 @@ public interface PersistenceRootResolver
 	
 	
 	public static PersistenceRootResolver Wrap(
-		final PersistenceRootResolver                actualRootResolver,
+		final PersistenceRootResolver                    actualRootResolver        ,
 		final PersistenceTypeDescriptionResolverProvider refactoringMappingProvider
 	)
 	{
@@ -332,10 +331,9 @@ public interface PersistenceRootResolver
 			 * would be mapped to B, which is an error. However, the source of the error is not a bug,
 			 * but an outdated mapping rule defined by the using developer).
 			 */
-			final PersistenceTypeDescriptionResolver resolver         = this.refactoringMappingProvider.provideTypeDescriptionResolver();
-			final String                         sourceIdentifier = PersistenceMetaIdentifiers.normalizeIdentifier(
-				identifier
-			);
+			final PersistenceTypeDescriptionResolver resolver = this.refactoringMappingProvider.provideTypeDescriptionResolver();
+			
+			final String sourceIdentifier = PersistenceMetaIdentifiers.normalizeIdentifier(identifier);
 			
 			final KeyValue<String, String> mapping = resolver.lookup(sourceIdentifier);
 			if(mapping == null)
@@ -504,14 +502,14 @@ public interface PersistenceRootResolver
 			// instance fields //
 			////////////////////
 			
-			private final PersistenceRootEntry.Provider             entryProvider        ;
-			private final PersistenceTypeResolver                   typeResolver         ;
-			private final EqHashTable<String, PersistenceRootEntry> rootEntries          ;
-			private       String                                    defaultRootIdentifier;
-			private       String                                    customRootIdentifier ;
-			private       Reference<Object>                         defaultRoot          ;
-			private       PersistenceTypeDescriptionResolverProvider    refactoring          ;
-			private       PersistenceRefactoringMappingProvider     refactoringMapping   ;
+			private final PersistenceRootEntry.Provider              entryProvider        ;
+			private final PersistenceTypeResolver                    typeResolver         ;
+			private final EqHashTable<String, PersistenceRootEntry>  rootEntries          ;
+			private       String                                     defaultRootIdentifier;
+			private       String                                     customRootIdentifier ;
+			private       Reference<Object>                          defaultRoot          ;
+			private       PersistenceTypeDescriptionResolverProvider refactoring          ;
+			private       PersistenceRefactoringMappingProvider      refactoringMapping   ;
 			
 			
 			

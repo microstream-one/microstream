@@ -2137,6 +2137,10 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		protected PersistenceRootResolver.Builder ensureRootResolverBuilder()
 		{
+			/* (09.08.2019 TM)FIXME: priv#23: link typeHandlerManager and rootsresolver
+			 * Or ... does a oid loading call suffice? ...
+			 */
+//			this.getTypeHandlerManager()
 			return PersistenceRootResolver.Builder();
 		}
 		
