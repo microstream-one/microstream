@@ -12,7 +12,6 @@ import java.nio.charset.Charset;
 import java.time.Duration;
 
 import one.microstream.math.XMath;
-import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageChannelCountProvider;
 import one.microstream.storage.types.StorageDataFileEvaluator;
@@ -109,14 +108,7 @@ public interface Configuration
 	
 	public default EmbeddedStorageFoundation<?> createEmbeddedStorageFoundation()
 	{
-		return this.updateEmbeddedStorageFoundation(EmbeddedStorage.Foundation());
-	}
-	
-	public default EmbeddedStorageFoundation<?>
-		updateEmbeddedStorageFoundation(final EmbeddedStorageFoundation<?> foundation)
-	{
-		ConfigurationConsumer.FoundationUpdater(foundation).accept(this);
-		return foundation;
+		return EmbeddedStorageFoundationCreator.New().createFoundation(this);
 	}
 	
 	/**
