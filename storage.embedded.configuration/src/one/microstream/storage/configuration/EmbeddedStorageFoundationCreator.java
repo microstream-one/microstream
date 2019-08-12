@@ -6,13 +6,8 @@ import static one.microstream.files.XFiles.ensureDirectory;
 
 import java.io.File;
 
-import one.microstream.persistence.internal.FileObjectIdStrategy;
-import one.microstream.persistence.internal.FileTypeIdStrategy;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import one.microstream.persistence.types.PersistenceObjectIdProvider;
-import one.microstream.persistence.types.PersistenceTypeIdProvider;
 import one.microstream.storage.types.EmbeddedStorage;
-import one.microstream.storage.types.EmbeddedStorageConnectionFoundation;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageChannelCountProvider;
@@ -64,23 +59,15 @@ public interface EmbeddedStorageFoundationCreator
 			}
 			
 			final EmbeddedStorageFoundation<?> storageFoundation = EmbeddedStorage.Foundation(configBuilder.createConfiguration());
-			
-			final EmbeddedStorageConnectionFoundation<?> connectionFoundation      = storageFoundation.getConnectionFoundation();
-			final PersistenceTypeDictionaryFileHandler   typeDictionaryFileHandler = this.createTypeDictionaryFileHandler(configuration, baseDir);
-			final PersistenceTypeIdProvider              typeIdProvider            = this.createTypeIdProvider(configuration, baseDir);
-			final PersistenceObjectIdProvider            objectIdProvider          = this.createObjectIdProvider(configuration, baseDir);
-			
-			if(typeDictionaryFileHandler != null)
+
+			final String typeDictionaryFilename = configuration.getTypeDictionaryFilename();
+			if(typeDictionaryFilename != null)
 			{
-				connectionFoundation.setTypeDictionaryIoHandler(typeDictionaryFileHandler);
-			}
-			if(typeIdProvider != null)
-			{
-				connectionFoundation.setTypeIdProvider(typeIdProvider);
-			}
-			if(objectIdProvider != null)
-			{
-				connectionFoundation.setObjectIdProvider(objectIdProvider);
+				storageFoundation.getConnectionFoundation().setTypeDictionaryIoHandler(
+					PersistenceTypeDictionaryFileHandler.New(
+						new File(baseDir, typeDictionaryFilename)
+					)
+				);
 			}
 			
 			return storageFoundation;
@@ -139,26 +126,6 @@ public interface EmbeddedStorageFoundationCreator
 				: PersistenceTypeDictionaryFileHandler.New(
 					new File(baseDir, typeDictionaryFilename)
 				);
-		}
-
-		protected PersistenceTypeIdProvider createTypeIdProvider(final Configuration configuration, final File baseDir)
-		{
-			final String typeIdFilename = configuration.getTypeIdFilename();
-			return typeIdFilename == null
-				? null
-				: FileTypeIdStrategy
-					.New(baseDir, typeIdFilename)
-					.createTypeIdProvider();
-		}
-
-		protected PersistenceObjectIdProvider createObjectIdProvider(final Configuration configuration, final File baseDir)
-		{
-			final String objectIdFilename = configuration.getObjectIdFilename();
-			return objectIdFilename == null
-				? null
-				: FileObjectIdStrategy
-					.New(baseDir, objectIdFilename)
-					.createObjectIdProvider();
 		}
 	}
 }

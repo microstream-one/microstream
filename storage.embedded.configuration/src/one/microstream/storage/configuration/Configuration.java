@@ -261,32 +261,6 @@ public interface Configuration
 	public String getTypeDictionaryFilename();
 	
 	/**
-	 * The name of the type id file. Default is <code>"TypeId.tid"</code>.
-	 *
-	 * @param filenameTypeId
-	 *            new file name
-	 */
-	public Configuration setTypeIdFilename(String filenameTypeId);
-	
-	/**
-	 * The name of the type id file.
-	 */
-	public String getTypeIdFilename();
-	
-	/**
-	 * The name of the object id file. Default is <code>"ObjectId.oid"</code>.
-	 *
-	 * @param filenameObjectId
-	 *            new file name
-	 */
-	public Configuration setObjectIdFilename(String filenameObjectId);
-	
-	/**
-	 * The name of the object id file.
-	 */
-	public String getObjectIdFilename();
-	
-	/**
 	 * Interval in milliseconds for the houskeeping. This is work like garbage
 	 * collection or cache checking. In combination with
 	 * {@link #setHouseKeepingNanoTimeBudget(long)} the maximum processor
@@ -447,8 +421,6 @@ public interface Configuration
 		private String transactionFileSuffix    = StorageFileProvider.Defaults.defaultTransactionFileSuffix();
 		private String typeDictionaryFilename   = null;
 		private int    channelCount             = StorageChannelCountProvider.Defaults.defaultChannelCount();
-		private String typeIdFilename           = null;
-		private String objectIdFilename         = null;
 		private long   houseKeepingIntervalMs   =
 			StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs();
 		private long   houseKeepingTimeBudgetNs =
@@ -606,32 +578,6 @@ public interface Configuration
 		public String getTypeDictionaryFilename()
 		{
 			return this.typeDictionaryFilename;
-		}
-		
-		@Override
-		public Configuration setTypeIdFilename(final String typeIdFilename)
-		{
-			this.typeIdFilename = notEmpty(typeIdFilename);
-			return this;
-		}
-		
-		@Override
-		public String getTypeIdFilename()
-		{
-			return this.typeIdFilename;
-		}
-		
-		@Override
-		public Configuration setObjectIdFilename(final String objectIdFilename)
-		{
-			this.objectIdFilename = notEmpty(objectIdFilename);
-			return this;
-		}
-		
-		@Override
-		public String getObjectIdFilename()
-		{
-			return this.objectIdFilename;
 		}
 		
 		@Override

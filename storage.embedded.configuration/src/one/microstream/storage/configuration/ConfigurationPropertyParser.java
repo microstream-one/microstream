@@ -105,18 +105,6 @@ public interface ConfigurationPropertyParser
 				}
 				break;
 			
-				case TYPE_ID_FILENAME:
-				{
-					configuration.setTypeIdFilename(notEmpty(value));
-				}
-				break;
-			
-				case OBJECT_ID_FILENAME:
-				{
-					configuration.setObjectIdFilename(notEmpty(value));
-				}
-				break;
-			
 				case HOUSEKEEPING_INTERVAL:
 				{
 					configuration.setHouseKeepingInterval(this.parseDurationMillies(value).toMillis());
