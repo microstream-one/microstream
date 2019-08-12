@@ -12,6 +12,7 @@ import one.microstream.persistence.internal.FileTypeIdStrategy;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceTypeIdProvider;
+import one.microstream.storage.types.EmbeddedStorageConnectionFoundation;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageChannelCountProvider;
@@ -67,16 +68,25 @@ public interface ConfigurationConsumer extends Consumer<Configuration>
 				configBuilder.setBackupSetup(Storage.BackupSetup(backupDirectory));
 			}
 			
-			final StorageConfiguration                 storageConfiguration      = configBuilder.createConfiguration();
-			final PersistenceTypeDictionaryFileHandler typeDictionaryFileHandler = this.createTypeDictionaryFileHandlery(configuration, baseDir);
-			final PersistenceTypeIdProvider            typeIdProvider            = this.createTypeIdProvider(configuration, baseDir);
-			final PersistenceObjectIdProvider          objectIdProvider          = this.createObjectIdProvider(configuration, baseDir);
+			this.storageFoundation.setConfiguration(configBuilder.createConfiguration());
+
+			final EmbeddedStorageConnectionFoundation<?> connectionFoundation      = this.storageFoundation.getConnectionFoundation();
+			final PersistenceTypeDictionaryFileHandler   typeDictionaryFileHandler = this.createTypeDictionaryFileHandler(configuration, baseDir);
+			final PersistenceTypeIdProvider              typeIdProvider            = this.createTypeIdProvider(configuration, baseDir);
+			final PersistenceObjectIdProvider            objectIdProvider          = this.createObjectIdProvider(configuration, baseDir);
 			
-			this.storageFoundation.setConfiguration(storageConfiguration)
-				.getConnectionFoundation()
-				.setTypeDictionaryIoHandler(typeDictionaryFileHandler)
-				.setTypeIdProvider         (typeIdProvider           )
-				.setObjectIdProvider       (objectIdProvider         );
+			if(typeDictionaryFileHandler != null)
+			{
+				connectionFoundation.setTypeDictionaryIoHandler(typeDictionaryFileHandler);
+			}
+			if(typeIdProvider != null)
+			{
+				connectionFoundation.setTypeIdProvider(typeIdProvider);
+			}
+			if(objectIdProvider != null)
+			{
+				connectionFoundation.setObjectIdProvider(objectIdProvider);
+			}
 		}
 		
 		protected StorageFileProvider createFileProvider(final Configuration configuration, final File baseDir)
@@ -124,25 +134,34 @@ public interface ConfigurationConsumer extends Consumer<Configuration>
 			);
 		}
 
-		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryFileHandlery(final Configuration configuration, final File baseDir)
+		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryFileHandler(final Configuration configuration, final File baseDir)
 		{
-			return PersistenceTypeDictionaryFileHandler.New(
-				new File(baseDir, configuration.getTypeDictionaryFilename())
-			);
+			final String typeDictionaryFilename = configuration.getTypeDictionaryFilename();
+			return typeDictionaryFilename == null
+				? null
+				: PersistenceTypeDictionaryFileHandler.New(
+					new File(baseDir, typeDictionaryFilename)
+				);
 		}
 
 		protected PersistenceTypeIdProvider createTypeIdProvider(final Configuration configuration, final File baseDir)
 		{
-			return FileTypeIdStrategy
-				.New(baseDir, configuration.getTypeIdFilename())
-				.createTypeIdProvider();
+			final String typeIdFilename = configuration.getTypeIdFilename();
+			return typeIdFilename == null
+				? null
+				: FileTypeIdStrategy
+					.New(baseDir, typeIdFilename)
+					.createTypeIdProvider();
 		}
 
 		protected PersistenceObjectIdProvider createObjectIdProvider(final Configuration configuration, final File baseDir)
 		{
-			return FileObjectIdStrategy
-				.New(baseDir, configuration.getObjectIdFilename())
-				.createObjectIdProvider();
+			final String objectIdFilename = configuration.getObjectIdFilename();
+			return objectIdFilename == null
+				? null
+				: FileObjectIdStrategy
+					.New(baseDir, objectIdFilename)
+					.createObjectIdProvider();
 		}
 	}
 }

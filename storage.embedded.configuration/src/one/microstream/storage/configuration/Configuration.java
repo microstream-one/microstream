@@ -12,8 +12,6 @@ import java.nio.charset.Charset;
 import java.time.Duration;
 
 import one.microstream.math.XMath;
-import one.microstream.persistence.internal.FileObjectIdStrategy;
-import one.microstream.persistence.internal.FileTypeIdStrategy;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageChannelCountProvider;
@@ -449,20 +447,16 @@ public interface Configuration
 		private String baseDirectory            = StorageFileProvider.Defaults.defaultStorageDirectory();
 		private String deletionDirectory        = StorageFileProvider.Defaults.defaultDeletionDirectory();
 		private String truncationDirectory      = StorageFileProvider.Defaults.defaultTruncationDirectory();
-		private String backupDirectory          = null;                                                        // no
-																												// on-the-fly
-																												// backup
-																												// by
-																												// default
+		private String backupDirectory          = null; // no on-the-fly backup by default
 		private String channelDirectoryPrefix   = StorageFileProvider.Defaults.defaultChannelDirectoryPrefix();
 		private String dataFilePrefix           = StorageFileProvider.Defaults.defaultStorageFilePrefix();
 		private String dataFileSuffix           = StorageFileProvider.Defaults.defaultStorageFileSuffix();
 		private String transactionFilePrefix    = StorageFileProvider.Defaults.defaultTransactionFilePrefix();
 		private String transactionFileSuffix    = StorageFileProvider.Defaults.defaultTransactionFileSuffix();
-		private String typeDictionaryFilename   = StorageFileProvider.Defaults.defaultTypeDictionaryFileName();
+		private String typeDictionaryFilename   = null;
 		private int    channelCount             = StorageChannelCountProvider.Defaults.defaultChannelCount();
-		private String typeIdFilename           = FileTypeIdStrategy.defaultFilename();
-		private String objectIdFilename         = FileObjectIdStrategy.defaultFilename();
+		private String typeIdFilename           = null;
+		private String objectIdFilename         = null;
 		private long   houseKeepingIntervalMs   =
 			StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs();
 		private long   houseKeepingTimeBudgetNs =
