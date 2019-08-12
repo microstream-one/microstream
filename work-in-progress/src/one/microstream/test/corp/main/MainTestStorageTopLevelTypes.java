@@ -2,7 +2,6 @@ package one.microstream.test.corp.main;
 
 import java.util.Arrays;
 
-import one.microstream.persistence.types.Persistence;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
 
@@ -11,19 +10,15 @@ public class MainTestStorageTopLevelTypes
 {
 	public static void main(final String[] args)
 	{
-		final one.microstream.reference.Reference<Object>               root         = Reference.New(null);
-
-		final one.microstream.persistence.types.PersistenceRootResolver rootResolver = Persistence.RootResolver(root);
-		
-		final one.microstream.storage.types.EmbeddedStorageManager      storage      = EmbeddedStorage
+		final one.microstream.reference.Reference<Object>          root    = Reference.New(null);
+		final one.microstream.storage.types.EmbeddedStorageManager storage = EmbeddedStorage
 			.Foundation()
-			.setRootResolver(rootResolver)
+			.setRoot(root)
 			.start()
 		;
-		
-		final one.microstream.storage.types.StorageConnection           connection  = storage.createConnection();
-		
-		final one.microstream.persistence.types.Storer                  storer      = connection.createStorer();
+		                                                                      
+		final one.microstream.storage.types.StorageConnection connection = storage.createConnection();
+		final one.microstream.persistence.types.Storer        storer     = connection.createStorer();
 				
 		final java.util.List<TestPerson> entityGraph = Arrays.asList(
 			new TestPerson(),

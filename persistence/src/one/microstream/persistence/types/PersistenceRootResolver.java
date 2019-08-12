@@ -170,27 +170,28 @@ public interface PersistenceRootResolver
 	}
 	
 	
+	// (12.08.2019 TM)FIXME: priv#23: not sure if these two methods are still valid after switching to ~Provider
 	
-	public static PersistenceRootResolver New(
-		final Supplier<?> customRootSupplier
-	)
-	{
-		return Builder()
-			.registerCustomRootSupplier(customRootSupplier)
-			.build()
-		;
-	}
-	
-	public static PersistenceRootResolver New(
-		final String      customRootIdentifier,
-		final Supplier<?> customRootSupplier
-	)
-	{
-		return Builder()
-			.registerCustomRootSupplier(customRootIdentifier, customRootSupplier)
-			.build()
-		;
-	}
+//	public static PersistenceRootResolver New(
+//		final Supplier<?> customRootSupplier
+//	)
+//	{
+//		return PersistenceRootResolverProvider.New()
+//			.registerCustomRootSupplier(customRootSupplier)
+//			.provideRootResolver()
+//		;
+//	}
+//
+//	public static PersistenceRootResolver New(
+//		final String      customRootIdentifier,
+//		final Supplier<?> customRootSupplier
+//	)
+//	{
+//		return PersistenceRootResolverProvider.New()
+//			.registerCustomRootSupplier(customRootIdentifier, customRootSupplier)
+//			.provideRootResolver()
+//		;
+//	}
 	
 	public final class Default implements PersistenceRootResolver
 	{
@@ -198,11 +199,11 @@ public interface PersistenceRootResolver
 		// instance fields //
 		////////////////////
 		
-
-		private final String                                         defaultRootIdentifier;
-		private final String                                         customRootIdentifier ;
-		private final Reference<Object>                              defaultRoot          ;
-		private final EqConstHashTable<String, PersistenceRootEntry> rootEntries          ;
+		private final String                                         defaultRootIdentifier      ;
+		private final Reference<Object>                              defaultRoot                ;
+		private final String                                         customRootIdentifier       ;
+		private final EqConstHashTable<String, PersistenceRootEntry> rootEntries                ;
+		private final Reference<PersistenceTypeHandlerManager<?>>    referenceTypeHandlerManager;
 
 
 
@@ -211,17 +212,19 @@ public interface PersistenceRootResolver
 		/////////////////
 
 		Default(
-			final String                                         defaultRootIdentifier,
-			final String                                         customRootIdentifier ,
-			final Reference<Object>                              defaultRoot          ,
-			final EqConstHashTable<String, PersistenceRootEntry> rootEntries
+			final String                                         defaultRootIdentifier      ,
+			final Reference<Object>                              defaultRoot                ,
+			final String                                         customRootIdentifier       ,
+			final EqConstHashTable<String, PersistenceRootEntry> rootEntries                ,
+			final Reference<PersistenceTypeHandlerManager<?>>    referenceTypeHandlerManager
 		)
 		{
 			super();
-			this.defaultRootIdentifier = defaultRootIdentifier;
-			this.customRootIdentifier  = customRootIdentifier ;
-			this.defaultRoot           = defaultRoot          ;
-			this.rootEntries           = rootEntries          ;
+			this.defaultRootIdentifier       = defaultRootIdentifier      ;
+			this.customRootIdentifier        = customRootIdentifier       ;
+			this.defaultRoot                 = defaultRoot                ;
+			this.rootEntries                 = rootEntries                ;
+			this.referenceTypeHandlerManager = referenceTypeHandlerManager;
 		}
 
 
@@ -285,7 +288,7 @@ public interface PersistenceRootResolver
 		// instance fields //
 		////////////////////
 		
-		final PersistenceRootResolver                actualRootResolver        ;
+		final PersistenceRootResolver                    actualRootResolver        ;
 		final PersistenceTypeDescriptionResolverProvider refactoringMappingProvider;
 		
 		
@@ -396,30 +399,7 @@ public interface PersistenceRootResolver
 				
 	}
 	
-	public static PersistenceRootResolver.Builder Builder()
-	{
-		return Builder(PersistenceTypeResolver.Default());
-	}
-	
-	public static PersistenceRootResolver.Builder Builder(
-		final PersistenceTypeResolver typeResolver
-	)
-	{
-		return Builder(typeResolver, PersistenceRootEntry::New);
-	}
-	
-	public static PersistenceRootResolver.Builder Builder(
-		final PersistenceTypeResolver       typeResolver ,
-		final PersistenceRootEntry.Provider entryProvider
-	)
-	{
-		final PersistenceRootResolver.Builder.Default builder = new PersistenceRootResolver.Builder.Default(
-			notNull(typeResolver) ,
-			notNull(entryProvider)
-		);
-		
-		return builder;
-	}
+
 		
 	/**
 	 * Central wrapping method mosty to have a unified and concisely named location for the lambda.
@@ -435,250 +415,6 @@ public interface PersistenceRootResolver
 			customRootInstance
 		;
 	}
-	
-	public interface Builder
-	{
-		public String defaultRootIdentifier();
 		
-		public String customRootIdentifier();
-		
-		public default boolean hasRootRegistered()
-		{
-			return this.defaultRootIdentifier() != null || this.customRootIdentifier() != null;
-		}
-		
-		public default Builder registerDefaultRoot(final Reference<Object> defaultRoot)
-		{
-			return this.registerDefaultRoot(Persistence.defaultRootIdentifier(), defaultRoot);
-		}
-		
-		public default Builder registerCustomRoot(final Object customRoot)
-		{
-			return this.registerCustomRootSupplier(wrapCustomRoot(customRoot));
-		}
-		
-		public default Builder registerCustomRootSupplier(final Supplier<?> instanceSupplier)
-		{
-			return this.registerCustomRootSupplier(Persistence.customRootIdentifier(), instanceSupplier);
-		}
-		
-		public Builder registerDefaultRoot(String defaultRootIdentifier, Reference<Object> defaultRoot);
-		
-		public Builder registerCustomRootSupplier(String customRootIdentifier, Supplier<?> instanceSupplier);
-		
-		public default Builder registerCustomRoot(final String customRootIdentifier, final Object customRoot)
-		{
-			return this.registerCustomRootSupplier(customRootIdentifier, wrapCustomRoot(customRoot));
-		}
-		
-		public Builder registerRoot(String identifier, Supplier<?> instanceSupplier);
-		
-		public default Builder registerRoots(final XGettingTable<String, Supplier<?>> roots)
-		{
-			synchronized(this)
-			{
-				roots.iterate(kv ->
-					this.registerRoot(kv.key(), kv.value())
-				);
-			}
-			return this;
-		}
-		
-		public default Builder registerRoot(final String identifier, final Object instance)
-		{
-			return this.registerRoot(identifier, () -> instance);
-		}
-		
-		public Builder setRefactoring(PersistenceTypeDescriptionResolverProvider refactoring);
-		
-		public Builder setRefactoring(PersistenceRefactoringMappingProvider refactoringMapping);
-		
-				
-		public PersistenceRootResolver build();
-		
-		public class Default implements PersistenceRootResolver.Builder
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields //
-			////////////////////
-			
-			private final PersistenceRootEntry.Provider              entryProvider        ;
-			private final PersistenceTypeResolver                    typeResolver         ;
-			private final EqHashTable<String, PersistenceRootEntry>  rootEntries          ;
-			private       String                                     defaultRootIdentifier;
-			private       String                                     customRootIdentifier ;
-			private       Reference<Object>                          defaultRoot          ;
-			private       PersistenceTypeDescriptionResolverProvider refactoring          ;
-			private       PersistenceRefactoringMappingProvider      refactoringMapping   ;
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-			
-			Default(
-				final PersistenceTypeResolver       typeResolver ,
-				final PersistenceRootEntry.Provider entryProvider
-			)
-			{
-				super();
-				this.typeResolver  = typeResolver;
-				this.entryProvider = entryProvider;
-				this.rootEntries   = this.initializeRootEntries();
-			}
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-			
-			/**
-			 * System constants that must be present and may not be replaced by user logic are initially registered.
-			 */
-			private EqHashTable<String, PersistenceRootEntry> initializeRootEntries()
-			{
-				final EqHashTable<String, PersistenceRootEntry> entries = EqHashTable.New();
-				
-				for(final KeyValue<String, Supplier<?>> entry : PersistenceMetaIdentifiers.defineConstantSuppliers())
-				{
-					entries.add(entry.key(), this.entryProvider.provideRootEntry(entry.key(), entry.value()));
-				}
-								
-				return entries;
-			}
-			
-			@Override
-			public String customRootIdentifier()
-			{
-				return this.customRootIdentifier;
-			}
-			
-			@Override
-			public String defaultRootIdentifier()
-			{
-				return this.defaultRootIdentifier;
-			}
-
-			@Override
-			public Builder registerDefaultRoot(
-				final String            defaultRootIdentifier,
-				final Reference<Object> defaultRoot
-			)
-			{
-				notNull(defaultRootIdentifier);
-				
-				// current main root identifier must be removed in any case because of adding logic later.
-				this.rootEntries.removeFor(defaultRootIdentifier);
-				this.addEntry(defaultRootIdentifier, () -> defaultRoot);
-				this.defaultRootIdentifier = defaultRootIdentifier;
-				this.defaultRoot           = defaultRoot;
-				
-				return this;
-			}
-			
-			@Override
-			public Builder registerCustomRootSupplier(
-				final String      customRootIdentifier,
-				final Supplier<?> customRootSupplier
-			)
-			{
-				notNull(customRootIdentifier);
-				
-				// current main root identifier must be removed in any case because of adding logic later.
-				this.rootEntries.removeFor(customRootIdentifier);
-				this.addEntry(customRootIdentifier, customRootSupplier);
-				this.customRootIdentifier = customRootIdentifier;
-				
-				return this;
-			}
-			
-			@Override
-			public final synchronized Builder registerRoot(
-				final String      identifier      ,
-				final Supplier<?> instanceSupplier
-			)
-			{
-				final PersistenceRootEntry entry = this.entryProvider.provideRootEntry(identifier, instanceSupplier);
-				this.addEntry(identifier, entry);
-				
-				return this;
-			}
-			
-			private void addEntry(
-				final String      identifier      ,
-				final Supplier<?> instanceSupplier
-			)
-			{
-				final PersistenceRootEntry entry = this.entryProvider.provideRootEntry(identifier, instanceSupplier);
-				this.addEntry(identifier, entry);
-			}
-			
-			private void addEntry(final String identifier, final PersistenceRootEntry entry)
-			{
-				if(this.rootEntries.add(identifier, entry))
-				{
-					return;
-				}
-				
-				throw new RuntimeException(); // (17.04.2018 TM)EXCP: proper exception
-			}
-						
-			@Override
-			public final synchronized PersistenceRootResolver build()
-			{
-				final PersistenceRootResolver resolver = new PersistenceRootResolver.Default(
-					this.defaultRootIdentifier,
-					this.customRootIdentifier ,
-					this.defaultRoot          ,
-					this.rootEntries.immure()
-				);
-				
-				final PersistenceTypeDescriptionResolverProvider refactoring = this.getBuildRefactoring();
-				
-				return refactoring == null
-					? resolver
-					: PersistenceRootResolver.Wrap(resolver, refactoring)
-				;
-			}
-			
-			protected PersistenceTypeDescriptionResolverProvider getBuildRefactoring()
-			{
-				if(this.refactoring != null)
-				{
-					return this.refactoring;
-				}
-				
-				if(this.refactoringMapping != null)
-				{
-					return PersistenceTypeDescriptionResolverProvider.Caching(
-						this.typeResolver,
-						this.refactoringMapping
-					);
-				}
-				
-				return null;
-			}
-			
-			@Override
-			public final synchronized Builder setRefactoring(
-				final PersistenceTypeDescriptionResolverProvider refactoring
-			)
-			{
-				this.refactoring = refactoring;
-				return this;
-			}
-			
-			@Override
-			public final synchronized Builder setRefactoring(
-				final PersistenceRefactoringMappingProvider refactoringMapping
-			)
-			{
-				this.refactoringMapping = refactoringMapping;
-				return this;
-			}
-		}
-	}
 	
 }

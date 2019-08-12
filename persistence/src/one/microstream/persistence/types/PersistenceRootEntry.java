@@ -5,6 +5,8 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Supplier;
 
+import one.microstream.chars.XChars;
+
 public interface PersistenceRootEntry
 {
 	public String identifier();
@@ -72,6 +74,12 @@ public interface PersistenceRootEntry
 				? this.instanceSupplier.get()
 				: null
 			;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return this.identifier + ": " + XChars.systemString(this.instance());
 		}
 		
 	}

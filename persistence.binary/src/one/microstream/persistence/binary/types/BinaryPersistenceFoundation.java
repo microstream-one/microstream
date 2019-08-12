@@ -237,7 +237,7 @@ extends PersistenceFoundation<Binary, F>
 		protected PersistenceRootsProvider<Binary> ensureRootsProviderInternal()
 		{
 			return BinaryPersistenceRootsProvider.New(
-				this.getRootResolver()
+				this.getRootResolverProvider()
 			);
 		}
 		

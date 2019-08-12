@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerEnsurer;
 import one.microstream.persistence.types.PersistenceTypeHandlerProvider;
@@ -154,6 +155,18 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	public final <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 	{
 		return this.typeHandlerEnsurer.iterateTypeHandlers(iterator);
+	}
+	
+	@Override
+	public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(final C iterator)
+	{
+		return this.typeHandlerEnsurer.iterateLegacyTypeHandlers(iterator);
+	}
+	
+	@Override
+	public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateAllTypeHandlers(final C iterator)
+	{
+		return this.typeHandlerEnsurer.iterateAllTypeHandlers(iterator);
 	}
 
 }

@@ -1,5 +1,5 @@
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\colortbl ;\red255\green0\blue0;}
+{\colortbl ;\red255\green0\blue0;\red102\green102\blue102;}
 {\*\generator Riched20 10.0.17763}\viewkind4\uc1 
 \pard\sl276\slmult1\f0\fs28\lang7 2019-07-26\par
 \par
@@ -646,19 +646,171 @@ Ah, aber problem:\par
 - Der TypeHandlerManager hat  - seit der \'c4nderung hier - eine Abh\'e4ngigkeit zu dem Roots Zeug.\par
 => D.h. das Roots Zeug kann nicht einfach so wieder eine Abh\'e4ngigkeit zum TypeHandlerManager haben. Das w\'e4r ein dependency Zirkel.\par
 \par
-\cf1 Aaaber, hehe: Es gibt aus anderem Grund schon die referenceTypeHandlerManager, die diesen Zirkel durch die Indirektion aufl\'f6st.\par
+Aaaber, hehe: Es gibt aus anderem Grund schon die referenceTypeHandlerManager, die diesen Zirkel durch die Indirektion aufl\'f6st.\par
 Die k\'f6nnte ich einfach mitverwenden.\par
-\cf0\par
-Allerdings: die rootEntries werden bereits im Konstruktor von PersistenceRootResolver$Default erzeugt. Zu diesem Zeitpunkt w\'fcrde die Referenz aber auch nicht bringen.\par
 \par
-\cf1 Aller-Allerdings: Soweit ich das sehe, ist das unn\'f6tig. Die Entries k\'f6nnten auch erst on demand beim getter aufruf erzeugt werden. Dann w\'e4r der TypeHandlerManager vorhanden, der enum eintrag k\'f6nnte mit reingesteckt werden.\cf0\par
+Allerdings: die rootEntries werden bereits im Konstruktor von PersistenceRootResolver$Default erzeugt. Zu diesem Zeitpunkt w\'fcrde die Referenz aber auch nichts bringen.\par
+\par
+Aller-Allerdings: Soweit ich das sehe, ist das unn\'f6tig. Die Entries k\'f6nnten auch erst on demand beim getter aufruf erzeugt werden. Dann w\'e4r der TypeHandlerManager vorhanden, der enum eintrag k\'f6nnte mit reingesteckt werden.\par
 \par
 Aller-Aller-Allerdings:\par
 Der TypeHandlerManager hat nach der Initialisierung bisher keine pending enum Eintr\'e4ge, weil die TypeHandler initial vor seiner Erzeugung instanziert werden.\par
-\cf1 Aber dann m\'fcsste halt im TypeHandlerManager Konstruktor einmal alle schon existierenden TypeHandler durchlaufen, auf enum gepr\'fcft und entsprechende Pending eintr\'e4ge angelegt werden.\cf0\par
+Aber dann m\'fcsste halt im TypeHandlerManager Konstruktor einmal alle schon existierenden TypeHandler durchlaufen, auf enum gepr\'fcft und entsprechende Pending eintr\'e4ge angelegt werden.\par
 Die k\'f6nnte der RootResolver dann f\'fcr seine Entries mitverwenden und voil\'e0, die definedRoots w\'e4ren gegen\'fcber den loadedRoots wieder vollst\'e4ndig/synchron von ihren Eintr\'e4ge her.\par
 Dann kann man die Eintr\'e4ge an sich miteinander vergleichen, das ist dann der Punkt von weite oben bzw. gesten.\par
 Aber das muss ich dann am Montag bauen, weil ich daf\'fcr jetzt keine Zeit mehr hab.\par
-\cf1 TODOs oben in rot.\cf0\par
+\par
+\par
+\par
+2019-08-12\par
+\par
+Ausgedachte TODOs umsetzen.\par
+\par
+t RootsResolver m\'fcsste referenceTypeHandlerManager verwenden, die den Zirkel durch die Indirektion aufl\'f6st.\par
+t Die PersistenceRootResolver$Default Entries k\'f6nnten auch erst on demand beim getter aufruf erzeugt werden. \par
+t Dann m\'fcsste halt im TypeHandlerManager Konstruktor einmal alle schon existierenden TypeHandler durchlaufen, auf enum gepr\'fcft und entsprechende Pending eintr\'e4ge angelegt werden.\par
+\par
+Dabei aufgefallen:\par
+PersistenceTypeHandlerIterable#iterateTypeHandlers sollte vielleicht besser unterschieden werden nach live / legacy / all.\par
+Momentan l\'e4uft es f\'fcr die enum registrierung "zuf\'e4llig" richtig, aber eine \'c4nderung daran aus anderem Grund w\'fcrde dann als Seiteneffekt das enum Handling ruinieren.\par
+\par
+Mal so umbauen/erweitern.\par
+\par
+Dabei aufgefallen:\par
+PersistenceCustomTypeHandlerRegistry registriert legacy type handlers mit Instanzgleichheit. Sollte das nicht irgendwie TypeId-Gleichheit sein, oder so?\par
+Recherchieren ...\par
+Hm. Aber die TypeId ist nicht immer beim Start bekannt. Wenn der LTH aus einer TypeDefinition abgeleitet ist, dann schon. Aber wenn es ein custom geschriebener ist, dann nicht.\par
+Den entity type kann man auch nicht hernehmen, weil die LTHs ja nicht nach dem registriert werden, das ist ja nur bei den live der Fall.\par
+Hm. Ich glaub, die Idee ist wirklich, die per Identit\'e4t zu sammeln: Einfach mal alle und dann schauen, welcher passt. Nur derselbe mehrfach macht halt keinen Sinn, darum instance identity hash enum. Okay, passt.\par
+Aber mal entsprechenden Kommentar hinmachen.\par
+\par
+Mit TODOs weitermachen ...\par
+\par
+Moment mal: die Entries so einfach on demand builden geht nicht. Die werden ja im Builder gesammelt und bei der Resolver Instanzierung \'fcbergeben. Und selbst im Builder werden sie schon on the fly erzeugt.\par
+Oder hab ich da am Freitag wo anders gekuckt ...?\par
+Recherchieren ...\par
+Ah, genau: im $Default Konstruktor vom Builder, nicht von den Roots selbst.\par
+Hm.... Dann m\'fcsste die Initialisierung bis ganz zum Ende durchgeschoben werden ...\par
+Das muss ich durchdenken.\par
+\par
+Ah: das im Builder sind die System Konstanten. Die im Konstruktor gleich zu registrieren ist auch okay.\par
+Das Problem ist eher: Der Prozess, um auch enum Konstanten zu registrieren, br\'e4uchte den ResolverBuilder anstatt den fertigen Resolver.\par
+\par
+Das w\'e4re die Stelle von den \'dcberlegungen oben:\par
+\cf2\i Der Resolver muss bei seiner erzeugung enum stuff mitgegegeben bekommen.\par
+Welche enums, das sagt ihm der TypeHandlerManager, in dem ja vom typehandlers createn her pending eintr\'e4ge sein m\'fcssten.\par
+\cf0\i0\par
+D.h. der TypeHandlerManager m\'fcsste dem Resolver Builder noch was mitgeben und DANN d\'fcrfte der erste builden.\par
+Mal schauen, ob das mit dem Ablauf vereinbar ist ...\par
+\par
+Hm... das ist jetzt eine lustige Abh\'e4ngigkeitskette:\par
+- PersistenceRootResolver.Builder#build wird aufgerufen in EmbeddedStorageConnectionFoundation#ensureRootResolver\par
+- Das wiederum wie \'fcblich in EmbeddedStorageConnectionFoundation#getRootResolver\par
+- Das in BinaryPersistenceFoundation#ensureRootsProviderInternal\par
+- Das in PersistenceFoundation#ensureRootsProvider\par
+- Das in PersistenceFoundation#getRootsProvider\par
+- Und das schlie\'dflich in, \'dcberraschung: PersistenceFoundation#ensureTypeHandlerManager\par
+\par
+Also das hei\'dft:\par
+- Der Builder erzeugt einen Resolver\par
+- Der Resolver wird gewrappt in einem PersistenceRootsProvider.\par
+- Und der wird verwendet/gekannt vom TypeHandlerManager.\par
+- Und das nur f\'fcr die Enum Erweiterung, sonst f\'fcr nix. Und das auch nur mit peekRoots, nicht mit einen zwingend forderndem.\par
+\par
+Und das hei\'dft wiederum:\par
+- Der TypeHandlerManager k\'f6nnte den RootsProvider kennen (tut er schon).\par
+- Der RootsProvider k\'f6nnte intern den Resolver.Builder kennen (umbenannt zu ResolverProvider).\par
+- Der TypeHandlerManager k\'f6nnte \'fcber den RootsProvider zu ber\'fccksichtigende Eintr\'e4ge an den ResolverProvider weiterleiten.\par
+- Dann kennt der Resolver.Builder/Provider alle n\'f6tigen Entries.\par
+- Dann wird daraus bei Bedarf eine Resolver Instanz inklusive initial registrierten Enum Root Eintr\'e4gen erzeugt.\par
+- Daraus die Roots Instanz an sich inklusive den initial erzeugten Enum Root Eintr\'e4gen.\par
+- Die dynamisch dazukommenden Enum Root Eintr\'e4ge werden registriert, wie gehabt. Das geht ja schon.\par
+- Alle sind gl\'fccklich.\par
+\par
+Das bau ich mal so.\par
+\par
+Damit fliegt der RootResolver auf dem Foundation-Level raus.\par
+Oh und damit wird auch die Konsistenzpr\'fcfung \'fcberfl\'fcssig, ob es einen custom root und einen root resolver gleichzeitig gibt.\par
+Jetzt gibt es nur noch: Falls es einen Custom Root gibt, wird der im RootResolverProvider registriert.\par
+Das ist gut.\par
+Und es f\'e4llt die Durchreich-Methode EmbeddedStorageFoundation#setRootResolver weg. Sehr sch\'f6n.\par
+\par
+Dann muss das mit dem DefaultRoot ensuren aber anders werden. Momentan setzt die Foundation Logik den on demand in den builder/provider rein, bevor der RootResolver ersetzt wird.\par
+Und das mit dem RefactoringMapping muss auch anders werden:\par
+Die Foundation hat das bisher immer dazugewrappt. Der Provider wrappt es nur bei bedarf, d.h. wenn es nicht null ist.\par
+Das hei\'dft dann aber, dass das Refactoring Mapping irgendwie garantiert in den Provider gesetzt werden muss.\par
+Und DAS wirft wiederum die Frage auf, ob der Wrapper \'fcberhaupt noch sinn macht.\par
+Eigentlich kann der gleich ganz raus und das Refactoring Mapping ein fester Teil des RootResolvers werden. Oder macht die Trennung Sinn f\'fcr customizing? Der "einfache" Resolver muss es nicht ber\'fccksichtigen und dann wird der Refactoring Aspekt dazugewrappt. Ja, lass ich mal so getrennt.\par
+Aber es bleibt der Punkt, dass das setzen des Refactoring Providers garantiert werden muss. Mal suchen.\par
+\par
+In die ensure~ Methode reinbauen.\par
+\par
+Und dann noch PersistenceRootResolverProvider#provideRootResolver erweitern um default-defaultRoot Logik. Am besten gleich sauber mit default defaultDefaultRoot~ interfacemethoden.\par
+\par
+So. Jetzt ist die Frage:\line Soll der TypeHandlerManager den PersistenceRootResolverProvider direkt kennen und die initializen enum Eintr\'e4ge dort direkt eintragen, oder soll das alles wirklich \'fcber den RootResolver geschleust werden?\par
+F\'fcr erstes spricht:\par
++ Das hat im RootResolver aufgabenm\'e4\'dfig eigentlich nichts verloren, sondern der TypeHandlerManager kennt halt einfach tats\'e4chlich zwei zusammenh\'e4ngende Dinger\par
++ Sonst m\'fcsste man im RootResolver in den entsprechenden Methoden eine "Already initialized" Konsistenzpr\'fcfung reinbauen.\par
+Dagegen spricht:\par
+- Die beiden Dinger unabh\'e4ngig voneinander zu referenzieren k\'f6nnte eine Inkonsistenz erzeugen.\par
+\par
+Die L\'f6sung f\'fcr den Negativpunkt w\'e4re halt, einen neuen Typ einzuf\'fchren, der zwangsweise beide kennt und erfordert.\par
+Der w\'fcrde dann nur einmal bei der Initialisierung verwendet werden und w\'e4re danach hinf\'e4llig. Wie so eine Art Bauger\'fcst.\par
+\par
+Eigentlich geh\'f6rt auch das pendingEnumConstantRootStoringHandlers Initialisieren aus dem TypeHandlerManager Konstruktor raus.\par
+Macht ja keinen Sinn, dass der intern eine leere Map erzeugt, die er dann intern als Initialisierung bef\'fcllen muss. Dann kann das gleich au\'dferhalb stattfinden und der bekommt eine konsistent bef\'fcllt Table \'fcbergeben.\par
+\par
+Puh. Eingebaut. Testen.\par
+\par
+NPE:\par
+BinaryHandlerPersistenceRootsDefault muss auch noch umgestellt werden von RootResolver auf ~Provider, sonst braucht der den "zu fr\'fch".\par
+Am besten gleich den einmal provideten RootResolver im update mitverwenden.\par
+Daf\'fcr muss aber das Package anders werden, sonst sieht der das Feld nicht. Das sollte eigentlich sowieso synchron sein. Gut, dass ichs gesehen hab.\par
+\par
+Hm. In der dazugebauten Initialisierungslogik sind noch keine TypeHandler da. M\'fcsste da nicht die CustomTypeHandlers in der Registry drin sein? Bin ich bl\'f6d? Mal suchen ...\par
+Ach! Die sind zu der Zeit nur im TypeHandlerProvider drin, noch nicht in der Registry... Stimmt. Umbauen.\par
+Hihi. Dank Interfaces muss ich nur den Variablennamen austauschen. Rest passt.\par
+\par
+Wieder testen.\par
+\par
+Ach, wie lustig:\par
+Die Konstante java.util.Comparators$NaturalOrderComparator ist ja eine enum.\par
+Die sieht er. Aber wieso sieht er meine enum \'fcber das TypeDictionary noch nicht?\par
+Ah... weil das hier ja noch nicht ausgewertet und der handler noch nicht registriert ist...\par
+\par
+Ah, shit. Aus dem gleichen Grund gibts auch beim identifier deriven eine exception: noch keine TypeId da, Root Identifier kann darum nicht abgeleitet werden.\par
+Das, \'e4h, macht die ganze Idee zunichte.\par
+\par
+Naja, nicht ganz: Dass die vorher initialisierten TypeHandlers mit in die pendingEnumConstantRootStoringHandlers rein kommen, ist schon gut so.\par
+Dass die Resolver Architektur ein bisschen entzerrt worden ist, ist auch gut.\par
+Nur das Vorab-registrieren der enum konstanten als roots muss wieder raus.\par
+\par
+Auf jeden Fall ist das java.util.Comparators$NaturalOrderComparator Ding jetzt schon mal ordentlich im Root drin von anfang an.\par
+Mal TypeDictionary checken.\par
+Seltsam: Da ist die INSTANCE konstante nicht drin.\par
+Debuggen.\par
+\par
+Der Typ wird \'fcberhaupt nicht als enum erkannt. Ist ja seltsam...\par
+\par
+Ach! Nat\'fcrlich! Weil ICH Kasper den in BinaryPersistence explizit mit einem BinaryHandlerStateless registriert. Reicht technisch f\'fcr den v\'f6llig aus, aber durch das neue root Registrieren von enums ergibt sich daraus eine Inkonsistenz...\par
+\par
+Also muss ich den mit einem BinaryHandlerEnum registrieren. Ob das mal so einfach ist ... der braucht n\'e4mlich alle m\'f6glichen Argumente f\'fcr den Aufruf.\par
+Wobei ... f\'fcr eine stateless class kann ich einen extra Pseudokonstruktor bauen, der f\'fcr die ganzen Argumente irrelevante defaults verwendet.\par
+\par
+Ne, geht nicht. Wegen den zwei Enum Feldern selbst braucht man alles m\'f6gliche wie LengthResolver und ByteOrder ja doch wieder.\par
+Aber moment mal: es wird ja eh der typeHandlerCreator \'fcbergeben. Den lass ich den TypeHandler erstellen, dann wird das ganz nat\'fcrlich ein EnumHandler. Passt.\par
+\par
+Testen.\par
+\par
+Passt.\par
+\par
+Aber das wird noch ein lustiges Problem werden, wenn Datenbanken mit der alten Typedefinition ohne Felder auf die aktuelle Version mit Feldern gebracht werden m\'fcssen. Bei gleicher TypeId.\par
+Das kann eigentlich nur gehen \'fcber einen auf binary Ebene hinzugef\'fcgten Datensatz.\par
+Mal TODO aufschreiben.\par
+\par
+Weiter im Text: Wenn das richtige Setup der RootEntries von Anfang an doch nicht geht, muss wohl doch in den RootResolver eine Referenz auf den TypeHandlerManager rein.\par
+Mal nochmal debuggen ...\par
+Jup, genau: 22 Entries im Resolver (ohne enums), 24 entries in den zu resolvenden Identifiers (22 + 2 enums).\par
+Da muss jetzt eine R\'fcckreferenz auf den TypeHandlerManager rein, sonst kann der den enum typ nicht aufl\'f6sen...\par
 }
  

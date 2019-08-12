@@ -35,7 +35,7 @@ public class MainTestStorageExampleMore
 		
 		// explicit root resolver with refactorings
 //		.setRootResolver(
-//			Persistence.RootResolverBuilder()
+//			Persistence.RootResolverProvider()
 //			.registerRoot("root", ROOT)
 //		//	.registerRoots(PersistenceRootResolver.deriveRoots(SomeClassWithConstants.class))
 //			.setRefactoring(Persistence.RefactoringMapping(new File("Refactorings.csv")))

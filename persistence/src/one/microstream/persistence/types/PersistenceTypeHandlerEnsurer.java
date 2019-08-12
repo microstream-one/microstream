@@ -81,6 +81,20 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 		{
 			return this.customTypeHandlerRegistry.iterateTypeHandlers(iterator);
 		}
+		
+		@Override
+		public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(
+			final C iterator
+		)
+		{
+			return this.customTypeHandlerRegistry.iterateLegacyTypeHandlers(iterator);
+		}
+		
+		@Override
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateAllTypeHandlers(final C iterator)
+		{
+			return this.customTypeHandlerRegistry.iterateAllTypeHandlers(iterator);
+		}
 
 	}
 

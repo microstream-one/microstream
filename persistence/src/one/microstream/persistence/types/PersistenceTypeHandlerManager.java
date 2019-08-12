@@ -12,6 +12,7 @@ import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
@@ -74,6 +75,42 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 	public void clearStorePendingRoots();
 
 
+	
+	public static <M> void registerEnumContantRoots(
+		final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers,
+		final PersistenceTypeHandler<M, ?>                      typeHandler
+	)
+	{
+		/*
+		 * #internalEnsureTypeHandler ensures that every enum sub class causes
+		 * a handler to be ensured for the actual declared enum class.
+		 */
+		if(!XReflect.isDeclaredEnum(typeHandler.type()))
+		{
+			// nothing to do for non-enums.
+			return;
+		}
+		
+		// (12.08.2019 TM)FIXME: priv#23: registerEnumContantRoots
+		XDebug.println("registering enum constants of " + typeHandler.toTypeIdentifier());
+		
+		pendingEnumConstantRootStoringHandlers.add(
+			typeHandler.type(),
+			typeHandler
+		);
+	}
+	
+
+	
+	public static String deriveEnumRootIdentifier(final PersistenceTypeHandler<?, ?> typeHandler)
+	{
+		return Persistence.deriveEnumRootIdentifier(typeHandler);
+	}
+	
+	public static Object[] collectEnumInstances(final PersistenceTypeHandler<?, ?> typeHandler)
+	{
+		return Persistence.collectEnumInstances(typeHandler);
+	}
 
 	public static <M> PersistenceTypeHandlerManager.Default<M> New(
 		final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry          ,
@@ -85,6 +122,22 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		final PersistenceRootsProvider<M>                 rootsProvider
 	)
 	{
+		final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers = HashTable.New();
+		
+		// must initially register all enum type handlers to keep the internal state consistent.
+		typeHandlerProvider.iterateTypeHandlers(th ->
+		{
+			registerEnumContantRoots(pendingEnumConstantRootStoringHandlers, th);
+		});
+		
+//		final PersistenceRootResolverProvider rootResolverProvider = rootsInitializer.rootsResolverProvider();
+//		pendingEnumConstantRootStoringHandlers.values().iterate(eth ->
+//		{
+//			final String   identifier    = deriveEnumRootIdentifier(eth);
+//			final Object[] enumInstances = collectEnumInstances(eth);
+//			rootResolverProvider.registerRoot(identifier, enumInstances);
+//		});
+		
 		return new PersistenceTypeHandlerManager.Default<>(
 			notNull(typeHandlerRegistry)          ,
 			notNull(typeHandlerProvider)          ,
@@ -92,7 +145,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			notNull(typeMismatchValidator)        ,
 			notNull(legacyTypeMapper)             ,
 			notNull(unreachableTypeHandlerCreator),
-			notNull(rootsProvider)
+			notNull(rootsProvider)                ,
+			pendingEnumConstantRootStoringHandlers
 		);
 	}
 
@@ -110,7 +164,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		private final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
 		private final PersistenceRootsProvider<M>                 rootsProvider                ;
 		
-		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers = HashTable.New();
+		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers;
 		private transient PersistenceRoots pendingStoreRoot;
 		
 		private boolean initialized;
@@ -122,13 +176,14 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		/////////////////
 
 		Default(
-			final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry          ,
-			final PersistenceTypeHandlerProvider<M>           typeHandlerProvider          ,
-			final PersistenceTypeDictionaryManager            typeDictionaryManager        ,
-			final PersistenceTypeMismatchValidator<M>         typeMismatchValidator        ,
-			final PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ,
-			final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator,
-			final PersistenceRootsProvider<M>                 rootsProvider
+			final PersistenceTypeHandlerRegistry<M>                 typeHandlerRegistry                   ,
+			final PersistenceTypeHandlerProvider<M>                 typeHandlerProvider                   ,
+			final PersistenceTypeDictionaryManager                  typeDictionaryManager                 ,
+			final PersistenceTypeMismatchValidator<M>               typeMismatchValidator                 ,
+			final PersistenceLegacyTypeMapper<M>                    legacyTypeMapper                      ,
+			final PersistenceUnreachableTypeHandlerCreator<M>       unreachableTypeHandlerCreator         ,
+			final PersistenceRootsProvider<M>                       rootsProvider                         ,
+			final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers
 		)
 		{
 			super();
@@ -139,6 +194,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			this.legacyTypeMapper              = legacyTypeMapper             ;
 			this.unreachableTypeHandlerCreator = unreachableTypeHandlerCreator;
 			this.rootsProvider                 = rootsProvider                ;
+			
+			this.pendingEnumConstantRootStoringHandlers = pendingEnumConstantRootStoringHandlers;
 		}
 
 
@@ -537,7 +594,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				
 				for(final PersistenceTypeHandler<M, ?> typeHandler : this.pendingEnumConstantRootStoringHandlers.values())
 				{
-					final String enumRootIdentifier = this.deriveEnumRootIdentifier(typeHandler);
+					final String enumRootIdentifier = deriveEnumRootIdentifier(typeHandler);
 					final Object enumRootEntry      = modifiedRootEntries.get(enumRootIdentifier);
 					if(enumRootEntry != null)
 					{
@@ -545,7 +602,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 						return;
 					}
 					
-					final Object[] enumRootEntries = this.collectEnumInstances(typeHandler);
+					final Object[] enumRootEntries = collectEnumInstances(typeHandler);
 					modifiedRootEntries.add(enumRootIdentifier, enumRootEntries);
 					modified = true;
 				}
@@ -558,11 +615,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			}
 		}
 		
-		private String deriveEnumRootIdentifier(final PersistenceTypeHandler<M, ?> typeHandler)
-		{
-			return Persistence.deriveEnumRootIdentifier(typeHandler);
-		}
-		
 		private void validateEnumInstances(
 			final Object                       existingEntry,
 			final PersistenceTypeHandler<M, ?> typeHandler
@@ -573,7 +625,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				// (08.08.2019 TM)EXCP: proper exception
 				throw new RuntimeException(
 					"Invalid root instance of type " + existingEntry.getClass().getName()
-					+ " for enum type entry " + this.deriveEnumRootIdentifier(typeHandler)
+					+ " for enum type entry " + deriveEnumRootIdentifier(typeHandler)
 					+ " of type " + typeHandler.type().getName()
 				);
 			}
@@ -584,23 +636,12 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				// (08.08.2019 TM)EXCP: proper exception
 				throw new RuntimeException(
 					"Root entry already exists with inconsistent enum constants"
-					+ " for enum type entry " + this.deriveEnumRootIdentifier(typeHandler)
+					+ " for enum type entry " + deriveEnumRootIdentifier(typeHandler)
 					+ " of type " + typeHandler.type().getName()
 				);
 			}
 			
 			// reaching here (returning) means the entry is valid.
-		}
-		
-		private Object[] collectEnumInstances(final PersistenceTypeHandler<M, ?> typeHandler)
-		{
-			final Object[] enumConstants = typeHandler.type().getEnumConstants();
-			
-			// intentionally type Object[], not some T[] in covariant disguise.
-			final Object[] copy = new Object[enumConstants.length];
-			System.arraycopy(enumConstants, 0, copy, 0, enumConstants.length);
-
-			return copy;
 		}
 		
 		@Override
@@ -624,20 +665,13 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				
 		private void registerEnumContantRoots(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
-			/*
-			 * #internalEnsureTypeHandler ensures that every enum sub class causes
-			 * a handler to be ensured for the actual declared enum class.
-			 */
-			if(!XReflect.isDeclaredEnum(typeHandler.type()))
-			{
-				// nothing to do for non-enums.
-				return;
-			}
-			
 			synchronized(this.typeHandlerRegistry)
 			{
 				// might fail if meanwhile already added. Should not happen, but who knows ...
-				this.pendingEnumConstantRootStoringHandlers.add(typeHandler.type(), typeHandler);
+				PersistenceTypeHandlerManager.registerEnumContantRoots(
+					this.pendingEnumConstantRootStoringHandlers,
+					typeHandler
+				);
 			}
 		}
 				
@@ -695,9 +729,20 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 
 		@Override
-		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(
+			final C iterator
+		)
 		{
 			this.typeHandlerRegistry.iterateTypeHandlers(iterator);
+			return iterator;
+		}
+		
+		@Override
+		public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(
+			final C iterator
+		)
+		{
+			this.typeHandlerRegistry.iterateLegacyTypeHandlers(iterator);
 			return iterator;
 		}
 
