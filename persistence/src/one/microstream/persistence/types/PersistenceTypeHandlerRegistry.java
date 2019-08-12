@@ -210,9 +210,44 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 		}
 
 		@Override
-		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(
+			final C iterator
+		)
 		{
-			this.handlersByType.iterateValues(iterator);
+			synchronized(this.handlersByType)
+			{
+				this.handlersByType.iterateValues(iterator);
+			}
+			return iterator;
+		}
+		
+		@Override
+		public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(
+			final C iterator
+		)
+		{
+			synchronized(this.handlersByType)
+			{
+				this.handlersByTypeId.iterateValues(th ->
+				{
+					if(th instanceof PersistenceLegacyTypeHandler)
+					{
+						iterator.accept((PersistenceLegacyTypeHandler<M, ?>)th);
+					}
+				});
+			}
+			
+			return iterator;
+		}
+		
+		@Override
+		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateAllTypeHandlers(final C iterator)
+		{
+			synchronized(this.handlersByType)
+			{
+				this.handlersByTypeId.iterateValues(iterator);
+			}
+			
 			return iterator;
 		}
 	}

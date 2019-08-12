@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerProvider;
 import one.microstream.persistence.types.PersistenceTypeLink;
@@ -130,7 +131,27 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	public final <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 	{
 		/*
-		 * This is not an API misdesign abuse of this exception (like in the JDK), but
+		 * This is not an API OOP misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
+		 */
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(final C iterator)
+	{
+		/*
+		 * This is not an API OOP misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
+		 */
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateAllTypeHandlers(final C iterator)
+	{
+		/*
+		 * This is not an API OOP misdesign abuse of this exception (like in the JDK), but
 		 * rather this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();

@@ -144,7 +144,6 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	private final PersistenceTypeDefinitionMemberFieldReflective java_lang_Enum_ordinal;
 	
 	// offsets must be determined per handler instance since different types have different persistent form offsets.
-	// (01.08.2019 TM)FIXME: priv#23: what about binaryOffsetName?
 	private final long binaryOffsetName   ;
 	private final long binaryOffsetOrdinal;
 	

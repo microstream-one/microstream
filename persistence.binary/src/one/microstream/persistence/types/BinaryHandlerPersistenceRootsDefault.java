@@ -1,4 +1,4 @@
-package one.microstream.persistence.binary.internal;
+package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
@@ -6,15 +6,8 @@ import one.microstream.X;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectRegistry;
-import one.microstream.persistence.types.PersistenceRootEntry;
-import one.microstream.persistence.types.PersistenceRootResolver;
-import one.microstream.persistence.types.PersistenceRoots;
-import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
 public final class BinaryHandlerPersistenceRootsDefault
@@ -33,12 +26,12 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	///////////////////
 	
 	public static BinaryHandlerPersistenceRootsDefault New(
-		final PersistenceRootResolver   resolver      ,
-		final PersistenceObjectRegistry globalRegistry
+		final PersistenceRootResolverProvider rootResolverProvider,
+		final PersistenceObjectRegistry       globalRegistry
 	)
 	{
 		return new BinaryHandlerPersistenceRootsDefault(
-			notNull(resolver)      ,
+			notNull(rootResolverProvider),
 			notNull(globalRegistry)
 		);
 	}
@@ -49,7 +42,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	// instance fields //
 	////////////////////
 
-	private final PersistenceRootResolver resolver;
+	private final PersistenceRootResolverProvider rootResolverProvider;
 
 	/**
 	 * The handler instance directly known the global registry might suprise at first and seem like a shortcut hack.
@@ -66,8 +59,8 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	/////////////////
 
 	BinaryHandlerPersistenceRootsDefault(
-		final PersistenceRootResolver   resolver      ,
-		final PersistenceObjectRegistry globalRegistry
+		final PersistenceRootResolverProvider rootResolverProvider,
+		final PersistenceObjectRegistry       globalRegistry
 	)
 	{
 		super(
@@ -81,8 +74,8 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 				)
 			)
 		);
-		this.resolver       = resolver      ;
-		this.globalRegistry = globalRegistry;
+		this.rootResolverProvider = rootResolverProvider;
+		this.globalRegistry       = globalRegistry      ;
 	}
 
 
@@ -162,7 +155,9 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	@Override
 	public final PersistenceRoots.Default create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return PersistenceRoots.Default.New(this.resolver);
+		return PersistenceRoots.Default.New(
+			this.rootResolverProvider.provideRootResolver()
+		);
 	}
 
 	@Override
@@ -184,11 +179,14 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		validateArrayLengths(objectIds, identifiers);
 		this.fillObjectIds(objectIds, bytes);
 		this.fillIdentifiers(identifiers, bytes);
+				
+		// the once provided and then set root resolver is used right away
+		final PersistenceRootResolver rootResolver = instance.rootResolver;
 
-		final XGettingTable<String, PersistenceRootEntry> resolvableRoots = this.resolver.resolveRootEntries(
+		final XGettingTable<String, PersistenceRootEntry> resolvableRoots = rootResolver.resolveRootEntries(
 			EqHashEnum.New(identifiers)
 		);
-		final XGettingTable<String, Object> resolvedRoots = this.resolver.resolveRootInstances(resolvableRoots);
+		final XGettingTable<String, Object> resolvedRoots = rootResolver.resolveRootInstances(resolvableRoots);
 			
 		instance.updateEntries(resolvedRoots);
 		this.registerInstancesPerObjectId(objectIds, resolvedRoots.values());

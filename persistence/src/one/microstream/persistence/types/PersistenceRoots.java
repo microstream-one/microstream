@@ -86,7 +86,7 @@ public interface PersistenceRoots
 			this.rootResolver          = rootResolver         ;
 			this.defaultRootIdentifier = defaultRootIdentifier;
 			this.defaultRoot           = defaultRoot          ;
-			this.customRootIdentifier    = customRootIdentifier   ;
+			this.customRootIdentifier  = customRootIdentifier ;
 			this.resolvedEntries       = resolvedEntries      ;
 			this.hasChanged            = hasChanged           ;
 		}

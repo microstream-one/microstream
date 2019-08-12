@@ -2,20 +2,23 @@ package one.microstream.persistence.binary.types;
 
 import static one.microstream.X.notNull;
 
-import one.microstream.persistence.binary.internal.BinaryHandlerPersistenceRootsDefault;
+import one.microstream.persistence.types.BinaryHandlerPersistenceRootsDefault;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceRootResolver;
+import one.microstream.persistence.types.PersistenceRootResolverProvider;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 
 
 public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider<Binary>
 {
-	public static BinaryPersistenceRootsProvider New(final PersistenceRootResolver rootResolver)
+	public static BinaryPersistenceRootsProvider New(
+		final PersistenceRootResolverProvider rootResolverProvider
+	)
 	{
 		return new BinaryPersistenceRootsProvider.Default(
-			notNull(rootResolver)
+			notNull(rootResolverProvider)
 		);
 	}
 	
@@ -24,8 +27,10 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+
+		final PersistenceRootResolverProvider rootResolverProvider;
 		
-		final     PersistenceRootResolver rootResolver;
+		transient PersistenceRootResolver rootResolver;
 		transient PersistenceRoots        roots       ;
 		
 		
@@ -34,10 +39,10 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		// constructors //
 		/////////////////
 		
-		Default(final PersistenceRootResolver rootResolver)
+		Default(final PersistenceRootResolverProvider rootResolverProvider)
 		{
 			super();
-			this.rootResolver = rootResolver;
+			this.rootResolverProvider = rootResolverProvider;
 		}
 		
 		
@@ -45,14 +50,23 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		private PersistenceRootResolver ensureRootResolver()
+		{
+			if(this.rootResolver == null)
+			{
+				this.rootResolver = this.rootResolverProvider.provideRootResolver();
+			}
+			
+			return this.rootResolver;
+		}
 
 		@Override
 		public final PersistenceRoots provideRoots()
 		{
 			if(this.roots == null)
 			{
-				// must always be consistent with #provideRootsClass
-				this.roots = PersistenceRoots.New(this.rootResolver);
+				this.roots = PersistenceRoots.New(this.ensureRootResolver());
 			}
 			
 			return this.roots;
@@ -70,9 +84,10 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 			final PersistenceObjectRegistry                    objectRegistry
 		)
 		{
-			final BinaryHandlerPersistenceRootsDefault handler =
-				BinaryHandlerPersistenceRootsDefault.New(this.rootResolver, objectRegistry)
-			;
+			final BinaryHandlerPersistenceRootsDefault handler = BinaryHandlerPersistenceRootsDefault.New(
+				this.rootResolverProvider,
+				objectRegistry
+			);
 			typeHandlerRegistry.registerTypeHandler(handler);
 		}
 

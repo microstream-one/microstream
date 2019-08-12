@@ -8,7 +8,6 @@ import one.microstream.collections.types.XEnum;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
-import one.microstream.persistence.types.PersistenceRootResolver.Builder;
 import one.microstream.reference.Reference;
 import one.microstream.typing.LambdaTypeRecognizer;
 import one.microstream.typing.TypeMapping;
@@ -151,9 +150,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	
 	public PersistenceFieldEvaluator getFieldEvaluatorCollection();
 	
-	public PersistenceRootResolver.Builder getRootResolverBuilder();
-	
-	public PersistenceRootResolver getRootResolver();
+	public PersistenceRootResolverProvider getRootResolverProvider();
 	
 	public PersistenceRootsProvider<M> getRootsProvider();
 	
@@ -182,8 +179,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public PersistenceLegacyTypeHandlingListener<M> getLegacyTypeHandlingListener();
 	
 	public PersistenceSizedArrayLengthController getSizedArrayLengthController();
-
-	public PersistenceRootResolver rootResolver();
 	
 	public LambdaTypeRecognizer getLambdaTypeRecognizer();
 	
@@ -290,10 +285,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public F setReferenceFieldEagerEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
 
-	public F setRootResolver(PersistenceRootResolver.Builder rootResolverBuilder);
-	
-	public F setRootResolver(PersistenceRootResolver rootResolver);
-	
+	public F setRootResolver(PersistenceRootResolverProvider rootResolverProvider);
+		
 	public F setLambdaTypeRecognizer(LambdaTypeRecognizer lambdaTypeRecognizer);
 
 	public F setRootsProvider(PersistenceRootsProvider<M> rootsProvider);
@@ -376,7 +369,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		// instance fields //
 		////////////////////
 
-		// required to resolve a TypeHandlerManager dependancy loop
+		// required to resolve a TypeHandlerManager dependancy loop. Must be created anew to a
 		private final Reference<PersistenceTypeHandlerManager<M>> referenceTypeHandlerManager = X.Reference(null);
 		
 		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers = HashTable.New();
@@ -426,8 +419,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceFieldEvaluator               fieldEvaluatorEnum         ;
 		private PersistenceFieldEvaluator               fieldEvaluatorCollection   ;
 		private PersistenceEagerStoringFieldEvaluator   eagerStoringFieldEvaluator ;
-		private PersistenceRootResolver.Builder         rootResolverBuilder        ;
-		private PersistenceRootResolver                 rootResolver               ;
+		private PersistenceRootResolverProvider         rootResolverProvider       ;
 		private PersistenceRootsProvider<M>             rootsProvider              ;
 		private PersistenceSizedArrayLengthController   sizedArrayLengthController ;
 		private LambdaTypeRecognizer                    lambdaTypeRecognizer       ;
@@ -995,26 +987,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceRootResolver.Builder getRootResolverBuilder()
+		public PersistenceRootResolverProvider getRootResolverProvider()
 		{
-
-			if(this.rootResolverBuilder == null)
+			if(this.rootResolverProvider == null)
 			{
-				this.rootResolverBuilder = this.dispatch(this.ensureRootResolverBuilder());
+				this.rootResolverProvider = this.dispatch(this.ensureRootResolverProvider());
 			}
 			
-			return this.rootResolverBuilder;
-		}
-
-		@Override
-		public PersistenceRootResolver getRootResolver()
-		{
-			if(this.rootResolver == null)
-			{
-				this.rootResolver = this.dispatch(this.ensureRootResolver());
-			}
-			
-			return this.rootResolver;
+			return this.rootResolverProvider;
 		}
 		
 		@Override
@@ -1158,12 +1138,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			}
 			
 			return this.sizedArrayLengthController;
-		}
-		
-		@Override
-		public PersistenceRootResolver rootResolver()
-		{
-			return this.rootResolver;
 		}
 		
 		@Override
@@ -1599,18 +1573,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public F setRootResolver(final Builder rootResolverBuilder)
+		public F setRootResolver(final PersistenceRootResolverProvider rootResolverProvider)
 		{
-			this.rootResolverBuilder = rootResolverBuilder;
-			return this.$();
-		}
-
-		@Override
-		public F setRootResolver(
-			final PersistenceRootResolver rootResolver
-		)
-		{
-			this.rootResolver = rootResolver;
+			this.rootResolverProvider = rootResolverProvider;
 			return this.$();
 		}
 		
@@ -1813,7 +1778,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		protected PersistenceTypeHandlerManager<M> ensureTypeHandlerManager()
 		{
-			
 			final PersistenceTypeHandlerManager<M> newTypeHandlerManager =
 				PersistenceTypeHandlerManager.New(
 					this.getTypeHandlerRegistry()          , // holds actually used (potentially generically created) handlers
@@ -1822,7 +1786,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 					this.getTypeMismatchValidator()        ,
 					this.getLegacyTypeMapper()             ,
 					this.getUnreachableTypeHandlerCreator(),
-					this.getRootsProvider()                  // only required for updating enum constant roots
+					this.getRootsProvider()                  // only required for dynamically registering enum constant roots
 				)
 			;
 			return newTypeHandlerManager;
@@ -2135,18 +2099,18 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			throw new MissingFoundationPartException(PersistenceFieldLengthResolver.class);
 		}
 		
-		protected PersistenceRootResolver.Builder ensureRootResolverBuilder()
+		protected PersistenceRootResolverProvider ensureRootResolverProvider()
 		{
 			/* (09.08.2019 TM)FIXME: priv#23: link typeHandlerManager and rootsresolver
 			 * Or ... does a oid loading call suffice? ...
 			 */
-//			this.getTypeHandlerManager()
-			return PersistenceRootResolver.Builder();
-		}
-		
-		protected PersistenceRootResolver ensureRootResolver()
-		{
-			throw new MissingFoundationPartException(PersistenceRootResolver.class);
+			final PersistenceTypeDescriptionResolverProvider refactoring = this.getTypeDescriptionResolverProvider();
+			
+			// (12.08.2019 TM)NOTE: move as mandatory to New instead of via setter?
+			final PersistenceRootResolverProvider resolverProvider = PersistenceRootResolverProvider.New();
+			resolverProvider.setRefactoring(refactoring);
+			
+			return resolverProvider;
 		}
 		
 		protected PersistenceRootsProvider<M> ensureRootsProviderInternal()

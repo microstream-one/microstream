@@ -94,7 +94,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		{
 			synchronized(this.registry)
 			{
-				this.registry.iterateObjects(procedure);
+				this.registry.iterateValues(procedure);
 			}
 			return procedure;
 		}

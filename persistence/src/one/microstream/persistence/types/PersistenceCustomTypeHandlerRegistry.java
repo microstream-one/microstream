@@ -42,8 +42,15 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		// instance fields //
 		////////////////////
 		
-		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> mapping            = HashTable.New();
-		private final HashEnum<PersistenceLegacyTypeHandler<M, ?>>      legacyTypeHandlers = HashEnum.New() ;
+		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> liveTypeHandlers = HashTable.New();
+		
+		/*
+		 * Really instance equality since:
+		 * - TypeId might not be present, yet.
+		 * - Live type cannot be used for LTHs.
+		 * - This is just a collection of "potentially structure-compatible" handlers that get sorted out later.
+		 */
+		private final HashEnum<PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers = HashEnum.New() ;
 
 		
 		
@@ -65,7 +72,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		@Override
 		public synchronized boolean knowsType(final Class<?> type)
 		{
-			return this.mapping.keys().contains(type);
+			return this.liveTypeHandlers.keys().contains(type);
 		}
 
 		@Override
@@ -75,7 +82,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		)
 		{
 			// put instead of add to allow custom-tailed replacments for native handlers (e.g. divergent TID or logic)
-			return this.mapping.put(type, typeHandlerInitializer);
+			return this.liveTypeHandlers.put(type, typeHandlerInitializer);
 		}
 
 		@Override
@@ -126,7 +133,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		@SuppressWarnings("unchecked") // cast type safety guaranteed by management logic
 		private <T> PersistenceTypeHandler<M, T> internalLookupTypeHandler(final Class<T> type)
 		{
-			return (PersistenceTypeHandler<M, T>)this.mapping.get(type);
+			return (PersistenceTypeHandler<M, T>)this.liveTypeHandlers.get(type);
 		}
 
 		@Override
@@ -138,8 +145,14 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		@Override
 		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
 		{
-			this.mapping.values().iterate(iterator);
+			this.liveTypeHandlers.values().iterate(iterator);
 			return iterator;
+		}
+		
+		@Override
+		public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(final C iterator)
+		{
+			return this.legacyTypeHandlers().iterate(iterator);
 		}
 		
 		@Override

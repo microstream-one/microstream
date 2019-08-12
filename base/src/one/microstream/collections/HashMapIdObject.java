@@ -269,7 +269,7 @@ public final class HashMapIdObject<E> implements Sized, OptimizableCollection, C
 		return list;
 	}
 
-	public final int iterateObjects(final Consumer<? super E> procedure)
+	public final int iterateValues(final Consumer<? super E> procedure)
 	{
 		for(Entry<E> entry : this.hashSlots)
 		{

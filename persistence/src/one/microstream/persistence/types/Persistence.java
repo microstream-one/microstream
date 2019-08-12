@@ -913,6 +913,17 @@ public class Persistence
 		return XReflect.typename_enum() + " " + typeHandler.typeId();
 	}
 	
+	public static Object[] collectEnumInstances(final PersistenceTypeHandler<?, ?> typeHandler)
+	{
+		final Object[] enumConstants = typeHandler.type().getEnumConstants();
+		
+		// intentionally type Object[], not some T[] in covariant disguise.
+		final Object[] copy = new Object[enumConstants.length];
+		System.arraycopy(enumConstants, 0, copy, 0, enumConstants.length);
+
+		return copy;
+	}
+	
 	public static Long extractEnumRootIdentifierTypeId(final String enumRootIdentifier)
 	{
 		if(enumRootIdentifier == null || !enumRootIdentifier.startsWith(XReflect.typename_enum()))
@@ -932,59 +943,60 @@ public class Persistence
 		}
 	}
 
-	public static final PersistenceRootResolver RootResolver(
-		final String rootIdentifier,
-		final Object rootInstance
-	)
-	{
-		return RootResolver(rootIdentifier, () -> rootInstance);
-	}
-
-	public static final PersistenceRootResolver RootResolver(final Object rootInstance)
-	{
-		return RootResolver(() -> rootInstance);
-	}
-
-	public static final PersistenceRootResolver RootResolver(final Supplier<?> rootInstanceSupplier)
-	{
-		return RootResolverBuilder(rootInstanceSupplier).build();
-	}
+	// (12.08.2019 TM)FIXME: priv#23: remove all RootResolver(~) variants.
+//	public static final PersistenceRootResolver RootResolver(
+//		final String rootIdentifier,
+//		final Object rootInstance
+//	)
+//	{
+//		return RootResolver(rootIdentifier, () -> rootInstance);
+//	}
+//
+//	public static final PersistenceRootResolver RootResolver(final Object rootInstance)
+//	{
+//		return RootResolver(() -> rootInstance);
+//	}
+//
+//	public static final PersistenceRootResolver RootResolver(final Supplier<?> rootInstanceSupplier)
+//	{
+//		return RootResolverProvider(rootInstanceSupplier).provideRootResolver();
+//	}
+//
+//	public static final PersistenceRootResolver RootResolver(
+//		final String      rootIdentifier      ,
+//		final Supplier<?> rootInstanceSupplier
+//	)
+//	{
+//		return PersistenceRootResolver.New(rootIdentifier, rootInstanceSupplier);
+//	}
+//
+//	public static final PersistenceRootResolver RootResolver(
+//		final String                                     rootIdentifier         ,
+//		final Supplier<?>                                rootInstanceSupplier   ,
+//		final PersistenceTypeDescriptionResolverProvider typeDescriptionResolver
+//	)
+//	{
+//		return PersistenceRootResolver.Wrap(
+//			RootResolver(rootIdentifier, rootInstanceSupplier),
+//			typeDescriptionResolver
+//		);
+//	}
+//
+//	public static final PersistenceRootResolver RootResolver(
+//		final Supplier<?>                                rootInstanceSupplier   ,
+//		final PersistenceTypeDescriptionResolverProvider typeDescriptionResolver
+//	)
+//	{
+//		return PersistenceRootResolver.Wrap(
+//			RootResolver(rootInstanceSupplier),
+//			typeDescriptionResolver
+//		);
+//	}
 	
-	public static final PersistenceRootResolver RootResolver(
-		final String      rootIdentifier      ,
-		final Supplier<?> rootInstanceSupplier
-	)
-	{
-		return PersistenceRootResolver.New(rootIdentifier, rootInstanceSupplier);
-	}
-	
-	public static final PersistenceRootResolver RootResolver(
-		final String                                     rootIdentifier         ,
-		final Supplier<?>                                rootInstanceSupplier   ,
-		final PersistenceTypeDescriptionResolverProvider typeDescriptionResolver
-	)
-	{
-		return PersistenceRootResolver.Wrap(
-			RootResolver(rootIdentifier, rootInstanceSupplier),
-			typeDescriptionResolver
-		);
-	}
-	
-	public static final PersistenceRootResolver RootResolver(
-		final Supplier<?>                                rootInstanceSupplier   ,
-		final PersistenceTypeDescriptionResolverProvider typeDescriptionResolver
-	)
-	{
-		return PersistenceRootResolver.Wrap(
-			RootResolver(rootInstanceSupplier),
-			typeDescriptionResolver
-		);
-	}
-	
-	public static final PersistenceRootResolver.Builder RootResolverBuilder()
+	public static final PersistenceRootResolverProvider RootResolverProvider()
 	{
 		// debugability line breaks, do not reduce!
-		return RootResolverBuilder(
+		return RootResolverProvider(
 			() ->
 				null
 		);
@@ -1002,40 +1014,40 @@ public class Persistence
 		return "root";
 	}
 	
-	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+	public static final PersistenceRootResolverProvider RootResolverProvider(
 		final Object rootInstance
 	)
 	{
-		return PersistenceRootResolver.Builder()
+		return PersistenceRootResolverProvider.New()
 			.registerCustomRoot(rootInstance)
 		;
 	}
 	
-	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+	public static final PersistenceRootResolverProvider RootResolverProvider(
 		final String rootIdentifier,
 		final Object rootInstance
 	)
 	{
-		return PersistenceRootResolver.Builder()
+		return PersistenceRootResolverProvider.New()
 			.registerCustomRoot(rootIdentifier, rootInstance)
 		;
 	}
 	
-	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+	public static final PersistenceRootResolverProvider RootResolverProvider(
 		final Supplier<?> rootInstanceSupplier
 	)
 	{
-		return PersistenceRootResolver.Builder()
+		return PersistenceRootResolverProvider.New()
 			.registerCustomRootSupplier(rootInstanceSupplier)
 		;
 	}
 	
-	public static final PersistenceRootResolver.Builder RootResolverBuilder(
+	public static final PersistenceRootResolverProvider RootResolverProvider(
 		final String      rootIdentifier      ,
 		final Supplier<?> rootInstanceSupplier
 	)
 	{
-		return PersistenceRootResolver.Builder()
+		return PersistenceRootResolverProvider.New()
 			.registerCustomRootSupplier(rootIdentifier, rootInstanceSupplier)
 		;
 	}

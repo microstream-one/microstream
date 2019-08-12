@@ -14,7 +14,6 @@ import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
 import one.microstream.persistence.types.PersistenceTypeManager;
-import one.microstream.storage.exceptions.StorageException;
 
 
 /**
@@ -199,18 +198,6 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setConnectionFoundation(EmbeddedStorageConnectionFoundation<?> connectionFoundation);
-
-	/**
-	 * Sets the passed {@link PersistenceRootResolver} instance to the {@link EmbeddedStorageConnectionFoundation}
-	 * instance provided by {@link #getConnectionFoundation()}.
-	 * 
-	 * @param rootResolver the instance to be used.
-	 * 
-	 * @return {@literal this} to allow method chaining.
-	 * 
-	 * @see EmbeddedStorageConnectionFoundation#setRootResolver(PersistenceRootResolver)
-	 */
-	public F setRootResolver(PersistenceRootResolver rootResolver);
 	
 	/**
 	 * Registers the passed {@literal root} instance as the root instance at the
@@ -333,7 +320,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public F setRoot(final Object root)
 		{
-			this.getConnectionFoundation().getRootResolverBuilder().registerCustomRoot(root);
+			this.getConnectionFoundation().getRootResolverProvider().registerCustomRoot(root);
 			
 			return this.$();
 		}
@@ -341,7 +328,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public F setRootSupplier(final Supplier<?> rootSupplier)
 		{
-			this.getConnectionFoundation().getRootResolverBuilder().registerCustomRootSupplier(rootSupplier);
+			this.getConnectionFoundation().getRootResolverProvider().registerCustomRootSupplier(rootSupplier);
 			
 			return this.$();
 		}
@@ -470,13 +457,6 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		}
 		
 		@Override
-		public F setRootResolver(final PersistenceRootResolver rootResolver)
-		{
-			this.getConnectionFoundation().setRootResolver(rootResolver);
-			return this.$();
-		}
-		
-		@Override
 		public F setRefactoringMappingProvider(
 			final PersistenceRefactoringMappingProvider refactoringMappingProvider
 		)
@@ -533,20 +513,10 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		{
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
 			
-			// required checks and procedures for using an explicit root. The alternative is an implicitely created root.
+			// explicit root must be registered at the rootResolverProvider.
 			if(rootSupplier != null)
 			{
-				final PersistenceRootResolver existingRootResolver = ecf.rootResolver();
-				if(existingRootResolver != null)
-				{
-					// (24.06.2019 TM)EXCP: proper exception
-					throw new StorageException(
-						"Cannot define a custom root instance and use a custom "
-						+ PersistenceRootResolver.class.getSimpleName()
-						+ " simultaneously."
-					);
-				}
-				ecf.getRootResolverBuilder().registerCustomRootSupplier(rootSupplier);
+				ecf.getRootResolverProvider().registerCustomRootSupplier(rootSupplier);
 			}
 			
 			// must be created BEFORE the type handler manager is initilized to register its custom type handler
