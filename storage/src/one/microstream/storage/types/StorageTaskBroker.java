@@ -486,7 +486,7 @@ public interface StorageTaskBroker
 				return new StorageTaskBroker.Default(
 					taskCreator,
 					storageManager.operationController(),
-					storageManager.configuration().fileEvaluator(),
+					storageManager.configuration().dataFileEvaluator(),
 					storageManager.objectIdRangeEvaluator(),
 					storageManager.channelCountProvider().get()
 				);
