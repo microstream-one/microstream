@@ -70,7 +70,6 @@ public final class WeakHashMapObject_long<T> implements Sized, OptimizableCollec
 	}
 
 	/**
-	 * @return
 	 * @see one.microstream.collections.interfaces.Sized#isEmpty()
 	 */
 	@Override

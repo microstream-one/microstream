@@ -18,7 +18,6 @@ public interface XAddingMap<K, V> extends CapacityExtendable, ExtendedMap<K, V>
 	 * Adds the passed key and value as an entry if key is not yet contained. Return value indicates new entry.
 	 * @param key
 	 * @param value
-	 * @return
 	 */
 	public boolean add(K key, V value);
 
@@ -26,7 +25,6 @@ public interface XAddingMap<K, V> extends CapacityExtendable, ExtendedMap<K, V>
 	 * Sets the passed key and value to an appropriate entry if one can be found. Return value indicates entry change.
 	 * @param key
 	 * @param value
-	 * @return
 	 */
 	public boolean set(K key, V value);
 
@@ -36,7 +34,6 @@ public interface XAddingMap<K, V> extends CapacityExtendable, ExtendedMap<K, V>
 	 * Returns value indicates change.
 	 * @param sampleKey
 	 * @param value
-	 * @return
 	 */
 	public boolean valueSet(K sampleKey, V value);
 

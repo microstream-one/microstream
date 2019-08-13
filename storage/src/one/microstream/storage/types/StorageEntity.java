@@ -19,28 +19,24 @@ public interface StorageEntity
 	/**
 	 * the entity's data length, meaning the pure content length without any header or meta data.
 	 *
-	 * @return
 	 */
 	public long dataLength();
 
 	/**
 	 * The entity's type id.
 	 *
-	 * @return
 	 */
 	public long typeId();
 
 	/**
 	 * The entity's biunique identifying id number.
 	 *
-	 * @return
 	 */
 	public long objectId();
 
 	/**
 	 * The information if this entity's type has reference fields (regardless of a particular entity's actual data).
 	 *
-	 * @return
 	 */
 	public boolean hasReferences();
 
@@ -49,7 +45,6 @@ public interface StorageEntity
 	 * returned by {@link #dataLength()} as only parts of an entity (e.g. only references) might be loaded into cache
 	 * and because the cache might hold the header/meta data of an entity as well.
 	 *
-	 * @return
 	 */
 	public long cachedDataLength();
 
@@ -57,7 +52,6 @@ public interface StorageEntity
 	 * The approximate system time that this particular entity has been last touched.
 	 * The returned value is compatible to the value returned by {@link System#currentTimeMillis()}.
 	 *
-	 * @return
 	 */
 	public long lastTouched();
 
@@ -459,7 +453,6 @@ public interface StorageEntity
 		/**
 		 * Note that a deleted entity can never be live as the deletion logic clears the entity's cache first.
 		 *
-		 * @return
 		 */
 		final boolean isDeleted()
 		{

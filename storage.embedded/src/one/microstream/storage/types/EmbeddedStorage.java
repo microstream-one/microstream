@@ -39,8 +39,7 @@ public final class EmbeddedStorage
 	 * using the passed {@link PersistenceTypeDictionaryIoHandler} and default method references provided by {@link Persistence}.
 	 * <p>
 	 * Calls {@link #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)}
-	 * with {@link Persistence#isPersistable(Class)} and {@link Persistence#isTypeIdMappable(Class)} method references
-	 * as the other two parameters.
+	 * with {@link Persistence#isPersistable(Class)} method references as the other parameter.
 	 * <p>
 	 * For explanations and customizing values, see {@link #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)}.
 	 * 
@@ -96,9 +95,6 @@ public final class EmbeddedStorage
 	 * 
 	 * @param typeEvaluatorPersistable    evaluator function to determine if instances of a type are persistable.
 	 * 
-	 * @param typeEvaluatorTypeIdMappable evaluator function to determine if a type may be encountered
-	 *        by the type analysis at all. See {@link Persistence#isTypeIdMappable(Class)}
-	 * 
 	 * @return a new {@link EmbeddedStorageConnectionFoundation} instance.
 	 * 
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
@@ -153,7 +149,7 @@ public final class EmbeddedStorage
 	 * using the passed {@literal directory} and default values for the remaining parts of
 	 * its {@link StorageConfiguration}.
 	 * <p>
-	 * Calls {@link #ConnectionFoundation(StorageConfiguration)} with a newly created
+	 * Calls {@link #Foundation(StorageConfiguration)} with a newly created
 	 * {@link StorageConfiguration} using the passed directory as its storage location.
 	 * 
 	 * @param directory {@linkDoc EmbeddedStorage#Foundation(File, StorageConfiguration.Builder):}

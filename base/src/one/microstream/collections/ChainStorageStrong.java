@@ -532,8 +532,6 @@ extends AbstractChainStorage<E, K, V, EN>
 	 * Note that the indices array gets presorted to increase algorithm performance. Pass a clone if the original
 	 * {@code int} array shall be unchanged.
 	 *
-	 * @param <E> the element type of the this.
-	 * @param chain the chain whose entries shall be removed.
 	 * @param indices the indices (offsets) of the entries to be removed.
 	 */
 	@Override

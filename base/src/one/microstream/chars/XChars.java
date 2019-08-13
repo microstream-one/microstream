@@ -957,14 +957,6 @@ public final class XChars
 		return vc.deleteLast();
 	}
 
-	/**
-	 * Emulate the missing {@link CharSequence#toArray()}.
-	 * <p>
-	 * (Yes, the broken JavaDoc link is a cynical joke).
-	 *
-	 * @param charSequence
-	 * @return the
-	 */
 	public static final char[] toCharArray(final CharSequence c)
 	{
 		if(c instanceof String)
@@ -1443,7 +1435,6 @@ public final class XChars
 	 * those strings.
 	 *
 	 * @param s
-	 * @return
 	 */
 	public static final char parseChar(final String s)
 	{
@@ -1941,7 +1932,6 @@ public final class XChars
 	 *
 	 * @param input
 	 * @param separator
-	 * @return
 	 *
 	 * @see #trimToString(char[], int, int)
 	 */
@@ -1960,7 +1950,6 @@ public final class XChars
 	 *
 	 * @param input
 	 * @param separator
-	 * @return
 	 *
 	 * @see #trimToString(char[], int, int)
 	 */
@@ -1996,7 +1985,6 @@ public final class XChars
 	 * @param input
 	 * @param lowerOffset
 	 * @param length
-	 * @return
 	 */
 	public static final String trimToString(final char[] input, final int lowerOffset, final int length)
 	{
@@ -2300,7 +2288,6 @@ public final class XChars
 	 * @param input
 	 * @param offset
 	 * @param length
-	 * @return
 	 */
 	public static final long internalParse_longLiteral(final char[] input, final int offset, final int length)
 	{
@@ -2351,7 +2338,6 @@ public final class XChars
 	 * @param chars2
 	 * @param offset2
 	 * @param length
-	 * @return
 	 */
 	static final boolean isNumericalLessThan(
 		final char[] chars1 ,

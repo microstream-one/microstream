@@ -19,7 +19,6 @@ public interface CapacityExtendable extends CapacityCarrying
 	 * meaning for example no internal storage rebuild will be necessary.
 	 * 
 	 * @param minimalFreeCapacity
-	 * @return
 	 */
 	public CapacityExtendable ensureFreeCapacity(long minimalFreeCapacity);
 

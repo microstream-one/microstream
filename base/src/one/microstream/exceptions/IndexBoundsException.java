@@ -120,7 +120,6 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 	 * <p>
 	 * Note that this value might have overflown depending on the reporting logic.
 	 *
-	 * @return
 	 */
 	public final long index()
 	{

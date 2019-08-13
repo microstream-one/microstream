@@ -180,7 +180,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	 * <p>
 	 * The actual initial capacity is the highest of the following three values:
 	 * <ul>
-	 * <li>{@link Integer.MAX_VALUE}, if the given initial capacity is greater than 2^30.</li>
+	 * <li>{@link Integer} MAX_VALUE, if the given initial capacity is greater than 2^30.</li>
 	 * <li>The lowest power of two value that is equal to or greater than the given initial capacity.</li>
 	 * <li>The default (minimum) capacity.</li>
 	 * </ul>

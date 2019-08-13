@@ -85,9 +85,9 @@ public class Countdown
 	
 	/**
 	 * Decrements this countdown by 1.
-	 *  
+	 * 
 	 * @return 1 if the countdown already expired, 0 otherwise (returns the unconsumed amount of value 1)
-	 * @see {@link #decrease(int)}
+	 * @see #decrease(int)
 	 */
 	public int decrement()
 	{
@@ -101,7 +101,7 @@ public class Countdown
 	
 	/**
 	 * @return the unconsumed amount of <code>offset</code> due to preterm expiration of the countdown.
-	 * @see {@link #decrement()}
+	 * @see #decrement()
 	 */
 	public int decrease(final int offset)
 	{
@@ -164,8 +164,8 @@ public class Countdown
 	/**
 	 * Tells if this countdown is still active (meaning its remaining value is greater than 0)
 	 * @return {@code true} if this countdown's remaining value is greater 0, <tt>false</tt> otherwise.
-	 * @see {@link #isAtStart()}
-	 * @see {@link #isExpired()}
+	 * @see #isAtStart()
+	 * @see #isExpired()
 	 */
 	public boolean isActive()
 	{
@@ -175,8 +175,8 @@ public class Countdown
 	/**
 	 * Tells if this countdown is expired(meaning its remaining value is 0)
 	 * @return {@code true} if this countdown's remaining value 0, <tt>false</tt> otherwise.
-	 * @see {@link #isActive()}
-	 * @see {@link #isAtStart()}
+	 * @see #isActive()
+	 * @see #isAtStart()
 	 */
 	public boolean isExpired()
 	{
@@ -185,10 +185,10 @@ public class Countdown
 	
 	/**
 	 * Tells if this countdown is still full (meaning its remaining value is equal to its start value)
-	 * @return {@code true} if this countdown's remaining value is the same as its start value, 
+	 * @return {@code true} if this countdown's remaining value is the same as its start value,
 	 * <tt>false</tt> otherwise.
-	 * @see {@link #isActive()}
-	 * @see {@link #isExpired()}
+	 * @see #isActive()
+	 * @see #isExpired()
 	 */
 	public boolean isAtStart()
 	{

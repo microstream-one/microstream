@@ -47,7 +47,6 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 	 * Adds the passed key and value as an entry if key is not yet contained. Return value indicates new entry.
 	 * @param key
 	 * @param value
-	 * @return
 	 */
 	@Override
 	public boolean add(K key, V value);
@@ -56,7 +55,6 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 	 * Ensures the passed key and value to be contained as an entry in the map. Return value indicates new entry.
 	 * @param key
 	 * @param value
-	 * @return
 	 */
 	@Override
 	public boolean put(K key, V value);
@@ -65,7 +63,6 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 	 * Sets the passed key and value to an appropriate entry if one can be found. Return value indicates entry change.
 	 * @param key
 	 * @param value
-	 * @return
 	 */
 	@Override
 	public boolean set(K key, V value);
@@ -74,7 +71,6 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 	 * Ensures the passed key and value to be contained as an entry in the map. Returns the old value or {@code null}.
 	 * @param key
 	 * @param value
-	 * @return
 	 */
 	@Override
 	public KeyValue<K, V> putGet(K key, V value);
@@ -84,7 +80,6 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 	 * Sets the passed key and value to an appropriate entry if one can be found. Returns the old value.
 	 * @param key
 	 * @param value
-	 * @return
 	 */
 	public KeyValue<K, V> setGet(K key, V value);
 
@@ -92,7 +87,6 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 	 * Ensures the passed value to be either set to an existing entry appropriate to sampleKey or inserted as a new one.
 	 * @param sampleKey
 	 * @param value
-	 * @return
 	 */
 	@Override
 	public boolean valuePut(K sampleKey, V value);
@@ -102,24 +96,17 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 	 * Returns value indicates change.
 	 * @param sampleKey
 	 * @param value
-	 * @return
 	 */
 	@Override
 	public boolean valueSet(K sampleKey, V value);
 
 	/**
 	 * Ensures the passed value to be either set to an existing entry appropriate to sampleKey or inserted as a new one.
-	 * @param key
-	 * @param value
-	 * @return
 	 */
 	public V valuePutGet(K sampleKey, V value);
 
 	/**
 	 * Sets only the passed value to an existing entry appropriate to the passed sampleKey. Returns the old value.
-	 * @param sampleKey
-	 * @param value
-	 * @return
 	 */
 	public V valueSetGet(K sampleKey, V value);
 

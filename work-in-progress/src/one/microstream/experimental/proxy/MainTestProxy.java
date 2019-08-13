@@ -58,7 +58,6 @@ public class MainTestProxy
 	 *
 	 * @param <T>
 	 * @param subject
-	 * @return
 	 */
 	public static final <T> T mutex(final T subject)
 	{
@@ -71,7 +70,6 @@ public class MainTestProxy
 	 * @param <T>
 	 * @param subject
 	 * @param mutex
-	 * @return
 	 */
 	public static final <T> T mutex(final T subject, final Object mutex)
 	{

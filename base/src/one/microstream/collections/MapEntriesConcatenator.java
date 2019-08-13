@@ -9,7 +9,7 @@ import one.microstream.collections.types.XMap;
 import one.microstream.typing.KeyValue;
 
 /**
- * Configurable {@link XMap.Entry} to-String concatenator.
+ * Configurable {@link KeyValue} to-String concatenator.
  *
  * @author Thomas Muenz
  *

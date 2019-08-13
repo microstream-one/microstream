@@ -24,7 +24,6 @@ public class ArrayIterable<T> implements Iterable<T>
 	}
 
 	/**
-	 * @return
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override

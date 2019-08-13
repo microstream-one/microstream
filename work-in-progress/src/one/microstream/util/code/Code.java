@@ -237,7 +237,6 @@ public abstract class Code
 	 * @param c the c
 	 * @param enclosingClassParameters the enclosing class parameters
 	 * @return the full class name
-	 * @return
 	 */
 	public static final String getFullClassName(final Class<?> c, final Map<Class<?>, String> enclosingClassParameters)
 	{
