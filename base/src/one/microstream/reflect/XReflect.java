@@ -738,7 +738,6 @@ public final class XReflect
 	 * *sigh*
 	 *
 	 * @param object
-	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Class<? extends T> getClass(final T object)

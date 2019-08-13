@@ -198,7 +198,6 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 	 * {@link ComPersistenceAdaptorBinary#Creator(BinaryPersistenceFoundation)} directly to pass an externally defined
 	 * {@link BinaryPersistenceFoundation} instance.
 	 * 
-	 * @return
 	 */
 	public static ComPersistenceAdaptorBinary.Creator.Default Creator()
 	{

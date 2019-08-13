@@ -144,7 +144,6 @@ public final class CQL
 	 * Fluent alias for {@code predicate.negate()}.
 	 *
 	 * @param predicate
-	 * @return
 	 */
 	public static <T> Predicate<T> not(final Predicate<T> predicate)
 	{
@@ -156,7 +155,6 @@ public final class CQL
 	 * They somehow forgot that in the lambda language extension, so it has to be worked around, sadly.
 	 *
 	 * @param predicate
-	 * @return
 	 */
 	public static <T> Predicate<T> where(final Predicate<T> predicate)
 	{
@@ -167,7 +165,6 @@ public final class CQL
 	 * Fluent alias for {@code Comparator#reversed()}
 	 *
 	 * @param order
-	 * @return
 	 */
 	public static <T> Comparator<T> reversed(final Comparator<T> order)
 	{
@@ -179,7 +176,6 @@ public final class CQL
 	 * They somehow forgot that in the lambda language extension, so it has to be worked around, sadly.
 	 *
 	 * @param order
-	 * @return
 	 */
 	public static <T> Comparator<T> comparing(final Comparator<T> order)
 	{

@@ -13,7 +13,6 @@ public interface ProtageIoElement
 {
 	/**
 	 * The primary name of the directory, if applicable.
-	 * @return
 	 * 
 	 * @see #qualifier()
 	 * @see #identifier()
@@ -22,7 +21,6 @@ public interface ProtageIoElement
 	
 	/**
 	 * The qualifier that, in combination with {@link #name()}, uniquely identifies the directory, if applicable.
-	 * @return
 	 * 
 	 * @see #name()
 	 * @see #identifier()
@@ -33,7 +31,6 @@ public interface ProtageIoElement
 	 * The identifier that uniquely identifies the directory. If applicable, a combination of {@link #qualifier()}
 	 * and {@link #name()}.
 	 * 
-	 * @return
 	 * 
 	 * @see #qualifier()
 	 * @see #name()

@@ -209,11 +209,11 @@ public interface ParallelProcedure<E> extends Consumer<E>
 		 * Alias for {@code Default(logicProvider, maxThreadCount, 1000)}.
 		 *
 		 * @param logicProvider the instance that provides the logic instances to be used by the worker threads.
-		 * @param threadTimeout the maximum number of concurrent threads to be created by this instance.
+		 * @param threadCountProvider the maximum number of concurrent threads to be created by this instance.
 		 */
 		public Default(
-			final LogicProvider<? super E, ? extends Consumer<? super E>> logicProvider,
-			final ThreadCountProvider threadCountProvider
+			final LogicProvider<? super E, ? extends Consumer<? super E>> logicProvider      ,
+			final ThreadCountProvider                                     threadCountProvider
 		)
 		{
 			this(logicProvider, threadCountProvider, null);
@@ -234,20 +234,20 @@ public interface ParallelProcedure<E> extends Consumer<E>
 		 * (depending on the system, like 10 to 100) will cause unnecessary thread management overhead in most cases.
 		 *
 		 * @param logicProvider the instance that provides the logic instances to be used by the worker threads.
-		 * @param threadTimeout the maximum number of concurrent threads to be created by this instance.
+		 * @param threadCountProvider the maximum number of concurrent threads to be created by this instance.
 		 * @param threadTimeout the thread abolishment timeout in milliseconds.
 		 */
 		public Default(
-			final LogicProvider<? super E, ? extends Consumer<? super E>> logicProvider,
-			final ThreadCountProvider   threadCountProvider,
-			final ThreadTimeoutProvider threadTimeout
+			final LogicProvider<? super E, ? extends Consumer<? super E>> logicProvider      ,
+			final ThreadCountProvider                                     threadCountProvider,
+			final ThreadTimeoutProvider                                   threadTimeout
 		)
 		{
 			super();
-			this.logicProvider         =  notNull(logicProvider)                        ;
-			this.threadCountProvider   =  notNull(threadCountProvider)                  ;
+			this.logicProvider         =  notNull(logicProvider);
+			this.threadCountProvider   =  notNull(threadCountProvider);
 			this.threadTimeoutProvider = coalesce(threadTimeout, DEFAULT_THREAD_TIMEOUT_PROVIDER);
-			this.threads               = new BulkList<>()                               ;
+			this.threads               = new BulkList<>();
 		}
 
 

@@ -91,7 +91,6 @@ public interface LockManager<O> extends LockOwnerTypeHolder<O>
 	 * @param current
 	 * @param next
 	 * @param logic
-	 * @return
 	 */
 	public <T1, T2> O transferLock(O owner, T1 current, T2 next, BiConsumer<? super T1, ? super T2> logic);
 

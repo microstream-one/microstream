@@ -47,7 +47,6 @@ public interface PersistenceStorer<M> extends Storer
 		 * @param typeManager
 		 * @param target
 		 * @param bufferSizeProvider
-		 * @return
 		 */
 		public PersistenceStorer<M> createLazyStorer(
 			PersistenceTypeHandlerManager<M> typeManager       ,
@@ -59,14 +58,13 @@ public interface PersistenceStorer<M> extends Storer
 		
 		/**
 		 * Creates a storer with a default or "natural" storing logic. The default for this method
-		 * (the "default default" in a way) is to delegate the call to {@link #createLazyStorer()}.
+		 * (the "default default" in a way) is to delegate the call to {@link #createLazyStorer}.
 		 * 
 		 * @param objectManager
 		 * @param objectRetriever
 		 * @param typeManager
 		 * @param target
 		 * @param bufferSizeProvider
-		 * @return
 		 */
 		public default PersistenceStorer<M> createStorer(
 			final PersistenceTypeHandlerManager<M> typeManager       ,
@@ -94,7 +92,6 @@ public interface PersistenceStorer<M> extends Storer
 		 * @param typeManager
 		 * @param target
 		 * @param bufferSizeProvider
-		 * @return
 		 */
 		public PersistenceStorer<M> createEagerStorer(
 			PersistenceTypeHandlerManager<M> typeManager       ,

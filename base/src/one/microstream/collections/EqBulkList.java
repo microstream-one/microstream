@@ -104,7 +104,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * <p>
 	 * The actual initial capacity is the highest of the following three values:
 	 * <ul>
-	 * <li>{@link Integer.MAX_VALUE}, if the given initial capacity is greater than 2^30.</li>
+	 * <li>{@link Integer} MAX_VALUE, if the given initial capacity is greater than 2^30.</li>
 	 * <li>The lowest power of two value that is equal to or greater than the given initial capacity.</li>
 	 * <li>The default (minimum) capacity.</li>
 	 * </ul>
@@ -141,13 +141,13 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * array. The element size of the new instance will be equal to the passed array's length.
 	 * <p>
 	 * Note that providing no element at all in the VarArgs parameter will automatically cause the
-	 * default constructor {@link #BulkList()} to be used instead. Explicitely providing an {@code null} array
+	 * default constructor {@link #EqBulkList(Equalator)} to be used instead. Explicitely providing an {@code null} array
 	 * reference will cause a {@link NullPointerException}.
 	 *
 	 * @param elements the initial elements for the new instance.
 	 * @throws NullPointerException if an explicit {@code null} array reference was passed.
 	 *
-	 * @see #BulkList()
+	 * @see #EqBulkList(Equalator)
 	 */
 	@SafeVarargs
 	public EqBulkList(final Equalator<? super E> equalator, final E... elements) throws NullPointerException
@@ -167,7 +167,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * Detailed initializing constructor allowing to specify initial capacity and a custom array range of initial data.
 	 * <p>
 	 * The actual initial capacity will be calculated based on the higher of the two values {@code initialCapacity}
-	 * and {@code srcLength} as described in {@link #BulkList(int)}.
+	 * and {@code srcLength} as described in {@link #EqBulkList(Equalator, int)}.
 	 * <p>
 	 * The specified initial elements array range is copied via {@link System#arraycopy(Object, int, Object, int, int)}.
 	 *

@@ -60,7 +60,6 @@ public final class ArrayListIterator<E> implements ListIterator<E>
 	}
 
 	/**
-	 * @return
 	 * @see java.util.ListIterator#hasNext()
 	 */
 	@Override
@@ -70,7 +69,6 @@ public final class ArrayListIterator<E> implements ListIterator<E>
 	}
 
 	/**
-	 * @return
 	 * @see java.util.ListIterator#hasPrevious()
 	 */
 	@Override
@@ -80,7 +78,6 @@ public final class ArrayListIterator<E> implements ListIterator<E>
 	}
 
 	/**
-	 * @return
 	 * @see java.util.ListIterator#next()
 	 */
 	@Override
@@ -101,7 +98,6 @@ public final class ArrayListIterator<E> implements ListIterator<E>
 	}
 
 	/**
-	 * @return
 	 * @see java.util.ListIterator#nextIndex()
 	 */
 	@Override
@@ -111,7 +107,6 @@ public final class ArrayListIterator<E> implements ListIterator<E>
 	}
 
 	/**
-	 * @return
 	 * @see java.util.ListIterator#previous()
 	 */
 	@Override
@@ -128,7 +123,6 @@ public final class ArrayListIterator<E> implements ListIterator<E>
 	}
 
 	/**
-	 * @return
 	 * @see java.util.ListIterator#previousIndex()
 	 */
 	@Override

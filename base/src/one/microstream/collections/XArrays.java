@@ -127,7 +127,6 @@ public final class XArrays
 	 * Returns if the passed array is either null or has the length 0.
 	 *
 	 * @param array
-	 * @return
 	 */
 	public static boolean hasNoContent(final Object[] array)
 	{
@@ -300,7 +299,6 @@ public final class XArrays
 	 *
 	 * @param array1
 	 * @param array2
-	 * @return
 	 */
 	public static boolean equals(final Object[] array1, final Object[] array2)
 	{
@@ -383,7 +381,6 @@ public final class XArrays
 	 *
 	 * @param a1
 	 * @param a2
-	 * @return
 	 */
 	@SafeVarargs
 	public static final <T> T[] add(final T[] a1, final T... a2)
@@ -515,7 +512,6 @@ public final class XArrays
 	 * @param <T>
 	 * @param a1
 	 * @param a2
-	 * @return
 	 */
 	@SafeVarargs
 	public static final <T> T[] merge(final T[] a1, final T... a2)
@@ -1070,7 +1066,6 @@ public final class XArrays
 	 * @param dest
 	 * @param destPos
 	 * @param length
-	 * @return
 	 */
 	public static <T, U extends T> T[] arraycopy(
 		final U[] src,

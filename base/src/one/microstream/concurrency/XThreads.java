@@ -32,7 +32,6 @@ public final class XThreads
 	 * 
 	 * @param <T>
 	 * @param logic
-	 * @return
 	 */
 	public static <T> T executeSynchronized(final Supplier<T> logic)
 	{

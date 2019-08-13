@@ -376,7 +376,6 @@ public class PlatformInternals
 	 * Just to have all jdk internal types here at one place.
 	 * 
 	 * @param directBuffer
-	 * @return
 	 */
 	public static final boolean isDirectBuffer(final ByteBuffer directBuffer)
 	{

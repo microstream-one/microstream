@@ -16,14 +16,14 @@ import one.microstream.com.ComHostChannelAcceptor;
 import one.microstream.com.XSockets;
 import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.types.BinaryPersistence;
+import one.microstream.persistence.binary.types.Binary;
 
 public class ComBinary
 {
 	/**
 	 * The length of the fixed-size chunk header.<p>
 	 * So far, the header only consists of one field holding the length of the chunk content.
-	 * See {@link BinaryPersistence#lengthLength()}.
+	 * See {@link Binary#lengthLength()}.
 	 * 
 	 * In the future, the header might contain validation values like protocol name, version, byte order, etc.<br>
 	 * Maybe, the consequence will be a dynamically sized header, meaning there

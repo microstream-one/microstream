@@ -23,7 +23,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 	 * <p>
 	 * Note that the so far linked <code>LinkedReference</code> object is returned, not this object itself!
 	 * @param linkedReference
-	 * @return
 	 */
 	public LinkReference<T> setNext(LinkReference<T> linkedReference);
 
@@ -41,7 +40,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 	/**
 	 * Alias for <code>link(new LinkedReference(nextRef))</code>.
 	 * @param nextRef
-	 * @return
 	 */
 	public LinkReference<T> link(T nextRef);
 
@@ -90,7 +88,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 
 		/**
-		 * @return
 		 */
 		@Override
 		public LinkReference<T> next()
@@ -99,7 +96,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 		}
 
 		/**
-		 * @return
 		 */
 		@Override
 		public boolean hasNext()
@@ -109,7 +105,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 		/**
 		 * @param linkedReference
-		 * @return
 		 */
 		@Override
 		public boolean isNext(final LinkingReferencing<T> linkedReference)
@@ -119,7 +114,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 		/**
 		 * @param linkedReference
-		 * @return
 		 */
 		@Override
 		public LinkReference<T> link(final LinkReference<T> linkedReference)
@@ -131,7 +125,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 		/**
 		 * @param linkedReference
-		 * @return
 		 */
 		@Override
 		public LinkReference<T> setNext(final LinkReference<T> linkedReference)
@@ -144,7 +137,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 		/**
 		 * @param nextRef
-		 * @return
 		 */
 		@Override
 		public LinkReference<T> link(final T nextRef)
@@ -155,8 +147,7 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 		/**
 		 * @param linkedReference
-		 * @return
-		 * @throws NullPointer, if <code>linkedReference</code> is {@code null}.
+		 * @throws NullPointerException if <code>linkedReference</code> is {@code null}.
 		 */
 		@Override
 		public LinkReference<T> insert(final LinkReference<T> linkedReference)
@@ -173,7 +164,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 
 		/**
-		 * @return
 		 */
 		@Override
 		public LinkReference<T> removeNext()
@@ -185,7 +175,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 
 		/**
-		 * @return
 		 */
 		@Override
 		public Object[] toArray()
@@ -211,7 +200,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 
 		/**
-		 * @return
 		 */
 		@Override
 		public Iterator<T> iterator()
@@ -221,7 +209,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 
 		/**
-		 * @return
 		 * @see java.lang.Object#toString()
 		 */
 		@Override
@@ -233,7 +220,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 		}
 
 		/**
-		 * @return
 		 * @see one.microstream.reference.LinkingReferencing#toChainString()
 		 */
 		@Override

@@ -70,7 +70,6 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	 * The persistence medium type used by the persistence manager is irrelevant on the com-level, hence the "?".
 	 * 
 	 * @param connection
-	 * @return
 	 */
 	public default PersistenceManager<?> provideHostPersistenceManager(
 		final C connection
@@ -95,13 +94,12 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	 * Provides a {@link PersistenceFoundation} instance prepared for the passed connection instance.
 	 * The passed connection instance might be null, in which case the returned foundation instance
 	 * can only be used for general, non-communication-related operations.<p>
-	 * See {@link #providePersistenceManager(C)} with a passed non-null connection instance.<br>
-	 * See {@link #provideTypeDictionaryCompiler(C)} with a passed null connection instance.
+	 * See {@link #provideHostPersistenceManager} with a passed non-null connection instance.<br>
+	 * See {@link #provideTypeDictionaryCompiler} with a passed null connection instance.
 	 * 
 	 * @param connection
-	 * @return
 	 * 
-	 * @see #providePersistenceManager(C)
+	 * @see #provideHostPersistenceManager
 	 * @see #provideTypeDictionaryCompiler()
 	 */
 	public PersistenceFoundation<?, ?> provideHostPersistenceFoundation(C connection);

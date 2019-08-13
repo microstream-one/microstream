@@ -82,9 +82,7 @@ Copyable
 	 * Returns {@code true} if the passed collection is of the same type as this collection and
 	 * <code>this.equalsContent(list, equalator)</code> yields {@code true}.
 	 *
-	 * @param collection
 	 * @param equalator
-	 * @return
 	 */
 	public boolean equals(XGettingCollection<? extends E> samples, Equalator<? super E> equalator);
 
@@ -96,7 +94,6 @@ Copyable
 	 * (as is {@link #equals(Object)} for them as defined in {@link Collection}). The core problem of comparing
 	 * collections that have no defined order is that they aren't really reliably comparable to any other collection.
 	 *
-	 * @param collection the list that this list shall be compared to
 	 * @param equalator the equalator to use to determine the equality of each element
 	 * @return {@code true} if this list is equal to the passed list, <tt>false</tt> otherwise
 	 */
@@ -164,8 +161,7 @@ Copyable
 	 * the returned element might be the same as the passed one or a data-wise equal one, depending on the content
 	 * of the collection)
 	 * 
-	 * @param element
-	 * @return
+	 * @param sample
 	 */
 	public E seek(E sample);
 
@@ -227,7 +223,6 @@ Copyable
 	 * {@inheritDoc}
 	 *
 	 * @param o
-	 * @return
 	 */
 	@Override
 	@Deprecated

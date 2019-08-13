@@ -30,7 +30,6 @@ public abstract class AbstractSimpleArrayCollection<E> extends AbstractSectioned
 	 * for examples)
 	 *
 	 * @param subject
-	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	protected static <E> E[] internalGetStorageArray(final AbstractSimpleArrayCollection<?> subject)
