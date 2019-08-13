@@ -20,7 +20,6 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 	 * If the lookup did not yield any result, <code>null</code> is returned.
 	 * 
 	 * @param sourceIdentifier
-	 * @return
 	 */
 	public KeyValue<String, String> lookup(String sourceIdentifier);
 	
@@ -47,7 +46,6 @@ public interface PersistenceRefactoringResolver extends PersistenceTypeResolver
 	 * @param sourceType
 	 * @param sourceMember
 	 * @param targetType
-	 * @return
 	 */
 	public KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> resolveMember(
 		PersistenceTypeDefinition       sourceType  ,

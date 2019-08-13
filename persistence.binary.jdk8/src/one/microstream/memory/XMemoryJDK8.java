@@ -57,7 +57,6 @@ public final class XMemoryJDK8
 	 * And should they ever get the idea to implement the set properly, this method will break.
 	 *
 	 * @param hashSet
-	 * @return
 	 */
 	public static float getLoadFactor(final HashSet<?> hashSet)
 	{

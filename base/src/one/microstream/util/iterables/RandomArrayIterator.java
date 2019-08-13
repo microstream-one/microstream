@@ -72,7 +72,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 	/**
 	 *
-	 * @return
 	 */
 	public int getCount()
 	{
@@ -103,7 +102,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	/**
 	 *
 	 * @param amount
-	 * @return
 	 */
 	public RandomArrayIterator<E> incrementCount(final int amount)
 	{
@@ -114,7 +112,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	/**
 	 *
 	 * @param amount
-	 * @return
 	 */
 	public RandomArrayIterator<E> decrementCount(final int amount)
 	{
@@ -154,7 +151,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	/////////////////////
 
 	/**
-	 * @return
 	 * @see java.util.Iterator#hasNext()
 	 */
 	@Override
@@ -165,7 +161,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 
 	/**
-	 * @return
 	 * @see java.util.Iterator#next()
 	 */
 	@Override
@@ -218,7 +213,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 		/**
 		 *
-		 * @return
 		 */
 		public int getCount()
 		{
@@ -249,7 +243,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 		/**
 		 *
 		 * @param amount
-		 * @return
 		 */
 		public Factory<E> incrementCount(final int amount)
 		{
@@ -260,7 +253,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 		/**
 		 *
 		 * @param amount
-		 * @return
 		 */
 		public Factory<E> decrementCount(final int amount)
 		{
@@ -275,7 +267,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 		////////////
 
 		/**
-		 * @return
 		 * @see java.lang.Iterable#iterator()
 		 */
 		@Override

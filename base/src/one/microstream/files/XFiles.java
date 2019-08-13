@@ -460,7 +460,6 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	 * 
 	 * @param fileChannel
 	 * @param byteBuffers
-	 * @return
 	 * @throws IOException
 	 */
 	public static long appendAll(final FileChannel fileChannel, final ByteBuffer[] byteBuffers)
@@ -494,7 +493,6 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	 * 
 	 * @param fileChannel
 	 * @param byteBuffers
-	 * @return
 	 * @throws IOException
 	 */
 	public static long appendAllGuaranteed(final FileChannel fileChannel, final ByteBuffer[] byteBuffers)

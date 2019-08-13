@@ -768,7 +768,7 @@ public final class VarByte implements Externalizable
 	 *
 	 * @param varByte
 	 * @return {@code true} if <code>varByte</code> is either {@code null} or empty.
-	 * @see {@link VarByte#isEmpty()}
+	 * @see VarByte#isEmpty()
 	 */
 	public static final boolean hasNoContent(final VarByte varByte)
 	{
@@ -878,7 +878,7 @@ public final class VarByte implements Externalizable
 	}
 
 	/**
-	 * Passes a copy of the internal byte array to the {@link PrintStream#println(byte[])} method of the passed
+	 * Passes a copy of the internal byte array to the {@link PrintStream#println(String)} method of the passed
 	 * {@link PrintStream} instance.
 	 * <p>
 	 * The purpose of this method is to spare the unnecessary String instantiation of the generic method
@@ -896,7 +896,7 @@ public final class VarByte implements Externalizable
 	}
 
 	/**
-	 * Passes a copy of the internal byte array to the {@link PrintStream#print(byte[])} method of the passed
+	 * Passes a copy of the internal byte array to the {@link PrintStream#print(String)} method of the passed
 	 * {@link PrintStream} instance.
 	 * <p>
 	 * The purpose of this method is to spare the unnecessary String instantiation of the generic method

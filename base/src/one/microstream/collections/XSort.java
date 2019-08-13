@@ -763,7 +763,7 @@ public final class XSort
 	 * <p>
 	 * Due to sorting the passed array in a stable and fast (O(n log(n)) fashion, each call of this method instantiates
 	 * an internal buffer array with the same size as the passed array. If the repeated creation of buffer arrays shall
-	 * be prevented, use {@link #bufferedAdaptiveMergeSort(E[], E[], Comparator)} to explicitly provide a reusable buffer.
+	 * be prevented, use {@link #bufferedAdaptiveMergesort(E[], E[], Comparator)} to explicitly provide a reusable buffer.
 	 * <p>
 	 * If maintaining the orginal order of equal elements (stability) is not required,
 	 * {@link #valueSort(Object[], Comparator)} usually yields better performance and also does not require additional
@@ -775,7 +775,7 @@ public final class XSort
 	 * @param elements the elements to be sorted.
 	 * @param comparator the {@link Comparator} defining the sortation order of the elements.
 	 * @see #valueSort(E[], Comparator)
-	 * @see #bufferedAdaptiveMergeSort(E[], E[], Comparator)
+	 * @see #bufferedAdaptiveMergesort(E[], E[], Comparator)
 	 * @see #sort(E[], int, int, Comparator)
 	 */
 	public static <E> void sort(final E[] elements, final Comparator<? super E> comparator)
@@ -890,7 +890,7 @@ public final class XSort
 	 * @see #sort(E[], Comparator)
 	 * @see #bufferedAdaptiveMergesort(E[], E[], int, int, Comparator)
 	 */
-	public static <E> E[] bufferedAdaptiveMergeSort(
+	public static <E> E[] bufferedAdaptiveMergesort(
 		final E[]                   elements  ,
 		final E[]                   buffer    ,
 		final Comparator<? super E> comparator
@@ -902,7 +902,7 @@ public final class XSort
 	}
 
 	/**
-	 * Subranged version of {@link #bufferSort(E[], Comparator)}.
+	 * Subranged version of {@link #bufferedAdaptiveMergesort(Object[], Object[], Comparator)}.
 	 * <p>
 	 * Example: {@code bufferSort(myElements, 0, 5, myElementComparator} sorts the first 5 elements of array
 	 * {@code myElements} (indices 0 to 4).
@@ -1157,7 +1157,7 @@ public final class XSort
 	}
 
 	/**
-	 * Subranged version of {@link #valueSort(V[], Comparator)}.
+	 * Subranged version of {@link #sort(int[])}.
 	 * <p>
 	 * Example: {@code sort(myValues, 0, 5} sorts the first 5 values of array
 	 * {@code myElements} (indices 0 to 4).
@@ -1167,7 +1167,6 @@ public final class XSort
 	 * @param values the values to be sorted.
 	 * @param start the starting index (inclusive) of the subrange to be sorted.
 	 * @param bound the bounding index (exclusive) of the subrange to be sorted.
-	 * @param comparator the {@link Comparator} defining the sortation order of the elements.
 	 */
 	public static final void sort(final int[] values, final int start, final int bound)
 		throws NullPointerException, ArrayIndexOutOfBoundsException

@@ -61,7 +61,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
 	 * 
-	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
+	 * @param dissolveRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * 
 	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
 	 * 

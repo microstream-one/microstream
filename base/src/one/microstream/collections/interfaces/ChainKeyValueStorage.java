@@ -49,8 +49,6 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	/**
 	 * Removes all empty entries from the passed chain and returns the number of removed entries.
 	 *
-	 * @param <E> the element type of the passed chain.
-	 * @param chain the chain to be consolidated (cleared of empty entries).
 	 * @return the number of removed entries.
 	 */
 	@Override
@@ -75,8 +73,6 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	 * Note that the indices array gets presorted to increase algorithm performance. If the original {@code int} array
 	 * shall be unchanged, a clone must be passed.
 	 *
-	 * @param <E> the element type of the chain.
-	 * @param chain the chain whose entries shall be removed.
 	 * @param indices the indices (offsets) of the entries to be removed.
 	 * @return the amount of actually removed entries.
 	 */

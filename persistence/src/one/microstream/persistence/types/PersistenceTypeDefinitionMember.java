@@ -5,7 +5,6 @@ public interface PersistenceTypeDefinitionMember extends PersistenceTypeDescript
 	/**
 	 * The runtime type used by this description member, if possible. Otherwise <code>null</code>.
 	 * 
-	 * @return
 	 */
 	public Class<?> type();
 	

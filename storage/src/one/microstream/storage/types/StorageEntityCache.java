@@ -852,7 +852,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 *
 		 * @param timeBudgetBound
-		 * @return
 		 */
 		private boolean incrementalMark(final long timeBudgetBound)
 		{

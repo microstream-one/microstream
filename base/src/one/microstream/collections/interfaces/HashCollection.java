@@ -178,7 +178,6 @@ public interface HashCollection<E> extends Sized
 
 
 		/**
-		 * @return
 		 * @see java.lang.Object#toString()
 		 */
 		@Override
