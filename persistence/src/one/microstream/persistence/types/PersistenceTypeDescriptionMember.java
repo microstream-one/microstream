@@ -179,8 +179,6 @@ public interface PersistenceTypeDescriptionMember
 
 	/**
 	 * Determines if this member is a enum constant name definition instead of an isntance field definition.
-	 *
-	 * @return
 	 */
 	public boolean isEnumConstant();
 

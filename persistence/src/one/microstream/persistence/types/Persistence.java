@@ -896,13 +896,19 @@ public class Persistence
 		}
 	}
 	
-	public static String deriveEnumRootIdentifier(final PersistenceTypeHandler<?, ?> typeHandler)
+	public static void validateIsEnumType(final PersistenceTypeHandler<?, ?> typeHandler)
 	{
 		if(!XReflect.isEnum(typeHandler.type()))
 		{
 			// (07.08.2019 TM)EXCP: proper exception
 			throw new IllegalArgumentException("Not an enum type: " + typeHandler.type());
 		}
+	}
+	
+	public static String deriveEnumRootIdentifier(final PersistenceTypeHandler<?, ?> typeHandler)
+	{
+		validateIsEnumType(typeHandler);
+		
 		if(typeHandler.typeId() == Persistence.nullId())
 		{
 			// (07.08.2019 TM)EXCP: proper exception
@@ -912,8 +918,10 @@ public class Persistence
 		return XReflect.typename_enum() + " " + typeHandler.typeId();
 	}
 	
-	public static Object[] collectEnumInstances(final PersistenceTypeHandler<?, ?> typeHandler)
+	public static Object[] collectEnumConstants(final PersistenceTypeHandler<?, ?> typeHandler)
 	{
+		validateIsEnumType(typeHandler);
+		
 		final Object[] enumConstants = typeHandler.type().getEnumConstants();
 		
 		// intentionally type Object[], not some T[] in covariant disguise.
@@ -923,7 +931,7 @@ public class Persistence
 		return copy;
 	}
 	
-	public static Long extractEnumRootIdentifierTypeId(final String enumRootIdentifier)
+	public static Long parseEnumRootIdentifierTypeId(final String enumRootIdentifier)
 	{
 		if(enumRootIdentifier == null || !enumRootIdentifier.startsWith(XReflect.typename_enum()))
 		{
@@ -941,63 +949,11 @@ public class Persistence
 			return null;
 		}
 	}
-
-	// (12.08.2019 TM)FIXME: priv#23: remove all RootResolver(~) variants.
-//	public static final PersistenceRootResolver RootResolver(
-//		final String rootIdentifier,
-//		final Object rootInstance
-//	)
-//	{
-//		return RootResolver(rootIdentifier, () -> rootInstance);
-//	}
-//
-//	public static final PersistenceRootResolver RootResolver(final Object rootInstance)
-//	{
-//		return RootResolver(() -> rootInstance);
-//	}
-//
-//	public static final PersistenceRootResolver RootResolver(final Supplier<?> rootInstanceSupplier)
-//	{
-//		return RootResolverProvider(rootInstanceSupplier).provideRootResolver();
-//	}
-//
-//	public static final PersistenceRootResolver RootResolver(
-//		final String      rootIdentifier      ,
-//		final Supplier<?> rootInstanceSupplier
-//	)
-//	{
-//		return PersistenceRootResolver.New(rootIdentifier, rootInstanceSupplier);
-//	}
-//
-//	public static final PersistenceRootResolver RootResolver(
-//		final String                                     rootIdentifier         ,
-//		final Supplier<?>                                rootInstanceSupplier   ,
-//		final PersistenceTypeDescriptionResolverProvider typeDescriptionResolver
-//	)
-//	{
-//		return PersistenceRootResolver.Wrap(
-//			RootResolver(rootIdentifier, rootInstanceSupplier),
-//			typeDescriptionResolver
-//		);
-//	}
-//
-//	public static final PersistenceRootResolver RootResolver(
-//		final Supplier<?>                                rootInstanceSupplier   ,
-//		final PersistenceTypeDescriptionResolverProvider typeDescriptionResolver
-//	)
-//	{
-//		return PersistenceRootResolver.Wrap(
-//			RootResolver(rootInstanceSupplier),
-//			typeDescriptionResolver
-//		);
-//	}
 	
 	public static final PersistenceRootResolverProvider RootResolverProvider()
 	{
-		// debugability line breaks, do not reduce!
-		return RootResolverProvider(
-			() ->
-				null
+		return RootResolverProvider(() ->
+			null // debuggability line break, do not remove!
 		);
 	}
 	
@@ -1082,9 +1038,9 @@ public class Persistence
 			(k, v) ->
 				entries.add(X.KeyValue(k, v)),
 			row ->
-				XChars.trimEmptyToNull(row[0]), // debuggability linebreak, do not reformat!
+				XChars.trimEmptyToNull(row[0]), // debuggability line break, do not remove!
 			row ->
-				XChars.trimEmptyToNull(row[1])  // debuggability linebreak, do not reformat!
+				XChars.trimEmptyToNull(row[1])  // debuggability line break, do not remove!
 		);
 		
 		return entries;
@@ -1093,8 +1049,6 @@ public class Persistence
 	/**
 	 * Persistence-specific separator between a class name and a proper identifier
 	 * that replaces unreliable class names (like "$1", "$2" etc.) by a reliably identifying substitute name.
-	 * 
-	 * @return
 	 */
 	public static final String substituteClassIdentifierSeparator()
 	{

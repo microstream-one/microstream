@@ -816,6 +816,61 @@ Da muss jetzt eine R\'fcckreferenz auf den TypeHandlerManager rein, sonst kann d
 \par
 2018-08-13\par
 \par
+TypeHandlerManager in PersistenceRootResolver einbauen.\par
 \par
+Zwischendrin priv#130.\par
+Mail von FH zu JavaDoc CompilerFehler. Fixen. Gleich alles.\par
+\par
+#resolveRootEnumConstants bauen.\par
+\par
+Testen.\par
+\par
+Okay, die loadedRoots werden nun korrekt rekonstruiert. Also 24 (22 + 2 enums).\par
+Aber die definedRoots sind ja weiterhin nur 22, weil zum Erstellzeitpunkt von denen die EnumHandler nicht fertig sind.\par
+\par
+Bei einem Mismatch der "normalen" Roots w\'fcrden die loaded durch die defined ersetzt werden.\par
+Richtig f\'fcr die normalen, aber fatal f\'fcr die enums.\par
+Nicht, dass da die loaded Vorrang h\'e4tten, aber die defined haben halt gar keine enum Eintr\'e4ge.\par
+\par
+Mal recherchieren ...\par
+Aber Moment mal:\par
+Die DefinedRoots sind ja auch nur PersistenceRoots aus dem RootResolver, die on demand aufgel\'f6st werden.\par
+M\'fcssten da dann nicht die enum roots mit drin sein?\par
+Passiert das einfach zu fr\'fch?\par
+Entweder k\'f6nnte das nach hintern verlagert werden, oder die defined roots zeigen gleich nur auf die Entries im Resolver, der dann um die enums erweitert wird.\par
+Oder m\'fcsste das nicht irgendwie im resolver beides mergebar sein?\par
+Ist das f\'fcr laden und defined roots \'fcberhaupt derselbe resolver?\par
+\par
+Das muss ich alles mal kl\'e4ren, dann kann ich die roots ordentlichen synchen.\par
+Recherchieren ...\par
+\par
+Das sind zwei unterschiedliche RootResolver Instanzen.\par
+Mal recherchieren, ob das so sein muss.\par
+\par
+Ah: Es ist dieselbe PersistenceRootResolverProvider$Default Instanz, aber die erzeugt zwei RootResolver, weil sie einen einmal erzeugten nicht cacht.\par
+Einmal beim roots laden in BinaryHandlerPersistenceRootsDefault#create und einmal in EmbeddedStorageFoundation#createEmbeddedStorageManager.\par
+\par
+Die Frage ist nat\'fcrlich, ob das vielleicht so sein soll, dass es zwei Instanzen sind. Immerhin sollen LoadedRoots und DefinedRoots ja auch zwei unterschiedliche Instanzen sein, sonst kann man ja nix abgleichen.\par
+Mal recherchieren und durchdenken ...\par
+\par
+Hm. Also es is:\par
+- Die DefinedRoots werden \'fcber PersistenceRootsResolver#resolveRootInstances() bef\'fcllt. Das ist eher ein "initializeRootInstance". Sollt ich umbenennen. Also erzeugt aus den internen, dynamisch neu erzeugten Eintr\'e4gen.\par
+- Die LoadedRoots werden \'fcber PersistenceRootsResolver#resolveRootEntries gef\'fcllt. Also eher so "erzeug mir roots basierend auf meinen geladenen Identifiern. Egal, was du wirklich intern hast".\par
+Das sind zwei verschiedene Wege \'fcber dieselbe Instanz.\par
+Es k\'f6nnte und sollte also auch immer dieselbe Instanz sein.\par
+\par
+Also Caching Feld einbauen.\par
+\par
+Jetzt ist das schon mal immer derselbe mit besser benannten Methoden.\par
+Aber die Roots sind immer noch nicht synchron.\par
+\par
+Das m\'fcsste wohl zweigeteilt werden:\par
+1.) Alle defined roots (ohne enums) m\'fcssen genau so in den loadedRoots sein, sonst wird vorgemerkt f\'fcr einen Synch\par
+2.) Alle enum Eintr\'e4ge aus den loaded Roots werden ... das ist jetzt die Frage.\par
+Was werden sie denn? Validiert? Ich hab die ja gerade erst dynamisch festgestellt aus den Runtime Klassen. Die sind aktuell und valide.\par
+In die DefinedRoots \'fcbernommen?\par
+Was ist mit LTM? Was, wenn das veraltete TypeIds sind? Oder ist das die Validierung? Zwischen "gibt es" und "gibt es und ist auch die aktuelle TypeId" ist ein unterschied ...\par
+\par
+Hmhmhmh...\par
 }
  
