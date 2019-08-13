@@ -1,0 +1,9 @@
+To generate JavaDoc first the source stubs have to be created:
+Execute one.microstream - install
+Then    one.microstream - javadoc
+
+Push the output into the GitHub Repository:
+https://github.com/microstream-one/docs-api.git
+
+This repo serves as source for GitHub pages, mapped to
+https://api.docs.microstream.one 
