@@ -2101,14 +2101,11 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		protected PersistenceRootResolverProvider ensureRootResolverProvider()
 		{
-			/* (09.08.2019 TM)FIXME: priv#23: link typeHandlerManager and rootsresolver
-			 * Or ... does a oid loading call suffice? ...
-			 */
 			final PersistenceTypeDescriptionResolverProvider refactoring = this.getTypeDescriptionResolverProvider();
 			
-			// (12.08.2019 TM)NOTE: move as mandatory to New instead of via setter?
 			final PersistenceRootResolverProvider resolverProvider = PersistenceRootResolverProvider.New();
-			resolverProvider.setRefactoring(refactoring);
+			resolverProvider.setTypeDescriptionResolverProvider(refactoring);
+			resolverProvider.setTypeHandlerManager(this.referenceTypeHandlerManager);
 			
 			return resolverProvider;
 		}

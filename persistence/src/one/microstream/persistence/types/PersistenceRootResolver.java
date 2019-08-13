@@ -84,7 +84,7 @@ public interface PersistenceRootResolver
 		
 		return resolvedRoots;
 	}
-	
+
 	
 	
 	public static XGettingTable<String, Supplier<?>> deriveRoots(final Class<?>... types)
@@ -169,29 +169,21 @@ public interface PersistenceRootResolver
 		}
 	}
 	
+	/**
+	 * Central wrapping method mosty to have a unified and concisely named location for the lambda.
+	 * 
+	 * @param customRootInstance the instance to be used as the entity graph's root.
+	 * 
+	 * @return a {@link Supplier} returning the passed {@literal customRootInstance} instance.
+	 */
+	public static Supplier<?> wrapCustomRoot(final Object customRootInstance)
+	{
+		notNull(customRootInstance);
+		return () ->
+			customRootInstance
+		;
+	}
 	
-	// (12.08.2019 TM)FIXME: priv#23: not sure if these two methods are still valid after switching to ~Provider
-	
-//	public static PersistenceRootResolver New(
-//		final Supplier<?> customRootSupplier
-//	)
-//	{
-//		return PersistenceRootResolverProvider.New()
-//			.registerCustomRootSupplier(customRootSupplier)
-//			.provideRootResolver()
-//		;
-//	}
-//
-//	public static PersistenceRootResolver New(
-//		final String      customRootIdentifier,
-//		final Supplier<?> customRootSupplier
-//	)
-//	{
-//		return PersistenceRootResolverProvider.New()
-//			.registerCustomRootSupplier(customRootIdentifier, customRootSupplier)
-//			.provideRootResolver()
-//		;
-//	}
 	
 	public final class Default implements PersistenceRootResolver
 	{
@@ -199,11 +191,11 @@ public interface PersistenceRootResolver
 		// instance fields //
 		////////////////////
 		
-		private final String                                         defaultRootIdentifier      ;
-		private final Reference<Object>                              defaultRoot                ;
-		private final String                                         customRootIdentifier       ;
-		private final EqConstHashTable<String, PersistenceRootEntry> rootEntries                ;
-		private final Reference<PersistenceTypeHandlerManager<?>>    referenceTypeHandlerManager;
+		private final String                                                defaultRootIdentifier      ;
+		private final Reference<Object>                                     defaultRoot                ;
+		private final String                                                customRootIdentifier       ;
+		private final EqConstHashTable<String, PersistenceRootEntry>        rootEntries                ;
+		private final Reference<? extends PersistenceTypeHandlerManager<?>> referenceTypeHandlerManager;
 
 
 
@@ -212,11 +204,11 @@ public interface PersistenceRootResolver
 		/////////////////
 
 		Default(
-			final String                                         defaultRootIdentifier      ,
-			final Reference<Object>                              defaultRoot                ,
-			final String                                         customRootIdentifier       ,
-			final EqConstHashTable<String, PersistenceRootEntry> rootEntries                ,
-			final Reference<PersistenceTypeHandlerManager<?>>    referenceTypeHandlerManager
+			final String                                                defaultRootIdentifier      ,
+			final Reference<Object>                                     defaultRoot                ,
+			final String                                                customRootIdentifier       ,
+			final EqConstHashTable<String, PersistenceRootEntry>        rootEntries                ,
+			final Reference<? extends PersistenceTypeHandlerManager<?>> referenceTypeHandlerManager
 		)
 		{
 			super();
@@ -398,23 +390,5 @@ public interface PersistenceRootResolver
 		}
 				
 	}
-	
-
-		
-	/**
-	 * Central wrapping method mosty to have a unified and concisely named location for the lambda.
-	 * 
-	 * @param customRootInstance the instance to be used as the entity graph's root.
-	 * 
-	 * @return a {@link Supplier} returning the passed {@literal customRootInstance} instance.
-	 */
-	public static Supplier<?> wrapCustomRoot(final Object customRootInstance)
-	{
-		notNull(customRootInstance);
-		return () ->
-			customRootInstance
-		;
-	}
-		
 	
 }
