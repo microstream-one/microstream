@@ -167,6 +167,8 @@ public interface PersistenceRootResolverProvider
 		private       PersistenceRefactoringMappingProvider                 refactoringMapping             ;
 		private       Reference<? extends PersistenceTypeHandlerManager<?>> refTypeHandlerManager          ;
 		
+		private transient PersistenceRootResolver cachedRootResolver;
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -280,9 +282,8 @@ public interface PersistenceRootResolverProvider
 			
 			throw new RuntimeException(); // (17.04.2018 TM)EXCP: proper exception
 		}
-					
-		@Override
-		public final synchronized PersistenceRootResolver provideRootResolver()
+		
+		private PersistenceRootResolver createRootResolver()
 		{
 			final String  defaultRootIdentifier;
 			final Reference<Object> defaultRoot;
@@ -307,11 +308,22 @@ public interface PersistenceRootResolverProvider
 			);
 			
 			final PersistenceTypeDescriptionResolverProvider refactoring = this.getEffectiveTypeDescriptionResolver();
-			
+						
 			return refactoring == null
 				? resolver
 				: PersistenceRootResolver.Wrap(resolver, refactoring)
 			;
+		}
+					
+		@Override
+		public final synchronized PersistenceRootResolver provideRootResolver()
+		{
+			if(this.cachedRootResolver == null)
+			{
+				this.cachedRootResolver = this.createRootResolver();
+			}
+			
+			return this.cachedRootResolver;
 		}
 		
 		protected PersistenceTypeDescriptionResolverProvider getEffectiveTypeDescriptionResolver()

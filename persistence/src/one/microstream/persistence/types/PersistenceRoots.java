@@ -132,7 +132,9 @@ public interface PersistenceRoots
 		{
 			if(this.resolvedEntries == null)
 			{
-				this.resolveRoots();
+				final XGettingTable<String, Object> effectiveRoots = this.rootResolver.resolveDefinedRootInstances();
+				this.resolvedEntries = EqConstHashTable.New(effectiveRoots);
+				this.hasChanged = false;
 			}
 			
 			/*
@@ -142,15 +144,6 @@ public interface PersistenceRoots
 			 */
 			return this.resolvedEntries;
 		}
-		
-		private void resolveRoots()
-		{
-			final XGettingTable<String, Object> effectiveRoots = this.rootResolver.resolveRootInstances();
-			
-			this.resolvedEntries = EqConstHashTable.New(effectiveRoots);
-			this.hasChanged = false;
-		}
-		
 
 		public final synchronized void updateEntries(final XGettingTable<String, Object> resolvedRoots)
 		{

@@ -73,7 +73,22 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 	public void checkForPendingRootsStoring(PersistenceStoring storingCallback);
 	
 	public void clearStorePendingRoots();
-
+	
+	public default String deriveEnumRootIdentifier(final PersistenceTypeHandler<?, ?> typeHandler)
+	{
+		return Persistence.deriveEnumRootIdentifier(typeHandler);
+	}
+	
+	public default Long parseEnumRootIdentifierTypeId(final String enumRootIdentifier)
+	{
+		return Persistence.parseEnumRootIdentifierTypeId(enumRootIdentifier);
+	}
+	
+	public default Object[] collectEnumConstants(final PersistenceTypeHandler<?, ?> typeHandler)
+	{
+		return Persistence.collectEnumConstants(typeHandler);
+	}
+		
 
 	
 	public static <M> void registerEnumContantRoots(
@@ -98,18 +113,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			typeHandler.type(),
 			typeHandler
 		);
-	}
-	
-
-	
-	public static String deriveEnumRootIdentifier(final PersistenceTypeHandler<?, ?> typeHandler)
-	{
-		return Persistence.deriveEnumRootIdentifier(typeHandler);
-	}
-	
-	public static Object[] collectEnumInstances(final PersistenceTypeHandler<?, ?> typeHandler)
-	{
-		return Persistence.collectEnumInstances(typeHandler);
 	}
 
 	public static <M> PersistenceTypeHandlerManager.Default<M> New(
@@ -594,7 +597,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				
 				for(final PersistenceTypeHandler<M, ?> typeHandler : this.pendingEnumConstantRootStoringHandlers.values())
 				{
-					final String enumRootIdentifier = deriveEnumRootIdentifier(typeHandler);
+					final String enumRootIdentifier = this.deriveEnumRootIdentifier(typeHandler);
 					final Object enumRootEntry      = modifiedRootEntries.get(enumRootIdentifier);
 					if(enumRootEntry != null)
 					{
@@ -602,7 +605,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 						return;
 					}
 					
-					final Object[] enumRootEntries = collectEnumInstances(typeHandler);
+					final Object[] enumRootEntries = this.collectEnumConstants(typeHandler);
 					modifiedRootEntries.add(enumRootIdentifier, enumRootEntries);
 					modified = true;
 				}
@@ -625,7 +628,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				// (08.08.2019 TM)EXCP: proper exception
 				throw new RuntimeException(
 					"Invalid root instance of type " + existingEntry.getClass().getName()
-					+ " for enum type entry " + deriveEnumRootIdentifier(typeHandler)
+					+ " for enum type entry " + this.deriveEnumRootIdentifier(typeHandler)
 					+ " of type " + typeHandler.type().getName()
 				);
 			}
@@ -636,7 +639,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				// (08.08.2019 TM)EXCP: proper exception
 				throw new RuntimeException(
 					"Root entry already exists with inconsistent enum constants"
-					+ " for enum type entry " + deriveEnumRootIdentifier(typeHandler)
+					+ " for enum type entry " + this.deriveEnumRootIdentifier(typeHandler)
 					+ " of type " + typeHandler.type().getName()
 				);
 			}

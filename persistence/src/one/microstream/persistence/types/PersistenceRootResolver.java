@@ -28,7 +28,7 @@ public interface PersistenceRootResolver
 	
 	public PersistenceRootEntry resolveRootInstance(String identifier);
 	
-	public XGettingTable<String, PersistenceRootEntry> entries();
+	public XGettingTable<String, PersistenceRootEntry> definedEntries();
 	
 	public default XGettingTable<String, PersistenceRootEntry> resolveRootEntries(
 		final XGettingEnum<String> identifiers
@@ -64,9 +64,9 @@ public interface PersistenceRootResolver
 		return resolvedRoots;
 	}
 	
-	public default XTable<String, Object> resolveRootInstances()
+	public default XGettingTable<String, Object> resolveDefinedRootInstances()
 	{
-		return this.resolveRootInstances(this.entries());
+		return this.resolveRootInstances(this.definedEntries());
 	}
 	
 	public default XTable<String, Object> resolveRootInstances(
@@ -194,8 +194,10 @@ public interface PersistenceRootResolver
 		private final String                                                defaultRootIdentifier      ;
 		private final Reference<Object>                                     defaultRoot                ;
 		private final String                                                customRootIdentifier       ;
-		private final EqConstHashTable<String, PersistenceRootEntry>        rootEntries                ;
+		private final EqConstHashTable<String, PersistenceRootEntry>        definedRootEntries         ;
 		private final Reference<? extends PersistenceTypeHandlerManager<?>> referenceTypeHandlerManager;
+		
+		private transient PersistenceTypeHandlerManager<?> cachedTypeHandlerManager;
 
 
 
@@ -207,7 +209,7 @@ public interface PersistenceRootResolver
 			final String                                                defaultRootIdentifier      ,
 			final Reference<Object>                                     defaultRoot                ,
 			final String                                                customRootIdentifier       ,
-			final EqConstHashTable<String, PersistenceRootEntry>        rootEntries                ,
+			final EqConstHashTable<String, PersistenceRootEntry>        definedRootEntries         ,
 			final Reference<? extends PersistenceTypeHandlerManager<?>> referenceTypeHandlerManager
 		)
 		{
@@ -215,7 +217,7 @@ public interface PersistenceRootResolver
 			this.defaultRootIdentifier       = defaultRootIdentifier      ;
 			this.customRootIdentifier        = customRootIdentifier       ;
 			this.defaultRoot                 = defaultRoot                ;
-			this.rootEntries                 = rootEntries                ;
+			this.definedRootEntries          = definedRootEntries         ;
 			this.referenceTypeHandlerManager = referenceTypeHandlerManager;
 		}
 
@@ -224,11 +226,56 @@ public interface PersistenceRootResolver
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		private PersistenceTypeHandlerManager<?> typeHandlerManager()
+		{
+			if(this.cachedTypeHandlerManager == null)
+			{
+				this.cachedTypeHandlerManager = this.referenceTypeHandlerManager.get();
+			}
+			
+			return this.cachedTypeHandlerManager;
+		}
 								
 		@Override
 		public final PersistenceRootEntry resolveRootInstance(final String identifier)
 		{
-			return this.rootEntries.get(identifier);
+			final PersistenceRootEntry rootEntry = this.definedRootEntries.get(identifier);
+			if(rootEntry != null)
+			{
+				// directly registered / "normal" root entries are returned right away.
+				return rootEntry;
+			}
+			
+			return this.resolveRootEnumConstants(identifier);
+		}
+		
+		private PersistenceRootEntry resolveRootEnumConstants(final String identifier)
+		{
+			final PersistenceTypeHandlerManager<?> typeHandlerManager = this.typeHandlerManager();
+			
+			final Long enumTypeId = typeHandlerManager.parseEnumRootIdentifierTypeId(identifier);
+			if(enumTypeId == null)
+			{
+				// neither direct nor enum entry. Unrecognizable, return null.
+				return null;
+			}
+			
+			final PersistenceTypeHandler<?, ?> enumTypeHandler = typeHandlerManager.lookupTypeHandler(
+				enumTypeId.longValue()
+			);
+			if(enumTypeHandler == null)
+			{
+				// (13.08.2019 TM)EXCP: proper exception
+				throw new RuntimeException("Unknown TypeId: " + enumTypeId);
+			}
+			
+			// checks for enum type internally
+			final Object[] enumConstants = typeHandlerManager.collectEnumConstants(enumTypeHandler);
+						
+			return PersistenceRootEntry.New(identifier, () ->
+				enumConstants // debuggability line break, do not remove!
+			);
 		}
 
 		@Override
@@ -252,14 +299,14 @@ public interface PersistenceRootResolver
 		@Override
 		public PersistenceRootEntry customRootEntry()
 		{
-			return this.entries().get(this.customRootIdentifier);
+			return this.definedEntries().get(this.customRootIdentifier);
 		}
 		
 
 		@Override
-		public XGettingTable<String, PersistenceRootEntry> entries()
+		public XGettingTable<String, PersistenceRootEntry> definedEntries()
 		{
-			return this.rootEntries;
+			return this.definedRootEntries;
 		}
 		
 	}
@@ -306,9 +353,9 @@ public interface PersistenceRootResolver
 		////////////
 		
 		@Override
-		public XGettingTable<String, PersistenceRootEntry> entries()
+		public XGettingTable<String, PersistenceRootEntry> definedEntries()
 		{
-			return this.actualRootResolver.entries();
+			return this.actualRootResolver.definedEntries();
 		}
 
 		@Override
