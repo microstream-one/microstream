@@ -13,9 +13,9 @@ import java.util.Map;
  * Can be used to convert between units as well, see {@link #convert(double, ByteMultiple)}.
  * </p>
  *
- * @see https://en.wikipedia.org/wiki/Binary_prefix
- * @see https://physics.nist.gov/cuu/Units/prefixes.html
- * @see https://physics.nist.gov/cuu/Units/binary.html
+ * @see <a href="https://en.wikipedia.org/wiki/Binary_prefix">https://en.wikipedia.org/wiki/Binary_prefix</a>
+ * @see <a href="https://physics.nist.gov/cuu/Units/prefixes.html">https://physics.nist.gov/cuu/Units/prefixes.html</a>
+ * @see <a href="https://physics.nist.gov/cuu/Units/binary.html">https://physics.nist.gov/cuu/Units/binary.html</a>
  *
  */
 public enum ByteMultiple
@@ -85,13 +85,13 @@ public enum ByteMultiple
 	}
 	
 	private final BigDecimal	factor;
-	private final String[]		names;	
+	private final String[]		names;
 	
 	private ByteMultiple(final int base, final int exponent, final String... names)
 	{
 		this.factor = BigDecimal.valueOf(base).pow(exponent);
 		this.names  = names;
-	}	
+	}
 	
 	public long toBytes(final double value)
 	{
