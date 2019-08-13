@@ -77,13 +77,11 @@ public final class MemoryCharConversion_doubleUTF8
 	 * character '.', denormalized representation in range ]1E7; 1E-3], exponent character 'E', etc.
 	 * <p>
 	 * Note that this method is intended as an implementation detail and a "know-what-you-are-doing" tool that does
-	 * not perform array bound checks. If array bound checking is desired, use {@link VarString#add(double)} or use
-	 * {@link #validateIndex(int, char[])} and {@link #maxCharCount_double()} explicitly .
+	 * not perform array bound checks. If array bound checking is desired, use {@link VarString#add(double)}explicitly.
 	 *
 	 * @param value the value to be represented as a character sequence.
-	 * @param target the array to receive the character sequence at the given offset.
-	 * @param offset the offset in the target array where the character sequence shall start.
-	 * @return the offset pointing to the index after the last character of the assembled sequence.
+	 * @param address the memory address where the character sequence shall start.
+	 * @return the address pointing to after the last character of the assembled sequence.
 	 */
 	public static final long put(final double value, final long address)
 	{

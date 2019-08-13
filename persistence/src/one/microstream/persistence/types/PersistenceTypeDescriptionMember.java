@@ -47,7 +47,6 @@ public interface PersistenceTypeDescriptionMember
 	 * to check if a member is really content-wise equal.
 	 * 
 	 * @param other
-	 * @return
 	 * 
 	 * @see #equalsStructure(PersistenceTypeDescriptionMember)
 	 */
@@ -64,7 +63,6 @@ public interface PersistenceTypeDescriptionMember
 	 * Not qualifier, since that is only required for intra-type field identification
 	 * 
 	 * @param other
-	 * @return
 	 * 
 	 * @see #equalDescription(PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember)
 	 */
@@ -107,7 +105,6 @@ public interface PersistenceTypeDescriptionMember
 	 * 
 	 * @param m1
 	 * @param m2
-	 * @return
 	 */
 	public static boolean equalStructure(
 		final PersistenceTypeDescriptionMember m1,
@@ -163,21 +160,18 @@ public interface PersistenceTypeDescriptionMember
 	/**
 	 * Determines if this member directly is a reference.
 	 *
-	 * @return
 	 */
 	public boolean isReference();
 
 	/**
 	 * Determines if this member is primitive value.
 	 *
-	 * @return
 	 */
 	public boolean isPrimitive();
 
 	/**
 	 * Determines if this member is a primitive type definition instead of a field definition.
 	 *
-	 * @return
 	 */
 	public boolean isPrimitiveDefinition();
 
@@ -186,7 +180,6 @@ public interface PersistenceTypeDescriptionMember
 	 * see {@link #isReference()},
 	 * or because it is a complex type that contains one or more nested members that have references.
 	 *
-	 * @return
 	 */
 	public boolean hasReferences();
 

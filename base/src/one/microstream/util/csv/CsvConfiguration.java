@@ -63,7 +63,6 @@ public interface CsvConfiguration
 
 	/**
 	 * Returns a potentially cached char array of {@link #commentFullTerminator()} for read-only use.
-	 * @return
 	 */
 	public default char[] commentFullTerminatorArray()
 	{

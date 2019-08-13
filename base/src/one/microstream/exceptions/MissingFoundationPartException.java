@@ -93,7 +93,6 @@ public class MissingFoundationPartException extends RuntimeException
 	
 	/**
 	 * Returns an assembled output String due to bad method design in {@link Throwable}.
-	 * For the actual message getter, see {@link #message()}.
 	 *
 	 * @return this exception type's generic string plus an explicit message if present.
 	 */

@@ -160,7 +160,6 @@ public class _intRange implements Set<Integer>
 	 *
 	 * @param c the c
 	 * @return true, if successful
-	 * @return
 	 */
 	@Override
 	public boolean containsAll(final Collection<?> c)
@@ -179,7 +178,6 @@ public class _intRange implements Set<Integer>
 	 * Checks if is empty.
 	 *
 	 * @return true, if is empty
-	 * @return
 	 */
 	@Override
 	public boolean isEmpty()
@@ -191,7 +189,6 @@ public class _intRange implements Set<Integer>
 	 * Iterator.
 	 *
 	 * @return the iterator
-	 * @return
 	 */
 	@Override
 	public Iterator<Integer> iterator()
@@ -204,7 +201,6 @@ public class _intRange implements Set<Integer>
 	 *
 	 * @param o the o
 	 * @return true, if successful
-	 * @return
 	 */
 	@Override
 	public boolean remove(final Object o)
@@ -275,7 +271,6 @@ public class _intRange implements Set<Integer>
 	 *
 	 * @param c the c
 	 * @return true, if successful
-	 * @return
 	 */
 	@Override
 	public boolean removeAll(final Collection<?> c)
@@ -293,7 +288,6 @@ public class _intRange implements Set<Integer>
 	 *
 	 * @param c the c
 	 * @return true, if successful
-	 * @return
 	 */
 	@Override
 	public boolean retainAll(final Collection<?> c)
@@ -372,7 +366,6 @@ public class _intRange implements Set<Integer>
 	 * Size.
 	 *
 	 * @return the int
-	 * @return
 	 */
 	@Override
 	public int size()
@@ -384,7 +377,6 @@ public class _intRange implements Set<Integer>
 	 * To array.
 	 *
 	 * @return the integer[]
-	 * @return
 	 */
 	@Override
 	public Integer[] toArray()
@@ -551,7 +543,6 @@ public class _intRange implements Set<Integer>
 		 * Checks for next.
 		 *
 		 * @return true, if successful
-		 * @return
 		 */
 		@Override
 		public boolean hasNext()
@@ -567,7 +558,6 @@ public class _intRange implements Set<Integer>
 		 * Next.
 		 *
 		 * @return the integer
-		 * @return
 		 */
 		@Override
 		public Integer next()

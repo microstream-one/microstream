@@ -1,6 +1,6 @@
 package one.microstream.util.similarity;
 
-import one.microstream.chars.XChars;
+import one.microstream.chars.Levenshtein;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.equality.Equalator;
 
@@ -48,7 +48,7 @@ import one.microstream.equality.Equalator;
  * <li>someMiscAddress</li>
  * </ul>
  * When using a case insensitive modified Levenshtein {@link Similator}
- * (see {@link XChars#levenshteinSubstringSimilarity}) the algorithm produces the following associations:
+ * (see {@link Levenshtein#substringSimilarity}) the algorithm produces the following associations:
  * <pre>
  * firstname       <-1.00-> Firstname
  * lastname        <-0.75-> Name

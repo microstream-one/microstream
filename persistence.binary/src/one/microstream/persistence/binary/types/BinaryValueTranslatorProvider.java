@@ -20,7 +20,6 @@ public interface BinaryValueTranslatorProvider
 	 * 
 	 * @param sourceMember
 	 * @param targetMember
-	 * @return
 	 */
 	public BinaryValueSetter provideTargetValueTranslator(
 		PersistenceTypeDefinition         sourceLegacyType ,
@@ -34,7 +33,6 @@ public interface BinaryValueTranslatorProvider
 	 * 
 	 * @param sourceMember
 	 * @param targetMember
-	 * @return
 	 */
 	public BinaryValueSetter provideBinaryValueTranslator(
 		PersistenceTypeDefinition         sourceLegacyType ,

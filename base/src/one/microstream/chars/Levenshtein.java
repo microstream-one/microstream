@@ -6,8 +6,7 @@ import one.microstream.util.similarity.Similator;
  * Simple implementation of the Levenshtein distance algorithm for calculating Levenshtein distance or a
  * Levenshtein-based string similarity.
  * <p>
- * This class provides three overloaded methods for {@link String}, {@link CharSequence} and {@code char[]} as well
- * as the possibility to override the {@link #distance(char, char)} method.<br>
+ * This class provides three overloaded methods for {@link String}, {@link CharSequence} and {@code char[]}.<br>
  * A constant {@link Similator} function object as well as static convenience methods are provided as well.
  *
  * @author Thomas Muenz

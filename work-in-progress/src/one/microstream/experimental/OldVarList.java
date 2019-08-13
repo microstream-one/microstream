@@ -253,7 +253,6 @@ public final class OldVarList<E>
 	 * Example: Segment size of 1000 is well suited for a target size fo 1 million elements.
 	 *
 	 * @param element
-	 * @return
 	 */
 	public OldVarList<E> setSegmentSize(final int segmentSize)
 	{

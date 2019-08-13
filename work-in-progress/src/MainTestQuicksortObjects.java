@@ -210,7 +210,6 @@ class Age
 
 	/**
 	 * @param obj
-	 * @return
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

@@ -121,7 +121,6 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	 * 
 	 * @param hashDensity
 	 * @param minimumCapacity
-	 * @return
 	 */
 	public static DefaultObjectRegistry New(
 		final float hashDensity    ,

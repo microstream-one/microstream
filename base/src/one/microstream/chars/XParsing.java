@@ -38,7 +38,6 @@ public final class XParsing
 	 * @param input
 	 * @param iStart
 	 * @param iBound
-	 * @return
 	 */
 	public static final int skipSimpleQuote(final char[] input, final int iStart, final int iBound)
 	{

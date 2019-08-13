@@ -672,7 +672,6 @@ public final class X
 	 * Useful for executing a logic via {@link XList#iterate(Consumer)} exactely {@literl n} times.
 	 * 
 	 * @param n
-	 * @return
 	 */
 	public static XList<Integer> times(final int n)
 	{
@@ -690,7 +689,6 @@ public final class X
 	 * 
 	 * @param firstValue
 	 * @param lastValue
-	 * @return
 	 */
 	public static XList<Integer> range(final int firstValue, final int lastValue)
 	{
@@ -832,7 +830,7 @@ public final class X
 	 * @param componentType the component type of the array to be created.
 	 * @param supplier      the function supplying the instances that make up the array's elements.
 	 * @return a new array instance filled with elements provided by the passed supplier.
-	 * @see X#Array(int, Supplier)
+	 * @see X#Array(Class, int, Supplier)
 	 */
 	public static <E> E[] Array(final Class<E> componentType, final int length, final Supplier<E> supplier)
 	{
@@ -1079,7 +1077,6 @@ public final class X
 	 * 
 	 * @param subject
 	 * @param logic
-	 * @return
 	 */
 	public static final <S> S on(final S subject, final Consumer<? super S> logic)
 	{

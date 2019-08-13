@@ -24,7 +24,6 @@ public interface BinaryReferenceTraverser
 	 * Skipping 6 bytes (primitives) is 6 bytes long.
 	 * An implementation handling a variable length structure reports 0 bytes here.
 	 * 
-	 * @return
 	 */
 	public default int coveredConstantByteCount()
 	{
