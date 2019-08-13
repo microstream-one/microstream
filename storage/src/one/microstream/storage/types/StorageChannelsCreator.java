@@ -62,7 +62,7 @@ public interface StorageChannelsCreator
 		)
 		{
 			// (14.07.2016 TM)TODO: make configuration dynamic
-			final int  markBufferLength         = 10000;
+			final int  markBufferLength         = 10000; // see comment in StorageEntityCache. Must be big!
 			final long markingWaitTimeMs        =    10;
 			final int  loadingBufferSize        =  XMemory.defaultBufferSize();
 			final int  readingDefaultBufferSize =  XMemory.defaultBufferSize();

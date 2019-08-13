@@ -65,7 +65,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private final StorageTypeDictionary              typeDictionary    ;
 		private final StorageEntityMarkMonitor           markMonitor       ;
 		private final StorageReferenceMarker             referenceMarker   ;
-		private final StorageobjectIdMarkQueue                oidMarkQueue      ;
+		private final StorageobjectIdMarkQueue           oidMarkQueue      ;
 		private final long[]                             markingOidBuffer  ;
 		private final StorageGCZombieOidHandler          zombieOidHandler  ;
 		private final StorageRootOidSelector             rootOidSelector   ;
@@ -111,7 +111,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageGCZombieOidHandler   zombieOidHandler   ,
 			final StorageRootOidSelector      rootOidSelector    ,
 			final long                        rootTypeId         ,
-			final StorageobjectIdMarkQueue         oidMarkQueue       ,
+			final StorageobjectIdMarkQueue    oidMarkQueue       ,
 			final int                         markingBufferLength,
 			final long                        markingWaitTimeMs
 		)
@@ -805,8 +805,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageEntity.Default     previousInType
 		)
 		{
-//			DEBUGStorage.println(this.channelIndex + " deleting " + entity.objectId() + " " + entity.typeInFile.type.typeHandler().typeName());
-
 			// 1.) unregister entity from hash table (= unfindable by future requests)
 			this.unregisterEntity(entity);
 
@@ -827,7 +825,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			if(this.entityCacheEvaluator.clearEntityCache(this.usedCacheSize, evalTime, entry))
 			{
-//				DEBUGStorage.println(this.channelIndex + " unloading GC data for " + current.objectId());
 				// use ensure method for that for purpose of uniformity / simplicity
 				this.ensureNoCachedData(entry);
 			}
@@ -855,12 +852,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 */
 		private boolean incrementalMark(final long timeBudgetBound)
 		{
-//			DEBUGStorage.println(this.channelIndex + " marking ... (" + (timeBudgetBound - System.nanoTime()) + ")");
-
-			final long                   evalTime        = System.currentTimeMillis();
-			final StorageReferenceMarker referenceMarker = this.referenceMarker      ;
-			final StorageobjectIdMarkQueue    oidMarkQueue    = this.oidMarkQueue         ;
-			final long[]                 oidsBuffer      = this.markingOidBuffer     ;
+			final long                     evalTime        = System.currentTimeMillis();
+			final StorageReferenceMarker   referenceMarker = this.referenceMarker      ;
+			final StorageobjectIdMarkQueue oidMarkQueue    = this.oidMarkQueue         ;
+			final long[]                   oidsBuffer      = this.markingOidBuffer     ;
 
 			// total amount of oids to mark in the current batch. Range: [0; oids.length]
 			int oidsMarkAmount = 0;
@@ -895,43 +890,28 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 					this.zombieOidHandler.handleZombieOid(oidsBuffer[oidsMarkIndex - 1]);
 					continue;
 				}
-
-//				DEBUGStorage.println(this.channelIndex + " marking " + entry.typeInFile.type.typeHandler().typeName() + " " + entry.objectId());
-
+				
 				// if the entry is already marked black (was redundantly enqueued), skip it and continue to the next
 				if(entry.isGcBlack())
 				{
-//					if(entry.typeId() == 35)
-//					{
-//						DEBUGStorage.println(this.channelIndex + " already black Date " + entry.objectId());
-//					}
-
 					continue;
 				}
 
 				// enqueue all reference ids in the mark queue via the central gc monitor instance to account for channel concurrency
-//				DEBUGStorage.println(this.channelIndex + " marking references of " + current.objectId() + " with cache size " + this.usedCacheSize);
 				if(entry.iterateReferenceIds(referenceMarker))
 				{
 					// must check for clearing the cache again if marking required loading
 					this.checkForCacheClear(entry, evalTime);
 				}
 
-				/* note on non-referencing entities
+				/*
+				 * note on non-referencing entities
 				 * - iterateReferenceIds already checks for references and returns false if none are present
 				 * - no general touch here to not touch entities without references.
 				 */
 
-//				if(entry.typeId() == 35)
-//				{
-//					DEBUGStorage.println(this.channelIndex + " marking Date " + entry.objectId());
-//				}
-
 				// the entry has been fully processed (either has no references or got all its references gray-enqueued), so mark black.
 				entry.markBlack();
-
-//				DEBUGStorage.println(this.channelIndex + " marked " + current);
-//				this.DEBUG_marked++;
 			}
 			while(System.nanoTime() < timeBudgetBound);
 
@@ -942,81 +922,28 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				this.advanceMarking(oidsMarkIndex);
 			}
 
-//			DEBUGStorage.println(this.channelIndex + " incrementally marked " + DEBUG_marked);
-
 			// time ran out, return false.
 			return false;
 		}
 
-
-//		@Deprecated
-//		int DEBUG_marked;
-
 		private void sweep()
 		{
 			this.lastSweepStart = System.currentTimeMillis();
-
-//			final HashTable<StorageEntityType<?>, Long> deletedEntities = HashTable.New();
-//			final HashTable<StorageEntityType<?>, Long> rescuedEntities = HashTable.New();
-
-			DEBUGStorage.println(this.channelIndex + " sweeping");
-
-//			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_gray = 0;
-//			final long DEBUG_starttime = System.nanoTime();
-
 			final StorageEntityType.Default typeHead = this.typeHead;
 
 			for(StorageEntityType.Default sweepType = typeHead; (sweepType = sweepType.next) != typeHead;)
 			{
-//				DEBUGStorage.println(this.channelIndex + " sweeping " + sweepType.typeHandler().typeName());
-
 				// get next item and check for end of type (switch to next type required)
 				for(StorageEntity.Default item, last = sweepType.head; (item = last.typeNext) != null;)
 				{
-//					DEBUGStorage.println(this.channelIndex + " sweep checking " + item.typeInFile.type.typeHandler().typeName() + " " + item.objectId());
-
-
 					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
 					if(item.isGcMarked())
 					{
-//						if(item.typeId() == 35)
-//						{
-//							DEBUGStorage.println(this.channelIndex + " saved Date " + item.objectId());
-//						}
-//						DEBUGStorage.println(this.channelIndex + " saved Date " + item.objectId());
-
-//						if(item.isGcGray())
-//						{
-////							DEBUGStorage.println(this.channelIndex + " saving gray entity " + item.objectId() + " " + item.typeInFile.type.typeHandler().typeId()+" " + item.typeInFile.type.typeHandler().typeName() + " GC state = " + item.gcState);
-//							DEBUG_safed_gray++;
-//						}
-
-//						DEBUGStorage.println(this.channelIndex + " saving " + item.objectId() + " (" + item.typeInFile.type.typeHandler().typeId() + " " + item.typeInFile.type.typeHandler().typeName() + ")");
-//						rescuedEntities.put(sweepType, coalesce(rescuedEntities.get(sweepType), 0L) + 1L);
-//						DEBUG_safed++;
-
-						(last = item).markWhite(); // reset to white and advance one item
+						// reset to white and advance one item
+						(last = item).markWhite();
 					}
 					else
 					{
-//						if(item.typeId() == 35)
-//						{
-//							DEBUGStorage.println(this.channelIndex + " Collecting " + item.objectId() + " (" + item.typeInFile.type.typeHandler().typeId() + " " + item.typeInFile.type.typeHandler().typeName() + ")");
-//						}
-//						DEBUGStorage.println(this.channelIndex + " Collecting " + item.objectId() + " (" + item.typeInFile.type.typeHandler().typeId() + " " + item.typeInFile.type.typeHandler().typeName() + ")");
-
-
-//						DEBUG_collected++;
-////						deletedEntities.put(sweepType, coalesce(deletedEntities.get(sweepType), 0L) + 1L);
-//						if(item.objectId() < DEBUG_lowest_collected)
-//						{
-//							DEBUG_lowest_collected = item.objectId();
-//						}
-//						if(item.objectId() >= DEBUG_highest_collected)
-//						{
-//							DEBUG_highest_collected = item.objectId();
-//						}
-
 						// otherwise white entity, so collect it
 						this.deleteEntity(item, sweepType, last);
 					}
@@ -1025,37 +952,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			this.lastSweepEnd = System.currentTimeMillis();
 			this.sweepGeneration++;
-
-//			final long DEBUG_stoptime = System.nanoTime();
-//			final VarString vs = VarString.New();
-//			vs.add(this.channelIndex + " COMPLETED sweep #" + this.sweepGeneration + " @ " + this.lastSweepEnd);
-//			vs.add(" Marked: ").add(this.DEBUG_marked);
-//			this.DEBUG_marked = 0;
-//			vs.add(" Safed " + DEBUG_safed + "(" + DEBUG_safed_gray + " gray), collected " + DEBUG_collected + ". Nanotime: " + new java.text.DecimalFormat("00,000,000,000").format(DEBUG_stoptime - DEBUG_starttime));
-//			vs
-//			.add(" Lowest collected: ").add(DEBUG_lowest_collected == Long.MAX_VALUE ? 0 : DEBUG_lowest_collected)
-//			.add(" Highest collected: ").add(DEBUG_highest_collected)
-//			.add(" used cache size: ").add(this.cacheSize())
-//			;
-//			for(final KeyValue<StorageEntityType<?>, Long> e : deletedEntities)
-//			{
-//				vs.lf().add(this.channelIndex + " deleted ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
-//			}
-//			for(final KeyValue<StorageEntityType<?>, Long> e : rescuedEntities)
-//			{
-//				vs.lf().add(this.channelIndex + " rescued ").padLeft(Long.toString(e.value()), 8, ' ').blank().add(e.key().typeHandler().typeName());
-//			}
-//			DEBUGStorage.println(vs.toString());
-//			if(DEBUG_collected != 0)
-//			{
-//				System.err.println(this.channelIndex + " collected " + DEBUG_collected);
-//			}
-
-//			final StorageEntityType.Default typeDate = this.lookupType(35);
-//			for(StorageEntity.Default e = typeDate.head; e != null; e = e.typeNext)
-//			{
-//				DEBUGStorage.println(this.channelIndex + " date " + e.objectId());
-//			}
 
 			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
 			this.fileManager.resetFileCleanupCursor();
@@ -1067,8 +963,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 
 		final void internalPutEntities(
-			final ByteBuffer                     chunk               ,
-			final long                           chunkStoragePosition,
+			final ByteBuffer              chunk               ,
+			final long                    chunkStoragePosition,
 			final StorageDataFile.Default file
 		)
 		{
@@ -1128,9 +1024,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		)
 			throws InterruptedException
 		{
-//			final long startTime = System.currentTimeMillis();
-//			DEBUGStorage.println(this.channelIndex + " " + startTime +" doing post store updating entities.");
-
 			this.hasUpdatePendingSweep = this.markMonitor.isPendingSweep(this);
 
 			// reset completion here, too, in case the store happed before the sweep and the post-store happens after it
@@ -1143,9 +1036,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			// must be done by the store task's cleanup, but as it is idempotent, call it here right away
 			this.clearPendingStoreUpdate();
-
-//			final long endTime = System.currentTimeMillis();
-//			DEBUGStorage.println(this.channelIndex + " " + endTime +" completed post store updating entities.");
 		}
 
 		final void clearPendingStoreUpdate()
@@ -1201,8 +1091,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			return this.internalLiveCheck(timeBudgetBound, this.entityCacheEvaluator);
 		}
-		
-		
+				
 		private static StorageEntity.Default getFirstReachableEntity(
 			final StorageDataFile.Default startingFile
 		)
@@ -1226,7 +1115,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// quick check before setting up the local stuff.
 			if(this.usedCacheSize == 0)
 			{
-//				DEBUGStorage.println(this.channelIndex + " aborting live check (cache is empty)");
 				return true;
 			}
 
@@ -1253,11 +1141,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				// normal case: cursor points to a (still) reachable, proper entity.
 				cursor = this.liveCursor;
 			}
+			
 			file   = cursor.typeInFile.file;
 			tail   = file.tail;
 			entity = cursor;
-
-//			final long DEBUG_live = 0, DEBUG_unlive = 0;
 
 			// abort condition is checkd at the end to guarantee one entity progress to avoid starvation
 			do
@@ -1269,21 +1156,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 					file = file.next;
 					tail = file.tail;
 					entity = file.head.fileNext;
-					continue; // jumps to loop condition check. The next file's first entry might be the cursor!
+					
+					// jumps to loop condition check. The next file's first entry might be the cursor!
+					continue;
 				}
-
-				// debug stuff
-//				if(entity.isProper())
-//				{
-//					if(entity.isLive())
-//					{
-//						DEBUG_live++;
-//					}
-//					else
-//					{
-//						DEBUG_unlive++;
-//					}
-//				}
 
 				// check for clearing the current entity's cache
 				if(this.entityRequiresCacheClearing(entity, evaluator, evalTime))
@@ -1304,7 +1180,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			while(entity != cursor && System.nanoTime() < timeBudgetBound);
 			// abort conditions for one housekeeping cycle: cursor is encountered again (full loop) or time is up.
 
-//			DEBUGStorage.println(this.channelIndex + " quits live check. Live = " + DEBUG_live + ", unlive = " + DEBUG_unlive + ", cache size = " + this.usedCacheSize + ", time left = " + (System.nanoTime() - timeBudgetBound));
 			return this.quitLiveCheck(entity);
 		}
 		
@@ -1322,8 +1197,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			// keep last checked entity as a cursor / base / starting point for the next cycle's check
 			this.liveCursor = entity;
-
-//			DEBUGStorage.println(this.channelIndex + " suspends live check.");
 
 			// report live check ends incomplete
 			return false;
@@ -1352,7 +1225,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			
 			return evaluator.clearEntityCache(this.usedCacheSize, evalTime, entity);
 		}
-		
 
 		// CHECKSTYLE.OFF: FinalParameters: this method is just an outsourced scroll-helper
 		static final StorageEntity.Default getNextLiveEntity(StorageEntity.Default entity)
@@ -1368,7 +1240,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		@Override
 		public boolean issuedCacheCheck(final long nanoTimeBudget, final StorageEntityCacheEvaluator entityEvaluator)
 		{
-//			DEBUGStorage.println(this.channelIndex + " issuedCacheCheck until " + nanoTimeBudget + " at " + System.nanoTime());
 			return this.internalLiveCheck(
 				nanoTimeBudget,
 				X.coalesce(entityEvaluator, this.entityCacheEvaluator)
@@ -1386,8 +1257,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			{
 				return true;
 			}
-
-//			DEBUGStorage.println(this.channelIndex() + " issued gc");
 
 			// check time budget first for explicitly issued calls.
 			performGC:
@@ -1430,8 +1299,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 					// better try for pending local mark oids to flush before checking/waiting for work
 					this.referenceMarker.tryFlush();
 
-//					DEBUGStorage.println(this.channelIndex() + " waiting for work.\n" + this.markMonitor.DEBUG_state());
-
 					// check/wait for missing oids to mark, which have to be provided by other channels' marking.
 					synchronized(this.oidMarkQueue)
 					{
@@ -1466,7 +1333,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 */
 		@Override
-		public final boolean incrementalGarbageCollection(final long timeBudgetBound, final StorageChannel channel)
+		public final boolean incrementalGarbageCollection(
+			final long           timeBudgetBound,
+			final StorageChannel channel
+		)
 		{
 			if(!DEBUG_GC_ENABLED)
 			{
@@ -1504,19 +1374,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// check for completion to abort no-op calls
 			if(this.checkForGcCompletion())
 			{
-//				DEBUGStorage.println(this.channelIndex + " GC complete.");
 				return true;
 			}
 
 			// check if there is sweeping to be done
 			if(this.markMonitor.needsSweep(this))
 			{
-//				if(this.DEBUG_marked != 0)
-//				{
-//					DEBUGStorage.println(this.channelIndex() + " marked " + this.DEBUG_marked);
-//					this.DEBUG_marked = 0;
-//				}
-
 				this.sweep();
 
 				// must check for completion again, otherwise a channel might restart marking beyond a completed gc.
@@ -1536,10 +1399,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			if(this.incrementalMark(timeBudgetBound))
 			{
 				/* note:
-				 * if the buffer length is chosen too low, this return is done countless times per millisecond.
+				 * if the markingOidBuffer length is too low, this return is done countless times per millisecond.
 				 * Initially, 500 was chosen, but 10000 or 50000 seem to be much more appropriate.
 				 */
-//				DEBUGStorage.println(this.channelIndex + " no more mark work");
 
 				// work ran out
 				return true;
@@ -1549,28 +1411,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return false;
 		}
 
-//		private void DEBUG_PRINT_OID_HASH_VALUES()
-//		{
-//			final VarString vs = VarString.New(
-//				this.channelIndex + " oid size = " + this.oidSize + ", hash length = " + this.oidHashTable.length
-//			);
-//			int nonNullCount = 0, nullCount = 0;
-//			final _intList nullIndices = new _intList();
-//			for(int i = 0; i < this.oidHashTable.length; i++)
-//			{
-//				if(this.oidHashTable[i] == null)
-//				{
-//					nullCount++;
-//					nullIndices.add(i);
-//				}
-//				else
-//				{
-//					nonNullCount++;
-//				}
-//			}
-//			vs.add(", nonNull count = " + nonNullCount + ", null count = " + nullCount);
-//			DEBUGStorage.println(vs.toString());
-//		}
-
 	}
+	
 }
