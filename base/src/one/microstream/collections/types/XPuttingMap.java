@@ -12,7 +12,6 @@ public interface XPuttingMap<K, V> extends XAddingMap<K, V>
 	 * Ensures the passed key and value to be contained as an entry in the map. Return value indicates new entry.
 	 * @param key
 	 * @param value
-	 * @return
 	 */
 	public boolean put(K key, V value);
 
@@ -20,7 +19,6 @@ public interface XPuttingMap<K, V> extends XAddingMap<K, V>
 	 * Ensures the passed value to be either set to an existing entry appropriate to sampleKey or inserted as a new one.
 	 * @param sampleKey
 	 * @param value
-	 * @return
 	 */
 	public boolean valuePut(K sampleKey, V value);
 

@@ -613,7 +613,6 @@ public final class XFunc
 	 * </pre></code>
 	 *
 	 *
-	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public static final <T extends S, S> Function<T, S> upcast()

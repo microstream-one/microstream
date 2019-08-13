@@ -302,7 +302,6 @@ public final class XMath
 	 * Note that passing a value <= 0 will throw an  {@link IllegalArgumentException}.
 	 *
 	 * @param value
-	 * @return
 	 */
 	public static final int log10discrete(final int value) throws IllegalArgumentException
 	{

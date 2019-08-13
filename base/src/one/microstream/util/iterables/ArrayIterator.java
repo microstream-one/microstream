@@ -38,7 +38,6 @@ public final class ArrayIterator<E> implements Iterator<E>
 	/////////////////////
 
 	/**
-	 * @return
 	 * @see java.util.Iterator#hasNext()
 	 */
 	@Override
@@ -48,7 +47,6 @@ public final class ArrayIterator<E> implements Iterator<E>
 	}
 
 	/**
-	 * @return
 	 * @see java.util.Iterator#next()
 	 */
 	@Override

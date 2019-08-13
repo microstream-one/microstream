@@ -35,18 +35,17 @@ public final class EmbeddedStorage
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageConnectionFoundation} instance
 	 * using the passed {@link PersistenceTypeDictionaryIoHandler} and default method references provided by {@link Persistence}.
 	 * <p>
-	 * Calls {@link #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)}
-	 * with {@link Persistence#isPersistable(Class)} and {@link Persistence#isTypeIdMappable(Class)} method references
-	 * as the other two parameters.
+	 * Calls {@link #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)}
+	 * with {@link Persistence#isPersistable(Class)} method references as the other parameter.
 	 * <p>
-	 * For explanations and customizing values, see {@link #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)}.
+	 * For explanations and customizing values, see {@link #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)}.
 	 * 
-	 * @param typeDictionaryIoHandler {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator):}
+	 * @param typeDictionaryIoHandler {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator):}
 	 * 
-	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)@return}
+	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)@return}
 	 * 
 	 * @see #ConnectionFoundation(File)
-	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)
+	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)
 	 * @see Persistence
 	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
@@ -72,7 +71,7 @@ public final class EmbeddedStorage
 	 * 
 	 * @see PersistenceTypeDictionaryFileHandler#NewInDirectory(File)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
-	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator, PersistenceTypeEvaluator)
+	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)
 	 * @see Persistence
 	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
@@ -92,9 +91,6 @@ public final class EmbeddedStorage
 	 * @param typeDictionaryIoHandler     a logic instance to handle a type dictionary's IO operations.
 	 * 
 	 * @param typeEvaluatorPersistable    evaluator function to determine if instances of a type are persistable.
-	 * 
-	 * @param typeEvaluatorTypeIdMappable evaluator function to determine if a type may be encountered
-	 *        by the type analysis at all. See {@link Persistence#isTypeIdMappable(Class)}
 	 * 
 	 * @return a new {@link EmbeddedStorageConnectionFoundation} instance.
 	 * 
@@ -150,7 +146,7 @@ public final class EmbeddedStorage
 	 * using the passed {@literal directory} and default values for the remaining parts of
 	 * its {@link StorageConfiguration}.
 	 * <p>
-	 * Calls {@link #ConnectionFoundation(StorageConfiguration)} with a newly created
+	 * Calls {@link #Foundation(StorageConfiguration)} with a newly created
 	 * {@link StorageConfiguration} using the passed directory as its storage location.
 	 * 
 	 * @param directory {@linkDoc EmbeddedStorage#Foundation(File, StorageConfiguration.Builder):}

@@ -32,8 +32,7 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
  * This array-backed implementation is optimal for all needs of a list that do not require frequent structural
  * modification (insert or remove) of single elements before the end of the list.<br>
  * It is recommended to use this implementation as default list type until concrete performance deficiencies are
- * identified. If used properly (e.g. always ensure enough capacity, make use of batch procedures like
- * {@link #inputAll(long, Object...)}, {@link #removeRange(long, long)}, etc.), this implementation has equal or
+ * identified. If used properly, this implementation has equal or
  * massively superior performance to linked-list implementation is most cases.
  * <p>
  * This implementation is NOT synchronized and thus should only be used by a

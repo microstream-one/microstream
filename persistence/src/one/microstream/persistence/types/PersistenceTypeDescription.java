@@ -59,7 +59,6 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	 * 
 	 * @param td1
 	 * @param td2
-	 * @return
 	 */
 	public static boolean equalDescription(
 		final PersistenceTypeDescription td1,
@@ -77,7 +76,6 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	 * 
 	 * @param td1
 	 * @param td2
-	 * @return
 	 */
 	public static boolean equalStructure(
 		final PersistenceTypeDescription td1,

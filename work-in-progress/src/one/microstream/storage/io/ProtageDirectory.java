@@ -12,7 +12,6 @@ public interface ProtageDirectory extends ProtageIoElement
 	 * or it might add a kind of separator. For example for a file system, the qualifying identifier of a directory
 	 * is the directory path plus a trailing slash ('/').
 	 * 
-	 * @return
 	 */
 	public default String qualifyingIdentifier()
 	{

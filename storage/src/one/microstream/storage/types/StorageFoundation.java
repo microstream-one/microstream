@@ -863,7 +863,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageDataFileEvaluator ensureStorageConfiguration()
 		{
-			return this.getConfiguration().fileEvaluator();
+			return this.getConfiguration().dataFileEvaluator();
 		}
 
 		protected StorageRequestAcceptor.Creator ensureRequestAcceptorCreator()

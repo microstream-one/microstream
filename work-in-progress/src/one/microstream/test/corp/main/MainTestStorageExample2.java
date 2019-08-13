@@ -1,7 +1,6 @@
 package one.microstream.test.corp.main;
 
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.concurrency.XThreads;
 import one.microstream.hashing.HashStatistics;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
@@ -14,7 +13,10 @@ public class MainTestStorageExample2
 {
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
-		.Foundation()
+		.Foundation(
+			Storage.ConfigurationBuilder()
+			.setDataFileEvaluator(Storage.DataFileEvaluator(1_000, 10_000, 1.0f))
+		)
 //		.setLockFileSetupProvider(Storage.LockFileSetupProvider())
 //		.setRefactoringMappingProvider(
 //			Persistence.RefactoringMapping(new File("D:/Refactorings.csv"))
@@ -25,7 +27,7 @@ public class MainTestStorageExample2
 //			)
 //		)
 
-		.setLockFileSetupProvider(Storage.LockFileSetupProvider(30_000))
+//		.setLockFileSetupProvider(Storage.LockFileSetupProvider(30_000))
 
 		.start()
 	;
@@ -58,8 +60,8 @@ public class MainTestStorageExample2
 		}
 		
 //		STORAGE.shutdown();
-		XThreads.sleep(2000);
-		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
+//		XThreads.sleep(2000);
+//		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
 	
 	static void printObjectRegistryStatistics()

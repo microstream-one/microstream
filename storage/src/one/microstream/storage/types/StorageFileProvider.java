@@ -536,7 +536,6 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	 * @param typeDictionaryFileName
 	 * @param lockFileName
 	 * @param fileHandlerCreator
-	 * @return
 	 */
 	public static StorageFileProvider.Default New(
 		final String                                       baseDirectory         ,

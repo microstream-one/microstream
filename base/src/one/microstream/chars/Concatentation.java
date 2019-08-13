@@ -40,7 +40,6 @@ public class Concatentation implements CharSequence
 	/////////////////////
 
 	/**
-	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -50,7 +49,6 @@ public class Concatentation implements CharSequence
 	}
 	/**
 	 * @param index
-	 * @return
 	 * @see java.lang.CharSequence#charAt(int)
 	 */
 	@SuppressWarnings("null") //invalid potential null pointer warning
@@ -73,7 +71,6 @@ public class Concatentation implements CharSequence
 		return s2.charAt(index - s1Len);
 	}
 	/**
-	 * @return
 	 * @see java.lang.CharSequence#length()
 	 */
 	@Override

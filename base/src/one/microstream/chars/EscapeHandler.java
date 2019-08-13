@@ -15,7 +15,6 @@ public interface EscapeHandler
 	 *
 	 *
 	 * @param chr
-	 * @return
 	 */
 	public char transformEscapedChar(char chr);
 

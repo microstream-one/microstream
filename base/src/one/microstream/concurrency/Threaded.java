@@ -51,7 +51,7 @@ import one.microstream.reference.Referencing;
  * <p>
  * The striking feature about this class is that only those procedures are synchronized that modify the internal storage
  * commonly used for all threads, while procedures that don't modify shared structures (like {@link #get()} or
- * {@link #set(E)} to modify an existing association) are explicitly NOT synchronized, yet still thread-safe due to
+ * {@link #set} to modify an existing association) are explicitly NOT synchronized, yet still thread-safe due to
  * exploiting special characteristics of {@link Thread} identities that avoid concurrency issues (simple example:
  * by using the {@link Thread} instance itself as the hash key for associations, each thread can only find its own
  * association and never reach the others).<br>
@@ -61,6 +61,7 @@ import one.microstream.reference.Referencing;
  * <p>
  * See {@link ThreadedInstantiating} for an extended implementation that automatically utilizes an
  * {@link Instantiator} instance to create to be associated instances for threads that dont' have an association, yet.
+ * 
  *
  * @author Thomas Muenz
  */
@@ -143,7 +144,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	/**
 	 * Instantiates a new empty {@link Threaded} instance with default (quite small) storage size.
 	 *
-	 * @see #ThreadLocal(int)
+	 * @see #Threaded(int)
 	 */
 	@SuppressWarnings("unchecked")
 	public Threaded()
@@ -161,13 +162,13 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	 * value before a storage rebuild occurs.
 	 * <p>
 	 * Note that the internal storage size can drop below the passed value (to the same size used by
-	 * {@link #ThreadLocal()}) if at some point the optimizing algorithm detects that a smaller storage size will
+	 * {@link #Threaded()}) if at some point the optimizing algorithm detects that a smaller storage size will
 	 * suffice. This is guaranteed not to happen before the storage size allocated depending on the passed value had to
 	 * be increased at least once (i.e. the initial capacity remains guaranteed for the initial life time of the created
 	 * instance).
 	 *
 	 * @param initialCapacity the minimal storage size the {@link Threaded} instance gets allocated with.
-	 * @see #ThreadLocal()
+	 * @see #Threaded()
 	 * @see #optimize()
 	 */
 	public Threaded(final int initialCapacity)
@@ -215,7 +216,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	 * found.
 	 *
 	 * @return the instance of type E associated with the current {@link Thread}.
-	 * @see #set(E)
+	 * @see #set
 	 * @see #remove()
 	 */
 	@Override
@@ -278,7 +279,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	 *
 	 * @return the instance of type E so far associated with the current {@link Thread}.
 	 * @see #get()
-	 * @see #set(E)
+	 * @see #set
 	 */
 	public E remove()
 	{

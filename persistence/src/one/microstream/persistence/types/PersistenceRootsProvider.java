@@ -10,7 +10,8 @@ public interface PersistenceRootsProvider<M>
 	 * Only the {@link PersistenceRootsProvider} implementation can ensure that the handler fits the instance,
 	 * so it has to do the registering as well.
 	 *
-	 * @param registry
+	 * @param typeHandlerRegistry
+	 * @param objectRegistry
 	 */
 	public void registerRootsTypeHandlerCreator(
 		PersistenceCustomTypeHandlerRegistry<M> typeHandlerRegistry,

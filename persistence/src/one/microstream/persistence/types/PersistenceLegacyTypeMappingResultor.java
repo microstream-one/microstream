@@ -31,7 +31,6 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	 * @param explicitMappings
 	 * @param matchedMembers
 	 * 
-	 * @return
 	 */
 	public default <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
 		final PersistenceTypeDefinition                                                     legacyTypeDefinition,

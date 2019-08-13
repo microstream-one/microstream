@@ -44,7 +44,7 @@ import one.microstream.typing.XTypes;
  * <p>
  * The passed array and size are handled as pseudo implementation details and thus are never sanity-checked.
  * <p>
- * See {@link ChainStorage} and for example {@link ChainStrongLogic} as a comparable actual logic implementation without
+ * See {@link ChainStorage} and for example {@link ChainStorageStrong} as a comparable actual logic implementation without
  * delegate-pseudo-character.
  *
  * @author Thomas Muenz

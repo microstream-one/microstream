@@ -171,7 +171,7 @@ public final class Storage
 	 * 
 	 * @return {@linkDoc StorageConfiguration#New(StorageFileProvider)@return}
 	 * 
-	 * @see StorageConfiguration#Configuration()
+	 * @see Storage#Configuration()
 	 * @see StorageConfiguration#New(StorageFileProvider)
 	 * @see StorageConfiguration.Builder
 	 */
@@ -378,7 +378,6 @@ public final class Storage
 	 * 
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int)
-	 * @see Storage#DataFileEvaluator(double)
 	 * @see Storage#DataFileEvaluator(int, int, double)
 	 * @see StorageDataFileEvaluator#New(int, int, double, boolean)
 	 */

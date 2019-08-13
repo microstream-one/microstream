@@ -624,7 +624,6 @@ public class Persistence
 	 * Note that the {@link Class} instances representing these types are very well persistable and will get
 	 * empty type descriptions to assign type ids to them. Only their instances cannot be persisted.
 	 * 
-	 * @return
 	 */
 	public static XGettingEnum<Class<?>> unpersistableTypes()
 	{

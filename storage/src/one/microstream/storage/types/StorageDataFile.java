@@ -10,7 +10,9 @@ import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends StorageInventoryFile
 {
-	public void enqueueEntry(I entry);
+	public void prependEntry(I entry);
+	
+	public void appendEntry(I entry);
 
 	public void remove(StorageEntity.Default entity);
 
@@ -312,20 +314,30 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		}
 
 		@Override
-		public final void enqueueEntry(final StorageEntity.Default entry)
+		public final void prependEntry(final StorageEntity.Default entry)
 		{
+			// moved here from StorageEntity.Default#updateStorageInformation
+			entry.typeInFile = this.typeInFile(entry.typeInFile.type);
+			
 			// entry gets appended after the start (the head), hence reverse-building the order.
 			(entry.filePrev = this.head).fileNext = (entry.fileNext = this.head.fileNext).filePrev = entry;
+		}
+
+		@Override
+		public final void appendEntry(final StorageEntity.Default entry)
+		{
+			// moved here from StorageEntity.Default#updateStorageInformation
+			entry.typeInFile = this.typeInFile(entry.typeInFile.type);
 			
 //			// entry gets appended before the end (the tail), hence forward-building the order
-//			(entry.fileNext = this.tail).filePrev = (entry.filePrev = this.tail.filePrev).fileNext = entry;
+			(entry.fileNext = this.tail).filePrev = (entry.filePrev = this.tail.filePrev).fileNext = entry;
 		}
 
 		@Override
 		public final void loadEntityData(
 			final StorageEntity.Default entity     ,
-			final long                         length     ,
-			final long                         cacheChange
+			final long                  length     ,
+			final long                  cacheChange
 		)
 		{
 			this.parent.loadData(this, entity, length, cacheChange);

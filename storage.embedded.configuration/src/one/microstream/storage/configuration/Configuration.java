@@ -6,12 +6,12 @@ import static one.microstream.math.XMath.positive;
 import static one.microstream.math.XMath.positiveMax1;
 
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.time.Duration;
 
 import one.microstream.math.XMath;
-import one.microstream.persistence.internal.FileObjectIdStrategy;
-import one.microstream.persistence.internal.FileTypeIdStrategy;
-import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageChannelCountProvider;
 import one.microstream.storage.types.StorageDataFileEvaluator;
@@ -22,15 +22,93 @@ import one.microstream.storage.types.StorageHousekeepingController;
 
 public interface Configuration
 {
-	public default EmbeddedStorageFoundation<?> createEmbeddedStorageFoundation()
+	public static Configuration LoadIni(final File file)
 	{
-		return this.updateEmbeddedStorageFoundation(EmbeddedStorage.Foundation());
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.loadFromFile(file)
+		);
 	}
 	
-	public default EmbeddedStorageFoundation<?> updateEmbeddedStorageFoundation(final EmbeddedStorageFoundation<?> foundation)
+	public static Configuration LoadIni(final File file, final Charset charset)
 	{
-		ConfigurationConsumer.FoundationUpdater(foundation).accept(this);
-		return foundation;
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.loadFromFile(file, charset)
+		);
+	}
+	
+	public static Configuration LoadIni(final URL url)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.loadFromUrl(url)
+		);
+	}
+	
+	public static Configuration LoadIni(final URL url, final Charset charset)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.loadFromUrl(url, charset)
+		);
+	}
+	
+	public static Configuration LoadIni(final InputStream inputStream)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
+		);
+	}
+	
+	public static Configuration LoadIni(final InputStream inputStream, final Charset charset)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
+		);
+	}
+	
+	public static Configuration LoadXml(final File file)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.loadFromFile(file)
+		);
+	}
+	
+	public static Configuration LoadXml(final File file, final Charset charset)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.loadFromFile(file, charset)
+		);
+	}
+	
+	public static Configuration LoadXml(final URL url)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.loadFromUrl(url)
+		);
+	}
+	
+	public static Configuration LoadXml(final URL url, final Charset charset)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.loadFromUrl(url, charset)
+		);
+	}
+	
+	public static Configuration LoadXml(final InputStream inputStream)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
+		);
+	}
+	
+	public static Configuration LoadXml(final InputStream inputStream, final Charset charset)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
+		);
+	}
+	
+	public default EmbeddedStorageFoundation<?> createEmbeddedStorageFoundation()
+	{
+		return EmbeddedStorageFoundationCreator.New().createFoundation(this);
 	}
 	
 	/**
@@ -181,32 +259,6 @@ public interface Configuration
 	 * The name of the dictionary file.
 	 */
 	public String getTypeDictionaryFilename();
-	
-	/**
-	 * The name of the type id file. Default is <code>"TypeId.tid"</code>.
-	 *
-	 * @param filenameTypeId
-	 *            new file name
-	 */
-	public Configuration setTypeIdFilename(String filenameTypeId);
-	
-	/**
-	 * The name of the type id file.
-	 */
-	public String getTypeIdFilename();
-	
-	/**
-	 * The name of the object id file. Default is <code>"ObjectId.oid"</code>.
-	 *
-	 * @param filenameObjectId
-	 *            new file name
-	 */
-	public Configuration setObjectIdFilename(String filenameObjectId);
-	
-	/**
-	 * The name of the object id file.
-	 */
-	public String getObjectIdFilename();
 	
 	/**
 	 * Interval in milliseconds for the houskeeping. This is work like garbage
@@ -367,12 +419,12 @@ public interface Configuration
 		private String dataFileSuffix           = StorageFileProvider.Defaults.defaultStorageFileSuffix();
 		private String transactionFilePrefix    = StorageFileProvider.Defaults.defaultTransactionFilePrefix();
 		private String transactionFileSuffix    = StorageFileProvider.Defaults.defaultTransactionFileSuffix();
-		private String typeDictionaryFilename   = StorageFileProvider.Defaults.defaultTypeDictionaryFileName();
+		private String typeDictionaryFilename   = null;
 		private int    channelCount             = StorageChannelCountProvider.Defaults.defaultChannelCount();
-		private String typeIdFilename           = FileTypeIdStrategy.defaultFilename();
-		private String objectIdFilename         = FileObjectIdStrategy.defaultFilename();
-		private long   houseKeepingIntervalMs   = StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs();
-		private long   houseKeepingTimeBudgetNs = StorageHousekeepingController.Defaults.defaultHousekeepingTimeBudgetNs();
+		private long   houseKeepingIntervalMs   =
+			StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs();
+		private long   houseKeepingTimeBudgetNs =
+			StorageHousekeepingController.Defaults.defaultHousekeepingTimeBudgetNs();
 		private long   entityCacheTimeout       = StorageEntityCacheEvaluator.Defaults.defaultTimeoutMs();
 		private long   entityCacheThreshold     = StorageEntityCacheEvaluator.Defaults.defaultCacheThreshold();
 		private int    dataFileMinSize          = StorageDataFileEvaluator.Defaults.defaultFileMinimumSize();
@@ -526,32 +578,6 @@ public interface Configuration
 		public String getTypeDictionaryFilename()
 		{
 			return this.typeDictionaryFilename;
-		}
-		
-		@Override
-		public Configuration setTypeIdFilename(final String typeIdFilename)
-		{
-			this.typeIdFilename = notEmpty(typeIdFilename);
-			return this;
-		}
-		
-		@Override
-		public String getTypeIdFilename()
-		{
-			return this.typeIdFilename;
-		}
-		
-		@Override
-		public Configuration setObjectIdFilename(final String objectIdFilename)
-		{
-			this.objectIdFilename = notEmpty(objectIdFilename);
-			return this;
-		}
-		
-		@Override
-		public String getObjectIdFilename()
-		{
-			return this.objectIdFilename;
 		}
 		
 		@Override
