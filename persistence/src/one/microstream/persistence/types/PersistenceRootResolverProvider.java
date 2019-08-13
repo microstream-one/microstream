@@ -107,9 +107,18 @@ public interface PersistenceRootResolverProvider
 		return this.registerRoot(identifier, () -> instance);
 	}
 	
-	public PersistenceRootResolverProvider setRefactoring(PersistenceTypeDescriptionResolverProvider refactoring);
+	public PersistenceRootResolverProvider setTypeDescriptionResolverProvider(
+		PersistenceTypeDescriptionResolverProvider typeDescriptionResolverProvider
+	);
 	
 	public PersistenceRootResolverProvider setRefactoring(PersistenceRefactoringMappingProvider refactoringMapping);
+	
+	
+	public Reference<? extends PersistenceTypeHandlerManager<?>> typeHandlerManager();
+	
+	public PersistenceRootResolverProvider setTypeHandlerManager(
+		Reference<? extends PersistenceTypeHandlerManager<?>> typeHandlerManager
+	);
 	
 			
 	public PersistenceRootResolver provideRootResolver();
@@ -148,16 +157,15 @@ public interface PersistenceRootResolverProvider
 		// instance fields //
 		////////////////////
 		
-		private final PersistenceRootEntry.Provider               entryProvider        ;
-		private final PersistenceTypeResolver                     typeResolver         ;
-		private final EqHashTable<String, PersistenceRootEntry>   rootEntries          ;
-		private       String                                      defaultRootIdentifier;
-		private       String                                      customRootIdentifier ;
-		private       Reference<Object>                           defaultRoot          ;
-		private       PersistenceTypeDescriptionResolverProvider  refactoring          ;
-		private       PersistenceRefactoringMappingProvider       refactoringMapping   ;
-		private       Reference<PersistenceTypeHandlerManager<?>> refTypeHandlerManager;
-		// (12.08.2019 TM)FIXME: priv#23: getters and setters
+		private final PersistenceRootEntry.Provider                         entryProvider                  ;
+		private final PersistenceTypeResolver                               typeResolver                   ;
+		private final EqHashTable<String, PersistenceRootEntry>             rootEntries                    ;
+		private       String                                                defaultRootIdentifier          ;
+		private       String                                                customRootIdentifier           ;
+		private       Reference<Object>                                     defaultRoot                    ;
+		private       PersistenceTypeDescriptionResolverProvider            typeDescriptionResolverProvider;
+		private       PersistenceRefactoringMappingProvider                 refactoringMapping             ;
+		private       Reference<? extends PersistenceTypeHandlerManager<?>> refTypeHandlerManager          ;
 		
 		
 		
@@ -171,9 +179,9 @@ public interface PersistenceRootResolverProvider
 		)
 		{
 			super();
-			this.typeResolver          = typeResolver               ;
-			this.entryProvider         = entryProvider              ;
-			this.rootEntries           = this.initializeRootEntries();
+			this.typeResolver  = typeResolver                ;
+			this.entryProvider = entryProvider               ;
+			this.rootEntries   = this.initializeRootEntries();
 		}
 		
 		
@@ -298,7 +306,7 @@ public interface PersistenceRootResolverProvider
 				this.refTypeHandlerManager
 			);
 			
-			final PersistenceTypeDescriptionResolverProvider refactoring = this.getBuildRefactoring();
+			final PersistenceTypeDescriptionResolverProvider refactoring = this.getEffectiveTypeDescriptionResolver();
 			
 			return refactoring == null
 				? resolver
@@ -306,11 +314,11 @@ public interface PersistenceRootResolverProvider
 			;
 		}
 		
-		protected PersistenceTypeDescriptionResolverProvider getBuildRefactoring()
+		protected PersistenceTypeDescriptionResolverProvider getEffectiveTypeDescriptionResolver()
 		{
-			if(this.refactoring != null)
+			if(this.typeDescriptionResolverProvider != null)
 			{
-				return this.refactoring;
+				return this.typeDescriptionResolverProvider;
 			}
 			
 			if(this.refactoringMapping != null)
@@ -325,11 +333,11 @@ public interface PersistenceRootResolverProvider
 		}
 		
 		@Override
-		public final synchronized PersistenceRootResolverProvider setRefactoring(
-			final PersistenceTypeDescriptionResolverProvider refactoring
+		public final synchronized PersistenceRootResolverProvider setTypeDescriptionResolverProvider(
+			final PersistenceTypeDescriptionResolverProvider typeDescriptionResolverProvider
 		)
 		{
-			this.refactoring = refactoring;
+			this.typeDescriptionResolverProvider = typeDescriptionResolverProvider;
 			return this;
 		}
 		
@@ -341,5 +349,21 @@ public interface PersistenceRootResolverProvider
 			this.refactoringMapping = refactoringMapping;
 			return this;
 		}
+		
+		@Override
+		public synchronized Reference<? extends PersistenceTypeHandlerManager<?>> typeHandlerManager()
+		{
+			return this.refTypeHandlerManager;
+		}
+		
+		@Override
+		public synchronized PersistenceRootResolverProvider setTypeHandlerManager(
+			final Reference<? extends PersistenceTypeHandlerManager<?>> typeHandlerManager
+		)
+		{
+			this.refTypeHandlerManager = typeHandlerManager;
+			return this;
+		}
+		
 	}
 }
