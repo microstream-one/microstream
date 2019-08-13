@@ -427,17 +427,12 @@ public interface StorageEntity
 		}
 
 		final void updateStorageInformation(
-			final int                     length         ,
-			final StorageDataFile.Default file           ,
-			final int                     storagePosition
+			final int length         ,
+			final int storagePosition
 		)
 		{
 			this.storagePosition = storagePosition;
 			this.length = length;
-//			DEBUGStorage.println("put assigning\t" + entry.objectId + "\t" + storagePosition + "\t" + entry.length + "\t" + file.number());
-			this.typeInFile = file.typeInFile(this.typeInFile.type);
-			file.prependEntry(this);
-//			DEBUGStorage.println("current file state: " + file);
 		}
 
 		final boolean isProper()
