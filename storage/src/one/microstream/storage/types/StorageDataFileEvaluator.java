@@ -61,7 +61,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
 	 * 
-	 * @param dissolveRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
+	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * 
 	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
 	 * 
@@ -70,12 +70,12 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * @see StorageDataFileEvaluator#New(int, int, double)
 	 * @see StorageDataFileEvaluator.Defaults
 	 */
-	public static StorageDataFileEvaluator New(final double dissolveRatio)
+	public static StorageDataFileEvaluator New(final double minimumUseRatio)
 	{
 		return New(
 			Defaults.defaultFileMinimumSize(),
 			Defaults.defaultFileMaximumSize(),
-			dissolveRatio                    ,
+			minimumUseRatio                    ,
 			Defaults.defaultResolveHeadfile()
 		);
 	}

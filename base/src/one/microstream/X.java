@@ -668,8 +668,8 @@ public final class X
 	}
 	
 	/**
-	 * Utility method to create a list of integers from 1 to the passed {@literl n} value.
-	 * Useful for executing a logic via {@link XList#iterate(Consumer)} exactely {@literl n} times.
+	 * Utility method to create a list of integers from 1 to the passed <code>n</code> value.
+	 * Useful for executing a logic via {@link XList#iterate(Consumer)} exactely <code>n</code> times.
 	 * 
 	 * @param n
 	 */
@@ -685,7 +685,7 @@ public final class X
 	}
 	
 	/**
-	 * Utility method to create a list of integers from {@literl firstValue} to {@literl lastValue}.
+	 * Utility method to create a list of integers from <code>firstValue</code> to <code>lastValue</code>.
 	 * 
 	 * @param firstValue
 	 * @param lastValue
