@@ -1086,9 +1086,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				this.markEntityForChangedData(entity);
 				entity.updateStorageInformation(
 					X.checkArrayRange(Binary.getEntityLengthRawValue(adr)),
-					file,
 					XTypes.to_int(storageBackset + adr)
 				);
+				file.appendEntry(entity);
 			}
 		}
 

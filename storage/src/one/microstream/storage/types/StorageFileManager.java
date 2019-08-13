@@ -1572,9 +1572,9 @@ public interface StorageFileManager
 				// register each entity in the batch (possibly just one)
 				for(StorageChannelImportEntity entity = batch.first(); entity != null; entity = entity.next())
 				{
-					entityCache
-					.putEntity(entity.objectId(), entity.type())
-					.updateStorageInformation(entity.length(), headFile, X.checkArrayRange(loopFileLength));
+					final StorageEntity.Default actual = entityCache.putEntity(entity.objectId(), entity.type());
+					actual.updateStorageInformation(entity.length(), X.checkArrayRange(loopFileLength));
+					headFile.appendEntry(actual);
 					loopFileLength += entity.length();
 				}
 			}
