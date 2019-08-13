@@ -28,7 +28,6 @@ public class Matrix<T>
 	 *
 	 * @param <T>
 	 * @param array
-	 * @return
 	 * @throws MatrixException
 	 * @throws NullPointerException
 	 */
@@ -162,7 +161,6 @@ public class Matrix<T>
 	// override methods //
 	/////////////////////
 	/**
-	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -193,7 +191,6 @@ public class Matrix<T>
 	 *
 	 * @param rowIndex
 	 * @param colIndex
-	 * @return
 	 */
 	public T getElementAt(final int rowIndex, final int colIndex)
 	{
@@ -234,7 +231,6 @@ public class Matrix<T>
 
 	/**
 	 *
-	 * @return
 	 */
 	public Iterable<T> iterate()
 	{
@@ -260,7 +256,6 @@ public class Matrix<T>
 	 * @param firstColumn
 	 * @param lastRow
 	 * @param lastColumn
-	 * @return
 	 * @throws IllegalArgumentException
 	 */
 	public Iterable<T> iterate(final int firstRow, final int firstColumn, final int lastRow, final int lastColumn)
@@ -427,7 +422,6 @@ public class Matrix<T>
 
 
 			/**
-			 * @return
 			 * @see java.util.Iterator#hasNext()
 			 */
 			@Override
@@ -450,7 +444,6 @@ public class Matrix<T>
 			}
 
 			/**
-			 * @return
 			 * @see java.util.Iterator#next()
 			 */
 			@Override

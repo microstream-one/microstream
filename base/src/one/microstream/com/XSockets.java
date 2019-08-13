@@ -92,7 +92,7 @@ public final class XSockets
 	 * @return a localhost {@link InetSocketAddress}.
 	 * @throws ComException
 	 * 
-	 * @see {@link InetSocketAddress#InetSocketAddress(InetAddress, int)}
+	 * @see InetSocketAddress#InetSocketAddress(InetAddress, int)
 	 */
 	public static InetSocketAddress localHostSocketAddress() throws ComException
 	{
@@ -106,7 +106,7 @@ public final class XSockets
 	 * @return a localhost {@link InetSocketAddress} with the passed port value.
 	 * @throws ComException
 	 * 
-	 * @see {@link InetSocketAddress#InetSocketAddress(InetAddress, int)}
+	 * @see InetSocketAddress#InetSocketAddress(InetAddress, int)
 	 */
 	public static InetSocketAddress localHostSocketAddress(final int port) throws ComException
 	{

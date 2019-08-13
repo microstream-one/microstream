@@ -22,7 +22,6 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 
 
 	/**
-	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -48,7 +47,6 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 
 
 		/**
-		 * @return
 		 */
 		@Override
 		public LinkingReferencing<T> next()
@@ -57,7 +55,6 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 		}
 
 		/**
-		 * @return
 		 */
 		@Override
 		public boolean hasNext()
@@ -67,7 +64,6 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 
 		/**
 		 * @param linkedReference
-		 * @return
 		 */
 		@Override
 		public boolean isNext(final LinkingReferencing<T> linkedReference)
@@ -76,7 +72,6 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 		}
 
 		/**
-		 * @return
 		 */
 		@Override
 		public Object[] toArray()
@@ -102,7 +97,6 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 
 
 		/**
-		 * @return
 		 */
 		@Override
 		public Iterator<T> iterator()
@@ -111,7 +105,6 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 		}
 
 		/**
-		 * @return
 		 * @see java.lang.Object#toString()
 		 */
 		@Override
@@ -124,7 +117,6 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 
 
 		/**
-		 * @return
 		 * @see one.microstream.reference.LinkingReferencing#toChainString()
 		 */
 		@Override

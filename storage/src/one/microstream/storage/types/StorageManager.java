@@ -134,7 +134,7 @@ public interface StorageManager extends StorageController
 			this.configuration                  = notNull(storageConfiguration)                ;
 			this.operationController            = notNull(ocCreator.createOperationController(ccp, this));
 			this.initialDataFileNumberProvider  = notNull(initialDataFileNumberProvider)       ;
-			this.fileDissolver                  = storageConfiguration.fileEvaluator()         ;
+			this.fileDissolver                  = storageConfiguration.dataFileEvaluator()         ;
 			this.fileProvider                   = storageConfiguration.fileProvider()          ;
 			this.entityCacheEvaluator           = storageConfiguration.entityCacheEvaluator()  ;
 			this.housekeepingController         = storageConfiguration.housekeepingController();

@@ -19,7 +19,7 @@ public interface StorageConfiguration
 	 */
 	public StorageFileProvider fileProvider();
 
-	public StorageDataFileEvaluator fileEvaluator();
+	public StorageDataFileEvaluator dataFileEvaluator();
 	
 	public StorageBackupSetup backupSetup();
 
@@ -153,7 +153,7 @@ public interface StorageConfiguration
 		}
 
 		@Override
-		public StorageDataFileEvaluator fileEvaluator()
+		public StorageDataFileEvaluator dataFileEvaluator()
 		{
 			return this.dataFileEvaluator;
 		}
@@ -214,9 +214,9 @@ public interface StorageConfiguration
 		
 		public B setBackupSetup(StorageBackupSetup backupSetup);
 		
-		public StorageDataFileEvaluator fileEvaluator();
+		public StorageDataFileEvaluator dataFileEvaluator();
 		
-		public B setFileEvaluator(StorageDataFileEvaluator fileEvaluator);
+		public B setDataFileEvaluator(StorageDataFileEvaluator dataFileEvaluator);
 		
 		public StorageEntityCacheEvaluator entityCacheEvaluator();
 		
@@ -235,7 +235,7 @@ public interface StorageConfiguration
 			private StorageChannelCountProvider   channelCountProvider   = Storage.ChannelCountProvider()  ;
 			private StorageHousekeepingController housekeepingController = Storage.HousekeepingController();
 			private StorageFileProvider           storageFileProvider    = Storage.FileProvider()          ;
-			private StorageDataFileEvaluator      fileEvaluator          = Storage.DataFileEvaluator()     ;
+			private StorageDataFileEvaluator      dataFileEvaluator      = Storage.DataFileEvaluator()     ;
 			private StorageEntityCacheEvaluator   entityCacheEvaluator   = Storage.EntityCacheEvaluator()  ;
 			private StorageBackupSetup            backupSetup           ; // optional
 			
@@ -325,17 +325,17 @@ public interface StorageConfiguration
 			}
 			
 			@Override
-			public StorageDataFileEvaluator fileEvaluator()
+			public StorageDataFileEvaluator dataFileEvaluator()
 			{
-				return this.fileEvaluator;
+				return this.dataFileEvaluator;
 			}
 			
 			@Override
-			public B setFileEvaluator(final StorageDataFileEvaluator fileEvaluator)
+			public B setDataFileEvaluator(final StorageDataFileEvaluator dataFileEvaluator)
 			{
-				this.fileEvaluator = fileEvaluator == null
+				this.dataFileEvaluator = dataFileEvaluator == null
 					? Storage.DataFileEvaluator()
-					: fileEvaluator
+					: dataFileEvaluator
 				;
 				return this.$();
 			}
@@ -363,7 +363,7 @@ public interface StorageConfiguration
 					this.channelCountProvider  ,
 					this.housekeepingController,
 					this.storageFileProvider   ,
-					this.fileEvaluator         ,
+					this.dataFileEvaluator     ,
 					this.entityCacheEvaluator  ,
 					this.backupSetup
 				);

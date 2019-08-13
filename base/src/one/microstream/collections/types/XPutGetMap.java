@@ -18,7 +18,6 @@ public interface XPutGetMap<K, V> extends XPuttingMap<K, V>, XAddGetMap<K, V>
 	 * 
 	 * @param key
 	 * @param value
-	 * @return
 	 */
 	public KeyValue<K, V> putGet(K key, V value);
 	

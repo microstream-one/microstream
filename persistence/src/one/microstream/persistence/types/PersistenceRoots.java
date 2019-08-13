@@ -151,15 +151,7 @@ public interface PersistenceRoots
 			this.hasChanged = false;
 		}
 		
-		
-		/**
-		 * Used for example by a type handler to set the actual state of an uninitialized instance.
-		 * 
-		 * @param identifiers the root identifiers to be resolved.
-		 * 
-		 * @return an array containing the actual root instances in the order of the passed entries,
-		 *         including {@literal nulls}.
-		 */
+
 		public final synchronized void updateEntries(final XGettingTable<String, Object> resolvedRoots)
 		{
 			final XGettingTable<String, Object> effectiveRoots = CQL

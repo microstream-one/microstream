@@ -61,7 +61,6 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * Contains all persistent members (similar, but not identical to fields) in persistent order, which can
 	 * differ from the declaration order.
 	 * 
-	 * @return
 	 */
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers();
@@ -89,7 +88,6 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * <li>typical entity types (without unshared inlined variable length component instances)</li>
 	 * </ul>
 	 *
-	 * @return
 	 */
 	public default boolean hasPersistedVariableLength()
 	{
@@ -110,10 +108,9 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * <ul>
 	 * <li>arrays</li>
 	 * <li>all immutable type instances (like {@code java.lang.String} )</li>
-	 * <li>all fixed length types (see {@link #isVariableBinaryLengthType()}</li>
+	 * <li>all fixed length types (see {@link #hasVaryingPersistedLengthInstances()}</li>
 	 * </ul>
 	 *
-	 * @return
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
 	

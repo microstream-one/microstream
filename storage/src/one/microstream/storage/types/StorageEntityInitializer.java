@@ -129,11 +129,12 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 					continue;
 				}
 				
-				final long                         entityAddress = bufferStartAddress + entityOffsets[i];
-				final long                         entityLength  = Binary.getEntityLengthRawValue(entityAddress);
+				final long                  entityAddress = bufferStartAddress + entityOffsets[i];
+				final long                  entityLength  = Binary.getEntityLengthRawValue(entityAddress);
 				final StorageEntity.Default entity        = entityCache.initialCreateEntity(entityAddress);
 				
-				entity.updateStorageInformation(XTypes.to_int(entityLength), file, entityOffsets[i]);
+				entity.updateStorageInformation(XTypes.to_int(entityLength), entityOffsets[i]);
+				file.prependEntry(entity);
 				totalFileContentLength += entityLength;
 				
 				if(entityCacheEvaluator.initiallyCacheEntity(entityCache.cacheSize(), initializationTime, entity))

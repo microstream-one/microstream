@@ -53,7 +53,6 @@ public interface StorageFile
 	 * Returns a string that gives {@link #name()} a unique identity.
 	 * Example: The parent directory path of a {@link File}.
 	 * 
-	 * @return
 	 */
 	public String qualifier();
 	

@@ -1063,7 +1063,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 
 		/**
 		 * This method creates a {@link EqConstHashEnum} instance containing all (currently existing) elements
-		 * of this {@link ZVarSetKeys}.<br>
+		 * of this {@link ConstHashTable}.<br>
 		 * No matter which hashing logic this instance uses, the new {@link EqConstHashEnum} instance always uses
 		 * a STRONG EQUALATOR logic, using this instance's logic's {@link HashEqualator}.<br>
 		 * This is necessary to ensure that the {@link EqConstHashEnum} instance is really constant and does not

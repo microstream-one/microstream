@@ -852,7 +852,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 *
 		 * @param timeBudgetBound
-		 * @return
 		 */
 		private boolean incrementalMark(final long timeBudgetBound)
 		{
@@ -1087,9 +1086,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				this.markEntityForChangedData(entity);
 				entity.updateStorageInformation(
 					X.checkArrayRange(Binary.getEntityLengthRawValue(adr)),
-					file,
 					XTypes.to_int(storageBackset + adr)
 				);
+				file.appendEntry(entity);
 			}
 		}
 

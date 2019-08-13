@@ -14,8 +14,6 @@ public interface ConfigurationPropertyNames
 	public final static String TRANSACTION_FILE_PREFIX       = "transactionFilePrefix";
 	public final static String TRANSACTION_FILE_SUFFIX       = "transactionFileSuffix";
 	public final static String TYPE_DICTIONARY_FILENAME      = "typeDictionaryFilename";
-	public final static String TYPE_ID_FILENAME              = "typeIdFilename";
-	public final static String OBJECT_ID_FILENAME            = "objectIdFilename";
 	public final static String HOUSEKEEPING_INTERVAL         = "houseKeepingInterval";
 	public final static String HOUSEKEEPING_NANO_TIME_BUDGET = "houseKeepingNanoTimeBudget";
 	public final static String ENTITY_CACHE_THRESHOLD        = "entityCacheThreshold";

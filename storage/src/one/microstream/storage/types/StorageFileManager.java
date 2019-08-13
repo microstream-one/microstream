@@ -400,7 +400,7 @@ public interface StorageFileManager
 	//			DEBUGStorage.println("transfer assigning\t" + current.objectId + "\t" + fileNewTotalLength + "\t" + current.length + "\t" + targetFile.number());
 				// set new file. Enqueing in the file's item chain is done for the whole sub chain
 				current.typeInFile      = headFile.typeInFile(current.typeInFile.type);
-				
+								
 				// update position to the one in the target file (old length plus current copy length)
 				current.storagePosition = XTypes.to_int(targetFileOldTotalLength + copyLength);
 
@@ -1572,9 +1572,9 @@ public interface StorageFileManager
 				// register each entity in the batch (possibly just one)
 				for(StorageChannelImportEntity entity = batch.first(); entity != null; entity = entity.next())
 				{
-					entityCache
-					.putEntity(entity.objectId(), entity.type())
-					.updateStorageInformation(entity.length(), headFile, X.checkArrayRange(loopFileLength));
+					final StorageEntity.Default actual = entityCache.putEntity(entity.objectId(), entity.type());
+					actual.updateStorageInformation(entity.length(), X.checkArrayRange(loopFileLength));
+					headFile.appendEntry(actual);
 					loopFileLength += entity.length();
 				}
 			}

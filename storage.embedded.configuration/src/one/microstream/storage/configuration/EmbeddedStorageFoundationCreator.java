@@ -5,13 +5,9 @@ import static one.microstream.chars.XChars.isEmpty;
 import static one.microstream.files.XFiles.ensureDirectory;
 
 import java.io.File;
-import java.util.function.Consumer;
 
-import one.microstream.persistence.internal.FileObjectIdStrategy;
-import one.microstream.persistence.internal.FileTypeIdStrategy;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import one.microstream.persistence.types.PersistenceObjectIdProvider;
-import one.microstream.persistence.types.PersistenceTypeIdProvider;
+import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageChannelCountProvider;
@@ -23,29 +19,24 @@ import one.microstream.storage.types.StorageHousekeepingController;
 
 
 @FunctionalInterface
-public interface ConfigurationConsumer extends Consumer<Configuration>
+public interface EmbeddedStorageFoundationCreator
 {
-	@Override
-	public void accept(Configuration configuration);
+	public EmbeddedStorageFoundation<?> createFoundation(Configuration configuration);
 	
-	public static ConfigurationConsumer FoundationUpdater(final EmbeddedStorageFoundation<?> storageFoundation)
+	public static EmbeddedStorageFoundationCreator New()
 	{
-		return new FoundationUpdater(storageFoundation);
+		return new Default();
 	}
 	
-	public static class FoundationUpdater implements ConfigurationConsumer
+	public static class Default implements EmbeddedStorageFoundationCreator
 	{
-		private final EmbeddedStorageFoundation<?> storageFoundation;
-		
-		protected FoundationUpdater(final EmbeddedStorageFoundation<?> storageFoundation)
+		protected Default()
 		{
 			super();
-			
-			this.storageFoundation = storageFoundation;
 		}
 		
 		@Override
-		public void accept(final Configuration configuration)
+		public EmbeddedStorageFoundation<?> createFoundation(final Configuration configuration)
 		{
 			final File                            baseDir                = ensureDirectory(new File(configuration.getBaseDirectory()));
 			final StorageFileProvider             fileProvider           = this.createFileProvider(configuration, baseDir);
@@ -58,7 +49,7 @@ public interface ConfigurationConsumer extends Consumer<Configuration>
 				.setStorageFileProvider   (fileProvider          )
 				.setChannelCountProvider  (channelCountProvider  )
 				.setHousekeepingController(housekeepingController)
-				.setFileEvaluator         (dataFileEvaluator     )
+				.setDataFileEvaluator         (dataFileEvaluator     )
 				.setEntityCacheEvaluator  (entityCacheEvaluator  );
 			
 			String backupDirectory;
@@ -67,16 +58,19 @@ public interface ConfigurationConsumer extends Consumer<Configuration>
 				configBuilder.setBackupSetup(Storage.BackupSetup(backupDirectory));
 			}
 			
-			final StorageConfiguration                 storageConfiguration      = configBuilder.createConfiguration();
-			final PersistenceTypeDictionaryFileHandler typeDictionaryFileHandler = this.createTypeDictionaryFileHandlery(configuration, baseDir);
-			final PersistenceTypeIdProvider            typeIdProvider            = this.createTypeIdProvider(configuration, baseDir);
-			final PersistenceObjectIdProvider          objectIdProvider          = this.createObjectIdProvider(configuration, baseDir);
+			final EmbeddedStorageFoundation<?> storageFoundation = EmbeddedStorage.Foundation(configBuilder.createConfiguration());
+
+			final String typeDictionaryFilename = configuration.getTypeDictionaryFilename();
+			if(typeDictionaryFilename != null)
+			{
+				storageFoundation.getConnectionFoundation().setTypeDictionaryIoHandler(
+					PersistenceTypeDictionaryFileHandler.New(
+						new File(baseDir, typeDictionaryFilename)
+					)
+				);
+			}
 			
-			this.storageFoundation.setConfiguration(storageConfiguration)
-				.getConnectionFoundation()
-				.setTypeDictionaryIoHandler(typeDictionaryFileHandler)
-				.setTypeIdProvider         (typeIdProvider           )
-				.setObjectIdProvider       (objectIdProvider         );
+			return storageFoundation;
 		}
 		
 		protected StorageFileProvider createFileProvider(final Configuration configuration, final File baseDir)
@@ -124,25 +118,14 @@ public interface ConfigurationConsumer extends Consumer<Configuration>
 			);
 		}
 
-		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryFileHandlery(final Configuration configuration, final File baseDir)
+		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryFileHandler(final Configuration configuration, final File baseDir)
 		{
-			return PersistenceTypeDictionaryFileHandler.New(
-				new File(baseDir, configuration.getTypeDictionaryFilename())
-			);
-		}
-
-		protected PersistenceTypeIdProvider createTypeIdProvider(final Configuration configuration, final File baseDir)
-		{
-			return FileTypeIdStrategy
-				.New(baseDir, configuration.getTypeIdFilename())
-				.createTypeIdProvider();
-		}
-
-		protected PersistenceObjectIdProvider createObjectIdProvider(final Configuration configuration, final File baseDir)
-		{
-			return FileObjectIdStrategy
-				.New(baseDir, configuration.getObjectIdFilename())
-				.createObjectIdProvider();
+			final String typeDictionaryFilename = configuration.getTypeDictionaryFilename();
+			return typeDictionaryFilename == null
+				? null
+				: PersistenceTypeDictionaryFileHandler.New(
+					new File(baseDir, typeDictionaryFilename)
+				);
 		}
 	}
 }

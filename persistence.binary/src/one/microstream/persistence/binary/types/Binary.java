@@ -274,7 +274,6 @@ public abstract class Binary implements Chunk
 	 * @param entityContentLength
 	 * @param entityTypeId
 	 * @param entityObjectId
-	 * @return
 	 */
 	public abstract long storeEntityHeader(
 		final long entityContentLength,
@@ -300,7 +299,6 @@ public abstract class Binary implements Chunk
 	 * @param entityTypeId
 	 * @param entityObjectId
 	 * 
-	 * @return
 	 */
 	protected static final void setEntityHeaderRawValues(
 		final long entityAddress    ,
@@ -580,11 +578,6 @@ public abstract class Binary implements Chunk
 
 	/**
 	 * Updates the passed array up to the size defined by the binary data, returns the size.
-	 *
-	 * @param bytes
-	 * @param headerOffset
-	 * @param array
-	 * @return
 	 */
 	public final int updateSizedArrayObjectReferences(
 		final long                        headerOffset,
@@ -1856,10 +1849,6 @@ public abstract class Binary implements Chunk
 	 * Similar problems with other or complex custom handlers are conceivable.
 	 *<p>
 	 * Only one helper object can be registered per subject instance (the instance to be built).
-	 *
-	 * @param subject
-	 * @param helper
-	 * @return
 	 */
 	public final synchronized void registerHelper(final Object key, final Object helper)
 	{
@@ -1884,9 +1873,6 @@ public abstract class Binary implements Chunk
 	 * their elements in an additional helper structure and defer the actual elements collecting to the completion.
 	 * <p>
 	 * Similar problems with other or complex custom handlers are conceivable.
-	 *
-	 * @param subject
-	 * @return
 	 */
 	public final synchronized Object getHelper(final Object key)
 	{

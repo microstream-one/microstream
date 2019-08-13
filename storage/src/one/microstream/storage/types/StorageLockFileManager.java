@@ -326,7 +326,6 @@ public interface StorageLockFileManager extends Runnable
 			/**
 			 * "long" meaning the expiration time has been passed by another interval.
 			 * This is a tolerance / grace time strategy to exclude
-			 * @return
 			 */
 			final boolean isLongExpired()
 			{

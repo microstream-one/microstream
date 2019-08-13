@@ -50,7 +50,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 *
 	 * @param medium
 	 * @param instance
-	 * @param builder
+	 * @param handler
 	 */
 	public void complete(M medium, T instance, PersistenceObjectIdResolver idResolver);
 
@@ -70,7 +70,6 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 * The order in which the types are provided is undefined, i.e. depending on the implementation.
 	 * 
 	 * @param logic
-	 * @return
 	 */
 	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(C logic);
 	

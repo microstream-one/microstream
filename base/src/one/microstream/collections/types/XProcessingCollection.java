@@ -9,8 +9,8 @@ import one.microstream.functional.Processable;
 
 /**
  * Curiously, a removing collection has to be a getting collection as well, because some removal procedures
- * could be abused to read the contained elements (e.g. {@link #remove(Object, Equalator)} or
- * {@link #removeBy(Predicate)} ). Splitting it up into a (pure) RemovingCollection and a RemGetCollection would cause
+ * could be abused to read the contained elements (e.g. {@link #retrieveBy(Predicate)}).
+ * Splitting it up into a (pure) RemovingCollection and a RemGetCollection would cause
  * more structural clutter than it's worth.
  *
  * @author Thomas Muenz
@@ -26,7 +26,7 @@ XGettingCollection<E>
 		@Override
 		public XProcessingCollection<E> newInstance();
 	}
-
+	
 
 	public E fetch(); // remove and retrieve first or throw IndexOutOfBoundsException if empty (fetch ~= first)
 

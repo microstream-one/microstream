@@ -50,7 +50,6 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 
 	/**
 	 * Returns the current size potential before a (maybe costly) rebuild becomes necessary.
-	 * @return
 	 */
 	public long capacity();
 	

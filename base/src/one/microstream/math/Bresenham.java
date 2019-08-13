@@ -17,7 +17,6 @@ public class Bresenham
 	 * @param y1
 	 * @param x2
 	 * @param y2
-	 * @return
 	 */
 	public static final int stepCountDistance(final int x1, final int y1, final int x2, final int y2)
 	{
