@@ -251,7 +251,7 @@ public class MainTestStorage extends TestStorage
 
 	static void testCleanUp() throws InterruptedException
 	{
-		final StorageDataFileEvaluator fileEvaluator = STORAGE.configuration().fileEvaluator();
+		final StorageDataFileEvaluator fileEvaluator = STORAGE.configuration().dataFileEvaluator();
 
 		STORAGE.createConnection().issueFullGarbageCollection();
 		STORAGE.createConnection().issueFullCacheCheck((a, b, e) -> {

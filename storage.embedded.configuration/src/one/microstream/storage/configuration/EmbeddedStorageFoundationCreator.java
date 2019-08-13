@@ -49,7 +49,7 @@ public interface EmbeddedStorageFoundationCreator
 				.setStorageFileProvider   (fileProvider          )
 				.setChannelCountProvider  (channelCountProvider  )
 				.setHousekeepingController(housekeepingController)
-				.setFileEvaluator         (dataFileEvaluator     )
+				.setDataFileEvaluator         (dataFileEvaluator     )
 				.setEntityCacheEvaluator  (entityCacheEvaluator  );
 			
 			String backupDirectory;

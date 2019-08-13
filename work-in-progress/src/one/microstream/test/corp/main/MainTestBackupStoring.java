@@ -26,7 +26,7 @@ public class MainTestBackupStoring
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation(
 			Storage.ConfigurationBuilder()
-			.setFileEvaluator(
+			.setDataFileEvaluator(
 				// just to make testing more convenient. Not necessary for the backup itself.
 				Storage.DataFileEvaluator(100, 1_000, 0.7)
 			)

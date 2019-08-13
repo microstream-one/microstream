@@ -400,7 +400,7 @@ public interface StorageFileManager
 	//			DEBUGStorage.println("transfer assigning\t" + current.objectId + "\t" + fileNewTotalLength + "\t" + current.length + "\t" + targetFile.number());
 				// set new file. Enqueing in the file's item chain is done for the whole sub chain
 				current.typeInFile      = headFile.typeInFile(current.typeInFile.type);
-				
+								
 				// update position to the one in the target file (old length plus current copy length)
 				current.storagePosition = XTypes.to_int(targetFileOldTotalLength + copyLength);
 
