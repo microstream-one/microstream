@@ -30,7 +30,7 @@ public final class XTime
 	
 	
 	/**
-	 * Short cut for <code>new Date(System.currentTimeMillis())</code>.
+	 * Short cut for {@code new Date(System.currentTimeMillis())}.
 	 * Returns a new {@link Date} instance representing the current time in the current {@link TimeZone}
 	 * and for the current {@link Locale}.
 	 * @return right now!

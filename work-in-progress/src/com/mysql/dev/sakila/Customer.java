@@ -8,7 +8,7 @@ import one.microstream.persistence.binary.types.BinaryTypeHandler;
 /**
  * Java entity class counterpart for the MySQL Sakila "customer" table.<br>
  * A collection of instances of this class corresponds to a "customer" table with entries.<br>
- * Source: <a href="https://dev.mysql.com/doc/sakila/en/sakila-structure-tables-customer.html">https://dev.mysql.com/doc/sakila/en/sakila-structure-tables-customer.html</a> and <code>sakila-schema.sql</code> definitions.
+ * Source: <a href="https://dev.mysql.com/doc/sakila/en/sakila-structure-tables-customer.html">https://dev.mysql.com/doc/sakila/en/sakila-structure-tables-customer.html</a> and {@code sakila-schema.sql} definitions.
  * <p>
  * Used type mapping:<br>
  * MySQL TINYINT : Java primitive byte (being unsigned merely means appyling an offset in Java).<br>

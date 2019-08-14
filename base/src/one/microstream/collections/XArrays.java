@@ -506,8 +506,8 @@ public final class XArrays
 	}
 
 	/**
-	 * Merges the both passed arrays by taking all elements from <code>a1</code> (even duplicates) and adds all
-	 * elements of <code>a2</code> (also duplicates as well) that are not already contained in <code>a1</code>.
+	 * Merges the both passed arrays by taking all elements from {@code a1} (even duplicates) and adds all
+	 * elements of {@code a2} (also duplicates as well) that are not already contained in {@code a1}.
 	 *
 	 * @param <T>
 	 * @param a1
@@ -548,12 +548,12 @@ public final class XArrays
 	}
 
 	/**
-	 * This method checks if <code>array</code> contains <code>element</code> by object identity
+	 * This method checks if {@code array} contains {@code element} by object identity
 	 *
 	 * @param <E> any type
 	 * @param array the array to be searched in
 	 * @param element the element to be searched (by identity)
-	 * @return {@code true} if <code>array</code> contains <code>element</code> by object identity, else <tt>false</tt>
+	 * @return {@code true} if {@code array} contains {@code element} by object identity, else <tt>false</tt>
 	 */
 	public static final <E> boolean contains(final E[] array, final E element)
 	{

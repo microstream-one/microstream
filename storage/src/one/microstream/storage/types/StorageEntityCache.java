@@ -848,7 +848,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		/**
-		 * Returns <code>true</code> if there are no more oids to mark and <code>false</code> if time ran out.
+		 * Returns {@code true} if there are no more oids to mark and {@code false} if time ran out.
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 *
 		 * @param timeBudgetBound
@@ -1376,7 +1376,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		/**
-		 * Returns <code>true</code> if there are no more oids to mark and <code>false</code> if time ran out.
+		 * Returns {@code true} if there are no more oids to mark and {@code false} if time ran out.
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 */
 		@Override
@@ -1462,7 +1462,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		/**
-		 * Returns <code>true</code> if there are no more oids to mark and <code>false</code> if time ran out.
+		 * Returns {@code true} if there are no more oids to mark and {@code false} if time ran out.
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 */
 		@Override
