@@ -205,10 +205,13 @@
 					<version>3.1.1</version>
 					<configuration>
 						<doclint>none</doclint>
+						<failOnError>false</failOnError>
 						<notree>true</notree>
-						<noindex>true</noindex>
-						<nohelp>true</nohelp>
-						<windowtitle>MicroStream API</windowtitle>			
+						<additionalOptions>-html5</additionalOptions>
+						<javadocExecutable>${javadoc.executable}</javadocExecutable>
+						<source>8</source>
+						<doctitle>MicroStream API</doctitle>
+						<windowtitle>MicroStream API</windowtitle>
 						<sourcepath>${project.build.directory}/sources</sourcepath>
 						<stylesheetfile>${maven.multiModuleProjectDirectory}/javadoc-stylesheet.css</stylesheetfile>
 						<archive>
