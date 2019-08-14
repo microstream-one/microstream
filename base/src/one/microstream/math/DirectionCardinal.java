@@ -37,8 +37,8 @@ public enum DirectionCardinal
 	 *
 	 * @param difX a value in { - 1, 0, +1}
 	 * @param difY a value in { - 1, 0, +1}
-	 * @return the direction <code>difX</code> or <code>difY</code> represent or {@code null} otherweise.
-	 * @throws IllegalArgumentException if <code>(difX, difY)</code> does not point to a neighbor square
+	 * @return the direction {@code difX} or {@code difY} represent or {@code null} otherweise.
+	 * @throws IllegalArgumentException if {@code (difX, difY)} does not point to a neighbor square
 	 */
 	public static final DirectionCardinal translateNeighborVector(final int difX, final int difY)
 		throws IllegalArgumentException

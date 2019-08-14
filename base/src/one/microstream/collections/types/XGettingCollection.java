@@ -80,7 +80,7 @@ Copyable
 
 	/**
 	 * Returns {@code true} if the passed collection is of the same type as this collection and
-	 * <code>this.equalsContent(list, equalator)</code> yields {@code true}.
+	 * {@code this.equalsContent(list, equalator)} yields {@code true}.
 	 *
 	 * @param equalator
 	 */

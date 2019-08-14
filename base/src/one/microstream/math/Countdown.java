@@ -100,7 +100,7 @@ public class Countdown
 	}
 	
 	/**
-	 * @return the unconsumed amount of <code>offset</code> due to preterm expiration of the countdown.
+	 * @return the unconsumed amount of {@code offset} due to preterm expiration of the countdown.
 	 * @see #decrement()
 	 */
 	public int decrease(final int offset)
@@ -133,8 +133,8 @@ public class Countdown
 	
 	/**
 	 * Sets this countdown's remaining value to the given value and return its preceeding value.
-	 * @param newValue the new value for <code>remainingValue</code>
-	 * @return the value that <code>remainingValue</code> had so far
+	 * @param newValue the new value for {@code remainingValue}
+	 * @return the value that {@code remainingValue} had so far
 	 */
 	private int manipulateRemainingValue(final int newValue)
 	{

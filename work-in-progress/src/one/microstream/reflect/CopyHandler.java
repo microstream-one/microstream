@@ -15,8 +15,8 @@ public interface CopyHandler
 {
 
 	/**
-	 * Copies the content of Field <code>fieldToCopy</code> from object <code>source</code>
-	 * to object <code>target</code>.
+	 * Copies the content of Field {@code fieldToCopy} from object {@code source}
+	 * to object {@code target}.
 	 * <p>
 	 * Implementation hint:<br>
 	 * Use {@link ReflectionTools.setFieldValue(Field f, Object obj, Object value)} to set the value eventually

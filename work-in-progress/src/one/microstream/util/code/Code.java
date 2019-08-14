@@ -219,7 +219,7 @@ public abstract class Code
 	}
 
 	/**
-	 * Returns the full class name without packages of class <code>c</code>.
+	 * Returns the full class name without packages of class {@code c}.
 	 * <p>
 	 * Examples:<br>
 	 * full class name of String.class: "String"
@@ -228,11 +228,11 @@ public abstract class Code
 	 * This is useful if the enclosing class has already been imported,
 	 * so that the inner class does not have to be referenced full qualified.
 	 * <p>
-	 * If <code>enclosingClassParameters</code> is not null, then generic bounds parameter
-	 * will be applied to enclosing classes. If <code>enclosingClassParameters</code> does not
+	 * If {@code enclosingClassParameters} is not null, then generic bounds parameter
+	 * will be applied to enclosing classes. If {@code enclosingClassParameters} does not
 	 * contain a bounds parameter string for a parametrized class, "?" will be used as a bounds parameter.
 	 * <p>
-	 * If <code>enclosingClassParameters</code> is null, no generics bounds parameter will be applied
+	 * If {@code enclosingClassParameters} is null, no generics bounds parameter will be applied
 	 *
 	 * @param c the c
 	 * @param enclosingClassParameters the enclosing class parameters

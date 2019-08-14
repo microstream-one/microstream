@@ -14,10 +14,10 @@ public interface PersistenceSource<M>
 	 * <ul>
 	 * <li>simply ALL data from a plain file.</li>
 	 * <li>only root nodes (and all recursively referenced nodes) of a graph-based database.</li>
-	 * <li>nothing at all if not applicable, resulting in <code>null</code> being returned.</li>
+	 * <li>nothing at all if not applicable, resulting in {@code null} being returned.</li>
 	 * </ul>
 	 *
-	 * @return data segments containing general data if applicable, otherwise <code>null</code>.
+	 * @return data segments containing general data if applicable, otherwise {@code null}.
 	 * @throws PersistenceExceptionTransfer
 	 */
 	public XGettingCollection<? extends M> read() throws PersistenceExceptionTransfer;
