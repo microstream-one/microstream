@@ -9,7 +9,7 @@ import one.microstream.equality.Equalator;
  * <p>
  * This is similar (pun) to {@link Comparator} or {@link Equalator}, but aims at more fine grained comparison,
  * e.g. for integrating String similarity heuristics
- * (like {@code if(similarName.evaluate("Jack", "Jake") > 0.5) {...}}}).
+ * (like {@code if(similarName.evaluate("Jack", "Jake") &gt; 0.5) {...}}}).
  * <p>
  * To not confound the admitted strange name "Similator" with "Simulator" or "Assimilator"
  * (the building where the Protoss get their gas from :D)

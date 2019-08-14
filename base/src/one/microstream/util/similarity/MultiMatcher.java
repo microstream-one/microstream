@@ -50,14 +50,14 @@ import one.microstream.equality.Equalator;
  * When using a case insensitive modified Levenshtein {@link Similator}
  * (see {@link Levenshtein#substringSimilarity}) the algorithm produces the following associations:
  * <pre>
- * firstname       <-1.00-> Firstname
- * lastname        <-0.75-> Name
- * age             <-1.00-> Age
- * emailAddress    <-0.71-> Email
- * postalAddress   <-0.77-> Address
+ * firstname       &lt;-1.00-&gt; Firstname
+ * lastname        &lt;-0.75-&gt; Name
+ * age             &lt;-1.00-&gt; Age
+ * emailAddress    &lt;-0.71-&gt; Email
+ * postalAddress   &lt;-0.77-&gt; Address
  * noteLink        [new]
  * newColumn1      [new]
- * someMiscAddress <-0.56-> OtherAddress
+ * someMiscAddress &lt;-0.56-&gt; OtherAddress
  *                        X Freetext
  * </pre>
  *
