@@ -160,9 +160,9 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		 */
 		private static int indexEntities(
 			final StorageDataFile.Default file            ,
-			final long                           fileActualLength,
-			final ByteBuffer                     buffer          ,
-			final int[]                          entityOffsets
+			final long                    fileActualLength,
+			final ByteBuffer              buffer          ,
+			final int[]                   entityOffsets
 		)
 		{
 			int lastEntityIndex = -1;
@@ -250,9 +250,9 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		}
 		
 		private static void fillBuffer(
-			final ByteBuffer                     buffer          ,
+			final ByteBuffer              buffer          ,
 			final StorageDataFile.Default file            ,
-			final long                           fileActualLength
+			final long                    fileActualLength
 		)
 		{
 			try

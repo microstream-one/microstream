@@ -137,9 +137,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		{
 			// required to prevent NPE
 			this.ensureInitialized();
-						
-			// (06.08.2019 TM)FIXME: priv#23: check for pending enum root synching
-
+			
 			for(final ChunksBuffer chunk : this.chunks)
 			{
 				chunk.complete();

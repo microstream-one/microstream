@@ -1,8 +1,8 @@
 package wrapping.logging;
 
 
-import one.microstream.wrapping.Wrapper;
 import wrapping.MyType;
+import wrapping.Wrapper;
 import wrapping.generated.WrapperMyType;
 
 public class MyTypeLoggingWrapperCool

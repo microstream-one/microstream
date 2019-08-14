@@ -931,23 +931,48 @@ public class Persistence
 		return copy;
 	}
 	
+	/*
+	 * This is important:
+	 * A lot of custom enum identifiers can start with the 4 letter e, n, u, m. E.h. "enumerationsStuffs",
+	 * but the defined enum root identifier is exactely "enum ".
+	 */
+	private static final String ENUM_ROOT_IDENTIFIER_START = XReflect.typename_enum() + " ";
+	
+	public static String enumRootIdentifierStart()
+	{
+		return ENUM_ROOT_IDENTIFIER_START;
+	}
+	
 	public static Long parseEnumRootIdentifierTypeId(final String enumRootIdentifier)
 	{
-		if(enumRootIdentifier == null || !enumRootIdentifier.startsWith(XReflect.typename_enum()))
+		// quick check before doing any instantiation. Has virtually no redundancy to the code below
+		if(!isEnumRootIdentifier(enumRootIdentifier))
 		{
 			return null;
 		}
 		
-		final String typeIdPart = enumRootIdentifier.substring(XReflect.typename_enum().length() + 1);
-		
+		final String typeIdPart = enumRootIdentifier.substring(enumRootIdentifierStart().length());
 		try
 		{
 			return Long.valueOf(Long.parseLong(typeIdPart));
 		}
 		catch(final NumberFormatException e)
 		{
+			// should never happen due to the quick check above, but who knows.
 			return null;
 		}
+	}
+	
+	public static boolean isEnumRootIdentifier(final String enumRootIdentifier)
+	{
+		return isPotentialEnumRootIdentifier(enumRootIdentifier)
+			&& XChars.applies(enumRootIdentifier, enumRootIdentifierStart().length(), XChars::isDigit)
+		;
+	}
+	
+	public static boolean isPotentialEnumRootIdentifier(final String enumRootIdentifier)
+	{
+		return enumRootIdentifier != null && enumRootIdentifier.startsWith(enumRootIdentifierStart());
 	}
 	
 	public static final PersistenceRootResolverProvider RootResolverProvider()

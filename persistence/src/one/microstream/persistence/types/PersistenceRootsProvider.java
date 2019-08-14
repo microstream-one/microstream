@@ -6,6 +6,8 @@ public interface PersistenceRootsProvider<M>
 	
 	public PersistenceRoots peekRoots();
 	
+	public void updateRuntimeRoots(PersistenceRoots runtimeRoots);
+	
 	/**
 	 * Only the {@link PersistenceRootsProvider} implementation can ensure that the handler fits the instance,
 	 * so it has to do the registering as well.

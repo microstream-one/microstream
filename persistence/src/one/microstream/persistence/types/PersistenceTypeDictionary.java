@@ -99,7 +99,7 @@ public interface PersistenceTypeDictionary
 
 	public boolean registerRuntimeTypeDefinitions(Iterable<? extends PersistenceTypeDefinition> typeDefinitions);
 
-	public void setTypeDescriptionRegistrationObserver(PersistenceTypeDefinitionRegistrationObserver observer);
+	public PersistenceTypeDictionary setTypeDescriptionRegistrationObserver(PersistenceTypeDefinitionRegistrationObserver observer);
 
 	public PersistenceTypeDefinitionRegistrationObserver getTypeDescriptionRegistrationObserver();
 	
@@ -317,11 +317,13 @@ public interface PersistenceTypeDictionary
 		}
 		
 		@Override
-		public final synchronized void setTypeDescriptionRegistrationObserver(
+		public final synchronized PersistenceTypeDictionary setTypeDescriptionRegistrationObserver(
 			final PersistenceTypeDefinitionRegistrationObserver registrationObserver
 		)
 		{
 			this.registrationObserver = registrationObserver;
+			
+			return this;
 		}
 
 		@Override

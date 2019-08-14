@@ -1,4 +1,4 @@
-package one.microstream.wrapping;
+package wrapping;
 
 
 public interface Wrapper<W>

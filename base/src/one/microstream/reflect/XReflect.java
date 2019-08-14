@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
+import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XMap;
 import one.microstream.collections.types.XReference;
@@ -936,7 +937,7 @@ public final class XReflect
 			}
 			
 			final char c = typeName.charAt(i + 1);
-			if(c >= '0' && c <= '9')
+			if(XChars.isDigit(c))
 			{
 				return true;
 			}

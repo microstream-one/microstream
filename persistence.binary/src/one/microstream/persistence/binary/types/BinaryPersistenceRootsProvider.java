@@ -79,6 +79,12 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		}
 		
 		@Override
+		public final void updateRuntimeRoots(final PersistenceRoots runtimeRoots)
+		{
+			this.roots = runtimeRoots;
+		}
+		
+		@Override
 		public final void registerRootsTypeHandlerCreator(
 			final PersistenceCustomTypeHandlerRegistry<Binary> typeHandlerRegistry,
 			final PersistenceObjectRegistry                    objectRegistry
