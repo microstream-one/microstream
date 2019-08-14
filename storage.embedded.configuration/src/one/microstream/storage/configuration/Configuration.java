@@ -236,7 +236,7 @@ public interface Configuration
 	/**
 	 * Name suffix of the storage transaction file. Default is <code>".sft"</code>.
 	 *
-	 * @param storageFileSuffix
+	 * @param transactionFileSuffix
 	 *            new suffix
 	 */
 	public Configuration setTransactionFileSuffix(String transactionFileSuffix);

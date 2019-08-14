@@ -759,11 +759,11 @@ public final class XSort
 	 * <p>
 	 * This method is best used as a general purpose sort.
 	 * <p>
-	 * For a subranged version, see {@link #sort(E[], int, int, Comparator)}.
+	 * For a subranged version, see {@link #sort(Object[], int, int, Comparator)}.
 	 * <p>
 	 * Due to sorting the passed array in a stable and fast (O(n log(n)) fashion, each call of this method instantiates
 	 * an internal buffer array with the same size as the passed array. If the repeated creation of buffer arrays shall
-	 * be prevented, use {@link #bufferedAdaptiveMergesort(E[], E[], Comparator)} to explicitly provide a reusable buffer.
+	 * be prevented, use {@link #bufferedAdaptiveMergesort(Object[], Object[], Comparator)} to explicitly provide a reusable buffer.
 	 * <p>
 	 * If maintaining the orginal order of equal elements (stability) is not required,
 	 * {@link #valueSort(Object[], Comparator)} usually yields better performance and also does not require additional
@@ -774,9 +774,9 @@ public final class XSort
 	 * @param <E> the type of the elements to be sorted.
 	 * @param elements the elements to be sorted.
 	 * @param comparator the {@link Comparator} defining the sortation order of the elements.
-	 * @see #valueSort(E[], Comparator)
-	 * @see #bufferedAdaptiveMergesort(E[], E[], Comparator)
-	 * @see #sort(E[], int, int, Comparator)
+	 * @see #valueSort(Object[], Comparator)
+	 * @see #bufferedAdaptiveMergesort(Object[], Object[], Comparator)
+	 * @see #sort(Object[], int, int, Comparator)
 	 */
 	public static <E> void sort(final E[] elements, final Comparator<? super E> comparator)
 	{
@@ -784,12 +784,12 @@ public final class XSort
 	}
 
 	/**
-	 * Subranged version of {@link #sort(E[], Comparator)}.
+	 * Subranged version of {@link #sort(Object[], Comparator)}.
 	 * <p>
 	 * Example: {@code sort(myElements, 0, 5, myElementComparator} sorts the first 5 elements of array
 	 * {@code myElements} (indices 0 to 4).
 	 * <p>
-	 * For further information, see {@link #sort(E[], Comparator)}.
+	 * For further information, see {@link #sort(Object[], Comparator)}.
 	 *
 	 * @param <E> the type of the elements to be sorted.
 	 * @param elements the elements to be sorted.
@@ -830,7 +830,7 @@ public final class XSort
 	 * This method is best used for sorting arrays where stability is not important of that consist only of
 	 * distinct values of equal values that actually are just duplicate references to the same instance.
 	 * <p>
-	 * For a subranged version, see {@link #valueSort(V[], int, int, Comparator)}.
+	 * For a subranged version, see {@link #valueSort(Object[], int, int, Comparator)}.
 	 * <p>
 	 * The used algorithm works inplace, i.e. does not instantiate any additional instances.
 	 * <p>
@@ -848,12 +848,12 @@ public final class XSort
 	}
 
 	/**
-	 * Subranged version of {@link #valueSort(V[], Comparator)}.
+	 * Subranged version of {@link #valueSort(Object[], Comparator)}.
 	 * <p>
 	 * Example: {@code valueSort(myValues, 0, 5, myvalueComparator} sorts the first 5 values of array
 	 * {@code myElements} (indices 0 to 4).
 	 * <p>
-	 * For further information, see {@link #sort(V[], Comparator)}.
+	 * For further information, see {@link #sort(Object[], Comparator)}.
 	 *
 	 * @param <V> the type of the values to be sorted.
 	 * @param values the values to be sorted.
@@ -870,10 +870,10 @@ public final class XSort
 	}
 
 	/**
-	 * Variation of {@link #sort(E[], Comparator)} that allows to pass an additional array to be used as the sorting
+	 * Variation of {@link #sort(Object[], Comparator)} that allows to pass an additional array to be used as the sorting
 	 * algorithm's internal buffer.
 	 * <p>
-	 * Use this method if the repeated buffer array instantiation of {@link #sort(E[], Comparator)} causes problems.
+	 * Use this method if the repeated buffer array instantiation of {@link #sort(Object[], Comparator)} causes problems.
 	 * <p>
 	 * If the passed buffer array is too small, a new buffer array of appropriate size is instantiated. The buffer
 	 * (NOT the sorted array!) is returned.
@@ -887,8 +887,8 @@ public final class XSort
 	 * @param buffer the array to be used as a buffer by the sorting algorithm.
 	 * @param comparator the comparator defining the sortation order of the elements.
 	 * @return the passed buffer array or the newly created buffer array if the passed buffer array was too small.
-	 * @see #sort(E[], Comparator)
-	 * @see #bufferedAdaptiveMergesort(E[], E[], int, int, Comparator)
+	 * @see #sort(Object[], Comparator)
+	 * @see #bufferedAdaptiveMergesort(Object[], Object[], int, int, Comparator)
 	 */
 	public static <E> E[] bufferedAdaptiveMergesort(
 		final E[]                   elements  ,
@@ -907,7 +907,7 @@ public final class XSort
 	 * Example: {@code bufferSort(myElements, 0, 5, myElementComparator} sorts the first 5 elements of array
 	 * {@code myElements} (indices 0 to 4).
 	 * <p>
-	 * For further information, see {@link #sort(E[], Comparator)}.
+	 * For further information, see {@link #sort(Object[], Comparator)}.
 	 *
 	 * @param <E> the type of the elements to be sorted.
 	 * @param elements the elements to be sorted.

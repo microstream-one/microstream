@@ -190,16 +190,16 @@ public interface StorageLockFileSetup
 	}
 	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageLockFileSetup.Provider} instance
+	 * Pseudo-constructor method to create a new {@link Provider} instance
 	 * using the passed values.
 	 * <p>
-	 * A {@link StorageLockFileSetup.Provider} instance created by this method provides new {@link StorageLockFileSetup}
+	 * A {@link Provider} instance created by this method provides new {@link StorageLockFileSetup}
 	 * instances that use the passed {@literal Charset} and {@literal updateInterval}.
 	 * 
 	 * @param charset the {@link Charset} to be used for the lock file content.
 	 * @param updateInterval the update interval in ms.
 	 * 
-	 * @return a new {@link StorageLockFileSetup.Provider} instance.
+	 * @return a new {@link Provider} instance.
 	 * 
 	 * @see StorageLockFileSetup
 	 */

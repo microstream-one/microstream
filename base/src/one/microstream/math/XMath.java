@@ -54,8 +54,8 @@ public final class XMath
 	 * using only integer iteration for calculation.
 	 * <p>
 	 * As a rule of thumb:<br>
-	 * It is faster for {@code exponent} < 250 (significantly faster for exponents < 100)
-	 * and slower for {@code exponent} >= 250 (significantly slower for exponents >= 500).<br>
+	 * It is faster for {@code exponent} &lt; 250 (significantly faster for exponents &lt; 100)
+	 * and slower for {@code exponent} &gt;= 250 (significantly slower for exponents &gt;= 500).<br>
 	 * This may depend on the concrete system running the program, of course.
 	 * <br>
 	 * Note that {@code exponent} may not be negative, otherwise an {@code IllegalArgumentException} is
@@ -299,7 +299,7 @@ public final class XMath
 	 * log10(1000000000) = 9
 	 * log10(2147483647) = 9
 	 * </pre></code>
-	 * Note that passing a value <= 0 will throw an  {@link IllegalArgumentException}.
+	 * Note that passing a value &lt;= 0 will throw an  {@link IllegalArgumentException}.
 	 *
 	 * @param value
 	 */
@@ -1081,7 +1081,7 @@ public final class XMath
 	}
 
 	/**
-	 * Returns abs(d1/d2) for abs(d1) < abs(d2), else abs(d2/d1) in order to guarantee a codomain of [0.0;1.0]
+	 * Returns abs(d1/d2) for abs(d1) &lt; abs(d2), else abs(d2/d1) in order to guarantee a codomain of [0.0;1.0]
 	 * @param a the first value
 	 * @param b the second value
 	 * @return the lower ratio of d1 and d2
@@ -1097,10 +1097,10 @@ public final class XMath
 
 	/**
 	 * Use {@code factorial(long)} for n in [0;20].<br>
-	 * Use {@code factorial(BigInteger)} for any n > 0.
+	 * Use {@code factorial(BigInteger)} for any n &gt; 0.
 	 * @param n natural number in [0;12]
 	 * @return n!
-	 * @throws IllegalArgumentException for n < 0 or n > 12
+	 * @throws IllegalArgumentException for n &lt; 0 or n &gt; 12
 	 */
 	public static final int factorial(final int n) throws IllegalArgumentException
 	{
@@ -1132,11 +1132,11 @@ public final class XMath
 	}
 
 	/**
-	 * Use {@code factorial(BigInteger)} for any n > 0.
+	 * Use {@code factorial(BigInteger)} for any n &gt; 0.
 	 *
 	 * @param n natural number in [0;20]
 	 * @return n!
-	 * @throws IllegalArgumentException for n < 0 or n > 20
+	 * @throws IllegalArgumentException for n &lt; 0 or n &gt; 20
 	 */
 	public static final long factorial(final long n) throws IllegalArgumentException
 	{
@@ -1186,9 +1186,9 @@ public final class XMath
 
 	/**
 	 *
-	 * @param n any natural number >= 0
+	 * @param n any natural number &gt;= 0
 	 * @return n!
-	 * @throws IllegalArgumentException for n < 0
+	 * @throws IllegalArgumentException for n &lt; 0
 	 */
 	public static final BigInteger factorial(final BigInteger n) throws IllegalArgumentException
 	{
