@@ -5,17 +5,20 @@ import static one.microstream.X.notNull;
 import java.io.File;
 import java.util.function.Predicate;
 
+import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceRoots;
+import one.microstream.persistence.types.PersistenceRootsProvider;
+import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.Reference;
 import one.microstream.storage.exceptions.StorageException;
+import one.microstream.typing.KeyValue;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -86,13 +89,13 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	public static EmbeddedStorageManager.Default New(
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
-		final PersistenceRoots                       definedRoots
+		final PersistenceRootsProvider<?>            rootsProvider
 	)
 	{
 		return new EmbeddedStorageManager.Default(
 			notNull(configuration)       ,
 			notNull(connectionFoundation),
-			notNull(definedRoots)
+			notNull(rootsProvider)
 		);
 	}
 
@@ -106,7 +109,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		private final StorageConfiguration                   configuration       ;
 		private final StorageManager                         storageManager      ;
 		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
-		private final PersistenceRoots                       definedRoots        ;
+		private final PersistenceRootsProvider<?>            rootsProvider       ;
 		
 		private StorageConnection singletonConnection;
 
@@ -119,14 +122,14 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		Default(
 			final StorageConfiguration                   configuration       ,
 			final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
-			final PersistenceRoots                       definedRoots
+			final PersistenceRootsProvider<?>            rootsProvider
 		)
 		{
 			super();
 			this.configuration        = configuration                           ;
 			this.storageManager       = connectionFoundation.getStorageManager(); // to ensure consistency
 			this.connectionFoundation = connectionFoundation                    ;
-			this.definedRoots         = definedRoots                            ;
+			this.rootsProvider        = rootsProvider                           ;
 		}
 
 
@@ -193,13 +196,13 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public Reference<Object> defaultRoot()
 		{
-			return this.definedRoots.defaultRoot();
+			return this.rootsProvider.provideRoots().defaultRoot();
 		}
 		
 		@Override
 		public Object customRoot()
 		{
-			return this.definedRoots.customRoot();
+			return this.rootsProvider.provideRoots().customRoot();
 		}
 
 		@Override
@@ -224,21 +227,59 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			
 			return this;
 		}
+		
+		private int splitLoadedRoots(
+			final PersistenceRoots            loadedRoots    ,
+			final EqHashTable<String, Object> nonEnumEntries ,
+			final EqHashTable<String, Object> liveEnumEntries
+		)
+		{
+			final PersistenceTypeHandlerManager<?> thm = this.connectionFoundation.getTypeHandlerManager();
+
+			int legacyEnumEntries = 0;
+			final XGettingTable<String, Object> loadedEntries = loadedRoots.entries();
+			for(final KeyValue<String, Object> loadedEntry : loadedEntries)
+			{
+				if(!thm.isEnumRootIdentifier(loadedEntry.key()))
+				{
+					nonEnumEntries.add(loadedEntry);
+				}
+				else if(loadedEntry.value() != null)
+				{
+					liveEnumEntries.add(loadedEntry);
+				}
+				else
+				{
+					// entries of legacy enum types (= has no constants mapped) are discarded.
+					legacyEnumEntries++;
+				}
+			}
+			
+			return legacyEnumEntries;
+		}
 
 		private void synchronizeRoots(final PersistenceRoots loadedRoots)
 		{
-			final XGettingTable<String, Object> loadedEntries  = loadedRoots.entries();
-			final XGettingTable<String, Object> definedEntries = this.definedRoots.entries();
-
-			final boolean equalContent = loadedEntries.equalsContent(definedEntries, (e1, e2) ->
+			final EqHashTable<String, Object> nonEnumEntries  = EqHashTable.New();
+			final EqHashTable<String, Object> liveEnumEntries = EqHashTable.New();
+			final int legacyEnumEntryCount = this.splitLoadedRoots(loadedRoots, nonEnumEntries, liveEnumEntries);
+			
+			final XGettingTable<String, Object> definedEntries = this.rootsProvider.provideRoots().entries();
+			
+			final boolean equalNonEnums = nonEnumEntries.equalsContent(definedEntries, (e1, e2) ->
 				// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
 				e1.key().equals(e2.key()) && e1.value() == e2.value()
 			);
 			
+			final boolean needsUpdate = !equalNonEnums || legacyEnumEntryCount != 0;
+			
 			// if the loaded roots does not match the defined roots, its entries must be updated to catch up.
-			if(!equalContent)
+			if(needsUpdate)
 			{
-				loadedRoots.replaceEntries(definedEntries);
+				final EqHashTable<String, Object> requiredRoots = EqHashTable.New(definedEntries)
+					.addAll(liveEnumEntries)
+				;
+				loadedRoots.replaceEntries(requiredRoots);
 			}
 			
 			/*
@@ -251,6 +292,9 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.
 			 * 3.) Loaded roots and defined roots do not match, so the loaded roots entries must be replaced/updated.
 			 */
+			
+			// must update the roots provider with the loadedRoots instance for the same reason
+			this.rootsProvider.updateRuntimeRoots(loadedRoots);
 		}
 		
 		private void ensureRequiredTypeHandlers()
@@ -276,7 +320,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 				throw new RuntimeException("No roots found for existing data.");
 			}
 
-			return this.definedRoots;
+			return this.rootsProvider.provideRoots();
 		}
 
 		@Override
@@ -294,9 +338,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 				this.synchronizeRoots(loadedRoots);
 			}
 			
-			// update enum constants root entries in any case (newly created or loaded and synched)
-			this.validateAndUpdateEnumConstants(loadedRoots);
-			
 			if(loadedRoots.hasChanged())
 			{
 				// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized
@@ -304,23 +345,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			}
 		}
 		
-		private void validateAndUpdateEnumConstants(final PersistenceRoots roots)
-		{
-			/* (06.08.2019 TM)FIXME: priv#23: check typehandlermanager for pending root storing
-			 * - scan type dictionary for all already existing / known enum types
-			 * - validate and insert / update their enum constants entry
-			 * - any change must always result in a completely new Object[] for the storer to store it
-			 * - merge with synchronizeRoots() or modify it to ignore enums?
-			 * ? what about legacy enum types? Actually, only a lineage's most current enums may be stored (exist!)
-			 * ? what about the pending enums in the TypeHandlerManager from TypeHandler creation?
-			 *   does that make the dictionary check unnecessary because there is a handler for every
-			 *   dictionary entry, anyway?
-			 * - is that a fluid transition to LTM-handling enum constants?
-			 */
-			XDebug.println("TODO: validateAndUpdateEnumConstants()");
-//			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
 		@Override
 		public final boolean shutdown()
 		{

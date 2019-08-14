@@ -12,7 +12,6 @@ import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
@@ -79,6 +78,11 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		return Persistence.deriveEnumRootIdentifier(typeHandler);
 	}
 	
+	public default boolean isEnumRootIdentifier(final String enumRootIdentifier)
+	{
+		return Persistence.isEnumRootIdentifier(enumRootIdentifier);
+	}
+	
 	public default Long parseEnumRootIdentifierTypeId(final String enumRootIdentifier)
 	{
 		return Persistence.parseEnumRootIdentifierTypeId(enumRootIdentifier);
@@ -86,10 +90,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 	
 	public default Object[] collectEnumConstants(final PersistenceTypeHandler<?, ?> typeHandler)
 	{
-		return Persistence.collectEnumConstants(typeHandler);
+		return typeHandler.collectEnumConstants();
 	}
-		
-
 	
 	public static <M> void registerEnumContantRoots(
 		final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers,
@@ -105,10 +107,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			// nothing to do for non-enums.
 			return;
 		}
-		
-		// (12.08.2019 TM)FIXME: priv#23: registerEnumContantRoots
-		XDebug.println("registering enum constants of " + typeHandler.toTypeIdentifier());
-		
+				
 		pendingEnumConstantRootStoringHandlers.add(
 			typeHandler.type(),
 			typeHandler
@@ -634,7 +633,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			}
 			
 			// reference/identity comparison is important! Arrays#equals does it wrong.
-			if(!XArrays.equals((Object[])existingEntry, typeHandler.getClass().getEnumConstants()))
+			if(!XArrays.equals((Object[])existingEntry, typeHandler.type().getEnumConstants()))
 			{
 				// (08.08.2019 TM)EXCP: proper exception
 				throw new RuntimeException(

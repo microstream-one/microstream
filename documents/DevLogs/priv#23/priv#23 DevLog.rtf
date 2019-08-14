@@ -377,11 +377,11 @@ Passt.\par
 \par
 Okay, dann sollte das Enum Handling jetzt grunds\'e4tzlich passen. Fehlt nur noch:\par
 \par
-\cf1\b TODOS:\par
+\b TODOS:\par
 \b0 - Bei Begegnung mit einem neuen Enum Typen gleich alle Enum Instanzen analysieren\par
 - Bei Begegnung mit einem neuen Enum Typen persistence root erweitern um ein Array daf\'fcr\par
 - Root Initialisierung um einen Abgleich mit den aktuellen JVM-generierten enum Konstanteninstanzen des Typs erweitern\par
-- Und dann noch das ganze Thema Legacy Type Mapping f\'fcr \'c4nderungen an Enums.\par
+\cf1 - Und dann noch das ganze Thema Legacy Type Mapping f\'fcr \'c4nderungen an Enums.\par
 - Das ganze LTM Strukturvergleichszeug muss Enum Felder mit ber\'fccksichtigen, bzw. "all" statt "instance".\par
 \cf0\par
 \par
@@ -872,5 +872,120 @@ In die DefinedRoots \'fcbernommen?\par
 Was ist mit LTM? Was, wenn das veraltete TypeIds sind? Oder ist das die Validierung? Zwischen "gibt es" und "gibt es und ist auch die aktuelle TypeId" ist ein unterschied ...\par
 \par
 Hmhmhmh...\par
+\par
+\par
+\par
+2019-08-14\par
+\par
+\'dcberlegungen von daheim:\par
+- Der normale enum Handler geht ja davon aus, dass kein LTM n\'f6tig ist.\par
+\cf1 - Darum muss der Type Abgleich auch die enum Konstantenfelder mit ber\'fccksichtigen (TODO!)\cf0\par
+- F\'fcr \'c4nderungen (an Instanzfeldern oder auch Konstanten) w\'e4re ein LegacyTypeHandler n\'f6tig. Das ist noch TODO.\par
+v Testen, ob das Laden der Roots nun die JVM-generierten enum Konstanten richtig mit der persistierten ObjectId assoziiert. Sollte er. (Getestet und Kommentar verbessert).\par
+v Aufgrund der Punkte oben sollte zum Zeitpunkt bzw. an der Stelle des Roots synchens Anzahl, Art und Reihenfolge der enum Konstanten in den loadedRoots schon mit den JVM-generierten aktuellen \'fcbereinstimmen. (Jup)\par
+- Es kann aber sein, dass eine TypeId aus den loadedRoots veraltet ist. Jetzt ist die Frage, ob der Root Synch das erkennen und umbauen muss, oder ob der LegacyTypeHandler dann gar keine enum Instanzen mehr mappen d\'fcrfte ... hm...\par
+\par
+Oh Mann, wieso ist das so kompliziert ...\par
+\par
+Also was auf jeden Fall sein kann, ist:\par
+Eine TypeId kann veraltet sein, d.h. zu einem LegacyTypeHandler geh\'f6ren bzw. nicht die TypeId des aktuellen TypeHandlers der TypeLineage sein.\par
+Dann darf daf\'fcr \'fcberhaupt keine enum Instanz gemappt werden, sondern die muss auf die entsprechende Instanz der aktuellen Type Version gemappt werden.\par
+DAS muss aber der LegacyTypeHandler f\'fcr die enum veranlassen.\par
+Das hei\'dft, die enum root resolvung Logik muss da irgendwie den TypeHandler fragen bzw. "mitspielen lassen".\par
+Die entsprechende Stelle daf\'fcr ist PersistenceRootResolver#resolveRootEnumConstants, bzw. genauer PersistenceTypeHandlerManager#collectEnumConstants.\par
+Also m\'fcsste eigentlich der TypeHandler die enumConstants collecten und der LegacyTypeHandler gibt dann da einfach einfach ein leeres Array oder evtl. gleich null zur\'fcck. Damit kann man dann erkennen, dass dieser Root Entry raus soll.\par
+So mach ich das.\par
+\par
+Hm, interessant: Eigentlich k\'f6nnte der TypeHandler dann gleich allgemein eine Methode "collectConstants" bekommen.\par
+Aber naja, das wird vielleicht mal eine Erweiterung f\'fcr die Zukunft. Das w\'e4re dann ein neuer Root Entry "constants [TypeId]", der kollidiert nicht mit den bisherigen.\par
+\par
+Implementiert.\par
+Jetzt zur\'fcck zum synchen:\par
+Eigentlich muss ich die loadedRoots aufsplitten:\par
+1.) nicht-enum root entries in order\par
+2.) enum root entries mit non-null als value\par
+3.) enum root entries mit null als value fliegen raus (legacy type enum)\par
+\par
+#1 wird abgeglichen mit den definedRoots.\par
+#2 sind in gewisser Weise ja schon "defined roots", die aus dem Runtime State der JVM abgeleitet sind. Die stecken nur aus resolving Konsistenzgr\'fcnden in den LoadedRoots drin.\par
+UND dann gibts noch alle zwischenzeitlich neu dazugekommenen enum Konstanten. Die m\'fcssten zu diesem Zeitpunkt im TypeHandlerManager als "pending" liegen und beim ersten store hinzugef\'fcgt werden.\par
+Sollte der beim Roots synchen evtl. auch abgepr\'fcft werden?\par
+Also "if type handler has pending roots: store anyway"?\par
+Klingt sinnvoll ...\par
+edit: ne, doch nicht. Denn: die pending Dinger k\'f6nnen aus der Custom Type handler registrierung stammen und redundant zu denen sein, die schon registriert sind.\par
+Dann m\'fcsste man erst wieder pr\'fcfen, ob es einen "echten" Zuwachs gibt. Das ist aber alles gar nicht n\'f6tig, weil das beim n\'e4chsten store sowieso gemacht werden wird und ohne store gibt es eh keine \'c4nderung am persistent state.\par
+\par
+Ah, beim Umsetzen ist aufgefallen:\par
+wie in der synchronize Methode steht, muss die loadedRoots Instanz aktualisiert werden, damit die ObjectId erhalten bleibt.\par
+Aber das pending roots zeugs im TypeHandlerManager f\'fcgt zu der definedRoots instanz hinzu. Das ist falsch. Das muss die LoadedRoots werden.\par
+\par
+Immerhin ist mir dabei aufgefallen:\par
+Die DefinedRoots m\'fcssen gar nicht synchronisiert werden.\par
+Wenn der Inhalt der LoadedRoots ersetzt werden muss, kommt da einfach rein:\par
+- DefinedRoots\par
+- Wieder die EnumRoots\par
+Dann abspeichern. Fertig.\par
+\par
+Aber zur\'fcck zu der DefinedRoots Sache:\par
+Eigentlich darf der EmbeddedStorageManager gar keine Referenz auf die Defined Roots haben, sondern auf einen RootsResolver.\par
+Zum synchen holt er sich von dem einmal die definedRoots und danach setzt er dem die LoadedRoots Instanz als die "Produktivbetrieb Instanz".\par
+Das ist architektonisch sauberer am Konzept dran und es fixt den Bug bzw. die inkonsistenz.\par
+\par
+Mal umbauen ...\par
+\par
+Bzw. nicht den RootsResolver, sondern den PersistenceRootsProvider.\par
+Der wird auch im TypeHandlerManager referenziert, also passt.\par
+\par
+Hm... das k\'f6nnte jetzt so passen. Dann ist aber die ganze validateAndUpdateEnums Methode \'fcberfl\'fcssig.\par
+Ich kopier mal die TODO Liste darin hier rein und l\'f6sch sie.\par
+\par
+- scan type dictionary for all already existing / known enum types                                  \par
+- validate and insert / update their enum constants entry                                           \par
+- any change must always result in a completely new Object[] for the storer to store it             \par
+- merge with synchronizeRoots() or modify it to ignore enums?                                       \par
+? what about legacy enum types? Actually, only a lineage's most current enums may be stored (exist!)\par
+? what about the pending enums in the TypeHandlerManager from TypeHandler creation?                 \par
+  does that make the dictionary check unnecessary because there is a handler for every              \par
+  dictionary entry, anyway?                                                                         \par
+- is that a fluid transition to LTM-handling enum constants?                                        \par
+\par
+\par
+Jetzt noch EmbeddedStorageFoundation#createEmbeddedStorageManager bissl anpassen.\par
+Lustige StorageTypeDictionary No-Op Methode kommentieren und auskommentieren.\par
+\par
+Testen.\par
+\par
+Ach, ich Depp. Das war ja keine No-op, sondern das Method Chaining war ja anders gemacht und wenn ich das umbau, dann \'e4nder ich das Subjekt f\'fcr den Methodenaufruf.\par
+Wobei das umbauen trotzdem besser ist, aber dann muss ich die Aufrufe entspechend anpassen.\par
+Testen.\par
+Passt.\par
+\par
+Roots synchen sieht auch gut aus.\par
+Oh, aber beim application root speichern wirft das PersistenceTypeHandlerManager#checkForPendingRootInstances eine enum validation Exception.\par
+Untersuchen ...\par
+\par
+Ach lol: da stand getClass() anstatt type().\par
+Fixen. Testen.\par
+\par
+Ahja. Geht.\par
+\par
+\'c4h, okay. Dann w\'e4re das enum handling - zumindest ohne LTM - jetzt endlich fertig.\par
+Puuuh. Wie viel Detailkomplexit\'e4t und Arbeit es machen kann, ein paar JVM-generierte Instanzen wieder richtig zu verkabeln ...\par
+\par
+Mal noch nach priv#23 suchen.\par
+Hm. Sind nur noch die 2 f\'fcr die debug-ausgabe und einer f\'fcr das pending zeug checken, das ich aber eh schon mach.\par
+Ich hab doch dutzende von denen geschrieben... haben sich die alle durch das Implementieren wieder erledigt? ... Anscheinend.\par
+Eigentlich ein gutes Zeichen :-).\par
+\par
+Achja: wieder testen mit allen Testenums einkommentiert.\par
+\par
+Ah und tats\'e4chlich noch ein Bug: this.type().getEnumConstants() ist nat\'fcrlich falsch, wenn der type so eine crazy shit AIC enum Klasse ist. Fixen mit declaredEnum XReflect Aufruf.\par
+Haha. Und das zerlegt dann nat\'fcrlich die eigentlich saubere Generics Typisierung ... Also wieder rumcasten und kommentieren.\par
+Testen.\par
+Passt.\par
+\par
+Committen.\par
+\par
+\par
 }
  

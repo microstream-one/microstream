@@ -72,7 +72,9 @@ public interface PersistenceTypeDictionaryView extends PersistenceTypeDictionary
 	}
 
 	@Override
-	public default void setTypeDescriptionRegistrationObserver(final PersistenceTypeDefinitionRegistrationObserver observer)
+	public default PersistenceTypeDictionary setTypeDescriptionRegistrationObserver(
+		final PersistenceTypeDefinitionRegistrationObserver observer
+	)
 	{
 		throw new UnsupportedOperationException();
 	}

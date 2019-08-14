@@ -38,7 +38,12 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 
 	public void validate(PersistenceTypeDictionary typeDictionary);
 	
-	public <D extends PersistenceTypeDictionary> D initialize(D typeDictionary);
+	public StorageTypeDictionary initialize(PersistenceTypeDictionary typeDictionary);
+	
+	@Override
+	public StorageTypeDictionary setTypeDescriptionRegistrationObserver(
+		PersistenceTypeDefinitionRegistrationObserver observer
+	);
 
 
 
@@ -224,7 +229,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 		}
 
 		@Override
-		public final void setTypeDescriptionRegistrationObserver(
+		public final StorageTypeDictionary setTypeDescriptionRegistrationObserver(
 			final PersistenceTypeDefinitionRegistrationObserver observer
 		)
 		{
@@ -236,6 +241,8 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 					"Inconsistent " + PersistenceTypeDefinitionRegistrationObserver.class.getSimpleName()
 				);
 			}
+			
+			return this;
 		}
 
 		@Override
@@ -246,7 +253,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 
 
 		@Override
-		public <D extends PersistenceTypeDictionary> D initialize(final D typeDictionary)
+		public StorageTypeDictionary initialize(final PersistenceTypeDictionary typeDictionary)
 		{
 			synchronized(this.registry)
 			{
@@ -255,10 +262,11 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 					// ensure idempotency just in case some architecture triggers multiple calls
 					if(this.dictionary == typeDictionary)
 					{
-						return typeDictionary;
+						return this;
 					}
+					
 					// (06.12.2014)EXCP: proper exception
-					throw new RuntimeException("type dictionary already initialized.");
+					throw new RuntimeException("Type dictionary already initialized.");
 				}
 				
 				for(final PersistenceTypeDefinition td : typeDictionary.allTypeDefinitions().values())
@@ -267,7 +275,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 				}
 				this.dictionary = typeDictionary;
 				
-				return typeDictionary;
+				return this;
 			}
 		}
 

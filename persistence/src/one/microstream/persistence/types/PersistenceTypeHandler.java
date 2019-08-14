@@ -114,6 +114,12 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		return true;
 	}
 	
+	public default Object[] collectEnumConstants()
+	{
+		// (14.08.2019 TM)EXCP: proper exception
+		throw new UnsupportedOperationException();
+	}
+	
 	
 	
 	public abstract class Abstract<M, T> implements PersistenceTypeHandler<M, T>

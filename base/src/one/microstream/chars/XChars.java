@@ -1,6 +1,5 @@
 package one.microstream.chars;
 
-import static java.lang.Character.isDigit;
 import static java.lang.Character.isLowerCase;
 import static java.lang.Character.isUpperCase;
 import static java.lang.Character.toUpperCase;
@@ -16,6 +15,7 @@ import one.microstream.branching.ThrowBreak;
 import one.microstream.bytes.VarByte;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.exceptions.NumberRangeException;
+import one.microstream.functional._charPredicate;
 import one.microstream.functional._charProcedure;
 import one.microstream.memory.XMemory;
 import one.microstream.typing.XTypes;
@@ -2505,6 +2505,35 @@ public final class XChars
 			? object.toString()
 			: XChars.systemString(object)
 		);
+	}
+	
+	public static final boolean applies(final CharSequence chars, final _charPredicate predicate)
+	{
+		return applies(chars, 0, predicate);
+	}
+	
+	public static final boolean applies(
+		final CharSequence   chars     ,
+		final int            startIndex,
+		final _charPredicate predicate
+	)
+	{
+		final int length = chars.length();
+		
+		for(int i = startIndex; i < length; i++)
+		{
+			if(!predicate.test(chars.charAt(i)))
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	public static boolean isDigit(final char c)
+	{
+		return c >= '0' && c <= '9';
 	}
 		
 

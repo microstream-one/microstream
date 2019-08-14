@@ -65,14 +65,14 @@ public class MainTestStoreEnum
 	static Object[] createGraph()
 	{
 		return X.array(
-//			SimpleEnum.TypeA,
-//			SimpleEnum.TypeB,
-//			SimpleEnum.TypeC,
-//			CrazyEnum.ShouldWorkNormal,
-//			CrazyEnum.ShouldWorkSpecial,
-//			CrazyEnumSpecialState.SpecialState,
-//			CrazyEnumSpecialState.Normal2,
-//			CrazyEnumSpecialState.Normal3,
+			SimpleEnum.TypeA,
+			SimpleEnum.TypeB,
+			SimpleEnum.TypeC,
+			CrazyEnum.ShouldWorkNormal,
+			CrazyEnum.ShouldWorkSpecial,
+			CrazyEnumSpecialState.SpecialState,
+			CrazyEnumSpecialState.Normal2,
+			CrazyEnumSpecialState.Normal3,
 			StatefulEnum.Type1,
 			StatefulEnum.Type2,
 			StatefulEnum.Type3

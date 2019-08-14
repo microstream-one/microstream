@@ -13,6 +13,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerReflective;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
@@ -242,13 +243,37 @@ public final class BinaryHandlerEnum<T extends Enum<T>> extends AbstractBinaryHa
 	}
 	
 	@Override
+	public Object[] collectEnumConstants()
+	{
+		// legacy type handlers return null here to indicate their root entry is obsolete
+		return Persistence.collectEnumConstants(this);
+	}
+	
+	@Override
 	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		final T[] jvmEnumConstants  = this.type().getEnumConstants();
-		final int persistentOrdinal = this.getOrdinal(bytes);
+		// Class detour required for AIC-like special subclass enums constants.
+		final Object[] jvmEnumConstants = XReflect.getDeclaredEnumClass(this.type()).getEnumConstants();
+		final int persistentOrdinal     = this.getOrdinal(bytes);
 		
-		// can't validate here since the name String instance might not have been created, yet. See #update.
-		return jvmEnumConstants[persistentOrdinal];
+		/*
+		 * Can't validate here since the name String instance might not have been created, yet. See #update.
+		 * Nevertheless:
+		 * - the enum constants storing order must be assumed to be consistent with the type dictionary constants names.
+		 * - the type dictionary constants names are validated against the current runtime type.
+		 * These two aspects in combination ensure that the correct enum constant instance is selected.
+		 * 
+		 * Mismatches between persistent form and runtime type must be handled via a LegacyTypeHandler, not here.
+		 */
+		
+		/*
+		 * Required for AIC-like special subclass enums constants:
+		 * The instance is actually of type T, but it is stored in a "? super T" array of it parent enum type.
+		 */
+		@SuppressWarnings("unchecked")
+		final T enumConstantinstance = (T)jvmEnumConstants[persistentOrdinal];
+		
+		return enumConstantinstance;
 	}
 	
 	public int getOrdinal(final Binary bytes)

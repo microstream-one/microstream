@@ -18,7 +18,6 @@ import one.microstream.java.util.BinaryHandlerGenericList;
 import one.microstream.java.util.BinaryHandlerGenericMap;
 import one.microstream.java.util.BinaryHandlerGenericQueue;
 import one.microstream.java.util.BinaryHandlerGenericSet;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.internal.BinaryHandlerAbstractType;
 import one.microstream.persistence.binary.internal.BinaryHandlerGenericType;
 import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
@@ -259,10 +258,6 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final XGettingEnum<Field> persistableFields
 		)
 		{
-			// (01.08.2019 TM)FIXME: priv#23: must deploy as generic handler until special casing is completed.
-			XDebug.println("enum handling testing " + type.getName());
-//			return this.createTypeHandlerGeneric(type, persistableFields);
-			
 			return this.createEnumHandler(type, persistableFields);
 		}
 

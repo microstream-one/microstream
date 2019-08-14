@@ -9,8 +9,8 @@ import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceRefactoringMappingProvider;
 import one.microstream.persistence.types.PersistenceRootResolver;
-import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceRootsProvider;
+import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
 import one.microstream.persistence.types.PersistenceTypeManager;
@@ -529,21 +529,26 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			// the registered supplier callback leads back to this class' createStorageManager method
 			final StorageManager stm = ecf.getStorageManager();
 			
-			// type storage dictionary updating moved here as well to keep all nasty parts at one place ^^.
-			final StorageTypeDictionary std = stm.typeDictionary();
-			std
-			.initialize(ecf.getTypeDictionaryProvider().provideTypeDictionary())
-			.setTypeDescriptionRegistrationObserver(std)
-			;
+			initializeTypeDictionary(stm, ecf);
 
 			// resolve root types to root type ids after types have been initialized
 			this.initializeEmbeddedStorageRootTypeIdProvider(this.getRootTypeIdProvider(), thm);
-
-			// the roots instance to be used
-			final PersistenceRoots roots = prp.provideRoots();
 				
 			// everything bundled together in the actual manager instance
-			return EmbeddedStorageManager.New(stm.configuration(), ecf, roots);
+			return EmbeddedStorageManager.New(stm.configuration(), ecf, prp);
+		}
+		
+		private static void initializeTypeDictionary(
+			final StorageManager                         stm,
+			final EmbeddedStorageConnectionFoundation<?> ecf
+		)
+		{
+			final StorageTypeDictionary     std = stm.typeDictionary();
+			final PersistenceTypeDictionary ptd = ecf.getTypeDictionaryProvider().provideTypeDictionary();
+			
+			// The two level's dictionary instances are a little intertwined (as they must be)
+			std.initialize(ptd);
+			ptd.setTypeDescriptionRegistrationObserver(std);
 		}
 
 	}
