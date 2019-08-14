@@ -25,7 +25,7 @@ public interface StringTable
 {
 
 	/**
-	 * An arbitrary name identifying this table instance, potentially <code>null</code>.
+	 * An arbitrary name identifying this table instance, potentially {@code null}.
 	 *
 	 * @return this table's name.
 	 */

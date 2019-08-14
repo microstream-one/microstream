@@ -3,10 +3,10 @@ package eclipseSyntaxColoringFixed;
 // syntax color compendium class
 
 /**
- * Description of <code>ClassName</code>.
+ * Description of {@code ClassName}.
  * {@link com.someCompany.aPackage.Interface}
  * @author author
- * @deprecated use <code>OtherClass</code>
+ * @deprecated use {@code OtherClass}
  */
 @Deprecated
 public abstract class ClassName<E> extends SomeClass implements SomeInterface<String>

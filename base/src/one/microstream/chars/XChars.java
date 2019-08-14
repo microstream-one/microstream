@@ -1891,9 +1891,9 @@ public final class XChars
 	 * <blockquote><pre>
 	 * s[0]*31^(n - 1) + s[1]*31^(n-2) + ... + s[n - 1]
 	 * </pre></blockquote>
-	 * using <code>int</code> arithmetic, where <code>s[i]</code> is the
-	 * <i>i</i>th character counted from the given offset, <code>n</code> is the length
-	 * and <code>^</code> indicates exponentiation.
+	 * using {@code int} arithmetic, where {@code s[i]} is the
+	 * <i>i</i>th character counted from the given offset, {@code n} is the length
+	 * and {@code ^} indicates exponentiation.
 	 * The hash value of an empty range is zero.
 	 *
 	 * @see String#hashCode()
@@ -2020,11 +2020,11 @@ public final class XChars
 	
 	
 	/**
-	 * Calls {@link String#trim()} on a non-null argument, returns <code>null</code> otherwise.
+	 * Calls {@link String#trim()} on a non-null argument, returns {@code null} otherwise.
 	 * (this is nothing but a static {@link String#trim()})
 	 * 
-	 * @param s the {@link String} instance to be trimmed, potentially <code>null</code>.
-	 * @return a potentially <code>null</code> trimmed {@link String} instance.
+	 * @param s the {@link String} instance to be trimmed, potentially {@code null}.
+	 * @return a potentially {@code null} trimmed {@link String} instance.
 	 */
 	public static String trim(final String s)
 	{

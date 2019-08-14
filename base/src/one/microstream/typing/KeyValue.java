@@ -40,7 +40,7 @@ public interface KeyValue<K, V>
 		}
 
 		/**
-		 * @return a String of pattern <code>[<i>key</i> -> <i>value</i>]</code>
+		 * @return a String of pattern {@code [<i>key</i> -> <i>value</i>]}
 		 */
 		@Override
 		public String toString()

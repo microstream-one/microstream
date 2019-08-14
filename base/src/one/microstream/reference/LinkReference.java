@@ -18,27 +18,27 @@ public interface LinkReference<T> extends LinkingReference<T>
 	public LinkReference<T> next();
 
 	/**
-	 * Sets <code>linkedReference</code> as this <code>LinkedReference</code> object's
-	 * linked <code>LinkedReference</code> object.
+	 * Sets {@code linkedReference} as this {@code LinkedReference} object's
+	 * linked {@code LinkedReference} object.
 	 * <p>
-	 * Note that the so far linked <code>LinkedReference</code> object is returned, not this object itself!
+	 * Note that the so far linked {@code LinkedReference} object is returned, not this object itself!
 	 * @param linkedReference
 	 */
 	public LinkReference<T> setNext(LinkReference<T> linkedReference);
 
 
 	/**
-	 * Sets <code>linkedReference</code> as this <code>LinkedReference</code> object's
-	 * linked <code>LinkedReference</code> object.
+	 * Sets {@code linkedReference} as this {@code LinkedReference} object's
+	 * linked {@code LinkedReference} object.
 	 * <p>
 	 * Note that the reference is returned, not this object itself!
 	 * @param linkedReference
-	 * @return the linked <code>LinkedReference</code> object (NOT this!)
+	 * @return the linked {@code LinkedReference} object (NOT this!)
 	 */
 	public LinkReference<T> link(LinkReference<T> linkedReference);
 
 	/**
-	 * Alias for <code>link(new LinkedReference(nextRef))</code>.
+	 * Alias for {@code link(new LinkedReference(nextRef))}.
 	 * @param nextRef
 	 */
 	public LinkReference<T> link(T nextRef);
@@ -147,7 +147,7 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 		/**
 		 * @param linkedReference
-		 * @throws NullPointerException if <code>linkedReference</code> is {@code null}.
+		 * @throws NullPointerException if {@code linkedReference} is {@code null}.
 		 */
 		@Override
 		public LinkReference<T> insert(final LinkReference<T> linkedReference)

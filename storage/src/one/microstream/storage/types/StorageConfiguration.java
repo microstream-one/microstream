@@ -26,7 +26,7 @@ public interface StorageConfiguration
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageConfiguration} instance
-	 * using <code>null</code> as the {@link StorageBackupSetup} part and default instances for everything else.
+	 * using {@code null} as the {@link StorageBackupSetup} part and default instances for everything else.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
 	 * 
@@ -44,7 +44,7 @@ public interface StorageConfiguration
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageConfiguration} instance
-	 * using the passed {@link StorageFileProvider}, <code>null</code> as the {@link StorageBackupSetup} part
+	 * using the passed {@link StorageFileProvider}, {@code null} as the {@link StorageBackupSetup} part
 	 * and default instances for everything else.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.

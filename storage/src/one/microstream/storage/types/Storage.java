@@ -12,11 +12,6 @@ import one.microstream.persistence.types.Persistence;
  * <p>
  * To setup and start a database, see the class "EmbeddedStorage".
  * 
- * see {@link StorageChannel}
- * <p>
- * this is {@literal true}<br>
- * this is {@value #ONE_MILLION}
- * 
  * 
  * @author TM
  * @see Persistence
@@ -302,7 +297,7 @@ public final class Storage
 	/**
 	 * {@linkDoc StorageChannelCountProvider#New(int)}
 	 * 
-	 * @param {@linkDoc StorageChannelCountProvider#New(int):}
+	 * @param channelCount {@linkDoc StorageChannelCountProvider#New(int):}
 	 * 
 	 * @return {@linkDoc StorageChannelCountProvider#New(int)@return}
 	 */

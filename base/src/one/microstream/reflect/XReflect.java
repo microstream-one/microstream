@@ -593,12 +593,12 @@ public final class XReflect
 	
 	/**
 	 * Calls {@link #resolveType(String)}, but suppresses any {@link ClassNotFoundException} and returns
-	 * <code>null</code> instead. This is useful if the passed class name is only potentially resolvable
+	 * {@code null} instead. This is useful if the passed class name is only potentially resolvable
 	 * at runtime and is still valid if not. Example: resolving a old type dictionary as far as possible
 	 * and marking the not resolvable types as unresolvable.
 	 * 
 	 * @param className
-	 * @return the {@link Class} instance representing the passed class name or <code>null</code> if unresolevable.
+	 * @return the {@link Class} instance representing the passed class name or {@code null} if unresolevable.
 	 */
 	public static final Class<?> tryResolveType(final String className)
 	{

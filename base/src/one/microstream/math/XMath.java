@@ -50,23 +50,23 @@ public final class XMath
 	}
 
 	/**
-	 * This method is an int version of <code>Math.pow(double, double)</code>,
+	 * This method is an int version of {@code Math.pow(double, double)},
 	 * using only integer iteration for calculation.
 	 * <p>
 	 * As a rule of thumb:<br>
-	 * It is faster for <code>exponent</code> < 250 (significantly faster for exponents < 100)
-	 * and slower for <code>exponent</code> >= 250 (significantly slower for exponents >= 500).<br>
+	 * It is faster for {@code exponent} < 250 (significantly faster for exponents < 100)
+	 * and slower for {@code exponent} >= 250 (significantly slower for exponents >= 500).<br>
 	 * This may depend on the concrete system running the program, of course.
 	 * <br>
-	 * Note that <code>exponent</code> may not be negative, otherwise an <code>IllegalArgumentException</code> is
+	 * Note that {@code exponent} may not be negative, otherwise an {@code IllegalArgumentException} is
 	 * thrown.
 	 *
 	 * (Why is there no Math.pow(int, int) in JDK ?)
 	 *
 	 * @param base
 	 * @param exponent my not be negative
-	 * @return <code>base^exponent</code>
-	 * @throws IllegalArgumentException if <code>exponent</code> is negative
+	 * @return {@code base^exponent}
+	 * @throws IllegalArgumentException if {@code exponent} is negative
 	 */
 	public static final int pow(final int base, final int exponent) throws IllegalArgumentException
 	{
@@ -245,7 +245,7 @@ public final class XMath
 	/**
 	 * Determines if the passed value is a power-of-2 value.
 	 * @param value
-	 * @return {@code true} for any n in [1;30] that fulfills <code>value = 2^n</code>
+	 * @return {@code true} for any n in [1;30] that fulfills {@code value = 2^n}
 	 */
 	public static final boolean isPow2(final int value)
 	{
@@ -351,7 +351,7 @@ public final class XMath
 	 * stringLength(-2147483648) = 11
 	 * </pre></code>
 	 *
-	 * @param value the <code>int</code> value whose string length shall be calculated
+	 * @param value the {@code int} value whose string length shall be calculated
 	 * @return the length the passed value's string representation will require.
 	 */
 	public static final int stringLength(final int value)
@@ -551,18 +551,18 @@ public final class XMath
 	}
 
 	/**
-	 * Rounds <code>value</code> to the actual closest value for <code>decimals</code> decimals.<br>
+	 * Rounds {@code value} to the actual closest value for {@code decimals} decimals.<br>
 	 * This is useful as well in order to "normalize" values if multiple subsequent calulations with double values
 	 * accumulate rounding errors that drift the value away from the value it actually should (could) be.<br>
 	 * See the "candy" example in Joshua Bloch's "Effective Java": this method fixes the problem.
 	 * <p>
-	 * Note that <code>decimals</code> may not be negative.<br>
-	 * Also note that while a value of 0 for <code>decimals</code> will yield the correct result, it makes not much
+	 * Note that {@code decimals} may not be negative.<br>
+	 * Also note that while a value of 0 for {@code decimals} will yield the correct result, it makes not much
 	 * sense to call this method for it in the first place.
 	 *
 	 * @param value any double value
 	 * @param decimals the number of decimals. May not be negative.
-	 * @return the normalized value for <code>value</code>
+	 * @return the normalized value for {@code value}
 	 */
 	// (23.08.2010 TM)FIXME: Negative values?
 	public static final double round(final double value, final int decimals)
@@ -1096,8 +1096,8 @@ public final class XMath
 	}
 
 	/**
-	 * Use <code>factorial(long)</code> for n in [0;20].<br>
-	 * Use <code>factorial(BigInteger)</code> for any n > 0.
+	 * Use {@code factorial(long)} for n in [0;20].<br>
+	 * Use {@code factorial(BigInteger)} for any n > 0.
 	 * @param n natural number in [0;12]
 	 * @return n!
 	 * @throws IllegalArgumentException for n < 0 or n > 12
@@ -1132,7 +1132,7 @@ public final class XMath
 	}
 
 	/**
-	 * Use <code>factorial(BigInteger)</code> for any n > 0.
+	 * Use {@code factorial(BigInteger)} for any n > 0.
 	 *
 	 * @param n natural number in [0;20]
 	 * @return n!
@@ -1215,9 +1215,9 @@ public final class XMath
 	}
 
 	/**
-	 * Alias for <code>BigInteger.valueOf(value)</code>
+	 * Alias for {@code BigInteger.valueOf(value)}
 	 * @param value any value
-	 * @return a <code>BigInteger</code> representing <code>value</code>
+	 * @return a {@code BigInteger} representing {@code value}
 	 */
 	public static final BigInteger bigInt(final int value)
 	{
@@ -1225,9 +1225,9 @@ public final class XMath
 	}
 
 	/**
-	 * Alias for <code>BigInteger.valueOf(value)</code>
+	 * Alias for {@code BigInteger.valueOf(value)}
 	 * @param value any value
-	 * @return a <code>BigInteger</code> representing <code>value</code>
+	 * @return a {@code BigInteger} representing {@code value}
 	 */
 	public static final BigInteger bigInt(final long value)
 	{
@@ -1235,9 +1235,9 @@ public final class XMath
 	}
 
 	/**
-	 * Alias for <code>BigDecimal.valueOf(value)</code>
+	 * Alias for {@code BigDecimal.valueOf(value)}
 	 * @param value any value
-	 * @return a <code>BigDecimal</code> representing <code>value</code>
+	 * @return a {@code BigDecimal} representing {@code value}
 	 */
 	public static final BigDecimal bigDec(final long value)
 	{
@@ -1245,9 +1245,9 @@ public final class XMath
 	}
 
 	/**
-	 * Alias for <code>BigDecimal.valueOf(value)</code>
+	 * Alias for {@code BigDecimal.valueOf(value)}
 	 * @param value any value
-	 * @return a <code>BigDecimal</code> representing <code>value</code>
+	 * @return a {@code BigDecimal} representing {@code value}
 	 */
 	public static final BigDecimal bigDec(final double value)
 	{

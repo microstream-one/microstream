@@ -19,7 +19,7 @@ public class Matrix<T>
 	///////////////////
 
 	/**
-	 * Validates if <code>array</code> is a well-formed array in terms of a matrix.
+	 * Validates if {@code array} is a well-formed array in terms of a matrix.
 	 * <p>
 	 * Well-formed arrays meet the following criteria:<br>
 	 * - Both dimensions have a size greater than 0.<br>

@@ -112,8 +112,8 @@ public class LoggingAspect
 	/**
 	 * Instantiates a new logging aspect.
 	 *
-	 * @param logger the logger to which <code>defaultLevel</code> will be associated. My not be null.
-	 * @param defaultLevel the default level for <code>logger</code>. My not be null.
+	 * @param logger the logger to which {@code defaultLevel} will be associated. My not be null.
+	 * @param defaultLevel the default level for {@code logger}. My not be null.
 	 */
 	public LoggingAspect(final Logger logger, final Level defaultLevel)
 	{
@@ -124,8 +124,8 @@ public class LoggingAspect
 	/**
 	 * Instantiates a new logging aspect.
 	 *
-	 * @param logger the logger to which <code>defaultLevel</code> will be associated.
-	 * @param defaultLevel the default level for <code>logger</code>. My not be null.
+	 * @param logger the logger to which {@code defaultLevel} will be associated.
+	 * @param defaultLevel the default level for {@code logger}. My not be null.
 	 * @param caller the caller
 	 */
 	public LoggingAspect(final Logger logger, final Level defaultLevel, final Class<?> caller)
