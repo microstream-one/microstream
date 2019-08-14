@@ -263,13 +263,13 @@ public final class OldCollections
 	}
 
 	/**
-	 * Reduces <code>collection</code> by all elements that meet <code>reductionPredicate</code>.<br>
+	 * Reduces {@code collection} by all elements that meet {@code reductionPredicate}.<br>
 	 * Note that NO new collection instance is created but the collection itself is reduced.
 	 *
 	 * @param <T>
 	 * @param collection the collection to be reduced
 	 * @param reductionPredicate the predicate determining which elements shall be removed
-	 * @return <code>collection</code> itself
+	 * @return {@code collection} itself
 	 */
 	public static <C extends Collection<T>, T> C reduce(final C collection, final Predicate<? super T> reductionPredicate)
 	{
@@ -425,12 +425,12 @@ public final class OldCollections
 	}
 
 	/**
-	 * Alias for the annoying <code>collection.toArray((T[])Array.newInstance(elementType, collection.size()))</code>
+	 * Alias for the annoying {@code collection.toArray((T[])Array.newInstance(elementType, collection.size()))}
 	 *
 	 * @param <T> the element type parameter of the list
 	 * @param collection the collection whose elements shall be copied to an array
-	 * @param elementType the type of the elements contained in <code>collection</code>.
-	 * @return a new array object of type <T> containing all elements of <code>collection</code>.
+	 * @param elementType the type of the elements contained in {@code collection}.
+	 * @return a new array object of type <T> containing all elements of {@code collection}.
 	 */
 	public static final <T> T[] toArray(final Collection<? extends T> collection, final Class<T> elementType)
 	{
@@ -473,7 +473,7 @@ public final class OldCollections
 	}
 
 	/**
-	 * Convenience method for <code>new ArrayList<E>(xCollection)</code>.
+	 * Convenience method for {@code new ArrayList<E>(xCollection)}.
 	 * <p>
 	 *
 	 * @param <E> the collection element type.

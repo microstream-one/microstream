@@ -20,12 +20,12 @@ public interface PersistenceMetaIdentifiers
 	 * Identifiers cannot have whitespaces at the end or the beginning.
 	 * A string that only consists of whitespaces is considered no identifier at all.
 	 * 
-	 * Note that for strings that don't have bordering whitespaces or are already <code>null</code>,
+	 * Note that for strings that don't have bordering whitespaces or are already {@code null},
 	 * this method takes very little time and does not allocate any new instances. Only
 	 * the problematic case is any mentionable effort.
 	 * 
 	 * @param s the raw string to be normalized.
-	 * @return the normalized string, potentially <code>null</code>.
+	 * @return the normalized string, potentially {@code null}.
 	 */
 	public static String normalizeIdentifier(final String s)
 	{

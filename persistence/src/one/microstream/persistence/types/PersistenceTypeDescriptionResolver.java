@@ -17,7 +17,7 @@ public interface PersistenceTypeDescriptionResolver extends PersistenceTypeResol
 	/**
 	 * Returns a key-value pair with the passed source identifier as the key and a mapped target identifier
 	 * as the value. The value can be potentially null to indicate deletion.
-	 * If the lookup did not yield any result, <code>null</code> is returned.
+	 * If the lookup did not yield any result, {@code null} is returned.
 	 * 
 	 * @param sourceIdentifier
 	 */
@@ -56,7 +56,7 @@ public interface PersistenceTypeDescriptionResolver extends PersistenceTypeResol
 	/**
 	 * Returns a key-value pair with the passed source member as the key and a mapped target member
 	 * as the value. The value can be potentially null to indicate deletion.
-	 * If the lookup did not yield any result, <code>null</code> is returned.
+	 * If the lookup did not yield any result, {@code null} is returned.
 	 * 
 	 * @param sourceType
 	 * @param sourceMember

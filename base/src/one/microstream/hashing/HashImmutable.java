@@ -29,8 +29,8 @@ public interface HashImmutable
 	 * used.
 	 *
 	 * @param  other the reference object with which to compare.
-	 * @return <code>true</code> if this object can be treated as the <i>same</i> as <tt>other</tt>,
-	 *         <code>false</code> otherwise.
+	 * @return {@code true} if this object can be treated as the <i>same</i> as <tt>other</tt>,
+	 *         {@code false} otherwise.
 	 * @see    #hashCode()
 	 */
 	@Override

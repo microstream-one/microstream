@@ -66,7 +66,7 @@ public class UtilStorageCsvExport
 	 * 
 	 * @param storage Die zu exportierende Datenbank.
 	 * @param targetDirectory Das Zielverzeichnis für die CSV-Dateien.
-	 * @param exportTypeFilter Eine beliebige Filterlogik für in der Datenbank vorhandene Typen. Kann <code>null</code> sein.
+	 * @param exportTypeFilter Eine beliebige Filterlogik für in der Datenbank vorhandene Typen. Kann {@code null} sein.
 	 * @return Die Statistik der OGS Binary Export Funktion, siehe {@link StorageEntityTypeExportStatistics}.
 	 * @see UtilStorageCsvExport#exportCsv(EmbeddedStorageManager, File)
 	 */

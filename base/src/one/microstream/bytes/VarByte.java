@@ -95,7 +95,7 @@ public final class VarByte implements Externalizable
 	 * Use this constructor only if really a specific size is needed or of the text to be handled is really big.<br>
 	 * Otherwise, use the factory methods as they are faster due to skipping capacity checks and bounds adjustment.<br>
 	 * <p>
-	 * Note that the given <code>initialCapacity</code> will still be adjusted to the next higher 2^n bounding value.
+	 * Note that the given {@code initialCapacity} will still be adjusted to the next higher 2^n bounding value.
 	 * @param initialCapacity
 	 */
 	public static VarByte New(final int initialCapacity)
@@ -767,7 +767,7 @@ public final class VarByte implements Externalizable
 	/**
 	 *
 	 * @param varByte
-	 * @return {@code true} if <code>varByte</code> is either {@code null} or empty.
+	 * @return {@code true} if {@code varByte} is either {@code null} or empty.
 	 * @see VarByte#isEmpty()
 	 */
 	public static final boolean hasNoContent(final VarByte varByte)

@@ -137,8 +137,8 @@ public final class X
 	 * Helper method to project ternary values to binary logic.<br>
 	 * Useful for checking "really true" (not false and not unknown).
 	 *
-	 * @param b a <code>Boolean</code> object.<br>
-	 * @return <tt>false</tt> if <code>b</code> is {@code null} or <tt>false</tt>
+	 * @param b a {@code Boolean} object.<br>
+	 * @return <tt>false</tt> if {@code b} is {@code null} or <tt>false</tt>
 	 */
 	public static final boolean isTrue(final Boolean b)
 	{
@@ -149,8 +149,8 @@ public final class X
 	 * Helper method to project ternary values to binary logic.<br>
 	 * Useful for checking "really false" (not true and not unknown).
 	 *
-	 * @param b a <code>Boolean</code> object.
-	 * @return <tt>false</tt> if <code>b</code> is {@code null} or {@code true}, otherwise {@code true}
+	 * @param b a {@code Boolean} object.
+	 * @return <tt>false</tt> if {@code b} is {@code null} or {@code true}, otherwise {@code true}
 	 */
 	public static final boolean isFalse(final Boolean b)
 	{
@@ -161,8 +161,8 @@ public final class X
 	 * Helper method to project ternary values to binary logic.<br>
 	 * Useful for checking "really not true" (either false or unknown).
 	 *
-	 * @param b a <code>Boolean</code> object.
-	 * @return {@code true} if <code>b</code> is {@code null} or <tt>false</tt>, otherwise <tt>false</tt>
+	 * @param b a {@code Boolean} object.
+	 * @return {@code true} if {@code b} is {@code null} or <tt>false</tt>, otherwise <tt>false</tt>
 	 */
 	public static final boolean isNotTrue(final Boolean b)
 	{
@@ -173,8 +173,8 @@ public final class X
 	 * Helper method to project ternary values to binary logic.<br>
 	 * Useful for checking "really not false" (either true or unknown).
 	 *
-	 * @param b a <code>Boolean</code> object.
-	 * @return {@code true} if <code>b</code> is {@code null} or {@code true}, otherwise <tt>false</tt>
+	 * @param b a {@code Boolean} object.
+	 * @return {@code true} if {@code b} is {@code null} or {@code true}, otherwise <tt>false</tt>
 	 */
 	public static final boolean isNotFalse(final Boolean b)
 	{
@@ -668,8 +668,8 @@ public final class X
 	}
 	
 	/**
-	 * Utility method to create a list of integers from 1 to the passed {@literl n} value.
-	 * Useful for executing a logic via {@link XList#iterate(Consumer)} exactely {@literl n} times.
+	 * Utility method to create a list of integers from 1 to the passed {@code n} value.
+	 * Useful for executing a logic via {@link XList#iterate(Consumer)} exactely {@code n} times.
 	 * 
 	 * @param n
 	 */
@@ -685,7 +685,7 @@ public final class X
 	}
 	
 	/**
-	 * Utility method to create a list of integers from {@literl firstValue} to {@literl lastValue}.
+	 * Utility method to create a list of integers from {@code firstValue} to {@code lastValue}.
 	 * 
 	 * @param firstValue
 	 * @param lastValue
@@ -1060,7 +1060,7 @@ public final class X
 	/**
 	 * As usual, the JDK developers fail to create smoothly usable methods, so one has to clean up after them.<br>
 	 * Usage:<br>
-	 * <code>throw addSuppressed(new SomethingIsWrongException(), e);</code>
+	 * {@code throw addSuppressed(new SomethingIsWrongException(), e);}
 	 */
 	public static final <T extends Throwable> T addSuppressed(final T throwable, final Throwable suppressed)
 	{
