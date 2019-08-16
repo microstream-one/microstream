@@ -993,5 +993,32 @@ Bisher ca. 11.000 W\'f6rter bzw. knapp 70.000 Zeichen an Design\'fcberlegungen v
 \par
 Also Schritt 1 ist erst mal, was oben schon mehrfach rot markiert steht:\par
 Der Typabgleich muss Enum Felder ber\'fccksichtigen, damit auff\'e4llt, wenn sich enum Konstanten \'e4ndern.\par
+\par
+\par
+2019-08-15\par
+\par
+Feiertag\par
+\par
+\par
+2019-08-16\par
+\par
+Idee von daheim:\par
+Ist teils schon LTM, teils sollte das vorher noch gel\'f6st werden:\par
+Der java.util.Comparators$NaturalOrderComparator braucht ja nun eine Migrationsl\'f6sung.\par
+Aber eigentlich sollte das ganz einach sein:\par
+- enum constant member im type dictionary per hand nachtragen\par
+- custom enum handler registrieren, der keine Felder definiert.\par
+- im create einfach die konstante zur\'fcckgeben\par
+- im update nix machen\par
+Fertig.\par
+\par
+Das ist trivial zu programmieren. Allerdings: Es muss daf\'fcr m\'f6glich sein, custom enum type handlers zu definieren. Vom BinaryHandlerEnum ableiten ist viel zu kompliziert aufgrund der vielen Konstruktor Argumente. Mal schauen, wie ich das mach ...\par
+\par
+AbstractBinaryHandlerCustomEnum implementieren.\par
+Und, weil es zu 99% der Normalfall werden d\'fcrfte: AbstractBinaryHandlerCustomEnumStateless.\par
+\par
+Dabei aufgefallen: Sollte das nicht-setzen von final Feldern nicht auch f\'fcr value reference types (typischerweise String) gelten? Schon, oder? Mal so erweitern ...\par
+\par
+\par
 }
  

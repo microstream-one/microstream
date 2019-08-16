@@ -71,7 +71,6 @@ public final class BinaryHandlerLazy extends AbstractBinaryHandlerCustom<Lazy<?>
 
 		if(referent == null)
 		{
-			// (29.09.2015 TM)NOTE: The special casing below is wrong: the lazy instance must be stored in any case.
 			referenceOid = instance.objectId;
 		}
 		else

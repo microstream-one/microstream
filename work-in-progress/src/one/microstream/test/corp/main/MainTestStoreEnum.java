@@ -59,6 +59,8 @@ public class MainTestStoreEnum
 		
 		// no shutdown required, the storage concept is inherently crash-safe
 		System.exit(0);
+		
+		test(CrazyEnumSpecialState.SpecialState.getClass());
 	}
 		
 		
@@ -77,6 +79,12 @@ public class MainTestStoreEnum
 			StatefulEnum.Type2,
 			StatefulEnum.Type3
 		);
+	}
+	
+	
+	static void test(final Class<? extends Enum<?>> enumType)
+	{
+		System.out.println(enumType);
 	}
 		
 	static void printEnums()

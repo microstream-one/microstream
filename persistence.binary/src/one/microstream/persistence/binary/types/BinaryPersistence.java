@@ -3,7 +3,6 @@ package one.microstream.persistence.binary.types;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Optional;
 
 import one.microstream.collections.BinaryHandlerBulkList;
@@ -223,7 +222,8 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerStateless.New(Collections.reverseOrder().getClass()),
 			
 			// changed with support of enums. And must change to keep TypeDictionary etc. consistent
-			typeHandlerCreator.createTypeHandler(Comparator.naturalOrder().getClass()),
+//			typeHandlerCreator.createTypeHandler(Comparator.naturalOrder().getClass()),
+//			BinaryHandlerCustomEnumStateless.New(Comparator.naturalOrder().getClass()),
 //			BinaryHandlerStateless.New(Comparator.naturalOrder().getClass()),
 						
 			// still creepy JDK 1.6 collections

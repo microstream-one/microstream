@@ -164,6 +164,12 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		{
 			return X.ConstList(declaredFields);
 		}
+
+		protected static final String deriveTypeName(final Class<?> type)
+		{
+			// to centralized logic accross child classes
+			return Persistence.derivePersistentTypeName(type);
+		}
 		
 		
 		

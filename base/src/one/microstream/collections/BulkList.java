@@ -131,14 +131,14 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return new BulkList<>(initialElements);
 	}
 
-	public static final <E> BulkList<E> New(final XIterable<E> initialElements)
+	public static final <E> BulkList<E> New(final XIterable<? extends E> initialElements)
 	{
 		final BulkList<E> newInstance = new BulkList<>();
 		initialElements.iterate(newInstance::add);
 		return newInstance;
 	}
 
-	public static final <E> BulkList<E> New(final XGettingCollection<E> initialElements)
+	public static final <E> BulkList<E> New(final XGettingCollection<? extends E> initialElements)
 	{
 		return new BulkList<E>(XTypes.to_int(initialElements.size())).addAll(initialElements);
 	}
