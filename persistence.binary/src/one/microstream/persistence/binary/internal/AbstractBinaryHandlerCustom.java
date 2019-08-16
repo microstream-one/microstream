@@ -219,7 +219,7 @@ extends BinaryTypeHandler.Abstract<T>
 		);
 	}
 
-
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -242,7 +242,7 @@ extends BinaryTypeHandler.Abstract<T>
 		final XGettingSequence<? extends PersistenceTypeDefinitionMember> members
 	)
 	{
-		this(type, type.getName(), members);
+		this(type, deriveTypeName(type), members);
 	}
 	
 	protected AbstractBinaryHandlerCustom(

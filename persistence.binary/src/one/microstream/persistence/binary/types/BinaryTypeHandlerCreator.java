@@ -11,7 +11,6 @@ import java.util.Set;
 
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
-import one.microstream.java.BinaryHandlerEnum;
 import one.microstream.java.lang.BinaryHandlerNativeArrayObject;
 import one.microstream.java.util.BinaryHandlerGenericCollection;
 import one.microstream.java.util.BinaryHandlerGenericList;
@@ -19,6 +18,7 @@ import one.microstream.java.util.BinaryHandlerGenericMap;
 import one.microstream.java.util.BinaryHandlerGenericQueue;
 import one.microstream.java.util.BinaryHandlerGenericSet;
 import one.microstream.persistence.binary.internal.BinaryHandlerAbstractType;
+import one.microstream.persistence.binary.internal.BinaryHandlerGenericEnum;
 import one.microstream.persistence.binary.internal.BinaryHandlerGenericType;
 import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
 import one.microstream.persistence.binary.internal.BinaryHandlerUnpersistable;
@@ -267,7 +267,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final XGettingEnum<Field> persistableFields
 		)
 		{
-			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerEnum.New(
+			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerGenericEnum.New(
 				(Class<E>)type                   ,
 				this.deriveTypeName(type)        ,
 				persistableFields                ,
