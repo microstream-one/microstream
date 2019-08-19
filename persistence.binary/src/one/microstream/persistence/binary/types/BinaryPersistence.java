@@ -3,6 +3,7 @@ package one.microstream.persistence.binary.types;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Optional;
 
 import one.microstream.collections.BinaryHandlerBulkList;
@@ -75,6 +76,7 @@ import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListMap;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListSet;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
+import one.microstream.persistence.binary.internal.BinaryHandlerSingletonStatelessEnum;
 import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.lazy.BinaryHandlerLazy;
@@ -219,12 +221,13 @@ public final class BinaryPersistence extends Persistence
 //			BinaryHandlerStateless.New(Collections.emptyIterator().getClass()),
 //			BinaryHandlerStateless.New(Collections.emptyListIterator().getClass()),
 			
-			BinaryHandlerStateless.New(Collections.reverseOrder().getClass()),
+			BinaryHandlerStateless.New(Collections.reverseOrder().getClass()), // not an enum
 			
 			// changed with support of enums. And must change to keep TypeDictionary etc. consistent
 //			typeHandlerCreator.createTypeHandler(Comparator.naturalOrder().getClass()),
 //			BinaryHandlerCustomEnumStateless.New(Comparator.naturalOrder().getClass()),
 //			BinaryHandlerStateless.New(Comparator.naturalOrder().getClass()),
+			BinaryHandlerSingletonStatelessEnum.New(Comparator.naturalOrder().getClass()),
 						
 			// still creepy JDK 1.6 collections
 			BinaryHandlerArrayDeque.New()           ,

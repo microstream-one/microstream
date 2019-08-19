@@ -895,19 +895,10 @@ public class Persistence
 			return null;
 		}
 	}
-	
-	public static void validateIsEnumType(final PersistenceTypeHandler<?, ?> typeHandler)
-	{
-		if(!XReflect.isEnum(typeHandler.type()))
-		{
-			// (07.08.2019 TM)EXCP: proper exception
-			throw new IllegalArgumentException("Not an enum type: " + typeHandler.type());
-		}
-	}
-	
+			
 	public static String deriveEnumRootIdentifier(final PersistenceTypeHandler<?, ?> typeHandler)
 	{
-		validateIsEnumType(typeHandler);
+		XReflect.validateIsEnum(typeHandler.type());
 		
 		if(typeHandler.typeId() == Persistence.nullId())
 		{
@@ -920,7 +911,7 @@ public class Persistence
 	
 	public static Object[] collectEnumConstants(final PersistenceTypeHandler<?, ?> typeHandler)
 	{
-		validateIsEnumType(typeHandler);
+		XReflect.validateIsEnum(typeHandler.type());
 		
 		final Object[] enumConstants = typeHandler.type().getEnumConstants();
 		

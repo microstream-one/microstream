@@ -6,7 +6,7 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public class BinaryHandlerCustomEnumStateless<T extends Enum<T>> extends AbstractBinaryHandlerCustomEnum<T>
+public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractBinaryHandlerCustomEnum<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -30,12 +30,12 @@ public class BinaryHandlerCustomEnumStateless<T extends Enum<T>> extends Abstrac
 	// constructors //
 	/////////////////
 	
-	protected BinaryHandlerCustomEnumStateless(final Class<T> type)
+	protected BinaryHandlerCustomEnumTrivial(final Class<T> type)
 	{
 		this(type, deriveTypeName(type));
 	}
 	
-	protected BinaryHandlerCustomEnumStateless(
+	protected BinaryHandlerCustomEnumTrivial(
 		final Class<T> type    ,
 		final String   typeName
 	)
