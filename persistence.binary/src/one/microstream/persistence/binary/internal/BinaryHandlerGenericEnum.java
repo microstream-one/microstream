@@ -89,10 +89,13 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		return allMembers.immure();
 	}
 	
-	public static <T extends Enum<T>> XGettingSequence<PersistenceTypeDefinitionMemberEnumConstant> deriveEnumConstantMembers(
-		final Class<T> enumType
+	public static XGettingSequence<PersistenceTypeDefinitionMemberEnumConstant> deriveEnumConstantMembers(
+		final Class<?> enumType
 	)
 	{
+		// can't use generics typing due to broken Object#getClass.
+		XReflect.validateIsEnum(enumType);
+		
 		final BulkList<PersistenceTypeDefinitionMemberEnumConstant> enumConstants = BulkList.New();
 		for(final Field field : enumType.getDeclaredFields())
 		{

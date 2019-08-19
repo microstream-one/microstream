@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import one.microstream.branching.AbstractBranchingThrow;
@@ -1148,6 +1149,33 @@ public final class X
 			new Error("Check failed" + (message == null ? "." : ": " + message)),
 			stackLevels + 1
 		);
+	}
+	
+	// used in WIP validation example. Do not remove. Also generally useful.
+	public static <T> T validate(final T value, final Predicate<? super T> validator)
+		throws IllegalArgumentException
+	{
+		return validate(value, validator, X::illegalArgument);
+	}
+	
+	public static IllegalArgumentException illegalArgument(final Object object)
+	{
+		return UtilStackTrace.cutStacktraceByOne(new IllegalArgumentException());
+	}
+	
+	public static <T, E extends Exception> T validate(
+		final T                      value    ,
+		final Predicate<? super T>   validator,
+		final Function<? super T, E> exceptor
+	)
+		throws E
+	{
+		if(validator.test(value))
+		{
+			return value;
+		}
+		
+		throw exceptor.apply(value);
 	}
 
 	

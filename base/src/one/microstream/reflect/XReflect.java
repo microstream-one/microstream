@@ -199,6 +199,18 @@ public final class XReflect
 		;
 	}
 	
+
+	
+	public static <T> Class<T> validateIsEnum(final Class<T> type)
+	{
+		if(XReflect.isEnum(type))
+		{
+			return type;
+		}
+		// (07.08.2019 TM)EXCP: proper exception
+		throw new IllegalArgumentException("Not an enum type: " + type);
+	}
+	
 	/**
 	 * Alias for {@code iterateDeclaredFieldsUpwards(startingClass, Object.class, logic)}.
 	 * 

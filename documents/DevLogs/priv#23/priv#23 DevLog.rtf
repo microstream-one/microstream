@@ -1019,6 +1019,47 @@ Und, weil es zu 99% der Normalfall werden d\'fcrfte: AbstractBinaryHandlerCustom
 \par
 Dabei aufgefallen: Sollte das nicht-setzen von final Feldern nicht auch f\'fcr value reference types (typischerweise String) gelten? Schon, oder? Mal so erweitern ...\par
 \par
+Und noch was aufgefallen: Die Felder der Enum Klasse an sich \'fcber ihren Namen feststellen ist gef\'e4hrlich, weil es streng genommen JDK-abh\'e4ngig ist. Sollte sich der Name mal \'e4ndern, so unwahrscheinlich es ist, w\'e4re das ein Fehler.\par
+Aber wie dann die beiden Felder identifizieren?\par
+Dass sie final sind und String und int Typen haben, wird sich wahrscheinlich nicht mehr \'e4ndern. Aber so richtig sicher ist das auch nicht. Denn was ist, wenn intern noch ein int oder String Feld dazukommen sollten?\par
+Zumindest verwendet der aktuelle Algorithmus das erste int- bzw. String-Feld, das er findet. Diese beiden sollten mit sehr hoher Wahrscheinlichkeit die richtigen bleiben, selbst bei \'c4nderungen.\par
+\par
+Mal ge\'e4ndert.\par
+Jetzt zur\'fcck zu dem stateless Handler.\par
+Testen.\par
+Sieht gut aus.\par
+\par
+Hm, aber Moment mal:\par
+Es gibt bei Enums ja zwei "Stateless":\par
+- Keine zus\'e4tzlichen Felder, sondern nur ordinal und name\par
+- Und: GAR keine Felder. F\'fcr Abw\'e4rtskompatibilit\'e4t zu fr\'fcher als stateless normale Instanzen gehandelte Enums. Z.B. hab ich genau das leider f\'fcr Comparator.naturalOrder() gemacht.\par
+Also muss noch ein zweiter Handler her.\par
+Bzw. wenn man keine ordinal in der persistent form hat, geht das auch wirklich nur f\'fcr eine einzelne Enum Instanz.\par
+Also bau ich jetzt mehr oder weniger f\'fcr diesen einen ungl\'fccklichen Spezialfall einenextra Migrationshandler.\par
+Aber immerhin:\par
+- es ist zwingend n\'f6tig.\par
+- wer wei\'df, wo er sonst noch einsetzbar sein wird.\par
+Also "BinaryHandlerSingletonStatelessEnum" implementieren.\par
+\par
+\par
+\par
+2019-08-19\par
+\par
+BinaryHandlerSingletonStatelessEnum fertig implementierung.\par
+Und Benamungen  verbessern.\par
+\par
+Der normale "stateless" ist gar nicht stateless, weil er ja die zwei Enum Felder hat.\par
+"Fieldless" ist auch nicht richtig. Irgendwie schon, aber eigentlich nicht wirklich. "CustomFieldless" klingt schei\'df.\par
+"BinaryHandlerCustomEnumTrivial" ist besser.\par
+\par
+Testen. Fehlende Logik noch nachr\'fcsten. Enum Constant member usw.\par
+Testen.\par
+Passt.\par
+\par
+\par
+\par
+\cf1 TODO: java.util.Comparators$NaturalOrderComparator Migrationsl\'f6sung beschreiben im Issue.\cf0\par
+\par
 \par
 }
  
