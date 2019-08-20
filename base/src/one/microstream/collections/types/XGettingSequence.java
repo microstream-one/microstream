@@ -69,7 +69,7 @@ public interface XGettingSequence<E> extends XGettingCollection<E>, ExtendedSequ
 	public E at(long index) throws IndexBoundsException; // get element at index or throw IndexOutOfBoundsException
 
 	/**
-	 * Equivalent to "contains index". Compare: {@link XGettingTable}&lt;Integer, E&gt; table with table.keys().contains(index)
+	 * Equivalent to "contains index". Compare: {@link XGettingTable} table with table.keys().contains(index)
 	 *
 	 * @param index
 	 * @return <tt>true</tt> if the passed index is greater or equal to 0,

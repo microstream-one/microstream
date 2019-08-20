@@ -9,10 +9,10 @@ import one.microstream.functional.Instantiator;
  * existing association for it.
  * <p>
  * <b><u>Example</u></b>: (also note the missing initialize() method compared to {@link Threaded} example)
- * <pre>
+ * <pre>{@code
  * public class SomeClass
  * {
- *     private final ThreadLocal&lt;StringBuilder&gt; sb = threadLocal(sbFactory); // conveniently short
+ *     private final Threaded<StringBuilder> sb = threadLocal(sbFactory); // conveniently short
  *
  *     // ...
  *
@@ -27,7 +27,7 @@ import one.microstream.functional.Instantiator;
  *     }
  *
  * }
- * </pre>
+ * }</pre>
  *
  * @author Thomas Muenz
  */
@@ -42,28 +42,25 @@ public class ThreadedInstantiating<E> extends Threaded<E>
 	 * {@link ThreadedInstantiating} instance.
 	 * <p>
 	 * <b><u>Example</u></b>: (also note the missing initialize() method compared to {@link Threaded} example)
-	 * <pre>
+	 * <pre>{@code
 	 * public class SomeClass
-	 *
-{
-	 *     private final ThreadLocal&lt;StringBuilder&gt; sb = threadLocal(sbFactory); // conveniently short
+	 * {
+	 *     private final Threaded<StringBuilder> sb = threadLocal(sbFactory); // conveniently short
 	 *
 	 *     // ...
 	 *
 	 *     private void doStuff()
-	 *
-{
+	 *     {
 	 *         sb.get().append("stuff"); // uses each thread's own exclusive StringBuilder instance
 	 *     }
 	 *
 	 *     public String toString()
-	 *
-{
+	 *     {
 	 *         return sb.get().toString(); // the current thread's constructed String
 	 *     }
 	 *
 	 * }
-	 * </pre>
+	 * }</pre>
 	 *
 	 * @param <E> the type of the instances created by the passed {@link Instantiator} instance.
 	 * @param instantiator the {@link Instantiator} instance to be used to create thread local instances of type E.

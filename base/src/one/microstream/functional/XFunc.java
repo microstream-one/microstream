@@ -607,10 +607,10 @@ public final class XFunc
 	 * <p>
 	 * Consider the following example with V1 extends V:
 	 * (e.g. V is an interface and V1 is an implementation of V)
-	 * <code><pre>
-	 * XMap&lt;K, V1&gt; workingCollection = ... ;
-	 * XImmutableMap&lt;K, V&gt; finalCollection = ConstHashTable.NewProjected(input, &lt;K&gt;passthrough(), &lt;V1,V&gt;upcast());
-	 * </pre></code>
+	 * <code><pre>{@code
+	 *XMap<K, V1> workingCollection = ... ;
+	 *XImmutableMap<K, V> finalCollection = ConstHashTable.NewProjected(input, <K>passthrough(), <V1, V>upcast());
+	 * }</pre></code>
 	 *
 	 *
 	 */
