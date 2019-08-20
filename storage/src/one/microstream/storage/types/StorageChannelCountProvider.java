@@ -95,10 +95,11 @@ public interface StorageChannelCountProvider extends _intReference
 	 * The more channels there are, the more parallel loading and storing operations will be executed and the faster
 	 * the application will become, provided a hardware that can effectively execute that many threads.
 	 * <p>
-	 * Since channels use bitwise modulo hashing, the number of channels must always be 2^n number with n &gt;= 0.<br>
+	 * Since channels use bitwise modulo hashing, the number of channels must always be
+	 * a 2^n number with n greater than or equal 0.<br>
 	 * (Meaning 1, 2, 4, 8, 16, etc.)
 	 * 
-	 * @param channelCount the number of channels. Must be a 2^n number with n &gt;= 0.
+	 * @param channelCount the number of channels. Must be a 2^n number with n greater than or equal 0.
 	 * 
 	 * @return a new {@link StorageChannelCountProvider} instance.
 	 * 
