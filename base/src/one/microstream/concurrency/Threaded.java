@@ -24,30 +24,30 @@ import one.microstream.reference.Referencing;
  *
  * <p>
  * <b><u>Example</u></b>:
- * <pre>
- * public class SomeClass
- * {
- *     private final ThreadLocal&lt;StringBuilder&gt; sb = new ThreadLocal&lt;StringBuilder&gt;();
+ * <pre>{@code
+ *public class SomeClass
+ *{
+ *    private final Threaded<StringBuilder> sb = new Threaded<StringBuilder>();
  *
- *     // ...
+ *    // ...
  *
- *     private void initialize() // initialize for current thread
- *     {
- *         sb.set(new StringBuilder());
- *     }
+ *    private void initialize() // initialize for current thread
+ *    {
+ *        sb.set(new StringBuilder());
+ *    }
  *
- *     private void doStuff()
- *     {
- *         sb.get().append("stuff"); // uses each thread's own exclusive StringBuilder instance
- *     }
+ *    private void doStuff()
+ *    {
+ *        sb.get().append("stuff"); // uses each thread's own exclusive StringBuilder instance
+ *    }
  *
- *     public String toString()
- *     {
- *         return sb.get().toString(); // the current thread's constructed String
- *     }
+ *    public String toString()
+ *    {
+ *        return sb.get().toString(); // the current thread's constructed String
+ *    }
  *
- * }
- * </pre>
+ *}
+ *}</pre>
  * <p>
  * The striking feature about this class is that only those procedures are synchronized that modify the internal storage
  * commonly used for all threads, while procedures that don't modify shared structures (like {@link #get()} or
@@ -57,7 +57,7 @@ import one.microstream.reference.Referencing;
  * association and never reach the others).<br>
  * This makes this class dramatically more runtime efficient than the (with all due respect, "clumsy")
  * {@link java.lang.ThreadLocal} implementation (that even unnecessarily bloats {@link Thread} instances themselves,
- * but that can't be helped now any more).
+ * but that can't be fixed here).
  * <p>
  * See {@link ThreadedInstantiating} for an extended implementation that automatically utilizes an
  * {@link Instantiator} instance to create to be associated instances for threads that dont' have an association, yet.
