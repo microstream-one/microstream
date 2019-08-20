@@ -31,6 +31,16 @@ public interface PersistenceRefactoringMapping
 			X.empty()
 		);
 	}
+	
+	public static PersistenceRefactoringMapping New(
+		final XGettingTable<String, String> entries
+	)
+	{
+		return new Default(
+			EqConstHashTable.New(entries),
+			X.empty()
+		);
+	}
 		
 	public static PersistenceRefactoringMapping New(
 		final XGettingTable<String, String> entries    ,

@@ -184,7 +184,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			final XEnum<PersistenceTypeDefinitionMember>                                                  discardedLegacyMembers
 		)
 		{
-			for(final PersistenceTypeDefinitionMember sourceMember : legacyTypeDefinition.instanceMembers())
+			for(final PersistenceTypeDefinitionMember sourceMember : legacyTypeDefinition.allMembers())
 			{
 				// explicit mappings take precedence
 				// (10.05.2019 TM)FIXME: priv#99: reversed explicit mapping (problem here!)
@@ -231,7 +231,7 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 			final XEnum<PersistenceTypeDefinitionMember>                                                  newCurrentMembers
 		)
 		{
-			for(final PersistenceTypeDefinitionMember trgMember : currentTypeHandler.instanceMembers())
+			for(final PersistenceTypeDefinitionMember trgMember : currentTypeHandler.allMembers())
 			{
 				// explicit mappings take precedence
 				final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitEntry =

@@ -216,7 +216,7 @@ public interface PersistenceTypeDescriptionResolver extends PersistenceTypeResol
 				return X.KeyValue(sourceMember, null);
 			}
 			
-			for(final PersistenceTypeDefinitionMember targetMember : targetType.instanceMembers())
+			for(final PersistenceTypeDefinitionMember targetMember : targetType.allMembers())
 			{
 				for(final PersistenceRefactoringMemberIdentifierBuilder idBuilder : this.targetMemberIdentifierBuilders)
 				{

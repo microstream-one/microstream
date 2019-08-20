@@ -20,12 +20,15 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	public Class<T> type();
 	
 	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers();
+	
+	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers();
 	
 	public default XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
 	{
 		// by default, there is no difference between members (in persisted order) and members in declared order.
-		return this.instanceMembers();
+		return this.allMembers();
 	}
 	
 	public boolean hasInstanceReferences();
@@ -277,6 +280,12 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 			
 			// by default, implementations are assumed to be (effectively) immutable and thus can return themselves.
 			return this;
+		}
+		
+		@Override
+		public final String toString()
+		{
+			return this.toRuntimeTypeIdentifier();
 		}
 
 	}
