@@ -115,10 +115,10 @@ public interface StorageEntityCacheEvaluator
 	 * This combination of rules is relatively accurate on keeping cached what is needed and dropping the rest,
 	 * while being easily tailorable to suit an application's needs.
 	 * 
-	 * @param timeoutMs the time (in milliseconds, > 0) of not being read (the "age"), after which a particular
+	 * @param timeoutMs the time (in milliseconds, greater than 0) of not being read (the "age"), after which a particular
 	 *        entity's data will be cleared from the Storage's internal cache.
 	 * 
-	 * @param threshold an abstract value (> 0) to evaluate the product of size and age of an entity in relation
+	 * @param threshold an abstract value (greater than 0) to evaluate the product of size and age of an entity in relation
 	 *        to the current cache size in order to determine if the entity's data shall be cleared from the cache.
 	 * 
 	 * @return a new {@link StorageEntityCacheEvaluator} instance.

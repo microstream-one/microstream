@@ -101,7 +101,8 @@ public final class Lazy<T> implements LazyReferencing<T>
 	 * The actual subject to be referenced.
 	 */
 	private T subject;
-
+	
+	// (20.08.2019 TM)TODO: should lastTouched get a public getter for custom logic to evaluate it?
 	/**
 	 * The timestamp in milliseconds when this reference has last been touched (created or queried).
 	 * If an instance is deemed timed out by a {@link LazyReferenceManager} based on the current time

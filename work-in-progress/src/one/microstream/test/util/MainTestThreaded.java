@@ -23,7 +23,7 @@ import one.microstream.concurrency.Threaded;
  * @author Thomas Muenz
  *
  */
-public class MainTestThreadLocal
+public class MainTestThreaded
 {
 	// single static ("global") instance that is used by all threads, yet with thread-safe / thread-private content
 	static final Threaded<VarString> THREAD_VARCHAR = threaded(VarString::New);
