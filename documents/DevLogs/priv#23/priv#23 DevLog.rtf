@@ -1060,6 +1060,29 @@ Passt.\par
 \par
 \cf1 TODO: java.util.Comparators$NaturalOrderComparator Migrationsl\'f6sung beschreiben im Issue.\cf0\par
 \par
+2019-08-20\par
 \par
+Jetzt aber mal tats\'e4chlich mit Enum LTM anfangen.\par
+Erst mal den Typabgleich auf all members umstellen und testen mit hinzugf\'fcgter Enum Konstante.\par
+Passt.\par
+\par
+Dann muss jetzt das LTM "nur" noch einen passenden TypeHandler erzeugen.\par
+Stelle im Code suchen.\par
+\par
+Ah, schon mal was kniffliges:\line Ein ggf. existierender Custom Handler muss validiert werden, ob er die enum constant members richtig abbildet.\par
+Hm... m\'fcsste nicht jeder custom handler erst mal auf passende Struktur validiert werden ...?\par
+Mal im Code anschauen.\par
+Es gibt ja eh schon lookup per Structure, dort passt das dann implizit.\par
+Davor aber noch lookupPerTypeId. Dort m\'fcsste dann validiert werden ...\par
+Ah! Das wird eh schon gemacht. Sehr sch\'f6n.\par
+\par
+Hm, aber m\'fcsste der Runtime Type nicht validiert werden...?\par
+Hm, das gilt eigentlich generell f\'fcr alle custom LTHs und wird bisher noch nicht gepr\'fcft. Einbauen.\par
+\par
+Hei\'dft im Umkehrschluss dann aber auch: Eine spezielle Struktur-Validierung f\'fcr custom Enum LTHs ist nicht n\'f6tig.\par
+Dann FIXME daf\'fcr wieder rausl\'f6schen.\par
+\par
+Hm... eigentlich muss man fast \'fcberall allMembers anstatt instanceMembers verwenden.\par
+\'dcberall wo Struktur validiert/verglichen, LTM gemacht oder einfach members durchlaufen werden (z.B. f\'fcr Assembling). Nur die Instance members braucht man extrem selten.\par
 }
  

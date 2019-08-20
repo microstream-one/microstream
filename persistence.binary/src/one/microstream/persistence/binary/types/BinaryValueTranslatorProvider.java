@@ -194,9 +194,9 @@ public interface BinaryValueTranslatorProvider
 			validateIsReferenceType(targetType);
 			
 			/*
-			 * In case none of the other mapping tools (explicit mapping and member matching and translator registration)
-			 * Covered the current case, it is essential to check the target type compatibility, since it is
-			 * too dangerous to arbitrarily copy references to instances with one type into fields with another type.
+			 * In case none of the other mapping tools (explicit mapping, member matching and translator registration)
+			 * covered the current case, it is essential to check the target type compatibility, since it is
+			 * too dangerous to arbitrarily copy references to instances of one type into fields of another type.
 			 */
 			validateCompatibleTargetType(sourceType, targetType);
 			

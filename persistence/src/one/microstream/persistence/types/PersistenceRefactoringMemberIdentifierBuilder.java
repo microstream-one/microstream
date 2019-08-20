@@ -69,7 +69,7 @@ public interface PersistenceRefactoringMemberIdentifierBuilder
 	{
 		final String memberSimpleName = member.name();
 		
-		for(final PersistenceTypeDescriptionMember m : typeDefinition.instanceMembers())
+		for(final PersistenceTypeDescriptionMember m : typeDefinition.allMembers())
 		{
 			if(m == member)
 			{

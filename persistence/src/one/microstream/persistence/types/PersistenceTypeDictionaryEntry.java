@@ -28,10 +28,10 @@ public interface PersistenceTypeDictionaryEntry extends PersistenceTypeDescripti
 	public static VarString assembleDictionaryString(final VarString vs, final PersistenceTypeDictionaryEntry e)
 	{
 		vs.add(e.typeId()).blank().add(e.typeName()).blank().add('{');
-		if(!e.instanceMembers().isEmpty())
+		if(!e.allMembers().isEmpty())
 		{
 			vs.lf();
-			for(final PersistenceTypeDescriptionMember member : e.instanceMembers())
+			for(final PersistenceTypeDescriptionMember member : e.allMembers())
 			{
 				vs.tab().add(member).add(';').lf();
 			}

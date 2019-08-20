@@ -369,7 +369,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers()
 	{
-		// "normal" entity types (non-enums) only have instance members
+		// with the exception of some special types (primitive definition and enums), there are only instance members.
 		return this.instanceMembers();
 	}
 	

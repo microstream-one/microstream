@@ -47,6 +47,7 @@ extends PersistenceLegacyTypeHandler.Abstract<Binary, T>
 		final boolean                   switchByteOrder
 	)
 	{
+		// only instance members, here. Not enum constants definitions!
 		final BinaryReferenceTraverser[] referenceTraversers =
 			BinaryReferenceTraverser.Static.deriveReferenceTraversers(
 				typeDefinition.instanceMembers(),

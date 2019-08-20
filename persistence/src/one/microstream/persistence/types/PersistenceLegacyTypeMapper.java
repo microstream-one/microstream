@@ -168,7 +168,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		{
 			final PersistenceTypeDescriptionResolver resolver = this.typeDescriptionResolverProvider.provideTypeDescriptionResolver();
 			
-			for(final PersistenceTypeDefinitionMember currentMember : currentTypeHandler.instanceMembers())
+			for(final PersistenceTypeDefinitionMember currentMember : currentTypeHandler.allMembers())
 			{
 				if(resolver.isNewCurrentTypeMember(currentTypeHandler, currentMember))
 				{
@@ -176,7 +176,7 @@ public interface PersistenceLegacyTypeMapper<M>
 				}
 			}
 			
-			for(final PersistenceTypeDefinitionMember sourceMember : legacyTypeDefinition.instanceMembers())
+			for(final PersistenceTypeDefinitionMember sourceMember : legacyTypeDefinition.allMembers())
 			{
 				// value might be null to indicate deletion. Member might not be resolvable (= mapped) at all.
 				final KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> resolved =
@@ -219,10 +219,10 @@ public interface PersistenceLegacyTypeMapper<M>
 		)
 		{
 			final BulkList<? extends PersistenceTypeDefinitionMember> sourceMembers = BulkList.New(
-				legacyTypeDefinition.instanceMembers()
+				legacyTypeDefinition.allMembers()
 			);
 			final BulkList<? extends PersistenceTypeDefinitionMember> targetMembers = BulkList.New(
-				currentTypeHandler.instanceMembers()
+				currentTypeHandler.allMembers()
 			);
 			
 			// null out all explicitly mapped members before matching
@@ -288,7 +288,8 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeDefinition legacyTypeDefinition
 		)
 		{
-			final long typeId = legacyTypeDefinition.typeId();
+			final Class<?> type   = legacyTypeDefinition.type()  ;
+			final long     typeId = legacyTypeDefinition.typeId();
 			
 			// cast safety ensured by checking the typename, which "is" the T.
 			@SuppressWarnings("unchecked")
@@ -304,8 +305,10 @@ public interface PersistenceLegacyTypeMapper<M>
 				return null;
 			}
 			
-			// validate if the found handler with matching explicit typeId also has matching structure
-			if(!PersistenceTypeDescription.equalStructure(legacyTypeHandlerbyId, legacyTypeDefinition))
+			// validate if the found handler with matching explicit typeId also has matching type and structure
+			if(type != null && type != legacyTypeDefinition.type()
+				|| !PersistenceTypeDescription.equalStructure(legacyTypeHandlerbyId, legacyTypeDefinition)
+			)
 			{
 				// (05.07.2019 TM)EXCP: proper exception
 				throw new PersistenceExceptionTypeConsistency(
@@ -320,12 +323,16 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeDefinition legacyTypeDefinition
 		)
 		{
+			// if runtime type is non-null, the found type handler must have the same type, of course.
+			final Class<?> type = legacyTypeDefinition.type();
+			
 			// cast safety ensured by checking the typename, which "is" the T.
 			@SuppressWarnings("unchecked")
 			final PersistenceLegacyTypeHandler<M, T> matchingLegacyTypeHandler = (PersistenceLegacyTypeHandler<M, T>)
 				this.customTypeHandlerRegistry.legacyTypeHandlers()
 				.search(h ->
-					PersistenceTypeDescription.equalStructure(h, legacyTypeDefinition)
+					(type == null || h.type() == type)
+					&& PersistenceTypeDescription.equalStructure(h, legacyTypeDefinition)
 				)
 			;
 			
@@ -346,6 +353,7 @@ public interface PersistenceLegacyTypeMapper<M>
 				/*
 				 * must initialize TypeHandler with given TypeId
 				 * (potentially creating an initialized instance from an uninitialized prototype handler instance)
+				 * note that #lookupCustomHandler already does member structure validation
 				 */
 				return customHandler.initialize(legacyTypeDefinition.typeId());
 			}

@@ -90,7 +90,17 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 	
 	public default Object[] collectEnumConstants(final PersistenceTypeHandler<?, ?> typeHandler)
 	{
-		return typeHandler.collectEnumConstants();
+		try
+		{
+			return typeHandler.collectEnumConstants();
+		}
+		catch(final Exception e)
+		{
+			// (20.08.2019 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Enum constants collection failed for type handler " + typeHandler.toRuntimeTypeIdentifier()
+			);
+		}
 	}
 	
 	public static <M> void registerEnumContantRoots(
@@ -351,7 +361,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				);
 			};
 
-			if(!PersistenceTypeDescriptionMember.equalMembers(registeredTd.instanceMembers(), typeHandler.instanceMembers(), memberValidator))
+			if(!PersistenceTypeDescriptionMember.equalMembers(registeredTd.allMembers(), typeHandler.allMembers(), memberValidator))
 			{
 				// throw generic exception in case the equalator returns false instead of throwing an exception
 				// (07.04.2013 TM)EXCP: proper exception
@@ -934,10 +944,10 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 						
 			for(final PersistenceTypeDefinition typeDefinition : typeLineage.entries().values())
 			{
-				// exact matching structure including field order. no matching of field qualifiers needed
+				// exact matching structure, including order, of ALL members, but no qualifier matching.
 				final boolean isMatched = PersistenceTypeDescriptionMember.equalStructures(
-					handler.instanceMembers(),
-					typeDefinition.instanceMembers()
+					handler.allMembers(),
+					typeDefinition.allMembers()
 				);
 				
 				if(isMatched)

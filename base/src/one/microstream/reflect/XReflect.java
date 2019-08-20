@@ -7,6 +7,7 @@ import static one.microstream.X.notNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -956,6 +957,43 @@ public final class XReflect
 		}
 		
 		return false;
+	}
+	
+	public static boolean isProxyClass(final Class<?> c)
+	{
+		/* (20.08.2019 TM)NOTE:
+		 * I'm willing to concede lack of understanding on the topic, but IMHO, the method
+		 * Proxy#isProxyClass is nonsensical and unusable given its name. Or maybe it's just badly named.
+		 * 
+		 * To determine if a class is a Proxy class it MUST ONLY be checked for extending Proxy, but NOT
+		 * any second condition, like being registered in some cache somewhere or something.
+		 * What if (for whatever reason) Proxy's proxyClassCache does not contain the class in question?
+		 * Does that make that class no longer a Proxy class all of a sudden? Its instances no proxies anymore?
+		 * Surely not. If any arbitrary proxy class is to be identified, it MUST ONLY be checked for extending
+		 * Proxy. No second condition that might cause the check to result in a false instead of a true.
+		 * Anything else is a bug and therefore unusable.
+		 * 
+		 * Maybe the method's intention is more along the line of testing if a certain class has really
+		 * been dynamically created and properly registered, to filter out all classes that might extend
+		 * Proxy but were not really validly created (but hacked into existence or whatever).
+		 * So maybe what the method does is something like "isValidProxyClass". Identify the "good" proxies,
+		 * reject everything else. That is a validation method, not a type identifying method as the name implies.
+		 * Wouldn't be the first time that namings in the JDK are horribly off.
+		 * 
+		 * However, for recognizing ANY proxy type, that method would be dangerously wrong: Anything that
+		 * extends Proxy is a Proxy. Period. No second condition.
+		 * ESPECIALLY including any class that extends Proxy but has been created in another way.
+		 * 
+		 * So the singular check is the correct thing to do for the given name and its implied logic.
+		 * And competence of JDK developers can, once more, not be trusted.
+		 */
+		return Proxy.class.isAssignableFrom(c);
+	}
+	
+	public static boolean isValidProxyClass(final Class<?> c)
+	{
+		// horribly wrong name for a validation method
+		return Proxy.isProxyClass(c);
 	}
 		
 

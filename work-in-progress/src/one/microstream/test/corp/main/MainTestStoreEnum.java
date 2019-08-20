@@ -119,7 +119,8 @@ enum SimpleEnum
 {
 	TypeA,
 	TypeB,
-	TypeC;
+	TypeC,
+	TypeNew;
 }
 
 enum StatefulEnum

@@ -67,7 +67,7 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	{
 		return td1 == td2 || td1 != null && td2 != null
 			&& td1.typeName().equals(td1.typeName())
-			&& PersistenceTypeDescriptionMember.equalDescriptions(td1.instanceMembers(), td2.instanceMembers())
+			&& PersistenceTypeDescriptionMember.equalDescriptions(td1.allMembers(), td2.allMembers())
 		;
 	}
 	
@@ -84,7 +84,7 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	{
 		return td1 == td2 || td1 != null && td2 != null
 			&& td1.typeName().equals(td1.typeName())
-			&& PersistenceTypeDescriptionMember.equalStructures(td1.instanceMembers(), td2.instanceMembers())
+			&& PersistenceTypeDescriptionMember.equalStructures(td1.allMembers(), td2.allMembers())
 		;
 	}
 	
@@ -137,7 +137,7 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 		@Override
 		public final XGettingSequence<? extends PersistenceTypeDescriptionMember> allMembers()
 		{
-			return this.instanceMembers();
+			return X.empty();
 		}
 
 		@Override

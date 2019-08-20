@@ -3,6 +3,7 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Proxy;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
@@ -93,6 +94,15 @@ public interface PersistenceTypeHandlerCreator<M>
 					"Persisting Class instances requires a special-tailored "
 					+ PersistenceTypeHandler.class.getSimpleName()
 					+ " and cannot be done in a generic way."
+				);
+			}
+			
+			// Do NOT replace this with Proxy#isProxyClass. See rationale inside the XReflect method.
+			if(XReflect.isProxyClass(type))
+			{
+				// (20.08.2019 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Proxy classes (subclasses of " + Proxy.class.getName() + ") are not supported."
 				);
 			}
 			
