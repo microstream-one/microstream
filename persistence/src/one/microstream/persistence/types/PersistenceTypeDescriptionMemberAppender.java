@@ -146,7 +146,6 @@ public interface PersistenceTypeDescriptionMemberAppender extends Consumer<Persi
 		{
 			this.vs.add(PRIMITIVE_).add(typeMember.primitiveDefinition());
 		}
-		
 
 		@Override
 		public void appendTypeMemberDescription(final PersistenceTypeDescriptionMemberEnumConstant typeMember)
