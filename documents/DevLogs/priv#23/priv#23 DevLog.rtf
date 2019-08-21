@@ -1084,5 +1084,22 @@ Dann FIXME daf\'fcr wieder rausl\'f6schen.\par
 \par
 Hm... eigentlich muss man fast \'fcberall allMembers anstatt instanceMembers verwenden.\par
 \'dcberall wo Struktur validiert/verglichen, LTM gemacht oder einfach members durchlaufen werden (z.B. f\'fcr Assembling). Nur die Instance members braucht man extrem selten.\par
+\par
+\par
+2019-08-21\par
+\par
+Weitermachen.\par
+\par
+Mal die \'c4nderung auf die ganzen "allMember" Aufrufe testen. Mir ist zwischenzeitlich n\'e4mlich eingefallen:\par
+Wenn bisher schon die enum Konstanten assemblet werden und ich nun das assembly danach von instanceMembers auf allMembers umstelle, m\'fcssten die dann nicht doppelt assemblet werden?\par
+Getestet: Nein. Seltsam. Ich kann keinen Code finden, der vor der \'c4nderung die Enum Konstanten assemblet h\'e4tte. Aber wurde sie trotzdem. Jetzt bin ich verwirrt.\par
+Recherchieren in den Commit \'c4nderungen.\par
+\par
+Aaach, was ich ge\'e4ndert hab, war nur die toString-assembling Methode in PersistenceTypeDictionaryEntry. Die anderen, "richtigen" waren schon auf allMembers.\par
+Hm... und das TODO dort hat eigentlich ganz recht: warum gibt es das Ding \'fcberhaupt extra?\par
+Mal anschauen ..\par
+\par
+Super. Das TODO l\'f6sen (DictionaryAssembler im toString instanzieren und anwenden, plus kleiner Test) ging auf 5 Minuten oder so. Das h\'e4tt ich schon l\'e4ngst mal machen k\'f6nnen und h\'e4tte mir eine halbe Stunde Verwirrung erspart.\par
+Das ist halt das Problem, wenn man bestehende TODOs (die ja nicht zum Spass da sind) liegen l\'e4sst, weil daf\'fcr "keine Zeit" ist: letztendlich kostet es noch mehr Zeit, sie sp\'e4ter zu machen.\par
 }
  
