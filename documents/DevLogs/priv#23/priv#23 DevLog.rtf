@@ -1101,5 +1101,46 @@ Mal anschauen ..\par
 \par
 Super. Das TODO l\'f6sen (DictionaryAssembler im toString instanzieren und anwenden, plus kleiner Test) ging auf 5 Minuten oder so. Das h\'e4tt ich schon l\'e4ngst mal machen k\'f6nnen und h\'e4tte mir eine halbe Stunde Verwirrung erspart.\par
 Das ist halt das Problem, wenn man bestehende TODOs (die ja nicht zum Spass da sind) liegen l\'e4sst, weil daf\'fcr "keine Zeit" ist: letztendlich kostet es noch mehr Zeit, sie sp\'e4ter zu machen.\par
+\par
+Dabei aufgefallen:\par
+Der Appender wird beim Assemblen irgendwie zweimal auf die typeMember angewendet: erst wird einmal dr\'fcberiteriert, dann yield gemacht, dann wird der appender nochmal angewendet.\par
+Das ist doch Quatsch. Mal testweise auskommentieren.\par
+\par
+Hm. Ohne das fehlen dann aber doch die TypeMembers ...\par
+Ach, ich bin ja ein Depp: Der first pass ist, um die maximalen Token L\'e4ngen f\'fcr das Padding zu bestimmen und den appender \'fcberhaupt erst mal zu erzeugen (+konfigurieren)\par
+Also wieder reinmachen. Passt alles.\par
+\par
+Nach Frage von HG priv#135 dazwischenschieben ...\par
+\par
+Mergen. Gibt Konflikte. "theirs" erzeugt wirre Fehler. Reverten.\par
+Schon wieder anderes Zeug dazwischenschieben.\par
+\par
+
+\pard 15:45 \par
+Nochmal merge probieren ... laut conflicts sind das wirklich nur die priv#135 \'c4nderungen. Ist ja auch klar, weil alles andere hab ich ja erst k\'fcrzlich in den #23 reingemerget, kann ja nur das sein.\par
+Aber der scheint da nun haufenweise alten code \'fcber den neueren dr\'fcberzuschreiben. Z.B. PersistenceFoundation#getRootResolverProvider wird nicht mehr gefunden. Da ist neuer Code verschwunden.\par
+Git Problem: Merge muss erst abgeschlossen werden, obwohl ich alles revertet hab. Und es gibt kein "abort merge". Googeln. Gibts nur per Konsolenbefehl. Machen. Testen.\par
+\par
+Nochmal merge versuchen und die einzelnen Hunks genau anschauen.\par
+Toll: hunk f\'fcr hunk stagen geht nicht: "PersistenceFoundation.java: does not exist in index."\par
+\par
+Also das mergen mit dem git ist einfach eine Katastrophe. St\'e4ndig irgendwelche bugs.\par
+
+\pard\sl276\slmult1\par
+Also per Tool mergen..\par
+Das darf nicht wahr sein: DiffMerge erkennt ganz genau, was in einem Block Code von dem einen Stand neu ist und was von dem anderen Stand neu ist. Aber anstatt einfach alle drei Teile (gemeinsames, neues hier, neues da) zu mergen, erlaubt es nur die Auswahl von EINEM Block, um den anderen zu \'fcberschreiben.\par
+Rumsuchen.\par
+Geht nicht.\par
+So ein SCHWACHSINN.\par
+\par
+Also semi-manuelle L\'f6sung: zweiten Block einfach appenden und den doppelten Code rausl\'f6schen.\par
+\par
+Beim Rausl\'f6schen aufgefallen:\par
+Ich hab das falsch gemacht:\par
+Erst h\'e4tte ich den gemeinsamen Teil mit dem Block 1 komplett ersetzen und dann Block 2 appenden m\'fcssen, um dann beides manuell zusammenzumergen.\par
+Muss ich nochmal reverten.\par
+Schei\'df Zeug. Kostet immer Stunden, um einen trivialen Merge hinzukriegen...\par
+\par
+\par
 }
  
