@@ -31,7 +31,7 @@ extends PersistenceFoundation<Binary, F>
 	public BinaryValueTranslatorMappingProvider getValueTranslatorMappingProvider();
 	
 	public BinaryValueTranslatorProvider getValueTranslatorProvider();
-		
+			
 	
 	
 	public F setCustomTranslatorLookup(
@@ -211,6 +211,7 @@ extends PersistenceFoundation<Binary, F>
 				this.getFieldFixedLengthResolver(),
 				this.getReferenceFieldEagerEvaluator(),
 				this.getLambdaTypeRecognizer(),
+				this.getInstantiatorProvider(),
 				this.isByteOrderMismatch()
 			);
 		}
@@ -268,8 +269,8 @@ extends PersistenceFoundation<Binary, F>
 		protected BinaryValueTranslatorProvider ensureValueTranslatorProvider()
 		{
 			return BinaryValueTranslatorProvider.New(
-				this.getCustomTranslatorLookup()        ,
-				this.getTranslatorKeyBuilders()         ,
+				this.getCustomTranslatorLookup(),
+				this.getTranslatorKeyBuilders(),
 				this.getValueTranslatorMappingProvider(),
 				this.isByteOrderMismatch()
 			);

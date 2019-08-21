@@ -20,6 +20,7 @@ import one.microstream.collections.BinaryHandlerHashEnum;
 import one.microstream.collections.BinaryHandlerHashTable;
 import one.microstream.collections.BinaryHandlerLimitList;
 import one.microstream.collections.ConstList;
+import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.functional.IndexedAcceptor;
 import one.microstream.functional.InstanceDispatcherLogic;
@@ -108,10 +109,10 @@ public final class BinaryPersistence extends Persistence
 	}
 	
 	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
-		final Referencing<PersistenceTypeHandlerManager<Binary>>            typeHandlerManager,
-		final PersistenceSizedArrayLengthController                         controller        ,
-		final PersistenceTypeHandlerCreator<Binary>                         typeHandlerCreator,
-		final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> customHandlers
+		final Referencing<PersistenceTypeHandlerManager<Binary>>              typeHandlerManager,
+		final PersistenceSizedArrayLengthController                           controller        ,
+		final PersistenceTypeHandlerCreator<Binary>                           typeHandlerCreator,
+		final XGettingCollection<? extends PersistenceTypeHandler<Binary, ?>> customHandlers
 	)
 	{
 		final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers =
@@ -330,18 +331,6 @@ public final class BinaryPersistence extends Persistence
 			}
 		});
 		return fieldOffsets;
-	}
-
-	public static final <T> T blankMemoryInstantiate(final Class<T> type)
-	{
-		return XMemory.instantiate(type);
-	}
-
-	public static final <T> BinaryInstantiator<T> blankMemoryInstantiator(final Class<T> type)
-	{
-		return (final long buildItemAddress) ->
-			BinaryPersistence.blankMemoryInstantiate(type)
-		;
 	}
 
 	public static final void iterateInstanceReferences(
