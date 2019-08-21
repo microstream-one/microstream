@@ -5,6 +5,7 @@ import java.nio.ByteOrder;
 import one.microstream.X;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XEnum;
+import one.microstream.collections.types.XMap;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
@@ -40,7 +41,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public InstanceDispatcherLogic getInstanceDispatcherLogic(); // (14.04.2013)XXX: move dispatching aspect to separate super type
 
 	
-	public HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers();
+	public XMap<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers();
+
+	public XMap<Class<?>, PersistenceTypeInstantiator<M, ?>> customTypeInstantiators();
 	
 	public F registerCustomTypeHandlers(HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers);
 	
@@ -50,20 +53,13 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public F registerCustomTypeHandlers(Iterable<? extends PersistenceTypeHandler<M, ?>> customTypeHandlers);
 	
 	public F registerCustomTypeHandlers(PersistenceTypeHandler<M, ?> customTypeHandler);
-
+	
+	public <T> F registerCustomInstantiator(Class<T> type, PersistenceTypeInstantiator<M, T> typeInstantiator);
 	
 	public PersistenceObjectIdProvider getObjectIdProvider();
 
 	public PersistenceTypeIdProvider getTypeIdProvider();
 
-
-	public F setObjectIdProvider(PersistenceObjectIdProvider oidProvider);
-
-	public F setTypeIdProvider(PersistenceTypeIdProvider tidProvider);
-
-	public <P extends PersistenceTypeIdProvider & PersistenceObjectIdProvider>
-	F setIdProvider(P idProvider);
-	
 
 	public PersistenceStorer.Creator<M> getStorerCreator();
 
@@ -74,7 +70,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public PersistenceTarget<M> getPersistenceTarget();
 
 	public PersistenceSource<M> getPersistenceSource();
-	
 	
 	public PersistenceObjectRegistry getObjectRegistry();
 
@@ -121,7 +116,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public PersistenceCustomTypeHandlerRegistry<M> getCustomTypeHandlerRegistry();
 
 	public PersistenceTypeAnalyzer getTypeAnalyzer();
-
 	
 	public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator();
 	
@@ -174,6 +168,10 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public PersistenceRootResolver rootResolver();
 	
 	public LambdaTypeRecognizer getLambdaTypeRecognizer();
+
+	public PersistenceInstantiator<M> getInstantiator();
+	
+	public PersistenceTypeInstantiatorProvider<M> getInstantiatorProvider();
 	
 	
 	
@@ -312,7 +310,17 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public F setPersistenceChannel(PersistenceChannel<M> persistenceChannel);
 	
 	public F setSizedArrayLengthController(PersistenceSizedArrayLengthController sizedArrayLengthController);
+	
+	public F setObjectIdProvider(PersistenceObjectIdProvider oidProvider);
 
+	public F setTypeIdProvider(PersistenceTypeIdProvider tidProvider);
+
+	public <P extends PersistenceTypeIdProvider & PersistenceObjectIdProvider>
+	F setIdProvider(P idProvider);
+		
+	public F setInstantiator(PersistenceInstantiator<M> instantiator);
+	
+	public F setInstantiatorProvider(PersistenceTypeInstantiatorProvider<M> instantiatorProvider);
 	
 	/**
 	 * Executes the passed {@link PersistenceTypeHandlerRegistration} logic while supplying this instance's
@@ -351,6 +359,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private final Reference<PersistenceTypeHandlerManager<M>> referenceTypeHandlerManager = X.Reference(null);
 		
 		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers = HashTable.New();
+		
+		private final HashTable<Class<?>, PersistenceTypeInstantiator<M, ?>> customTypeInstantiators = HashTable.New();
 				
 		private PersistenceObjectIdProvider oidProvider;
 		private PersistenceTypeIdProvider   tidProvider;
@@ -416,6 +426,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceLegacyTypeMappingResultor<M>  legacyTypeMappingResultor   ;
 		private PersistenceLegacyTypeHandlerCreator<M>   legacyTypeHandlerCreator    ;
 		private PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener  ;
+
+		private PersistenceInstantiator<M>          instantiator        ;
+		private PersistenceTypeInstantiatorProvider<M> instantiatorProvider;
 		
 		private ByteOrder targetByteOrder;
 		
@@ -454,7 +467,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		/////////////////////////////////////////////////////
 		
 		@Override
-		public HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers()
+		public XMap<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers()
 		{
 			return this.customTypeHandlers;
 		}
@@ -465,7 +478,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		)
 		{
 			this.customTypeHandlers.putAll(customTypeHandlers);
-			
 			return this.$();
 		}
 		
@@ -502,7 +514,22 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		)
 		{
 			this.customTypeHandlers.put(customTypeHandler.type(), customTypeHandler);
-			
+			return this.$();
+		}
+		
+		@Override
+		public XMap<Class<?>, PersistenceTypeInstantiator<M, ?>> customTypeInstantiators()
+		{
+			return this.customTypeInstantiators;
+		}
+		
+		@Override
+		public synchronized <T> F registerCustomInstantiator(
+			final Class<T>                          type            ,
+			final PersistenceTypeInstantiator<M, T> typeInstantiator
+		)
+		{
+			this.customTypeInstantiators.put(type, typeInstantiator);
 			return this.$();
 		}
 		
@@ -1120,6 +1147,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			{
 				this.lambdaTypeRecognizer = this.dispatch(this.ensureLambdaTypeRecognizer());
 			}
+			
 			return this.lambdaTypeRecognizer;
 		}
 
@@ -1131,6 +1159,24 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 				this.rootsProvider = this.dispatch(this.ensureRootsProvider());
 			}
 			return this.rootsProvider;
+		}
+		
+		@Override
+		public PersistenceInstantiator<M> getInstantiator()
+		{
+			// this is just a getter, not an on demand provider method. See #getInstantiatorProvider for that.
+			return this.instantiator;
+		}
+		
+		@Override
+		public PersistenceTypeInstantiatorProvider<M> getInstantiatorProvider()
+		{
+			if(this.instantiatorProvider == null)
+			{
+				this.instantiatorProvider = this.dispatch(this.ensureInstantiatorProvider());
+			}
+			
+			return this.instantiatorProvider;
 		}
 		
 		@Override
@@ -1663,6 +1709,20 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
+		public F setInstantiator(final PersistenceInstantiator<M> instantiator)
+		{
+			this.instantiator = instantiator;
+			return this.$();
+		}
+		
+		@Override
+		public F setInstantiatorProvider(final PersistenceTypeInstantiatorProvider<M> instantiatorProvider)
+		{
+			this.instantiatorProvider = instantiatorProvider;
+			return this.$();
+		}
+		
+		@Override
 		public F setTargetByteOrder(final ByteOrder targetByteOrder)
 		{
 			this.targetByteOrder = targetByteOrder;
@@ -2069,6 +2129,23 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			);
 			
 			return rootsProvider;
+		}
+		
+		protected PersistenceInstantiator<M> ensureInstantiator()
+		{
+			return this.instantiator != null
+				? this.instantiator
+				: PersistenceInstantiator.New()
+			;
+		}
+		
+		protected PersistenceTypeInstantiatorProvider<M> ensureInstantiatorProvider()
+		{
+			// empty table check done inside (constructor method concern)
+			return PersistenceTypeInstantiatorProvider.New(
+				this.customTypeInstantiators,
+				this.ensureInstantiator()
+			);
 		}
 		
 		protected LambdaTypeRecognizer ensureLambdaTypeRecognizer()

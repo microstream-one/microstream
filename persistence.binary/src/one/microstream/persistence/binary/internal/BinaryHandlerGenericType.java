@@ -6,20 +6,20 @@ import java.lang.reflect.Field;
 
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.binary.types.BinaryInstantiator;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceTypeInstantiator;
 
 public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerReflective<T>
 {
 	public static <T> BinaryHandlerGenericType<T> New(
-		final Class<T>                              type                      ,
-		final XGettingEnum<Field>                   allFields                 ,
-		final PersistenceFieldLengthResolver        lengthResolver            ,
-		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
-		final BinaryInstantiator<T>                 instantiator              ,
-		final boolean                               switchByteOrder
+		final Class<T>                               type                      ,
+		final XGettingEnum<Field>                    allFields                 ,
+		final PersistenceFieldLengthResolver         lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator  eagerStoringFieldEvaluator,
+		final PersistenceTypeInstantiator<Binary, T> instantiator              ,
+		final boolean                                switchByteOrder
 	)
 	{
 		return new BinaryHandlerGenericType<>(
@@ -38,7 +38,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	// instance fields //
 	////////////////////
 	
-	private final BinaryInstantiator<T> instantiator;
+	private final PersistenceTypeInstantiator<Binary, T> instantiator;
 
 
 
@@ -46,13 +46,13 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	// constructors //
 	/////////////////
 
-	protected BinaryHandlerGenericType(
-		final Class<T>                              type                      ,
-		final XGettingEnum<Field>                   allFields                 ,
-		final PersistenceFieldLengthResolver        lengthResolver            ,
-		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
-		final BinaryInstantiator<T>                 instantiator              ,
-		final boolean                               switchByteOrder
+	BinaryHandlerGenericType(
+		final Class<T>                               type                      ,
+		final XGettingEnum<Field>                    allFields                 ,
+		final PersistenceFieldLengthResolver         lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator  eagerStoringFieldEvaluator,
+		final PersistenceTypeInstantiator<Binary, T> instantiator              ,
+		final boolean                                switchByteOrder
 	)
 	{
 		super(type, allFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
@@ -66,9 +66,9 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	////////////
 	
 	@Override
-	public final T create(final Binary bytes, PersistenceLoadHandler handler)
+	public final T create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return this.instantiator.newInstance(bytes.loadItemEntityContentAddress());
+		return this.instantiator.instantiate(bytes);
 	}
 
 }
