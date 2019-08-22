@@ -6,6 +6,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.equality.Equalator;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing.TypeMappingLookup;
@@ -127,6 +128,9 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
+			// (22.08.2019 TM)FIXME: /!\ Debug priv#23
+			XDebug.println("Creating legacy handler for " + legacyTypeDefinition.toTypeIdentifier());
+			
 			// explicit mappings take precedence
 			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings  ;
 			final HashEnum<PersistenceTypeDefinitionMember>                                   explicitNewMembers;

@@ -1142,5 +1142,39 @@ Muss ich nochmal reverten.\par
 Schei\'df Zeug. Kostet immer Stunden, um einen trivialen Merge hinzukriegen...\par
 \par
 \par
+\par
+2019-08-22\par
+\par
+Folgender plan:\par
+- #23 Branch reverten auf den Stand vor dem Merge-Shit.\par
+- branch mergen mit funktionierender DiffMerge Strategie (mitte mit links replacen, rechts appenden, manuell aufr\'e4umen)\par
+- \'c4nderung stashen\par
+- Pull versuchen und wenn der nicht funktioniert, dann stash auf aktuellen Stand anwenden.\par
+\par
+Ausf\'fchren ...\par
+NaT\'dcRlcih hat der pull die chronologisch sp\'e4teren \'c4nderungen einfach \'fcberschrieben. Was sollte er auch sonst machen mit chronologisch sp\'e4teren \'c4nderungen. Darf man ja auf keinen Fall behalten, das w\'e4re ja korrekt.\par
+Also Stash anwenden.\par
+Passt.\par
+Committen.\par
+\par
+Heureka! Es ist getan!\par
+\par
+Dann kann ich jetzt ja mit der eigentlichen Arbeit weitermachen ...\par
+\par
+\par
+Also der aktuelle Stand ist:\par
+- allMembers statt instanceMembers ist \'fcberall drin, das passt.\par
+- Der letzte Schritt zum Enum handling ist nun, \'c4nderungen an Enum Konstanten richtig zu handeln.\par
+\par
+Richtig handeln hei\'dft:\par
+- Mapping ber\'fccksichtigen, falls vorhanden\par
+- implizit zuordnen, falls m\'f6glich\par
+- ansonsten exception werfen.\par
+\par
+Daf\'fcr Ausgangszustand:\par
+\par
+PersistenceLegacyTypeMapper#createLegacyTypeHandler\par
+bekommt eine legacyTypeDefinition (veraltete Definition aus dem Dictionary bzw. Datenbank) und einen currentTypeHandler \'fcbergeben.\par
+Die haben bereits die ihnen entsprechend korrekten EnumConstant Members. Die Legacy hat die alten, der current hat die neuen.\par
 }
  
