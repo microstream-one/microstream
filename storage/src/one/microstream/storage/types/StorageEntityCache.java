@@ -1189,7 +1189,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			{
 				this.resetLiveCursor();
 
-				DEBUGStorage.println(this.channelIndex + " completed live check.");
+				DebugStorage.println(this.channelIndex + " completed live check.");
 
 				// report live check completed
 				return true;

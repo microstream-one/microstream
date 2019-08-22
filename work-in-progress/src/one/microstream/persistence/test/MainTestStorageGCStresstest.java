@@ -4,7 +4,7 @@ import one.microstream.chars.XChars;
 import one.microstream.concurrency.XThreads;
 import one.microstream.math.XMath;
 import one.microstream.persistence.lazy.Lazy;
-import one.microstream.storage.types.DEBUGStorage;
+import one.microstream.storage.types.DebugStorage;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageDataFileEvaluator;
@@ -60,33 +60,33 @@ public class MainTestStorageGCStresstest extends TestStorage
 			// (25.04.2018 TM)FIXME: actually requires a FullStorer#store call now
 			connection.store(ref.get()[XMath.random(size)]);
 //			connection.storeFull(ref.get()[XMath.random(size)]);
-			DEBUGStorage.println("stored #"+i);
+			DebugStorage.println("stored #"+i);
 
 			ref.clear();
 			XThreads.sleep(WAIT_TIME);
 //			connection.issueFullCacheCheck((a, b, c) -> true);
 //			connection.issueFullFileCheck(fileEvaluatorHard);
 			final Object o = ref.get();
-			DEBUGStorage.println("loaded: "+XChars.systemString(o));
+			DebugStorage.println("loaded: "+XChars.systemString(o));
 		}
 		exit();
 	}
 
 	public static void storageCleanup(final StorageConnection connection, final Double dissolveRatio)
 	{
-		DEBUGStorage.println("GC#1");
+		DebugStorage.println("GC#1");
 		connection.issueFullGarbageCollection();
-		DEBUGStorage.println("GC#2");
+		DebugStorage.println("GC#2");
 		connection.issueFullGarbageCollection();
 
-		DEBUGStorage.println("cache check");
+		DebugStorage.println("cache check");
 		connection.issueFullCacheCheck();
 
-		DEBUGStorage.println("file check");
+		DebugStorage.println("file check");
 		connection.issueFullFileCheck(
 			Storage.DataFileEvaluator(100, 10_000, 0.99999)
 		);
-		DEBUGStorage.println("Done cleanup");
+		DebugStorage.println("Done cleanup");
 	}
 
 }
