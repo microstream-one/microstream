@@ -1176,5 +1176,96 @@ Daf\'fcr Ausgangszustand:\par
 PersistenceLegacyTypeMapper#createLegacyTypeHandler\par
 bekommt eine legacyTypeDefinition (veraltete Definition aus dem Dictionary bzw. Datenbank) und einen currentTypeHandler \'fcbergeben.\par
 Die haben bereits die ihnen entsprechend korrekten EnumConstant Members. Die Legacy hat die alten, der current hat die neuen.\par
+\par
+Zun\'e4chst ist die Frage: welche F\'e4lle gibt es?\par
+Die \'fcblichen:\par
+- Feld/Konstante kommt dazu\par
+- Feld/Konstante f\'e4llt weg\par
+- Feld/Konstante \'e4ndert die Position\par
+- Feld/Konstante wird umbenannt\par
+\par
+Vorher ist eigentlich noch die Frage, ob sich die Typbezeichnung ge\'e4ndert hat, aber das wird ja schon vom RefactoringMapping gemacht und das sollte 1-zu-1 auf f\'fcr Enum Typen funktionieren.\par
+\cf1\b Aber mal testen und kommentieren.\cf0\b0\par
+\par
+\cf1\b Und dann ist noch die Frage, wie das in das Roots Synchen reinkommt.\cf0\b0\par
+\par
+\par
+Erst mal die F\'e4lle:\par
+\par
+1.) Feld/Konstante kommt dazu\par
+Das ist das Einfachste: daf\'fcr ist gar nichts n\'f6tig. Es wird bisher noch keine OID oder Datensatz gehalten, der Ordinal Wert ist noch nicht belegt.\par
+Kommt einfach dazu, wird vom Root Synchen einmal abgespeichert und vom normalen TypeHandler zuk\'fcnftig ganz normal aufgel\'f6st.\par
+Passt.\par
+\line Das hei\'dft: Ganz einfach ist es nur, wenn es am Ende der Enum Konstanten Liste dazukommt.\par
+Wenn davor eine dazukommt wirds knifflig. Das ist dann n\'e4mlich eigentlich erst mal #3 und was \'fcbrig bleibt, muss dann wohl eine neue Konstante sein.\par
+Hm...\par
+\par
+Um Zweideutigkeiten bei #3 und #4 zu vermeiden, kann man optional nat\'fcrlich auch angeben, dass eine Konstante neu ist.\par
+\par
+2.) Feld/Konstante f\'e4llt weg\par
+Das ist am kniffligsten:\par
+Die aktuelle Typdefinition enth\'e4lt eine Konstante nicht mehr, aber es gibt sie noch in der Datenbank.\par
+Was tun?\par
+Exception? Dann startet die Anwendung nicht mehr bzw. crasht zwischendrin. Nicht so toll.\par
+Legacy-m\'e4\'dfig eine Instanz daf\'fcr erzeugen anstatt mappen? Das kann in der Anwendungslogik fatal ausgehen, z.B. in vermeintlich vollst\'e4ndigen enum-switches, die auf einmal nicht mehr vollst\'e4ndig sind.\par
+Zu null mappen? Das w\'e4re vielleicht das gescheiteste. Die Typdefinition sieht die Konstante nicht mehr vor, also wird beim Laden nichts mehr erzeugt oder verkn\'fcpft. Einfach null. Quasi "auf Befehl" des Entwicklers.\par
+\par
+Es w\'e4re noch zu \'fcberlegen, ob man dieses Entfallen explizit vorgeben muss durch einen Entfernungseintrag im Refactoring Mapping. Das macht Sinn. Das mach ich.\par
+\par
+Wie bei #1 ist nat\'fcrlich auch hier wieder die knifflige Frage: Was ist denn weggefallen und was ist nur ge\'e4ndert?\par
+\par
+3.) Feld/Konstante \'e4ndert die Position\par
+Eigentlich ist das trivial: Der persistente Datensatz mit z.B. der Ordinal 2 wird assoziiert mit der aktuellen Runtime Enum Konstante mit Ordinal z.B. 3 assoziiert. Fertig.\par
+Wird diese Instanz dann mal wieder abgespeichert, wird sie mit 3 statt 2 gespeichert und ist auf dem aktuellen Stand.\par
+\cf1 Das w\'e4re gleich was f\'fcr das Roots synchen: Ge\'e4nderte Instanzen m\'fcssen immer abgespeichert werden (explizit, nicht nur das Object[] mit den Konstanten!)\cf0\par
+\par
+Das knifflige daran ist, wie man feststellt, dass eine Konstante "nur" ihre Position ge\'e4ndert hat.\par
+\par
+Beispiel:\par
+\par
+Alt:\par
+0 = CAT,\par
+1 = DOG,\par
+2 = RAT,\par
+3 = ANT,\par
+\par
+Neu:\par
+0 = CAT,\par
+1 = RAT,\par
+2 = DOG,\par
+3 = ANT,\par
+\par
+Haben RAT und DOG die Pl\'e4tze getauscht, oder sollen beide dieselbe Ident\'e4t haben und ihre Namen sind nur ausgetauscht worden?\par
+(Die Namen im Beispiel sind nat\'fcrlich naiv, nur der Einfachheit halber)\par
+\par
+Das ist nicht sicher beantwortbar.\par
+Man muss die Design\'fcberlegung dahinter kennen, um es mit Sicherheit korrekt zu beantworten.\par
+Hei\'dft: Das muss der Entwickler per Refactoring Mapping vorgeben.\par
+\par
+Man kann nat\'fcrlich wieder Heuristiken anwenden: Man nimmt an, dass der Name gewichtiger f\'fcr die Identifikation ist, als die Position.\par
+Aus Designsicht sollte die Position eigentlich irrelevant sein. Bestenfalls f\'fcr \'dcbersicht oder "\'c4sthetik" der Konstanten. Aber der Name ist das, was das Ding designm\'e4\'dfig identifiziert.\par
+Also kann man sagen: wann immer zwei Konstanten bei alt und neu den gleichen namen haben, SIND sie die gleiche Instanz.\par
+Alle davon abweichenden F\'e4lle, z.B. eine Mischung aus neu hinzukommen, umbenennen und dabei einer anderen Instanz als neuen Namen den alten Namen einer anderen Instanz geben, muss dann der Entwickler manuell mappen.\par
+\par
+\par
+4.) Feld/Konstante wird umbenannt\par
+\par
+Mit der Annahme von #3 wird es nat\'fcrlich schwierig, f\'fcr diesen Punkt \'fcberhaupt noch valide F\'e4lle zu finden.\par
+Eigentlich bleibt nur:\par
+Alle anderen Konstanten wurden bereits perfekt gematcht, aber es ist auf jeder Seite noch genau eine Konstante \'fcbrig.\par
+Da man nicht davon ausgeht, dass die eine gel\'f6scht und die anderen hingef\'fcgt wurde (denn L\'f6schungen m\'fcssen IMMER explizit gemappt werden), kann man sicher davon ausgehen, dass es eine Umbenennung ist.\par
+Auch hier wieder: Falls es eigentlich 2 oder mehr versteckte Umbenennungen waren, die nur zu einem simpler erscheinenden Ergebnis gef\'fchrt haben, muss das explizit gemappt werden.\par
+\par
+\par
+Das sollte so weit passen.\par
+\par
+Jetzt ist daran noch ein Punkt:\par
+Es m\'fcsste ein extra matching f\'fcr enum konstanten geben. Die d\'fcrfen auf keinen Fall mit instance members vermischt werden.\par
+\par
+Also in PersistenceLegacyTypeMapper#match darf eigentlich nicht "allMembers" stehen, sondern es muss zwei separate matches geben, die am Ende dann wieder zusammengefasst werden.\par
+ODER es m\'fcsste irgendwie eine "harte" bedingung geben, die enum-members und nicht-enum-members disjunkt zueinander macht ...\par
+Hm...\par
+\par
+Muss ich mir dann mal im Code anschauen.\par
 }
  
