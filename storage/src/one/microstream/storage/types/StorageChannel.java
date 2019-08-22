@@ -285,7 +285,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				 */
 				if(!operationController.checkProcessingEnabled())
 				{
-					DEBUGStorage.println(this.channelIndex + " processing disabled.");
+					DebugStorage.println(this.channelIndex + " processing disabled.");
 					break;
 				}
 
@@ -309,7 +309,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 //				DEBUGStorage.println(this.channelIndex + " current Task: " + currentTask);
 			}
 
-			DEBUGStorage.println("Storage channel " + this.channelIndex + " stops working.");
+			DebugStorage.println("Storage channel " + this.channelIndex + " stops working.");
 		}
 
 
@@ -337,7 +337,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				 * Note: applies to interruption as well, because on privately managed threads,
 				 * interruping ultimately means just stop running in a ordered fashion
 				 */
-				DEBUGStorage.println(this.channelIndex + " encountered exception " + t);
+				DebugStorage.println(this.channelIndex + " encountered exception " + t);
 				this.exceptionHandler.handleException(t, this);
 			}
 		}
