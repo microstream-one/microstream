@@ -959,7 +959,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //			final HashTable<StorageEntityType<?>, Long> deletedEntities = HashTable.New();
 //			final HashTable<StorageEntityType<?>, Long> rescuedEntities = HashTable.New();
 
-			DEBUGStorage.println(this.channelIndex + " sweeping");
+			DebugStorage.println(this.channelIndex + " sweeping");
 
 //			long DEBUG_safed = 0, DEBUG_collected = 0, DEBUG_lowest_collected = Long.MAX_VALUE, DEBUG_highest_collected = 0, DEBUG_safed_gray = 0;
 //			final long DEBUG_starttime = System.nanoTime();
@@ -1314,7 +1314,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			{
 				this.resetLiveCursor();
 
-				DEBUGStorage.println(this.channelIndex + " completed live check.");
+				DebugStorage.println(this.channelIndex + " completed live check.");
 
 				// report live check completed
 				return true;

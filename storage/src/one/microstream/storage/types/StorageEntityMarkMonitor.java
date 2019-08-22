@@ -191,7 +191,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		{
 			if(this.gcColdPhaseComplete)
 			{
-				DEBUGStorage.println("GC already complete.");
+				DebugStorage.println("GC already complete.");
 				return;
 			}
 
@@ -209,14 +209,14 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				this.gcColdPhaseComplete = true;
 				this.lastGcColdCompletion = System.currentTimeMillis();
 				this.gcColdGeneration++;
-				DEBUGStorage.println("Completed GC #" + this.gcColdGeneration + " @ " + this.lastGcColdCompletion);
+				DebugStorage.println("Completed GC #" + this.gcColdGeneration + " @ " + this.lastGcColdCompletion);
 			}
 			else
 			{
 				this.gcHotPhaseComplete = true;
 				this.lastGcHotCompletion = System.currentTimeMillis();
 				this.gcHotGeneration++;
-				DEBUGStorage.println("Completed GC Hot Phase #" + this.gcHotGeneration + " @ " + this.lastGcHotCompletion);
+				DebugStorage.println("Completed GC Hot Phase #" + this.gcHotGeneration + " @ " + this.lastGcHotCompletion);
 			}
 		}
 
@@ -295,7 +295,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			// mark this channel as having completed the sweep
 			this.needsSweep[channel.channelIndex()] = false;
 			
-			DEBUGStorage.println(channel.channelIndex() + " completed sweeping.");
+			DebugStorage.println(channel.channelIndex() + " completed sweeping.");
 
 			// decrement sweep channel count and execute completion logic if required.
 			if(--this.sweepingChannelCount == 0)
