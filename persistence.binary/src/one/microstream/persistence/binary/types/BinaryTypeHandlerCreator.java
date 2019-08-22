@@ -28,6 +28,7 @@ import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceTypeAnalyzer;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
+import one.microstream.persistence.types.PersistenceTypeInstantiatorProvider;
 import one.microstream.persistence.types.PersistenceTypeResolver;
 import one.microstream.typing.LambdaTypeRecognizer;
 
@@ -41,12 +42,13 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 
 	
 	public static BinaryTypeHandlerCreator New(
-		final PersistenceTypeAnalyzer               typeAnalyzer              ,
-		final PersistenceTypeResolver               typeResolver              ,
-		final PersistenceFieldLengthResolver        lengthResolver            ,
-		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
-		final LambdaTypeRecognizer                  lambdaTypeRecognizer      ,
-		final boolean                               switchByteOrder
+		final PersistenceTypeAnalyzer                     typeAnalyzer              ,
+		final PersistenceTypeResolver                     typeResolver              ,
+		final PersistenceFieldLengthResolver              lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator       eagerStoringFieldEvaluator,
+		final LambdaTypeRecognizer                        lambdaTypeRecognizer      ,
+		final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider      ,
+		final boolean                                     switchByteOrder
 	)
 	{
 		return new BinaryTypeHandlerCreator.Default(
@@ -55,6 +57,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			notNull(lengthResolver)            ,
 			notNull(eagerStoringFieldEvaluator),
 			notNull(lambdaTypeRecognizer)      ,
+			notNull(instantiatorProvider)      ,
 			switchByteOrder
 		);
 	}
@@ -67,7 +70,8 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		// instance fields //
 		////////////////////
 		
-		final boolean switchByteOrder;
+		final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider;
+		final boolean                                  switchByteOrder     ;
 		
 		
 		
@@ -76,16 +80,18 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		/////////////////
 
 		Default(
-			final PersistenceTypeAnalyzer               typeAnalyzer              ,
-			final PersistenceTypeResolver               typeResolver              ,
-			final PersistenceFieldLengthResolver        lengthResolver            ,
-			final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
-			final LambdaTypeRecognizer                  lambdaTypeRecognizer      ,
-			final boolean                               switchByteOrder
+			final PersistenceTypeAnalyzer                     typeAnalyzer              ,
+			final PersistenceTypeResolver                     typeResolver              ,
+			final PersistenceFieldLengthResolver              lengthResolver            ,
+			final PersistenceEagerStoringFieldEvaluator       eagerStoringFieldEvaluator,
+			final LambdaTypeRecognizer                        lambdaTypeRecognizer      ,
+			final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider      ,
+			final boolean                                     switchByteOrder
 		)
 		{
 			super(typeAnalyzer, typeResolver, lengthResolver, eagerStoringFieldEvaluator, lambdaTypeRecognizer);
-			this.switchByteOrder = switchByteOrder;
+			this.instantiatorProvider = instantiatorProvider;
+			this.switchByteOrder      = switchByteOrder     ;
 		}
 
 
@@ -189,12 +195,12 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 
 			// default implementation simply always uses a blank memory instantiator
 			return BinaryHandlerGenericType.New(
-				type                                           ,
-				this.deriveTypeName(type)                      ,
-				persistableFields                              ,
-				this.lengthResolver()                          ,
-				this.eagerStoringFieldEvaluator()              ,
-				BinaryPersistence.blankMemoryInstantiator(type),
+				type,
+				this.deriveTypeName(type),
+				persistableFields,
+				this.lengthResolver(),
+				this.eagerStoringFieldEvaluator(),
+				this.instantiatorProvider.provideTypeInstantiator(type),
 				this.switchByteOrder
 			);
 		}

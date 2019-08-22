@@ -16,7 +16,7 @@ public final class Person extends Contact.Abstract
 	// constructors //
 	/////////////////
 	
-	Person()
+	public Person()
 	{
 		// internal dummy constructor
 		this(null, null, null, null);
