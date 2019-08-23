@@ -5,8 +5,10 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 
+import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashTable;
+import one.microstream.collections.XUtilsCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingTable;
@@ -20,6 +22,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
+import one.microstream.reflect.XReflect;
 import one.microstream.util.similarity.Similarity;
 
 public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHandlerCreator<Binary>
@@ -138,6 +141,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult
 		)
 		{
+			// (23.08.2019 TM)FIXME: priv#23: enum handling here as well
+			
 			final PersistenceTypeHandler<Binary, T> typeHandler = mappingResult.currentTypeHandler();
 			if(typeHandler.hasPersistedVariableLength())
 			{
@@ -170,7 +175,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		}
 
 		@Override
-		protected <T> PersistenceLegacyTypeHandler<Binary, T> deriveReflectiveHandler(
+		protected <T> BinaryLegacyTypeHandlerReflective<T> deriveReflectiveHandler(
 			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult,
 			final PersistenceTypeHandlerReflective<Binary, T>   typeHandler
 		)
@@ -179,22 +184,65 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				typeHandler.instanceMembers()
 			);
 			
-			final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets = this.deriveValueTranslators(
-				mappingResult.legacyTypeDefinition()  ,
-				mappingResult.currentTypeHandler()    ,
+			final XGettingTable<Long, BinaryValueSetter> valueTranslators = this.deriveValueTranslators(
+				mappingResult.legacyTypeDefinition(),
+				mappingResult.currentTypeHandler(),
 				mappingResult.legacyToCurrentMembers(),
 				targetMemberOffsets,
 				true
 			);
 			
-			return BinaryLegacyTypeHandlerReflective.New(
+			return XReflect.isEnum(typeHandler.type())
+				? this.deriveReflectiveHandlerGenericEnum(mappingResult, typeHandler, valueTranslators)
+				: this.deriveReflectiveHandlerGenericType(mappingResult, typeHandler, valueTranslators)
+			;
+		}
+		
+		private <T> BinaryLegacyTypeHandlerReflective<T> deriveReflectiveHandlerGenericEnum(
+			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult               ,
+			final PersistenceTypeHandlerReflective<Binary, T>   typeHandler                 ,
+			final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets
+		)
+		{
+			final EqHashEnum<PersistenceTypeDefinitionMember> legacyEnumMembers = XUtilsCollection.subtract(
+				EqHashEnum.<PersistenceTypeDefinitionMember>New(mappingResult.legacyTypeDefinition().allMembers()),
+				mappingResult.legacyTypeDefinition().instanceMembers()
+			);
+			
+			final EqHashEnum<PersistenceTypeDefinitionMember> currentEnumMembers = XUtilsCollection.subtract(
+				EqHashEnum.<PersistenceTypeDefinitionMember>New(mappingResult.currentTypeHandler().allMembers()),
+				mappingResult.currentTypeHandler().instanceMembers()
+			);
+			
+			if(PersistenceLegacyTypeMappingResult.isUnchangedStructure(
+				legacyEnumMembers,
+				currentEnumMembers,
+				mappingResult
+			))
+			{
+				// (23.08.2019 TM)FIXME: priv#23: handler for unchanged constants structure
+			}
+			
+			// (23.08.2019 TM)FIXME: priv#23: handler for both changed constants AND instance fields
+			
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+		
+		private <T> BinaryLegacyTypeHandlerGenericType<T> deriveReflectiveHandlerGenericType(
+			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult               ,
+			final PersistenceTypeHandlerReflective<Binary, T>   typeHandler                 ,
+			final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets
+		)
+		{
+			return BinaryLegacyTypeHandlerGenericType.New(
 				mappingResult.legacyTypeDefinition(),
-				typeHandler                         ,
-				translatorsWithTargetOffsets        ,
-				this.legacyTypeHandlingListener     ,
+				typeHandler,
+				translatorsWithTargetOffsets,
+				this.legacyTypeHandlingListener,
 				this.switchByteOrder
 			);
 		}
 		
 	}
+	
 }

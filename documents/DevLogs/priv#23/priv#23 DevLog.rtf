@@ -1281,6 +1281,43 @@ Das k\'f6nnte der MemberMatchingEqualator sein, mal schauen.\par
 Ne. Der equalator kann nur perfekte matches finden.\par
 Aber der Similator kann vor der Berechnung direkt ein 0.0 zur\'fcckgeben. Dann ist das so ein harter Ausschlu\'df.\par
 \par
+Daf\'fcr ist PersistenceTypeDescriptionMember#isEnumConstant genau richtig.\par
+\par
+Das Problem daran ist nur, dass PersistenceTypeDescriptionMember#typeName bei enum constanten null ist.\par
+Sollten die evtl. besser einen non-null wert bekommen? Ihr eigentlicher TypeName ist da beim parsen dummerweise noch nicht verf\'fcgbar. Aber evtl. einfach das "enum" an sich?\par
+So mach ich das.\par
+\par
+Weiter im Text.\par
+\par
+BinaryLegacyTypeHandlerReflective muss abstract werden und zwei Kindklassen ~GenericType und ~Enum bekommen.\par
+\par
+Die Pr\'fcfung auf unchangedStructure darf nur auf instanceMembers erfolgen und dann muss nach Enum oder nicht unterschieden werden.\par
+Im enum Fall muss es dann nochmal eine unterscheidung geben:\par
+Hat sich nur instance member struktur ge\'e4ndert oder nur die enums oder beides?\par
+Dementsprechend muss es Enum Handler implementierungen geben.\par
+\par
+Code bissl umstrukturieren daf\'fcr.\par
+\par
+Oh, extrem fies: Eine Wrapper Implementierung muss ALLE default methods implementieren und explizit an den delegate weiterleiten, sonst \'e4ndert sie das Verhalten auf ungew\'fcnschte Weise.\par
+Gleich mal machen und kommentieren. Im Wrapper UND im Interface bei den Default methods.\par
+Das ist echt gef\'e4hrlich.\par
+\par
+Eigentlich m\'fcsste es eine Annotation geben, die den Compiler dazu veranlasst, zur Implementierung aller Default methods zu zwingen.\par
+Kurz googeln. Gibt's nat\'fcrlich nicht.\par
+\par
+Aber Moment mal:\line Selbst wenn die Enum Konstanten von altem zu neuem Typ gleich geblieben sind, muss nicht trotzdem umgemappt werden?\par
+Hm, wobei das macht ja der TypeHandler implizit. Der mappt ja auf die Konstanteninstanzen seines Types, und das ist der neue.\par
+\cf1 Hm... muss ich dann testen...\cf0\par
+\par
+Also weiter im Text:\par
+Es gibt, schon wieder mal, mehrere Arten an zu handelnden F\'e4llen:\par
+- Enum Konstanten sind strukturell unver\'e4ndert und Instanz Felder sind strukturell unver\'e4ndert (d.h. nur Namen von Instanzfeldern haben sich ge\'e4ndert). Dann Wrapper.\par
+- Enum Konstanten sind strukturell unver\'e4ndert und Instanz Felder sind strukturell ver\'e4ndert. Dann LegacyHandler analog zu normalem, aber mit Enum special logik gemerget ...\par
+- Enum Konstanten sind strukturell ver\'e4ndert und Instanz Felder sind strukturell unver\'e4ndert. Dann Wrapper, aber mit Enum special logik und Konstantenmapping.\par
+- Enum Konstanten sind strukturell ver\'e4ndert und Instanz Felder sind strukturellnver\'e4ndert. Dann LegacyHandler aber mit Enum special logik und Konstantenmapping.\par
+\par
+Und DANN gibt's noch den Fall, dass es ein CustomHandler ist... uff.\par
+\par
 \par
 }
  

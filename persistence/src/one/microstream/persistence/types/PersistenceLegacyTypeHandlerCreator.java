@@ -1,15 +1,14 @@
 package one.microstream.persistence.types;
 
-import java.util.Iterator;
-
-import one.microstream.collections.types.XGettingMap;
-import one.microstream.util.similarity.Similarity;
+import one.microstream.reflect.XReflect;
 
 public interface PersistenceLegacyTypeHandlerCreator<M>
 {
 	public <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
 		PersistenceLegacyTypeMappingResult<M, T> mappingResult
 	);
+	
+	
 	
 	
 	
@@ -20,13 +19,13 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 			final PersistenceLegacyTypeMappingResult<M, T> result
 		)
 		{
-			if(isUnchangedStructure(result))
+			if(PersistenceLegacyTypeMappingResult.isUnchangedInstanceStructure(result))
 			{
 				/*
 				 * special case: structure didn't change, only namings, so the current type handler can be used.
 				 * Note that this applies to custom handlers, too. Even ones with variable length instances.
 				 */
-				return PersistenceLegacyTypeHandler.Wrap(result.legacyTypeDefinition(), result.currentTypeHandler());
+				return this.createTypeHandlerUnchangedInstanceStructure(result);
 			}
 			
 			if(result.currentTypeHandler() instanceof PersistenceTypeHandlerReflective<?, ?>)
@@ -39,49 +38,46 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 
 			return this.deriveCustomWrappingHandler(result);
 		}
-			
 		
-		private static boolean isUnchangedStructure(final PersistenceLegacyTypeMappingResult<?, ?> result)
+		protected <T> PersistenceLegacyTypeHandler<M, T> createTypeHandlerUnchangedInstanceStructure(
+			final PersistenceLegacyTypeMappingResult<M, T> result
+		)
 		{
-			if(result.legacyTypeDefinition().allMembers().size() != result.currentTypeHandler().allMembers().size())
+			if(XReflect.isEnum(result.currentTypeHandler().type()))
 			{
-				// if there are differing members counts, the structure cannot be unchanged.
-				return false;
+				return this.createTypeHandlerUnchangedInstanceStructureGenericEnum(result);
 			}
 
-			final XGettingMap<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> map =
-				result.legacyToCurrentMembers()
-			;
-			final Iterator<? extends PersistenceTypeDefinitionMember> legacy =
-				result.legacyTypeDefinition().allMembers().iterator()
-			;
-			final Iterator<? extends PersistenceTypeDefinitionMember> current =
-				result.currentTypeHandler().allMembers().iterator()
-			;
-			
-			// check as long as both collections have order-wise corresponding entries (ensured by size check above)
-			while(legacy.hasNext())
+			return this.createTypeHandlerUnchangedInstanceStructureGenericType(result);
+		}
+		
+		protected <T> PersistenceLegacyTypeHandler<M, T> createTypeHandlerUnchangedInstanceStructureGenericEnum(
+			final PersistenceLegacyTypeMappingResult<M, T> result
+		)
+		{
+			if(PersistenceLegacyTypeMappingResult.isUnchangedFullStructure(result))
 			{
-				final PersistenceTypeDefinitionMember legacyMember  = legacy.next() ;
-				final PersistenceTypeDefinitionMember currentMember = current.next();
-				
-				// all legacy members must be directly mapped to their order-wise corresponding current member.
-				if(map.get(legacyMember) != currentMember)
-				{
-					return false;
-				}
-				
-				// and the types must be the same, of course. Member names are sound and smoke.
-				if(!legacyMember.typeName().equals(currentMember.typeName()))
-				{
-					return false;
-				}
+				// current enum type handler is generically wrapped
+				return PersistenceLegacyTypeHandler.Wrap(
+					result.legacyTypeDefinition(),
+					result.currentTypeHandler()
+				);
 			}
 			
-			// no need to check for remaining elements since size was checked above
-			return true;
+			// (23.08.2019 TM)FIXME: priv#23: legacyEnum handler with identical structure but changed constants
+			throw new one.microstream.meta.NotImplementedYetError();
 		}
-				
+		
+		protected <T> PersistenceLegacyTypeHandler<M, T> createTypeHandlerUnchangedInstanceStructureGenericType(
+			final PersistenceLegacyTypeMappingResult<M, T> result
+		)
+		{
+			return PersistenceLegacyTypeHandler.Wrap(
+				result.legacyTypeDefinition(),
+				result.currentTypeHandler()
+			);
+		}
+							
 		protected abstract <T> PersistenceLegacyTypeHandler<M, T> deriveCustomWrappingHandler(
 			PersistenceLegacyTypeMappingResult<M, T> mappingResult
 		);

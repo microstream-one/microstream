@@ -25,12 +25,6 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers();
 	
-	public default XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
-	{
-		// by default, there is no difference between members (in persisted order) and members in declared order.
-		return this.allMembers();
-	}
-	
 	public boolean hasInstanceReferences();
 	
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
@@ -41,7 +35,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
 	public void store(M medium, T instance, long objectId, PersistenceStoreHandler handler);
 
-	public T    create(M medium, PersistenceObjectIdResolver idResolver);
+	public T create(M medium, PersistenceObjectIdResolver idResolver);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for loading
 	public void update(M medium, T instance, PersistenceObjectIdResolver idResolver);
@@ -75,6 +69,20 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 * @param logic
 	 */
 	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(C logic);
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// default methods //
+	////////////////////
+	
+	//!\\ all new default methods must be implemented in PersistenceLegacyTypeHandler$Wrapper to prevent bugs!
+	
+	public default XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
+	{
+		// by default, there is no difference between members (in persisted order) and members in declared order.
+		return this.allMembers();
+	}
 	
 	/**
 	 * Guarantees that the {@link PersistenceTypeHandler} implementation is actually viably usable to handle instances.
@@ -122,7 +130,8 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		// (14.08.2019 TM)EXCP: proper exception
 		throw new UnsupportedOperationException();
 	}
-	
+
+	//!\\ all new default methods must be implemented in PersistenceLegacyTypeHandler$Wrapper to prevent bugs!
 	
 	
 	public abstract class Abstract<M, T> implements PersistenceTypeHandler<M, T>

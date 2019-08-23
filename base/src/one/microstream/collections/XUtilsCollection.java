@@ -9,6 +9,7 @@ import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.types.XAddingCollection;
+import one.microstream.collections.types.XCollection;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XInsertingList;
@@ -233,6 +234,15 @@ public final class XUtilsCollection
 		return collection;
 	}
 
+	
+	public static <E, C extends XCollection<E>> C subtract(
+		final C                               elements,
+		final XGettingCollection<? extends E> other
+	)
+	{
+		elements.removeAll(other);
+		return elements;
+	}
 
 
 	private static String exceptionStringOffset(final int size, final long offset)
