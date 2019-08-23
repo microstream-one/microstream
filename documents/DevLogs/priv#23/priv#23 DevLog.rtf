@@ -1267,5 +1267,20 @@ ODER es m\'fcsste irgendwie eine "harte" bedingung geben, die enum-members und n
 Hm...\par
 \par
 Muss ich mir dann mal im Code anschauen.\par
+\par
+\par
+\par
+2019-08-23\par
+\par
+Eigentlich ist es ganz einfach:\par
+Das kann alles in einem matching drin sein, es muss nur ein hartes Ausschlusskriterium geben, das nicht einfach nur ein 0.0 f\'fcr einen Faktor beitr\'e4gt, sondern mit einem finalen 0.0 Ergebnis abbricht.\par
+Dann kann das Konstantenfeldmatching eigentlich ganz regul\'e4r mit dem anderen mitlaufen, ohne extra Implementierung.\par
+Also checken wegen so einer Ausschluss-M\'f6glichkeit.\par
+\par
+Das k\'f6nnte der MemberMatchingEqualator sein, mal schauen.\par
+Ne. Der equalator kann nur perfekte matches finden.\par
+Aber der Similator kann vor der Berechnung direkt ein 0.0 zur\'fcckgeben. Dann ist das so ein harter Ausschlu\'df.\par
+\par
+\par
 }
  
