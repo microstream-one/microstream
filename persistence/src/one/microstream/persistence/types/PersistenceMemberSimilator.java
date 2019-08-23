@@ -47,6 +47,12 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 			final PersistenceTypeDefinitionMember targetMember
 		)
 		{
+			if(sourceMember.isEnumConstant() != targetMember.isEnumConstant())
+			{
+				// may never even begin consider to match enum constant fields and non-enum-constant fields.
+				return 0.0;
+			}
+			
 			final float nameSimilarity = this.calculateSimilarityByName(sourceMember, targetMember);
 			final float typeSimilarity = this.calculateSimilaritybyType(sourceMember, targetMember);
 			
@@ -75,7 +81,7 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 				sourceMember.name(),
 				targetMember.name()
 			);
-			final float qualifierFactor = calculateQualifierSimilarityFactor(
+			final float qualifierFactor = this.calculateQualifierSimilarityFactor(
 				sourceMember.runtimeQualifier(),
 				targetMember.runtimeQualifier()
 			);
