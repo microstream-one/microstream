@@ -1,9 +1,5 @@
 package one.microstream.persistence.binary.types;
 
-import static one.microstream.X.mayNull;
-import static one.microstream.X.notNull;
-
-import one.microstream.collections.types.XGettingTable;
 import one.microstream.exceptions.TypeCastException;
 import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
@@ -11,33 +7,9 @@ import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 
-public final class BinaryLegacyTypeHandlerReflective<T>
+public abstract class BinaryLegacyTypeHandlerReflective<T>
 extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 {
-	///////////////////////////////////////////////////////////////////////////
-	// static methods //
-	///////////////////
-	
-	public static <T> BinaryLegacyTypeHandlerReflective<T> New(
-		final PersistenceTypeDefinition                     typeDefinition              ,
-		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler                 ,
-		final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets,
-		final PersistenceLegacyTypeHandlingListener<Binary> listener                    ,
-		final boolean                                       switchByteOrder
-	)
-	{
-		return new BinaryLegacyTypeHandlerReflective<>(
-			notNull(typeDefinition)                      ,
-			notNull(typeHandler)                         ,
-			toTranslators(translatorsWithTargetOffsets)  ,
-			toTargetOffsets(translatorsWithTargetOffsets),
-			mayNull(listener)                            ,
-			switchByteOrder
-		);
-	}
-	
-	
-	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////

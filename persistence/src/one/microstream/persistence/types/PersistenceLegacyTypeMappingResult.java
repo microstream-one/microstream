@@ -2,6 +2,8 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import java.util.Iterator;
+
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.util.similarity.Similarity;
@@ -21,6 +23,72 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 	public XGettingEnum<PersistenceTypeDefinitionMember> discardedLegacyMembers();
 	
 	public XGettingEnum<PersistenceTypeDefinitionMember> newCurrentMembers();
+	
+	
+	
+	public static boolean isUnchangedInstanceStructure(
+		final PersistenceLegacyTypeMappingResult<?, ?> mappingResult
+	)
+	{
+		return isUnchangedStructure(
+			mappingResult.legacyTypeDefinition().instanceMembers(),
+			mappingResult.currentTypeHandler().instanceMembers(),
+			mappingResult
+		);
+	}
+	
+	public static boolean isUnchangedFullStructure(
+		final PersistenceLegacyTypeMappingResult<?, ?> mappingResult
+	)
+	{
+		return isUnchangedStructure(
+			mappingResult.legacyTypeDefinition().allMembers(),
+			mappingResult.currentTypeHandler().allMembers(),
+			mappingResult
+		);
+	}
+	
+	public static boolean isUnchangedStructure(
+		final XGettingEnum<? extends PersistenceTypeDefinitionMember> legacyMembers ,
+		final XGettingEnum<? extends PersistenceTypeDefinitionMember> currentMembers,
+		final PersistenceLegacyTypeMappingResult<?, ?>                mappingResult
+	)
+	{
+		if(legacyMembers.size() != currentMembers.size())
+		{
+			// if there are differing members counts, the structure cannot be unchanged.
+			return false;
+		}
+
+		final Iterator<? extends PersistenceTypeDefinitionMember> legacy  = legacyMembers.iterator();
+		final Iterator<? extends PersistenceTypeDefinitionMember> current = currentMembers.iterator();
+		
+		final XGettingTable<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> mapping =
+			mappingResult.legacyToCurrentMembers()
+		;
+		
+		// check as long as both collections have order-wise corresponding entries (ensured by size check above)
+		while(legacy.hasNext())
+		{
+			final PersistenceTypeDefinitionMember legacyMember  = legacy.next() ;
+			final PersistenceTypeDefinitionMember currentMember = current.next();
+			
+			// all legacy members must be directly mapped to their order-wise corresponding current member.
+			if(mapping.get(legacyMember) != currentMember)
+			{
+				return false;
+			}
+			
+			// and the types must be the same, of course. Member names are sound and smoke.
+			if(!legacyMember.typeName().equals(currentMember.typeName()))
+			{
+				return false;
+			}
+		}
+		
+		// no need to check for remaining elements since size was checked above
+		return true;
+	}
 	
 	
 	

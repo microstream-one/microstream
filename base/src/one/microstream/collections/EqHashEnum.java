@@ -107,7 +107,7 @@ implements XEnum<E>, HashCollection<E>, Composition
 		return NewCustom(XHashing.<E>hashEqualityValue(), DEFAULT_HASH_FACTOR, entries);
 	}
 
-	public static final <E> EqHashEnum<E> New(final XGettingCollection<E> entries)
+	public static final <E> EqHashEnum<E> New(final XGettingCollection<? extends E> entries)
 	{
 		return EqHashEnum.<E>New().addAll(entries);
 	}

@@ -123,7 +123,7 @@ public interface PersistenceTypeDescriptionMemberEnumConstant extends Persistenc
 		@Override
 		public String typeName()
 		{
-			return null;
+			return PersistenceTypeDictionary.Symbols.KEYWORD_ENUM;
 		}
 		
 		@Override

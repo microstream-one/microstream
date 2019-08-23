@@ -12,15 +12,8 @@ import one.microstream.test.corp.logic.TestImportExport;
 public class MainTestStoreEnum
 {
 
-
 	public static void main(final String[] args)
 	{
-//		if(System.currentTimeMillis() > 0)
-//		{
-//			printEnums();
-//			System.exit(0);
-//		}
-
 		// creates and starts an embedded storage manager with all-default-settings.
 		final EmbeddedStorageManager storage = EmbeddedStorage
 			.Foundation()
@@ -120,6 +113,7 @@ enum SimpleEnum
 	TypeA,
 	TypeB,
 	TypeC,
+//	TypeN,
 }
 
 enum StatefulEnum

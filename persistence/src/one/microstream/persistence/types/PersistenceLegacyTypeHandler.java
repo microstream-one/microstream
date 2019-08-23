@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import java.util.function.Consumer;
 
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 
 public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandler<M, T>
 {
@@ -19,7 +20,9 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		// (01.06.2018 TM)NOTE: /!\ copied from PersistenceTypeHandler#initializeTypeId
 		// (26.04.2017 TM)EXCP: proper exception
 		throw new IllegalArgumentException(
-			"Specified type ID " + typeId + " conflicts with already initalized type ID " + this.typeId()
+			"Specified type ID " + typeId
+			+ " conflicts with already initalized type ID "
+			+ this.typeId()
 		);
 	}
 
@@ -142,12 +145,12 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	
 	public static <M, T> PersistenceLegacyTypeHandler<M, T> Wrap(
 		final PersistenceTypeDefinition    legacyTypeDefinition,
-		final PersistenceTypeHandler<M, T> typeHandler
+		final PersistenceTypeHandler<M, T> currentTypeHandler
 	)
 	{
 		return new Wrapper<>(
 			notNull(legacyTypeDefinition),
-			notNull(typeHandler)
+			notNull(currentTypeHandler)
 		);
 	}
 	
@@ -165,13 +168,13 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		// constructors //
 		/////////////////
 
-		public Wrapper(
-			final PersistenceTypeDefinition typeDefinition           ,
-			final PersistenceTypeHandler<M, T> fittingCurrentTypeHandler
+		Wrapper(
+			final PersistenceTypeDefinition    typeDefinition,
+			final PersistenceTypeHandler<M, T> typeHandler
 		)
 		{
 			super(typeDefinition);
-			this.typeHandler = fittingCurrentTypeHandler;
+			this.typeHandler = typeHandler;
 		}
 		
 		
@@ -227,6 +230,60 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		public final Class<T> type()
 		{
 			return this.typeHandler.type();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// default method implementations //
+		///////////////////////////////////
+		
+		/*
+		 * Tricky:
+		 * Must pass through all default methods to be a correct wrapper.
+		 * Otherwise, the wrapper changes the behavior in an unwanted fashion.
+		 */
+		
+		@Override
+		public XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
+		{
+			// Must pass through all default methods to be a correct wrapper.
+			return this.typeHandler.membersInDeclaredOrder();
+		}
+		
+		@Override
+		public void guaranteeSpecificInstanceViablity() throws PersistenceExceptionTypeNotPersistable
+		{
+			// Must pass through all default methods to be a correct wrapper.
+			this.typeHandler.guaranteeSpecificInstanceViablity();
+		}
+		
+		@Override
+		public boolean isSpecificInstanceViable()
+		{
+			// Must pass through all default methods to be a correct wrapper.
+			return this.typeHandler.isSpecificInstanceViable();
+		}
+		
+		@Override
+		public void guaranteeSubTypeInstanceViablity() throws PersistenceExceptionTypeNotPersistable
+		{
+			// Must pass through all default methods to be a correct wrapper.
+			this.typeHandler.guaranteeSubTypeInstanceViablity();
+		}
+		
+		@Override
+		public boolean isSubTypeInstanceViable()
+		{
+			// Must pass through all default methods to be a correct wrapper.
+			return this.typeHandler.isSubTypeInstanceViable();
+		}
+		
+		@Override
+		public Object[] collectEnumConstants()
+		{
+			// Must pass through all default methods to be a correct wrapper.
+			return this.typeHandler.collectEnumConstants();
 		}
 		
 	}
