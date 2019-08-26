@@ -200,6 +200,16 @@ public final class XReflect
 		;
 	}
 	
+	public static Object getEnumConstantInstance(final Class<?> type, final int ordinal)
+	{
+		validateIsEnum(type);
+		
+		// Class detour required for AIC-like special subclass enums constants.
+		final Object[] jvmEnumConstants = XReflect.getDeclaredEnumClass(type).getEnumConstants();
+		
+		return jvmEnumConstants[ordinal];
+	}
+	
 
 	
 	public static <T> Class<T> validateIsEnum(final Class<T> type)

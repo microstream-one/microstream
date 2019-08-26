@@ -1319,5 +1319,45 @@ Es gibt, schon wieder mal, mehrere Arten an zu handelnden F\'e4llen:\par
 Und DANN gibt's noch den Fall, dass es ein CustomHandler ist... uff.\par
 \par
 \par
+2019-08-26\par
+\par
+Also ich implementier jetz einfach mal Fall f\'fcr Fall und schau, was sich daraus ergibt ...\par
+\par
+Ah, gleich das erste Problem:\par
+Das Mapping Result unterscheidet nicht zwischen implicitely und explicitely discarded legacy members.\par
+Enum Konstanten d\'fcrfen auf jeden Fall nur explicitely discarded werden, sonst gibt es Inkonsistenzen.\par
+Wobei... was ist daran so viel anders als an Inkonsistenzen durch fehlende Daten? Letztendlich wird die discardete Enum Konstante eine null Referenz in den Daten. *shruggie*.\par
+\par
+Also erst mal das Mapping Array bauen.\par
+\par
+Jetzt den LegacyTypeHandler. Das muss praktisch eine Kindklasse von LegacyTypeHandler sein, aber mit dem Konstantenhandling von BinaryHandlerGenericEnum.\par
+Aber Problem: letzterer nutzt MemberFieldReflective, um die beiden Enum Felder anhand ihrer declaring class und type aus der Memberliste zu filtern.\par
+Das gibts aber bei LegacyTypeHandler nicht ...\par
+Der muss also eine eigene Logik haben:\par
+- filtern nach Typ (das ist immer fix)\par
+- filtern nach runtimeQualifier.\par
+Falls das nichts ergibt, dann filtern nach Typ und name.\par
+Falls das auch nichts ergibt, dann exception.\par
+\par
+Hm. Aber wie ist jetzt das: Was ist, wenn es die ordinal und name Felder gar nicht gibt?\par
+Wobei das eigentlich eine akademische Frage ist, denn die gibts ab jetzt ja.\par
+\par
+Aber mal anders gedacht: bevor ich irgendwelche ordinal Felder rate, sollte ich nicht einfach \'fcber die existierenden root-Object[] Eintr\'e4ge gehen?\par
+das w\'e4re dann nicht ein alteOrdinal -> neueOrdinal mapping, sondern eine ObjectId -> neueOrdinal Mapping.\par
+Problematisch daran ist aber, dass es die ObjectId eigentlich in dieser Form nicht gibt. Das ist der Object[] Datensatz und den gibts nur vor\'fcbergehend beim laden der PersistenceRoots Instance.\par
+Da jetzt mit einem provisorischen "geheimen" Laden der Bytes anzufangen, w\'e4r ziemlich wurschtelig ...\par
+Also doch ordinal Feld "rausraten"?\par
+\par
+Das mit dem Runtime Qualifier sollte aber genauso gut sein. Bzw. muss ja f\'fcr LegacyTypeHandler eh immer, weil deren definition ja nur noch aus dem TypeDictionary kommt, nicht mehr vom RuntimeType.\par
+Hm. Aber dann sollte vielleicht die Logik in BinaryHandlerGenericEnum gleich auf den runtimeQualifier gehen, dann w\'e4re das h\'fcbsch zentral anstatt an zwei Stellen.\par
+Mal so umbauen.\par
+\par
+Jetzt Legacy Enum Handlers implement. Gleich mit abstract Hierarchie f\'fcr die verschiedenen F\'e4lle. Oh Mann ...\par
+\par
+Ach jetzt wei\'df ich, warum das Denken schon wieder so z\'e4h wird: 29.0\'b0.\par
+\par
+Oh: Bisher ist nicht vorgesehen, dass PersistenceTypeHandler#create \'fcberhaupt null zur\'fcckgeben kann. Das w\'fcrde eine Exception in der ObjectRegistry werfen.\par
+Dann muss ich das im BinaryLoader umbauen: nur nicht-null Refrenzen registrieren.\par
+\par
 }
  

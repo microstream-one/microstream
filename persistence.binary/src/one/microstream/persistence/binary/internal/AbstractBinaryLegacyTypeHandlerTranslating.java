@@ -5,10 +5,10 @@ import java.util.function.Consumer;
 import one.microstream.X;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.types.BinaryLegacyTypeHandler;
 import one.microstream.persistence.binary.types.BinaryReferenceTraverser;
 import one.microstream.persistence.binary.types.BinaryValueSetter;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
@@ -16,7 +16,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
 public abstract class AbstractBinaryLegacyTypeHandlerTranslating<T>
-extends PersistenceLegacyTypeHandler.Abstract<Binary, T>
+extends BinaryLegacyTypeHandler.Abstract<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //

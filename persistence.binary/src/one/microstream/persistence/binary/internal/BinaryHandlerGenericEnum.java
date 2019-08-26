@@ -15,6 +15,7 @@ import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
@@ -27,15 +28,19 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	// static methods //
 	///////////////////
 	
-	public static boolean isJavaLangEnumMember(final PersistenceTypeDefinitionMemberFieldReflective member)
+	public static boolean isJavaLangEnumMember(final PersistenceTypeDefinitionMember member)
 	{
+		// changed to qualifier string comparison for compatibility with enum legacy type handlers.
 		return member != null
-			&& member.declaringClass() == java.lang.Enum.class
-			&& XReflect.isFinal(member.field())
+			&& java.lang.Enum.class.getName().equals(member.runtimeQualifier())
 		;
+//		return member != null
+//			&& member.declaringClass() == java.lang.Enum.class
+//			&& XReflect.isFinal(member.field())
+//		;
 	}
 	
-	public static boolean isJavaLangEnumName(final PersistenceTypeDefinitionMemberFieldReflective member)
+	public static boolean isJavaLangEnumName(final PersistenceTypeDefinitionMember member)
 	{
 		// intentionally no reference to the name since. Although final modifier and field type is not much better ...
 		return isJavaLangEnumMember(member)
@@ -43,7 +48,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		;
 	}
 	
-	public static boolean isJavaLangEnumOrdinal(final PersistenceTypeDefinitionMemberFieldReflective member)
+	public static boolean isJavaLangEnumOrdinal(final PersistenceTypeDefinitionMember member)
 	{
 		// intentionally no reference to the name since. Although final modifier and field type is not much better ...
 		return isJavaLangEnumMember(member)
@@ -51,14 +56,30 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		;
 	}
 	
+	public static long calculateBinaryOffsetOrdinal(final PersistenceTypeDefinition typeDefinition)
+	{
+		return calculateBinaryOffset(
+			typeDefinition.instanceMembers(),
+			BinaryHandlerGenericEnum::isJavaLangEnumOrdinal
+		);
+	}
+	
+	public static long calculateBinaryOffsetName(final PersistenceTypeDefinition typeDefinition)
+	{
+		return calculateBinaryOffset(
+			typeDefinition.instanceMembers(),
+			BinaryHandlerGenericEnum::isJavaLangEnumName
+		);
+	}
+	
 	public static long calculateBinaryOffset(
-		final XGettingCollection<? extends PersistenceTypeDefinitionMemberFieldReflective> fields       ,
-		final Predicate<? super PersistenceTypeDefinitionMemberFieldReflective>            fieldSelector
+		final XGettingCollection<? extends PersistenceTypeDefinitionMember> fields       ,
+		final Predicate<? super PersistenceTypeDefinitionMember>            fieldSelector
 	)
 	{
 		long binaryOffset = 0;
 		
-		for(final PersistenceTypeDefinitionMemberFieldReflective f : fields)
+		for(final PersistenceTypeDefinitionMember f : fields)
 		{
 			if(fieldSelector.test(f))
 			{
@@ -162,10 +183,10 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	{
 		super(type, typeName, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
 		
-		final XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> fields = this.instanceMembers();
+		final XGettingEnum<? extends PersistenceTypeDefinitionMember> fields = this.instanceMembers();
 		this.allMembers          = deriveAllMembers(type, fields);
-		this.binaryOffsetName    = calculateBinaryOffset(fields, BinaryHandlerGenericEnum::isJavaLangEnumName);
-		this.binaryOffsetOrdinal = calculateBinaryOffset(fields, BinaryHandlerGenericEnum::isJavaLangEnumOrdinal);
+		this.binaryOffsetName    = calculateBinaryOffsetName(this);
+		this.binaryOffsetOrdinal = calculateBinaryOffsetOrdinal(this);
 	}
 	
 	
@@ -252,9 +273,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	@Override
 	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		// Class detour required for AIC-like special subclass enums constants.
-		final Object[] jvmEnumConstants = XReflect.getDeclaredEnumClass(this.type()).getEnumConstants();
-		final int persistentOrdinal     = this.getOrdinal(bytes);
+		final Object enumConstantInstance = XReflect.getEnumConstantInstance(this.type(), this.getOrdinal(bytes));
 		
 		/*
 		 * Can't validate here since the name String instance might not have been created, yet. See #update.
@@ -268,10 +287,10 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		
 		/*
 		 * Required for AIC-like special subclass enums constants:
-		 * The instance is actually of type T, but it is stored in a "? super T" array of it parent enum type.
+		 * The instance is actually of type T, but it is stored in a "? super T" array of its parent enum type.
 		 */
 		@SuppressWarnings("unchecked")
-		final T enumConstantinstance = (T)jvmEnumConstants[persistentOrdinal];
+		final T enumConstantinstance = (T)enumConstantInstance;
 		
 		return enumConstantinstance;
 	}

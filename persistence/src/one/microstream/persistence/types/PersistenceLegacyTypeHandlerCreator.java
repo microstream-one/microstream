@@ -1,6 +1,8 @@
 package one.microstream.persistence.types;
 
+import one.microstream.collections.BulkList;
 import one.microstream.reflect.XReflect;
+import one.microstream.util.similarity.Similarity;
 
 public interface PersistenceLegacyTypeHandlerCreator<M>
 {
@@ -64,7 +66,58 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 				);
 			}
 			
-			// (23.08.2019 TM)FIXME: priv#23: legacyEnum handler with identical structure but changed constants
+			final PersistenceTypeDefinition legacyTypeDef = result.legacyTypeDefinition();
+			final BulkList<PersistenceTypeDefinitionMember> legacyConstantMembers = legacyTypeDef.allMembers()
+				.filterTo(BulkList.New(), PersistenceTypeDefinitionMember::isEnumConstant)
+			;
+			
+			final PersistenceTypeDefinition currentTypeDef = result.legacyTypeDefinition();
+			final BulkList<PersistenceTypeDefinitionMember> currentConstantMembers = currentTypeDef.allMembers()
+				.filterTo(BulkList.New(), PersistenceTypeDefinitionMember::isEnumConstant)
+			;
+			
+			final Integer[] ordinalMap = new Integer[legacyConstantMembers.intSize()];
+			
+			int ordinal = 0;
+			for(final PersistenceTypeDefinitionMember legacyMember : legacyConstantMembers)
+			{
+				final Similarity<PersistenceTypeDefinitionMember> match =
+					result.legacyToCurrentMembers().get(legacyMember)
+				;
+				if(match == null)
+				{
+					if(result.discardedLegacyMembers().contains(legacyMember))
+					{
+						ordinalMap[ordinal] = null;
+					}
+					else
+					{
+						// (26.08.2019 TM)EXCP: proper exception
+						throw new RuntimeException(
+							"Unmapped legacy enum constant: " + legacyTypeDef + "#" + legacyMember.name()
+						);
+					}
+				}
+				else
+				{
+					final PersistenceTypeDefinitionMember targetCurrentConstant = match.targetElement();
+					final long targetOrdinal = currentConstantMembers.indexOf(targetCurrentConstant);
+					if(targetOrdinal >= 0)
+					{
+						ordinalMap[ordinal] = Integer.valueOf((int)targetOrdinal);
+					}
+					else
+					{
+						// (26.08.2019 TM)EXCP: proper exception
+						throw new RuntimeException(
+							"Inconsistent target enum constant: " + currentTypeDef + "#" + targetCurrentConstant.name()
+						);
+					}
+				}
+				ordinal++;
+			}
+			
+			// (23.08.2019 TM)FIXME: priv#23: legacyEnum handler with identical structure but ordinalMap mapping.
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		

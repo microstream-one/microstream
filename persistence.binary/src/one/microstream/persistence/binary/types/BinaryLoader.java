@@ -12,9 +12,9 @@ import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceInstanceHandler;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceLoader;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceObjectRetriever;
 import one.microstream.persistence.types.PersistenceRoots;
@@ -174,13 +174,30 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			 * correct type.
 			 */
 			// (07.12.2018 TM)XXX: difference between contextInstance and localInstance? Relevant?
-			return entry.contextInstance != null
-				? entry.contextInstance
-				: (entry.contextInstance = this.registry.optionalRegisterObject(
-					entry.getBuildItemObjectId(),
-					entry.localInstance
-				))
-			;
+			
+
+			// (26.08.2019 TM)NOTE: paradigm change: #create may return null. Required for handling deleted enums.
+			if(entry.contextInstance != null)
+			{
+				return entry.contextInstance;
+			}
+			if(entry.localInstance == null)
+			{
+				return null;
+			}
+			return entry.contextInstance = this.registry.optionalRegisterObject(
+				entry.getBuildItemObjectId(),
+				entry.localInstance
+			);
+			
+			// (26.08.2019 TM)NOTE: old version
+//			return entry.contextInstance != null
+//				? entry.contextInstance
+//				: (entry.contextInstance = this.registry.optionalRegisterObject(
+//					entry.getBuildItemObjectId(),
+//					entry.localInstance
+//				))
+//			;
 		}
 
 		protected PersistenceTypeHandler<Binary, ?> lookupTypeHandler(final long tid)
@@ -299,11 +316,20 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 				 * and logic for regular runtime uses. The latter might be the same thing, but not always.
 				 */
 //				XDebug.println("Updating " + entry);
-				entry.handler.update(
-					entry,
-					this.getEffectiveInstance(entry),
-					this
-				);
+				
+				// (26.08.2019 TM)NOTE: paradigm change: #create may return null. Required for handling deleted enums.
+				final Object effectiveInstance = this.getEffectiveInstance(entry);
+				if(effectiveInstance != null)
+				{
+					entry.handler.update(entry, effectiveInstance, this);
+				}
+				
+				// (26.08.2019 TM)NOTE: old version
+//				entry.handler.update(
+//					entry,
+//					this.getEffectiveInstance(entry),
+//					this
+//				);
 			}
 		}
 

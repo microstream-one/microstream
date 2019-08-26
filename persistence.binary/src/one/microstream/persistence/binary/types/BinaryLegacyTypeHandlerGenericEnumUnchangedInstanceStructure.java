@@ -8,14 +8,14 @@ import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 
-public class BinaryLegacyTypeHandlerGenericType<T>
-extends AbstractBinaryLegacyTypeHandlerReflective<T>
+public class BinaryLegacyTypeHandlerGenericEnumUnchangedInstanceStructure<T>
+extends AbstractBinaryLegacyTypeHandlerGenericEnum<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static <T> BinaryLegacyTypeHandlerGenericType<T> New(
+	public static <T> BinaryLegacyTypeHandlerGenericEnumUnchangedInstanceStructure<T> New(
 		final PersistenceTypeDefinition                     typeDefinition              ,
 		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler                 ,
 		final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets,
@@ -23,7 +23,7 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 		final boolean                                       switchByteOrder
 	)
 	{
-		return new BinaryLegacyTypeHandlerGenericType<>(
+		return new BinaryLegacyTypeHandlerGenericEnumUnchangedInstanceStructure<>(
 			notNull(typeDefinition)                      ,
 			notNull(typeHandler)                         ,
 			toTranslators(translatorsWithTargetOffsets)  ,
@@ -39,7 +39,7 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 	// constructors //
 	/////////////////
 	
-	BinaryLegacyTypeHandlerGenericType(
+	BinaryLegacyTypeHandlerGenericEnumUnchangedInstanceStructure(
 		final PersistenceTypeDefinition                     typeDefinition  ,
 		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler     ,
 		final BinaryValueSetter[]                           valueTranslators,

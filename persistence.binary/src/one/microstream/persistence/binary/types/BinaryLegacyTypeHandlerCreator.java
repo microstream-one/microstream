@@ -175,7 +175,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		}
 
 		@Override
-		protected <T> BinaryLegacyTypeHandlerReflective<T> deriveReflectiveHandler(
+		protected <T> AbstractBinaryLegacyTypeHandlerReflective<T> deriveReflectiveHandler(
 			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult,
 			final PersistenceTypeHandlerReflective<Binary, T>   typeHandler
 		)
@@ -198,7 +198,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			;
 		}
 		
-		private <T> BinaryLegacyTypeHandlerReflective<T> deriveReflectiveHandlerGenericEnum(
+		private <T> AbstractBinaryLegacyTypeHandlerReflective<T> deriveReflectiveHandlerGenericEnum(
 			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult               ,
 			final PersistenceTypeHandlerReflective<Binary, T>   typeHandler                 ,
 			final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets

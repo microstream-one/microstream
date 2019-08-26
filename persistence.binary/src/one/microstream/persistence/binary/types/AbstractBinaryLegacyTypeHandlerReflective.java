@@ -7,14 +7,14 @@ import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 
-public abstract class BinaryLegacyTypeHandlerReflective<T>
+public abstract class AbstractBinaryLegacyTypeHandlerReflective<T>
 extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	BinaryLegacyTypeHandlerReflective(
+	AbstractBinaryLegacyTypeHandlerReflective(
 		final PersistenceTypeDefinition                     typeDefinition  ,
 		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler     ,
 		final BinaryValueSetter[]                           valueTranslators,
@@ -42,7 +42,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	@Override
 	protected T internalCreate(final Binary rawData, final PersistenceObjectIdResolver idResolver)
 	{
-		// (21.03.2019 TM)XXX: just passing to the type handler (in the end to BinaryInstantiator) can be dangerous
+		// (21.03.2019 TM)XXX: just passing to the type handler (in the end to the instantiator) can be dangerous
 		return this.typeHandler().create(rawData, idResolver);
 	}
 	
