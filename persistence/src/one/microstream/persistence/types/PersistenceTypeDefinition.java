@@ -55,7 +55,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers();
-
+	
 	/**
 	 * Enum (unique elements with order), using {@link PersistenceTypeDescriptionMember#identityHashEqualator()}.
 	 * Contains all persistent members (similar, but not identical to fields) in persistent order, which can
