@@ -1359,5 +1359,73 @@ Ach jetzt wei\'df ich, warum das Denken schon wieder so z\'e4h wird: 29.0\'b0.\p
 Oh: Bisher ist nicht vorgesehen, dass PersistenceTypeHandler#create \'fcberhaupt null zur\'fcckgeben kann. Das w\'fcrde eine Exception in der ObjectRegistry werfen.\par
 Dann muss ich das im BinaryLoader umbauen: nur nicht-null Refrenzen registrieren.\par
 \par
+\par
+2019-08-27\par
+\par
+Erste Variante f\'fcr Enum LTH ist damit fertig. Gleich mal testen...\par
+\par
+Ach. Moment. Ich hatte die OrdinalMapping Implementierung ja in AbstractBinaryLegacyTypeHandlerGenericEnum drin anstatt in BinaryLegacyTypeHandlerGenericEnumUnchangedInstanceStructure.\par
+Mal verschieben.\par
+Evtl. kommt am Ende raus, dass es doch so weit oben sein kann, aber erst mal ist das Konzept, es dort unten zu haben.\par
+Dann bau ich die type Validierung noch in eine validatForUpdate Methode rein und steck da auch die Enum Validierung rein.\par
+Wobei ... \'e4h ... Validierung weder nach Ordinal noch nach Name macht hier Sinn, weil es ja ein alt->neu Mapping gibt, das eben das umbiegt.\par
+\par
+Ach, Moment: was ich gebaut hab, ist der Fall ge\'e4nderte Instanzstruktur UND ge\'e4nderte Enumstruktur. Die muss in den reflective Fall rein.\par
+Der UnchangedInstance Fall hei\'dft ja einfach nur, dass der aktuelle TypeHandler (egal, was er macht) gewrappt werden kann und nur das ordinalmapping gemacht werden muss.\par
+Mal umbauen ...\par
+\par
+Aber wie kommt man bei einem gewrappten Enum Type Handler an die Ordinal ran?\par
+Eine Methode ableitenkann ich nicht, weil der LTH f\'fcr Enums vom Reflective LTH ableitet und ein Wrapper ist nicht reflective.\par
+Au\'dferdem muss ja der gewrappte Handler den ordinal Wert feststellen nach welcher internen Logik der das auch immer macht.\par
+Also brauchen alle PersistenceTypeHandler eine Methode getOrdinal()? Das w\'e4re ja bl\'f6d...\par
+Ansonsten muss es einen PersistenceTypeHandlerEnum geben mit entsprechenden instanceof Pr\'fcfungen \'fcberall.\par
+Genauso bl\'f6d.\par
+\par
+Hm. Also momentan hab ich Variante #1 eh schon durch #collectEnumConstants.\par
+Dann kann ich das ja schon irgendwie dazu geh\'f6rige #getOrdinal auch gleich mit reinbauen ODER ich muss beides wo hin verschieben.\par
+Das verkompliziert dann wieder das Wrapper bauen (Fallunterscheidungen usw.)\par
+\par
+Also bevor es jetzt an der einen Methode scheitert, hau ich die in die public top level API rein und fertig.\par
+Noch einen entsprechenden Kommentar dazu, um die kleine S\'fcnde zu dokumentieren, dann passt das auch f\'fcr die Zukunft.\par
+Kann man zuk\'fcnftig dann mal aufr\'e4umen und "sch\'f6ner" machen, falls Bedarf bestehen sollte.\par
+\par
+Nachdem die in zwei verschiedenen, nicht erbenden Klassen gebraucht wird, Resolving Logik zentralisieren in PersistenceLegacyTypeHandler#resolveEnumConstant.\par
+\par
+So, jetzt h\'e4tt ich die beiden F\'e4lle\par
+- unterschiedliche konstantenstruktur, gleiche instancestruktur\par
+- unterschiedliche konstantenstruktur, unterschiedliche instancestruktur\par
+schon mal abgedeckt.\par
+\par
+Was ist jetzt mit dem eigentlich einfacheren Fall, dass die Konstantenstruktur gleich ist und sich die Instanzstruktur ge\'e4ndert hat?\par
+Das m\'fcsste sein:\par
+Eine Ableitung vom normalen LegacyHandlerReflective, dessen create Methode nur mit einem normalen enum lookup \'fcberschrieben ist.\par
+Die Frage ist jetzt nur wieder: Was ist in diesem fall mit dem getOrdinal?\par
+\par
+Naja gut: genau das gleiche wie in dem anderen Fall: Aus der legacyTypeDefinition (die zu der persistenten Struktur passt) das Ordinal Feld rausziehen und damit die binary daten auslesen.\par
+Also eigentlich eine Kopie des existierenden Handlers, nur ohne Mapping.\par
+\'c4h, eigentlich schmerzhaft offensichtlich ...\par
+\par
+Ah, genau!\par
+Und HIER kommt jetzt Ableitung rein:\par
+Es gibt einen LegacyHandler~GenericEnum und davon abgeleitet einen "~Mapped". Dann muss ich das Ordinal Ged\'f6ns nur einmal machen.\par
+So umbauen.\par
+\par
+So. Dann w\'e4ren jetzt drei F\'e4lle abgedeckt.\par
+\par
+Das mit dem CustomHandler wird nochmal extra crazy, das mach ich sp\'e4ter.\par
+Wahrscheinlich w\'e4rs auch okay, da erst mal eine not implemented exception zu werfen. Denn mal ehrlich:\par
+Wer schreibt sich eine Enum, die so komplex zu speichern ist, dass man daf\'fcr einen Custom handler braucht?\par
+Die allerallermeisten Enums haben \'fcberhaupt keinen Instanz-State.\par
+Und wenn sich jemand wirklich mal sowas schreibt, w\'e4re es dann so unzumutbar, sich bei \'c4nderungen auch einen custom legacy handler zu schreiben?\par
+Ich sag einfach mal der Fall, dass das Probleme macht, ist einer von 1000 Anwendern.\par
+Das kann man dann implementieren, wenn es so weit ist. Genau wie das value-translaten von variable length members. Da fliegt momentan auch einfach eine Exception.\par
+\par
+Hm. Das bau ich jetzt gleich so. Dann w\'e4r ich mit der Implementierung sogar schon fertig. Dann fehlt nur noch das Testen.\par
+Hm, abgesehen vom Roots synchen nat\'fcrlich. Oder ... \'e4h... passiert das eh schon automatisch, weil die aktuellen TypeHandler ja verarbeitet werden und die aktuellen Enum Konstanten ja schon richtig handeln?\par
+Oh Mann, dieses Legacy Type Handling Zeug ist immer so kompliziert ...\par
+Keine Wunder, dass die JDK Kaspern das in ihre Schei\'df nicht mal ansatzweise hinkriegen.\par
+\par
+Auf jeden Fall: Letztes TODO als Exception implementiert.\par
+Jetzt testen... bzw. morgen dann.\par
 }
  

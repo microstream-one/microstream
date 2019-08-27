@@ -13,6 +13,7 @@ import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.collections.types.XImmutableSequence;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import one.microstream.reflect.XReflect;
 
 public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 {
@@ -76,7 +77,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	// default methods //
 	////////////////////
 	
-	//!\\ all new default methods must be implemented in PersistenceLegacyTypeHandler$Wrapper to prevent bugs!
+	//!\\ all default methods must be implemented in PersistenceLegacyTypeHandler$Wrapper to prevent bugs!
 	
 	public default XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
 	{
@@ -125,13 +126,37 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		return true;
 	}
 	
+	// (27.08.2019 TM)TODO: "~Enum~" methods actually belong in a "PersistenceTypeHandlerEnum" subtype. Maybe refactor.
+	
 	public default Object[] collectEnumConstants()
 	{
 		// (14.08.2019 TM)EXCP: proper exception
 		throw new UnsupportedOperationException();
 	}
+	
+	public default int getPersistedEnumOrdinal(final M medium)
+	{
+		// (14.08.2019 TM)EXCP: proper exception
+		throw new UnsupportedOperationException();
+	}
 
-	//!\\ all new default methods must be implemented in PersistenceLegacyTypeHandler$Wrapper to prevent bugs!
+	//!\\ all default methods must be implemented in PersistenceLegacyTypeHandler$Wrapper to prevent bugs!
+	
+	
+	public static <T, M> T resolveEnumConstant(final Class<T> type, final int ordinal)
+	{
+		/*
+		 * Required for AIC-like special subclass enums constants:
+		 * The instance is actually of type T, but it is stored in a "? super T" array of its parent enum type.
+		 */
+		final Object enumConstantInstance = XReflect.resolveEnumConstantInstance(type, ordinal);
+		
+		// compensate the subclass typing hassle
+		@SuppressWarnings("unchecked")
+		final T enumConstantinstance = (T)enumConstantInstance;
+		
+		return enumConstantinstance;
+	}
 	
 	
 	public abstract class Abstract<M, T> implements PersistenceTypeHandler<M, T>

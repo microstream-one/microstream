@@ -273,8 +273,6 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	@Override
 	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		final Object enumConstantInstance = XReflect.getEnumConstantInstance(this.type(), this.getOrdinal(bytes));
-		
 		/*
 		 * Can't validate here since the name String instance might not have been created, yet. See #update.
 		 * Nevertheless:
@@ -285,14 +283,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		 * Mismatches between persistent form and runtime type must be handled via a LegacyTypeHandler, not here.
 		 */
 		
-		/*
-		 * Required for AIC-like special subclass enums constants:
-		 * The instance is actually of type T, but it is stored in a "? super T" array of its parent enum type.
-		 */
-		@SuppressWarnings("unchecked")
-		final T enumConstantinstance = (T)enumConstantInstance;
-		
-		return enumConstantinstance;
+		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getOrdinal(bytes));
 	}
 	
 	public int getOrdinal(final Binary bytes)
