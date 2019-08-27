@@ -200,7 +200,7 @@ public final class XReflect
 		;
 	}
 	
-	public static Object getEnumConstantInstance(final Class<?> type, final int ordinal)
+	public static Object resolveEnumConstantInstance(final Class<?> type, final int ordinal)
 	{
 		validateIsEnum(type);
 		
@@ -208,6 +208,21 @@ public final class XReflect
 		final Object[] jvmEnumConstants = XReflect.getDeclaredEnumClass(type).getEnumConstants();
 		
 		return jvmEnumConstants[ordinal];
+	}
+	
+	public static <T> T resolveEnumConstantInstanceTyped(final Class<T> type, final int ordinal)
+	{
+		/*
+		 * Required for AIC-like special subclass enums constants:
+		 * The instance is actually of type T, but it is stored in a "? super T" array of its parent enum type.
+		 */
+		final Object enumConstantInstance = XReflect.resolveEnumConstantInstance(type, ordinal);
+		
+		// compensate the subclass typing hassle
+		@SuppressWarnings("unchecked")
+		final T enumConstantinstance = (T)enumConstantInstance;
+		
+		return enumConstantinstance;
 	}
 	
 
