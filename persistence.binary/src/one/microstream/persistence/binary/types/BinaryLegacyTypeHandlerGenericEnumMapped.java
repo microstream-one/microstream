@@ -8,7 +8,7 @@ import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
-import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
+import one.microstream.persistence.types.PersistenceTypeHandler;
 
 
 public class BinaryLegacyTypeHandlerGenericEnumMapped<T>
@@ -20,7 +20,7 @@ extends BinaryLegacyTypeHandlerGenericEnum<T>
 	
 	public static <T> BinaryLegacyTypeHandlerGenericEnumMapped<T> New(
 		final PersistenceTypeDefinition                     typeDefinition              ,
-		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler                 ,
+		final PersistenceTypeHandler<Binary, T>             typeHandler                 ,
 		final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets,
 		final Integer[]                                     ordinalMapping              ,
 		final PersistenceLegacyTypeHandlingListener<Binary> listener                    ,
@@ -54,7 +54,7 @@ extends BinaryLegacyTypeHandlerGenericEnum<T>
 	
 	BinaryLegacyTypeHandlerGenericEnumMapped(
 		final PersistenceTypeDefinition                     typeDefinition  ,
-		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler     ,
+		final PersistenceTypeHandler<Binary, T>             typeHandler     ,
 		final BinaryValueSetter[]                           valueTranslators,
 		final long[]                                        targetOffsets   ,
 		final Integer[]                                     ordinalMapping  ,

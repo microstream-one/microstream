@@ -448,6 +448,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		
 	private void internalPutNewEntry(final long objectId, final Object object)
 	{
+		// (28.08.2019 TM)FIXME: /!\ DEBUG priv#23
+		if(objectId == 1000000000000000049L)
+		{
+			XDebug.println("registering 1000000000000000049");
+		}
+		
 		this.oidHashTable[(int)objectId & this.hashRange] =
 		this.refHashTable[ hash(object) & this.hashRange] =
 			new Entry(

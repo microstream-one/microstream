@@ -4,6 +4,8 @@ import static one.microstream.X.notNull;
 
 import java.util.Iterator;
 
+import one.microstream.collections.EqHashEnum;
+import one.microstream.collections.XUtilsCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.util.similarity.Similarity;
@@ -44,6 +46,27 @@ public interface PersistenceLegacyTypeMappingResult<M, T>
 		return isUnchangedStructure(
 			mappingResult.legacyTypeDefinition().allMembers(),
 			mappingResult.currentTypeHandler().allMembers(),
+			mappingResult
+		);
+	}
+	
+	public static boolean isUnchangedStaticStructure(
+		final PersistenceLegacyTypeMappingResult<?, ?> mappingResult
+	)
+	{
+		final EqHashEnum<PersistenceTypeDefinitionMember> legacyEnumMembers = XUtilsCollection.subtract(
+			EqHashEnum.<PersistenceTypeDefinitionMember>New(mappingResult.legacyTypeDefinition().allMembers()),
+			mappingResult.legacyTypeDefinition().instanceMembers()
+		);
+		
+		final EqHashEnum<PersistenceTypeDefinitionMember> currentEnumMembers = XUtilsCollection.subtract(
+			EqHashEnum.<PersistenceTypeDefinitionMember>New(mappingResult.currentTypeHandler().allMembers()),
+			mappingResult.currentTypeHandler().instanceMembers()
+		);
+		
+		return PersistenceLegacyTypeMappingResult.isUnchangedStructure(
+			legacyEnumMembers,
+			currentEnumMembers,
 			mappingResult
 		);
 	}

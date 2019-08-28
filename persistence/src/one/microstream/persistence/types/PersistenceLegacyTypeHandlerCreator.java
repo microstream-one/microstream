@@ -25,7 +25,7 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 				.filterTo(BulkList.New(), PersistenceTypeDefinitionMember::isEnumConstant)
 			;
 			
-			final PersistenceTypeDefinition currentTypeDef = result.legacyTypeDefinition();
+			final PersistenceTypeDefinition currentTypeDef = result.currentTypeHandler();
 			final BulkList<PersistenceTypeDefinitionMember> currentConstantMembers = currentTypeDef.allMembers()
 				.filterTo(BulkList.New(), PersistenceTypeDefinitionMember::isEnumConstant)
 			;
@@ -121,12 +121,20 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 			final PersistenceLegacyTypeMappingResult<M, T> result
 		)
 		{
-			if(PersistenceLegacyTypeMappingResult.isUnchangedFullStructure(result))
+			return this.createTypeHandlerEnumWrapping(result, result.currentTypeHandler());
+		}
+		
+		protected <T> PersistenceLegacyTypeHandler<M, T> createTypeHandlerEnumWrapping(
+			final PersistenceLegacyTypeMappingResult<M, T> result     ,
+			final PersistenceTypeHandler<M, T>             typeHandler
+		)
+		{
+			if(PersistenceLegacyTypeMappingResult.isUnchangedStaticStructure(result))
 			{
 				// current enum type handler is generically wrapped
 				return PersistenceLegacyTypeHandlerWrapper.New(
 					result.legacyTypeDefinition(),
-					result.currentTypeHandler()
+					typeHandler
 				);
 			}
 			
@@ -134,7 +142,7 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 			
 			return PersistenceLegacyTypeHandlerWrapperEnum.New(
 				result.legacyTypeDefinition(),
-				result.currentTypeHandler(),
+				typeHandler,
 				ordinalMapping
 			);
 		}

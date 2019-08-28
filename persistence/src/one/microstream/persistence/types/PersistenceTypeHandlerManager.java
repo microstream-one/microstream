@@ -614,6 +614,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 						return;
 					}
 					
+					// (28.08.2019 TM)FIXME: priv#23: enum root registration
 					final Object[] enumRootEntries = this.collectEnumConstants(typeHandler);
 					modifiedRootEntries.add(enumRootIdentifier, enumRootEntries);
 					modified = true;

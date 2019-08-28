@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import java.lang.reflect.Array;
 
 import one.microstream.X;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -98,6 +99,12 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	@Override
 	public final A create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
+		// (28.08.2019 TM)FIXME: /!\ DEBUG priv#23
+		if(bytes.getEntityObjectId() == 1000000000000000049L)
+		{
+			XDebug.println("1000000000000000049");
+		}
+		
 		final long rawElementCount = bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS);
 		return this.arrayType.cast(
 			Array.newInstance(this.componentType, X.checkArrayRange(rawElementCount))
@@ -107,6 +114,12 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	@Override
 	public final void update(final Binary bytes, final A instance, final PersistenceObjectIdResolver idResolver)
 	{
+
+		// (28.08.2019 TM)FIXME: /!\ DEBUG priv#23
+		if(bytes.getEntityObjectId() == 1000000000000000049L)
+		{
+			XDebug.println("1000000000000000049");
+		}
 		final Object[] arrayInstance = (Object[])instance;
 		
 		// better check length consistency here. No clear required.

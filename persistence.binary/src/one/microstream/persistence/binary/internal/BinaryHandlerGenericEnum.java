@@ -283,10 +283,11 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		 * Mismatches between persistent form and runtime type must be handled via a LegacyTypeHandler, not here.
 		 */
 		
-		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getOrdinal(bytes));
+		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getPersistedEnumOrdinal(bytes));
 	}
 	
-	public int getOrdinal(final Binary bytes)
+	@Override
+	public int getPersistedEnumOrdinal(final Binary bytes)
 	{
 		return bytes.get_int(this.binaryOffsetOrdinal);
 	}
@@ -303,7 +304,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	)
 	{
 		// validate ordinal, just in case.
-		final int persistentOrdinal = this.getOrdinal(bytes);
+		final int persistentOrdinal = this.getPersistedEnumOrdinal(bytes);
 		if(persistentOrdinal != instance.ordinal())
 		{
 			// (01.08.2019 TM)EXCP: proper exception

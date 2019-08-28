@@ -5,16 +5,15 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 
-import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashTable;
-import one.microstream.collections.XUtilsCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlerCreator;
+import one.microstream.persistence.types.PersistenceLegacyTypeHandlerWrapperEnum;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResult;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -163,20 +162,45 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				false
 			);
 			
-			if(XReflect.isEnum(currentTypeHandler.type()))
-			{
-				// (27.08.2019 TM)TODO: Legacy Type Mapping: support custom Enum handlers
-				throw new one.microstream.meta.NotImplementedYetError(
-					"Legacy type handling of custom enum handlers not supported, yet."
-				);
-			}
-						
-			return BinaryLegacyTypeHandlerRerouting.New(
+			final BinaryLegacyTypeHandlerRerouting<T> reroutingTypeHandler = BinaryLegacyTypeHandlerRerouting.New(
 				mappingResult.legacyTypeDefinition(),
 				currentTypeHandler                  ,
 				translatorsWithTargetOffsets        ,
 				this.legacyTypeHandlingListener     ,
 				this.switchByteOrder
+			);
+			
+			if(XReflect.isEnum(currentTypeHandler.type()))
+			{
+				return this.deriveCustomWrappingHandlerEnum(mappingResult, reroutingTypeHandler);
+			}
+						
+			return reroutingTypeHandler;
+		}
+		
+		protected <T> PersistenceLegacyTypeHandler<Binary, T> deriveCustomWrappingHandlerEnum(
+			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult,
+			final BinaryLegacyTypeHandlerRerouting<T> reroutingTypeHandler
+		)
+		{
+			if(PersistenceLegacyTypeMappingResult.isUnchangedStaticStructure(mappingResult))
+			{
+				/*
+				 * Tricky:
+				 * The current custom type handler can be assumed to already be a proper enum handler
+				 * (since it must be), so for unchanged static (enum constant) structure, the rerouting
+				 * handler alone should already suffice. So fall through to returning it.
+				 */
+				return reroutingTypeHandler;
+			}
+			
+			// "almost sufficient" reroutingTypeHandler has to be wrapped with an ordinal mapping
+			final Integer[] ordinalMapping = deriveEnumOrdinalMapping(mappingResult);
+			
+			return PersistenceLegacyTypeHandlerWrapperEnum.New(
+				mappingResult.legacyTypeDefinition(),
+				reroutingTypeHandler,
+				ordinalMapping
 			);
 		}
 
@@ -206,25 +230,11 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		
 		private <T> AbstractBinaryLegacyTypeHandlerReflective<T> deriveReflectiveHandlerGenericEnum(
 			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult               ,
-			final PersistenceTypeHandlerReflective<Binary, T>   currentTypeHandler          ,
+			final PersistenceTypeHandler<Binary, T>             currentTypeHandler          ,
 			final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets
 		)
 		{
-			final EqHashEnum<PersistenceTypeDefinitionMember> legacyEnumMembers = XUtilsCollection.subtract(
-				EqHashEnum.<PersistenceTypeDefinitionMember>New(mappingResult.legacyTypeDefinition().allMembers()),
-				mappingResult.legacyTypeDefinition().instanceMembers()
-			);
-			
-			final EqHashEnum<PersistenceTypeDefinitionMember> currentEnumMembers = XUtilsCollection.subtract(
-				EqHashEnum.<PersistenceTypeDefinitionMember>New(currentTypeHandler.allMembers()),
-				mappingResult.currentTypeHandler().instanceMembers()
-			);
-			
-			if(PersistenceLegacyTypeMappingResult.isUnchangedStructure(
-				legacyEnumMembers,
-				currentEnumMembers,
-				mappingResult
-			))
+			if(PersistenceLegacyTypeMappingResult.isUnchangedStaticStructure(mappingResult))
 			{
 				return BinaryLegacyTypeHandlerGenericEnum.New(
 					mappingResult.legacyTypeDefinition(),

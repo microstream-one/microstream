@@ -1427,5 +1427,54 @@ Keine Wunder, dass die JDK Kaspern das in ihre Schei\'df nicht mal ansatzweise h
 \par
 Auf jeden Fall: Letztes TODO als Exception implementiert.\par
 Jetzt testen... bzw. morgen dann.\par
+\par
+\par
+2019-08-28\par
+\par
+Mir ist daheim zu dem Customhandler fall eingefallen:\par
+Eigentlich sollte das wieder nru eine changed constant structure pr\'fcfung und dann einer der beiden wrapper (mit/ohne Mapping) sein, der an so einen normalen custom handler wrapper weiterleitet.\par
+Das sind 10 Minuten Arbeit, dann w\'e4r das TODO erledigt.\par
+\par
+War doch bissl mehr aufgrund von alles nochmal durchdenken (wo kommt der ordinal wert beim rerouting wrapper her? Dann fehlten da wieder die default methoden Implementierungen, usw.) und kommentare schreiben.\par
+So. Fertig.\par
+\par
+Dann jetzt testen.\par
+\par
+In CurrentTypeDef stehen die alten Enum Konstanten drin.\par
+Debuggen.\par
+Ah. Wenn man durch's copy&pasten die legacyTypeDef abfragt, dann passiert das ...\par
+\par
+BinaryHandlerGenericEnum muss noch #getPersistedEnumOrdinal implementieren anstatt der lokalen Variante.\par
+Passt.\par
+\par
+Hm: Das Laden des enum constant Object[] ist durch eine entfallene Konstante nun nur noch 2 lang. Es soll aber eigentlich 3 lang sein mit null als ein Element.\par
+Hm. Die localInstance ist 3 lang mit [null, null, null], die contextInstance is 2 lang mit [TypeA, TypeB].\par
+OID 1000000000000000049\par
+Mal recherchieren im CSV ... Jup, das sind eigentlich die drei Instanzen. Warum ist das Array jetzt nur 2 lang ...\par
+\par
+Evtl. ist das das 2 lange Array von der neuen TypDefinition ... Die contextInstance kommt aus der Registry und die h\'e4lt evtl. schon irgendwie die geupdatete Version f\'fcr die root-OID.\par
+Wobei das dann falsch w\'e4re, oder?\par
+\par
+Debuggen ...\par
+Also gesetzt wird die contextInstance mit null. Das w\'e4r richtig. Das ist der einzige setter f\'fcr dieses Feld.\par
+Die localInstance wird erzeugt mit l\'e4nge 3. Auch richtig.\par
+Und dann , bei getEffectiveInstance, schwups, ist ein Array mit l\'e4nge 2 drin.\par
+Warum?!\par
+Debuggen ..\par
+\par
+Zum Zeitpunkt des optionalRegister in der registry ist f\'fcr diese ID dann doch schon eine Instanz vorhanden, n\'e4mlich ein array mit l\'e4nge 2 und den beiden Eintr\'e4gen.\line Das muss vom aktuellen type kommen.\par
+Aber es ist doch falsch, das unter derselben OID da reinzu packen. Das muss eine neue bekommen. Das ist ja dann auch okay: neue enum typdefinition, neues array, neue objectId. Und die alte ist dann nach wie vor exklusiv f\'fcr das alte Array.\par
+Hm, jup, das kommt vom RootResolver. Der holt sich f\'fcr die alte OID das Array von der aktuellen enum definition. Das ist nicht richtig.\par
+\line Das Problem ist, dass diese Object[] eigentlich keine Root Instanzen sind, die man zu einer aktuellen Instanz aufl\'f6sen m\'fcsste. Sondern das eigentlich identit\'e4tslose (die werden au\'dfer von der Roots Instanz auch noch nichts anderem referenziert) 1-zu-n Container f\'fcr Referenzen. Aber dummerweise kann man die alten nicht mehr zu einer aktuellen Konstanteninstanz aufl\'f6sen, sondern die Aufl\'f6serei l\'f6st nat\'fcrlich zur dem array der neuen Enum definition auf.\par
+Mist.\par
+\par
+Wie mach ich, dass das richtig l\'e4uft?\par
+Abgesehen davon, mit der Brechstange f\'fcr enums die contextInstance zuweisung zu specialcasen. Das ist bl\'f6d, das will ich nicht...\par
+\par
+Die Enum Aufl\'f6sung k\'f6nnte einfach null zur\'fcckgeben. Dann wird die erzeugte ("localInstance") verwendet und alles sollte passen.\par
+Mal suchen, wo die registriert werden ...\par
+Oh Mann, das ist knifflig. Find ich nicht. Die m\'fcssen doch irgendwo von dem Pending TypeHandler Dings her als root registriert werden ..\par
+Das geht nicht so einfach. Das wird ein String mit der Instanz verkn\'fcpft. Okay, ich k\'f6nnt per Supplier eine Logik dazwischenschieben, aber der Punkt ist doch: Das ding braucht man ja, um die enum instanzen laden zu k\'f6nnen, da kann man nicht einfach null zur\'fcckgeben. Das Problem ist halt, dass alte und neue Enum konstanten kollidieren ...\par
+Muss ich morgen \'fcberlegen ...\par
 }
  
