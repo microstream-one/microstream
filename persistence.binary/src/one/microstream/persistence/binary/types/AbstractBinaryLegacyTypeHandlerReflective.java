@@ -5,6 +5,7 @@ import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandl
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
+import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 
 public abstract class AbstractBinaryLegacyTypeHandlerReflective<T>
@@ -16,7 +17,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 
 	AbstractBinaryLegacyTypeHandlerReflective(
 		final PersistenceTypeDefinition                     typeDefinition  ,
-		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler     ,
+		final PersistenceTypeHandler<Binary, T>             typeHandler     ,
 		final BinaryValueSetter[]                           valueTranslators,
 		final long[]                                        targetOffsets   ,
 		final PersistenceLegacyTypeHandlingListener<Binary> listener        ,

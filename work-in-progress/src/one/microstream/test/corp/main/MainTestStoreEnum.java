@@ -1,6 +1,7 @@
 package one.microstream.test.corp.main;
 
 import one.microstream.X;
+import one.microstream.persistence.internal.PrintingLegacyTypeMappingResultor;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.reflect.XReflect;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -17,6 +18,14 @@ public class MainTestStoreEnum
 		// creates and starts an embedded storage manager with all-default-settings.
 		final EmbeddedStorageManager storage = EmbeddedStorage
 			.Foundation()
+			.onConnectionFoundation(f ->
+			{
+				f.setLegacyTypeMappingResultor(
+					PrintingLegacyTypeMappingResultor.New(
+						f.getLegacyTypeMappingResultor()
+					)
+				);
+			})
 //			.setRefactoringMappingProvider(
 //				Persistence.RefactoringMapping(new File("Refactorings.csv"))
 //			)
@@ -62,7 +71,7 @@ public class MainTestStoreEnum
 		return X.array(
 			SimpleEnum.TypeA,
 			SimpleEnum.TypeB,
-			SimpleEnum.TypeC,
+//			SimpleEnum.TypeC,
 			CrazyEnum.ShouldWorkNormal,
 			CrazyEnum.ShouldWorkSpecial,
 			CrazyEnumSpecialState.SpecialState,
@@ -112,7 +121,7 @@ enum SimpleEnum
 {
 	TypeA,
 	TypeB,
-	TypeC,
+//	TypeC,
 //	TypeN,
 }
 

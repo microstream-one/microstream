@@ -519,9 +519,11 @@ public abstract class Binary implements Chunk
 		// performance is not important here as roots only get stored once per system start and are very few in numbers
 		final String[] identifiers = entries.keys().toArray(String.class);
 		final Object[] instances   = entries.values().toArray();
+		
+		final int instanceCount = instances.length;
 
 		// calculate all the lengths
-		final long instancesTotalBinLength     = Binary.calculateReferenceListTotalBinaryLength(instances.length);
+		final long instancesTotalBinLength     = Binary.calculateReferenceListTotalBinaryLength(instanceCount);
 		final long identifiersContentBinLength = Binary.calculateStringListContentBinaryLength(identifiers);
 		final long totalContentLength          = instancesTotalBinLength
 			+ Binary.toBinaryListTotalByteLength(identifiersContentBinLength)
@@ -531,7 +533,7 @@ public abstract class Binary implements Chunk
 		final long contentAddress = this.storeEntityHeader(totalContentLength, typeId, objectId);
 
 		// store instances first to allow efficient references-only caching
-		this.internalStoreReferencesAsList(contentAddress, idResolver, instances, 0, instances.length);
+		this.internalStoreReferencesAsList(contentAddress, idResolver, instances, 0, instanceCount);
 
 		// store identifiers as list of inlined [char]s
 		this.storeStringsAsList(
@@ -1174,7 +1176,7 @@ public abstract class Binary implements Chunk
 	}
 
 	public final void storeStringsAsList(
-		final long     storeAddress            ,
+		final long     storeAddress                    ,
 		final long     precalculatedContentBinaryLength,
 		final String[] strings
 	)

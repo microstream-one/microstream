@@ -76,8 +76,12 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	///////////////////////////////////////////////////////////////////////////
 	// default methods //
 	////////////////////
-	
-	//!\\ all default methods must be implemented in PersistenceLegacyTypeHandler$Wrapper to prevent bugs!
+
+	/*!*\
+	 * All default methods must be implemented in
+	 * PersistenceLegacyTypeHandler$Wrapper and AbstractBinaryLegacyTypeHandlerTranslating
+	 * to prevent bugs!
+	\*!*/
 	
 	public default XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
 	{
@@ -140,7 +144,11 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		throw new UnsupportedOperationException();
 	}
 
-	//!\\ all default methods must be implemented in PersistenceLegacyTypeHandler$Wrapper to prevent bugs!
+	/*!*\
+	 * All default methods must be implemented in
+	 * PersistenceLegacyTypeHandler$Wrapper and AbstractBinaryLegacyTypeHandlerTranslating
+	 * to prevent bugs!
+	\*!*/
 	
 	
 	public static <T, M> T resolveEnumConstant(final Class<T> type, final int ordinal)

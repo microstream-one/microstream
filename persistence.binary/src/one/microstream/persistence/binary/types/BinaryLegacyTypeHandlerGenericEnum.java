@@ -8,7 +8,7 @@ import one.microstream.persistence.binary.internal.BinaryHandlerGenericEnum;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
-import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
+import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.reflect.XReflect;
 
 
@@ -21,7 +21,7 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 	
 	public static <T> BinaryLegacyTypeHandlerGenericEnum<T> New(
 		final PersistenceTypeDefinition                     typeDefinition              ,
-		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler                 ,
+		final PersistenceTypeHandler<Binary, T>             typeHandler                 ,
 		final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets,
 		final PersistenceLegacyTypeHandlingListener<Binary> listener                    ,
 		final boolean                                       switchByteOrder
@@ -54,7 +54,7 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 	
 	BinaryLegacyTypeHandlerGenericEnum(
 		final PersistenceTypeDefinition                     typeDefinition  ,
-		final PersistenceTypeHandlerReflective<Binary, T>   typeHandler     ,
+		final PersistenceTypeHandler<Binary, T>             typeHandler     ,
 		final BinaryValueSetter[]                           valueTranslators,
 		final long[]                                        targetOffsets   ,
 		final PersistenceLegacyTypeHandlingListener<Binary> listener        ,

@@ -10,6 +10,7 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.math.XMath;
 import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceInstanceHandler;
 import one.microstream.persistence.types.PersistenceLoader;
@@ -175,6 +176,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			 */
 			// (07.12.2018 TM)XXX: difference between contextInstance and localInstance? Relevant?
 			
+			// (28.08.2019 TM)FIXME: /!\ DEBUG priv#23
+			if(entry.getBuildItemObjectId() == 1000000000000000049L)
+			{
+				XDebug.println("load item 1000000000000000049");
+			}
 
 			// (26.08.2019 TM)NOTE: paradigm change: #create may return null. Required for handling deleted enums.
 			if(entry.contextInstance != null)
@@ -246,6 +252,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
 					loadItem.getBuildItemTypeId()
 				);
+			}
+			
+
+			// (28.08.2019 TM)FIXME: /!\ DEBUG priv#23
+			if(loadItem.getBuildItemObjectId() == 1000000000000000049L)
+			{
+				XDebug.println("load item 1000000000000000049");
 			}
 			
 			loadItem.handler = typeHandler;

@@ -3,16 +3,19 @@ package one.microstream.persistence.binary.internal;
 import java.util.function.Consumer;
 
 import one.microstream.X;
+import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryLegacyTypeHandler;
 import one.microstream.persistence.binary.types.BinaryReferenceTraverser;
 import one.microstream.persistence.binary.types.BinaryValueSetter;
+import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
+import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
 public abstract class AbstractBinaryLegacyTypeHandlerTranslating<T>
@@ -114,6 +117,67 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	public PersistenceTypeHandler<Binary, T> typeHandler()
 	{
 		return this.typeHandler;
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// default method implementations //
+	///////////////////////////////////
+	
+	/*
+	 * Tricky:
+	 * Must pass through all default methods to be a correct wrapper.
+	 * Otherwise, the wrapper changes the behavior in an unwanted fashion.
+	 */
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
+	{
+		// Must pass through all default methods to be a correct wrapper.
+		return this.typeHandler.membersInDeclaredOrder();
+	}
+	
+	@Override
+	public void guaranteeSpecificInstanceViablity() throws PersistenceExceptionTypeNotPersistable
+	{
+		// Must pass through all default methods to be a correct wrapper.
+		this.typeHandler.guaranteeSpecificInstanceViablity();
+	}
+	
+	@Override
+	public boolean isSpecificInstanceViable()
+	{
+		// Must pass through all default methods to be a correct wrapper.
+		return this.typeHandler.isSpecificInstanceViable();
+	}
+	
+	@Override
+	public void guaranteeSubTypeInstanceViablity() throws PersistenceExceptionTypeNotPersistable
+	{
+		// Must pass through all default methods to be a correct wrapper.
+		this.typeHandler.guaranteeSubTypeInstanceViablity();
+	}
+	
+	@Override
+	public boolean isSubTypeInstanceViable()
+	{
+		// Must pass through all default methods to be a correct wrapper.
+		return this.typeHandler.isSubTypeInstanceViable();
+	}
+	
+	@Override
+	public Object[] collectEnumConstants()
+	{
+		// Must pass through all default methods to be a correct wrapper.
+		return this.typeHandler.collectEnumConstants();
+	}
+	
+	@Override
+	public int getPersistedEnumOrdinal(final Binary medium)
+	{
+		// Must pass through all default methods to be a correct wrapper.
+		return this.typeHandler.getPersistedEnumOrdinal(medium);
 	}
 	
 	
