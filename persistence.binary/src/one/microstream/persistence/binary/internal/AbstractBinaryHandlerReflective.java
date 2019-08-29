@@ -54,7 +54,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		return AbstractBinaryHandlerReflective.<M>MemberEnum().addAll(initialMembers);
 	}
 	
-	protected static EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> deriveMembers(
+	protected static EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> deriveMembers(
 		final XGettingEnum<Field>            fields        ,
 		final PersistenceFieldLengthResolver lengthResolver
 	)
@@ -79,7 +79,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			}
 		}
 		
-		return members.immure();
+		return members;
 	}
 	
 	protected static final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filter(
@@ -201,9 +201,9 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	 * have to be loaded, the savings can amass to a substantial amount.
 	 * The relative order of reference fields and primitive fields respectively is maintained.
 	 */
+	private final EqConstHashEnum<PersistenceTypeDefinitionMember> membersInDeclaredOrder;
 	
 	private final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective>
-		declOrderMembers,
 		referenceMembers,
 		primitiveMembers,
 		storingMembers  ,
@@ -251,10 +251,15 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
 		XMemory.ensureClassInitialized(type);
 		
+		final EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> instMembersInDeclOrdr =
+			deriveMembers(persistableFields, lengthResolver)
+		;
+		
+		this.membersInDeclaredOrder = this.deriveAllMembers(instMembersInDeclOrdr);
+		
 		// member instances are created from the persistable fields and splitted into references and primitives
-		this.declOrderMembers = deriveMembers(persistableFields, lengthResolver);
-		this.referenceMembers = this.filterReferenceMembers(this.declOrderMembers, MemberEnum()).immure();
-		this.primitiveMembers = this.filterPrimitiveMembers(this.declOrderMembers, MemberEnum()).immure();
+		this.referenceMembers = this.filterReferenceMembers(instMembersInDeclOrdr, MemberEnum()).immure();
+		this.primitiveMembers = this.filterPrimitiveMembers(instMembersInDeclOrdr, MemberEnum()).immure();
 		
 		// persistent order is all reference fields in declared order, then all primitive fields in declared order.
 		this.storingMembers = MemberEnum(this.referenceMembers).addAll(this.primitiveMembers).immure();
@@ -281,7 +286,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		this.binaryContentLength = calculcateBinaryContentLength(this.storingMembers);
 
 		// lots of data copying detour, but only once per handler and nicely readable
-		this.declOrderFields = unbox(this.declOrderMembers, EqHashEnum.New()).immure();
+		this.declOrderFields = unbox(instMembersInDeclOrdr, EqHashEnum.New()).immure();
 		this.referenceFields = unbox(this.referenceMembers, EqHashEnum.New()).immure();
 		this.primitiveFields = unbox(this.primitiveMembers, EqHashEnum.New()).immure();
 	}
@@ -336,6 +341,13 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		);
 	}
 	
+	protected EqConstHashEnum<PersistenceTypeDefinitionMember> deriveAllMembers(
+		final XGettingSequence<? extends PersistenceTypeDefinitionMember> declaredOrderInstanceMembers
+	)
+	{
+		return EqConstHashEnum.New(declaredOrderInstanceMembers);
+	}
+	
 		
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -387,7 +399,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
 	{
-		return this.declOrderMembers;
+		return this.membersInDeclaredOrder;
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import static one.microstream.X.notNull;
 import java.util.function.Supplier;
 
 import one.microstream.chars.XChars;
+import one.microstream.meta.XDebug;
 
 public interface PersistenceRootEntry
 {
@@ -43,6 +44,13 @@ public interface PersistenceRootEntry
 		Default(final String identifier, final Supplier<?> instanceSupplier)
 		{
 			super();
+			
+			// (29.08.2019 TM)FIXME: /!\ DEBUG priv#23
+			if(identifier.contains("1000031"))
+			{
+				XDebug.println("registering enum 1000031");
+			}
+			
 			this.identifier       = identifier      ;
 			this.instanceSupplier = instanceSupplier;
 		}

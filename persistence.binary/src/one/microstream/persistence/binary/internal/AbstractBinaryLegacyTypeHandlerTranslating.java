@@ -169,8 +169,8 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	@Override
 	public Object[] collectEnumConstants()
 	{
-		// Must pass through all default methods to be a correct wrapper.
-		return this.typeHandler.collectEnumConstants();
+		// indicate discarding of constants root entry during root resolving
+		return null;
 	}
 	
 	@Override

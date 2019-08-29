@@ -141,7 +141,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 			int i = 0;
 			for(final Object instance : instances)
 			{
-				// instances can be null when they are explicitly registered to be null in the refactoring
+				// instances can be null when either explicitly registered to be null in the refactoring or legacy enum
 				if(instance != null)
 				{
 					// all live instances are registered for their OID.

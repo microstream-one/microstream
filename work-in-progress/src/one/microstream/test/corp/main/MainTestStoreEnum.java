@@ -53,6 +53,7 @@ public class MainTestStoreEnum
 
 			Test.print("Model data loaded.");
 			Test.print("Root instance: " + storage.root());
+			storage.storeRoot();
 			
 			Test.print("Exporting data ...");
 			TestImportExport.testExport(storage, Test.provideTimestampedDirectory("testExport"));

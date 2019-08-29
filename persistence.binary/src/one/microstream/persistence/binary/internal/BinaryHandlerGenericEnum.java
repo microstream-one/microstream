@@ -3,9 +3,9 @@ package one.microstream.persistence.binary.internal;
 import java.lang.reflect.Field;
 import java.util.function.Predicate;
 
-import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashEnum;
 import one.microstream.collections.EqHashEnum;
+import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
@@ -92,32 +92,15 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		// (01.08.2019 TM)EXCP: proper exception
 		throw new RuntimeException("Member not found in member list.");
 	}
-	
-	private static <E extends Enum<E>> XImmutableEnum<PersistenceTypeDefinitionMember> deriveAllMembers(
-		final Class<E>                                                    type           ,
-		final XGettingSequence<? extends PersistenceTypeDefinitionMember> instanceMembers
-	)
-	{
-		final XGettingSequence<PersistenceTypeDefinitionMemberEnumConstant> enumConstants =
-			deriveEnumConstantMembers(type)
-		;
 		
-		final EqHashEnum<PersistenceTypeDefinitionMember> allMembers = MemberEnum()
-			.addAll(enumConstants)
-			.addAll(instanceMembers)
-		;
-		
-		return allMembers.immure();
-	}
-	
-	public static XGettingSequence<PersistenceTypeDefinitionMemberEnumConstant> deriveEnumConstantMembers(
+	public static XImmutableEnum<PersistenceTypeDefinitionMemberEnumConstant> deriveEnumConstantMembers(
 		final Class<?> enumType
 	)
 	{
 		// can't use generics typing due to broken Object#getClass.
 		XReflect.validateIsEnum(enumType);
 		
-		final BulkList<PersistenceTypeDefinitionMemberEnumConstant> enumConstants = BulkList.New();
+		final HashEnum<PersistenceTypeDefinitionMemberEnumConstant> enumConstants = HashEnum.New();
 		for(final Field field : enumType.getDeclaredFields())
 		{
 			if(field.isEnumConstant())
@@ -130,7 +113,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 			}
 		}
 		
-		return enumConstants;
+		return enumConstants.immure();
 	}
 	
 	
@@ -164,9 +147,12 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	private final long binaryOffsetName   ;
 	private final long binaryOffsetOrdinal;
 	
-	private final XImmutableEnum<PersistenceTypeDefinitionMember> allMembers;
+	// effectively final but must be on-demand initialized due to usage in super constructor logic. Tricky.
+	private XImmutableEnum<PersistenceTypeDefinitionMemberEnumConstant> enumConstants;
 	
-
+	private final XImmutableEnum<PersistenceTypeDefinitionMember>             allMembers   ;
+	
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -182,9 +168,10 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	)
 	{
 		super(type, typeName, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
+				
+		// these are instance members in persistent order. Not to be mixed up with members in declared order
+		this.allMembers = this.deriveAllMembers(this.instanceMembers());
 		
-		final XGettingEnum<? extends PersistenceTypeDefinitionMember> fields = this.instanceMembers();
-		this.allMembers          = deriveAllMembers(type, fields);
 		this.binaryOffsetName    = calculateBinaryOffsetName(this);
 		this.binaryOffsetOrdinal = calculateBinaryOffsetOrdinal(this);
 	}
@@ -194,6 +181,16 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	///////////////////////////////////////////////////////////////////////////
 	// initializer logic //
 	//////////////////////
+	
+	public XImmutableEnum<PersistenceTypeDefinitionMemberEnumConstant> enumConstants()
+	{
+		if(this.enumConstants == null)
+		{
+			this.enumConstants = deriveEnumConstantMembers(this.type());
+		}
+		
+		return this.enumConstants;
+	}
 	
 	@Override
 	protected EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterSettingMembers(
@@ -208,6 +205,20 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	{
 		// additional long[] must be created instead of referencing that for storing offsets
 		return objectFieldOffsets(this.instanceSettingMembers());
+	}
+	
+	@Override
+	protected EqConstHashEnum<PersistenceTypeDefinitionMember> deriveAllMembers(
+		final XGettingSequence<? extends PersistenceTypeDefinitionMember> instanceMembers
+	)
+	{
+		// whether this will be declared order or persistent order depends on the passed members
+		final EqHashEnum<PersistenceTypeDefinitionMember> allMembers = MemberEnum()
+			.addAll(this.enumConstants())
+			.addAll(instanceMembers)
+		;
+		
+		return allMembers.immure();
 	}
 
 
