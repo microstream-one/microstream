@@ -616,6 +616,12 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 					
 					// (28.08.2019 TM)FIXME: priv#23: enum root registration
 					final Object[] enumRootEntries = this.collectEnumConstants(typeHandler);
+					if(enumRootEntries == null)
+					{
+						// (29.08.2019 TM)EXCP: proper exception
+						throw new RuntimeException("Discarded enum constants cannot be registered as roots.");
+					}
+					
 					modifiedRootEntries.add(enumRootIdentifier, enumRootEntries);
 					modified = true;
 				}
@@ -794,6 +800,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			
 			// after all type handler initialization and typeId registration was successful, register all type handlers.
 			this.registerTypeHandlers(typeRegisteredTypeHandlers);
+			
+			// (29.08.2019 TM)FIXME: priv#23: register all live enums constants at the rootsProvider?
 			
 			// after that, the initialization is complete and marked accordingly.
 			this.initialized = true;

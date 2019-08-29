@@ -260,6 +260,8 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 
 		private void synchronizeRoots(final PersistenceRoots loadedRoots)
 		{
+			// (29.08.2019 TM)MARKER: priv#23 legacyEnumEntryCount
+			
 			final EqHashTable<String, Object> nonEnumEntries  = EqHashTable.New();
 			final EqHashTable<String, Object> liveEnumEntries = EqHashTable.New();
 			final int legacyEnumEntryCount = this.splitLoadedRoots(loadedRoots, nonEnumEntries, liveEnumEntries);

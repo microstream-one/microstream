@@ -1476,5 +1476,93 @@ Mal suchen, wo die registriert werden ...\par
 Oh Mann, das ist knifflig. Find ich nicht. Die m\'fcssen doch irgendwo von dem Pending TypeHandler Dings her als root registriert werden ..\par
 Das geht nicht so einfach. Das wird ein String mit der Instanz verkn\'fcpft. Okay, ich k\'f6nnt per Supplier eine Logik dazwischenschieben, aber der Punkt ist doch: Das ding braucht man ja, um die enum instanzen laden zu k\'f6nnen, da kann man nicht einfach null zur\'fcckgeben. Das Problem ist halt, dass alte und neue Enum konstanten kollidieren ...\par
 Muss ich morgen \'fcberlegen ...\par
+\par
+\par
+\par
+2019-08-29\par
+\par
+Wieder mal Feierabend-Erleuchtung:\par
+Die enum Root Eintr\'e4ge stehen ja f\'fcr "enum [TypeId]" in den Roots. Wenn eine TypeId ein legacy type ist, dann soll gar nichts resolved werden. Weder zu einem neuen Array f\'fcr die aktuellen Enum Instanzen, noch zu dem aus der persistenten Form geladenen. Das war eigentlich schon der Plan. Ich muss nur noch schauen, warum es nicht gemacht wird und das fixen.\par
+\par
+Genau, also splitLoadedRoots arbeitet sogar schon so: Wenn der loadedRoot Entry null ist, muss das eine discardete legacy enum sein.\par
+Ich hatte das schon genau so geplant.\par
+Fehlt also nur, dass der RootResolver beim Laden Legacy Enum Eintr\'e4ge erkennt und zu null discardet.\par
+\par
+Beim testen aufgefallen: die nicht-discardeten enum constants tauchen gar nicht im refactoring mapping print auf. D.h. sie sind gar nicht in currentTypeHandler#membersInDeclaredOrder(). Warum nicht? Debuggen ....\par
+Schnell gefunden: weil das Feld "declOrderMembers" nur instanzfelder enth\'e4lt.\par
+Das muss dann mal ge\'e4ndert werden, bzw. dann stellt sich die Sinnfrage f\'fcr die ganze Methode, weil die n\'e4mlich nur dort verwendet wird. Nochmal pr\'fcfen. Jup, isso.\par
+L\'f6sch ich raus.\par
+Wobei halt schon das Problem ist, dass es jetzt keine collection mehr gibt, in der die Members in declared order stehen.\par
+Das k\'f6nnte aber eigentlich die allMembers sein, denn sobald konstantenfelder dabei sind, ist mit irgendwie persistenter Reihenfolge eh alles dahin.\par
+Dann w\'e4ren allMembers in declared Order und instanceMembers in persistent Order.\par
+Naja, wobei: es w\'e4r schon nett, folgende Unterteilung zu haben:\par
+- Erst alle Konstantenfelder in declared Order\par
+- Dann alle Instanzfelder in declared Order\par
+\par
+Ah, das darf aber allMembers nicht sein: das wird zum TypeDictionary assemblen hergenommen und das sollte, abgesehen von den Konstantenfeldern, schon in persistenter Reihenfolge sein.\par
+D.h. dann revert ich das l\'f6schen wieder, aber \'e4nder die Logik und ggf. Bezeichung so, dass es konstantenfelder in declaredOrder + Instanzfelder in declaredOrder werden.\par
+\par
+Dazu muss eigentlich nur das #deriveAllMembers eine Instanzemethode werden und schon von der allgemeinen Klasse verwendet werden. B\'e4m.\par
+\par
+So, umgebaut. Testen.\par
+Exception. WOS?! Da war doch davor keine.\par
+Debuggen.\par
+Achso, klar: Mit den beiden redundanten aufrufen erzeug ich jetzt zwei unterschiedliche Member Instanzen f\'fcr die enum Konstanten und das l\'e4sst den Identity lookup fehlschlagen.\par
+Also muss noch eine on demand erzeugte constantMembers collection her. Ist eh bissl sch\'f6ner strukturiert.\par
+\par
+Eingebaut, aber das ist gar nicht so einfach:\par
+Braucht eigentlich nicht on demand sein, sondern k\'f6nnte gleich direkt ein final field sein. ABER, da es im super konstruktor gebraucht wird, muss es doch on demand sein.\par
+Quasi: on demand initialisiertes non-final feld ist final'er als final. Sehr final.\par
+Also doch auf on demand umbauen.\par
+\par
+Testen.\par
+... Und scho geht's.\par
+\par
+Dann kann ich jetzt ja mit meiner eigentlichen Baustelle weitermachen: RootResolving checken f\'fcr Legacy Typen.\par
+\par
+Achja! Es ist eigentlich so einfach: es gibt eine Method PersistenceTypeHandler#collectEnumConstants.\par
+Die wird im Enum Fall beim roots resolven aufgerufen.\par
+Ein legacy type handler braucht da einfach nur null zur\'fcckgeben, anstatt das Object[] des current Type Handlers.\par
+Dann werden die legacy enum constants root Object[] implizit discarded und es gibt keine Konflikte.\par
+\par
+Aber vorsichtshalber mal noch weitere Aufrufe der Methode checken.\par
+Achja: beim initialen Speichern von neu analysierten.\par
+Brauch ich dann zwei Methoden?\par
+Eigentlich nicht, weil ein legacy type handler niemals dort hinkommen kann/darf. Ich mach einen null check mit exception rein, das reicht.\par
+\par
+Testen. Dabei gleich live bissl mitdebuggen. Sieht alles gut aus.\par
+Durchgelaufen.\par
+Mal schauen, was in den exportierten persistenten Daten jetzt drin steht.\par
+\par
+Hm. Da fehlt der neue enum Typ bei Daten und in den roots.\par
+Aber mal schauen: ich glaub ich hab im Lade-Fall gar keinen store drin. Dann wird nat\'fcrlich nix von den neuen enums gespeichert.\par
+Store einbauen. Nochmal ausf\'fchren.\par
+Und schon sind auch die enum daten im export da. Ohne exception, der kann das konsistent einfach nachtragen.\par
+Aber in den Roots ist immer noch kein Eintrag. Das ist schlecht.\par
+Immerhin ist der alte aber raus, das ist gut.\par
+Wobei es nat\'fcrlich fatal w\'e4r, weil damit die enum instanzen von gar keine zentral aufl\'f6sbaren stelle mehr referenziert werden. D.h. die w\'e4ren jetzt inkonsistent.\par
+Auf jeden Fall muss ich jetzt mal schauen, warum in den definedRoots die aktuellen enum konstanten nicht registriert sind.\par
+\par
+Hm. Da fehlt was.\par
+Defined Roots sind:\par
+- Alle normalen Konstanten, die beim Initialisieren per API registriert werden (auch JDK Konstanten usw.)\par
+- \'dcber die Analyse der Loaded Roots festgestellten live enums der betreffenden Typen\par
+\par
+Aber was fehlt ist: alle laut dictionary bekannten enum typen.\par
+Etl. braucht man dann die live analyse und Nachtragen beim synchen gar nicht mehr. W\'e4r besser, wenn die defined roots schon vor dem synchen feststehen w\'fcrden.\par
+\par
+Das w\'e4re im TypeHandlerManager#initialize. Br\'e4uchte evtl. noch neue Methoden im RootResolverProvider, aber warum nicht?\par
+\par
+Mal nochmal oben nachlesen, wie das mit der splitDings methode ist.\par
+\par
+K\'f6nnt was damit zu tun haben:\par
+ > \i Aber die definedRoots sind ja weiterhin nur 22, weil zum Erstellzeitpunkt von denen die EnumHandler nicht fertig sind.\par
+\i0\par
+Hm. Zum Erstellzeitpunkt nat\'fcrlich nicht, aber sp\'e4ter nach dem TypeHandlerManager Initialisieren. Dann m\'fcssen die DefinedRoots halt eben mit einer neuen Methode  nachtr\'e4glich registriert werden.\par
+Das w\'e4r viel sauberer und w\'fcrde das beobachtete Problem ganz einfach l\'f6sen.\par
+\par
+Muss ich morgen mal machen und so testen.\par
+\par
+\i\par
 }
  

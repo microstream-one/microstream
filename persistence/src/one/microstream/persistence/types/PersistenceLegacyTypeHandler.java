@@ -33,6 +33,13 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 		);
 	}
 	
+	@Override
+	public default Object[] collectEnumConstants()
+	{
+		// indicate discarding of constants root entry during root resolving
+		return null;
+	}
+	
 	
 	public static <T, M> T resolveEnumConstant(
 		final PersistenceLegacyTypeHandler<M, T> typeHandler,

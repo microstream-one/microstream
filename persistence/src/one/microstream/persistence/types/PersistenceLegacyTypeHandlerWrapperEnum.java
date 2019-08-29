@@ -2,7 +2,8 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
-public class PersistenceLegacyTypeHandlerWrapperEnum<M, T> extends PersistenceLegacyTypeHandlerWrapper<M, T>
+public class PersistenceLegacyTypeHandlerWrapperEnum<M, T>
+extends PersistenceLegacyTypeHandlerWrapper<M, T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
