@@ -667,7 +667,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				
 				if(modified)
 				{
-					existingRoots.replaceEntries(modifiedRootEntries);
+					// No change state modification! Important for initialization!
+					existingRoots.reinitializeEntries(modifiedRootEntries);
 					this.pendingStoreRoot = existingRoots;
 				}
 			}
@@ -717,6 +718,9 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		@Override
 		public void clearStorePendingRoots()
 		{
+			// (30.08.2019 TM)NOTE: wasn't this missing?
+			this.pendingEnumConstantRootStoringHandlers.clear();
+			
 			// pendingEnumConstantRootStoringHandlers is stored by synching logic
 			this.pendingStoreRoot = null;
 		}
@@ -841,6 +845,24 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			this.initialRegisterTypeHandlers(typeRegisteredTypeHandlers);
 			
 			// (29.08.2019 TM)FIXME: priv#23: register all live enums constants at the rootsProvider?
+			
+			// call to create definedRoots
+			this.rootsProvider.provideRoots();
+			
+			// update definedRoots with pending enum roots. NO store here. See EmbeddedStorageManager#initialize
+			this.checkForPendingRootInstances();
+			
+			/*
+			 * Tricky:
+			 * Must clear the pending store roots after reinitializing the definedRoots entries.
+			 * Using the intrinsiv pending store roots on-demand storing would cause them to get stored twice,
+			 * since every story does the check implicitely.
+			 * Executing an empty store is not possible.
+			 * And storing a dummy just to get the on-demand storing in is dopey.
+			 * Cleaner is:
+			 * Only use the pending mechanism to update the definedRoots and store explicitely what is required.
+			 */
+			this.clearStorePendingRoots();
 			
 			// after that, the initialization is complete and marked accordingly.
 			this.initialized = true;

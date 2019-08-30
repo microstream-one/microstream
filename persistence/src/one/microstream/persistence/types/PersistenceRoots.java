@@ -23,8 +23,9 @@ public interface PersistenceRoots
 	
 	public boolean hasChanged();
 	
-	public void replaceEntries(XGettingTable<String, Object> newEntries);
-	
+	public void reinitializeEntries(XGettingTable<String, Object> newEntries);
+
+	public void updateEntries(XGettingTable<String, Object> newEntries);
 
 	
 	public static PersistenceRoots New(final PersistenceRootResolver rootResolver)
@@ -144,8 +145,28 @@ public interface PersistenceRoots
 			 */
 			return this.resolvedEntries;
 		}
+		
 
-		public final synchronized void updateEntries(final XGettingTable<String, Object> resolvedRoots)
+		@Override
+		public final synchronized void reinitializeEntries(final XGettingTable<String, Object> newEntries)
+		{
+			// having to replace/update the entries is a change as well.
+			this.resolvedEntries = EqConstHashTable.New(newEntries);
+		}
+		
+		/**
+		 * Used for example during roots synchronization when initializing an embedded storage instance.
+		 * 
+		 * @param newEntries the actual entries to be set.
+		 */
+		@Override
+		public final synchronized void updateEntries(final XGettingTable<String, Object> newEntries)
+		{
+			this.reinitializeEntries(newEntries);
+			this.hasChanged = true;
+		}
+
+		public final synchronized void loadingUpdateEntries(final XGettingTable<String, Object> resolvedRoots)
 		{
 			final XGettingTable<String, Object> effectiveRoots = CQL
 				.from(resolvedRoots)
@@ -156,19 +177,6 @@ public interface PersistenceRoots
 			// if at least one null entry was removed, the roots at runtime changed compared to the persistant state
 			this.resolvedEntries = EqConstHashTable.New(effectiveRoots);
 			this.hasChanged      = effectiveRoots.size() != resolvedRoots.size();
-		}
-		
-		/**
-		 * Used for example during roots synchronization when initializing an embedded storage instance.
-		 * 
-		 * @param newEntries the actual entries to be set.
-		 */
-		@Override
-		public final synchronized void replaceEntries(final XGettingTable<String, Object> newEntries)
-		{
-			// having to replace/update the entries is a change as well.
-			this.resolvedEntries = EqConstHashTable.New(newEntries);
-			this.hasChanged      = true;
 		}
 
 	}
