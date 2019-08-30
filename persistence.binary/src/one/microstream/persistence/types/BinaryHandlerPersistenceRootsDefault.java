@@ -188,9 +188,52 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		);
 		final XGettingTable<String, Object> resolvedRoots = rootResolver.resolveRootInstances(resolvableRoots);
 			
-		instance.updateEntries(resolvedRoots);
+		instance.loadingUpdateEntries(resolvedRoots);
+
+
+		// (30.08.2019 TM)NOTE: fix for priv#138, but no longer required since nulls are no longer filtered out.
+//		final long[] updatedObjectIds = updateObjectIds(objectIds, resolvableRoots.keys(), resolvedRoots.keys());
+//		this.registerInstancesPerObjectId(updatedObjectIds, resolvedRoots.values());
+		
+		// (30.08.2019 TM)NOTE: due to changed to #resolveRootInstances via priv#23, this is now correct.
 		this.registerInstancesPerObjectId(objectIds, resolvedRoots.values());
 	}
+	
+	// (30.08.2019 TM)NOTE: fix for priv#138, but no longer required since nulls are no longer filtered out.
+//	private static long[] updateObjectIds(
+//		final long[]               objectIds,
+//		final XGettingEnum<String> oldKeys  ,
+//		final XGettingEnum<String> newKeys
+//	)
+//	{
+//		if(oldKeys.size() == newKeys.size())
+//		{
+//			// array is up to date, return right away.
+//			return objectIds;
+//		}
+//
+//		final long[] newObjectIds = new long[newKeys.intSize()];
+//
+//		int o = 0, n = 0;
+//		final Iterator<String> oldKeysIterator = oldKeys.iterator();
+//		final Iterator<String> newKeysIterator = newKeys.iterator();
+//
+//		while(newKeysIterator.hasNext())
+//		{
+//			final String newKey = newKeysIterator.next();
+//
+//			while(!newKey.equals(oldKeysIterator.next()))
+//			{
+//				// skip oid index of removed key
+//				o++;
+//			}
+//
+//			// corresponding entries found
+//			newObjectIds[n++] = objectIds[o++];
+//		}
+//
+//		return newObjectIds;
+//	}
 
 	@Override
 	public final void iterateInstanceReferences(

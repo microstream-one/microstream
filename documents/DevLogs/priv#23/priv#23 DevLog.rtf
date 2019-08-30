@@ -1677,6 +1677,32 @@ Wie w\'e4re folgendes:\par
 Das sollte in jedem Fall ein korrektes Ergebnis liefern und w\'e4re sogar ein bisschen weniger code als bisher.\par
 \par
 \par
+Jetzt hab ich das umgebaut und getestet.\par
+L\'e4uft durch. Root Eintrag f\'fcr die ge\'e4nderte Version der Test-Enum ist enthalten.\par
+Aber im Export ist jede Enum Instanz dreimal drin. Das ist seltsam. Kann aber durch den #138 Bug kommen und die vorherigen Ausf\'fchrungen.\par
+Mal Test nochmal von vorn machen.\par
+Ergebnis:\par
+\'c4h... neuer Root Eintrag steht korrekt drin. Aber jetzt werden gar keine Enum Instanzen mehr exportiert. \par
+Aber wie kann denn das sein, wenn der neue Eintrag drin steht? der enth\'e4lt ein Object[] und das enth\'e4lt die instanzen.\par
+Also warum gibts den Eintrag, aber nicht die instanzen? debuggen ...\par
 \par
+Also der Roots eintrag mit der neuen TypeId und neuen Enum Instanzen wird auf jeden Fall gespeichert, aber kein\par
+one.microstream.test.corp.main.SimpleEnum_1000062.csv\par
+mit den neuen enum instanzen im export.\par
+Die alte one.microstream.test.corp.main.SimpleEnum_1000031.csv aber schon noch ...\par
+\par
+Moment mal... \'e4h ... das ist korrekt so:\par
+Das sind ja legacy-type-gemappte Instanzen. D.h. solange sie nicht explizit neu abgespeichert werden, liegen die mit 1000031 um und laden darum in der export Datei.\par
+1000062:SimpleEnum hat zwar ein neues Object[] bekommen, das wird auch richtig verlinkt, abgespeichert und exportiert, aber das zeigt auf 1000031er Instanzen.\par
+Wenn das n\'e4chste mal geladen wird, werden die wieder da rein gemappt.\par
+Also klingt seltsam, ist aber richtig.\par
+\par
+Hm. Dann k\'f6nnte/m\'fcsste das abgeschlossen sein.\par
+Ich muss dann am Montag noch ein paar F\'e4lle mehr testen.\par
+\par
+Dann mach ich gleich noch den Fix f\'fcr #138.\par
+Eingebaut. Und dann aufgefallen: Durch die \'c4nderung von diesem Issue (priv#23) sollte der Fix gar nicht mehr n\'f6tig sein.\par
+Haha.\par
+Naja, ich lass die updating Methode mal drin und schreib Kommentare dazu. Falls doch, wird der Fehler durch simples Einkommentieren gefixt sein.\par
 }
  
