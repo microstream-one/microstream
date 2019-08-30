@@ -1,5 +1,5 @@
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\colortbl ;\red255\green0\blue0;\red102\green102\blue102;}
+{\colortbl ;\red255\green0\blue0;\red102\green102\blue102;\red165\green165\blue165;}
 {\*\generator Riched20 10.0.17763}\viewkind4\uc1 
 \pard\sl276\slmult1\f0\fs28\lang7 2019-07-26\par
 \par
@@ -1563,6 +1563,120 @@ Das w\'e4r viel sauberer und w\'fcrde das beobachtete Problem ganz einfach l\'f6
 \par
 Muss ich morgen mal machen und so testen.\par
 \par
-\i\par
+\par
+\par
+2019-08-30\par
+\par
+Eigentlich k\'f6nnte das \'fcber die eh im TypeHandleManager gehaltenen Pending Roots laufen.\par
+Jede live Enum TypeHandler Registrierung erzeugt einen pending root eintrag. Am Ende der Initialisierung werden alle Pending roots in die definedRoots \'fcbernommen. Dann kommt das Root Synchen.\par
+Mal checken.\par
+Hm. Am ende der TypeHandlerManager Initialisierung gibts nat\'fcrlich alle live Enum TypeHandler, aber nur der f\'fcr die JDK NaturalOrder enum steht in den PendingRoots... warum?\par
+Checken ...\par
+\par
+Ah, die Initialisierung registriert die neuen typehandler nur direkt bei der typeHandlerRegistry, ohne management-level register Methoden aufzurufen.\par
+Ist das ein Versehen oder hat das einen grund?\par
+\par
+Also es gibt mehrere registerTypeHandler(s) Methoden im Manager. Die muss ich alle mal durchschauen und konsolidieren ...\par
+\par
+Also es gibt:\par
+\cf3 - (interface) registerLegacyTypeHandler\par
+Das ist f\'fcr legacy Handler und eh au\'dfen vor. Das passt.\par
+\cf0\par
+1.) (interface) registerTypeHandler\par
+Das ist die "normale" Methode, die auch das enum constants roots registration Zeug macht. Die passt so.\par
+\par
+2.) (class) registerTypeHandlers\par
+Klingt wie eine Plural-Form der "normalen" methode. Ist es aber nicht.\par
+Das ist ein Wrapper f\'fcr #internalRegisterTypeHandlers, der vorher und nachher noch anderes type management zeug macht.\par
+Das ist ... verd\'e4chtig.\par
+Immerhin wird der nur in der Initialisierung aufgerufen.\par
+\par
+\cf3 3.) (class) internalRegisterTypeHandlers\par
+Die ist auch kein Plural von #internalRegisterTypeHandler (was auch schon wieder seltsam ist).\par
+Sondern die ist ein Plural daf\'fcr, die \'fcbergebenenen TypeHandlers direkt bei der typeHandlerRegistry zu registrieren \par
+\cf0\par
+\cf3 4.) (class) internalRegisterTypeHandler\par
+Die ruft die "normale" interface Methode auf und macht danach noch das recursive Ensuring Logik Zeug.\par
+\cf0\par
+Das muss ich mal aufr\'e4umen.\par
+Die Frage ist vorher noch, ob es Probleme macht, bei dem ein oder anderen mehr Logik aufzurufen als bisher. Oder eben es w\'e4re sogar ein Bugfix.\par
+\par
+Also die #4 wird nur an einer Stelle aufgerufen und die zwei Zeilen kann ich auch direkt dort hin schieben. Damit ist die weg.\par
+#3 genau das gleiche.\par
+\par
+Dann sind jetzt eigentlich nur noch \'fcbrig:\par
+- Die "normale" Einzelmethode\par
+- Die Bulk-Methode f\'fcr die Initialisierung. Die benenn ich darum gleich mal um.\par
+\par
+jetzt ist noch die Frage, ob man die beiden entweder zusammenkonsolidieren kann, oder ob die init-bulk-methode absichtlich ein andere Verhalten als die Einzel-Methode haben soll.\par
+\par
+Zum Beispiel:\par
+Jedem Aufruf von recursiveEnsureTypeHandlers geht eine Registrierung des TypeHandlers vorher. Dann kann man das gleich in fest in die register Methode reinbauen.\par
+\par
+Umbauen.\par
+Dann gleich noch die Initialisierungsmethode vereinheitlichem mit einer Plural-Methode f\'fcr registerTypeHandler.\par
+Testen.\par
+Exception.\par
+java.util.Map wird doppelt registriert.\par
+Debuggen.\par
+\par
+Achja! das eingebaute recursive ensuring trifft auf die java.util.Map bevor sie in der collection abgearbeitet wird.\par
+\par
+Mal dr\'fcber nachdenken:\par
+Also grunds\'e4tzlich muss es so sein:\par
+registerTypeHandler macht NUR die Registrierung, keine Zusatz-Management Logik. Sonst w\'fcrde die n\'e4mlich bei jeder Registrierung aufgerufen werden.\par
+Wo die rein muss ist beim ensuren: Checken, ob es einen handler schon gibt. Wenn ja, passt, wenn nein: erzeugen und registrieren UND dann noch zusatz-Management zeug. aber nur einmalig, n\'e4mlich beim ensuren.\par
+So umbauen.\par
+\par
+Und darum muss die Initialisierungsmethode eben doch intern die Schritte aufteilen:\par
+- erst alle validieren (wobei man sich das schenken kann bei gerade valide initialisierten und dabei gepr\'fcften TypeHandlers. War bisher ja auch nicht drin.)\par
+- dann alle registrieren OHNE Zusatzlogik.\par
+- Dann Zusatzlogik in Form von recursive ensuring (wobei: sollte das nicht \'fcberfl\'fcssig sein? Das w\'e4re ja nur, falls einer im TypeDictionary manuell als Feldtypen einen neuen Typ reinschreibt. Hm, ne, und bei API-m\'e4\'dfig registrierten. Ok Ok)\par
+- Und jetzt eben auch Zusatzlogik f\'fcr enum root registration.\par
+\par
+So mach ich es.\par
+\par
+Testen.\par
+\par
+Passt - Und SCHON, Ironie, - bin ich da, wo ich in der Fr\'fch sein wollte: Alle Enum TypeHandler erzeugen schon in der TypeHandlerManager Initialisierung ihre "pending" Eintr\'e4ge.\par
+\par
+Und die kann ich jetzt im RootsProvider registrieren und clearen.\par
+Mal schauen ...\par
+\par
+Eigentlich m\'fcsste man daf\'fcr nur:\par
+- provideRoots aufrufen, damit die Instanz da ist\par
+- checkForPendingRootInstances aufrufen, damit die definedRoots Instanz mit den ganzen Pending Dingern geupdated wird.\par
+- Dann definedRoots und LoadedRoots vergleichen. Bei match pendingStoreRoot clearen, bei mismach pendingStoreRoot speichern.\par
+\par
+Aber moment mal:\par
+Das w\'e4ren ja die defined Roots. Im Roots Synching steht doch drin, dass immer die loadedRoots instanz gesyncht und gespeichert werden muss, wegen der OID.\par
+Warum steckt dann die #checkForPendingRootInstances die providedRoots (d.h. die definedRoots) in den Storer rein? Das stimmt doch nicht...!\par
+Untersuchen ...\par
+\par
+Ach! Daf\'fcr gibts ja die #updateRuntimeRoots, der die loadedRoots Instanz \'fcbergeben wird. Dann machts Sinn.\par
+Dann geht der Ablauf von oben so aber nicht.\par
+Mal durchschauen ...\par
+\par
+Okay, crazy shit Idee:\par
+Eigentlich w\'e4re der ablauf:\par
+- definedRoots erzeugen\par
+- loadedRoots laden\par
+- falls es keine gibt, dann die definedRoots als loadedRoots setzen\par
+- falls schon, dann synchen, d.h. loadedRoots wird aktualisiert falls n\'f6tig und in jedem Fall loadedRoots als existingRoots in den rootsProvider stecken.\par
+- falls n\'f6tig loadedRoots speichern\par
+\par
+Wie w\'e4re folgendes:\par
+- bei TypeHandler Initialisieren definedRoots erzeugen mit provide~ Aufruf und die DefinedRoots updaten. Dann werden die (eigentlich f\'e4lschlicherweise) als pendingRoots gesetzt.\par
+- noch NICHTS speichern\par
+- im rootsSynch loadedRoots laden\par
+- falls es keine gibt, dann nichts tun. DefinedRoots bleiben die existingRoots\par
+- falls schon, dann synchen, d.h. loadedRoots wird aktualisiert falls n\'f6tig und in jedem Fall loadedRoots als existingRoots in den rootsProvider stecken.\par
+- im Leerfall oder \'c4nderungsfall TypeHandlerManager#checkForPendingRootsStoring aufrufen mit einem storer. Es wird immer die richtige Roots Instanz gespeichert.\par
+- im Match-Fall gar nichts machen. Halt, doch: die pending typehandlers aus der Initialisierung clearen. Denn die Datenbank enth\'e4lt die alle ja schon genau so.\par
+\par
+Das sollte in jedem Fall ein korrektes Ergebnis liefern und w\'e4re sogar ein bisschen weniger code als bisher.\par
+\par
+\par
+\par
 }
  

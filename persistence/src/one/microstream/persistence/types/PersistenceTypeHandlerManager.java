@@ -12,6 +12,7 @@ import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
@@ -114,8 +115,15 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		 */
 		if(!XReflect.isDeclaredEnum(typeHandler.type()))
 		{
-			// nothing to do for non-enums.
+			// nothing to do for non-(top-level-)enums.
 			return;
+		}
+		
+
+		// (28.08.2019 TM)FIXME: /!\ DEBUG priv#23
+		if(XReflect.isEnum(typeHandler.type()))
+		{
+			XDebug.println("register enum roots for type handler " + typeHandler.toTypeIdentifier());
 		}
 				
 		pendingEnumConstantRootStoringHandlers.add(
@@ -216,25 +224,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		// methods //
 		////////////
 				
-		/*
-		 * Logic moved from calling it externally in the TypeHandlerProvider to be called internally, where it belongs.
-		 */
-		private <T> void internalRegisterTypeHandler(final PersistenceTypeHandler<M, T> typeHandler)
-		{
-			this.registerTypeHandler(typeHandler);
-			this.recursiveEnsureTypeHandlers(typeHandler);
-		}
-		
-		private void internalRecursiveEnsureTypeHandlers(
-			final Iterable<? extends PersistenceTypeHandler<M, ?>> typeHandlers
-		)
-		{
-			for(final PersistenceTypeHandler<M, ?> typeHandler : typeHandlers)
-			{
-				this.recursiveEnsureTypeHandlers(typeHandler);
-			}
-		}
-		
 		private <T> void recursiveEnsureTypeHandlers(final PersistenceTypeHandler<M, T> typeHandler)
 		{
 			/* (25.07.2019 TM)TODO: priv#122: potential problems with recursively ensured type handlers for field types
@@ -268,38 +257,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 					throw e; // debug hook
 				}
 			});
-		}
-
-		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandler(final Class<T> type)
-		{
-			/*
-			 * Note on super classes and the hiararchy of implemented interface:
-			 * Since every class is handled isolated from its super class, it is not necessary to
-			 * recursively analyze all super classes, here. It might even be wrong, since a super class
-			 * can actually be unpersistable and would throw an exception during analyzing, but an unjustified one
-			 * if instances of that super classes would never be persisted by the application.
-			 * In short: only concrete classes of to be persisted instances are relevant, not super classes.
-			 * Interfaces are only analyzed (as stateless and unpersistably abstract types) if encountered directly,
-			 * e.g. as a field type. Regarding implemented interfaces, the same rationale applies as with super classes.
-			 */
-			
-			synchronized(this.typeHandlerRegistry)
-			{
-				// tricky: must ensure a handler for the declared enum class for enum sub classes.
-				if(XReflect.isEnum(type) && !XReflect.isDeclaredEnum(type))
-				{
-					this.ensureTypeHandler(XReflect.getDeclaredEnumClass(type));
-				}
-				
-				PersistenceTypeHandler<M, T> handler;
-				if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
-				{
-					handler = this.typeHandlerProvider.provideTypeHandler(type);
-					this.internalRegisterTypeHandler(handler);
-				}
-				
-				return handler;
-			}
 		}
 		
 		private void validateTypeHandlerTypeId(final PersistenceTypeHandler<M, ?> typeHandler)
@@ -562,22 +519,104 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		{
 			return this.typeHandlerRegistry.registerTypes(types);
 		}
+		
+		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandler(final Class<T> type)
+		{
+			/*
+			 * Note on super classes and the hiararchy of implemented interface:
+			 * Since every class is handled isolated from its super class, it is not necessary to
+			 * recursively analyze all super classes, here. It might even be wrong, since a super class
+			 * can actually be unpersistable and would throw an exception during analyzing, but an unjustified one
+			 * if instances of that super classes would never be persisted by the application.
+			 * In short: only concrete classes of to be persisted instances are relevant, not super classes.
+			 * Interfaces are only analyzed (as stateless and unpersistably abstract types) if encountered directly,
+			 * e.g. as a field type. Regarding implemented interfaces, the same rationale applies as with super classes.
+			 */
+			
+			synchronized(this.typeHandlerRegistry)
+			{
+				// tricky: must ensure a handler for the declared enum class for enum sub classes.
+				if(XReflect.isEnum(type) && !XReflect.isDeclaredEnum(type))
+				{
+					this.ensureTypeHandler(XReflect.getDeclaredEnumClass(type));
+				}
+				
+				PersistenceTypeHandler<M, T> typeHandler;
+				if((typeHandler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
+				{
+					typeHandler = this.typeHandlerProvider.provideTypeHandler(type);
+					this.registerTypeHandler(typeHandler);
+					this.registerEnumContantRoots(typeHandler);
+					this.recursiveEnsureTypeHandlers(typeHandler);
+				}
+				
+				return typeHandler;
+			}
+		}
 
 		@Override
 		public final boolean registerTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
 		{
 			this.validateTypeHandler(typeHandler);
+
+			return this.unvalidatedRegisterTypeHandler(typeHandler);
+		}
+		
+		private final boolean unvalidatedRegisterTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
+		{
 			if(this.typeHandlerRegistry.registerTypeHandler(typeHandler))
 			{
 				// a (up to date) handler is always the runtime type definition
 				this.typeDictionaryManager.registerRuntimeTypeDefinition(typeHandler);
-				this.registerEnumContantRoots(typeHandler);
 				return true;
 			}
+			
 			return false;
 		}
-		
+					
+		private void initialRegisterTypeHandlers(
+			final XGettingCollection<PersistenceTypeHandler<M, ?>> initializedTypeHandlers
+		)
+		{
+			// no validation required during initialization.
+			
+			// First, pure registration without recursive type analysis calls to maintain the type handler order
+			for(final PersistenceTypeHandler<M, ?> typeHandler : initializedTypeHandlers)
+			{
+				this.unvalidatedRegisterTypeHandler(typeHandler);
+			}
+			
+			// AFTERWARDS additional management logic like resursive ensuring and enum root registration
+			
+			// constant roots for enum types must be collected
+			for(final PersistenceTypeHandler<M, ?> typeHandler : initializedTypeHandlers)
+			{
+				this.registerEnumContantRoots(typeHandler);
+			}
+			
+			// recursive registration: initialized handlers themselves plus all handlers required for their field types
+			for(final PersistenceTypeHandler<M, ?> typeHandler : initializedTypeHandlers)
+			{
+				this.recursiveEnsureTypeHandlers(typeHandler);
+			}
 
+			// (30.08.2019 TM)NOTE: old before enum root constants and overhaul:
+			
+//			// set initialized handlers as runtime definitions
+//			this.typeDictionaryManager.registerRuntimeTypeDefinitions(initializedTypeHandlers);
+//
+//			// register all type handlers at the registry
+//			for(final PersistenceTypeHandler<M, ?> typeHandler : initializedTypeHandlers)
+//			{
+//				this.typeHandlerRegistry.registerTypeHandler(typeHandler);
+//			}
+//
+//			// recursive registration: initialized handlers themselves plus all handlers required for their field types
+//			for(final PersistenceTypeHandler<M, ?> typeHandler : initializedTypeHandlers)
+//			{
+//				this.recursiveEnsureTypeHandlers(typeHandler);
+//			}
+		}
 		
 		@Override
 		public void checkForPendingRootInstances()
@@ -799,7 +838,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			this.initializeNewTypeHandlers(newTypeHandlers, typeRegisteredTypeHandlers);
 			
 			// after all type handler initialization and typeId registration was successful, register all type handlers.
-			this.registerTypeHandlers(typeRegisteredTypeHandlers);
+			this.initialRegisterTypeHandlers(typeRegisteredTypeHandlers);
 			
 			// (29.08.2019 TM)FIXME: priv#23: register all live enums constants at the rootsProvider?
 			
@@ -862,28 +901,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			 */
 			this.typeRegisterInitializedTypeHandlers(initializedMatchingTypeHandlers, typeRegisteredTypeHandlers);
 		}
-		
-		private void registerTypeHandlers(
-			final XGettingCollection<PersistenceTypeHandler<M, ?>> initializedTypeHandlers
-		)
-		{
-			// set initialized handlers as runtime definitions
-			this.typeDictionaryManager.registerRuntimeTypeDefinitions(initializedTypeHandlers);
-			
-			this.internalRegisterTypeHandlers(initializedTypeHandlers);
-			
-			// recursive registration: initialized handlers themselves plus all handlers required for their field types
-			this.internalRecursiveEnsureTypeHandlers(initializedTypeHandlers);
-		}
-		
-		private void internalRegisterTypeHandlers(final Iterable<PersistenceTypeHandler<M, ?>> typeHandlers)
-		{
-			for(final PersistenceTypeHandler<M, ?> typeHandler : typeHandlers)
-			{
-				this.typeHandlerRegistry.registerTypeHandler(typeHandler);
-			}
-		}
-		
+				
 		private void initializeNewTypeHandlers(
 			final XGettingCollection<PersistenceTypeHandler<M, ?>> newTypeHandlers,
 			final HashEnum<PersistenceTypeHandler<M, ?>>           typeRegisteredTypeHandlers
