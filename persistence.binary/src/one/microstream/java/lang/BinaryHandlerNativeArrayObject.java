@@ -114,12 +114,6 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	@Override
 	public final void update(final Binary bytes, final A instance, final PersistenceObjectIdResolver idResolver)
 	{
-
-		// (28.08.2019 TM)FIXME: /!\ DEBUG priv#23
-		if(bytes.getEntityObjectId() == 1000000000000000049L)
-		{
-			XDebug.println("1000000000000000049");
-		}
 		final Object[] arrayInstance = (Object[])instance;
 		
 		// better check length consistency here. No clear required.
