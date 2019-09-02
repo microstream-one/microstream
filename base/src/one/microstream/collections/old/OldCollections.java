@@ -148,8 +148,8 @@ public final class OldCollections
 		return null;
 	}
 
-	public static final <T, L extends List<T> & RandomAccess> boolean applies(
-		final L list,
+	public static final <T, L extends List<T> & RandomAccess> boolean containsSearched(
+		final L                    list     ,
 		final Predicate<? super T> predicate
 	)
 	{
@@ -160,6 +160,7 @@ public final class OldCollections
 				return true;
 			}
 		}
+		
 		return false;
 	}
 

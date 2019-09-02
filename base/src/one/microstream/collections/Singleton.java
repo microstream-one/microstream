@@ -290,13 +290,6 @@ public class Singleton<E> implements XReference<E>
 		return new SingletonView<>(this);
 	}
 
-//	@Override
-//	public final <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		aggregate.accept(this.element);
-//		return aggregate.yield();
-//	}
-
 	@Override
 	public final boolean containsSearched(final Predicate<? super E> predicate)
 	{

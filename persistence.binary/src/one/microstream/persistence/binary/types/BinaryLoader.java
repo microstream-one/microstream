@@ -10,7 +10,6 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.math.XMath;
 import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceInstanceHandler;
 import one.microstream.persistence.types.PersistenceLoader;
@@ -173,14 +172,14 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			 * Note on instance type: both ways that set instances here (local and context),
 			 * namely registry and type handler, are trusted to provide (instantiate or know) instances of the
 			 * correct type.
+			 * 
+			 * Note on the two instance fields:
+			 * "contextInstance" is initialized with a potentially already existing instance.
+			 * "localInstance" is created anew during loading.
+			 * Maybe they should be renamed into "existingInstance" and "createdInstance".
+			 * Or maybe they can be consolidated into one fields
+			 * Or maybe no longer due to allowing #create to return null, now.
 			 */
-			// (07.12.2018 TM)XXX: difference between contextInstance and localInstance? Relevant?
-			
-			// (28.08.2019 TM)FIXME: /!\ DEBUG priv#23
-			if(entry.getBuildItemObjectId() == 1000000000000000049L)
-			{
-				XDebug.println("load item 1000000000000000049");
-			}
 
 			// (26.08.2019 TM)NOTE: paradigm change: #create may return null. Required for handling deleted enums.
 			if(entry.contextInstance != null)
@@ -195,15 +194,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 				entry.getBuildItemObjectId(),
 				entry.localInstance
 			);
-			
-			// (26.08.2019 TM)NOTE: old version
-//			return entry.contextInstance != null
-//				? entry.contextInstance
-//				: (entry.contextInstance = this.registry.optionalRegisterObject(
-//					entry.getBuildItemObjectId(),
-//					entry.localInstance
-//				))
-//			;
 		}
 
 		protected PersistenceTypeHandler<Binary, ?> lookupTypeHandler(final long tid)
@@ -238,7 +228,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 				Binary.entityContentAddress(entityAddress)
 			);
 			
-			// at one point or another, a nasty cast from ? to Object is necessary. Safety guaranteed by logic.
+			// at some point, a nasty cast from ? to Object is necessary. Safety guaranteed by logic.
 			@SuppressWarnings("unchecked")
 			final PersistenceTypeHandler<Binary, Object> typeHandler = (PersistenceTypeHandler<Binary, Object>)
 				this.typeHandlerLookup.lookupTypeHandler(
@@ -252,13 +242,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
 					loadItem.getBuildItemTypeId()
 				);
-			}
-			
-
-			// (28.08.2019 TM)FIXME: /!\ DEBUG priv#23
-			if(loadItem.getBuildItemObjectId() == 1000000000000000049L)
-			{
-				XDebug.println("load item 1000000000000000049");
 			}
 			
 			loadItem.handler = typeHandler;

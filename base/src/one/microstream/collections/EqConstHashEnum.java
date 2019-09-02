@@ -633,7 +633,7 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	@Override
 	public final boolean containsSearched(final Predicate<? super E> predicate)
 	{
-		return this.chain.applies(predicate);
+		return this.chain.containsSearched(predicate);
 	}
 
 	@Override

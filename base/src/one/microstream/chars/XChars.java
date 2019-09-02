@@ -2519,6 +2519,11 @@ public final class XChars
 	)
 	{
 		final int length = chars.length();
+		if(length == 0)
+		{
+			// must check for the special case of no entries (predicate cannot apply).
+			return false;
+		}
 		
 		for(int i = startIndex; i < length; i++)
 		{

@@ -71,6 +71,8 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 	// methods //
 	////////////
 	
+	// note on initializing methods: exluding the java.lang.Enum fields must already be excluded in valueTranslators
+	
 	public int getOrdinal(final Binary bytes)
 	{
 		return bytes.get_int(this.binaryOffsetOrdinal);
@@ -80,6 +82,13 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 	protected T internalCreate(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getOrdinal(bytes));
+	}
+	
+	@Override
+	public void update(final Binary rawData, final T instance, final PersistenceObjectIdResolver idResolver)
+	{
+		// debug hook
+		super.update(rawData, instance, idResolver);
 	}
 	
 }

@@ -225,14 +225,9 @@ public class SingletonView<E> implements XReferencing<E>
 		{
 			throw new IndexOutOfBoundsException();
 		}
+		
 		return this;
 	}
-
-//	@Override
-//	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return this.subject.iterate(aggregate);
-//	}
 
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
@@ -251,12 +246,6 @@ public class SingletonView<E> implements XReferencing<E>
 	{
 		return this.subject.contains(element);
 	}
-
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.containsAll(samples, equalator);
-//	}
 
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)

@@ -187,18 +187,6 @@ public class SubView<E> implements XGettingSequence<E>
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
-//	@Override
-//	public boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError();
-//	}
-
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError();
-//	}
-
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)
 	{

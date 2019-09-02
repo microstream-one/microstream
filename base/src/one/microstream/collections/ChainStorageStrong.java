@@ -1134,7 +1134,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	// applying - single //
 
 	@Override
-	public final boolean applies(final Predicate<? super E> predicate)
+	public final boolean containsSearched(final Predicate<? super E> predicate)
 	{
 		try
 		{
@@ -1150,11 +1150,12 @@ extends AbstractChainStorage<E, K, V, EN>
 		{
 			// abort iteration
 		}
+		
 		return false;
 	}
 
 	@Override
-	public final boolean rngApplies(final long offset, long length, final Predicate<? super E> predicate)
+	public final boolean rngContainsSearched(final long offset, long length, final Predicate<? super E> predicate)
 	{
 		EN e = this.getRangeChainEntry(offset, length); // validate range and scroll to offset
 		try
@@ -1194,7 +1195,14 @@ extends AbstractChainStorage<E, K, V, EN>
 	{
 		try
 		{
-			for(EN e = this.head.next; e != null; e = e.next)
+			EN e = this.head;
+			if(e.next == null)
+			{
+				// must check for the special case of no entries (predicate cannot apply).
+				return false;
+			}
+			
+			while((e = e.next) != null)
 			{
 				if(!predicate.test(e.element()))
 				{
@@ -1206,6 +1214,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		{
 			// abort iteration
 		}
+		
 		return true;
 	}
 
@@ -1213,6 +1222,13 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final boolean rngAppliesAll(final long offset, long length, final Predicate<? super E> predicate)
 	{
 		EN e = this.getRangeChainEntry(offset, length); // validate range and scroll to offset
+		
+		if(length == 0)
+		{
+			// must check for the special case of no entries (predicate cannot apply).
+			return false;
+		}
+		
 		try
 		{
 			if(length < 0)

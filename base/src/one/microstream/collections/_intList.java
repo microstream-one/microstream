@@ -612,9 +612,9 @@ public final class _intList implements _intCollecting, Composition
 
 	// boolean querying - applies //
 
-	public boolean contains(final _intPredicate predicate)
+	public boolean containsSearched(final _intPredicate predicate)
 	{
-		return Abstract_intArrayStorage.applies(this.data, this.size, predicate);
+		return Abstract_intArrayStorage.containsSearched(this.data, this.size, predicate);
 	}
 
 	public boolean applies(final _intPredicate predicate)

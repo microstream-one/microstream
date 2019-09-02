@@ -6,7 +6,6 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.equality.Equalator;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing.TypeMappingLookup;
@@ -30,14 +29,34 @@ public interface PersistenceLegacyTypeMapper<M>
 	{
 		public static double defaultExplicitMappingSimilarity()
 		{
-			// to indicate "super similarity", something beyind a similiary match: an explicit mapping.
+			// to indicate "super similarity", something beyond a similiary match: an explicit mapping.
 			return 2.0;
+		}
+		
+		public static int defaultMappingTokenBaseLength()
+		{
+			// The 3 characters "-"..."->" are mapping indicators. The special cases below don't have/need them.
+			return 6;
 		}
 		
 		public static String defaultExplicitMappingString()
 		{
-			return "[mapped]";
+			// yields "-mapped->" (9 characters)
+			return "mapped";
 		}
+		
+		public static String defaultNewMemberString()
+		{
+			// yields " NEW    >" (9 characters)
+			return " NEW    >";
+		}
+		
+		public static String defaultDiscardedMemberString()
+		{
+			// yields " REMOVED " (9 characters)
+			return " REMOVED ";
+		}
+		
 	}
 	
 	public static String similarityToString(final Similarity<PersistenceTypeDefinitionMember> match)
@@ -128,9 +147,6 @@ public interface PersistenceLegacyTypeMapper<M>
 			final PersistenceTypeHandler<M, T> currentTypeHandler
 		)
 		{
-			// (22.08.2019 TM)FIXME: /!\ Debug priv#23
-			XDebug.println("Creating legacy handler for " + legacyTypeDefinition.toTypeIdentifier());
-			
 			// explicit mappings take precedence
 			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings  ;
 			final HashEnum<PersistenceTypeDefinitionMember>                                   explicitNewMembers;

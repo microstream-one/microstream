@@ -1717,5 +1717,64 @@ neu: Type3\par
 \'d6hm ... in den Roots ist ja gar kein Eintrag f\'fcr den defaultRoot mehr.\line Seltsam. Debuggen.\par
 Ah: PersistenceRootResolverProvider#registerDefaultRoot wird nirgends mehr aufgerufen.\par
 Das sollte sich schnell fixen lassen ...\par
+\par
+einfach mal schnell im master branch kucken, dort funktioniert es n\'e4mlich noch.\par
+EmbeddedStorageConnectionFoundation#ensureRootResolver\par
+Suchen in neuem Code.\par
+\par
+Also das gibts in PersistenceRootResolverProvider#createRootResolver, sieht aber ganz anders aus.\par
+Und nat\'fcrlich mit einem kapitalen Bug drin:\line anstatt on demand #registerDefaultRoot aufzurufen, so wie im alten, wird nur on demand eine neue defaultRoot Instanz erzeugt und dem neu erzeugten PersistenceRootResolver mitgegeben, wodurch der in den Entries fehlt.\par
+Dadurch wird er nicht als Root registriert und dann sp\'e4ter nicht wieder geladen.\par
+Fixen.\par
+\par
+Sieht gut aus. Jetzt ist nur noch die Frage, warum die definedRoots nach dem Initialisieren hasChanged == false haben, wodurch sie nicht gespeichert werden.\par
+Ich glaub, das war schon immer so, aber der Pr\'fcf-Algorithmus war anders, so dass im empty database fall die roots immer gespeichert wurden.\par
+\par
+Wieder so zur\'fcckbauen, wie es fr\'fcher war. Durch das wieder vereinfachte Roots synchen ist es so ja wieder die beste L\'f6sung.\par
+Testen.\par
+Passt.\par
+\par
+Jetzt den n\'e4chsten Enum Fall testen.\par
+\par
+Also der schwierige Teil, wegefallende discarden und neue als neu ansehen, anstatt beides miteinander zu matchen, klappt.\par
+Der einfache Fall, B auf 1 und A auf 2 mappen, steht zwar korrekt im mapping, klappt aber nicht beim Instanz resolven. Sehr seltsam.\par
+Debuggen.\par
+\par
+BinaryLegacyTypeHandlerGenericEnumMapped#ordinalMapping ist korrekt.\par
+Oha: Es wird sogar die richtige Instanz aufgel\'f6st. Das kann dann eigentlich nur noch hei\'dfen ...\par
+... jup: die richtige Instanz wird f\'e4lschlicherweise mit den name und ordinal Werten des geladenen veralteten Datensatzes \'fcberschrieben.\par
+Autsch.\par
+Warum ist das so? Debuggen...\par
+Ach! Weil das ja ein anderer Ableitungszweig ist, fehlen hier die Methoden, die die beiden java.lang.Enum Felder aus den Setters rausschmeissen. Fatal.\par
+Gleich fixen ...\par
+\par
+Ach, das ist nicht so einfach: Die LegacyTypeMapping Logik erzeugt schon die ValueTranslators mit Offsets aus dem Membermatching.\par
+D.h. dort m\'fcssen die beiden schon rausgefiltert werden.\par
+\par
+Eigentlich w\'e4r die einfachste L\'f6sung daf\'fcr: Es d\'fcrfen bei diesem Mapping erstellen nur die "settingMembers" verwendet werden, nicht die "storingMembers".\par
+Kurz recherchiert: Im Enum handler gibts sogar die Unterscheidung schon, nur nicht als public interface Teil.\par
+Hm, dann w\'e4r es das beste, das gleich ordentlich zu erweitern und umzubenennen:\par
+aus "instanceMembers" wird\par
+- "storingMembers"\par
+- "settingMembers"\par
+LegacyTypeMapping darf dann nat\'fcrlich nur auf SettingMembers angewendet werden.\par
+F\'fcr alles au\'dfer enums sind beide collections identisch.\par
+\par
+So umbauen...\par
+\par
+Testen.\par
+Okay, da muss jetzt ein null-check rein, sonst f\'fcgt der einen null entry hinzu.\par
+Dabei gleich noch einen lustigen Bug gefunden: das unboxing der table keys zu einem long[] wandelt null implizit in 0 um, so dass eine Table mit inkonsistentem Inhalt keine Exception wirft, sondern schlicht den translator binary offset 0\par
+erzeugt. Validierung hinzuf\'fcgen.\par
+\par
+Validierung wirtft exception trotz fix. Debuggen.\par
+Oha! Da ist ein Bug in der XCollection applies Logik: bei 0 Elementen wird true statt false zur\'fcckgegeben. \'dcberall durchschauen und fixen.\par
+\par
+\'dcberall fefixt. Dann augefallen: ich br\'e4uchte hier ja eh keine applies Logik (appliesAll) sondern containsSearched(erster Fund reicht). Darauf umbauen.\par
+Testen.\par
+\par
+Mapping stimmt.\par
+Fertig.\par
+\par
 }
  

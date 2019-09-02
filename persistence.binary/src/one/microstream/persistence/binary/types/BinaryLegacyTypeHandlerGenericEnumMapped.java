@@ -71,12 +71,18 @@ extends BinaryLegacyTypeHandlerGenericEnum<T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
-	
+		
 	@Override
 	protected T internalCreate(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
 		return PersistenceLegacyTypeHandler.resolveEnumConstant(this, bytes, this.ordinalMapping);
+	}
+	
+	@Override
+	public void update(final Binary rawData, final T instance, final PersistenceObjectIdResolver idResolver)
+	{
+		// debug hook
+		super.update(rawData, instance, idResolver);
 	}
 	
 }

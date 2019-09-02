@@ -91,12 +91,6 @@ public class ListView<E> implements XGettingList<E>
 		return this.subject.hasVolatileElements();
 	}
 
-//	@Override
-//	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return this.subject.iterate(aggregate);
-//	}
-
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{

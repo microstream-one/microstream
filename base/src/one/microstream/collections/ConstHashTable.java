@@ -732,7 +732,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final boolean containsSearched(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return ConstHashTable.this.chain.applies(predicate);
+		return ConstHashTable.this.chain.containsSearched(predicate);
 	}
 
 	@Override

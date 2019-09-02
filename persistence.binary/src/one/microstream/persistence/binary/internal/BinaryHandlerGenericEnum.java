@@ -150,7 +150,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	// effectively final but must be on-demand initialized due to usage in super constructor logic. Tricky.
 	private XImmutableEnum<PersistenceTypeDefinitionMemberEnumConstant> enumConstants;
 	
-	private final XImmutableEnum<PersistenceTypeDefinitionMember>             allMembers   ;
+	private final XImmutableEnum<PersistenceTypeDefinitionMember> allMembers;
 	
 	
 
@@ -182,16 +182,6 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	// initializer logic //
 	//////////////////////
 	
-	public XImmutableEnum<PersistenceTypeDefinitionMemberEnumConstant> enumConstants()
-	{
-		if(this.enumConstants == null)
-		{
-			this.enumConstants = deriveEnumConstantMembers(this.type());
-		}
-		
-		return this.enumConstants;
-	}
-	
 	@Override
 	protected EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterSettingMembers(
 		final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> members
@@ -204,7 +194,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	protected long[] initializeSettingMemoryOffsets()
 	{
 		// additional long[] must be created instead of referencing that for storing offsets
-		return objectFieldOffsets(this.instanceSettingMembers());
+		return objectFieldOffsets(this.settingMembers());
 	}
 	
 	@Override
@@ -219,6 +209,16 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		;
 		
 		return allMembers.immure();
+	}
+	
+	public XImmutableEnum<PersistenceTypeDefinitionMemberEnumConstant> enumConstants()
+	{
+		if(this.enumConstants == null)
+		{
+			this.enumConstants = deriveEnumConstantMembers(this.type());
+		}
+		
+		return this.enumConstants;
 	}
 
 

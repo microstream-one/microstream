@@ -122,6 +122,18 @@ public class PersistenceLegacyTypeHandlerWrapper<M, T> extends PersistenceLegacy
 	}
 	
 	@Override
+	public XGettingEnum<? extends PersistenceTypeDescriptionMember> storingMembers()
+	{
+		return this.typeHandler.storingMembers();
+	}
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDescriptionMember> settingMembers()
+	{
+		return this.typeHandler.settingMembers();
+	}
+	
+	@Override
 	public void guaranteeSpecificInstanceViablity() throws PersistenceExceptionTypeNotPersistable
 	{
 		// Must pass through all default methods to be a correct wrapper.

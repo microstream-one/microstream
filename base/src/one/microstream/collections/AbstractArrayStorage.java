@@ -293,9 +293,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> boolean forwardContains(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
+		final E[]                  data     ,
+		final int                  lowOffset,
+		final int                  highBound,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -313,6 +313,7 @@ public abstract class AbstractArrayStorage
 		{
 			// abort iteration
 		}
+		
 		return false;
 	}
 
@@ -358,12 +359,18 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> boolean forwardApplies(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
+		final E[]                  data     ,
+		final int                  lowOffset,
+		final int                  highBound,
 		final Predicate<? super E> predicate
 	)
 	{
+		if(lowOffset == highBound)
+		{
+			// must check for the special case of no entries (predicate cannot apply).
+			return false;
+		}
+		
 		try
 		{
 			for(int i = lowOffset; i < highBound; i++)
@@ -378,16 +385,23 @@ public abstract class AbstractArrayStorage
 		{
 			// abort iteration
 		}
+		
 		return true;
 	}
 
 	public static final <E> boolean reverseApplies(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
+		final E[]                  data      ,
+		final int                  highOffset,
+		final int                  lowEnd    ,
 		final Predicate<? super E> predicate
 	)
 	{
+		if(highOffset == lowEnd)
+		{
+			// must check for the special case of no entries (predicate cannot apply).
+			return false;
+		}
+		
 		try
 		{
 			for(int i = highOffset; i >= lowEnd; i--)
@@ -402,6 +416,7 @@ public abstract class AbstractArrayStorage
 		{
 			// abort iteration
 		}
+		
 		return true;
 	}
 
