@@ -174,24 +174,24 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		final PersistenceObjectIdResolver handler
 	)
 	{
-		// the once provided and then set root resolver is used right away
+		// The once provided and then set root resolver is used right away in here.
 		final PersistenceRootResolver rootResolver = instance.rootResolver;
 		
-		// the identifier -> objectId root id mapping is created (and validated) from the loaded data.
+		// The identifier -> objectId root id mapping is created (and validated) from the loaded data.
 		final XGettingTable<String, Long> rootIdMapping = createRootMapping(bytes);
 
-		// root identifiers are resolved to root entries (with potentially mapped, i.e. different, identifiers)
+		// Root identifiers are resolved to root entries (with potentially mapped (= different) identifiers internally)
 		final XGettingTable<String, PersistenceRootEntry> resolvedRootEntries = rootResolver.resolveRootEntries(
 			rootIdMapping.keys()
 		);
 		
-		// the entries are resolved to a mapping of current (= potentially mapped) identifiers to root instances.
+		// The entries are resolved to a mapping of current (= potentially mapped) identifiers to root instances.
 		final XGettingTable<String, Object> resolvedRoots = rootResolver.resolveRootInstances(resolvedRootEntries);
 		
-		// the root instance's entries are updated (replaced) with the ones resolved in here.
+		// The root instance's entries are updated (replaced) with the ones resolved in here.
 		instance.loadingUpdateEntries(resolvedRoots);
 		
-		// resolved instances need to be registered for their objectIds. Properly mapped to factor in removed ones.
+		// The resolved instances need to be registered for their objectIds. Properly mapped to consider removed ones.
 		this.registerInstancesPerObjectId(resolvedRootEntries, rootIdMapping);
 	}
 	
