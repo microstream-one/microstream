@@ -4,10 +4,11 @@ import static one.microstream.X.notNull;
 
 import one.microstream.X;
 import one.microstream.collections.EqHashEnum;
-import one.microstream.collections.types.XGettingSequence;
+import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.typing.KeyValue;
 
 
 public final class BinaryHandlerPersistenceRootsDefault
@@ -118,36 +119,42 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		}
 	}
 
-	private void fillObjectIds(final long[] oids, final Binary bytes)
+	private static void fillObjectIds(final long[] oids, final Binary bytes)
 	{
 		final long offsetOidData = bytes.binaryListElementsAddress(OFFSET_OID_LIST);
 		bytes.read_longs(offsetOidData, oids);
 	}
 
-	private void fillIdentifiers(final String[] identifiers, final Binary bytes)
+	private static void fillIdentifiers(final String[] identifiers, final Binary bytes)
 	{
 		final long offsetIdentifierList = bytes.getBinaryListTotalByteLength(OFFSET_OID_LIST);
 
 		bytes.buildStrings(offsetIdentifierList, identifiers);
 	}
 
-	private void registerInstancesPerObjectId(final long[] oids, final XGettingSequence<Object> instances)
+	private void registerInstancesPerObjectId(
+		final XGettingTable<String, PersistenceRootEntry> resolvedRootEntries,
+		final XGettingTable<String, Long>                 rootIdMapping
+	)
 	{
 		final PersistenceObjectRegistry registry = this.globalRegistry;
 
-		// lock the whole registry for the complete registration process because it is definitely used by other threads
+		// lock the whole registry for the complete registration process because it might be used by other threads.
 		synchronized(registry)
 		{
-			int i = 0;
-			for(final Object instance : instances)
+			for(final KeyValue<String, PersistenceRootEntry> rootEntry : resolvedRootEntries)
 			{
+				final Object rootInstance = rootEntry.value().instance();
+				
 				// instances can be null when either explicitly registered to be null in the refactoring or legacy enum
-				if(instance != null)
+				if(rootInstance != null)
 				{
+					// must be the original identifier, not the potentially re-mapped identifier of the entry!
+					final Long rootObjectId = rootIdMapping.get(rootEntry.key());
+					
 					// all live instances are registered for their OID.
-					registry.registerConstant(oids[i], instance);
+					registry.registerConstant(rootObjectId.longValue(), rootInstance);
 				}
-				i++;
 			}
 		}
 	}
@@ -162,79 +169,74 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 
 	@Override
 	public final void update(
-		final Binary                   bytes   ,
-		final PersistenceRoots.Default instance,
-		final PersistenceObjectIdResolver   handler
+		final Binary                      bytes   ,
+		final PersistenceRoots.Default    instance,
+		final PersistenceObjectIdResolver handler
 	)
 	{
-		/*
-		 * Note that performance is not important here as roots only get loaded once per system start
-		 * and are very few in numbers (hence the temp array copying detour).
-		 * Also the temp arrays allow shorter lock times on the global registry.
-		 */
+		// the once provided and then set root resolver is used right away
+		final PersistenceRootResolver rootResolver = instance.rootResolver;
+		
+		// the identifier -> objectId root id mapping is created (and validated) from the loaded data.
+		final XGettingTable<String, Long> rootIdMapping = createRootMapping(bytes);
 
+		// root identifiers are resolved to root entries (with potentially mapped, i.e. different, identifiers)
+		final XGettingTable<String, PersistenceRootEntry> resolvedRootEntries = rootResolver.resolveRootEntries(
+			rootIdMapping.keys()
+		);
+		
+		// the entries are resolved to a mapping of current (= potentially mapped) identifiers to root instances.
+		final XGettingTable<String, Object> resolvedRoots = rootResolver.resolveRootInstances(resolvedRootEntries);
+		
+		// the root instance's entries are updated (replaced) with the ones resolved in here.
+		instance.loadingUpdateEntries(resolvedRoots);
+		
+		// resolved instances need to be registered for their objectIds. Properly mapped to factor in removed ones.
+		this.registerInstancesPerObjectId(resolvedRootEntries, rootIdMapping);
+	}
+	
+	private static XGettingTable<String, Long> createRootMapping(final Binary bytes)
+	{
+		/*
+		 * A little detour for easier debuggability. But note that performance
+		 * is not important here as roots only get loaded once per system start
+		 * and are very few in numbers.
+		 */
 		final long[]   objectIds   = buildTempObjectIdArray(bytes);
 		final String[] identifiers = buildTempIdentifiersArray(bytes);
 
 		validateArrayLengths(objectIds, identifiers);
-		this.fillObjectIds(objectIds, bytes);
-		this.fillIdentifiers(identifiers, bytes);
-				
-		// the once provided and then set root resolver is used right away
-		final PersistenceRootResolver rootResolver = instance.rootResolver;
+		fillObjectIds(objectIds, bytes);
+		fillIdentifiers(identifiers, bytes);
 
-		final XGettingTable<String, PersistenceRootEntry> resolvableRoots = rootResolver.resolveRootEntries(
-			EqHashEnum.New(identifiers)
-		);
-		final XGettingTable<String, Object> resolvedRoots = rootResolver.resolveRootInstances(resolvableRoots);
-			
-		instance.loadingUpdateEntries(resolvedRoots);
-
-
-		// (30.08.2019 TM)NOTE: fix for priv#138, but no longer required since nulls are no longer filtered out.
-//		final long[] updatedObjectIds = updateObjectIds(objectIds, resolvableRoots.keys(), resolvedRoots.keys());
-//		this.registerInstancesPerObjectId(updatedObjectIds, resolvedRoots.values());
+		// To really validate consistency completely
+		final EqHashEnum<Long> objectIdUniquenessChecker = EqHashEnum.New();
 		
-		// (30.08.2019 TM)NOTE: due to changed to #resolveRootInstances via priv#23, this is now correct.
-		this.registerInstancesPerObjectId(objectIds, resolvedRoots.values());
+		final EqHashTable<String, Long> rootMapping = EqHashTable.New();
+		for(int i = 0; i < objectIds.length; i++)
+		{
+			if(!objectIdUniquenessChecker.add(objectIds[i]))
+			{
+				// (02.09.2019 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Persisted root entries have a duplicate root objectId for entry ("
+					+ identifiers[i] + " -> " + objectIds[i] + ")"
+				);
+			}
+			
+			if(!rootMapping.add(identifiers[i], objectIds[i]))
+			{
+				// (02.09.2019 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Persisted root entries have a duplicate root identifiers for entry ("
+					+ identifiers[i] + " -> " + objectIds[i] + ")"
+				);
+			}
+		}
+		
+		return rootMapping;
 	}
 	
-	// (30.08.2019 TM)NOTE: fix for priv#138, but no longer required since nulls are no longer filtered out.
-//	private static long[] updateObjectIds(
-//		final long[]               objectIds,
-//		final XGettingEnum<String> oldKeys  ,
-//		final XGettingEnum<String> newKeys
-//	)
-//	{
-//		if(oldKeys.size() == newKeys.size())
-//		{
-//			// array is up to date, return right away.
-//			return objectIds;
-//		}
-//
-//		final long[] newObjectIds = new long[newKeys.intSize()];
-//
-//		int o = 0, n = 0;
-//		final Iterator<String> oldKeysIterator = oldKeys.iterator();
-//		final Iterator<String> newKeysIterator = newKeys.iterator();
-//
-//		while(newKeysIterator.hasNext())
-//		{
-//			final String newKey = newKeysIterator.next();
-//
-//			while(!newKey.equals(oldKeysIterator.next()))
-//			{
-//				// skip oid index of removed key
-//				o++;
-//			}
-//
-//			// corresponding entries found
-//			newObjectIds[n++] = objectIds[o++];
-//		}
-//
-//		return newObjectIds;
-//	}
-
 	@Override
 	public final void iterateInstanceReferences(
 		final PersistenceRoots.Default instance,
