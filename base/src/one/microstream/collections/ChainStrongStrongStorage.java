@@ -922,7 +922,14 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	{
 		try
 		{
-			for(EN e = this.head.next; e != null; e = e.next)
+			EN e = this.head;
+			if(e.next == null)
+			{
+				// must check for the special case of no entries (predicate cannot apply).
+				return false;
+			}
+			
+			while((e = e.next) != null)
 			{
 				if(!predicate.test(e.key()))
 				{
@@ -934,6 +941,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			// abort iteration
 		}
+		
 		return true;
 	}
 
@@ -941,6 +949,13 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final boolean keyRngAppliesAll(final int offset, int length, final Predicate<? super K> predicate)
 	{
 		EN e = this.getRangeChainEntry(offset, length); // validate range and scroll to offset
+		
+		if(length == 0)
+		{
+			// must check for the special case of no entries (predicate cannot apply).
+			return false;
+		}
+		
 		try
 		{
 			if(length < 0)
@@ -5363,13 +5378,21 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final boolean valuesAppliesAll(final Predicate<? super V> predicate)
 	{
-		for(EN e = this.head.next; e != null; e = e.next)
+		EN e = this.head;
+		if(e.next == null)
+		{
+			// must check for the special case of no entries (predicate cannot apply).
+			return false;
+		}
+		
+		while((e = e.next) != null)
 		{
 			if(!predicate.test(e.value()))
 			{
 				return false;
 			}
 		}
+		
 		return true;
 	}
 
@@ -5377,6 +5400,13 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	public final boolean valuesRngAppliesAll(final int offset, int length, final Predicate<? super V> predicate)
 	{
 		EN e = this.getRangeChainEntry(offset, length); // valuesIdate range and scroll to offset
+		
+		if(length == 0)
+		{
+			// must check for the special case of no entries (predicate cannot apply).
+			return false;
+		}
+		
 		try
 		{
 			if(length < 0)
@@ -5404,6 +5434,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		{
 			// abort iteration
 		}
+		
 		return true;
 	}
 

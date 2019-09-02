@@ -59,12 +59,6 @@ public final class ListProcessor<E> implements XProcessingList<E>
 		return this.subject.equality();
 	}
 
-//	@Override
-//	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return this.subject.iterate(aggregate);
-//	}
-
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
@@ -82,12 +76,6 @@ public final class ListProcessor<E> implements XProcessingList<E>
 	{
 		this.subject.clear();
 	}
-
-//	@Override
-//	public boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.contains(sample, equalator);
-//	}
 
 	@Override
 	public boolean contains(final E element)
@@ -112,12 +100,6 @@ public final class ListProcessor<E> implements XProcessingList<E>
 	{
 		return this.subject.containsAll(elements);
 	}
-
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.containsAll(samples, equalator);
-//	}
 
 	@Override
 	public boolean containsId(final E element)

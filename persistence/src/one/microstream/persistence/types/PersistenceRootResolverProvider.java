@@ -285,19 +285,16 @@ public interface PersistenceRootResolverProvider
 		
 		private PersistenceRootResolver createRootResolver()
 		{
-			final String  defaultRootIdentifier;
-			final Reference<Object> defaultRoot;
-			if(this.hasRootRegistered())
+			if(!this.hasRootRegistered())
 			{
-				// can be null if a custom root is registered, insteads
-				defaultRootIdentifier = this.defaultRootIdentifier;
-				defaultRoot           = this.defaultRoot          ;
+				this.registerDefaultRoot(
+					this.defaultDefaultRoot()
+				);
 			}
-			else
-			{
-				defaultRootIdentifier = this.defaultDefaultRootIdentifier();
-				defaultRoot           = this.defaultDefaultRoot()          ;
-			}
+
+			// can be null if a custom root is registered, insteads
+			final String  defaultRootIdentifier = this.defaultRootIdentifier;
+			final Reference<Object> defaultRoot = this.defaultRoot;
 			
 			final PersistenceRootResolver resolver = new PersistenceRootResolver.Default(
 				defaultRootIdentifier,

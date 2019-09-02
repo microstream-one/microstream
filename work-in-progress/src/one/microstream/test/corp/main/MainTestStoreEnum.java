@@ -3,7 +3,6 @@ package one.microstream.test.corp.main;
 import java.io.File;
 import java.util.Arrays;
 
-import one.microstream.X;
 import one.microstream.persistence.internal.PrintingLegacyTypeMappingResultor;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.reflect.XReflect;
@@ -57,7 +56,7 @@ public class MainTestStoreEnum
 			Test.print("Model data loaded.");
 			Test.print("Root instance: " + storage.root());
 			final Object[] root = (Object[])storage.root();
-			Arrays.toString(root);
+			System.out.println(Arrays.toString(root));
 			
 			storage.storeRoot();
 			
@@ -75,7 +74,10 @@ public class MainTestStoreEnum
 		
 	static Object[] createGraph()
 	{
-		return X.array(
+		return new Object[]{
+//			SimpleEnum.TypeA,
+//			SimpleEnum.TypeB,
+//			SimpleEnum.TypeC,
 			SimpleEnum.Type1,
 			SimpleEnum.Type2,
 			SimpleEnum.Type3,
@@ -87,7 +89,7 @@ public class MainTestStoreEnum
 			StatefulEnum.Type1,
 			StatefulEnum.Type2,
 			StatefulEnum.Type3
-		);
+		};
 	}
 	
 	
@@ -124,16 +126,23 @@ public class MainTestStoreEnum
 	
 }
 
+/*
 enum SimpleEnum
 {
-//	TypeA,
-//	TypeB,
-//	TypeC,
-	
+	TypeA,
+	TypeB,
+	TypeC,
+}
+//*/
+
+//*
+enum SimpleEnum
+{
 	Type1,
 	Type2,
 	Type3,
 }
+//*/
 
 enum StatefulEnum
 {

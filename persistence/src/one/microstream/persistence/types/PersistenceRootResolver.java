@@ -12,7 +12,6 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.collections.types.XTable;
-import one.microstream.meta.XDebug;
 import one.microstream.reference.Reference;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
@@ -262,12 +261,6 @@ public interface PersistenceRootResolver
 				return null;
 			}
 			
-			// (29.08.2019 TM)FIXME: /!\ DEBUG priv#23
-			if(enumTypeId == 1000031)
-			{
-				XDebug.println("resolving root enum constants for enum 1000031");
-			}
-			
 			final PersistenceTypeHandler<?, ?> enumTypeHandler = typeHandlerManager.lookupTypeHandler(
 				enumTypeId.longValue()
 			);
@@ -279,9 +272,7 @@ public interface PersistenceRootResolver
 			
 			// Checks for enum type internally. May be null for discarded (i.e. legacy) enums.
 			final Object[] enumConstants = typeHandlerManager.collectEnumConstants(enumTypeHandler);
-			
-			// (29.08.2019 TM)MARKER: priv#23: enum constants Object[] registration
-			
+						
 			return PersistenceRootEntry.New(identifier, () ->
 				enumConstants // debuggability line break, do not remove!
 			);

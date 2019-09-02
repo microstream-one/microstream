@@ -256,18 +256,6 @@ public final class TableView<K, V> implements XGettingTable<K, V>
 		return this.subject.countBy(predicate);
 	}
 
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super KeyValue<K, V>> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-
 	@Override
 	public KeyValue<K, V> search(final Predicate<? super KeyValue<K, V>> predicate)
 	{

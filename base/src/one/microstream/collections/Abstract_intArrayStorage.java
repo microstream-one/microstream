@@ -3589,9 +3589,9 @@ public abstract class Abstract_intArrayStorage
 		return true;
 	}
 
-	public static final boolean applies(
-		final int[] data,
-		final int size,
+	public static final boolean containsSearched(
+		final int[]         data     ,
+		final int           size     ,
 		final _intPredicate predicate
 	)
 	{
@@ -3602,15 +3602,22 @@ public abstract class Abstract_intArrayStorage
 				return true;
 			}
 		}
+		
 		return false;
 	}
 
 	public static final boolean appliesAll(
-		final int[] data,
-		final int size,
+		final int[]         data     ,
+		final int           size     ,
 		final _intPredicate predicate
 	)
 	{
+		if(size == 0)
+		{
+			// must check for the special case of no entries (predicate cannot apply).
+			return false;
+		}
+		
 		for(int i = 0; i < size; i++)
 		{
 			if(!predicate.test(data[i]))
@@ -3618,14 +3625,15 @@ public abstract class Abstract_intArrayStorage
 				return false;
 			}
 		}
+		
 		return true;
 	}
 
 	public static final boolean rngAppliesAll(
-		final int[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final int[]         data     ,
+		final int           size     ,
+		final int           offset   ,
+		final int           length   ,
 		final _intPredicate predicate
 	)
 	{
@@ -3634,8 +3642,8 @@ public abstract class Abstract_intArrayStorage
 		{
 			return false;
 		}
+		
 		final int endIndex = offset + length - d;
-
 		for(int i = offset - d; i != endIndex;)
 		{
 			if(!predicate.test(data[i += d]))
@@ -3643,6 +3651,7 @@ public abstract class Abstract_intArrayStorage
 				return false;
 			}
 		}
+		
 		return true;
 	}
 

@@ -119,9 +119,9 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	// applying - single //
 
-	public boolean applies(Predicate<? super E> predicate);
+	public boolean containsSearched(Predicate<? super E> predicate);
 
-	public boolean rngApplies(long offset, long length, Predicate<? super E> predicate);
+	public boolean rngContainsSearched(long offset, long length, Predicate<? super E> predicate);
 
 	// applying - all //
 

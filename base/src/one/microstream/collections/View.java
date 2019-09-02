@@ -55,12 +55,6 @@ public class View<E> implements XGettingCollection<E>
 		return this.subject.hasVolatileElements();
 	}
 
-//	@Override
-//	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return this.subject.iterate(aggregate);
-//	}
-
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
@@ -73,12 +67,6 @@ public class View<E> implements XGettingCollection<E>
 		return this.subject.applies(predicate);
 	}
 
-//	@Override
-//	public boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.collection.contains(sample, equalator);
-//	}
-
 	@Override
 	public boolean nullAllowed()
 	{
@@ -90,12 +78,6 @@ public class View<E> implements XGettingCollection<E>
 	{
 		return this.subject.nullContained();
 	}
-
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.containsAll(samples, equalator);
-//	}
 
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)

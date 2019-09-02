@@ -898,7 +898,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final boolean containsSearched(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return EqConstHashTable.this.chain.applies(predicate);
+		return EqConstHashTable.this.chain.containsSearched(predicate);
 	}
 
 	@Override

@@ -64,50 +64,69 @@ public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTy
 		;
 		final XGettingEnum<PersistenceTypeDefinitionMember> newCurrentMembers = result.newCurrentMembers();
 		
-		for(final PersistenceTypeDefinitionMember member : result.currentTypeHandler().membersInDeclaredOrder())
+		// main mapping loop in current type's declared order
+		for(final PersistenceTypeDefinitionMember currentMember : result.currentTypeHandler().membersInDeclaredOrder())
 		{
-			final Similarity<PersistenceTypeDefinitionMember> mappedLegacyMember = currentToLegacyMembers.get(member);
-			if(mappedLegacyMember != null)
+			final Similarity<PersistenceTypeDefinitionMember> legacyMember = currentToLegacyMembers.get(currentMember);
+			if(legacyMember != null)
 			{
-				vs
-				.add(mappedLegacyMember.sourceElement(), PrintingLegacyTypeMappingResultor::assembleMember)
-				.add("\t-")
-				.padRight(
-					PersistenceLegacyTypeMapper.similarityToString(mappedLegacyMember),
-					PersistenceLegacyTypeMapper.Defaults.defaultExplicitMappingString().length(),
-					'-'
-				)
-				.add("-> ")
-				.add(member, PrintingLegacyTypeMappingResultor::assembleMember)
-				.lf()
-				;
-				continue;
+				assembleMemberName(vs, legacyMember.sourceElement()).tab(); // old name column
+				assembleTokenMappedMember(vs, legacyMember).blank(); // translator token
+				assembleMemberName(vs, currentMember).lf(); // new name column
 			}
-			
-			if(newCurrentMembers.contains(member))
+			else if(newCurrentMembers.contains(currentMember))
 			{
-				vs.add("\t[***new***] ");
-				assembleMember(vs, member);
-				vs.lf();
-				continue;
+				vs.tab(); // empty old name column
+				assembleTokenNewMember(vs).blank(); // translator token
+				assembleMemberName(vs, currentMember).lf(); // new name
 			}
-			
-			// (11.10.2018 TM)EXCP: proper exception
-			throw new RuntimeException("Inconsistent current type member mapping: " + member.identifier());
+			else
+			{
+				// (11.10.2018 TM)EXCP: proper exception
+				throw new RuntimeException("Inconsistent current type member mapping: " + currentMember.identifier());
+			}
 		}
 		
+		// discarded legacy members are added at the end
 		for(final PersistenceTypeDefinitionMember e : result.discardedLegacyMembers())
 		{
-			assembleMember(vs, e);
-			vs.add("\t[discarded]").lf();
+			assembleMemberName(vs, e).tab(); // old name
+			assembleTokenDiscardedMember(vs); // translator token
+			vs.lf(); // no new name column at all
 		}
 		
 		return vs;
 	}
 	
-	public static final void assembleMember(final VarString vs, final PersistenceTypeDefinitionMember member)
+	static final VarString assembleTokenMappedMember(
+		final VarString vs,
+		final Similarity<PersistenceTypeDefinitionMember> mappedLegacyMember
+	)
 	{
-		vs.add(member.typeName()).blank().add(member.identifier());
+		return vs
+		.add('-')
+		.padRight(
+			PersistenceLegacyTypeMapper.similarityToString(mappedLegacyMember),
+			PersistenceLegacyTypeMapper.Defaults.defaultMappingTokenBaseLength(),
+			'-'
+		)
+		.add("->")
+		;
+	}
+	
+	static final VarString assembleTokenNewMember(final VarString vs)
+	{
+		return vs.add(PersistenceLegacyTypeMapper.Defaults.defaultNewMemberString());
+	}
+	
+	static final VarString assembleTokenDiscardedMember(final VarString vs)
+	{
+		return vs.add(PersistenceLegacyTypeMapper.Defaults.defaultDiscardedMemberString());
+	}
+	
+	public static final VarString assembleMemberName(final VarString vs, final PersistenceTypeDefinitionMember member)
+	{
+		return vs.add(member.typeName()).blank().add(member.identifier());
 	}
 	
 	public static <M> PrintingLegacyTypeMappingResultor<M> New(

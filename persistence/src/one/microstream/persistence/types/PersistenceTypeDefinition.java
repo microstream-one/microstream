@@ -64,7 +64,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 */
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers();
-
+	
 	public boolean hasPersistedReferences();
 
 	public long membersPersistedLengthMinimum();
@@ -180,7 +180,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 		);
 	}
 
-
+	
 
 	public final class Default implements PersistenceTypeDefinition
 	{

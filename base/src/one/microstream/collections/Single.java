@@ -307,12 +307,6 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#containsAll()
 	}
 
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#containsAll()
-//	}
-
 	@Override
 	public boolean applies(final Predicate<? super E> predicate)
 	{
@@ -330,18 +324,6 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	{
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#count()
 	}
-
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues()
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues()
-//	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)

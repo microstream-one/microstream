@@ -357,18 +357,21 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			PersistenceRoots loadedRoots = this.loadExistingRoots(initConnection);
 			if(loadedRoots == null)
 			{
+				// gets stored below, no matter the changed state (which is initially false)
 				loadedRoots = this.validateEmptyDatabaseAndReturnDefinedRoots(initConnection);
 			}
 			else
 			{
 				this.synchronizeRoots(loadedRoots);
+				if(!loadedRoots.hasChanged())
+				{
+					//  abort before storing because there is no need to.
+					return;
+				}
 			}
 			
-			if(loadedRoots.hasChanged())
-			{
-				// a not perfectly synchronous loaded roots instance needs to be stored after it has been synchronized
-				initConnection.store(loadedRoots);
-			}
+			// any other case than a perfectly synchronous loaded roots instance needs to store
+			initConnection.store(loadedRoots);
 		}
 		
 		@Override

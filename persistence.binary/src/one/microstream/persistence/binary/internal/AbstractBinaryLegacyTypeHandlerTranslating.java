@@ -1,6 +1,7 @@
 package one.microstream.persistence.binary.internal;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.collections.types.XGettingEnum;
@@ -16,7 +17,9 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
+import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeHandler;
+import one.microstream.typing.KeyValue;
 
 public abstract class AbstractBinaryLegacyTypeHandlerTranslating<T>
 extends BinaryLegacyTypeHandler.Abstract<T>
@@ -29,6 +32,7 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 		final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets
 	)
 	{
+		validate(translatorsWithTargetOffsets);
 		final BinaryValueSetter[] translators = translatorsWithTargetOffsets.values()
 			.toArray(BinaryValueSetter.class)
 		;
@@ -39,10 +43,24 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 		final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets
 	)
 	{
+		validate(translatorsWithTargetOffsets);
 		final long[] targetOffsets = X.unbox(translatorsWithTargetOffsets.keys()
 			.toArray(Long.class))
 		;
 		return targetOffsets;
+	}
+	
+	private static void validate(final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets)
+	{
+		final Predicate<KeyValue<Long, BinaryValueSetter>> isNullEntry = e ->
+			e.key() == null || e.value() == null
+		;
+		
+		if(translatorsWithTargetOffsets.containsSearched(isNullEntry))
+		{
+			// (02.09.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Value translator mapping contains an invalid null-entry.");
+		}
 	}
 	
 	public static final BinaryReferenceTraverser[] deriveReferenceTraversers(
@@ -136,6 +154,18 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	{
 		// Must pass through all default methods to be a correct wrapper.
 		return this.typeHandler.membersInDeclaredOrder();
+	}
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDescriptionMember> storingMembers()
+	{
+		return this.typeHandler.storingMembers();
+	}
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDescriptionMember> settingMembers()
+	{
+		return this.typeHandler.settingMembers();
 	}
 	
 	@Override

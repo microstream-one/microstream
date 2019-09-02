@@ -25,7 +25,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers();
-	
+		
 	public boolean hasInstanceReferences();
 	
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
@@ -87,6 +87,18 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	{
 		// by default, there is no difference between members (in persisted order) and members in declared order.
 		return this.allMembers();
+	}
+	
+	public default XGettingEnum<? extends PersistenceTypeDescriptionMember> storingMembers()
+	{
+		// "storingMembers" is just an alias for instanceMembers since all instance members get stored.
+		return this.instanceMembers();
+	}
+
+	public default XGettingEnum<? extends PersistenceTypeDescriptionMember> settingMembers()
+	{
+		// same as storingMembers except for java.lang.Enum (where name and ordinal may never be overwritten)
+		return this.storingMembers();
 	}
 	
 	/**

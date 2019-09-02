@@ -67,7 +67,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 	
 	@Override
-	public final void update(
+	public void update(
 		final Binary                      rawData   ,
 		final T                           instance  ,
 		final PersistenceObjectIdResolver idResolver

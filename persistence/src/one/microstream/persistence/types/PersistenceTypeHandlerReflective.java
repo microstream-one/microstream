@@ -9,6 +9,12 @@ public interface PersistenceTypeHandlerReflective<M, T> extends PersistenceTypeH
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> instanceMembers();
 	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> storingMembers();
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> settingMembers();
+	
 	public XGettingEnum<Field> instanceFields();
 
 	public XGettingEnum<Field> instancePrimitiveFields();

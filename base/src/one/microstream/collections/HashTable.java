@@ -1293,7 +1293,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean containsSearched(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return HashTable.this.chain.applies(predicate);
+		return HashTable.this.chain.containsSearched(predicate);
 	}
 
 	@Override

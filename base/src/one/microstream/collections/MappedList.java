@@ -291,12 +291,6 @@ public class MappedList<E, S> implements XGettingList<E>
 		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#containsAll
 	}
 
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#containsAll
-//	}
-
 	@Override
 	public boolean applies(final Predicate<? super E> predicate)
 	{
@@ -314,18 +308,6 @@ public class MappedList<E, S> implements XGettingList<E>
 	{
 		return this.subject.countBy(this.mapPredicate(predicate));
 	}
-
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#hasDistinctValues
-//	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)

@@ -128,8 +128,13 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 					? creator.provideTargetValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
 					: creator.provideBinaryValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
 				;
+					
+				// can be null if the currentMember is not a settingMember. Must be discarded here, then.
 				final Long targetOffset = targetMemberOffsets.get(currentMember);
-				translatorsWithTargetOffsets.add(targetOffset, translator);
+				if(targetOffset != null)
+				{
+					translatorsWithTargetOffsets.add(targetOffset, translator);
+				}
 			}
 			
 			return translatorsWithTargetOffsets;
@@ -210,8 +215,9 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			final PersistenceTypeHandlerReflective<Binary, T>   currentTypeHandler
 		)
 		{
+			// May only use setting members here, since legacy type mapping is only about setting values, not storing.
 			final HashTable<PersistenceTypeDefinitionMember, Long> targetMemberOffsets = createFieldOffsetMap(
-				currentTypeHandler.instanceMembers()
+				currentTypeHandler.settingMembers()
 			);
 			
 			final XGettingTable<Long, BinaryValueSetter> valueTranslators = this.deriveValueTranslators(

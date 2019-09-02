@@ -163,12 +163,6 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 		return this;
 	}
 
-//	@Override
-//	public synchronized <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return this.subject.iterate(aggregate);
-//	}
-
 	@Override
 	public synchronized boolean containsSearched(final Predicate<? super E> predicate)
 	{
@@ -192,12 +186,6 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 	{
 		return this.subject.consolidate();
 	}
-
-//	@Override
-//	public synchronized boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.contains(sample, equalator);
-//	}
 
 	@Override
 	public synchronized boolean contains(final E element)

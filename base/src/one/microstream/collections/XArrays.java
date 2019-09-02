@@ -1310,11 +1310,18 @@ public final class XArrays
 				loopMaxElement = data[i];
 			}
 		}
+		
 		return loopMaxElement;
 	}
 	
 	public static final <T> boolean applies(final T[] array, final Predicate<? super T> predicate)
 	{
+		if(array.length == 0)
+		{
+			// must check for the special case of no entries (predicate cannot apply).
+			return false;
+		}
+		
 		for(final T t : array)
 		{
 			if(predicate.test(t))
@@ -1322,6 +1329,7 @@ public final class XArrays
 				return true;
 			}
 		}
+		
 		return false;
 	}
 	
@@ -1334,6 +1342,7 @@ public final class XArrays
 				return t;
 			}
 		}
+		
 		return null;
 	}
 	
@@ -1347,6 +1356,7 @@ public final class XArrays
 				count++;
 			}
 		}
+		
 		return count;
 	}
 	

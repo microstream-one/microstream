@@ -10,12 +10,6 @@ import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
-import one.microstream.collections.ConstList;
-import one.microstream.collections.HashEnum;
-import one.microstream.collections.ListView;
-import one.microstream.collections.SubListView;
-import one.microstream.collections.XArrays;
-import one.microstream.collections.XSort;
 import one.microstream.collections.old.OldList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingList;
@@ -790,6 +784,12 @@ public final class VarList<E> implements Composition, XList<E>, IdentityEquality
 	@Override
 	public final boolean applies(final Predicate<? super E> predicate)
 	{
+		if(this.size() == 0)
+		{
+			// must check for the special case of no entries (predicate cannot apply).
+			return false;
+		}
+		
 		for(Segment<E> segment = this.head; segment != null; segment = segment.next)
 		{
 			final int bound    = segment.size    ;

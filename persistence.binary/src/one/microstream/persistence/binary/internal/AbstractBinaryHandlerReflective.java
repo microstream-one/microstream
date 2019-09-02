@@ -388,10 +388,17 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> instanceMembers()
 	{
+		return this.storingMembers();
+	}
+	
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> storingMembers()
+	{
 		return this.storingMembers;
 	}
 
-	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> instanceSettingMembers()
+	@Override
+	public XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> settingMembers()
 	{
 		return this.settingMembers;
 	}

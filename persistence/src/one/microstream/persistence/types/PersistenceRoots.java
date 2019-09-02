@@ -41,7 +41,7 @@ public interface PersistenceRoots
 		
 		public static PersistenceRoots.Default New(final PersistenceRootResolver rootResolver)
 		{
-			// theoretically, it is correct to have neither explicit root but only implicit ones via constants.
+			// theoretically, it is correct to have no explicit root but only implicit ones via constants.
 			return new PersistenceRoots.Default(
 				notNull(rootResolver)               ,
 				rootResolver.defaultRootIdentifier(),

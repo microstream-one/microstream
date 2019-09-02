@@ -307,12 +307,6 @@ public final class SynchList<E> implements XList<E>, Synchronized
 		return this.subject.nullInput(index);
 	}
 
-//	@Override
-//	public final synchronized <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return this.subject.iterate(aggregate);
-//	}
-
 	@Override
 	public final synchronized boolean containsSearched(final Predicate<? super E> predicate)
 	{
@@ -336,12 +330,6 @@ public final class SynchList<E> implements XList<E>, Synchronized
 	{
 		return this.subject.consolidate();
 	}
-
-//	@Override
-//	public final synchronized boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.contains(sample, equalator);
-//	}
 
 	@Override
 	public final synchronized boolean contains(final E element)

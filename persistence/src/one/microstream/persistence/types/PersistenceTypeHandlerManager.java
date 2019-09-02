@@ -12,7 +12,6 @@ import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
@@ -117,13 +116,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		{
 			// nothing to do for non-(top-level-)enums.
 			return;
-		}
-		
-
-		// (28.08.2019 TM)FIXME: /!\ DEBUG priv#23
-		if(XReflect.isEnum(typeHandler.type()))
-		{
-			XDebug.println("register enum roots for type handler " + typeHandler.toTypeIdentifier());
 		}
 				
 		pendingEnumConstantRootStoringHandlers.add(
@@ -653,7 +645,6 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 						return;
 					}
 					
-					// (28.08.2019 TM)FIXME: priv#23: enum root registration
 					final Object[] enumRootEntries = this.collectEnumConstants(typeHandler);
 					if(enumRootEntries == null)
 					{
@@ -843,9 +834,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			
 			// after all type handler initialization and typeId registration was successful, register all type handlers.
 			this.initialRegisterTypeHandlers(typeRegisteredTypeHandlers);
-			
-			// (29.08.2019 TM)FIXME: priv#23: register all live enums constants at the rootsProvider?
-			
+						
 			// call to create definedRoots
 			this.rootsProvider.provideRoots();
 			

@@ -98,12 +98,6 @@ public final class SetView<E> implements XGettingSet<E>
 		return this.subject.applies(predicate);
 	}
 
-//	@Override
-//	public boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.set.contains(sample, equalator);
-//	}
-
 	@Override
 	public boolean nullAllowed()
 	{
@@ -115,12 +109,6 @@ public final class SetView<E> implements XGettingSet<E>
 	{
 		return this.subject.nullContained();
 	}
-
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.containsAll(samples, equalator);
-//	}
 
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)

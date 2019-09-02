@@ -555,7 +555,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 		return this.size;
 	}
 
-	public synchronized boolean applies(final Predicate<? super E> predicate)
+	public synchronized boolean containsSearched(final Predicate<? super E> predicate)
 	{
 		final Entry<E>[] slots;
 		final int slotsLength = (slots = this.slots).length;
@@ -569,6 +569,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 				}
 			}
 		}
+		
 		return false;
 	}
 
