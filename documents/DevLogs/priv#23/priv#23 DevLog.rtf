@@ -1704,5 +1704,18 @@ Dann mach ich gleich noch den Fix f\'fcr #138.\par
 Eingebaut. Und dann aufgefallen: Durch die \'c4nderung von diesem Issue (priv#23) sollte der Fix gar nicht mehr n\'f6tig sein.\par
 Haha.\par
 Naja, ich lass die updating Methode mal drin und schreib Kommentare dazu. Falls doch, wird der Fehler durch simples Einkommentieren gefixt sein.\par
+\par
+\par
+2019-09-02\par
+\par
+Weitere Testf\'e4lle:\par
+TypeA -> Type2\par
+TypeB -> Type1\par
+TypeC -> deleted\par
+neu: Type3\par
+\par
+\'d6hm ... in den Roots ist ja gar kein Eintrag f\'fcr den defaultRoot mehr.\line Seltsam. Debuggen.\par
+Ah: PersistenceRootResolverProvider#registerDefaultRoot wird nirgends mehr aufgerufen.\par
+Das sollte sich schnell fixen lassen ...\par
 }
  

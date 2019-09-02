@@ -13,3 +13,7 @@ one.microstream.test.legacy.Person#comment
 one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name	one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name1
 one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name	one.microstream.test.legacy.MainTestStorageLegacyTypeMapping$TestEntity#name2
 one.microstream.test.corp.model.Person	one.microstream.test.corp.model.Person1
+one.microstream.test.corp.main.SimpleEnum#TypeA	one.microstream.test.corp.main.SimpleEnum#Type2
+one.microstream.test.corp.main.SimpleEnum#TypeB	one.microstream.test.corp.main.SimpleEnum#Type1
+one.microstream.test.corp.main.SimpleEnum#TypeC	
+	one.microstream.test.corp.main.SimpleEnum#Type3

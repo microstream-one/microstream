@@ -1,5 +1,8 @@
 package one.microstream.test.corp.main;
 
+import java.io.File;
+import java.util.Arrays;
+
 import one.microstream.X;
 import one.microstream.persistence.internal.PrintingLegacyTypeMappingResultor;
 import one.microstream.persistence.types.Persistence;
@@ -26,9 +29,9 @@ public class MainTestStoreEnum
 					)
 				);
 			})
-//			.setRefactoringMappingProvider(
-//				Persistence.RefactoringMapping(new File("Refactorings.csv"))
-//			)
+			.setRefactoringMappingProvider(
+				Persistence.RefactoringMapping(new File("Refactorings.csv"))
+			)
 			.start()
 		;
 		
@@ -53,6 +56,9 @@ public class MainTestStoreEnum
 
 			Test.print("Model data loaded.");
 			Test.print("Root instance: " + storage.root());
+			final Object[] root = (Object[])storage.root();
+			Arrays.toString(root);
+			
 			storage.storeRoot();
 			
 			Test.print("Exporting data ...");
@@ -70,9 +76,9 @@ public class MainTestStoreEnum
 	static Object[] createGraph()
 	{
 		return X.array(
-			SimpleEnum.TypeA,
-			SimpleEnum.TypeB,
-//			SimpleEnum.TypeC,
+			SimpleEnum.Type1,
+			SimpleEnum.Type2,
+			SimpleEnum.Type3,
 			CrazyEnum.ShouldWorkNormal,
 			CrazyEnum.ShouldWorkSpecial,
 			CrazyEnumSpecialState.SpecialState,
@@ -120,10 +126,13 @@ public class MainTestStoreEnum
 
 enum SimpleEnum
 {
-	TypeA,
-	TypeB,
+//	TypeA,
+//	TypeB,
 //	TypeC,
-//	TypeN,
+	
+	Type1,
+	Type2,
+	Type3,
 }
 
 enum StatefulEnum
