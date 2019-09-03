@@ -12,7 +12,7 @@ public class BinaryLoadItem extends Binary
 	////////////////////
 
 	PersistenceTypeHandler<Binary, Object> handler;
-	Object contextInstance, localInstance;
+	Object existingInstance, createdInstance;
 	BinaryLoadItem next, link;
 
 

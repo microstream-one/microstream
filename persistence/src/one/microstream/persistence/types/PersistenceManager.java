@@ -31,6 +31,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		this.updateMetadata(typeDictionary, 0, 0);
 	}
 
+	@Override
 	public default void store(final SelfStoring storing)
 	{
 		storing.storeBy(this.createStorer()).commit();
