@@ -457,6 +457,14 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		protected final void storeItem(final Item item)
 		{
+			/* (03.09.2019 TM)TODO: Generic SelfStoring handling?
+			 * What about special-casing for SelfStoring instances when encountering them
+			 * generically during recursing through the graph?
+			 * Currently, they get stored via their TypeHandler, ignoring their specialized method.
+			 * Or maybe the TypeHandlerCreator must create a special TypeHandler that calls that method?
+			 * Would be much more elegant than doing an 99.9% unnecessary special-casing check in here...
+			 */
+			
 //			XDebug.debugln("Storing\t" + item.oid + "\t" + item.typeHandler.typeName());
 			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
 		}
