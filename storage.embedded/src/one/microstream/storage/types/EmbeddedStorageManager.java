@@ -3,8 +3,11 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.function.Predicate;
 
+import one.microstream.collections.EqHashTable;
+import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.types.Binary;
@@ -16,6 +19,7 @@ import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.Reference;
 import one.microstream.storage.exceptions.StorageException;
+import one.microstream.typing.KeyValue;
 
 public interface EmbeddedStorageManager extends StorageController, StorageConnection
 {
@@ -224,17 +228,41 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			
 			return this;
 		}
+		
+		static final boolean isEqualRootEntry(final KeyValue<String, Object> e1, final KeyValue<String, Object> e2)
+		{
+			if(!e1.key().equals(e2.key()))
+			{
+				return false;
+			}
+			
+			// Enum special case: enum holder arrays are not identical, only their content must be.
+			if(Persistence.isEnumRootIdentifier(e1.key()))
+			{
+				return Arrays.equals((Object[])e1.value(), (Object[])e2.value());
+			}
+			
+			// All non-Enum cases must have identical root instances.
+			return e1.value() == e2.value();
+		}
+		
+		private static EqHashTable<String, Object> normalize(final XGettingTable<String, Object> entries)
+		{
+			final EqHashTable<String, Object> preparedEntries = EqHashTable.New(entries);
+			
+			// order of enum entries can differ (sorted type dictionary vs. encountering order). Normalize here.
+			preparedEntries.keys().sort(XSort::compare);
+			
+			return preparedEntries;
+		}
+		
 				
 		private void synchronizeRoots(final PersistenceRoots loadedRoots)
 		{
-			final XGettingTable<String, Object> loadedEntries  = loadedRoots.entries();
-			final XGettingTable<String, Object> definedEntries = this.rootsProvider.provideRoots().entries();
+			final EqHashTable<String, Object> loadedEntries  = normalize(loadedRoots.entries());
+			final EqHashTable<String, Object> definedEntries = normalize(this.rootsProvider.provideRoots().entries());
 			
-			final boolean match = loadedEntries.equalsContent(definedEntries, (e1, e2) ->
-				// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
-				e1.key().equals(e2.key()) && e1.value() == e2.value()
-			);
-			
+			final boolean match = loadedEntries.equalsContent(definedEntries, Default::isEqualRootEntry);
 			if(!match)
 			{
 				// change detected. Entries of loadedRoots must be updated/replaced
@@ -251,77 +279,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			// must update the roots provider with the loadedRoots instance for the same reason
 			this.rootsProvider.updateRuntimeRoots(loadedRoots);
 		}
-
-		// (30.08.2019 TM)NOTE: old before overhauled enum root constants handling
-//		private int splitLoadedRoots(
-//			final PersistenceRoots            loadedRoots    ,
-//			final EqHashTable<String, Object> nonEnumEntries ,
-//			final EqHashTable<String, Object> liveEnumEntries
-//		)
-//		{
-//			final PersistenceTypeHandlerManager<?> thm = this.connectionFoundation.getTypeHandlerManager();
-//
-//			int legacyEnumEntries = 0;
-//			final XGettingTable<String, Object> loadedEntries = loadedRoots.entries();
-//			for(final KeyValue<String, Object> loadedEntry : loadedEntries)
-//			{
-//				if(!thm.isEnumRootIdentifier(loadedEntry.key()))
-//				{
-//					nonEnumEntries.add(loadedEntry);
-//				}
-//				else if(loadedEntry.value() != null)
-//				{
-//					liveEnumEntries.add(loadedEntry);
-//				}
-//				else
-//				{
-//					// entries of legacy enum types (= has no constants mapped) are discarded.
-//					legacyEnumEntries++;
-//				}
-//			}
-//
-//			return legacyEnumEntries;
-//		}
-
-		// (30.08.2019 TM)NOTE: old before overhauled enum root constants handling
-//		private void synchronizeRoots(final PersistenceRoots loadedRoots)
-//		{
-//			final EqHashTable<String, Object> nonEnumEntries  = EqHashTable.New();
-//			final EqHashTable<String, Object> liveEnumEntries = EqHashTable.New();
-//			final int legacyEnumEntryCount = this.splitLoadedRoots(loadedRoots, nonEnumEntries, liveEnumEntries);
-//
-//			final XGettingTable<String, Object> definedEntries = this.rootsProvider.provideRoots().entries();
-//
-//			final boolean equalNonEnums = nonEnumEntries.equalsContent(definedEntries, (e1, e2) ->
-//				// keys (identifier Strings) must be value-equal, root instance must be the same (identical)
-//				e1.key().equals(e2.key()) && e1.value() == e2.value()
-//			);
-//
-//			final boolean needsUpdate = !equalNonEnums || legacyEnumEntryCount != 0;
-//
-//			// if the loaded roots does not match the defined roots, its entries must be updated to catch up.
-//			if(needsUpdate)
-//			{
-//				final EqHashTable<String, Object> requiredRoots = EqHashTable.New(definedEntries)
-//					.addAll(liveEnumEntries)
-//				;
-//				loadedRoots.replaceEntries(requiredRoots);
-//			}
-//
-//			/*
-//			 * If the loaded roots had to change in any way to match the runtime state of the application,
-//			 * it means that it has to be stored to update the persistent state to the current (changed) one.
-//			 * The loaded roots instance is the one that has to be stored to maintain the associated ObjectId,
-//			 * hence the entry synchronization instead of just storing the defined roots instance right away.
-//			 * There are 3 possible cases for a change:
-//			 * 1.) An entry has been explicitly removed by a refactoring mapping.
-//			 * 2.) An entry has been mapped to a new identifier by a refactoring mapping.
-//			 * 3.) Loaded roots and defined roots do not match, so the loaded roots entries must be replaced/updated.
-//			 */
-//
-//			// must update the roots provider with the loadedRoots instance for the same reason
-//			this.rootsProvider.updateRuntimeRoots(loadedRoots);
-//		}
 		
 		private void ensureRequiredTypeHandlers()
 		{

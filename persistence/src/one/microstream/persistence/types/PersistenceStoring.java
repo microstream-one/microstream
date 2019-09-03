@@ -55,7 +55,7 @@ public interface PersistenceStoring
 	public void storeAll(Iterable<?> instances);
 	
 
-
-	public void store(SelfStoring storing);
+	// must have a distinct name, otherwise the ambiguity makes it very easy to cause a stack-overflowing ping-pong.
+	public void storeSelfStoring(SelfStoring storing);
 
 }
