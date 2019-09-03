@@ -9,6 +9,7 @@ import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceRefactoringMappingProvider;
 import one.microstream.persistence.types.PersistenceRootResolver;
+import one.microstream.persistence.types.PersistenceRootResolverProvider;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
@@ -211,15 +212,30 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * @return {@literal this} to allow method chaining.
 	 * 
 	 * @see #setRootSupplier(Supplier)
-	 * @see #setRootResolver(PersistenceRootResolver)
-	 * @see EmbeddedStorageConnectionFoundation#setRootResolver(PersistenceRootResolver)
+	 * @see #setRootResolverProvider(PersistenceRootResolver)
+	 * @see EmbeddedStorageConnectionFoundation#setRootResolverProvider(PersistenceRootResolver)
 	 */
 	public F setRoot(Object root);
 
 	/**
 	 * Registers the passed {@literal rootSupplier} {@link Supplier} as the root instance supplier at the
+	 * {@link PersistenceRootResolverProvider} instance provided by
+	 * {@link EmbeddedStorageConnectionFoundation#getRootResolverProvider()} of the
 	 * {@link EmbeddedStorageConnectionFoundation} instance provided by
-	 * {@link #getConnectionFoundation()}. The actual root instance will be queried during startup, not before.<br>
+	 * {@link #getConnectionFoundation()}.
+	 * <p>
+	 * This means this method is merely an alias for
+	 * <pre>{@code .onConnectionFoundation(f ->
+	 *{
+	 *	f.getRootResolverProvider().registerCustomRootSupplier(rootSupplier);
+	 *})
+	 *
+	 *}</pre>
+	 * <p>
+	 * Note that replacing the {@link PersistenceRootResolverProvider} instance, for example
+	 * via #setRootResolverProvider, will nullify the changes made via this method.
+	 * <p>
+	 * The actual root instance will be queried during startup, not before.<br>
 	 * This technique allows a more dynamic approach than {@link #setRoot(Object)}, i.e. if the actual root
 	 * instance must be created after setting up and creating the {@link EmbeddedStorageManager}.
 	 * 
@@ -230,10 +246,32 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * 
 	 * @see EmbeddedStorageManager#start()
 	 * @see #setRoot(Object)
-	 * @see #setRootResolver(PersistenceRootResolver)
-	 * @see EmbeddedStorageConnectionFoundation#setRootResolver(PersistenceRootResolver)
+	 * @see #setRootResolverProvider(PersistenceRootResolver)
+	 * @see EmbeddedStorageConnectionFoundation#setRootResolverProvider(PersistenceRootResolver)
+	 * @see EmbeddedStorageConnectionFoundation#registerCustomRootSupplier(PersistenceRootResolver)
 	 */
 	public F setRootSupplier(Supplier<?> rootSupplier);
+
+	/**
+	 * Alias for <pre>{@code .onConnectionFoundation(f ->
+	 *{
+	 *	f.setRootResolverProvider(rootResolverProvider);
+	 *})
+	 *
+	 *}</pre>
+	 *
+	 *Sets the {@link PersistenceRootResolverProvider} instance to be used in the internal
+	 *{@link EmbeddedStorageConnectionFoundation}.
+	 * 
+	 * @param rootResolverProvider the {@link PersistenceRootResolverProvider} to be set.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 * 
+	 * @see #setRootSupplier(Supplier)
+	 * @see EmbeddedStorageConnectionFoundation#setRootResolverProvider(PersistenceRootResolver)
+	 * 
+	 */
+	public F setRootResolverProvider(PersistenceRootResolverProvider rootResolverProvider);
 	
 	/**
 	 * Sets the passed {@link PersistenceRefactoringMappingProvider} instance to the
@@ -329,6 +367,14 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		public F setRootSupplier(final Supplier<?> rootSupplier)
 		{
 			this.getConnectionFoundation().getRootResolverProvider().registerCustomRootSupplier(rootSupplier);
+			
+			return this.$();
+		}
+
+		@Override
+		public F setRootResolverProvider(final PersistenceRootResolverProvider rootResolverProvider)
+		{
+			this.getConnectionFoundation().setRootResolverProvider(rootResolverProvider);
 			
 			return this.$();
 		}
