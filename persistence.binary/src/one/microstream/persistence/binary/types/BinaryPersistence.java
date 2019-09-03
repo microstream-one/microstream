@@ -225,10 +225,9 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerStateless.New(Collections.reverseOrder().getClass()), // not an enum
 			
 			// changed with support of enums. And must change to keep TypeDictionary etc. consistent
-//			typeHandlerCreator.createTypeHandler(Comparator.naturalOrder().getClass()),
-//			BinaryHandlerCustomEnumStateless.New(Comparator.naturalOrder().getClass()),
-//			BinaryHandlerStateless.New(Comparator.naturalOrder().getClass()),
 			BinaryHandlerSingletonStatelessEnum.New(Comparator.naturalOrder().getClass()),
+//			typeHandlerCreator.createTypeHandler(Comparator.naturalOrder().getClass()),
+//			BinaryHandlerStateless.New(Comparator.naturalOrder().getClass()),
 						
 			// still creepy JDK 1.6 collections
 			BinaryHandlerArrayDeque.New()           ,
