@@ -415,6 +415,12 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			
 			return this.connectionFoundation;
 		}
+		
+		@Override
+		public PersistenceRootResolverProvider getRootResolverProvider()
+		{
+			return this.getConnectionFoundation().getRootResolverProvider();
+		}
 
 		/* (02.03.2014)TODO: Storage Configuration more dynamic
 		 *  The configuration must be provided in the creation process, not set idependantly.
