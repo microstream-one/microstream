@@ -284,7 +284,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public F setReferenceFieldEagerEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
 
-	public F setRootResolver(PersistenceRootResolverProvider rootResolverProvider);
+	public F setRootResolverProvider(PersistenceRootResolverProvider rootResolverProvider);
 		
 	public F setLambdaTypeRecognizer(LambdaTypeRecognizer lambdaTypeRecognizer);
 
@@ -451,7 +451,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceLegacyTypeHandlerCreator<M>   legacyTypeHandlerCreator    ;
 		private PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener  ;
 
-		private PersistenceInstantiator<M>          instantiator        ;
+		private PersistenceInstantiator<M>             instantiator        ;
 		private PersistenceTypeInstantiatorProvider<M> instantiatorProvider;
 		
 		private ByteOrder targetByteOrder;
@@ -1620,7 +1620,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public F setRootResolver(final PersistenceRootResolverProvider rootResolverProvider)
+		public F setRootResolverProvider(final PersistenceRootResolverProvider rootResolverProvider)
 		{
 			this.rootResolverProvider = rootResolverProvider;
 			return this.$();
