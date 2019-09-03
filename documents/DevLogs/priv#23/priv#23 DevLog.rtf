@@ -1776,5 +1776,42 @@ Testen.\par
 Mapping stimmt.\par
 Fertig.\par
 \par
+\par
+\par
+2019-09-03\par
+\par
+Mergen in Master.\par
+HG testen lassen.\par
+Paar Kleinigkeiten fixen (Methodennamen usw.)\par
+\par
+Aufgefallen durch Frage von HG:\par
+Die Roots Instanz wird jedes mal gespeichert, auch wenn sich gar nicht ver\'e4ndert hat.\par
+Genauer debuggen:\par
+Achso, weil die beiden Object[] ja nicht identisch sind, nur ihre Inhalte.\par
+Das muss ich special-casen.\par
+Testen.\par
+Passt.\par
+\par
+Hm, fast: Es gibt kein speichern bei jedem Synchen, aber das erste synchen speichert unn\'f6tig, weil sich bei den enums die Reihenfolge unterscheidet. Seltsam. Warum ist das so?\par
+Ah, na klar:\line Die Enum Entries der DefinedRoots werden erzeugt in Reihenfolge aus dem TypeDictionary (sortiert nach TypeId), w\'e4hrend die Enum Entries der LoadedRoots (erzeugt vom ersten Speichern) in der Reihenfolge der jeweiligen ersten Begegnung des Enum Typs vorliegen.\par
+Der erste Synch speichert neu ab in der Reihenfolge des TypeDictionaries und ab dann sind beide Roots immer synchron (bis zur n\'e4chsten Erweiterung, nat\'fcrlich).\par
+Ein einfacher Fix daf\'fcr ist, die begegneten Enums nach TypeId zu speichern.\par
+Aber das kann immer noch zu Reihenfolgeabweichungen f\'fchren, wenn sie \'fcber mehr als einen store verteilt gesehen und gespeichert werden.\par
+Die saubere L\'f6sung w\'e4re, den Root Synch doch wieder zu splitten und dort die enum Eintr\'e4ge zu sortieren und dann erst zu vergleichen.\par
+Aber das ist ein kosmetisches Detail. Den bei kleinen Tests/Beispielen nervigen Fall hab ich behoben. Der Rest sollte niemanden interessieren und technisch ist es so oder so korrekt.\par
+\par
+Mal noch entsprechende Kommentare dazu schreiben.\par
+\par
+\par
+Aach und jetzt ist mir doch noch ein schneller kompletter Fix eingefallen:\par
+Beide RootEntries Tables for dem vergleichen nach Identifier sortieren. Fertig.\par
+Also den halben Fix wieder rausreissen. M\'fchsam geschriebene Kommentare wieder wegl\'f6schen ...\par
+\par
+\par
+Au\'dferdem aufgefallen:\par
+Das im Storer nun auch eingef\'fchrte store(SelfStoring) erzeugt einen Stackoverflow, weil der Compiler durch den gleichen Namen ("store") nun st\'e4ndig hin und her springt.\par
+Das muss anders benannt werden.\par
+Mir f\'e4llt nix besseres ein als "storeSelfStoring".\par
+\par
 }
  

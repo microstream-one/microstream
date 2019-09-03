@@ -75,12 +75,12 @@ public class MainTestStoreEnum
 	static Object[] createGraph()
 	{
 		return new Object[]{
-//			SimpleEnum.TypeA,
-//			SimpleEnum.TypeB,
-//			SimpleEnum.TypeC,
-			SimpleEnum.Type1,
-			SimpleEnum.Type2,
-			SimpleEnum.Type3,
+			SimpleEnum.TypeA,
+			SimpleEnum.TypeB,
+			SimpleEnum.TypeC,
+//			SimpleEnum.Type1,
+//			SimpleEnum.Type2,
+//			SimpleEnum.Type3,
 			CrazyEnum.ShouldWorkNormal,
 			CrazyEnum.ShouldWorkSpecial,
 			CrazyEnumSpecialState.SpecialState,
@@ -126,7 +126,7 @@ public class MainTestStoreEnum
 	
 }
 
-/*
+//*
 enum SimpleEnum
 {
 	TypeA,
@@ -135,12 +135,12 @@ enum SimpleEnum
 }
 //*/
 
-//*
+/*
 enum SimpleEnum
 {
 	Type1,
 	Type2,
-	Type3,
+	Type3
 }
 //*/
 

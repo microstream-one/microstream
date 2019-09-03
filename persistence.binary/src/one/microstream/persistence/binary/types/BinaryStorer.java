@@ -343,7 +343,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 		
 		@Override
-		public void store(final SelfStoring storing)
+		public void storeSelfStoring(final SelfStoring storing)
 		{
 			storing.storeBy(this);
 		}

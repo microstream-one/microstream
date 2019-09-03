@@ -32,7 +32,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 	}
 
 	@Override
-	public default void store(final SelfStoring storing)
+	public default void storeSelfStoring(final SelfStoring storing)
 	{
 		storing.storeBy(this.createStorer()).commit();
 	}
