@@ -123,15 +123,16 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 //				"contentAddress=" + buildItem.entityContentAddress
 //			);
 
-			/* (08.07.2015 TM)TODO: unnecessary local instance
-			 * there was a case where an unnecessary local instance was created because the context instance could not
-			 * have been found before. The instance was an enum constants array, so it should have been findable already.
+			/* (08.07.2015 TM)TODO: unnecessary created instance
+			 * there was a case where an unnecessary instance was created because the existing instance could not
+			 * be found before. The instance was an enum constants array (prior to properly handling enums in the
+			 * first place), so it should have been findable already.
 			 * Check if this is always the case (would be a tremendous amount of unnecessary instances) or a buggy
-			 * special case (constant registration or whatever)
+			 * special case (constant registration or whatever).
 			 */
-			if(buildItem.contextInstance == null)
+			if(buildItem.existingInstance == null)
 			{
-				buildItem.localInstance = buildItem.handler.create(buildItem, this);
+				buildItem.createdInstance = buildItem.handler.create(buildItem, this);
 			}
 
 			// register build item
@@ -156,10 +157,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		private Object getEffectiveInstance(final BinaryLoadItem entry)
 		{
 			/* tricky concurrent part:
-			 * if a proper context instance already was registered, simply use that.
+			 * if a proper existing instance already was registered, simply use that.
 			 *
 			 * Otherwise:
-			 * try to register thread-locally created instance as the context instance for the OID at this point and in
+			 * try to register the thread-locally created instance as the context instance for the OID at this point and in
 			 * the process use a meanwhile created and registered context instance instead and ignore the own local one
 			 *
 			 * This way, every thread will use the same instance for a given OID even if multiple threads
@@ -172,27 +173,52 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			 * Note on instance type: both ways that set instances here (local and context),
 			 * namely registry and type handler, are trusted to provide (instantiate or know) instances of the
 			 * correct type.
+			 */
+			
+			/* (03.09.2019 TM)TODO: priv#141: existingInstance and createdInstance redundant?
+			 * Aren't these two unnecessary?
+			 * ExistingInstance is a potentially already existing one.
+			 * CreatedInstance is a preliminarily created instance that might be discarded in preference of a
+			 * meanwhile created instance (which is kind of a race condition, isn't it?).
 			 * 
-			 * Note on the two instance fields:
-			 * "contextInstance" is initialized with a potentially already existing instance.
-			 * "localInstance" is created anew during loading.
-			 * Maybe they should be renamed into "existingInstance" and "createdInstance".
-			 * Or maybe they can be consolidated into one fields
-			 * Or maybe no longer due to allowing #create to return null, now.
+			 * This could be consolidated to a single "instance" field with the following logic:
+			 * - initially null
+			 * - in here, a "this.registry.ensureInstance(entry, this)" is called that either returns the existing
+			 *   instance or creates a new instance under the protection of its internal lock.
+			 * - the entry would have to implement a proper interface of course. The implementation of its method
+			 *   does what currently is "buildItem.handler.create(buildItem, this);"
+			 *   Something like "this.handler.create(this, loader);"
+			 * 
+			 * This way, there would be only one instance, no discarded preliminary instance and precisely one point
+			 * in time where the proper instance is (selected) or (created and registered).
+			 */
+			
+			/* (03.09.2019 TM)TODO: priv#141: loading race conditions?
+			 * (Addon to the point above)
+			 * Albeit: what about globally registering an instance before it is completely built?
+			 * Couldn't that cause race conditions and inconcistencies?
+			 * And if not: Why not determine (select or created&register) the instance right away when creating
+			 * the build item? Maybe the whole process of created all required build items should happen under
+			 * one big lock of the objectRegistry?
+			 * 
+			 * This would all have to be thought through, researched and tested with the appropriate time and care
+			 * which, currently, is not available.
 			 */
 
 			// (26.08.2019 TM)NOTE: paradigm change: #create may return null. Required for handling deleted enums.
-			if(entry.contextInstance != null)
+			if(entry.existingInstance != null)
 			{
-				return entry.contextInstance;
+				return entry.existingInstance;
 			}
-			if(entry.localInstance == null)
+			if(entry.createdInstance == null)
 			{
 				return null;
 			}
-			return entry.contextInstance = this.registry.optionalRegisterObject(
+			
+			// this makes the locally created instance the "officially existing" instance for the registry's context.
+			return entry.existingInstance = this.registry.optionalRegisterObject(
 				entry.getBuildItemObjectId(),
-				entry.localInstance
+				entry.createdInstance
 			);
 		}
 
@@ -245,7 +271,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			}
 			
 			loadItem.handler = typeHandler;
-			loadItem.contextInstance = this.registry.lookupObject(loadItem.getBuildItemObjectId());
+			loadItem.existingInstance = this.registry.lookupObject(loadItem.getBuildItemObjectId());
 			
 			return loadItem;
 		}
@@ -353,7 +379,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 				{
 					continue;
 				}
-				entry.handler.complete(entry, entry.contextInstance, this);
+				entry.handler.complete(entry, entry.existingInstance, this);
 			}
 		}
 
@@ -385,7 +411,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 
 		private Object internalGetFirst()
 		{
-			return this.buildItemsHead.next == null ? null : this.buildItemsHead.next.contextInstance;
+			return this.buildItemsHead.next == null ? null : this.buildItemsHead.next.existingInstance;
 		}
 
 		private void rebuildBuildItems()
@@ -511,7 +537,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
 			final BinaryLoadItem skipItem = this.createLoadItem(dbbAddress + dbb.capacity());
 			skipItem.modifyLoadItem(dbbAddress + dbb.capacity(), 0, 0, objectId);
-			skipItem.contextInstance = instance;
+			skipItem.existingInstance = instance;
 			
 			// skip items will never use the helper instance for anything, since they are skip dummies.
 			skipItem.registerHelper(dbb, dbb);

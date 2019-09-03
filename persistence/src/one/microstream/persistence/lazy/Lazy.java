@@ -42,12 +42,22 @@ public final class Lazy<T> implements LazyReferencing<T>
 
 	public static final <T> T get(final Lazy<T> reference)
 	{
-		return reference == null ? null : reference.get();
+		if(reference == null)
+		{
+			return null; // debug-hook
+		}
+		
+		return reference.get();
 	}
 
 	public static final <T> T peek(final Lazy<T> reference)
 	{
-		return reference == null ? null : reference.peek();
+		if(reference == null)
+		{
+			return null; // debug-hook
+		}
+		
+		return reference.peek();
 	}
 
 	public static final void clear(final Lazy<?> reference)
@@ -56,7 +66,18 @@ public final class Lazy<T> implements LazyReferencing<T>
 		{
 			return; // debug-hook
 		}
+		
 		reference.clear();
+	}
+	
+	public static final boolean isStored(final Lazy<?> reference)
+	{
+		if(reference == null)
+		{
+			return false; // debug-hook
+		}
+		
+		return reference.isStored();
 	}
 
 	public static final <T> Lazy<T> Reference(final T subject)
@@ -86,7 +107,6 @@ public final class Lazy<T> implements LazyReferencing<T>
 
 	static <T> Lazy<T> register(final Lazy<T> lazyReference)
 	{
-//		XDebug.debugln("Registering " + XChars.systemString(lazyReference) + " " + lazyReference.objectId);
 		LazyReferenceManager.get().register(lazyReference);
 		return lazyReference;
 	}
@@ -102,7 +122,6 @@ public final class Lazy<T> implements LazyReferencing<T>
 	 */
 	private T subject;
 	
-	// (20.08.2019 TM)TODO: should lastTouched get a public getter for custom logic to evaluate it?
 	/**
 	 * The timestamp in milliseconds when this reference has last been touched (created or queried).
 	 * If an instance is deemed timed out by a {@link LazyReferenceManager} based on the current time
@@ -115,7 +134,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 	 * Although this value never changes logically during the lifetime of an instance,
 	 * it might be delayed initialized. See {@link #link(long, PersistenceObjectRetriever)} and its use site(s).
 	 */
-	// CHECKSTYLE.OFF: VisibilityModifier CheckStyle false positive for samge package in another project
+	// CHECKSTYLE.OFF: VisibilityModifier CheckStyle false positive for same package in another project
 	transient long objectId;
 	// CHECKSTYLE.ON: VisibilityModifier
 
@@ -163,12 +182,23 @@ public final class Lazy<T> implements LazyReferencing<T>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// declared methods //
-	/////////////////////
+	// methods //
+	////////////
 
-	private void touch()
+	public final long objectId()
 	{
-		this.lastTouched = this.subject == null ? Long.MAX_VALUE : System.currentTimeMillis();
+		return this.objectId;
+	}
+	
+	public final long lastTouched()
+	{
+		return this.lastTouched;
+	}
+	
+	public final synchronized boolean isStored()
+	{
+		// checking objectId rather than loader as loader might be initially non-null in a future enhancement
+		return this.objectId != Persistence.nullId();
 	}
 
 	/**
@@ -195,6 +225,14 @@ public final class Lazy<T> implements LazyReferencing<T>
 		return subject;
 	}
 
+	private void touch()
+	{
+		this.lastTouched = this.subject != null
+			? System.currentTimeMillis()
+			: Long.MAX_VALUE
+		;
+	}
+
 	private void validateObjectIdToBeSet(final long objectId)
 	{
 		if(this.objectId != Persistence.nullId() && this.objectId != objectId)
@@ -207,31 +245,60 @@ public final class Lazy<T> implements LazyReferencing<T>
 	final synchronized void setLoader(final PersistenceObjectRetriever loader)
 	{
 		/*
-		 * this method might be called when storing or building to/from different sources
+		 * This method might be called when storing or building to/from different sources
 		 * (e.g. client-server communication instead of database storing).
 		 * To keep the logic simple, only the first non-null passing call will be considered.
 		 * It is assumed that the application logic is tailored in such a way that the "primary" or "actual"
 		 * loader (probably for a database) will be passed here first.
-		 * if this is not sufficient for certain mor complex demands, this class (and its binary handler etc.)
-		 * can always be replaced by a copy derived from it. Nothing magical about it (e.g. hardcoded somewhere in the
-		 * persisting logic).
+		 * If this is not sufficient for certain more complex demands, this class (and its binary handler etc.)
+		 * can always be replaced by a copy derived from it. Nothing magical about it (nothing hardcoded
+		 * somewhere in the persisting logic or such).
 		 */
 		if(this.loader != null)
 		{
+			/* (03.09.2019 TM)FIXME: Lazy Reference loader link
+			 * The current naive approach means holding on to a certain connection's persistence manager forever,
+			 * which is a bad thing.
+			 * However, the logic below of throwing an exception is even worse since it would crash the thread
+			 * on every newly created connection used to load a lazy reference.
+			 * The proper solution would be to link a more general, central, long-living instance, like the
+			 * EmbeddedStorageManager ("the database" instance) itself.
+			 * However: maybe EmbeddedStorageManager should be referenced only weakly.
+			 */
 			return;
+			
+			// (03.09.2019 TM)NOTE: not possible since every connection instance gets a new persistence manager instance
+//			if(this.loader == loader)
+//			{
+//				return;
+//			}
+//
+//			// (03.09.2019 TM)EXCP: proper exception
+//			throw new RuntimeException(
+//				"Lazy reference is already linked to another "
+//				+ PersistenceObjectRetriever.class.getSimpleName()
+//			);
 		}
+		
 		this.loader = loader;
 	}
 
 	final synchronized void link(final long objectId, final PersistenceObjectRetriever loader)
 	{
 		this.validateObjectIdToBeSet(objectId);
-		this.objectId = objectId;
 		this.setLoader(loader);
+		this.objectId = objectId;
 	}
 
 	private void internalClear()
 	{
+		// (03.09.2019 TM)NOTE: may never clear an unstored reference
+		if(!this.isStored())
+		{
+			// (03.09.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Cannot clear an unstored lazy reference.");
+		}
+		
 //		XDebug.debugln("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);
 		this.subject = null;
 		this.touch();
@@ -258,12 +325,14 @@ public final class Lazy<T> implements LazyReferencing<T>
 		{
 			this.load();
 		}
+		
 		/* There are 3 possible cases at this point:
 		 * 1.) subject is not null because it has been set via the normal constructor directly and is simply returned
 		 * 2.) subject was lazily null but has been successfully thread-safely loaded, set and can now be returned
 		 * 3.) subject was null in the first place (one way or another) and null gets returned.
 		 */
 		this.touch();
+		
 		return this.subject;
 	}
 
@@ -278,8 +347,8 @@ public final class Lazy<T> implements LazyReferencing<T>
 	{
 //		XDebug.debugln("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold);
 
-		// time check implicitely covers already cleared reference. May of course not clear if there is no loader (yet).
-		if(this.lastTouched >= millisecondThreshold || this.loader == null)
+		// time check implicitely covers already cleared reference. May of course not clear unstored references.
+		if(this.lastTouched >= millisecondThreshold || !this.isStored())
 		{
 			return;
 		}
@@ -288,16 +357,11 @@ public final class Lazy<T> implements LazyReferencing<T>
 		this.internalClear();
 	}
 
-	public final long objectId()
-	{
-		return this.objectId;
-	}
-
 	@Override
 	public String toString()
 	{
 		return this.subject == null
-			? "(" + this.objectId + ")"
+			? "(" + this.objectId + " not loaded)"
 			: this.objectId + " " + XChars.systemString(this.subject)
 		;
 	}
@@ -306,16 +370,30 @@ public final class Lazy<T> implements LazyReferencing<T>
 
 	public static final class Checker implements LazyReferenceManager.Checker
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		private final long millisecondTimeout  ;
 		private       long millisecondThreshold;
 
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
 		Checker(final long millisecondTimeout)
 		{
 			super();
 			this.millisecondTimeout = millisecondTimeout;
 		}
-
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public void beginCheckCycle()
@@ -334,81 +412,5 @@ public final class Lazy<T> implements LazyReferencing<T>
 		}
 
 	}
-
-
-//	public static <F extends ObjectGraphTraverserFactory> F registerWith(final F objectGraphTraverserFactory)
-//	{
-//		objectGraphTraverserFactory.registerTraversalHandlerProviderByType(
-//			Lazy.genericType(),
-//			new TraversalHandlerLazy.Provider()
-//		);
-//
-//		return objectGraphTraverserFactory;
-//	}
-//
-//
-//
-//	public static final TraversalHandlerCustomProvider<Lazy<?>> TraversalHandlerCustomProvider()
-//	{
-//		return new TraversalHandlerLazy.Provider();
-//	}
-//
-//
-//	// not sure if it's particularly clean or particularly unclean to nest that here instead of in its own file.
-//	public static final class TraversalHandlerLazy extends TraversalHandler.Abstract<Lazy<?>>
-//	{
-//		protected TraversalHandlerLazy(final Predicate<? super Lazy<?>> logic)
-//		{
-//			super(logic);
-//		}
-//
-//		@Override
-//		public final Class<Lazy<?>> handledType()
-//		{
-//			return Lazy.genericType();
-//		}
-//
-//		@Override
-//		public void traverseReferences(final Lazy<?> instance, final Consumer<Object> referenceHandler)
-//		{
-////			if(instance.peek() == null)
-////			{
-////				debugln("loading " + instance.objectId);
-////			}
-//
-//			// the loader reference is a meta helper that is no actual entity, so it is ignored.
-//			referenceHandler.accept(instance.get());
-//		}
-//
-//		public static final class Provider implements TraversalHandlerCustomProvider<Lazy<?>>
-//		{
-//			@Override
-//			public final Class<Lazy<?>> handledType()
-//			{
-//				return Lazy.genericType();
-//			}
-//
-//			@Override
-//			public TraversalHandler<Lazy<?>> provideTraversalHandler(
-//				final Class<? extends Lazy<?>>       type         ,
-//				final TraversalHandlingLogicProvider logicProvider
-//			)
-//			{
-//				/*
-//				 * this is guaranteed by the using logic, but just in case.
-//				 * Performance doesn't matter in one-time analyzing logic.
-//				 */
-//				// (06.07.2016 TM)NOTE: javac reports an error here. Probably one of several bugs encountered when trying to use it.
-//				if(type != Lazy.class)
-//				{
-//					throw new IllegalArgumentException();
-//				}
-//
-//				return new TraversalHandlerLazy(logicProvider.provideHandlingLogic(type));
-//			}
-//
-//		}
-//
-//	}
 
 }

@@ -53,5 +53,9 @@ public interface PersistenceStoring
 	 * @param instances multiple root instances of the subgraphs of required instances to be stored.
 	 */
 	public void storeAll(Iterable<?> instances);
+	
+
+
+	public void store(SelfStoring storing);
 
 }
