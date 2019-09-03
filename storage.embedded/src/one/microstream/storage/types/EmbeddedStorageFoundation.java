@@ -52,6 +52,14 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	public EmbeddedStorageConnectionFoundation<?> getConnectionFoundation();
 	
 	/**
+	 * Returns the internal {@link EmbeddedStorageConnectionFoundation} instance's
+	 * {@link PersistenceRootResolverProvider} instance. If none is present so far, a new default one is created.
+	 * 
+	 * @return the {@link PersistenceRootResolverProvider} instance to be used.
+	 */
+	public PersistenceRootResolverProvider getRootResolverProvider();
+	
+	/**
 	 * Executes the passed {@literal logic} on the {@link EmbeddedStorageConnectionFoundation} instance provided
 	 * by {@link #getConnectionFoundation()}.
 	 * <p>
