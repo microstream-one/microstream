@@ -137,7 +137,8 @@ public interface StorageConnection extends PersistenceStoring
 	{
 		this.persistenceManager().storeAll(instances);
 	}
-
+	
+	@Override
 	public default void store(final SelfStoring storing)
 	{
 		storing.storeBy(this.createStorer()).commit();
