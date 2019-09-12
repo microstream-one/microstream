@@ -8,7 +8,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>01.00.00-MS-RC4</version>
+	<version>02.00.00-MS-GA</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
