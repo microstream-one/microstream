@@ -435,7 +435,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 			final PersistenceTypeDefinition typeDefinition
 		)
 		{
-			return this.registerRuntimeTypeDefinition(typeDefinition);
+			return this.registerTypeDefinition(typeDefinition);
 		}
 
 		@Override
