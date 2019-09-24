@@ -1,4 +1,4 @@
-package one.microstream.concurrent;
+package one.microstream.test;
 
 import java.util.function.Consumer;
 
