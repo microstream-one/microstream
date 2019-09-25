@@ -1,10 +1,11 @@
 package one.microstream.concurrent;
 
 import one.microstream.collections.types.XGettingCollection;
+import one.microstream.collections.types.XTable;
 
 public interface ApplicationTask<A>
 {
-	public void executeOn(A applicationRoot);
+	public void linkDomains(A applicationRoot, XTable<Domain<?>, DomainLogic<?, ?>> linkedLogics);
 	
 	public final class Default<A> implements ApplicationTask<A>
 	{
@@ -12,7 +13,8 @@ public interface ApplicationTask<A>
 		// instance fields //
 		////////////////////
 		
-		private final XGettingCollection<? extends ApplicationTaskItem<? super A, ?>> taskitems;
+		// (25.09.2019 TM)TODO: Concurrency: Just "A" or "? extends A" or "? super A"?
+		private final XGettingCollection<? extends ApplicationTaskItem<A>> taskitems;
 
 		
 		
@@ -20,7 +22,7 @@ public interface ApplicationTask<A>
 		// constructors //
 		/////////////////
 		
-		Default(final XGettingCollection<? extends ApplicationTaskItem<? super A, ?>> taskitems)
+		Default(final XGettingCollection<? extends ApplicationTaskItem<A>> taskitems)
 		{
 			super();
 			this.taskitems = taskitems;
@@ -33,32 +35,17 @@ public interface ApplicationTask<A>
 		////////////
 
 		@Override
-		public void executeOn(final A applicationRoot)
+		public void linkDomains(final A applicationRoot, final XTable<Domain<?>, DomainLogic<?, ?>> linkedLogics)
 		{
-			/* (24.09.2019 TM)FIXME: ApplicationTask execution
-			 * 1.) lookup all domain instances for all TaskItems via their lookup logics.
-			 * 2.) create and enqueu DomainTasks for all determined Domain instances with the tasks domain logic
-			 * 3.) wait on completion of all DomainTasks.
-			 * 4.) query their results
-			 * ?? what to do with the results? pass to another modular logic?
-			 * ?? and wouldn't that logic have to except a parameter like XGettingTable<E, R>?
-			 * ?? what if the tasks needs to enqueue another DomainTask before it can be completed?
-			 * 
-			 * So maybe an ApplicationTask instance must have a sequence of sub tasks, which:
-			 * - expect a result of the form XGettingTable<E, R> (potenzially null for the first sub task)
-			 * - have a sequence of TaskItems defining the required domain instances and logics
-			 * - build a resulting XGettingTable<E, R> when being executed
-			 * 
-			 * executing an ApplicationTask would mean to execute sub task by sub task, usually just a single one.
-			 * But that leaves out the DomainTask that is the actual thing getting enqueued, the "anchor" of an
-			 * application task in the processig queues.
-			 * 
-			 * Hm...
-			 */
+			// a type just to link the two Es together and then that is not supported by lambdas. Great.
+			final DomainLinker linker = DomainLinker.New(linkedLogics);
 			
-			throw new one.microstream.meta.NotImplementedYetError(); // FIXME ApplicationTask<A>#executeOn()
+			for(final ApplicationTaskItem<A> item : this.taskitems)
+			{
+				item.link(applicationRoot, linker);
+			}
 		}
 		
-		
 	}
+	
 }
