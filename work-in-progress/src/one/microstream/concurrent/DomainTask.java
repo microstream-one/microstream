@@ -1,6 +1,6 @@
 package one.microstream.concurrent;
 
-public interface DomainTask<R>
+public interface DomainTask
 {
-	public R result();
+	
 }

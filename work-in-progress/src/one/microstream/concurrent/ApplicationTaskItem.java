@@ -1,17 +1,17 @@
 package one.microstream.concurrent;
 
-public interface ApplicationTaskItem<A, R>
+public interface ApplicationTaskItem<A>
 {
-	public R executeOn(A applicationRoot);
+	public void link(A applicationRoot, DomainLinker linker);
 	
-	public final class Default<A, E, R> implements ApplicationTaskItem<A, R>
+	public final class Default<A, E> implements ApplicationTaskItem<A>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
 		private final DomainLookup<A, E> lookup;
-		private final DomainLogic<E, R>  logic ;
+		private final DomainLogic<E, ?>  logic ;
 		
 		
 		
@@ -19,7 +19,7 @@ public interface ApplicationTaskItem<A, R>
 		// constructors //
 		/////////////////
 
-		Default(final DomainLookup<A, E> lookup, final DomainLogic<E, R> logic)
+		Default(final DomainLookup<A, E> lookup, final DomainLogic<E, ?> logic)
 		{
 			super();
 			this.lookup = lookup;
@@ -31,9 +31,9 @@ public interface ApplicationTaskItem<A, R>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
+		
 		@Override
-		public R executeOn(final A applicationRoot)
+		public void link(final A applicationRoot, final DomainLinker linker)
 		{
 			final Domain<E> domain = this.lookup.lookupDomain(applicationRoot);
 			if(domain == null)
@@ -42,13 +42,9 @@ public interface ApplicationTaskItem<A, R>
 				throw new RuntimeException();
 			}
 			
-			/* (24.09.2019 TM)FIXME: must defer execution to the queue and wait for the result in here.
-			 * But is this really the appropriate type/place to do the concurrency stuff?
-			 * Shouldn't that be in DomainTask itself?
-			 * Or maybe should the two types be merged?
-			 */
-			
-			return domain.executeLogic(this.logic);
+			linker.link(domain, this.logic);
 		}
+
 	}
+	
 }
