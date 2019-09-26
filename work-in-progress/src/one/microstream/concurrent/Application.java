@@ -1,6 +1,7 @@
 package one.microstream.concurrent;
 
 import one.microstream.collections.HashTable;
+import one.microstream.typing.KeyValue;
 
 public interface Application<A>
 {
@@ -8,7 +9,7 @@ public interface Application<A>
 //	public <E> E getDomainRootEntity(DomainLookup<? super A, E> lookup);
 	
 	// (24.09.2019 TM)NOTE: ideally, this should be the sole method in the whole type
-	public void executeTask(ApplicationTask<? super A> task);
+	public <R> R executeTask(ApplicationTask<? super A, R> task);
 	
 	
 	public final class Default<A> implements Application<A>
@@ -17,8 +18,7 @@ public interface Application<A>
 		// instance fields //
 		////////////////////
 		
-		private final A                 applicationRoot  ;
-		private final DomainTaskCreator domainTaskCreator;
+		private final A applicationRoot;
 
 		
 		
@@ -26,14 +26,10 @@ public interface Application<A>
 		// constructors //
 		/////////////////
 		
-		Default(
-			final A                 applicationRoot  ,
-			final DomainTaskCreator domainTaskCreator
-		)
+		Default(final A applicationRoot)
 		{
 			super();
-			this.applicationRoot   = applicationRoot  ;
-			this.domainTaskCreator = domainTaskCreator;
+			this.applicationRoot = applicationRoot;
 		}
 		
 		
@@ -41,61 +37,73 @@ public interface Application<A>
 		// methods //
 		////////////
 		
-		private synchronized void synchronizedLinkDomains(
-			final ApplicationTask<? super A>              task        ,
-			final HashTable<Domain<?>, DomainLogic<?, ?>> linkedLogics
+		private synchronized void synchronizedEnqueueDomainTasks(
+			final ApplicationTask<? super A, ?>           applicationTask  ,
+			final HashTable<Domain<?>, DomainTaskLink<?>> linkedDomainTasks,
+			final DomainTaskLinker                        linker
 		)
 		{
 			/*
 			 * while shortly locking the whole application to prevent
 			 * concurrent modifications to the domain managing structure,
-			 * all logics are linked to their target domains.
+			 * all required domain tasks are created and enqueued
 			 */
-			task.linkDomains(this.applicationRoot, linkedLogics);
+			applicationTask.createDomainTasks(this.applicationRoot, linker);
+			
+			for(final KeyValue<Domain<?>, DomainTaskLink<?>> e : linkedDomainTasks)
+			{
+				e.value().enqueueTask();
+			}
 		}
 				
 		@Override
-		public void executeTask(final ApplicationTask<? super A> task)
+		public <R> R executeTask(final ApplicationTask<? super A, R> task)
 		{
-			final HashTable<Domain<?>, DomainLogic<?, ?>> linkedLogics = HashTable.New();
-			final HashTable<Domain<?>, DomainTask> linkedDomainTasks = HashTable.New();
-			
-			this.synchronizedLinkDomains(task, linkedLogics);
-			
-			// creator implementation must lock internally if necessary
-			this.domainTaskCreator.createDomainTasks(linkedLogics, linkedDomainTasks);
-			
-			// all required domain tasks have been successfully created. Now they can be enqueued.
-			
-			/* (25.09.2019 TM)FIXME: Concurrency: ApplicationTask DomainTask creation
-			 * Wouldn't the ApplicationTask have to create the DomainTasks itself and internally,
-			 * so that it can query their results etc.?
-			 * Must be changed ...
-			 * 
-			 */
-			
-			/* (24.09.2019 TM)FIXME: Concurrency: ApplicationTask execution
-			 * v 1.) lookup all domain instances for all TaskItems via their lookup logics.
-			 * i 2.) create and enqueue DomainTasks for all determined Domain instances with the tasks domain logic
-			 *   3.) wait on completion of all DomainTasks.
-			 *   4.) query their results
-			 *   ?? what to do with the results? pass to another modular logic?
-			 *   ?? and wouldn't that logic have to except a parameter like XGettingTable<E, R>?
-			 *   ?? what if the tasks needs to enqueue another DomainTask before it can be completed?
-			 * 
-			 * So maybe an ApplicationTask instance must have a sequence of sub tasks, which:
-			 * - expect a result of the form XGettingTable<E, R> (potenzially null for the first sub task)
-			 * - have a sequence of TaskItems defining the required domain instances and logics
-			 * - build a resulting XGettingTable<E, R> when being executed
-			 * 
-			 * executing an ApplicationTask would mean to execute sub task by sub task, usually just a single one.
-			 * But that leaves out the DomainTask that is the actual thing getting enqueued, the "anchor" of an
-			 * application task in the processig queues.
-			 * 
-			 * Hm...
-			 */
-			
-			throw new one.microstream.meta.NotImplementedYetError(); // FIXME Application.Default#executeTask()
+			final HashTable<Domain<?>, DomainTaskLink<?>> linkedDomainTasks = HashTable.New();
+			final DomainTaskLinker linker = DomainTaskLinker.New(linkedDomainTasks);
+
+			synchronized(task)
+			{
+				task.createDomainTasks(this.applicationRoot, linker);
+				this.synchronizedEnqueueDomainTasks(task, linkedDomainTasks, linker);
+
+				// all required domain tasks have been successfully created and enqueued.
+				while(!task.isComplete())
+				{
+					try
+					{
+						task.wait();
+						// (26.09.2019 TM)FIXME: Concurrency: timed waiting to perform intermediate checks
+					}
+					catch(final InterruptedException e)
+					{
+						// (26.09.2019 TM)XXX: Concurrency: still not sure if that exception is valid, but here it might.
+						return null;
+					}
+				}
+				/* (26.09.2019 TM)FIXME: Concurrency: multi-action tasks
+				 * Distinct between "current batch of sub tasks is completed" and "no more sub task batch to execute"
+				 * The result of one batch must be fed into the next batch as input.
+				 * This is necessary to allow logic where a logic depends on the result of a previous logic.
+				 * Example:
+				 * First determine a certain value accross some/all entites, then select entities with
+				 * reference to that value. This may not be split accross multiple ApplicationTasks,
+				 * since other tasks executed in the meantime could make the first value meaningless/inconsistent.
+				 * 
+				 * However:
+				 * executing an ApplicationTask would mean to execute DomainTasks by DomainTasks, usually just a single one.
+				 * But that leaves out the DomainTask that is the actual thing getting enqueued, the "anchor" of an
+				 * application task in the processig queues.
+				 * 
+				 * Hm...
+				 * So maybe there can only be one batch of DomainTasks that does the iteration internally?
+				 * Would that help with or complicate the return type typing?
+				 * Hm...
+				 */
+				
+				return task.result();
+			}
+						
 		}
 		
 		

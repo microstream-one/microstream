@@ -1,17 +1,21 @@
 package one.microstream.concurrent;
 
-public interface ApplicationTaskItem<A>
+public interface ApplicationTaskItem<A, E, R>
 {
-	public void link(A applicationRoot, DomainLinker linker);
+	public void link(
+		A                 applicationRoot  ,
+		DomainTaskLinker  linker           ,
+		DomainTaskCreator domainTaskCreator
+	);
 	
-	public final class Default<A, E> implements ApplicationTaskItem<A>
+	public final class Default<A, E, R> implements ApplicationTaskItem<A, E, R>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
 		private final DomainLookup<A, E> lookup;
-		private final DomainLogic<E, ?>  logic ;
+		private final DomainLogic<E, R>  logic ;
 		
 		
 		
@@ -19,7 +23,7 @@ public interface ApplicationTaskItem<A>
 		// constructors //
 		/////////////////
 
-		Default(final DomainLookup<A, E> lookup, final DomainLogic<E, ?> logic)
+		Default(final DomainLookup<A, E> lookup, final DomainLogic<E, R> logic)
 		{
 			super();
 			this.lookup = lookup;
@@ -33,7 +37,11 @@ public interface ApplicationTaskItem<A>
 		////////////
 		
 		@Override
-		public void link(final A applicationRoot, final DomainLinker linker)
+		public void link(
+			final A                 applicationRoot  ,
+			final DomainTaskLinker  linker           ,
+			final DomainTaskCreator domainTaskCreator
+		)
 		{
 			final Domain<E> domain = this.lookup.lookupDomain(applicationRoot);
 			if(domain == null)
@@ -42,7 +50,9 @@ public interface ApplicationTaskItem<A>
 				throw new RuntimeException();
 			}
 			
-			linker.link(domain, this.logic);
+			final DomainTask<E, R> domainTask = domainTaskCreator.createDomainTask(domain, this.logic);
+			
+			linker.link(domain, domainTask);
 		}
 
 	}

@@ -1,12 +1,10 @@
 package one.microstream.concurrent;
 
-import one.microstream.collections.types.XGettingTable;
-import one.microstream.collections.types.XTable;
 
 public interface DomainTaskCreator
 {
-	public void createDomainTasks(
-		XGettingTable<Domain<?>, DomainLogic<?, ?>> linkedLogics,
-		XTable<Domain<?>, DomainTask>               createdTasks
+	public <E, R> DomainTask<E, R> createDomainTask(
+		Domain<E>                 domain     ,
+		DomainLogic<? super E, R> linkedLogic
 	);
 }
