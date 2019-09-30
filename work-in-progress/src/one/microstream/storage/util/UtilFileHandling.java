@@ -3,6 +3,7 @@ package one.microstream.storage.util;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.function.Function;
 
@@ -105,6 +106,10 @@ public class UtilFileHandling
 		try
 		{
 			Files.move(source, target);
+		}
+		catch(final NoSuchFileException e)
+		{
+			System.out.println("No such file: " + e.getMessage());
 		}
 		catch(final IOException e)
 		{

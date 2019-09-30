@@ -3,7 +3,6 @@ package one.microstream.test.collections;
 import java.util.Properties;
 import java.util.UUID;
 
-import one.microstream.jdk8.java.util.BinaryHandlerProperties;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
@@ -15,10 +14,11 @@ public class MainTestStorageJDK8Properties
 {
 	static final Reference<Object[]>    ROOT    = Reference.New(null)        ;
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.Foundation()
-		.onConnectionFoundation(f ->
-		{
-			f.getCustomTypeHandlerRegistry().registerTypeHandler(BinaryHandlerProperties.New());
-		})
+		// (29.09.2019 TM)FIXME: cannot bring maven to replace the old dependencies with current version.
+//		.onConnectionFoundation(f ->
+//		{
+//			f.getCustomTypeHandlerRegistry().registerTypeHandler(BinaryHandlerProperties.New());
+//		})
 		.start(ROOT);
 
 	public static void main(final String[] args)
