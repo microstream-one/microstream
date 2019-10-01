@@ -205,7 +205,7 @@ public abstract class Binary implements Chunk
 		return this.read_long(this.loadItemEntityAddress() + OFFSET_OID);
 	}
 	
-	public final long getEntityBoundAddress()
+	final long getEntityBoundAddress()
 	{
 		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
 		return this.loadItemEntityAddress() + this.read_long(this.loadItemEntityAddress() + OFFSET_LEN);
@@ -324,7 +324,10 @@ public abstract class Binary implements Chunk
 	
 	public abstract long loadItemEntityContentAddress();
 	
-	public abstract long loadItemEntityAddress();
+	private long loadItemEntityAddress()
+	{
+		return entityAddressFromContentAddress(this.loadItemEntityContentAddress());
+	}
 	
 	public abstract void modifyLoadItem(
 		long entityContentAddress,
@@ -1629,6 +1632,25 @@ public abstract class Binary implements Chunk
 			address = setters[i].setValueToMemory(address, instance, memoryOffsets[i], idResolver);
 		}
 	}
+	
+	public final void copyMemory(
+		final long                targetAddress,
+		final BinaryValueSetter[] setters      ,
+		final long[]              targetOffsets
+	)
+	{
+		long address = this.loadItemEntityContentAddress();
+		for(int i = 0; i < setters.length; i++)
+		{
+			address = setters[i].setValueToMemory(address, null, targetAddress + targetOffsets[i], null);
+		}
+	}
+	
+	public abstract long iterateReferences(
+		BinaryReferenceTraverser[]  traversers,
+		PersistenceObjectIdAcceptor acceptor
+	);
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////

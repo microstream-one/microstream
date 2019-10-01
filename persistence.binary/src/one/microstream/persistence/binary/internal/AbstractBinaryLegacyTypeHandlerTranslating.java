@@ -246,11 +246,7 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	@Override
 	public final void iterateLoadableReferences(final Binary rawData, final PersistenceObjectIdAcceptor iterator)
 	{
-		BinaryReferenceTraverser.iterateReferences(
-			rawData.loadItemEntityContentAddress(),
-			this.referenceTraversers,
-			iterator
-		);
+		rawData.iterateReferences(this.referenceTraversers, iterator);
 	}
 
 	// end of persisted-form-related methods //

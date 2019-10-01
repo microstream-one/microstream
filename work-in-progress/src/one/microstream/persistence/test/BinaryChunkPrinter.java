@@ -1,5 +1,6 @@
 package one.microstream.persistence.test;
 
+import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -105,12 +106,15 @@ public final class BinaryChunkPrinter implements Consumer<Binary>, BinaryEntityD
 	}
 	
 	@Override
-	public final void readBinaryEntityData(final long entityAddress)
+	public void readBinaryEntities(final ByteBuffer entitiesData)
 	{
-		this.printEntity(entityAddress);
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME BinaryChunkPrinter#readBinaryEntities()
+
+		// (01.10.2019 TM)FIXME: for each (grad zu faul)
+//		this.printEntity(entityAddress);
 	}
 	
-	private void printEntity(final long entityAddress)
+	final void printEntity(final long entityAddress)
 	{
 		final long totalLength = Binary.getEntityLengthRawValue(entityAddress);
 		final long typeId      = Binary.getEntityTypeIdRawValue(entityAddress);

@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
+import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeLink;
@@ -61,18 +62,26 @@ public final class DEBUG_BinaryPersistence
 		
 		final boolean isSwitchedByteOrder = bytes.isSwitchedByteOrder();
 		
-		bytes.iterateEntityData(entityAddress ->
+		bytes.iterateEntityData(entitiesData ->
 		{
-			final byte[] array = new byte[X.checkArrayRange(
-				isSwitchedByteOrder
-				? Long.reverseBytes(XMemory.get_long(entityAddress))
-				:                   XMemory.get_long(entityAddress)
-			)];
-			XMemory.copyRangeToArray(entityAddress, array);
-			final String s = format8ByteWise(0,
-				VarString.New().addHexDec(array).toString()
-			);
-			vs.add(s).lf();
+			final long startAddress = PlatformInternals.getDirectBufferAddress(entitiesData);
+			final long boundAddress = PlatformInternals.getDirectBufferAddress(entitiesData) + entitiesData.limit();
+			
+			long length;
+			for(long address = startAddress; address < boundAddress; address += length)
+			{
+				length = isSwitchedByteOrder
+					? Long.reverseBytes(XMemory.get_long(address))
+					: XMemory.get_long(address)
+				;
+				
+				final byte[] array = new byte[X.checkArrayRange(length)];
+				XMemory.copyRangeToArray(address, array);
+				final String s = format8ByteWise(0,
+					VarString.New().addHexDec(array).toString()
+				);
+				vs.add(s).lf();
+			}
 		});
 		
 		return vs.toString();

@@ -9,6 +9,7 @@ import one.microstream.X;
 import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionStateInvalidLength;
+import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.util.BufferSizeProviderIncremental;
 
 
@@ -254,7 +255,6 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		return this;
 	}
 	
-	
 	private void iterateEntityDataLocal(final BinaryEntityDataReader reader)
 	{
 		if(this.currentBuffer != null)
@@ -268,15 +268,9 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		for(int i = 0; i < buffersCount; i++)
 		{
 			// buffer is already flipped
-			this.iterateBufferLoadItems(
-				PlatformInternals.getDirectBufferAddress(buffers[i]),
-				PlatformInternals.getDirectBufferAddress(buffers[i]) + buffers[i].limit(),
-				reader
-			);
+			reader.readBinaryEntities(buffers[i]);
 		}
 	}
-		
-
 	
 	@Override
 	public void iterateEntityData(final BinaryEntityDataReader reader)
@@ -296,19 +290,6 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		}
 	}
 	
-	private void iterateBufferLoadItems(
-		final long                   startAddress,
-		final long                   boundAddress,
-		final BinaryEntityDataReader reader
-	)
-	{
-		// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
-		for(long address = startAddress; address < boundAddress; address += this.read_long(address))
-		{
-			reader.readBinaryEntityData(address);
-		}
-	}
-
 	@Override
 	public final boolean isEmpty()
 	{
@@ -326,12 +307,6 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 	{
 		throw new UnsupportedOperationException();
 	}
-
-	@Override
-	public final long loadItemEntityAddress()
-	{
-		throw new UnsupportedOperationException();
-	}
 	
 	@Override
 	public final void modifyLoadItem(
@@ -339,6 +314,15 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		final long entityTotalLength   ,
 		final long entityTypeId        ,
 		final long entityObjectId
+	)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public long iterateReferences(
+		final BinaryReferenceTraverser[]  traversers,
+		final PersistenceObjectIdAcceptor acceptor
 	)
 	{
 		throw new UnsupportedOperationException();
