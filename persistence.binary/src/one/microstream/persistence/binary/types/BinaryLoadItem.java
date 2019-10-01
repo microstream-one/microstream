@@ -3,6 +3,7 @@ package one.microstream.persistence.binary.types;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
 public class BinaryLoadItem extends Binary
@@ -32,32 +33,6 @@ public class BinaryLoadItem extends Binary
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
-	@Override
-	public final Binary channelChunk(final int channelIndex)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public final int channelCount()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void iterateEntityData(final BinaryEntityDataReader reader)
-	{
-		// technically, the single data set could be iterated, but designwise, it's not the task, here.
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void iterateChannelChunks(final Consumer<? super Binary> logic)
-	{
-		// technically, the single data set could be iterated, but designwise, it's not the task, here.
-		throw new UnsupportedOperationException();
-	}
 		
 	/**
 	 * Some binary entries serve as a skip entry, so that an entry for a particular object id already exists.
@@ -80,11 +55,19 @@ public class BinaryLoadItem extends Binary
 	{
 		return this.address;
 	}
-
+	
 	@Override
-	public final long loadItemEntityAddress()
+	public final long iterateReferences(
+		final BinaryReferenceTraverser[]  traversers,
+		final PersistenceObjectIdAcceptor acceptor
+	)
 	{
-		return entityAddressFromContentAddress(this.address);
+		long a = this.address;
+		for(int i = 0; i < traversers.length; i++)
+		{
+			a = traversers[i].apply(a, acceptor);
+		}
+		return a;
 	}
 	
 	@Override
@@ -97,7 +80,7 @@ public class BinaryLoadItem extends Binary
 	{
 		this.address = entityContentAddress;
 		this.internalStoreEntityHeader(
-			this.loadItemEntityAddress(),
+			entityAddressFromContentAddress(entityContentAddress),
 			entityTotalLength,
 			entityTypeId,
 			entityObjectId
@@ -113,6 +96,7 @@ public class BinaryLoadItem extends Binary
 				: ", Type=" + this.handler.typeId() + " " + this.handler.typeName())
 		;
 	}
+	
 			
 				
 	@Override
@@ -146,6 +130,32 @@ public class BinaryLoadItem extends Binary
 	@Override
 	public final long totalLength()
 	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final Binary channelChunk(final int channelIndex)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final int channelCount()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void iterateEntityData(final BinaryEntityDataReader reader)
+	{
+		// technically, the single data set could be iterated, but designwise, it's not the task, here.
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void iterateChannelChunks(final Consumer<? super Binary> logic)
+	{
+		// technically, the single data set could be iterated, but designwise, it's not the task, here.
 		throw new UnsupportedOperationException();
 	}
 

@@ -111,34 +111,74 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		////////////
 		
 		@Override
-		public void readBinaryEntityData(final long entityAddress)
+		public void readBinaryEntities(final ByteBuffer entitiesData)
 		{
-			// get the build item for the instance with the type handler and maybe an existing global instance
-			final BinaryLoadItem buildItem = this.createBuildItem(entityAddress);
-
-//			XDebug.debugln("Item @ " + address + ":\n" +
-//				"LEN=" + Binary.getEntityLength(address) + "\n" +
-//				"TID=" + Binary.getEntityTypeId(address) + "\n" +
-//				"OID=" + Binary.getEntityObjectId(address) + "\n" +
-//				"contentAddress=" + buildItem.entityContentAddress
-//			);
-
-			/* (08.07.2015 TM)TODO: unnecessary created instance
-			 * there was a case where an unnecessary instance was created because the existing instance could not
-			 * be found before. The instance was an enum constants array (prior to properly handling enums in the
-			 * first place), so it should have been findable already.
-			 * Check if this is always the case (would be a tremendous amount of unnecessary instances) or a buggy
-			 * special case (constant registration or whatever).
-			 */
-			if(buildItem.existingInstance == null)
+			if(this.switchByteOrder)
 			{
-				buildItem.createdInstance = buildItem.handler.create(buildItem, this);
+				this.internalReadBinaryEntitiesByteReversing(entitiesData);
 			}
-
-			// register build item
-			this.putBuildItem(buildItem);
+			else
+			{
+				this.internalReadBinaryEntities(entitiesData);
+			}
 		}
-
+		
+		private void internalReadBinaryEntities(final ByteBuffer entitiesData)
+		{
+			final long startAddress = PlatformInternals.getDirectBufferAddress(entitiesData);
+			final long boundAddress = startAddress + entitiesData.limit();
+			
+			// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
+			for(long address = startAddress; address < boundAddress; address += XMemory.get_long(address))
+			{
+				this.createBuildItem(new BinaryLoadItem(
+					Binary.entityContentAddress(address)
+				));
+			}
+		}
+		
+		private void internalReadBinaryEntitiesByteReversing(final ByteBuffer entitiesData)
+		{
+			final long startAddress = PlatformInternals.getDirectBufferAddress(entitiesData);
+			final long boundAddress = startAddress + entitiesData.limit();
+			
+			// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
+			for(long address = startAddress; address < boundAddress; address += Long.reverseBytes(XMemory.get_long(address)))
+			{
+				this.createBuildItem(new BinaryLoadItemByteReversing(
+					Binary.entityContentAddress(address)
+				));
+			}
+		}
+		
+		private void createBuildItem(final BinaryLoadItem loadItem)
+		{
+			// at some point, a nasty cast from ? to Object is necessary. Safety guaranteed by logic.
+			@SuppressWarnings("unchecked")
+			final PersistenceTypeHandler<Binary, Object> typeHandler = (PersistenceTypeHandler<Binary, Object>)
+				this.typeHandlerLookup.lookupTypeHandler(
+					loadItem.getBuildItemTypeId()
+				)
+			;
+			
+			// proper build items must have a typeHandler
+			if(typeHandler == null)
+			{
+				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
+					loadItem.getBuildItemTypeId()
+				);
+			}
+			
+			loadItem.handler = typeHandler;
+			if((loadItem.existingInstance = this.registry.lookupObject(loadItem.getBuildItemObjectId())) == null)
+			{
+				loadItem.createdInstance = loadItem.handler.create(loadItem, this);
+			}
+			
+			// register build item
+			this.putBuildItem(loadItem);
+		}
+		
 		// CHECKSTYLE.OFF: FinalParameters: this method is just an outsourced scroll-helper
 		protected void handleAllReferences(BinaryLoadItem item)
 		{
@@ -247,35 +287,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			entry.handler.iterateLoadableReferences(entry, this);
 		}
 				
-		
-		private BinaryLoadItem createBuildItem(final long entityAddress)
-		{
-			final BinaryLoadItem loadItem = this.createLoadItem(
-				Binary.entityContentAddress(entityAddress)
-			);
-			
-			// at some point, a nasty cast from ? to Object is necessary. Safety guaranteed by logic.
-			@SuppressWarnings("unchecked")
-			final PersistenceTypeHandler<Binary, Object> typeHandler = (PersistenceTypeHandler<Binary, Object>)
-				this.typeHandlerLookup.lookupTypeHandler(
-					loadItem.getBuildItemTypeId()
-				)
-			;
-			
-			// proper build items must have a typeHandler
-			if(typeHandler == null)
-			{
-				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
-					loadItem.getBuildItemTypeId()
-				);
-			}
-			
-			loadItem.handler = typeHandler;
-			loadItem.existingInstance = this.registry.lookupObject(loadItem.getBuildItemObjectId());
-			
-			return loadItem;
-		}
-
 		@Override
 		public final Object lookupObject(final long objectId)
 		{
@@ -535,7 +546,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			final long dbbAddress = PlatformInternals.getDirectBufferAddress(dbb);
 			
 			// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
-			final BinaryLoadItem skipItem = this.createLoadItem(dbbAddress + dbb.capacity());
+			final BinaryLoadItem skipItem = new BinaryLoadItem(dbbAddress + dbb.capacity());
 			skipItem.modifyLoadItem(dbbAddress + dbb.capacity(), 0, 0, objectId);
 			skipItem.existingInstance = instance;
 			
@@ -543,14 +554,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			skipItem.registerHelper(dbb, dbb);
 			
 			return skipItem;
-		}
-		
-		private BinaryLoadItem createLoadItem(final long entityContentAddress)
-		{
-			return this.switchByteOrder
-				? new BinaryLoadItemByteReversing(entityContentAddress)
-				: new BinaryLoadItem(entityContentAddress)
-			;
 		}
 		
 		private BinaryLoadItem createLoadItemDummy()

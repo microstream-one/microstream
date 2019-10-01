@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import one.microstream.memory.PlatformInternals;
+import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 
 
 public class ChunksWrapper extends Binary
@@ -65,11 +66,7 @@ public class ChunksWrapper extends Binary
 				
 		for(int i = 0; i < buffers.length; i++)
 		{
-			this.iterateBufferLoadItems(
-				PlatformInternals.getDirectBufferAddress(buffers[i]),
-				PlatformInternals.getDirectBufferAddress(buffers[i]) + buffers[i].position(),
-				reader
-			);
+			reader.readBinaryEntities(buffers[i]);
 		}
 	}
 	
@@ -78,26 +75,7 @@ public class ChunksWrapper extends Binary
 	{
 		logic.accept(this);
 	}
-		
-	private void iterateBufferLoadItems(
-		final long                   startAddress,
-		final long                   boundAddress,
-		final BinaryEntityDataReader reader
-	)
-	{
-		// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
-		for(long address = startAddress; address < boundAddress; address += this.read_long(address))
-		{
-//			XDebug.println(
-//				"Current entity to be read :@" + address + ": ["
-//					+ this.read_long(address) + "]["
-//					+ this.read_long(address + 8) + "]["
-//					+ this.read_long(address + 16) + "]"
-//			);
-			reader.readBinaryEntityData(address);
-		}
-	}
-	
+			
 	@Override
 	public final Binary channelChunk(final int channelIndex)
 	{
@@ -144,12 +122,6 @@ public class ChunksWrapper extends Binary
 	{
 		throw new UnsupportedOperationException();
 	}
-
-	@Override
-	public final long loadItemEntityAddress()
-	{
-		throw new UnsupportedOperationException();
-	}
 	
 	@Override
 	public final void modifyLoadItem(
@@ -164,6 +136,15 @@ public class ChunksWrapper extends Binary
 
 	@Override
 	public final void clear()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public long iterateReferences(
+		final BinaryReferenceTraverser[]  traversers,
+		final PersistenceObjectIdAcceptor acceptor
+	)
 	{
 		throw new UnsupportedOperationException();
 	}

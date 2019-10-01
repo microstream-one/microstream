@@ -69,9 +69,9 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final long entityContentLength = this.typeHandler().membersPersistedLengthMaximum();
 		
 		// kept and new header values
-		final long entityTotalLength   = Binary.entityTotalLength(entityContentLength);
-		final long entityTypeId   = this.typeHandler().typeId();
-		final long entityObjectId = rawData.getBuildItemObjectId();
+		final long entityTotalLength = Binary.entityTotalLength(entityContentLength);
+		final long entityTypeId      = this.typeHandler().typeId();
+		final long entityObjectId    = rawData.getBuildItemObjectId();
 		
 		// so funny how the morons crippled their memory handling API to int just because there is a toArray somewhere.
 		final ByteBuffer directByteBuffer = ByteBuffer.allocateDirect(
@@ -83,15 +83,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final long targetContentAddress = Binary.entityContentAddress(newEntityAddress);
 		
 		// note: DirectByteBuffer instantiation resets all bytes to 0, so no target value "Zeroer" is needed.
-		final BinaryValueSetter[] translators   = this.valueTranslators();
-		final int                 length        = translators.length     ;
-		final long[]              targetOffsets = this.targetOffsets()   ;
-				
-		long srcAddress = rawData.loadItemEntityContentAddress();
-		for(int i = 0; i < length; i++)
-		{
-			srcAddress = translators[i].setValueToMemory(srcAddress, null, targetContentAddress + targetOffsets[i], null);
-		}
+		rawData.copyMemory(targetContentAddress, this.valueTranslators(), this.targetOffsets());
 		
 		// replace the original rawData's content address with the new address, effectively rerouting to the new data
 		rawData.modifyLoadItem(targetContentAddress, entityTotalLength, entityTypeId, entityObjectId);

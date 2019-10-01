@@ -22,7 +22,7 @@ import one.microstream.time.XTime;
 public class MainTestStoreSakilaCustomersPerformance
 {
 	/**
-	 * Since the MicroStraem storing performance considerably depends on the disk speed, it is important to use
+	 * Since the MicroStream storing performance considerably depends on the disk speed, it is important to use
 	 * an SSD to get significant results.
 	 */
 	static final File DIRECTORY = new File("C:/" + MainTestStoreSakilaCustomersPerformance.class.getSimpleName());
