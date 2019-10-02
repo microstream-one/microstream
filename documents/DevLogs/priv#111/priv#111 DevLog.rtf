@@ -126,8 +126,20 @@ Da kommt dann auch wieder das BinaryField Konzept ins Spiel ...\par
 \par
 \par
 \par
- \par
+ 2019-10-02\par
 \par
+Binary zu interface umbauen.\par
+\par
+Puh... das wird ... viel Arbeit. Die Klasse ist 2000 Zeilen lang. Darin befinden sich viele statische, private und public Methoden. Jeweils unterteilt in welche mit absolutem Memory-Address, die m\'fcssen intern implementierungsspezifisch bleiben. Und welche, die "schon" oder von Haus aus Memory-Address-unabh\'e4ngig sind, die m\'fcssen ins Interface rein.\par
+Dazu muss ich erst mal Methode f\'fcr Methode durchk\'e4mmen, was wo dazugeh\'f6rt. Dann f\'fcr die eine Gruppe zu interface Methoden erstellen. Und dann Aufruferklassen entsprechend umbauen.\par
+\par
+Die updateFixedSize h\'e4tte noch MemoryOffsets in Instanzen rein, was f\'fcr eine Unabh\'e4ngigkeit von Unsafe nicht sein darf. Aber die m\'fcsst ich erst mal mitziehen und dann sp\'e4ter das Konzept \'e4ndern (ValueSetters, die intern den Offset halten - oder dann eben das Field direkt f\'fcr eine reflection Operation).\par
+\par
+Au\'dferdem stellt sich wieder mal die Frage, ob "Binary" wirklich ein unsauber typisierter Kombityp sein muss, weil die API Bestandteile wirklich nicht auf "BinaryStoring", "BinaryReading" und "? extends Binary" typisiert werden k\'f6nnen...\par
+\par
+... Mehrere Besprechungen, Support f\'fcr CK und FH sp\'e4ter ist der Tag irgendwie um. Kaum was am Issue gearbeitet ...\par
+\par
+Hm... Die \'c4nderungen commit ich mal nicht, sondern stash sie nur oder so.\par
 \par
 \par
 \par
