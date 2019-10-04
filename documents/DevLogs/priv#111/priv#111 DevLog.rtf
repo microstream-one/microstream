@@ -156,5 +156,15 @@ Sind immer noch 200 Compilerfehler.\par
 Es h\'e4ngt halt einfach noch so wahnsinnig viel von direkten Speicheradressen ab.\par
 Eigentlich m\'fcsste ich dann jetzt erst das alles in das interface hochziehen, auch wenn es da nicht hingeh\'f6rt und ich es sp\'e4ter wieder rausschmeissen muss, damit ich \'fcberhaupt erst mal checken kann, wie es performancem\'e4\'dfig ist, aus der abstrakten Klasse ein interface zu machen ...\par
 Und wenn das passt, dann m\'fcsste ich alle Methoden mit direkter Adresse umstellen auf entweder offset relativ zu internem address state oder DBB+Offset Parameter, z.B. im Fall von modifyLoadItem.\par
+\par
+\par
+Bevor ein Refactoring in diese Richtung gemacht werden kann, m\'fcssen erst mal alle Methoden umgebaut werden, die absolute Speicheradressen verwenden. Da gibt es sogar unabh\'e4ngig von diesem Issue hier schon ein TODO im Code: besser w\'e4re es, in einem ChunksBuffer (Ableitung von Binary zum Speichern von Daten) die contennt Adresse des aktuellen Entities intern zu halten und dann nur noch mit Offsets drauf zuzugreifen. Der Performance Aufwand daf\'fcr sollte nahe 0 sein, denn:\par
+- Aktuell muss die ermittelte contentAddress ja zur\'fcckgegeben und im Aufruferkontext in einer lokalen Variable gespeichert werden. Das ist auch nicht gratis und das w\'fcrde mit einem internen Feld wegfallen.\par
+- Auch jetzt muss auf diese contentAddress schon der offset draufaddiert werden, also keine Einsparung hier. Vielleicht ist das lesen der lokalen Variable etwas schneller als das lesen des Felds, aber mit CPU caches usw. bin ich mir da gar nicht mal so sicher. Muss getestet werden.\par
+- Algorithmen, die n Elemente hintereinander speichern (f\'fcr collections, arrays, usw.), k\'f6nnen in Binary intern gemacht werden bzw. sind sie inzwischen eh schon gr\'f6\'dftenteils wenn nicht alle. Sollte noch irgendwas fehlen, verschieb ich das einfach zu den anderen. Dort ist dann die contentAddress wieder eine lokale Variable in der Methode, also performancem\'e4\'dfig kein unterschied zu der externen Variante, nur API-m\'e4\'dfig sauberer und dann eben, endlich, auch abstrahierbar.\par
+\par
+Also bau ich jetzt zuerst das um und dann schau ich mir wieder den aktuell versuchten Schritt an.\par
+\par
+Issue updaten.\par
 }
  
