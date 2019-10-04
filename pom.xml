@@ -258,7 +258,7 @@
 					<configuration>
 						<mavenExecutorId>forked-path</mavenExecutorId>
 						<useReleaseProfile>false</useReleaseProfile>
-						<arguments>${arguments} -Psonatype-oss-release</arguments>
+						<arguments>-Psonatype-oss-release</arguments>
 						<releaseProfiles>release</releaseProfiles>
 						<goals>deploy</goals>
 					</configuration>
