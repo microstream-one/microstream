@@ -194,7 +194,7 @@
 										<built-by>${project.organization.name}</built-by>
 									</manifestEntries>
 								</archive>
-								<sourceHeaderFile>${maven.projectBasedir}/HEADER</sourceHeaderFile>
+								<sourceHeaderFile>${maven.multiModuleProjectDirectory}/HEADER</sourceHeaderFile>
 							</configuration>
 						</execution>
 					</executions>
@@ -213,7 +213,7 @@
 						<doctitle>MicroStream API</doctitle>
 						<windowtitle>MicroStream API</windowtitle>
 						<sourcepath>${project.build.directory}/sources</sourcepath>
-						<stylesheetfile>${maven.projectBasedir}/javadoc-stylesheet.css</stylesheetfile>
+						<stylesheetfile>${maven.multiModuleProjectDirectory}/javadoc-stylesheet.css</stylesheetfile>
 						<archive>
 							<manifestEntries>
 								<built-by>${project.organization.name}</built-by>
