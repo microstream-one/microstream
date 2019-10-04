@@ -22,7 +22,7 @@ public interface ConfigurationLoader
 	
 	public static String loadFromFile(final File file)
 	{
-		return loadFromFile(file, null);
+		return loadFromFile(file, Defaults.defaultCharset());
 	}
 	
 	public static String loadFromFile(final File file, final Charset charset)
@@ -39,7 +39,7 @@ public interface ConfigurationLoader
 	
 	public static String loadFromUrl(final URL url)
 	{
-		return loadFromUrl(url, null);
+		return loadFromUrl(url, Defaults.defaultCharset());
 	}
 	
 	public static String loadFromUrl(final URL url, final Charset charset)
@@ -56,12 +56,20 @@ public interface ConfigurationLoader
 	
 	public static ConfigurationLoader FromInputStream(final InputStream inputStream)
 	{
-		return FromInputStream(inputStream, null);
+		return FromInputStream(inputStream, Defaults.defaultCharset());
 	}
 	
 	public static ConfigurationLoader FromInputStream(final InputStream inputStream, final Charset charset)
 	{
 		return new InputStreamConfigurationLoader(inputStream, charset);
+	}
+	
+	public interface Defaults
+	{
+		public static Charset defaultCharset()
+		{
+			return StandardCharsets.UTF_8;
+		}
 	}
 	
 	public static class InputStreamConfigurationLoader implements ConfigurationLoader
@@ -74,7 +82,7 @@ public interface ConfigurationLoader
 			super();
 			
 			this.inputStream = notNull(inputStream);
-			this.charset     = charset != null ? charset : StandardCharsets.UTF_8;
+			this.charset     = notNull(charset);
 		}
 		
 		@Override
