@@ -98,6 +98,13 @@
 		</snapshotRepository>
 	</distributionManagement>
 
+	<scm>
+		<connection>scm:git:https://MicroStreamJenkins@bitbucket.org/microstreamone/microstream.git</connection>
+		<developerConnection>scm:git:https://MicroStreamJenkins@bitbucket.org/microstreamone/microstream.git</developerConnection>
+		<url>https://bitbucket.org/microstreamone/microstream.git</url>
+		<tag>HEAD</tag>
+	</scm>
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
