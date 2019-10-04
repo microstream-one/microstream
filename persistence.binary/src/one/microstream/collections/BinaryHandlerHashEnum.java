@@ -83,7 +83,7 @@ extends AbstractBinaryHandlerCustomCollection<HashEnum<?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeIterableAsList(
+		bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -93,8 +93,8 @@ extends AbstractBinaryHandlerCustomCollection<HashEnum<?>>
 		);
 
 		// store hash density as (sole) header value
-		bytes.store_float(
-			contentAddress + BINARY_OFFSET_HASH_DENSITY,
+		bytes.store_float_Offset(
+			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}

@@ -66,14 +66,14 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-		bytes.store_boolean(
-			contentAddress + BINARY_OFFSET_IS_PRESENT,
+		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
+		bytes.store_boolean_Offset(
+			BINARY_OFFSET_IS_PRESENT,
 			instance.isPresent()
 		);
 
-		bytes.store_double(
-			contentAddress + BINARY_OFFSET_VALUE,
+		bytes.store_double_Offset(
+			BINARY_OFFSET_VALUE,
 			instance.orElse(0.0)
 		);
 	}

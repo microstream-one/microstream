@@ -81,7 +81,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeIterableAsList(
+		bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -91,8 +91,8 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 		);
 
 		// store load factor as (sole) header value
-		bytes.store_float(
-			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
+		bytes.store_float_Offset(
+			BINARY_OFFSET_LOAD_FACTOR,
 			XMemoryJDK8.getLoadFactor(instance)
 		);
 	}

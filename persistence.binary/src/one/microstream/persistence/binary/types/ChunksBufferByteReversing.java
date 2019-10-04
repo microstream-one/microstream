@@ -89,39 +89,45 @@ public class ChunksBufferByteReversing extends ChunksBuffer
 	}
 
 	@Override
-	public final void store_short(final long address, final short value)
+	final void internalStore_short(final long address, final short value)
 	{
 		XMemory.set_short(address, Short.reverseBytes(value));
 	}
-
+	
 	@Override
-	public final void store_char(final long address, final char value)
+	final void internalStore_char(final long address, final char value)
 	{
 		XMemory.set_char(address, Character.reverseBytes(value));
 	}
-
+	
 	@Override
-	public final void store_int(final long address, final int value)
+	final void internalStore_int(final long address, final int value)
 	{
 		XMemory.set_int(address, Integer.reverseBytes(value));
 	}
-
+	
 	@Override
-	public final void store_float(final long address, final float value)
+	final void internalStore_float(final long address, final float value)
 	{
 		XMemory.set_int(address, Integer.reverseBytes(Float.floatToRawIntBits(value)));
 	}
-
+	
 	@Override
-	public final void store_long(final long address, final long value)
+	final void internalStore_long(final long address, final long value)
 	{
 		XMemory.set_long(address, Long.reverseBytes(value));
 	}
-
+	
 	@Override
-	public final void store_double(final long address, final double value)
+	final void internalStore_double(final long address, final double value)
 	{
 		XMemory.set_long(address, Long.reverseBytes(Double.doubleToRawLongBits(value)));
+	}
+
+	@Override
+	public final void store_double_Direct(final double value)
+	{
+		XMemory.set_long(this.address, Long.reverseBytes(Double.doubleToRawLongBits(value)));
 	}
 
 	@Override
@@ -193,7 +199,7 @@ public class ChunksBufferByteReversing extends ChunksBuffer
 	{
 		for(int i = 0; i < values.length; i++)
 		{
-			this.store_short(address + i * Short.BYTES, values[i]);
+			this.internalStore_short(address + i * Short.BYTES, values[i]);
 		}
 	}
 	
@@ -202,7 +208,7 @@ public class ChunksBufferByteReversing extends ChunksBuffer
 	{
 		for(int i = 0; i < values.length; i++)
 		{
-			this.store_char(address + i * Character.BYTES, values[i]);
+			this.internalStore_char(address + i * Character.BYTES, values[i]);
 		}
 	}
 	
@@ -212,7 +218,7 @@ public class ChunksBufferByteReversing extends ChunksBuffer
 		final int bound = offset + length;
 		for(int i = offset; i < bound; i++)
 		{
-			this.store_char(address + (i - offset) * Character.BYTES, values[i]);
+			this.internalStore_char(address + (i - offset) * Character.BYTES, values[i]);
 		}
 	}
 	
@@ -221,7 +227,7 @@ public class ChunksBufferByteReversing extends ChunksBuffer
 	{
 		for(int i = 0; i < values.length; i++)
 		{
-			this.store_int(address + i * Integer.BYTES, values[i]);
+			this.internalStore_int(address + i * Integer.BYTES, values[i]);
 		}
 	}
 	
@@ -230,7 +236,7 @@ public class ChunksBufferByteReversing extends ChunksBuffer
 	{
 		for(int i = 0; i < values.length; i++)
 		{
-			this.store_float(address + i * Float.BYTES, values[i]);
+			this.internalStore_float(address + i * Float.BYTES, values[i]);
 		}
 	}
 	
@@ -239,7 +245,7 @@ public class ChunksBufferByteReversing extends ChunksBuffer
 	{
 		for(int i = 0; i < values.length; i++)
 		{
-			this.store_long(address + i * Long.BYTES, values[i]);
+			this.internalStore_long(address + i * Long.BYTES, values[i]);
 		}
 	}
 	
@@ -248,7 +254,7 @@ public class ChunksBufferByteReversing extends ChunksBuffer
 	{
 		for(int i = 0; i < values.length; i++)
 		{
-			this.store_double(address + i * Double.BYTES, values[i]);
+			this.internalStore_double(address + i * Double.BYTES, values[i]);
 		}
 	}
 	

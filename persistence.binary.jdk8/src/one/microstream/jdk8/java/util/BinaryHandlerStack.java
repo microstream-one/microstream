@@ -74,7 +74,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeSizedArray(
+		bytes.storeSizedArray(
 			this.typeId()                ,
 			objectId                     ,
 			BINARY_OFFSET_SIZED_ARRAY    ,
@@ -82,8 +82,8 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 			instance.size()              ,
 			handler
 		);
-		bytes.store_int(
-		    contentAddress + BINARY_OFFSET_CAPACITY_INCREMENT,
+		bytes.store_int_Offset(
+		    BINARY_OFFSET_CAPACITY_INCREMENT,
 		    XMemoryJDK8.getCapacityIncrement(instance)
 		);
 	}

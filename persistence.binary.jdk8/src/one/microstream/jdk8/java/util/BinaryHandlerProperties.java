@@ -77,7 +77,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeMapEntrySet(
+		bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -85,8 +85,8 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 			handler
 		);
 
-		bytes.store_long(
-			contentAddress + BINARY_OFFSET_DEFAULTS,
+		bytes.store_long_Offset(
+			BINARY_OFFSET_DEFAULTS,
 			handler.apply(XMemoryJDK8.accessDefaults(instance))
 		);
 	}

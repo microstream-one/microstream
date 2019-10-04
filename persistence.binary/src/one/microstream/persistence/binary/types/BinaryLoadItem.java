@@ -100,7 +100,7 @@ public class BinaryLoadItem extends Binary
 			
 				
 	@Override
-	public final long storeEntityHeader(
+	public final void storeEntityHeader(
 		final long entityContentLength,
 		final long entityTypeId       ,
 		final long entityObjectId

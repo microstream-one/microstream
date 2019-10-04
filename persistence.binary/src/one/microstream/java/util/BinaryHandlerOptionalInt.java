@@ -66,9 +66,9 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-		bytes.store_boolean(
-			contentAddress + BINARY_OFFSET_IS_PRESENT,
+		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
+		bytes.store_boolean_Offset(
+			BINARY_OFFSET_IS_PRESENT,
 			instance.isPresent()
 		);
 		
@@ -85,8 +85,8 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 		 * "Finish the implementation now, OR ELSE ...!"
 		 * Interns, interns everywhere.
 		 */
-		bytes.store_int(
-			contentAddress + BINARY_OFFSET_VALUE,
+		bytes.store_int_Offset(
+			BINARY_OFFSET_VALUE,
 			instance.orElse(0)
 		);
 	}

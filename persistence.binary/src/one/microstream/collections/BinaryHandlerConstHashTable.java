@@ -99,7 +99,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeKeyValuesAsEntries(
+		bytes.storeKeyValuesAsEntries(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -107,16 +107,16 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 			instance.size()       ,
 			handler
 		);
-		bytes.store_long(
-			contentAddress + BINARY_OFFSET_KEYS,
+		bytes.store_long_Offset(
+			BINARY_OFFSET_KEYS,
 			handler.apply(instance.keys)
 		);
-		bytes.store_long(
-			contentAddress + BINARY_OFFSET_VALUES,
+		bytes.store_long_Offset(
+			BINARY_OFFSET_VALUES,
 			handler.apply(instance.values)
 		);
-		bytes.store_float(
-			contentAddress + BINARY_OFFSET_HASH_DENSITY,
+		bytes.store_float_Offset(
+			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}
