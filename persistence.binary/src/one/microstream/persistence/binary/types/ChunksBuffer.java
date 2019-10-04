@@ -47,12 +47,13 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 	private final ChunksBuffer[]                channelBuffers    ;
 	private final BufferSizeProviderIncremental bufferSizeProvider;
 	
-	private ByteBuffer[] buffers            ;
-	private int          currentBuffersIndex;
-	private ByteBuffer   currentBuffer      ;
-	private long         currentAddress     ;
-	private long         currentBound       ;
-	private long         totalLength        ;
+	private ByteBuffer[] buffers                  ;
+	private int          currentBuffersIndex      ;
+	private ByteBuffer   currentBuffer            ;
+	private long         currentBufferStartAddress;
+	private long         currentAddress           ;
+	private long         currentBound             ;
+	private long         totalLength              ;
 
 
 
@@ -93,15 +94,14 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 
 	private void setCurrent(final ByteBuffer byteBuffer)
 	{
-		this.currentBound = (this.currentAddress = PlatformInternals.getDirectBufferAddress(this.currentBuffer = byteBuffer))
-			+ byteBuffer.capacity()
-		;
+		this.currentBufferStartAddress = PlatformInternals.getDirectBufferAddress(this.currentBuffer = byteBuffer);
+		this.currentBound = (this.currentAddress = this.currentBufferStartAddress) + byteBuffer.capacity();
 		byteBuffer.clear();
 	}
 	
 	private void updateCurrentBufferPosition()
 	{
-		final long contentLength = this.currentAddress - PlatformInternals.getDirectBufferAddress(this.currentBuffer);
+		final long contentLength = this.currentAddress - this.currentBufferStartAddress;
 		
 		this.currentBuffer.position(X.checkArrayRange(contentLength)).flip();
 		
@@ -110,7 +110,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 
 	private boolean isEmptyCurrentBuffer()
 	{
-		return this.currentAddress == PlatformInternals.getDirectBufferAddress(this.currentBuffer);
+		return this.currentAddress == this.currentBufferStartAddress;
 	}
 
 	private void enlargeBufferCapacity(final int bufferCapacity)
@@ -194,7 +194,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 	}
 
 	@Override
-	public final long storeEntityHeader(
+	public final void storeEntityHeader(
 		final long entityContentLength,
 		final long entityTypeId       ,
 		final long entityObjectId
@@ -214,12 +214,9 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		this.ensureFreeStoreCapacity(entityTotalLength);
 		
 		this.internalStoreEntityHeader(this.currentAddress, entityTotalLength, entityTypeId, entityObjectId);
-		
-		// (02.02.2019 TM)XXX: keep the current entity content address internally instead of externally
-		
+				
 		// currentAddress is advanced to next entity, but this entity's content address has to be returned
-		return (this.currentAddress += entityTotalLength) - entityContentLength;
-	
+		this.address = (this.currentAddress += entityTotalLength) - entityContentLength;
 	}
 
 	@Override
@@ -249,9 +246,11 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 			return this; // already completed
 		}
 		this.updateCurrentBufferPosition();
-		this.currentBuffer  = null;
-		this.currentAddress = 0L;
-		this.currentBound   = 0L;
+		this.currentBuffer             = null;
+		this.currentBufferStartAddress = 0L;
+		this.currentAddress            = 0L;
+		this.address     = 0L;
+		this.currentBound              = 0L;
 		return this;
 	}
 	

@@ -74,16 +74,16 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeSizedArray(
-			this.typeId()                ,
-			objectId                     ,
-			BINARY_OFFSET_SIZED_ARRAY    ,
+		bytes.storeSizedArray(
+			this.typeId()                    ,
+			objectId                         ,
+			BINARY_OFFSET_SIZED_ARRAY        ,
 			XMemoryJDK8.accessArray(instance),
-			instance.size()              ,
+			instance.size()                  ,
 			handler
 		);
-		bytes.store_int(
-		    contentAddress + BINARY_OFFSET_CAPACITY_INCREMENT,
+		bytes.store_int_Offset(
+		    BINARY_OFFSET_CAPACITY_INCREMENT,
 		    XMemoryJDK8.getCapacityIncrement(instance)
 		);
 	}

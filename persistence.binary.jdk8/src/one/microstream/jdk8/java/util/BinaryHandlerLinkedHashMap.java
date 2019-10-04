@@ -89,19 +89,19 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeMapEntrySet(
+		bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
 			instance.entrySet()   ,
 			handler
 		);
-		bytes.store_float(
-			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
+		bytes.store_float_Offset(
+			BINARY_OFFSET_LOAD_FACTOR,
 			XMemoryJDK8.getLoadFactor(instance)
 		);
-		bytes.store_boolean(
-			contentAddress + BINARY_OFFSET_ACCESS_ORDER,
+		bytes.store_boolean_Offset(
+			BINARY_OFFSET_ACCESS_ORDER,
 			XMemoryJDK8.getAccessOrder(instance)
 		);
 	}

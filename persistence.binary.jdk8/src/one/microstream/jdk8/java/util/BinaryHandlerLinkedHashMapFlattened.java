@@ -97,7 +97,7 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeIterableAsList(
+		bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -106,12 +106,12 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 			instance.size() * 2   ,
 			handler
 		);
-		bytes.store_float(
-			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
+		bytes.store_float_Offset(
+			BINARY_OFFSET_LOAD_FACTOR,
 			XMemoryJDK8.getLoadFactor(instance)
 		);
-		bytes.store_boolean(
-			contentAddress + BINARY_OFFSET_ACCESS_ORDER,
+		bytes.store_boolean_Offset(
+			BINARY_OFFSET_ACCESS_ORDER,
 			XMemoryJDK8.getAccessOrder(instance)
 		);
 	}

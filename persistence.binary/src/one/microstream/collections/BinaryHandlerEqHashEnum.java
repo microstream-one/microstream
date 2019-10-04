@@ -68,7 +68,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeIterableAsList(
+		bytes.storeIterableAsList(
 			typeId                ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -78,14 +78,14 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		);
 
 		// persist hashEqualator and set the resulting oid at its binary place (first header value)
-		bytes.store_long(
-			contentAddress + BINARY_OFFSET_EQUALATOR,
+		bytes.store_long_Offset(
+			BINARY_OFFSET_EQUALATOR,
 			persister.apply(instance.hashEqualator)
 		);
 
 		// store hash density as second header value
-		bytes.store_float(
-			contentAddress + BINARY_OFFSET_HASH_DENSITY,
+		bytes.store_float_Offset(
+			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}

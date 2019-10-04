@@ -87,7 +87,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference
-		final long contentAddress = bytes.storeSizedArray(
+		bytes.storeSizedArray(
 			this.typeId()            ,
 			objectId                 ,
 			BINARY_OFFSET_SIZED_ARRAY,
@@ -97,8 +97,8 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 		);
 
 		// persist equalator and set the resulting oid at its binary place
-		bytes.store_long(
-			contentAddress + BINARY_OFFSET_EQUALATOR,
+		bytes.store_long_Offset(
+			BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.equalator)
 		);
 	}

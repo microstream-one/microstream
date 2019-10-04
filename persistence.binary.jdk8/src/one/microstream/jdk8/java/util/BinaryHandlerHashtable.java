@@ -82,7 +82,7 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeMapEntrySet(
+		bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -91,8 +91,8 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 		);
 
 		// store load factor as (sole) header value
-		bytes.store_float(
-			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
+		bytes.store_float_Offset(
+			BINARY_OFFSET_LOAD_FACTOR,
 			XMemoryJDK8.getLoadFactor(instance)
 		);
 	}

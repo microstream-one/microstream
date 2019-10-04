@@ -87,7 +87,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeMapEntrySet(
+		bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -95,8 +95,8 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 			handler
 		);
 		
-		bytes.store_long(
-			contentAddress + BINARY_OFFSET_COMPARATOR,
+		bytes.store_long_Offset(
+			BINARY_OFFSET_COMPARATOR,
 			handler.apply(instance.comparator())
 		);
 	}

@@ -111,9 +111,9 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-		bytes.store_long(contentAddress + BINARY_OFFSET_NAME, 	 handler.apply(instance.name()));
-		bytes.store_long(contentAddress + BINARY_OFFSET_ORDINAL, instance.ordinal()            );
+		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
+		bytes.store_long_Offset(BINARY_OFFSET_NAME   , handler.apply(instance.name()));
+		bytes.store_long_Offset(BINARY_OFFSET_ORDINAL, instance.ordinal()            );
 	}
 	
 }

@@ -83,10 +83,8 @@ public final class BinaryHandlerLazy extends AbstractBinaryHandlerCustom<Lazy<?>
 		instance.link(referenceOid, handler.getObjectRetriever());
 
 		// lazy reference instance must be stored in any case
-		bytes.store_long(
-			bytes.storeEntityHeader(Binary.referenceBinaryLength(1), this.typeId(), objectId),
-			referenceOid
-		);
+		bytes.storeEntityHeader(Binary.referenceBinaryLength(1), this.typeId(), objectId);
+		bytes.store_long_Direct(referenceOid);
 	}
 
 	@Override

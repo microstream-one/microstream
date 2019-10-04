@@ -86,7 +86,7 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeMapEntrySet(
+		bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -94,8 +94,8 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 			handler
 		);
 		
-		bytes.store_long(
-			contentAddress + BINARY_OFFSET_COMPARATOR,
+		bytes.store_long_Offset(
+			BINARY_OFFSET_COMPARATOR,
 			handler.apply(instance.comparator())
 		);
 	}
