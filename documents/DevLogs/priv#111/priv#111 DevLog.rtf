@@ -142,6 +142,19 @@ Au\'dferdem stellt sich wieder mal die Frage, ob "Binary" wirklich ein unsauber 
 Hm... Die \'c4nderungen commit ich mal nicht, sondern stash sie nur oder so.\par
 \par
 \par
+2019-10-03\par
 \par
+Feiertag\par
+\par
+\par
+2019-10-04\par
+\par
+Binary Umwandlung zu interface weitermachen.\par
+\par
+Public Methods in interface hochziehen.\par
+Sind immer noch 200 Compilerfehler.\par
+Es h\'e4ngt halt einfach noch so wahnsinnig viel von direkten Speicheradressen ab.\par
+Eigentlich m\'fcsste ich dann jetzt erst das alles in das interface hochziehen, auch wenn es da nicht hingeh\'f6rt und ich es sp\'e4ter wieder rausschmeissen muss, damit ich \'fcberhaupt erst mal checken kann, wie es performancem\'e4\'dfig ist, aus der abstrakten Klasse ein interface zu machen ...\par
+Und wenn das passt, dann m\'fcsste ich alle Methoden mit direkter Adresse umstellen auf entweder offset relativ zu internem address state oder DBB+Offset Parameter, z.B. im Fall von modifyLoadItem.\par
 }
  
