@@ -124,8 +124,8 @@ public interface Configuration
 	 */
 	public default Configuration setBaseDirectoryInUserHome(final String baseDirectoryInUserHome)
 	{
-		this.setBaseDirectory(
-			new File(new File(System.getProperty("user.home")), baseDirectoryInUserHome).getAbsolutePath());
+		final File userHomeDir = new File(System.getProperty("user.home"));
+		this.setBaseDirectory(new File(userHomeDir, baseDirectoryInUserHome).getAbsolutePath());
 		return this;
 	}
 	
@@ -158,6 +158,19 @@ public interface Configuration
 	 * The backup directory.
 	 */
 	public Configuration setBackupDirectory(final String backupDirectory);
+	
+	/**
+	 * The backup directory.
+	 *
+	 * @param backupDirectoryInUserHome
+	 *            relative location in the user home directory
+	 */
+	public default Configuration setBackupDirectoryInUserHome(final String backupDirectoryInUserHome)
+	{
+		final File userHomeDir = new File(System.getProperty("user.home"));
+		this.setBackupDirectory(new File(userHomeDir, backupDirectoryInUserHome).getAbsolutePath());
+		return this;
+	}
 	
 	/**
 	 * The backup directory.
