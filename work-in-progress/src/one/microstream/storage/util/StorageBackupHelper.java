@@ -3,7 +3,6 @@ package one.microstream.storage.util;
 import java.io.File;
 
 import one.microstream.chars.VarString;
-import one.microstream.persistence.internal.AbstractIdProviderByFile;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeDictionaryAssembler;
@@ -17,52 +16,79 @@ import one.microstream.storage.types.StorageIoHandler;
 
 public final class StorageBackupHelper
 {
-	// (30.06.2016 TM)TODO: https://www.xdevissues.com/browse/OGS-21
+	/* (07.10.2019 TM)NOTE: priv#150
+	 * On a technical level, this type of backup creation has actually been completely replaced
+	 * by the continuous backup functionality (see StorageConfiguration#backupSetup).
+	 * 
+	 * However, it turned out that on a psychological level, customers still want a "full backup" functionality
+	 * because they do not fully trust a continous backup. The absence of problems plays no role in this,
+	 * they simply want a "backup everything now" command.
+	 * So instead of copying only new files as they get created and filled, there's still need for a variant
+	 * that copies ALL files, no matter how inefficient, redundant or unnecessary that is.
+	 */
 
 	public static void backup(
-		final EmbeddedStorageManager       storageManager   ,
-		final EmbeddedStorageFoundation<?> storageFoundation,
-		final File                         targetDirectory
+		final EmbeddedStorageManager       storageManager        ,
+		final EmbeddedStorageFoundation<?> storageFoundation     ,
+		final File                         targetDirectory       ,
+		final String                       typeDictionaryFileName
 	)
 	{
-		backupData(storageManager, targetDirectory);
-		backupMetadata(storageFoundation.getConnectionFoundation(), targetDirectory);
+		backup(storageManager, storageFoundation.getConnectionFoundation(), targetDirectory, typeDictionaryFileName);
+	}
+	
+	public static void backup(
+		final EmbeddedStorageManager                 storageManager        ,
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation  ,
+		final File                                   targetDirectory       ,
+		final String                                 typeDictionaryFileName
+	)
+	{
+		// (07.10.2019 TM)NOTE: GC deactivated until further notice, so this flag has no effect.
+		backupData(storageManager, targetDirectory, true);
+		backupMetadata(connectionFoundation, targetDirectory, typeDictionaryFileName);
 	}
 
-	static void backupData(final EmbeddedStorageManager storageManager, final File targetDirectory)
+	static void backupData(
+		final EmbeddedStorageManager storageManager          ,
+		final File                   targetDirectory         ,
+		final boolean                runFullGarbageCollection
+	)
 	{
-		// export (= copy) all channels' data to the target directory (= "backup")
+		// export (= copy) all channels' data files to the target directory (= "create backup")
 		storageManager.exportChannels(
 			new StorageIoHandler.Default(
 				Storage.FileProvider(targetDirectory),
 				new StorageFileWriter.Default()
 			),
-			true
+			runFullGarbageCollection
 		);
 	}
 
 	static void backupMetadata(
-		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
-		final File                                   targetDirectory
+		final EmbeddedStorageConnectionFoundation<?> connectionFoundation  ,
+		final File                                   targetDirectory       ,
+		final String                                 typeDictionaryFileName
 	)
 	{
-		// Der erste Teil nervt mich noch. Darum: https://www.xdevissues.com/browse/OGS-21
+		// this initial part ist still a bit annoying. Could be improved.
 		final PersistenceTypeDictionaryAssembler  dictionaryAssembler = connectionFoundation.getTypeDictionaryAssembler();
 		final PersistenceTypeDictionary           typeDictionary      = connectionFoundation.getTypeDictionaryManager().provideTypeDictionary();
 
-		final long   nextObjectId   = connectionFoundation.getObjectIdProvider().currentObjectId() + 1;
-		final long   nextTypeId     = typeDictionary.determineHighestTypeId() + 1;
+		// (07.10.2019 TM)NOTE: the ID-files have long become obsolete since the values are now determined dynamically
+//		final long   nextObjectId   = connectionFoundation.getObjectIdProvider().currentObjectId() + 1;
+//		final long   nextTypeId     = typeDictionary.determineHighestTypeId() + 1;
 		final String typeDictString = dictionaryAssembler.assemble(VarString.New(), typeDictionary).toString();
 
 		// arbitrary file names, preferably the same that were used for creating the EmbeddedStorageConnectionFoundation instance.
-		final File fileOid = new File(targetDirectory, "MyObjectId.oid");
-		final File fileTid = new File(targetDirectory, "MyTypeId.oid");
-		final File fileTDc = new File(targetDirectory, "MyPersistenceTypeDictionary.ptd");
+//		final File fileOid = new File(targetDirectory, "MyObjectId.oid");
+//		final File fileTid = new File(targetDirectory, "MyTypeId.oid");
+		final File fileTDc = new File(targetDirectory, typeDictionaryFileName);
 
 		// write current metadata's state to the specified files (= "metadata backup")
 		PersistenceTypeDictionaryFileHandler.writeTypeDictionary(fileTDc, typeDictString);
-		AbstractIdProviderByFile            .writeId            (fileTid, nextTypeId    );
-		AbstractIdProviderByFile            .writeId            (fileOid, nextObjectId  );
+//		AbstractIdProviderByFile            .writeId            (fileTid, nextTypeId    );
+//		AbstractIdProviderByFile            .writeId            (fileOid, nextObjectId  );
 	}
 
 	
