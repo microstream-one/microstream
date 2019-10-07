@@ -99,8 +99,8 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:https://MicroStreamJenkins@bitbucket.org/microstreamone/microstream.git</connection>
-		<developerConnection>scm:git:https://MicroStreamJenkins@bitbucket.org/microstreamone/microstream.git</developerConnection>
+		<connection>scm:git:ssh://git@bitbucket.org/jonas_microstream_one/microstream-test-only.git</connection>
+		<developerConnection>scm:git:ssh://git@bitbucket.org/jonas_microstream_one/microstream-test-only.git</developerConnection>
 		<url>https://bitbucket.org/microstreamone/microstream.git</url>
 		<tag>HEAD</tag>
 	</scm>
