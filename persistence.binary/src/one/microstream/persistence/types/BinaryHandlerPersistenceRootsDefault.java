@@ -122,7 +122,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	private static void fillObjectIds(final long[] oids, final Binary bytes)
 	{
 		final long offsetOidData = bytes.binaryListElementsAddress(OFFSET_OID_LIST);
-		bytes.read_longs(offsetOidData, oids);
+		bytes.internalRead_longs(offsetOidData, oids);
 	}
 
 	private static void fillIdentifiers(final String[] identifiers, final Binary bytes)

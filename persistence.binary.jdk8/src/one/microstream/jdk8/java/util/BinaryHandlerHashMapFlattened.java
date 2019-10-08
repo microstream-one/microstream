@@ -96,12 +96,12 @@ public final class BinaryHandlerHashMapFlattened extends AbstractBinaryHandlerCu
 			BINARY_OFFSET_ELEMENTS,
 			() ->
 				JavaUtilMapEntrySetFlattener.New(instance),
-			instance.size() * 2   ,
+			instance.size() * 2,
 			handler
 		);
 
 		// store load factor as (sole) header value
-		bytes.store_float_Offset(
+		bytes.store_float(
 			BINARY_OFFSET_LOAD_FACTOR,
 			XMemoryJDK8.getLoadFactor(instance)
 		);

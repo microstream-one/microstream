@@ -96,11 +96,11 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 			instance.entrySet()   ,
 			handler
 		);
-		bytes.store_float_Offset(
+		bytes.store_float(
 			BINARY_OFFSET_LOAD_FACTOR,
 			XMemoryJDK8.getLoadFactor(instance)
 		);
-		bytes.store_boolean_Offset(
+		bytes.store_boolean(
 			BINARY_OFFSET_ACCESS_ORDER,
 			XMemoryJDK8.getAccessOrder(instance)
 		);

@@ -112,8 +112,9 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 	)
 	{
 		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-		bytes.store_long_Offset(BINARY_OFFSET_NAME   , handler.apply(instance.name()));
-		bytes.store_long_Offset(BINARY_OFFSET_ORDINAL, instance.ordinal()            );
+		
+		bytes.store_long(BINARY_OFFSET_NAME   , handler.apply(instance.name()));
+		bytes.store_long(BINARY_OFFSET_ORDINAL, instance.ordinal()            );
 	}
 	
 }

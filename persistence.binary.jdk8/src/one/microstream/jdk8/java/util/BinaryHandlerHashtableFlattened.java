@@ -101,7 +101,7 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 		);
 
 		// store load factor as (sole) header value
-		bytes.store_float_Offset(
+		bytes.store_float(
 			BINARY_OFFSET_LOAD_FACTOR,
 			XMemoryJDK8.getLoadFactor(instance)
 		);

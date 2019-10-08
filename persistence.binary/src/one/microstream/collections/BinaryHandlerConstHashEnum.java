@@ -92,7 +92,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 		);
 
 		// store hash density as (sole) header value
-		bytes.store_float_Offset(
+		bytes.store_float(
 			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);

@@ -70,7 +70,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 		bytes.storeEntityHeader(LENGTH_TIMESTAMP, this.typeId(), objectId);
 		
 		// the data content of a date is simple the timestamp long, nothing else
-		bytes.store_long_Direct(instance.getTime());
+		bytes.store_long(instance.getTime());
 	}
 
 	@Override

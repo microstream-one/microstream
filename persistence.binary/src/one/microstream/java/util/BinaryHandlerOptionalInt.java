@@ -67,7 +67,7 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 	)
 	{
 		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-		bytes.store_boolean_Offset(
+		bytes.store_boolean(
 			BINARY_OFFSET_IS_PRESENT,
 			instance.isPresent()
 		);
@@ -85,7 +85,7 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 		 * "Finish the implementation now, OR ELSE ...!"
 		 * Interns, interns everywhere.
 		 */
-		bytes.store_int_Offset(
+		bytes.store_int(
 			BINARY_OFFSET_VALUE,
 			instance.orElse(0)
 		);

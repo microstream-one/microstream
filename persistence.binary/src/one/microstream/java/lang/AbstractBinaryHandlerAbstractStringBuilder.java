@@ -57,8 +57,8 @@ extends AbstractBinaryHandlerCustom<B>
 		);
 		
 		bytes.storeEntityHeader(contentLength, this.typeId(), objectId);
-		bytes.store_long_Offset(OFFSET_CAPACITY, capacity);
-		bytes.storeCharsAsList_Offset(OFFSET_CHARS, data, 0, data.length);
+		bytes.store_long(OFFSET_CAPACITY, capacity);
+		bytes.storeCharsAsList(OFFSET_CHARS, data, 0, data.length);
 	}
 	
 	protected final int readCapacity(final Binary bytes)

@@ -97,7 +97,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 		);
 
 		// persist equalator and set the resulting oid at its binary place
-		bytes.store_long_Offset(
+		bytes.store_long(
 			BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.equalator)
 		);
