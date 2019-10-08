@@ -82,7 +82,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 			instance.size()              ,
 			handler
 		);
-		bytes.store_int_Offset(
+		bytes.store_int(
 		    BINARY_OFFSET_CAPACITY_INCREMENT,
 		    XMemoryJDK8.getCapacityIncrement(instance)
 		);

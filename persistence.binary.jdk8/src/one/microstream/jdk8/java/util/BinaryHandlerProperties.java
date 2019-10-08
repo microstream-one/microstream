@@ -85,7 +85,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 			handler
 		);
 
-		bytes.store_long_Offset(
+		bytes.store_long(
 			BINARY_OFFSET_DEFAULTS,
 			handler.apply(XMemoryJDK8.accessDefaults(instance))
 		);

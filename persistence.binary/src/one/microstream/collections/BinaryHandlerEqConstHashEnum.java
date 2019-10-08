@@ -106,13 +106,13 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 		);
 
 		// persist hashEqualator and set the resulting oid at its binary place (first header value)
-		bytes.store_long_Offset(
+		bytes.store_long(
 			BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.hashEqualator)
 		);
 
 		// store hash density as second header value
-		bytes.store_float_Offset(
+		bytes.store_float(
 			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);

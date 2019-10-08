@@ -166,5 +166,47 @@ Bevor ein Refactoring in diese Richtung gemacht werden kann, m\'fcssen erst mal 
 Also bau ich jetzt zuerst das um und dann schau ich mir wieder den aktuell versuchten Schritt an.\par
 \par
 Issue updaten.\par
+\par
+\par
+\par
+2019-10-07\par
+\par
+Schnell einen Test zum Swappen von DirectByteBuffer Inhalt machen f\'fcr eine Idee/Frage vom Wochenende.\par
+Schnell fertig. Laufen lassen. JVM Crash.\par
+Warum des?\par
+Untersuchen ...\par
+Ich kann keinen Fehler finden.\par
+Weitere Tests daf\'fcr bauen.\par
+Ergebnis:\par
+Mein Code ist korrekt. Nur ab einer gewissen Gr\'f6\'dfe, evtl. irgendwie kurz vor der out of heap exception (die da eigentlich gekommen w\'e4re), crasht eine Methode im StringBuilder (!!! Nicht in meinem Code!) die JVM.\par
+Liegt wahrscheinlich an dem @HotSpotIntrinsic Zeug.\par
+Mit umgangenem Crash den eigentlich test machen. Gro\'dfe DBB Datenmengen brauchen eine extra JVM -XX:MaxDirectMemorySize Angabe. Aha, hab ich auch noch nicht gewusst. Sehr gute neue Erkenntnis.\par
+\par
+Jetzt API refactoring weitermachen ...\par
+\par
+Achja, die storeStringsAsList Methode.\par
+Die so zu refactoren, wie ich mir das zuerst gedacht hatte, wird schwierig ...\par
+Genau: Weil da n variable-length Listen gespeichert werden und jede gibt den variablen end-offset wert zur\'fcck.\par
+Einfachste L\'f6sung: Ich lass die auf absoluter Adresse, aber mach sie intern.\par
+Bzw. anders rum: die beiden aufgerufenen methoden bekommen interne, absolut arbeitende Varianten und die \'e4u\'dfere, public Methode wird relativ mit this.address + offset Aufruf der anderen.\par
+\par
+\par
+\par
+2019-10-08\par
+\par
+Halber Tag Besprechungen, u.A. Clustering Design, aber sehr produktiv.\par
+\par
+Sonderfallmethoden fertig bauen.\par
+Alle "_Direct" und "_Offset" Marker wegrefactoren.\par
+Alle internen methoden sauber auf "internal~" umbenennen.\par
+\par
+Jetzt m\'fcssen dann noch die "static methods using absolut an memory address that should actually not be here" Methoden aufger\'e4umt werden.\par
+Mal versuchen mit der ersten ...\par
+\par
+Hm. Das sieht jetzt erst mal unm\'f6glich aus, weil die BinaryReferenceTraversers n\'e4mlich auch f\'fcr gecachte Entitydaten direkt im Speicher (allocateMemory) verwendet werden.\par
+Wieder l\'f6schen.\par
+Aber ich muss mal schauen. Evtl. kann ich die Methode anderweitig verstecken oder einfach in die Call site verschieben, dann ist sie im binary weg.\par
+Wobei das eigentliche Problem ja ist: wie kriegt man den direkten Speicherzugriff auf direkt gecachte Entities weg?\par
+Oder muss da jetzt doch die Trickserei mit eigener Logik hinter allocateMemory rein? F\'fcr so "blank" allokierten Speicher ist das wahrscheinlich der einzig gangbare weg ...\par
 }
  

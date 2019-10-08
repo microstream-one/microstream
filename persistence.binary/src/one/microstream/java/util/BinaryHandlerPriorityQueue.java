@@ -95,7 +95,7 @@ extends AbstractBinaryHandlerCustomIterable<PriorityQueue<?>>
 			handler
 		);
 		
-		bytes.store_long_Offset(
+		bytes.store_long(
 			BINARY_OFFSET_COMPARATOR,
 			handler.apply(instance.comparator())
 		);

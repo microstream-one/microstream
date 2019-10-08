@@ -95,7 +95,7 @@ public final class BinaryHandlerConcurrentSkipListSet extends AbstractBinaryHand
 			handler
 		);
 		
-		bytes.store_long_Offset(
+		bytes.store_long(
 			BINARY_OFFSET_COMPARATOR,
 			handler.apply(instance.comparator())
 		);

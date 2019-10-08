@@ -67,12 +67,12 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 	)
 	{
 		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-		bytes.store_boolean_Offset(
+		bytes.store_boolean(
 			BINARY_OFFSET_IS_PRESENT,
 			instance.isPresent()
 		);
 
-		bytes.store_long_Offset(
+		bytes.store_long(
 			BINARY_OFFSET_VALUE,
 			instance.orElse(0L)
 		);

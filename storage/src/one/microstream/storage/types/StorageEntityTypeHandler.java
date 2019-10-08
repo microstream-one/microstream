@@ -61,9 +61,10 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		)
 		{
 			super();
-			final BinaryReferenceTraverser[] referenceTraversers =
-				BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefinition.instanceMembers(), switchByteOrder)
-			;
+			final BinaryReferenceTraverser[] referenceTraversers = deriveReferenceTraversers(
+				typeDefinition.instanceMembers(),
+				switchByteOrder
+			);
 
 			this.typeDefinition       = typeDefinition;
 			this.isPrimitive          = typeDefinition.isPrimitiveType();
@@ -82,6 +83,14 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		static final BinaryReferenceTraverser[] deriveReferenceTraversers(
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember> typeDefMembers,
+			final boolean                                                 switchByteOrder
+		)
+		{
+			return BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefMembers, switchByteOrder);
+		}
 
 		@Override
 		public final long typeId()

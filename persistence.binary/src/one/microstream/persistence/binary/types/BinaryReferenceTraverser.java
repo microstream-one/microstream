@@ -817,7 +817,7 @@ public interface BinaryReferenceTraverser
 
 		public static final BinaryReferenceTraverser deriveComplexVariableLengthTraversers(
 			final PersistenceTypeDescriptionMemberFieldGenericComplex member         ,
-			final boolean                                            switchByteOrder
+			final boolean                                             switchByteOrder
 		)
 		{
 			final BinaryReferenceTraverser[] traversers = Static.deriveReferenceTraversers(

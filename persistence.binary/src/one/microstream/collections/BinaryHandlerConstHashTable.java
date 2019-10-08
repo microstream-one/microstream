@@ -107,15 +107,15 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 			instance.size()       ,
 			handler
 		);
-		bytes.store_long_Offset(
+		bytes.store_long(
 			BINARY_OFFSET_KEYS,
 			handler.apply(instance.keys)
 		);
-		bytes.store_long_Offset(
+		bytes.store_long(
 			BINARY_OFFSET_VALUES,
 			handler.apply(instance.values)
 		);
-		bytes.store_float_Offset(
+		bytes.store_float(
 			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
