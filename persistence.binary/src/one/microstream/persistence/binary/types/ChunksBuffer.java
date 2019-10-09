@@ -213,7 +213,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		final long entityTotalLength = Binary.entityTotalLength(entityContentLength);
 		this.ensureFreeStoreCapacity(entityTotalLength);
 		
-		this.internalStoreEntityHeader(this.currentAddress, entityTotalLength, entityTypeId, entityObjectId);
+		this.storeEntityHeaderToAddress(this.currentAddress, entityTotalLength, entityTypeId, entityObjectId);
 				
 		// currentAddress is advanced to next entity, but this entity's content address has to be returned
 		this.address = (this.currentAddress += entityTotalLength) - entityContentLength;

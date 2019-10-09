@@ -489,7 +489,7 @@ public interface BinaryReferenceTraverser
 			{
 				// using length instead of element count is crucial for consolidated multi-reference iteration
 				final long bound = address + Binary.getBinaryListTotalByteLengthRawValue(address);
-				for(long a = Binary.toBinaryListElementsAddress(address); a < bound; a += REFERENCE_LENGTH)
+				for(long a = Binary.toBinaryListElementsOffset(address); a < bound; a += REFERENCE_LENGTH)
 				{
 					// see REFERENCE_VARIABLE_LENGTH_START_BOUND_BASED_REVERSED for ByteOrder switching
 					acceptor.acceptObjectId(XMemory.get_long(a));
@@ -718,7 +718,7 @@ public interface BinaryReferenceTraverser
 			{
 				// using length instead of element count is crucial for consolidated multi-reference iteration
 				final long bound = address + Long.reverseBytes(Binary.getBinaryListTotalByteLengthRawValue(address));
-				for(long a = Binary.toBinaryListElementsAddress(address); a < bound; a += REFERENCE_LENGTH)
+				for(long a = Binary.toBinaryListElementsOffset(address); a < bound; a += REFERENCE_LENGTH)
 				{
 					iterator.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
 				}
@@ -1190,7 +1190,7 @@ public interface BinaryReferenceTraverser
 			;
 
 			// apply all element traversers to each element
-			long a = Binary.toBinaryListElementsAddress(address);
+			long a = Binary.toBinaryListElementsOffset(address);
 			for(long i = 0; i < elementCount; i++)
 			{
 				a = BinaryReferenceTraverser.iterateReferences(a, this.traversers, acceptor);

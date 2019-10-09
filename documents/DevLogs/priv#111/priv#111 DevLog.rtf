@@ -208,5 +208,107 @@ Wieder l\'f6schen.\par
 Aber ich muss mal schauen. Evtl. kann ich die Methode anderweitig verstecken oder einfach in die Call site verschieben, dann ist sie im binary weg.\par
 Wobei das eigentliche Problem ja ist: wie kriegt man den direkten Speicherzugriff auf direkt gecachte Entities weg?\par
 Oder muss da jetzt doch die Trickserei mit eigener Logik hinter allocateMemory rein? F\'fcr so "blank" allokierten Speicher ist das wahrscheinlich der einzig gangbare weg ...\par
+\par
+\par
+\par
+2019-10-09\par
+\par
+\par
+Super Idee von Zuhause und Arbeitsweg:\par
+\par
+Manuelle Off-Heap Memory Allokierung sollte/muss eigentlich auch mit Off-Heap Memory realisiert werden.\par
+Das hei\'dft zwangsweise: DirectByteBuffer. Unsafe#allocate gibt es ja eben auf manchen Systemen (Android) nicht und es gibt nur diese beiden M\'f6glichkeiten.\par
+Sollte ein DBB mal intern so implementiert sein, dass er gar keinen Off-Heap Memory allokiert, dann k\'f6nnen wir das eh nicht \'e4ndern.\par
+DBBs sind der beste Versuch bzw. die einzige M\'f6glichkeit, auf eine Java-Standard-API-Weise Off-Heap Memory zu allokieren. Also die.\par
+\par
+Nun folgendes Problem:\par
+Man k\'f6nnte f\'fcr jeden allokate Aufruf einfach einen eigenen, neuen DBB instanzieren.\par
+F\'fcr gro\'dfe Speicherbereiche ist das absolut okay. Aber f\'fcr kleine (z.B. 24 Byte f\'fcr ein stateless Entity, das nur aus Header besteht), w\'e4re der Overhead gigantisch.\par
+\par
+Darum folgende Idee:\par
+"Kleine" Speicherbereiche werden zu mehreren in einem DBB zusammengefasst.\par
+"Gr\'f6\'dfere" Speicherbereiche bekommen jeweils einen exklusiven DBB.\par
+Cooler Nebeneffekt: ChunksBuffers zum Storen bekommen immer einen eigenen DBB. Der Lese-Fall (Entities laden und GC) ist performancem\'e4\'dfig nicht so kritisch in einer Anwendungskonzept, wo der In-Memory Objektgraph die Prim\'e4re Datenquelle darstellt.\par
+\par
+Die Idee ist nur, den DBB-Overhead je Item gegen 0 gegen zu lassen. Es muss nicht super-duper-intelligent die Zahl der DBBs auf einem absolut n\'f6tigen Minum gehalten werden oder sowas.\par
+\par
+Konkret zum Algorithmus:\par
+\par
+Rahmenbedingungen:\par
+Man kann per DBB nur maximal Integer.MAX_VALUE an Speicherbereich reservieren. Total hinrissige Beschr\'e4nkung einfach nur, weil der ByteBuffer eine toArray Methode hat, aber in diesem Fall ist es ganz n\'fctzlich.\par
+Also die maximal auf einmal reservierbare Speichergr\'f6\'dfe ist MAX_INT.\par
+\par
+Speicherbereiche werden aber als long addressiert. Also hat man 4 Byte "frei", um dort eine frei ausgedachte Verwaltung abzubilden.\par
+Und zwar folgenderma\'dfen:\par
+\par
+Die unteren 4 byte werden als signed integer als index in den DBB (i) interpretiert.\par
+Die oberen 4 byte werden als signed integer als Verwaltungsindex (v) interpretiert.\par
+\par
+Das Sign-Bit von v wird f\'fcr eine Fallunterscheidung verwendet:\par
+Positiv bedeutet:\par
+Der Wert identifiziert einen gro\'dfen Einzel-DBB Speicherbereich.\par
+Eigentlich reicht daf\'fcr eine fortlaufende ID beginnend bei 1, die in ein BigEntry[] zeigt. Wobei beim Allokieren von index 1 an das array nach leeren Eintr\'e4gen durchsucht wird.\par
+Das Array wird dynamisch gewachsen, wobei jede Gr\'f6\'dfen\'e4nderung einen upperThreshold und einen lowerThreshold wert cacht, gegen den beim allokieren und deallokieren mit dem bisher h\'f6chsten Wert getestet und ggf. rebuildet wird.\par
+\par
+So ein BigEntryenth\'e4lt die Referenz auf den DBB und Metadaten f\'fcr die Verwaltung. ... Hm... Was eigentlich bei einem Einzel-DBB?. Evtl. ist der Entry \'fcberfl\'fcssig.\par
+D.h. man kann maximal 2,1~ Milliarden "gro\'dfe" DBBs allokieren. Das sollte reichen.\par
+\par
+Warum beginnend bei index 1? Weil eine generische Adresse von 0 nat\'fcrlich weiterhin "wie normal" ein nullpointer sein muss, der einen Fehler wird und nicht einfach ein generischer Indexwert, der auf den DBB mit index 0 zeigt.\par
+Dieser eine Platz ist dann einfach immer leer ("da wohnt null"), aber das ist ja platzm\'e4\'dfig egal.\par
+\par
+\par
+Negativ bedeutet:\par
+Der Wert (mal *1) identifiziert einen einzelnen "kleinen" Eintrag in einem Multi-Eintrag-DBB Speicherbereich.\par
+Die untersten 12 Bit definieren die L\'e4nge des allokierten Speicherbereichs und damit den Index in der Lookup Table (siehe unten).\par
+Die n\'e4chsten 12 Bit definieren den Index der zweiten Dimension in der Lookup-Table (siehe unten).\par
+Die obersten 7 bit identifiziert als unsigned int die Position im DBB. Nicht index, sondern index = position * L\'e4nge.\par
+\par
+Lookup-Table:\par
+Ein Entry[][], das in der ersten Dimension immer die fest L\'e4nge 4096 (2^12) hat.\par
+Der Index entspricht der L\'e4nge der allokierten Speicherbereiche. Also z.B. alle Speicherbereiche der L\'e4nge 197 werden verwaltet im Index 197.\par
+Die zweite Dimension (nested Entry[] Array) ist ein ArrayList-artig wachsendes Array an Entry Instanzen.\par
+\par
+Ein Entry besteht aus:\par
+- Referenz auf den DBB\par
+- boolean[], das aussagt, ob der Eintrag an Position i gerade allokiert ist oder nicht.\par
+Wobei dieses Array als header im DBB stehen k\'f6nnte. Mit einem initialen int, wie viele Eintr\'e4ge der DBB hat, d.h. wie lang das boolean-array ist.\par
+Und einen size counter, um das deallokieren zu erleichtern.\par
+Dann br\'e4uchte man gar keine Entry Zwischenklasse und das ganze w\'e4re etwas performanter.\par
+\par
+Allokieren und deallokieren liegt dann nat\'fcrlich auf der Hand:\par
+usage-array checken (und ggf. exception).\par
+\'fcbergebene Addresse in einen Offset in den DBB \'fcbersetzen und Bounds checken.\par
+Wenn der size counter auf 0 ist, dann den ganzen DBB deallokieren und im nested array ausnullen.\par
+\par
+\par
+Das w\'e4re ein off-heap-m\'e4\'dfig korrektes mittel, mit nur java public API (-> Android) eine absolute Speicheradressierung in manuell allokiertem Speicher zu machen.\par
+Auf Entities zugreifen (base + offset) kann man damit nat\'fcrlich nicht, das braucht eine Umformung zu Reflection.\par
+Auch auf explizite DBBs kann man damit nicht zugreifen. Die brauchen auch eine Umformung (DBB Referenz + Offset)\par
+\par
+\par
+Das muss ich dann mal so implementieren, wenn ich alle kleineren Details refactort hab.\par
+\par
+\par
+Jetzt wieder zur\'fcck zu den Methoden mit absoluter Speicheradressierung, die es eigentlich nicht geben darf.\par
+\par
+\par
+Geht voran, aber das wird alles knifflig ...\par
+\par
+Und:\par
+\par
+Ich sollte mal ein konsistentes Benamungskonzept \'fcberlegen, wie man public API (mit relativem offset) von interner API (mit absolutem offset) unterscheiden kann.\par
+\par
+z.B:\par
+get vs read\par
+set vs store\par
+\par
+Ich w\'fcrd eigentlich sagen: read und store public, get und set intern.\par
+Aber es gibt noch viele andere Methoden, die get~ anstatt read~ hei\'dfen. Die dann auch alle auf read~ umbenennen?\par
+Aber eigentlich schon, weil der Binary Typ deutlich aussagen soll: Hier wird bin\'e4r gelesen und gestoret. Auf welche "magische" oder triviale Weise das intern dann auch immer stattfinden mag.\par
+\par
+F\'fcr arrays dann eher sowas wie:\par
+update vs copy\par
+build\par
+\par
 }
  

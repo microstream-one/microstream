@@ -436,7 +436,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			XMemory.set_byte(this.writeAddress, valueSeparator);
 			this.writeAddress += LITERAL_BYTE_SIZE_SINGLE_CHAR;
 
-			long address = Binary.entityContentAddress(entityAddress);
+			long address = Binary.toEntityContentOffset(entityAddress);
 			for(final ValueWriter writer : this.valueWriters)
 			{
 				address = writer.writeValue(address);
@@ -706,7 +706,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			throws IOException
 		{
 			final long elementCount  = Binary.getBinaryListElementCountRawValue(valueReadAddress);
-			      long address       = Binary.toBinaryListElementsAddress(valueReadAddress);
+			      long address       = Binary.toBinaryListElementsOffset(valueReadAddress);
 			final byte listStarter   = this.listStarter;
 			final byte listSeparator = this.listSeparator;
 
@@ -731,7 +731,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			throws IOException
 		{
 			final long elementCount = Binary.getBinaryListElementCountRawValue(valueReadAddress);
-			      long address      = Binary.toBinaryListElementsAddress(valueReadAddress);
+			      long address      = Binary.toBinaryListElementsOffset(valueReadAddress);
 			final byte listSeparator = this.listSeparator;
 
 			this.write(this.listStarter);
@@ -961,7 +961,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 					final long bound = valueReadAddress + Binary.getBinaryListTotalByteLengthRawValue(valueReadAddress);
 					
 					UTF8.this.write_chars(
-						Binary.toBinaryListElementsAddress(valueReadAddress),
+						Binary.toBinaryListElementsOffset(valueReadAddress),
 						bound
 					);
 					
@@ -980,7 +980,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 					final long bound = valueReadAddress + Binary.getBinaryListTotalByteLengthRawValue(valueReadAddress);
 					
 					UTF8.this.write_bytes(
-						Binary.toBinaryListElementsAddress(valueReadAddress),
+						Binary.toBinaryListElementsOffset(valueReadAddress),
 						bound
 					);
 					

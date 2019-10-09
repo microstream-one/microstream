@@ -37,7 +37,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 
 	static final float getLoadFactor(final Binary bytes)
 	{
-		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
+		return bytes.read_float(BINARY_OFFSET_LOAD_FACTOR);
 	}
 
 	static final int getElementCount(final Binary bytes)

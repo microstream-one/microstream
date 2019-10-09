@@ -96,7 +96,7 @@ public final class BinaryHandlerLazy extends AbstractBinaryHandlerCustom<Lazy<?>
 		 * ON the other hand: the lazy reference instance is not yet completed and whatever
 		 * logic iterates over the LRM's entries shouldn't rely on anything.
 		 */
-		return Lazy.New(bytes.get_long(0), null);
+		return Lazy.New(bytes.read_long(0), null);
 	}
 
 	@Override

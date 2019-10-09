@@ -47,7 +47,7 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return (Comparator<? super E>)idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
+		return (Comparator<? super E>)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_COMPARATOR));
 	}
 	
 	public static BinaryHandlerTreeMap New()
@@ -143,7 +143,7 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	@Override
 	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_COMPARATOR));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_COMPARATOR));
 		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	

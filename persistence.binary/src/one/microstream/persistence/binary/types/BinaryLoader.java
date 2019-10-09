@@ -132,7 +132,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			for(long address = startAddress; address < boundAddress; address += XMemory.get_long(address))
 			{
 				this.createBuildItem(new BinaryLoadItem(
-					Binary.entityContentAddress(address)
+					Binary.toEntityContentOffset(address)
 				));
 			}
 		}
@@ -146,7 +146,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			for(long address = startAddress; address < boundAddress; address += Long.reverseBytes(XMemory.get_long(address)))
 			{
 				this.createBuildItem(new BinaryLoadItemByteReversing(
-					Binary.entityContentAddress(address)
+					Binary.toEntityContentOffset(address)
 				));
 			}
 		}

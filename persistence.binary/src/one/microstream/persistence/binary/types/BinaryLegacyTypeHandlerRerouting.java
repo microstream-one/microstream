@@ -80,7 +80,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final long newEntityAddress = PlatformInternals.getDirectBufferAddress(directByteBuffer);
 		
 		// replacement binary content is filled and afterwards set as the productive content
-		final long targetContentAddress = Binary.entityContentAddress(newEntityAddress);
+		final long targetContentAddress = Binary.toEntityContentOffset(newEntityAddress);
 		
 		// note: DirectByteBuffer instantiation resets all bytes to 0, so no target value "Zeroer" is needed.
 		rawData.copyMemory(targetContentAddress, this.valueTranslators(), this.targetOffsets());

@@ -63,7 +63,7 @@ extends AbstractBinaryHandlerCustom<B>
 	
 	protected final int readCapacity(final Binary bytes)
 	{
-		return X.checkArrayRange(bytes.get_long(OFFSET_CAPACITY));
+		return X.checkArrayRange(bytes.read_long(OFFSET_CAPACITY));
 	}
 	
 	protected final char[] readChars(final Binary bytes)

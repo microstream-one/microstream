@@ -79,7 +79,7 @@ public class BinaryLoadItem extends Binary
 	)
 	{
 		this.address = entityContentAddress;
-		this.internalStoreEntityHeader(
+		this.storeEntityHeaderToAddress(
 			entityAddressFromContentAddress(entityContentAddress),
 			entityTotalLength,
 			entityTypeId,

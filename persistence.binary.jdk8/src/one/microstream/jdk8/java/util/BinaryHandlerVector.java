@@ -94,7 +94,7 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 		// capacityIncrement can be any int value, even negative. So no validation can be done here.
 		return new Vector<>(
 			1,
-			bytes.get_int(BINARY_OFFSET_CAPACITY_INCREMENT)
+			bytes.read_int(BINARY_OFFSET_CAPACITY_INCREMENT)
 		);
 	}
 
