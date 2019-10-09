@@ -107,7 +107,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	{
 		instance.clear();
 		
-		final Object defaults = idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_DEFAULTS));
+		final Object defaults = idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_DEFAULTS));
 		
 		// the cast is important to ensure the type validity of the resolved defaults instance.
 		XMemoryJDK8.setDefaults(instance, (Properties)defaults);
@@ -134,7 +134,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	@Override
 	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_DEFAULTS));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_DEFAULTS));
 		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	

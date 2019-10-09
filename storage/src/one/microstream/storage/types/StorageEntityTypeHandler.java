@@ -151,7 +151,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			else
 			{
 				BinaryReferenceTraverser.iterateReferences(
-					Binary.entityContentAddress(entityCacheAddress),
+					Binary.toEntityContentOffset(entityCacheAddress),
 					this.referenceTraversers,
 					acceptor
 				);
@@ -167,7 +167,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			if(this.switchByteOrder)
 			{
 				BinaryReferenceTraverser.iterateReferenceRangeReversed(
-					Binary.entityContentAddress(entityCacheAddress),
+					Binary.toEntityContentOffset(entityCacheAddress),
 					this.simpleReferenceRange,
 					acceptor
 				);
@@ -175,7 +175,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			else
 			{
 				BinaryReferenceTraverser.iterateReferenceRange(
-					Binary.entityContentAddress(entityCacheAddress),
+					Binary.toEntityContentOffset(entityCacheAddress),
 					this.simpleReferenceRange,
 					acceptor
 				);

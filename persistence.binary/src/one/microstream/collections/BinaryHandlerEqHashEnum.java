@@ -56,7 +56,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
+		return bytes.read_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 
 	public static final void staticStore(
@@ -117,7 +117,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
+			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
 		);
 
 		// collect elements AFTER hashEqualator has been set because it is used in it
@@ -149,7 +149,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_EQUALATOR));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_EQUALATOR));
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 

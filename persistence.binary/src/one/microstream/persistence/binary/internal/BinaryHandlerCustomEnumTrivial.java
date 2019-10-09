@@ -56,12 +56,12 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 	
 	protected static long getNameObjectId(final Binary bytes)
 	{
-		return bytes.get_long(BINARY_OFFSET_NAME);
+		return bytes.read_long(BINARY_OFFSET_NAME);
 	}
 	
 	protected static int getOrdinalValue(final Binary bytes)
 	{
-		return bytes.get_int(BINARY_OFFSET_ORDINAL);
+		return bytes.read_int(BINARY_OFFSET_ORDINAL);
 	}
 	
 	@Override

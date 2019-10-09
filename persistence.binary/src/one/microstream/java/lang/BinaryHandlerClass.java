@@ -80,7 +80,7 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 	@Override
 	public final Class<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		final long typeId = bytes.get_long(0);
+		final long typeId = bytes.read_long(0);
 		
 		final PersistenceTypeDefinition typeDefinition = this.typeHandlerManager.get()
 			.typeDictionary()

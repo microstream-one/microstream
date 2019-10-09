@@ -94,12 +94,12 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 	@Override
 	public OptionalInt create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		final boolean isPresent = bytes.get_boolean(BINARY_OFFSET_IS_PRESENT);
+		final boolean isPresent = bytes.read_boolean(BINARY_OFFSET_IS_PRESENT);
 		
 		// luckily, an uninitialized instance (all-zeroes, meaning isPresent == false) is all that is required.
 		return isPresent
 			? OptionalInt.of(
-				bytes.get_int(BINARY_OFFSET_VALUE)
+				bytes.read_int(BINARY_OFFSET_VALUE)
 			)
 			: XMemory.instantiate(OptionalInt.class)
 		;

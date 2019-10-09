@@ -7,7 +7,12 @@ import one.microstream.typing.KeyValue;
 /**
  * @author Thomas Muenz
  */
-public interface XBasicTable<K, V> extends XMap<K, V>, XGettingTable<K, V>, XBasicEnum<KeyValue<K, V>>
+public interface XBasicTable<K, V>
+extends
+XMap<K, V>,
+XGettingTable<K, V>,
+XBasicEnum<KeyValue<K, V>>,
+XAddingTable<K, V>
 {
 	@Override
 	public Keys<K, V> keys();

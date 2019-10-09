@@ -47,12 +47,12 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 
 	static final float getLoadFactor(final Binary bytes)
 	{
-		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
+		return bytes.read_float(BINARY_OFFSET_LOAD_FACTOR);
 	}
 
 	static final boolean getAccessOrder(final Binary bytes)
 	{
-		return bytes.get_boolean(BINARY_OFFSET_ACCESS_ORDER);
+		return bytes.read_boolean(BINARY_OFFSET_ACCESS_ORDER);
 	}
 
 	static final int getElementCount(final Binary bytes)

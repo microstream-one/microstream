@@ -38,7 +38,7 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 
 	static final float getLoadFactor(final Binary bytes)
 	{
-		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
+		return bytes.read_float(BINARY_OFFSET_LOAD_FACTOR);
 	}
 
 	static final int getElementCount(final Binary bytes)
