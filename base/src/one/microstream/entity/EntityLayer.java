@@ -16,7 +16,7 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 	// constructors //
 	/////////////////
 	
-	public EntityLayer(final Entity inner)
+	protected EntityLayer(final Entity inner)
 	{
 		super();
 		this.inner = mayNull(inner); // may be null in case of delayed initialization.
