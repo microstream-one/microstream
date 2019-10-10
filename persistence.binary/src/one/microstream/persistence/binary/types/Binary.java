@@ -187,6 +187,16 @@ public abstract class Binary implements Chunk
 		// note that this method can be used for absolute addresses, too.
 		return entityOffset + Binary.LENGTH_ENTITY_HEADER;
 	}
+
+	public static final long toBinaryListByteLengthOffset(final long binaryListOffset)
+	{
+		return binaryListOffset + LIST_OFFSET_BYTE_LENGTH;
+	}
+	
+	public static final long toBinaryListElementCountOffset(final long binaryListOffset)
+	{
+		return binaryListOffset + LIST_OFFSET_ELEMENT_COUNT;
+	}
 	
 	public static long toBinaryListElementsOffset(final long binaryListOffset)
 	{
@@ -225,12 +235,7 @@ public abstract class Binary implements Chunk
 	{
 		return toBinaryListTotalByteLength(count << 1);  // header plus 2 bytes per char
 	}
-	
-	public static ByteBuffer allocateEntityHeaderDirectBuffer()
-	{
-		return ByteBuffer.allocateDirect(Binary.LENGTH_ENTITY_HEADER);
-	}
-	
+		
 	
 	
 	
@@ -239,20 +244,9 @@ public abstract class Binary implements Chunk
 	//////////////////////////////////////////////////////////////////////////////////////
 	// static methods using absolut an memory address that should actually not be here //
 	////////////////////////////////////////////////////////////////////////////////////
-
-	public static long getBinaryListTotalByteLengthRawValue(final long binaryListAddress)
-	{
-		return XMemory.get_long(Binary.binaryListByteLengthAddress(binaryListAddress));
-	}
-	
-	public static long getBinaryListElementCountRawValue(final long binaryListAddress)
-	{
-		return XMemory.get_long(Binary.binaryListElementCountAddress(binaryListAddress));
-	}
-	
+		
 	public static final long getEntityLengthRawValue(final long entityAddress)
 	{
-		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
 		return XMemory.get_long(entityAddress + OFFSET_LEN);
 	}
 		
@@ -275,16 +269,6 @@ public abstract class Binary implements Chunk
 	static final long entityAddressFromContentAddress(final long entityContentAddress)
 	{
 		return entityContentAddress - LENGTH_ENTITY_HEADER;
-	}
-	
-	static final long binaryListByteLengthAddress(final long binaryListAddress)
-	{
-		return binaryListAddress + LIST_OFFSET_BYTE_LENGTH;
-	}
-	
-	static final long binaryListElementCountAddress(final long binaryListAddress)
-	{
-		return binaryListAddress + LIST_OFFSET_ELEMENT_COUNT;
 	}
 	
 	/**
@@ -797,12 +781,7 @@ public abstract class Binary implements Chunk
 	
 	public final long getBinaryListElementCountUnvalidating(final long listOffset)
 	{
-		return this.get_longFromAddress(binaryListElementCountAddress(this.loadItemEntityContentAddress() + listOffset));
-	}
-			
-	public final long binaryListElementsAddress(final long binaryListOffset)
-	{
-		return toBinaryListElementsOffset(this.loadItemEntityContentAddress() + binaryListOffset);
+		return this.get_longFromAddress(this.loadItemEntityContentAddress() + toBinaryListElementCountOffset(listOffset));
 	}
 	
 	public final long getListElementCount(final long listStartOffset, final int elementLength)
@@ -1484,7 +1463,6 @@ public abstract class Binary implements Chunk
 		PersistenceObjectIdAcceptor acceptor
 	);
 
-
 	public final long storeCharsAsList(
 		final long   memoryOffset,
 		final char[] chars       ,
@@ -1525,13 +1503,16 @@ public abstract class Binary implements Chunk
 	{
 		this.update_charsFromAddress(address, chars, offset, length);
 	}
-	
+		
 	public final void copyMemory(
-		final long                targetAddress,
-		final BinaryValueSetter[] setters      ,
+		final ByteBuffer          directByteBuffer,
+		final long                offset          ,
+		final BinaryValueSetter[] setters         ,
 		final long[]              targetOffsets
 	)
 	{
+		final long targetAddress = this.calculateAddress(directByteBuffer, offset);
+		
 		long address = this.loadItemEntityContentAddress();
 		for(int i = 0; i < setters.length; i++)
 		{
@@ -1549,7 +1530,6 @@ public abstract class Binary implements Chunk
 		this.store_long(offset + LIST_OFFSET_ELEMENT_COUNT, elementsCount);
 	}
 	
-
 	public final void storeIterableContentAsList(
 		final long                offset      ,
 		final PersistenceFunction persister   ,
@@ -1608,8 +1588,7 @@ public abstract class Binary implements Chunk
 		}
 	}
 
-
-	// (04.10.2019 TM)FIXME: priv#111: rename all methods ending with "_Offset" and "_Direct".
+	// (04.10.2019 TM)FIXME: priv#111: consistently rename internal and external methods with read/get and store/set
 
 	public final void storeKeyValuesAsEntries(
 		final long                               offset      ,
@@ -1772,21 +1751,25 @@ public abstract class Binary implements Chunk
 		setEntityHeaderRawValuesToAddress(entityAddress, entityTotalLength, entityTypeId, entityObjectId);
 	}
 	
-
+	
+	final long binaryListElementsAddress(final long binaryListOffset)
+	{
+		return this.loadItemEntityContentAddress() + toBinaryListElementsOffset(binaryListOffset);
+	}
 			
-	public abstract long loadItemEntityContentAddress();
+	abstract long loadItemEntityContentAddress();
 	
 	private long loadItemEntityAddress()
 	{
 		return entityAddressFromContentAddress(this.loadItemEntityContentAddress());
 	}
 	
-	// (08.10.2019 TM)FIXME: priv#111: modifyLoadItem with absolute address
 	public abstract void modifyLoadItem(
-		long entityContentAddress,
-		long entityTotalLength   ,
-		long entityTypeId        ,
-		long entityObjectId
+		ByteBuffer directByteBuffer ,
+		long       offset           ,
+		long       entityTotalLength,
+		long       entityTypeId     ,
+		long       entityObjectId
 	);
 	
 	private void validateLoadItemContentLength(final long contentLength)
@@ -1871,6 +1854,25 @@ public abstract class Binary implements Chunk
 			this.binaryListElementsAddress(offset),
 			array
 		);
+	}
+	
+	
+	long calculateAddress(final ByteBuffer byteBuffer, final long offset)
+	{
+		if(byteBuffer == null)
+		{
+			return offset;
+		}
+		
+		if(offset > byteBuffer.capacity())
+		{
+			// (10.10.2019 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Specified offset exceeds buffer capacity: " + offset + " > " + byteBuffer.capacity()
+			);
+		}
+		
+		return PlatformInternals.getDirectBufferAddress(byteBuffer) + X.checkArrayRange(offset);
 	}
 	
 			

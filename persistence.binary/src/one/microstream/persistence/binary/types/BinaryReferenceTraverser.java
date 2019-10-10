@@ -488,7 +488,7 @@ public interface BinaryReferenceTraverser
 			public final long apply(final long address, final PersistenceObjectIdAcceptor acceptor)
 			{
 				// using length instead of element count is crucial for consolidated multi-reference iteration
-				final long bound = address + Binary.getBinaryListTotalByteLengthRawValue(address);
+				final long bound = address + XMemory.get_long(Binary.toBinaryListByteLengthOffset(address));
 				for(long a = Binary.toBinaryListElementsOffset(address); a < bound; a += REFERENCE_LENGTH)
 				{
 					// see REFERENCE_VARIABLE_LENGTH_START_BOUND_BASED_REVERSED for ByteOrder switching
@@ -717,7 +717,7 @@ public interface BinaryReferenceTraverser
 			public final long apply(final long address, final PersistenceObjectIdAcceptor iterator)
 			{
 				// using length instead of element count is crucial for consolidated multi-reference iteration
-				final long bound = address + Long.reverseBytes(Binary.getBinaryListTotalByteLengthRawValue(address));
+				final long bound = address + Long.reverseBytes(XMemory.get_long(Binary.toBinaryListByteLengthOffset(address)));
 				for(long a = Binary.toBinaryListElementsOffset(address); a < bound; a += REFERENCE_LENGTH)
 				{
 					iterator.acceptObjectId(Long.reverseBytes(XMemory.get_long(a)));
@@ -1183,7 +1183,7 @@ public interface BinaryReferenceTraverser
 			 * Using the validating element count getter would require to know the element binary length.
 			 * And that can get very ugly if the element of a complex type has variable length on its own.
 			 */
-			final long elementCountRawValue = Binary.getBinaryListElementCountRawValue(address);
+			final long elementCountRawValue = XMemory.get_long(Binary.toBinaryListElementCountOffset(address));
 			final long elementCount = this.switchByteOrder
 				? Long.reverseBytes(elementCountRawValue)
 				: elementCountRawValue

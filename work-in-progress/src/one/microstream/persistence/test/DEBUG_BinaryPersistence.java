@@ -34,10 +34,6 @@ public final class DEBUG_BinaryPersistence
 
 	public static final long[] getEntityHeaderLongsFromDataAddress(final Binary bytes)
 	{
-		if(bytes.loadItemEntityContentAddress() == 0)
-		{
-			throw new NullPointerException();
-		}
 		return new long[]
 		{
 			bytes.getBuildItemContentLength(),
@@ -49,7 +45,7 @@ public final class DEBUG_BinaryPersistence
 	public static final String getEntityHeaderFromDataAddress(final Binary bytes)
 	{
 		final long[] header = getEntityHeaderLongsFromDataAddress(bytes);
-		return "Entity @" + bytes.loadItemEntityContentAddress()
+		return "Entity "
 			+ "\nLEN=" + header[0] + " (" + Long.toHexString(header[0]).toUpperCase() + ")"
 			+ "\nTID=" + header[1] + " (" + Long.toHexString(header[1]).toUpperCase() + ")"
 			+ "\nOID=" + header[2] + " (" + Long.toHexString(header[2]).toUpperCase() + ")"

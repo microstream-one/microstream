@@ -310,5 +310,35 @@ F\'fcr arrays dann eher sowas wie:\par
 update vs copy\par
 build\par
 \par
+\par
+\par
+\par
+2019-10-10\par
+\par
+Achja, die Benamungssache ist noch.\par
+\par
+Und noch die letzten paar Methoden mit absoluter Adresse rauswerfen.\par
+Das geht eigentlich nicht, aber mit folgender einfacher Idee evtl doch:\par
+Die Methoden zu simplen Arithmetik-Methoden reduzieren und den eigentlichen get_long Aufruf direkt in die Aufruferstelle schreiben. In diesen Klassen sind eh schon X-fach solche Aufrufe drin, da kommt es auf die paar mehr auch nicht mehr an.\par
+Daf\'fcr w\'e4re dann die Binary Klasse sauber.\par
+Das mach ich mal so.\par
+\par
+Das modifyLoadItem ist auch noch. Hm. Das \'e4nder ich auf einen \'fcbergebenen ByteBuffer und Offset. Dann passt das.\par
+Die copyMemory Methode benutzt auch noch eine absolute Adresse. Umbauen.\par
+\par
+Bei den drei verbleibenden Methoden, den getEntity~ f\'fcr OID, TID, LEN ist das aber problematisch:\par
+Das sind insgesamt 12-19 Stellen, insgesamt ca. 50. Die alle durch einen expliziten get_long Aufruf zu ersetzen ist strukturell widersinnig. Danach m\'fcssten diese 50 Stellen sofort wieder konsolidiert werden in eine statische Util-Klasse.\par
+Also m\'fcsste das eine andere sein, eine "AbsoluteEntityAddressing". Aber das verschiebt das Problem ja nur, weil letztendlich auch die modularisiert werden m\'fcsste.\par
+\par
+Das Problem ist: Wie kann man alle Verwendungen der Unsafe Klasse modularisieren? Insbesondere die von statischen Methoden (XMemory...).\par
+Man kann nat\'fcrlich einfach eine andere XMemory Klasse verwenden, die intern ihr eigenes Speichermanagement macht f\'fcr absolute Zugriffe. Das geht.\par
+1.) Das geht aber nur f\'fcr die Logik, die sich so eine absolute Speicheradresse von einem kontextlosen/direkten "allocateMemory" Aufruf geholt hat.\par
+2.) Logik, die per Adresse direkt auf einen DBB zugreift, muss so umgebaut werden, dass sie DBB + offset \'fcbergibt. So wie ich das bei modifyLoadItem und copyMemory gerade gemacht hab.\par
+3.) Und Logik, die per reference + offset direkt auf instanzen zugreift, muss komplett eigenst\'e4ndig abstrahiert und modularisiert werden, damit man eine Alternative bauen kann, die Reflection anstatt DMA verwendet.\par
+\par
+Die Frage ist auch, ob man wirklich die Klasse tauschen muss, oder ob man den Memory-Zugriff \'fcber ein interface in eine instanz modularisieren kann.\par
+Unsafe selbst ist witzigerweise ja auch eine Instanz, obwohl sie nur statische Funktionalit\'e4t bietet. Evtl. optimiert die JVM unbenutzte "this" argumente raus, dann w\'fcrde es keine rolle spielen.\par
+Muss ich testen ...\par
+\par
 }
  
