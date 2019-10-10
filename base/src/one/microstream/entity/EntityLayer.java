@@ -1,5 +1,7 @@
 package one.microstream.entity;
 
+import static one.microstream.X.mayNull;
+
 public abstract class EntityLayer extends Entity.AbstractAccessible
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -17,7 +19,7 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 	public EntityLayer(final Entity inner)
 	{
 		super();
-		this.inner = inner; // may be null in case of delayed initialization.
+		this.inner = mayNull(inner); // may be null in case of delayed initialization.
 	}
 
 	
@@ -64,8 +66,7 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 		// (18.07.2019 TM)FIXME: check for same data class necessary?
 		if(Entity.identity(newData) != this.$entityIdentity())
 		{
-			// (10.12.2017 TM)EXCP: proper exception
-			throw new RuntimeException("Entity identity mismatch.");
+			throw new EntityException("Entity identity mismatch.");
 		}
 	}
 	

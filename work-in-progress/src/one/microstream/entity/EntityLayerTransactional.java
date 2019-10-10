@@ -31,7 +31,7 @@ implements EntityTransaction.Committable
 	////////////
 	
 	@Override
-	public final Entity $entityData()
+	protected final Entity $entityData()
 	{
 		synchronized(this.identityLayer)
 		{
@@ -49,13 +49,13 @@ implements EntityTransaction.Committable
 	}
 	
 	@Override
-	public Entity $entityIdentity()
+	protected Entity $entityIdentity()
 	{
 		return Entity.identity(this.actualData());
 	}
 	
 	@Override
-	public final boolean $updateEntityData(final Entity newData)
+	protected final boolean $updateEntityData(final Entity newData)
 	{
 		synchronized(this.$entityIdentity())
 		{
