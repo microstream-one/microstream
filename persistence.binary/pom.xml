@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>persistence</artifactId>
-			<version>02.00.00-MS-GA</version>
+			<version>02.00.01-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	
