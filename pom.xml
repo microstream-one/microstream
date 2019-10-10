@@ -8,7 +8,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>02.00.00-MS-GA</version>
+	<version>02.00.01-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -97,6 +97,13 @@
 			<url>https://repo.microstream.one/repository/maven-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
+
+	<scm>
+		<connection>scm:git:ssh://git@bitbucket.org:microstreamone/microstream.git</connection>
+		<developerConnection>scm:git:ssh//git@bitbucket.org:microstreamone/microstream.git</developerConnection>
+		<url>https://bitbucket.org/microstreamone/microstream.git</url>
+		<tag>HEAD</tag>
+	</scm>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -251,7 +258,7 @@
 					<configuration>
 						<mavenExecutorId>forked-path</mavenExecutorId>
 						<useReleaseProfile>false</useReleaseProfile>
-						<arguments>${arguments} -Psonatype-oss-release</arguments>
+						<arguments>-Psonatype-oss-release</arguments>
 						<releaseProfiles>release</releaseProfiles>
 						<goals>deploy</goals>
 					</configuration>
