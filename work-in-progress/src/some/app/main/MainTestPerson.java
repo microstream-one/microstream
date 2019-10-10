@@ -3,8 +3,9 @@ package some.app.main;
 import one.microstream.entity.Entity;
 import one.microstream.entity.EntityTransaction;
 import one.microstream.entity.EntityVersionContext;
-import some.app.entities.AppEntities;
 import some.app.entities.Person;
+import some.app.entities._generated._Person.PersonCreator;
+import some.app.entities._generated._Person.PersonUpdater;
 import some.app.entitylogging.EntityLogger;
 
 /**
@@ -22,8 +23,7 @@ public class MainTestPerson
 	
 	public static void main(final String[] args)
 	{
-		final Person alice = AppEntities
-			.Person()
+		final Person alice = PersonCreator.New()
 			.firstName("Alice")
 			.lastName("Allison")
 
@@ -69,8 +69,8 @@ public class MainTestPerson
 	{
 		System.out.println("\n\n---[Entity Copy]----------");
 		
-		final Person copy = AppEntities
-			.Person(p)
+		final Person copy = PersonCreator
+			.New(p)
 			.lastName(p.lastName() + "-Modfified")
 			.create()
 		;
@@ -85,9 +85,9 @@ public class MainTestPerson
 		final Person aliceData = Entity.data(p);
 
 		versions.currentVersion(1);
-		Entity.updateData(p, AppEntities.Person(aliceData).lastName(aliceData.lastName() + "-v1").createData());
+		PersonUpdater.setLastName(p, aliceData.lastName() + "-v1");
 		versions.currentVersion(2);
-		Entity.updateData(p, AppEntities.Person(aliceData).lastName(aliceData.lastName() + "-v2").createData());
+		PersonUpdater.setLastName(p, aliceData.lastName() + "-v2");
 		System.out.println("Version " + versions.currentVersion() + ": " + p.lastName());
 		
 		versions.currentVersion(1);

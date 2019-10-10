@@ -3,15 +3,16 @@ package some.app.entities._generated._Person;
 import one.microstream.entity.EntityLayerIdentity;
 import some.app.entities.Person;
 
+
 public class PersonEntity extends EntityLayerIdentity implements Person
 {
 	protected PersonEntity()
 	{
 		super();
 	}
-	
+
 	@Override
-	public Person $entityData()
+	protected Person $entityData()
 	{
 		return (Person)super.$entityData();
 	}
@@ -26,5 +27,5 @@ public class PersonEntity extends EntityLayerIdentity implements Person
 	public final String lastName()
 	{
 		return this.$entityData().lastName();
-	}	
+	}
 }

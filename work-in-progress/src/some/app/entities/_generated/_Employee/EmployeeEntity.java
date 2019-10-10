@@ -1,19 +1,32 @@
 package some.app.entities._generated._Employee;
 
+import one.microstream.entity.EntityLayerIdentity;
 import some.app.entities.Employee;
-import some.app.entities._generated._Person.PersonEntity;
 
-public class EmployeeEntity extends PersonEntity implements Employee
+
+public class EmployeeEntity extends EntityLayerIdentity implements Employee
 {
-	EmployeeEntity()
+	protected EmployeeEntity()
 	{
 		super();
 	}
-	
+
 	@Override
-	public Employee $entityData()
+	protected Employee $entityData()
 	{
 		return (Employee)super.$entityData();
+	}
+
+	@Override
+	public final String firstName()
+	{
+		return this.$entityData().firstName();
+	}
+
+	@Override
+	public final String lastName()
+	{
+		return this.$entityData().lastName();
 	}
 
 	@Override
@@ -21,5 +34,4 @@ public class EmployeeEntity extends PersonEntity implements Employee
 	{
 		return this.$entityData().employer();
 	}
-	
 }

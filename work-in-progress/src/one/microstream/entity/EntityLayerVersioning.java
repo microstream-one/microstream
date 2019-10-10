@@ -42,7 +42,7 @@ public class EntityLayerVersioning<K> extends EntityLayer
 	////////////
 
 	@Override
-	public synchronized Entity $entityData()
+	protected synchronized Entity $entityData()
 	{
 		final K versionKey = this.versionContext.currentVersion();
 		if(versionKey == null)
@@ -61,7 +61,7 @@ public class EntityLayerVersioning<K> extends EntityLayer
 	}
 
 	@Override
-	public synchronized boolean $updateEntityData(final Entity data)
+	protected synchronized boolean $updateEntityData(final Entity data)
 	{
 		final K versionKey = this.versionContext.currentVersion();
 		if(versionKey == null)

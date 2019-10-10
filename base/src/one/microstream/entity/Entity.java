@@ -1,11 +1,9 @@
-package one.microstream.entity;
 
-import java.util.function.Consumer;
+package one.microstream.entity;
 
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XCollection;
-import one.microstream.collections.types.XIterable;
 
 /*
  * Concept to separate the basic aspects of what defines an entity into separate instances of different layers:
@@ -31,6 +29,7 @@ import one.microstream.collections.types.XIterable;
  * cross cutting concerns / aspects.
  *
  */
+
 
 /**
  * A mutable entity. Mutations of the entity's data only happen by providing another instance of that entity
@@ -58,9 +57,8 @@ public interface Entity
 			// null is consistently its own identity
 			return null;
 		}
-
-		// (18.07.2019 TM)EXCP: proper exception
-		throw new RuntimeException("Unaccessable entity type: " + XChars.systemString(instance));
+		
+		throw new EntityException("Unaccessable entity type: " + XChars.systemString(instance));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -70,7 +68,7 @@ public interface Entity
 		{
 			return (E)((Entity.AbstractAccessible)instance).$entityData();
 		}
-
+		
 		// tiny redundancy as a tiny price for convenient visibility magic plus still possible multiple inheritance
 		if(instance instanceof Entity.Accessible)
 		{
@@ -82,9 +80,8 @@ public interface Entity
 			// null is consistently its own data
 			return null;
 		}
-
-		// (18.07.2019 TM)EXCP: proper exception
-		throw new RuntimeException("Unaccessable entity type: " + XChars.systemString(instance));
+		
+		throw new EntityException("Unaccessable entity type: " + XChars.systemString(instance));
 	}
 	
 	public static <E extends Entity> boolean updateData(final E entity, final E data)
@@ -101,9 +98,8 @@ public interface Entity
 			// data instance validation is done inside (has to be, anyway)
 			return ((Entity.Accessible)entity).$updateEntityData(data);
 		}
-
-		// (18.07.2019 TM)EXCP: proper exception
-		throw new RuntimeException("Unaccessable entity type: " + XChars.systemString(entity));
+		
+		throw new EntityException("Unaccessable entity type: " + XChars.systemString(entity));
 	}
 	
 	public default boolean isSameIdentity(final Entity other)
@@ -118,12 +114,9 @@ public interface Entity
 			return;
 		}
 		
-		// (10.12.2017 TM)EXCP: proper exception
-		throw new RuntimeException("Entity identity mismatch.");
+		throw new EntityException("Entity identity mismatch.");
 	}
 	
-	
-
 	/**
 	 * Primary means to convenience-hide framework-internal methods from the user entity's public API
 	 * 
@@ -137,7 +130,6 @@ public interface Entity
 		
 		protected abstract boolean $updateEntityData(Entity data);
 	}
-	
 	
 	/**
 	 * Fallback means to convenience-hide framework-internal methods from the user entity's public API
@@ -153,10 +145,8 @@ public interface Entity
 		
 		public boolean $updateEntityData(Entity data);
 	}
-		
-
 	
-	public interface Creator<E extends Entity, C extends Creator<E, C>> extends XIterable<EntityLayerProvider>
+	public interface Creator<E extends Entity, C extends Creator<E, C>>
 	{
 		public E create();
 		
@@ -169,12 +159,6 @@ public interface Entity
 		public C copy(E other);
 		
 		@SuppressWarnings("unchecked")
-		public default C $()
-		{
-			return (C)this;
-		}
-		
-		
 		public default C addLayer(final EntityLayerProvider layerProvider)
 		{
 			synchronized(this)
@@ -186,7 +170,7 @@ public interface Entity
 				}
 			}
 			
-			return this.$();
+			return (C)this;
 		}
 		
 		public default C addLayer(final EntityLayerProviderProvider layerProviderProvider)
@@ -194,41 +178,22 @@ public interface Entity
 			return this.addLayer(layerProviderProvider.provideEntityLayerProvider());
 		}
 		
-		@Override
-		public default <P extends Consumer<? super EntityLayerProvider>> P iterate(final P procedure)
-		{
-			synchronized(this)
-			{
-				final XCollection<EntityLayerProvider> layerProviders = this.layers();
-				synchronized(layerProviders)
-				{
-					layerProviders.iterate(procedure);
-				}
-			}
-			
-			return procedure;
-		}
-				
 		public XCollection<EntityLayerProvider> layers();
-				
-		
 		
 		public abstract class Abstract<E extends Entity, C extends Creator<E, C>>
-		implements Entity.Creator<E, C>
+			implements Entity.Creator<E, C>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
 			private final BulkList<EntityLayerProvider> layerProviders = BulkList.New();
-			private       E                             entityIdentity                 ;
-
-			
+			private E                                   entityIdentity;
 			
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
-
+			
 			@Override
 			public XCollection<EntityLayerProvider> layers()
 			{
@@ -250,21 +215,22 @@ public interface Entity
 			@Override
 			public E create()
 			{
-				final EntityLayerIdentity entity = this.createEntityInstance();
+				final EntityLayerIdentity entity        = this.createEntityInstance();
 				
-				final Entity data          = this.createData((E)entity.$entityIdentity());
-				final Entity innerInstance = this.dispatchDataInstance(data);
+				final Entity              data          = this.createData((E)entity.$entityIdentity());
+				final Entity              innerInstance = this.dispatchDataInstance(data);
 				
 				entity.$setInner(innerInstance);
 				
 				return (E)entity.$entityIdentity();
 			}
 			
+			@SuppressWarnings("unchecked")
 			@Override
 			public C entity(final E entity)
 			{
 				this.entityIdentity = entity;
-				return this.$();
+				return (C)this;
 			}
 			
 			@Override
@@ -275,13 +241,6 @@ public interface Entity
 			
 			protected abstract EntityLayerIdentity createEntityInstance();
 			
-			
-			@Override
-			public <P extends Consumer<? super EntityLayerProvider>> P iterate(final P procedure)
-			{
-				return Entity.Creator.super.iterate(procedure);
-			}
-						
 		}
 		
 	}
