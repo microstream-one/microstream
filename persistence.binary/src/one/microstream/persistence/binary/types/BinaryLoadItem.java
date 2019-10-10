@@ -51,7 +51,7 @@ public class BinaryLoadItem extends Binary
 	}
 
 	@Override
-	public final long loadItemEntityContentAddress()
+	final long loadItemEntityContentAddress()
 	{
 		return this.address;
 	}
@@ -72,19 +72,16 @@ public class BinaryLoadItem extends Binary
 	
 	@Override
 	public final void modifyLoadItem(
-		final long entityContentAddress,
-		final long entityTotalLength   ,
-		final long entityTypeId        ,
-		final long entityObjectId
+		final ByteBuffer directByteBuffer ,
+		final long       offset           ,
+		final long       entityTotalLength,
+		final long       entityTypeId     ,
+		final long       entityObjectId
 	)
 	{
-		this.address = entityContentAddress;
-		this.storeEntityHeaderToAddress(
-			entityAddressFromContentAddress(entityContentAddress),
-			entityTotalLength,
-			entityTypeId,
-			entityObjectId
-		);
+		final long entityAddress = this.calculateAddress(directByteBuffer, offset);
+		this.address = toEntityContentOffset(entityAddress);
+		this.storeEntityHeaderToAddress(entityAddress, entityTotalLength, entityTypeId, entityObjectId);
 	}
 	
 	@Override

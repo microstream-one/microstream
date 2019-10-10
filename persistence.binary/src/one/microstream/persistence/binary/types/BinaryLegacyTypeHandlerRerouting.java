@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 
 import one.microstream.X;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
@@ -77,16 +76,18 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final ByteBuffer directByteBuffer = ByteBuffer.allocateDirect(
 			X.checkArrayRange(entityTotalLength)
 		);
-		final long newEntityAddress = PlatformInternals.getDirectBufferAddress(directByteBuffer);
+		
+		// hardly more than a consistently used and documentable label for the value 0.
+		final long entityOffset = 0;
 		
 		// replacement binary content is filled and afterwards set as the productive content
-		final long targetContentAddress = Binary.toEntityContentOffset(newEntityAddress);
+		final long targetContentOffset = Binary.toEntityContentOffset(entityOffset);
 		
 		// note: DirectByteBuffer instantiation resets all bytes to 0, so no target value "Zeroer" is needed.
-		rawData.copyMemory(targetContentAddress, this.valueTranslators(), this.targetOffsets());
+		rawData.copyMemory(directByteBuffer, targetContentOffset, this.valueTranslators(), this.targetOffsets());
 		
 		// replace the original rawData's content address with the new address, effectively rerouting to the new data
-		rawData.modifyLoadItem(targetContentAddress, entityTotalLength, entityTypeId, entityObjectId);
+		rawData.modifyLoadItem(directByteBuffer, entityOffset, entityTotalLength, entityTypeId, entityObjectId);
 
 		// registered here to ensure deallocating raw memory at the end of the building process. Neither sooner nor later.
 		rawData.registerHelper(directByteBuffer, directByteBuffer);

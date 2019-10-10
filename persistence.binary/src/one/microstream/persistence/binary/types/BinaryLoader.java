@@ -542,12 +542,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			 * are well worth it if spares an additional explicit 8 byte long field for the millions and millions
 			 * of common case entities.
 			 */
-			final ByteBuffer dbb = Binary.allocateEntityHeaderDirectBuffer();
-			final long dbbAddress = PlatformInternals.getDirectBufferAddress(dbb);
+			final ByteBuffer dbb = ByteBuffer.allocateDirect(Binary.entityHeaderLength());
 			
 			// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
-			final BinaryLoadItem skipItem = new BinaryLoadItem(dbbAddress + dbb.capacity());
-			skipItem.modifyLoadItem(dbbAddress + dbb.capacity(), 0, 0, objectId);
+			final BinaryLoadItem skipItem = new BinaryLoadItem(0);
+			skipItem.modifyLoadItem(dbb, 0, 0, 0, objectId);
 			skipItem.existingInstance = instance;
 			
 			// skip items will never use the helper instance for anything, since they are skip dummies.

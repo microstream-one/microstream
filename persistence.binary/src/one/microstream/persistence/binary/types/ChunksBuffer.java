@@ -309,10 +309,11 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 	
 	@Override
 	public final void modifyLoadItem(
-		final long entityContentAddress,
-		final long entityTotalLength   ,
-		final long entityTypeId        ,
-		final long entityObjectId
+		final ByteBuffer directByteBuffer ,
+		final long       offset           ,
+		final long       entityTotalLength,
+		final long       entityTypeId     ,
+		final long       entityObjectId
 	)
 	{
 		throw new UnsupportedOperationException();
