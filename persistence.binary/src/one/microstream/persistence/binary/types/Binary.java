@@ -575,7 +575,7 @@ public abstract class Binary implements Chunk
 
 		// store identifiers as list of inlined [char]s
 		this.storeStringsAsList(
-			this.address + instancesTotalBinLength,
+			instancesTotalBinLength,
 			identifiersContentBinLength,
 			identifiers
 		);
@@ -1561,12 +1561,12 @@ public abstract class Binary implements Chunk
 	}
 
 	public final void storeStringsAsList(
-		final long     storeAddress                    ,
+		final long     memoryOffset                    ,
 		final long     precalculatedContentBinaryLength,
 		final String[] strings
 	)
 	{
-		this.storeStringsAsList(storeAddress, precalculatedContentBinaryLength, strings, 0, strings.length);
+		this.storeStringsAsList(memoryOffset, precalculatedContentBinaryLength, strings, 0, strings.length);
 	}
 
 	public final void storeStringsAsList(
