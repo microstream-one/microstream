@@ -1,10 +1,7 @@
 
-package one.microstream.entity.logging;
+package one.microstream.entity;
 
 import static one.microstream.X.notNull;
-
-import one.microstream.entity.Entity;
-import one.microstream.entity.EntityLayer;
 
 
 public class EntityLayerLogging extends EntityLayer
@@ -16,6 +13,14 @@ public class EntityLayerLogging extends EntityLayer
 		super(inner);
 		
 		this.logger = notNull(logger);
+	}
+	
+	@Override
+	protected void $entityCreated()
+	{
+		this.logger.entityCreated(this.$entityIdentity(), this.$entityData());
+		
+		super.$entityCreated();
 	}
 	
 	@Override

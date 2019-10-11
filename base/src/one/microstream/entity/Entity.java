@@ -130,6 +130,8 @@ public interface Entity
 		
 		protected abstract Entity $entityData();
 		
+		protected abstract void $entityCreated();
+		
 		protected abstract boolean $updateEntityData(Entity data);
 	}
 	
@@ -144,6 +146,8 @@ public interface Entity
 		public Entity $entityIdentity();
 		
 		public Entity $entityData();
+		
+		public void $entityCreated();
 		
 		public boolean $updateEntityData(Entity data);
 	}
@@ -219,6 +223,8 @@ public interface Entity
 				
 				entity.$setInner(innerInstance);
 				
+				Static.entityCreated(entity);
+				
 				return (E)entity.$entityIdentity();
 			}
 			
@@ -226,6 +232,20 @@ public interface Entity
 			
 		}
 		
+		static class Static
+		{
+			static void entityCreated(final Entity entity)
+			{
+				if(entity instanceof Entity.AbstractAccessible)
+				{
+					((Entity.AbstractAccessible)entity).$entityCreated();
+				}
+				else if(entity instanceof Entity.Accessible)
+				{
+					((Entity.Accessible)entity).$entityCreated();
+				}
+			}
+		}
 	}
 	
 	public interface Updater<E extends Entity, U extends Updater<E, U>>

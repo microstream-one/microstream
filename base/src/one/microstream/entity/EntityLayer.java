@@ -42,6 +42,12 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 	}
 	
 	@Override
+	protected void $entityCreated()
+	{
+		Entity.Creator.Static.entityCreated(this.inner);
+	}
+	
+	@Override
 	protected boolean $updateEntityData(final Entity newData)
 	{
 		/*

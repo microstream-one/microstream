@@ -1,8 +1,5 @@
 
-package one.microstream.entity.versioning;
-
-import one.microstream.entity.EntityException;
-
+package one.microstream.entity;
 
 public class EntityVersionException extends EntityException
 {

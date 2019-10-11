@@ -37,6 +37,12 @@ public abstract class EntityData extends Entity.AbstractAccessible
 	{
 		return this;
 	}
+	
+	@Override
+	protected final void $entityCreated()
+	{
+		// nothing to do here
+	}
 		
 	@Override
 	protected final boolean $updateEntityData(final Entity newData)
