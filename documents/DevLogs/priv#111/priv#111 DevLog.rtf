@@ -340,5 +340,61 @@ Die Frage ist auch, ob man wirklich die Klasse tauschen muss, oder ob man den Me
 Unsafe selbst ist witzigerweise ja auch eine Instanz, obwohl sie nur statische Funktionalit\'e4t bietet. Evtl. optimiert die JVM unbenutzte "this" argumente raus, dann w\'fcrde es keine rolle spielen.\par
 Muss ich testen ...\par
 \par
+\par
+\par
+2019-10-11\par
+\par
+Also ich mach jetzt, einfach mal um Erfahrungs- bzw. Messwerte zu bekommen, folgendes:\line - Messen, wie lang so ein \'fcblicher Durchlauf an store und load jetzt braucht\line - Einfach mal hardgecodet in XMemory die Speicherzugriffsmethoden intern mit einer interface instanz modularisieren und schauen, was der Unterschied ist.\par
+\par
+Alle m\'f6glichen Besprechungen zwischendrin ...\par
+\par
+Testen ...\par
+Oh. Erst mal JVM Crash. Debuggen. Ah, absoluten statt relativen Offset \'fcbergeben. Fixen. Testen. Passt.\par
+Jetzt zu performance rumprobieren ...\par
+\par
+Hm. Also das variiert phasenweise. Mal ist die hardgecodete Variante meist 500 ms, manchmal bis zu 750, dann \'e4nder ich auch die dynamische und hab meist 750, dann \'e4nder ich auf die hardgecodete zur\'fcck und hab auch meist 750.\par
+\par
+So wird das nix. Evtl. wegen zu viel "noise" im System.\par
+Muss ich doch eine main-methode mit spezifisch diesem Test bauen.\par
+\par
+\par
+\par
+Also das kann eigentlich nicht sein, aber ich kann es so reproduzieren mit ansonsten identischem Code:\par
+\par
+1 Million longs in einer for Schleife direkt in den Memory setzen.\par
+10K warmup runs\par
+10K hot runs\par
+\par
+Ergebnisse (SEHR konstant, mit Varianz von 0 bis -5\'b5s) :\par
+\par
+\par
+hardcoded Aufruf von XMemory.VM.putLong()\par
+average: 425\'b5s\par
+minimum: 380\'b5s\par
+\par
+static final MemoryAccessor mit XMemory.VM.putLong() Aufruf in MemoryAccessor$Sun\par
+average: 425\'b5s\par
+minimum: 380\'b5s\par
+\par
+static MemoryAccessor mit XMemory.VM.putLong() Aufruf in MemoryAccessor$Sun gesetzt zur Laufzeit\par
+average: 366\'b5s\par
+minimum: 315\'b5s\par
+\par
+Also das flexibelste, am wenigsten eingeschr\'e4nkteste und damit am wenigsten voraussehbar optimierbar, das eigentlich einfach nur ein Umweg ist, ist SCHNELLER der als der direkte aufruf.\par
+WTF?!\par
+\par
+Also das hei\'dft dann eigentlich eins:\par
+Man kann einfach direkt in der XMemory Klasse die Unsafe Verwendung rausmodularisieren.\par
+Krass\par
+\par
+\par
+Wenn ich die Schleife in eine "hot" Methode verpack, dann sind alle drei Varianten so schnell wie die schnellste.\par
+Scheinbar greift in dem oberen Beispiel eine JVM Optimierung in den ersten beiden F\'e4llen nicht richtig.\par
+\par
+Witzig auch:\par
+Im Idealfall braucht ein long setzen 0,3 ns.\par
+Auf dem 4,20 GHz Rechner also so grob 1 CPU cycle pro Aufruf.\par
+Das kann doch eigentlich nicht sein: man kann doch nicht mit 1 Cycle 2 Werte verarbeiten, einen Sprung machen und den Wert dort hin schreiben. Selbst wenn's Level1 Cache ist...\par
+Oder liegt das an Pipelining im CPU oder so?\par
 }
  

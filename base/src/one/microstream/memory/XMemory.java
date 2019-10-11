@@ -23,6 +23,13 @@ public final class XMemory
 
 	// used by other classes in other projects but same package
 	static final Unsafe VM = (Unsafe)getSystemInstance();
+	
+	public static MemoryAccessor MEMORY_ACCESSOR = MemoryAccessor.Sun();
+	
+	public static void setMemoryAccessor(final MemoryAccessor memoryAccessor)
+	{
+		MEMORY_ACCESSOR = memoryAccessor;
+	}
 
 	// better calculate it once instead of making wild assumptions that can change (e.g. 64 bit coops has only 12 byte)
 	private static final int BYTE_SIZE_OBJECT_HEADER = calculateByteSizeObjectHeader();
@@ -686,6 +693,8 @@ public final class XMemory
 
 	public static final void set_long(final long address, final long value)
 	{
+		// (11.10.2019 TM)FIXME: priv#111: experimental memory accessor modularization
+//		MEMORY_ACCESSOR.set_long(address, value);
 		VM.putLong(address, value);
 	}
 
