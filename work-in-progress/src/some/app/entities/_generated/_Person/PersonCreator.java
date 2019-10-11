@@ -18,7 +18,7 @@ public interface PersonCreator extends Entity.Creator<Person, PersonCreator>
 
 	public static PersonCreator New(final Person other)
 	{
-		return new Default().entity(other).copy(other);
+		return new Default().copy(other);
 	}
 
 	public class Default

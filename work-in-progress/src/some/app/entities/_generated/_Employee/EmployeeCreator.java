@@ -20,7 +20,7 @@ public interface EmployeeCreator extends Entity.Creator<Employee, EmployeeCreato
 
 	public static EmployeeCreator New(final Employee other)
 	{
-		return new Default().entity(other).copy(other);
+		return new Default().copy(other);
 	}
 
 	public class Default
