@@ -1,13 +1,13 @@
 
-package one.microstream.entity.logging;
-
-import one.microstream.entity.Entity;
-import one.microstream.entity.EntityLayerProvider;
-import one.microstream.entity.EntityLayerProviderProvider;
-
+package one.microstream.entity;
 
 public interface EntityLogger extends EntityLayerProviderProvider
 {
+	public default void entityCreated(final Entity identity, final Entity data)
+	{
+		// empty by default
+	}
+	
 	public default void afterRead(final Entity identity, final Entity data)
 	{
 		// empty by default
