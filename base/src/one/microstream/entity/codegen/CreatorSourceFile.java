@@ -66,7 +66,7 @@ class CreatorSourceFile extends SourceFile
 			.add(this.typeName).add(typeParametersNameCode).add(" New(final ")
 			.add(this.entityName).add(typeParametersNameCode).add(" other)").newline()
 			.tab().add("{").newline()
-			.tab(2).add("return new Default").add(typeParametersNameCode).add("().entity(other).copy(other);").newline()
+			.tab(2).add("return new Default").add(typeParametersNameCode).add("().copy(other);").newline()
 			.tab().add("}").newline();
 		
 		// default implementation class
@@ -108,7 +108,7 @@ class CreatorSourceFile extends SourceFile
 			.tab(2).add("{").newline()
 			.tab(3).add("return new ").add(this.getGeneratedTypeName(IdentitySourceFile.SUFFIX))
 			.add(optionalDiamond).add("();").newline()
-			.tab(3).add("}");
+			.tab(2).add("}");
 		
 		// override createData(entityInstance)
 		this.newline().newline()

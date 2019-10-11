@@ -1,6 +1,8 @@
 
 package one.microstream.entity;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XCollection;
@@ -89,7 +91,7 @@ public interface Entity
 		if(entity instanceof Entity.AbstractAccessible)
 		{
 			// data instance validation is done inside (has to be, anyway)
-			return ((Entity.Accessible)entity).$updateEntityData(data);
+			return ((Entity.AbstractAccessible)entity).$updateEntityData(data);
 		}
 		
 		// tiny redundancy as a tiny price for convenient visibility magic plus still possible multiple inheritance
@@ -152,10 +154,6 @@ public interface Entity
 		
 		public E createData(E identityInstance);
 		
-		public E createData();
-		
-		public C entity(E identity);
-		
 		public C copy(E other);
 		
 		@SuppressWarnings("unchecked")
@@ -188,7 +186,6 @@ public interface Entity
 			////////////////////
 			
 			private final BulkList<EntityLayerProvider> layerProviders = BulkList.New();
-			private E                                   entityIdentity;
 			
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
@@ -225,24 +222,38 @@ public interface Entity
 				return (E)entity.$entityIdentity();
 			}
 			
-			@SuppressWarnings("unchecked")
-			@Override
-			public C entity(final E entity)
-			{
-				this.entityIdentity = entity;
-				return (C)this;
-			}
-			
-			@Override
-			public E createData()
-			{
-				return this.createData(Entity.identity(this.entityIdentity));
-			}
-			
 			protected abstract EntityLayerIdentity createEntityInstance();
 			
 		}
 		
+	}
+	
+	public interface Updater<E extends Entity, U extends Updater<E, U>>
+	{
+		public boolean update();
+		
+		public U copy(E data);
+		
+		public static abstract class Abstract<E extends Entity, U extends Updater<E, U>>
+			implements Updater<E, U>
+		{
+			private final E entityIdentity;
+			
+			protected Abstract(final E entity)
+			{
+				super();
+				this.entityIdentity = Entity.identity(notNull(entity));
+				this.copy(Entity.data(entity));
+			}
+			
+			protected abstract E createData(E identityInstance);
+			
+			@Override
+			public boolean update()
+			{
+				return Entity.updateData(this.entityIdentity, this.createData(this.entityIdentity));
+			}
+		}
 	}
 	
 }
