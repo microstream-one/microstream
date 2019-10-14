@@ -76,12 +76,12 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		}
 	}
 	
-	public static <K> EntityVersionContext<K> Mutable()
+	public static <K> EntityVersionContext.Mutable<K> Mutable()
 	{
 		return new Mutable.Default<>(null);
 	}
 	
-	public static <K> EntityVersionContext<K> Mutable(final EntityVersionCleaner<K> cleaner)
+	public static <K> EntityVersionContext.Mutable<K> Mutable(final EntityVersionCleaner<K> cleaner)
 	{
 		return new Mutable.Default<>(cleaner);
 	}
