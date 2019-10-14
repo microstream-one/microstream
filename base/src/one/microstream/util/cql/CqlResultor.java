@@ -13,6 +13,7 @@ import one.microstream.collections.types.XIterable;
 import one.microstream.collections.types.XSequence;
 import one.microstream.functional.Aggregator;
 
+@FunctionalInterface
 public interface CqlResultor<O, R>
 {
 	public Aggregator<O, R> prepareCollector(XIterable<?> source);
@@ -21,13 +22,19 @@ public interface CqlResultor<O, R>
 
 	public static <O> CqlResultor<O, XSequence<O>> New()
 	{
-		return e -> new CqlWrapperCollectorProcedure<>(CQL.prepareTargetCollection(e));
+		return e ->
+			new CqlWrapperCollectorProcedure<>(
+				CQL.prepareTargetCollection(e)
+			)
+		;
 	}
 
 	public static <O, T extends Consumer<O> & XIterable<O>> CqlResultor<O, T> New(final T target)
 	{
 		notNull(target);
-		return e -> new CqlWrapperCollectorProcedure<>(target);
+		return e ->
+			new CqlWrapperCollectorProcedure<>(target)
+		;
 	}
 
 	// (06.07.2016 TM)NOTE: javac reports a false ambiguity here. Probably one of several bugs encountered when trying to use it.
@@ -76,7 +83,7 @@ public interface CqlResultor<O, R>
 
 	public static <O, T extends Sortable<O>> CqlResultor<O, T> NewFromSupplier(
 		final Supplier<T>           supplier,
-		final BiConsumer<O, T>     linker  ,
+		final BiConsumer<O, T>      linker  ,
 		final Comparator<? super O> order
 	)
 	{
@@ -89,7 +96,7 @@ public interface CqlResultor<O, R>
 
 	public static <O, T> CqlResultor<O, T> NewFromSupplier(
 		final Supplier<T>         supplier ,
-		final BiConsumer<O, T>   linker   ,
+		final BiConsumer<O, T>    linker   ,
 		final Consumer<? super T> finalizer
 	)
 	{

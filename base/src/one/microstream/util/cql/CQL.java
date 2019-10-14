@@ -101,14 +101,17 @@ public final class CQL
 		return CqlAggregation.New(null, null, null, null, null, aggregator);
 	}
 
-	public static <I, R> CqlAggregation<I, R> aggregate(final Supplier<R> supplier, final BiConsumer<I, R> linker)
+	public static <I, R> CqlAggregation<I, R> aggregate(
+		final Supplier<R>      supplier,
+		final BiConsumer<I, R> linker
+	)
 	{
 		return aggregate(CqlResultor.NewFromSupplier(supplier, linker));
 	}
 
 	public static <I, R extends Sortable<I>> CqlAggregation<I, R> aggregate(
 		final Supplier<R>           supplier,
-		final BiConsumer<I, R>     linker  ,
+		final BiConsumer<I, R>      linker  ,
 		final Comparator<? super I> order
 	)
 	{
@@ -116,7 +119,7 @@ public final class CQL
 	}
 
 	public static <I, R> CqlAggregation<I, R> aggregate(
-		final Supplier<R>          supplier ,
+		final Supplier<R>         supplier ,
 		final BiConsumer<I, R>    linker   ,
 		final Consumer<? super R> finalizer
 	)
@@ -128,6 +131,12 @@ public final class CQL
 	{
 		return CqlSelection.New(source, null, null, null, null);
 	}
+	
+	// (14.10.2019 TM)NOTE: there's still too much unclean typing mess in the API for this to work...
+//	public static <O, R extends Consumer<O> & XIterable<O>> CqlResulting<O, R> into(final R target)
+//	{
+//		return CqlResulting.New(target);
+//	}
 
 	public static <I, O> CqlProjection<I, O> project(final Function<? super I, O> projector)
 	{
@@ -262,7 +271,7 @@ public final class CQL
 		final Long                   limit    ,
 		final Predicate<? super I>   selector ,
 		final Function<? super I, O> projector,
-		final Consumer<? super O>   target
+		final Consumer<? super O>    target
 	)
 	{
 		if(selector == null)
@@ -288,7 +297,7 @@ public final class CQL
 		final Long                   skip     ,
 		final Long                   limit    ,
 		final Function<? super I, O> projector,
-		final Consumer<? super O>   target
+		final Consumer<? super O>    target
 	)
 	{
 		isNotNull(projector);

@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.util.Comparator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import one.microstream.collections.types.XIterable;
@@ -61,6 +62,12 @@ public interface CqlSelection<I> extends CqlProjection<I, I>, CqlTransfer<I, XSe
 			this.getOrder()   ,
 			this.getResultor()
 		);
+	}
+	
+	@Override
+	default <P> CqlProjection<I, P> project(final Function<? super I, P> projector)
+	{
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME CqlSelection#project()
 	}
 
 	@Override
@@ -151,11 +158,11 @@ public interface CqlSelection<I> extends CqlProjection<I, I>, CqlTransfer<I, XSe
 	}
 
 	public static <I> CqlSelection<I> New(
-		final XIterable<? extends I>    source    ,
-		final Long                      skip      ,
-		final Long                      limit     ,
-		final Predicate<? super I>      selector  ,
-		final Comparator<? super I>     comparator,
+		final XIterable<? extends I>       source    ,
+		final Long                         skip      ,
+		final Long                         limit     ,
+		final Predicate<? super I>         selector  ,
+		final Comparator<? super I>        comparator,
 		final CqlResultor<I, XSequence<I>> resultor
 	)
 	{
@@ -166,11 +173,11 @@ public interface CqlSelection<I> extends CqlProjection<I, I>, CqlTransfer<I, XSe
 	final class Default<I> extends CqlQuery.Abstract<I, I, XSequence<I>> implements CqlSelection<I>
 	{
 		Default(
-			final XIterable<? extends I>    source    ,
-			final Long                      skip      ,
-			final Long                      limit     ,
-			final Predicate<? super I>      selector  ,
-			final Comparator<? super I>     comparator,
+			final XIterable<? extends I>       source    ,
+			final Long                         skip      ,
+			final Long                         limit     ,
+			final Predicate<? super I>         selector  ,
+			final Comparator<? super I>        comparator,
 			final CqlResultor<I, XSequence<I>> resultor
 		)
 		{

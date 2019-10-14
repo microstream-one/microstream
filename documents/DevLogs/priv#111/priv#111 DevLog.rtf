@@ -396,5 +396,35 @@ Im Idealfall braucht ein long setzen 0,3 ns.\par
 Auf dem 4,20 GHz Rechner also so grob 1 CPU cycle pro Aufruf.\par
 Das kann doch eigentlich nicht sein: man kann doch nicht mit 1 Cycle 2 Werte verarbeiten, einen Sprung machen und den Wert dort hin schreiben. Selbst wenn's Level1 Cache ist...\par
 Oder liegt das an Pipelining im CPU oder so?\par
+\par
+\par
+\par
+2019-10-14\par
+\par
+Noch ein paar weitere Tests.\par
+Z.B., ob es einen unterschied macht, wenn die MemoryAccessor Instanz stack-escaping ist.\par
+Offensichtlich nicht.\par
+\par
+Mal wieder ein paar Tests mit dem StorageExample machen. Das ist ja komplexer als die simple Loop.\par
+Immer gleich schnell. Macht keinen Unterschied.\par
+\par
+Dann ist noch ein kniffliger Punkt:\par
+\par
+Wie soll das byte reversing zeug gehandelt werden?\par
+Idealerweise gleich \'fcber eine Instanz und nicht wieder ein Flag, wie bisher.\par
+Aber wo holt man sich die Instanz?\par
+Von der XMemory? Oder holt man sich von der den MemoryAccessor und von dem ein toReversing() oder so?\par
+Oder von einem Provider?\par
+\par
+Hm, mal \'fcberlegen ...\par
+\par
+Im Moment w\'fcrd ich sagen, dass man auf die MemoryAccessor Klasse direkt zugreifen kann und die dann eine toReversing Methode hat, wo sie eine nestete "reversing" Instanz raus gibt. Die wiederum gibt als reversing die originale zur\'fcck.\par
+\par
+Da f\'e4llt mir ein:\par
+Ich muss noch testen, ob es einen Performance Unterschied macht, wenn die MemoryAccessor Instanz state hat ...\par
+\par
+\par
+Und dann zerteil ich die XMemory Klasse jetzt mal in MemoryAccessor und einen allgemeinen teil ...\par
+\par
 }
  
