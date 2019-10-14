@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -111,6 +112,11 @@ abstract class SourceFile
 	
 	String addImport(final TypeMirror type)
 	{
+		if(type.getKind() == TypeKind.ARRAY)
+		{
+			return this.addImport(((ArrayType)type).getComponentType()).concat("[]");
+		}
+		
 		if(type.getKind() != TypeKind.DECLARED)
 		{
 			return type.toString();
