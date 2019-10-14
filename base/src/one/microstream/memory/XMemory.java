@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
-import sun.misc.Unsafe;
+
 
 
 /**
@@ -20,27 +20,18 @@ public final class XMemory
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
-
-	// used by other classes in other projects but same package
-	static final Unsafe VM = (Unsafe)getSystemInstance();
 	
-	public static MemoryAccessor MEMORY_ACCESSOR = MemoryAccessor.Sun();
+	public static MemoryAccessor MEMORY_ACCESSOR = MemoryAccessorSun.New();
 	
 	public static void setMemoryAccessor(final MemoryAccessor memoryAccessor)
 	{
 		MEMORY_ACCESSOR = memoryAccessor;
 	}
-
-	// better calculate it once instead of making wild assumptions that can change (e.g. 64 bit coops has only 12 byte)
-	private static final int BYTE_SIZE_OBJECT_HEADER = calculateByteSizeObjectHeader();
-
-	// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
-	// (04.07.2019 TM)NOTE: since these past investigations were naively JDK-specific, that is a dangerous assumption.
-	private static final int
-		MEMORY_ALIGNMENT_FACTOR =                           8,
-		MEMORY_ALIGNMENT_MODULO = MEMORY_ALIGNMENT_FACTOR - 1,
-		MEMORY_ALIGNMENT_MASK   = ~MEMORY_ALIGNMENT_MODULO
-	;
+	
+	public static MemoryAccessor getMemoryAccessor()
+	{
+		return MEMORY_ACCESSOR;
+	}
 
 	// constant names documenting that a value shall be shifted by n bits. Also to get CheckStyle off my back.
 	private static final int
@@ -49,34 +40,13 @@ public final class XMemory
 		BITS3 = 3
 	;
 
-	static final String fieldNameUnsafe()
-	{
-		return "theUnsafe";
-	}
 	
-	// return type not specified to avoid public API dependencies to sun implementation details
-	public static final Object getSystemInstance()
-	{
-		// all that clumsy detour ... x_x
-		if(XMemory.class.getClassLoader() == null)
-		{
-			return Unsafe.getUnsafe(); // Not on bootclasspath
-		}
-		try
-		{
-			final Field theUnsafe = Unsafe.class.getDeclaredField(fieldNameUnsafe());
-			theUnsafe.setAccessible(true);
-			return theUnsafe.get(null); // static field, no argument needed, may be null (see #get JavaDoc)
-		}
-		catch(final Exception e)
-		{
-			throw new Error("Could not obtain access to \"" + fieldNameUnsafe() + "\"", e);
-		}
-	}
+	
+
 	
 	public static long objectFieldOffset(final Field field)
 	{
-		return VM.objectFieldOffset(field);
+		return MEMORY_ACCESSOR.objectFieldOffset(field);
 	}
 
 	public static long[] objectFieldOffsets(final Field[] fields)
@@ -88,7 +58,7 @@ public final class XMemory
 			{
 				throw new IllegalArgumentException("Not an instance field: " + fields[i]);
 			}
-			offsets[i] = VM.objectFieldOffset(fields[i]);
+			offsets[i] = MEMORY_ACCESSOR.objectFieldOffset(fields[i]);
 		}
 		return offsets;
 	}
@@ -104,7 +74,7 @@ public final class XMemory
 				{
 					if(field.getName().equals(declaredFieldName))
 					{
-						return VM.objectFieldOffset(field);
+						return MEMORY_ACCESSOR.objectFieldOffset(field);
 					}
 				}
 			}
@@ -116,14 +86,15 @@ public final class XMemory
 		throw new Error("Field not found: " + type.getName() + '#' + declaredFieldName);
 	}
 
-	public static final Object getStaticReference(final Field field)
-	{
-		if(!Modifier.isStatic(field.getModifiers()))
-		{
-			throw new IllegalArgumentException();
-		}
-		return VM.getObject(VM.staticFieldBase(field), VM.staticFieldOffset(field));
-	}
+	// (14.10.2019 TM)FIXME: priv#111: delete if really not used
+//	public static final Object getStaticReference(final Field field)
+//	{
+//		if(!Modifier.isStatic(field.getModifiers()))
+//		{
+//			throw new IllegalArgumentException();
+//		}
+//		return MEMORY_ACCESSOR.getObject(VM.staticFieldBase(field), VM.staticFieldOffset(field));
+//	}
 		
 	
 
@@ -176,10 +147,7 @@ public final class XMemory
 
 	public static final int byteSizeFieldValue(final Class<?> type)
 	{
-		return type.isPrimitive()
-			? byteSizePrimitive(type)
-			: byteSizeReference()
-		;
+		return MEMORY_ACCESSOR.byteSizeFieldValue(type);
 	}
 
 	public static final int byteSizePrimitive(final Class<?> type)
@@ -261,19 +229,14 @@ public final class XMemory
 		return Double.BYTES;
 	}
 
-	public static final int byteSizeObjectHeader()
-	{
-		return BYTE_SIZE_OBJECT_HEADER;
-	}
-
 	public static final int byteSizeReference()
 	{
-		return Unsafe.ARRAY_OBJECT_INDEX_SCALE;
+		return MEMORY_ACCESSOR.byteSizeReference();
 	}
 
 	public static final long byteSizeArray_byte(final long elementCount)
 	{
-		return ARRAY_BYTE_BASE_OFFSET + elementCount;
+		return Memory
 	}
 
 	public static final long byteSizeArray_boolean(final long elementCount)
@@ -316,84 +279,6 @@ public final class XMemory
 		return ARRAY_OBJECT_BASE_OFFSET + elementCount * byteSizeReference();
 	}
 
-	private static final int calculateByteSizeObjectHeader()
-	{
-		// min logic should be unnecessary but better exclude any source for potential errors
-		long minOffset = Long.MAX_VALUE;
-		final Field[] declaredFields = XMemory.class.getDeclaredFields();
-		for(final Field field : declaredFields)
-		{
-			if(Modifier.isStatic(field.getModifiers()))
-			{
-				continue;
-			}
-			if(VM.objectFieldOffset(field) < minOffset)
-			{
-				minOffset = VM.objectFieldOffset(field);
-			}
-		}
-		if(minOffset == Long.MAX_VALUE)
-		{
-			throw new Error("Could not find object header dummy field in class " + XMemory.class);
-		}
-		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
-	}
-
-	public static final int byteSizeInstance(final Class<?> type)
-	{
-		if(type.isPrimitive())
-		{
-			throw new IllegalArgumentException();
-		}
-		if(type.isArray())
-		{
-			// instance byte size accounts only array header (object header plus length field plus overhead)
-			return VM.arrayBaseOffset(type);
-		}
-		if(type == Object.class)
-		{
-			// required because Object's super class is null (see below)
-			return byteSizeObjectHeader();
-		}
-
-		// declared fields suffice as all super class fields are positioned before them
-		final Field[] declaredFields = type.getDeclaredFields();
-		long maxInstanceFieldOffset = 0;
-		Field maxInstanceField = null;
-		for(int i = 0; i < declaredFields.length; i++)
-		{
-			if(Modifier.isStatic(declaredFields[i].getModifiers()))
-			{
-				continue;
-			}
-			final long fieldOffset = VM.objectFieldOffset(declaredFields[i]);
-//			XDebug.debugln(fieldOffset + "\t" + declaredFields[i]);
-			if(fieldOffset >= maxInstanceFieldOffset)
-			{
-				maxInstanceField = declaredFields[i];
-				maxInstanceFieldOffset = fieldOffset;
-			}
-		}
-
-		// no declared instance field at all, fall back to super class fields recursively
-		if(maxInstanceField == null)
-		{
-			return byteSizeInstance(type.getSuperclass());
-		}
-
-		// memory alignment is a wild assumption at this point. Hopefully it will always be true. Otherwise it's a bug.
-		return (int)alignAddress(maxInstanceFieldOffset + byteSizeFieldValue(maxInstanceField.getType()));
-	}
-
-	public static final long alignAddress(final long address)
-	{
-		if((address & MEMORY_ALIGNMENT_MODULO) == 0)
-		{
-			return address; // already aligned
-		}
-		// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
-		return (address & MEMORY_ALIGNMENT_MASK) + MEMORY_ALIGNMENT_FACTOR;
-	}
 
 	public static Field[] collectPrimitiveFieldsByByteSize(final Field[] fields, final int byteSize)
 	{
@@ -432,24 +317,9 @@ public final class XMemory
 		return length;
 	}
 
-	public static Object getStaticFieldBase(final Field field)
-	{
-		return VM.staticFieldBase(notNull(field)); // throws IllegalArgumentException, so no need to check here
-	}
 
-	public static long[] staticFieldOffsets(final Field[] fields)
-	{
-		final long[] offsets = new long[fields.length];
-		for(int i = 0; i < fields.length; i++)
-		{
-			if(!Modifier.isStatic(fields[i].getModifiers()))
-			{
-				throw new IllegalArgumentException("Not a static field: " + fields[i]);
-			}
-			offsets[i] = (int)VM.staticFieldOffset(fields[i]);
-		}
-		return offsets;
-	}
+
+
 
 	public static byte[] asByteArray(final long[] longArray)
 	{
@@ -490,29 +360,7 @@ public final class XMemory
 		return VM.pageSize();
 	}
 	
-	/*
-	 * Rationale for these local constants:
-	 * For Unsafe putting methods like Unsafe#putInt etc, there were two versions before Java 9:
-	 * One with an int offset (deprecated) and one with a long offset.
-	 * The base offset constants are ints, so they have to be casted for the compiler to select the corrent
-	 * method option.
-	 * However, in Java 9, the int variant disappeared (finally). That now causes an "unnecessary cast" warning.
-	 * But removing it would mean in Java 8 and below, the int variant would be chosen and a deprecation warning would
-	 * be displayed.
-	 * So the only way to use those methods without warnings in either version is to have a constant that is
-	 * naturally of type long.
-	 */
-	private static final long
-		ARRAY_BYTE_BASE_OFFSET    = Unsafe.ARRAY_BYTE_BASE_OFFSET   ,
-		ARRAY_BOOLEAN_BASE_OFFSET = Unsafe.ARRAY_BOOLEAN_BASE_OFFSET,
-		ARRAY_SHORT_BASE_OFFSET   = Unsafe.ARRAY_SHORT_BASE_OFFSET  ,
-		ARRAY_CHAR_BASE_OFFSET    = Unsafe.ARRAY_CHAR_BASE_OFFSET   ,
-		ARRAY_INT_BASE_OFFSET     = Unsafe.ARRAY_INT_BASE_OFFSET    ,
-		ARRAY_FLOAT_BASE_OFFSET   = Unsafe.ARRAY_FLOAT_BASE_OFFSET  ,
-		ARRAY_LONG_BASE_OFFSET    = Unsafe.ARRAY_LONG_BASE_OFFSET   ,
-		ARRAY_DOUBLE_BASE_OFFSET  = Unsafe.ARRAY_DOUBLE_BASE_OFFSET ,
-		ARRAY_OBJECT_BASE_OFFSET  = Unsafe.ARRAY_OBJECT_BASE_OFFSET
-	;
+
 	
 	public static void put_byte(final byte[] bytes, final int index, final short value)
 	{
@@ -694,8 +542,8 @@ public final class XMemory
 	public static final void set_long(final long address, final long value)
 	{
 		// (11.10.2019 TM)FIXME: priv#111: experimental memory accessor modularization
-//		MEMORY_ACCESSOR.set_long(address, value);
-		VM.putLong(address, value);
+		MEMORY_ACCESSOR.set_long(address, value);
+//		VM.putLong(address, value);
 	}
 
 	public static final void set_double(final long address, final double value)
