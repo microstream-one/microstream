@@ -1,4 +1,4 @@
-package one.microstream.util;
+package various;
 
 import one.microstream.memory.XMemory;
 import one.microstream.reflect.XReflect;
