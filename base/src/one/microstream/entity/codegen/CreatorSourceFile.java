@@ -54,7 +54,8 @@ class CreatorSourceFile extends SourceFile
 		this.members.forEach(
 			m -> this.newline()
 				.tab().add("public ").add(this.typeName).add(typeParametersNameCode).blank()
-				.add(m.name).add("(").add(m.typeName).blank().add(m.name).add(");").newline());
+				.add(m.name).add("(").add(m.typeName).blank().add(m.name).add(")")
+				.add(m.throwsClause).add(";").newline());
 		
 		// pseudo constructors
 		this.newline().tab().add("public static ").add(methodTypeParametersDeclCode)
@@ -94,7 +95,8 @@ class CreatorSourceFile extends SourceFile
 			m -> this.newline().newline()
 				.tab(2).add("@Override").newline()
 				.tab(2).add("public ").add(this.typeName).add(typeParametersNameCode).blank()
-				.add(m.name).add("(final ").add(m.typeName).blank().add(m.name).add(")").newline()
+				.add(m.name).add("(final ").add(m.typeName).blank().add(m.name).add(")")
+				.add(m.throwsClause).newline()
 				.tab(2).add("{").newline()
 				.tab(3).add("this.").add(m.name).add(" = ").add(m.name).add(";").newline()
 				.tab(3).add("return this;").newline()

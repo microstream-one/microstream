@@ -66,8 +66,8 @@ class IdentitySourceFile extends SourceFile
 		this.members.forEach(
 			m -> this.newline().newline()
 				.tab().add("@Override").newline()
-				.tab().add("public final ").add(m.typeName).blank().add(m.methodName).add("()").newline()
-				.tab().add("{").newline()
+				.tab().add("public final ").add(m.typeName).blank().add(m.methodName).add("()").add(m.throwsClause)
+				.newline().tab().add("{").newline()
 				.tab(2).add("return this.$entityData().").add(m.methodName).add("();").newline()
 				.tab().add("}"));
 		

@@ -78,6 +78,7 @@ abstract class SourceFile
 			final int maxTypeNameLength = members.stream().mapToInt(m -> m.typeName.length()).max().getAsInt();
 			members.forEach(m -> {
 				m.paddedTypeName = this.rpad(m.typeName, maxTypeNameLength);
+				m.throwsClause   = this.createThrowsClause(m);
 			});
 		}
 		
@@ -97,6 +98,16 @@ abstract class SourceFile
 		return length >= maxLength
 			? string
 			: VarString.New(string).blank(maxLength - length).toString();
+	}
+	
+	private String createThrowsClause(final Member member)
+	{
+		final List<? extends TypeMirror> thrownTypes = member.element.getThrownTypes();
+		return thrownTypes.isEmpty()
+			? ""
+			: thrownTypes.stream()
+				.map(this::addImport)
+				.collect(Collectors.joining(", ", " throws ", ""));
 	}
 	
 	final void generateType()
