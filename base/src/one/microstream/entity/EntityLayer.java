@@ -69,7 +69,6 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 	
 	protected void $validateNewData(final Entity newData)
 	{
-		// (18.07.2019 TM)FIXME: check for same data class necessary?
 		if(Entity.identity(newData) != this.$entityIdentity())
 		{
 			throw new EntityException("Entity identity mismatch.");
