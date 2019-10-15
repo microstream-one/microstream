@@ -35,6 +35,7 @@ public class EntityProcessor extends AbstractProcessor
 	
 	private List<ExecutableElement> javaLangObjectMethods;
 	private TypeMirror              runtimeExceptionType;
+	private boolean                 processed            = false;
 	
 	public EntityProcessor()
 	{
@@ -95,7 +96,7 @@ public class EntityProcessor extends AbstractProcessor
 		final Set<? extends TypeElement> annotations,
 		final RoundEnvironment roundEnv)
 	{
-		if(roundEnv.processingOver())
+		if(roundEnv.processingOver() || this.processed)
 		{
 			return false;
 		}
@@ -105,6 +106,8 @@ public class EntityProcessor extends AbstractProcessor
 			.map(TypeElement.class::cast)
 			.filter(this::isEntity)
 			.forEach(this::generateTypes);
+		
+		this.processed = true;
 		
 		return false;
 	}
