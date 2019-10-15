@@ -11,19 +11,23 @@ import one.microstream.chars.VarString;
 
 class Member
 {
-	final String     methodName;
-	final String     name;
-	final String     setterName;
-	final TypeMirror type;
+	final ExecutableElement element;
+	final String            methodName;
+	final String            name;
+	final String            setterName;
+	final TypeMirror        type;
 	
-	String           typeName;
-	String           paddedTypeName;
-	String           paddedMethodName;
-	String           paddedName;
+	String                  typeName;
+	String                  paddedTypeName;
+	String                  paddedMethodName;
+	String                  paddedName;
+	String                  throwsClause;
 	
 	Member(final ExecutableElement element, final TypeMirror type)
 	{
 		super();
+		
+		this.element    = element;
 		this.methodName = element.getSimpleName().toString();
 		this.name       = getMemberName(this.methodName);
 		this.setterName = getSetterName(this.name);

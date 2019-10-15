@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ElementKind;
@@ -36,6 +37,7 @@ public class EntityProcessor extends AbstractProcessor
 	private final static String     OPTION_HASHEQUALATOR = OPTION_PREFIX.concat("hashequalator");
 	
 	private List<ExecutableElement> javaLangObjectMethods;
+	private TypeMirror              runtimeExceptionType;
 	
 	public EntityProcessor()
 	{
@@ -74,6 +76,24 @@ public class EntityProcessor extends AbstractProcessor
 		return XChars.isEmpty(option = this.processingEnv.getOptions().get(name))
 			? defaultValue
 			: Boolean.parseBoolean(option);
+	}
+	
+	@Override
+	public synchronized void init(final ProcessingEnvironment processingEnv)
+	{
+		super.init(processingEnv);
+		
+		this.javaLangObjectMethods = processingEnv.getElementUtils()
+			.getTypeElement(Object.class.getName())
+			.getEnclosedElements().stream()
+			.filter(e -> e.getKind() == ElementKind.METHOD)
+			.map(ExecutableElement.class::cast)
+			.filter(method -> !method.getModifiers().contains(Modifier.STATIC))
+			.collect(Collectors.toList());
+		
+		this.runtimeExceptionType  = processingEnv.getElementUtils()
+			.getTypeElement(RuntimeException.class.getName())
+			.asType();
 	}
 	
 	@Override
@@ -120,9 +140,8 @@ public class EntityProcessor extends AbstractProcessor
 	
 	private void generateTypes(final TypeElement entityTypeElement)
 	{
-		final Set<ExecutableElement>  potentialMemberMethods = new LinkedHashSet<>();
-		final List<ExecutableElement> javaLangObjectMethods  = this.getJavaLangObjectMethods(entityTypeElement);
-		this.collectPotentialMemberMethods(entityTypeElement, potentialMemberMethods, javaLangObjectMethods);
+		final Set<ExecutableElement> potentialMemberMethods = new LinkedHashSet<>();
+		this.collectPotentialMemberMethods(entityTypeElement, potentialMemberMethods);
 		potentialMemberMethods.forEach(this::validateMemberMethod);
 		
 		final DeclaredType     entityType  = (DeclaredType)entityTypeElement.asType();
@@ -145,30 +164,14 @@ public class EntityProcessor extends AbstractProcessor
 		sourceFiles.forEach(SourceFile::generateType);
 	}
 	
-	public List<ExecutableElement> getJavaLangObjectMethods(final TypeElement typeElement)
-	{
-		if(this.javaLangObjectMethods == null)
-		{
-			final TypeElement javaLangObject = (TypeElement)((DeclaredType)this.processingEnv.getTypeUtils()
-				.directSupertypes(typeElement.asType()).get(0)).asElement();
-			this.javaLangObjectMethods = javaLangObject.getEnclosedElements().stream()
-				.filter(e -> e.getKind() == ElementKind.METHOD)
-				.map(ExecutableElement.class::cast)
-				.filter(method -> !method.getModifiers().contains(Modifier.STATIC))
-				.collect(Collectors.toList());
-		}
-		return this.javaLangObjectMethods;
-	}
-	
 	private void collectPotentialMemberMethods(
 		final TypeElement typeElement,
-		final Set<ExecutableElement> members,
-		final List<ExecutableElement> javaLangObjectMethods)
+		final Set<ExecutableElement> members)
 	{
 		typeElement.getEnclosedElements().stream()
 			.filter(e -> e.getKind() == ElementKind.METHOD)
 			.map(ExecutableElement.class::cast)
-			.filter(method -> this.isPotentialMemberMethod(method, members, javaLangObjectMethods))
+			.filter(method -> this.isPotentialMemberMethod(method, members))
 			.forEach(members::add);
 		
 		typeElement.getInterfaces().stream()
@@ -177,18 +180,17 @@ public class EntityProcessor extends AbstractProcessor
 			.map(DeclaredType::asElement)
 			.map(TypeElement.class::cast)
 			.filter(element -> !element.getQualifiedName().contentEquals(Entity.class.getName()))
-			.forEach(element -> this.collectPotentialMemberMethods(element, members, javaLangObjectMethods));
+			.forEach(element -> this.collectPotentialMemberMethods(element, members));
 	}
 	
 	private boolean isPotentialMemberMethod(
 		final ExecutableElement method,
-		final Collection<ExecutableElement> methods,
-		final Collection<ExecutableElement> javaLangObjectMethods)
+		final Collection<ExecutableElement> methods)
 	{
 		return !method.isDefault()
 			&& !method.getModifiers().contains(Modifier.STATIC)
 			&& !this.isOverwritten(method, methods)
-			&& !this.overridesObjectMethod(method, javaLangObjectMethods);
+			&& !this.overridesObjectMethod(method);
 	}
 	
 	private boolean isOverwritten(
@@ -205,11 +207,10 @@ public class EntityProcessor extends AbstractProcessor
 	}
 	
 	private boolean overridesObjectMethod(
-		final ExecutableElement method,
-		final Collection<ExecutableElement> javaLangObjectMethods)
+		final ExecutableElement method)
 	{
 		final Elements elements = this.processingEnv.getElementUtils();
-		return javaLangObjectMethods.stream()
+		return this.javaLangObjectMethods.stream()
 			.filter(objectMethod -> elements.overrides(method, objectMethod, (TypeElement)method.getEnclosingElement()))
 			.findAny()
 			.isPresent();
@@ -220,13 +221,23 @@ public class EntityProcessor extends AbstractProcessor
 		if(method.getReturnType().getKind() == TypeKind.VOID
 			|| method.getTypeParameters().size() > 0
 			|| method.getParameters().size() > 0
-			|| method.getThrownTypes().size() > 0)
+			|| this.containsCheckedException(method.getThrownTypes()))
 		{
 			throw new EntityException(VarString.New("Invalid entity method: ")
 				.add(method.getEnclosingElement()).add('#').add(method)
 				.add("; only methods with return type, no type parameters")
-				.add(", no parameters and no thrown exceptions are supported.").toString());
+				.add(", no parameters and no checked exceptions are supported.").toString());
 		}
+	}
+	
+	private boolean containsCheckedException(final List<? extends TypeMirror> exceptionTypes)
+	{
+		return exceptionTypes.stream().anyMatch(this::isCheckedException);
+	}
+	
+	private boolean isCheckedException(final TypeMirror exceptionType)
+	{
+		return !this.processingEnv.getTypeUtils().isAssignable(exceptionType, this.runtimeExceptionType);
 	}
 	
 	private TypeMirror getTypeInEntity(

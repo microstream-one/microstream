@@ -63,7 +63,7 @@ class DataSourceFile extends SourceFile
 		this.members.forEach(
 			m -> this.newline().newline()
 				.tab().add("@Override").newline()
-				.tab().add("public ").add(m.typeName).blank().add(m.methodName).add("()").newline()
+				.tab().add("public ").add(m.typeName).blank().add(m.methodName).add("()").add(m.throwsClause).newline()
 				.tab().add("{").newline()
 				.tab(2).add("return this.").add(m.name).add(";").newline()
 				.tab().add("}"));
