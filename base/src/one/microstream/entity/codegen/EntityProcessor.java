@@ -4,7 +4,6 @@ package one.microstream.entity.codegen;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,9 +31,7 @@ import one.microstream.entity.EntityException;
 
 public class EntityProcessor extends AbstractProcessor
 {
-	private final static String     OPTION_PREFIX        = "microstream.entity.";
-	private final static String     OPTION_UPDATER       = OPTION_PREFIX.concat("updater");
-	private final static String     OPTION_HASHEQUALATOR = OPTION_PREFIX.concat("hashequalator");
+	private final static String     OPTION_HASHEQUALATOR = "microstream.entity.hashequalator";
 	
 	private List<ExecutableElement> javaLangObjectMethods;
 	private TypeMirror              runtimeExceptionType;
@@ -62,10 +59,7 @@ public class EntityProcessor extends AbstractProcessor
 	@Override
 	public Set<String> getSupportedOptions()
 	{
-		final Set<String> set = new HashSet<>();
-		set.add(OPTION_UPDATER);
-		set.add(OPTION_HASHEQUALATOR);
-		return set;
+		return Collections.singleton(OPTION_HASHEQUALATOR);
 	}
 	
 	private boolean getBooleanOption(
@@ -144,24 +138,21 @@ public class EntityProcessor extends AbstractProcessor
 		this.collectPotentialMemberMethods(entityTypeElement, potentialMemberMethods);
 		potentialMemberMethods.forEach(this::validateMemberMethod);
 		
-		final DeclaredType     entityType  = (DeclaredType)entityTypeElement.asType();
-		final List<Member>     members     = potentialMemberMethods.stream()
+		final DeclaredType        entityType     = (DeclaredType)entityTypeElement.asType();
+		final List<Member>        members        = potentialMemberMethods.stream()
 			.map(element -> new Member(element, this.getTypeInEntity(entityType, element)))
 			.collect(Collectors.toList());
 		
-		final List<SourceFile> sourceFiles = new ArrayList<>(5);
-		sourceFiles.add(new DataSourceFile(this.processingEnv, entityTypeElement, members));
-		sourceFiles.add(new IdentitySourceFile(this.processingEnv, entityTypeElement, members));
-		sourceFiles.add(new CreatorSourceFile(this.processingEnv, entityTypeElement, members));
-		if(this.getBooleanOption(OPTION_UPDATER, true))
-		{
-			sourceFiles.add(new UpdaterSourceFile(this.processingEnv, entityTypeElement, members));
-		}
+		final List<TypeGenerator> typeGenerators = new ArrayList<>(5);
+		typeGenerators.add(new TypeGeneratorDataType(this.processingEnv, entityTypeElement, members));
+		typeGenerators.add(new TypeGeneratorEntityIdentityType(this.processingEnv, entityTypeElement, members));
+		typeGenerators.add(new TypeGeneratorCreatorType(this.processingEnv, entityTypeElement, members));
+		typeGenerators.add(new TypeGeneratorUpdaterType(this.processingEnv, entityTypeElement, members));
 		if(this.getBooleanOption(OPTION_HASHEQUALATOR, true))
 		{
-			sourceFiles.add(new HashEqualatorSourceFile(this.processingEnv, entityTypeElement, members));
+			typeGenerators.add(new TypeGeneratorHashEqualatorType(this.processingEnv, entityTypeElement, members));
 		}
-		sourceFiles.forEach(SourceFile::generateType);
+		typeGenerators.forEach(TypeGenerator::generateType);
 	}
 	
 	private void collectPotentialMemberMethods(

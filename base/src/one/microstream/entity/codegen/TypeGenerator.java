@@ -22,7 +22,7 @@ import one.microstream.chars.VarString;
 import one.microstream.exceptions.IORuntimeException;
 
 
-abstract class SourceFile
+abstract class TypeGenerator
 {
 	private final static String       JAVA_LANG_PACKAGE = "java.lang";
 	private final static String       GENERATED_PREFIX  = "_";
@@ -37,7 +37,7 @@ abstract class SourceFile
 	private final Map<String, String> imports           = new HashMap<>();
 	private final VarString           source            = VarString.New();
 	
-	SourceFile(
+	TypeGenerator(
 		final ProcessingEnvironment processingEnv,
 		final TypeElement entityTypeElement,
 		final List<Member> members,
@@ -216,31 +216,31 @@ abstract class SourceFile
 			: name + bounds.stream().map(this::addImport).collect(Collectors.joining(" & ", " extends ", ""));
 	}
 	
-	SourceFile add(final String code)
+	TypeGenerator add(final String code)
 	{
 		this.source.add(code);
 		return this;
 	}
 	
-	SourceFile blank()
+	TypeGenerator blank()
 	{
 		this.source.blank();
 		return this;
 	}
 	
-	SourceFile tab()
+	TypeGenerator tab()
 	{
 		this.source.tab();
 		return this;
 	}
 	
-	SourceFile tab(final int amount)
+	TypeGenerator tab(final int amount)
 	{
 		this.source.tab(amount);
 		return this;
 	}
 	
-	SourceFile newline()
+	TypeGenerator newline()
 	{
 		this.source.add(System.lineSeparator());
 		return this;
