@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,8 +30,9 @@ public class WrapperProcessor extends AbstractProcessor
 {
 	private final static String     OPTION_TYPES = "microstream.wrapper.types";
 	
-	private Set<String>             types;
+	private Set<String>             additionalTypes;
 	private List<ExecutableElement> javaLangObjectMethods;
+	private boolean                 processed    = false;
 	
 	public WrapperProcessor()
 	{
@@ -45,6 +48,9 @@ public class WrapperProcessor extends AbstractProcessor
 	@Override
 	public Set<String> getSupportedAnnotationTypes()
 	{
+		/*
+		 * 'Hack' to process all elements, not only annotated classes.
+		 */
 		return Collections.singleton("*");
 	}
 	
@@ -59,68 +65,69 @@ public class WrapperProcessor extends AbstractProcessor
 	{
 		super.init(processingEnv);
 		
+		this.javaLangObjectMethods = processingEnv.getElementUtils()
+			.getTypeElement(Object.class.getName())
+			.getEnclosedElements().stream()
+			.filter(e -> e.getKind() == ElementKind.METHOD)
+			.map(ExecutableElement.class::cast)
+			.filter(method -> !method.getModifiers().contains(Modifier.STATIC))
+			.collect(Collectors.toList());
+		
 		final String option = processingEnv.getOptions().get(OPTION_TYPES);
 		if(option != null && option.length() > 0)
 		{
-			this.types = Arrays.stream(option.split(",")).collect(Collectors.toSet());
+			this.additionalTypes = Arrays.stream(option.split(","))
+				.map(String::trim)
+				.collect(Collectors.toSet());
 		}
 	}
 	
 	@Override
 	public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv)
 	{
-		if(roundEnv.processingOver())
+		if(roundEnv.processingOver() || this.processed)
 		{
 			return false;
 		}
 		
-		roundEnv.getRootElements().stream()
+		// annotated types
+		final Map<String, TypeElement> types = roundEnv.getElementsAnnotatedWith(GenerateWrapper.class).stream()
 			.filter(e -> e.getKind() == ElementKind.INTERFACE)
 			.map(TypeElement.class::cast)
-			.filter(this::accept)
-			.forEach(this::generateWrapper);
+			.collect(Collectors.toMap(t -> t.getQualifiedName().toString(), t -> t));
 		
-		return true;
-	}
-	
-	private boolean accept(final TypeElement typeElem)
-	{
-		return typeElem.getAnnotation(GenerateWrapper.class) != null
-			|| (this.types != null && this.types.contains(typeElem.getQualifiedName().toString()));
+		// additional types
+		if(this.additionalTypes != null)
+		{
+			this.additionalTypes.stream()
+				.filter(name -> !types.containsKey(name))
+				.map(this.processingEnv.getElementUtils()::getTypeElement)
+				.filter(Objects::nonNull)
+				.forEach(t -> types.put(t.getQualifiedName().toString(), t));
+		}
+		
+		types.values().forEach(this::generateWrapper);
+		
+		this.processed = true;
+		
+		return false;
 	}
 	
 	private void generateWrapper(final TypeElement typeElement)
 	{
-		final Set<ExecutableElement>  methods               = new LinkedHashSet<>();
-		final List<ExecutableElement> javaLangObjectMethods = this.getJavaLangObjectMethods(typeElement);
-		this.collectMethods(typeElement, methods, javaLangObjectMethods);
-		new WrapperSourceFile(this.processingEnv, typeElement, methods).generateType();
-	}
-	
-	public List<ExecutableElement> getJavaLangObjectMethods(final TypeElement typeElement)
-	{
-		if(this.javaLangObjectMethods == null)
-		{
-			final TypeElement javaLangObject = (TypeElement)((DeclaredType)this.processingEnv.getTypeUtils()
-				.directSupertypes(typeElement.asType()).get(0)).asElement();
-			this.javaLangObjectMethods = javaLangObject.getEnclosedElements().stream()
-				.filter(e -> e.getKind() == ElementKind.METHOD)
-				.map(ExecutableElement.class::cast)
-				.filter(method -> !method.getModifiers().contains(Modifier.STATIC))
-				.collect(Collectors.toList());
-		}
-		return this.javaLangObjectMethods;
+		final Set<ExecutableElement> methods = new LinkedHashSet<>();
+		this.collectMethods(typeElement, methods);
+		new WrapperTypeGenerator(this.processingEnv, typeElement, methods).generateType();
 	}
 	
 	private void collectMethods(
 		final TypeElement typeElement,
-		final Set<ExecutableElement> methods,
-		final List<ExecutableElement> javaLangObjectMethods)
+		final Set<ExecutableElement> methods)
 	{
 		typeElement.getEnclosedElements().stream()
 			.filter(e -> e.getKind() == ElementKind.METHOD)
 			.map(ExecutableElement.class::cast)
-			.filter(method -> this.filter(method, methods, javaLangObjectMethods))
+			.filter(method -> this.filter(method, methods))
 			.forEach(methods::add);
 		
 		typeElement.getInterfaces().stream()
@@ -128,18 +135,17 @@ public class WrapperProcessor extends AbstractProcessor
 			.map(DeclaredType.class::cast)
 			.map(DeclaredType::asElement)
 			.map(TypeElement.class::cast)
-			.forEach(element -> this.collectMethods(element, methods, javaLangObjectMethods));
+			.forEach(element -> this.collectMethods(element, methods));
 	}
 	
 	private boolean filter(
 		final ExecutableElement method,
-		final Collection<ExecutableElement> methods,
-		final Collection<ExecutableElement> javaLangObjectMethods)
+		final Collection<ExecutableElement> methods)
 	{
 		return !method.isDefault()
 			&& !method.getModifiers().contains(Modifier.STATIC)
 			&& !this.isOverwritten(method, methods)
-			&& !this.overridesObjectMethod(method, javaLangObjectMethods);
+			&& !this.overridesObjectMethod(method);
 	}
 	
 	private boolean isOverwritten(
@@ -156,11 +162,10 @@ public class WrapperProcessor extends AbstractProcessor
 	}
 	
 	private boolean overridesObjectMethod(
-		final ExecutableElement method,
-		final Collection<ExecutableElement> javaLangObjectMethods)
+		final ExecutableElement method)
 	{
 		final Elements elements = this.processingEnv.getElementUtils();
-		return javaLangObjectMethods.stream()
+		return this.javaLangObjectMethods.stream()
 			.filter(objectMethod -> elements.overrides(method, objectMethod, (TypeElement)method.getEnclosingElement()))
 			.findAny()
 			.isPresent();

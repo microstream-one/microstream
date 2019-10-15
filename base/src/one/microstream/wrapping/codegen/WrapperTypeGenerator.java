@@ -27,7 +27,7 @@ import one.microstream.exceptions.IORuntimeException;
 import one.microstream.wrapping.Wrapper;
 
 
-class WrapperSourceFile
+class WrapperTypeGenerator
 {
 	private final static String         JAVA_LANG_PACKAGE = "java.lang";
 	
@@ -41,7 +41,7 @@ class WrapperSourceFile
 	private final Map<String, String>   imports           = new HashMap<>();
 	private final VarString             source            = VarString.New();
 	
-	WrapperSourceFile(
+	WrapperTypeGenerator(
 		final ProcessingEnvironment processingEnv,
 		final TypeElement wrappedTypeElement,
 		final Collection<ExecutableElement> methods)
@@ -55,7 +55,8 @@ class WrapperSourceFile
 		this.wrappedName        = wrappedTypeElement.getSimpleName().toString();
 		this.typeName           = "Wrapper".concat(this.wrappedName);
 		this.packageName        =
-			processingEnv.getElementUtils().getPackageOf(wrappedTypeElement).getQualifiedName().toString();
+			processingEnv.getElementUtils().getPackageOf(wrappedTypeElement).getQualifiedName().toString()
+				.concat("._wrapper");
 	}
 	
 	final void generateType()
@@ -80,7 +81,11 @@ class WrapperSourceFile
 		
 		this.methods.forEach(method -> {
 			
-			if(method.isVarArgs())
+			final ExecutableType methodType = (ExecutableType)this.processingEnv.getTypeUtils().asMemberOf(
+				(DeclaredType)this.wrappedTypeElement.asType(),
+				method);
+			
+			if(this.hasGenericVarArgs(method, methodType))
 			{
 				this.newline().tab().add("@SuppressWarnings(\"unchecked\")");
 			}
@@ -91,10 +96,6 @@ class WrapperSourceFile
 			{
 				this.add(typeParams).blank();
 			}
-			
-			final ExecutableType methodType = (ExecutableType)this.processingEnv.getTypeUtils().asMemberOf(
-				(DeclaredType)this.wrappedTypeElement.asType(),
-				method);
 			
 			this.add(this.addImport(methodType.getReturnType()))
 				.blank().add(method.getSimpleName().toString()).add("(");
@@ -145,6 +146,19 @@ class WrapperSourceFile
 		});
 		
 		this.add("}");
+	}
+	
+	private boolean hasGenericVarArgs(final ExecutableElement method, final ExecutableType methodType)
+	{
+		return method.isVarArgs()
+			&& this.getVarArgType(method, methodType).getKind() == TypeKind.TYPEVAR;
+	}
+	
+	private TypeMirror getVarArgType(final ExecutableElement method, final ExecutableType methodType)
+	{
+		final List<? extends TypeMirror> parameterTypes = methodType.getParameterTypes();
+		final TypeMirror                 last           = parameterTypes.get(parameterTypes.size() - 1);
+		return ((ArrayType)last).getComponentType();
 	}
 	
 	String addImport(final TypeMirror type)
@@ -244,31 +258,31 @@ class WrapperSourceFile
 			: name + bounds.stream().map(this::addImport).collect(Collectors.joining(" & ", " extends ", ""));
 	}
 	
-	WrapperSourceFile add(final String code)
+	WrapperTypeGenerator add(final String code)
 	{
 		this.source.add(code);
 		return this;
 	}
 	
-	WrapperSourceFile blank()
+	WrapperTypeGenerator blank()
 	{
 		this.source.blank();
 		return this;
 	}
 	
-	WrapperSourceFile tab()
+	WrapperTypeGenerator tab()
 	{
 		this.source.tab();
 		return this;
 	}
 	
-	WrapperSourceFile tab(final int amount)
+	WrapperTypeGenerator tab(final int amount)
 	{
 		this.source.tab(amount);
 		return this;
 	}
 	
-	WrapperSourceFile newline()
+	WrapperTypeGenerator newline()
 	{
 		this.source.add(System.lineSeparator());
 		return this;
