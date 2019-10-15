@@ -16,11 +16,11 @@ import one.microstream.hashing.HashEqualator;
 import one.microstream.typing.Stateless;
 
 
-class HashEqualatorSourceFile extends SourceFile
+class TypeGeneratorHashEqualatorType extends TypeGenerator
 {
 	final static String SUFFIX = "HashEqualator";
 	
-	HashEqualatorSourceFile(
+	TypeGeneratorHashEqualatorType(
 		final ProcessingEnvironment processingEnv,
 		final TypeElement entityTypeElement,
 		final List<Member> members)

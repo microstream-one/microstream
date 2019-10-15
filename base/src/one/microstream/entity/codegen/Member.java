@@ -29,12 +29,12 @@ class Member
 		
 		this.element    = element;
 		this.methodName = element.getSimpleName().toString();
-		this.name       = getMemberName(this.methodName);
-		this.setterName = getSetterName(this.name);
+		this.name       = memberName(this.methodName);
+		this.setterName = setterName(this.name);
 		this.type       = type;
 	}
 	
-	private static String getMemberName(final String methodName)
+	private static String memberName(final String methodName)
 	{
 		int offset = -1;
 		if(methodName.startsWith("get"))
@@ -51,7 +51,7 @@ class Member
 			: Introspector.decapitalize(methodName.substring(offset));
 	}
 	
-	private static String getSetterName(final String name)
+	private static String setterName(final String name)
 	{
 		return VarString.New("set")
 			.add(Character.toUpperCase(name.charAt(0)))

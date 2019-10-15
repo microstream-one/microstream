@@ -7,14 +7,14 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 
-import one.microstream.entity.EntityData;
+import one.microstream.entity.EntityLayerIdentity;
 
 
-class DataSourceFile extends SourceFile
+class TypeGeneratorEntityIdentityType extends TypeGenerator
 {
-	final static String SUFFIX = "Data";
+	final static String SUFFIX = "Entity";
 	
-	DataSourceFile(
+	TypeGeneratorEntityIdentityType(
 		final ProcessingEnvironment processingEnv,
 		final TypeElement entityTypeElement,
 		final List<Member> members)
@@ -37,35 +37,38 @@ class DataSourceFile extends SourceFile
 			this.createTypeParameterNameCode(typeParameters);
 		
 		this.add("public class ").add(this.typeName).add(typeParametersDeclCode)
-			.add(" extends ").add(this.addImport(EntityData.class))
+			.add(" extends ").add(this.addImport(EntityLayerIdentity.class))
 			.add(" implements ").add(this.entityName).add(typeParametersNameCode)
 			.newline();
-		this.add("{").newline();
-		
-		// fields
-		this.members.forEach(
-			m -> this.tab().add("private final ").add(m.paddedTypeName).blank().add(m.paddedName).add(";").newline());
+		this.add("{");
 		
 		// constructor
 		this.newline()
-			.tab().add("protected ").add(this.typeName).add("(final ")
-			.add(this.entityName).add(typeParametersNameCode).add(" entity");
-		this.members.forEach(
-			m -> this.add(",").newline().tab(2).add("final ").add(m.paddedTypeName).blank().add(m.paddedName));
-		this.add(")").newline()
+			.tab().add("protected ").add(this.typeName).add("()").newline()
 			.tab().add("{").newline()
-			.tab(2).add("super(entity);").newline();
-		this.members.forEach(
-			m -> this.newline().tab(2).add("this.").add(m.paddedName).add(" = ").add(m.paddedName).add(";"));
-		this.newline().tab().add("}");
+			.tab(2).add("super();").newline()
+			.tab().add("}");
+		
+		// overwrite $entityData()
+		this.newline().newline();
+		if(typeParametersNameCode.length() > 0)
+		{
+			this.tab().add("@SuppressWarnings(\"unchecked\")").newline();
+		}
+		this.tab().add("@Override").newline()
+			.tab().add("protected ").add(this.entityName).add(typeParametersNameCode).add(" $entityData()").newline()
+			.tab().add("{").newline()
+			.tab(2).add("return (").add(this.entityName).add(typeParametersNameCode).add(")super.$entityData();")
+			.newline()
+			.tab().add("}");
 		
 		// getter methods
 		this.members.forEach(
 			m -> this.newline().newline()
 				.tab().add("@Override").newline()
-				.tab().add("public ").add(m.typeName).blank().add(m.methodName).add("()").add(m.throwsClause).newline()
-				.tab().add("{").newline()
-				.tab(2).add("return this.").add(m.name).add(";").newline()
+				.tab().add("public final ").add(m.typeName).blank().add(m.methodName).add("()").add(m.throwsClause)
+				.newline().tab().add("{").newline()
+				.tab(2).add("return this.$entityData().").add(m.methodName).add("();").newline()
 				.tab().add("}"));
 		
 		this.newline().add("}");
