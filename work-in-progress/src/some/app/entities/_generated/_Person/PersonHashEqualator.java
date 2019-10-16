@@ -8,55 +8,39 @@ import one.microstream.typing.Stateless;
 import some.app.entities.Person;
 
 
-// example for a generated HashEqualator
 public interface PersonHashEqualator extends HashEqualator<Person>
 {
-	public static PersonHashEqualator Default()
+	public static PersonHashEqualator New()
 	{
-		return new PersonHashEqualator.Default();
+		return new Default();
 	}
-	
+
 	public final class Default implements PersonHashEqualator, Stateless
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-		
-		public static boolean equals(final Person p1, final Person p2)
+		public static boolean equals(final Person person1, final Person person2)
 		{
-			return X.equal(p1.firstName(), p2.firstName())
-				&& X.equal(p1.lastName (), p2.lastName ())
+			return X.equal(person1.firstName(), person2.firstName())
+				&& X.equal(person1.lastName (), person2.lastName ())
 			;
 		}
-		
+
 		public static int hashCode(final Person person)
 		{
-			return Objects.hashCode(person.firstName())
-				| Objects.hashCode(person.lastName())
-			;
+			return Objects.hash(
+				person.firstName(),
+				person.lastName ()
+			);
 		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-		
+
 		Default()
 		{
 			super();
 		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
+
 		@Override
-		public boolean equal(final Person p1, final Person p2)
+		public boolean equal(final Person person1, final Person person2)
 		{
-			return equals(p1, p2);
+			return equals(person1, person2);
 		}
 
 		@Override
@@ -64,7 +48,5 @@ public interface PersonHashEqualator extends HashEqualator<Person>
 		{
 			return hashCode(person);
 		}
-		
 	}
-	
 }

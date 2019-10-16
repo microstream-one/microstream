@@ -1,36 +1,42 @@
 package some.app.entities._generated._Employee;
 
+import one.microstream.entity.EntityData;
 import some.app.entities.Employee;
-import some.app.entities._generated._Person.PersonData;
 
-public class EmployeeData extends PersonData implements Employee
+
+public class EmployeeData extends EntityData implements Employee
 {
-	private final String employer;
+	private final String firstName;
+	private final String lastName ;
+	private final String employer ;
 
-	protected EmployeeData(final Employee entity, final String firstName, final String lastName, final String employer)
+	protected EmployeeData(final Employee entity,
+		final String firstName,
+		final String lastName ,
+		final String employer )
 	{
-		super(entity, firstName, lastName);
-		
-		this.employer = employer;
+		super(entity);
+
+		this.firstName = firstName;
+		this.lastName  = lastName ;
+		this.employer  = employer ;
+	}
+
+	@Override
+	public String firstName()
+	{
+		return this.firstName;
+	}
+
+	@Override
+	public String lastName()
+	{
+		return this.lastName;
 	}
 
 	@Override
 	public String employer()
 	{
 		return this.employer;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return EmployeeHashEqualator.Default.hashCode(this);
-	}
-
-	@Override
-	public boolean equals(final Object obj)
-	{
-		return this == obj
-			|| obj instanceof EmployeeData
-			&&  EmployeeHashEqualator.Default.equals(this, (EmployeeData)obj);
 	}
 }

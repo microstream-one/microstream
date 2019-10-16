@@ -1,5 +1,11 @@
 package one.microstream.entity;
 
+import static one.microstream.X.mayNull;
+
+/**
+ * 
+ * @author TM, FH
+ */
 public abstract class EntityLayer extends Entity.AbstractAccessible
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -14,10 +20,10 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 	// constructors //
 	/////////////////
 	
-	public EntityLayer(final Entity inner)
+	protected EntityLayer(final Entity inner)
 	{
 		super();
-		this.inner = inner; // may be null in case of delayed initialization.
+		this.inner = mayNull(inner); // may be null in case of delayed initialization.
 	}
 
 	
@@ -27,20 +33,26 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 	////////////
 	
 	@Override
-	protected Entity $entityIdentity()
+	protected Entity entityIdentity()
 	{
 		// the data instance (and only that) has a back-reference to the actual entity instance it belongs to.
 		return Entity.identity(this.inner);
 	}
 	
 	@Override
-	protected Entity $entityData()
+	protected Entity entityData()
 	{
 		return Entity.data(this.inner);
 	}
 	
 	@Override
-	protected boolean $updateEntityData(final Entity newData)
+	protected void entityCreated()
+	{
+		Entity.Creator.Static.entityCreated(this.inner);
+	}
+	
+	@Override
+	protected boolean updateEntityData(final Entity newData)
 	{
 		/*
 		 *  if the inner layer instance reports success, it is an intermediate layer.
@@ -48,35 +60,33 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 		 */
 		if(!Entity.updateData(this.inner, newData))
 		{
-			this.$updateDataValidating(newData);
+			this.updateDataValidating(newData);
 		}
 		
 		return true;
 	}
 	
-	protected Entity $inner()
+	protected Entity inner()
 	{
 		return this.inner;
 	}
 	
-	protected void $validateNewData(final Entity newData)
+	protected void validateNewData(final Entity newData)
 	{
-		// (18.07.2019 TM)FIXME: check for same data class necessary?
-		if(Entity.identity(newData) != this.$entityIdentity())
+		if(Entity.identity(newData) != this.entityIdentity())
 		{
-			// (10.12.2017 TM)EXCP: proper exception
-			throw new RuntimeException("Entity identity mismatch.");
+			throw new EntityException("Entity identity mismatch.");
 		}
 	}
 	
-	protected void $updateDataValidating(final Entity newData)
+	protected void updateDataValidating(final Entity newData)
 	{
 		final Entity actualNewData = Entity.data(newData);
-		this.$validateNewData(actualNewData);
-		this.$setInner(actualNewData);
+		this.validateNewData(actualNewData);
+		this.setInner(actualNewData);
 	}
 	
-	protected void $setInner(final Entity inner)
+	protected void setInner(final Entity inner)
 	{
 		this.inner = inner;
 	}
