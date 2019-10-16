@@ -25,7 +25,10 @@ import javax.lang.model.util.Elements;
 
 import one.microstream.wrapping.GenerateWrapper;
 
-
+/**
+ * 
+ * @author FH
+ */
 public class WrapperProcessor extends AbstractProcessor
 {
 	private final static String     OPTION_TYPES = "microstream.wrapper.types";
