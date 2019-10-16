@@ -376,5 +376,17 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		return staticByteSizeArrayObject(elementCount);
 	}
+	
+	@Override
+	public final byte[] asByteArray(final long[] longArray)
+	{
+		return staticAsByteArray(longArray);
+	}
+
+	@Override
+	public final byte[] asByteArray(final long value)
+	{
+		return staticAsByteArray(value);
+	}
 		
 }

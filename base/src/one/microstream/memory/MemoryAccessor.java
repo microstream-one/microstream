@@ -27,6 +27,12 @@ public interface MemoryAccessor
 	
 	
 	
+	public byte[] asByteArray(long[] longArray);
+
+	public byte[] asByteArray(long value);
+	
+	
+	
 	// (14.10.2019 TM)FIXME: priv#111: not sure if needed
 //	public Object getStaticReference(Field field);
 	
@@ -35,9 +41,11 @@ public interface MemoryAccessor
 	// (14.10.2019 TM)FIXME: objectFieldOffset can't stay here. It has to be wrapped in a plattform-specific type using it.
 	public long objectFieldOffset(Field field);
 	
+	{
+		final int i = 5;
+	}
 	
-	
-	// (14.10.2019 TM)FIXME: priv#111: all methods below are only used for debugging, not productive code
+	// (14.10.2019 TM)FIXME: priv#111: all methods below are currently only used for debugging, not productive code
 	
 	public int byteSizeReference();
 	

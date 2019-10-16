@@ -24,6 +24,7 @@ import one.microstream.exceptions.IllegalAccessRuntimeException;
 import one.microstream.exceptions.NoSuchFieldRuntimeException;
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.functional.Instantiator;
+import one.microstream.memory.XMemory;
 import one.microstream.typing.XTypes;
 import one.microstream.util.UtilStackTrace;
 
@@ -1019,6 +1020,43 @@ public final class XReflect
 	{
 		// horribly wrong name for a validation method
 		return Proxy.isProxyClass(c);
+	}
+	
+	public static Field[] collectPrimitiveFieldsByByteSize(final Field[] fields, final int byteSize)
+	{
+		if(byteSize != XMemory.byteSize_byte()
+		&& byteSize != XMemory.byteSize_short()
+		&& byteSize != XMemory.byteSize_int()
+		&& byteSize != XMemory.byteSize_long()
+		)
+		{
+			throw new IllegalArgumentException("Invalid Java primitive byte size: " + byteSize);
+		}
+
+		final Field[] primFields = new Field[fields.length];
+		int primFieldsCount = 0;
+		for(int i = 0; i < fields.length; i++)
+		{
+			if(fields[i].getType().isPrimitive() && XMemory.byteSizePrimitive(fields[i].getType()) == byteSize)
+			{
+				primFields[primFieldsCount++] = fields[i];
+			}
+		}
+		return Arrays.copyOf(primFields, primFieldsCount);
+	}
+	
+	public static int calculatePrimitivesLength(final Field[] primFields)
+	{
+		int length = 0;
+		for(int i = 0; i < primFields.length; i++)
+		{
+			if(!primFields[i].getType().isPrimitive())
+			{
+				throw new IllegalArgumentException("Not a primitive field: " + primFields[i]);
+			}
+			length += XMemory.byteSizePrimitive(primFields[i].getType());
+		}
+		return length;
 	}
 		
 
