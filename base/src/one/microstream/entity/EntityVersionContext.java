@@ -34,7 +34,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 				return ((EntityLayerVersioning)layer).versions();
 			}
 			
-			layer = ((EntityLayer)layer).$inner();
+			layer = ((EntityLayer)layer).inner();
 		}
 		return null;
 	}

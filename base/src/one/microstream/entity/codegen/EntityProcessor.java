@@ -28,7 +28,10 @@ import one.microstream.chars.XChars;
 import one.microstream.entity.Entity;
 import one.microstream.entity.EntityException;
 
-
+/**
+ * 
+ * @author FH
+ */
 public class EntityProcessor extends AbstractProcessor
 {
 	private final static String     OPTION_HASHEQUALATOR = "microstream.entity.hashequalator";

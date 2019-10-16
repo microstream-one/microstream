@@ -21,7 +21,10 @@ import javax.tools.JavaFileObject;
 import one.microstream.chars.VarString;
 import one.microstream.exceptions.IORuntimeException;
 
-
+/**
+ * 
+ * @author FH
+ */
 abstract class TypeGenerator
 {
 	private final static String       JAVA_LANG_PACKAGE = "java.lang";

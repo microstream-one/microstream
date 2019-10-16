@@ -195,7 +195,7 @@ public interface Entity
 				final Entity              data          = this.createData((E)entity.entityIdentity());
 				final Entity              innerInstance = this.dispatchDataInstance(data);
 				
-				entity.$setInner(innerInstance);
+				entity.setInner(innerInstance);
 				
 				Static.entityCreated(entity);
 				

@@ -56,18 +56,18 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 		 */
 		if(!Entity.updateData(this.inner, newData))
 		{
-			this.$updateDataValidating(newData);
+			this.updateDataValidating(newData);
 		}
 		
 		return true;
 	}
 	
-	protected Entity $inner()
+	protected Entity inner()
 	{
 		return this.inner;
 	}
 	
-	protected void $validateNewData(final Entity newData)
+	protected void validateNewData(final Entity newData)
 	{
 		if(Entity.identity(newData) != this.entityIdentity())
 		{
@@ -75,14 +75,14 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 		}
 	}
 	
-	protected void $updateDataValidating(final Entity newData)
+	protected void updateDataValidating(final Entity newData)
 	{
 		final Entity actualNewData = Entity.data(newData);
-		this.$validateNewData(actualNewData);
-		this.$setInner(actualNewData);
+		this.validateNewData(actualNewData);
+		this.setInner(actualNewData);
 	}
 	
-	protected void $setInner(final Entity inner)
+	protected void setInner(final Entity inner)
 	{
 		this.inner = inner;
 	}
