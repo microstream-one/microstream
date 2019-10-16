@@ -9,7 +9,10 @@ import java.util.Comparator;
 
 import one.microstream.collections.types.XTable;
 
-
+/**
+ * 
+ * @author FH
+ */
 public interface EntityVersionCleaner<K>
 {
 	public void cleanVersions(XTable<K, Entity> versions);

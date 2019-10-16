@@ -1,5 +1,9 @@
 package one.microstream.entity;
 
+/**
+ * 
+ * @author FH
+ */
 public class EntityException extends RuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////

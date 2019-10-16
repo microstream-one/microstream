@@ -1,6 +1,10 @@
 
 package one.microstream.entity;
 
+/**
+ * 
+ * @author FH
+ */
 public class EntityVersionException extends EntityException
 {
 	public EntityVersionException()

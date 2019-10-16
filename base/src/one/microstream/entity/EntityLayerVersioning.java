@@ -6,7 +6,10 @@ import static one.microstream.X.notNull;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 
-
+/**
+ * 
+ * @author FH
+ */
 public class EntityLayerVersioning<K> extends EntityLayer
 {
 	private final EntityVersionContext<K> context;
