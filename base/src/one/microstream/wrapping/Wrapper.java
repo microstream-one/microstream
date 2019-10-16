@@ -1,6 +1,9 @@
 package one.microstream.wrapping;
 
-
+/**
+ * 
+ * @author TM, FH
+ */
 public interface Wrapper<W>
 {
 	public W wrapped();
