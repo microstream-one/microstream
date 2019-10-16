@@ -116,13 +116,22 @@ public final class BinaryPersistence extends Persistence
 		final XGettingCollection<? extends PersistenceTypeHandler<Binary, ?>> customHandlers
 	)
 	{
-		final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers =
-			createNativeHandlers(typeHandlerManager, controller, typeHandlerCreator)
+		/* (16.10.2019 TM)NOTE:
+		 * Native handlers are split into value and referencing types since plugins that handle references
+		 * differently (e.g. load all only on demand, like a data viewer REST service) can reuse the value
+		 * type handlers but need to replace the referencing type handlers.
+		 */
+		final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlersValueTypes =
+			createNativeHandlersValueTypes(typeHandlerManager, controller, typeHandlerCreator)
+		;
+		final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlersReferencingTypes =
+			createNativeHandlersReferencingTypes(typeHandlerManager, controller, typeHandlerCreator)
 		;
 		
 		final PersistenceCustomTypeHandlerRegistry.Default<Binary> defaultCustomTypeHandlerRegistry =
 			PersistenceCustomTypeHandlerRegistry.<Binary>New()
-			.registerTypeHandlers(nativeHandlers)
+			.registerTypeHandlers(nativeHandlersValueTypes)
+			.registerTypeHandlers(nativeHandlersReferencingTypes)
 			.registerTypeHandlers(defaultCustomHandlers(controller))
 			.registerTypeHandlers(customHandlers)
 		;
@@ -145,13 +154,13 @@ public final class BinaryPersistence extends Persistence
 		typeHandler.initialize(nativeTypeId);
 	}
 	
-	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> createNativeHandlers(
+	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> createNativeHandlersValueTypes(
 		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager,
 		final PersistenceSizedArrayLengthController              controller        ,
 		final PersistenceTypeHandlerCreator<Binary>              typeHandlerCreator
 	)
 	{
-		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers = ConstList.New(
+		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlersValueTypes = ConstList.New(
 			BinaryHandlerPrimitive.New(byte   .class),
 			BinaryHandlerPrimitive.New(boolean.class),
 			BinaryHandlerPrimitive.New(short  .class),
@@ -185,6 +194,33 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerNativeArray_float.New()  ,
 			BinaryHandlerNativeArray_long.New()   ,
 			BinaryHandlerNativeArray_double.New() ,
+			
+			BinaryHandlerBigInteger.New(),
+			BinaryHandlerBigDecimal.New(),
+			BinaryHandlerFile.New()      ,
+			BinaryHandlerDate.New()      ,
+			
+			BinaryHandlerOptionalInt.New(),
+			BinaryHandlerOptionalLong.New(),
+			BinaryHandlerOptionalDouble.New(),
+			
+			BinaryHandlerStateless.New(Collections.reverseOrder().getClass()) // not an enum
+		);
+		
+		/* (24.10.2013 TM)TODO: priv#117 more native handlers (Path, Instant and whatnot)
+		 * Also see class Persistence for default TypeIds
+		 */
+		
+		return nativeHandlersValueTypes;
+	}
+	
+	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> createNativeHandlersReferencingTypes(
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager,
+		final PersistenceSizedArrayLengthController              controller        ,
+		final PersistenceTypeHandlerCreator<Binary>              typeHandlerCreator
+	)
+	{
+		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers = ConstList.New(
 			
 			// creepy JDK 1.0 collections
 			BinaryHandlerVector.New()               ,
@@ -222,8 +258,6 @@ public final class BinaryPersistence extends Persistence
 //			BinaryHandlerStateless.New(Collections.emptyIterator().getClass()),
 //			BinaryHandlerStateless.New(Collections.emptyListIterator().getClass()),
 			
-			BinaryHandlerStateless.New(Collections.reverseOrder().getClass()), // not an enum
-			
 			// changed with support of enums. And must change to keep TypeDictionary etc. consistent
 			BinaryHandlerSingletonStatelessEnum.New(Comparator.naturalOrder().getClass()),
 //			typeHandlerCreator.createTypeHandler(Comparator.naturalOrder().getClass()),
@@ -236,22 +270,11 @@ public final class BinaryPersistence extends Persistence
 			
 			// still creepy JDK 1.7 collections
 			BinaryHandlerConcurrentLinkedDeque.New(),
-			
-			BinaryHandlerBigInteger.New(),
-			BinaryHandlerBigDecimal.New(),
-			BinaryHandlerFile.New()      ,
-			BinaryHandlerDate.New()      ,
 
 			BinaryHandlerLazy.New(),
-			/* (24.10.2013 TM)TODO: priv#117 more native handlers (Path, Instant and whatnot)
-			 * Also see class Persistence for default TypeIds
-			 */
 			
 			// the way Optional is implemented, only a generically (low-level) working handler can handle it correctly
-			typeHandlerCreator.createTypeHandler(Optional.class),
-			BinaryHandlerOptionalInt.New(),
-			BinaryHandlerOptionalLong.New(),
-			BinaryHandlerOptionalDouble.New()
+			typeHandlerCreator.createTypeHandler(Optional.class)
 		);
 		
 		return nativeHandlers;
