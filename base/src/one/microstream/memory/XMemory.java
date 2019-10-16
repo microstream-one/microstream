@@ -3,7 +3,6 @@ package one.microstream.memory;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
 
@@ -236,103 +235,60 @@ public final class XMemory
 
 	public static final long byteSizeArray_byte(final long elementCount)
 	{
-		return Memory
+		return MEMORY_ACCESSOR.byteSizeArray_byte(elementCount);
 	}
 
 	public static final long byteSizeArray_boolean(final long elementCount)
 	{
-		return ARRAY_BOOLEAN_BASE_OFFSET + elementCount;
+		return MEMORY_ACCESSOR.byteSizeArray_boolean(elementCount);
 	}
 
 	public static final long byteSizeArray_short(final long elementCount)
 	{
-		return ARRAY_SHORT_BASE_OFFSET + (elementCount << BITS1);
+		return MEMORY_ACCESSOR.byteSizeArray_short(elementCount);
 	}
 
 	public static final long byteSizeArray_char(final long elementCount)
 	{
-		return ARRAY_CHAR_BASE_OFFSET + (elementCount << BITS1);
+		return MEMORY_ACCESSOR.byteSizeArray_char(elementCount);
 	}
 
 	public static final long byteSizeArray_int(final long elementCount)
 	{
-		return ARRAY_INT_BASE_OFFSET + (elementCount << BITS2);
+		return MEMORY_ACCESSOR.byteSizeArray_int(elementCount);
 	}
 
 	public static final long byteSizeArray_float(final long elementCount)
 	{
-		return ARRAY_FLOAT_BASE_OFFSET + (elementCount << BITS2);
+		return MEMORY_ACCESSOR.byteSizeArray_float(elementCount);
 	}
 
 	public static final long byteSizeArray_long(final long elementCount)
 	{
-		return ARRAY_LONG_BASE_OFFSET + (elementCount << BITS3);
+		return MEMORY_ACCESSOR.byteSizeArray_long(elementCount);
 	}
 
 	public static final long byteSizeArray_double(final long elementCount)
 	{
-		return ARRAY_DOUBLE_BASE_OFFSET + (elementCount << BITS3);
+		return MEMORY_ACCESSOR.byteSizeArray_double(elementCount);
 	}
 
 	public static final long byteSizeArrayObject(final long elementCount)
 	{
-		return ARRAY_OBJECT_BASE_OFFSET + elementCount * byteSizeReference();
+		return MEMORY_ACCESSOR.byteSizeArrayObject(elementCount);
 	}
 
 
-	public static Field[] collectPrimitiveFieldsByByteSize(final Field[] fields, final int byteSize)
-	{
-		if(byteSize != byteSize_byte()
-		&& byteSize != byteSize_short()
-		&& byteSize != byteSize_int()
-		&& byteSize != byteSize_long()
-		)
-		{
-			throw new IllegalArgumentException("Invalid Java primitive byte size: " + byteSize);
-		}
-
-		final Field[] primFields = new Field[fields.length];
-		int primFieldsCount = 0;
-		for(int i = 0; i < fields.length; i++)
-		{
-			if(fields[i].getType().isPrimitive() && XMemory.byteSizePrimitive(fields[i].getType()) == byteSize)
-			{
-				primFields[primFieldsCount++] = fields[i];
-			}
-		}
-		return Arrays.copyOf(primFields, primFieldsCount);
-	}
-
-	public static int calculatePrimitivesLength(final Field[] primFields)
-	{
-		int length = 0;
-		for(int i = 0; i < primFields.length; i++)
-		{
-			if(!primFields[i].getType().isPrimitive())
-			{
-				throw new IllegalArgumentException("Not a primitive field: " + primFields[i]);
-			}
-			length += XMemory.byteSizePrimitive(primFields[i].getType());
-		}
-		return length;
-	}
-
-
-
-
+	
 
 	public static byte[] asByteArray(final long[] longArray)
 	{
-		final byte[] bytes = new byte[checkArrayRange((long)longArray.length << BITS3)];
-		VM.copyMemory(longArray, ARRAY_LONG_BASE_OFFSET, bytes, ARRAY_BYTE_BASE_OFFSET, bytes.length);
-		return bytes;
+		return MEMORY_ACCESSOR.asByteArray(longArray);
 	}
 
 	public static byte[] asByteArray(final long value)
 	{
-		final byte[] bytes = new byte[byteSize_long()];
-		put_long(bytes, 0, value);
-		return bytes;
+		return MEMORY_ACCESSOR.asByteArray(value);
 	}
 	
 	/**
