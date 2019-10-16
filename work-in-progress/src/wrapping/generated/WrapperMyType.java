@@ -1,6 +1,6 @@
 package wrapping.generated;
+import one.microstream.wrapping.Wrapper;
 import wrapping.MyType;
-import wrapping.Wrapper;
 
 
 public interface WrapperMyType extends Wrapper<MyType>, MyType
