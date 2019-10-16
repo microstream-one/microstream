@@ -8,7 +8,14 @@ import java.lang.annotation.Target;
 
 
 /**
- * 
+ * Helper annotation for the wrapper annotation processor. List type names for arbitrary interfaces, for which wrappers
+ * should be generated.
+ * <pre>
+ * &#64;GenerateWrapperFor({"com.myapp.MyType1","com.myapp.MyType2"})
+ * public class WrapperGenerationDummy
+ * {
+ * }
+ * </pre>
  * @author FH
  */
 @Target(ElementType.TYPE)

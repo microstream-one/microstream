@@ -1,6 +1,7 @@
 package one.microstream.wrapping;
 
 /**
+ * Generic interface for the wrapper (decorator) pattern.
  * 
  * @author TM, FH
  */
