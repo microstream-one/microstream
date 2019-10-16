@@ -1,7 +1,7 @@
 package one.microstream.persistence.test;
 
 import one.microstream.chars.XChars;
-import one.microstream.memory.XMemory;
+import one.microstream.memory.MemoryAccessorSun;
 import sun.misc.Unsafe;
 
 public class MainReadObjectHeader
@@ -10,7 +10,7 @@ public class MainReadObjectHeader
 	static final long OFFSET_CLASS  = 8L;
 
 	static final Object o = new Object();
-	static final Unsafe vm = (Unsafe)XMemory.getSystemInstance();
+	static final Unsafe vm = (Unsafe)MemoryAccessorSun.getSystemInstance();
 
 	public static void main(final String[] args) throws Throwable
 	{

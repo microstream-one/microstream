@@ -2,8 +2,8 @@ package one.microstream.test;
 
 import java.nio.ByteBuffer;
 
+import one.microstream.memory.MemoryAccessorSun;
 import one.microstream.memory.PlatformInternals;
-import one.microstream.memory.XMemory;
 import sun.misc.Unsafe;
 
 public class MainTestUnsafeWrappingPerformance
@@ -12,7 +12,7 @@ public class MainTestUnsafeWrappingPerformance
 	private static final int RUNS = 100;
 	private static final long[] TIMES = new long[RUNS];
 
-	private static final Unsafe vm = (Unsafe)XMemory.getSystemInstance();
+	private static final Unsafe vm = (Unsafe)MemoryAccessorSun.getSystemInstance();
 
 
 

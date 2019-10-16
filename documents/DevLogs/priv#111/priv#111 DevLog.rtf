@@ -441,6 +441,22 @@ Zwischendrin alle m\'f6glichen Besprechungen, u.A. Oracle Clustering Consulting 
 F\'fcrs Committen war abends um 19 Uhr auch keine Zeit mehr ...\par
 \par
 \par
+2019-10-16\par
+\par
+XMemory Methoden zerlegen weitermachen.\par
+\par
+Hm. Alle Methoden, die ein Object mit memory offset akzeptieren, m\'fcssen gewrappt werden, wie beschrieben.\par
+Bevor ich es noch 10 mal beschreib, mach ich das gleich mal:\par
+\par
+Logiktypen\par
+MemoryObjectValuesCopier\par
+MemoryObjectValuesSetter\par
+MemoryObjectValuesHandler\par
+definieren.\par
+\par
+Ne, das passt so nicht. Es muss ja auch noch den PersistenceStoreHandler geben. Mit Generics rumwursteln, nur um die eigentlich spezifischen Handling Typen mit Gewalt im allgemeinen memory package zu lassen, ist Quatsch.\par
+Das m\'fcssen Peristence~ Varianten werden mit entsprechenden Creator Typen und deren Instanzen kennen dann intern einen MemoryAccessor.\par
+\par
 \par
 }
  

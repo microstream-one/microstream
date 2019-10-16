@@ -11,7 +11,7 @@ public class MainTestInterfacePerformance
 	
 	static
 	{
-		XMemory.setMemoryAccessor(MemoryAccessor.Sun());
+		XMemory.setMemoryAccessor(MemoryAccessorSun.New());
 	}
 	
 	public static void main(final String[] args)

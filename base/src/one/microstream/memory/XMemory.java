@@ -293,7 +293,7 @@ public final class XMemory
 	
 	/**
 	 * Arbitrary value that coincidently matches most hardware's page sizes
-	 * without being hard-tied to Unsafe#pageSize.
+	 * without being hard-tied to an actual pageSize system value.
 	 * So this value is an educated guess and most of the time (almost always)
 	 * a "good" value when paged-sized-ish buffer sizes are needed, while still
 	 * not being at the mercy of an OS's JVM implementation.
@@ -305,67 +305,45 @@ public final class XMemory
 		return 4096;
 	}
 	
-	/**
-	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).
-	 * Use with care (and the dependency to a system value in mind!).
-	 * 
-	 * @return the system's memory "page size".
-	 */
-	public static int pageSize()
-	{
-		return VM.pageSize();
-	}
-	
-
 	
 	public static void put_byte(final byte[] bytes, final int index, final short value)
 	{
-		VM.putShort(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
+		MEMORY_ACCESSOR.put_byte(bytes, index, value);
 	}
 	
 	public static void put_boolean(final byte[] bytes, final int index, final char value)
 	{
-		VM.putChar(bytes, ARRAY_BOOLEAN_BASE_OFFSET + index, value);
+		MEMORY_ACCESSOR.put_boolean(bytes, index, value);
 	}
 
 	public static void put_short(final byte[] bytes, final int index, final short value)
 	{
-		VM.putShort(bytes, ARRAY_SHORT_BASE_OFFSET+ index, value);
+		MEMORY_ACCESSOR.put_short(bytes, index, value);
 	}
 
 	public static void put_char(final byte[] bytes, final int index, final char value)
 	{
-		VM.putChar(bytes, ARRAY_CHAR_BASE_OFFSET + index, value);
+		MEMORY_ACCESSOR.put_char(bytes, index, value);
 	}
 
 	public static void put_int(final byte[] bytes, final int index, final int value)
 	{
-		VM.putInt(bytes, ARRAY_INT_BASE_OFFSET + index, value);
+		MEMORY_ACCESSOR.put_int(bytes, index, value);
 	}
 
 	public static void put_float(final byte[] bytes, final int index, final float value)
 	{
-		VM.putFloat(bytes, ARRAY_FLOAT_BASE_OFFSET + index, value);
+		MEMORY_ACCESSOR.put_float(bytes, index, value);
 	}
 
 	public static void put_long(final byte[] bytes, final int index, final long value)
 	{
-		VM.putLong(bytes, ARRAY_LONG_BASE_OFFSET + index, value);
+		MEMORY_ACCESSOR.put_long(bytes, index, value);
 	}
 
 	public static void put_double(final byte[] bytes, final int index, final double value)
 	{
-		VM.putDouble(bytes, ARRAY_DOUBLE_BASE_OFFSET + index, value);
-	}
-
-	public static void _longInByteArray(final byte[] bytes, final long value)
-	{
-		VM.putLong(bytes, ARRAY_BYTE_BASE_OFFSET, value);
-	}
-
-	public static long _longFromByteArray(final byte[] bytes)
-	{
-		return VM.getLong(bytes, ARRAY_BYTE_BASE_OFFSET);
+		MEMORY_ACCESSOR.put_double(bytes, index, value);
 	}
 
 

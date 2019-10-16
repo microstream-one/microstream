@@ -2,12 +2,12 @@ package one.microstream.experimental;
 
 import java.util.Arrays;
 
-import one.microstream.memory.XMemory;
+import one.microstream.memory.MemoryAccessorSun;
 import sun.misc.Unsafe;
 
 public class MainTestOversizedArray
 {
-	static final Unsafe vm = (Unsafe)XMemory.getSystemInstance();
+	static final Unsafe vm = (Unsafe)MemoryAccessorSun.getSystemInstance();
 	static final long BABO = Unsafe.ARRAY_BYTE_BASE_OFFSET;
 	static final long LABO = Unsafe.ARRAY_LONG_BASE_OFFSET;
 
