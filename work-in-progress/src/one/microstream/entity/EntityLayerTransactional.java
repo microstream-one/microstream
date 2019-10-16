@@ -31,7 +31,7 @@ implements EntityTransaction.Committable
 	////////////
 	
 	@Override
-	public final Entity $entityData()
+	protected final Entity entityData()
 	{
 		synchronized(this.identityLayer)
 		{
@@ -42,24 +42,24 @@ implements EntityTransaction.Committable
 	@Override
 	public final Entity actualData()
 	{
-		synchronized(this.$entityIdentity())
+		synchronized(this.entityIdentity())
 		{
-			return super.$entityData();
+			return super.entityData();
 		}
 	}
 	
 	@Override
-	public Entity $entityIdentity()
+	protected Entity entityIdentity()
 	{
 		return Entity.identity(this.actualData());
 	}
 	
 	@Override
-	public final boolean $updateEntityData(final Entity newData)
+	protected final boolean updateEntityData(final Entity newData)
 	{
-		synchronized(this.$entityIdentity())
+		synchronized(this.entityIdentity())
 		{
-			this.$validateNewData(newData);
+			this.validateNewData(newData);
 			this.transactionContext.updateData(this, newData);
 		}
 		return true;
@@ -68,7 +68,7 @@ implements EntityTransaction.Committable
 	@Override
 	public final void commit()
 	{
-		synchronized(this.$entityIdentity())
+		synchronized(this.entityIdentity())
 		{
 			final Entity local = this.transactionContext.lookupData(this);
 			if(local == null)
@@ -76,7 +76,7 @@ implements EntityTransaction.Committable
 				// no-op due to no entry at all, return.
 				return;
 			}
-			else if(local == this.$entityData())
+			else if(local == this.entityData())
 			{
 				// no-op due to same instances, return.
 				return;
@@ -86,7 +86,7 @@ implements EntityTransaction.Committable
 			 * set new instance unvalidated, as validation has already been done
 			 * in $updateData() before registering the local data instance.
 			 */
-			super.$setInner(local);
+			super.setInner(local);
 		}
 		
 	}

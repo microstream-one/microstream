@@ -45,24 +45,24 @@ public class EntityLogger extends EntityLayer
 	{
 		System.out.println(
 			"Thread \"" + Thread.currentThread().getName()
-			+ "\" " + action + XChars.systemString(this.$entityIdentity())
+			+ "\" " + action + XChars.systemString(this.entityIdentity())
 			+ (methodName != null ? " via #" + methodName: "")
 			+ "."
 		);
 	}
 	
 	@Override
-	public Entity $entityData()
+	public Entity entityData()
 	{
 		this.logAction("reads data of ", XThreads.getMethodNameForDeclaringClassName(this.declaringClassname));
-		return super.$entityData();
+		return super.entityData();
 	}
 	
 	@Override
-	public boolean $updateEntityData(final Entity newData)
+	public boolean updateEntityData(final Entity newData)
 	{
 		this.logAction("updates data of ", null);
-		return super.$updateEntityData(newData);
+		return super.updateEntityData(newData);
 	}
 	
 }

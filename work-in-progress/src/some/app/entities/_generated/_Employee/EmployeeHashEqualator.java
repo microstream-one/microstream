@@ -6,64 +6,49 @@ import one.microstream.X;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.typing.Stateless;
 import some.app.entities.Employee;
-import some.app.entities._generated._Person.PersonHashEqualator;
+
 
 public interface EmployeeHashEqualator extends HashEqualator<Employee>
 {
-	public static EmployeeHashEqualator Default()
+	public static EmployeeHashEqualator New()
 	{
-		return new EmployeeHashEqualator.Default();
+		return new Default();
 	}
-	
+
 	public final class Default implements EmployeeHashEqualator, Stateless
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-		
-		public static boolean equals(final Employee e1, final Employee e2)
+		public static boolean equals(final Employee employee1, final Employee employee2)
 		{
-			return PersonHashEqualator.Default.equals(e1, e2)
-				&& X.equal(e1.employer(), e2.employer())
+			return X.equal(employee1.firstName(), employee2.firstName())
+				&& X.equal(employee1.lastName (), employee2.lastName ())
+				&& X.equal(employee1.employer (), employee2.employer ())
 			;
 		}
-		
+
 		public static int hashCode(final Employee employee)
 		{
-			return PersonHashEqualator.Default.hashCode(employee)
-				| Objects.hashCode(employee.employer())
-			;
+			return Objects.hash(
+				employee.firstName(),
+				employee.lastName (),
+				employee.employer ()
+			);
 		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-		
+
 		Default()
 		{
 			super();
 		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
+
 		@Override
-		public boolean equal(final Employee p1, final Employee p2)
+		public boolean equal(final Employee employee1, final Employee employee2)
 		{
-			return equals(p1, p2);
+			return equals(employee1, employee2);
 		}
 
 		@Override
-		public int hash(final Employee person)
+		public int hash(final Employee employee)
 		{
-			return hashCode(person);
+			return hashCode(employee);
 		}
-		
 	}
-	
 }
