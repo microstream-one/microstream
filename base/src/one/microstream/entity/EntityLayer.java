@@ -29,26 +29,26 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 	////////////
 	
 	@Override
-	protected Entity $entityIdentity()
+	protected Entity entityIdentity()
 	{
 		// the data instance (and only that) has a back-reference to the actual entity instance it belongs to.
 		return Entity.identity(this.inner);
 	}
 	
 	@Override
-	protected Entity $entityData()
+	protected Entity entityData()
 	{
 		return Entity.data(this.inner);
 	}
 	
 	@Override
-	protected void $entityCreated()
+	protected void entityCreated()
 	{
 		Entity.Creator.Static.entityCreated(this.inner);
 	}
 	
 	@Override
-	protected boolean $updateEntityData(final Entity newData)
+	protected boolean updateEntityData(final Entity newData)
 	{
 		/*
 		 *  if the inner layer instance reports success, it is an intermediate layer.
@@ -69,7 +69,7 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 	
 	protected void $validateNewData(final Entity newData)
 	{
-		if(Entity.identity(newData) != this.$entityIdentity())
+		if(Entity.identity(newData) != this.entityIdentity())
 		{
 			throw new EntityException("Entity identity mismatch.");
 		}

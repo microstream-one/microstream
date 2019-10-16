@@ -12,20 +12,20 @@ public class PersonEntity extends EntityLayerIdentity implements Person
 	}
 
 	@Override
-	protected Person $entityData()
+	protected Person entityData()
 	{
-		return (Person)super.$entityData();
+		return (Person)super.entityData();
 	}
 
 	@Override
 	public final String firstName()
 	{
-		return this.$entityData().firstName();
+		return this.entityData().firstName();
 	}
 
 	@Override
 	public final String lastName()
 	{
-		return this.$entityData().lastName();
+		return this.entityData().lastName();
 	}
 }

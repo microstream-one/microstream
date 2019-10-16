@@ -20,12 +20,12 @@ public interface Entity
 	{
 		if(instance instanceof Entity.AbstractAccessible)
 		{
-			return (E)((Entity.AbstractAccessible)instance).$entityIdentity();
+			return (E)((Entity.AbstractAccessible)instance).entityIdentity();
 		}
 		
 		if(instance instanceof Entity.Accessible)
 		{
-			return (E)((Entity.Accessible)instance).$entityIdentity();
+			return (E)((Entity.Accessible)instance).entityIdentity();
 		}
 		
 		if(instance == null)
@@ -42,13 +42,13 @@ public interface Entity
 	{
 		if(instance instanceof Entity.AbstractAccessible)
 		{
-			return (E)((Entity.AbstractAccessible)instance).$entityData();
+			return (E)((Entity.AbstractAccessible)instance).entityData();
 		}
 		
 		// tiny redundancy as a tiny price for convenient visibility magic plus still possible multiple inheritance
 		if(instance instanceof Entity.Accessible)
 		{
-			return (E)((Entity.Accessible)instance).$entityData();
+			return (E)((Entity.Accessible)instance).entityData();
 		}
 		
 		if(instance == null)
@@ -65,14 +65,14 @@ public interface Entity
 		if(entity instanceof Entity.AbstractAccessible)
 		{
 			// data instance validation is done inside (has to be, anyway)
-			return ((Entity.AbstractAccessible)entity).$updateEntityData(data);
+			return ((Entity.AbstractAccessible)entity).updateEntityData(data);
 		}
 		
 		// tiny redundancy as a tiny price for convenient visibility magic plus still possible multiple inheritance
 		if(entity instanceof Entity.Accessible)
 		{
 			// data instance validation is done inside (has to be, anyway)
-			return ((Entity.Accessible)entity).$updateEntityData(data);
+			return ((Entity.Accessible)entity).updateEntityData(data);
 		}
 		
 		throw new EntityException("Unaccessable entity type: " + XChars.systemString(entity));
@@ -100,13 +100,13 @@ public interface Entity
 	 */
 	public abstract class AbstractAccessible implements Entity
 	{
-		protected abstract Entity $entityIdentity();
+		protected abstract Entity entityIdentity();
 		
-		protected abstract Entity $entityData();
+		protected abstract Entity entityData();
 		
-		protected abstract void $entityCreated();
+		protected abstract void entityCreated();
 		
-		protected abstract boolean $updateEntityData(Entity data);
+		protected abstract boolean updateEntityData(Entity data);
 	}
 	
 	/**
@@ -117,13 +117,13 @@ public interface Entity
 	 */
 	public interface Accessible extends Entity
 	{
-		public Entity $entityIdentity();
+		public Entity entityIdentity();
 		
-		public Entity $entityData();
+		public Entity entityData();
 		
-		public void $entityCreated();
+		public void entityCreated();
 		
-		public boolean $updateEntityData(Entity data);
+		public boolean updateEntityData(Entity data);
 	}
 	
 	public interface Creator<E extends Entity, C extends Creator<E, C>>
@@ -192,14 +192,14 @@ public interface Entity
 			{
 				final EntityLayerIdentity entity        = this.createEntityInstance();
 				
-				final Entity              data          = this.createData((E)entity.$entityIdentity());
+				final Entity              data          = this.createData((E)entity.entityIdentity());
 				final Entity              innerInstance = this.dispatchDataInstance(data);
 				
 				entity.$setInner(innerInstance);
 				
 				Static.entityCreated(entity);
 				
-				return (E)entity.$entityIdentity();
+				return (E)entity.entityIdentity();
 			}
 			
 			protected abstract EntityLayerIdentity createEntityInstance();
@@ -212,11 +212,11 @@ public interface Entity
 			{
 				if(entity instanceof Entity.AbstractAccessible)
 				{
-					((Entity.AbstractAccessible)entity).$entityCreated();
+					((Entity.AbstractAccessible)entity).entityCreated();
 				}
 				else if(entity instanceof Entity.Accessible)
 				{
-					((Entity.Accessible)entity).$entityCreated();
+					((Entity.Accessible)entity).entityCreated();
 				}
 			}
 		}

@@ -12,26 +12,26 @@ public class EmployeeEntity extends EntityLayerIdentity implements Employee
 	}
 
 	@Override
-	protected Employee $entityData()
+	protected Employee entityData()
 	{
-		return (Employee)super.$entityData();
+		return (Employee)super.entityData();
 	}
 
 	@Override
 	public final String firstName()
 	{
-		return this.$entityData().firstName();
+		return this.entityData().firstName();
 	}
 
 	@Override
 	public final String lastName()
 	{
-		return this.$entityData().lastName();
+		return this.entityData().lastName();
 	}
 
 	@Override
 	public final String employer()
 	{
-		return this.$entityData().employer();
+		return this.entityData().employer();
 	}
 }
