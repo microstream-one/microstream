@@ -49,16 +49,16 @@ class TypeGeneratorEntityIdentityType extends TypeGenerator
 			.tab(2).add("super();").newline()
 			.tab().add("}");
 		
-		// overwrite $entityData()
+		// overwrite entityData()
 		this.newline().newline();
 		if(typeParametersNameCode.length() > 0)
 		{
 			this.tab().add("@SuppressWarnings(\"unchecked\")").newline();
 		}
 		this.tab().add("@Override").newline()
-			.tab().add("protected ").add(this.entityName).add(typeParametersNameCode).add(" $entityData()").newline()
+			.tab().add("protected ").add(this.entityName).add(typeParametersNameCode).add(" entityData()").newline()
 			.tab().add("{").newline()
-			.tab(2).add("return (").add(this.entityName).add(typeParametersNameCode).add(")super.$entityData();")
+			.tab(2).add("return (").add(this.entityName).add(typeParametersNameCode).add(")super.entityData();")
 			.newline()
 			.tab().add("}");
 		
@@ -68,7 +68,7 @@ class TypeGeneratorEntityIdentityType extends TypeGenerator
 				.tab().add("@Override").newline()
 				.tab().add("public final ").add(m.typeName).blank().add(m.methodName).add("()").add(m.throwsClause)
 				.newline().tab().add("{").newline()
-				.tab(2).add("return this.$entityData().").add(m.methodName).add("();").newline()
+				.tab(2).add("return this.entityData().").add(m.methodName).add("();").newline()
 				.tab().add("}"));
 		
 		this.newline().add("}");

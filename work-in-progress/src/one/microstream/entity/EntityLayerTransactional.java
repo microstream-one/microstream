@@ -31,7 +31,7 @@ implements EntityTransaction.Committable
 	////////////
 	
 	@Override
-	protected final Entity $entityData()
+	protected final Entity entityData()
 	{
 		synchronized(this.identityLayer)
 		{
@@ -42,22 +42,22 @@ implements EntityTransaction.Committable
 	@Override
 	public final Entity actualData()
 	{
-		synchronized(this.$entityIdentity())
+		synchronized(this.entityIdentity())
 		{
-			return super.$entityData();
+			return super.entityData();
 		}
 	}
 	
 	@Override
-	protected Entity $entityIdentity()
+	protected Entity entityIdentity()
 	{
 		return Entity.identity(this.actualData());
 	}
 	
 	@Override
-	protected final boolean $updateEntityData(final Entity newData)
+	protected final boolean updateEntityData(final Entity newData)
 	{
-		synchronized(this.$entityIdentity())
+		synchronized(this.entityIdentity())
 		{
 			this.$validateNewData(newData);
 			this.transactionContext.updateData(this, newData);
@@ -68,7 +68,7 @@ implements EntityTransaction.Committable
 	@Override
 	public final void commit()
 	{
-		synchronized(this.$entityIdentity())
+		synchronized(this.entityIdentity())
 		{
 			final Entity local = this.transactionContext.lookupData(this);
 			if(local == null)
@@ -76,7 +76,7 @@ implements EntityTransaction.Committable
 				// no-op due to no entry at all, return.
 				return;
 			}
-			else if(local == this.$entityData())
+			else if(local == this.entityData())
 			{
 				// no-op due to same instances, return.
 				return;

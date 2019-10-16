@@ -26,12 +26,12 @@ public class EntityLayerVersioning<K> extends EntityLayer
 	}
 	
 	@Override
-	protected synchronized Entity $entityData()
+	protected synchronized Entity entityData()
 	{
 		final K versionKey = this.context.currentVersion();
 		if(versionKey == null)
 		{
-			return super.$entityData();
+			return super.entityData();
 		}
 		
 		final Entity versionedData = this.versions.get(versionKey);
@@ -44,19 +44,19 @@ public class EntityLayerVersioning<K> extends EntityLayer
 	}
 	
 	@Override
-	protected void $entityCreated()
+	protected void entityCreated()
 	{
 		final K versionKey = this.context.versionForUpdate();
 		if(versionKey != null)
 		{
-			this.versions.put(versionKey, super.$entityData());
+			this.versions.put(versionKey, super.entityData());
 		}
 		
-		super.$entityCreated();
+		super.entityCreated();
 	}
 	
 	@Override
-	protected synchronized boolean $updateEntityData(final Entity data)
+	protected synchronized boolean updateEntityData(final Entity data)
 	{
 		final K versionKey = this.context.versionForUpdate();
 		if(versionKey != null)
@@ -70,6 +70,6 @@ public class EntityLayerVersioning<K> extends EntityLayer
 			}
 		}
 		
-		return super.$updateEntityData(data);
+		return super.updateEntityData(data);
 	}
 }

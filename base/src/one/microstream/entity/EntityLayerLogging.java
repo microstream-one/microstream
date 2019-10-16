@@ -16,31 +16,31 @@ public class EntityLayerLogging extends EntityLayer
 	}
 	
 	@Override
-	protected void $entityCreated()
+	protected void entityCreated()
 	{
-		this.logger.entityCreated(this.$entityIdentity(), this.$entityData());
+		this.logger.entityCreated(this.entityIdentity(), this.entityData());
 		
-		super.$entityCreated();
+		super.entityCreated();
 	}
 	
 	@Override
-	protected Entity $entityData()
+	protected Entity entityData()
 	{
-		final Entity data = super.$entityData();
+		final Entity data = super.entityData();
 		
-		this.logger.afterRead(this.$entityIdentity(), data);
+		this.logger.afterRead(this.entityIdentity(), data);
 		
 		return data;
 	}
 	
 	@Override
-	protected boolean $updateEntityData(final Entity newData)
+	protected boolean updateEntityData(final Entity newData)
 	{
-		final Entity identity = this.$entityIdentity();
+		final Entity identity = this.entityIdentity();
 		
 		this.logger.beforeUpdate(identity, newData);
 		
-		final boolean success = super.$updateEntityData(newData);
+		final boolean success = super.updateEntityData(newData);
 		
 		this.logger.afterUpdate(identity, newData, success);
 		
