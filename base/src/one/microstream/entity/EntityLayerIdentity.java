@@ -1,5 +1,9 @@
 package one.microstream.entity;
 
+/**
+ * 
+ * @author TM, FH
+ */
 public abstract class EntityLayerIdentity extends EntityLayer
 {
 	protected EntityLayerIdentity()

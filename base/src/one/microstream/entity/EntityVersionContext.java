@@ -9,7 +9,10 @@ import one.microstream.collections.types.XGettingTable;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.hashing.XHashing;
 
-
+/**
+ * 
+ * @author FH
+ */
 public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 {
 	public K currentVersion();

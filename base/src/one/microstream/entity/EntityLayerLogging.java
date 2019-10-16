@@ -3,7 +3,10 @@ package one.microstream.entity;
 
 import static one.microstream.X.notNull;
 
-
+/**
+ * 
+ * @author FH
+ */
 public class EntityLayerLogging extends EntityLayer
 {
 	private final EntityLogger logger;

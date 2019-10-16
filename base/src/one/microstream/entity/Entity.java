@@ -11,7 +11,7 @@ import one.microstream.collections.types.XCollection;
  * A mutable entity. Mutations of the entity's data only happen by providing another instance of that entity
  * that contains the desired new data.
  * 
- * @author TM
+ * @author TM, FH
  */
 public interface Entity
 {

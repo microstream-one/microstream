@@ -2,6 +2,10 @@ package one.microstream.entity;
 
 import static one.microstream.X.mayNull;
 
+/**
+ * 
+ * @author TM, FH
+ */
 public abstract class EntityLayer extends Entity.AbstractAccessible
 {
 	///////////////////////////////////////////////////////////////////////////

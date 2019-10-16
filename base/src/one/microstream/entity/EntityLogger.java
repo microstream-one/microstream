@@ -1,6 +1,10 @@
 
 package one.microstream.entity;
 
+/**
+ * 
+ * @author FH
+ */
 public interface EntityLogger extends EntityLayerProviderProvider
 {
 	public default void entityCreated(final Entity identity, final Entity data)
