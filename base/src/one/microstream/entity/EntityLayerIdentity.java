@@ -1,6 +1,7 @@
 package one.microstream.entity;
 
 /**
+ * Entity identity layer. This is the outer shell of a entity layer chain.
  * 
  * @author TM, FH
  */

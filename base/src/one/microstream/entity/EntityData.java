@@ -1,6 +1,7 @@
 package one.microstream.entity;
 
 /**
+ * Immutable entity data layer.
  * 
  * @author TM, FH
  */

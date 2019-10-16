@@ -3,6 +3,7 @@ package one.microstream.entity;
 import static one.microstream.X.mayNull;
 
 /**
+ * Abstract base class for chained entity layers.
  * 
  * @author TM, FH
  */
