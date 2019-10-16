@@ -32,6 +32,23 @@ public interface MemoryAccessor
 	public byte[] asByteArray(long value);
 	
 	
+	public void put_byte(byte[] bytes, int index, short value);
+	
+	public void put_boolean(byte[] bytes, int index, char value);
+
+	public void put_short(byte[] bytes, int index, short value);
+
+	public void put_char(byte[] bytes, int index, char value);
+
+	public void put_int(byte[] bytes, int index, int value);
+
+	public void put_float(byte[] bytes, int index, float value);
+
+	public void put_long(byte[] bytes, int index, long value);
+
+	public void put_double(byte[] bytes, int index, double value);
+	
+	
 	
 	// (14.10.2019 TM)FIXME: priv#111: not sure if needed
 //	public Object getStaticReference(Field field);
@@ -41,10 +58,6 @@ public interface MemoryAccessor
 	// (14.10.2019 TM)FIXME: objectFieldOffset can't stay here. It has to be wrapped in a plattform-specific type using it.
 	public long objectFieldOffset(Field field);
 	
-	{
-		final int i = 5;
-	}
-	
 	// (14.10.2019 TM)FIXME: priv#111: all methods below are currently only used for debugging, not productive code
 	
 	public int byteSizeReference();
@@ -53,5 +66,12 @@ public interface MemoryAccessor
 	
 	public int byteSizeFieldValue(Class<?> type);
 	
+	/**
+	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).
+	 * Use with care (and the dependency to a system value in mind!).
+	 * 
+	 * @return the system's memory "page size".
+	 */
+	public int pageSize();
 		
 }

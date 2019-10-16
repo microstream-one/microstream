@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import one.microstream.X;
 import one.microstream.collections.interfaces.Sized;
-import one.microstream.memory.XMemory;
+import one.microstream.memory.MemoryAccessorSun;
 import one.microstream.typing.Clearable;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing._longKeyValue;
@@ -36,7 +36,7 @@ public final class _longConcurrentMap implements Clearable, Sized
 	// (18.02.2012)XXX: check all "return 0L;" if it is a problem
 
 
-	private static final Unsafe unsafe = (Unsafe)XMemory.getSystemInstance();
+	private static final Unsafe unsafe = (Unsafe)MemoryAccessorSun.getSystemInstance();
 	private static final long FIELD_ADDRESS_modLevel = unsafe.objectFieldOffset(getDeclaredField(_longConcurrentMap.class, "modLevel"));
 	private static final long FIELD_ADDRESS_size = unsafe.objectFieldOffset(getDeclaredField(_longConcurrentMap.class, "size"));
 	private static final long FIELD_ADDRESS_link = unsafe.objectFieldOffset(getDeclaredField(_longEntry.class, "link"));

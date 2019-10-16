@@ -135,7 +135,10 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		return ARRAY_OBJECT_BASE_OFFSET + elementCount * staticByteSizeReference();
 	}
 			
-
+	public static int staticPageSize()
+	{
+		return VM.pageSize();
+	}
 	
 	public static Object staticGetStaticFieldBase(final Field field)
 	{
@@ -162,8 +165,53 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	public static byte[] staticAsByteArray(final long value)
 	{
 		final byte[] bytes = new byte[XMemory.byteSize_long()];
-		put_long(bytes, 0, value);
+		staticPut_long(bytes, 0, value);
 		return bytes;
+	}
+
+	public static long static_longFromByteArray(final byte[] bytes)
+	{
+		return VM.getLong(bytes, ARRAY_BYTE_BASE_OFFSET);
+	}
+	
+	public static void staticPut_byte(final byte[] bytes, final int index, final short value)
+	{
+		VM.putShort(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
+	}
+	
+	public static void staticPut_boolean(final byte[] bytes, final int index, final char value)
+	{
+		VM.putChar(bytes, ARRAY_BOOLEAN_BASE_OFFSET + index, value);
+	}
+
+	public static void staticPut_short(final byte[] bytes, final int index, final short value)
+	{
+		VM.putShort(bytes, ARRAY_SHORT_BASE_OFFSET+ index, value);
+	}
+
+	public static void staticPut_char(final byte[] bytes, final int index, final char value)
+	{
+		VM.putChar(bytes, ARRAY_CHAR_BASE_OFFSET + index, value);
+	}
+
+	public static void staticPut_int(final byte[] bytes, final int index, final int value)
+	{
+		VM.putInt(bytes, ARRAY_INT_BASE_OFFSET + index, value);
+	}
+
+	public static void staticPut_float(final byte[] bytes, final int index, final float value)
+	{
+		VM.putFloat(bytes, ARRAY_FLOAT_BASE_OFFSET + index, value);
+	}
+
+	public static void staticPut_long(final byte[] bytes, final int index, final long value)
+	{
+		VM.putLong(bytes, ARRAY_LONG_BASE_OFFSET + index, value);
+	}
+
+	public static void staticPut_double(final byte[] bytes, final int index, final double value)
+	{
+		VM.putDouble(bytes, ARRAY_DOUBLE_BASE_OFFSET + index, value);
 	}
 	
 	
@@ -201,6 +249,11 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		return staticByteSizeReference();
 	}
 	
+	@Override
+	public final int pageSize()
+	{
+		return staticPageSize();
+	}
 
 	@Override
 	public final void set_long(final long address, final long value)
@@ -324,55 +377,55 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	
 	
 	@Override
-	public long byteSizeArray_byte(final long elementCount)
+	public final long byteSizeArray_byte(final long elementCount)
 	{
 		return staticByteSizeArray_byte(elementCount);
 	}
 
 	@Override
-	public long byteSizeArray_boolean(final long elementCount)
+	public final long byteSizeArray_boolean(final long elementCount)
 	{
 		return staticByteSizeArray_boolean(elementCount);
 	}
 
 	@Override
-	public long byteSizeArray_short(final long elementCount)
+	public final long byteSizeArray_short(final long elementCount)
 	{
 		return staticByteSizeArray_short(elementCount);
 	}
 
 	@Override
-	public long byteSizeArray_char(final long elementCount)
+	public final long byteSizeArray_char(final long elementCount)
 	{
 		return staticByteSizeArray_char(elementCount);
 	}
 
 	@Override
-	public long byteSizeArray_int(final long elementCount)
+	public final long byteSizeArray_int(final long elementCount)
 	{
 		return staticByteSizeArray_int(elementCount);
 	}
 
 	@Override
-	public long byteSizeArray_float(final long elementCount)
+	public final long byteSizeArray_float(final long elementCount)
 	{
 		return staticByteSizeArray_float(elementCount);
 	}
 
 	@Override
-	public long byteSizeArray_long(final long elementCount)
+	public final long byteSizeArray_long(final long elementCount)
 	{
 		return staticByteSizeArray_long(elementCount);
 	}
 
 	@Override
-	public long byteSizeArray_double(final long elementCount)
+	public final long byteSizeArray_double(final long elementCount)
 	{
 		return staticByteSizeArray_double(elementCount);
 	}
 
 	@Override
-	public long byteSizeArrayObject(final long elementCount)
+	public final long byteSizeArrayObject(final long elementCount)
 	{
 		return staticByteSizeArrayObject(elementCount);
 	}
@@ -387,6 +440,54 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	public final byte[] asByteArray(final long value)
 	{
 		return staticAsByteArray(value);
+	}
+	
+	@Override
+	public final void put_byte(final byte[] bytes, final int index, final short value)
+	{
+		staticPut_byte(bytes, index, value);
+	}
+	
+	@Override
+	public final void put_boolean(final byte[] bytes, final int index, final char value)
+	{
+		staticPut_boolean(bytes, index, value);
+	}
+
+	@Override
+	public final void put_short(final byte[] bytes, final int index, final short value)
+	{
+		staticPut_short(bytes, index, value);
+	}
+
+	@Override
+	public final void put_char(final byte[] bytes, final int index, final char value)
+	{
+		staticPut_char(bytes, index, value);
+	}
+
+	@Override
+	public final void put_int(final byte[] bytes, final int index, final int value)
+	{
+		staticPut_int(bytes, index, value);
+	}
+
+	@Override
+	public final void put_float(final byte[] bytes, final int index, final float value)
+	{
+		staticPut_float(bytes, index, value);
+	}
+
+	@Override
+	public final void put_long(final byte[] bytes, final int index, final long value)
+	{
+		staticPut_long(bytes, index, value);
+	}
+
+	@Override
+	public final void put_double(final byte[] bytes, final int index, final double value)
+	{
+		staticPut_double(bytes, index, value);
 	}
 		
 }

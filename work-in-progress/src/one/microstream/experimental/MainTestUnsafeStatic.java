@@ -2,12 +2,12 @@ package one.microstream.experimental;
 
 import java.lang.reflect.Field;
 
-import one.microstream.memory.XMemory;
+import one.microstream.memory.MemoryAccessorSun;
 import sun.misc.Unsafe;
 
 public class MainTestUnsafeStatic
 {
-	static final Unsafe vm = (Unsafe)XMemory.getSystemInstance();
+	static final Unsafe vm = (Unsafe)MemoryAccessorSun.getSystemInstance();
 
 	public static void main(final String[] args) throws Throwable
 	{
