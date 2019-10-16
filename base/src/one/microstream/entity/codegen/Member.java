@@ -8,7 +8,10 @@ import javax.lang.model.type.TypeMirror;
 
 import one.microstream.chars.VarString;
 
-
+/**
+ * 
+ * @author FH
+ */
 class Member
 {
 	final ExecutableElement element;

@@ -59,7 +59,7 @@ implements EntityTransaction.Committable
 	{
 		synchronized(this.entityIdentity())
 		{
-			this.$validateNewData(newData);
+			this.validateNewData(newData);
 			this.transactionContext.updateData(this, newData);
 		}
 		return true;
@@ -86,7 +86,7 @@ implements EntityTransaction.Committable
 			 * set new instance unvalidated, as validation has already been done
 			 * in $updateData() before registering the local data instance.
 			 */
-			super.$setInner(local);
+			super.setInner(local);
 		}
 		
 	}

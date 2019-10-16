@@ -15,7 +15,10 @@ import one.microstream.chars.VarString;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.typing.Stateless;
 
-
+/**
+ * 
+ * @author FH
+ */
 class TypeGeneratorHashEqualatorType extends TypeGenerator
 {
 	final static String SUFFIX = "HashEqualator";

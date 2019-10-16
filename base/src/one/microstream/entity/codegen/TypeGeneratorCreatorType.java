@@ -10,7 +10,10 @@ import javax.lang.model.element.TypeParameterElement;
 import one.microstream.entity.Entity;
 import one.microstream.entity.EntityLayerIdentity;
 
-
+/**
+ * 
+ * @author FH
+ */
 class TypeGeneratorCreatorType extends TypeGenerator
 {
 	final static String SUFFIX = "Creator";
