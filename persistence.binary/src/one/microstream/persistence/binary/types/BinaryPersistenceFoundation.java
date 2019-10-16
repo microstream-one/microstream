@@ -5,6 +5,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XEnum;
 import one.microstream.collections.types.XTable;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
+import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistryEnsurer;
 import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlerCreator;
 import one.microstream.persistence.types.PersistenceManager;
@@ -216,15 +217,29 @@ extends PersistenceFoundation<Binary, F>
 				this.isByteOrderMismatch()
 			);
 		}
+		
+		@Override
+		protected PersistenceCustomTypeHandlerRegistryEnsurer<Binary> ensureCustomTypeHandlerRegistryEnsurer(
+			final F foundation
+		)
+		{
+			return (f, rthm) ->
+			{
+				return BinaryPersistence.createDefaultCustomTypeHandlerRegistry(
+					rthm,
+					f.getSizedArrayLengthController(),
+					f.getTypeHandlerCreator(),
+					f.customTypeHandlers().values()
+				);
+			};
+		}
 
 		@Override
 		protected synchronized PersistenceCustomTypeHandlerRegistry<Binary> ensureCustomTypeHandlerRegistry()
 		{
-			return BinaryPersistence.createDefaultCustomTypeHandlerRegistry(
-				this.referenceTypeHandlerManager(),
-				this.getSizedArrayLengthController(),
-				this.getTypeHandlerCreator(),
-				this.customTypeHandlers().values()
+			return this.getCustomTypeHandlerRegistryEnsurer().ensureCustomTypeHandlerRegistry(
+				this,
+				this.referenceTypeHandlerManager()
 			);
 		}
 

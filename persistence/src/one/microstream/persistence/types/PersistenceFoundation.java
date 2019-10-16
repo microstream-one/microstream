@@ -122,6 +122,10 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	 * @return the (on-demand created) {@link PersistenceCustomTypeHandlerRegistry} instance.
 	 */
 	public PersistenceCustomTypeHandlerRegistry<M> getCustomTypeHandlerRegistry();
+	
+	public PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer();
+	
+	public PersistenceCustomTypeHandlerRegistryEnsurer<M> getCustomTypeHandlerRegistryEnsurer();
 
 	public PersistenceTypeAnalyzer getTypeAnalyzer();
 	
@@ -206,7 +210,6 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public F setTypeAnalyzer(PersistenceTypeAnalyzer typeAnalyzer);
 	
 	public F setTypeResolver(PersistenceTypeResolver typeResolver);
-	
 
 	public F setTypeHandlerRegistry(PersistenceTypeHandlerRegistry<M> typeHandlerRegistry);
 
@@ -355,6 +358,10 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	 * @return {@literal this} to allow method chaining.
 	 */
 	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<M> typeHandlerRegistration);
+		
+	public F setCustomTypeHandlerRegistryEnsurer(
+		PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer
+	);
 	
 
 	/*
@@ -384,77 +391,72 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers = HashTable.New();
 		
 		private final HashTable<Class<?>, PersistenceTypeInstantiator<M, ?>> customTypeInstantiators = HashTable.New();
-				
-		private PersistenceObjectIdProvider oidProvider;
-		private PersistenceTypeIdProvider   tidProvider;
 
-		// first level assembly parts (used directly to build manager instance) \\
-		private PersistenceTypeRegistry          typeRegistry      ;
-		private PersistenceObjectRegistry        objectRegistry    ;
-		private PersistenceTypeHandlerManager<M> typeHandlerManager;
-		private PersistenceContextDispatcher<M>  contextDispatcher ;
-		private PersistenceStorer.Creator<M>     storerCreator     ;
-		private PersistenceRegisterer.Creator    registererCreator ;
-		private PersistenceLoader.Creator<M>     builderCreator    ;
-		private PersistenceTarget<M>             target            ;
-		private PersistenceSource<M>             source            ;
-		
+		private PersistenceObjectManager                       objectManager                   ;
+		private PersistenceObjectIdProvider                    oidProvider                     ;
+		private PersistenceTypeIdProvider                      tidProvider                     ;
+		private PersistenceTypeRegistry                        typeRegistry                    ;
+		private PersistenceObjectRegistry                      objectRegistry                  ;
+		private PersistenceTypeHandlerManager<M>               typeHandlerManager              ;
+		private PersistenceContextDispatcher<M>                contextDispatcher               ;
+		private PersistenceStorer.Creator<M>                   storerCreator                   ;
+		private PersistenceRegisterer.Creator                  registererCreator               ;
+		private PersistenceLoader.Creator<M>                   builderCreator                  ;
+		private PersistenceTarget<M>                           target                          ;
+		private PersistenceSource<M>                           source                          ;
+		private PersistenceFieldLengthResolver                 fieldFixedLengthResolver        ;
+		private PersistenceFieldEvaluator                      fieldEvaluatorPersistable       ;
+		private PersistenceFieldEvaluator                      fieldEvaluatorEnum              ;
+		private PersistenceFieldEvaluator                      fieldEvaluatorCollection        ;
+		private PersistenceEagerStoringFieldEvaluator          eagerStoringFieldEvaluator      ;
 
-		// second level assembly parts (used as a fallback to build missing first level parts) \\
-		private PersistenceTypeManager                  typeManager                ;
-		private PersistenceObjectManager                objectManager              ;
-		private PersistenceTypeHandlerEnsurer<M>        typeHandlerEnsurer         ;
-		private PersistenceTypeHandlerRegistry<M>       typeHandlerRegistry        ;
-		private PersistenceTypeHandlerProvider<M>       typeHandlerProvider        ;
-		private PersistenceTypeDictionaryManager        typeDictionaryManager      ;
-		private PersistenceTypeDictionaryCreator        typeDictionaryCreator      ;
-		private PersistenceTypeDictionaryProvider       typeDictionaryProvider     ;
-		private PersistenceTypeDictionaryExporter       typeDictionaryExporter     ;
-		private PersistenceTypeDictionaryLoader         typeDictionaryLoader       ;
-		private PersistenceTypeDictionaryParser         typeDictionaryParser       ;
-		private PersistenceTypeDictionaryBuilder        typeDictionaryBuilder      ;
-		private PersistenceTypeDictionaryCompiler       typeDictionaryCompiler     ;
-		private PersistenceTypeDictionaryAssembler      typeDictionaryAssembler    ;
-		private PersistenceTypeDictionaryStorer         typeDictionaryStorer       ;
-		private PersistenceTypeLineageCreator           typeLineageCreator         ;
-		private PersistenceTypeHandlerCreator<M>        typeHandlerCreator         ;
-		private PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry  ;
-		private PersistenceTypeAnalyzer                 typeAnalyzer               ;
-		private PersistenceTypeResolver                 typeResolver               ;
-		private PersistenceTypeMismatchValidator<M>     typeMismatchValidator      ;
-		private PersistenceTypeDefinitionCreator        typeDefinitionCreator      ;
-		private PersistenceTypeEvaluator                typeEvaluatorPersistable   ;
-		private PersistenceFieldLengthResolver          fieldFixedLengthResolver   ;
-		private BufferSizeProviderIncremental           bufferSizeProvider         ;
-		private PersistenceFieldEvaluator               fieldEvaluatorPersistable  ;
-		private PersistenceFieldEvaluator               fieldEvaluatorEnum         ;
-		private PersistenceFieldEvaluator               fieldEvaluatorCollection   ;
-		private PersistenceEagerStoringFieldEvaluator   eagerStoringFieldEvaluator ;
-		private PersistenceRootResolverProvider         rootResolverProvider       ;
-		private PersistenceRootsProvider<M>             rootsProvider              ;
-		private PersistenceSizedArrayLengthController   sizedArrayLengthController ;
-		private LambdaTypeRecognizer                    lambdaTypeRecognizer       ;
+		// (14.09.2018 TM)NOTE: that type handling stuff grows to a size where it could use its own foundation.
+		private PersistenceTypeManager                         typeManager                     ;
+		private PersistenceTypeHandlerEnsurer<M>               typeHandlerEnsurer              ;
+		private PersistenceTypeHandlerRegistry<M>              typeHandlerRegistry             ;
+		private PersistenceTypeHandlerProvider<M>              typeHandlerProvider             ;
+		private PersistenceTypeDictionaryManager               typeDictionaryManager           ;
+		private PersistenceTypeDictionaryCreator               typeDictionaryCreator           ;
+		private PersistenceTypeDictionaryProvider              typeDictionaryProvider          ;
+		private PersistenceTypeDictionaryExporter              typeDictionaryExporter          ;
+		private PersistenceTypeDictionaryLoader                typeDictionaryLoader            ;
+		private PersistenceTypeDictionaryParser                typeDictionaryParser            ;
+		private PersistenceTypeDictionaryBuilder               typeDictionaryBuilder           ;
+		private PersistenceTypeDictionaryCompiler              typeDictionaryCompiler          ;
+		private PersistenceTypeDictionaryAssembler             typeDictionaryAssembler         ;
+		private PersistenceTypeDictionaryStorer                typeDictionaryStorer            ;
+		private PersistenceTypeLineageCreator                  typeLineageCreator              ;
+		private PersistenceTypeHandlerCreator<M>               typeHandlerCreator              ;
+		private PersistenceTypeAnalyzer                        typeAnalyzer                    ;
+		private PersistenceTypeResolver                        typeResolver                    ;
+		private PersistenceTypeMismatchValidator<M>            typeMismatchValidator           ;
+		private PersistenceTypeDefinitionCreator               typeDefinitionCreator           ;
+		private PersistenceTypeEvaluator                       typeEvaluatorPersistable        ;
+		private LambdaTypeRecognizer                           lambdaTypeRecognizer            ;
+		private PersistenceSizedArrayLengthController          sizedArrayLengthController      ;
+		private PersistenceInstantiator<M>                     instantiator                    ;
+		private PersistenceTypeInstantiatorProvider<M>         instantiatorProvider            ;
+		private PersistenceCustomTypeHandlerRegistry<M>        customTypeHandlerRegistry       ;
+		private PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer;
+		private BufferSizeProviderIncremental                  bufferSizeProvider              ;
+		private PersistenceRootResolverProvider                rootResolverProvider            ;
+		private PersistenceRootsProvider<M>                    rootsProvider                   ;
+		private ByteOrder                                      targetByteOrder                 ;
 		
 		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
-		private PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator  ;
-		private PersistenceLegacyTypeMapper<M>              legacyTypeMapper               ;
-		private PersistenceRefactoringMappingProvider       refactoringMappingProvider     ;
-		private PersistenceTypeDescriptionResolverProvider  typeDescriptionResolverProvider;
+		private PersistenceUnreachableTypeHandlerCreator<M>    unreachableTypeHandlerCreator   ;
+		private PersistenceLegacyTypeMapper<M>                 legacyTypeMapper                ;
+		private PersistenceRefactoringMappingProvider          refactoringMappingProvider      ;
+		private PersistenceTypeDescriptionResolverProvider     typeDescriptionResolverProvider ;
+		private TypeMapping<Float>                             typeSimilarity                  ;
+		private PersistenceMemberMatchingProvider              legacyMemberMatchingProvider    ;
+		private PersistenceLegacyTypeMappingResultor<M>        legacyTypeMappingResultor       ;
+		private PersistenceLegacyTypeHandlerCreator<M>         legacyTypeHandlerCreator        ;
+		private PersistenceLegacyTypeHandlingListener<M>       legacyTypeHandlingListener      ;
 
 		private XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   refactoringLegacyTypeIdentifierBuilders   ;
 		private XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringLegacyMemberIdentifierBuilders ;
 		private XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringCurrentMemberIdentifierBuilders;
-		
-		private TypeMapping<Float>                       typeSimilarity              ;
-		private PersistenceMemberMatchingProvider        legacyMemberMatchingProvider;
-		private PersistenceLegacyTypeMappingResultor<M>  legacyTypeMappingResultor   ;
-		private PersistenceLegacyTypeHandlerCreator<M>   legacyTypeHandlerCreator    ;
-		private PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener  ;
-
-		private PersistenceInstantiator<M>             instantiator        ;
-		private PersistenceTypeInstantiatorProvider<M> instantiatorProvider;
-		
-		private ByteOrder targetByteOrder;
 		
 		
 		
@@ -494,6 +496,12 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		public XMap<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers()
 		{
 			return this.customTypeHandlers;
+		}
+
+		@Override
+		public PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer()
+		{
+			return this.customTypeHandlerRegistryEnsurer;
 		}
 		
 		@Override
@@ -891,6 +899,19 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			}
 			
 			return this.customTypeHandlerRegistry;
+		}
+		
+		@Override
+		public PersistenceCustomTypeHandlerRegistryEnsurer<M> getCustomTypeHandlerRegistryEnsurer()
+		{
+			if(this.customTypeHandlerRegistryEnsurer == null)
+			{
+				this.customTypeHandlerRegistryEnsurer = this.dispatch(
+					this.ensureCustomTypeHandlerRegistryEnsurer(this.$())
+				);
+			}
+			
+			return this.customTypeHandlerRegistryEnsurer;
 		}
 
 		@Override
@@ -1770,6 +1791,16 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			this.targetByteOrder = targetByteOrder;
 			return this.$();
 		}
+		
+		@Override
+		public F setCustomTypeHandlerRegistryEnsurer(
+			final PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer
+		)
+		{
+			this.customTypeHandlerRegistryEnsurer = customTypeHandlerRegistryEnsurer;
+			
+			return this.$();
+		}
 
 
 		
@@ -2153,6 +2184,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceCustomTypeHandlerRegistry<M> ensureCustomTypeHandlerRegistry()
 		{
 			throw new MissingFoundationPartException(PersistenceCustomTypeHandlerRegistry.class);
+		}
+		
+		protected PersistenceCustomTypeHandlerRegistryEnsurer<M> ensureCustomTypeHandlerRegistryEnsurer(
+			final F foundation
+		)
+		{
+			// ensure the ensurer! Aww... snap.
+			throw new MissingFoundationPartException(PersistenceCustomTypeHandlerRegistryEnsurer.class);
 		}
 
 		protected PersistenceFieldLengthResolver ensureFieldFixedLengthResolver()
