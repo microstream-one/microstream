@@ -1444,6 +1444,16 @@ public abstract class Binary implements Chunk
 		return length;
 	}
 	
+	public final void updateInstance(
+		final Object                      instance    ,
+		final BinaryObjectValuesSetter    valuesSetter,
+		final PersistenceObjectIdResolver idResolver
+	)
+	{
+		final long address = this.loadItemEntityContentAddress();
+		valuesSetter.setObjectValues(null, valuesSetter, idResolver);
+	}
+	
 	public final void updateFixedSize(
 		final Object                      instance     ,
 		final BinaryValueSetter[]         setters      ,
@@ -1503,7 +1513,7 @@ public abstract class Binary implements Chunk
 	{
 		this.update_charsFromAddress(address, chars, offset, length);
 	}
-		
+			
 	public final void copyMemory(
 		final ByteBuffer          directByteBuffer,
 		final long                offset          ,
