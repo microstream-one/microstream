@@ -44,23 +44,7 @@
 	<repositories>
 		<repository>
 			<id>microstream-maven-releases</id>
-			<url>https://repo.microstream.one/repository/maven-releases/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>microstream-maven-snapshots</id>
-			<url>https://repo.microstream.one/repository/maven-snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
+			<url>https://repo.microstream.one/repository/maven-public/</url>
 		</repository>
 	</repositories>
 
