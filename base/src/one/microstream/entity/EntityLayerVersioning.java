@@ -40,7 +40,7 @@ public class EntityLayerVersioning<K> extends EntityLayer
 		final Entity versionedData = this.versions.get(versionKey);
 		if(versionedData == null)
 		{
-			throw new EntityVersionException("No data for version " + versionKey);
+			throw new EntityExceptionMissingDataForVersion(this.entityIdentity(), versionKey);
 		}
 		
 		return versionedData;

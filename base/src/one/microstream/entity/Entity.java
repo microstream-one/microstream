@@ -3,7 +3,6 @@ package one.microstream.entity;
 
 import static one.microstream.X.notNull;
 
-import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XCollection;
 
@@ -33,8 +32,8 @@ public interface Entity
 			// null is consistently its own identity
 			return null;
 		}
-		
-		throw new EntityException("Unaccessable entity type: " + XChars.systemString(instance));
+
+		throw new EntityExceptionUnaccessibleEntityType(instance);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -56,8 +55,8 @@ public interface Entity
 			// null is consistently its own data
 			return null;
 		}
-		
-		throw new EntityException("Unaccessable entity type: " + XChars.systemString(instance));
+
+		throw new EntityExceptionUnaccessibleEntityType(instance);
 	}
 	
 	public static <E extends Entity> boolean updateData(final E entity, final E data)
@@ -75,7 +74,7 @@ public interface Entity
 			return ((Entity.Accessible)entity).updateEntityData(data);
 		}
 		
-		throw new EntityException("Unaccessable entity type: " + XChars.systemString(entity));
+		throw new EntityExceptionUnaccessibleEntityType(entity);
 	}
 	
 	public default boolean isSameIdentity(final Entity other)
@@ -90,7 +89,7 @@ public interface Entity
 			return;
 		}
 		
-		throw new EntityException("Entity identity mismatch.");
+		throw new EntityExceptionIdentityMismatch(this, newData);
 	}
 	
 	/**

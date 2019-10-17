@@ -74,10 +74,7 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 	
 	protected void validateNewData(final Entity newData)
 	{
-		if(Entity.identity(newData) != this.entityIdentity())
-		{
-			throw new EntityException("Entity identity mismatch.");
-		}
+		this.validateIdentity(newData);
 	}
 	
 	protected void updateDataValidating(final Entity newData)
