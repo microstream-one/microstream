@@ -457,6 +457,33 @@ definieren.\par
 Ne, das passt so nicht. Es muss ja auch noch den PersistenceStoreHandler geben. Mit Generics rumwursteln, nur um die eigentlich spezifischen Handling Typen mit Gewalt im allgemeinen memory package zu lassen, ist Quatsch.\par
 Das m\'fcssen Peristence~ Varianten werden mit entsprechenden Creator Typen und deren Instanzen kennen dann intern einen MemoryAccessor.\par
 \par
+2019-10-17\par
+\par
+PersistenceMemoryObjectValuesSetter usw. weiterbauen.\par
+\par
+Hm. Verschiedene neue Designerkenntnisse w\'e4hrend dem bauen:\par
+- Das hat auf der Persistence Ebene nix verloren, weil ja alles nur auf der Binary Ebene stattfindet. Muss ich verschieben.\par
+- Ein Medium M angebeben bringt nix, sondern es gibt umgekehrt eine updateInstance Methode in der Binary Klasse, die ihren aktuellen Offset raussucht und \'fcbergibt.\par
+- D.h. der BinaryMemoryObjectValuesSetter Typ br\'e4uchte doch wieder einen long offset anstatt M Medium.\par
+- Aber eigentlich w\'e4re es noch besser, einen DBB + offset zu \'fcbergeben. Denn ein absoluter offset hei\'dft ohne Unsafe immer die selbstgebaute Speicherstruktur. Ein DBB ist ... \'e4h ... direkter. Und die 2 parameter statt 1 tun keinem weh.\par
+\par
+Und damit, Achtung lustig, kann es wieder ins Base package wandern, weil es keine Abh\'e4ngigkeiten mehr zu Typen der spezifischeren Packages hat.\par
+Ach ne, fast: der PersistenceStoreHandler ist ja immer noch. Okay.\par
+\par
+Ach, so ein Mist: Binary kennt ja senien DBB gar nicht.\par
+\par
+Und das ist nicht so einfach:\par
+- Ein ChunksBuffer kennt seinen eigenen DBB und arbeitet mit einem offset darauf. Ok. Das ist einfach.\par
+- Ein LoadItem arbeitet aber zusammen mit vielen anderen auf demselben DBB, nur in jeweils segmentierten Bereichen.\par
+\par
+Jedem LoatItem eine R\'fcckreferenz auf den DBB zu geben w\'e4re teuer.\par
+Immerhin gibt es f\'fcr jedes einzelne zu ladende Entity ein LoadItem.\par
+\par
+Jetzt k\'f6nnte man nat\'fcrlich sagen: okay, dann DBB raus und gleich explizit allokierter Speicher.\par
+Dann ist aber das Problem: Wann wird der wieder freigegeben? Das sch\'f6ne am DBB ist halt, dass der implizit wieder freigibt, sobald er collectet wird.\par
+Das w\'fcrde damit verloren gehen. Bl\'f6d.\par
+\par
+Mal \'fcberlegen.\par
 \par
 }
  
