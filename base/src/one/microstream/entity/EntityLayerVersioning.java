@@ -23,9 +23,9 @@ public class EntityLayerVersioning<K> extends EntityLayer
 		this.versions = EqHashTable.New(context.equalator());
 	}
 	
-	protected XGettingTable<K, Entity> versions()
+	protected synchronized XGettingTable<K, Entity> versions()
 	{
-		return this.versions.view();
+		return this.versions.immure();
 	}
 	
 	@Override
@@ -40,14 +40,14 @@ public class EntityLayerVersioning<K> extends EntityLayer
 		final Entity versionedData = this.versions.get(versionKey);
 		if(versionedData == null)
 		{
-			throw new EntityVersionException("No data for version " + versionKey);
+			throw new EntityExceptionMissingDataForVersion(this.entityIdentity(), versionKey);
 		}
 		
 		return versionedData;
 	}
 	
 	@Override
-	protected void entityCreated()
+	protected synchronized void entityCreated()
 	{
 		final K versionKey = this.context.versionForUpdate();
 		if(versionKey != null)
