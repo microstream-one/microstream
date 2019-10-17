@@ -4,10 +4,10 @@ package one.microstream.wrapping.codegen;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,6 +24,8 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.Elements;
 
 import one.microstream.wrapping.GenerateWrapper;
+import one.microstream.wrapping.GenerateWrapperFor;
+
 
 /**
  * 
@@ -33,7 +35,6 @@ public class WrapperProcessor extends AbstractProcessor
 {
 	private final static String     OPTION_TYPES = "microstream.wrapper.types";
 	
-	private Set<String>             additionalTypes;
 	private List<ExecutableElement> javaLangObjectMethods;
 	private boolean                 processed    = false;
 	
@@ -75,14 +76,6 @@ public class WrapperProcessor extends AbstractProcessor
 			.map(ExecutableElement.class::cast)
 			.filter(method -> !method.getModifiers().contains(Modifier.STATIC))
 			.collect(Collectors.toList());
-		
-		final String option = processingEnv.getOptions().get(OPTION_TYPES);
-		if(option != null && option.length() > 0)
-		{
-			this.additionalTypes = Arrays.stream(option.split(","))
-				.map(String::trim)
-				.collect(Collectors.toSet());
-		}
 	}
 	
 	@Override
@@ -93,21 +86,31 @@ public class WrapperProcessor extends AbstractProcessor
 			return false;
 		}
 		
-		// annotated types
-		final Map<String, TypeElement> types = roundEnv.getElementsAnnotatedWith(GenerateWrapper.class).stream()
-			.filter(e -> e.getKind() == ElementKind.INTERFACE)
-			.map(TypeElement.class::cast)
-			.collect(Collectors.toMap(t -> t.getQualifiedName().toString(), t -> t));
+		final Map<String, TypeElement> types           =
+			roundEnv.getElementsAnnotatedWith(GenerateWrapper.class).stream()
+				.filter(e -> e.getKind() == ElementKind.INTERFACE)
+				.map(TypeElement.class::cast)
+				.collect(Collectors.toMap(t -> t.getQualifiedName().toString(), t -> t));
 		
-		// additional types
-		if(this.additionalTypes != null)
+		final Set<String>              additionalTypes = new HashSet<>();
+		
+		final String                   option          = this.processingEnv.getOptions().get(OPTION_TYPES);
+		if(option != null && option.length() > 0)
 		{
-			this.additionalTypes.stream()
-				.filter(name -> !types.containsKey(name))
-				.map(this.processingEnv.getElementUtils()::getTypeElement)
-				.filter(Objects::nonNull)
-				.forEach(t -> types.put(t.getQualifiedName().toString(), t));
+			Arrays.stream(option.split(","))
+				.forEach(additionalTypes::add);
 		}
+		
+		roundEnv.getElementsAnnotatedWith(GenerateWrapperFor.class).stream()
+			.flatMap(element -> Arrays.stream(element.getAnnotation(GenerateWrapperFor.class).value()))
+			.forEach(additionalTypes::add);
+		
+		additionalTypes.stream()
+			.map(String::trim)
+			.filter(name -> !types.containsKey(name))
+			.map(this.processingEnv.getElementUtils()::getTypeElement)
+			.filter(t -> t != null && t.getKind() == ElementKind.INTERFACE)
+			.forEach(t -> types.put(t.getQualifiedName().toString(), t));
 		
 		types.values().forEach(this::generateWrapper);
 		

@@ -23,10 +23,8 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 
-import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.entity.Entity;
-import one.microstream.entity.EntityException;
 
 /**
  * 
@@ -220,10 +218,7 @@ public class EntityProcessor extends AbstractProcessor
 			|| method.getParameters().size() > 0
 			|| this.containsCheckedException(method.getThrownTypes()))
 		{
-			throw new EntityException(VarString.New("Invalid entity method: ")
-				.add(method.getEnclosingElement()).add('#').add(method)
-				.add("; only methods with return type, no type parameters")
-				.add(", no parameters and no checked exceptions are supported.").toString());
+			throw new EntityExceptionInvalidEntityMethod(method);
 		}
 	}
 	
