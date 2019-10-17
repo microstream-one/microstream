@@ -1,5 +1,5 @@
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\colortbl ;\red0\green0\blue255;}
+{\colortbl ;\red0\green0\blue255;\red165\green165\blue165;}
 {\*\generator Riched20 10.0.17763}\viewkind4\uc1 
 \pard\sl276\slmult1\f0\fs28\lang7 2019-09-30\par
 \par
@@ -213,8 +213,8 @@ Oder muss da jetzt doch die Trickserei mit eigener Logik hinter allocateMemory r
 \par
 2019-10-09\par
 \par
-\par
-Super Idee von Zuhause und Arbeitsweg:\par
+Aktuell gepflegte Version ausgelagert in "Speicherverwaltungskonzept.rtf" im pers\'f6nlichen Verzeichnis \\MicroStream\\Planung\\priv#111 Unsafe Modularisierung\\.\par
+\cf2 Super Idee von Zuhause und Arbeitsweg:\par
 \par
 Manuelle Off-Heap Memory Allokierung sollte/muss eigentlich auch mit Off-Heap Memory realisiert werden.\par
 Das hei\'dft zwangsweise: DirectByteBuffer. Unsafe#allocate gibt es ja eben auf manchen Systemen (Android) nicht und es gibt nur diese beiden M\'f6glichkeiten.\par
@@ -284,7 +284,7 @@ Wenn der size counter auf 0 ist, dann den ganzen DBB deallokieren und im nested 
 Das w\'e4re ein off-heap-m\'e4\'dfig korrektes mittel, mit nur java public API (-> Android) eine absolute Speicheradressierung in manuell allokiertem Speicher zu machen.\par
 Auf Entities zugreifen (base + offset) kann man damit nat\'fcrlich nicht, das braucht eine Umformung zu Reflection.\par
 Auch auf explizite DBBs kann man damit nicht zugreifen. Die brauchen auch eine Umformung (DBB Referenz + Offset)\par
-\par
+\cf0\par
 \par
 Das muss ich dann mal so implementieren, wenn ich alle kleineren Details refactort hab.\par
 \par
@@ -485,5 +485,21 @@ Das w\'fcrde damit verloren gehen. Bl\'f6d.\par
 \par
 Mal \'fcberlegen.\par
 \par
+Also es gibt 2 M\'f6glichkeiten:\par
+\par
+1.)\par
+Man kann beim MemoryAccessor einen DBB registrieren und kriegt eine absolute adresse zur\'fcck, auf der dann "normal" gearbeitet werden kann. Auch hier wieder intern nur mit WeakReference, damit der auch wirklich collectet wird.\par
+Bzw. in der sun Implementierung w\'fcrde gar nichts passieren, sondern nur die allokierte MemoryAddress zur\'fcckgegeben.\par
+\par
+2.)\line Ich mach eine direkte Allkokierung im ChunksBuffer und Deallokier die explizit, wenn er nicht mehr ben\'f6tigt wird, d.h. am Ende eines Ladeprozesses.\par
+Wobei das halt gef\'e4hrlich ist: momentan ist es so, dass der DBB valide ist, solang die ChunksBuffer Instanz existiert. Die h\'e4ngen automatisch lifecyclem\'e4\'dfig zusammen. Da kann nix schief gehen.\par
+Wenn man so ein explizites Allokieren einbaut und irgendwann mal wird code so ge\'e4ndert, dass der danach noch auf die chunksbuffer daten zugreifen w\'fcrde, dann kracht die JVM.\par
+Um sich mit genau solcher Komplexit\'e4t nicht rumschlagen zu m\'fcssen, gibt's ja das automatische Objekt-Lifecycle-Management der JVM und Referenzen auf DBBs sind eine wunderbare Art, direkte Speicheradressen dort reinzubinden.\par
+\par
+Genauer gesagt sollte #1 wohl implementiert werden mit einer speziellen HashTable int -> WeakReference<DirectByteBufferOwner>\par
+Die Entries leiten direkt von WeakReference ab.\par
+Und den Owner registrieren anstatt den DBB selbst, damit der lifecycle Zusammenhang garantiert gewahrt bleibt.\par
+\par
+Muss ich mal im Konzept updaten ...\par
 }
  
