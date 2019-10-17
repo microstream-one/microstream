@@ -1,10 +1,14 @@
+
 package one.microstream.entity;
+
+import one.microstream.exceptions.BaseException;
+
 
 /**
  * 
  * @author FH
  */
-public class EntityException extends RuntimeException
+public class EntityException extends BaseException
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -14,19 +18,28 @@ public class EntityException extends RuntimeException
 	{
 		super();
 	}
-
+	
 	public EntityException(final String message, final Throwable cause)
 	{
 		super(message, cause);
 	}
-
+	
 	public EntityException(final String message)
 	{
 		super(message);
 	}
-
+	
 	public EntityException(final Throwable cause)
 	{
 		super(cause);
+	}
+	
+	public EntityException(
+		final String message,
+		final Throwable cause,
+		final boolean enableSuppression,
+		final boolean writableStackTrace)
+	{
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
 }
