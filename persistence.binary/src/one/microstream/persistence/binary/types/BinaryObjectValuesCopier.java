@@ -6,7 +6,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public interface BinaryObjectValuesCopier
 {
-	public void copyObjectValues(Object object, Binary target, PersistenceStoreHandler persister);
+	public void copyObjectValues(Object object, long targetAddress, PersistenceStoreHandler persister);
 	
 	
 	
