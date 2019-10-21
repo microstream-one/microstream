@@ -512,8 +512,37 @@ Das noch bissl verbessern.\par
 \par
 Dann also jetzt ValueCopier usw. wieder umstellen auf absolute Adresse.\par
 \par
+Aber saubbl\'f6d bei der Umstellerei ist echt:\par
+Damit m\'fcsste es die komplette BinaryValueTranslators, die mit 2000 Zeilen bisher erst den allerwichtigsten Kern abdeckt, doppelt gemacht werden:\par
+Einmal mit object base und einmal ohne.\par
+Bisher wird die mit objeft base einfach f\'fcr beide F\'e4lle verwendet und im absoluten Fall einfach als object null gesetzt.\par
+Evtl. sollte das auch so bleiben.\par
+Man k\'f6nnte ja zumindest je nach plattform eine Exception werfen, wenn object nicht null ist.\par
+Oder es k\'f6nnte sogar einfach eine interne ID f\'fcr ein Field sein und das Field wird dann benutzt, um die eigentliche operation zu machen.\par
+Das w\'fcrde dann also hei\'dfen:\par
+Es ist f\'fcr den Reflection Fall ein bisschen umst\'e4ndlicher Umweg, damit der Low-Level-Memory Fall performant l\'e4uft.\par
+\par
+Die BinaryObjectValue Dinger Kapselung w\'e4re immer noch sinnvoll daf\'fcr, diesen Umweg umgehen zu k\'f6nnen, sondern direkt Reflection per Field zu machen.\par
+Gef\'e4llt mir. So mach ich das. Besser als zig tausend Zeilen code zu verdoppeln und tagelang das Legacy Type Mapping Value Translating umzureissen...\par
 \par
 \par
 \par
+2019-10-21\par
+\par
+Die beiden System-Info-methoden\par
+- byteSizeInstance\par
+- byteSizeObjectHeader\par
+mach ich doch in die public API rein. Wenn die bei einer JVM nicht passen, kann man immer noch 0 zur\'fcckgeben oder eine Exception werfen oder so, aber solche Werte sind sinnvoll und sie allgemein rauszunehmen w\'fcrde die\par
+Debug-Utility-Klasse unheimlich verkomplizieren.\par
+\par
+SunMemoryObjectValuesSetter\par
+Creator daf\'fcr.\par
+\par
+Dabei aufgefallen:\par
+- XMemory#objectFieldOffset gibts ja immer noch. Auch im Interface. Das soll eigentlich raus, eben hier rein. FIXME hinmachen.\par
+- Hm. Dazu m\'fcsste auch die BinaryValueFunctions Klasser zerlegt bzw. in JVM-spezifische Implementierungen verschoben werden.\par
+Dann k\'f6nnte man auch gleich das l\'e4stige switchByteOrder Flag wegbringen, indem viel fr\'fcher die passende MemoryAccessor Instanz \'fcbergeben wird.\par
+Hm... w\'e4re das so dann eigentlich "sauberer", weil mehr objektorientierungskommunikationsm\'e4\'dfig oder unsauberer, weil implizierter und schwerer verst\'e4ndlich bei ansonsten irrelevanten Vorteilen (marginal weniger Code und irrelevant bessere Performance)...? Hm...\par
+Ich mach jetzt mal den OOP Weg und schau, dass es sich in der Konsequenz mehr und mehr vereinfacht, dieses bl\'f6de Flag nicht immer rumschleppen zu m\'fcssen.\par
 }
  

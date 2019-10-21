@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import one.microstream.X;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
-import one.microstream.memory.MemoryAccessorSun;
+import one.microstream.memory.sun.MemoryAccessorSun;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing.XTypes;
 import sun.misc.Unsafe;

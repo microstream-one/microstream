@@ -1,4 +1,4 @@
-package one.microstream.memory;
+package one.microstream.memory.sun;
 
 import static one.microstream.X.notNull;
 
@@ -6,6 +6,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import one.microstream.X;
+import one.microstream.memory.MemoryAccessor;
+import one.microstream.memory.XMemory;
 import sun.misc.Unsafe;
 
 public final class MemoryAccessorSun implements MemoryAccessor
@@ -262,7 +264,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	}
 
 
-	public static final int byteSizeObjectHeader()
+	public static final int staticByteSizeObjectHeader()
 	{
 		return BYTE_SIZE_OBJECT_HEADER;
 	}
@@ -289,6 +291,12 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		}
 		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
 	}
+	
+	@Override
+	public final int byteSizeObjectHeader(final Class<?> type)
+	{
+		return staticByteSizeObjectHeader();
+	}
 
 	@Override
 	public final int byteSizeInstance(final Class<?> type)
@@ -305,7 +313,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		if(type == Object.class)
 		{
 			// required because Object's super class is null (see below)
-			return byteSizeObjectHeader();
+			return staticByteSizeObjectHeader();
 		}
 
 		// declared fields suffice as all super class fields are positioned before them

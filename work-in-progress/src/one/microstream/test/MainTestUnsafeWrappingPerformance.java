@@ -2,8 +2,8 @@ package one.microstream.test;
 
 import java.nio.ByteBuffer;
 
-import one.microstream.memory.MemoryAccessorSun;
 import one.microstream.memory.PlatformInternals;
+import one.microstream.memory.sun.MemoryAccessorSun;
 import sun.misc.Unsafe;
 
 public class MainTestUnsafeWrappingPerformance

@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import one.microstream.X;
 import one.microstream.collections.interfaces.Sized;
-import one.microstream.memory.MemoryAccessorSun;
+import one.microstream.memory.sun.MemoryAccessorSun;
 import one.microstream.typing.Clearable;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing._longKeyValue;

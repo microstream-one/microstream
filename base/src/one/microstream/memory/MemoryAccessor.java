@@ -64,6 +64,8 @@ public interface MemoryAccessor
 	
 	public int byteSizeInstance(Class<?> type);
 	
+	public int byteSizeObjectHeader(Class<?> type);
+	
 	public int byteSizeFieldValue(Class<?> type);
 	
 	/**
