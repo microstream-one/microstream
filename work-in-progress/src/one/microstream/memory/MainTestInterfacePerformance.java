@@ -1,6 +1,7 @@
 package one.microstream.memory;
 
 import one.microstream.math.XMath;
+import one.microstream.memory.sun.MemoryAccessorSun;
 
 public class MainTestInterfacePerformance
 {

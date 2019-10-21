@@ -537,7 +537,7 @@ public final class XDebug
 			}
 		});
 		System.out.println(
-			XMemory.byteSizeObjectHeader() + " Object header size (" + XMemory.byteSizeArrayObject(0) + " array header size)."
+			XMemory.byteSizeObjectHeader(c) + " Object header size (" + XMemory.byteSizeArrayObject(0) + " array header size)."
 				+ " Reference byte size = " + XMemory.byteSizeReference() + "."
 		);
 	}

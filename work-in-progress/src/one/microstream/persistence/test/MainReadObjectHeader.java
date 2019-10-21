@@ -1,7 +1,7 @@
 package one.microstream.persistence.test;
 
 import one.microstream.chars.XChars;
-import one.microstream.memory.MemoryAccessorSun;
+import one.microstream.memory.sun.MemoryAccessorSun;
 import sun.misc.Unsafe;
 
 public class MainReadObjectHeader

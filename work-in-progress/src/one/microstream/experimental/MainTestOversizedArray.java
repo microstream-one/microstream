@@ -2,7 +2,7 @@ package one.microstream.experimental;
 
 import java.util.Arrays;
 
-import one.microstream.memory.MemoryAccessorSun;
+import one.microstream.memory.sun.MemoryAccessorSun;
 import sun.misc.Unsafe;
 
 public class MainTestOversizedArray

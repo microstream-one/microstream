@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 import one.microstream.X;
-import one.microstream.memory.MemoryAccessorSun;
+import one.microstream.memory.sun.MemoryAccessorSun;
 import one.microstream.typing.KeyValue;
 import sun.misc.Unsafe;
 

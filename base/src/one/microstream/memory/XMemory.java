@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteOrder;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
+import one.microstream.memory.sun.MemoryAccessorSun;
 
 
 
@@ -41,8 +42,17 @@ public final class XMemory
 
 	
 	
-
+	public static int byteSizeInstance(final Class<?> c)
+	{
+		return MEMORY_ACCESSOR.byteSizeInstance(c);
+	}
 	
+	public static int byteSizeObjectHeader(final Class<?> c)
+	{
+		return MEMORY_ACCESSOR.byteSizeObjectHeader(c);
+	}
+	
+	// (21.10.2019 TM)FIXME: priv#111: shouldn't this be encapsulated away?
 	public static long objectFieldOffset(final Field field)
 	{
 		return MEMORY_ACCESSOR.objectFieldOffset(field);
