@@ -4,7 +4,6 @@ package one.microstream.entity.codegen;
 import java.beans.Introspector;
 import java.util.List;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 
@@ -19,12 +18,12 @@ class TypeGeneratorUpdaterType extends TypeGenerator
 	final static String SUFFIX = "Updater";
 	
 	TypeGeneratorUpdaterType(
-		final ProcessingEnvironment processingEnv,
+		final EntityProcessor processor,
 		final TypeElement entityTypeElement,
 		final List<Member> members)
 	{
 		super(
-			processingEnv,
+			processor,
 			entityTypeElement,
 			members,
 			true,
