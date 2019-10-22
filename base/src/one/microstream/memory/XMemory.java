@@ -405,49 +405,46 @@ public final class XMemory
 	
 	
 	
-	
-	
-	// FIXME priv#111: baustelle
 
 
 	public static final byte get_byte(final Object instance, final long offset)
 	{
-		return MEMORY_ACCESSOR.getByte(instance, offset);
+		return MEMORY_ACCESSOR.get_byte(instance, offset);
 	}
 
 	public static final boolean get_boolean(final Object instance, final long offset)
 	{
-		return MEMORY_ACCESSOR.getBoolean(instance, offset);
+		return MEMORY_ACCESSOR.get_boolean(instance, offset);
 	}
 
 	public static final short get_short(final Object instance, final long offset)
 	{
-		return MEMORY_ACCESSOR.getShort(instance, offset);
+		return MEMORY_ACCESSOR.get_short(instance, offset);
 	}
 
 	public static final char get_char(final Object instance, final long offset)
 	{
-		return MEMORY_ACCESSOR.getChar(instance, offset);
+		return MEMORY_ACCESSOR.get_char(instance, offset);
 	}
 
 	public static final int get_int(final Object instance, final long offset)
 	{
-		return MEMORY_ACCESSOR.getInt(instance, offset);
+		return MEMORY_ACCESSOR.get_int(instance, offset);
 	}
 
 	public static final float get_float(final Object instance, final long offset)
 	{
-		return MEMORY_ACCESSOR.getInt(instance, offset);
+		return MEMORY_ACCESSOR.get_float(instance, offset);
 	}
 
 	public static final long get_long(final Object instance, final long offset)
 	{
-		return MEMORY_ACCESSOR.getLong(instance, offset);
+		return MEMORY_ACCESSOR.get_long(instance, offset);
 	}
 
 	public static final double get_double(final Object instance, final long offset)
 	{
-		return MEMORY_ACCESSOR.getInt(instance, offset);
+		return MEMORY_ACCESSOR.get_double(instance, offset);
 	}
 
 	public static final Object getObject(final Object instance, final long offset)
@@ -455,6 +452,9 @@ public final class XMemory
 		return MEMORY_ACCESSOR.getObject(instance, offset);
 	}
 
+	
+	
+	// FIXME priv#111: baustelle
 
 
 
