@@ -23,6 +23,27 @@ public interface MemoryAccessor
 	public Object getObject(long address);
 	
 	
+	
+	public byte get_byte(Object instance, long offset);
+
+	public boolean get_boolean(Object instance, long offset);
+
+	public short get_short(Object instance, long offset);
+
+	public char get_char(Object instance, long offset);
+
+	public int get_int(Object instance, long offset);
+
+	public float get_float(Object instance, long offset);
+
+	public long get_long(Object instance, long offset);
+
+	public double get_double(Object instance, long offset);
+
+	public Object getObject(Object instance, long offset);
+	
+	
+	
 	public void set_long(long address, long value);
 	
 	

@@ -247,7 +247,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 
 	public static final float staticGet_float(final Object instance, final long offset)
 	{
-		return VM.getInt(instance, offset);
+		return VM.getFloat(instance, offset);
 	}
 
 	public static final long staticGet_long(final Object instance, final long offset)
@@ -255,9 +255,9 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		return VM.getLong(instance, offset);
 	}
 
-	public static final double get_double(final Object instance, final long offset)
+	public static final double staticGet_double(final Object instance, final long offset)
 	{
-		return VM.getInt(instance, offset);
+		return VM.getDouble(instance, offset);
 	}
 
 	public static final Object staticGetObject(final Object instance, final long offset)
@@ -548,6 +548,61 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	public final Object getObject(final long address)
 	{
 		return VM.getObject(null, address);
+	}
+	
+	
+	@Override
+	public final byte get_byte(final Object instance, final long offset)
+	{
+		return VM.getByte(instance, offset);
+	}
+
+	@Override
+	public final boolean get_boolean(final Object instance, final long offset)
+	{
+		return VM.getBoolean(instance, offset);
+	}
+
+	@Override
+	public final short get_short(final Object instance, final long offset)
+	{
+		return VM.getShort(instance, offset);
+	}
+
+	@Override
+	public final char get_char(final Object instance, final long offset)
+	{
+		return VM.getChar(instance, offset);
+	}
+
+	@Override
+	public final int get_int(final Object instance, final long offset)
+	{
+		return VM.getInt(instance, offset);
+	}
+
+	@Override
+	public final float get_float(final Object instance, final long offset)
+	{
+		return VM.getFloat(instance, offset);
+	}
+
+	@Override
+	public final long get_long(final Object instance, final long offset)
+	{
+		return VM.getLong(instance, offset);
+	}
+
+	@Override
+	public final double get_double(final Object instance, final long offset)
+	{
+		return VM.getDouble(instance, offset);
+	}
+
+	@Override
+	public final Object getObject(final Object instance, final long offset)
+	{
+		return VM.getObject(instance, offset);
 	}
 
 	
