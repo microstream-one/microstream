@@ -79,6 +79,17 @@ public final class Lazy<T> implements LazyReferencing<T>
 		
 		return reference.isStored();
 	}
+	
+	public static final boolean isLoaded(final Lazy<?> reference)
+	{
+		if(reference == null)
+		{
+			// philosophical question: is a non-existent reference implicitely always loaded or never loaded?
+			return false; // debug-hook
+		}
+		
+		return reference.isLoaded();
+	}
 
 	public static final <T> Lazy<T> Reference(final T subject)
 	{
@@ -200,9 +211,15 @@ public final class Lazy<T> implements LazyReferencing<T>
 		// checking objectId rather than loader as loader might be initially non-null in a future enhancement
 		return this.objectId != Persistence.nullId();
 	}
+	
+	public final synchronized boolean isLoaded()
+	{
+		// the funny thing here is: even if the lazy reference has been initialized with null, the result ist correct.
+		return this.subject != null;
+	}
 
 	/**
-	 * Returns the wrapped reference in its current state without loading it on demand.
+	 * Returns the wrapped reference without loading it on demand.
 	 *
 	 * @return the current reference withouth on-demand loading.
 	 */
