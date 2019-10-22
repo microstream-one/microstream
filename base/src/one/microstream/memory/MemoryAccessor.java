@@ -4,6 +4,25 @@ import java.lang.reflect.Field;
 
 public interface MemoryAccessor
 {
+	public byte get_byte(long address);
+
+	public boolean get_boolean(long address);
+
+	public short get_short(long address);
+
+	public char get_char(long address);
+
+	public int get_int(long address);
+
+	public float get_float(long address);
+
+	public long get_long(long address);
+
+	public double get_double(long address);
+
+	public Object getObject(long address);
+	
+	
 	public void set_long(long address, long value);
 	
 	
@@ -75,5 +94,7 @@ public interface MemoryAccessor
 	 * @return the system's memory "page size".
 	 */
 	public int pageSize();
+	
+	public void ensureClassInitialized(Class<?> c);
 		
 }

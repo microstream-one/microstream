@@ -360,93 +360,99 @@ public final class XMemory
 
 	public static final byte get_byte(final long address)
 	{
-		return VM.getByte(address);
+		return MEMORY_ACCESSOR.get_byte(address);
 	}
 
 	public static final boolean get_boolean(final long address)
 	{
-		return VM.getBoolean(null, address);
+		return MEMORY_ACCESSOR.get_boolean(address);
 	}
 
 	public static final short get_short(final long address)
 	{
-		return VM.getShort(address);
+		return MEMORY_ACCESSOR.get_short(address);
 	}
 
 	public static final char get_char(final long address)
 	{
-		return VM.getChar(address);
+		return MEMORY_ACCESSOR.get_char(address);
 	}
 
 	public static final int get_int(final long address)
 	{
-		return VM.getInt(address);
+		return MEMORY_ACCESSOR.get_int(address);
 	}
 
 	public static final float get_float(final long address)
 	{
-		return VM.getFloat(address);
+		return MEMORY_ACCESSOR.get_float(address);
 	}
 
 	public static final long get_long(final long address)
 	{
-		return VM.getLong(address);
+		return MEMORY_ACCESSOR.get_long(address);
 	}
 
 	public static final double get_double(final long address)
 	{
-		return VM.getDouble(address);
+		return MEMORY_ACCESSOR.get_double(address);
 	}
 
 	public static final Object getObject(final long address)
 	{
-		return VM.getObject(null, address);
+		return MEMORY_ACCESSOR.getObject(address);
+	}
+	
+	
+	
+	
+	
+	// FIXME priv#111: baustelle
+
+
+	public static final byte get_byte(final Object instance, final long offset)
+	{
+		return MEMORY_ACCESSOR.getByte(instance, offset);
 	}
 
-
-	public static final byte get_byte(final Object instance, final long address)
+	public static final boolean get_boolean(final Object instance, final long offset)
 	{
-		return VM.getByte(instance, address);
+		return MEMORY_ACCESSOR.getBoolean(instance, offset);
 	}
 
-	public static final boolean get_boolean(final Object instance, final long address)
+	public static final short get_short(final Object instance, final long offset)
 	{
-		return VM.getBoolean(instance, address);
+		return MEMORY_ACCESSOR.getShort(instance, offset);
 	}
 
-	public static final short get_short(final Object instance, final long address)
+	public static final char get_char(final Object instance, final long offset)
 	{
-		return VM.getShort(instance, address);
+		return MEMORY_ACCESSOR.getChar(instance, offset);
 	}
 
-	public static final char get_char(final Object instance, final long address)
+	public static final int get_int(final Object instance, final long offset)
 	{
-		return VM.getChar(instance, address);
+		return MEMORY_ACCESSOR.getInt(instance, offset);
 	}
 
-	public static final int get_int(final Object instance, final long address)
+	public static final float get_float(final Object instance, final long offset)
 	{
-		return VM.getInt(instance, address);
+		return MEMORY_ACCESSOR.getInt(instance, offset);
 	}
 
-	public static final float get_float(final Object instance, final long address)
+	public static final long get_long(final Object instance, final long offset)
 	{
-		return VM.getInt(instance, address);
+		return MEMORY_ACCESSOR.getLong(instance, offset);
 	}
 
-	public static final long get_long(final Object instance, final long address)
+	public static final double get_double(final Object instance, final long offset)
 	{
-		return VM.getLong(instance, address);
+		return MEMORY_ACCESSOR.getInt(instance, offset);
 	}
 
-	public static final double get_double(final Object instance, final long address)
+	public static final Object getObject(final Object instance, final long offset)
 	{
-		return VM.getInt(instance, address);
-	}
-
-	public static final Object getObject(final Object instance, final long address)
-	{
-		return VM.getObject(instance, address);
+		return MEMORY_ACCESSOR.getObject(instance, offset);
 	}
 
 
@@ -454,95 +460,93 @@ public final class XMemory
 
 	public static final void set_byte(final long address, final byte value)
 	{
-		VM.putByte(address, value);
+		MEMORY_ACCESSOR.putByte(address, value);
 	}
 
 	public static final void set_boolean(final long address, final boolean value)
 	{
 		// where the heck is Unsafe#putBoolean(long, boolean)? Forgot to implement? Wtf?
-		VM.putBoolean(null, address, value);
+		MEMORY_ACCESSOR.putBoolean(null, address, value);
 	}
 
 	public static final void set_short(final long address, final short value)
 	{
-		VM.putShort(address, value);
+		MEMORY_ACCESSOR.putShort(address, value);
 	}
 
 	public static final void set_char(final long address, final char value)
 	{
-		VM.putChar(address, value);
+		MEMORY_ACCESSOR.putChar(address, value);
 	}
 
 	public static final void set_int(final long address, final int value)
 	{
-		VM.putInt(address, value);
+		MEMORY_ACCESSOR.putInt(address, value);
 	}
 
 	public static final void set_float(final long address, final float value)
 	{
-		VM.putFloat(address, value);
+		MEMORY_ACCESSOR.putFloat(address, value);
 	}
 
 	public static final void set_long(final long address, final long value)
 	{
-		// (11.10.2019 TM)FIXME: priv#111: experimental memory accessor modularization
-		MEMORY_ACCESSOR.set_long(address, value);
-//		VM.putLong(address, value);
+		MEMORY_ACCESSOR.putLong(address, value);
 	}
 
 	public static final void set_double(final long address, final double value)
 	{
-		VM.putDouble(address, value);
+		MEMORY_ACCESSOR.putDouble(address, value);
 	}
 
 	public static final void set_byte(final Object instance, final long offset, final byte value)
 	{
-		VM.putByte(instance, offset, value);
+		MEMORY_ACCESSOR.putByte(instance, offset, value);
 	}
 
 	public static final void set_boolean(final Object instance, final long offset, final boolean value)
 	{
-		VM.putBoolean(instance, offset, value);
+		MEMORY_ACCESSOR.putBoolean(instance, offset, value);
 	}
 
 	public static final void set_short(final Object instance, final long offset, final short value)
 	{
-		VM.putShort(instance, offset, value);
+		MEMORY_ACCESSOR.putShort(instance, offset, value);
 	}
 
 	public static final void set_char(final Object instance, final long offset, final char value)
 	{
-		VM.putChar(instance, offset, value);
+		MEMORY_ACCESSOR.putChar(instance, offset, value);
 	}
 
 	public static final void set_int(final Object instance, final long offset, final int value)
 	{
-		VM.putInt(instance, offset, value);
+		MEMORY_ACCESSOR.putInt(instance, offset, value);
 	}
 
 	public static final void set_float(final Object instance, final long offset, final float value)
 	{
-		VM.putFloat(instance, offset, value);
+		MEMORY_ACCESSOR.putFloat(instance, offset, value);
 	}
 
 	public static final void set_long(final Object instance, final long offset, final long value)
 	{
-		VM.putLong(instance, offset, value);
+		MEMORY_ACCESSOR.putLong(instance, offset, value);
 	}
 
 	public static final void set_double(final Object instance, final long offset, final double value)
 	{
-		VM.putDouble(instance, offset, value);
+		MEMORY_ACCESSOR.putDouble(instance, offset, value);
 	}
 
 	public static final void setObject(final Object instance, final long offset, final Object value)
 	{
-		VM.putObject(instance, offset, value);
+		MEMORY_ACCESSOR.putObject(instance, offset, value);
 	}
 
 	public static final void copyRange(final long sourceAddress, final long targetAddress, final long length)
 	{
-		VM.copyMemory(sourceAddress, targetAddress, length);
+		MEMORY_ACCESSOR.copyMemory(sourceAddress, targetAddress, length);
 	}
 
 	public static final void copyRange(
@@ -553,12 +557,12 @@ public final class XMemory
 		final long   length
 	)
 	{
-		VM.copyMemory(source, sourceOffset, target, targetOffset, length);
+		MEMORY_ACCESSOR.copyMemory(source, sourceOffset, target, targetOffset, length);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final byte[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_BYTE_BASE_OFFSET, target.length);
+		MEMORY_ACCESSOR.copyMemory(null, sourceAddress, target, ARRAY_BYTE_BASE_OFFSET, target.length);
 	}
 	
 	public static final void copyRangeToArray(
@@ -568,22 +572,22 @@ public final class XMemory
 		final long   length
 	)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_BYTE_BASE_OFFSET + targetIndex, length);
+		MEMORY_ACCESSOR.copyMemory(null, sourceAddress, target, ARRAY_BYTE_BASE_OFFSET + targetIndex, length);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final boolean[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_BOOLEAN_BASE_OFFSET, target.length);
+		MEMORY_ACCESSOR.copyMemory(null, sourceAddress, target, ARRAY_BOOLEAN_BASE_OFFSET, target.length);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final short[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_SHORT_BASE_OFFSET, target.length << BITS1);
+		MEMORY_ACCESSOR.copyMemory(null, sourceAddress, target, ARRAY_SHORT_BASE_OFFSET, target.length << BITS1);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final char[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET, target.length << BITS1);
+		MEMORY_ACCESSOR.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET, target.length << BITS1);
 	}
 	
 	public static final void copyRangeToArray(
@@ -593,27 +597,27 @@ public final class XMemory
 		final long   targetLength
 	)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET + (targetIndex << BITS1), targetLength << BITS1);
+		MEMORY_ACCESSOR.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET + (targetIndex << BITS1), targetLength << BITS1);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final int[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_INT_BASE_OFFSET, target.length << BITS2);
+		MEMORY_ACCESSOR.copyMemory(null, sourceAddress, target, ARRAY_INT_BASE_OFFSET, target.length << BITS2);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final float[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_FLOAT_BASE_OFFSET, target.length << BITS2);
+		MEMORY_ACCESSOR.copyMemory(null, sourceAddress, target, ARRAY_FLOAT_BASE_OFFSET, target.length << BITS2);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final long[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_LONG_BASE_OFFSET, target.length << BITS3);
+		MEMORY_ACCESSOR.copyMemory(null, sourceAddress, target, ARRAY_LONG_BASE_OFFSET, target.length << BITS3);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final double[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_DOUBLE_BASE_OFFSET, target.length << BITS3);
+		MEMORY_ACCESSOR.copyMemory(null, sourceAddress, target, ARRAY_DOUBLE_BASE_OFFSET, target.length << BITS3);
 	}
 
 	
@@ -622,7 +626,7 @@ public final class XMemory
 
 	public static final void copyArrayToAddress(final byte[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_BYTE_BASE_OFFSET, null, targetAddress, array.length);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_BYTE_BASE_OFFSET, null, targetAddress, array.length);
 	}
 
 	public static final void copyArrayToAddress(
@@ -632,12 +636,12 @@ public final class XMemory
 		final long   targetAddress
 	)
 	{
-		VM.copyMemory(array, ARRAY_BYTE_BASE_OFFSET + offset, null, targetAddress, length);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_BYTE_BASE_OFFSET + offset, null, targetAddress, length);
 	}
 	
 	public static final void copyArrayToAddress(final boolean[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_BOOLEAN_BASE_OFFSET, null, targetAddress, array.length);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_BOOLEAN_BASE_OFFSET, null, targetAddress, array.length);
 	}
 
 	public static final void copyArrayToAddress(
@@ -647,12 +651,12 @@ public final class XMemory
 		final long      targetAddress
 	)
 	{
-		VM.copyMemory(array, ARRAY_BOOLEAN_BASE_OFFSET + offset, null, targetAddress, length);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_BOOLEAN_BASE_OFFSET + offset, null, targetAddress, length);
 	}
 	
 	public static final void copyArrayToAddress(final short[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET, null, targetAddress, array.length << BITS1);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_SHORT_BASE_OFFSET, null, targetAddress, array.length << BITS1);
 	}
 
 	public static final void copyArrayToAddress(
@@ -662,12 +666,12 @@ public final class XMemory
 		final long    targetAddress
 	)
 	{
-		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_SHORT_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
 	}
 
 	public static final void copyArrayToAddress(final char[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET, null, targetAddress, array.length << BITS1);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_CHAR_BASE_OFFSET, null, targetAddress, array.length << BITS1);
 	}
 	
 	public static final void copyArrayToAddress(
@@ -677,12 +681,12 @@ public final class XMemory
 		final long   targetAddress
 	)
 	{
-		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_CHAR_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
 	}
 	
 	public static final void copyArrayToAddress(final int[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_INT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
 	}
 
 	public static final void copyArrayToAddress(
@@ -692,12 +696,12 @@ public final class XMemory
 		final long  targetAddress
 	)
 	{
-		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_INT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
 	}
 	
 	public static final void copyArrayToAddress(final float[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
 	}
 
 	public static final void copyArrayToAddress(
@@ -707,12 +711,12 @@ public final class XMemory
 		final long    targetAddress
 	)
 	{
-		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
 	}
 	
 	public static final void copyArrayToAddress(final long[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_LONG_BASE_OFFSET, null, targetAddress, array.length << BITS3);
 	}
 
 	public static final void copyArrayToAddress(
@@ -722,12 +726,12 @@ public final class XMemory
 		final long     targetAddress
 	)
 	{
-		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_LONG_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
 	}
 	
 	public static final void copyArrayToAddress(final double[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length << BITS3);
 	}
 
 	public static final void copyArrayToAddress(
@@ -737,69 +741,69 @@ public final class XMemory
 		final long     targetAddress
 	)
 	{
-		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
+		MEMORY_ACCESSOR.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
 	}
 
 	
 
 	public static final byte get_byteFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getByte(data, ARRAY_BYTE_BASE_OFFSET + offset);
+		return MEMORY_ACCESSOR.getByte(data, ARRAY_BYTE_BASE_OFFSET + offset);
 	}
 
 	public static final boolean get_booleanFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getBoolean(data, ARRAY_BOOLEAN_BASE_OFFSET + offset);
+		return MEMORY_ACCESSOR.getBoolean(data, ARRAY_BOOLEAN_BASE_OFFSET + offset);
 	}
 
 	public static final short get_shortFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getShort(data, ARRAY_SHORT_BASE_OFFSET + offset);
+		return MEMORY_ACCESSOR.getShort(data, ARRAY_SHORT_BASE_OFFSET + offset);
 	}
 
 	public static final char get_charFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getChar(data, ARRAY_CHAR_BASE_OFFSET + offset);
+		return MEMORY_ACCESSOR.getChar(data, ARRAY_CHAR_BASE_OFFSET + offset);
 	}
 
 	public static final int get_intFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getInt(data, ARRAY_INT_BASE_OFFSET + offset);
+		return MEMORY_ACCESSOR.getInt(data, ARRAY_INT_BASE_OFFSET + offset);
 	}
 
 	public static final float get_floatFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getFloat(data, ARRAY_FLOAT_BASE_OFFSET + offset);
+		return MEMORY_ACCESSOR.getFloat(data, ARRAY_FLOAT_BASE_OFFSET + offset);
 	}
 
 	public static final long get_longFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getLong(data, ARRAY_LONG_BASE_OFFSET + offset);
+		return MEMORY_ACCESSOR.getLong(data, ARRAY_LONG_BASE_OFFSET + offset);
 	}
 
 	public static final double get_doubleFromBytes(final byte[] data, final int offset)
 	{
-		return VM.getDouble(data, ARRAY_DOUBLE_BASE_OFFSET + offset);
+		return MEMORY_ACCESSOR.getDouble(data, ARRAY_DOUBLE_BASE_OFFSET + offset);
 	}
 
 	public static final long allocate(final long bytes)
 	{
-		return VM.allocateMemory(bytes);
+		return MEMORY_ACCESSOR.allocateMemory(bytes);
 	}
 
 	public static final long reallocate(final long address, final long bytes)
 	{
-		return VM.reallocateMemory(address, bytes);
+		return MEMORY_ACCESSOR.reallocateMemory(address, bytes);
 	}
 
 	public static final void fillRange(final long address, final long length, final byte value)
 	{
-		VM.setMemory(address, length, value);
+		MEMORY_ACCESSOR.setMemory(address, length, value);
 	}
 
 	public static final void free(final long address)
 	{
-		VM.freeMemory(address);
+		MEMORY_ACCESSOR.freeMemory(address);
 	}
 
 	public static final boolean compareAndSwap_int(
@@ -809,7 +813,7 @@ public final class XMemory
 		final int    replacement
 	)
 	{
-		return VM.compareAndSwapInt(subject, offset, expected, replacement);
+		return MEMORY_ACCESSOR.compareAndSwapInt(subject, offset, expected, replacement);
 	}
 
 	public static final boolean compareAndSwap_long(
@@ -819,7 +823,7 @@ public final class XMemory
 		final long   replacement
 	)
 	{
-		return VM.compareAndSwapLong(subject, offset, expected, replacement);
+		return MEMORY_ACCESSOR.compareAndSwapLong(subject, offset, expected, replacement);
 	}
 
 	public static final boolean compareAndSwapObject(
@@ -829,7 +833,7 @@ public final class XMemory
 		final Object replacement
 	)
 	{
-		return VM.compareAndSwapObject(subject, offset, expected, replacement);
+		return MEMORY_ACCESSOR.compareAndSwapObject(subject, offset, expected, replacement);
 	}
 	
 	public static ByteOrder nativeByteOrder()
@@ -874,7 +878,7 @@ public final class XMemory
 
 	public static final void throwUnchecked(final Throwable t)
 	{
-		VM.throwException(t);
+		MEMORY_ACCESSOR.throwException(t);
 	}
 	
 	public static final void ensureClassInitialized(final Class<?>... classes)
@@ -887,7 +891,7 @@ public final class XMemory
 
 	public static final void ensureClassInitialized(final Class<?> c)
 	{
-		VM.ensureClassInitialized(c);
+		MEMORY_ACCESSOR.ensureClassInitialized(c);
 	}
 	
 

@@ -544,5 +544,13 @@ Dabei aufgefallen:\par
 Dann k\'f6nnte man auch gleich das l\'e4stige switchByteOrder Flag wegbringen, indem viel fr\'fcher die passende MemoryAccessor Instanz \'fcbergeben wird.\par
 Hm... w\'e4re das so dann eigentlich "sauberer", weil mehr objektorientierungskommunikationsm\'e4\'dfig oder unsauberer, weil implizierter und schwerer verst\'e4ndlich bei ansonsten irrelevanten Vorteilen (marginal weniger Code und irrelevant bessere Performance)...? Hm...\par
 Ich mach jetzt mal den OOP Weg und schau, dass es sich in der Konsequenz mehr und mehr vereinfacht, dieses bl\'f6de Flag nicht immer rumschleppen zu m\'fcssen.\par
+\par
+\par
+\par
+2019-10-22\par
+\par
+Also beim SunMemoryObjectValuesSetter Implementieren kommen mir jetzt doch die zu vielen Baustellen in die Quere.\par
+Ich zieh jetzt erst mal die 100 Compilerfehler im XMemory glatt, damit mal die Trennung zwischen dem und dem MemoryAccessor fertig ist, dann mach ich die architektonischen Sachen.\par
+Evtl. ersetz ich dann gleich das nervige switchByteOrder Flag, das \'fcberall durchgezogen ist.\par
 }
  

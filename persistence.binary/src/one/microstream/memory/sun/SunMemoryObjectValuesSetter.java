@@ -2,6 +2,7 @@ package one.microstream.memory.sun;
 
 import java.lang.reflect.Field;
 
+import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
@@ -477,34 +478,33 @@ public class SunMemoryObjectValuesSetter implements BinaryObjectValuesSetter
 		}
 	}
 	
-	
+	protected static BinaryValueSetter[] createSetters(
+		final XGettingSequence<Field> settingFields ,
+		final boolean                 switchByteOrder
+	)
+	{
+		final BinaryValueSetter[] setters = new BinaryValueSetter[settingFields.intSize()];
+		
+		int i = 0;
+		for(final Field field : settingFields)
+		{
+			setters[i++] = BinaryValueFunctions.getObjectValueSetter(field.getType(), switchByteOrder);
+		}
+		
+		return setters;
+	}
 	
 	public final class Creator implements BinaryObjectValuesSetter.Creator
 	{
-		MemoryAccessorSun
-
+		
 		@Override
 		public BinaryObjectValuesSetter createMemoryObjectValuesSetter(final Field... fields)
 		{
+			final HashEnum<Field> sequence = HashEnum.New(fields);
+			
 			throw new one.microstream.meta.NotImplementedYetError(); // FIXME BinaryObjectValuesSetter.Creator#createMemoryObjectValuesSetter()
 		}
 		
-		
-		protected static BinaryValueSetter[] createSetters(
-			final XGettingSequence<Field> settingFields ,
-			final boolean                 switchByteOrder
-		)
-		{
-			final BinaryValueSetter[] setters = new BinaryValueSetter[settingFields.intSize()];
-			
-			int i = 0;
-			for(final Field field : settingFields)
-			{
-				setters[i++] = BinaryValueFunctions.getObjectValueSetter(field.getType(), switchByteOrder);
-			}
-			
-			return setters;
-		}
 		
 	}
 	
