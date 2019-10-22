@@ -4,6 +4,7 @@ package one.microstream.entity.codegen;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,7 @@ import javax.lang.model.util.Elements;
 import one.microstream.chars.XChars;
 import one.microstream.entity.Entity;
 
+
 /**
  * 
  * @author FH
@@ -33,6 +35,10 @@ import one.microstream.entity.Entity;
 public class EntityProcessor extends AbstractProcessor
 {
 	private final static String     OPTION_HASHEQUALATOR = "microstream.entity.hashequalator";
+	private final static String     OPTION_APPENDABLE    = "microstream.entity.appendable";
+	
+	private boolean                 generateHashEqualator;
+	private boolean                 generateAppendable;
 	
 	private List<ExecutableElement> javaLangObjectMethods;
 	private TypeMirror              runtimeExceptionType;
@@ -61,7 +67,10 @@ public class EntityProcessor extends AbstractProcessor
 	@Override
 	public Set<String> getSupportedOptions()
 	{
-		return Collections.singleton(OPTION_HASHEQUALATOR);
+		final Set<String> set = new HashSet<>();
+		set.add(OPTION_HASHEQUALATOR);
+		set.add(OPTION_APPENDABLE);
+		return set;
 	}
 	
 	private boolean getBooleanOption(
@@ -90,6 +99,24 @@ public class EntityProcessor extends AbstractProcessor
 		this.runtimeExceptionType  = processingEnv.getElementUtils()
 			.getTypeElement(RuntimeException.class.getName())
 			.asType();
+		
+		this.generateHashEqualator = this.getBooleanOption(OPTION_HASHEQUALATOR, true);
+		this.generateAppendable    = this.getBooleanOption(OPTION_APPENDABLE, true);
+	}
+	
+	boolean isGenerateHashEqualator()
+	{
+		return this.generateHashEqualator;
+	}
+	
+	boolean getGenerateAppendable()
+	{
+		return this.generateAppendable;
+	}
+	
+	ProcessingEnvironment getEnvironment()
+	{
+		return this.processingEnv;
 	}
 	
 	@Override
@@ -148,13 +175,17 @@ public class EntityProcessor extends AbstractProcessor
 			.collect(Collectors.toList());
 		
 		final List<TypeGenerator> typeGenerators = new ArrayList<>(5);
-		typeGenerators.add(new TypeGeneratorDataType(this.processingEnv, entityTypeElement, members));
-		typeGenerators.add(new TypeGeneratorEntityIdentityType(this.processingEnv, entityTypeElement, members));
-		typeGenerators.add(new TypeGeneratorCreatorType(this.processingEnv, entityTypeElement, members));
-		typeGenerators.add(new TypeGeneratorUpdaterType(this.processingEnv, entityTypeElement, members));
-		if(this.getBooleanOption(OPTION_HASHEQUALATOR, true))
+		typeGenerators.add(new TypeGeneratorDataType(this, entityTypeElement, members));
+		typeGenerators.add(new TypeGeneratorEntityIdentityType(this, entityTypeElement, members));
+		typeGenerators.add(new TypeGeneratorCreatorType(this, entityTypeElement, members));
+		typeGenerators.add(new TypeGeneratorUpdaterType(this, entityTypeElement, members));
+		if(this.generateHashEqualator)
 		{
-			typeGenerators.add(new TypeGeneratorHashEqualatorType(this.processingEnv, entityTypeElement, members));
+			typeGenerators.add(new TypeGeneratorHashEqualatorType(this, entityTypeElement, members));
+		}
+		if(this.generateAppendable)
+		{
+			typeGenerators.add(new TypeGeneratorAppendableType(this, entityTypeElement, members));
 		}
 		typeGenerators.forEach(TypeGenerator::generateType);
 	}

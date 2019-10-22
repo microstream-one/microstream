@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.ArrayType;
@@ -21,6 +20,7 @@ import javax.tools.JavaFileObject;
 import one.microstream.chars.VarString;
 import one.microstream.exceptions.IORuntimeException;
 
+
 /**
  * 
  * @author FH
@@ -30,7 +30,7 @@ abstract class TypeGenerator
 	private final static String       JAVA_LANG_PACKAGE = "java.lang";
 	private final static String       GENERATED_PREFIX  = "_";
 	
-	final ProcessingEnvironment       processingEnv;
+	final EntityProcessor             processor;
 	final TypeElement                 entityTypeElement;
 	final List<Member>                members;
 	final String                      entityName;
@@ -41,7 +41,7 @@ abstract class TypeGenerator
 	private final VarString           source            = VarString.New();
 	
 	TypeGenerator(
-		final ProcessingEnvironment processingEnv,
+		final EntityProcessor processor,
 		final TypeElement entityTypeElement,
 		final List<Member> members,
 		final boolean memberTypesUsed,
@@ -49,12 +49,12 @@ abstract class TypeGenerator
 	{
 		super();
 		
-		this.processingEnv     = processingEnv;
+		this.processor         = processor;
 		this.entityTypeElement = entityTypeElement;
 		
 		this.entityName        = entityTypeElement.getSimpleName().toString();
 		this.packageName       = VarString.New()
-			.add(processingEnv.getElementUtils().getPackageOf(entityTypeElement).getQualifiedName().toString())
+			.add(processor.getEnvironment().getElementUtils().getPackageOf(entityTypeElement).getQualifiedName().toString())
 			.add('.').add(GENERATED_PREFIX).add(this.entityName)
 			.toString();
 		
@@ -115,7 +115,7 @@ abstract class TypeGenerator
 	
 	final void generateType()
 	{
-		this.processingEnv.getMessager().printMessage(Kind.NOTE,
+		this.processor.getEnvironment().getMessager().printMessage(Kind.NOTE,
 			VarString.New("Generating ").add(this.packageName).add('.').add(this.typeName).toString());
 		
 		this.generateCode();
@@ -139,13 +139,13 @@ abstract class TypeGenerator
 		final DeclaredType declaredType        = (DeclaredType)type;
 		
 		final DeclaredType declaredTypeErasure =
-			(DeclaredType)this.processingEnv.getTypeUtils().erasure(declaredType);
+			(DeclaredType)this.processor.getEnvironment().getTypeUtils().erasure(declaredType);
 		final TypeElement  typeErasureElement  = (TypeElement)declaredTypeErasure.asElement();
 		
 		final String       simpleName          = typeErasureElement.getSimpleName().toString();
 		final String       qualifiedName       = typeErasureElement.getQualifiedName().toString();
 		final String       packageName         =
-			this.processingEnv.getElementUtils().getPackageOf(typeErasureElement).toString();
+			this.processor.getEnvironment().getElementUtils().getPackageOf(typeErasureElement).toString();
 		
 		final VarString    vs                  = VarString.New();
 		
@@ -270,7 +270,7 @@ abstract class TypeGenerator
 	{
 		try
 		{
-			final JavaFileObject file = this.processingEnv.getFiler().createSourceFile(
+			final JavaFileObject file = this.processor.getEnvironment().getFiler().createSourceFile(
 				this.packageName + "." + this.typeName,
 				this.entityTypeElement);
 			try(Writer writer = file.openWriter())

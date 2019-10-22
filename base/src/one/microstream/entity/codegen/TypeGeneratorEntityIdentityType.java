@@ -3,7 +3,6 @@ package one.microstream.entity.codegen;
 
 import java.util.List;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 
@@ -18,12 +17,12 @@ class TypeGeneratorEntityIdentityType extends TypeGenerator
 	final static String SUFFIX = "Entity";
 	
 	TypeGeneratorEntityIdentityType(
-		final ProcessingEnvironment processingEnv,
+		final EntityProcessor processor,
 		final TypeElement entityTypeElement,
 		final List<Member> members)
 	{
 		super(
-			processingEnv,
+			processor,
 			entityTypeElement,
 			members,
 			true,
@@ -73,6 +72,16 @@ class TypeGeneratorEntityIdentityType extends TypeGenerator
 				.newline().tab().add("{").newline()
 				.tab(2).add("return this.entityData().").add(m.methodName).add("();").newline()
 				.tab().add("}"));
+		
+		if(this.processor.getGenerateAppendable())
+		{
+			this.newline().newline().tab().add("@Override").newline()
+				.tab().add("public String toString()").newline()
+				.tab().add("{").newline()
+				.tab(2).add("return ").add(this.getGeneratedTypeName(TypeGeneratorAppendableType.SUFFIX))
+				.add(".toString(this);").newline()
+				.tab().add("}");
+		}
 		
 		this.newline().add("}");
 	}
