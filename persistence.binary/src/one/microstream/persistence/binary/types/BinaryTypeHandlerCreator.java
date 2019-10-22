@@ -71,7 +71,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		////////////////////
 		
 		final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider;
-		final boolean                                  switchByteOrder     ;
+		final boolean                                     switchByteOrder     ;
 		
 		
 		

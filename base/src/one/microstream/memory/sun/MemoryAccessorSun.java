@@ -92,6 +92,181 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		ARRAY_OBJECT_BASE_OFFSET  = Unsafe.ARRAY_OBJECT_BASE_OFFSET
 	;
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static int staticPageSize()
+	{
+		return VM.pageSize();
+	}
+	
+	public static Object staticGetStaticFieldBase(final Field field)
+	{
+		return VM.staticFieldBase(notNull(field)); // throws IllegalArgumentException, so no need to check here
+	}
+	
+	public static final int staticByteSizeReference()
+	{
+		return Unsafe.ARRAY_OBJECT_INDEX_SCALE;
+	}
+
+	public static final int staticByteSizeObjectHeader()
+	{
+		return BYTE_SIZE_OBJECT_HEADER;
+	}
+
+	private static final int calculateByteSizeObjectHeader()
+	{
+		// min logic should be unnecessary but better exclude any source for potential errors
+		long minOffset = Long.MAX_VALUE;
+		final Field[] declaredFields = XMemory.class.getDeclaredFields();
+		for(final Field field : declaredFields)
+		{
+			if(Modifier.isStatic(field.getModifiers()))
+			{
+				continue;
+			}
+			if(VM.objectFieldOffset(field) < minOffset)
+			{
+				minOffset = VM.objectFieldOffset(field);
+			}
+		}
+		if(minOffset == Long.MAX_VALUE)
+		{
+			throw new Error("Could not find object header dummy field in class " + XMemory.class);
+		}
+		
+		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
+	}
+	
+	public static final long alignAddress(final long address)
+	{
+		if((address & MEMORY_ALIGNMENT_MODULO) == 0)
+		{
+			return address; // already aligned
+		}
+		// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
+		return (address & MEMORY_ALIGNMENT_MASK) + MEMORY_ALIGNMENT_FACTOR;
+	}
+	
+	public static long[] staticFieldOffsets(final Field[] fields)
+	{
+		final long[] offsets = new long[fields.length];
+		for(int i = 0; i < fields.length; i++)
+		{
+			if(!Modifier.isStatic(fields[i].getModifiers()))
+			{
+				throw new IllegalArgumentException("Not a static field: " + fields[i]);
+			}
+			offsets[i] = (int)VM.staticFieldOffset(fields[i]);
+		}
+		return offsets;
+	}
+
+	
+	public static void staticEnsureClassInitialized(final Class<?> c)
+	{
+		VM.ensureClassInitialized(c);
+	}
+	
+	
+	public static final byte staticGet_byte(final long address)
+	{
+		return VM.getByte(address);
+	}
+
+	public static final boolean staticGet_boolean(final long address)
+	{
+		return VM.getBoolean(null, address);
+	}
+
+	public static final short staticGet_short(final long address)
+	{
+		return VM.getShort(address);
+	}
+
+	public static final char staticGet_char(final long address)
+	{
+		return VM.getChar(address);
+	}
+
+	public static final int staticGet_int(final long address)
+	{
+		return VM.getInt(address);
+	}
+
+	public static final float staticGet_float(final long address)
+	{
+		return VM.getFloat(address);
+	}
+
+	public static final long staticGet_long(final long address)
+	{
+		return VM.getLong(address);
+	}
+
+	public static final double staticGet_double(final long address)
+	{
+		return VM.getDouble(address);
+	}
+
+	public static final Object staticGetObject(final long address)
+	{
+		return VM.getObject(null, address);
+	}
+	
+	
+	
+	public static final byte staticGet_byte(final Object instance, final long offset)
+	{
+		return VM.getByte(instance, offset);
+	}
+
+	public static final boolean staticGet_boolean(final Object instance, final long offset)
+	{
+		return VM.getBoolean(instance, offset);
+	}
+
+	public static final short staticGet_short(final Object instance, final long offset)
+	{
+		return VM.getShort(instance, offset);
+	}
+
+	public static final char staticGet_char(final Object instance, final long offset)
+	{
+		return VM.getChar(instance, offset);
+	}
+
+	public static final int staticGet_int(final Object instance, final long offset)
+	{
+		return VM.getInt(instance, offset);
+	}
+
+	public static final float staticGet_float(final Object instance, final long offset)
+	{
+		return VM.getInt(instance, offset);
+	}
+
+	public static final long staticGet_long(final Object instance, final long offset)
+	{
+		return VM.getLong(instance, offset);
+	}
+
+	public static final double get_double(final Object instance, final long offset)
+	{
+		return VM.getInt(instance, offset);
+	}
+
+	public static final Object staticGetObject(final Object instance, final long offset)
+	{
+		return VM.getObject(instance, offset);
+	}
+	
+	
+	
 	public static final long staticByteSizeArray_byte(final long elementCount)
 	{
 		return ARRAY_BYTE_BASE_OFFSET + elementCount;
@@ -136,26 +311,13 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		return ARRAY_OBJECT_BASE_OFFSET + elementCount * staticByteSizeReference();
 	}
-			
-	public static int staticPageSize()
-	{
-		return VM.pageSize();
-	}
-	
-	public static Object staticGetStaticFieldBase(final Field field)
-	{
-		return VM.staticFieldBase(notNull(field)); // throws IllegalArgumentException, so no need to check here
-	}
-	
-	public static final int staticByteSizeReference()
-	{
-		return Unsafe.ARRAY_OBJECT_INDEX_SCALE;
-	}
 	
 	public static final void staticSet_long(final long address, final long value)
 	{
 		VM.putLong(address, value);
 	}
+	
+	
 	
 	public static byte[] staticAsByteArray(final long[] longArray)
 	{
@@ -170,6 +332,8 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		staticPut_long(bytes, 0, value);
 		return bytes;
 	}
+	
+	
 
 	public static long static_longFromByteArray(final byte[] bytes)
 	{
@@ -256,42 +420,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		return staticPageSize();
 	}
-
-	@Override
-	public final void set_long(final long address, final long value)
-	{
-		VM.putLong(address, value);
-	}
-
-
-	public static final int staticByteSizeObjectHeader()
-	{
-		return BYTE_SIZE_OBJECT_HEADER;
-	}
-
-	private static final int calculateByteSizeObjectHeader()
-	{
-		// min logic should be unnecessary but better exclude any source for potential errors
-		long minOffset = Long.MAX_VALUE;
-		final Field[] declaredFields = XMemory.class.getDeclaredFields();
-		for(final Field field : declaredFields)
-		{
-			if(Modifier.isStatic(field.getModifiers()))
-			{
-				continue;
-			}
-			if(VM.objectFieldOffset(field) < minOffset)
-			{
-				minOffset = VM.objectFieldOffset(field);
-			}
-		}
-		if(minOffset == Long.MAX_VALUE)
-		{
-			throw new Error("Could not find object header dummy field in class " + XMemory.class);
-		}
-		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
-	}
-	
+		
 	@Override
 	public final int byteSizeObjectHeader(final Class<?> type)
 	{
@@ -359,30 +488,77 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		return staticByteSizeFieldValue(type);
 	}
 	
-	public static final long alignAddress(final long address)
+	@Override
+	public final void ensureClassInitialized(final Class<?> c)
 	{
-		if((address & MEMORY_ALIGNMENT_MODULO) == 0)
-		{
-			return address; // already aligned
-		}
-		// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
-		return (address & MEMORY_ALIGNMENT_MASK) + MEMORY_ALIGNMENT_FACTOR;
+		staticEnsureClassInitialized(c);
 	}
 	
-	public static long[] staticFieldOffsets(final Field[] fields)
+	
+	
+	@Override
+	public final byte get_byte(final long address)
 	{
-		final long[] offsets = new long[fields.length];
-		for(int i = 0; i < fields.length; i++)
-		{
-			if(!Modifier.isStatic(fields[i].getModifiers()))
-			{
-				throw new IllegalArgumentException("Not a static field: " + fields[i]);
-			}
-			offsets[i] = (int)VM.staticFieldOffset(fields[i]);
-		}
-		return offsets;
+		return VM.getByte(address);
+	}
+
+	@Override
+	public final boolean get_boolean(final long address)
+	{
+		return VM.getBoolean(null, address);
+	}
+
+	@Override
+	public final short get_short(final long address)
+	{
+		return VM.getShort(address);
+	}
+
+	@Override
+	public final char get_char(final long address)
+	{
+		return VM.getChar(address);
+	}
+
+	@Override
+	public final int get_int(final long address)
+	{
+		return VM.getInt(address);
+	}
+
+	@Override
+	public final float get_float(final long address)
+	{
+		return VM.getFloat(address);
+	}
+
+	@Override
+	public final long get_long(final long address)
+	{
+		return VM.getLong(address);
+	}
+
+	@Override
+	public final double get_double(final long address)
+	{
+		return VM.getDouble(address);
+	}
+
+	@Override
+	public final Object getObject(final long address)
+	{
+		return VM.getObject(null, address);
+	}
+
+	
+	
+	@Override
+	public final void set_long(final long address, final long value)
+	{
+		VM.putLong(address, value);
 	}
 	
+
 	
 	@Override
 	public final long byteSizeArray_byte(final long elementCount)
@@ -438,6 +614,8 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		return staticByteSizeArrayObject(elementCount);
 	}
 	
+	
+	
 	@Override
 	public final byte[] asByteArray(final long[] longArray)
 	{
@@ -449,6 +627,8 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		return staticAsByteArray(value);
 	}
+	
+	
 	
 	@Override
 	public final void put_byte(final byte[] bytes, final int index, final short value)
