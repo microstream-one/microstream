@@ -10,11 +10,11 @@ import one.microstream.chars.VarString;
  * 
  * @author FH
  */
-public class EntityExceptionUnaccessibleEntityType extends EntityException
+public class EntityExceptionInaccessibleEntityType extends EntityException
 {
 	private final Entity entity;
 	
-	public EntityExceptionUnaccessibleEntityType(final Entity entity)
+	public EntityExceptionInaccessibleEntityType(final Entity entity)
 	{
 		super();
 		
@@ -30,7 +30,7 @@ public class EntityExceptionUnaccessibleEntityType extends EntityException
 	public String assembleDetailString()
 	{
 		return VarString.New()
-			.add("Unaccessible entity type: ")
+			.add("Inaccessible entity type: ")
 			.add(systemString(this.entity))
 			.toString();
 	}

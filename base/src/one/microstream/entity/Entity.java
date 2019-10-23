@@ -33,7 +33,7 @@ public interface Entity
 			return null;
 		}
 
-		throw new EntityExceptionUnaccessibleEntityType(instance);
+		throw new EntityExceptionInaccessibleEntityType(instance);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -56,7 +56,7 @@ public interface Entity
 			return null;
 		}
 
-		throw new EntityExceptionUnaccessibleEntityType(instance);
+		throw new EntityExceptionInaccessibleEntityType(instance);
 	}
 	
 	public static <E extends Entity> boolean updateData(final E entity, final E data)
@@ -74,7 +74,7 @@ public interface Entity
 			return ((Entity.Accessible)entity).updateEntityData(data);
 		}
 		
-		throw new EntityExceptionUnaccessibleEntityType(entity);
+		throw new EntityExceptionInaccessibleEntityType(entity);
 	}
 	
 	public default boolean isSameIdentity(final Entity other)
