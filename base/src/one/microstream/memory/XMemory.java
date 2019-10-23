@@ -639,7 +639,7 @@ public final class XMemory
 
 	public static final void fillRange(final long address, final long length, final byte value)
 	{
-		MEMORY_ACCESSOR.setMemory(address, length, value);
+		MEMORY_ACCESSOR.fillMemory(address, length, value);
 	}
 	
 	public static final long allocate(final long bytes)
@@ -664,7 +664,7 @@ public final class XMemory
 		final int    replacement
 	)
 	{
-		return MEMORY_ACCESSOR.compareAndSwapInt(subject, offset, expected, replacement);
+		return MEMORY_ACCESSOR.compareAndSwap_int(subject, offset, expected, replacement);
 	}
 
 	public static final boolean compareAndSwap_long(
@@ -674,7 +674,7 @@ public final class XMemory
 		final long   replacement
 	)
 	{
-		return MEMORY_ACCESSOR.compareAndSwapLong(subject, offset, expected, replacement);
+		return MEMORY_ACCESSOR.compareAndSwap_long(subject, offset, expected, replacement);
 	}
 
 	public static final boolean compareAndSwapObject(
