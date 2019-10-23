@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.ArrayType;
@@ -54,7 +55,8 @@ abstract class TypeGenerator
 		
 		this.entityName        = entityTypeElement.getSimpleName().toString();
 		this.packageName       = VarString.New()
-			.add(processor.getEnvironment().getElementUtils().getPackageOf(entityTypeElement).getQualifiedName().toString())
+			.add(processor.getEnvironment().getElementUtils()
+				.getPackageOf(entityTypeElement).getQualifiedName().toString())
 			.add('.').add(GENERATED_PREFIX).add(this.entityName)
 			.toString();
 		
@@ -214,9 +216,21 @@ abstract class TypeGenerator
 	{
 		final String                     name   = typeParam.getSimpleName().toString();
 		final List<? extends TypeMirror> bounds = typeParam.getBounds();
-		return bounds.isEmpty()
+		return bounds.isEmpty() || (bounds.size() == 1 && this.isJavaLangObject(bounds.get(0)))
 			? name
 			: name + bounds.stream().map(this::addImport).collect(Collectors.joining(" & ", " extends ", ""));
+	}
+	
+	boolean isJavaLangObject(final TypeMirror type)
+	{
+		return Object.class.getName().equals(this.getFullQualifiedName(type));
+	}
+	
+	String getFullQualifiedName(final TypeMirror type)
+	{
+		final ProcessingEnvironment environment = this.processor.getEnvironment();
+		final TypeElement           element     = (TypeElement)environment.getTypeUtils().asElement(type);
+		return element.getQualifiedName().toString();
 	}
 	
 	TypeGenerator add(final String code)

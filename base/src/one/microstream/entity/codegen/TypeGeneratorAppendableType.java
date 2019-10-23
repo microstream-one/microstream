@@ -28,7 +28,7 @@ class TypeGeneratorAppendableType extends TypeGenerator
 			processor,
 			entityTypeElement,
 			members,
-			true,
+			false,
 			SUFFIX);
 	}
 	
@@ -81,11 +81,11 @@ class TypeGeneratorAppendableType extends TypeGenerator
 		this.tab(2).add("@Override").newline()
 			.tab(2).add("public VarString appendTo(final VarString vs)").newline()
 			.tab(2).add("{").newline()
-			.tab(3).add("return vs.append(this.").add(varName).add(".getClass().getSimpleName())").newline();
+			.tab(3).add("return vs.add(this.").add(varName).add(".getClass().getSimpleName())").newline();
 		boolean first = true;
 		for(final Member m : this.members)
 		{
-			this.tab(4).add(".append(\"");
+			this.tab(4).add(".add(\"");
 			if(first)
 			{
 				this.add(" [");
@@ -96,9 +96,9 @@ class TypeGeneratorAppendableType extends TypeGenerator
 				this.add(", ");
 			}
 			this.add(m.name).add(" = \")").newline()
-				.tab(4).add(".append(this.").add(varName).add(".").add(m.methodName).add("())").newline();
+				.tab(4).add(".add(this.").add(varName).add(".").add(m.methodName).add("())").newline();
 		}
-		this.tab(4).add(".append(']');").newline();
+		this.tab(4).add(".add(']');").newline();
 		this.tab(2).add("}").newline();
 		this.tab().add("}").newline();
 		this.add("}");
