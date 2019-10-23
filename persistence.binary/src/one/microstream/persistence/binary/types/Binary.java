@@ -1502,26 +1502,28 @@ public abstract class Binary implements Chunk
 
 		return elementsDataAddress + elementsBinaryLength;
 	}
+
+	// (23.10.2019 TM)NOTE: obviously not used anymore
+//	public final void storeCharsDirect(
+//		final long   address,
+//		final char[] chars  ,
+//		final int    offset ,
+//		final int    length
+//	)
+//	{
+//		this.store_charsToAddress(address, chars, offset, length);
+//	}
 	
-	public final void storeCharsDirect(
-		final long   address,
-		final char[] chars  ,
-		final int    offset ,
-		final int    length
-	)
-	{
-		this.store_charsToAddress(address, chars, offset, length);
-	}
-	
-	public final void readCharsDirect(
-		final long   address,
-		final char[] chars  ,
-		final int    offset ,
-		final int    length
-	)
-	{
-		this.update_charsFromAddress(address, chars, offset, length);
-	}
+	// (23.10.2019 TM)NOTE: obviously not used anymore
+//	public final void readCharsDirect(
+//		final long   address,
+//		final char[] chars  ,
+//		final int    offset ,
+//		final int    length
+//	)
+//	{
+//		this.update_charsFromAddress(address, chars, offset, length);
+//	}
 			
 	public final void copyMemory(
 		final ByteBuffer          directByteBuffer,
@@ -2004,10 +2006,11 @@ public abstract class Binary implements Chunk
 		XMemory.copyRangeToArray(address, target);
 	}
 
-	void update_charsFromAddress(final long address, final char[] target, final int offset, final int length)
-	{
-		XMemory.copyRangeToArray(address, target, offset, length);
-	}
+	// (23.10.2019 TM)NOTE: obviously not used anymore
+//	void update_charsFromAddress(final long address, final char[] target, final int offset, final int length)
+//	{
+//		XMemory.copyRangeToArray(address, target, offset, length);
+//	}
 
 	void update_intsFromAddress(final long address, final int[] target)
 	{
@@ -2050,11 +2053,12 @@ public abstract class Binary implements Chunk
 	{
 		XMemory.copyArrayToAddress(values, address);
 	}
-	
-	void store_charsToAddress(final long address, final char[] values, final int offset, final int length)
-	{
-		XMemory.copyArrayToAddress(values, offset, length, address);
-	}
+
+	// (23.10.2019 TM)NOTE: obviously not used anymore
+//	void store_charsToAddress(final long address, final char[] values, final int offset, final int length)
+//	{
+//		XMemory.copyArrayToAddress(values, offset, length, address);
+//	}
 	
 	void store_intsToAddress(final long address, final int[] values)
 	{

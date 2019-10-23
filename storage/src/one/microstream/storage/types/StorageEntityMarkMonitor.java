@@ -457,10 +457,10 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		static final class CachingReferenceMarker implements StorageReferenceMarker
 		{
 			private final StorageEntityMarkMonitor.Default markMonitor        ;
-			private final long[][]                                oidsPerChannel     ;
-			private final int[]                                   oidsPerChannelSizes;
-			private final int                                     channelHash        ;
-			private final int                                     bufferLength       ;
+			private final long[][]                         oidsPerChannel     ;
+			private final int[]                            oidsPerChannelSizes;
+			private final int                              channelHash        ;
+			private final int                              bufferLength       ;
 
 			CachingReferenceMarker(
 				final StorageEntityMarkMonitor.Default markMonitor ,
@@ -533,7 +533,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			{
 				synchronized(this.oidMarkQueues[currentIndex])
 				{
-					return lockAllMarkQueues(currentIndex - 1, logic);
+					return this.lockAllMarkQueues(currentIndex - 1, logic);
 				}
 			}
 
