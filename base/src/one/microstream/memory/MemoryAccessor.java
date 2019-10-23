@@ -44,7 +44,83 @@ public interface MemoryAccessor
 	
 	
 	
+	public void set_byte(long address, byte value);
+
+	public void set_boolean(long address, boolean value);
+
+	public void set_short(long address, short value);
+
+	public void set_char(long address, char value);
+
+	public void set_int(long address, int value);
+
+	public void set_float(long address, float value);
+
 	public void set_long(long address, long value);
+
+	public void set_double(long address, double value);
+
+	
+	
+	public void set_byte(Object instance, long offset, byte value);
+
+	public void set_boolean(Object instance, long offset, boolean value);
+
+	public void set_short(Object instance, long offset, short value);
+
+	public void set_char(Object instance, long offset, char value);
+
+	public void set_int(Object instance, long offset, int value);
+
+	public void set_float(Object instance, long offset, float value);
+
+	public void set_long(Object instance, long offset, long value);
+
+	public void set_double(Object instance, long offset, double value);
+
+	public void setObject(Object instance, long offset, Object value);
+	
+	
+	
+	public void copyRange(long sourceAddress, long targetAddress, long length);
+
+	public void copyRange(Object source, long sourceOffset, Object target, long targetOffset, long length);
+	
+	
+	public void copyRangeToArray(long sourceAddress, byte[] target);
+	
+	public void copyRangeToArray(long sourceAddress, boolean[] target);
+
+	public void copyRangeToArray(long sourceAddress, short[] target);
+
+	public void copyRangeToArray(long sourceAddress, char[] target);
+	
+	public void copyRangeToArray(long sourceAddress, int[] target);
+
+	public void copyRangeToArray(long sourceAddress, float[] target);
+
+	public void copyRangeToArray(long sourceAddress, long[] target);
+
+	public void copyRangeToArray(long sourceAddress, double[] target);
+	
+	
+	
+	public void copyArrayToAddress(byte[] array, long targetAddress);
+	
+	public void copyArrayToAddress(boolean[] array, long targetAddress);
+	
+	public void copyArrayToAddress(short[] array, long targetAddress);
+
+	public void copyArrayToAddress(char[] array, long targetAddress);
+	
+	public void copyArrayToAddress(int[] array, long targetAddress);
+	
+	public void copyArrayToAddress(float[] array, long targetAddress);
+	
+	public void copyArrayToAddress(long[] array, long targetAddress);
+	
+	public void copyArrayToAddress(double[] array, long targetAddress);
+	
 	
 	
 	public long byteSizeArray_byte(long elementCount);

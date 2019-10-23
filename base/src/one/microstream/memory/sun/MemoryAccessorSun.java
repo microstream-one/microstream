@@ -50,7 +50,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	// constants //
 	//////////////
 
-	// better calculate it once instead of making wild assumptions that can change (e.g. 64 bit coops has only 12 byte)
+	// better calculate it instead of making wild assumptions that can change (e.g. 64 bit coops has only 12 byte)
 	private static final int BYTE_SIZE_OBJECT_HEADER = calculateByteSizeObjectHeader();
 
 	// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
@@ -122,7 +122,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		// min logic should be unnecessary but better exclude any source for potential errors
 		long minOffset = Long.MAX_VALUE;
-		final Field[] declaredFields = XMemory.class.getDeclaredFields();
+		final Field[] declaredFields = MemoryAccessorSun.class.getDeclaredFields();
 		for(final Field field : declaredFields)
 		{
 			if(Modifier.isStatic(field.getModifiers()))
@@ -136,10 +136,56 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		}
 		if(minOffset == Long.MAX_VALUE)
 		{
-			throw new Error("Could not find object header dummy field in class " + XMemory.class);
+			throw new Error("Could not find object header dummy field in class " + MemoryAccessorSun.class);
 		}
 		
 		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
+	}
+	
+	public static int staticByteSizeInstance(final Class<?> type)
+	{
+		if(type.isPrimitive())
+		{
+			throw new IllegalArgumentException();
+		}
+		if(type.isArray())
+		{
+			// instance byte size accounts only array header (object header plus length field plus overhead)
+			return VM.arrayBaseOffset(type);
+		}
+		if(type == Object.class)
+		{
+			// required because Object's super class is null (see below)
+			return staticByteSizeObjectHeader();
+		}
+
+		// declared fields suffice as all super class fields are positioned before them
+		final Field[] declaredFields = type.getDeclaredFields();
+		long maxInstanceFieldOffset = 0;
+		Field maxInstanceField = null;
+		for(int i = 0; i < declaredFields.length; i++)
+		{
+			if(Modifier.isStatic(declaredFields[i].getModifiers()))
+			{
+				continue;
+			}
+			final long fieldOffset = VM.objectFieldOffset(declaredFields[i]);
+//			XDebug.debugln(fieldOffset + "\t" + declaredFields[i]);
+			if(fieldOffset >= maxInstanceFieldOffset)
+			{
+				maxInstanceField = declaredFields[i];
+				maxInstanceFieldOffset = fieldOffset;
+			}
+		}
+
+		// no declared instance field at all, fall back to super class fields recursively
+		if(maxInstanceField == null)
+		{
+			return staticByteSizeInstance(type.getSuperclass());
+		}
+
+		// memory alignment is a wild assumption at this point. Hopefully it will always be true. Otherwise it's a bug.
+		return (int)alignAddress(maxInstanceFieldOffset + staticByteSizeFieldValue(maxInstanceField.getType()));
 	}
 	
 	public static final long alignAddress(final long address)
@@ -165,12 +211,76 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		}
 		return offsets;
 	}
-
+	
+	public static final int staticByteSizeFieldValue(final Class<?> type)
+	{
+		return type.isPrimitive()
+			? XMemory.byteSizePrimitive(type)
+			: staticByteSizeReference()
+		;
+	}
+	
+	public static final long staticObjectFieldOffset(final Field field)
+	{
+		return VM.objectFieldOffset(field);
+	}
 	
 	public static void staticEnsureClassInitialized(final Class<?> c)
 	{
 		VM.ensureClassInitialized(c);
 	}
+	
+
+	public static final void fillRange(final long address, final long length, final byte value)
+	{
+		VM.setMemory(address, length, value);
+	}
+	
+	public static final long staticAllocateMemory(final long bytes)
+	{
+		return VM.allocateMemory(bytes);
+	}
+
+	public static final long staticReallocateMemory(final long address, final long bytes)
+	{
+		return VM.reallocateMemory(address, bytes);
+	}
+
+	public static final void staticFreeMemory(final long address)
+	{
+		VM.freeMemory(address);
+	}
+
+	public static final boolean staticCompareAndSwap_int(
+		final Object subject    ,
+		final long   offset     ,
+		final int    expected   ,
+		final int    replacement
+	)
+	{
+		return VM.compareAndSwapInt(subject, offset, expected, replacement);
+	}
+
+	public static final boolean staticCompareAndSwap_long(
+		final Object subject    ,
+		final long   offset     ,
+		final long   expected   ,
+		final long   replacement
+	)
+	{
+		return VM.compareAndSwapLong(subject, offset, expected, replacement);
+	}
+
+	public static final boolean staticCompareAndSwapObject(
+		final Object subject    ,
+		final long   offset     ,
+		final Object expected   ,
+		final Object replacement
+	)
+	{
+		return VM.compareAndSwapObject(subject, offset, expected, replacement);
+	}
+	
 	
 	
 	public static final byte staticGet_byte(final long address)
@@ -219,51 +329,139 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	}
 	
 	
-	
-	public static final byte staticGet_byte(final Object instance, final long offset)
+
+	public static byte staticGet_byte(final Object instance, final long offset)
 	{
 		return VM.getByte(instance, offset);
 	}
 
-	public static final boolean staticGet_boolean(final Object instance, final long offset)
+	public static boolean staticGet_boolean(final Object instance, final long offset)
 	{
 		return VM.getBoolean(instance, offset);
 	}
 
-	public static final short staticGet_short(final Object instance, final long offset)
+	public static short staticGet_short(final Object instance, final long offset)
 	{
 		return VM.getShort(instance, offset);
 	}
 
-	public static final char staticGet_char(final Object instance, final long offset)
+	public static char staticGet_char(final Object instance, final long offset)
 	{
 		return VM.getChar(instance, offset);
 	}
 
-	public static final int staticGet_int(final Object instance, final long offset)
+	public static int staticGet_int(final Object instance, final long offset)
 	{
 		return VM.getInt(instance, offset);
 	}
 
-	public static final float staticGet_float(final Object instance, final long offset)
+	public static float staticGet_float(final Object instance, final long offset)
 	{
 		return VM.getFloat(instance, offset);
 	}
 
-	public static final long staticGet_long(final Object instance, final long offset)
+	public static long staticGet_long(final Object instance, final long offset)
 	{
 		return VM.getLong(instance, offset);
 	}
 
-	public static final double staticGet_double(final Object instance, final long offset)
+	public static double staticGet_double(final Object instance, final long offset)
 	{
 		return VM.getDouble(instance, offset);
 	}
 
-	public static final Object staticGetObject(final Object instance, final long offset)
+	public static Object staticGetObject(final Object instance, final long offset)
 	{
 		return VM.getObject(instance, offset);
 	}
+	
+	
+	public static void staticSet_byte(final long address, final byte value)
+	{
+		VM.putByte(address, value);
+	}
+
+	public static void staticSet_boolean(final long address, final boolean value)
+	{
+		// where the heck is Unsafe#putBoolean(long, boolean)? Forgot to implement? Wtf?
+		VM.putBoolean(null, address, value);
+	}
+
+	public static void staticSet_short(final long address, final short value)
+	{
+		VM.putShort(address, value);
+	}
+
+	public static void staticSet_char(final long address, final char value)
+	{
+		VM.putChar(address, value);
+	}
+
+	public static void staticSet_int(final long address, final int value)
+	{
+		VM.putInt(address, value);
+	}
+
+	public static void staticSet_float(final long address, final float value)
+	{
+		VM.putFloat(address, value);
+	}
+
+	public static void staticSet_long(final long address, final long value)
+	{
+		VM.putLong(address, value);
+	}
+
+	public static void staticSet_double(final long address, final double value)
+	{
+		VM.putDouble(address, value);
+	}
+
+	public static void staticSet_byte(final Object instance, final long offset, final byte value)
+	{
+		VM.putByte(instance, offset, value);
+	}
+
+	public static void staticSet_boolean(final Object instance, final long offset, final boolean value)
+	{
+		VM.putBoolean(instance, offset, value);
+	}
+
+	public static void staticSet_short(final Object instance, final long offset, final short value)
+	{
+		VM.putShort(instance, offset, value);
+	}
+
+	public static void staticSet_char(final Object instance, final long offset, final char value)
+	{
+		VM.putChar(instance, offset, value);
+	}
+
+	public static void staticSet_int(final Object instance, final long offset, final int value)
+	{
+		VM.putInt(instance, offset, value);
+	}
+
+	public static void staticSet_float(final Object instance, final long offset, final float value)
+	{
+		VM.putFloat(instance, offset, value);
+	}
+
+	public static void staticSet_long(final Object instance, final long offset, final long value)
+	{
+		VM.putLong(instance, offset, value);
+	}
+
+	public static void staticSet_double(final Object instance, final long offset, final double value)
+	{
+		VM.putDouble(instance, offset, value);
+	}
+
+	public static void staticSetObject(final Object instance, final long offset, final Object value)
+	{
+		VM.putObject(instance, offset, value);
+	}
+	
 	
 	
 	
@@ -310,11 +508,6 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	public static final long staticByteSizeArrayObject(final long elementCount)
 	{
 		return ARRAY_OBJECT_BASE_OFFSET + elementCount * staticByteSizeReference();
-	}
-	
-	public static final void staticSet_long(final long address, final long value)
-	{
-		VM.putLong(address, value);
 	}
 	
 	
@@ -381,6 +574,110 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	}
 	
 	
+	public static final void staticCopyRange(
+		final long sourceAddress,
+		final long targetAddress,
+		final long length
+	)
+	{
+		VM.copyMemory(sourceAddress, targetAddress, length);
+	}
+
+	public static final void staticCopyRange(
+		final Object source      ,
+		final long   sourceOffset,
+		final Object target      ,
+		final long   targetOffset,
+		final long   length
+	)
+	{
+		VM.copyMemory(source, sourceOffset, target, targetOffset, length);
+	}
+	
+	
+	public static final void staticCopyRangeToArray(final long sourceAddress, final byte[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, ARRAY_BYTE_BASE_OFFSET, target.length);
+	}
+	
+	public static final void staticCopyRangeToArray(final long sourceAddress, final boolean[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, ARRAY_BOOLEAN_BASE_OFFSET, target.length);
+	}
+
+	public static final void staticCopyRangeToArray(final long sourceAddress, final short[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, ARRAY_SHORT_BASE_OFFSET, target.length << BITS1);
+	}
+
+	public static final void staticCopyRangeToArray(final long sourceAddress, final char[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET, target.length << BITS1);
+	}
+	
+	public static final void staticCopyRangeToArray(final long sourceAddress, final int[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, ARRAY_INT_BASE_OFFSET, target.length << BITS2);
+	}
+
+	public static final void staticCopyRangeToArray(final long sourceAddress, final float[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, ARRAY_FLOAT_BASE_OFFSET, target.length << BITS2);
+	}
+
+	public static final void staticCopyRangeToArray(final long sourceAddress, final long[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, ARRAY_LONG_BASE_OFFSET, target.length << BITS3);
+	}
+
+	public static final void staticCopyRangeToArray(final long sourceAddress, final double[] target)
+	{
+		VM.copyMemory(null, sourceAddress, target, ARRAY_DOUBLE_BASE_OFFSET, target.length << BITS3);
+	}
+	
+	
+	
+	public static final void staticCopyArrayToAddress(final byte[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, ARRAY_BYTE_BASE_OFFSET, null, targetAddress, array.length);
+	}
+	
+	public static final void staticCopyArrayToAddress(final boolean[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, ARRAY_BOOLEAN_BASE_OFFSET, null, targetAddress, array.length);
+	}
+	
+	public static final void staticCopyArrayToAddress(final short[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET, null, targetAddress, array.length << BITS1);
+	}
+
+	public static final void staticCopyArrayToAddress(final char[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET, null, targetAddress, array.length << BITS1);
+	}
+	
+	public static final void staticCopyArrayToAddress(final int[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
+	}
+	
+	public static final void staticCopyArrayToAddress(final float[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
+	}
+	
+	public static final void staticCopyArrayToAddress(final long[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+	}
+	
+	public static final void staticCopyArrayToAddress(final double[] array, final long targetAddress)
+	{
+		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+	}
+	
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -406,7 +703,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	@Override
 	public final long objectFieldOffset(final Field field)
 	{
-		return VM.objectFieldOffset(field);
+		return staticObjectFieldOffset(field);
 	}
 	
 	@Override
@@ -430,56 +727,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	@Override
 	public final int byteSizeInstance(final Class<?> type)
 	{
-		if(type.isPrimitive())
-		{
-			throw new IllegalArgumentException();
-		}
-		if(type.isArray())
-		{
-			// instance byte size accounts only array header (object header plus length field plus overhead)
-			return VM.arrayBaseOffset(type);
-		}
-		if(type == Object.class)
-		{
-			// required because Object's super class is null (see below)
-			return staticByteSizeObjectHeader();
-		}
-
-		// declared fields suffice as all super class fields are positioned before them
-		final Field[] declaredFields = type.getDeclaredFields();
-		long maxInstanceFieldOffset = 0;
-		Field maxInstanceField = null;
-		for(int i = 0; i < declaredFields.length; i++)
-		{
-			if(Modifier.isStatic(declaredFields[i].getModifiers()))
-			{
-				continue;
-			}
-			final long fieldOffset = VM.objectFieldOffset(declaredFields[i]);
-//			XDebug.debugln(fieldOffset + "\t" + declaredFields[i]);
-			if(fieldOffset >= maxInstanceFieldOffset)
-			{
-				maxInstanceField = declaredFields[i];
-				maxInstanceFieldOffset = fieldOffset;
-			}
-		}
-
-		// no declared instance field at all, fall back to super class fields recursively
-		if(maxInstanceField == null)
-		{
-			return this.byteSizeInstance(type.getSuperclass());
-		}
-
-		// memory alignment is a wild assumption at this point. Hopefully it will always be true. Otherwise it's a bug.
-		return (int)alignAddress(maxInstanceFieldOffset + this.byteSizeFieldValue(maxInstanceField.getType()));
-	}
-	
-	public static final int staticByteSizeFieldValue(final Class<?> type)
-	{
-		return type.isPrimitive()
-			? XMemory.byteSizePrimitive(type)
-			: staticByteSizeReference()
-		;
+		return staticByteSizeInstance(type);
 	}
 	
 	@Override
@@ -499,121 +747,340 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	@Override
 	public final byte get_byte(final long address)
 	{
-		return VM.getByte(address);
+		return staticGet_byte(address);
 	}
 
 	@Override
 	public final boolean get_boolean(final long address)
 	{
-		return VM.getBoolean(null, address);
+		return staticGet_boolean(null, address);
 	}
 
 	@Override
 	public final short get_short(final long address)
 	{
-		return VM.getShort(address);
+		return staticGet_short(address);
 	}
 
 	@Override
 	public final char get_char(final long address)
 	{
-		return VM.getChar(address);
+		return staticGet_char(address);
 	}
 
 	@Override
 	public final int get_int(final long address)
 	{
-		return VM.getInt(address);
+		return staticGet_int(address);
 	}
 
 	@Override
 	public final float get_float(final long address)
 	{
-		return VM.getFloat(address);
+		return staticGet_float(address);
 	}
 
 	@Override
 	public final long get_long(final long address)
 	{
-		return VM.getLong(address);
+		return staticGet_long(address);
 	}
 
 	@Override
 	public final double get_double(final long address)
 	{
-		return VM.getDouble(address);
+		return staticGet_double(address);
 	}
 
 	@Override
 	public final Object getObject(final long address)
 	{
-		return VM.getObject(null, address);
+		return staticGetObject(null, address);
 	}
 	
 	
 	@Override
 	public final byte get_byte(final Object instance, final long offset)
 	{
-		return VM.getByte(instance, offset);
+		return staticGet_byte(instance, offset);
 	}
 
 	@Override
 	public final boolean get_boolean(final Object instance, final long offset)
 	{
-		return VM.getBoolean(instance, offset);
+		return staticGet_boolean(instance, offset);
 	}
 
 	@Override
 	public final short get_short(final Object instance, final long offset)
 	{
-		return VM.getShort(instance, offset);
+		return staticGet_short(instance, offset);
 	}
 
 	@Override
 	public final char get_char(final Object instance, final long offset)
 	{
-		return VM.getChar(instance, offset);
+		return staticGet_char(instance, offset);
 	}
 
 	@Override
 	public final int get_int(final Object instance, final long offset)
 	{
-		return VM.getInt(instance, offset);
+		return staticGet_int(instance, offset);
 	}
 
 	@Override
 	public final float get_float(final Object instance, final long offset)
 	{
-		return VM.getFloat(instance, offset);
+		return staticGet_float(instance, offset);
 	}
 
 	@Override
 	public final long get_long(final Object instance, final long offset)
 	{
-		return VM.getLong(instance, offset);
+		return staticGet_long(instance, offset);
 	}
 
 	@Override
 	public final double get_double(final Object instance, final long offset)
 	{
-		return VM.getDouble(instance, offset);
+		return staticGet_double(instance, offset);
 	}
 
 	@Override
 	public final Object getObject(final Object instance, final long offset)
 	{
-		return VM.getObject(instance, offset);
+		return staticGetObject(instance, offset);
 	}
 
 	
 	
 	@Override
-	public final void set_long(final long address, final long value)
+	public void set_byte(final long address, final byte value)
 	{
-		VM.putLong(address, value);
+		staticSet_byte(address, value);
+	}
+
+	@Override
+	public void set_boolean(final long address, final boolean value)
+	{
+		// where the heck is Unsafe#putBoolean(long, boolean)? Forgot to implement? Wtf?
+		staticSet_boolean(address, value);
+	}
+
+	@Override
+	public void set_short(final long address, final short value)
+	{
+		staticSet_short(address, value);
+	}
+
+	@Override
+	public void set_char(final long address, final char value)
+	{
+		staticSet_char(address, value);
+	}
+
+	@Override
+	public void set_int(final long address, final int value)
+	{
+		staticSet_int(address, value);
+	}
+
+	@Override
+	public void set_float(final long address, final float value)
+	{
+		staticSet_float(address, value);
+	}
+
+	@Override
+	public void set_long(final long address, final long value)
+	{
+		staticSet_long(address, value);
+	}
+
+	@Override
+	public void set_double(final long address, final double value)
+	{
+		staticSet_double(address, value);
+	}
+
+	@Override
+	public void set_byte(final Object instance, final long offset, final byte value)
+	{
+		staticSet_byte(instance, offset, value);
+	}
+
+	@Override
+	public void set_boolean(final Object instance, final long offset, final boolean value)
+	{
+		staticSet_boolean(instance, offset, value);
+	}
+
+	@Override
+	public void set_short(final Object instance, final long offset, final short value)
+	{
+		staticSet_short(instance, offset, value);
+	}
+
+	@Override
+	public void set_char(final Object instance, final long offset, final char value)
+	{
+		staticSet_char(instance, offset, value);
+	}
+
+	@Override
+	public void set_int(final Object instance, final long offset, final int value)
+	{
+		staticSet_int(instance, offset, value);
+	}
+
+	@Override
+	public void set_float(final Object instance, final long offset, final float value)
+	{
+		staticSet_float(instance, offset, value);
+	}
+
+	@Override
+	public void set_long(final Object instance, final long offset, final long value)
+	{
+		staticSet_long(instance, offset, value);
+	}
+
+	@Override
+	public void set_double(final Object instance, final long offset, final double value)
+	{
+		staticSet_double(instance, offset, value);
+	}
+
+	@Override
+	public void setObject(final Object instance, final long offset, final Object value)
+	{
+		staticSetObject(instance, offset, value);
 	}
 	
+	
+	
+	@Override
+	public final void copyRange(
+		final long sourceAddress,
+		final long targetAddress,
+		final long length
+	)
+	{
+		staticCopyRange(sourceAddress, targetAddress, length);
+	}
 
+	@Override
+	public final void copyRange(
+		final Object source      ,
+		final long   sourceOffset,
+		final Object target      ,
+		final long   targetOffset,
+		final long   length
+	)
+	{
+		staticCopyRange(source, sourceOffset, target, targetOffset, length);
+	}
+	
+	@Override
+	public void copyRangeToArray(final long sourceAddress, final byte[] target)
+	{
+		staticCopyRangeToArray(sourceAddress, target);
+	}
+	
+	@Override
+	public void copyRangeToArray(final long sourceAddress, final boolean[] target)
+	{
+		staticCopyRangeToArray(sourceAddress, target);
+	}
+
+	@Override
+	public void copyRangeToArray(final long sourceAddress, final short[] target)
+	{
+		staticCopyRangeToArray(sourceAddress, target);
+	}
+
+	@Override
+	public void copyRangeToArray(final long sourceAddress, final char[] target)
+	{
+		staticCopyRangeToArray(sourceAddress, target);
+	}
+	
+	@Override
+	public void copyRangeToArray(final long sourceAddress, final int[] target)
+	{
+		staticCopyRangeToArray(sourceAddress, target);
+	}
+
+	@Override
+	public void copyRangeToArray(final long sourceAddress, final float[] target)
+	{
+		staticCopyRangeToArray(sourceAddress, target);
+	}
+
+	@Override
+	public void copyRangeToArray(final long sourceAddress, final long[] target)
+	{
+		staticCopyRangeToArray(sourceAddress, target);
+	}
+
+	@Override
+	public void copyRangeToArray(final long sourceAddress, final double[] target)
+	{
+		staticCopyRangeToArray(sourceAddress, target);
+	}
+	
+	
+	
+	@Override
+	public void copyArrayToAddress(final byte[] array, final long targetAddress)
+	{
+		staticCopyArrayToAddress(array, targetAddress);
+	}
+	
+	@Override
+	public void copyArrayToAddress(final boolean[] array, final long targetAddress)
+	{
+		staticCopyArrayToAddress(array, targetAddress);
+	}
+	
+	@Override
+	public void copyArrayToAddress(final short[] array, final long targetAddress)
+	{
+		staticCopyArrayToAddress(array, targetAddress);
+	}
+
+	@Override
+	public void copyArrayToAddress(final char[] array, final long targetAddress)
+	{
+		staticCopyArrayToAddress(array, targetAddress);
+	}
+	
+	@Override
+	public void copyArrayToAddress(final int[] array, final long targetAddress)
+	{
+		staticCopyArrayToAddress(array, targetAddress);
+	}
+	
+	@Override
+	public void copyArrayToAddress(final float[] array, final long targetAddress)
+	{
+		staticCopyArrayToAddress(array, targetAddress);
+	}
+	
+	@Override
+	public void copyArrayToAddress(final long[] array, final long targetAddress)
+	{
+		staticCopyArrayToAddress(array, targetAddress);
+	}
+	
+	@Override
+	public void copyArrayToAddress(final double[] array, final long targetAddress)
+	{
+		staticCopyArrayToAddress(array, targetAddress);
+	}
+	
+	
 	
 	@Override
 	public final long byteSizeArray_byte(final long elementCount)
