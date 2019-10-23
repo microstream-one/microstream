@@ -2,13 +2,19 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import java.nio.ByteOrder;
 import java.util.function.Consumer;
 
 import one.microstream.util.BufferSizeProviderIncremental;
 
 
 public interface PersistenceManager<M>
-extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, PersistenceSourceSupplier<M>
+extends
+PersistenceObjectManager,
+PersistenceRetrieving,
+PersistenceStoring,
+PersistenceSourceSupplier<M>,
+ByteOrderTargeting<PersistenceManager<M>>
 {
 	// manager methods //
 	
@@ -69,7 +75,8 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		final PersistenceRegisterer.Creator    registererCreator ,
 		final PersistenceTarget<M>             target            ,
 		final PersistenceSource<M>             source            ,
-		final BufferSizeProviderIncremental    bufferSizeProvider
+		final BufferSizeProviderIncremental    bufferSizeProvider,
+		final ByteOrder                        targetByteOrder
 	)
 	{
 		return new PersistenceManager.Default<>(
@@ -82,7 +89,8 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 			notNull(registererCreator) ,
 			notNull(target)            ,
 			notNull(source)            ,
-			notNull(bufferSizeProvider)
+			notNull(bufferSizeProvider),
+			notNull(targetByteOrder)
 		);
 	}
 
@@ -107,6 +115,8 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		// source and target //
 		private final PersistenceSource<M> source;
 		private final PersistenceTarget<M> target;
+		
+		private final ByteOrder            targetByteOrder;
 
 
 
@@ -124,7 +134,8 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 			final PersistenceRegisterer.Creator    registererCreator ,
 			final PersistenceTarget<M>             target            ,
 			final PersistenceSource<M>             source            ,
-			final BufferSizeProviderIncremental    bufferSizeProvider
+			final BufferSizeProviderIncremental    bufferSizeProvider,
+			final ByteOrder                        targetByteOrder
 		)
 		{
 			super();
@@ -138,6 +149,7 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 			this.target             = target            ;
 			this.source             = source            ;
 			this.bufferSizeProvider = bufferSizeProvider;
+			this.targetByteOrder    = targetByteOrder   ;
 		}
 
 
@@ -145,6 +157,12 @@ extends PersistenceObjectManager, PersistenceRetrieving, PersistenceStoring, Per
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final ByteOrder getTargetByteOrder()
+		{
+			return this.targetByteOrder;
+		}
 						
 		@Override
 		public final PersistenceObjectRegistry objectRegistry()
