@@ -4,6 +4,22 @@ import java.lang.reflect.Field;
 
 public interface MemoryAccessor
 {
+	public long allocateMemory(long bytes);
+
+	public long reallocateMemory(long address, long bytes);
+
+	public void freeMemory(long address);
+
+	
+	
+	public boolean compareAndSwap_int(Object subject, long offset, int expected, int replacement);
+
+	public boolean compareAndSwap_long(Object subject, long offset, long expected, long replacement);
+
+	public boolean compareAndSwapObject(Object subject, long offset, Object expected, Object replacement);
+	
+	
+	
 	public byte get_byte(long address);
 
 	public boolean get_boolean(long address);
@@ -183,6 +199,8 @@ public interface MemoryAccessor
 	public int byteSizeObjectHeader(Class<?> type);
 	
 	public int byteSizeFieldValue(Class<?> type);
+
+	public void fillMemory(long address, long length, byte value);
 	
 	/**
 	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).

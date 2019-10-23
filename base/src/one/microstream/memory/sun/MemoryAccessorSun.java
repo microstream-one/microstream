@@ -231,7 +231,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	}
 	
 
-	public static final void fillRange(final long address, final long length, final byte value)
+	public static final void staticFillMemory(final long address, final long length, final byte value)
 	{
 		VM.setMemory(address, length, value);
 	}
