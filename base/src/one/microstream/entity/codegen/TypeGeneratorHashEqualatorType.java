@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 
@@ -24,12 +23,12 @@ class TypeGeneratorHashEqualatorType extends TypeGenerator
 	final static String SUFFIX = "HashEqualator";
 	
 	TypeGeneratorHashEqualatorType(
-		final ProcessingEnvironment processingEnv,
+		final EntityProcessor processor,
 		final TypeElement entityTypeElement,
 		final List<Member> members)
 	{
 		super(
-			processingEnv,
+			processor,
 			entityTypeElement,
 			members,
 			false,
@@ -59,7 +58,7 @@ class TypeGeneratorHashEqualatorType extends TypeGenerator
 		
 		// default implementation class
 		
-		this.newline().tab().add("public final class Default implements ")
+		this.newline().tab().add("public static class Default implements ")
 			.add(this.typeName).add(", ").add(this.addImport(Stateless.class)).newline()
 			.tab().add("{").newline();
 		
