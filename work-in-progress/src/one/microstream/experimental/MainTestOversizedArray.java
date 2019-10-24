@@ -7,7 +7,7 @@ import sun.misc.Unsafe;
 
 public class MainTestOversizedArray
 {
-	static final Unsafe vm = (Unsafe)MemoryAccessorSun.getSystemInstance();
+	static final Unsafe vm = (Unsafe)MemoryAccessorSun.getMemoryAccess();
 	static final long BABO = Unsafe.ARRAY_BYTE_BASE_OFFSET;
 	static final long LABO = Unsafe.ARRAY_LONG_BASE_OFFSET;
 

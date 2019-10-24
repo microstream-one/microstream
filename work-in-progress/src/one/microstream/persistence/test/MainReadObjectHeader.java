@@ -10,7 +10,7 @@ public class MainReadObjectHeader
 	static final long OFFSET_CLASS  = 8L;
 
 	static final Object o = new Object();
-	static final Unsafe vm = (Unsafe)MemoryAccessorSun.getSystemInstance();
+	static final Unsafe vm = (Unsafe)MemoryAccessorSun.getMemoryAccess();
 
 	public static void main(final String[] args) throws Throwable
 	{

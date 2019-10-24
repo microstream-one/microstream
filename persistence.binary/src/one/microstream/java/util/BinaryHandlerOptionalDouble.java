@@ -88,7 +88,7 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 			? OptionalDouble.of(
 				bytes.read_double(BINARY_OFFSET_VALUE)
 			)
-			: XMemory.instantiate(OptionalDouble.class)
+			: XMemory.instantiateBlank(OptionalDouble.class)
 		;
 	}
 	

@@ -1,11 +1,10 @@
 package one.microstream.memory.sun;
 
-import static one.microstream.X.notNull;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import one.microstream.X;
+import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.memory.MemoryAccessor;
 import one.microstream.memory.XMemory;
 import sun.misc.Unsafe;
@@ -16,16 +15,20 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	// system access //
 	//////////////////
 	
-	// used by other classes in other projects but same package
-	static final Unsafe VM = (Unsafe)getSystemInstance();
+	// used by other classes in other projects but same package, so do not change to private.
+	static final Unsafe VM = getMemoryAccess();
 	
+	/*
+	 * If magic values should be represented by constants and constants should be encapsulated by methods
+	 * like instance fields should, then why use the code and memory detour of constants in the first place?
+	 * Direct "Constant Methods" are the logical conclusion and they get jitted away, anyway.
+	 */
 	static final String fieldNameUnsafe()
 	{
 		return "theUnsafe";
 	}
 	
-	// return type not specified to avoid public API dependencies to sun implementation details
-	public static final Object getSystemInstance()
+	public static final Unsafe getMemoryAccess()
 	{
 		// all that clumsy detour ... x_x
 		if(XMemory.class.getClassLoader() == null)
@@ -36,7 +39,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		{
 			final Field theUnsafe = Unsafe.class.getDeclaredField(fieldNameUnsafe());
 			theUnsafe.setAccessible(true);
-			return theUnsafe.get(null); // static field, no argument needed, may be null (see #get JavaDoc)
+			return (Unsafe)theUnsafe.get(null); // static field, no argument needed, may be null (see #get JavaDoc)
 		}
 		catch(final Exception e)
 		{
@@ -117,18 +120,21 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		return BYTE_SIZE_OBJECT_HEADER;
 	}
-
+	
 	private static final int calculateByteSizeObjectHeader()
 	{
 		// min logic should be unnecessary but better exclude any source for potential errors
 		long minOffset = Long.MAX_VALUE;
-		final Field[] declaredFields = MemoryAccessorSun.class.getDeclaredFields();
+		final Field[] declaredFields = ObjectHeaderSizeDummy.class.getDeclaredFields();
 		for(final Field field : declaredFields)
 		{
+			// just in case
 			if(Modifier.isStatic(field.getModifiers()))
 			{
 				continue;
 			}
+			
+			// requires the dummy field calculateByteSizeObjectHeaderFieldOffsetDummy
 			if(VM.objectFieldOffset(field) < minOffset)
 			{
 				minOffset = VM.objectFieldOffset(field);
@@ -136,7 +142,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		}
 		if(minOffset == Long.MAX_VALUE)
 		{
-			throw new Error("Could not find object header dummy field in class " + MemoryAccessorSun.class);
+			throw new Error("Could not find object header dummy field in class " + ObjectHeaderSizeDummy.class);
 		}
 		
 		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
@@ -230,7 +236,29 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		VM.ensureClassInitialized(c);
 	}
 	
+	public static void staticEnsureClassInitialized(final Class<?>... classes)
+	{
+		for(final Class<?> c : classes)
+		{
+			staticEnsureClassInitialized(c);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static final <T> T staticInstantiateBlank(final Class<T> c) throws InstantiationRuntimeException
+	{
+		try
+		{
+			return (T)VM.allocateInstance(c);
+		}
+		catch(final InstantiationException e)
+		{
+			throw new InstantiationRuntimeException(e);
+		}
+	}
+	
 
+	
 	public static final void staticFillMemory(final long address, final long length, final byte value)
 	{
 		VM.setMemory(address, length, value);
@@ -376,6 +404,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	}
 	
 	
+	
 	public static void staticSet_byte(final long address, final byte value)
 	{
 		VM.putByte(address, value);
@@ -462,8 +491,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		VM.putObject(instance, offset, value);
 	}
 	
-	
-	
+		
 	
 	public static final long staticByteSizeArray_byte(final long elementCount)
 	{
@@ -677,13 +705,17 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length << BITS3);
 	}
 	
+	public static final void staticThrowUnchecked(final Throwable t)
+	{
+		VM.throwException(t);
+	}
+		
 	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 	
-	// no one knows why this method is called Sun ... shhhhh...
 	public static MemoryAccessor New()
 	{
 		return new MemoryAccessorSun();
@@ -740,6 +772,75 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	public final void ensureClassInitialized(final Class<?> c)
 	{
 		staticEnsureClassInitialized(c);
+	}
+	
+	@Override
+	public void ensureClassInitialized(final Class<?>... classes)
+	{
+		staticEnsureClassInitialized(classes);
+	}
+	
+	@Override
+	public final long allocateMemory(final long bytes)
+	{
+		return staticAllocateMemory(bytes);
+	}
+
+	@Override
+	public final long reallocateMemory(final long address, final long bytes)
+	{
+		return staticReallocateMemory(address, bytes);
+	}
+
+	@Override
+	public final void freeMemory(final long address)
+	{
+		staticFreeMemory(address);
+	}
+
+	@Override
+	public final boolean compareAndSwap_int(
+		final Object subject    ,
+		final long   offset     ,
+		final int    expected   ,
+		final int    replacement
+	)
+	{
+		return staticCompareAndSwap_int(subject, offset, expected, replacement);
+	}
+
+	@Override
+	public final boolean compareAndSwap_long(
+		final Object subject    ,
+		final long   offset     ,
+		final long   expected   ,
+		final long   replacement
+	)
+	{
+		return staticCompareAndSwap_long(subject, offset, expected, replacement);
+	}
+
+	@Override
+	public final boolean compareAndSwapObject(
+		final Object subject    ,
+		final long   offset     ,
+		final Object expected   ,
+		final Object replacement
+	)
+	{
+		return staticCompareAndSwapObject(subject, offset, expected, replacement);
+	}
+
+	@Override
+	public final void fillMemory(final long address, final long length, final byte value)
+	{
+		staticFillMemory(address, length, value);
+	}
+	
+	@Override
+	public final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
+	{
+		return staticInstantiateBlank(c);
 	}
 	
 	
@@ -1199,5 +1300,49 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		staticPut_double(bytes, index, value);
 	}
+	
+	
+	
+	@Override
+	public void throwUnchecked(final Throwable t)
+	{
+		staticThrowUnchecked(t);
+	}
+	
+	
+	
+	////////////////////////////////////////////////////////
+	// copies of general logic to eliminate dependencies //
+	//////////////////////////////////////////////////////
+	
+	private static final int checkArrayRange(final long capacity)
+	{
+		// " >= " proved to be faster in tests than ">" (probably due to simple sign checking)
+		if(capacity > Integer.MAX_VALUE)
+		{
+			throw new IllegalArgumentException("Invalid array length: " + capacity);
+		}
 		
+		return (int)capacity;
+	}
+	
+	private static final <T> T notNull(final T object) throws NullPointerException
+	{
+		if(object == null)
+		{
+			// removing this method's stack trace entry is kind of a hack. On the other hand, it's not.
+			throw new NullPointerException();
+		}
+		
+		return object;
+	}
+		
+	
+	// extra class to keep MemoryAccessorSun instances stateless
+	static final class ObjectHeaderSizeDummy
+	{
+		// implicitely used in #calculateByteSizeObjectHeader
+		Object calculateByteSizeObjectHeaderFieldOffsetDummy;
+	}
+	
 }

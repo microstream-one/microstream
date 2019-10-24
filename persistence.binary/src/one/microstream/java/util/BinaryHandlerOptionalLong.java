@@ -88,7 +88,7 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 			? OptionalLong.of(
 				bytes.read_long(BINARY_OFFSET_VALUE)
 			)
-			: XMemory.instantiate(OptionalLong.class)
+			: XMemory.instantiateBlank(OptionalLong.class)
 		;
 	}
 	

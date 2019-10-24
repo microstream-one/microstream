@@ -12,7 +12,7 @@ public class MainTestUnsafeWrappingPerformance
 	private static final int RUNS = 100;
 	private static final long[] TIMES = new long[RUNS];
 
-	private static final Unsafe vm = (Unsafe)MemoryAccessorSun.getSystemInstance();
+	private static final Unsafe vm = (Unsafe)MemoryAccessorSun.getMemoryAccess();
 
 
 

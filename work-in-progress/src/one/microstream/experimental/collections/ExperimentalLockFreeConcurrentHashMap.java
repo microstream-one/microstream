@@ -31,7 +31,7 @@ import sun.misc.Unsafe;
  */
 public final class ExperimentalLockFreeConcurrentHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.2011)XXX: only for cliffclick tests
 {
-	private static final Unsafe unsafe = (Unsafe)MemoryAccessorSun.getSystemInstance();
+	private static final Unsafe unsafe = (Unsafe)MemoryAccessorSun.getMemoryAccess();
 	private static final long FIELD_ADDRESS_modLevel = unsafe.objectFieldOffset(getDeclaredField(ExperimentalLockFreeConcurrentHashMap.class, "modLevel"));
 	private static final long FIELD_ADDRESS_size = unsafe.objectFieldOffset(getDeclaredField(ExperimentalLockFreeConcurrentHashMap.class, "size"));
 	private static final long FIELD_ADDRESS_link = unsafe.objectFieldOffset(getDeclaredField(VolatileEntry.class, "link"));

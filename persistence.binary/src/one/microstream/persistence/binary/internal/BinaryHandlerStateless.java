@@ -51,7 +51,7 @@ public final class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivia
 	@Override
 	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return XMemory.instantiate(this.type());
+		return XMemory.instantiateBlank(this.type());
 	}
 
 }

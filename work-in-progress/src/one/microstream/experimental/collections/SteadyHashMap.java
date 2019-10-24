@@ -34,7 +34,7 @@ import sun.misc.Unsafe;
  */
 public final class SteadyHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.2011)XXX: only for cliffclick tests
 {
-	private static final Unsafe unsafe = (Unsafe)MemoryAccessorSun.getSystemInstance();
+	private static final Unsafe unsafe = (Unsafe)MemoryAccessorSun.getMemoryAccess();
 	private static final long FIELD_ADDRESS_size = unsafe.objectFieldOffset(getDeclaredField(SteadyHashMap.class, "size"));
 
 	// stolen from AtomicReferenceArray

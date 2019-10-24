@@ -32,6 +32,8 @@ public final class XMemory
 	{
 		return MEMORY_ACCESSOR;
 	}
+	
+	// (24.10.2019 TM)FIXME: priv#111: MemoryAccessor access and reversed version
 
 	
 	
@@ -708,17 +710,9 @@ public final class XMemory
 		throw new RuntimeException("Unknown ByteOrder: \"" + name + "\"");
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static final <T> T instantiate(final Class<T> c) throws InstantiationRuntimeException
+	public static final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
 	{
-		try
-		{
-			return (T)VM.allocateInstance(c);
-		}
-		catch(final InstantiationException e)
-		{
-			throw new InstantiationRuntimeException(e);
-		}
+		return MEMORY_ACCESSOR.instantiateBlank(c);
 	}
 	
 
@@ -729,15 +723,12 @@ public final class XMemory
 
 	public static final void throwUnchecked(final Throwable t)
 	{
-		MEMORY_ACCESSOR.throwException(t);
+		MEMORY_ACCESSOR.throwUnchecked(t);
 	}
 	
 	public static final void ensureClassInitialized(final Class<?>... classes)
 	{
-		for(final Class<?> c : classes)
-		{
-			ensureClassInitialized(c);
-		}
+		MEMORY_ACCESSOR.ensureClassInitialized(classes);
 	}
 
 	public static final void ensureClassInitialized(final Class<?> c)
@@ -745,39 +736,6 @@ public final class XMemory
 		MEMORY_ACCESSOR.ensureClassInitialized(c);
 	}
 	
-
-	
-	////////////////////////////////////////////////////////
-	// copies of general logic to eliminate dependencies //
-	//////////////////////////////////////////////////////
-	
-	private static final int checkArrayRange(final long capacity)
-	{
-		// " >= " proved to be faster in tests than ">" (probably due to simple sign checking)
-		if(capacity > Integer.MAX_VALUE)
-		{
-			throw new IllegalArgumentException("Invalid array length: " + capacity);
-		}
-		
-		return (int)capacity;
-	}
-	
-	private static final <T> T notNull(final T object) throws NullPointerException
-	{
-		if(object == null)
-		{
-			// removing this method's stack trace entry is kind of a hack. On the other hand, it's not.
-			throw new NullPointerException();
-		}
-		
-		return object;
-	}
-
-
-
-	// implicitely used in #calculateByteSizeObjectHeader
-	Object calculateByteSizeObjectHeaderFieldOffsetDummy;
-
 	
 	
 	///////////////////////////////////////////////////////////////////////////
