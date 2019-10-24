@@ -1,6 +1,10 @@
 package one.microstream.persistence.lazy;
 
+import java.util.function.Predicate;
+
 import one.microstream.chars.XChars;
+import one.microstream.memory.MemoryStatistics;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectRetriever;
 import one.microstream.reference.LazyReferencing;
@@ -113,7 +117,20 @@ public final class Lazy<T> implements LazyReferencing<T>
 
 	public static final Checker Checker(final long millisecondTimeout)
 	{
-		return new Checker(millisecondTimeout);
+		return new Checker(millisecondTimeout, null);
+	}
+
+	public static final Checker Checker(
+		final long                        millisecondTimeout       ,
+		final Predicate<MemoryStatistics> memoryBoundClearPredicate
+	)
+	{
+		return new Checker(millisecondTimeout, memoryBoundClearPredicate);
+	}
+
+	public static final Checker Checker(final Predicate<MemoryStatistics> memoryBoundClearPredicate)
+	{
+		return new Checker(-1, memoryBoundClearPredicate);
 	}
 
 	static <T> Lazy<T> register(final Lazy<T> lazyReference)
@@ -360,17 +377,20 @@ public final class Lazy<T> implements LazyReferencing<T>
 		this.subject = (T)this.loader.getObject(this.objectId);
 	}
 
-	final synchronized void clearIfTimedout(final long millisecondThreshold)
+	final synchronized void clearIfTimedoutOrMemoryBound(final long millisecondThreshold, final boolean clearMemoryBound)
 	{
-//		XDebug.debugln("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold);
+//		XDebug.println("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold
+//			+ ", clearMemoryBound = " + clearMemoryBound);
 
-		// time check implicitely covers already cleared reference. May of course not clear unstored references.
-		if(this.lastTouched >= millisecondThreshold || !this.isStored())
+		/* Memory bound and time check implicitely covers already cleared reference.
+		 * May of course not clear unstored references.
+		 */
+		if((!clearMemoryBound && this.lastTouched >= millisecondThreshold) || !this.isStored())
 		{
 			return;
 		}
 
-//		XDebug.debugln("timeout-clearing " + this.objectId + ": " + XChars.systemString(this.subject));
+//		XDebug.println("clearing " + this.objectId + ": " + XChars.systemString(this.subject));
 		this.internalClear();
 	}
 
@@ -394,16 +414,22 @@ public final class Lazy<T> implements LazyReferencing<T>
 		private final long millisecondTimeout  ;
 		private       long millisecondThreshold;
 
+		private final Predicate<MemoryStatistics> memoryBoundClearPredicate;
+		private       boolean                     clearMemoryBound         ;
 		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Checker(final long millisecondTimeout)
+		Checker(
+			final long                        millisecondTimeout       ,
+			final Predicate<MemoryStatistics> memoryBoundClearPredicate
+		)
 		{
 			super();
-			this.millisecondTimeout = millisecondTimeout;
+			this.millisecondTimeout        = millisecondTimeout       ;
+			this.memoryBoundClearPredicate = memoryBoundClearPredicate;
 		}
 		
 		
@@ -415,7 +441,17 @@ public final class Lazy<T> implements LazyReferencing<T>
 		@Override
 		public void beginCheckCycle()
 		{
-			this.millisecondThreshold = System.currentTimeMillis() - this.millisecondTimeout;
+			this.millisecondThreshold = this.millisecondTimeout > 0
+				? System.currentTimeMillis() - this.millisecondTimeout
+				: -1;
+			
+			this.clearMemoryBound = this.memoryBoundClearPredicate != null
+				? this.memoryBoundClearPredicate.test(MemoryStatistics.HeapMemoryUsage())
+				: false;
+				
+			XDebug.println("Begin check cycle: millisecondThreshold = " + this.millisecondThreshold
+				+ ", clearMemoryBound = " + this.clearMemoryBound
+				+ ", quota = " + MemoryStatistics.HeapMemoryUsage().quota());
 		}
 
 		@Override
@@ -425,7 +461,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 			{
 				return;
 			}
-			((Lazy<?>)lazyReference).clearIfTimedout(this.millisecondThreshold);
+			((Lazy<?>)lazyReference).clearIfTimedoutOrMemoryBound(this.millisecondThreshold, this.clearMemoryBound);
 		}
 
 	}
