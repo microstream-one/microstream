@@ -37,6 +37,11 @@ public final class XMemory
 
 	
 	
+	public static int pageSize()
+	{
+		return MEMORY_ACCESSOR.pageSize();
+	}
+	
 	public static int byteSizeInstance(final Class<?> c)
 	{
 		return MEMORY_ACCESSOR.byteSizeInstance(c);
@@ -66,41 +71,7 @@ public final class XMemory
 		}
 		return offsets;
 	}
-	
-	static final long internalGetFieldOffset(final Class<?> type, final String declaredFieldName)
-	{
-		// minimal algorithm, only for local use
-		for(Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass())
-		{
-			try
-			{
-				for(final Field field : c.getDeclaredFields())
-				{
-					if(field.getName().equals(declaredFieldName))
-					{
-						return MEMORY_ACCESSOR.objectFieldOffset(field);
-					}
-				}
-			}
-			catch(final Exception e)
-			{
-				throw new Error(e); // explode and die :)
-			}
-		}
-		throw new Error("Field not found: " + type.getName() + '#' + declaredFieldName);
-	}
-
-	// (14.10.2019 TM)FIXME: priv#111: delete if really not used
-//	public static final Object getStaticReference(final Field field)
-//	{
-//		if(!Modifier.isStatic(field.getModifiers()))
-//		{
-//			throw new IllegalArgumentException();
-//		}
-//		return MEMORY_ACCESSOR.getObject(VM.staticFieldBase(field), VM.staticFieldOffset(field));
-//	}
 		
-	
 
 	
 	public static final int bitSize_byte()
@@ -313,44 +284,44 @@ public final class XMemory
 	
 	
 	
-	public static void put_byte(final byte[] bytes, final int index, final short value)
+	public static void put_byte(final byte[] bytes, final int index, final byte value)
 	{
-		MEMORY_ACCESSOR.put_byte(bytes, index, value);
+		MEMORY_ACCESSOR.set_byte(bytes, index, value);
 	}
 	
-	public static void put_boolean(final byte[] bytes, final int index, final char value)
+	public static void put_boolean(final byte[] bytes, final int index, final boolean value)
 	{
-		MEMORY_ACCESSOR.put_boolean(bytes, index, value);
+		MEMORY_ACCESSOR.set_boolean(bytes, index, value);
 	}
 
 	public static void put_short(final byte[] bytes, final int index, final short value)
 	{
-		MEMORY_ACCESSOR.put_short(bytes, index, value);
+		MEMORY_ACCESSOR.set_short(bytes, index, value);
 	}
 
 	public static void put_char(final byte[] bytes, final int index, final char value)
 	{
-		MEMORY_ACCESSOR.put_char(bytes, index, value);
+		MEMORY_ACCESSOR.set_char(bytes, index, value);
 	}
 
 	public static void put_int(final byte[] bytes, final int index, final int value)
 	{
-		MEMORY_ACCESSOR.put_int(bytes, index, value);
+		MEMORY_ACCESSOR.set_int(bytes, index, value);
 	}
 
 	public static void put_float(final byte[] bytes, final int index, final float value)
 	{
-		MEMORY_ACCESSOR.put_float(bytes, index, value);
+		MEMORY_ACCESSOR.set_float(bytes, index, value);
 	}
 
 	public static void put_long(final byte[] bytes, final int index, final long value)
 	{
-		MEMORY_ACCESSOR.put_long(bytes, index, value);
+		MEMORY_ACCESSOR.set_long(bytes, index, value);
 	}
 
 	public static void put_double(final byte[] bytes, final int index, final double value)
 	{
-		MEMORY_ACCESSOR.put_double(bytes, index, value);
+		MEMORY_ACCESSOR.set_double(bytes, index, value);
 	}
 
 

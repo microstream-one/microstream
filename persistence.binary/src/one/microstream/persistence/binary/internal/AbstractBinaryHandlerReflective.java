@@ -113,7 +113,18 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		return value1;
 	}
 		
-	
+	protected static void createSetters(
+		final Iterable<PersistenceTypeDefinitionMemberFieldReflective> settingMembers ,
+		final BinaryValueSetter[]                                      setters        ,
+		final boolean                                                  switchByteOrder
+	)
+	{
+		int i = 0;
+		for(final PersistenceTypeDefinitionMemberFieldReflective member : settingMembers)
+		{
+			setters[i++] = BinaryValueFunctions.getObjectValueSetter(member.type(), switchByteOrder);
+		}
+	}
 	
 	protected static void createStorers(
 		final Class<?>                                                 entityType     ,

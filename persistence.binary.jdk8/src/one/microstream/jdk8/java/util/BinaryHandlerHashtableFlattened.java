@@ -5,7 +5,7 @@ import java.util.Hashtable;
 import one.microstream.X;
 import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemoryJDK8;
+import one.microstream.memory.sun.SunJdk8Internals;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -103,7 +103,7 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 		// store load factor as (sole) header value
 		bytes.store_float(
 			BINARY_OFFSET_LOAD_FACTOR,
-			XMemoryJDK8.getLoadFactor(instance)
+			SunJdk8Internals.getLoadFactor(instance)
 		);
 	}
 	

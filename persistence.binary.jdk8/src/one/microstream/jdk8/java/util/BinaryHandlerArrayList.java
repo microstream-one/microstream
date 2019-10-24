@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.util.ArrayList;
 
-import one.microstream.memory.XMemoryJDK8;
+import one.microstream.memory.sun.SunJdk8Internals;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterableSizedArray;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -76,7 +76,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 			this.typeId()                  ,
 			objectId                       ,
 			BINARY_OFFSET_SIZED_ARRAY      ,
-			XMemoryJDK8.accessArray(instance),
+			SunJdk8Internals.accessArray(instance),
 			instance.size()                ,
 			handler
 		);
@@ -123,16 +123,16 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 		instance.ensureCapacity(arrayLength);
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			XMemoryJDK8.accessArray(instance),
+			SunJdk8Internals.accessArray(instance),
 			idResolver
 		);
-		XMemoryJDK8.setSize(instance, size);
+		SunJdk8Internals.setSize(instance, size);
 	}
 
 	@Override
 	public final void iterateInstanceReferences(final ArrayList<?> instance, final PersistenceFunction iterator)
 	{
-		Persistence.iterateReferences(iterator, XMemoryJDK8.accessArray(instance), 0, instance.size());
+		Persistence.iterateReferences(iterator, SunJdk8Internals.accessArray(instance), 0, instance.size());
 	}
 
 	@Override
