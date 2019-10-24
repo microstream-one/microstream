@@ -101,7 +101,7 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 			? OptionalInt.of(
 				bytes.read_int(BINARY_OFFSET_VALUE)
 			)
-			: XMemory.instantiate(OptionalInt.class)
+			: XMemory.instantiateBlank(OptionalInt.class)
 		;
 	}
 	

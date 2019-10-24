@@ -2,6 +2,8 @@ package one.microstream.memory;
 
 import java.lang.reflect.Field;
 
+import one.microstream.exceptions.InstantiationRuntimeException;
+
 public interface MemoryAccessor
 {
 	public long allocateMemory(long bytes);
@@ -9,6 +11,8 @@ public interface MemoryAccessor
 	public long reallocateMemory(long address, long bytes);
 
 	public void freeMemory(long address);
+	
+	public <T> T instantiateBlank(Class<T> c) throws InstantiationRuntimeException;
 
 	
 	
@@ -211,5 +215,11 @@ public interface MemoryAccessor
 	public int pageSize();
 	
 	public void ensureClassInitialized(Class<?> c);
-		
+	
+	public void ensureClassInitialized(Class<?>... classes);
+	
+	
+	
+	public void throwUnchecked(Throwable t);
+	
 }

@@ -7,7 +7,7 @@ import sun.misc.Unsafe;
 
 public class MainTestUnsafeStatic
 {
-	static final Unsafe vm = (Unsafe)MemoryAccessorSun.getSystemInstance();
+	static final Unsafe vm = (Unsafe)MemoryAccessorSun.getMemoryAccess();
 
 	public static void main(final String[] args) throws Throwable
 	{
