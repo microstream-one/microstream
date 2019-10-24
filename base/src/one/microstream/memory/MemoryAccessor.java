@@ -4,17 +4,59 @@ import java.lang.reflect.Field;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
 
+
 public interface MemoryAccessor
 {
+	// memory allocation //
+	
 	public long allocateMemory(long bytes);
 
 	public long reallocateMemory(long address, long bytes);
 
 	public void freeMemory(long address);
 	
-	public <T> T instantiateBlank(Class<T> c) throws InstantiationRuntimeException;
+	public void fillMemory(long address, long length, byte value);
+	
+	
+	
+	// memory size querying logic //
+	
+	/**
+	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).
+	 * Use with care (and the dependency to a system value in mind!).
+	 * 
+	 * @return the system's memory "page size".
+	 */
+	public int pageSize();
+		
+	public int byteSizeReference();
+	
+	public int byteSizeInstance(Class<?> type);
+	
+	public int byteSizeObjectHeader(Class<?> type);
+	
+	public int byteSizeFieldValue(Class<?> type);
+	
+	
+	
+	// field offset abstraction //
+	
+	/**
+	 * Returns an unspecified, abstract "offset" of the passed {@link Field} to specify a generic access of the
+	 * field's value for an instance of its declaring class that can be used with object-based methods like
+	 * {@link #set_int(Object, long, int)}. Whether that offset is an actual low-level memory offset relative
+	 * to an instance' field offset base or simply an index of the passed field in its declaring class' list
+	 * of fields, is implementation-specific.
+	 * 
+	 * @param field the {@link Field} whose abstract offset shall be determined.
+	 * 
+	 * @return the passed {@link Field}'s abstract offset.
+	 */
+	public long objectFieldOffset(Field field);
 
 	
+	
+	// compare and swap logic //
 	
 	public boolean compareAndSwap_int(Object subject, long offset, int expected, int replacement);
 
@@ -23,6 +65,8 @@ public interface MemoryAccessor
 	public boolean compareAndSwapObject(Object subject, long offset, Object expected, Object replacement);
 	
 	
+	
+	// address-based getters for primitive values and references //
 	
 	public byte get_byte(long address);
 
@@ -44,6 +88,8 @@ public interface MemoryAccessor
 	
 	
 	
+	// object-based getters for primitive values and references //
+	
 	public byte get_byte(Object instance, long offset);
 
 	public boolean get_boolean(Object instance, long offset);
@@ -64,6 +110,8 @@ public interface MemoryAccessor
 	
 	
 	
+	// address-based setters for primitive values and references //
+	
 	public void set_byte(long address, byte value);
 
 	public void set_boolean(long address, boolean value);
@@ -80,7 +128,10 @@ public interface MemoryAccessor
 
 	public void set_double(long address, double value);
 
+	// note: setting a pointer to a non-Object-relative address makes no sense.
 	
+	
+	// object-based setters for primitive values and references //
 	
 	public void set_byte(Object instance, long offset, byte value);
 
@@ -99,13 +150,18 @@ public interface MemoryAccessor
 	public void set_double(Object instance, long offset, double value);
 
 	public void setObject(Object instance, long offset, Object value);
+
 	
 	
+	// generic variable-length range copying //
 	
 	public void copyRange(long sourceAddress, long targetAddress, long length);
 
 	public void copyRange(Object source, long sourceOffset, Object target, long targetOffset, long length);
+
 	
+	
+	// address-to-array range copying //
 	
 	public void copyRangeToArray(long sourceAddress, byte[] target);
 	
@@ -122,8 +178,10 @@ public interface MemoryAccessor
 	public void copyRangeToArray(long sourceAddress, long[] target);
 
 	public void copyRangeToArray(long sourceAddress, double[] target);
+
 	
 	
+	// array-to-address range copying //
 	
 	public void copyArrayToAddress(byte[] array, long targetAddress);
 	
@@ -140,8 +198,10 @@ public interface MemoryAccessor
 	public void copyArrayToAddress(long[] array, long targetAddress);
 	
 	public void copyArrayToAddress(double[] array, long targetAddress);
+
 	
 	
+	// logic to calculate the total memory requirements of arrays of a given component type and length //
 	
 	public long byteSizeArray_byte(long elementCount);
 
@@ -163,63 +223,65 @@ public interface MemoryAccessor
 	
 	
 	
+	// transformative byte array primitive value setters //
+	
+	public void set_byte(byte[] bytes, int index, byte value);
+	
+	public void set_boolean(byte[] bytes, int index, boolean value);
+
+	public void set_short(byte[] bytes, int index, short value);
+
+	public void set_char(byte[] bytes, int index, char value);
+
+	public void set_int(byte[] bytes, int index, int value);
+
+	public void set_float(byte[] bytes, int index, float value);
+
+	public void set_long(byte[] bytes, int index, long value);
+
+	public void set_double(byte[] bytes, int index, double value);
+		
+	
+	
+	// conversion to byte array //
+	
 	public byte[] asByteArray(long[] longArray);
 
 	public byte[] asByteArray(long value);
 	
 	
-	public void put_byte(byte[] bytes, int index, short value);
-	
-	public void put_boolean(byte[] bytes, int index, char value);
 
-	public void put_short(byte[] bytes, int index, short value);
-
-	public void put_char(byte[] bytes, int index, char value);
-
-	public void put_int(byte[] bytes, int index, int value);
-
-	public void put_float(byte[] bytes, int index, float value);
-
-	public void put_long(byte[] bytes, int index, long value);
-
-	public void put_double(byte[] bytes, int index, double value);
-	
-	
-	
-	// (14.10.2019 TM)FIXME: priv#111: not sure if needed
-//	public Object getStaticReference(Field field);
-	
-//	public Object getStaticFieldBase(Field field);
-
-	// (14.10.2019 TM)FIXME: objectFieldOffset can't stay here. It has to be wrapped in a plattform-specific type using it.
-	public long objectFieldOffset(Field field);
-	
-	// (14.10.2019 TM)FIXME: priv#111: all methods below are currently only used for debugging, not productive code
-	
-	public int byteSizeReference();
-	
-	public int byteSizeInstance(Class<?> type);
-	
-	public int byteSizeObjectHeader(Class<?> type);
-	
-	public int byteSizeFieldValue(Class<?> type);
-
-	public void fillMemory(long address, long length, byte value);
-	
-	/**
-	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).
-	 * Use with care (and the dependency to a system value in mind!).
-	 * 
-	 * @return the system's memory "page size".
-	 */
-	public int pageSize();
+	// special system methods, not really memory-related //
 	
 	public void ensureClassInitialized(Class<?> c);
 	
 	public void ensureClassInitialized(Class<?>... classes);
 	
-	
-	
+	public <T> T instantiateBlank(Class<T> c) throws InstantiationRuntimeException;
+
 	public void throwUnchecked(Throwable t);
+	
+	
+	
+	// byte order reversing logic //
+	
+	/* NOTE:
+	 * There are only two cases to handle for byte order business:
+	 * 1.) totally ignoring it (covers LE-LE and BE-BE)
+	 * 2.) reversing all multi-byte values (covers LE-BE and BE-LE)
+	 * There is no need for memory accessing logic to specifically know its target byte order,
+	 * only if it shall reverse the bytes or not.
+	 * This means that in the ideal case (same byte order) there is no byte order handling overhead at all.
+	 */
+	
+	public default boolean isReversing()
+	{
+		return false;
+	}
+	
+	public default MemoryAccessor toReversing()
+	{
+		return new MemoryAccessorReversing(this);
+	}
 	
 }

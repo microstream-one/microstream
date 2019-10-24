@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import one.microstream.X;
 import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemoryJDK8;
+import one.microstream.memory.sun.SunJdk8Internals;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -108,11 +108,11 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 		);
 		bytes.store_float(
 			BINARY_OFFSET_LOAD_FACTOR,
-			XMemoryJDK8.getLoadFactor(instance)
+			SunJdk8Internals.getLoadFactor(instance)
 		);
 		bytes.store_boolean(
 			BINARY_OFFSET_ACCESS_ORDER,
-			XMemoryJDK8.getAccessOrder(instance)
+			SunJdk8Internals.getAccessOrder(instance)
 		);
 	}
 

@@ -19,7 +19,7 @@ import one.microstream.collections.types.XImmutableList;
 import one.microstream.collections.types.XList;
 import one.microstream.equality.Equalator;
 import one.microstream.functional.IndexedAcceptor;
-import one.microstream.memory.XMemoryJDK8;
+import one.microstream.memory.sun.SunJdk8Internals;
 
 /**
  * Extended-Collection wrapper implementation for old {@link ArrayList}.
@@ -107,7 +107,7 @@ public class XArrayList<E> extends AbstractSimpleArrayCollection<E> implements X
 	@Override
 	protected E[] internalGetStorageArray()
 	{
-		return (E[])XMemoryJDK8.accessArray(this.subject);
+		return (E[])SunJdk8Internals.accessArray(this.subject);
 	}
 
 	@Override

@@ -257,7 +257,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		}
 	}
 	
-
+	
 	
 	public static final void staticFillMemory(final long address, final long length, final byte value)
 	{
@@ -550,7 +550,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	public static byte[] staticAsByteArray(final long value)
 	{
 		final byte[] bytes = new byte[XMemory.byteSize_long()];
-		staticPut_long(bytes, 0, value);
+		staticSet_long(bytes, 0, value);
 		return bytes;
 	}
 	
@@ -561,44 +561,46 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		return VM.getLong(bytes, ARRAY_BYTE_BASE_OFFSET);
 	}
 	
-	public static void staticPut_byte(final byte[] bytes, final int index, final short value)
+	
+	
+	public static void staticSet_byte(final byte[] bytes, final int index, final byte value)
 	{
-		VM.putShort(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
+		VM.putByte(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 	
-	public static void staticPut_boolean(final byte[] bytes, final int index, final char value)
+	public static void staticSet_boolean(final byte[] bytes, final int index, final boolean value)
 	{
-		VM.putChar(bytes, ARRAY_BOOLEAN_BASE_OFFSET + index, value);
+		VM.putBoolean(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	public static void staticPut_short(final byte[] bytes, final int index, final short value)
+	public static void staticSet_short(final byte[] bytes, final int index, final short value)
 	{
-		VM.putShort(bytes, ARRAY_SHORT_BASE_OFFSET+ index, value);
+		VM.putShort(bytes, ARRAY_BYTE_BASE_OFFSET+ index, value);
 	}
 
-	public static void staticPut_char(final byte[] bytes, final int index, final char value)
+	public static void staticSet_char(final byte[] bytes, final int index, final char value)
 	{
-		VM.putChar(bytes, ARRAY_CHAR_BASE_OFFSET + index, value);
+		VM.putChar(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	public static void staticPut_int(final byte[] bytes, final int index, final int value)
+	public static void staticSet_int(final byte[] bytes, final int index, final int value)
 	{
-		VM.putInt(bytes, ARRAY_INT_BASE_OFFSET + index, value);
+		VM.putInt(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	public static void staticPut_float(final byte[] bytes, final int index, final float value)
+	public static void staticSet_float(final byte[] bytes, final int index, final float value)
 	{
-		VM.putFloat(bytes, ARRAY_FLOAT_BASE_OFFSET + index, value);
+		VM.putFloat(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	public static void staticPut_long(final byte[] bytes, final int index, final long value)
+	public static void staticSet_long(final byte[] bytes, final int index, final long value)
 	{
-		VM.putLong(bytes, ARRAY_LONG_BASE_OFFSET + index, value);
+		VM.putLong(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	public static void staticPut_double(final byte[] bytes, final int index, final double value)
+	public static void staticSet_double(final byte[] bytes, final int index, final double value)
 	{
-		VM.putDouble(bytes, ARRAY_DOUBLE_BASE_OFFSET + index, value);
+		VM.putDouble(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 	
 	
@@ -1004,7 +1006,11 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		staticSet_double(address, value);
 	}
+	
+	// note: setting a pointer to a non-Object-relative address makes no sense.
 
+	
+	
 	@Override
 	public void set_byte(final Object instance, final long offset, final byte value)
 	{
@@ -1254,51 +1260,51 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	
 	
 	@Override
-	public final void put_byte(final byte[] bytes, final int index, final short value)
+	public final void set_byte(final byte[] bytes, final int index, final byte value)
 	{
-		staticPut_byte(bytes, index, value);
+		staticSet_byte(bytes, index, value);
 	}
 	
 	@Override
-	public final void put_boolean(final byte[] bytes, final int index, final char value)
+	public final void set_boolean(final byte[] bytes, final int index, final boolean value)
 	{
-		staticPut_boolean(bytes, index, value);
+		staticSet_boolean(bytes, index, value);
 	}
 
 	@Override
-	public final void put_short(final byte[] bytes, final int index, final short value)
+	public final void set_short(final byte[] bytes, final int index, final short value)
 	{
-		staticPut_short(bytes, index, value);
+		staticSet_short(bytes, index, value);
 	}
 
 	@Override
-	public final void put_char(final byte[] bytes, final int index, final char value)
+	public final void set_char(final byte[] bytes, final int index, final char value)
 	{
-		staticPut_char(bytes, index, value);
+		staticSet_char(bytes, index, value);
 	}
 
 	@Override
-	public final void put_int(final byte[] bytes, final int index, final int value)
+	public final void set_int(final byte[] bytes, final int index, final int value)
 	{
-		staticPut_int(bytes, index, value);
+		staticSet_int(bytes, index, value);
 	}
 
 	@Override
-	public final void put_float(final byte[] bytes, final int index, final float value)
+	public final void set_float(final byte[] bytes, final int index, final float value)
 	{
-		staticPut_float(bytes, index, value);
+		staticSet_float(bytes, index, value);
 	}
 
 	@Override
-	public final void put_long(final byte[] bytes, final int index, final long value)
+	public final void set_long(final byte[] bytes, final int index, final long value)
 	{
-		staticPut_long(bytes, index, value);
+		staticSet_long(bytes, index, value);
 	}
 
 	@Override
-	public final void put_double(final byte[] bytes, final int index, final double value)
+	public final void set_double(final byte[] bytes, final int index, final double value)
 	{
-		staticPut_double(bytes, index, value);
+		staticSet_double(bytes, index, value);
 	}
 	
 	
