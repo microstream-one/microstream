@@ -4,6 +4,7 @@ import java.util.function.Predicate;
 
 import one.microstream.chars.XChars;
 import one.microstream.memory.MemoryStatistics;
+import one.microstream.memory.MemoryStatisticsProvider;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectRetriever;
@@ -333,11 +334,39 @@ public final class Lazy<T> implements LazyReferencing<T>
 			throw new RuntimeException("Cannot clear an unstored lazy reference.");
 		}
 		
+		this.internalClearUnchecked();
+	}
+
+	private void internalClearUnchecked()
+	{
 //		XDebug.debugln("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);
 		this.subject = null;
 		this.touch();
 	}
 
+	final synchronized void clearConditional(final long millisecondThreshold, final boolean clearMemoryBound)
+	{
+//		XDebug.println("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold
+//			+ ", clearMemoryBound = " + clearMemoryBound);
+
+		/* Memory bound and time check implicitely covers already cleared reference.
+		 * May of course not clear unstored references.
+		 */
+		if((!clearMemoryBound && this.lastTouched >= millisecondThreshold) || !this.isStored())
+		{
+			return;
+		}
+
+//		XDebug.println("clearing " + this.objectId + ": " + XChars.systemString(this.subject));
+		this.internalClearUnchecked();
+	}
+
+	@SuppressWarnings("unchecked") // safety of cast guaranteed by logic
+	private synchronized void load()
+	{
+		// this context doesn't have to do anything on an exception inside the get(), just pass it along
+		this.subject = (T)this.loader.getObject(this.objectId);
+	}
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -368,30 +397,6 @@ public final class Lazy<T> implements LazyReferencing<T>
 		this.touch();
 		
 		return this.subject;
-	}
-
-	@SuppressWarnings("unchecked") // safety of cast guaranteed by logic
-	private synchronized void load()
-	{
-		// this context doesn't have to do anything on an exception inside the get(), just pass it along
-		this.subject = (T)this.loader.getObject(this.objectId);
-	}
-
-	final synchronized void clearIfTimedoutOrMemoryBound(final long millisecondThreshold, final boolean clearMemoryBound)
-	{
-//		XDebug.println("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold
-//			+ ", clearMemoryBound = " + clearMemoryBound);
-
-		/* Memory bound and time check implicitely covers already cleared reference.
-		 * May of course not clear unstored references.
-		 */
-		if((!clearMemoryBound && this.lastTouched >= millisecondThreshold) || !this.isStored())
-		{
-			return;
-		}
-
-//		XDebug.println("clearing " + this.objectId + ": " + XChars.systemString(this.subject));
-		this.internalClear();
 	}
 
 	@Override
@@ -446,12 +451,12 @@ public final class Lazy<T> implements LazyReferencing<T>
 				: -1;
 			
 			this.clearMemoryBound = this.memoryBoundClearPredicate != null
-				? this.memoryBoundClearPredicate.test(MemoryStatistics.HeapMemoryUsage())
+				? this.memoryBoundClearPredicate.test(MemoryStatisticsProvider.get().heapMemoryUsage())
 				: false;
 				
 			XDebug.println("Begin check cycle: millisecondThreshold = " + this.millisecondThreshold
 				+ ", clearMemoryBound = " + this.clearMemoryBound
-				+ ", quota = " + MemoryStatistics.HeapMemoryUsage().quota());
+				+ ", quota = " + MemoryStatisticsProvider.get().heapMemoryUsage().quota());
 		}
 
 		@Override
@@ -461,7 +466,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 			{
 				return;
 			}
-			((Lazy<?>)lazyReference).clearIfTimedoutOrMemoryBound(this.millisecondThreshold, this.clearMemoryBound);
+			((Lazy<?>)lazyReference).clearConditional(this.millisecondThreshold, this.clearMemoryBound);
 		}
 
 	}
