@@ -5,7 +5,6 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteOrder;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
-import one.microstream.memory.sun.MemoryAccessorSun;
 
 
 
@@ -21,11 +20,17 @@ public final class XMemory
 	// constants //
 	//////////////
 	
-	public static MemoryAccessor MEMORY_ACCESSOR = MemoryAccessorSun.New();
+	public static MemoryAccessor MEMORY_ACCESSOR;
+	public static MemoryAccessor MEMORY_ACCESSOR_REVERSED;
 	
+	/*
+	 * Strictly seen, this would have to be synchronized, but this method is not something that gets called a lot
+	 * during runtime. At the most, it gets called once at the beginning to switch to another memory accessing logic.
+	 */
 	public static void setMemoryAccessor(final MemoryAccessor memoryAccessor)
 	{
 		MEMORY_ACCESSOR = memoryAccessor;
+		MEMORY_ACCESSOR_REVERSED = memoryAccessor.toReversing();
 	}
 	
 	public static MemoryAccessor getMemoryAccessor()
@@ -33,8 +38,11 @@ public final class XMemory
 		return MEMORY_ACCESSOR;
 	}
 	
-	// (24.10.2019 TM)FIXME: priv#111: MemoryAccessor access and reversed version
-
+	public static MemoryAccessor getMemoryAccessorReversing()
+	{
+		return MEMORY_ACCESSOR_REVERSED;
+	}
+	
 	
 	
 	public static int pageSize()
@@ -127,7 +135,7 @@ public final class XMemory
 
 	public static final int byteSizePrimitive(final Class<?> type)
 	{
-		// onec again missing JDK functionality. Roughly ordered by probability.
+		// once again missing JDK functionality. Roughly ordered by probability.
 		if(type == int.class)
 		{
 			return byteSize_int();
@@ -161,7 +169,8 @@ public final class XMemory
 			return byteSize_short();
 		}
 				
-		throw new IllegalArgumentException(); // intentionally covers void.class
+		// intentionally covers void.class
+		throw new IllegalArgumentException();
 	}
 
 	public static final int byteSize_byte()
@@ -286,42 +295,42 @@ public final class XMemory
 	
 	public static void put_byte(final byte[] bytes, final int index, final byte value)
 	{
-		MEMORY_ACCESSOR.set_byte(bytes, index, value);
+		MEMORY_ACCESSOR.set_byteInBytes(bytes, index, value);
 	}
 	
 	public static void put_boolean(final byte[] bytes, final int index, final boolean value)
 	{
-		MEMORY_ACCESSOR.set_boolean(bytes, index, value);
+		MEMORY_ACCESSOR.set_booleanInBytes(bytes, index, value);
 	}
 
 	public static void put_short(final byte[] bytes, final int index, final short value)
 	{
-		MEMORY_ACCESSOR.set_short(bytes, index, value);
+		MEMORY_ACCESSOR.set_shortInBytes(bytes, index, value);
 	}
 
 	public static void put_char(final byte[] bytes, final int index, final char value)
 	{
-		MEMORY_ACCESSOR.set_char(bytes, index, value);
+		MEMORY_ACCESSOR.set_charInBytes(bytes, index, value);
 	}
 
 	public static void put_int(final byte[] bytes, final int index, final int value)
 	{
-		MEMORY_ACCESSOR.set_int(bytes, index, value);
+		MEMORY_ACCESSOR.set_intInBytes(bytes, index, value);
 	}
 
 	public static void put_float(final byte[] bytes, final int index, final float value)
 	{
-		MEMORY_ACCESSOR.set_float(bytes, index, value);
+		MEMORY_ACCESSOR.set_floatInBytes(bytes, index, value);
 	}
 
 	public static void put_long(final byte[] bytes, final int index, final long value)
 	{
-		MEMORY_ACCESSOR.set_long(bytes, index, value);
+		MEMORY_ACCESSOR.set_longInBytes(bytes, index, value);
 	}
 
 	public static void put_double(final byte[] bytes, final int index, final double value)
 	{
-		MEMORY_ACCESSOR.set_double(bytes, index, value);
+		MEMORY_ACCESSOR.set_doubleInBytes(bytes, index, value);
 	}
 
 
@@ -366,13 +375,10 @@ public final class XMemory
 		return MEMORY_ACCESSOR.get_double(address);
 	}
 
-	public static final Object getObject(final long address)
-	{
-		return MEMORY_ACCESSOR.getObject(address);
-	}
-	
-	
+	// note: getting a pointer from a non-Object-relative address makes no sense.
 
+	
+	
 	public static final byte get_byte(final Object instance, final long offset)
 	{
 		return MEMORY_ACCESSOR.get_byte(instance, offset);
@@ -460,6 +466,8 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.set_double(address, value);
 	}
+	
+	// note: setting a pointer to a non-Object-relative address makes no sense.
 
 	
 	
@@ -628,36 +636,6 @@ public final class XMemory
 	public static final void free(final long address)
 	{
 		MEMORY_ACCESSOR.freeMemory(address);
-	}
-
-	public static final boolean compareAndSwap_int(
-		final Object subject    ,
-		final long   offset     ,
-		final int    expected   ,
-		final int    replacement
-	)
-	{
-		return MEMORY_ACCESSOR.compareAndSwap_int(subject, offset, expected, replacement);
-	}
-
-	public static final boolean compareAndSwap_long(
-		final Object subject    ,
-		final long   offset     ,
-		final long   expected   ,
-		final long   replacement
-	)
-	{
-		return MEMORY_ACCESSOR.compareAndSwap_long(subject, offset, expected, replacement);
-	}
-
-	public static final boolean compareAndSwapObject(
-		final Object subject    ,
-		final long   offset     ,
-		final Object expected   ,
-		final Object replacement
-	)
-	{
-		return MEMORY_ACCESSOR.compareAndSwapObject(subject, offset, expected, replacement);
 	}
 	
 	public static ByteOrder nativeByteOrder()

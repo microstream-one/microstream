@@ -570,5 +570,21 @@ MemoryAccessor interface bissl kommentieren und aufr\'e4umen.\par
 OMG da sind ja sogar bugs drin. Der setter f\'fcr byte-werte erwartet einen short. Der f\'fcr booleans einen char. Lololo. Fixen.\par
 \par
 MemoryAccessorReversing bauen.\par
+\par
+\par
+2019-10-25\par
+\par
+MemoryAccessorReversing fertigstellen.\par
+Die Methoden f\'fcr Arrays m\'fcssen mit einer Schleife extra programmiert werden. Wobei die float und double F\'e4lle wieder mal knifflig sind. Entsprechend kommentieren.\par
+\par
+Dabei aufgefallen:\par
+so wie ein setObject(address) keinen Sinn macht, macht auch der Getter keinen Sinn. Und tats\'e4chlich wird der ja auch nie aufgerufen.\par
+Darum gibt es diese Variante auch nicht in der Unsafe Klasse selbst.\par
+Wieder was glernt. Also rausl\'f6schen und entsprechend kommentieren.\par
+\par
+Hm. Die CompareAndSwap Logik ist mit der generischen L\'f6sung nicht nachbildbar. Und MicroStream braucht die auch \'fcberhaupt nicht. Das hab ich einfach noch als \'dcberbleibsel aus meinem fr\'fcheren Unsafe Wrapping drin.\par
+Ich lass das static im MemoryAccessorSun drin, aber l\'f6sch es aus dem Interface raus.\par
+\par
+Noch bissl aufr\'e4umen usw. Umbennenungs-TODO machen.\par
 }
  

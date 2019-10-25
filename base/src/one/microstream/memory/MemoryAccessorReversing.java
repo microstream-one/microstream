@@ -109,55 +109,7 @@ public class MemoryAccessorReversing implements MemoryAccessor
 		return this.actual.objectFieldOffset(field);
 	}
 
-	
-	
-	// compare and swap logic //
-	
-	@Override
-	public final boolean compareAndSwap_int(
-		final Object subject    ,
-		final long   offset     ,
-		final int    expected   ,
-		final int    replacement
-	)
-	{
-		return this.actual.compareAndSwap_int(
-			subject,
-			offset,
-			Integer.reverseBytes(expected),
-			Integer.reverseBytes(replacement)
-		);
-	}
-
-	@Override
-	public final boolean compareAndSwap_long(
-		final Object subject    ,
-		final long   offset     ,
-		final long   expected   ,
-		final long   replacement
-	)
-	{
-		return this.actual.compareAndSwap_long(
-			subject,
-			offset,
-			Long.reverseBytes(expected),
-			Long.reverseBytes(replacement)
-		);
-	}
-
-	@Override
-	public final boolean compareAndSwapObject(
-		final Object subject    ,
-		final long   offset     ,
-		final Object expected   ,
-		final Object replacement
-	)
-	{
-		// pointers may never be byte-reversed
-		return this.actual.compareAndSwapObject(subject, offset, expected, replacement);
-	}
-	
-	
+		
 	
 	// address-based getters for primitive values and references //
 	
@@ -209,14 +161,8 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	@Override
 	public final double get_double(final long address)
 	{
+		// tricky: must read the reversed bytes as a long, reverse them to form a valid double and then transform it.
 		return Double.longBitsToDouble(this.get_long(address));
-	}
-
-	@Override
-	public final Object getObject(final long address)
-	{
-		// pointers may never be byte-reversed
-		return this.actual.getObject(address);
 	}
 	
 	
@@ -271,6 +217,7 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	@Override
 	public final double get_double(final Object instance, final long offset)
 	{
+		// tricky: must read the reversed bytes as a long, reverse them to form a valid double and then transform it.
 		return Double.longBitsToDouble(this.get_long(instance, offset));
 	}
 
@@ -402,13 +349,13 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	// generic variable-length range copying //
 	
 	@Override
-	public void copyRange(final long sourceAddress, final long targetAddress, final long length)
+	public final void copyRange(final long sourceAddress, final long targetAddress, final long length)
 	{
 		this.actual.copyRange(sourceAddress, targetAddress, length);
 	}
 
 	@Override
-	public void copyRange(final Object source, final long sourceOffset, final Object target, final long targetOffset, final long length)
+	public final void copyRange(final Object source, final long sourceOffset, final Object target, final long targetOffset, final long length)
 	{
 		this.actual.copyRange(source, sourceOffset, target, targetOffset, length);
 	}
@@ -418,131 +365,308 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	// address-to-array range copying //
 	
 	@Override
-	public void copyRangeToArray(long sourceAddress, byte[] target);
+	public final void copyRangeToArray(final long sourceAddress, final byte[] target)
+	{
+		this.actual.copyRangeToArray(sourceAddress, target);
+	}
 	
 	@Override
-	public void copyRangeToArray(long sourceAddress, boolean[] target);
+	public final void copyRangeToArray(final long sourceAddress, final boolean[] target)
+	{
+		this.actual.copyRangeToArray(sourceAddress, target);
+	}
 
 	@Override
-	public void copyRangeToArray(long sourceAddress, short[] target);
+	public final void copyRangeToArray(final long sourceAddress, final short[] target)
+	{
+		this.actual.copyRangeToArray(sourceAddress, target);
+		
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = Short.reverseBytes(target[i]);
+		}
+	}
 
 	@Override
-	public void copyRangeToArray(long sourceAddress, char[] target);
+	public final void copyRangeToArray(final long sourceAddress, final char[] target)
+	{
+		this.actual.copyRangeToArray(sourceAddress, target);
+		
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = Character.reverseBytes(target[i]);
+		}
+	}
 	
 	@Override
-	public void copyRangeToArray(long sourceAddress, int[] target);
+	public final void copyRangeToArray(final long sourceAddress, final int[] target)
+	{
+		this.actual.copyRangeToArray(sourceAddress, target);
+		
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = Integer.reverseBytes(target[i]);
+		}
+	}
 
 	@Override
-	public void copyRangeToArray(long sourceAddress, float[] target);
+	public final void copyRangeToArray(final long sourceAddress, final float[] target)
+	{
+		this.actual.copyRangeToArray(sourceAddress, target);
+		
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = Float.intBitsToFloat(Integer.reverseBytes(Float.floatToRawIntBits(target[i])));
+		}
+	}
 
 	@Override
-	public void copyRangeToArray(long sourceAddress, long[] target);
+	public final void copyRangeToArray(final long sourceAddress, final long[] target)
+	{
+		this.actual.copyRangeToArray(sourceAddress, target);
+		
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = Long.reverseBytes(target[i]);
+		}
+	}
 
 	@Override
-	public void copyRangeToArray(long sourceAddress, double[] target);
+	public final void copyRangeToArray(final long sourceAddress, final double[] target)
+	{
+		this.actual.copyRangeToArray(sourceAddress, target);
+		
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = Double.longBitsToDouble(Long.reverseBytes(Double.doubleToRawLongBits(target[i])));
+		}
+	}
 
 	
 	
 	// array-to-address range copying //
 	
 	@Override
-	public void copyArrayToAddress(byte[] array, long targetAddress);
+	public final void copyArrayToAddress(final byte[] array, final long targetAddress)
+	{
+		this.actual.copyArrayToAddress(array, targetAddress);
+	}
 	
 	@Override
-	public void copyArrayToAddress(boolean[] array, long targetAddress);
+	public final void copyArrayToAddress(final boolean[] array, final long targetAddress)
+	{
+		this.actual.copyArrayToAddress(array, targetAddress);
+	}
 	
 	@Override
-	public void copyArrayToAddress(short[] array, long targetAddress);
+	public final void copyArrayToAddress(final short[] array, final long targetAddress)
+	{
+		final short[] byteReversedArray = new short[array.length];
+		for(int i = 0; i < array.length; i++)
+		{
+			byteReversedArray[i] = Short.reverseBytes(array[i]);
+		}
+		
+		this.actual.copyArrayToAddress(byteReversedArray, targetAddress);
+	}
 
 	@Override
-	public void copyArrayToAddress(char[] array, long targetAddress);
+	public final void copyArrayToAddress(final char[] array, final long targetAddress)
+	{
+		final char[] byteReversedArray = new char[array.length];
+		for(int i = 0; i < array.length; i++)
+		{
+			byteReversedArray[i] = Character.reverseBytes(array[i]);
+		}
+		
+		this.actual.copyArrayToAddress(byteReversedArray, targetAddress);
+	}
 	
 	@Override
-	public void copyArrayToAddress(int[] array, long targetAddress);
+	public final void copyArrayToAddress(final int[] array, final long targetAddress)
+	{
+		final int[] byteReversedArray = new int[array.length];
+		for(int i = 0; i < array.length; i++)
+		{
+			byteReversedArray[i] = Integer.reverseBytes(array[i]);
+		}
+		
+		this.actual.copyArrayToAddress(byteReversedArray, targetAddress);
+	}
 	
 	@Override
-	public void copyArrayToAddress(float[] array, long targetAddress);
+	public final void copyArrayToAddress(final float[] array, final long targetAddress)
+	{
+		final int[] byteReversedArray = new int[array.length];
+		for(int i = 0; i < array.length; i++)
+		{
+			// both operations in one step to avoid
+			byteReversedArray[i] = Integer.reverseBytes(Float.floatToRawIntBits(array[i]));
+		}
+		
+		this.actual.copyArrayToAddress(byteReversedArray, targetAddress);
+	}
 	
 	@Override
-	public void copyArrayToAddress(long[] array, long targetAddress);
+	public final void copyArrayToAddress(final long[] array, final long targetAddress)
+	{
+		final long[] byteReversedArray = new long[array.length];
+		for(int i = 0; i < array.length; i++)
+		{
+			byteReversedArray[i] = Long.reverseBytes(array[i]);
+		}
+		
+		this.actual.copyArrayToAddress(byteReversedArray, targetAddress);
+	}
 	
 	@Override
-	public void copyArrayToAddress(double[] array, long targetAddress);
+	public final void copyArrayToAddress(final double[] array, final long targetAddress)
+	{
+		final long[] byteReversedArray = new long[array.length];
+		for(int i = 0; i < array.length; i++)
+		{
+			// both operations in one step to avoid
+			byteReversedArray[i] = Long.reverseBytes(Double.doubleToRawLongBits(array[i]));
+		}
+		
+		this.actual.copyArrayToAddress(byteReversedArray, targetAddress);
+	}
 
 	
 	
 	// logic to calculate the total memory requirements of arrays of a given component type and length //
 	
 	@Override
-	public long byteSizeArray_byte(long elementCount);
+	public final long byteSizeArray_byte(final long elementCount)
+	{
+		return this.actual.byteSizeArray_byte(elementCount);
+	}
 
 	@Override
-	public long byteSizeArray_boolean(long elementCount);
+	public final long byteSizeArray_boolean(final long elementCount)
+	{
+		return this.actual.byteSizeArray_boolean(elementCount);
+	}
 
 	@Override
-	public long byteSizeArray_short(long elementCount);
+	public final long byteSizeArray_short(final long elementCount)
+	{
+		return this.actual.byteSizeArray_short(elementCount);
+	}
 
 	@Override
-	public long byteSizeArray_char(long elementCount);
+	public final long byteSizeArray_char(final long elementCount)
+	{
+		return this.actual.byteSizeArray_char(elementCount);
+	}
 
 	@Override
-	public long byteSizeArray_int(long elementCount);
+	public final long byteSizeArray_int(final long elementCount)
+	{
+		return this.actual.byteSizeArray_int(elementCount);
+	}
 
 	@Override
-	public long byteSizeArray_float(long elementCount);
+	public final long byteSizeArray_float(final long elementCount)
+	{
+		return this.actual.byteSizeArray_float(elementCount);
+	}
 
 	@Override
-	public long byteSizeArray_long(long elementCount);
+	public final long byteSizeArray_long(final long elementCount)
+	{
+		return this.actual.byteSizeArray_long(elementCount);
+	}
 
 	@Override
-	public long byteSizeArray_double(long elementCount);
+	public final long byteSizeArray_double(final long elementCount)
+	{
+		return this.actual.byteSizeArray_double(elementCount);
+	}
 
 	@Override
-	public long byteSizeArrayObject(long elementCount);
+	public final long byteSizeArrayObject(final long elementCount)
+	{
+		return this.actual.byteSizeArrayObject(elementCount);
+	}
 	
 	
 	
 	// transformative byte array primitive value setters //
 	
-	// (24.10.2019 TM)FIXME: priv#111: rename all byte[] setter methods to "setXXXXInBytes" to avoid compiler ambiguity.
+	@Override
+	public final void set_byteInBytes(final byte[] bytes, final int index, final byte value)
+	{
+		this.actual.set_byteInBytes(bytes, index, value);
+	}
 	
 	@Override
-	public void set_byte(byte[] bytes, int index, byte value);
-	
-	@Override
-	public void set_boolean(byte[] bytes, int index, boolean value);
+	public final void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
+	{
+		this.actual.set_booleanInBytes(bytes, index, value);
+	}
 
 	@Override
-	public void set_short(byte[] bytes, int index, short value);
+	public final void set_shortInBytes(final byte[] bytes, final int index, final short value)
+	{
+		this.actual.set_shortInBytes(bytes, index, Short.reverseBytes(value));
+	}
 
 	@Override
-	public void set_char(byte[] bytes, int index, char value);
+	public final void set_charInBytes(final byte[] bytes, final int index, final char value)
+	{
+		this.actual.set_charInBytes(bytes, index, Character.reverseBytes(value));
+	}
 
 	@Override
-	public void set_int(byte[] bytes, int index, int value);
+	public final void set_intInBytes(final byte[] bytes, final int index, final int value)
+	{
+		this.actual.set_intInBytes(bytes, index, Integer.reverseBytes(value));
+	}
 
 	@Override
-	public void set_float(byte[] bytes, int index, float value);
+	public final void set_floatInBytes(final byte[] bytes, final int index, final float value)
+	{
+		this.set_intInBytes(bytes, index, Float.floatToRawIntBits(value));
+	}
 
 	@Override
-	public void set_long(byte[] bytes, int index, long value);
+	public final void set_longInBytes(final byte[] bytes, final int index, final long value)
+	{
+		this.actual.set_longInBytes(bytes, index, Long.reverseBytes(value));
+	}
 
 	@Override
-	public void set_double(byte[] bytes, int index, double value);
+	public final void set_doubleInBytes(final byte[] bytes, final int index, final double value)
+	{
+		this.set_longInBytes(bytes, index, Double.doubleToRawLongBits(value));
+	}
 		
 	
 	
 	// conversion to byte array //
 	
 	@Override
-	public byte[] asByteArray(long[] longArray);
+	public final byte[] asByteArray(final long[] values)
+	{
+		final long[] byteReversedArray = new long[values.length];
+		for(int i = 0; i < values.length; i++)
+		{
+			byteReversedArray[i] = Long.reverseBytes(values[i]);
+		}
+		
+		return this.actual.asByteArray(byteReversedArray);
+	}
 
 	@Override
-	public byte[] asByteArray(long value);
+	public final byte[] asByteArray(final long value)
+	{
+		return this.actual.asByteArray(Long.reverseBytes(value));
+	}
 	
 	
 
-	// special system methods, not really memory-related //
+	// special system methods, not really memory-related, but needed //
 	
 	@Override
 	public final void ensureClassInitialized(final Class<?> c)
@@ -583,6 +707,5 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	{
 		return this.actual;
 	}
-	
 	
 }
