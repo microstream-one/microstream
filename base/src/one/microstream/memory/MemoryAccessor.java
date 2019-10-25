@@ -35,6 +35,12 @@ public interface MemoryAccessor
 	
 	public int byteSizeObjectHeader(Class<?> type);
 	
+
+	public default int byteSizeFieldValue(final Field field)
+	{
+		return this.byteSizeFieldValue(field.getType());
+	}
+	
 	public int byteSizeFieldValue(Class<?> type);
 	
 	
@@ -56,16 +62,6 @@ public interface MemoryAccessor
 
 	
 	
-	// compare and swap logic //
-	
-	public boolean compareAndSwap_int(Object subject, long offset, int expected, int replacement);
-
-	public boolean compareAndSwap_long(Object subject, long offset, long expected, long replacement);
-
-	public boolean compareAndSwapObject(Object subject, long offset, Object expected, Object replacement);
-	
-	
-	
 	// address-based getters for primitive values and references //
 	
 	public byte get_byte(long address);
@@ -84,7 +80,7 @@ public interface MemoryAccessor
 
 	public double get_double(long address);
 
-	public Object getObject(long address);
+	// note: getting a pointer from a non-Object-relative address makes no sense.
 	
 	
 	
@@ -225,27 +221,27 @@ public interface MemoryAccessor
 	
 	// transformative byte array primitive value setters //
 	
-	public void set_byte(byte[] bytes, int index, byte value);
+	public void set_byteInBytes(byte[] bytes, int index, byte value);
 	
-	public void set_boolean(byte[] bytes, int index, boolean value);
+	public void set_booleanInBytes(byte[] bytes, int index, boolean value);
 
-	public void set_short(byte[] bytes, int index, short value);
+	public void set_shortInBytes(byte[] bytes, int index, short value);
 
-	public void set_char(byte[] bytes, int index, char value);
+	public void set_charInBytes(byte[] bytes, int index, char value);
 
-	public void set_int(byte[] bytes, int index, int value);
+	public void set_intInBytes(byte[] bytes, int index, int value);
 
-	public void set_float(byte[] bytes, int index, float value);
+	public void set_floatInBytes(byte[] bytes, int index, float value);
 
-	public void set_long(byte[] bytes, int index, long value);
+	public void set_longInBytes(byte[] bytes, int index, long value);
 
-	public void set_double(byte[] bytes, int index, double value);
+	public void set_doubleInBytes(byte[] bytes, int index, double value);
 		
 	
 	
 	// conversion to byte array //
 	
-	public byte[] asByteArray(long[] longArray);
+	public byte[] asByteArray(long[] values);
 
 	public byte[] asByteArray(long value);
 	
@@ -269,8 +265,8 @@ public interface MemoryAccessor
 	 * There are only two cases to handle for byte order business:
 	 * 1.) totally ignoring it (covers LE-LE and BE-BE)
 	 * 2.) reversing all multi-byte values (covers LE-BE and BE-LE)
-	 * There is no need for memory accessing logic to specifically know its target byte order,
-	 * only if it shall reverse the bytes or not.
+	 * There is no need for memory accessing logic to specifically know its target byte order.
+	 * It only needs to know whether it shall reverse the bytes or not.
 	 * This means that in the ideal case (same byte order) there is no byte order handling overhead at all.
 	 */
 	

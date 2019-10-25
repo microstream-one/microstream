@@ -707,8 +707,9 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length << BITS3);
 	}
 	
-	public static final void staticThrowUnchecked(final Throwable t)
+	public static final void staticThrowUnchecked(final Throwable t) // throws Throwable magic
 	{
+		// magic!
 		VM.throwException(t);
 	}
 		
@@ -801,39 +802,6 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	}
 
 	@Override
-	public final boolean compareAndSwap_int(
-		final Object subject    ,
-		final long   offset     ,
-		final int    expected   ,
-		final int    replacement
-	)
-	{
-		return staticCompareAndSwap_int(subject, offset, expected, replacement);
-	}
-
-	@Override
-	public final boolean compareAndSwap_long(
-		final Object subject    ,
-		final long   offset     ,
-		final long   expected   ,
-		final long   replacement
-	)
-	{
-		return staticCompareAndSwap_long(subject, offset, expected, replacement);
-	}
-
-	@Override
-	public final boolean compareAndSwapObject(
-		final Object subject    ,
-		final long   offset     ,
-		final Object expected   ,
-		final Object replacement
-	)
-	{
-		return staticCompareAndSwapObject(subject, offset, expected, replacement);
-	}
-
-	@Override
 	public final void fillMemory(final long address, final long length, final byte value)
 	{
 		staticFillMemory(address, length, value);
@@ -894,12 +862,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		return staticGet_double(address);
 	}
-
-	@Override
-	public final Object getObject(final long address)
-	{
-		return staticGetObject(null, address);
-	}
+	
 	
 	
 	@Override
@@ -1246,9 +1209,9 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	
 	
 	@Override
-	public final byte[] asByteArray(final long[] longArray)
+	public final byte[] asByteArray(final long[] values)
 	{
-		return staticAsByteArray(longArray);
+		return staticAsByteArray(values);
 	}
 
 	@Override
@@ -1260,49 +1223,49 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	
 	
 	@Override
-	public final void set_byte(final byte[] bytes, final int index, final byte value)
+	public final void set_byteInBytes(final byte[] bytes, final int index, final byte value)
 	{
 		staticSet_byte(bytes, index, value);
 	}
 	
 	@Override
-	public final void set_boolean(final byte[] bytes, final int index, final boolean value)
+	public final void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
 	{
 		staticSet_boolean(bytes, index, value);
 	}
 
 	@Override
-	public final void set_short(final byte[] bytes, final int index, final short value)
+	public final void set_shortInBytes(final byte[] bytes, final int index, final short value)
 	{
 		staticSet_short(bytes, index, value);
 	}
 
 	@Override
-	public final void set_char(final byte[] bytes, final int index, final char value)
+	public final void set_charInBytes(final byte[] bytes, final int index, final char value)
 	{
 		staticSet_char(bytes, index, value);
 	}
 
 	@Override
-	public final void set_int(final byte[] bytes, final int index, final int value)
+	public final void set_intInBytes(final byte[] bytes, final int index, final int value)
 	{
 		staticSet_int(bytes, index, value);
 	}
 
 	@Override
-	public final void set_float(final byte[] bytes, final int index, final float value)
+	public final void set_floatInBytes(final byte[] bytes, final int index, final float value)
 	{
 		staticSet_float(bytes, index, value);
 	}
 
 	@Override
-	public final void set_long(final byte[] bytes, final int index, final long value)
+	public final void set_longInBytes(final byte[] bytes, final int index, final long value)
 	{
 		staticSet_long(bytes, index, value);
 	}
 
 	@Override
-	public final void set_double(final byte[] bytes, final int index, final double value)
+	public final void set_doubleInBytes(final byte[] bytes, final int index, final double value)
 	{
 		staticSet_double(bytes, index, value);
 	}
