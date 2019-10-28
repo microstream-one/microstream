@@ -1,7 +1,6 @@
 package one.microstream.memory;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.ByteOrder;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
@@ -22,117 +21,139 @@ public final class XMemory
 	
 	public static MemoryAccessor MEMORY_ACCESSOR;
 	public static MemoryAccessor MEMORY_ACCESSOR_REVERSED;
-	
-	/*
-	 * Strictly seen, this would have to be synchronized, but this method is not something that gets called a lot
-	 * during runtime. At the most, it gets called once at the beginning to switch to another memory accessing logic.
-	 */
-	public static void setMemoryAccessor(final MemoryAccessor memoryAccessor)
+
+	public static final synchronized void setMemoryAccessor(final MemoryAccessor memoryAccessor)
 	{
 		MEMORY_ACCESSOR = memoryAccessor;
 		MEMORY_ACCESSOR_REVERSED = memoryAccessor.toReversing();
 	}
 	
-	public static MemoryAccessor getMemoryAccessor()
+	public static final synchronized MemoryAccessor getMemoryAccessor()
 	{
 		return MEMORY_ACCESSOR;
 	}
 	
-	public static MemoryAccessor getMemoryAccessorReversing()
+	public static final synchronized MemoryAccessor getMemoryAccessorReversing()
 	{
 		return MEMORY_ACCESSOR_REVERSED;
 	}
 	
+
+	
+	// memory allocation //
+	
+	public static final long allocate(final long bytes)
+	{
+		return MEMORY_ACCESSOR.allocateMemory(bytes);
+	}
+
+	public static final long reallocate(final long address, final long bytes)
+	{
+		return MEMORY_ACCESSOR.reallocateMemory(address, bytes);
+	}
+
+	public static final void free(final long address)
+	{
+		MEMORY_ACCESSOR.freeMemory(address);
+	}
+
+	public static final void fillMemory(final long address, final long length, final byte value)
+	{
+		MEMORY_ACCESSOR.fillMemory(address, length, value);
+	}
 	
 	
-	public static int pageSize()
+	
+	// memory size querying logic //
+	
+	/**
+	 * Arbitrary value that coincidently matches most hardware's standard page
+	 * sizes without being hard-tied to an actual pageSize system value.
+	 * So this value is an educated guess and almost always a "good" value when
+	 * paged-sized-ish buffer sizes are needed, while still not being at the
+	 * mercy of an OS's JVM implementation.
+	 * 
+	 * @return a "good" value for a paged-sized-ish default buffer size.
+	 */
+	public static final int defaultBufferSize()
+	{
+		// source: https://en.wikipedia.org/wiki/Page_(computer_memory)
+		return 4096;
+	}
+	
+	public static final int pageSize()
 	{
 		return MEMORY_ACCESSOR.pageSize();
 	}
 	
-	public static int byteSizeInstance(final Class<?> c)
+	public static final int byteSizeInstance(final Class<?> c)
 	{
 		return MEMORY_ACCESSOR.byteSizeInstance(c);
 	}
 	
-	public static int byteSizeObjectHeader(final Class<?> c)
+	public static final int byteSizeObjectHeader(final Class<?> c)
 	{
 		return MEMORY_ACCESSOR.byteSizeObjectHeader(c);
-	}
-	
-	// (21.10.2019 TM)FIXME: priv#111: shouldn't this be encapsulated away?
-	public static long objectFieldOffset(final Field field)
-	{
-		return MEMORY_ACCESSOR.objectFieldOffset(field);
-	}
-
-	public static long[] objectFieldOffsets(final Field[] fields)
-	{
-		final long[] offsets = new long[fields.length];
-		for(int i = 0; i < fields.length; i++)
-		{
-			if(Modifier.isStatic(fields[i].getModifiers()))
-			{
-				throw new IllegalArgumentException("Not an instance field: " + fields[i]);
-			}
-			offsets[i] = MEMORY_ACCESSOR.objectFieldOffset(fields[i]);
-		}
-		return offsets;
-	}
-		
-
-	
-	public static final int bitSize_byte()
+	}	public static final int bitSize_byte()
 	{
 		return Byte.SIZE;
 	}
-
-	public static final int bitSize_boolean()
+	
+	public static final int byteSizeFieldValue(final Field field)
 	{
-		return Byte.SIZE;
+		return MEMORY_ACCESSOR.byteSizeFieldValue(field);
 	}
-
-	public static final int bitSize_short()
-	{
-		return Short.SIZE;
-	}
-
-	public static final int bitSize_char()
-	{
-		return Character.SIZE;
-	}
-
-	public static final int bitSize_int()
-	{
-		return Integer.SIZE;
-	}
-
-	public static final int bitSize_float()
-	{
-		return Float.SIZE;
-	}
-
-	public static final int bitSize_long()
-	{
-		return Long.SIZE;
-	}
-
-	public static final int bitSize_double()
-	{
-		return Double.SIZE;
-	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// memory byte size methods //
-	/////////////////////////////
-
+	
 	public static final int byteSizeFieldValue(final Class<?> type)
 	{
 		return MEMORY_ACCESSOR.byteSizeFieldValue(type);
 	}
+	
+	public static final long byteSizeArray_byte(final long elementCount)
+	{
+		return MEMORY_ACCESSOR.byteSizeArray_byte(elementCount);
+	}
 
+	public static final long byteSizeArray_boolean(final long elementCount)
+	{
+		return MEMORY_ACCESSOR.byteSizeArray_boolean(elementCount);
+	}
+
+	public static final long byteSizeArray_short(final long elementCount)
+	{
+		return MEMORY_ACCESSOR.byteSizeArray_short(elementCount);
+	}
+
+	public static final long byteSizeArray_char(final long elementCount)
+	{
+		return MEMORY_ACCESSOR.byteSizeArray_char(elementCount);
+	}
+
+	public static final long byteSizeArray_int(final long elementCount)
+	{
+		return MEMORY_ACCESSOR.byteSizeArray_int(elementCount);
+	}
+
+	public static final long byteSizeArray_float(final long elementCount)
+	{
+		return MEMORY_ACCESSOR.byteSizeArray_float(elementCount);
+	}
+
+	public static final long byteSizeArray_long(final long elementCount)
+	{
+		return MEMORY_ACCESSOR.byteSizeArray_long(elementCount);
+	}
+
+	public static final long byteSizeArray_double(final long elementCount)
+	{
+		return MEMORY_ACCESSOR.byteSizeArray_double(elementCount);
+	}
+
+	public static final long byteSizeArrayObject(final long elementCount)
+	{
+		return MEMORY_ACCESSOR.byteSizeArrayObject(elementCount);
+	}
+	
 	public static final int byteSizePrimitive(final Class<?> type)
 	{
 		// once again missing JDK functionality. Roughly ordered by probability.
@@ -218,122 +239,58 @@ public final class XMemory
 		return MEMORY_ACCESSOR.byteSizeReference();
 	}
 
-	
-	
-	public static final long byteSizeArray_byte(final long elementCount)
+	public static final int bitSize_boolean()
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_byte(elementCount);
+		return Byte.SIZE;
 	}
 
-	public static final long byteSizeArray_boolean(final long elementCount)
+	public static final int bitSize_short()
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_boolean(elementCount);
+		return Short.SIZE;
 	}
 
-	public static final long byteSizeArray_short(final long elementCount)
+	public static final int bitSize_char()
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_short(elementCount);
+		return Character.SIZE;
 	}
 
-	public static final long byteSizeArray_char(final long elementCount)
+	public static final int bitSize_int()
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_char(elementCount);
+		return Integer.SIZE;
 	}
 
-	public static final long byteSizeArray_int(final long elementCount)
+	public static final int bitSize_float()
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_int(elementCount);
+		return Float.SIZE;
 	}
 
-	public static final long byteSizeArray_float(final long elementCount)
+	public static final int bitSize_long()
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_float(elementCount);
+		return Long.SIZE;
 	}
 
-	public static final long byteSizeArray_long(final long elementCount)
+	public static final int bitSize_double()
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_long(elementCount);
-	}
-
-	public static final long byteSizeArray_double(final long elementCount)
-	{
-		return MEMORY_ACCESSOR.byteSizeArray_double(elementCount);
-	}
-
-	public static final long byteSizeArrayObject(final long elementCount)
-	{
-		return MEMORY_ACCESSOR.byteSizeArrayObject(elementCount);
-	}
-
-	
-
-	public static byte[] asByteArray(final long[] longArray)
-	{
-		return MEMORY_ACCESSOR.asByteArray(longArray);
-	}
-
-	public static byte[] asByteArray(final long value)
-	{
-		return MEMORY_ACCESSOR.asByteArray(value);
-	}
-	
-	/**
-	 * Arbitrary value that coincidently matches most hardware's page sizes
-	 * without being hard-tied to an actual pageSize system value.
-	 * So this value is an educated guess and most of the time (almost always)
-	 * a "good" value when paged-sized-ish buffer sizes are needed, while still
-	 * not being at the mercy of an OS's JVM implementation.
-	 * 
-	 * @return a "good" value for a paged-sized-ish default buffer size.
-	 */
-	public static int defaultBufferSize()
-	{
-		return 4096;
+		return Double.SIZE;
 	}
 	
 	
+
+	// field offset abstraction //
 	
-	public static void put_byte(final byte[] bytes, final int index, final byte value)
+	public static final long objectFieldOffset(final Field field)
 	{
-		MEMORY_ACCESSOR.set_byteInBytes(bytes, index, value);
+		return MEMORY_ACCESSOR.objectFieldOffset(field);
 	}
+
+	public static final long[] objectFieldOffsets(final Field[] fields)
+	{
+		return MEMORY_ACCESSOR.objectFieldOffsets(fields);
+	}
+		
 	
-	public static void put_boolean(final byte[] bytes, final int index, final boolean value)
-	{
-		MEMORY_ACCESSOR.set_booleanInBytes(bytes, index, value);
-	}
 
-	public static void put_short(final byte[] bytes, final int index, final short value)
-	{
-		MEMORY_ACCESSOR.set_shortInBytes(bytes, index, value);
-	}
-
-	public static void put_char(final byte[] bytes, final int index, final char value)
-	{
-		MEMORY_ACCESSOR.set_charInBytes(bytes, index, value);
-	}
-
-	public static void put_int(final byte[] bytes, final int index, final int value)
-	{
-		MEMORY_ACCESSOR.set_intInBytes(bytes, index, value);
-	}
-
-	public static void put_float(final byte[] bytes, final int index, final float value)
-	{
-		MEMORY_ACCESSOR.set_floatInBytes(bytes, index, value);
-	}
-
-	public static void put_long(final byte[] bytes, final int index, final long value)
-	{
-		MEMORY_ACCESSOR.set_longInBytes(bytes, index, value);
-	}
-
-	public static void put_double(final byte[] bytes, final int index, final double value)
-	{
-		MEMORY_ACCESSOR.set_doubleInBytes(bytes, index, value);
-	}
-
-
+	// address-based getters for primitive values //
 
 	public static final byte get_byte(final long address)
 	{
@@ -379,6 +336,8 @@ public final class XMemory
 
 	
 	
+	// object-based getters for primitive values and references //
+	
 	public static final byte get_byte(final Object instance, final long offset)
 	{
 		return MEMORY_ACCESSOR.get_byte(instance, offset);
@@ -423,8 +382,10 @@ public final class XMemory
 	{
 		return MEMORY_ACCESSOR.getObject(instance, offset);
 	}
-
 	
+	
+
+	// address-based setters for primitive values //
 
 	public static final void set_byte(final long address, final byte value)
 	{
@@ -468,9 +429,11 @@ public final class XMemory
 	}
 	
 	// note: setting a pointer to a non-Object-relative address makes no sense.
+	
+	
 
-	
-	
+	// object-based setters for primitive values and references //
+
 	public static final void set_byte(final Object instance, final long offset, final byte value)
 	{
 		MEMORY_ACCESSOR.set_byte(instance, offset, value);
@@ -518,6 +481,52 @@ public final class XMemory
 	
 	
 
+	// transformative byte array primitive value setters //
+
+	public static final void set_byteInBytes(final byte[] bytes, final int index, final byte value)
+	{
+		MEMORY_ACCESSOR.set_byteInBytes(bytes, index, value);
+	}
+	
+	public static final void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
+	{
+		MEMORY_ACCESSOR.set_booleanInBytes(bytes, index, value);
+	}
+
+	public static final void set_shortInBytes(final byte[] bytes, final int index, final short value)
+	{
+		MEMORY_ACCESSOR.set_shortInBytes(bytes, index, value);
+	}
+
+	public static final void set_charInBytes(final byte[] bytes, final int index, final char value)
+	{
+		MEMORY_ACCESSOR.set_charInBytes(bytes, index, value);
+	}
+
+	public static final void set_intInBytes(final byte[] bytes, final int index, final int value)
+	{
+		MEMORY_ACCESSOR.set_intInBytes(bytes, index, value);
+	}
+
+	public static final void set_floatInBytes(final byte[] bytes, final int index, final float value)
+	{
+		MEMORY_ACCESSOR.set_floatInBytes(bytes, index, value);
+	}
+
+	public static final void set_longInBytes(final byte[] bytes, final int index, final long value)
+	{
+		MEMORY_ACCESSOR.set_longInBytes(bytes, index, value);
+	}
+
+	public static final void set_doubleInBytes(final byte[] bytes, final int index, final double value)
+	{
+		MEMORY_ACCESSOR.set_doubleInBytes(bytes, index, value);
+	}
+
+	
+
+	// generic variable-length range copying //
+
 	public static final void copyRange(final long sourceAddress, final long targetAddress, final long length)
 	{
 		MEMORY_ACCESSOR.copyRange(sourceAddress, targetAddress, length);
@@ -535,6 +544,8 @@ public final class XMemory
 	}
 	
 	
+
+	// address-to-array range copying //
 
 	public static final void copyRangeToArray(final long sourceAddress, final byte[] target)
 	{
@@ -576,7 +587,9 @@ public final class XMemory
 		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
 		
-	// copyArrayToAddress //
+	
+
+	// array-to-address range copying //
 
 	public static final void copyArrayToAddress(final byte[] array, final long targetAddress)
 	{
@@ -617,34 +630,52 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
+	
+	
+	
+	// conversion to byte array //
 
-	public static final void fillRange(final long address, final long length, final byte value)
+	public static final byte[] asByteArray(final long[] longArray)
 	{
-		MEMORY_ACCESSOR.fillMemory(address, length, value);
+		return MEMORY_ACCESSOR.asByteArray(longArray);
+	}
+
+	public static final byte[] asByteArray(final long value)
+	{
+		return MEMORY_ACCESSOR.asByteArray(value);
 	}
 	
-	public static final long allocate(final long bytes)
-	{
-		return MEMORY_ACCESSOR.allocateMemory(bytes);
-	}
 
-	public static final long reallocate(final long address, final long bytes)
-	{
-		return MEMORY_ACCESSOR.reallocateMemory(address, bytes);
-	}
 
-	public static final void free(final long address)
+	// special system methods, not really memory-related //
+
+	public static final void ensureClassInitialized(final Class<?> c)
 	{
-		MEMORY_ACCESSOR.freeMemory(address);
+		MEMORY_ACCESSOR.ensureClassInitialized(c);
 	}
 	
-	public static ByteOrder nativeByteOrder()
+	public static final void ensureClassInitialized(final Class<?>... classes)
+	{
+		MEMORY_ACCESSOR.ensureClassInitialized(classes);
+	}
+	
+	public static final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
+	{
+		return MEMORY_ACCESSOR.instantiateBlank(c);
+	}
+
+	public static final void throwUnchecked(final Throwable t)
+	{
+		MEMORY_ACCESSOR.throwUnchecked(t);
+	}
+	
+	public static final ByteOrder nativeByteOrder()
 	{
 		return ByteOrder.nativeOrder();
 	}
 	
 	// because they (he) couldn't have implemented that where it belongs.
-	public static ByteOrder resolveByteOrder(final String name)
+	public static final ByteOrder resolveByteOrder(final String name)
 	{
 		if(name.equals(ByteOrder.BIG_ENDIAN.toString()))
 		{
@@ -657,32 +688,6 @@ public final class XMemory
 		
 		// (31.10.2018 TM)EXCP: proper exception
 		throw new RuntimeException("Unknown ByteOrder: \"" + name + "\"");
-	}
-	
-	public static final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
-	{
-		return MEMORY_ACCESSOR.instantiateBlank(c);
-	}
-	
-
-	
-	////////////////////////////////////////////////////////////////////////
-	// some nasty util methods not directly related to memory operations //
-	//////////////////////////////////////////////////////////////////////
-
-	public static final void throwUnchecked(final Throwable t)
-	{
-		MEMORY_ACCESSOR.throwUnchecked(t);
-	}
-	
-	public static final void ensureClassInitialized(final Class<?>... classes)
-	{
-		MEMORY_ACCESSOR.ensureClassInitialized(classes);
-	}
-
-	public static final void ensureClassInitialized(final Class<?> c)
-	{
-		MEMORY_ACCESSOR.ensureClassInitialized(c);
 	}
 	
 	
@@ -703,4 +708,3 @@ public final class XMemory
 	}
 
 }
-

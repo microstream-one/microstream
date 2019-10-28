@@ -230,6 +230,15 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		referenceFields,
 		primitiveFields
 	;
+	
+	/* (28.10.2019 TM)TODO: encapsulate / abstract BinaryValue~ handling types.
+	 * While the per-field handling via the BinaryValue~ handling types is perfectly fine for JDK
+	 * and all fully Unsafe-compatible JVMs, it poses a considerable inefficiency for the generic
+	 * memory handling implementation. There, every call with an object-based "offset" has to be
+	 * translated to the corresponding field and then executed via that.
+	 * A more efficient solution would be to encapsulate / abstract all BinaryValue~ handling type instances
+	 * in a single BinaryObjectValues~ handling type and let its implementation use cached Fields directly.
+	 */
 
 
 	

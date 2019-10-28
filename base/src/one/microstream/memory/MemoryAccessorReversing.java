@@ -108,6 +108,15 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	{
 		return this.actual.objectFieldOffset(field);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final long[] objectFieldOffsets(final Field... fields)
+	{
+		return this.actual.objectFieldOffsets(fields);
+	}
 
 		
 	

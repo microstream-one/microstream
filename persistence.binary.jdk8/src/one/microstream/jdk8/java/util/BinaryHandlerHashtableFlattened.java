@@ -23,6 +23,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  * @author FH
  * @author TM
  */
+@Deprecated
 public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandlerCustomCollection<Hashtable<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////

@@ -34,7 +34,6 @@ public interface MemoryAccessor
 	public int byteSizeInstance(Class<?> type);
 	
 	public int byteSizeObjectHeader(Class<?> type);
-	
 
 	public default int byteSizeFieldValue(final Field field)
 	{
@@ -42,6 +41,24 @@ public interface MemoryAccessor
 	}
 	
 	public int byteSizeFieldValue(Class<?> type);
+	
+	public long byteSizeArray_byte(long elementCount);
+
+	public long byteSizeArray_boolean(long elementCount);
+
+	public long byteSizeArray_short(long elementCount);
+
+	public long byteSizeArray_char(long elementCount);
+
+	public long byteSizeArray_int(long elementCount);
+
+	public long byteSizeArray_float(long elementCount);
+
+	public long byteSizeArray_long(long elementCount);
+
+	public long byteSizeArray_double(long elementCount);
+
+	public long byteSizeArrayObject(long elementCount);
 	
 	
 	
@@ -59,10 +76,15 @@ public interface MemoryAccessor
 	 * @return the passed {@link Field}'s abstract offset.
 	 */
 	public long objectFieldOffset(Field field);
+	
+	/**
+	 * Array alias vor #objectFieldOffset(Field).
+	 */
+	public long[] objectFieldOffsets(Field... fields);
 
 	
 	
-	// address-based getters for primitive values and references //
+	// address-based getters for primitive values //
 	
 	public byte get_byte(long address);
 
@@ -106,7 +128,7 @@ public interface MemoryAccessor
 	
 	
 	
-	// address-based setters for primitive values and references //
+	// address-based setters for primitive values //
 	
 	public void set_byte(long address, byte value);
 
@@ -146,6 +168,26 @@ public interface MemoryAccessor
 	public void set_double(Object instance, long offset, double value);
 
 	public void setObject(Object instance, long offset, Object value);
+
+		
+	
+	// transformative byte array primitive value setters //
+	
+	public void set_byteInBytes(byte[] bytes, int index, byte value);
+	
+	public void set_booleanInBytes(byte[] bytes, int index, boolean value);
+
+	public void set_shortInBytes(byte[] bytes, int index, short value);
+
+	public void set_charInBytes(byte[] bytes, int index, char value);
+
+	public void set_intInBytes(byte[] bytes, int index, int value);
+
+	public void set_floatInBytes(byte[] bytes, int index, float value);
+
+	public void set_longInBytes(byte[] bytes, int index, long value);
+
+	public void set_doubleInBytes(byte[] bytes, int index, double value);
 
 	
 	
@@ -194,48 +236,6 @@ public interface MemoryAccessor
 	public void copyArrayToAddress(long[] array, long targetAddress);
 	
 	public void copyArrayToAddress(double[] array, long targetAddress);
-
-	
-	
-	// logic to calculate the total memory requirements of arrays of a given component type and length //
-	
-	public long byteSizeArray_byte(long elementCount);
-
-	public long byteSizeArray_boolean(long elementCount);
-
-	public long byteSizeArray_short(long elementCount);
-
-	public long byteSizeArray_char(long elementCount);
-
-	public long byteSizeArray_int(long elementCount);
-
-	public long byteSizeArray_float(long elementCount);
-
-	public long byteSizeArray_long(long elementCount);
-
-	public long byteSizeArray_double(long elementCount);
-
-	public long byteSizeArrayObject(long elementCount);
-	
-	
-	
-	// transformative byte array primitive value setters //
-	
-	public void set_byteInBytes(byte[] bytes, int index, byte value);
-	
-	public void set_booleanInBytes(byte[] bytes, int index, boolean value);
-
-	public void set_shortInBytes(byte[] bytes, int index, short value);
-
-	public void set_charInBytes(byte[] bytes, int index, char value);
-
-	public void set_intInBytes(byte[] bytes, int index, int value);
-
-	public void set_floatInBytes(byte[] bytes, int index, float value);
-
-	public void set_longInBytes(byte[] bytes, int index, long value);
-
-	public void set_doubleInBytes(byte[] bytes, int index, double value);
 		
 	
 	
