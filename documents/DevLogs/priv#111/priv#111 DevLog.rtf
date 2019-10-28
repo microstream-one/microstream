@@ -586,5 +586,22 @@ Hm. Die CompareAndSwap Logik ist mit der generischen L\'f6sung nicht nachbildbar
 Ich lass das static im MemoryAccessorSun drin, aber l\'f6sch es aus dem Interface raus.\par
 \par
 Noch bissl aufr\'e4umen usw. Umbennenungs-TODO machen.\par
+\par
+\par
+2019-10-28\par
+\par
+MemoryAccessorSun aufr\'e4umen analog zu MemoryAccessor interface.\par
+Und XMemory auch.\par
+Dabei paar Verbesserungen.\par
+\par
+So. Wie gehts von hier weiter...?\par
+\par
+Eigentlich sind mit dem neuen Konzept, dass der "offset" zu einem Object ein abstrakter Wert ist, hinter dem irgendein Konzept steht, Feldwerte zu adressieren, solange es nur konsistent befolgt wird, die neuen BinaryObjectValues~Handler Typen \'fcberfl\'fcssig. Man k\'f6nnte die zwar weiterhin lassen, um f\'fcr den Normalfall den umst\'e4ndlichen Lookup offset->Field in der generischen Implementierung (Android) zu umgehen, aber das ist eine optionale nice-to-have Optimierung, die man sp\'e4ter immer noch nachr\'fcsten kann. Ich mach ein TODO f\'fcr das Konzept in die Reflective TypeHandler rein und l\'f6sch die dann.\par
+\par
+Gemacht. Gel\'f6scht.\par
+\par
+Ah, und die SunMemoryObjectValuesSetter Implementierung muss dann wieder umgebaut werden.\par
+Ach ne, passt: Es gibt noch BinaryValueFunctions und die Sun Dings Klasse war ein Klon davon. Also komplett l\'f6schen. Passt.\par
+\par
 }
  

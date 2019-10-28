@@ -1443,26 +1443,7 @@ public abstract class Binary implements Chunk
 		}
 		return length;
 	}
-	
-	public final void updateInstance(
-		final Object                      instance    ,
-		final BinaryObjectValuesSetter    valuesSetter,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		final long address = this.loadItemEntityContentAddress();
-		valuesSetter.setObjectValues(address, valuesSetter, idResolver);
-	}
-	
-	public void storeInstance(
-		final Object                   instance    ,
-		final BinaryObjectValuesCopier valuesCopier,
-		final PersistenceStoreHandler  handler
-	)
-	{
-		valuesCopier.copyObjectValues(instance, this.address, handler);
-	}
-	
+		
 	public final void updateFixedSize(
 		final Object                      instance     ,
 		final BinaryValueSetter[]         setters      ,
