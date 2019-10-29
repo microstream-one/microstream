@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
+import one.microstream.memory.sun.MemoryAccessorSun;
 
 
 
@@ -19,8 +20,8 @@ public final class XMemory
 	// constants //
 	//////////////
 	
-	public static MemoryAccessor MEMORY_ACCESSOR;
-	public static MemoryAccessor MEMORY_ACCESSOR_REVERSED;
+	public static MemoryAccessor MEMORY_ACCESSOR          = MemoryAccessorSun.New();
+	public static MemoryAccessor MEMORY_ACCESSOR_REVERSED = MEMORY_ACCESSOR.toReversing();
 
 	public static final synchronized void setMemoryAccessor(final MemoryAccessor memoryAccessor)
 	{

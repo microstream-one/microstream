@@ -4,7 +4,6 @@ import static one.microstream.X.notNull;
 
 import java.util.Comparator;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import one.microstream.collections.types.XIterable;
@@ -62,12 +61,6 @@ public interface CqlSelection<I> extends CqlProjection<I, I>, CqlTransfer<I, XSe
 			this.getOrder()   ,
 			this.getResultor()
 		);
-	}
-	
-	@Override
-	default <P> CqlProjection<I, P> project(final Function<? super I, P> projector)
-	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME CqlSelection#project()
 	}
 
 	@Override

@@ -1,11 +1,7 @@
 package one.microstream.test.corp.main;
 
-import java.io.File;
-
-import one.microstream.meta.XDebug;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
-import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
@@ -14,7 +10,7 @@ public class MainTestStorageExample
 {
 	static
 	{
-		XDebug.deleteAllFiles(new File(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
+//		XDebug.deleteAllFiles(new File(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
