@@ -1402,6 +1402,7 @@ public abstract class Binary implements Chunk
 
 	public final Object buildPrimitiveWrapper(final Class<?> primitiveValueType, final long offset)
 	{
+		// Roughly ordered by probability.
 		if(primitiveValueType == int.class)
 		{
 			return this.buildInteger(offset);
