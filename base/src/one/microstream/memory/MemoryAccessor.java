@@ -81,6 +81,23 @@ public interface MemoryAccessor
 	 * Array alias vor #objectFieldOffset(Field).
 	 */
 	public long[] objectFieldOffsets(Field... fields);
+	
+	/**
+	 * Similar to {@link #objectFieldOffset(Field)}, but with the specific object class.<br>
+	 * The difference is that the actual object's class is not the declaring class of its fields if
+	 * it only extends another class but does not declare an object field itself.
+	 * 
+	 * @param objectClass
+	 * @param field
+	 * @return
+	 */
+	public long objectFieldOffset(Class<?> objectClass, Field field);
+	
+
+	/**
+	 * Array alias vor #objectFieldOffset(Class, Field).
+	 */
+	public long[] objectFieldOffsets(Class<?> objectClass, Field... fields);
 
 	
 	

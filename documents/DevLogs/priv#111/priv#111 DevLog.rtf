@@ -613,5 +613,32 @@ Ah: Paar Initialization Reihenfolge Probleme durch das Aufr\'e4umen. Wieder umst
 Sieht gut aus.\par
 \par
 Dann w\'e4re jetzt der n\'e4chste Schritt, den MemoryAccessorGeneric zu implementieren.\par
+\par
+Erster Teil: Den Field<->offset lookup bauen.\par
+\par
+Mal \'fcberlegen ...\par
+Eigentlich ziemlich staight forward: f\'fcr ein zu mappendes Field sicherstellen, dass es f\'fcr seine declaring class einen Eintrag mit allen Feldern gibt und in diesen Feldern dann den Index raussuchen.\par
+Nat\'fcrlich mit Pr\'fcfung auf Declaring class und name, denn Field Instanzen sind nicht einzigartig (und auf anderen VMs ist das schon gar nicht garantiert) und f\'fcr zwei Declaringclasses kann ein Feldname gleich sein.\par
+\par
+\'dcberlegen, ob es ein Problem ist, dass persistable fields und generisch erzeugte class Fields abweichen k\'f6nnen (z.B. w\'fcrde letzte transient fields enthalten).\par
+Antwort: Nein. Dann h\'e4ngen halt in der generischen Registry ein paar Felder mehr drin, f\'fcr die der offset nie angefragt und damit nie verwendet wird. Kein Problem.\par
+\par
+\'dcberlegung, ob die Registrierung f\'fcr eine Klasse gleich automatisch alle Superklassen mitregistrieren sollte ...\par
+Antwort: Nein, weil es gar nicht sicher ist, dass f\'fcr die jemals ein Entity gehandelt werden wird. Beispiel: Abstrakte Klassen. Oder auch pseudo-abstrakte.\par
+\par
+\'dcberlegung, ob je Klasse nur ihre declared fields registriert werden sollten, dann mit index offset vorn dran, um Redundanzen zu vermeiden.\par
+Antwort: Nein, weil der offset->field lookup so schnell wie m\'f6glich gehen soll. Daf\'fcr muss jede Klasse ihr komplettes Set an Instanzfeldern registriert haben.\par
+\par
+Hm, Moment mal:\par
+Die Declaring class verwenden ist nicht korrekt. Es kann sein, dass eine Entity class von einer anderen class ableitet und selbst gar keine Felder hat. Dann w\'fcrde sie nie einen Eintrag bekommen und der offset->Field lookup w\'fcrde eine Exception werfen. Nicht gut.\par
+Das hei\'dft die ganze objectFieldOffset Logik braucht eine explizit \'fcbergebene Klasse.\par
+Das verkompliziert den Normalfall mit der Unsafe Verwendung, aber das check ich mit einer Exception weg.\par
+\par
+Hm, oh Mann. F\'fcr die Implementierung der Variante ohne object class in der generischen Implementierung brauch ich jetzt extra eine "determineMostSpecificClass" Methode.\par
+Fertig. Weitermachen ...\par
+\par
+Hm. Ich bin mir jetzt nicht mehr sicher, ob die ganzen byteSize querying methoden in eine MemoryAccessor Logik reingeh\'f6ren. Denn z.B. f\'fcr Android kann ich die alle nicht implementieren.\par
+Sollten die evtl nur als static in die ~Sun implementierung rein? Oder wirklich \'fcberall nix zur\'fcckgeben? Oder nochmal extra kapseln?\par
+hmhm...\par
 }
  
