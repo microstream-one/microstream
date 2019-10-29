@@ -79,10 +79,10 @@ public interface PersistenceTypeAnalyzer
 				
 				/*
 				 * if there is a "problematic" filter and it applies, the field is registered as such
-				 * Note: there is a difference between beind not persistable and being problematic.
+				 * Note: there is a difference between being not persistable and being problematic.
 				 * Not persistable fields are simply ignored, e.g. transient fields.
 				 * Problematic fields cannot be ignored but require special behavior as a consequence,
-				 * usually an exception about the time not being generically analyzable.s
+				 * usually an exception about not being generically analyzable.
 				 */
 				if(isProblematic != null && isProblematic.applies(entityType, field))
 				{
