@@ -11,6 +11,48 @@ import sun.misc.Unsafe;
 public final class MemoryAccessorSun implements MemoryAccessor
 {
 	///////////////////////////////////////////////////////////////////////////
+	// system access //
+	//////////////////
+	
+	/*
+	 * Used by other classes in other projects but same package, so do not change to private.
+	 * Also note: this must be the very first field to be initialized, otherwise other field
+	 * initializations using it will fail with an NPE.
+	 */
+	static final Unsafe VM = getMemoryAccess();
+	
+	/*
+	 * If magic values should be represented by constants and constants should be encapsulated by methods
+	 * like instance fields should, then why use the code and memory detour of constants in the first place?
+	 * Direct "Constant Methods" are the logical conclusion and they get jitted away, anyway.
+	 */
+	static final String fieldNameUnsafe()
+	{
+		return "theUnsafe";
+	}
+	
+	public static final Unsafe getMemoryAccess()
+	{
+		// all that clumsy detour ... x_x
+		if(XMemory.class.getClassLoader() == null)
+		{
+			return Unsafe.getUnsafe(); // Not on bootclasspath
+		}
+		try
+		{
+			final Field theUnsafe = Unsafe.class.getDeclaredField(fieldNameUnsafe());
+			theUnsafe.setAccessible(true);
+			return (Unsafe)theUnsafe.get(null); // static field, no argument needed, may be null (see #get JavaDoc)
+		}
+		catch(final Exception e)
+		{
+			throw new Error("Could not obtain access to \"" + fieldNameUnsafe() + "\"", e);
+		}
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
 
@@ -1367,42 +1409,6 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	}
 	
 	
-
-	///////////////////////////////////////////////////////////////////////////
-	// system access //
-	//////////////////
-	
-	// used by other classes in other projects but same package, so do not change to private.
-	static final Unsafe VM = getMemoryAccess();
-	
-	/*
-	 * If magic values should be represented by constants and constants should be encapsulated by methods
-	 * like instance fields should, then why use the code and memory detour of constants in the first place?
-	 * Direct "Constant Methods" are the logical conclusion and they get jitted away, anyway.
-	 */
-	static final String fieldNameUnsafe()
-	{
-		return "theUnsafe";
-	}
-	
-	public static final Unsafe getMemoryAccess()
-	{
-		// all that clumsy detour ... x_x
-		if(XMemory.class.getClassLoader() == null)
-		{
-			return Unsafe.getUnsafe(); // Not on bootclasspath
-		}
-		try
-		{
-			final Field theUnsafe = Unsafe.class.getDeclaredField(fieldNameUnsafe());
-			theUnsafe.setAccessible(true);
-			return (Unsafe)theUnsafe.get(null); // static field, no argument needed, may be null (see #get JavaDoc)
-		}
-		catch(final Exception e)
-		{
-			throw new Error("Could not obtain access to \"" + fieldNameUnsafe() + "\"", e);
-		}
-	}
 	
 	// extra class to keep MemoryAccessorSun instances stateless
 	static final class ObjectHeaderSizeDummy
