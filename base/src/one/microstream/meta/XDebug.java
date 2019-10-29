@@ -458,13 +458,13 @@ public final class XDebug
 			{
 				if(output)
 				{
-					println("Deleting "+f);
+					println("Deleting " + f);
 				}
 				Files.deleteIfExists(f.toPath());
 			}
 			catch(final Exception e)
 			{
-				throw new RuntimeException("Cannot delete file: "+f, e);
+				throw new RuntimeException("Cannot delete file: " + f, e);
 			}
 		}
 

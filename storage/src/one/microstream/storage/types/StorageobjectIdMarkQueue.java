@@ -111,7 +111,7 @@ public interface StorageobjectIdMarkQueue
 		@Override
 		public final synchronized void enqueue(final long objectId)
 		{
-//			debugln("enqueue "+objectId + " ("+this.head.lowIndex+" / " +this.head.highIndex+")");
+//			debugln("enqueue " + objectId + " (" + this.head.lowIndex+" / " + this.head.highIndex + ")");
 			if(this.head.enqueue(objectId))
 			{
 //				debugln("segment full");
@@ -239,7 +239,7 @@ public interface StorageobjectIdMarkQueue
 				final int copyLength = Math.min(this.highIndex - this.lowIndex, buffer.length);
 				System.arraycopy(this.objectIds, this.lowIndex, buffer, 0, copyLength);
 
-//				debugln("get next "+copyLength);
+//				debugln("get next " + copyLength);
 
 				return copyLength;
 			}
