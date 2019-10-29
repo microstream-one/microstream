@@ -552,7 +552,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				;
 				for(int i = 0; i < this.oidMarkQueues.length; i++)
 				{
-					vs.lf().padLeft(Long.toString(this.oidMarkQueues[i].size()), 10, ' ').blank().add("in channel #"+i);
+					vs.lf().padLeft(Long.toString(this.oidMarkQueues[i].size()), 10, ' ').add(" in channel #" + i);
 				}
 
 				vs
