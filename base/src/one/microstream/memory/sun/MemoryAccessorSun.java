@@ -956,6 +956,20 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		return staticObjectFieldOffsets(fields);
 	}
+
+	@Override
+	public final long objectFieldOffset(final Class<?> objectClass, final Field field)
+	{
+		// for the sun "Unsafe" implementation, the specific objectClass makes no sense/difference.
+		return this.objectFieldOffset(field);
+	}
+	
+	@Override
+	public final long[] objectFieldOffsets(final Class<?> objectClass, final Field... fields)
+	{
+		// for the sun "Unsafe" implementation, the specific objectClass makes no sense/difference.
+		return this.objectFieldOffsets(fields);
+	}
 		
 	
 

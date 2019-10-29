@@ -5,11 +5,18 @@ import java.lang.reflect.Modifier;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.HashTable;
+import one.microstream.collections.XArrays;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.reflect.XReflect;
 
 public final class MemoryAccessorGeneric implements MemoryAccessor
 {
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+	
+	private final HashTable<Class<?>, Field[]> objectFieldsRegistry = HashTable.New();
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -45,6 +52,8 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	
 	// memory size querying logic //
+	
+	// (29.10.2019 TM)FIXME: priv#111: not sure if these really belong in a memory accessor logic
 	
 	@Override
 	public final int pageSize()
@@ -148,9 +157,95 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final synchronized long objectFieldOffset(final Field field)
 	{
+		return this.objectFieldOffset(field.getDeclaringClass(), field);
+	}
+	
+	public static final Class<?> determineMostSpecificClass(final Field[] fields)
+	{
+		if(XArrays.hasNoContent(fields))
+		{
+			return null;
+		}
+		
+		Class<?> c = fields[0].getDeclaringClass();
+		for(int i = 1; i < fields.length; i++)
+		{
+			// if the current declaring class is not c, but c is a super class, then the current must be more specific.
+			if(fields[i].getDeclaringClass() != c && c.isAssignableFrom(fields[i].getDeclaringClass()))
+			{
+				c = fields[i].getDeclaringClass();
+			}
+		}
+		
+		// at this point, c point to the most specific ("most childish"? :D) class of all fields' declaring classes.
+		return c;
+	}
+	
+	/**
+	 * Array alias vor #objectFieldOffset(Field).
+	 */
+	@Override
+	public final synchronized long[] objectFieldOffsets(final Field... fields)
+	{
+		final Class<?> mostSpecificClass = determineMostSpecificClass(fields);
+		
+		return this.objectFieldOffsets(mostSpecificClass, fields);
+	}
+
+	@Override
+	public final synchronized long objectFieldOffset(final Class<?> objectClass, final Field field)
+	{
+		final Field[] objectFields = this.ensureRegisteredObjectFields(objectClass);
+
+		return objectFieldOffset(objectFields, field);
+	}
+	
+	private Field[] ensureRegisteredObjectFields(final Class<?> objectClass)
+	{
+		final Field[] objectFields = this.objectFieldsRegistry.get(objectClass);
+		if(objectFields != null)
+		{
+			return objectFields;
+		}
+		
+		return this.registerObjectFields(objectClass);
+	}
+	
+	private Field[] registerObjectFields(final Class<?> objectClass)
+	{
+		/*
+		 * Note on algorithm:
+		 * Each class in a class hierarchy gets its own registry entry, even if that means redundancy.
+		 * This is necessary to make the offset-to-field lookup quick
+		 */
+		
+		final BulkList<Field> objectFields = BulkList.New(20);
+		XReflect.iterateDeclaredFieldsUpwards(objectClass, field ->
+		{
+			// non-instance fields are always discarded
+			if(!XReflect.isInstanceField(field))
+			{
+				return;
+			}
+			
+			objectFields.add(field);
+		});
+		
+		final Field[] array = XArrays.reverse(objectFields.toArray(Field.class));
+		
+		if(!this.objectFieldsRegistry.add(objectClass, array))
+		{
+			// (29.10.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Object fields already registered for " + objectClass);
+		}
+		
+		return array;
+	}
+	
+	final static long objectFieldOffset(final Field[] objectFields, final Field field)
+	{
 		final Class<?> declaringClass = field.getDeclaringClass();
 		final String   fieldName      = field.getName();
-		final Field[]  objectFields   = this.ensureObjectFields(declaringClass);
 		
 		for(int i = 0; i < objectFields.length; i++)
 		{
@@ -166,56 +261,11 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		);
 	}
 	
-	private Field[] ensureObjectFields(final Class<?> declaringClass)
-	{
-		final Field[] objectFields = this.objectFieldsRegistry.get(declaringClass);
-		if(objectFields != null)
-		{
-			return objectFields;
-		}
-		
-		return this.registerObjectFields(declaringClass);
-	}
-	
-	private Field[] registerObjectFields(final Class<?> declaringClass)
-	{
-		final BulkList<Field> objectFields = BulkList.New(20);
-		
-		XReflect.iterateDeclaredFieldsUpwards(declaringClass, field ->
-		{
-			// non-instance fields are always discarded
-			if(!XReflect.isInstanceField(field))
-			{
-				return;
-			}
-			
-			objectFields.add(field);
-		});
-	}
-	
-	public final synchronized boolean ensureRegisteredObjectFields(final Class<?> objectClass)
-	{
-		return this.internalEnsureRegisteredObjectFields(objectClass);
-	}
-	
-	private final HashTable<Class<?>, Field[]> objectFieldsRegistry = HashTable.New();
-	
-	final boolean internalEnsureRegisteredObjectFields(final Class<?> objectClass)
-	{
-		
-	}
-	
-	final long internalLookupFieldOffset(final Field field)
-	{
-		
-	}
-	
-	/**
-	 * Array alias vor #objectFieldOffset(Field).
-	 */
 	@Override
-	public final synchronized long[] objectFieldOffsets(final Field... fields)
+	public final synchronized long[] objectFieldOffsets(final Class<?> objectClass, final Field... fields)
 	{
+		final Field[] objectFields = this.ensureRegisteredObjectFields(objectClass);
+
 		final long[] offsets = new long[fields.length];
 		for(int i = 0; i < fields.length; i++)
 		{
@@ -223,7 +273,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 			{
 				throw new IllegalArgumentException("Not an object field: " + fields[i]);
 			}
-			offsets[i] = this.objectFieldOffset(fields[i]);
+			offsets[i] = objectFieldOffset(objectFields, fields[i]);
 		}
 		
 		return offsets;
@@ -637,7 +687,15 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final byte[] asByteArray(final long value)
 	{
+		// (29.10.2019 TM)FIXME: priv#111: is this the right byte order? Does it depend?
+		final byte[] array = new byte[Long.BYTES];
 		
+		for(int i = 0; i < array.length; i++)
+		{
+			array[i] = (byte)(value >> 8*i & 0xFFL);
+		}
+		
+		return array;
 	}
 	
 	
