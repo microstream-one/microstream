@@ -2,8 +2,6 @@ package one.microstream.persistence.test;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XList;
-import one.microstream.math.XMath;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.lazy.Lazy;
 import one.microstream.persistence.lazy.LazyReferenceManager;
 import one.microstream.persistence.types.PersistenceObjectRetriever;
@@ -17,25 +15,29 @@ public class MainTestLazyReferenceHandling
 	public static void main(final String[] args) throws Exception
 	{
 		test(LazyReferenceManager.New(
-			Lazy.Checker(
+//			Lazy.Checker(
 //				20_000,
-				memoryStats -> memoryStats.quota() < 0.5
-			),
+//				memoryStats -> memoryStats.quota() < 0.5
+//			),
+			new LazyReferenceManager.Clearer(),
 			() -> 2500,
 			() -> 2_500_000
 		));
-				
-		strings = createList(5_000_000);
-				
-		while(true)
-		{
-			Thread.sleep(XMath.random(300));
-			final int count = XMath.random(1000);
-			strings.addAll(createList(count));
-			XDebug.println("Added " + count);
-//			Thread.sleep(1000);
-			System.gc();
-		}
+
+		strings = createList(10_000);
+			
+//		new Thread(()->{
+//		LazyReferenceManager.get().clear();
+//		}).start();
+		
+//		while(true)
+//		{
+//			Thread.sleep(XMath.random(300));
+//			final int count = XMath.random(1000);
+//			strings.addAll(createList(count));
+//			XDebug.println("Added " + count);
+//			System.gc();
+//		}
 	}
 	
 	static XList<Lazy<String>> createList(final long size)
