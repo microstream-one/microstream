@@ -136,7 +136,11 @@ public interface LazyReferenceManager
 			{
 				return;
 			}
-			((Lazy<?>)lazyReference).clear();
+			final Lazy<?> lazy = (Lazy<?>)lazyReference;
+			if(lazy.isStored())
+			{
+				lazy.clear();
+			}
 		}
 	}
 
@@ -360,11 +364,11 @@ public interface LazyReferenceManager
 		{
 			// lazy reference for automatic thread termination
 			private final WeakReference<LazyReferenceManager.Default> parent               ;
-			private final _longReference                                     checkIntervalProvider;
+			private final _longReference                              checkIntervalProvider;
 
 			LazyReferenceCleanupThread(
 				final WeakReference<LazyReferenceManager.Default> parent,
-				final _longReference                      checkIntervalProvider
+				final _longReference                              checkIntervalProvider
 			)
 			{
 				super(LazyReferenceManager.class.getSimpleName() + '@' + System.identityHashCode(parent));

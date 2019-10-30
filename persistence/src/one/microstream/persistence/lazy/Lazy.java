@@ -339,7 +339,7 @@ public final class Lazy<T> implements LazyReferencing<T>
 
 	private void internalClearUnchecked()
 	{
-//		XDebug.debugln("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);
+		XDebug.println("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);
 		this.subject = null;
 		this.touch();
 	}
