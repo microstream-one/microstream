@@ -257,7 +257,11 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	{
 		super(type, typeName);
 		
-		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
+		/*
+		 * Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
+		 * MemoryAccessor implementations that do not use the field base don't need to do anything here.
+		 * They probably also can't do anything to ensure a class is initialized.
+		 */
 		XMemory.ensureClassInitialized(type);
 		
 		final EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> instMembersInDeclOrdr =

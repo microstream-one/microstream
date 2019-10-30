@@ -1,5 +1,7 @@
 package one.microstream.memory;
 
+import static one.microstream.X.notNull;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
@@ -7,15 +9,54 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.exceptions.InstantiationRuntimeException;
+import one.microstream.functional.DefaultInstantiator;
 import one.microstream.reflect.XReflect;
 
 public final class MemoryAccessorGeneric implements MemoryAccessor
 {
 	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static MemoryAccessorGeneric New()
+	{
+		return New(
+			DefaultInstantiator.Default()
+		);
+	}
+	
+	public static MemoryAccessorGeneric New(final DefaultInstantiator defaultInstantiator)
+	{
+		return new MemoryAccessorGeneric(
+			notNull(defaultInstantiator)
+		);
+	}
+		
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
+	// instantiating is a very special case and thus must be handleable separately.
+	private final DefaultInstantiator defaultInstantiator;
+	
+	// since this implementation isn't stateless anyway, it might as well cache the reversing instance.
+	private final MemoryAccessorReversing reversing = new MemoryAccessorReversing(this);
+	
 	private final HashTable<Class<?>, Field[]> objectFieldsRegistry = HashTable.New();
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	MemoryAccessorGeneric(final DefaultInstantiator defaultInstantiator)
+	{
+		super();
+		this.defaultInstantiator = defaultInstantiator;
+	}
 	
 	
 	
@@ -24,7 +65,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	////////////////
 
 	// memory allocation //
-	
+
 	@Override
 	public final long allocateMemory(final long bytes)
 	{
@@ -49,236 +90,6 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		
 	}
 	
-	
-	
-	// memory size querying logic //
-	
-	// (29.10.2019 TM)FIXME: priv#111: not sure if these really belong in a memory accessor logic
-	
-	@Override
-	public final int pageSize()
-	{
-		
-	}
-		
-	@Override
-	public final int byteSizeReference()
-	{
-		
-	}
-	
-	@Override
-	public final int byteSizeInstance(final Class<?> type)
-	{
-		
-	}
-	
-	@Override
-	public final int byteSizeObjectHeader(final Class<?> type)
-	{
-		
-	}
-
-	@Override
-	public final int byteSizeFieldValue(final Class<?> type)
-	{
-		
-	}
-	
-	@Override
-	public final long byteSizeArray_byte(final long elementCount)
-	{
-		
-	}
-
-	@Override
-	public final long byteSizeArray_boolean(final long elementCount)
-	{
-		
-	}
-
-	@Override
-	public final long byteSizeArray_short(final long elementCount)
-	{
-		
-	}
-
-	@Override
-	public final long byteSizeArray_char(final long elementCount)
-	{
-		
-	}
-
-	@Override
-	public final long byteSizeArray_int(final long elementCount)
-	{
-		
-	}
-
-	@Override
-	public final long byteSizeArray_float(final long elementCount)
-	{
-		
-	}
-
-	@Override
-	public final long byteSizeArray_long(final long elementCount)
-	{
-		
-	}
-
-	@Override
-	public final long byteSizeArray_double(final long elementCount)
-	{
-		
-	}
-
-	@Override
-	public final long byteSizeArrayObject(final long elementCount)
-	{
-		
-	}
-	
-	
-	
-	// field offset abstraction //
-	
-	/**
-	 * Returns an unspecified, abstract "offset" of the passed {@link Field} to specify a generic access of the
-	 * field's value for an instance of its declaring class that can be used with object-based methods like
-	 * {@link #set_int(Object, long, int)}. Whether that offset is an actual low-level memory offset relative
-	 * to an instance' field offset base or simply an index of the passed field in its declaring class' list
-	 * of fields, is implementation-specific.
-	 * 
-	 * @param field the {@link Field} whose abstract offset shall be determined.
-	 * 
-	 * @return the passed {@link Field}'s abstract offset.
-	 */
-	@Override
-	public final synchronized long objectFieldOffset(final Field field)
-	{
-		return this.objectFieldOffset(field.getDeclaringClass(), field);
-	}
-	
-	public static final Class<?> determineMostSpecificClass(final Field[] fields)
-	{
-		if(XArrays.hasNoContent(fields))
-		{
-			return null;
-		}
-		
-		Class<?> c = fields[0].getDeclaringClass();
-		for(int i = 1; i < fields.length; i++)
-		{
-			// if the current declaring class is not c, but c is a super class, then the current must be more specific.
-			if(fields[i].getDeclaringClass() != c && c.isAssignableFrom(fields[i].getDeclaringClass()))
-			{
-				c = fields[i].getDeclaringClass();
-			}
-		}
-		
-		// at this point, c point to the most specific ("most childish"? :D) class of all fields' declaring classes.
-		return c;
-	}
-	
-	/**
-	 * Array alias vor #objectFieldOffset(Field).
-	 */
-	@Override
-	public final synchronized long[] objectFieldOffsets(final Field... fields)
-	{
-		final Class<?> mostSpecificClass = determineMostSpecificClass(fields);
-		
-		return this.objectFieldOffsets(mostSpecificClass, fields);
-	}
-
-	@Override
-	public final synchronized long objectFieldOffset(final Class<?> objectClass, final Field field)
-	{
-		final Field[] objectFields = this.ensureRegisteredObjectFields(objectClass);
-
-		return objectFieldOffset(objectFields, field);
-	}
-	
-	private Field[] ensureRegisteredObjectFields(final Class<?> objectClass)
-	{
-		final Field[] objectFields = this.objectFieldsRegistry.get(objectClass);
-		if(objectFields != null)
-		{
-			return objectFields;
-		}
-		
-		return this.registerObjectFields(objectClass);
-	}
-	
-	private Field[] registerObjectFields(final Class<?> objectClass)
-	{
-		/*
-		 * Note on algorithm:
-		 * Each class in a class hierarchy gets its own registry entry, even if that means redundancy.
-		 * This is necessary to make the offset-to-field lookup quick
-		 */
-		
-		final BulkList<Field> objectFields = BulkList.New(20);
-		XReflect.iterateDeclaredFieldsUpwards(objectClass, field ->
-		{
-			// non-instance fields are always discarded
-			if(!XReflect.isInstanceField(field))
-			{
-				return;
-			}
-			
-			objectFields.add(field);
-		});
-		
-		final Field[] array = XArrays.reverse(objectFields.toArray(Field.class));
-		
-		if(!this.objectFieldsRegistry.add(objectClass, array))
-		{
-			// (29.10.2019 TM)EXCP: proper exception
-			throw new RuntimeException("Object fields already registered for " + objectClass);
-		}
-		
-		return array;
-	}
-	
-	final static long objectFieldOffset(final Field[] objectFields, final Field field)
-	{
-		final Class<?> declaringClass = field.getDeclaringClass();
-		final String   fieldName      = field.getName();
-		
-		for(int i = 0; i < objectFields.length; i++)
-		{
-			if(objectFields[i].getDeclaringClass() == declaringClass && objectFields[i].getName().equals(fieldName))
-			{
-				return i;
-			}
-		}
-		
-		// (29.10.2019 TM)EXCP: proper exception
-		throw new RuntimeException(
-			"Inconsistent object fields registration for " + declaringClass.getName() + "#" + fieldName
-		);
-	}
-	
-	@Override
-	public final synchronized long[] objectFieldOffsets(final Class<?> objectClass, final Field... fields)
-	{
-		final Field[] objectFields = this.ensureRegisteredObjectFields(objectClass);
-
-		final long[] offsets = new long[fields.length];
-		for(int i = 0; i < fields.length; i++)
-		{
-			if(Modifier.isStatic(fields[i].getModifiers()))
-			{
-				throw new IllegalArgumentException("Not an object field: " + fields[i]);
-			}
-			offsets[i] = objectFieldOffset(objectFields, fields[i]);
-		}
-		
-		return offsets;
-	}
-
 	
 	
 	// address-based getters for primitive values //
@@ -673,29 +484,151 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	{
 		
 	}
-		
+	
 	
 	
 	// conversion to byte array //
 	
+	// (uses interface default implementations)
+	
+	
+	
+	// field offset abstraction //
+	
+	/**
+	 * Returns an unspecified, abstract "offset" of the passed {@link Field} to specify a generic access of the
+	 * field's value for an instance of its declaring class that can be used with object-based methods like
+	 * {@link #set_int(Object, long, int)}. Whether that offset is an actual low-level memory offset relative
+	 * to an instance' field offset base or simply an index of the passed field in its declaring class' list
+	 * of fields, is implementation-specific.
+	 * 
+	 * @param field the {@link Field} whose abstract offset shall be determined.
+	 * 
+	 * @return the passed {@link Field}'s abstract offset.
+	 */
 	@Override
-	public final byte[] asByteArray(final long[] values)
+	public final synchronized long objectFieldOffset(final Field field)
 	{
+		return this.objectFieldOffset(field.getDeclaringClass(), field);
+	}
+	
+	public static final Class<?> determineMostSpecificClass(final Field[] fields)
+	{
+		if(XArrays.hasNoContent(fields))
+		{
+			return null;
+		}
 		
+		Class<?> c = fields[0].getDeclaringClass();
+		for(int i = 1; i < fields.length; i++)
+		{
+			// if the current declaring class is not c, but c is a super class, then the current must be more specific.
+			if(fields[i].getDeclaringClass() != c && c.isAssignableFrom(fields[i].getDeclaringClass()))
+			{
+				c = fields[i].getDeclaringClass();
+			}
+		}
+		
+		// at this point, c point to the most specific ("most childish"? :D) class of all fields' declaring classes.
+		return c;
+	}
+	
+	/**
+	 * Array alias vor #objectFieldOffset(Field).
+	 */
+	@Override
+	public final synchronized long[] objectFieldOffsets(final Field... fields)
+	{
+		final Class<?> mostSpecificClass = determineMostSpecificClass(fields);
+		
+		return this.objectFieldOffsets(mostSpecificClass, fields);
 	}
 
 	@Override
-	public final byte[] asByteArray(final long value)
+	public final synchronized long objectFieldOffset(final Class<?> objectClass, final Field field)
 	{
-		// (29.10.2019 TM)FIXME: priv#111: is this the right byte order? Does it depend?
-		final byte[] array = new byte[Long.BYTES];
-		
-		for(int i = 0; i < array.length; i++)
+		final Field[] objectFields = this.ensureRegisteredObjectFields(objectClass);
+
+		return objectFieldOffset(objectFields, field);
+	}
+	
+	private Field[] ensureRegisteredObjectFields(final Class<?> objectClass)
+	{
+		final Field[] objectFields = this.objectFieldsRegistry.get(objectClass);
+		if(objectFields != null)
 		{
-			array[i] = (byte)(value >> 8*i & 0xFFL);
+			return objectFields;
+		}
+		
+		return this.registerObjectFields(objectClass);
+	}
+	
+	private Field[] registerObjectFields(final Class<?> objectClass)
+	{
+		/*
+		 * Note on algorithm:
+		 * Each class in a class hierarchy gets its own registry entry, even if that means redundancy.
+		 * This is necessary to make the offset-to-field lookup quick
+		 */
+		
+		final BulkList<Field> objectFields = BulkList.New(20);
+		XReflect.iterateDeclaredFieldsUpwards(objectClass, field ->
+		{
+			// non-instance fields are always discarded
+			if(!XReflect.isInstanceField(field))
+			{
+				return;
+			}
+			
+			objectFields.add(field);
+		});
+		
+		final Field[] array = XArrays.reverse(objectFields.toArray(Field.class));
+		
+		if(!this.objectFieldsRegistry.add(objectClass, array))
+		{
+			// (29.10.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Object fields already registered for " + objectClass);
 		}
 		
 		return array;
+	}
+	
+	final static long objectFieldOffset(final Field[] objectFields, final Field field)
+	{
+		final Class<?> declaringClass = field.getDeclaringClass();
+		final String   fieldName      = field.getName();
+		
+		for(int i = 0; i < objectFields.length; i++)
+		{
+			if(objectFields[i].getDeclaringClass() == declaringClass && objectFields[i].getName().equals(fieldName))
+			{
+				return i;
+			}
+		}
+		
+		// (29.10.2019 TM)EXCP: proper exception
+		throw new RuntimeException(
+			"Inconsistent object fields registration for " + declaringClass.getName() + "#" + fieldName
+		);
+	}
+	
+	@Override
+	public final synchronized long[] objectFieldOffsets(final Class<?> objectClass, final Field... fields)
+	{
+		final Field[] objectFields = this.ensureRegisteredObjectFields(objectClass);
+
+		final long[] offsets = new long[fields.length];
+		for(int i = 0; i < fields.length; i++)
+		{
+			if(Modifier.isStatic(fields[i].getModifiers()))
+			{
+				throw new IllegalArgumentException("Not an object field: " + fields[i]);
+			}
+			offsets[i] = objectFieldOffset(objectFields, fields[i]);
+		}
+		
+		return offsets;
 	}
 	
 	
@@ -705,27 +638,25 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final void ensureClassInitialized(final Class<?> c)
 	{
-		
-	}
-	
-	@Override
-	public final void ensureClassInitialized(final Class<?>... classes)
-	{
-		for(final Class<?> c : classes)
-		{
-			this.ensureClassInitialized(c);
-		}
+		/*
+		 * This is the equivalent (as far as the MemoryAccessor functionality is concerned) to the Unsafe's
+		 * actual class initialization. There, it ensure the field base which is needed to calculate the
+		 * field offsets. Here, it ensures that the object fields are registered which are required to
+		 * determine the abstract pseudo-offset. Nice :-).
+		 */
+		this.ensureRegisteredObjectFields(c);
 	}
 	
 	@Override
 	public final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
 	{
-		
+		return this.defaultInstantiator.instantiate(c);
 	}
-
+	
 	@Override
-	public final void throwUnchecked(final Throwable t)
+	public final MemoryAccessor toReversing()
 	{
-		
+		return this.reversing;
 	}
+	
 }

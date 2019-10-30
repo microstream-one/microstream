@@ -640,5 +640,36 @@ Fertig. Weitermachen ...\par
 Hm. Ich bin mir jetzt nicht mehr sicher, ob die ganzen byteSize querying methoden in eine MemoryAccessor Logik reingeh\'f6ren. Denn z.B. f\'fcr Android kann ich die alle nicht implementieren.\par
 Sollten die evtl nur als static in die ~Sun implementierung rein? Oder wirklich \'fcberall nix zur\'fcckgeben? Oder nochmal extra kapseln?\par
 hmhm...\par
+\par
+\par
+2019-10-30\par
+\par
+Idee von Zuhause:\par
+Ich schieb alle Querying Methoden, die ja sowieso eigentlich nur f\'fcr debugging ben\'f6tigt werden, in ein Interface "MemoryPropertiesQuerier" oder sowas in der Art.\par
+Den kann man dann implementieren und dynamisch setzen, muss man aber nicht.\par
+Die Frage w\'e4r dann noch, was mit so methoden wie das asBytes usw. ist. Die braucht man eigentlich auch nur f\'fcrs debugging und da gibt es aufgrund von ByteOrder Ansichten keine eindeutig richtige implementierung.\line Evtl. auch noch auslagern in irgendwelche Utils oder so.\par
+\par
+Ah: das asBytes kann ich mit einer Default-method generisch nachbilden, indem ich die set_longInBytes benutze. Passt.\par
+\par
+Bissl rum\'fcberlegen und rumbauen, was die beste Strategie f\'fcr die beiden Interfaces ist. Inklusive Konsistenzgarantie bei den Settern.\par
+Gute L\'f6sung gefunden. Passt.\par
+\par
+Recherche zu ensureClassInitialized.\par
+Simple Antwort: wenn nicht mit dem field base offset gearbeitet wird, braucht man das gar nicht. Also einfach als no-op implementieren mit entsprechendem Kommentar.\par
+\par
+throwUnchecked faken mit RuntimeException und Kommentar dazu. Geht halt nicht besser.\par
+Hm... Moment mal: die Funktion wird nirgends ben\'f6tigt.\par
+Wenn wirklich hab ich sie immer noch in der konkreten Sun Implementierung.\par
+Also einfach aus dem MemoryAccessor rausschmeissen. Passt.\par
+\par
+Oh, Idee: Das ensureClassInitialized ist ind er Sun Implementierung nur daf\'fcr da, die offset base f\'fcr die field offset Bestimmung zu haben.\par
+In der ~Generic Implementierung gibt es daf\'fcr ein \'c4quivalent: Die object fields der Klasse registrieren, die dann in der offset Bestimmung verwendet werden.\par
+Wird zwar on demand auch gemacht, aber falls man wirklich mal mehrere Klassen vorab registrieren will (z.B. f\'fcr Tests oder um Performance-Spitzen zu vermeiden), kann man die verwenden.\par
+Nice. So umbauen.\par
+\par
+Bissl thematisch aufr\'e4umen / umstrukturieren.\par
+\par
+So. Dann w\'e4r jetzt schon mal alles an Rand-ged\'f6ns fertig. Fehlen nur noch ca 100 TODOs f\'fcr die manuelle Speicherverwaltung.\par
+Dazu Konzeptbeschreibung wieder ausgraben ...\par
 }
  

@@ -20,23 +20,52 @@ public final class XMemory
 	// constants //
 	//////////////
 	
-	public static MemoryAccessor MEMORY_ACCESSOR          = MemoryAccessorSun.New();
-	public static MemoryAccessor MEMORY_ACCESSOR_REVERSED = MEMORY_ACCESSOR.toReversing();
-
-	public static final synchronized void setMemoryAccessor(final MemoryAccessor memoryAccessor)
+	static MemoryAccessor       MEMORY_ACCESSOR         ;
+	static MemoryAccessor       MEMORY_ACCESSOR_REVERSED;
+	static MemorySizeProperties MEMORY_SIZE_PROPERTIES  ;
+	
+	static
 	{
-		MEMORY_ACCESSOR = memoryAccessor;
-		MEMORY_ACCESSOR_REVERSED = memoryAccessor.toReversing();
+		setMemoryHandling(MemoryAccessorSun.New());
 	}
 	
-	public static final synchronized MemoryAccessor getMemoryAccessor()
+	public static final synchronized <H extends MemoryAccessor & MemorySizeProperties> void setMemoryHandling(
+		final H memoryHandler
+	)
+	{
+		setMemoryHandling(memoryHandler, memoryHandler);
+	}
+	
+	public static final synchronized void setMemoryAccessor(
+		final MemoryAccessor memoryAccessor
+	)
+	{
+		setMemoryHandling(memoryAccessor, MemorySizeProperties.Default());
+	}
+
+	public static final synchronized void setMemoryHandling(
+		final MemoryAccessor       memoryAccessor      ,
+		final MemorySizeProperties memorySizeProperties
+	)
+	{
+		MEMORY_ACCESSOR          = memoryAccessor;
+		MEMORY_ACCESSOR_REVERSED = memoryAccessor.toReversing();
+		MEMORY_SIZE_PROPERTIES   = memorySizeProperties;
+	}
+	
+	public static final synchronized MemoryAccessor memoryAccessor()
 	{
 		return MEMORY_ACCESSOR;
 	}
 	
-	public static final synchronized MemoryAccessor getMemoryAccessorReversing()
+	public static final synchronized MemoryAccessor memoryAccessorReversing()
 	{
 		return MEMORY_ACCESSOR_REVERSED;
+	}
+	
+	public static final synchronized MemorySizeProperties memorySizeProperties()
+	{
+		return MEMORY_SIZE_PROPERTIES;
 	}
 	
 
@@ -84,75 +113,72 @@ public final class XMemory
 	
 	public static final int pageSize()
 	{
-		return MEMORY_ACCESSOR.pageSize();
+		return MEMORY_SIZE_PROPERTIES.pageSize();
 	}
 	
 	public static final int byteSizeInstance(final Class<?> c)
 	{
-		return MEMORY_ACCESSOR.byteSizeInstance(c);
+		return MEMORY_SIZE_PROPERTIES.byteSizeInstance(c);
 	}
 	
 	public static final int byteSizeObjectHeader(final Class<?> c)
 	{
-		return MEMORY_ACCESSOR.byteSizeObjectHeader(c);
-	}	public static final int bitSize_byte()
-	{
-		return Byte.SIZE;
+		return MEMORY_SIZE_PROPERTIES.byteSizeObjectHeader(c);
 	}
 	
 	public static final int byteSizeFieldValue(final Field field)
 	{
-		return MEMORY_ACCESSOR.byteSizeFieldValue(field);
+		return MEMORY_SIZE_PROPERTIES.byteSizeFieldValue(field);
 	}
 	
 	public static final int byteSizeFieldValue(final Class<?> type)
 	{
-		return MEMORY_ACCESSOR.byteSizeFieldValue(type);
+		return MEMORY_SIZE_PROPERTIES.byteSizeFieldValue(type);
 	}
 	
 	public static final long byteSizeArray_byte(final long elementCount)
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_byte(elementCount);
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_byte(elementCount);
 	}
 
 	public static final long byteSizeArray_boolean(final long elementCount)
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_boolean(elementCount);
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_boolean(elementCount);
 	}
 
 	public static final long byteSizeArray_short(final long elementCount)
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_short(elementCount);
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_short(elementCount);
 	}
 
 	public static final long byteSizeArray_char(final long elementCount)
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_char(elementCount);
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_char(elementCount);
 	}
 
 	public static final long byteSizeArray_int(final long elementCount)
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_int(elementCount);
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_int(elementCount);
 	}
 
 	public static final long byteSizeArray_float(final long elementCount)
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_float(elementCount);
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_float(elementCount);
 	}
 
 	public static final long byteSizeArray_long(final long elementCount)
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_long(elementCount);
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_long(elementCount);
 	}
 
 	public static final long byteSizeArray_double(final long elementCount)
 	{
-		return MEMORY_ACCESSOR.byteSizeArray_double(elementCount);
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_double(elementCount);
 	}
 
 	public static final long byteSizeArrayObject(final long elementCount)
 	{
-		return MEMORY_ACCESSOR.byteSizeArrayObject(elementCount);
+		return MEMORY_SIZE_PROPERTIES.byteSizeArrayObject(elementCount);
 	}
 	
 	public static final int byteSizePrimitive(final Class<?> type)
@@ -193,6 +219,11 @@ public final class XMemory
 				
 		// intentionally covers void.class
 		throw new IllegalArgumentException();
+	}
+	
+	public static final int bitSize_byte()
+	{
+		return Byte.SIZE;
 	}
 
 	public static final int byteSize_byte()
@@ -237,7 +268,7 @@ public final class XMemory
 
 	public static final int byteSizeReference()
 	{
-		return MEMORY_ACCESSOR.byteSizeReference();
+		return MEMORY_SIZE_PROPERTIES.byteSizeReference();
 	}
 
 	public static final int bitSize_boolean()
@@ -665,10 +696,6 @@ public final class XMemory
 		return MEMORY_ACCESSOR.instantiateBlank(c);
 	}
 
-	public static final void throwUnchecked(final Throwable t)
-	{
-		MEMORY_ACCESSOR.throwUnchecked(t);
-	}
 	
 	public static final ByteOrder nativeByteOrder()
 	{
