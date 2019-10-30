@@ -65,14 +65,7 @@ public final class MemoryAccessorSun implements MemoryAccessor, MemorySizeProper
 		MEMORY_ALIGNMENT_MODULO = MEMORY_ALIGNMENT_FACTOR - 1,
 		MEMORY_ALIGNMENT_MASK   = ~MEMORY_ALIGNMENT_MODULO
 	;
-	
-	// constant names documenting that a value shall be shifted by n bits. Also to get CheckStyle off my back.
-	private static final int
-		BITS1 = 1,
-		BITS2 = 2,
-		BITS3 = 3
-	;
-	
+		
 	/*
 	 * Rationale for these local constants:
 	 * For Unsafe putting methods like Unsafe#putInt etc, there were two versions before Java 9:
@@ -400,32 +393,32 @@ public final class MemoryAccessorSun implements MemoryAccessor, MemorySizeProper
 
 	public static final void staticCopyRangeToArray(final long sourceAddress, final short[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_SHORT_BASE_OFFSET, target.length << BITS1);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_SHORT_BASE_OFFSET, target.length * Short.BYTES);
 	}
 
 	public static final void staticCopyRangeToArray(final long sourceAddress, final char[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET, target.length << BITS1);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET, target.length * Character.BYTES);
 	}
 	
 	public static final void staticCopyRangeToArray(final long sourceAddress, final int[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_INT_BASE_OFFSET, target.length << BITS2);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_INT_BASE_OFFSET, target.length * Integer.BYTES);
 	}
 
 	public static final void staticCopyRangeToArray(final long sourceAddress, final float[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_FLOAT_BASE_OFFSET, target.length << BITS2);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_FLOAT_BASE_OFFSET, target.length * Float.BYTES);
 	}
 
 	public static final void staticCopyRangeToArray(final long sourceAddress, final long[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_LONG_BASE_OFFSET, target.length << BITS3);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_LONG_BASE_OFFSET, target.length * Long.BYTES);
 	}
 
 	public static final void staticCopyRangeToArray(final long sourceAddress, final double[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_DOUBLE_BASE_OFFSET, target.length << BITS3);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_DOUBLE_BASE_OFFSET, target.length * Double.BYTES);
 	}
 	
 	
@@ -444,32 +437,32 @@ public final class MemoryAccessorSun implements MemoryAccessor, MemorySizeProper
 	
 	public static final void staticCopyArrayToAddress(final short[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET, null, targetAddress, array.length << BITS1);
+		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET, null, targetAddress, array.length * Short.BYTES);
 	}
 
 	public static final void staticCopyArrayToAddress(final char[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET, null, targetAddress, array.length << BITS1);
+		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET, null, targetAddress, array.length * Character.BYTES);
 	}
 	
 	public static final void staticCopyArrayToAddress(final int[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
+		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET, null, targetAddress, array.length * Integer.BYTES);
 	}
 	
 	public static final void staticCopyArrayToAddress(final float[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
+		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, array.length * Float.BYTES);
 	}
 	
 	public static final void staticCopyArrayToAddress(final long[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET, null, targetAddress, array.length * Long.BYTES);
 	}
 	
 	public static final void staticCopyArrayToAddress(final double[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length * Double.BYTES);
 	}
 	
 	
@@ -478,7 +471,7 @@ public final class MemoryAccessorSun implements MemoryAccessor, MemorySizeProper
 	
 	public static final byte[] staticAsByteArray(final long[] longArray)
 	{
-		final byte[] bytes = new byte[checkArrayRange((long)longArray.length << BITS3)];
+		final byte[] bytes = new byte[checkArrayRange((long)longArray.length * Long.BYTES)];
 		VM.copyMemory(longArray, ARRAY_LONG_BASE_OFFSET, bytes, ARRAY_BYTE_BASE_OFFSET, bytes.length);
 		return bytes;
 	}
@@ -665,32 +658,32 @@ public final class MemoryAccessorSun implements MemoryAccessor, MemorySizeProper
 
 	public static final long staticByteSizeArray_short(final long elementCount)
 	{
-		return ARRAY_SHORT_BASE_OFFSET + (elementCount << BITS1);
+		return ARRAY_SHORT_BASE_OFFSET + elementCount * Short.BYTES;
 	}
 
 	public static final long staticByteSizeArray_char(final long elementCount)
 	{
-		return ARRAY_CHAR_BASE_OFFSET + (elementCount << BITS1);
+		return ARRAY_CHAR_BASE_OFFSET + elementCount * Character.BYTES;
 	}
 
 	public static final long staticByteSizeArray_int(final long elementCount)
 	{
-		return ARRAY_INT_BASE_OFFSET + (elementCount << BITS2);
+		return ARRAY_INT_BASE_OFFSET + elementCount * Integer.BYTES;
 	}
 
 	public static final long staticByteSizeArray_float(final long elementCount)
 	{
-		return ARRAY_FLOAT_BASE_OFFSET + (elementCount << BITS2);
+		return ARRAY_FLOAT_BASE_OFFSET + elementCount * Float.BYTES;
 	}
 
 	public static final long staticByteSizeArray_long(final long elementCount)
 	{
-		return ARRAY_LONG_BASE_OFFSET + (elementCount << BITS3);
+		return ARRAY_LONG_BASE_OFFSET + elementCount * Long.BYTES;
 	}
 
 	public static final long staticByteSizeArray_double(final long elementCount)
 	{
-		return ARRAY_DOUBLE_BASE_OFFSET + (elementCount << BITS3);
+		return ARRAY_DOUBLE_BASE_OFFSET + elementCount * Double.BYTES;
 	}
 
 	public static final long staticByteSizeArrayObject(final long elementCount)

@@ -1,7 +1,7 @@
 package various;
 import java.io.PrintStream;
 
-public final class EfficientArrayChanges
+public final class MainTestSmoothArrayResizing
 {
 	public static void main(final String[] args)
 	{
@@ -10,7 +10,7 @@ public final class EfficientArrayChanges
 //		printIncrease(2_021_161_080);
 	}
 	
-	static int increaseCapacity(final int oldCapacity)
+	static int smoothCapacityIncrease(final int oldCapacity)
 	{
 		// 280 steps. Threshold 333 is the best value to smooth the highest increase when starting at 0.
 		// Also interesting: increment/threshold of 8/172 and 10/220
@@ -22,7 +22,7 @@ public final class EfficientArrayChanges
 		;
 	}
 	
-	static int decreaseCapacity(final int oldCapacity)
+	static int smoothCapacityDecrease(final int oldCapacity)
 	{
 		// 264 steps. Threshold 333 is the best value to smooth the lowest decrease when starting at max value.
 		// Also interesting: increment/threshold of 8/161 and 10/180
@@ -68,14 +68,14 @@ public final class EfficientArrayChanges
 	
 	static int printIncrease(final int i, final int capacity)
 	{
-		final int newCapacity = increaseCapacity(capacity);
+		final int newCapacity = smoothCapacityIncrease(capacity);
 		print(System.out, i, capacity, newCapacity);
 		return newCapacity;
 	}
 	
 	static int printDecrease(final int i, final int capacity)
 	{
-		final int newCapacity = decreaseCapacity(capacity);
+		final int newCapacity = smoothCapacityDecrease(capacity);
 		print(System.err, i, capacity, newCapacity);
 		return newCapacity;
 	}

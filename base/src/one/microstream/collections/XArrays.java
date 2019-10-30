@@ -1700,6 +1700,35 @@ public final class XArrays
 	}
 
 	
+	public static final int smoothCapacityIncrease(final int oldCapacity)
+	{
+		// see MainTestSmoothArrayResizing
+		
+		// 280 steps. Threshold 333 is the best value to smooth the highest increase when starting at 0.
+		// Also interesting: increment/threshold of 8/172 and 10/220
+		return oldCapacity < 333
+			? oldCapacity + 16
+			: oldCapacity < 2_021_161_081 // 2021161080 * 1,0625 = 2147483647
+				? oldCapacity + (oldCapacity >> 4)
+				: Integer.MAX_VALUE
+		;
+	}
+	
+	public static final int smoothCapacityDecrease(final int oldCapacity)
+	{
+		// see MainTestSmoothArrayResizing
+		
+		// 264 steps. Threshold 333 is the best value to smooth the lowest decrease when starting at max value.
+		// Also interesting: increment/threshold of 8/161 and 10/180
+		return oldCapacity >= 333
+			? oldCapacity - (oldCapacity >> 4)
+			: oldCapacity >= 16 //
+				? oldCapacity - 16
+				: 0
+		;
+	}
+	
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //

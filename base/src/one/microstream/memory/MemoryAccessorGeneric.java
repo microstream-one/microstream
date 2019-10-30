@@ -4,7 +4,10 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
+import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
@@ -14,6 +17,125 @@ import one.microstream.reflect.XReflect;
 
 public final class MemoryAccessorGeneric implements MemoryAccessor
 {
+	///////////////////////////////////////////////////////////////////////////
+	// address packing //
+	////////////////////
+	
+	// 12 + 12 + 7 = 31 bits. The 32nd (sign bit) is the small/big switch.
+	static final int
+	
+		SMALL_CHUNK_SIZE_BITCOUNT  = 12,
+		SMALL_CHUNK_CHAIN_BITCOUNT = 12,
+		SMALL_CHUNK_SLOT_BITCOUNT  =  7,
+		
+		// the amount of bits to left shift a size value to pad it into position (12+7=19)
+		SMALL_CHUNK_SIZE_BITSHIFT_COUNT = SMALL_CHUNK_CHAIN_BITCOUNT + SMALL_CHUNK_SLOT_BITCOUNT,
+		
+		// the amount of bits to left shift a chain index value to pad it into position (7)
+		SMALL_CHUNK_CHAIN_BITSHIFT_COUNT = SMALL_CHUNK_SLOT_BITCOUNT,
+		
+		// the amount of bits to left shift a slot index value to pad it into position (0)
+		SMALL_CHUNK_SLOT_BITSHIFT_COUNT = 0,
+		
+		// the bit mask to stance out the size part (the left most 12 bits save the sign bit)
+		SMALL_CHUNK_SIZE_BITMASK  = ~(Integer.MAX_VALUE << SMALL_CHUNK_SIZE_BITCOUNT ) << SMALL_CHUNK_SIZE_BITSHIFT_COUNT ,
+		
+		// the bit mask to stance out the chain position part (the 12 bits between the size and chunks bits)
+		SMALL_CHUNK_CHAIN_BITMASK = ~(Integer.MAX_VALUE << SMALL_CHUNK_CHAIN_BITCOUNT) << SMALL_CHUNK_CHAIN_BITSHIFT_COUNT,
+		
+		// the bit mask to stance out the slot index part (simply the right most 7 bits)
+		SMALL_CHUNK_SLOT_BITMASK = ~(Integer.MAX_VALUE << SMALL_CHUNK_SLOT_BITCOUNT) << SMALL_CHUNK_SLOT_BITSHIFT_COUNT,
+		
+		SMALL_CHUNK_MAX_SIZE         = 1 << SMALL_CHUNK_SIZE_BITCOUNT ,
+		SMALL_CHUNK_MAX_CHAIN_LENGTH = 1 << SMALL_CHUNK_CHAIN_BITCOUNT,
+		SMALL_CHUNK_MAX_SLOT_COUNT   = 1 << SMALL_CHUNK_SLOT_BITCOUNT ,
+				
+		SMALL_CHUNK_BUFFER_POSITION_SLOTS_TABLE  = 0,
+		SMALL_CHUNK_BUFFER_POSITION_SLOTS_START = SMALL_CHUNK_BUFFER_POSITION_SLOTS_TABLE + SMALL_CHUNK_MAX_SLOT_COUNT,
+		
+		BIG_CHUNK_BUFFER_POSITION_CHUNK_START  = 0,
+		
+		SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION = 0
+	;
+	
+	static final long
+		SIGN                      = Long.MIN_VALUE,
+		IDENTIFIER_BITSHIFT_COUNT = Integer.SIZE
+	;
+	
+	private static long packSmallChunkAddress(
+		final int chunkSize ,
+		final int chainIndex,
+		final int slotIndex ,
+		final int offset
+	)
+	{
+		// offset is the lower 4 bytes plus the packed identifier as the upper 4 bytes
+		return offset +
+			((long)packSmallChunkIdentifier(chunkSize, chainIndex, slotIndex) << IDENTIFIER_BITSHIFT_COUNT)
+		;
+	}
+	
+	private static int packSmallChunkIdentifier(final int chunkSize, final int chainIndex, final int slotIndex)
+	{
+		return chunkSize  << SMALL_CHUNK_SIZE_BITSHIFT_COUNT
+		     | chainIndex << SMALL_CHUNK_CHAIN_BITSHIFT_COUNT
+		     | slotIndex  << SMALL_CHUNK_SLOT_BITSHIFT_COUNT
+		;
+	}
+	
+	private static int unpackSmallChunkSize(final int packedSmallChunkIdentifier)
+	{
+		// SMALL_CHUNK_SIZE_BITMASK is actually not required since they are the left most bits and sign bit is always 0.
+		return packedSmallChunkIdentifier >>> SMALL_CHUNK_SIZE_BITSHIFT_COUNT;
+	}
+	
+	private static int unpackSmallChunkChainIndex(final int packedSmallChunkIdentifier)
+	{
+		return (packedSmallChunkIdentifier & SMALL_CHUNK_CHAIN_BITMASK) >>> SMALL_CHUNK_CHAIN_BITSHIFT_COUNT;
+	}
+	
+	private static int unpackSmallChunkSlotIndex(final int packedSmallChunkIdentifier)
+	{
+		// SMALL_CHUNK_SLOT_BITSHIFT_COUNT is actually not required since they are the right most bits.
+		return packedSmallChunkIdentifier & SMALL_CHUNK_SLOT_BITMASK;
+	}
+	
+	private static long packBigChunkAddress(
+		final int bigChunkIdentifier,
+		final int offset
+	)
+	{
+		// offset is the lower 4 bytes plus the identifier as the upper 4 bytes, plus the sign bit.
+		return SIGN | offset + ((long)bigChunkIdentifier << IDENTIFIER_BITSHIFT_COUNT);
+	}
+	
+	private static int unpackBigChunkIdentifier(
+		final long packedBigChunkAddress
+	)
+	{
+		return (int)((SIGN ^ packedBigChunkAddress) >> IDENTIFIER_BITSHIFT_COUNT);
+	}
+	
+	private static int unpackOffset(final long packedAddress)
+	{
+		// basically just cutting off the upper 4 bytes.
+		return (int)packedAddress;
+	}
+	
+	private static boolean isBigChunkAddress(final long packedAddress)
+	{
+		return packedAddress < 0;
+	}
+	
+	private static boolean isSmallChunkAddress(final long packedAddress)
+	{
+		// (30.10.2019 TM)FIXME: how to detect null pointers if 0 is a valid address? maybe small must be negative?
+		return packedAddress > 0;
+	}
+	
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
@@ -46,6 +168,13 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	private final HashTable<Class<?>, Field[]> objectFieldsRegistry = HashTable.New();
 	
+	private final ByteBuffer[][] smallChunkBuffers = new ByteBuffer[SMALL_CHUNK_MAX_SIZE][];
+	private final byte[][]       smallChunkChains  = new byte      [SMALL_CHUNK_MAX_SIZE][];
+	private final boolean[][][]  smallChunkSlots   = new boolean   [SMALL_CHUNK_MAX_SIZE][][];
+
+	private final ByteBuffer[] bigChunkBuffers = new ByteBuffer[0];
+	private final int          firstFreeBugChunkBufferIndex = -1;
+		
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -59,6 +188,91 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	}
 	
 	
+	///////////////////////////////////////////////////////////////////////////
+	// methods //
+	////////////
+	
+	private static ByteBuffer createSmallChunksBuffer(final int chunkSize, final int chainPosition)
+	{
+		return createBuffer(SMALL_CHUNK_BUFFER_POSITION_SLOTS_START + chunkSize * SMALL_CHUNK_MAX_SIZE);
+	}
+	
+	private static ByteBuffer createBuffer(final int size)
+	{
+		// always native order to minimize the clumsily designed performance overhead to the minimum.
+		return ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
+	}
+		
+	private long initializeSmallChunkBufferChain(final int chunkSize)
+	{
+		final int length = XArrays.smoothCapacityIncrease(0);
+		
+		final byte[]       chainIndex = new byte[length];
+		final boolean[][]  slotsIndex = new boolean[length][];
+		final boolean[]    slots      = new boolean[SMALL_CHUNK_MAX_SLOT_COUNT];
+		final ByteBuffer[] buffers    = new ByteBuffer[length];
+		
+		final ByteBuffer buffer = createSmallChunksBuffer(chunkSize, SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION);
+		(this.smallChunkBuffers[chunkSize] = buffers)  [SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION] = buffer;
+		(this.smallChunkChains[chunkSize] = chainIndex)[SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION] = 1;
+		(this.smallChunkSlots[chunkSize] = slotsIndex) [SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION] = slots;
+		slots[0] = true;
+		
+		return packSmallChunkAddress(chunkSize, SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION, 0, 0);
+	}
+	
+	private long allocateMemorySmall(final int chunkSize)
+	{
+		final byte[] index = this.smallChunkChains[chunkSize];
+		
+		// case 1: no chunks buffer chain at all for the specified chunk size
+		if(index == null)
+		{
+			return this.initializeSmallChunkBufferChain(chunkSize);
+		}
+		
+		// case 2: scanning for an existing chunks buffer with a free slot
+		for(int i = 0; i < index.length; i++)
+		{
+			if(index[i] < SMALL_CHUNK_MAX_SLOT_COUNT)
+			{
+				return this.addSmallChunk(chunkSize, i);
+			}
+		}
+		
+		// case 3: existing chunks buffer chain is completely full and has to be enlarged
+		this.enlargeSmallChunkBufferChain(chunkSize);
+		
+		return this.addSmallChunk(chunkSize, index.length);
+	}
+	
+	private long addSmallChunk(final int chunkSize, final int chainPosition)
+	{
+		// (30.10.2019 TM)FIXME: priv#111: allocate chunk in buffer [bytes][i]
+		
+		return packSmallChunkAddress(chunkSize, chainPosition, 0, 0);
+	}
+	
+	private void enlargeSmallChunkBufferChain(final int chunkSize)
+	{
+		// (30.10.2019 TM)FIXME: priv#111: increaseSmallChunkBufferChain
+	}
+	
+	private long allocateMemoryBig(final int chunkSize)
+	{
+		// (30.10.2019 TM)FIXME: priv#111: MemoryAccessorGeneric#allocateMemoryBig()
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+	
+	private ByteBuffer getBuffer(final long address)
+	{
+		if(address < 0)
+		{
+			
+		}
+	}
+		
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// API methods //
@@ -67,25 +281,43 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// memory allocation //
 
 	@Override
-	public final long allocateMemory(final long bytes)
+	public final synchronized long allocateMemory(final long bytes)
 	{
+		if(bytes <= SMALL_CHUNK_MAX_SIZE)
+		{
+			return this.allocateMemorySmall((int)bytes);
+		}
 		
+		if(bytes <= Integer.MAX_VALUE)
+		{
+			return this.allocateMemoryBig((int)bytes);
+		}
+		
+		// (30.10.2019 TM)EXCP: proper exception
+		throw new RuntimeException(
+			"Desired memory range to be allocated of " + bytes
+			+ " exceeds technical limit of " + Integer.MAX_VALUE
+		);
 	}
 
 	@Override
-	public final long reallocateMemory(final long address, final long bytes)
+	public final synchronized long reallocateMemory(final long address, final long bytes)
 	{
+		// no no-op detection since detecting the crazy corner case is not worth slowing down the normal case.
 		
+		this.freeMemory(address);
+		
+		return this.allocateMemory(bytes);
 	}
 
 	@Override
-	public final void freeMemory(final long address)
+	public final synchronized void freeMemory(final long address)
 	{
 		
 	}
 	
 	@Override
-	public final void fillMemory(final long address, final long length, final byte value)
+	public final synchronized void fillMemory(final long address, final long length, final byte value)
 	{
 		
 	}
@@ -95,49 +327,49 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// address-based getters for primitive values //
 	
 	@Override
-	public final byte get_byte(final long address)
+	public final synchronized byte get_byte(final long address)
 	{
 		
 	}
 
 	@Override
-	public final boolean get_boolean(final long address)
+	public final synchronized boolean get_boolean(final long address)
 	{
 		
 	}
 
 	@Override
-	public final short get_short(final long address)
+	public final synchronized short get_short(final long address)
 	{
 		
 	}
 
 	@Override
-	public final char get_char(final long address)
+	public final synchronized char get_char(final long address)
 	{
 		
 	}
 
 	@Override
-	public final int get_int(final long address)
+	public final synchronized int get_int(final long address)
 	{
 		
 	}
 
 	@Override
-	public final float get_float(final long address)
+	public final synchronized float get_float(final long address)
 	{
 		
 	}
 
 	@Override
-	public final long get_long(final long address)
+	public final synchronized long get_long(final long address)
 	{
 		
 	}
 
 	@Override
-	public final double get_double(final long address)
+	public final synchronized double get_double(final long address)
 	{
 		
 	}
@@ -149,55 +381,55 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// object-based getters for primitive values and references //
 	
 	@Override
-	public final byte get_byte(final Object instance, final long offset)
+	public final synchronized byte get_byte(final Object instance, final long offset)
 	{
 		
 	}
 
 	@Override
-	public final boolean get_boolean(final Object instance, final long offset)
+	public final synchronized boolean get_boolean(final Object instance, final long offset)
 	{
 		
 	}
 
 	@Override
-	public final short get_short(final Object instance, final long offset)
+	public final synchronized short get_short(final Object instance, final long offset)
 	{
 		
 	}
 
 	@Override
-	public final char get_char(final Object instance, final long offset)
+	public final synchronized char get_char(final Object instance, final long offset)
 	{
 		
 	}
 
 	@Override
-	public final int get_int(final Object instance, final long offset)
+	public final synchronized int get_int(final Object instance, final long offset)
 	{
 		
 	}
 
 	@Override
-	public final float get_float(final Object instance, final long offset)
+	public final synchronized float get_float(final Object instance, final long offset)
 	{
 		
 	}
 
 	@Override
-	public final long get_long(final Object instance, final long offset)
+	public final synchronized long get_long(final Object instance, final long offset)
 	{
 		
 	}
 
 	@Override
-	public final double get_double(final Object instance, final long offset)
+	public final synchronized double get_double(final Object instance, final long offset)
 	{
 		
 	}
 
 	@Override
-	public final Object getObject(final Object instance, final long offset)
+	public final synchronized Object getObject(final Object instance, final long offset)
 	{
 		
 	}
@@ -207,49 +439,49 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// address-based setters for primitive values //
 	
 	@Override
-	public final void set_byte(final long address, final byte value)
+	public final synchronized void set_byte(final long address, final byte value)
 	{
 		
 	}
 
 	@Override
-	public final void set_boolean(final long address, final boolean value)
+	public final synchronized void set_boolean(final long address, final boolean value)
 	{
 		
 	}
 
 	@Override
-	public final void set_short(final long address, final short value)
+	public final synchronized void set_short(final long address, final short value)
 	{
 		
 	}
 
 	@Override
-	public final void set_char(final long address, final char value)
+	public final synchronized void set_char(final long address, final char value)
 	{
 		
 	}
 
 	@Override
-	public final void set_int(final long address, final int value)
+	public final synchronized void set_int(final long address, final int value)
 	{
 		
 	}
 
 	@Override
-	public final void set_float(final long address, final float value)
+	public final synchronized void set_float(final long address, final float value)
 	{
 		
 	}
 
 	@Override
-	public final void set_long(final long address, final long value)
+	public final synchronized void set_long(final long address, final long value)
 	{
 		
 	}
 
 	@Override
-	public final void set_double(final long address, final double value)
+	public final synchronized void set_double(final long address, final double value)
 	{
 		
 	}
@@ -260,55 +492,55 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// object-based setters for primitive values and references //
 	
 	@Override
-	public final void set_byte(final Object instance, final long offset, final byte value)
+	public final synchronized void set_byte(final Object instance, final long offset, final byte value)
 	{
 		
 	}
 
 	@Override
-	public final void set_boolean(final Object instance, final long offset, final boolean value)
+	public final synchronized void set_boolean(final Object instance, final long offset, final boolean value)
 	{
 		
 	}
 
 	@Override
-	public final void set_short(final Object instance, final long offset, final short value)
+	public final synchronized void set_short(final Object instance, final long offset, final short value)
 	{
 		
 	}
 
 	@Override
-	public final void set_char(final Object instance, final long offset, final char value)
+	public final synchronized void set_char(final Object instance, final long offset, final char value)
 	{
 		
 	}
 
 	@Override
-	public final void set_int(final Object instance, final long offset, final int value)
+	public final synchronized void set_int(final Object instance, final long offset, final int value)
 	{
 		
 	}
 
 	@Override
-	public final void set_float(final Object instance, final long offset, final float value)
+	public final synchronized void set_float(final Object instance, final long offset, final float value)
 	{
 		
 	}
 
 	@Override
-	public final void set_long(final Object instance, final long offset, final long value)
+	public final synchronized void set_long(final Object instance, final long offset, final long value)
 	{
 		
 	}
 
 	@Override
-	public final void set_double(final Object instance, final long offset, final double value)
+	public final synchronized void set_double(final Object instance, final long offset, final double value)
 	{
 		
 	}
 
 	@Override
-	public final void setObject(final Object instance, final long offset, final Object value)
+	public final synchronized void setObject(final Object instance, final long offset, final Object value)
 	{
 		
 	}
@@ -318,49 +550,49 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// transformative byte array primitive value setters //
 	
 	@Override
-	public final void set_byteInBytes(final byte[] bytes, final int index, final byte value)
+	public final synchronized void set_byteInBytes(final byte[] bytes, final int index, final byte value)
 	{
 		
 	}
 	
 	@Override
-	public final void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
+	public final synchronized void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
 	{
 		
 	}
 
 	@Override
-	public final void set_shortInBytes(final byte[] bytes, final int index, final short value)
+	public final synchronized void set_shortInBytes(final byte[] bytes, final int index, final short value)
 	{
 		
 	}
 
 	@Override
-	public final void set_charInBytes(final byte[] bytes, final int index, final char value)
+	public final synchronized void set_charInBytes(final byte[] bytes, final int index, final char value)
 	{
 		
 	}
 
 	@Override
-	public final void set_intInBytes(final byte[] bytes, final int index, final int value)
+	public final synchronized void set_intInBytes(final byte[] bytes, final int index, final int value)
 	{
 		
 	}
 
 	@Override
-	public final void set_floatInBytes(final byte[] bytes, final int index, final float value)
+	public final synchronized void set_floatInBytes(final byte[] bytes, final int index, final float value)
 	{
 		
 	}
 
 	@Override
-	public final void set_longInBytes(final byte[] bytes, final int index, final long value)
+	public final synchronized void set_longInBytes(final byte[] bytes, final int index, final long value)
 	{
 		
 	}
 
 	@Override
-	public final void set_doubleInBytes(final byte[] bytes, final int index, final double value)
+	public final synchronized void set_doubleInBytes(final byte[] bytes, final int index, final double value)
 	{
 		
 	}
@@ -370,13 +602,13 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// generic variable-length range copying //
 	
 	@Override
-	public final void copyRange(final long sourceAddress, final long targetAddress, final long length)
+	public final synchronized void copyRange(final long sourceAddress, final long targetAddress, final long length)
 	{
 		
 	}
 
 	@Override
-	public final void copyRange(final Object source, final long sourceOffset, final Object target, final long targetOffset, final long length)
+	public final synchronized void copyRange(final Object source, final long sourceOffset, final Object target, final long targetOffset, final long length)
 	{
 		
 	}
@@ -386,49 +618,49 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// address-to-array range copying //
 	
 	@Override
-	public final void copyRangeToArray(final long sourceAddress, final byte[] target)
+	public final synchronized void copyRangeToArray(final long sourceAddress, final byte[] target)
 	{
 		
 	}
 	
 	@Override
-	public final void copyRangeToArray(final long sourceAddress, final boolean[] target)
+	public final synchronized void copyRangeToArray(final long sourceAddress, final boolean[] target)
 	{
 		
 	}
 
 	@Override
-	public final void copyRangeToArray(final long sourceAddress, final short[] target)
+	public final synchronized void copyRangeToArray(final long sourceAddress, final short[] target)
 	{
 		
 	}
 
 	@Override
-	public final void copyRangeToArray(final long sourceAddress, final char[] target)
+	public final synchronized void copyRangeToArray(final long sourceAddress, final char[] target)
 	{
 		
 	}
 	
 	@Override
-	public final void copyRangeToArray(final long sourceAddress, final int[] target)
+	public final synchronized void copyRangeToArray(final long sourceAddress, final int[] target)
 	{
 		
 	}
 
 	@Override
-	public final void copyRangeToArray(final long sourceAddress, final float[] target)
+	public final synchronized void copyRangeToArray(final long sourceAddress, final float[] target)
 	{
 		
 	}
 
 	@Override
-	public final void copyRangeToArray(final long sourceAddress, final long[] target)
+	public final synchronized void copyRangeToArray(final long sourceAddress, final long[] target)
 	{
 		
 	}
 
 	@Override
-	public final void copyRangeToArray(final long sourceAddress, final double[] target)
+	public final synchronized void copyRangeToArray(final long sourceAddress, final double[] target)
 	{
 		
 	}
@@ -438,49 +670,49 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// array-to-address range copying //
 	
 	@Override
-	public final void copyArrayToAddress(final byte[] array, final long targetAddress)
+	public final synchronized void copyArrayToAddress(final byte[] array, final long targetAddress)
 	{
 		
 	}
 	
 	@Override
-	public final void copyArrayToAddress(final boolean[] array, final long targetAddress)
+	public final synchronized void copyArrayToAddress(final boolean[] array, final long targetAddress)
 	{
 		
 	}
 	
 	@Override
-	public final void copyArrayToAddress(final short[] array, final long targetAddress)
+	public final synchronized void copyArrayToAddress(final short[] array, final long targetAddress)
 	{
 		
 	}
 
 	@Override
-	public final void copyArrayToAddress(final char[] array, final long targetAddress)
+	public final synchronized void copyArrayToAddress(final char[] array, final long targetAddress)
 	{
 		
 	}
 	
 	@Override
-	public final void copyArrayToAddress(final int[] array, final long targetAddress)
+	public final synchronized void copyArrayToAddress(final int[] array, final long targetAddress)
 	{
 		
 	}
 	
 	@Override
-	public final void copyArrayToAddress(final float[] array, final long targetAddress)
+	public final synchronized void copyArrayToAddress(final float[] array, final long targetAddress)
 	{
 		
 	}
 	
 	@Override
-	public final void copyArrayToAddress(final long[] array, final long targetAddress)
+	public final synchronized void copyArrayToAddress(final long[] array, final long targetAddress)
 	{
 		
 	}
 	
 	@Override
-	public final void copyArrayToAddress(final double[] array, final long targetAddress)
+	public final synchronized void copyArrayToAddress(final double[] array, final long targetAddress)
 	{
 		
 	}
@@ -636,7 +868,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// special system methods, not really memory-related //
 	
 	@Override
-	public final void ensureClassInitialized(final Class<?> c)
+	public final synchronized void ensureClassInitialized(final Class<?> c)
 	{
 		/*
 		 * This is the equivalent (as far as the MemoryAccessor functionality is concerned) to the Unsafe's
@@ -648,15 +880,56 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	}
 	
 	@Override
-	public final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
+	public final synchronized <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
 	{
 		return this.defaultInstantiator.instantiate(c);
 	}
 	
 	@Override
-	public final MemoryAccessor toReversing()
+	public final synchronized MemoryAccessor toReversing()
 	{
 		return this.reversing;
+	}
+	
+	
+	
+	
+	
+	
+	// (30.10.2019 TM)FIXME: priv#111: remove testing code
+	
+	public static void main(final String[] args)
+	{
+		print(SMALL_CHUNK_SIZE_BITMASK);
+		print(SMALL_CHUNK_CHAIN_BITMASK);
+		print(SMALL_CHUNK_SIZE_BITMASK);
+		
+		final int packedSmallRangeIdentifier = packSmallChunkIdentifier(15, 7, 3);
+		
+		print(packedSmallRangeIdentifier);
+		print(unpackSmallChunkSize(packedSmallRangeIdentifier));
+		print(unpackSmallChunkChainIndex(packedSmallRangeIdentifier));
+		print(unpackSmallChunkSlotIndex(packedSmallRangeIdentifier));
+		
+		print(packSmallChunkAddress(15, 7, 3, 31));
+		print(unpackOffset(packSmallChunkAddress(15, 7, 3, 31)));
+		
+		print(packBigChunkAddress(15, 31));
+		print(unpackBigChunkIdentifier(packBigChunkAddress(15, 31)));
+	}
+	
+	static void print(final int value)
+	{
+		System.out.println(value);
+		System.out.println(VarString.New().padLeft(Integer.toBinaryString(value), Integer.SIZE, '0'));
+		System.out.println("---");
+	}
+	
+	static void print(final long value)
+	{
+		System.out.println(value);
+		System.out.println(VarString.New().padLeft(Long.toBinaryString(value), Long.SIZE, '0'));
+		System.out.println("---");
 	}
 	
 }
