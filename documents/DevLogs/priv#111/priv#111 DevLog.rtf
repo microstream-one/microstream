@@ -671,5 +671,17 @@ Bissl thematisch aufr\'e4umen / umstrukturieren.\par
 \par
 So. Dann w\'e4r jetzt schon mal alles an Rand-ged\'f6ns fertig. Fehlen nur noch ca 100 TODOs f\'fcr die manuelle Speicherverwaltung.\par
 Dazu Konzeptbeschreibung wieder ausgraben ...\par
+\par
+Los gehts mit extreme Bitschubsing ...\par
+\par
+Lieber einen Identifier und die slots boolean-table direkt in den DBB als header reinschreiben ...\par
+\par
+... Fertig. Und wieder rausreissen, weil sonst jede Memory Accessing Operationen den Header als Offset draufz\'e4hlen muss. Und das auch noch nach SmallChunk und BigChunk unterschieden. Das w\'e4r d\'e4mlich.\par
+Stattdessen die Slots lieber als 3D-Array smallChunkSlots implementieren.\par
+Das witzige/coole/effiziente an diesen extra Arrays ist: eigentlich wird zum Allokieren und Deallokieren nur auf denen gearbeitet. Der eigentliche DBB wird dabei nie angefasst.\par
+\par
+Iteratives Entwickeln ...\par
+\par
+\par
 }
  
