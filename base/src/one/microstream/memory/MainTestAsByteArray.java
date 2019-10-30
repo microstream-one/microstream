@@ -21,6 +21,7 @@ public class MainTestAsByteArray
 	static void test(final long value)
 	{
 		final byte[] array = asByteArray(value);
+//		final byte[] array = MemoryAccessorSun.staticAsByteArray(value);
 
 		System.out.println(value);
 		System.out.println(VarString.New().padLeft(Long.toHexString(value), 16, '0'));

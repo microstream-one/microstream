@@ -5,10 +5,11 @@ import java.lang.reflect.Modifier;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.memory.MemoryAccessor;
+import one.microstream.memory.MemorySizeProperties;
 import one.microstream.memory.XMemory;
 import sun.misc.Unsafe;
 
-public final class MemoryAccessorSun implements MemoryAccessor
+public final class MemoryAccessorSun implements MemoryAccessor, MemorySizeProperties
 {
 	///////////////////////////////////////////////////////////////////////////
 	// system access //
@@ -33,8 +34,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	
 	public static final Unsafe getMemoryAccess()
 	{
-		// all that clumsy detour ... x_x
-		if(XMemory.class.getClassLoader() == null)
+		if(MemoryAccessorSun.class.getClassLoader() == null)
 		{
 			return Unsafe.getUnsafe(); // Not on bootclasspath
 		}
@@ -124,186 +124,8 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	{
 		VM.setMemory(address, length, value);
 	}
-	
-	
-	
-	// memory size querying logic //
-	
-	public static int staticPageSize()
-	{
-		return VM.pageSize();
-	}
-	
-	public static final int staticByteSizeReference()
-	{
-		return Unsafe.ARRAY_OBJECT_INDEX_SCALE;
-	}
-	
-	public static int staticByteSizeInstance(final Class<?> type)
-	{
-		if(type.isPrimitive())
-		{
-			throw new IllegalArgumentException();
-		}
-		if(type.isArray())
-		{
-			// instance byte size accounts only array header (object header plus length field plus overhead)
-			return VM.arrayBaseOffset(type);
-		}
-		if(type == Object.class)
-		{
-			// required because Object's super class is null (see below)
-			return staticByteSizeObjectHeader();
-		}
-
-		// declared fields suffice as all super class fields are positioned before them
-		final Field[] declaredFields = type.getDeclaredFields();
-		long maxInstanceFieldOffset = 0;
-		Field maxInstanceField = null;
-		for(int i = 0; i < declaredFields.length; i++)
-		{
-			if(Modifier.isStatic(declaredFields[i].getModifiers()))
-			{
-				continue;
-			}
-			final long fieldOffset = VM.objectFieldOffset(declaredFields[i]);
-//			XDebug.debugln(fieldOffset + "\t" + declaredFields[i]);
-			if(fieldOffset >= maxInstanceFieldOffset)
-			{
-				maxInstanceField = declaredFields[i];
-				maxInstanceFieldOffset = fieldOffset;
-			}
-		}
-
-		// no declared instance field at all, fall back to super class fields recursively
-		if(maxInstanceField == null)
-		{
-			return staticByteSizeInstance(type.getSuperclass());
-		}
-
-		// memory alignment is a wild assumption at this point. Hopefully it will always be true. Otherwise it's a bug.
-		return (int)alignAddress(maxInstanceFieldOffset + staticByteSizeFieldValue(maxInstanceField.getType()));
-	}
-
-	public static final int staticByteSizeObjectHeader()
-	{
-		return BYTE_SIZE_OBJECT_HEADER;
-	}
-	
-	private static final int calculateByteSizeObjectHeader()
-	{
-		// min logic should be unnecessary but better exclude any source for potential errors
-		long minOffset = Long.MAX_VALUE;
-		final Field[] declaredFields = ObjectHeaderSizeDummy.class.getDeclaredFields();
-		for(final Field field : declaredFields)
-		{
-			// just in case
-			if(Modifier.isStatic(field.getModifiers()))
-			{
-				continue;
-			}
-			
-			// requires the dummy field calculateByteSizeObjectHeaderFieldOffsetDummy
-			if(VM.objectFieldOffset(field) < minOffset)
-			{
-				minOffset = VM.objectFieldOffset(field);
-			}
-		}
-		if(minOffset == Long.MAX_VALUE)
-		{
-			throw new Error("Could not find object header dummy field in class " + ObjectHeaderSizeDummy.class);
-		}
 		
-		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
-	}
-	
-	public static final int staticByteSizeFieldValue(final Class<?> type)
-	{
-		return type.isPrimitive()
-			? XMemory.byteSizePrimitive(type)
-			: staticByteSizeReference()
-		;
-	}
-	
-	public static final long staticByteSizeArray_byte(final long elementCount)
-	{
-		return ARRAY_BYTE_BASE_OFFSET + elementCount;
-	}
-
-	public static final long staticByteSizeArray_boolean(final long elementCount)
-	{
-		return ARRAY_BOOLEAN_BASE_OFFSET + elementCount;
-	}
-
-	public static final long staticByteSizeArray_short(final long elementCount)
-	{
-		return ARRAY_SHORT_BASE_OFFSET + (elementCount << BITS1);
-	}
-
-	public static final long staticByteSizeArray_char(final long elementCount)
-	{
-		return ARRAY_CHAR_BASE_OFFSET + (elementCount << BITS1);
-	}
-
-	public static final long staticByteSizeArray_int(final long elementCount)
-	{
-		return ARRAY_INT_BASE_OFFSET + (elementCount << BITS2);
-	}
-
-	public static final long staticByteSizeArray_float(final long elementCount)
-	{
-		return ARRAY_FLOAT_BASE_OFFSET + (elementCount << BITS2);
-	}
-
-	public static final long staticByteSizeArray_long(final long elementCount)
-	{
-		return ARRAY_LONG_BASE_OFFSET + (elementCount << BITS3);
-	}
-
-	public static final long staticByteSizeArray_double(final long elementCount)
-	{
-		return ARRAY_DOUBLE_BASE_OFFSET + (elementCount << BITS3);
-	}
-
-	public static final long staticByteSizeArrayObject(final long elementCount)
-	{
-		return ARRAY_OBJECT_BASE_OFFSET + elementCount * staticByteSizeReference();
-	}
-	
-	
-	
-	// field offset abstraction //
-	
-	/**
-	 * Return the field value's arithmetic memory offset relative to the object base offset.
-	 * 
-	 * @param field
-	 * @return the field value's memory offset.
-	 */
-	public static final long staticObjectFieldOffset(final Field field)
-	{
-		return VM.objectFieldOffset(field);
-	}
-	
-	/**
-	 * Array alias vor #objectFieldOffset(Field).
-	 */
-	public static final long[] staticObjectFieldOffsets(final Field... fields)
-	{
-		final long[] offsets = new long[fields.length];
-		for(int i = 0; i < fields.length; i++)
-		{
-			if(Modifier.isStatic(fields[i].getModifiers()))
-			{
-				throw new IllegalArgumentException("Not an object field: " + fields[i]);
-			}
-			offsets[i] = staticObjectFieldOffset(fields[i]);
-		}
 		
-		return offsets;
-	}
-
-	
 
 	// address-based getters for primitive values //
 	
@@ -664,10 +486,43 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	public static final byte[] staticAsByteArray(final long value)
 	{
 		final byte[] bytes = new byte[XMemory.byteSize_long()];
-		staticSet_long(bytes, 0, value);
+		staticSet_long(bytes, ARRAY_BYTE_BASE_OFFSET, value);
 		return bytes;
 	}
 
+	
+	
+	// field offset abstraction //
+	
+	/**
+	 * Return the field value's arithmetic memory offset relative to the object base offset.
+	 * 
+	 * @param field
+	 * @return the field value's memory offset.
+	 */
+	public static final long staticObjectFieldOffset(final Field field)
+	{
+		return VM.objectFieldOffset(field);
+	}
+	
+	/**
+	 * Array alias vor #objectFieldOffset(Field).
+	 */
+	public static final long[] staticObjectFieldOffsets(final Field... fields)
+	{
+		final long[] offsets = new long[fields.length];
+		for(int i = 0; i < fields.length; i++)
+		{
+			if(Modifier.isStatic(fields[i].getModifiers()))
+			{
+				throw new IllegalArgumentException("Not an object field: " + fields[i]);
+			}
+			offsets[i] = staticObjectFieldOffset(fields[i]);
+		}
+		
+		return offsets;
+	}
+	
 	
 	
 	// special system methods, not really memory-related //
@@ -697,11 +552,150 @@ public final class MemoryAccessorSun implements MemoryAccessor
 			throw new InstantiationRuntimeException(e);
 		}
 	}
+		
 	
-	public static final void staticThrowUnchecked(final Throwable t) // throws Throwable magic
+
+	// memory size querying logic //
+	
+	public static int staticPageSize()
 	{
-		// magic!
-		VM.throwException(t);
+		return VM.pageSize();
+	}
+	
+	public static final int staticByteSizeReference()
+	{
+		return Unsafe.ARRAY_OBJECT_INDEX_SCALE;
+	}
+	
+	public static int staticByteSizeInstance(final Class<?> type)
+	{
+		if(type.isPrimitive())
+		{
+			throw new IllegalArgumentException();
+		}
+		if(type.isArray())
+		{
+			// instance byte size accounts only array header (object header plus length field plus overhead)
+			return VM.arrayBaseOffset(type);
+		}
+		if(type == Object.class)
+		{
+			// required because Object's super class is null (see below)
+			return staticByteSizeObjectHeader();
+		}
+
+		// declared fields suffice as all super class fields are positioned before them
+		final Field[] declaredFields = type.getDeclaredFields();
+		long maxInstanceFieldOffset = 0;
+		Field maxInstanceField = null;
+		for(int i = 0; i < declaredFields.length; i++)
+		{
+			if(Modifier.isStatic(declaredFields[i].getModifiers()))
+			{
+				continue;
+			}
+			final long fieldOffset = VM.objectFieldOffset(declaredFields[i]);
+//			XDebug.debugln(fieldOffset + "\t" + declaredFields[i]);
+			if(fieldOffset >= maxInstanceFieldOffset)
+			{
+				maxInstanceField = declaredFields[i];
+				maxInstanceFieldOffset = fieldOffset;
+			}
+		}
+
+		// no declared instance field at all, fall back to super class fields recursively
+		if(maxInstanceField == null)
+		{
+			return staticByteSizeInstance(type.getSuperclass());
+		}
+
+		// memory alignment is a wild assumption at this point. Hopefully it will always be true. Otherwise it's a bug.
+		return (int)alignAddress(maxInstanceFieldOffset + staticByteSizeFieldValue(maxInstanceField.getType()));
+	}
+
+	public static final int staticByteSizeObjectHeader()
+	{
+		return BYTE_SIZE_OBJECT_HEADER;
+	}
+	
+	private static final int calculateByteSizeObjectHeader()
+	{
+		// min logic should be unnecessary but better exclude any source for potential errors
+		long minOffset = Long.MAX_VALUE;
+		final Field[] declaredFields = ObjectHeaderSizeDummy.class.getDeclaredFields();
+		for(final Field field : declaredFields)
+		{
+			// just in case
+			if(Modifier.isStatic(field.getModifiers()))
+			{
+				continue;
+			}
+			
+			// requires the dummy field calculateByteSizeObjectHeaderFieldOffsetDummy
+			if(VM.objectFieldOffset(field) < minOffset)
+			{
+				minOffset = VM.objectFieldOffset(field);
+			}
+		}
+		if(minOffset == Long.MAX_VALUE)
+		{
+			throw new Error("Could not find object header dummy field in class " + ObjectHeaderSizeDummy.class);
+		}
+		
+		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
+	}
+	
+	public static final int staticByteSizeFieldValue(final Class<?> type)
+	{
+		return type.isPrimitive()
+			? XMemory.byteSizePrimitive(type)
+			: staticByteSizeReference()
+		;
+	}
+	
+	public static final long staticByteSizeArray_byte(final long elementCount)
+	{
+		return ARRAY_BYTE_BASE_OFFSET + elementCount;
+	}
+
+	public static final long staticByteSizeArray_boolean(final long elementCount)
+	{
+		return ARRAY_BOOLEAN_BASE_OFFSET + elementCount;
+	}
+
+	public static final long staticByteSizeArray_short(final long elementCount)
+	{
+		return ARRAY_SHORT_BASE_OFFSET + (elementCount << BITS1);
+	}
+
+	public static final long staticByteSizeArray_char(final long elementCount)
+	{
+		return ARRAY_CHAR_BASE_OFFSET + (elementCount << BITS1);
+	}
+
+	public static final long staticByteSizeArray_int(final long elementCount)
+	{
+		return ARRAY_INT_BASE_OFFSET + (elementCount << BITS2);
+	}
+
+	public static final long staticByteSizeArray_float(final long elementCount)
+	{
+		return ARRAY_FLOAT_BASE_OFFSET + (elementCount << BITS2);
+	}
+
+	public static final long staticByteSizeArray_long(final long elementCount)
+	{
+		return ARRAY_LONG_BASE_OFFSET + (elementCount << BITS3);
+	}
+
+	public static final long staticByteSizeArray_double(final long elementCount)
+	{
+		return ARRAY_DOUBLE_BASE_OFFSET + (elementCount << BITS3);
+	}
+
+	public static final long staticByteSizeArrayObject(final long elementCount)
+	{
+		return ARRAY_OBJECT_BASE_OFFSET + elementCount * staticByteSizeReference();
 	}
 	
 	
@@ -709,6 +703,16 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	///////////////////////////////////////////////////////////////////////////
 	// SUN-specific low-level logic //
 	/////////////////////////////////
+	
+	// unchecked throwing magic //
+	
+	public static final void staticThrowUnchecked(final Throwable t) // magically throws Throwable
+	{
+		// magic!
+		VM.throwException(t);
+	}
+	
+	
 	
 	// compar and swap //
 	
@@ -811,7 +815,7 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	// constructors //
 	/////////////////
 	
-	public static MemoryAccessor New()
+	public static MemoryAccessorSun New()
 	{
 		return new MemoryAccessorSun();
 	}
@@ -853,124 +857,6 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		staticFillMemory(address, length, value);
 	}
 
-		
-	
-	// memory size querying logic //
-	
-	@Override
-	public final int pageSize()
-	{
-		return staticPageSize();
-	}
-	
-	@Override
-	public final int byteSizeReference()
-	{
-		return staticByteSizeReference();
-	}
-
-	@Override
-	public final int byteSizeInstance(final Class<?> type)
-	{
-		return staticByteSizeInstance(type);
-	}
-	
-	@Override
-	public final int byteSizeObjectHeader(final Class<?> type)
-	{
-		return staticByteSizeObjectHeader();
-	}
-	
-	@Override
-	public final int byteSizeFieldValue(final Class<?> type)
-	{
-		return staticByteSizeFieldValue(type);
-	}
-	
-	@Override
-	public final long byteSizeArray_byte(final long elementCount)
-	{
-		return staticByteSizeArray_byte(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_boolean(final long elementCount)
-	{
-		return staticByteSizeArray_boolean(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_short(final long elementCount)
-	{
-		return staticByteSizeArray_short(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_char(final long elementCount)
-	{
-		return staticByteSizeArray_char(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_int(final long elementCount)
-	{
-		return staticByteSizeArray_int(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_float(final long elementCount)
-	{
-		return staticByteSizeArray_float(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_long(final long elementCount)
-	{
-		return staticByteSizeArray_long(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_double(final long elementCount)
-	{
-		return staticByteSizeArray_double(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArrayObject(final long elementCount)
-	{
-		return staticByteSizeArrayObject(elementCount);
-	}
-
-
-	
-	// field offset abstraction //
-	
-	@Override
-	public final long objectFieldOffset(final Field field)
-	{
-		return staticObjectFieldOffset(field);
-	}
-	
-	@Override
-	public final long[] objectFieldOffsets(final Field... fields)
-	{
-		return staticObjectFieldOffsets(fields);
-	}
-
-	@Override
-	public final long objectFieldOffset(final Class<?> objectClass, final Field field)
-	{
-		// for the sun "Unsafe" implementation, the specific objectClass makes no sense/difference.
-		return this.objectFieldOffset(field);
-	}
-	
-	@Override
-	public final long[] objectFieldOffsets(final Class<?> objectClass, final Field... fields)
-	{
-		// for the sun "Unsafe" implementation, the specific objectClass makes no sense/difference.
-		return this.objectFieldOffsets(fields);
-	}
-		
 	
 
 	// address-based getters for primitive values //
@@ -1396,6 +1282,36 @@ public final class MemoryAccessorSun implements MemoryAccessor
 	
 	
 
+	// field offset abstraction //
+	
+	@Override
+	public final long objectFieldOffset(final Field field)
+	{
+		return staticObjectFieldOffset(field);
+	}
+	
+	@Override
+	public final long[] objectFieldOffsets(final Field... fields)
+	{
+		return staticObjectFieldOffsets(fields);
+	}
+
+	@Override
+	public final long objectFieldOffset(final Class<?> objectClass, final Field field)
+	{
+		// for the sun "Unsafe" implementation, the specific objectClass makes no sense/difference.
+		return this.objectFieldOffset(field);
+	}
+	
+	@Override
+	public final long[] objectFieldOffsets(final Class<?> objectClass, final Field... fields)
+	{
+		// for the sun "Unsafe" implementation, the specific objectClass makes no sense/difference.
+		return this.objectFieldOffsets(fields);
+	}
+	
+	
+
 	// special system methods, not really memory-related //
 	
 	@Override
@@ -1416,12 +1332,94 @@ public final class MemoryAccessorSun implements MemoryAccessor
 		return staticInstantiateBlank(c);
 	}
 	
+	
+
+	// memory size querying logic //
+	
 	@Override
-	public void throwUnchecked(final Throwable t)
+	public final int pageSize()
 	{
-		staticThrowUnchecked(t);
+		return staticPageSize();
 	}
 	
+	@Override
+	public final int byteSizeReference()
+	{
+		return staticByteSizeReference();
+	}
+
+	@Override
+	public final int byteSizeInstance(final Class<?> type)
+	{
+		return staticByteSizeInstance(type);
+	}
+	
+	@Override
+	public final int byteSizeObjectHeader(final Class<?> type)
+	{
+		return staticByteSizeObjectHeader();
+	}
+	
+	@Override
+	public final int byteSizeFieldValue(final Class<?> type)
+	{
+		return staticByteSizeFieldValue(type);
+	}
+	
+	@Override
+	public final long byteSizeArray_byte(final long elementCount)
+	{
+		return staticByteSizeArray_byte(elementCount);
+	}
+
+	@Override
+	public final long byteSizeArray_boolean(final long elementCount)
+	{
+		return staticByteSizeArray_boolean(elementCount);
+	}
+
+	@Override
+	public final long byteSizeArray_short(final long elementCount)
+	{
+		return staticByteSizeArray_short(elementCount);
+	}
+
+	@Override
+	public final long byteSizeArray_char(final long elementCount)
+	{
+		return staticByteSizeArray_char(elementCount);
+	}
+
+	@Override
+	public final long byteSizeArray_int(final long elementCount)
+	{
+		return staticByteSizeArray_int(elementCount);
+	}
+
+	@Override
+	public final long byteSizeArray_float(final long elementCount)
+	{
+		return staticByteSizeArray_float(elementCount);
+	}
+
+	@Override
+	public final long byteSizeArray_long(final long elementCount)
+	{
+		return staticByteSizeArray_long(elementCount);
+	}
+
+	@Override
+	public final long byteSizeArray_double(final long elementCount)
+	{
+		return staticByteSizeArray_double(elementCount);
+	}
+
+	@Override
+	public final long byteSizeArrayObject(final long elementCount)
+	{
+		return staticByteSizeArrayObject(elementCount);
+	}
+		
 	
 	
 	// extra class to keep MemoryAccessorSun instances stateless

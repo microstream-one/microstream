@@ -58,86 +58,6 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	
 	
 	
-	// memory size querying logic //
-	
-	/**
-	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).
-	 * Use with care (and the dependency to a system value in mind!).
-	 * 
-	 * @return the system's memory "page size".
-	 */
-	@Override
-	public final int pageSize()
-	{
-		return this.actual.pageSize();
-	}
-		
-	@Override
-	public final int byteSizeReference()
-	{
-		return this.actual.byteSizeReference();
-	}
-	
-	@Override
-	public final int byteSizeInstance(final Class<?> type)
-	{
-		return this.actual.byteSizeInstance(type);
-	}
-	
-	@Override
-	public final int byteSizeObjectHeader(final Class<?> type)
-	{
-		return this.actual.byteSizeObjectHeader(type);
-	}
-	
-	@Override
-	public final int byteSizeFieldValue(final Class<?> type)
-	{
-		return this.actual.byteSizeFieldValue(type);
-	}
-	
-	
-	
-	// field offset abstraction //
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final long objectFieldOffset(final Field field)
-	{
-		return this.actual.objectFieldOffset(field);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final long[] objectFieldOffsets(final Field... fields)
-	{
-		return this.actual.objectFieldOffsets(fields);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final long objectFieldOffset(final Class<?> objectClass, final Field field)
-	{
-		return this.actual.objectFieldOffset(objectClass, field);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final long[] objectFieldOffsets(final Class<?> objectClass, final Field... fields)
-	{
-		return this.actual.objectFieldOffsets(objectClass, fields);
-	}
-
-		
-	
 	// address-based getters for primitive values and references //
 	
 	@Override
@@ -561,64 +481,6 @@ public class MemoryAccessorReversing implements MemoryAccessor
 
 	
 	
-	// logic to calculate the total memory requirements of arrays of a given component type and length //
-	
-	@Override
-	public final long byteSizeArray_byte(final long elementCount)
-	{
-		return this.actual.byteSizeArray_byte(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_boolean(final long elementCount)
-	{
-		return this.actual.byteSizeArray_boolean(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_short(final long elementCount)
-	{
-		return this.actual.byteSizeArray_short(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_char(final long elementCount)
-	{
-		return this.actual.byteSizeArray_char(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_int(final long elementCount)
-	{
-		return this.actual.byteSizeArray_int(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_float(final long elementCount)
-	{
-		return this.actual.byteSizeArray_float(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_long(final long elementCount)
-	{
-		return this.actual.byteSizeArray_long(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArray_double(final long elementCount)
-	{
-		return this.actual.byteSizeArray_double(elementCount);
-	}
-
-	@Override
-	public final long byteSizeArrayObject(final long elementCount)
-	{
-		return this.actual.byteSizeArrayObject(elementCount);
-	}
-	
-	
-	
 	// transformative byte array primitive value setters //
 	
 	@Override
@@ -693,6 +555,46 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	
 	
 
+	// field offset abstraction //
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final long objectFieldOffset(final Field field)
+	{
+		return this.actual.objectFieldOffset(field);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final long[] objectFieldOffsets(final Field... fields)
+	{
+		return this.actual.objectFieldOffsets(fields);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final long objectFieldOffset(final Class<?> objectClass, final Field field)
+	{
+		return this.actual.objectFieldOffset(objectClass, field);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final long[] objectFieldOffsets(final Class<?> objectClass, final Field... fields)
+	{
+		return this.actual.objectFieldOffsets(objectClass, fields);
+	}
+	
+	
+
 	// special system methods, not really memory-related, but needed //
 	
 	@Override
@@ -711,12 +613,6 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	public final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
 	{
 		return this.actual.instantiateBlank(c);
-	}
-
-	@Override
-	public final void throwUnchecked(final Throwable t)
-	{
-		this.actual.throwUnchecked(t);
 	}
 	
 	

@@ -17,89 +17,7 @@ public interface MemoryAccessor
 	
 	public void fillMemory(long address, long length, byte value);
 	
-	
-	
-	// memory size querying logic //
-	
-	/**
-	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).
-	 * Use with care (and the dependency to a system value in mind!).
-	 * 
-	 * @return the system's memory "page size".
-	 */
-	public int pageSize();
 		
-	public int byteSizeReference();
-	
-	public int byteSizeInstance(Class<?> type);
-	
-	public int byteSizeObjectHeader(Class<?> type);
-
-	public default int byteSizeFieldValue(final Field field)
-	{
-		return this.byteSizeFieldValue(field.getType());
-	}
-	
-	public int byteSizeFieldValue(Class<?> type);
-	
-	public long byteSizeArray_byte(long elementCount);
-
-	public long byteSizeArray_boolean(long elementCount);
-
-	public long byteSizeArray_short(long elementCount);
-
-	public long byteSizeArray_char(long elementCount);
-
-	public long byteSizeArray_int(long elementCount);
-
-	public long byteSizeArray_float(long elementCount);
-
-	public long byteSizeArray_long(long elementCount);
-
-	public long byteSizeArray_double(long elementCount);
-
-	public long byteSizeArrayObject(long elementCount);
-	
-	
-	
-	// field offset abstraction //
-	
-	/**
-	 * Returns an unspecified, abstract "offset" of the passed {@link Field} to specify a generic access of the
-	 * field's value for an instance of its declaring class that can be used with object-based methods like
-	 * {@link #set_int(Object, long, int)}. Whether that offset is an actual low-level memory offset relative
-	 * to an instance' field offset base or simply an index of the passed field in its declaring class' list
-	 * of fields, is implementation-specific.
-	 * 
-	 * @param field the {@link Field} whose abstract offset shall be determined.
-	 * 
-	 * @return the passed {@link Field}'s abstract offset.
-	 */
-	public long objectFieldOffset(Field field);
-	
-	/**
-	 * Array alias vor #objectFieldOffset(Field).
-	 */
-	public long[] objectFieldOffsets(Field... fields);
-	
-	/**
-	 * Similar to {@link #objectFieldOffset(Field)}, but with the specific object class.<br>
-	 * The difference is that the actual object's class is not the declaring class of its fields if
-	 * it only extends another class but does not declare an object field itself.
-	 * 
-	 * @param objectClass
-	 * @param field
-	 * @return
-	 */
-	public long objectFieldOffset(Class<?> objectClass, Field field);
-	
-
-	/**
-	 * Array alias vor #objectFieldOffset(Class, Field).
-	 */
-	public long[] objectFieldOffsets(Class<?> objectClass, Field... fields);
-
-	
 	
 	// address-based getters for primitive values //
 	
@@ -258,21 +176,82 @@ public interface MemoryAccessor
 	
 	// conversion to byte array //
 	
-	public byte[] asByteArray(long[] values);
+	public default byte[] asByteArray(final long[] values)
+	{
+		final byte[] array = new byte[values.length * Long.BYTES];
+		
+		for(int i = 0; i < values.length; i++)
+		{
+			this.set_longInBytes(array, i * Long.BYTES, values[i]);
+		}
+		
+		return array;
+	}
 
-	public byte[] asByteArray(long value);
+	public default byte[] asByteArray(final long value)
+	{
+		final byte[] array = new byte[Long.BYTES];
+		
+		this.set_longInBytes(array, 0, value);
+		
+		return array;
+	}
+	
+	
+	
+	// field offset abstraction //
+	
+	/**
+	 * Returns an unspecified, abstract "offset" of the passed {@link Field} to specify a generic access of the
+	 * field's value for an instance of its declaring class that can be used with object-based methods like
+	 * {@link #set_int(Object, long, int)}. Whether that offset is an actual low-level memory offset relative
+	 * to an instance' field offset base or simply an index of the passed field in its declaring class' list
+	 * of fields, is implementation-specific.
+	 * 
+	 * @param field the {@link Field} whose abstract offset shall be determined.
+	 * 
+	 * @return the passed {@link Field}'s abstract offset.
+	 */
+	public long objectFieldOffset(Field field);
+	
+	/**
+	 * Array alias vor #objectFieldOffset(Field).
+	 */
+	public long[] objectFieldOffsets(Field... fields);
+	
+	/**
+	 * Similar to {@link #objectFieldOffset(Field)}, but with the specific object class.<br>
+	 * The difference is that the actual object's class is not the declaring class of its fields if
+	 * it only extends another class but does not declare an object field itself.
+	 * 
+	 * @param objectClass
+	 * @param field
+	 * @return
+	 */
+	public long objectFieldOffset(Class<?> objectClass, Field field);
+	
+
+	/**
+	 * Array alias vor #objectFieldOffset(Class, Field).
+	 */
+	public long[] objectFieldOffsets(Class<?> objectClass, Field... fields);
 	
 	
 
-	// special system methods, not really memory-related //
+	// special system methods //
 	
 	public void ensureClassInitialized(Class<?> c);
 	
-	public void ensureClassInitialized(Class<?>... classes);
+	public default void ensureClassInitialized(final Class<?>... classes)
+	{
+		for(final Class<?> c : classes)
+		{
+			this.ensureClassInitialized(c);
+		}
+	}
 	
 	public <T> T instantiateBlank(Class<T> c) throws InstantiationRuntimeException;
 
-	public void throwUnchecked(Throwable t);
 	
 	
 	
