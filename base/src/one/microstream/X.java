@@ -41,6 +41,8 @@ import one.microstream.exceptions.ArrayCapacityException;
 import one.microstream.exceptions.WrapperRuntimeException;
 import one.microstream.functional.BooleanTerm;
 import one.microstream.functional._intIndexedSupplier;
+import one.microstream.functional._intProcedure;
+import one.microstream.math.XMath;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing._longKeyValue;
 import one.microstream.util.UtilStackTrace;
@@ -1176,6 +1178,40 @@ public final class X
 		}
 		
 		throw exceptor.apply(value);
+	}
+	
+	public static <P extends _intProcedure> P repeat(final int amount, final P logic)
+	{
+		return repeat(0, amount, logic);
+	}
+	
+	public static <P extends _intProcedure> P repeat(final int startValue, final int length, final P logic)
+	{
+		final int bound = startValue + XMath.positive(length);
+		
+		for(int i = startValue; i < bound; i++)
+		{
+			logic.accept(i);
+		}
+		
+		return logic;
+	}
+	
+	public static <P extends Runnable> P repeat(final int amount, final P logic)
+	{
+		return repeat(0, amount, logic);
+	}
+	
+	public static <P extends Runnable> P repeat(final int startValue, final int length, final P logic)
+	{
+		final int bound = startValue + XMath.positive(length);
+		
+		for(int i = startValue; i < bound; i++)
+		{
+			logic.run();
+		}
+		
+		return logic;
 	}
 
 	

@@ -1,5 +1,5 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\colortbl ;\red0\green0\blue255;\red165\green165\blue165;}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset0 Courier New;}}
+{\colortbl ;\red0\green0\blue255;\red165\green165\blue165;\red0\green255\blue0;\red255\green0\blue255;\red255\green0\blue0;\red0\green255\blue255;}
 {\*\generator Riched20 10.0.17763}\viewkind4\uc1 
 \pard\sl276\slmult1\f0\fs28\lang7 2019-09-30\par
 \par
@@ -683,5 +683,87 @@ Das witzige/coole/effiziente an diesen extra Arrays ist: eigentlich wird zum All
 Iteratives Entwickeln ...\par
 \par
 \par
+\par
+2019-10-31\par
+\par
+Idee vom Heimweg:\par
+(Spazierengehen im Park von der Arbeit zum Auto ist anscheinend h\'f6chst denkanregend ...)\par
+\par
+Den SlotIndex muss ich gar nicht in den Identifier packen.\par
+Der ergibt sich aus dem Offset von Beginn des Buffers an.\par
+\par
+Und:\par
+Die Anzahl der Slots kann man von der chunkSize ableiten.\par
+Bisher hab ich da viel zu viel gemacht: immer 127, auch bei 4096 Gr\'f6\'dfe. Das belegt gleich mal ein halbes MB nur f\'fcr eine ChunkSize.\par
+Besser ist:\par
+Jeder Small Chunk Buffer ist immer maximal 4096 lang und die Zahl der Slots ergibt sich daraus, wie viel ganze ChunkSizes da rein passen.\par
+Das l\'e4sst sich leicht ausrechnen:\par
+chunkSize > 2048: 1 slot\par
+chunkSize > 1365: 2 slots\par
+chunkSize > 1024: 3 slots\par
+chunkSize > 819: 4 slots (oberstes if der Fallunterscheidung aus Performancegr\'fcnden)\par
+chunkSize <= 32: 127 slots\par
+ansonsten: slotCount = 4096 / chunkSize. (Integer Division rundet das Ergebnis automatisch immer ab, also kann die Gesamtl\'e4nge niemals die 4096 \'fcbersteigen)\par
+\par
+\par
+Letztendlich hei\'dft das:\par
+Ich muss in dem SmallChunk Identifier nur 2 Werte unterbringen:\par
+- Sign Bit (1 bit)\par
+- ChunkSize (12 bit)\par
+- ChainIndex (19 bit)\par
+\par
+Und:\par
+Die SmallChunk F\'e4lle m\'fcssen doch das Sign Bit bekommen, also negative Adresse haben. Denn: Mit einem BigChunk Index beginnend bei 1 kann man einen NPE erkennen. Also muss der positiv sein. Bei dem composite Identifier der SmallChunks geht das nicht.\par
+\par
+Wobei ... da f\'e4llt mir auf: Adressen d\'fcrfen \'fcberhaupt nicht negativ sein, sonst ruiniert die Arithmetik ja die bits, weil sie bei negativen Zahlen r\'fcckw\'e4rts z\'e4hlt.\par
+Hm. Also umdenken:\par
+- Sign Bit ist tabu (1 bit)\par
+- Type Flag (1 bit)\par
+- ChunkSize (12 bit)\par
+- ChainIndex (18 bit)\par
+\par
+Damit kann eine ChunkSize Chain maximal 250K lang werden. Muss halt dann reichen bzw. als Fallback kann ich ja dann BigChunks von kleiner gr\'f6\'dfe allokieren.\par
+\par
+So bau ich das mal ein...\par
+\par
+\par
+Hm. Ein Problem ist dann nat\'fcrlich, dass man nicht mehr pr\'fcfen kann, ob ein Offset aus dem zugewiesenen Speicherbereich rausschreibt.\par
+Aber eigentlich muss man das auch nicht. Mit normalem low-level Speicherzugriff kann man auch \'fcberall hinschreiben, wo man will und damit beliebigen schaden anrichten. Nur wenn man mit der adresse einen segmentation fault macht, krachts direkt. Das w\'e4re hier praktisch, wenn man aus den buffer bounds rausschreiben will. Da muss nix gecheckt werden.\par
+\par
+Aber Moment mal:\par
+Wenn small chunks nur maximal 4096 gro\'df sind, dann braucht das von den unteren 4 bytes ja nur 12 bit. Die restlichen 19-20 bits sind immer 0. Da kann man noch was reinbauen.\par
+\par
+Mal \'fcberlegen ...\par
+\par
+
+\pard\sl240\slmult1\f1\fs22 6666655555555554444444444333333333322222222221111111111000000000\par
+4321_987654321_987654321_987654321_987654321_987654321_987654321\par
+\highlight3 _TSSSSSSSSSSSSCCCCCCCCCCCCCCCCCC\highlight0 _\highlight4 IIIIIII\highlight5 LLLLLLLLLLLL\highlight6 PPPPPPPPPPPP\par
+\highlight0\par
+\highlight3 Identifier part:\tab\tab\tab\tab\par
+\tab _ = sign bit, ignored\tab\tab\tab\highlight0\par
+\highlight3\tab T = type flag (small or big)\tab\highlight0\par
+\highlight3\tab S = chunk size\tab\tab\tab\tab\par
+\tab C = chain index\tab\tab\tab\tab\par
+\highlight0\par
+Offset part:\par
+\tab _ = sign bit, ignored\highlight3\par
+\highlight0\tab\highlight4 I = chunk index\par
+\highlight0\tab\highlight5 L = unused / offset overflow protection\highlight0\par
+\tab\highlight6 P = buffer position\highlight0  (= chunkSize * chunkIndex + offset)\par
+
+\pard\sl276\slmult1\f0\fs28\par
+Damit kann man den unteren Teil wunderbar validieren. Sogar gegen so ziemlich alle vorstellbaren overflow-Artithmetikfehler.\par
+Aber ich denk f\'fcr den Moment nehm ich mal die Variante mit dem Ignorieren. Es ist auf jeden Fall noch genug Platz, um alles super duper wasserdicht zu machen.\par
+\par
+\par
+Beim implementieren ist mir aufgefallen, dass ich ein bisschen dumm bin:\par
+Wie erkennt man wohl eine null-addresse, ganz unabh\'e4ngig davon, welche variante wo mit welchem flag-bit realisiert wird?\par
+Ganz einfach: if(address == 0).\par
+Hurra! :-[\par
+\par
+Small Chunk Allokierung testen...\par
+Funktioniert auf Anhieb. Bitschubsing 4tw!\par
+Feierabend.\par
 }
  

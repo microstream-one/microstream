@@ -7,6 +7,7 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.HashTable;
@@ -24,18 +25,16 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// 12 + 12 + 7 = 31 bits. The 32nd (sign bit) is the small/big switch.
 	static final int
 	
+		SMALL_CHUNK_MAX_SLOT_COUNT = Byte.MAX_VALUE,
+	
 		SMALL_CHUNK_SIZE_BITCOUNT  = 12,
-		SMALL_CHUNK_CHAIN_BITCOUNT = 12,
-		SMALL_CHUNK_SLOT_BITCOUNT  =  7,
-		
+		SMALL_CHUNK_CHAIN_BITCOUNT = 18,
+				
 		// the amount of bits to left shift a size value to pad it into position (12+7=19)
-		SMALL_CHUNK_SIZE_BITSHIFT_COUNT = SMALL_CHUNK_CHAIN_BITCOUNT + SMALL_CHUNK_SLOT_BITCOUNT,
+		SMALL_CHUNK_SIZE_BITSHIFT_COUNT = SMALL_CHUNK_CHAIN_BITCOUNT,
 		
 		// the amount of bits to left shift a chain index value to pad it into position (7)
-		SMALL_CHUNK_CHAIN_BITSHIFT_COUNT = SMALL_CHUNK_SLOT_BITCOUNT,
-		
-		// the amount of bits to left shift a slot index value to pad it into position (0)
-		SMALL_CHUNK_SLOT_BITSHIFT_COUNT = 0,
+		SMALL_CHUNK_CHAIN_BITSHIFT_COUNT = 0,
 		
 		// the bit mask to stance out the size part (the left most 12 bits save the sign bit)
 		SMALL_CHUNK_SIZE_BITMASK  = ~(Integer.MAX_VALUE << SMALL_CHUNK_SIZE_BITCOUNT ) << SMALL_CHUNK_SIZE_BITSHIFT_COUNT ,
@@ -43,45 +42,68 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		// the bit mask to stance out the chain position part (the 12 bits between the size and chunks bits)
 		SMALL_CHUNK_CHAIN_BITMASK = ~(Integer.MAX_VALUE << SMALL_CHUNK_CHAIN_BITCOUNT) << SMALL_CHUNK_CHAIN_BITSHIFT_COUNT,
 		
-		// the bit mask to stance out the slot index part (simply the right most 7 bits)
-		SMALL_CHUNK_SLOT_BITMASK = ~(Integer.MAX_VALUE << SMALL_CHUNK_SLOT_BITCOUNT) << SMALL_CHUNK_SLOT_BITSHIFT_COUNT,
-		
 		SMALL_CHUNK_MAX_SIZE         = 1 << SMALL_CHUNK_SIZE_BITCOUNT ,
 		SMALL_CHUNK_MAX_CHAIN_LENGTH = 1 << SMALL_CHUNK_CHAIN_BITCOUNT,
-		SMALL_CHUNK_MAX_SLOT_COUNT   = 1 << SMALL_CHUNK_SLOT_BITCOUNT ,
-				
-		SMALL_CHUNK_BUFFER_POSITION_SLOTS_TABLE  = 0,
-		SMALL_CHUNK_BUFFER_POSITION_SLOTS_START = SMALL_CHUNK_BUFFER_POSITION_SLOTS_TABLE + SMALL_CHUNK_MAX_SLOT_COUNT,
 		
-		BIG_CHUNK_BUFFER_POSITION_CHUNK_START  = 0,
+		SMALL_CHUNK_SIZE_1_SLOT  = 1 + SMALL_CHUNK_MAX_SIZE / 2                         ,
+		SMALL_CHUNK_SIZE_2_SLOTS = 1 + SMALL_CHUNK_MAX_SIZE / 3                         ,
+		SMALL_CHUNK_SIZE_3_SLOTS = 1 + SMALL_CHUNK_MAX_SIZE / 4                         ,
+		SMALL_CHUNK_SIZE_4_SLOTS = 1 + SMALL_CHUNK_MAX_SIZE / 5                         ,
+		SMALL_CHUNK_SIZE_M_SLOTS = 1 + SMALL_CHUNK_MAX_SIZE / SMALL_CHUNK_MAX_SLOT_COUNT,
 		
-		SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION = 0
+		SMALL_CHUNK_CHAIN_INCREMENT     = 8,
+		SMALL_CHUNK_CHAIN_INITIAL_INDEX = 0,
+		SMALL_CHUNK_SLOTS_INITIAL_INDEX = 0
 	;
 	
 	static final long
-		SIGN                      = Long.MIN_VALUE,
-		IDENTIFIER_BITSHIFT_COUNT = Integer.SIZE
+		IDENTIFIER_BITSHIFT_COUNT = Integer.SIZE,
+		SIZE_TYPE_FLAG            = 1L << IDENTIFIER_BITSHIFT_COUNT + SMALL_CHUNK_SIZE_BITCOUNT + SMALL_CHUNK_CHAIN_BITCOUNT
 	;
+	
+	private static int calculateSlotCount(final int chunkSize)
+	{
+		if(chunkSize >= SMALL_CHUNK_SIZE_4_SLOTS)
+		{
+			if(chunkSize >= SMALL_CHUNK_SIZE_1_SLOT)
+			{
+				return 1;
+			}
+			if(chunkSize >= SMALL_CHUNK_SIZE_2_SLOTS)
+			{
+				return 2;
+			}
+			if(chunkSize >= SMALL_CHUNK_SIZE_3_SLOTS)
+			{
+				return 3;
+			}
+
+			return 4;
+		}
+		if(chunkSize < SMALL_CHUNK_SIZE_M_SLOTS)
+		{
+			return SMALL_CHUNK_MAX_SLOT_COUNT;
+		}
+		
+		return SMALL_CHUNK_MAX_SIZE / chunkSize;
+	}
 	
 	private static long packSmallChunkAddress(
 		final int chunkSize ,
 		final int chainIndex,
-		final int slotIndex ,
-		final int offset
+		final int slotIndex
 	)
 	{
 		// offset is the lower 4 bytes plus the packed identifier as the upper 4 bytes
-		return offset +
-			((long)packSmallChunkIdentifier(chunkSize, chainIndex, slotIndex) << IDENTIFIER_BITSHIFT_COUNT)
+		return SIZE_TYPE_FLAG |
+			((long)packSmallChunkIdentifier(chunkSize, chainIndex) << IDENTIFIER_BITSHIFT_COUNT)
+			+ slotIndex * chunkSize
 		;
 	}
 	
-	private static int packSmallChunkIdentifier(final int chunkSize, final int chainIndex, final int slotIndex)
+	private static int packSmallChunkIdentifier(final int chunkSize, final int chainIndex)
 	{
-		return chunkSize  << SMALL_CHUNK_SIZE_BITSHIFT_COUNT
-		     | chainIndex << SMALL_CHUNK_CHAIN_BITSHIFT_COUNT
-		     | slotIndex  << SMALL_CHUNK_SLOT_BITSHIFT_COUNT
-		;
+		return chunkSize << SMALL_CHUNK_SIZE_BITSHIFT_COUNT | chainIndex << SMALL_CHUNK_CHAIN_BITSHIFT_COUNT;
 	}
 	
 	private static int unpackSmallChunkSize(final int packedSmallChunkIdentifier)
@@ -95,29 +117,23 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		return (packedSmallChunkIdentifier & SMALL_CHUNK_CHAIN_BITMASK) >>> SMALL_CHUNK_CHAIN_BITSHIFT_COUNT;
 	}
 	
-	private static int unpackSmallChunkSlotIndex(final int packedSmallChunkIdentifier)
-	{
-		// SMALL_CHUNK_SLOT_BITSHIFT_COUNT is actually not required since they are the right most bits.
-		return packedSmallChunkIdentifier & SMALL_CHUNK_SLOT_BITMASK;
-	}
-	
 	private static long packBigChunkAddress(
 		final int bigChunkIdentifier,
 		final int offset
 	)
 	{
 		// offset is the lower 4 bytes plus the identifier as the upper 4 bytes, plus the sign bit.
-		return SIGN | offset + ((long)bigChunkIdentifier << IDENTIFIER_BITSHIFT_COUNT);
+		return offset + ((long)bigChunkIdentifier << IDENTIFIER_BITSHIFT_COUNT);
 	}
 	
 	private static int unpackBigChunkIdentifier(
 		final long packedBigChunkAddress
 	)
 	{
-		return (int)((SIGN ^ packedBigChunkAddress) >> IDENTIFIER_BITSHIFT_COUNT);
+		return (int)(packedBigChunkAddress >> IDENTIFIER_BITSHIFT_COUNT);
 	}
 	
-	private static int unpackOffset(final long packedAddress)
+	private static int unpackBufferPosition(final long packedAddress)
 	{
 		// basically just cutting off the upper 4 bytes.
 		return (int)packedAddress;
@@ -125,13 +141,22 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	private static boolean isBigChunkAddress(final long packedAddress)
 	{
-		return packedAddress < 0;
+		return (packedAddress & SIZE_TYPE_FLAG) == 0;
 	}
 	
 	private static boolean isSmallChunkAddress(final long packedAddress)
 	{
-		// (30.10.2019 TM)FIXME: how to detect null pointers if 0 is a valid address? maybe small must be negative?
-		return packedAddress > 0;
+		return (packedAddress & SIZE_TYPE_FLAG) != 0;
+	}
+	
+	private static int unpackBigChunkBufferIdentifier(final long packedAddress)
+	{
+		return (int)(packedAddress >>> IDENTIFIER_BITSHIFT_COUNT);
+	}
+	
+	private static int unpackSmallChunkBufferIdentifier(final long packedAddress)
+	{
+		return (int)((packedAddress ^ SIZE_TYPE_FLAG) >>> IDENTIFIER_BITSHIFT_COUNT);
 	}
 	
 	
@@ -168,9 +193,19 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	private final HashTable<Class<?>, Field[]> objectFieldsRegistry = HashTable.New();
 	
-	private final ByteBuffer[][] smallChunkBuffers = new ByteBuffer[SMALL_CHUNK_MAX_SIZE][];
-	private final byte[][]       smallChunkChains  = new byte      [SMALL_CHUNK_MAX_SIZE][];
-	private final boolean[][][]  smallChunkSlots   = new boolean   [SMALL_CHUNK_MAX_SIZE][][];
+	/*
+	 * 3 dimensions:
+	 * 1: master table with the chunk size as the index
+	 * 2: a chain of buffers, all of them containing chunks of the specified size.
+	 * 3: every buffer is segmented into 1 to 127 subsequent chunks. Each is called a "slot".
+	 * 
+	 * The buffer table is only 2D because the slots are embedded in its allocated memory
+	 * The sizes table is only 2D because every size value is an accumulated representation of occupied slots.
+	 * The slots chain table (to mark occupied slots) is the only actual 3D-table
+	 */
+	private final ByteBuffer[][] smallChunkBufferChains      = new ByteBuffer[SMALL_CHUNK_MAX_SIZE][];
+	private final byte[][]       smallChunkBufferChainSizes  = new byte      [SMALL_CHUNK_MAX_SIZE][];
+	private final boolean[][][]  smallChunkBufferSlotsChains = new boolean   [SMALL_CHUNK_MAX_SIZE][][];
 
 	private final ByteBuffer[] bigChunkBuffers = new ByteBuffer[0];
 	private final int          firstFreeBugChunkBufferIndex = -1;
@@ -192,9 +227,9 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// methods //
 	////////////
 	
-	private static ByteBuffer createSmallChunksBuffer(final int chunkSize, final int chainPosition)
+	private static ByteBuffer createSmallChunksBuffer()
 	{
-		return createBuffer(SMALL_CHUNK_BUFFER_POSITION_SLOTS_START + chunkSize * SMALL_CHUNK_MAX_SIZE);
+		return createBuffer(SMALL_CHUNK_MAX_SIZE);
 	}
 	
 	private static ByteBuffer createBuffer(final int size)
@@ -205,25 +240,36 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		
 	private long initializeSmallChunkBufferChain(final int chunkSize)
 	{
-		final int length = XArrays.smoothCapacityIncrease(0);
+		// local shortcuts for constants
+		final int chainLength  = SMALL_CHUNK_CHAIN_INCREMENT;
+		final int initChainIdx = SMALL_CHUNK_CHAIN_INITIAL_INDEX;
+		final int initSlotIdx  = SMALL_CHUNK_SLOTS_INITIAL_INDEX;
 		
-		final byte[]       chainIndex = new byte[length];
-		final boolean[][]  slotsIndex = new boolean[length][];
-		final boolean[]    slots      = new boolean[SMALL_CHUNK_MAX_SLOT_COUNT];
-		final ByteBuffer[] buffers    = new ByteBuffer[length];
+		// newly instantiated parts
+		final byte[]       chainSizes  = new byte[chainLength];
+		final boolean[][]  slotsChains = new boolean[chainLength][];
+		final boolean[]    slots       = new boolean[SMALL_CHUNK_MAX_SLOT_COUNT];
+		final ByteBuffer[] bufferChain = new ByteBuffer[chainLength];
+		final ByteBuffer   buffer      = createSmallChunksBuffer();
 		
-		final ByteBuffer buffer = createSmallChunksBuffer(chunkSize, SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION);
-		(this.smallChunkBuffers[chunkSize] = buffers)  [SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION] = buffer;
-		(this.smallChunkChains[chunkSize] = chainIndex)[SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION] = 1;
-		(this.smallChunkSlots[chunkSize] = slotsIndex) [SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION] = slots;
-		slots[0] = true;
+		// setting up references and values for the first chunk
+		bufferChain[initChainIdx] = buffer;
+		chainSizes [initChainIdx] = 1;
+		slotsChains[initChainIdx] = slots;
+		slots[initSlotIdx] = true;
 		
-		return packSmallChunkAddress(chunkSize, SMALL_CHUNK_INITIAL_BUFFER_CHAIN_POSITION, 0, 0);
+		// registering the new parts in the master tables
+		this.smallChunkBufferChains     [chunkSize] = bufferChain;
+		this.smallChunkBufferChainSizes [chunkSize] = chainSizes;
+		this.smallChunkBufferSlotsChains[chunkSize] = slotsChains;
+		
+		// returning a packed address representing the registered chunk so that it can be addressed.
+		return packSmallChunkAddress(chunkSize, initChainIdx, initSlotIdx);
 	}
 	
 	private long allocateMemorySmall(final int chunkSize)
 	{
-		final byte[] index = this.smallChunkChains[chunkSize];
+		final byte[] index = this.smallChunkBufferChainSizes[chunkSize];
 		
 		// case 1: no chunks buffer chain at all for the specified chunk size
 		if(index == null)
@@ -246,16 +292,72 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		return this.addSmallChunk(chunkSize, index.length);
 	}
 	
+	private void ensureBuffer(final int chunkSize, final int chainPosition)
+	{
+		if(this.smallChunkBufferChainSizes[chunkSize][chainPosition] == 0)
+		{
+			this.smallChunkBufferChains[chunkSize][chainPosition] = createSmallChunksBuffer();
+			this.smallChunkBufferSlotsChains[chunkSize][chainPosition] = new boolean[calculateSlotCount(chunkSize)];
+		}
+	}
+	
+	// only called from code that has ensured that there is space for at least one chunk.
 	private long addSmallChunk(final int chunkSize, final int chainPosition)
 	{
-		// (30.10.2019 TM)FIXME: priv#111: allocate chunk in buffer [bytes][i]
+		this.ensureBuffer(chunkSize, chainPosition);
 		
-		return packSmallChunkAddress(chunkSize, chainPosition, 0, 0);
+		final boolean[] slots = this.smallChunkBufferSlotsChains[chunkSize][chainPosition];
+		
+		int slotIndex = 0;
+		for(int i = 0; i < slots.length; i++)
+		{
+			if(!slots[i])
+			{
+				slots[slotIndex = i] = true;
+				break;
+			}
+		}
+		
+		this.smallChunkBufferChainSizes[chunkSize][chainPosition]++;
+		
+		return packSmallChunkAddress(chunkSize, chainPosition, slotIndex);
+	}
+	
+	private static int calculateIncreaseChainLength(final int oldChainLength)
+	{
+		// this is important in order to not ruin the identifier part of the packed address!
+		if(oldChainLength + SMALL_CHUNK_CHAIN_INCREMENT >= SMALL_CHUNK_MAX_CHAIN_LENGTH)
+		{
+			// (31.10.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Memory allocation capacity exceeded.");
+		}
+		
+		/* (31.10.2019 TM)NOTE:
+		 * This exception could be prevented by all kinds of fallback strategies:
+		 * - allocate a small chunk of 1 size more.
+		 * - allocate it as a single-buffer "big" ("normal") chunk, even with the memory overhead.
+		 * - use some of the 12 unused bits in the lower 4 bytes to extend the chain index number range.
+		 * All of these options could be combined to make such an exception pretty much impossible.
+		 * However, that is something for a future improvement. For now and the initial version,
+		 * the exception is acceptable.
+		 */
+		
+		return oldChainLength + SMALL_CHUNK_CHAIN_INCREMENT;
+	}
+	
+	private static ByteBuffer[] increase(final ByteBuffer[] oldArray, final int newLength)
+	{
+		final ByteBuffer[] newChain = new ByteBuffer[newLength];
+		System.arraycopy(oldArray, 0, newChain, 0, oldArray.length);
+		return newChain;
 	}
 	
 	private void enlargeSmallChunkBufferChain(final int chunkSize)
 	{
-		// (30.10.2019 TM)FIXME: priv#111: increaseSmallChunkBufferChain
+		final ByteBuffer[] oldChain = this.smallChunkBufferChains[chunkSize];
+				
+		// size increment is very conservative: a small constant amount more to conserve occupied memory
+		this.smallChunkBufferChains[chunkSize] = increase(oldChain, calculateIncreaseChainLength(oldChain.length));
 	}
 	
 	private long allocateMemoryBig(final int chunkSize)
@@ -266,10 +368,34 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	private ByteBuffer getBuffer(final long address)
 	{
+		if(address == 0)
+		{
+			// the famous one
+			throw new NullPointerException();
+		}
 		if(address < 0)
 		{
-			
+			// (31.10.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Invalid address: " + address);
 		}
+		
+		return isBigChunkAddress(address)
+			? this.getBigChunkBuffer(unpackBigChunkBufferIdentifier(address))
+			: this.getSmallChunkBuffer(unpackSmallChunkBufferIdentifier(address))
+		;
+	}
+	
+	private ByteBuffer getSmallChunkBuffer(final int identifier)
+	{
+		return this.smallChunkBufferChains
+			[unpackSmallChunkSize(identifier)]
+			[unpackSmallChunkChainIndex(identifier)]
+		;
+	}
+	
+	private ByteBuffer getBigChunkBuffer(final int identifier)
+	{
+		return this.bigChunkBuffers[identifier];
 	}
 		
 	
@@ -900,36 +1026,88 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	public static void main(final String[] args)
 	{
-		print(SMALL_CHUNK_SIZE_BITMASK);
-		print(SMALL_CHUNK_CHAIN_BITMASK);
-		print(SMALL_CHUNK_SIZE_BITMASK);
+//		testAddressPacking();
+//		testSlotCount();
+		testAllocation();
+	}
+	
+	static void print32BitHeader()
+	{
+		System.out.println("33322222222221111111111000000000");
+		System.out.println("21_987654321_987654321_987654321");
+	}
+	
+	static void print64BitHeader()
+	{
+		System.out.println("6666655555555554444444444333333333322222222221111111111000000000");
+		System.out.println("4321_987654321_987654321_987654321_987654321_987654321_987654321");
+	}
+	
+	static void testAddressPacking()
+	{
+		System.out.println("21_987654321_987654321_987654321");
+		print("SMALL_CHUNK_SIZE_BITMASK", SMALL_CHUNK_SIZE_BITMASK);
+		print("SMALL_CHUNK_CHAIN_BITMASK", SMALL_CHUNK_CHAIN_BITMASK);
 		
-		final int packedSmallRangeIdentifier = packSmallChunkIdentifier(15, 7, 3);
-		
-		print(packedSmallRangeIdentifier);
-		print(unpackSmallChunkSize(packedSmallRangeIdentifier));
-		print(unpackSmallChunkChainIndex(packedSmallRangeIdentifier));
-		print(unpackSmallChunkSlotIndex(packedSmallRangeIdentifier));
-		
-		print(packSmallChunkAddress(15, 7, 3, 31));
-		print(unpackOffset(packSmallChunkAddress(15, 7, 3, 31)));
-		
-		print(packBigChunkAddress(15, 31));
-		print(unpackBigChunkIdentifier(packBigChunkAddress(15, 31)));
+		final int packedSmallRangeIdentifier = packSmallChunkIdentifier(15, 7);
+		print("packSmallChunkIdentifier(15, 7)", packedSmallRangeIdentifier);
+		print("unpackSmallChunkSize", unpackSmallChunkSize(packedSmallRangeIdentifier));
+		print("unpackSmallChunkChainIndex", unpackSmallChunkChainIndex(packedSmallRangeIdentifier));
+
+		System.out.println("4321_987654321_987654321_987654321_987654321_987654321_987654321");
+		print("SIZE_TYPE_FLAG", SIZE_TYPE_FLAG);
+		System.out.println("\n\n--Small Chunk Address--");
+		print("packSmallChunkAddress(15, 7, 3, 31)", packSmallChunkAddress(15, 7, 3));
+		print("unpackSmallChunkBufferIdentifier", unpackSmallChunkBufferIdentifier(packSmallChunkAddress(15, 7, 3)));
+		print("unpackBufferPosition", unpackBufferPosition(packSmallChunkAddress(15, 7, 3)));
+
+//		System.out.println("\n\n--BIG Chunk Address--");
+//		print(packBigChunkAddress(15, 31));
+//		print(unpackBigChunkIdentifier(packBigChunkAddress(15, 31)));
+	}
+	
+	static void testSlotCount()
+	{
+		// testing calculateSlotCount
+		X.repeat(1, 4096, (final int chunkSize) ->
+		{
+			final int slotCount = MemoryAccessorGeneric.calculateSlotCount(chunkSize);
+			System.out.println(chunkSize + " -> " + slotCount + " (total = " + slotCount * chunkSize + ")");
+		});
+	}
+	
+	static void testAllocation()
+	{
+		final MemoryAccessorGeneric memory = MemoryAccessorGeneric.New();
+		final long address = memory.allocateMemory(321);
+		print64BitHeader();
+		print("address for allocated 321 bytes", address);
+		final ByteBuffer bb = memory.getBuffer(address);
+		System.out.println(bb.capacity());
+	}
+	
+	static void print(final String label, final int value)
+	{
+		System.out.println((label == null ? "" : label + ": ") + value);
+		System.out.println(VarString.New().padLeft(Integer.toBinaryString(value), Integer.SIZE, '0'));
+		System.out.println("---");
 	}
 	
 	static void print(final int value)
 	{
-		System.out.println(value);
-		System.out.println(VarString.New().padLeft(Integer.toBinaryString(value), Integer.SIZE, '0'));
+		print(null, value);
+	}
+	
+	static void print(final String label, final long value)
+	{
+		System.out.println((label == null ? "" : label + ": ") + value);
+		System.out.println(VarString.New().padLeft(Long.toBinaryString(value), Long.SIZE, '0'));
 		System.out.println("---");
 	}
 	
 	static void print(final long value)
 	{
-		System.out.println(value);
-		System.out.println(VarString.New().padLeft(Long.toBinaryString(value), Long.SIZE, '0'));
-		System.out.println("---");
+		print(null, value);
 	}
 	
 }
