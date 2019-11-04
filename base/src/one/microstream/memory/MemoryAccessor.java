@@ -17,7 +17,7 @@ public interface MemoryAccessor
 	
 	public void fillMemory(long address, long length, byte value);
 	
-		
+	
 	
 	// address-based getters for primitive values //
 	

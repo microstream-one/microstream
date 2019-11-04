@@ -765,5 +765,75 @@ Hurra! :-[\par
 Small Chunk Allokierung testen...\par
 Funktioniert auf Anhieb. Bitschubsing 4tw!\par
 Feierabend.\par
+\par
+\par
+\par
+2019-11-04\par
+\par
+Paar Verbesserungsideen vom Wochenende:\par
+\par
+1.)\par
+Small Chunk Buffers sollten nat\'fcrlich immer mit exakt passender Gr\'f6\'dfe allokiert werden.\par
+Es macht keinen Sinn, pauschal 4096 Byte zu allokieren und dann f\'fcr z.B. eine 1025er Gr\'f6\'dfe nur 2050 davon zu allokieren und 2046 einfach ungenutzt rumliegen zu lassen.\par
+\par
+2.)\par
+Die Mindestanzahl an Small Chunks in einem Buffer muss 2 sein. Wenn es nur 1 ist, k\'f6nnte man es gleich als BigChunk behandeln. Das h\'e4tte weniger Overhead.\par
+Also ist die Frage: Entweder SmallChunk Maximalgr\'f6\'dfe verkleinern auf 2048 oder SmallChunk Buffergr\'f6\'dfe erweitern auf 8192?\par
+\par
+Man k\'f6nnte nat\'fcrlich folgendes machen:\par
+- Small Chunk Max Size reduzieren auf 1024 (10 bit statt 12 bit)\par
+- Daf\'fcr chain length von 18 auf 20 bits erh\'f6hen, d.h. 1 Million Eintr\'e4ge je small chunk size.\par
+- Buffer Size auf 4096 lassen, d.h. es gehen immer mindestens 4 chunks in einen Buffer. Oder 4 Millionen Chunks. Oder 4 GB an adressierbarem Speicherbereich. NUR f\'fcr 1024er Chunks.\par
+- f\'fcr 820 Byte (ung\'fcnstigster Fall 1 Byte \'fcber 5 Chunks) w\'e4ren es dann nur 820*4*1024*1024 = 3,2 GB anstatt 4,0 GB. Bei 819 w\'e4ren es dann wieder 819*5*1024*1024 = 3,999 GB.\par
+\par
+Ich glaub, so mach ich das.\par
+\par
+\par
+Layout Update:\par
+\par
+
+\pard\sl240\slmult1\f1\fs22 6666655555555554444444444333333333322222222221111111111000000000\par
+4321_987654321_987654321_987654321_987654321_987654321_987654321\par
+\highlight3 _TSSSSSSSSSSCCCCCCCCCCCCCCCCCCCC\highlight0 _\highlight4 IIIIIII\highlight5 LLLLLLLLLLLL\highlight6 PPPPPPPPPPPP\par
+\highlight0\par
+\highlight3 Identifier part:\tab\tab\tab\tab\par
+\tab _ = sign bit, ignored\tab\tab\tab\highlight0\par
+\highlight3\tab T = type flag (small or big)\tab\highlight0\par
+\highlight3\tab S = chunk size\tab\tab\tab\tab\par
+\tab C = chain index\tab\tab\tab\tab\par
+\highlight0\par
+Offset part:\par
+\tab _ = sign bit, ignored\highlight3\par
+\highlight0\tab\highlight4 I = chunk index\par
+\highlight0\tab\highlight5 L = unused / offset overflow protection\highlight0\par
+\tab\highlight6 P = buffer position\highlight0  (= chunkSize * chunkIndex + offset)\par
+
+\pard\sl276\slmult1\f0\fs28\par
+\par
+Umbauen...\par
+Kommentare updaten.\par
+Bitshifting testen.\par
+Oh, da f\'e4llt mir auf: 0 Byte allokieren macht keinen Sinn und mit 0 Byte kann man nur 1023 anstatt 1024 abdecken. Hei\'dft: Ich muss erstens mal auf 0 Byte gr\'f6\'dfe checken und zweitens dann vom definierten Bereich 1 abziehen.\par
+Dann passt das Konzept wieder.\par
+\par
+Ich mach jetzt doch mal zumindest eine "MemoryException" Basisexception.\par
+\par
+Bissl rumtesten.\par
+Ah... jenseits des ersten chainIndex sind schon noch paar Bugs drin ... nacheinander isolieren und fixen.\par
+\par
+So. Small Chunks allokieren l\'e4uft sauber durch f\'fcr 1 Million St\'fcck von Gr\'f6\'dfe 1024.\par
+\par
+Jetzt Deallokierung bauen.\par
+\par
+Achja, Moment:\par
+Noch paar Sonderf\'e4lle in Unsafe testen:\par
+Was ist bei ...\par
+- 0 bytes (de)allokieren\par
+- 1 byte (de)allokieren\par
+- negative zahl an bytes (de)allokieren\par
+- nicht-Basisadresse deallokieren\par
+- usw.\par
+\par
+\par
 }
  
