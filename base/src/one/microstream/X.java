@@ -727,6 +727,14 @@ public final class X
 		}
 		return BulkList.New(elements);
 	}
+	
+	public static <E> XList<E> List(final Iterable<? extends E> elements)
+	{
+		final BulkList<E> newInstance = BulkList.New();
+		elements.forEach(newInstance);
+		
+		return newInstance;
+	}
 
 	@SafeVarargs
 	public static <E> ConstList<E> ConstList(final E... elements) throws NullPointerException
@@ -762,6 +770,14 @@ public final class X
 			return HashEnum.New();
 		}
 		return HashEnum.<E>New(elements);
+	}
+	
+	public static <E> HashEnum<E> Enum(final Iterable<? extends E> elements)
+	{
+		final HashEnum<E> newInstance = HashEnum.New();
+		elements.forEach(newInstance);
+		
+		return newInstance;
 	}
 
 	@SafeVarargs
