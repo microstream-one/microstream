@@ -834,6 +834,26 @@ Was ist bei ...\par
 - nicht-Basisadresse deallokieren\par
 - usw.\par
 \par
+2019-11-05\par
 \par
+Deallkorieren weiterbauen.\par
+Paar Utilmethoden zum Arrays managen mit Logik zum Allokieren zusammenlegen.\par
+Testen.\par
+Sieht gut aus.\par
+\par
+Ah, aber jetzt noch was testen:\par
+Viel allokieren.\par
+Einiges davon zuf\'e4llig wieder deallokieren.\par
+Dann wieder einiges allokieren und schauen, ob die entstandenen L\'fccken korrekt gef\'fcllt werden.\par
+\par
+Test bauen.\par
+Testen...\par
+\par
+Sieht ganz gut aus.\par
+Aber noch einen Cleanup machen:\par
+Am Ende alle Addressen durchlaufen und != 0 deallokieren.\par
+\par
+Aha: Da bleiben Eintr\'e4ge \'fcbrig. Das darf nicht sein.\par
+Oder hab ich im Test Allokationen, die ich nicht tracke ...?\par
 }
  

@@ -371,15 +371,8 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		
 		return packSmallChunkAddress(chunkSizeIdx, chainPosition, slotIndex);
 	}
-	
-	private long occupySlot(final int chunkSizeIndex, final int chainPosition, final int slotIndex)
-	{
-		this.smallChunkBufferChainSizes[chunkSizeIndex][chainPosition]++;
 		
-		return packSmallChunkAddress(chunkSizeIndex, chainPosition, slotIndex);
-	}
-	
-	private static int calculateIncreaseChainLength(final int oldChainLength)
+	private static int calculateIncreasedChainLength(final int oldChainLength)
 	{
 		// this is important in order to not ruin the identifier part of the packed address!
 		if(oldChainLength + SMALL_CHUNK_CHAIN_INCREMENT >= SMALL_CHUNK_MAX_CHAIN_LENGTH)
@@ -401,40 +394,47 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		return oldChainLength + SMALL_CHUNK_CHAIN_INCREMENT;
 	}
 	
-	private static ByteBuffer[] increase(final ByteBuffer[] oldArray, final int newLength)
+	private static int calculateDecreasedChainLength(
+		final int oldChainLength          ,
+		final int trailingFreeElementCount
+	)
 	{
-		final ByteBuffer[] newChain = new ByteBuffer[newLength];
-		System.arraycopy(oldArray, 0, newChain, 0, oldArray.length);
-		return newChain;
+		final int alignedDecrease =
+			trailingFreeElementCount / SMALL_CHUNK_CHAIN_INCREMENT * SMALL_CHUNK_CHAIN_INCREMENT
+		;
+		
+		final int newLength = oldChainLength - alignedDecrease;
+		
+		return newLength;
 	}
-	
-	private static byte[] increase(final byte[] oldArray, final int newLength)
-	{
-		final byte[] newChain = new byte[newLength];
-		System.arraycopy(oldArray, 0, newChain, 0, oldArray.length);
-		return newChain;
-	}
-	
-	private static boolean[][] increase(final boolean[][] oldArray, final int newLength)
-	{
-		final boolean[][] newChain = new boolean[newLength][];
-		System.arraycopy(oldArray, 0, newChain, 0, oldArray.length);
-		return newChain;
-	}
-	
+		
 	private void enlargeSmallChunkBufferChain(final int chunkSize)
 	{
-		final int          chunkSizeIndex = toChunkSizeIndex(chunkSize);
-		final ByteBuffer[] oldChain = this.smallChunkBufferChains[chunkSizeIndex];
-		final byte[]       oldChainSizes = this.smallChunkBufferChainSizes[chunkSizeIndex];
-		final boolean[][]  oldSlotsChains = this.smallChunkBufferSlotsChains[chunkSizeIndex];
+		final int chunkSizeIndex = toChunkSizeIndex(chunkSize);
 
 		// size increment is very conservative: a small constant amount more to conserve occupied memory
-		final int newLength = calculateIncreaseChainLength(oldChain.length);
-				
-		this.smallChunkBufferChains     [chunkSizeIndex] = increase(oldChain, newLength);
-		this.smallChunkBufferChainSizes [chunkSizeIndex] = increase(oldChainSizes, newLength);
-		this.smallChunkBufferSlotsChains[chunkSizeIndex] = increase(oldSlotsChains, newLength);
+		final int newLength = calculateIncreasedChainLength(this.smallChunkBufferChains[chunkSizeIndex].length);
+		this.rebuildSmallChunkChains(chunkSizeIndex, newLength);
+	}
+	
+	private void rebuildSmallChunkChains(final int chunkSizeIndex, final int newLength)
+	{
+		this.smallChunkBufferChains[chunkSizeIndex] = XArrays.rebuild(
+			this.smallChunkBufferChains[chunkSizeIndex], newLength
+		);
+		this.smallChunkBufferChainSizes[chunkSizeIndex] = XArrays.rebuild(
+			this.smallChunkBufferChainSizes[chunkSizeIndex], newLength
+		);
+		this.smallChunkBufferSlotsChains[chunkSizeIndex] = XArrays.rebuild(
+			this.smallChunkBufferSlotsChains[chunkSizeIndex], newLength
+		);
+	}
+	
+	private void clearSmallChunkChains(final int chunkSizeIndex)
+	{
+		this.smallChunkBufferChains     [chunkSizeIndex] = null;
+		this.smallChunkBufferChainSizes [chunkSizeIndex] = null;
+		this.smallChunkBufferSlotsChains[chunkSizeIndex] = null;
 	}
 	
 	private long allocateMemoryBig(final int chunkSize)
@@ -548,16 +548,8 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		}
 	}
 	
-	private void freeSmallChunkMemory(final long address)
+	private static void validateProperSmallChunkAddressId(final long address, final int chunkOffset)
 	{
-		final int identifier      = unpackSmallChunkBufferIdentifier(address);
-		final int bufferPosition  = unpackBufferPosition(address);
-		final int chunkSizeIndex  = unpackSmallChunkSizeIndex(identifier);
-		final int chunkSize       = chunkSizeIndex + 1;
-		final int chunkChainIndex = unpackSmallChunkChainIndex(identifier);
-		final int slotCount       = calculateSlotCount(chunkSize);
-		final int slotIndex       = bufferPosition / chunkSize;
-		final int chunkOffset     = bufferPosition - slotIndex * chunkSize;
 		
 		/*
 		 * This could be ignored, but the base address of an allocated memory range is kind of its identity.
@@ -571,11 +563,134 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 				"Not the base address of an allocated memory range: " + address + " (offset = " + chunkOffset + ")"
 			);
 		}
+	}
+	
+	private void freeSmallChunkMemory(final long address)
+	{
+		final int identifier     = unpackSmallChunkBufferIdentifier(address);
+		final int bufferPosition = unpackBufferPosition(address);
+		final int chunkSizeIndex = unpackSmallChunkSizeIndex(identifier);
+		final int chunkSize      = chunkSizeIndex + 1;
+		final int chainIndex     = unpackSmallChunkChainIndex(identifier);
+		final int slotIndex      = bufferPosition / chunkSize;
+		final int chunkOffset    = bufferPosition - slotIndex * chunkSize;
 		
-		final boolean[] slots = this.lookupSlots(chunkSizeIndex, chunkChainIndex, slotIndex, true);
+		validateProperSmallChunkAddressId(address, chunkOffset);
 		
+		// apart from actually creating/removing a buffer, the managing algorithms never touch them.
+		final boolean[] slots      = this.lookupSlotsNonEmpty(chunkSizeIndex, chainIndex, slotIndex);
+		final byte[]    chainSizes = this.lookupChainSizesNonZero(chunkSizeIndex, chainIndex);
+		
+		if(--chainSizes[chainIndex] == 0)
+		{
+			this.removeSmallChunkBuffer(chunkSizeIndex, chainIndex);
+		}
+		else
+		{
+			slots[slotIndex] = false;
+			// no changes to the buffer itself
+		}
+	}
+	
+	private void removeSmallChunkBuffer(final int chunkSizeIndex, final int chainIndex)
+	{
+		this.smallChunkBufferChains     [chunkSizeIndex][chainIndex] = null;
+		this.smallChunkBufferSlotsChains[chunkSizeIndex][chainIndex] = null;
+		// smallChunkBufferChainSizes needs no modification since that (decrement) causes this method to be called.
+		
+		this.checkForSmallChunkBufferChainShrinking(chunkSizeIndex, chainIndex);
+	}
+	
+	private void checkForSmallChunkBufferChainShrinking(final int chunkSizeIndex, final int chainIndex)
+	{
+		final ByteBuffer[] bufferChain = this.smallChunkBufferChains[chunkSizeIndex];
+		for(int i = chainIndex; i < bufferChain.length; i++)
+		{
+			if(bufferChain[i] != null)
+			{
+				// any occupied higher slot in the chain array means there can be no shrinking
+				return;
+			}
+		}
+		
+		this.optimizeSmallChunkBufferChain(chunkSizeIndex, chainIndex);
+	}
+	
+	private void optimizeSmallChunkBufferChain(final int chunkSizeIndex, final int chainIndex)
+	{
+		final ByteBuffer[] bufferChain = this.smallChunkBufferChains[chunkSizeIndex];
+		
+		int highestNonNullIndex = -1;
+		for(int i = chainIndex - 1; i >= 0; i--)
+		{
+			if(bufferChain[i] != null)
+			{
+				highestNonNullIndex = i;
+				break;
+			}
+		}
+		
+		final int freeElementCount = bufferChain.length - (highestNonNullIndex + 1);
+		final int newLength = calculateDecreasedChainLength(bufferChain.length, freeElementCount);
+		if(newLength < bufferChain.length)
+		{
+			if(newLength == 0)
+			{
+				this.clearSmallChunkChains(chunkSizeIndex);
+			}
+			else
+			{
+				this.rebuildSmallChunkChains(chunkSizeIndex, newLength);
+			}
+		}
+	}
+
+	public ByteBuffer[] lookupChainNonNull(final int chunkSizeIndex, final int chainIndex)
+	{
+		final ByteBuffer[] bufferChain = this.lookupChain(chunkSizeIndex);
+		if(bufferChain[chainIndex] == null)
+		{
+			// (05.11.2019 TM)EXCP: proper exception
+			throw new MemoryException("Inconsistency for chunkSize " + toChunkSize(chunkSizeIndex));
+		}
+		
+		return bufferChain;
+	}
+	
+	public ByteBuffer[] lookupChain(final int chunkSizeIndex)
+	{
+		final ByteBuffer[] bufferChain = this.smallChunkBufferChains[chunkSizeIndex];
+		if(bufferChain == null)
+		{
+			// (05.11.2019 TM)EXCP: proper exception
+			throw new MemoryException("Inconsistency for chunkSize " + toChunkSize(chunkSizeIndex));
+		}
+		
+		return bufferChain;
+	}
+
+	private byte[] lookupChainSizesNonZero(final int chunkSizeIndex, final int chainIndex)
+	{
+		final byte[] chainSizes = this.lookupChainSizes(chunkSizeIndex);
+		if(chainSizes[chainIndex] == 0)
+		{
+			// (05.11.2019 TM)EXCP: proper exception
+			throw new MemoryException("Inconsistency for chunkSize " + toChunkSize(chunkSizeIndex));
+		}
+		
+		return chainSizes;
+	}
+	
+	private byte[] lookupChainSizes(final int chunkSizeIndex)
+	{
 		final byte[] chainSizes = this.smallChunkBufferChainSizes[chunkSizeIndex];
+		if(chainSizes == null)
+		{
+			// (05.11.2019 TM)EXCP: proper exception
+			throw new MemoryException("Inconsistency for chunkSize " + toChunkSize(chunkSizeIndex));
+		}
 		
+		return chainSizes;
 	}
 	
 	private boolean[] lookupSlots(final int chunkSizeIndex, final int chunkChainIndex)
@@ -596,17 +711,15 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		
 		return slots;
 	}
-	
 
-	private boolean[] lookupSlots(
-		final int     chunkSizeIndex ,
-		final int     chunkChainIndex,
-		final int     slotIndex      ,
-		final boolean expected
+	private boolean[] lookupSlotsNonEmpty(
+		final int chunkSizeIndex ,
+		final int chunkChainIndex,
+		final int slotIndex
 	)
 	{
 		final boolean[] slots = this.lookupSlots(chunkSizeIndex, chunkChainIndex);
-		if(slots[slotIndex] != expected)
+		if(slots[slotIndex] == false)
 		{
 			// (04.11.2019 TM)EXCP: proper exception
 			throw new MemoryException("Invalid address");
@@ -1204,10 +1317,12 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	public static void main(final String[] args)
 	{
-		testUnsafeMemoryCornerCases();
+//		testUnsafeMemoryCornerCases();
 //		testAddressPacking();
 //		testSlotCount();
-//		testAllocation();
+//		testAllocation(100);
+//		testAllocationAndDeallocationComplete(100);
+		testAllocationAndDeallocationMixed(100);
 	}
 	
 	static void print32BitHeader()
@@ -1285,20 +1400,110 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		System.out.println("\t\t=MAX(C1:C1024)");
 	}
 	
-	static void testAllocation()
+	static void testAllocation(final int amount)
 	{
 		final MemoryAccessorGeneric memory = MemoryAccessorGeneric.New();
 
 //		System.out.println("#1");
 //		allocateAndPrintSimple(memory, 1024);
 		
-		X.repeat(1, 100, (final int i) ->
+		X.repeat(1, amount, (final int i) ->
 		{
 			System.out.print(
-				VarString.New().add('#').padLeft(Integer.toString(i), XMath.log10discrete(100) + 1, ' ').add(' ')
+				VarString.New().add('#').padLeft(Integer.toString(i), XMath.log10discrete(amount) + 1, ' ').add(' ')
 			);
 			allocateAndPrintSimple(memory, 1024);
 		});
+	}
+	
+	static void testAllocationAndDeallocationComplete(final int amount)
+	{
+		final MemoryAccessorGeneric memory = MemoryAccessorGeneric.New();
+
+//		System.out.println("#1");
+//		allocateAndPrintSimple(memory, 1024);
+		
+		final long[] addresses = new long[amount];
+		X.repeat(1, amount, (final int i) ->
+		{
+			System.out.print(
+				VarString.New().add('#').padLeft(Integer.toString(i), XMath.log10discrete(amount) + 1, ' ').add(' ')
+			);
+			addresses[i - 1] = allocateAndPrintSimple(memory, 1024);
+		});
+		
+		XArrays.shuffle(addresses);
+		X.repeat(1, amount, (final int i) ->
+		{
+			System.out.println(
+				VarString.New().add('#').padLeft(Integer.toString(i), XMath.log10discrete(amount) + 1, ' ').add(' ')
+				.add(addresses[i - 1])
+			);
+			memory.freeMemory(addresses[i - 1]);
+		});
+		System.out.println("Done.");
+	}
+	
+	static void testAllocationAndDeallocationMixed(final int amount)
+	{
+		final MemoryAccessorGeneric memory = MemoryAccessorGeneric.New();
+
+//		System.out.println("#1");
+//		allocateAndPrintSimple(memory, 1024);
+		
+		final long[] addresses = new long[amount];
+		X.repeat(1, amount, (final int i) ->
+		{
+			System.out.print(
+				VarString.New().add('#').padLeft(Integer.toString(i), XMath.log10discrete(amount) + 1, ' ').add(' ')
+			);
+			addresses[i - 1] = allocateAndPrintSimple(memory, 1024);
+		});
+		
+		XArrays.shuffle(addresses);
+		X.repeat(1, amount/2, (final int i) ->
+		{
+			System.out.println(
+				VarString.New().add('#').padLeft(Integer.toString(i), XMath.log10discrete(amount) + 1, ' ').add(' ')
+				.add(addresses[i - 1])
+			);
+			memory.freeMemory(addresses[i - 1]);
+			addresses[i - 1] = 0;
+		});
+		System.out.println("Half deallocated.");
+		
+		X.repeat(1, amount, (final int i) ->
+		{
+			final int index = XMath.random(addresses.length);
+			if(addresses[index] == 0)
+			{
+				System.out.print(
+					VarString.New().add("  Allocating ... ")
+				);
+				addresses[i - 1] = allocateAndPrintSimple(memory, 1024);
+			}
+			else
+			{
+				System.out.print("\t\tDeallocating ... ");
+				printUnpackSmallChunkAddressSimple(addresses[i - 1]);
+				memory.freeMemory(addresses[i - 1]);
+				addresses[i - 1] = 0;
+			}
+		});
+		
+		System.out.println("Mixed done.");
+		
+		X.repeat(1, amount, (final int i) ->
+		{
+			if(addresses[i - 1] == 0)
+			{
+				return;
+			}
+			memory.freeMemory(addresses[i - 1]);
+			addresses[i - 1] = 0;
+		});
+		
+		System.out.println("All cleaned.");
 	}
 	
 	static void testUnsafeMemoryCornerCases()
@@ -1342,10 +1547,12 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		printUnpackSmallChunkAddress(address);
 	}
 	
-	static void allocateAndPrintSimple(final MemoryAccessorGeneric memory, final long bytes)
+	static long allocateAndPrintSimple(final MemoryAccessorGeneric memory, final long bytes)
 	{
 		final long address = memory.allocateMemory(bytes);
 		printUnpackSmallChunkAddressSimple(address);
+		
+		return address;
 	}
 	
 	static void print(final String label, final int spaces, final int value)
