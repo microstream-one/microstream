@@ -188,6 +188,19 @@ public final class XTypes
 			|| o instanceof Short
 		;
 	}
+	
+	public static final byte to_byte(final boolean value)
+	{
+		return value
+			? (byte)1
+			: (byte)0
+		;
+	}
+	
+	public static final boolean to_boolean(final byte value)
+	{
+		return value != (byte)0;
+	}
 
 	public static final int to_int(final boolean value)
 	{

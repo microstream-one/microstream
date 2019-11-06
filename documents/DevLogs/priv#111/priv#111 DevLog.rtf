@@ -855,5 +855,97 @@ Am Ende alle Addressen durchlaufen und != 0 deallokieren.\par
 \par
 Aha: Da bleiben Eintr\'e4ge \'fcbrig. Das darf nicht sein.\par
 Oder hab ich im Test Allokationen, die ich nicht tracke ...?\par
+\par
+\par
+2019-11-06\par
+\par
+Fehlersuche ...\par
+\par
+Hmpfl. Find ich so einfach nicht.\par
+Mal \'fcberlegen...\par
+\par
+Simple Idee: Erst mal Counter f\'fcr Allokierungen und Deallokierungen einbauen.\par
+Nach der Cleanup Schleife m\'fcssen beide genau gleich gro\'df sein, sonst passt was nicht.\par
+\par
+Testen ...\par
+\par
+Aha! Unterschied.\par
+\'c4h... aber es sind so um die 10 WENIGER Allokierungen als Deallokierungen. Trotzdem bleiben Verwaltungseintr\'e4ge \'fcbrig...\par
+Seltsam.\par
+Also noch mehr sysouts reinbauen.\par
+\par
+Ahhh... Jetzt hab ichs!\par
+Die mixed allocations/deallocations bestimmen einen random index, aber dann wird anstelle dieses Index i - 1 f\'fcr den tats\'e4chlichen Zugriff verwendet. Das sind dann \'f6fter mal 0er Adressen, die im freeMemory aber keine Exception erzeugen.\par
+Fixen.\par
+Testen.\par
+Und siehe da: es bleiben am Ende keine allokierten Eintr\'e4ge mehr \'fcbrig.\par
+\par
+Sysos im Produktivcode rausmachen und noch bissl testen.\par
+Also das sollte passen.\par
+\par
+Dann mach ich jetzt noch das Big Chunk Handling. Aber das sollte relativ trivial sein.\par
+War relativ schnell fertig.\par
+Jetzt testen...\par
+\par
+Exception. Kurz anschauen. Seltsam. Warum ist index 64 beim deallokieren immer null?\par
+Ausgaben verbessern usw.\par
+\par
+Hm, Idee: Breakpoint schon nach dem ersten Block Allokieren.\par
+Tats\'e4chlich: Index 64 wird \'fcbersprungen und bleibt darum null.\par
+Ah, das muss man mit dem Buffer enlargen zu tun haben.\par
+Ach lol: ich hab schlicht das Buffer erzeugen und zuweisen in diesem Fall vergessen. Nat\'fcrlich ist der array slot dann immer null.\par
+Fixen.\line Testen.\par
+Passt.\par
+\par
+Bissl debuggen und alles durchschauen.\par
+Moment mal: Alles wurde sauber allokiert und wieder deallokiert, aber in index 0 h\'e4ngt noch ein Buffer. Wie kann das sein?\par
+...\par
+\par
+Ahhhhh!\par
+Index 0, left shift 32, plus offset 0, ohne flag bit, ohne sign bit...\par
+... ergibt den long Wert ... 0.\par
+\'c4h, Mist.\par
+Okay, dann muss ich machen: bigChunkIdentifier = bigChunkIndex + 1\par
+Einbauen.\par
+Testen.\par
+Passt.\par
+\par
+Noch ein Test mit kleinerer Segmentgr\'f6\'dfe.\par
+\par
+Hm. Das wird nicht mehr sauber abgebaut.\par
+Ahja, ein Problem ist schon mal: ich scan bei den big Chunks nicht r\'fcckw\'e4rts. Das muss ich noch einbauen.\par
+Sysos einbauen f\'fcr den Testlauf.\par
+Testen.\par
+Hm, exception. Das decreasen nimmt zu viel weg.\par
+Debuggen.\par
+\par
+Ah. Break vergessen.\par
+Einbauen.\par
+Testen.\par
+Passt.\par
+\par
+Hm. Die Sysos haben auf einen interessanten Punkt hingewiesen: soll das array bis auf 0 verkleinert werden?\par
+Konsequenterweise dann: soll es evtl. doch mit L\'e4nge 0 initialisiert werden?\par
+\par
+Hm. Vorteil: Es braucht weniger Speicher, wenn die Speicherverwaltung inaktiv ist.\par
+Aber: die 3 Small Chunk Arrays werden mit jeweils 1024 L\'e4nge initialisiert und bleiben f\'fcr immer so. Das sind 9 bzw. 17 KB, je nach coops. Ob da eine Handvoll Bytes f\'fcr die bigChunks einen Unterschied macht?\par
+Ich lass mal ein Segment stehen.\par
+Testen. Nat\'fcrlich falsche Logik: Wenn er zum Schluss mehrere Segmente auf einmal abbauen w\'fcrde, soll er nicht gar nichts machen, sondern alles bis auf ein Segment abbauen.\par
+Testen.\par
+Jetzt passts.\par
+\par
+Damit w\'e4ren die BigChunks auch fertig implementiert.\par
+\par
+\par
+Gleich mal die 16 simplen Getter und Setter implementieren.\par
+ByteBuffer#getBoolean und putBoolean gibts nicht, weil das anscheinend zu schwierig f\'fcr die JDK Boum gewesen w\'e4r...\par
+Selber was bauen.\par
+Gleich mit ordentlicher L\'f6sung in XTypes.\par
+\par
+Fertig f\'fcr heute.\par
+\par
+Morgen dann die restlichen Methoden, inklusive Objects mit Offset.\par
+\par
+\par
 }
  
