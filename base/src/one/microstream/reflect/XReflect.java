@@ -18,12 +18,14 @@ import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
+import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XMap;
 import one.microstream.collections.types.XReference;
 import one.microstream.exceptions.IllegalAccessRuntimeException;
 import one.microstream.exceptions.NoSuchFieldRuntimeException;
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.functional.Instantiator;
+import one.microstream.functional.XFunc;
 import one.microstream.memory.XMemory;
 import one.microstream.typing.XTypes;
 import one.microstream.util.UtilStackTrace;
@@ -1043,6 +1045,34 @@ public final class XReflect
 			}
 		}
 		return Arrays.copyOf(primFields, primFieldsCount);
+	}
+	
+	public static final Field[] collectInstanceFields(final Class<?> objectClass)
+	{
+		return collectInstanceFields(objectClass, XFunc.all());
+	}
+	
+	public static final Field[] collectInstanceFields(final Class<?> objectClass, final Predicate<? super Field> selector)
+	{
+		final BulkList<Field> objectFields = BulkList.New(20);
+		XReflect.iterateDeclaredFieldsUpwards(objectClass, field ->
+		{
+			// non-instance fields are always discarded
+			if(!XReflect.isInstanceField(field))
+			{
+				return;
+			}
+			if(selector != null && !selector.test(field))
+			{
+				return;
+			}
+			
+			objectFields.add(field);
+		});
+		
+		final Field[] array = XArrays.reverse(objectFields.toArray(Field.class));
+		
+		return array;
 	}
 	
 	public static int calculatePrimitivesLength(final Field[] primFields)

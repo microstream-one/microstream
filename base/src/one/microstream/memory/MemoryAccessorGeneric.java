@@ -8,14 +8,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import one.microstream.X;
-import one.microstream.chars.VarString;
-import one.microstream.collections.BulkList;
+import one.microstream.bytes.XBytes;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.functional.DefaultInstantiator;
-import one.microstream.math.XMath;
-import one.microstream.memory.sun.MemoryAccessorSun;
 import one.microstream.meta.XDebug;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.XTypes;
@@ -854,8 +851,22 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final synchronized void fillMemory(final long address, final long length, final byte value)
 	{
-		// FIXME MemoryAccessorGeneric#fillMemory()
-		throw new one.microstream.meta.NotImplementedYetError();
+		final ByteBuffer buffer   = this.getBuffer(address);
+		final int        limit    = buffer.limit();
+		final int        position = unpackBufferPosition(address);
+		final int        bound    = X.checkArrayRange(position + length);
+		buffer.limit(bound);
+		
+		XArrays.validateRange0toUpperBound(bound, position, (int)length);
+		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = position; i < bound; i++)
+		{
+			buffer.put(position + i, value);
+		}
+
+		// restore buffer navigational states
+		buffer.limit(limit);
 	}
 	
 	
@@ -920,55 +931,118 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final synchronized byte get_byte(final Object instance, final long offset)
 	{
-		
+		try
+		{
+			return this.objectField(instance.getClass(), (int)offset).getByte(instance);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized boolean get_boolean(final Object instance, final long offset)
 	{
-		
+		try
+		{
+			return this.objectField(instance.getClass(), (int)offset).getBoolean(instance);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized short get_short(final Object instance, final long offset)
 	{
-		
+		try
+		{
+			return this.objectField(instance.getClass(), (int)offset).getShort(instance);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized char get_char(final Object instance, final long offset)
 	{
-		
+		try
+		{
+			return this.objectField(instance.getClass(), (int)offset).getChar(instance);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized int get_int(final Object instance, final long offset)
 	{
-		
+		try
+		{
+			return this.objectField(instance.getClass(), (int)offset).getInt(instance);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized float get_float(final Object instance, final long offset)
 	{
-		
+		try
+		{
+			return this.objectField(instance.getClass(), (int)offset).getFloat(instance);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized long get_long(final Object instance, final long offset)
 	{
-		
+		try
+		{
+			return this.objectField(instance.getClass(), (int)offset).getLong(instance);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized double get_double(final Object instance, final long offset)
 	{
-		
+		try
+		{
+			return this.objectField(instance.getClass(), (int)offset).getDouble(instance);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized Object getObject(final Object instance, final long offset)
 	{
-		
+		try
+		{
+			return this.objectField(instance.getClass(), (int)offset).get(instance);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 	
 	
@@ -1032,55 +1106,118 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final synchronized void set_byte(final Object instance, final long offset, final byte value)
 	{
-		
+		try
+		{
+			this.objectField(instance.getClass(), (int)offset).setByte(instance, value);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized void set_boolean(final Object instance, final long offset, final boolean value)
 	{
-		
+		try
+		{
+			this.objectField(instance.getClass(), (int)offset).setBoolean(instance, value);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized void set_short(final Object instance, final long offset, final short value)
 	{
-		
+		try
+		{
+			this.objectField(instance.getClass(), (int)offset).setShort(instance, value);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized void set_char(final Object instance, final long offset, final char value)
 	{
-		
+		try
+		{
+			this.objectField(instance.getClass(), (int)offset).setChar(instance, value);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized void set_int(final Object instance, final long offset, final int value)
 	{
-		
+		try
+		{
+			this.objectField(instance.getClass(), (int)offset).setInt(instance, value);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized void set_float(final Object instance, final long offset, final float value)
 	{
-		
+		try
+		{
+			this.objectField(instance.getClass(), (int)offset).setFloat(instance, value);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized void set_long(final Object instance, final long offset, final long value)
 	{
-		
+		try
+		{
+			this.objectField(instance.getClass(), (int)offset).setLong(instance, value);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized void set_double(final Object instance, final long offset, final double value)
 	{
-		
+		try
+		{
+			this.objectField(instance.getClass(), (int)offset).setDouble(instance, value);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	@Override
 	public final synchronized void setObject(final Object instance, final long offset, final Object value)
 	{
-		
+		try
+		{
+			this.objectField(instance.getClass(), (int)offset).set(instance, value);
+		}
+		catch(final Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 		
@@ -1088,51 +1225,55 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// transformative byte array primitive value setters //
 	
 	@Override
-	public final synchronized void set_byteInBytes(final byte[] bytes, final int index, final byte value)
+	public final void set_byteInBytes(final byte[] bytes, final int index, final byte value)
 	{
-		
+		XArrays.set_byteInBytes(bytes, index, value);
 	}
 	
 	@Override
-	public final synchronized void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
+	public final void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
 	{
-		
+		XArrays.set_booleanInBytes(bytes, index, value);
 	}
 
 	@Override
-	public final synchronized void set_shortInBytes(final byte[] bytes, final int index, final short value)
+	public final void set_shortInBytes(final byte[] bytes, final int index, final short value)
 	{
-		
+		// since XArrays inherently works only with sane byte order, the insane case has to be checked and handled here.
+		XArrays.set_shortInBytes(bytes, index, XBytes.isBigEndianNativeOrder() ? Short.reverseBytes(value) : value);
 	}
 
 	@Override
-	public final synchronized void set_charInBytes(final byte[] bytes, final int index, final char value)
+	public final void set_charInBytes(final byte[] bytes, final int index, final char value)
 	{
-		
+		// since XArrays inherently works only with sane byte order, the insane case has to be checked and handled here.
+		XArrays.set_charInBytes(bytes, index, XBytes.isBigEndianNativeOrder() ? Character.reverseBytes(value) : value);
 	}
 
 	@Override
-	public final synchronized void set_intInBytes(final byte[] bytes, final int index, final int value)
+	public final void set_intInBytes(final byte[] bytes, final int index, final int value)
 	{
-		
+		// since XArrays inherently works only with sane byte order, the insane case has to be checked and handled here.
+		XArrays.set_intInBytes(bytes, index, XBytes.isBigEndianNativeOrder() ? Integer.reverseBytes(value) : value);
 	}
 
 	@Override
-	public final synchronized void set_floatInBytes(final byte[] bytes, final int index, final float value)
+	public final void set_floatInBytes(final byte[] bytes, final int index, final float value)
 	{
-		
+		this.set_intInBytes(bytes, index, Float.floatToRawIntBits(value));
 	}
 
 	@Override
-	public final synchronized void set_longInBytes(final byte[] bytes, final int index, final long value)
+	public final void set_longInBytes(final byte[] bytes, final int index, final long value)
 	{
-		
+		// since XArrays inherently works only with sane byte order, the insane case has to be checked and handled here.
+		XArrays.set_longInBytes(bytes, index, XBytes.isBigEndianNativeOrder() ? Long.reverseBytes(value) : value);
 	}
 
 	@Override
-	public final synchronized void set_doubleInBytes(final byte[] bytes, final int index, final double value)
+	public final void set_doubleInBytes(final byte[] bytes, final int index, final double value)
 	{
-		
+		this.set_longInBytes(bytes, index, Double.doubleToRawLongBits(value));
 	}
 
 	
@@ -1140,21 +1281,32 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// generic variable-length range copying //
 	
 	@Override
-	public final synchronized void copyRange(final long sourceAddress, final long targetAddress, final long length)
-	{
-		
-	}
-
-	@Override
 	public final synchronized void copyRange(
-		final Object source      ,
-		final long   sourceOffset,
-		final Object target      ,
-		final long   targetOffset,
-		final long   length
+		final long sourceAddress,
+		final long targetAddress,
+		final long length
 	)
 	{
+		final ByteBuffer sourceBuffer = this.getBuffer(sourceAddress);
+		final ByteBuffer targetBuffer = this.getBuffer(targetAddress);
 		
+		// store both buffers' current navigational state since they are actually not used by this class's logic.
+		final int sourceBufferCurrentPosition = sourceBuffer.position();
+		final int sourceBufferCurrentLimit    = sourceBuffer.limit();
+		final int targetBufferCurrentPosition = targetBuffer.position();
+		final int targetBufferCurrentLimit    = targetBuffer.limit();
+		
+		// prepare and copy source buffer to target buffer
+		final int sourcePosition = unpackBufferPosition(sourceAddress);
+		sourceBuffer.position(sourcePosition);
+		sourceBuffer.limit(sourcePosition + X.checkArrayRange(length));
+		targetBuffer.put(sourceBuffer);
+		
+		// restore buffer navigational states
+		sourceBuffer.position(sourceBufferCurrentPosition);
+		sourceBuffer.limit   (sourceBufferCurrentLimit);
+		targetBuffer.position(targetBufferCurrentPosition);
+		targetBuffer.limit   (targetBufferCurrentLimit);
 	}
 
 	
@@ -1164,49 +1316,112 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final synchronized void copyRangeToArray(final long sourceAddress, final byte[] target)
 	{
-		
+		final ByteBuffer buffer   = this.getBuffer(sourceAddress);
+		final int        position = unpackBufferPosition(sourceAddress);
+
+		// store both buffers' current navigational state since they are actually not used by this class's logic.
+		final int bufferCurrentPosition = buffer.position();
+		final int bufferCurrentLimit    = buffer.limit();
+
+		// prepare and copy source buffer to target array
+		buffer.position(position);
+		buffer.limit(position + target.length);
+		buffer.get(target);
+
+		// restore buffer navigational states
+		buffer.position(bufferCurrentPosition);
+		buffer.limit(bufferCurrentLimit);
 	}
 	
 	@Override
 	public final synchronized void copyRangeToArray(final long sourceAddress, final boolean[] target)
 	{
+		final ByteBuffer buffer   = this.getBuffer(sourceAddress);
+		final int        position = unpackBufferPosition(sourceAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = buffer.get(position) != 0;
+		}
 	}
 
 	@Override
 	public final synchronized void copyRangeToArray(final long sourceAddress, final short[] target)
 	{
+		final ByteBuffer buffer   = this.getBuffer(sourceAddress);
+		final int        position = unpackBufferPosition(sourceAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = buffer.getShort(position + i * Short.BYTES);
+		}
 	}
 
 	@Override
 	public final synchronized void copyRangeToArray(final long sourceAddress, final char[] target)
 	{
+		final ByteBuffer buffer   = this.getBuffer(sourceAddress);
+		final int        position = unpackBufferPosition(sourceAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = buffer.getChar(position + i * Character.BYTES);
+		}
 	}
 	
 	@Override
 	public final synchronized void copyRangeToArray(final long sourceAddress, final int[] target)
 	{
+		final ByteBuffer buffer   = this.getBuffer(sourceAddress);
+		final int        position = unpackBufferPosition(sourceAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = buffer.getInt(position + i * Integer.BYTES);
+		}
 	}
 
 	@Override
 	public final synchronized void copyRangeToArray(final long sourceAddress, final float[] target)
 	{
+		final ByteBuffer buffer   = this.getBuffer(sourceAddress);
+		final int        position = unpackBufferPosition(sourceAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = buffer.getFloat(position + i * Float.BYTES);
+		}
 	}
 
 	@Override
 	public final synchronized void copyRangeToArray(final long sourceAddress, final long[] target)
 	{
+		final ByteBuffer buffer   = this.getBuffer(sourceAddress);
+		final int        position = unpackBufferPosition(sourceAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = buffer.getLong(position + i * Long.BYTES);
+		}
 	}
 
 	@Override
 	public final synchronized void copyRangeToArray(final long sourceAddress, final double[] target)
 	{
+		final ByteBuffer buffer   = this.getBuffer(sourceAddress);
+		final int        position = unpackBufferPosition(sourceAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = buffer.getDouble(position + i * Double.BYTES);
+		}
 	}
 
 	
@@ -1216,49 +1431,112 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final synchronized void copyArrayToAddress(final byte[] array, final long targetAddress)
 	{
-		
+		final ByteBuffer buffer   = this.getBuffer(targetAddress);
+		final int        position = unpackBufferPosition(targetAddress);
+
+		// store both buffers' current navigational state since they are actually not used by this class's logic.
+		final int bufferCurrentPosition = buffer.position();
+		final int bufferCurrentLimit    = buffer.limit();
+
+		// prepare and copy source buffer to target array
+		buffer.position(position);
+		buffer.limit(position + array.length);
+		buffer.put(array);
+
+		// restore buffer navigational states
+		buffer.position(bufferCurrentPosition);
+		buffer.limit(bufferCurrentLimit);
 	}
 	
 	@Override
 	public final synchronized void copyArrayToAddress(final boolean[] array, final long targetAddress)
 	{
+		final ByteBuffer buffer   = this.getBuffer(targetAddress);
+		final int        position = unpackBufferPosition(targetAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < array.length; i++)
+		{
+			buffer.put(position + i, XTypes.to_byte(array[i]));
+		}
 	}
 	
 	@Override
 	public final synchronized void copyArrayToAddress(final short[] array, final long targetAddress)
 	{
+		final ByteBuffer buffer   = this.getBuffer(targetAddress);
+		final int        position = unpackBufferPosition(targetAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < array.length; i++)
+		{
+			buffer.putShort(position + i * Short.BYTES, array[i]);
+		}
 	}
 
 	@Override
 	public final synchronized void copyArrayToAddress(final char[] array, final long targetAddress)
 	{
+		final ByteBuffer buffer   = this.getBuffer(targetAddress);
+		final int        position = unpackBufferPosition(targetAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < array.length; i++)
+		{
+			buffer.putChar(position + i * Character.BYTES, array[i]);
+		}
 	}
 	
 	@Override
 	public final synchronized void copyArrayToAddress(final int[] array, final long targetAddress)
 	{
+		final ByteBuffer buffer   = this.getBuffer(targetAddress);
+		final int        position = unpackBufferPosition(targetAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < array.length; i++)
+		{
+			buffer.putInt(position + i * Integer.BYTES, array[i]);
+		}
 	}
 	
 	@Override
 	public final synchronized void copyArrayToAddress(final float[] array, final long targetAddress)
 	{
+		final ByteBuffer buffer   = this.getBuffer(targetAddress);
+		final int        position = unpackBufferPosition(targetAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < array.length; i++)
+		{
+			buffer.putFloat(position + i * Float.BYTES, array[i]);
+		}
 	}
 	
 	@Override
 	public final synchronized void copyArrayToAddress(final long[] array, final long targetAddress)
 	{
+		final ByteBuffer buffer   = this.getBuffer(targetAddress);
+		final int        position = unpackBufferPosition(targetAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < array.length; i++)
+		{
+			buffer.putLong(position + i * Long.BYTES, array[i]);
+		}
 	}
 	
 	@Override
 	public final synchronized void copyArrayToAddress(final double[] array, final long targetAddress)
 	{
+		final ByteBuffer buffer   = this.getBuffer(targetAddress);
+		final int        position = unpackBufferPosition(targetAddress);
 		
+		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
+		for(int i = 0; i < array.length; i++)
+		{
+			buffer.putDouble(position + i * Double.BYTES, array[i]);
+		}
 	}
 	
 	
@@ -1288,7 +1566,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		return this.objectFieldOffset(field.getDeclaringClass(), field);
 	}
 	
-	public static final Class<?> determineMostSpecificClass(final Field[] fields)
+	public static final Class<?> determineMostSpecificDeclaringClass(final Field[] fields)
 	{
 		if(XArrays.hasNoContent(fields))
 		{
@@ -1315,9 +1593,9 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final synchronized long[] objectFieldOffsets(final Field... fields)
 	{
-		final Class<?> mostSpecificClass = determineMostSpecificClass(fields);
+		final Class<?> mostSpecificDeclaringClass = determineMostSpecificDeclaringClass(fields);
 		
-		return this.objectFieldOffsets(mostSpecificClass, fields);
+		return this.objectFieldOffsets(mostSpecificDeclaringClass, fields);
 	}
 
 	@Override
@@ -1327,7 +1605,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 
 		return objectFieldOffset(objectFields, field);
 	}
-	
+		
 	private Field[] ensureRegisteredObjectFields(final Class<?> objectClass)
 	{
 		final Field[] objectFields = this.objectFieldsRegistry.get(objectClass);
@@ -1346,21 +1624,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		 * Each class in a class hierarchy gets its own registry entry, even if that means redundancy.
 		 * This is necessary to make the offset-to-field lookup quick
 		 */
-		
-		final BulkList<Field> objectFields = BulkList.New(20);
-		XReflect.iterateDeclaredFieldsUpwards(objectClass, field ->
-		{
-			// non-instance fields are always discarded
-			if(!XReflect.isInstanceField(field))
-			{
-				return;
-			}
-			
-			objectFields.add(field);
-		});
-		
-		final Field[] array = XArrays.reverse(objectFields.toArray(Field.class));
-		
+		final Field[] array = XReflect.collectInstanceFields(objectClass);
 		if(!this.objectFieldsRegistry.add(objectClass, array))
 		{
 			// (29.10.2019 TM)EXCP: proper exception
@@ -1368,6 +1632,39 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		}
 		
 		return array;
+	}
+	
+	private Field objectField(final Class<?> c, final int offset)
+	{
+		final Field[] objectFields = this.objectFieldsRegistry.get(c);
+		validateObjectFieldsNotNull(objectFields, c);
+
+		if(offset >= 0 && offset < objectFields.length)
+		{
+			return objectFields[offset];
+		}
+
+		throw createInvalidOffsetException(objectFields, c, offset);
+	}
+	
+	
+	private static void validateObjectFieldsNotNull(final Field[] objectFields, final Class<?> c)
+	{
+		if(objectFields == null)
+		{
+			// (07.11.2019 TM)EXCP: proper exception
+			throw new RuntimeException("No object fields registered for " + c + ".");
+		}
+	}
+	
+	private static RuntimeException createInvalidOffsetException(
+		final Field[]  objectFields,
+		final Class<?> c           ,
+		final int      offset
+	)
+	{
+		// (07.11.2019 TM)EXCP: proper exception
+		return new RuntimeException("Unknown object field offset " + offset + " for " + c + ".");
 	}
 	
 	final static long objectFieldOffset(final Field[] objectFields, final Field field)
@@ -1437,30 +1734,11 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	// (30.10.2019 TM)FIXME: priv#111: remove testing code
-	
 	///////////////////////////////////////////////////////////////////////////
 	// testing //
 	////////////
-	
-	public static void main(final String[] args)
-	{
-//		testUnsafeMemoryCornerCases();
-//		testAddressPacking();
-//		testSlotCount();
-//		testAllocation(100);
-//		testAllocationAndDeallocationComplete(100);
-//		testSmallAllocationAndDeallocationMixed(100, 1024);
-		testBigAllocationAndDeallocationMixed(100);
-	}
-	
+	/*
+		
 	static void print32BitHeader()
 	{
 		System.out.println("33322222222221111111111000000000");
@@ -1798,6 +2076,105 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		
 //		System.out.println(address3);
 //		MemoryAccessorSun.staticFreeMemory(address3);
+	}
+	
+	static void testObjectFields()
+	{
+		final MemoryAccessorGeneric memory = MemoryAccessorGeneric.New();
+		
+		final long[] objectFieldOffsetsTestEntity = memory.objectFieldOffsets(TestEntity.class);
+		
+		final TestEntity entity = new TestEntity();
+
+		System.out.println("Compare generic:");
+		System.out.println(entity);
+		for(final long objectFieldOffset : objectFieldOffsetsTestEntity)
+		{
+			System.out.println(memory.getObject(entity, objectFieldOffset));
+		}
+		
+		System.out.println();
+		compareSpecific(entity, memory);
+		
+		memory.setObject  (entity, 0, entity.aString  );
+		memory.set_byte   (entity, 1, entity.a_byte   );
+		memory.set_boolean(entity, 2, entity.a_boolean);
+		memory.set_short  (entity, 3, entity.a_short  );
+		memory.set_char   (entity, 4, entity.a_char   );
+		memory.set_int    (entity, 5, entity.a_int    );
+		memory.set_float  (entity, 6, entity.a_float  );
+		memory.set_long   (entity, 7, entity.a_long   );
+		memory.set_double (entity, 8, entity.a_double );
+		
+		System.out.println();
+		compareSpecific(entity, memory);
+	}
+	
+	static void compareSpecific(final TestEntity entity, final MemoryAccessorGeneric memory)
+	{
+		System.out.println("Compare specific:");
+		System.out.println(entity.aString   + "\t" + memory.getObject  (entity, 0));
+		System.out.println(entity.a_byte    + "\t" + memory.get_byte   (entity, 1));
+		System.out.println(entity.a_boolean + "\t" + memory.get_boolean(entity, 2));
+		System.out.println(entity.a_short   + "\t" + memory.get_short  (entity, 3));
+		System.out.println(entity.a_char    + "\t" + memory.get_char   (entity, 4));
+		System.out.println(entity.a_int     + "\t" + memory.get_int    (entity, 5));
+		System.out.println(entity.a_float   + "\t" + memory.get_float  (entity, 6));
+		System.out.println(entity.a_long    + "\t" + memory.get_long   (entity, 7));
+		System.out.println(entity.a_double  + "\t" + memory.get_double (entity, 8));
+	}
+	
+	static void testReadableChars()
+	{
+		System.out.println(VarString.New().apply(vc ->
+			X.repeat(1000, (final int i) ->
+				vc.add(XChars.randomReadable_char())
+			)
+		));
+	}
+	
+	static class TestEntity
+	{
+		String  aString  ;
+		byte    a_byte   ;
+		boolean a_boolean;
+		short   a_short  ;
+		char    a_char   ;
+		int     a_int    ;
+		float   a_float  ;
+		long    a_long   ;
+		double  a_double ;
+		
+		TestEntity()
+		{
+			super();
+			this.aString   =        XChars.systemString(this);
+			this.a_byte    = (byte) XMath.random(Byte.MAX_VALUE);
+			this.a_boolean =        XMath.random(2) != 0;
+			this.a_short   = (short)XMath.random(Short.MAX_VALUE);
+			this.a_char    =        XChars.randomReadable_char();
+			this.a_int     =        XMath.random(Integer.MAX_VALUE);
+			this.a_float   = (float)(XMath.random(Short.MAX_VALUE) * Math.PI);
+			this.a_long    = (long) XMath.random(Integer.MAX_VALUE) << Integer.SIZE + XMath.random(Integer.MAX_VALUE);
+			this.a_double  =        XMath.random(Integer.MAX_VALUE) * Math.PI;
+		}
+
+		@Override
+		public final String toString()
+		{
+			return this.getClass().getSimpleName()
+				+ "\naString= "   + this.aString
+				+ "\na_byte= "    + this.a_byte
+				+ "\na_boolean= " + this.a_boolean
+				+ "\na_short= "   + this.a_short
+				+ "\na_char= "    + this.a_char
+				+ "\na_int= "     + this.a_int
+				+ "\na_float= "   + this.a_float
+				+ "\na_long= "    + this.a_long
+				+ "\na_double= "  + this.a_double
+			;
+		}
+		
 		
 	}
 	
@@ -1877,5 +2254,19 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	{
 		print(0, value);
 	}
+
+	public static void main(final String[] args)
+	{
+//		testUnsafeMemoryCornerCases();
+//		testAddressPacking();
+//		testSlotCount();
+//		testAllocation(100);
+//		testAllocationAndDeallocationComplete(100);
+//		testSmallAllocationAndDeallocationMixed(100, 1024);
+//		testBigAllocationAndDeallocationMixed(100);
+//		testReadableChars();
+		testObjectFields();
+	}
+	//*/
 	
 }
