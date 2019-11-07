@@ -3,7 +3,7 @@ package one.microstream.memory;
 import java.nio.ByteBuffer;
 
 import one.microstream.math.XMath;
-import one.microstream.memory.sun.MemoryAccessorSun;
+import one.microstream.memory.sun.JdkMemoryAccessor;
 import sun.misc.Unsafe;
 
 
@@ -137,7 +137,7 @@ public class MainTestLittleEndianStringToAddress
 		final long currentAddress = LittleEndianStringToAddress.toHexDecString(b, PlatformInternals.getDirectBufferAddress(bb));
 		final int length = (int)(currentAddress - PlatformInternals.getDirectBufferAddress(bb)) / 2;
 		final char[] chars = new char[length];
-		MemoryAccessorSun.staticCopyRange(null, PlatformInternals.getDirectBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
+		JdkMemoryAccessor.staticCopyRange(null, PlatformInternals.getDirectBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
 		final String s = new String(chars);
 		final String output = b + "\t-->\t"+s;
 		if(s.equals(Integer.toHexString(b).toUpperCase()))
@@ -155,7 +155,7 @@ public class MainTestLittleEndianStringToAddress
 		final long currentAddress = LittleEndianStringToAddress.toString(i, PlatformInternals.getDirectBufferAddress(bb));
 		final int length = (int)(currentAddress - PlatformInternals.getDirectBufferAddress(bb)) / 2;
 		final char[] chars = new char[length];
-		MemoryAccessorSun.staticCopyRange(null, PlatformInternals.getDirectBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
+		JdkMemoryAccessor.staticCopyRange(null, PlatformInternals.getDirectBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
 		final String s = new String(chars);
 		final String output = i + "\t-->\t"+s;
 		if(s.equals(Long.toString(i)))
@@ -173,7 +173,7 @@ public class MainTestLittleEndianStringToAddress
 		final long currentAddress = LittleEndianStringToAddress.toString(i, PlatformInternals.getDirectBufferAddress(bb));
 		final int length = (int)(currentAddress - PlatformInternals.getDirectBufferAddress(bb)) / 2;
 		final char[] chars = new char[length];
-		MemoryAccessorSun.staticCopyRange(null, PlatformInternals.getDirectBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
+		JdkMemoryAccessor.staticCopyRange(null, PlatformInternals.getDirectBufferAddress(bb), chars, Unsafe.ARRAY_CHAR_BASE_OFFSET, length*2);
 		final String s = new String(chars);
 		final String output = i + "\t-->\t"+s;
 		if(s.equals(Integer.toString(i)))

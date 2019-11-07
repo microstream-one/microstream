@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 import one.microstream.X;
-import one.microstream.memory.sun.MemoryAccessorSun;
+import one.microstream.memory.sun.JdkMemoryAccessor;
 import one.microstream.typing.KeyValue;
 import sun.misc.Unsafe;
 
@@ -31,7 +31,7 @@ import sun.misc.Unsafe;
  */
 public final class ExperimentalLockFreeConcurrentHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.2011)XXX: only for cliffclick tests
 {
-	private static final Unsafe unsafe = (Unsafe)MemoryAccessorSun.getMemoryAccess();
+	private static final Unsafe unsafe = (Unsafe)JdkMemoryAccessor.getMemoryAccess();
 	private static final long FIELD_ADDRESS_modLevel = unsafe.objectFieldOffset(getDeclaredField(ExperimentalLockFreeConcurrentHashMap.class, "modLevel"));
 	private static final long FIELD_ADDRESS_size = unsafe.objectFieldOffset(getDeclaredField(ExperimentalLockFreeConcurrentHashMap.class, "size"));
 	private static final long FIELD_ADDRESS_link = unsafe.objectFieldOffset(getDeclaredField(VolatileEntry.class, "link"));

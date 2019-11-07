@@ -1,7 +1,7 @@
 package one.microstream.memory;
 
 import one.microstream.math.XMath;
-import one.microstream.memory.sun.MemoryAccessorSun;
+import one.microstream.memory.sun.JdkMemoryAccessor;
 
 public class MainTestInterfacePerformance
 {
@@ -12,7 +12,7 @@ public class MainTestInterfacePerformance
 	
 	static
 	{
-		XMemory.setMemoryAccessor(MemoryAccessorSun.New());
+		XMemory.setMemoryAccessor(JdkMemoryAccessor.New());
 	}
 	
 	public static void main(final String[] args)

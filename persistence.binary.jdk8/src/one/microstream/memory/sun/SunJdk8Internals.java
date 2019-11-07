@@ -43,7 +43,7 @@ public final class SunJdk8Internals
 				{
 					if(field.getName().equals(declaredFieldName))
 					{
-						return MemoryAccessorSun.VM.objectFieldOffset(field);
+						return JdkMemoryAccessor.VM.objectFieldOffset(field);
 					}
 				}
 			}
@@ -59,13 +59,13 @@ public final class SunJdk8Internals
 	public static Object[] accessArray(final ArrayList<?> arrayList)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return (Object[])MemoryAccessorSun.VM.getObject(notNull(arrayList), OFFSET_ArrayList_elementData);
+		return (Object[])JdkMemoryAccessor.VM.getObject(notNull(arrayList), OFFSET_ArrayList_elementData);
 	}
 
 	public static void setSize(final ArrayList<?> arrayList, final int size)
 	{
 		// must check not null here explictely to prevent VM crashes
-		MemoryAccessorSun.VM.putInt(notNull(arrayList), OFFSET_ArrayList_size, size);
+		JdkMemoryAccessor.VM.putInt(notNull(arrayList), OFFSET_ArrayList_size, size);
 	}
 
 	/**
@@ -85,86 +85,86 @@ public final class SunJdk8Internals
 	public static float getLoadFactor(final HashSet<?> hashSet)
 	{
 		// must check not null here explictely to prevent VM crashes
-		final HashMap<?, ?> map = (HashMap<?, ?>)MemoryAccessorSun.VM.getObject(notNull(hashSet), OFFSET_HashSet_map);
+		final HashMap<?, ?> map = (HashMap<?, ?>)JdkMemoryAccessor.VM.getObject(notNull(hashSet), OFFSET_HashSet_map);
 		return getLoadFactor(map);
 	}
 
 	public static float getLoadFactor(final HashMap<?, ?> hashMap)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return MemoryAccessorSun.VM.getFloat(notNull(hashMap), OFFSET_HashMap_loadFactor);
+		return JdkMemoryAccessor.VM.getFloat(notNull(hashMap), OFFSET_HashMap_loadFactor);
 	}
 
 	public static float getLoadFactor(final Hashtable<?, ?> hashtable)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return MemoryAccessorSun.VM.getFloat(notNull(hashtable), OFFSET_Hashtable_loadFactor);
+		return JdkMemoryAccessor.VM.getFloat(notNull(hashtable), OFFSET_Hashtable_loadFactor);
 	}
 
 	public static float getLoadFactor(final LinkedHashMap<?, ?> linkedHashMap)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return MemoryAccessorSun.VM.getFloat(notNull(linkedHashMap), OFFSET_LinkedHashMap_loadFactor);
+		return JdkMemoryAccessor.VM.getFloat(notNull(linkedHashMap), OFFSET_LinkedHashMap_loadFactor);
 	}
 
 	public static boolean getAccessOrder(final LinkedHashMap<?, ?> linkedHashMap)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return MemoryAccessorSun.VM.getBoolean(notNull(linkedHashMap), OFFSET_LinkedHashMap_accessOrder);
+		return JdkMemoryAccessor.VM.getBoolean(notNull(linkedHashMap), OFFSET_LinkedHashMap_accessOrder);
 	}
 	
 	public static Object[] accessArray(final Vector<?> vector)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return (Object[])MemoryAccessorSun.VM.getObject(notNull(vector), OFFSET_Vector_elementData);
+		return (Object[])JdkMemoryAccessor.VM.getObject(notNull(vector), OFFSET_Vector_elementData);
 	}
 	
 	public static int getElementCount(final Vector<?> vector)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return MemoryAccessorSun.VM.getInt(notNull(vector), OFFSET_Vector_elementCount);
+		return JdkMemoryAccessor.VM.getInt(notNull(vector), OFFSET_Vector_elementCount);
 	}
 
 	public static void setElementCount(final Vector<?> vector, final int size)
 	{
 		// must check not null here explictely to prevent VM crashes
-		MemoryAccessorSun.VM.putInt(notNull(vector), OFFSET_Vector_elementCount, size);
+		JdkMemoryAccessor.VM.putInt(notNull(vector), OFFSET_Vector_elementCount, size);
 	}
 	
 	public static int getCapacityIncrement(final Vector<?> vector)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return MemoryAccessorSun.VM.getInt(notNull(vector), OFFSET_Vector_capacityIncrement);
+		return JdkMemoryAccessor.VM.getInt(notNull(vector), OFFSET_Vector_capacityIncrement);
 	}
 
 	public static void setCapacityIncrement(final Vector<?> vector, final int size)
 	{
 		// must check not null here explictely to prevent VM crashes
-		MemoryAccessorSun.VM.putInt(notNull(vector), OFFSET_Vector_capacityIncrement, size);
+		JdkMemoryAccessor.VM.putInt(notNull(vector), OFFSET_Vector_capacityIncrement, size);
 	}
 	
 	public static Properties accessDefaults(final Properties properties)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return (Properties)MemoryAccessorSun.VM.getObject(notNull(properties), OFFSET_Properties_Defaults);
+		return (Properties)JdkMemoryAccessor.VM.getObject(notNull(properties), OFFSET_Properties_Defaults);
 	}
 
 	public static void setDefaults(final Properties properties, final Properties defaults)
 	{
 		// must check not null here explictely to prevent VM crashes
-		MemoryAccessorSun.VM.putObject(notNull(properties), OFFSET_Properties_Defaults, defaults);
+		JdkMemoryAccessor.VM.putObject(notNull(properties), OFFSET_Properties_Defaults, defaults);
 	}
 
 	public static Object[] accessArray(final PriorityQueue<?> priorityQueue)
 	{
 		// must check not null here explictely to prevent VM crashes
-		return (Object[])MemoryAccessorSun.VM.getObject(notNull(priorityQueue), OFFSET_PriorityQueue_queue);
+		return (Object[])JdkMemoryAccessor.VM.getObject(notNull(priorityQueue), OFFSET_PriorityQueue_queue);
 	}
 
 	public static void setSize(final PriorityQueue<?> priorityQueue, final int size)
 	{
 		// must check not null here explictely to prevent VM crashes
-		MemoryAccessorSun.VM.putInt(notNull(priorityQueue), OFFSET_PriorityQueue_size, size);
+		JdkMemoryAccessor.VM.putInt(notNull(priorityQueue), OFFSET_PriorityQueue_size, size);
 	}
 	
 	

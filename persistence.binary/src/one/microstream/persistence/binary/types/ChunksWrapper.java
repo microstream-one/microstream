@@ -41,7 +41,7 @@ public class ChunksWrapper extends Binary
 		long totalLength = 0;
 		for(int i = 0; i < chunks.length; i++)
 		{
-			if(!PlatformInternals.isDirectBuffer(chunks[i]))
+			if(!PlatformInternals.isDirectByteBuffer(chunks[i]))
 			{
 				throw new IllegalArgumentException();
 			}
