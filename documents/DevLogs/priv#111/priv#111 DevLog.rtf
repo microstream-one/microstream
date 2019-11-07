@@ -947,5 +947,47 @@ Fertig f\'fcr heute.\par
 Morgen dann die restlichen Methoden, inklusive Objects mit Offset.\par
 \par
 \par
+2019-11-07\par
+\par
+Heute die object field offset Zugriffe implementieren und testen.\par
+\par
+Hm. Es fehlt im MemoryAccessor noch eine convenience Methode\par
+public long[] objectFieldOffsets(Class<?> c);\par
+\par
+Die Logik daf\'fcr gibts schon. Da bau ich noch ein Predicate dazu und steck das in eine Default Method rein.\par
+\par
+Testen.\par
+Scheint auf Anhieb korrekt zu laufen.\par
+Bissl mehr Tests machen.\par
+Z.B., ob bei double Wert in boolean Feld und umgekehrt auch wirklich eine Exception kommt.\par
+Ja. Passt alles.\par
+\par
+Jetzt noch die restlichen Methoden implementieren.\par
+\par
+Die absolute copyRange m\'fcsste gut mit ByteBuffer-zu-ByteBuffer kopieren gehen.\par
+Die mit Objects ... hm. Die ist generisch kaum l\'f6sbar.\par
+Mal schauen, wo die \'fcberhaupt verwendet wird.\par
+Ergebnis: Au\'dfer in Tests nirgends. Weil sie in Produktivbetrieb auch kaum Sinn macht.\par
+Ich mach es so: ich lass die in der Sun Implementierung, aber l\'f6sch sie aus dem Interface und der XMemory raus.\par
+\par
+Sehr sch\'f6n. Dann w\'e4ren zwei knifflige F\'e4lle schon mal erledigt.\par
+\par
+F\'fcr die 8 set*inBytes k\'f6nnte es eigentlich eine generische Implementierung in XArrays geben.\par
+Die verlink ich dann dort nur noch.\par
+\par
+Ah, Mist, aber dann muss im MemoryAccesor Aufruf ein Check der ByteOrder rein.\par
+Naja, who cares. Bei dem ist performance eh nicht die Priorit\'e4t. Daf\'fcr gibts die Low-Level Implementierung und die braucht den check nicht.\par
+\par
+So. Dann brauch ich nur noch die copy Methoden f\'fcr Arrays.\par
+Ach, und das fillMemory ist noch. Auch noch machen.\par
+\par
+So. Jetzt sind nur noch Exception TODOs und das L\'f6schen des Testcodes.\par
+Hm. Ich denk den lass ich und kommentier ihn nur aus.\par
+\par
+Tja. Dann w\'e4r der MemoryAccessorGeneric jetzt fertig.\par
+Mal noch Code nach priv#111 Tasks durchsuchen.\par
+Ach ja. Zwei St\'fcck. Aber das sind eigentlich keine Tasks daf\'fcr, sondern die sind nur im Rahmen der Arbeiten daran aufgetreten. \'c4nder ich zu normalen TODOs ohne Issuebezug.\par
+\par
+Mal nochmal Konzeptbeschreibung durchschauen ...\par
 }
  

@@ -31,7 +31,17 @@ public final class XBytes
 		}
 		throw new IllegalArgumentException();
 	}
-
+	
+	public static final boolean isBigEndianNativeOrder()
+	{
+		return ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
+	}
+	
+	public static final boolean isLittleEndianNativeOrder()
+	{
+		return ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+	}
+	
 	
 
 	///////////////////////////////////////////////////////////////////////////

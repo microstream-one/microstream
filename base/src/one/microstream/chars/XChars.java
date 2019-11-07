@@ -17,6 +17,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.exceptions.NumberRangeException;
 import one.microstream.functional._charPredicate;
 import one.microstream.functional._charProcedure;
+import one.microstream.math.XMath;
 import one.microstream.memory.XMemory;
 import one.microstream.typing.XTypes;
 
@@ -2539,6 +2540,11 @@ public final class XChars
 	public static boolean isDigit(final char c)
 	{
 		return c >= '0' && c <= '9';
+	}
+	
+	public static char randomReadable_char()
+	{
+		return (char) (33 + XMath.random(94));
 	}
 		
 

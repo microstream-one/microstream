@@ -39,6 +39,13 @@ public abstract class Binary implements Chunk
 	 * For now, the "Binary" API-ugliness is kept, but it could very well pay off to restructure and clean it up.
 	 */
 	
+	/*
+	 * (07.11.2019 TM)TODO: Binary interface instead of ugly inheritance.
+	 * Also, since tests showed that turning XMemory into an interface and re-wrapping an instance of it in a
+	 * static context does not cost any performance at all, it might be a good idea to consider turning
+	 * Binary into an interface as well and properly separate the implementations for LoadItem and ChunksBuffer.
+	 */
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
@@ -239,11 +246,11 @@ public abstract class Binary implements Chunk
 	
 	
 	
-	// (04.10.2019 TM)FIXME: priv#111: clean up temporarily moved internal methods
+	// (04.10.2019 TM)TODO: clean up temporarily moved internal methods
 	
-	//////////////////////////////////////////////////////////////////////////////////////
-	// static methods using absolut an memory address that should actually not be here //
-	////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////
+	// static methods using an absolute memory address that should actually not be here //
+	/////////////////////////////////////////////////////////////////////////////////////
 		
 	public static final long getEntityLengthRawValue(final long entityAddress)
 	{
@@ -1674,7 +1681,7 @@ public abstract class Binary implements Chunk
 		}
 	}
 
-	// (04.10.2019 TM)FIXME: priv#111: consistently rename internal and external methods with read/get and store/set
+	// (04.10.2019 TM)TODO: consistently rename internal and external methods with read/get and store/set
 
 	public final void storeKeyValuesAsEntries(
 		final long                               offset      ,

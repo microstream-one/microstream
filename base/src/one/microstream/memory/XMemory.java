@@ -563,17 +563,6 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.copyRange(sourceAddress, targetAddress, length);
 	}
-
-	public static final void copyRange(
-		final Object source,
-		final long   sourceOffset,
-		final Object target,
-		final long   targetOffset,
-		final long   length
-	)
-	{
-		MEMORY_ACCESSOR.copyRange(source, sourceOffset, target, targetOffset, length);
-	}
 	
 	
 

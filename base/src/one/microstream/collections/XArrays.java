@@ -14,6 +14,7 @@ import one.microstream.functional.XFunc;
 import one.microstream.functional._intProcedure;
 import one.microstream.functional._longProcedure;
 import one.microstream.math.FastRandom;
+import one.microstream.typing.XTypes;
 import one.microstream.util.UtilStackTrace;
 
 /**
@@ -1832,14 +1833,69 @@ public final class XArrays
 		return newArray;
 	}
 	
-	
-	
 	public static final <E> E[] rebuild(final E[] oldArray, final int newLength)
 	{
 		final E[] newArray = X.ArrayOfSameType(oldArray, newLength);
 		System.arraycopy(oldArray, 0, newArray, 0, Math.min(oldArray.length, newLength));
 		return newArray;
 	}
+	
+	public static final void set_byteInBytes(final byte[] bytes, final int index, final byte value)
+	{
+		bytes[index] = value;
+	}
+	
+	public static final void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
+	{
+		bytes[index] = XTypes.to_byte(value);
+	}
+
+	public static final void set_shortInBytes(final byte[] bytes, final int index, final short value)
+	{
+		XArrays.validateArrayIndex(bytes.length, index + 1);
+		bytes[index    ] = (byte)(value & 0xFF);
+		bytes[index + 1] = (byte)(value >>> Byte.SIZE);
+	}
+
+	public static final void set_charInBytes(final byte[] bytes, final int index, final char value)
+	{
+		XArrays.validateArrayIndex(bytes.length, index + 1);
+		bytes[index    ] = (byte)(value & 0xFF);
+		bytes[index + 1] = (byte)(value >>> Byte.SIZE);
+	}
+
+	public static final void set_intInBytes(final byte[] bytes, final int index, final int value)
+	{
+		XArrays.validateArrayIndex(bytes.length, index + 3);
+//		bytes[index    ] = (byte)(TODO);
+//		bytes[index + 1] = (byte)(TODO);
+//		bytes[index + 2] = (byte)(TODO);
+//		bytes[index + 3] = (byte)(TODO);
+	}
+
+	public static final void set_floatInBytes(final byte[] bytes, final int index, final float value)
+	{
+		set_intInBytes(bytes, index, Float.floatToRawIntBits(value));
+	}
+
+	public static final void set_longInBytes(final byte[] bytes, final int index, final long value)
+	{
+		XArrays.validateArrayIndex(bytes.length, index + 7);
+//		bytes[index    ] = (byte)(TODO);
+//		bytes[index + 1] = (byte)(TODO);
+//		bytes[index + 2] = (byte)(TODO);
+//		bytes[index + 3] = (byte)(TODO);
+//		bytes[index + 4] = (byte)(TODO);
+//		bytes[index + 5] = (byte)(TODO);
+//		bytes[index + 6] = (byte)(TODO);
+//		bytes[index + 7] = (byte)(TODO);
+	}
+
+	public static final void set_doubleInBytes(final byte[] bytes, final int index, final double value)
+	{
+		set_longInBytes(bytes, index, Double.doubleToRawLongBits(value));
+	}
+	
 
 	
 	public static final int smoothCapacityIncrease(final int oldCapacity)

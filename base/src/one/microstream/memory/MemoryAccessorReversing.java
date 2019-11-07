@@ -301,12 +301,6 @@ public class MemoryAccessorReversing implements MemoryAccessor
 		this.actual.copyRange(sourceAddress, targetAddress, length);
 	}
 
-	@Override
-	public final void copyRange(final Object source, final long sourceOffset, final Object target, final long targetOffset, final long length)
-	{
-		this.actual.copyRange(source, sourceOffset, target, targetOffset, length);
-	}
-
 	
 	
 	// address-to-array range copying //

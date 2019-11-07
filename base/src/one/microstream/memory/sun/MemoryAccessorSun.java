@@ -1140,18 +1140,6 @@ public final class MemoryAccessorSun implements MemoryAccessor, MemorySizeProper
 	{
 		staticCopyRange(sourceAddress, targetAddress, length);
 	}
-
-	@Override
-	public final void copyRange(
-		final Object source      ,
-		final long   sourceOffset,
-		final Object target      ,
-		final long   targetOffset,
-		final long   length
-	)
-	{
-		staticCopyRange(source, sourceOffset, target, targetOffset, length);
-	}
 	
 
 	

@@ -1,8 +1,11 @@
 package one.microstream.memory;
 
 import java.lang.reflect.Field;
+import java.util.function.Predicate;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
+import one.microstream.functional.XFunc;
+import one.microstream.reflect.XReflect;
 
 
 public interface MemoryAccessor
@@ -130,8 +133,6 @@ public interface MemoryAccessor
 	
 	public void copyRange(long sourceAddress, long targetAddress, long length);
 
-	public void copyRange(Object source, long sourceOffset, Object target, long targetOffset, long length);
-
 	
 	
 	// address-to-array range copying //
@@ -235,6 +236,18 @@ public interface MemoryAccessor
 	 * Array alias vor #objectFieldOffset(Class, Field).
 	 */
 	public long[] objectFieldOffsets(Class<?> objectClass, Field... fields);
+	
+	public default long[] objectFieldOffsets(final Class<?> objectClass)
+	{
+		return this.objectFieldOffsets(objectClass, XFunc.all());
+	}
+	
+	public default long[] objectFieldOffsets(final Class<?> objectClass, final Predicate<? super Field> selector)
+	{
+		final Field[] array = XReflect.collectInstanceFields(objectClass, selector);
+		
+		return this.objectFieldOffsets(objectClass, array);
+	}
 	
 	
 

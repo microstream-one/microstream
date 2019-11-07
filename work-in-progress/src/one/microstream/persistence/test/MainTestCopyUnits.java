@@ -1,6 +1,6 @@
 package one.microstream.persistence.test;
 
-import one.microstream.memory.XMemory;
+import one.microstream.memory.sun.MemoryAccessorSun;
 import sun.misc.Unsafe;
 
 public class MainTestCopyUnits
@@ -26,6 +26,6 @@ public class MainTestCopyUnits
 
 	public static void copy(final long size)
 	{
-		XMemory.copyRange(BYTES0, BABO, BYTES1, BABO, size);
+		MemoryAccessorSun.staticCopyRange(BYTES0, BABO, BYTES1, BABO, size);
 	}
 }
