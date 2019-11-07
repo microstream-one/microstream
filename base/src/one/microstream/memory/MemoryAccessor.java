@@ -1,6 +1,7 @@
 package one.microstream.memory;
 
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
@@ -10,6 +11,35 @@ import one.microstream.reflect.XReflect;
 
 public interface MemoryAccessor
 {
+	/**
+	 * Guarantees the full usability of this class by validating if all functionality is usable.
+	 * 
+	 * @throws Error
+	 */
+	public void guaranteeUsability();
+	
+	
+	
+	// direct byte buffer handling //
+	
+	/* (07.11.2019 TM)NOTE:
+	 * Sadly, the JDK geniuses neither know how to write proper public APIs (*cough* interfaces *cough*) nor do they
+	 * know that for every explicit memory allocation method, there needs to be an explicit deallocation method,
+	 * since implicit deallocation via the garbage collector is not always sufficient.
+	 * So in order to being able to work properly with their botch job hacking, one has to add a lot of
+	 * magically and sometime pretty hacky support logic to fix their mistakes.
+	 */
+	
+	public long getDirectByteBufferAddress(ByteBuffer directBuffer);
+
+	public void deallocateDirectByteBuffer(ByteBuffer directBuffer);
+
+	public boolean isDirectByteBuffer(ByteBuffer byteBuffer);
+
+	public ByteBuffer guaranteeDirectByteBuffer(ByteBuffer directBuffer);
+	
+	
+	
 	// memory allocation //
 	
 	public long allocateMemory(long bytes);

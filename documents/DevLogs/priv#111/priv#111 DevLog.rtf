@@ -989,5 +989,45 @@ Mal noch Code nach priv#111 Tasks durchsuchen.\par
 Ach ja. Zwei St\'fcck. Aber das sind eigentlich keine Tasks daf\'fcr, sondern die sind nur im Rahmen der Arbeiten daran aufgetreten. \'c4nder ich zu normalen TODOs ohne Issuebezug.\par
 \par
 Mal nochmal Konzeptbeschreibung durchschauen ...\par
+\par
+Aaahh!\par
+Es gibt ja noch den Fall, dass Code sich selber DBBs allokiert und dann per Adresse drauf zugreift.\par
+Die m\'fcssen als dritte Art gemanagte DBBs ja noch in den MemoryAccessor rein.\par
+Hm. Aber es w\'e4r bl\'f6d, da jetzt so einen BufferOwner Dings bauen zu m\'fcssen.\par
+\par
+Besser w\'e4re, wenn eien WeakReference direkt auf den Buffer zeigt. Dann bestimmt weiterhin allein der Owner dar\'fcber, wie lang der Buffer lebt, nur halt implizit.\par
+Und man muss den Owner nicht an den Memoryaccessor \'fcbergeben, damit der den irgendwie in einer Hashtable verwurstet, aber wenn man denselben Buffer von einem zweiten Owner aus \'fcbergibt, gibts inkonsistenzen, usw.\par
+Das w\'e4r alles heikel.\par
+\par
+Einfacher ist:\par
+- Von der BigChunk Index Range wird noch ein Bit abgezwackt f\'fcr die Fallunterscheidung.\par
+- Die dritte Art registriert \'fcbergebene ByteBuffer als Weak Keys einer speziellen HashTable. Value ist ein long, der die adresse darstellt.\par
+- Dann muss es noch ein index Array geben, um von der Adresse wieder auf den DBB zu kommen.\par
+- Wenn im laufenden Betrieb auf einen verwaisten WeakReference eintrag gesto\'dfen wird, wird entsprechend aufger\'e4umt.\par
+- Das getDirectBufferAddress wird dann \'fcber die XMemory geroutet. Die Sun Implementierung gibt einfach nur stateless die address zur\'fcck. Die Generic macht dann ihren Registrierungskram.\par
+- Deallocate ebenso mit Aufr\'e4umlogik in der Generic Implementierung.\par
+\par
+Hm. Die Klasse PlatformInternals muss eigentlich in den MemoryAccessor reingemerget werden. Sonst w\'fcrde z.B. der "PlatformInternals.guaranteeUsability();" Aufruf in der Binary Klasse auf Android fehlschlagen.\par
+Das DBB handling muss eleganter \'fcber MemoryAccessor gel\'f6st werden. Durch die Generic Implementation kann man jetzt ja sogar eine directByteBuffer Address holen, obwohl man gar nicht an die eigentliche rankommt.\par
+\par
+Hm. Da drin muss ich erst mal einiges aufr\'e4umen.\par
+Die Unterscheidung zwischen DirectBuffer und DirectByteBuffer ist unn\'f6tig. Es geht hier allein um DirectByteBuffers. Welche crazy shit JDK Klasse auch immer DirectBuffer zuk\'fcnftig auch mal implementieren sollte hat in der DBB Logik nichts verloren und darf bei einer Abfrage nicht als DBB identifiziert werden.\par
+Also DirectBuffer Class komplett raus.\par
+\par
+Dann, DBB Klasse feststellen:\par
+Anstatt nacheinander magic value Strings durchzuprobieren, bis irgendeiner mal als Klasse geladen werden kann, einfach folgendes machen:\par
+ByteBuffer.allocateDirect(Long.BYTES).getClass()\par
+\par
+Funktioniert garantiert immer. Wenn nicht, dann kann MicroStream mit den betreffenden Plattform so oder so nicht betrieben werden.\par
+\par
+Abh\'e4ngigkeiten zu XCollections mach ich auch lieber raus. Hat in diesem Fall ja keinen Nachteil und sonst drehen wieder alle durch.\par
+\par
+Das mit dem Cleaner ist leider tats\'e4chlich ein riesen Fuck. Das muss so bleiben.\par
+\par
+Noch ein Punkt: anstatt die Funktionstypen optional zu machen, mach ich gleich nur die.\par
+\par
+Also alles bissl umbauen und optimieren.\par
+Letztendlich PlatformInternals in die MemoryAccessorSun reinmergen.\par
+Und dann die Klasse zerlegen und den static Teil umbenennen zu JdkInternals.\par
 }
  

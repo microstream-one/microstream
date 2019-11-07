@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
-import one.microstream.memory.sun.MemoryAccessorSun;
+import one.microstream.memory.sun.JdkMemoryAccessor;
 
 
 
@@ -26,7 +26,7 @@ public final class XMemory
 	
 	static
 	{
-		setMemoryHandling(MemoryAccessorSun.New());
+		setMemoryHandling(JdkMemoryAccessor.New());
 	}
 	
 	public static final synchronized <H extends MemoryAccessor & MemorySizeProperties> void setMemoryHandling(

@@ -553,6 +553,42 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	///////////////////////////////////////////////////////////////////////////
 	// API methods //
 	////////////////
+	
+	@Override
+	public final void guaranteeUsability()
+	{
+		// nothing to do here since the construction logic already ensures that.
+	}
+	
+	
+	
+	// direct byte buffer handling //
+	
+	@Override
+	public final long getDirectByteBufferAddress(final ByteBuffer directBuffer)
+	{
+		// FIXME priv#111 MemoryAccessorGeneric#getDirectByteBufferAddress()
+	}
+
+	@Override
+	public final void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
+	{
+		// FIXME priv#111 MemoryAccessorGeneric#deallocateDirectByteBuffer()
+	}
+
+	@Override
+	public final boolean isDirectByteBuffer(final ByteBuffer byteBuffer)
+	{
+		// FIXME priv#111 MemoryAccessorGeneric#isDirectByteBuffer()
+	}
+
+	@Override
+	public final ByteBuffer guaranteeDirectByteBuffer(final ByteBuffer directBuffer)
+	{
+		// FIXME priv#111 MemoryAccessorGeneric#guaranteeDirectByteBuffer()
+	}
+	
+	
 
 	// memory allocation //
 

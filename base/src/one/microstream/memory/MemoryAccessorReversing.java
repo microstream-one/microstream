@@ -1,6 +1,7 @@
 package one.microstream.memory;
 
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
 
@@ -29,6 +30,42 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	@Override
+	public final void guaranteeUsability()
+	{
+		this.actual.guaranteeUsability();
+	}
+	
+	
+	
+	// direct byte buffer handling //
+
+	@Override
+	public final long getDirectByteBufferAddress(final ByteBuffer directBuffer)
+	{
+		return this.actual.getDirectByteBufferAddress(directBuffer);
+	}
+
+	@Override
+	public final void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
+	{
+		this.actual.deallocateDirectByteBuffer(directBuffer);
+	}
+
+	@Override
+	public final boolean isDirectByteBuffer(final ByteBuffer byteBuffer)
+	{
+		return this.actual.isDirectByteBuffer(byteBuffer);
+	}
+
+	@Override
+	public final ByteBuffer guaranteeDirectByteBuffer(final ByteBuffer directBuffer)
+	{
+		return this.actual.guaranteeDirectByteBuffer(directBuffer);
+	}
+	
+	
 	
 	// memory allocation //
 	
