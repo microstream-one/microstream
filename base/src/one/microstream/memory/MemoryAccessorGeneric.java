@@ -2,6 +2,7 @@ package one.microstream.memory;
 
 import static one.microstream.X.notNull;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
@@ -79,6 +80,9 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 
 		BIG_CHUNK_TABLE_MAX_LENGTH = (Long.MAX_VALUE ^ SIZE_TYPE_FLAG) >>> IDENTIFIER_BITSHIFT_COUNT
 	;
+	
+	
+	
 	
 	private static int calculateSlotCount(final int chunkSize)
 	{
@@ -185,10 +189,34 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		);
 	}
 	
-	public static MemoryAccessorGeneric New(final DefaultInstantiator defaultInstantiator)
+	public static MemoryAccessorGeneric New(
+		final DefaultInstantiator defaultInstantiator
+	)
+	{
+		return New(
+			notNull(defaultInstantiator),
+			DirectBufferDeallocator.NoOp()
+		);
+	}
+	
+	public static MemoryAccessorGeneric New(
+		final DirectBufferDeallocator directBufferDeallocator
+	)
+	{
+		return New(
+			DefaultInstantiator.Default(),
+			notNull(directBufferDeallocator)
+		);
+	}
+	
+	public static MemoryAccessorGeneric New(
+		final DefaultInstantiator     defaultInstantiator    ,
+		final DirectBufferDeallocator directBufferDeallocator
+	)
 	{
 		return new MemoryAccessorGeneric(
-			notNull(defaultInstantiator)
+			notNull(defaultInstantiator),
+			notNull(directBufferDeallocator)
 		);
 	}
 		
@@ -199,7 +227,8 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	////////////////////
 	
 	// instantiating is a very special case and thus must be handleable separately.
-	private final DefaultInstantiator defaultInstantiator;
+	private final DefaultInstantiator     defaultInstantiator    ;
+	private final DirectBufferDeallocator directBufferDeallocator;
 	
 	// since this implementation isn't stateless anyway, it might as well cache the reversing instance.
 	private final MemoryAccessorReversing reversing = new MemoryAccessorReversing(this);
@@ -229,10 +258,14 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// constructors //
 	/////////////////
 	
-	MemoryAccessorGeneric(final DefaultInstantiator defaultInstantiator)
+	MemoryAccessorGeneric(
+		final DefaultInstantiator     defaultInstantiator    ,
+		final DirectBufferDeallocator directBufferDeallocator
+	)
 	{
 		super();
-		this.defaultInstantiator = defaultInstantiator;
+		this.defaultInstantiator     = defaultInstantiator    ;
+		this.directBufferDeallocator = directBufferDeallocator;
 	}
 	
 	
@@ -547,6 +580,17 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	{
 		return this.bigChunkBuffers[identifier];
 	}
+	
+	public final void systemDeallocateDirectByteBuffer(final ByteBuffer directByteBuffer)
+	{
+		XTypes.guaranteeDirectByteBuffer(directByteBuffer);
+		this.directBufferDeallocator.deallocateDirectBuffer(directByteBuffer);
+	}
+	
+	
+
+	
+	Entry[] registeredBUffer
 		
 	
 	
@@ -567,25 +611,27 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final long getDirectByteBufferAddress(final ByteBuffer directBuffer)
 	{
-		// FIXME priv#111 MemoryAccessorGeneric#getDirectByteBufferAddress()
+		// (08.11.2019 TM)FIXME: priv#111: ensure buffer is registered and return identity packed as address
 	}
 
 	@Override
 	public final void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
 	{
-		// FIXME priv#111 MemoryAccessorGeneric#deallocateDirectByteBuffer()
+		// (08.11.2019 TM)FIXME: priv#111: ensure buffer is unregistered
+		
+		this.systemDeallocateDirectByteBuffer(directBuffer);
 	}
 
 	@Override
 	public final boolean isDirectByteBuffer(final ByteBuffer byteBuffer)
 	{
-		// FIXME priv#111 MemoryAccessorGeneric#isDirectByteBuffer()
+		return XTypes.isDirectByteBuffer(byteBuffer);
 	}
-
+	
 	@Override
 	public final ByteBuffer guaranteeDirectByteBuffer(final ByteBuffer directBuffer)
 	{
-		// FIXME priv#111 MemoryAccessorGeneric#guaranteeDirectByteBuffer()
+		return XTypes.guaranteeDirectByteBuffer(directBuffer);
 	}
 	
 	
