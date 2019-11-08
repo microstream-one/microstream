@@ -13,7 +13,6 @@ import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.types.XAddingMap;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.math.XMath;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidListElements;
@@ -105,13 +104,13 @@ public abstract class Binary implements Chunk
 	
 	static
 	{
-		/* (02.07.2019 TM)NOTE: the binary persistence layer
-		 * requires the full usability of the JDK-internal accessing functionality
-		 * like calling the cleaner or accessing the direct byte buffer address.
-		 * Until they fix their sh*t to provide proper solutions for that, makeshift
-		 * solutions like this are required.
+		/* (08.11.2019 TM)NOTE: the binary persistence layer
+		 * requires the full usability of direct byte buffer accessing and managing functionality
+		 * like calling the cleaner or accessing the direct memory address.
+		 * Even on platforms that don't allow such an access (e.g. android), a direct memory address can be
+		 * emulated by MemoryAccessorGeneric.
 		 */
-		PlatformInternals.guaranteeUsability();
+		XMemory.guaranteeUsability();
 	}
 	
 	
@@ -1965,7 +1964,7 @@ public abstract class Binary implements Chunk
 			);
 		}
 		
-		return PlatformInternals.getDirectBufferAddress(byteBuffer) + X.checkArrayRange(offset);
+		return XMemory.getDirectByteBufferAddress(byteBuffer) + X.checkArrayRange(offset);
 	}
 	
 			

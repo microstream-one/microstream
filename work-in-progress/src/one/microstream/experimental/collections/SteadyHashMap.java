@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import one.microstream.X;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
-import one.microstream.memory.sun.JdkMemoryAccessor;
+import one.microstream.memory.sun.JdkInternals;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing.XTypes;
 import sun.misc.Unsafe;
@@ -34,7 +34,7 @@ import sun.misc.Unsafe;
  */
 public final class SteadyHashMap<K,V> implements ConcurrentMap<K,V> // (19.07.2011)XXX: only for cliffclick tests
 {
-	private static final Unsafe unsafe = (Unsafe)JdkMemoryAccessor.getMemoryAccess();
+	private static final Unsafe unsafe = JdkInternals.getMemoryAccess();
 	private static final long FIELD_ADDRESS_size = unsafe.objectFieldOffset(getDeclaredField(SteadyHashMap.class, "size"));
 
 	// stolen from AtomicReferenceArray

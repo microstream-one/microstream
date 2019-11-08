@@ -25,7 +25,6 @@ import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.files.FileException;
 import one.microstream.files.XFiles;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -303,7 +302,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 			this.writeBufferSize         = writeBufferSize(writeBufferSize);
 			this.writeBuffer             = ByteBuffer.allocateDirect(this.writeBufferSize)    ;
-			this.writeStart              = PlatformInternals.getDirectBufferAddress(this.writeBuffer) ;
+			this.writeStart              = XMemory.getDirectByteBufferAddress(this.writeBuffer) ;
 			this.writeBound              = this.writeAddress + this.writeBuffer.capacity()    ;
 			this.flushBound              = this.writeBound - FLUSH_BUFFER_RANGE               ;
 			this.writeAddress            = this.writeStart                                    ;
@@ -1045,7 +1044,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 
 			// large buffer has to be enlarged
-			PlatformInternals.deallocateDirectBuffer(this.readBufferLarge);
+			XMemory.deallocateDirectByteBuffer(this.readBufferLarge);
 			return this.readBufferLarge = ByteBuffer.allocateDirect(X.checkArrayRange(nextEntityLength));
 		}
 

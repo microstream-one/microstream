@@ -3,8 +3,8 @@ package one.microstream.persistence.binary.types;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import one.microstream.memory.PlatformInternals;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.typing.XTypes;
 
 
 public class ChunksWrapper extends Binary
@@ -41,7 +41,8 @@ public class ChunksWrapper extends Binary
 		long totalLength = 0;
 		for(int i = 0; i < chunks.length; i++)
 		{
-			if(!PlatformInternals.isDirectByteBuffer(chunks[i]))
+			// this is platform-independently platform-specific. No kidding. See code inside.
+			if(!XTypes.isDirectByteBuffer(chunks[i]))
 			{
 				throw new IllegalArgumentException();
 			}

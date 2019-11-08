@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
 import one.microstream.hashing.XHashing;
+import one.microstream.math.XMath;
 
 public class BufferRegistry
 {
@@ -11,6 +12,9 @@ public class BufferRegistry
 	// instance fields //
 	////////////////////
 
+	// crucial since address packing occupies some bits, so the maximum capacity is lower then technically possible.
+	private final int maximumCapacity;
+	
 	private int     hashRange, capacity, shrinkBound, currentLowestFreeIndex, size;
 	private Entry[] hashTable, indexTable;
 	
@@ -29,14 +33,15 @@ public class BufferRegistry
 	// constructors //
 	/////////////////
 
-	BufferRegistry()
+	BufferRegistry(final int maximumCapacity)
 	{
-		this(1);
+		this(maximumCapacity, 1);
 	}
 	
-	BufferRegistry(final int initialCapacity)
+	BufferRegistry(final int maximumCapacity, final int initialCapacity)
 	{
 		super();
+		this.maximumCapacity = maximumCapacity;
 		this.createArrays(XHashing.padHashLength(initialCapacity));
 	}
 	
@@ -48,16 +53,23 @@ public class BufferRegistry
 	
 	private void createArrays(final int capacity)
 	{
-		this.update(new Entry[capacity], new Entry[capacity]);
+		this.updateState(new Entry[capacity], new Entry[capacity], 0);
 	}
 	
-	private void update(final Entry[] hashTable, final Entry[] indexTable)
+	private void updateState(
+		final Entry[] hashTable ,
+		final Entry[] indexTable,
+		final int     size
+	)
 	{
 		this.hashTable   = hashTable;
 		this.indexTable  = indexTable;
 		this.capacity    = hashTable.length;
 		this.shrinkBound = hashTable.length / 2;
 		this.hashRange   = hashTable.length - 1;
+		this.size        = size;
+		
+		this.currentLowestFreeIndex = determineLowestFreeIndex(indexTable);
 	}
 	
 	private int hash(final ByteBuffer byteBuffer)
@@ -130,8 +142,40 @@ public class BufferRegistry
 	
 	private void incrementingRebuild()
 	{
-		// (08.11.2019 TM)FIXME: priv#111: incrementingRebuild
-		this.resetHollowEncounters();
+		if(this.capacity >= this.maximumCapacity)
+		{
+			// rollback preliminary size incrementation to guarantee a consistent state (e.g. for debugging)
+			this.size--;
+
+			// (08.11.2019 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Buffer registry cannot be increased beyond the specified maximum capacity of " + this.maximumCapacity
+			);
+		}
+		
+		if(this.capacity >= XMath.highestPowerOf2_int())
+		{
+			// rollback preliminary size incrementation to guarantee a consistent state (e.g. for debugging)
+			this.size--;
+			
+			// (08.11.2019 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Buffer registry cannot be increased beyond the technical maximum capacity of " + XMath.highestPowerOf2_int()
+			);
+			
+			/* Note:
+			 * It would be possible to leave the hashTable at 2^30 and increase the index table to 2^31-1,
+			 * but that would cause considerable code complication for a case that will probably never occur.
+			 * If it does, it can be somewhat fixed by implementing that extension.
+			 * Of course that only bushes the limit to the int max but does not remove the int limit itself.
+			 * It's simply a shame that arrays can't be adressed with longs.
+			 * But what can you say: Java 1.0 was a 1990ies technology and since then, they didn't manage to
+			 * change the limit
+			 */
+		}
+
+		// with the corner case out of the way, a simple * 2 suffices.
+		this.rebuild(this.capacity * 2);
 	}
 	
 	private void cleanUp()
@@ -190,11 +234,14 @@ public class BufferRegistry
 	
 	private void shrink()
 	{
-		final Entry[] indexTable = this.indexTable;
-		final Entry[] hashTable  = this.hashTable;
-		final int     capacity   = hashTable.length;
+		this.rebuild(this.shrinkBound);
+	}
+	
+	private void rebuild(final int newCapacity)
+	{
+		final Entry[] oldHashTable = this.hashTable;
+		final int     oldCapacity  = oldHashTable.length;
 		
-		final int     newCapacity  = this.shrinkBound;
 		final int     newHashRange = newCapacity - 1;
 		final Entry[] newIndxTable = new Entry[newCapacity];
 		final Entry[] newHashTable = new Entry[newCapacity];
@@ -202,9 +249,9 @@ public class BufferRegistry
 		// load working copy from heap (always funny)
 		int size = this.size;
 		
-		for(int i = 0; i < capacity; i++)
+		for(int i = 0; i < oldCapacity; i++)
 		{
-			for(Entry e = hashTable[i]; e != null; e = e.link)
+			for(Entry e = oldHashTable[i]; e != null; e = e.link)
 			{
 				final ByteBuffer bb;
 				if((bb = e.get()) == null)
@@ -213,7 +260,6 @@ public class BufferRegistry
 				}
 				else
 				{
-					final unfug, weil die indices final nach außen fest sind.
 					newIndxTable[e.index] = newHashTable[System.identityHashCode(bb) & newHashRange] =
 						new Entry(bb, e.index, newHashTable[System.identityHashCode(bb) & newHashRange])
 					;
@@ -221,10 +267,8 @@ public class BufferRegistry
 			}
 		}
 		
-		// it is probably faster to determine it from scratch and the end instead of updating it several times
-		final int currentLowestFreeIndex = determineLowestFreeIndex(indexTable);
-		
-		// (08.11.2019 TM)FIXME: priv#111: shrink
+		// update instance state
+		this.updateState(newHashTable, newIndxTable, size);
 		this.resetHollowEncounters();
 	}
 
@@ -303,7 +347,7 @@ public class BufferRegistry
 		this.updateCurrentLowestFreeIndex(index);
 	}
 	
-	final void remove(final ByteBuffer byteBuffer)
+	final void ensureRemoved(final ByteBuffer byteBuffer)
 	{
 		for(Entry e = this.hashTable[this.hash(byteBuffer)], last = null; e != null; e = (last = e).link)
 		{
@@ -317,7 +361,7 @@ public class BufferRegistry
 			}
 		}
 		
-		
+		// ignore not found buffer. Should be no harm.
 	}
 	
 	

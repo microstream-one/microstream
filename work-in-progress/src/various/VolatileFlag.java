@@ -1,7 +1,7 @@
 package various;
 
 import one.microstream.memory.XMemory;
-import one.microstream.memory.sun.JdkMemoryAccessor;
+import one.microstream.memory.sun.JdkInternals;
 import one.microstream.reflect.XReflect;
 
 public final class VolatileFlag
@@ -50,12 +50,12 @@ public final class VolatileFlag
 
 	public final boolean on()
 	{
-		return !JdkMemoryAccessor.staticCompareAndSwap_int(this, FIELD_OFFSET_state, 0, 1);
+		return !JdkInternals.compareAndSwap_int(this, FIELD_OFFSET_state, 0, 1);
 	}
 
 	public final boolean off()
 	{
-		return JdkMemoryAccessor.staticCompareAndSwap_int(this, FIELD_OFFSET_state, 1, 0);
+		return JdkInternals.compareAndSwap_int(this, FIELD_OFFSET_state, 1, 0);
 	}
 
 	public final VolatileFlag set(final boolean state)

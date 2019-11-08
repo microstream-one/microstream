@@ -10,7 +10,6 @@ import java.util.function.Function;
 
 import one.microstream.X;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
@@ -112,7 +111,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			// entities must be indexed first to allow reverse iteration.
 			final int                         entityCount = indexEntities(file, fileActualLength, buffer, entityOffsets);
 			final StorageEntityCacheEvaluator entityCacheEvaluator = entityCache.entityCacheEvaluator;
-			final long                        bufferStartAddress   = PlatformInternals.getDirectBufferAddress(buffer);
+			final long                        bufferStartAddress   = XMemory.getDirectByteBufferAddress(buffer);
 			
 			long totalFileContentLength = 0;
 			
@@ -169,7 +168,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			
 			fillBuffer(buffer, file, fileActualLength);
 			
-			final long bufferStartAddress = PlatformInternals.getDirectBufferAddress(buffer);
+			final long bufferStartAddress = XMemory.getDirectByteBufferAddress(buffer);
 			final long bufferBoundAddress = bufferStartAddress + buffer.limit();
 			
 			long currentItemLength;

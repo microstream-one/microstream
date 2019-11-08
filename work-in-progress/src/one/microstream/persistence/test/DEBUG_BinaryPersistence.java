@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeLink;
@@ -60,8 +59,8 @@ public final class DEBUG_BinaryPersistence
 		
 		bytes.iterateEntityData(entitiesData ->
 		{
-			final long startAddress = PlatformInternals.getDirectBufferAddress(entitiesData);
-			final long boundAddress = PlatformInternals.getDirectBufferAddress(entitiesData) + entitiesData.limit();
+			final long startAddress = XMemory.getDirectByteBufferAddress(entitiesData);
+			final long boundAddress = XMemory.getDirectByteBufferAddress(entitiesData) + entitiesData.limit();
 			
 			long length;
 			for(long address = startAddress; address < boundAddress; address += length)

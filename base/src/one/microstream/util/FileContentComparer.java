@@ -11,9 +11,9 @@ import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.typing.KeyValue;
+
 
 public class FileContentComparer
 {
@@ -46,7 +46,7 @@ public class FileContentComparer
 	{
 		if(buffer == null || buffer.capacity() < requiredLength)
 		{
-			PlatformInternals.deallocateDirectBuffer(buffer);
+			XMemory.deallocateDirectByteBuffer(buffer);
 			final ByteBuffer newBuffer = ByteBuffer.allocateDirect(requiredLength);
 			return newBuffer;
 		}
@@ -106,13 +106,13 @@ public class FileContentComparer
 	private void setSourceBuffer(final ByteBuffer sourceBuffer)
 	{
 		this.sourceBuffer = sourceBuffer;
-		this.sourceBufferAddress = PlatformInternals.getDirectBufferAddress(sourceBuffer);
+		this.sourceBufferAddress = XMemory.getDirectByteBufferAddress(sourceBuffer);
 	}
 	
 	private void setTargetBuffer(final ByteBuffer targetBuffer)
 	{
 		this.targetBuffer = targetBuffer;
-		this.targetBufferAddress = PlatformInternals.getDirectBufferAddress(targetBuffer);
+		this.targetBufferAddress = XMemory.getDirectByteBufferAddress(targetBuffer);
 	}
 	
 	public void compareFiles(final XGettingTable<File, File> files)
