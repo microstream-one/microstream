@@ -17,6 +17,7 @@ import one.microstream.memory.DirectBufferAddressGetter;
 import one.microstream.memory.DirectBufferDeallocator;
 import one.microstream.memory.XMemory;
 import one.microstream.reflect.XReflect;
+import one.microstream.typing.XTypes;
 import sun.misc.Unsafe;
 
 public final class JdkInternals
@@ -119,10 +120,7 @@ public final class JdkInternals
 	
 	// must be initialized first for the initializing methods to be able to use it.
 	static final ArrayList<Warning> INITIALIZATION_WARNINGS = new ArrayList<>();
-		
-	// simple and perfectly valid solution to indirectly resolve an internal and name-changing type.
-	static final Class<?> CLASS_DirectByteBuffer = ByteBuffer.allocateDirect(Long.BYTES).getClass();
-	
+			
 	static final Class<?> CLASS_Cleaner = tryIterativeResolveType(
 		// initial type name
 		"sun.misc.Cleaner",
@@ -137,7 +135,7 @@ public final class JdkInternals
 
 	// Note java.nio.Buffer comment: "Used only by direct buffers. Hoisted here for speed in JNI GetDirectBufferAddress"
 	static final long FIELD_OFFSET_Buffer_address           = tryGetFieldOffset(Buffer.class, FIELD_NAME_address);
-	static final long FIELD_OFFSET_DirectByteBuffer_cleaner = tryGetFieldOffset(CLASS_DirectByteBuffer, FIELD_NAME_cleaner);
+	static final long FIELD_OFFSET_DirectByteBuffer_cleaner = tryGetFieldOffset(XTypes.directByteBufferClass(), FIELD_NAME_cleaner);
 	static final long FIELD_OFFSET_Cleaner_thunk            = tryGetFieldOffset(CLASS_Cleaner, FIELD_NAME_thunk);
 
 	static final Class<?> tryIterativeResolveType(final String... typeNames)
@@ -381,29 +379,11 @@ public final class JdkInternals
 	{
 		return directBufferAddressGetter;
 	}
-	
-	public static final boolean isDirectByteBuffer(final ByteBuffer directBuffer)
-	{
-		notNull(directBuffer);
-		
-		return CLASS_DirectByteBuffer.isInstance(directBuffer);
-	}
-	
-	public static final ByteBuffer guaranteeDirectBuffer(final ByteBuffer byteBuffer)
-	{
-		if(isDirectByteBuffer(byteBuffer))
-		{
-			return byteBuffer;
-		}
-		
-		throw new ClassCastException(
-			byteBuffer.getClass().getName() + " cannot be cast to " + CLASS_DirectByteBuffer.getName()
-		);
-	}
-	
+
+	// "internal" prefixed method that is public, to indicate that it uses JDK-internal details.
 	public static final long internalGetDirectByteBufferAddress(final ByteBuffer directBuffer)
 	{
-		JdkInternals.guaranteeDirectBuffer(directBuffer);
+		XTypes.guaranteeDirectByteBuffer(directBuffer);
 		return JdkInternals.get_long(directBuffer, JdkInternals.FIELD_OFFSET_Buffer_address);
 	}
 	
@@ -416,6 +396,7 @@ public final class JdkInternals
 		return directBufferAddressGetter.getDirectBufferAddress(directBuffer);
 	}
 	
+	// "internal" prefixed method that is public, to indicate that it uses JDK-internal details.
 	public static final void internalDeallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
 		// better check again in here, in case this method ever gets called from another context, e.g. reflective.
@@ -424,7 +405,7 @@ public final class JdkInternals
 			return;
 		}
 		
-		guaranteeDirectBuffer(directBuffer);
+		XTypes.guaranteeDirectByteBuffer(directBuffer);
 		
 		final Object cleaner = getObject(directBuffer, FIELD_OFFSET_DirectByteBuffer_cleaner);
 		final Object cleanerThunkDeallocatorRunnable = getObject(cleaner, FIELD_OFFSET_Cleaner_thunk);

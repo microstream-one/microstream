@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.memory.MemoryAccessor;
 import one.microstream.memory.MemorySizeProperties;
+import one.microstream.typing.XTypes;
 
 public final class JdkMemoryAccessor implements MemoryAccessor, MemorySizeProperties
 {
@@ -54,13 +55,13 @@ public final class JdkMemoryAccessor implements MemoryAccessor, MemorySizeProper
 	@Override
 	public final boolean isDirectByteBuffer(final ByteBuffer byteBuffer)
 	{
-		return JdkInternals.isDirectByteBuffer(byteBuffer);
+		return XTypes.isDirectByteBuffer(byteBuffer);
 	}
 
 	@Override
 	public final ByteBuffer guaranteeDirectByteBuffer(final ByteBuffer directBuffer)
 	{
-		return JdkInternals.guaranteeDirectBuffer(directBuffer);
+		return XTypes.guaranteeDirectByteBuffer(directBuffer);
 	}
 	
 	

@@ -37,7 +37,7 @@ public interface MemoryAccessor
 	public boolean isDirectByteBuffer(ByteBuffer byteBuffer);
 
 	public ByteBuffer guaranteeDirectByteBuffer(ByteBuffer directBuffer);
-	
+
 	
 	
 	// memory allocation //

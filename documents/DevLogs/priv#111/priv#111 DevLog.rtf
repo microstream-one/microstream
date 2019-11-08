@@ -1029,5 +1029,20 @@ Noch ein Punkt: anstatt die Funktionstypen optional zu machen, mach ich gleich n
 Also alles bissl umbauen und optimieren.\par
 Letztendlich PlatformInternals in die MemoryAccessorSun reinmergen.\par
 Und dann die Klasse zerlegen und den static Teil umbenennen zu JdkInternals.\par
+\par
+\par
+2019-11-08\par
+\par
+Hm. Bevor ich den Trick mit dem ByteBuffer.allocateDirect(Long.BYTES).getClass() im Generic Handler nochmal nachbau und dann dort nochmal f\'fcr statische Verwendung, mach ich es gleich anders:\par
+Das ist eine allgemein verwendbare Logik, die aber implizit platformspezifisch funktioniert. Hei\'dft: Ich steck das direkt eine zentrale Utilklasse. Am besten XTypes. Und dann ruf ich die von beiden Stellen aus einfach auf.\par
+Der redundante static Grusch entf\'e4llt dabei komplett.\par
+Sehr sch\'f6n.\par
+\par
+Gleich noch ausf\'fchrliche Kommentierung dazu schreiben. Nicht das irgendein Checker zuk\'fcnftig mal sagt "Aber es gibt doch Buffer#isDirect".\par
+(Inklusive potenziell mir selbst... *h\'fcstel*)\par
+\par
+Jetzt BufferRegistry bauen. Simple WeakHashTable mit #ensureRegistered, #remove und den entsprechenden increase, decrease und cleanUp Methoden.\par
+\par
+\par
 }
  

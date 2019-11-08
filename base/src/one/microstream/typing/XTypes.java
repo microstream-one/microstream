@@ -1,8 +1,11 @@
 package one.microstream.typing;
 
+import static one.microstream.X.notNull;
+
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,8 +20,62 @@ import one.microstream.exceptions.NumberRangeException;
 public final class XTypes
 {
 	///////////////////////////////////////////////////////////////////////////
+	// constants //
+	//////////////
+
+	/*
+	 * Note:
+	 * This DirectByteBuffer checking logic is not superfluous, even if it might seem so at first glance.
+	 * There are several reasons for it:
+	 * 
+	 * 1.)
+	 * It is precisely about checking a ByteBuffer instance about being a DirectByteBuffer, the type returned by
+	 * ByteBuffer#allocateDirect.
+	 * Since the JDK geniuses aren't capable of proper public API design ((*cough* interfaces *cough*), a method like
+	 * this is required.
+	 * For the same reason, the dilettantish method Buffer#isDirect is no valid substitute since ANY
+	 * (potential future) subclass of ByteBuffer could simply return true and thus create a wrong program behaviour.
+	 * 
+	 * 2.)
+	 * Using this detour/trick produces the correct programm behavior even accross JDK versions with changing classes
+	 * (e.g. from JDK 8 to JDK 9) and evne on other platforms (e.g. android). Whatever class in whatever package
+	 * is returned by ByteBuffer#allocateDirect, THAT class is the one to be tested for.
+	 * 
+	 * It's a simple and perfectly valid solution to indirectly resolve an internal and name-changing type.
+	 * No matter the JDK version or platform.
+	 */
+	private static final Class<?> CLASS_DirectByteBuffer = ByteBuffer.allocateDirect(Long.BYTES).getClass();
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
+	
+	public static final Class<?> directByteBufferClass()
+	{
+		return CLASS_DirectByteBuffer;
+	}
+	
+	public static final boolean isDirectByteBuffer(final ByteBuffer byteBuffer)
+	{
+		notNull(byteBuffer);
+		
+		return CLASS_DirectByteBuffer.isInstance(byteBuffer);
+	}
+	
+	public static final ByteBuffer guaranteeDirectByteBuffer(final ByteBuffer directBuffer)
+	{
+		// null-check inside
+		if(isDirectByteBuffer(directBuffer))
+		{
+			return directBuffer;
+		}
+		
+		throw new ClassCastException(
+			directBuffer.getClass().getName() + " cannot be cast to " + CLASS_DirectByteBuffer.getName()
+		);
+	}
 
 	public static boolean isBooleanType(final Class<?> c)
 	{
