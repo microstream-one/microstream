@@ -1984,7 +1984,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		protected PersistenceTypeResolver ensureTypeResolver()
 		{
-			return new PersistenceTypeResolver.Default();
+			return PersistenceTypeResolver.Default();
 		}
 
 		protected PersistenceTypeHandlerEnsurer<M> ensureTypeHandlerEnsurer()
@@ -2201,9 +2201,13 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		protected PersistenceRootResolverProvider ensureRootResolverProvider()
 		{
-			final PersistenceTypeDescriptionResolverProvider refactoring = this.getTypeDescriptionResolverProvider();
+			final PersistenceTypeDescriptionResolverProvider refactoring  = this.getTypeDescriptionResolverProvider();
+			final PersistenceTypeResolver                    typeResolver = this.getTypeResolver();
 			
-			final PersistenceRootResolverProvider resolverProvider = PersistenceRootResolverProvider.New();
+			// must use the foundation's type resolver instance instead of creating a new default one internally.
+			final PersistenceRootResolverProvider resolverProvider = PersistenceRootResolverProvider.New(
+				typeResolver
+			);
 			resolverProvider.setTypeDescriptionResolverProvider(refactoring);
 			resolverProvider.setTypeHandlerManager(this.referenceTypeHandlerManager);
 			
