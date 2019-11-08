@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.math.XMath;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceInstanceHandler;
@@ -125,7 +124,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		
 		private void internalReadBinaryEntities(final ByteBuffer entitiesData)
 		{
-			final long startAddress = PlatformInternals.getDirectBufferAddress(entitiesData);
+			final long startAddress = XMemory.getDirectByteBufferAddress(entitiesData);
 			final long boundAddress = startAddress + entitiesData.limit();
 			
 			// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)
@@ -139,7 +138,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		
 		private void internalReadBinaryEntitiesByteReversing(final ByteBuffer entitiesData)
 		{
-			final long startAddress = PlatformInternals.getDirectBufferAddress(entitiesData);
+			final long startAddress = XMemory.getDirectByteBufferAddress(entitiesData);
 			final long boundAddress = startAddress + entitiesData.limit();
 			
 			// the start of an entity always contains its length. Loading chunks do not contain gaps (negative length)

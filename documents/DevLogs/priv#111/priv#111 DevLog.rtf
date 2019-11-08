@@ -1031,6 +1031,7 @@ Letztendlich PlatformInternals in die MemoryAccessorSun reinmergen.\par
 Und dann die Klasse zerlegen und den static Teil umbenennen zu JdkInternals.\par
 \par
 \par
+\par
 2019-11-08\par
 \par
 Hm. Bevor ich den Trick mit dem ByteBuffer.allocateDirect(Long.BYTES).getClass() im Generic Handler nochmal nachbau und dann dort nochmal f\'fcr statische Verwendung, mach ich es gleich anders:\par
@@ -1043,6 +1044,6 @@ Gleich noch ausf\'fchrliche Kommentierung dazu schreiben. Nicht das irgendein Ch
 \par
 Jetzt BufferRegistry bauen. Simple WeakHashTable mit #ensureRegistered, #remove und den entsprechenden increase, decrease und cleanUp Methoden.\par
 \par
-\par
+Beinahe fertig implementiert zum testen, aber jetzt muss ich Feierabend machen.\par
 }
  

@@ -3,7 +3,7 @@ package various;
 import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 
-import one.microstream.memory.PlatformInternals;
+import one.microstream.memory.XMemory;
 import one.microstream.memory.XMemory;
 
 public class MainTestMemorySwapping
@@ -37,7 +37,7 @@ public class MainTestMemorySwapping
 	static void testSwapping(final int memorySize, final int valueOffset)
 	{
 		final ByteBuffer dbb = ByteBuffer.allocateDirect(memorySize);
-		final long memoryStartAddress = PlatformInternals.getDirectBufferAddress(dbb);
+		final long memoryStartAddress = XMemory.getDirectByteBufferAddress(dbb);
 		final long memoryBoundAddress = memoryStartAddress + dbb.capacity();
 				
 		System.out.println(

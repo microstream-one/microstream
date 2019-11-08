@@ -11,7 +11,6 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.com.ComException;
 import one.microstream.com.ComPersistenceChannel;
 import one.microstream.com.XSockets;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
@@ -20,6 +19,7 @@ import one.microstream.persistence.binary.types.ChunksWrapperByteReversing;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.ByteOrderTargeting;
 import one.microstream.util.BufferSizeProvider;
+
 
 public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C, Binary>
 {
@@ -218,7 +218,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		static void DEBUG_printBufferBinaryValues(final ByteBuffer bb)
 		{
 			final byte[] bytes = new byte[bb.limit()];
-			XMemory.copyRangeToArray(PlatformInternals.getDirectBufferAddress(bb), bytes);
+			XMemory.copyRangeToArray(XMemory.getDirectByteBufferAddress(bb), bytes);
 			final VarString vs = VarString.New().addHexDec(bytes);
 			XDebug.println(vs.toString(), 1);
 		}

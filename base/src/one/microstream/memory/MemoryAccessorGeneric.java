@@ -2,7 +2,6 @@ package one.microstream.memory;
 
 import static one.microstream.X.notNull;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
@@ -10,10 +9,14 @@ import java.nio.ByteOrder;
 
 import one.microstream.X;
 import one.microstream.bytes.XBytes;
+import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.functional.DefaultInstantiator;
+import one.microstream.math.XMath;
+import one.microstream.memory.sun.JdkInternals;
 import one.microstream.meta.XDebug;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.XTypes;
@@ -62,12 +65,6 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		SMALL_CHUNK_LOWEST_VALID_SIZE   = 1
 	;
 	
-	// note: increment must be rather large to avoid constant array copying for relatively small de/allocation changes.
-	static final int
-		BIG_CHUNK_TABLE_INCREMENT    = 64,
-		BIG_CHUNK_NO_FREE_SLOT_INDEX = Integer.MAX_VALUE // important for deallocation logic! See there!
-	;
-	
 	static final long
 		IDENTIFIER_BITSHIFT_COUNT = Integer.SIZE,
 		
@@ -75,12 +72,21 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		BIG_CHUNK_SIZE_BOUND   = 1L + Integer.MAX_VALUE,
 		
 		SIZE_TYPE_FLAG = 1L << IDENTIFIER_BITSHIFT_COUNT + SMALL_CHUNK_SIZE_BITCOUNT + SMALL_CHUNK_CHAIN_BITCOUNT,
+		REGISTERED_FLAG = SIZE_TYPE_FLAG >>> 1,
 
 		LOWEST_VALID_ADDRESS = 1,
 
 		BIG_CHUNK_TABLE_MAX_LENGTH = (Long.MAX_VALUE ^ SIZE_TYPE_FLAG) >>> IDENTIFIER_BITSHIFT_COUNT
 	;
 	
+	// note: increment must be rather large to avoid constant array copying for relatively small de/allocation changes.
+	static final int
+		BIG_CHUNK_TABLE_INCREMENT    = 64,
+		BIG_CHUNK_NO_FREE_SLOT_INDEX = Integer.MAX_VALUE, // important for deallocation logic! See there!
+		REGISTERED_MAXIMUM_CAPACITY  = (int)(REGISTERED_FLAG >>> Integer.SIZE)
+	;
+	
+	// (08.11.2019 TM)FIXME: priv#111: REGISTERED_MAXIMUM_CAPACITY correct?
 	
 	
 	
@@ -152,6 +158,16 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	{
 		// offset is the lower 4 bytes plus the identifier as the upper 4 bytes. +1 is to avoid 0-address für index 0.
 		return (long)(bigChunkIndex + 1) << IDENTIFIER_BITSHIFT_COUNT;
+	}
+	
+	private static long packRegisteredAddress(
+		final int registeredIndex
+	)
+	{
+		// (08.11.2019 TM)FIXME priv#111: MemoryAccessorGeneric#packRegisteredAddress()
+		throw new one.microstream.meta.NotImplementedYetError();
+//		// offset is the lower 4 bytes plus the identifier as the upper 4 bytes. +1 is to avoid 0-address für index 0.
+//		return (long)(bigChunkIndex + 1) << IDENTIFIER_BITSHIFT_COUNT;
 	}
 		
 	private static int unpackBufferPosition(final long packedAddress)
@@ -251,6 +267,8 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 
 	private ByteBuffer[] bigChunkBuffers = new ByteBuffer[BIG_CHUNK_TABLE_INCREMENT];
 	private int          firstFreeBigChunkBufferIndex = 0;
+	
+	private final BufferRegistry bufferRegistry = new BufferRegistry(REGISTERED_MAXIMUM_CAPACITY);
 		
 	
 	
@@ -562,6 +580,8 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	private ByteBuffer getBuffer(final long address)
 	{
 		validateAddress(address);
+		
+		// (08.11.2019 TM)FIXME priv#111: registered
 		return isBigChunkAddress(address)
 			? this.getBigChunkBuffer(unpackBigChunkBufferIndex(address))
 			: this.getSmallChunkBuffer(unpackSmallChunkBufferIdentifier(address))
@@ -588,11 +608,6 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	}
 	
 	
-
-	
-	Entry[] registeredBUffer
-		
-	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// API methods //
@@ -611,13 +626,15 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final long getDirectByteBufferAddress(final ByteBuffer directBuffer)
 	{
-		// (08.11.2019 TM)FIXME: priv#111: ensure buffer is registered and return identity packed as address
+		final int registeredIndex = this.bufferRegistry.ensureRegistered(directBuffer);
+		
+		return packRegisteredAddress(registeredIndex);
 	}
 
 	@Override
 	public final void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
 	{
-		// (08.11.2019 TM)FIXME: priv#111: ensure buffer is unregistered
+		this.bufferRegistry.ensureRemoved(directBuffer);
 		
 		this.systemDeallocateDirectByteBuffer(directBuffer);
 	}
@@ -687,6 +704,8 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 			// (31.10.2019 TM)EXCP: proper exception
 			throw new MemoryException("Invalid address: " + address);
 		}
+		
+		// (08.11.2019 TM)FIXME priv#111: registered
 		
 		if(isBigChunkAddress(address))
 		{
@@ -1819,7 +1838,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	///////////////////////////////////////////////////////////////////////////
 	// testing //
 	////////////
-	/*
+	//*
 		
 	static void print32BitHeader()
 	{
@@ -2139,7 +2158,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 //		final long address3 = MemoryAccessorSun.staticAllocateMemory(1); // normal case
 		
 		// ends the process without even a crash output. Extremely weird.
-		MemoryAccessorSun.staticFreeMemory(MemoryAccessorSun.staticAllocateMemory(32) + 1);
+		JdkInternals.freeMemory(JdkInternals.allocateMemory(32) + 1);
 
 		System.out.println("hi");
 		// throws an OutOfMemoryError, which is weird.
@@ -2149,12 +2168,12 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 //		MemoryAccessorSun.staticFreeMemory(0); // no-op
 //		MemoryAccessorSun.staticFreeMemory(1); // no-op
 		
-		final long address4 = MemoryAccessorSun.staticAllocateMemory(32);
+		final long address4 = JdkInternals.allocateMemory(32);
 		System.out.println(address4);
-		System.out.println(MemoryAccessorSun.staticAllocateMemory(address4));
-		System.out.println(MemoryAccessorSun.staticAllocateMemory(address4));
-		MemoryAccessorSun.staticFreeMemory(address4);
-		MemoryAccessorSun.staticFreeMemory(address4);
+		System.out.println(JdkInternals.allocateMemory(address4));
+		System.out.println(JdkInternals.allocateMemory(address4));
+		JdkInternals.freeMemory(address4);
+		JdkInternals.freeMemory(address4);
 		
 //		System.out.println(address3);
 //		MemoryAccessorSun.staticFreeMemory(address3);

@@ -127,7 +127,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 //		 */
 //
 //		// good thing is: doing it manually gets rid of the clumsy flipping in this case
-//		return XMemory.get_long(PlatformInternals.getDirectBufferAddress(lengthBuffer));
+//		return XMemory.get_long(XMemory.getDirectByteBufferAddress(lengthBuffer));
 //	}
 
 	private static final void fillBuffer(

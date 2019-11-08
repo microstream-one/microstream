@@ -1,6 +1,9 @@
 package one.microstream.memory;
 
+import static one.microstream.X.notNull;
+
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
@@ -48,9 +51,9 @@ public final class XMemory
 		final MemorySizeProperties memorySizeProperties
 	)
 	{
-		MEMORY_ACCESSOR          = memoryAccessor;
-		MEMORY_ACCESSOR_REVERSED = memoryAccessor.toReversing();
-		MEMORY_SIZE_PROPERTIES   = memorySizeProperties;
+		MEMORY_ACCESSOR          = notNull(memoryAccessor);
+		MEMORY_ACCESSOR_REVERSED = notNull(memoryAccessor.toReversing());
+		MEMORY_SIZE_PROPERTIES   = notNull(memorySizeProperties);
 	}
 	
 	public static final synchronized MemoryAccessor memoryAccessor()
@@ -66,6 +69,35 @@ public final class XMemory
 	public static final synchronized MemorySizeProperties memorySizeProperties()
 	{
 		return MEMORY_SIZE_PROPERTIES;
+	}
+	
+	public static final void guaranteeUsability()
+	{
+		MEMORY_ACCESSOR.guaranteeUsability();
+	}
+	
+	
+	
+	// direct byte buffer handling //
+	
+	public static final long getDirectByteBufferAddress(final ByteBuffer directBuffer)
+	{
+		return MEMORY_ACCESSOR.getDirectByteBufferAddress(directBuffer);
+	}
+
+	public static final void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
+	{
+		MEMORY_ACCESSOR.deallocateDirectByteBuffer(directBuffer);
+	}
+
+	public static final boolean isDirectByteBuffer(final ByteBuffer byteBuffer)
+	{
+		return MEMORY_ACCESSOR.isDirectByteBuffer(byteBuffer);
+	}
+
+	public static final ByteBuffer guaranteeDirectByteBuffer(final ByteBuffer directBuffer)
+	{
+		return MEMORY_ACCESSOR.guaranteeDirectByteBuffer(directBuffer);
 	}
 	
 

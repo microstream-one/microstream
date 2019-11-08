@@ -1,6 +1,6 @@
 package one.microstream.persistence.test;
 
-import one.microstream.memory.sun.JdkMemoryAccessor;
+import one.microstream.memory.sun.JdkInternals;
 import sun.misc.Unsafe;
 
 public class MainTestCopyUnits
@@ -26,6 +26,6 @@ public class MainTestCopyUnits
 
 	public static void copy(final long size)
 	{
-		JdkMemoryAccessor.staticCopyRange(BYTES0, BABO, BYTES1, BABO, size);
+		JdkInternals.copyRange(BYTES0, BABO, BYTES1, BABO, size);
 	}
 }
