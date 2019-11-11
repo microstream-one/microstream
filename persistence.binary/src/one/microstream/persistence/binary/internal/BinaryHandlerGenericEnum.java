@@ -194,7 +194,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	protected long[] initializeSettingMemoryOffsets()
 	{
 		// additional long[] must be created instead of referencing that for storing offsets
-		return objectFieldOffsets(this.settingMembers());
+		return objectFieldOffsets(this.type(), this.settingMembers());
 	}
 	
 	@Override

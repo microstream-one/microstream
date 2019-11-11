@@ -635,9 +635,9 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	}
 	
 	@Override
-	public final void ensureClassInitialized(final Class<?>... classes)
+	public void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
 	{
-		this.actual.ensureClassInitialized(classes);
+		this.actual.ensureClassInitialized(c, usedFields);
 	}
 	
 	@Override

@@ -6,9 +6,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 import one.microstream.X;
 import one.microstream.bytes.XBytes;
+import one.microstream.collections.BulkList;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.exceptions.InstantiationRuntimeException;
@@ -353,6 +355,9 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	private long allocateMemorySmall(final int chunkSize)
 	{
+		// (11.11.2019 TM)FIXME: /!\ DEBUG
+		XDebug.println("Allocate Small Chunk: " + chunkSize);
+		
 		validateChunkSize(chunkSize);
 		
 		// consistent with sun.misc.Unsafe#allocateMemory behavior
@@ -487,6 +492,9 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	private long allocateMemoryBig(final int chunkSize)
 	{
+		// (11.11.2019 TM)FIXME: /!\ DEBUG
+		XDebug.println("Allocate Big Chunk: " + chunkSize);
+		
 		return this.firstFreeBigChunkBufferIndex < BIG_CHUNK_NO_FREE_SLOT_INDEX
 			? this.registerBigChunkBuffer(chunkSize, this.firstFreeBigChunkBufferIndex)
 			: this.enlargeBigChunkBufferTableAndRegister(chunkSize)
@@ -986,9 +994,9 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		final int        limit    = buffer.limit();
 		final int        position = unpackBufferPosition(address);
 		final int        bound    = X.checkArrayRange(position + length);
-		buffer.limit(bound);
-		
 		XArrays.validateRange0toUpperBound(bound, position, (int)length);
+		
+		buffer.limit(bound);
 		
 		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
 		for(int i = position; i < bound; i++)
@@ -1429,15 +1437,15 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		
 		// prepare and copy source buffer to target buffer
 		final int sourcePosition = unpackBufferPosition(sourceAddress);
-		sourceBuffer.position(sourcePosition);
 		sourceBuffer.limit(sourcePosition + X.checkArrayRange(length));
+		sourceBuffer.position(sourcePosition);
 		targetBuffer.put(sourceBuffer);
 		
 		// restore buffer navigational states
-		sourceBuffer.position(sourceBufferCurrentPosition);
 		sourceBuffer.limit   (sourceBufferCurrentLimit);
-		targetBuffer.position(targetBufferCurrentPosition);
+		sourceBuffer.position(sourceBufferCurrentPosition);
 		targetBuffer.limit   (targetBufferCurrentLimit);
+		targetBuffer.position(targetBufferCurrentPosition);
 	}
 
 	
@@ -1455,13 +1463,13 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		final int bufferCurrentLimit    = buffer.limit();
 
 		// prepare and copy source buffer to target array
-		buffer.position(position);
 		buffer.limit(position + target.length);
+		buffer.position(position);
 		buffer.get(target);
 
 		// restore buffer navigational states
-		buffer.position(bufferCurrentPosition);
 		buffer.limit(bufferCurrentLimit);
+		buffer.position(bufferCurrentPosition);
 	}
 	
 	@Override
@@ -1570,13 +1578,13 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		final int bufferCurrentLimit    = buffer.limit();
 
 		// prepare and copy source buffer to target array
-		buffer.position(position);
 		buffer.limit(position + array.length);
+		buffer.position(position);
 		buffer.put(array);
 
 		// restore buffer navigational states
-		buffer.position(bufferCurrentPosition);
 		buffer.limit(bufferCurrentLimit);
+		buffer.position(bufferCurrentPosition);
 	}
 	
 	@Override
@@ -1736,7 +1744,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 
 		return objectFieldOffset(objectFields, field);
 	}
-		
+	
 	private Field[] ensureRegisteredObjectFields(final Class<?> objectClass)
 	{
 		final Field[] objectFields = this.objectFieldsRegistry.get(objectClass);
@@ -1745,24 +1753,54 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 			return objectFields;
 		}
 		
-		return this.registerObjectFields(objectClass);
+		return this.registerCollectedObjectFields(objectClass);
+	}
+		
+	private Field[] ensureRegisteredObjectFields(final Class<?> objectClass, final Field... fields)
+	{
+		final Field[] objectFields = this.objectFieldsRegistry.get(objectClass);
+		if(objectFields != null)
+		{
+			if(fields != null && !Arrays.equals(fields, objectFields))
+			{
+				// (11.11.2019 TM)EXCP: proper exception
+				throw new RuntimeException("Inconsistent object class fields");
+			}
+			
+			return objectFields;
+		}
+		
+		return fields != null
+			? this.registerObjectFields(objectClass, fields)
+			: this.registerCollectedObjectFields(objectClass)
+		;
 	}
 	
-	private Field[] registerObjectFields(final Class<?> objectClass)
-	{
+	private Field[] registerCollectedObjectFields(final Class<?> objectClass)
+	{		
 		/*
 		 * Note on algorithm:
 		 * Each class in a class hierarchy gets its own registry entry, even if that means redundancy.
 		 * This is necessary to make the offset-to-field lookup quick
 		 */
-		final Field[] array = XReflect.collectInstanceFields(objectClass);
-		if(!this.objectFieldsRegistry.add(objectClass, array))
+		final Field[] fields = XReflect.collectInstanceFields(objectClass);
+
+		this.registerObjectFields(objectClass, fields);
+		
+		return fields;
+	}
+	
+	private Field[] registerObjectFields(final Class<?> objectClass, final Field[] fields)
+	{
+		X.ArrayView(fields).iterate(XReflect::setAccessible);
+				
+		if(!this.objectFieldsRegistry.add(objectClass, fields))
 		{
 			// (29.10.2019 TM)EXCP: proper exception
 			throw new RuntimeException("Object fields already registered for " + objectClass);
 		}
 		
-		return array;
+		return fields;
 	}
 	
 	private Field objectField(final Class<?> c, final int offset)
@@ -1849,6 +1887,14 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		 * determine the abstract pseudo-offset. Nice :-).
 		 */
 		this.ensureRegisteredObjectFields(c);
+	}
+	
+	@Override
+	public void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
+	{		
+		final Field[] fields = BulkList.New(usedFields).toArray(Field.class);
+		
+		this.ensureRegisteredObjectFields(c, fields);
 	}
 	
 	@Override

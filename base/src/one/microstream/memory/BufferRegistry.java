@@ -3,8 +3,10 @@ package one.microstream.memory;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
+import one.microstream.chars.XChars;
 import one.microstream.hashing.XHashing;
 import one.microstream.math.XMath;
+import one.microstream.meta.XDebug;
 
 public class BufferRegistry
 {
@@ -116,6 +118,9 @@ public class BufferRegistry
 		{
 			this.checkForIncrementingRebuild();
 		}
+
+		// (11.11.2019 TM)FIXME: /!\ DEBUG
+		XDebug.println("Registering " + XChars.systemString(byteBuffer) + " of size "+ byteBuffer.capacity());
 		
 		final int index = this.determineFreeIndex();
 		this.indexTable[index] = this.hashTable[this.hash(byteBuffer)] = new Entry(

@@ -1,5 +1,7 @@
 package one.microstream.test.corp.main;
 
+import one.microstream.memory.MemoryAccessorGeneric;
+import one.microstream.memory.XMemory;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
@@ -11,6 +13,7 @@ public class MainTestStorageExample
 	static
 	{
 //		XDebug.deleteAllFiles(new File(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
+		XMemory.setMemoryAccessor(MemoryAccessorGeneric.New());
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
@@ -25,7 +28,7 @@ public class MainTestStorageExample
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			STORAGE.setRoot(Test.generateModelData(100_000));
+			STORAGE.setRoot(Test.generateModelData(100));
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();

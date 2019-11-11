@@ -95,12 +95,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final C collector
 	)
 	{
-		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
-		{
-			collector.accept(member.field());
-		}
-		
-		return collector;
+		return PersistenceTypeDefinitionMemberFieldReflective.unbox(members, collector);
 	}
 	
 	protected static final long equal(final long value1, final long value2) throws IllegalArgumentException
@@ -173,18 +168,24 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 	
 	protected static final long[] objectFieldOffsets(
+		final Class<?>                                                                   entityClass,
 		final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldReflective> members
 	)
 	{
-		final long[] offsets = new long[members.intSize()];
+		// (11.11.2019 TM)NOTE: important for usage of MemoryAccessorGeneric to provide the fields' class context
+		final Field[] fields = unbox(members, BulkList.New()).toArray(Field.class);
+		return XMemory.objectFieldOffsets(entityClass, fields);
 		
-		int i = 0;
-		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
-		{
-			offsets[i++] = XMemory.objectFieldOffset(member.field());
-		}
-		
-		return offsets;
+		// (11.11.2019 TM)NOTE: old logic without class context
+//		final long[] offsets = new long[members.intSize()];
+//
+//		int i = 0;
+//		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
+//		{
+//			offsets[i++] = XMemory.objectFieldOffset(member.field());
+//		}
+//
+//		return offsets;
 	}
 
 	
@@ -262,7 +263,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		 * MemoryAccessor implementations that do not use the field base don't need to do anything here.
 		 * They probably also can't do anything to ensure a class is initialized.
 		 */
-		XMemory.ensureClassInitialized(type);
+		XMemory.ensureClassInitialized(type, persistableFields);
 		
 		final EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> instMembersInDeclOrdr =
 			deriveMembers(persistableFields, lengthResolver)
@@ -312,7 +313,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		
 	protected long[] initializeStoringMemoryOffsets()
 	{
-		return objectFieldOffsets(this.storingMembers);
+		return objectFieldOffsets(this.type(), this.storingMembers);
 	}
 	
 	protected long[] initializeSettingMemoryOffsets()
@@ -323,7 +324,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	
 	protected long[] initializeStoringRefMemOffsets()
 	{
-		return objectFieldOffsets(this.referenceMembers);
+		return objectFieldOffsets(this.type(), this.referenceMembers);
 	}
 	
 	protected EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterSettingMembers(

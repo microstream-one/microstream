@@ -544,9 +544,10 @@ public final class JdkMemoryAccessor implements MemoryAccessor, MemorySizeProper
 	}
 	
 	@Override
-	public void ensureClassInitialized(final Class<?>... classes)
+	public final void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
 	{
-		JdkInternals.ensureClassInitialized(classes);
+		// used fields are not relevant for JDK-internal class initialization.
+		JdkInternals.ensureClassInitialized(c);
 	}
 	
 	@Override
