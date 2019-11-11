@@ -746,7 +746,7 @@ public class Persistence
 		}
 		
 		/*
-		 * Kind of an overkill / backdoor, but the idea is that mutex references are usually just Object-typed
+		 * Kind of an overkill / loophole, but the idea is that mutex references are usually just Object-typed
 		 * fields. It is highly unlikely that an internal collection structure (array, Entry type, etc.) would
 		 * be referenced by just an Object-typed field instead of a properly typed field.
 		 */

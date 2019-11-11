@@ -230,6 +230,24 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			 * 
 			 * This way, there would be only one instance, no discarded preliminary instance and precisely one point
 			 * in time where the proper instance is (selected) or (created and registered).
+			 * 
+			 * (11.11.2019 TM)NOTE:
+			 * Not a good idea. The concept of the two instances was:
+			 * If a new instance has to be created, it is not in a consistent state until after #update
+			 * oder even after #complete. Until then, it may not be publicly available via the object registry.
+			 * Funnily, this code does exactely that, nonetheless:
+			 * - new instance instance is created locally (safe)
+			 * - new instance gets registered in the object Registry (not safe)
+			 * - THEN it gets updated
+			 * - And completed even later.
+			 * 
+			 * Hm.
+			 * So either the concept can/must be changed to
+			 * "a single and early registered instance is okay because it is the application logic's concurrency responsibility"
+			 * (a little shady)
+			 * OR the registration process must be shifted to behind complete or at least to behind update.
+			 * 
+			 * Ah yes. The point below did already handle that.
 			 */
 			
 			/* (03.09.2019 TM)TODO: priv#141: loading race conditions?

@@ -285,14 +285,18 @@ public interface MemoryAccessor
 	
 	public void ensureClassInitialized(Class<?> c);
 	
-	public default void ensureClassInitialized(final Class<?>... classes)
+	/**
+	 * Uses the passed fields if required by the implementation. If not, this method behaves exactely like
+	 * {@link #ensureClassInitialized(Class)}.
+	 * 
+	 * @param c
+	 * @param usedFields
+	 */
+	public default void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
 	{
-		for(final Class<?> c : classes)
-		{
-			this.ensureClassInitialized(c);
-		}
+		this.ensureClassInitialized(c);
 	}
-	
+		
 	public <T> T instantiateBlank(Class<T> c) throws InstantiationRuntimeException;
 
 	

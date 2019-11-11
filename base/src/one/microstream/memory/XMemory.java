@@ -351,6 +351,16 @@ public final class XMemory
 	{
 		return MEMORY_ACCESSOR.objectFieldOffsets(fields);
 	}
+	
+	public static final long objectFieldOffset(final Class<?> c, final Field field)
+	{
+		return MEMORY_ACCESSOR.objectFieldOffset(c, field);
+	}
+
+	public static final long[] objectFieldOffsets(final Class<?> c, final Field[] fields)
+	{
+		return MEMORY_ACCESSOR.objectFieldOffsets(c, fields);
+	}
 		
 	
 
@@ -707,11 +717,11 @@ public final class XMemory
 		MEMORY_ACCESSOR.ensureClassInitialized(c);
 	}
 	
-	public static final void ensureClassInitialized(final Class<?>... classes)
+	public static final void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
 	{
-		MEMORY_ACCESSOR.ensureClassInitialized(classes);
+		MEMORY_ACCESSOR.ensureClassInitialized(c, usedFields);
 	}
-	
+		
 	public static final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
 	{
 		return MEMORY_ACCESSOR.instantiateBlank(c);

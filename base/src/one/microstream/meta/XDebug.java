@@ -528,6 +528,8 @@ public final class XDebug
 			XMemory.byteSizeInstance(c) + " byte size of one instance of "
 			+ c.getName()
 		);
+		
+		XMemory.ensureClassInitialized(c);
 		XReflect.iterateDeclaredFieldsUpwards(c, f ->
 		{
 			if(!Modifier.isStatic(f.getModifiers()))
