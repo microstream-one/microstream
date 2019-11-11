@@ -13,9 +13,10 @@ public class BufferRegistry
 	////////////////////
 
 	// crucial since address packing occupies some bits, so the maximum capacity is lower then technically possible.
-	private final int maximumCapacity;
+	private final int maximumCapacityBound;
 	
-	private int     hashRange, capacity, shrinkBound, currentLowestFreeIndex, size;
+	// "increaseBound" is capacity + 1. "shrinkBound" accordingly.
+	private int     hashRange, increaseBound, shrinkBound, currentLowestFreeIndex, size;
 	private Entry[] hashTable, indexTable;
 	
 	/*
@@ -33,16 +34,16 @@ public class BufferRegistry
 	// constructors //
 	/////////////////
 
-	BufferRegistry(final int maximumCapacity)
+	BufferRegistry(final int maximumCapacityBound)
 	{
-		this(maximumCapacity, 1);
+		this(maximumCapacityBound, 1);
 	}
 	
-	BufferRegistry(final int maximumCapacity, final int initialCapacity)
+	BufferRegistry(final int maximumCapacityBound, final int initialCapacityBound)
 	{
 		super();
-		this.maximumCapacity = maximumCapacity;
-		this.createArrays(XHashing.padHashLength(initialCapacity));
+		this.maximumCapacityBound = maximumCapacityBound;
+		this.createArrays(XHashing.padHashLength(initialCapacityBound));
 	}
 	
 	
@@ -62,12 +63,12 @@ public class BufferRegistry
 		final int     size
 	)
 	{
-		this.hashTable   = hashTable;
-		this.indexTable  = indexTable;
-		this.capacity    = hashTable.length;
-		this.shrinkBound = hashTable.length / 2;
-		this.hashRange   = hashTable.length - 1;
-		this.size        = size;
+		this.hashTable     = hashTable;
+		this.indexTable    = indexTable;
+		this.increaseBound = hashTable.length;
+		this.shrinkBound   = hashTable.length / 2;
+		this.hashRange     = hashTable.length - 1;
+		this.size          = size;
 		
 		this.currentLowestFreeIndex = determineLowestFreeIndex(indexTable);
 	}
@@ -111,7 +112,7 @@ public class BufferRegistry
 			}
 		}
 		
-		if(++this.size >= this.capacity)
+		if(++this.size >= this.increaseBound)
 		{
 			this.checkForIncrementingRebuild();
 		}
@@ -124,6 +125,14 @@ public class BufferRegistry
 		);
 		
 		return index;
+	}
+	
+	final ByteBuffer lookupBuffer(final int index)
+	{
+		return this.indexTable[index] != null
+			? this.indexTable[index].get()
+			: null
+		;
 	}
 	
 	private void checkForIncrementingRebuild()
@@ -142,18 +151,18 @@ public class BufferRegistry
 	
 	private void incrementingRebuild()
 	{
-		if(this.capacity >= this.maximumCapacity)
+		if(this.increaseBound >= this.maximumCapacityBound)
 		{
 			// rollback preliminary size incrementation to guarantee a consistent state (e.g. for debugging)
 			this.size--;
 
 			// (08.11.2019 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Buffer registry cannot be increased beyond the specified maximum capacity of " + this.maximumCapacity
+				"Buffer registry cannot be increased beyond the specified maximum capacity of " + this.maximumCapacityBound
 			);
 		}
 		
-		if(this.capacity >= XMath.highestPowerOf2_int())
+		if(this.increaseBound >= XMath.highestPowerOf2_int())
 		{
 			// rollback preliminary size incrementation to guarantee a consistent state (e.g. for debugging)
 			this.size--;
@@ -175,7 +184,7 @@ public class BufferRegistry
 		}
 
 		// with the corner case out of the way, a simple * 2 suffices.
-		this.rebuild(this.capacity * 2);
+		this.rebuild(this.increaseBound * 2);
 	}
 	
 	private void cleanUp()
@@ -324,7 +333,7 @@ public class BufferRegistry
 		final Entry[] indexTable = this.indexTable;
 		
 		final int shrinkBound = this.shrinkBound;
-		for(int i = this.capacity; --i >= shrinkBound;)
+		for(int i = this.increaseBound; --i >= shrinkBound;)
 		{
 			if(indexTable[i] != null)
 			{
@@ -347,13 +356,14 @@ public class BufferRegistry
 		this.updateCurrentLowestFreeIndex(index);
 	}
 	
-	final void ensureRemoved(final ByteBuffer byteBuffer)
+	final ByteBuffer ensureRemoved(final ByteBuffer byteBuffer)
 	{
 		for(Entry e = this.hashTable[this.hash(byteBuffer)], last = null; e != null; e = (last = e).link)
 		{
 			if(e.get() == byteBuffer)
 			{
 				this.removeEntry(byteBuffer, e, last);
+				return byteBuffer;
 			}
 			if(e.isHollow())
 			{
@@ -362,6 +372,7 @@ public class BufferRegistry
 		}
 		
 		// ignore not found buffer. Should be no harm.
+		return null;
 	}
 	
 	
