@@ -9,14 +9,10 @@ import java.nio.ByteOrder;
 
 import one.microstream.X;
 import one.microstream.bytes.XBytes;
-import one.microstream.chars.VarString;
-import one.microstream.chars.XChars;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.functional.DefaultInstantiator;
-import one.microstream.math.XMath;
-import one.microstream.memory.sun.JdkInternals;
 import one.microstream.meta.XDebug;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.XTypes;
@@ -1872,7 +1868,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	///////////////////////////////////////////////////////////////////////////
 	// testing //
 	////////////
-	//*
+	/*
 		
 	static void print32BitHeader()
 	{
