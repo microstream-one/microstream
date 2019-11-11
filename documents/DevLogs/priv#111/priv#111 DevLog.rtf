@@ -1045,5 +1045,39 @@ Gleich noch ausf\'fchrliche Kommentierung dazu schreiben. Nicht das irgendein Ch
 Jetzt BufferRegistry bauen. Simple WeakHashTable mit #ensureRegistered, #remove und den entsprechenden increase, decrease und cleanUp Methoden.\par
 \par
 Beinahe fertig implementiert zum testen, aber jetzt muss ich Feierabend machen.\par
+\par
+\par
+2019-11-11\par
+\par
+Noch fehlende Bitschubserei Methoden implementieren.\par
+Ah, hehe: f\'fcr die get~Buffer Methode fehlt noch ein get() in der BufferRegistry. Haha.\par
+Schnell noch kopieren und anpassen.\par
+Achso, hehe. Das ist ja gar kein Hash Lookup, sondern einfach nur ein array getter.\par
+Wobei es so einfach auch nicht ist:\par
+Null entries d\'fcrfen keinen NPE werfen. Aber die Memory Exception darf erst au\'dferhalb geworfen werden.\par
+\par
+So, fertig.\par
+Testen.\par
+\par
+registered capacity ist maximum oder bound? Aktueller wert von REGISTERED_MAXIMUM_CAPACITY ist bound, aber ich glaub logik ist maximum.\par
+\'c4hnlich BIG_CHUNK_TABLE_MAX_LENGTH: Ist zwar 1 weniger, aber daf\'fcr ist ja auch ein Offset von 1 mit drin.\par
+Beide fixen und f\'fcr beide den gleichen Wert verwenden.\par
+\par
+Einzelner registeredBuffer sieht gut aus. Jetzt wieder so einen "mixed" Test bauen.\par
+Testen ...\par
+Okay, da ist noch einiges falsch. Scheint immer bei Index 0 zu bleiben. Haha.\par
+\par
+Ah. War nur ein Bitschubsing Fehler. Kaum castet man den int vorher auf long, kommen sogar die richtigen Werte raus.\par
+Scheint soweit alles korrekt zu sein. Noch bissl debuggen.\par
+Sieht gut aus.\par
+\par
+TODOs zu max capacity wegmachen.\par
+Nach priv#111 Tasks suchen.\par
+Gibt keine mehr. Dann w\'fcrd ich sagen: das ist fertig.\par
+\par
+Jetzt Funktionstest mit komplettem Storage Example. Ich hab scho Angst ...\par
+\par
+\par
+\par
 }
  
