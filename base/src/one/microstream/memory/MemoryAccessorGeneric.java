@@ -10,6 +10,7 @@ import java.util.Arrays;
 
 import one.microstream.X;
 import one.microstream.bytes.XBytes;
+import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
@@ -1777,7 +1778,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	}
 	
 	private Field[] registerCollectedObjectFields(final Class<?> objectClass)
-	{		
+	{
 		/*
 		 * Note on algorithm:
 		 * Each class in a class hierarchy gets its own registry entry, even if that means redundancy.
@@ -1891,7 +1892,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	
 	@Override
 	public void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
-	{		
+	{
 		final Field[] fields = BulkList.New(usedFields).toArray(Field.class);
 		
 		this.ensureRegisteredObjectFields(c, fields);
@@ -1907,6 +1908,202 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	public final synchronized MemoryAccessor toReversing()
 	{
 		return this.reversing;
+	}
+	
+	
+	public static VarString assembleChunkTypeInformation(final VarString vs, final long address)
+	{
+		if(isSmallChunkAddress(address))
+		{
+			final int smallIdentifier = unpackSmallChunkBufferIdentifier(address);
+			final int bufferPosition  = unpackBufferPosition(address);
+			final int chunkSizeIndex  = unpackSmallChunkSizeIndex(smallIdentifier);
+			final int chunkSize       = chunkSizeIndex + 1;
+			final int chunkChainIndex = unpackSmallChunkChainIndex(smallIdentifier);
+			final int slotCount       = calculateSlotCount(chunkSize);
+			final int slotIndex       = bufferPosition / chunkSize;
+			final int chunkStart      = slotIndex * chunkSize;
+			final int chunkOffset     = bufferPosition - chunkStart;
+			
+			vs
+			.add("[[[Small Chunk]]]").lf()
+			.add("Chunk Size       : ").add(chunkSize).lf()
+			.add("Chunk Size Index : ").add(chunkSizeIndex).lf()
+			.add("Chunk Chain Index: ").add(chunkChainIndex).lf()
+			.add("Slot Count       : ").add(slotCount).lf()
+			.add("Slot Index       : ").add(slotIndex).lf()
+			.add("Buffer Position  : ").add(bufferPosition).lf()
+			.add("Chunk Offset     : ").add(chunkOffset).lf()
+			;
+		}
+		else if(isRegisteredAddress(address))
+		{
+			final int bufferIndex = unpackRegisteredBufferIndex(address);
+			
+			vs
+			.add("-> Registered Buffer").lf()
+			.add("Buffer Index: ").add(bufferIndex).lf()
+			;
+		}
+		else
+		{
+			// big chunk
+			final int bufferIndex = unpackBigChunkBufferIndex(address);
+			
+			vs
+			.add("[[[Big   Chunk]]]").lf()
+			.add("Buffer Index: ").add(bufferIndex).lf()
+			;
+		}
+				
+		return vs.add("---------------");
+	}
+	
+	public static VarString assemblBufferInformation(final VarString vs, final ByteBuffer bb)
+	{
+		vs
+		.add("Buffer:").lf()
+		.add("Class: ").add(bb.getClass().getName()).lf()
+		.add("Capacity: ").add(bb.capacity()).lf()
+		.add("Limit: ").add(bb.limit()).lf()
+		.add("Position: ").add(bb.position()).lf()
+		.add("---------------")
+		;
+		
+		return vs;
+	}
+	
+	private static int calculcateBufferStartPosition(final long packedAddress)
+	{
+		if(isSmallChunkAddress(packedAddress))
+		{
+			final int smallIdentifier = unpackSmallChunkBufferIdentifier(packedAddress);
+			final int bufferPosition  = unpackBufferPosition(packedAddress);
+			final int chunkSizeIndex  = unpackSmallChunkSizeIndex(smallIdentifier);
+			final int chunkSize       = chunkSizeIndex + 1;
+			final int slotIndex       = bufferPosition / chunkSize;
+			final int chunkStart      = slotIndex * chunkSize;
+			
+			return chunkStart;
+		}
+		
+		if(isRegisteredAddress(packedAddress))
+		{
+			return 0;
+		}
+		
+		// big chunk
+		return 0;
+	}
+	
+	private static int calculcateBufferBoundPosition(final long packedAddress, final ByteBuffer bb)
+	{
+		if(isSmallChunkAddress(packedAddress))
+		{
+			final int smallIdentifier = unpackSmallChunkBufferIdentifier(packedAddress);
+			final int bufferPosition  = unpackBufferPosition(packedAddress);
+			final int chunkSizeIndex  = unpackSmallChunkSizeIndex(smallIdentifier);
+			final int chunkSize       = chunkSizeIndex + 1;
+			final int slotIndex       = bufferPosition / chunkSize;
+			final int chunkStart      = slotIndex * chunkSize;
+			
+			return chunkStart + chunkSize;
+		}
+		
+		if(isRegisteredAddress(packedAddress))
+		{
+			return bb.limit();
+		}
+		
+		// big chunk
+		return bb.limit();
+	}
+	
+	public VarString assembleAddress(final VarString vs, final long address, final int bytesPerLine)
+	{
+		final ByteBuffer bb = this.getBuffer(address);
+		assemblBufferInformation(vs, bb).lf();
+		assembleChunkTypeInformation(vs, address).lf();
+		
+		final int bufferStartPosition = calculcateBufferStartPosition(address);
+		final int bufferPosition      = unpackBufferPosition(address);
+		final int bufferBoundPosition = calculcateBufferBoundPosition(address, bb);
+
+		vs.lf()
+		.lf().add("bufferStartPosition: ").add(bufferStartPosition)
+		.lf().add("bufferPosition     : ").add(bufferPosition)
+		.lf().add("bufferBoundPosition: ").add(bufferBoundPosition)
+		.lf()
+		.lf().add("Content:")
+		.lf()
+		;
+		this.assembleBufferContent(vs, bb, bytesPerLine, bufferStartPosition, bufferPosition, bufferBoundPosition);
+		
+		return vs;
+	}
+	
+	public VarString assembleBufferContent(
+		final VarString  vs                 ,
+		final ByteBuffer bb                 ,
+		final int        bytesPerLine       ,
+		final int        bufferStartPosition,
+		final int        bufferPosition     ,
+		final int        bufferBoundPosition
+	)
+	{
+		int byteLineCounter = 0;
+		
+		if(bufferPosition != bufferStartPosition)
+		{
+			byteLineCounter = this.assembleBytes(vs, bb, bytesPerLine, bufferStartPosition, bufferPosition, byteLineCounter);
+			vs.lf().repeat(byteLineCounter*2, ' ');
+		}
+		else
+		{
+			vs.add("[Position = start]").lf();
+		}
+		byteLineCounter = this.assembleBytes(vs, bb, bytesPerLine, bufferPosition, bufferBoundPosition, byteLineCounter);
+		
+		return vs;
+	}
+	
+	public int assembleBytes(
+		final VarString  vs                 ,
+		final ByteBuffer bb                 ,
+		final int        bytesPerLine       ,
+		final int        bufferStartPosition,
+		final int        bufferBoundPosition,
+		final int        byteLineCounter
+	)
+	{
+		int c = byteLineCounter;
+		for(int i = bufferStartPosition; i < bufferBoundPosition; i++)
+		{
+			vs.addHexDec(bb.get(i));
+			if(++c == bytesPerLine)
+			{
+				vs.lf();
+				c = 0;
+			}
+		}
+		
+		return c;
+	}
+	
+	public static void debugPrintAddress(final long address)
+	{
+		debugPrintAddress(address, 100);
+	}
+	
+	public static MemoryAccessorGeneric debugPrintAddress(final long address, final int bytesPerLine)
+	{
+		final MemoryAccessorGeneric memory = (MemoryAccessorGeneric)XMemory.memoryAccessor();
+		
+		final VarString vs = VarString.New();
+		memory.assembleAddress(vs, address, bytesPerLine);
+		System.out.println(vs.toString());
+		
+		return memory;
 	}
 	
 	

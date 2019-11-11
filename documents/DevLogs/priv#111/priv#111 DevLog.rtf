@@ -1186,6 +1186,14 @@ Dann auf zum Byteschubser Arithmetik Fehler.\par
 \par
 Hm. Da werd ich wohl eine "print den Buffer und seinen gesamten Inhalt" Debugmethode in die ~Generic Klasse reinbauen m\'fcssen.\par
 \par
+So. Wundervolle Debug Print Methode gebaut. Und die zeigt: Alle Bytes sind 0.\par
 \par
+Debuggt und mehr prints bis ins Entity Daten Laden rein.\par
+Printing bissl gefixt und verbessert.\par
+\par
+Und siehe da, die Ausgaben sagen:\par
+Immer, wenn die BufferPosition 0 ist (z.B. gro\'dfer Chunk oder kleiner mit slotIndex 0), dann sind Daten da. Ansonsten sind alle Bytes 0.\par
+Hei\'dft: Da hab ich bei den Datenkopiermethoden irgendwo einen Offset ausgelassen oder sowas in der Art.\par
+Muss ich dann morgen suchen.\par
 }
  
