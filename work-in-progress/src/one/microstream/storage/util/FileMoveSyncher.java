@@ -205,7 +205,6 @@ public class FileMoveSyncher
 			final File newTargetDirectory = new File(targetDirectoryBase, relativeSourcePath);
 			final File newTargetFile      = new File(newTargetDirectory, matchingTargetFile.getName());
 			
-			// (01.06.2019 TM)FIXME: /!\ DEBUG
 			System.out.println("$ " + sourceFile.getAbsolutePath());
 			System.out.println("> " + newTargetFile.getAbsolutePath());
 			System.out.println("< " + matchingTargetFile.getAbsolutePath());

@@ -171,6 +171,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerPrimitive.New(double .class),
 
 			BinaryHandlerClass.New(typeHandlerManager),
+			
 			BinaryHandlerByte.New()     ,
 			BinaryHandlerBoolean.New()  ,
 			BinaryHandlerShort.New()    ,
@@ -182,7 +183,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerVoid.New()     ,
 			BinaryHandlerObject.New()   ,
 			
-			BinaryHandlerString.New()      ,
+			BinaryHandlerString.New()       ,
 			BinaryHandlerStringBuffer.New() ,
 			BinaryHandlerStringBuilder.New(),
 
@@ -204,7 +205,23 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerOptionalLong.New(),
 			BinaryHandlerOptionalDouble.New(),
 			
-			BinaryHandlerStateless.New(Collections.reverseOrder().getClass()) // not an enum
+			/* (12.11.2019 TM)NOTE:
+			 * One might think that "empty" implementations of a collection interface would have no fields, anyway.
+			 * But no-ho-ho, not when the JDK geniuses are involved.
+			 * The horrible, unexplicably stupidly written code for those classes brainlessly and uselessly
+			 * extends 5 other classes, some of which bring along several times redundant delegate fields.
+			 * Those fields cause access warnings (and access exceptions in the future) when trying to set them
+			 * accessible in the generic handler implementation.
+			 * To avoid all that hassle and compensate their intern-like design skills when it comes to interfaces
+			 * (and Java in general), it is necessary to explicitly define stateless handlers for those
+			 * pseudo-stateless empty types with useless fields.
+			 * Rant over. Yes, I feel much better now.
+			 */
+			BinaryHandlerStateless.New(Collections.emptyNavigableSet().getClass()),
+			BinaryHandlerStateless.New(Collections.emptyNavigableMap().getClass()),
+			
+			// not an enum, as opposed to NaturalOrderComparator. Because lol, why do something consistently, right?
+			BinaryHandlerStateless.New(Collections.reverseOrder().getClass())
 		);
 		
 		/* (24.10.2013 TM)TODO: priv#117 more native handlers (Path, Instant and whatnot)

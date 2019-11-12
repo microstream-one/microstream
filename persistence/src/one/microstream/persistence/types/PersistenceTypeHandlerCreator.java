@@ -176,7 +176,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			// collections need special handling to avoid dramatically inefficient generic structures
 			if(XReflect.isJavaUtilCollectionType(type))
 			{
-				return this.deriveTypeHandlerCollection(type);
+				return this.deriveTypeHandlerJavaUtilCollection(type);
 			}
 			
 			// and another special case
@@ -224,7 +224,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			return this.createTypeHandlerEnum(type, persistableFields);
 		}
 		
-		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerCollection(final Class<T> type)
+		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerJavaUtilCollection(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
@@ -232,12 +232,11 @@ public interface PersistenceTypeHandlerCreator<M>
 			
 			if(!problematicFields.isEmpty())
 			{
-				this.createTypeHandlerGenericCollection(type);
+				this.createTypeHandlerGenericJavaUtilCollection(type);
 			}
 
 			return this.createTypeHandlerGeneric(type, persistableFields);
 		}
-		
 
 		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerAbstractType(
 			Class<T> type
@@ -265,7 +264,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			Class<T> type
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGenericCollection(
+		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGenericJavaUtilCollection(
 			Class<T> type
 		);
 		

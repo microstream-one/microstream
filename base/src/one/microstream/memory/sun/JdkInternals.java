@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import one.microstream.exceptions.InstantiationRuntimeException;
+import one.microstream.functional.DefaultInstantiator;
 import one.microstream.memory.DirectBufferAddressGetter;
 import one.microstream.memory.DirectBufferDeallocator;
 import one.microstream.memory.XMemory;
@@ -901,6 +902,11 @@ public final class JdkInternals
 		{
 			throw new InstantiationRuntimeException(e);
 		}
+	}
+	
+	public static final DefaultInstantiator instantiatorBlank()
+	{
+		return JdkInstantiatorBlank.New();
 	}
 		
 	

@@ -1181,6 +1181,7 @@ Im Moment gehts mit dem JDK.\par
 Eigentlich ist es ja eh nur f\'fcr Android gedacht.\par
 Die schwulen Collections k\'f6nnte man mit handlern handeln. Hoff ich.\par
 Und f\'fcr Optional k\'f6nnte man die Registrierreihenfolge im BinaryLoader mal fixen, dann kann man da einen zwischendummy erzeugen und im update die richtige Instanz zur\'fcckgeben.\par
+\cf5 UPDATE: Siehe "Notiz zu Optional" unten.\cf0\par
 \par
 Dann auf zum Byteschubser Arithmetik Fehler.\par
 \par
@@ -1195,5 +1196,131 @@ Und siehe da, die Ausgaben sagen:\par
 Immer, wenn die BufferPosition 0 ist (z.B. gro\'dfer Chunk oder kleiner mit slotIndex 0), dann sind Daten da. Ansonsten sind alle Bytes 0.\par
 Hei\'dft: Da hab ich bei den Datenkopiermethoden irgendwo einen Offset ausgelassen oder sowas in der Art.\par
 Muss ich dann morgen suchen.\par
+\par
+\par
+2019-11-12\par
+\par
+Jetzt Offset Fehler untersuchen.\par
+Debugging f\'fchrt schnell zu #copyRange\par
+Mal buffers dort ausgeben lassen und durchdebuggen.\par
+\par
+Ach! Nat\'fcrlich!\par
+Ich setz ja dem target buffer seine Position nicht.\par
+Hei\'dft: F\'fcr index 0 ist es richtig.\par
+Danach wird seine Position wieder auf 0 resettet.\par
+Der n\'e4chste write schreibt wieder auf 0 anstatt auf eine position weiter hinten.\par
+Das bedeutet: f\'fcr Small Chunks mit position 0 sind immer daten da (wenn auch inkonsistente, nehm ich an), aber f\'fcr alle dr\'fcber sind die bytes immer 0, weil sie nie beschrieben werden.\par
+\par
+Also target buffer position setzen ist klar.\par
+Der Rest, limit setzen und die beiden Werte am Ende wiederherstellen, ist gar nicht so klar.\par
+Denn: m\'fcssen die nicht eigentlich in ihrem ver\'e4nderten Zustand bleiben, falls es registrierte Buffer sind und die anwendung mit diesen werten arbeitet?\par
+So ein mist ...\par
+\par
+Hm. Also erst mal ist es so:\par
+Es m\'fcssten aus den source- und target-Adressen viel mehr Informationen rausgezogen werden, wenn sie da schon drin stecken.\par
+N\'e4mlich:\par
+- target buffer offset\par
+- target buffer limit (chunk size bei small, capacity bei den anderen beiden)\par
+- source buffer limit\par
+\par
+Man k\'f6nnt es sogar so machen:\par
+F\'fcr Registered Buffers wird dort -1 zur\'fcckgegeben. Hei\'dft: Gar nicht beschr\'e4nken, sondern den inh\'e4renten Navigationsstate lassen, wie er ist.\par
+Nur die anderen beiden buffer arten, bei denen der NavState ja irrelevant ist, werden mit der Brechstange gesetzt und dann wieder zur\'fcck.\par
+Das ist die L\'f6sung.\par
+\par
+Hm. Aber was ist, wenn der Fall RregisteredBuffer zutrifft mit der expliziten bufferposition? Die werden in der Anwendung ja auch nur als allokierter Speicher verwendet, ohne Bedeutung ihres NavStates. Bzw. der wird bei Bedarf dann nachtr\'e4glich gesetzt.\par
+Also doch State setzen und resetten?\par
+Hm. Mal so programmieren und dann testen.\par
+Sieht so weit gut aus.\par
+\par
+Achja, eine Sache fehlt ja noch: ich brauch ja noch einen explizit gesetzten blank instantiator.\par
+Und tats\'e4chlich, hehe: gleich mal eine NoSuchMethod Exception, weil die Default Konstruktor Strategie nicht geht.\par
+Muss ich noch setzen.\par
+\par
+Gleich eine Klasse JdkInstantiatorBlank schreiben und JdkInternals um eine entsprechende Convenience Methode erweitern, die eine Instanz davon zur\'fcckgibt.\par
+\par
+\par
+Und noch eine Notiz zu Optional von daheim:\par
+Das mit der Fake Instanz f\'fcr Optional f\'fcr nach #update geht nicht. Denn die von #create gelieferten Instanzen sind ja die, die in #update Aufrufen f\'fcr andere Instanzen verlinkt werden.\par
+Irgendwo bei\'dft sich immer die Katze in den Schwanz (z.B. Optional mit Referenz auf Optional). Um einen Graph konsistent aufzubauen muss es halt nunmal erst Instanzen geben, die danach bef\'fcllt werden.\par
+\par
+Aber f\'fcr die drei EmptyUnmodifiable Drecksimplementierungen (empties mit Feldern, noch dazu mit unsauberer Vererbung. Weil die alle zu bl\'f6d f\'fcr interfaces sind) k\'f6nnte man l\'f6sen, indem man f\'fcr JDK Collections mit "Empty" im Namen keine Felder mitnimmt oder so.\par
+\par
+Ewig rumrecherchiert. In der Generic Type handlererzeugung fehlte noch ein check auf keine persistable fields und dann ein stateless handler als Optimierung.\par
+\par
+Aber die L\'f6sung f\'fcr das eigentliche Problem war:\par
+Genau wie f\'fcr Collections.reverseOrder() explizit stateless handler registrieren.\par
+\par
+Damit sind jetzt alle Warnings weg, bis auf die f\'fcr Optional. Und die geht einfach nicht weg, weil man halt Instanzen erst erzeugen und dann bef\'fcllen muss. Hilft alles nix.\par
+\par
+Ah: Wenn ich das TypeDictionary anpass und einfach alle Felder rausl\'f6sch, gibts nat\'fcrlich eine entity length validation exception. Ist ja auch richtig.\par
+Also eher drin lassen und schauen, ob das LTM es checkt. M\'fcsste es eigentlich.\par
+Lol, interessant: die default implementiering von isVariableLengthType verwendet "minLength == maxLength" und darum kommt eine Exception. Muss nat\'fcrlich "!=" hei\'dfen. Fixen und kommentieren.\par
+Und schwups, schon gehts.\par
+\par
+Damit w\'e4ren jetzt die unmodified empty Seuche Typen gehandelt, #copyRange ist gefixt, Instantiator passt.\par
+\par
+Weitertesten ...\par
+Exception. Sieht wieder nach ByteArithmetik Fehler aus.\par
+Hm. Au\'dferdem muss ich ja erst mal die drei anderen MemoryAccessorGeneric Methoden mit dem .limit() Denkfehler fixen ...\par
+\par
+Jetzt Arithmetik Exception ansehen.\par
+Ach, das sind ja wieder die Unmodifiable Dinger.\par
+Also es gibt einen Rerouting Legacy Handler.\par
+Aber warum will der f\'fcr loadable References drei Felder iterieren?\par
+Muss ich die LTM Handler Erzeugung doch debuggen ...\par
+\par
+Ah:\par
+Der AbstractBinaryLegacyTypeHandlerTranslating Konstruktor sagt zum references loaden muss die alte definition verwendet werden, weil die zu dem Datensatz Layout in der Datenbank passt.\par
+Macht Sinn.\par
+Aber was ich dabei nat\'fcrlich vergessen hab: die m\'fcssen auf den rerouteten ByteBuffer zugreifen.\par
+\'c4h... beziehungsweise: Damit ist es eigentlich falsch.\par
+Kurz recherchiert:\line Erst werden die Instanzen erzeugt, dann werden die loadable References iteriert.\par
+Beim Instanz erzeugen wird der ByteBuffer ersetzt durch einen nach dem neuen Layout.\par
+Hei\'dft: es muss auch der neue Handler f\'fcr die Ableitung der loadableReferences verwendet werden.\par
+\par
+Fixen. Testen.\par
+\par
+Ah, jetzt knallts wieder da, wo es vor der Unmodified Seuche \'c4nderung mal geknallt hat:\par
+MemoryAccessorGeneric#getSmallChunkBuffer\par
+\par
+Ich nehm mal an, dass das damit passt.\par
+Dann schau ich jetzt diese Exception hat.\par
+M\'fchsam ern\'e4hrt sich das Eichh\'f6rnchen ...\par
+\par
+Oh!\line Da wird in Binary als Offset die address nochmal draufgez\'e4hlt. Das ergibt nat\'fcrlich eine katastrophal kaputte Adresse.\par
+...\par
+H\'e4? Warum hat das ohne Generic Implementierung keinen Fehler gemacht?\par
+\par
+Gefixt. Laufen lassen.\par
+L\'e4uft durch, hurraaa!\par
+Uuuund Exception beim CSV-Konvertieren:\par
+"The source buffer is this buffer"\par
+\'c4h ... well, shit.\par
+Mal schauen ob das ein Bug ist, oder ob das bisher nur mit unsafe kein Problem war.\par
+\par
+Ah, das UTF8 double assembling kopiert alle vorkomma-bytes um eins um, um den dot einzuf\'fcgen.\par
+Okay, das is evtl. nicht perfekt effizient (aber erst mal einen pragmatisch schnelleren Weg finden), aber mal eine dumme Frage: Kann ein ByteBuffer seine Bytes nicht intern umkopieren/verschieben?\par
+Ja und was macht man dann? Doppelt hin und her kopieren, weil die JDK Boum zum tausendsten mal wieder mal d\'e4mlich sind?\par
+\par
+Sonderfall implementieren.\par
+Testen.\par
+Sieht gut aus.\par
+Weiterlaufen lassen.\par
+\par
+L\'e4uft durch.\line Export-CSVs anschauen. Sieht gut aus.\par
+\par
+Bissl Performance Tests.\par
+H\'f6? Ist das wirklich gleich schnell?\par
+\par
+Gr\'f6\'dferen Test machen...\par
+\par
+\par
+\par
+Interessant:\par
+Speichern mit Generic, laden mit Unsafe, gibt folgende Exception:\par
+0 Inconsistent file length of file 72057594037927936: -8627499406762967040 < 435160313994674176\par
+\par
+Muss ich morgen gegen\'fcberstellen...\par
 }
  

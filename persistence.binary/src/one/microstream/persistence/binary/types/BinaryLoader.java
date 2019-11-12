@@ -8,9 +8,7 @@ import java.util.function.Consumer;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.math.XMath;
-import one.microstream.memory.MemoryAccessorGeneric;
 import one.microstream.memory.XMemory;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceInstanceHandler;
 import one.microstream.persistence.types.PersistenceLoader;
@@ -165,10 +163,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			// proper build items must have a typeHandler
 			if(typeHandler == null)
 			{
-				// (11.11.2019 TM)FIXME: /!\ DEBUG
-				XDebug.println("DEBUG Memory:");
-				MemoryAccessorGeneric.debugPrintAddress(loadItem.address);
-				
 				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
 					loadItem.getBuildItemTypeId()
 				);

@@ -4,7 +4,9 @@ package one.microstream.reflect;
 import static one.microstream.X.notEmpty;
 import static one.microstream.X.notNull;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
@@ -22,6 +24,7 @@ import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XMap;
 import one.microstream.collections.types.XReference;
 import one.microstream.exceptions.IllegalAccessRuntimeException;
+import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.exceptions.NoSuchFieldRuntimeException;
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.functional.Instantiator;
@@ -39,10 +42,66 @@ import one.microstream.util.UtilStackTrace;
  */
 public final class XReflect
 {
-	public static final Field setAccessible(final Field field)
+	public static final <T> T defaultInstantiate(final Class<T> type)
+		throws NoSuchMethodRuntimeException, InstantiationRuntimeException
 	{
-		// because lol
+		final Constructor<T> defaultConstructor;
+		try
+		{
+			defaultConstructor = type.getConstructor();
+		}
+		catch(final NoSuchMethodException e)
+		{
+			// childich checked exceptions ...
+			throw new NoSuchMethodRuntimeException(e);
+		}
+		
+		try
+		{
+			return defaultConstructor.newInstance();
+		}
+		catch(final InstantiationException e)
+		{
+			throw new InstantiationRuntimeException(e);
+		}
+		catch(final Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static final Field setAccessible(final Class<?> actualClass, final Field field)
+	{
+		try
+		{
+			return setAccessible(field);
+		}
+		catch(final InaccessibleObjectException e)
+		{
+			// the geniuses struck again: they left out the (String, Throwable) constructor
+//			throw new InaccessibleObjectException(actualClass.toString() + "#" + deriveFieldIdentifier(field), e);
+			throw new RuntimeException(toFullQualifiedFieldName(actualClass, field), e);
+		}
+		catch(final SecurityException e)
+		{
+			// oh, wow. Here, they actually managed to provide it.
+			throw new SecurityException(toFullQualifiedFieldName(actualClass, field), e);
+		}
+		catch(final RuntimeException e)
+		{
+			throw new RuntimeException(toFullQualifiedFieldName(actualClass, field), e);
+		}
+		catch(final Error e)
+		{
+			throw new Error(toFullQualifiedFieldName(actualClass, field), e);
+		}
+	}
+
+	// convenience method to allow simpler functional programming via method reference for that often needed use case.
+	public static final Field setAccessible(final Field field) throws InaccessibleObjectException, SecurityException
+	{
 		field.setAccessible(true);
+		
 		return field;
 	}
 
@@ -828,6 +887,17 @@ public final class XReflect
 	public static char nestedClassNameSeparator()
 	{
 		return '$';
+	}
+	
+	public static String toFullQualifiedFieldName(
+		final Class<?>                actualClass,
+		final java.lang.reflect.Field field
+	)
+	{
+		return actualClass == field.getDeclaringClass()
+			? deriveFieldIdentifier(field)
+			: toFullQualifiedFieldName(actualClass, deriveFieldIdentifier(field))
+		;
 	}
 
 	public static String deriveFieldIdentifier(final java.lang.reflect.Field field)
