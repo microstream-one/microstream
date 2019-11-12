@@ -48,7 +48,7 @@ public interface MemoryAccessor
 
 	public void freeMemory(long address);
 	
-	public void fillMemory(long address, long length, byte value);
+	public void fillMemory(long targetAddress, long length, byte value);
 	
 	
 	

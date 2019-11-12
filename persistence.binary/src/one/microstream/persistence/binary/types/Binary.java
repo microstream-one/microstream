@@ -1181,49 +1181,49 @@ public abstract class Binary implements Chunk
 		 * or yet another hack has to be applied by low-level-instantiating an instance and low-level setting
 		 * its value into the final field.
 		 */
-		return new Byte(this.read_byte(this.loadItemEntityContentAddress() + offset));
+		return new Byte(this.read_byte(offset));
 	}
 
 	public final Boolean buildBoolean(final long offset)
 	{
 		// see comment in #buildByte()
-		return new Boolean(this.read_boolean(this.loadItemEntityContentAddress() + offset));
+		return new Boolean(this.read_boolean(offset));
 	}
 
 	public final Short buildShort(final long offset)
 	{
 		// see comment in #buildByte()
-		return new Short(this.read_short(this.loadItemEntityContentAddress() + offset));
+		return new Short(this.read_short(offset));
 	}
 
 	public final Character buildCharacter(final long offset)
 	{
 		// see comment in #buildByte()
-		return new Character(this.read_char(this.loadItemEntityContentAddress() + offset));
+		return new Character(this.read_char(offset));
 	}
 
 	public final Integer buildInteger(final long offset)
 	{
 		// see comment in #buildByte()
-		return new Integer(this.read_int(this.loadItemEntityContentAddress() + offset));
+		return new Integer(this.read_int(offset));
 	}
 
 	public final Float buildFloat(final long offset)
 	{
 		// decimal value instances are not chached, so #valueOf() can be used safely.
-		return Float.valueOf(this.read_float(this.loadItemEntityContentAddress()));
+		return Float.valueOf(this.read_float(offset));
 	}
 
 	public final Long buildLong(final long offset)
 	{
 		// see comment in #buildByte()
-		return new Long(this.read_long(this.loadItemEntityContentAddress() + offset));
+		return new Long(this.read_long(offset));
 	}
 
 	public final Double buildDouble(final long offset)
 	{
 		// decimal value instances are not chached, so #valueOf() can be used safely.
-		return Double.valueOf(this.read_double(this.loadItemEntityContentAddress() + offset));
+		return Double.valueOf(this.read_double(offset));
 	}
 
 	public final Object buildPrimitiveWrapper(final Class<?> primitiveValueType, final long offset)

@@ -91,7 +91,8 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 */
 	public default boolean hasPersistedVariableLength()
 	{
-		return this.membersPersistedLengthMinimum() == this.membersPersistedLengthMaximum();
+		// (12.11.2019 TM)NOTE: fixed from "==" to "!=", since "==" must have been be a typo, as nonsensical as it was.
+		return this.membersPersistedLengthMinimum() != this.membersPersistedLengthMaximum();
 	}
 
 	public boolean isPrimitiveType();

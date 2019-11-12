@@ -192,6 +192,11 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			 * OR maybe ALL created type handlers should be registered at the passed TypeHandlerManager this way.
 			 * 
 			 */
+			
+			if(persistableFields.isEmpty())
+			{
+				return this.createTypeHandlerGenericStateless(type);
+			}
 
 			// default implementation simply always uses a blank memory instantiator
 			return BinaryHandlerGenericType.New(
@@ -208,7 +213,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		// all casts are type checked dynamically, but the compiler doesn't understand that
 		@SuppressWarnings("unchecked")
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGenericCollection(
+		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGenericJavaUtilCollection(
 			final Class<T> type
 		)
 		{
