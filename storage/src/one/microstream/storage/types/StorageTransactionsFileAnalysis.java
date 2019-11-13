@@ -280,7 +280,7 @@ public interface StorageTransactionsFileAnalysis
 
 			fileChannel.position(startPosition);
 
-			final ByteBuffer buffer  = ByteBuffer.allocateDirect(XMemory.defaultBufferSize());
+			final ByteBuffer buffer  = XMemory.allocateDirectNativeDefault();
 			final long       address = XMemory.getDirectByteBufferAddress(buffer);
 
 			// process whole file part by part

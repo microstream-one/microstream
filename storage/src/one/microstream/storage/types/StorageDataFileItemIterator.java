@@ -37,8 +37,8 @@ public interface StorageDataFileItemIterator
 	{
 		public default ByteBuffer provideInitialBuffer()
 		{
-			// page-sized direct byte buffer as default
-			return ByteBuffer.allocateDirect(XMemory.defaultBufferSize());
+			// defaul-(page-ish)-sized direct byte buffer as default
+			return XMemory.allocateDirectNativeDefault();
 		}
 
 		/**
@@ -90,7 +90,7 @@ public interface StorageDataFileItemIterator
 			ConstantSizedBufferProvider(final int bufferCapacity)
 			{
 				super();
-				this.buffer = ByteBuffer.allocateDirect(bufferCapacity);
+				this.buffer = XMemory.allocateDirectNative(bufferCapacity);
 			}
 
 			@Override

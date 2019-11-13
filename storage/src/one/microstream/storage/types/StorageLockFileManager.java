@@ -232,7 +232,7 @@ public interface StorageLockFileManager extends Runnable
 		
 		private void allocateBuffer(final int capacity)
 		{
-			this.wrappedByteBuffer[0] = this.directByteBuffer = ByteBuffer.allocateDirect(capacity);
+			this.wrappedByteBuffer[0] = this.directByteBuffer = XMemory.allocateDirectNative(capacity);
 		}
 		
 		private String readString()

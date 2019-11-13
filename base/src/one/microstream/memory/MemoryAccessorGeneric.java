@@ -5,20 +5,18 @@ import static one.microstream.X.notNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import one.microstream.X;
-import one.microstream.bytes.XBytes;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.functional.DefaultInstantiator;
-import one.microstream.meta.XDebug;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.XTypes;
+
 
 public final class MemoryAccessorGeneric implements MemoryAccessor
 {
@@ -319,10 +317,9 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// methods //
 	////////////
 		
-	private static ByteBuffer createBuffer(final int size)
+	private static ByteBuffer createBuffer(final int capacity)
 	{
-		// always native order to minimize the clumsily designed performance overhead to the minimum.
-		return ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
+		return XMemory.allocateDirectNative(capacity);
 	}
 		
 	private long initializeSmallChunkBufferChain(final int chunkSize)
@@ -560,7 +557,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		final int bigChunkIndex = this.bigChunkBuffers.length;
 		final int newLength     = calculateIncreasedBigChunkTableLength(this.bigChunkBuffers.length);
 
-		XDebug.println("Increase from " + this.bigChunkBuffers.length + " to " + newLength);
+//		XDebug.println("Increase from " + this.bigChunkBuffers.length + " to " + newLength);
 		this.bigChunkBuffers                = XArrays.rebuild(this.bigChunkBuffers, newLength);
 		this.bigChunkBuffers[bigChunkIndex] = createBuffer(chunkSize);
 		this.firstFreeBigChunkBufferIndex   = bigChunkIndex + 1;
@@ -1004,7 +1001,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		final int newLength = calculateDecreasedBigChunkTableLength(bigChunkBuffers.length, freeTrailingElementCount);
 		if(newLength != bigChunkBuffers.length)
 		{
-			XDebug.println("Decrease from " + bigChunkBuffers.length + " to " + newLength);
+//			XDebug.println("Decrease from " + bigChunkBuffers.length + " to " + newLength);
 			this.bigChunkBuffers = XArrays.rebuild(this.bigChunkBuffers, newLength);
 		}
 	}
@@ -1415,21 +1412,21 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	public final void set_shortInBytes(final byte[] bytes, final int index, final short value)
 	{
 		// since XArrays inherently works only with sane byte order, the insane case has to be checked and handled here.
-		XArrays.set_shortInBytes(bytes, index, XBytes.isBigEndianNativeOrder() ? Short.reverseBytes(value) : value);
+		XArrays.set_shortInBytes(bytes, index, XMemory.isBigEndianNativeOrder() ? Short.reverseBytes(value) : value);
 	}
 
 	@Override
 	public final void set_charInBytes(final byte[] bytes, final int index, final char value)
 	{
 		// since XArrays inherently works only with sane byte order, the insane case has to be checked and handled here.
-		XArrays.set_charInBytes(bytes, index, XBytes.isBigEndianNativeOrder() ? Character.reverseBytes(value) : value);
+		XArrays.set_charInBytes(bytes, index, XMemory.isBigEndianNativeOrder() ? Character.reverseBytes(value) : value);
 	}
 
 	@Override
 	public final void set_intInBytes(final byte[] bytes, final int index, final int value)
 	{
 		// since XArrays inherently works only with sane byte order, the insane case has to be checked and handled here.
-		XArrays.set_intInBytes(bytes, index, XBytes.isBigEndianNativeOrder() ? Integer.reverseBytes(value) : value);
+		XArrays.set_intInBytes(bytes, index, XMemory.isBigEndianNativeOrder() ? Integer.reverseBytes(value) : value);
 	}
 
 	@Override
@@ -1442,7 +1439,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	public final void set_longInBytes(final byte[] bytes, final int index, final long value)
 	{
 		// since XArrays inherently works only with sane byte order, the insane case has to be checked and handled here.
-		XArrays.set_longInBytes(bytes, index, XBytes.isBigEndianNativeOrder() ? Long.reverseBytes(value) : value);
+		XArrays.set_longInBytes(bytes, index, XMemory.isBigEndianNativeOrder() ? Long.reverseBytes(value) : value);
 	}
 
 	@Override

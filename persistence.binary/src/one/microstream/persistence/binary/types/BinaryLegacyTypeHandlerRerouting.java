@@ -5,7 +5,7 @@ import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
 
-import one.microstream.X;
+import one.microstream.memory.XMemory;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
@@ -73,9 +73,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		final long entityObjectId    = rawData.getBuildItemObjectId();
 		
 		// so funny how the morons crippled their memory handling API to int just because there is a toArray somewhere.
-		final ByteBuffer directByteBuffer = ByteBuffer.allocateDirect(
-			X.checkArrayRange(entityTotalLength)
-		);
+		final ByteBuffer directByteBuffer = XMemory.allocateDirectNative(entityTotalLength);
 		
 		// hardly more than a consistently used and documentable label for the value 0.
 		final long entityOffset = 0;

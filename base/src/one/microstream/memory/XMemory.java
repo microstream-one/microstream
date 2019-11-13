@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import one.microstream.X;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.memory.sun.JdkMemoryAccessor;
 
@@ -733,8 +734,28 @@ public final class XMemory
 		return ByteOrder.nativeOrder();
 	}
 	
+	public static final boolean isBigEndianNativeOrder()
+	{
+		return ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
+	}
+	
+	public static final boolean isLittleEndianNativeOrder()
+	{
+		return ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+	}
+	
+	/**
+	 * Parses a {@link String} instance to a {@link ByteOrder} instance according to {@code ByteOrder#toString()}
+	 * or throws an {@link IllegalArgumentException} if the passed string does not match exactely one of the
+	 * {@link ByteOrder} constant instances' string representation.
+	 *
+	 * @param byteOrder the string representing the {@link ByteOrder} instance to be parsed.
+	 * @return the recognized {@link ByteOrder}
+	 * @throws IllegalArgumentException if the string can't be recognized as a {@link ByteOrder} constant instance.
+	 * @see ByteOrder#toString()
+	 */
 	// because they (he) couldn't have implemented that where it belongs.
-	public static final ByteOrder resolveByteOrder(final String name)
+	public static final ByteOrder parseByteOrder(final String name)
 	{
 		if(name.equals(ByteOrder.BIG_ENDIAN.toString()))
 		{
@@ -747,6 +768,41 @@ public final class XMemory
 		
 		// (31.10.2018 TM)EXCP: proper exception
 		throw new RuntimeException("Unknown ByteOrder: \"" + name + "\"");
+	}
+	
+	/**
+	 * Alias for {@code ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder())}.
+	 * See {@link ByteBuffer#allocateDirect(int)} for details.
+	 * 
+	 * @param capacity
+	 *         The new buffer's capacity, in bytes
+	 * 
+	 * @return a newly created direct byte buffer with the specified capacity and the platform's native byte order.
+	 * 
+     * @throws IllegalArgumentException
+     *         If the {@code capacity} is a negative integer.
+     * 
+	 * @see ByteBuffer#allocateDirect(int)
+	 * @see ByteBuffer#order(ByteOrder)
+	 */
+	public static final ByteBuffer allocateDirectNative(final int capacity) throws IllegalArgumentException
+	{
+		return ByteBuffer
+			.allocateDirect(capacity)
+			.order(ByteOrder.nativeOrder())
+		;
+	}
+	
+	public static final ByteBuffer allocateDirectNative(final long capacity) throws IllegalArgumentException
+	{
+		return allocateDirectNative(
+			X.checkArrayRange(capacity)
+		);
+	}
+	
+	public static final ByteBuffer allocateDirectNativeDefault()
+	{
+		return allocateDirectNative(XMemory.defaultBufferSize());
 	}
 	
 	

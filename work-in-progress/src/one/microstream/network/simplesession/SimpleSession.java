@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
+import one.microstream.memory.XMemory;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.network.types.NetworkUserSession;
 import one.microstream.network.types.NetworkUserSessionManager;
@@ -26,7 +27,7 @@ public class SimpleSession extends NetworkUserSession.Abstract<SimpleSessionUser
 
 	private final long sessionId;
 
-	private final ByteBuffer buffer = ByteBuffer.allocateDirect(MAX_MESSAGE_LENGTH);
+	private final ByteBuffer buffer = XMemory.allocateDirectNative(MAX_MESSAGE_LENGTH);
 
 	// (05.11.2012 TM)TODO: SimpleSession#needsProcessing: maybe can be consolidated away
 	private volatile boolean awaitingProcessing;

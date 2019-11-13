@@ -146,11 +146,11 @@ public interface StorageFileManager
 		private final StorageBackupHandler                 backupHandler                ;
 
 		private final ByteBuffer[]
-			entryBufferFileCreation   = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
-			entryBufferStore          = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthStore())}         ,
-			entryBufferTransfer       = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthTransfer())}      ,
-			entryBufferFileDeletion   = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
-			entryBufferFileTruncation = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileTruncation())}
+			entryBufferFileCreation   = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
+			entryBufferStore          = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthStore())}         ,
+			entryBufferTransfer       = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthTransfer())}      ,
+			entryBufferFileDeletion   = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
+			entryBufferFileTruncation = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileTruncation())}
 		;
 
 		private final long
@@ -216,8 +216,8 @@ public interface StorageFileManager
 			 * There is absolutely no reason whatsoever to not unnecessary shackle and borderline-ruin the JDK
 			 * tools for working with memory. Right?
 			 */
-			this.standardByteBuffer            = ByteBuffer.allocateDirect(
-				XTypes.to_int(standardBufferSizeProvider.provideBufferSize())
+			this.standardByteBuffer = XMemory.allocateDirectNative
+				(standardBufferSizeProvider.provideBufferSize()
 			);
 		}
 
@@ -337,7 +337,7 @@ public interface StorageFileManager
 		{
 			if(length > this.standardByteBuffer.capacity())
 			{
-				return ByteBuffer.allocateDirect(length);
+				return XMemory.allocateDirectNative(length);
 			}
 			this.standardByteBuffer.clear().limit(length);
 

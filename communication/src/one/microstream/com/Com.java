@@ -108,7 +108,7 @@ public class Com
 		);
 		
 		// the ByteBuffer#put(byte[]) is, of course, a catastrophe, as usual in JDK code. Hence the direct way.
-		final ByteBuffer dbb = ByteBuffer.allocateDirect(assembledProtocolBytes.length);
+		final ByteBuffer dbb = XMemory.allocateDirectNative(assembledProtocolBytes.length);
 		final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
 		XMemory.copyArrayToAddress(assembledProtocolBytes, dbbAddress);
 		// the bytebuffer's position remains at 0, limit at capacity. Both are correct for the first reading call.

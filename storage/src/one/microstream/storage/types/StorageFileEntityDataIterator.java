@@ -138,7 +138,7 @@ public interface StorageFileEntityDataIterator
 			if(this.bufferCapacity() < requiredBufferCapacity)
 			{
 				XMemory.deallocateDirectByteBuffer(this.directByteBuffer);
-				this.directByteBuffer = ByteBuffer.allocateDirect(X.checkArrayRange(requiredBufferCapacity));
+				this.directByteBuffer = XMemory.allocateDirectNative(requiredBufferCapacity);
 			}
 			
 			return this;

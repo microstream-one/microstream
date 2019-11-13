@@ -69,7 +69,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		this.channelBuffers     = channelBuffers;
 		this.bufferSizeProvider = bufferSizeProvider;
 		this.setCurrent((this.buffers = new ByteBuffer[DEFAULT_BUFFERS_CAPACITY])[this.currentBuffersIndex = 0] =
-			ByteBuffer.allocateDirect(X.checkArrayRange(bufferSizeProvider.provideBufferSize())))
+			XMemory.allocateDirectNative(bufferSizeProvider.provideBufferSize()))
 		;
 	}
 
@@ -164,7 +164,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 
 	private void allocateNewCurrent(final int bufferCapacity)
 	{
-		this.setCurrent(this.buffers[this.currentBuffersIndex] = ByteBuffer.allocateDirect(bufferCapacity));
+		this.setCurrent(this.buffers[this.currentBuffersIndex] = XMemory.allocateDirectNative(bufferCapacity));
 	}
 
 	@Override

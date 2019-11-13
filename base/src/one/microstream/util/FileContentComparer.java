@@ -47,7 +47,7 @@ public class FileContentComparer
 		if(buffer == null || buffer.capacity() < requiredLength)
 		{
 			XMemory.deallocateDirectByteBuffer(buffer);
-			final ByteBuffer newBuffer = ByteBuffer.allocateDirect(requiredLength);
+			final ByteBuffer newBuffer = XMemory.allocateDirectNative(requiredLength);
 			return newBuffer;
 		}
 		

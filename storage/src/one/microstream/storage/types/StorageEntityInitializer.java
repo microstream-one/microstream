@@ -241,7 +241,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			final int largestFileSize = determineLargestFileSize(files);
 			
 			// anything below the system's "default" buffer size (a "page", usually 4096) doesn't pay off.
-			final ByteBuffer buffer = ByteBuffer.allocateDirect(
+			final ByteBuffer buffer = XMemory.allocateDirectNative(
 				Math.max(largestFileSize, XMemory.defaultBufferSize())
 			);
 			
