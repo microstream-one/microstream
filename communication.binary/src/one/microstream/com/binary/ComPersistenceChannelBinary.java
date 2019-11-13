@@ -69,8 +69,8 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		{
 			if(this.defaultBuffer == null)
 			{
-				this.defaultBuffer = ByteBuffer.allocateDirect(
-					X.checkArrayRange(this.bufferSizeProvider.provideBufferSize())
+				this.defaultBuffer = XMemory.allocateDirectNative(
+					this.bufferSizeProvider.provideBufferSize()
 				);
 			}
 			

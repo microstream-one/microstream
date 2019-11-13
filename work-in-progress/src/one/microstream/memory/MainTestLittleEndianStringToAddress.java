@@ -2,6 +2,7 @@ package one.microstream.memory;
 
 import java.nio.ByteBuffer;
 
+import one.microstream.memory.XMemory;
 import one.microstream.math.XMath;
 import one.microstream.memory.sun.JdkInternals;
 import sun.misc.Unsafe;
@@ -11,7 +12,7 @@ import sun.misc.Unsafe;
 
 public class MainTestLittleEndianStringToAddress
 {
-	private static final ByteBuffer bb = ByteBuffer.allocateDirect(40);
+	private static final ByteBuffer bb = XMemory.allocateDirectNative(40);
 	private static final long bb_address = XMemory.getDirectByteBufferAddress(bb);
 
 	public static void main(final String[] args)

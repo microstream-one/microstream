@@ -297,15 +297,15 @@ public interface StorageDataConverterTypeBinaryToCsv
 			this.literalByteLengthFalse  = this.literalFalse.length                           ;
 
 			this.readBufferSize          = Math.max(readBufferSize, XMemory.defaultBufferSize());
-			this.readBufferNormal        = ByteBuffer.allocateDirect(this.readBufferSize)      ;
-			this.readBufferLarge         = ByteBuffer.allocateDirect(0); // don't squander memory if normal size is already huge
+			this.readBufferNormal        = XMemory.allocateDirectNative(this.readBufferSize);
+			this.readBufferLarge         = XMemory.allocateDirectNative(0); // don't squander memory if normal size is already huge
 
 			this.writeBufferSize         = writeBufferSize(writeBufferSize);
-			this.writeBuffer             = ByteBuffer.allocateDirect(this.writeBufferSize)    ;
-			this.writeStart              = XMemory.getDirectByteBufferAddress(this.writeBuffer) ;
-			this.writeBound              = this.writeAddress + this.writeBuffer.capacity()    ;
-			this.flushBound              = this.writeBound - FLUSH_BUFFER_RANGE               ;
-			this.writeAddress            = this.writeStart                                    ;
+			this.writeBuffer             = XMemory.allocateDirectNative(this.writeBufferSize)   ;
+			this.writeStart              = XMemory.getDirectByteBufferAddress(this.writeBuffer);
+			this.writeBound              = this.writeAddress + this.writeBuffer.capacity()     ;
+			this.flushBound              = this.writeBound - FLUSH_BUFFER_RANGE                ;
+			this.writeAddress            = this.writeStart                                     ;
 		}
 
 
@@ -1045,7 +1045,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 			// large buffer has to be enlarged
 			XMemory.deallocateDirectByteBuffer(this.readBufferLarge);
-			return this.readBufferLarge = ByteBuffer.allocateDirect(X.checkArrayRange(nextEntityLength));
+			return this.readBufferLarge = XMemory.allocateDirectNative(nextEntityLength);
 		}
 
 		static final class WriteException extends RuntimeException

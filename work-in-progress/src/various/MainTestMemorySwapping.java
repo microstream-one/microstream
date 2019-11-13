@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 
 import one.microstream.memory.XMemory;
-import one.microstream.memory.XMemory;
 
 public class MainTestMemorySwapping
 {
@@ -25,7 +24,7 @@ public class MainTestMemorySwapping
 		for(int i = 0; i < dbbs.length; i++)
 		{
 			System.out.print("Allocating " + format(memorySize) + " # " + (i + 1) + "... ");
-			dbbs[i] = ByteBuffer.allocateDirect(memorySize);
+			dbbs[i] = XMemory.allocateDirectNative(memorySize);
 			dbbs[i].position(memorySize);
 			totalMemory += memorySize;
 			System.out.println("Total memory = " + totalMemory);
@@ -36,7 +35,7 @@ public class MainTestMemorySwapping
 	
 	static void testSwapping(final int memorySize, final int valueOffset)
 	{
-		final ByteBuffer dbb = ByteBuffer.allocateDirect(memorySize);
+		final ByteBuffer dbb = XMemory.allocateDirectNative(memorySize);
 		final long memoryStartAddress = XMemory.getDirectByteBufferAddress(dbb);
 		final long memoryBoundAddress = memoryStartAddress + dbb.capacity();
 				

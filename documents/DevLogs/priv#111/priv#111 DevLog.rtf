@@ -1322,5 +1322,15 @@ Speichern mit Generic, laden mit Unsafe, gibt folgende Exception:\par
 0 Inconsistent file length of file 72057594037927936: -8627499406762967040 < 435160313994674176\par
 \par
 Muss ich morgen gegen\'fcberstellen...\par
+\par
+\par
+2019-11-13\par
+\par
+Mir ist auf dem Weg zur Arbeit eingefallen, woran das liegt:\par
+Die vom MicroStream Code explizit allokierten DBBs werden nicht auf native byte order gesetzt, weil ihre API nie zum lesen/schreiben von Daten verwendet wird.\par
+Die Generic Implementierung benutzt die DBB API dann aber doch und schon werden Werte in BE anstatt in native (LE) gespeichert und gelesen. Darum passt alles, wenn man mit dem ~Generic speichert und wieder l\'e4dt, aber sobald man zwischen den beiden den MemoryAccessor wechselt, kracht's.\par
+\par
+L\'f6sung:\par
+Eine zentrale Methode allocateDirectNative(), die allocateDirect aufruft und die native ByteOrder setzt.\par
 }
  

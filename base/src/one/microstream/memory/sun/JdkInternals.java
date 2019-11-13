@@ -904,9 +904,14 @@ public final class JdkInternals
 		}
 	}
 	
-	public static final DefaultInstantiator instantiatorBlank()
+	public static final DefaultInstantiator InstantiatorBlank()
 	{
 		return JdkInstantiatorBlank.New();
+	}
+	
+	public static final DirectBufferDeallocator DirectBufferDeallocator()
+	{
+		return new JdkDirectBufferDeallocator();
 	}
 		
 	

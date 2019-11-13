@@ -1,5 +1,8 @@
 package one.microstream.test.corp.main;
 
+import one.microstream.memory.MemoryAccessorGeneric;
+import one.microstream.memory.XMemory;
+import one.microstream.memory.sun.JdkInternals;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
@@ -11,7 +14,7 @@ public class MainTestStorageExample
 	static
 	{
 //		XDebug.deleteAllFiles(new File(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
-//		XMemory.setMemoryAccessor(MemoryAccessorGeneric.New(JdkInternals.instantiatorBlank()));
+		XMemory.setMemoryAccessor(MemoryAccessorGeneric.New(JdkInternals.InstantiatorBlank()));
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
@@ -19,14 +22,13 @@ public class MainTestStorageExample
 
 	public static void main(final String[] args)
 	{
-		
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
 		if(STORAGE.root() == null)
 		{
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			STORAGE.setRoot(Test.generateModelData(100_000));
+			STORAGE.setRoot(Test.generateModelData(100));
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();

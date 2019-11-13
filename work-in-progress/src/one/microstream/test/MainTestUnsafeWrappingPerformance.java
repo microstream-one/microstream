@@ -18,8 +18,7 @@ public class MainTestUnsafeWrappingPerformance
 
 	public static void main(final String[] args)
 	{
-		final ByteBuffer bb = ByteBuffer.allocateDirect((int)(SIZE * 4));
-//		final ByteBuffer bb = ByteBuffer.allocateDirect(SIZE * 4);
+		final ByteBuffer bb = XMemory.allocateDirectNative(SIZE * 4);
 		final long address = XMemory.getDirectByteBufferAddress(bb);
 
 
