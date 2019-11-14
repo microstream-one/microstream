@@ -66,14 +66,14 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
+		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
 		bytes.store_boolean(
-			contentAddress + BINARY_OFFSET_IS_PRESENT,
+			BINARY_OFFSET_IS_PRESENT,
 			instance.isPresent()
 		);
 
 		bytes.store_double(
-			contentAddress + BINARY_OFFSET_VALUE,
+			BINARY_OFFSET_VALUE,
 			instance.orElse(0.0)
 		);
 	}
@@ -81,14 +81,14 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 	@Override
 	public OptionalDouble create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		final boolean isPresent = bytes.get_boolean(BINARY_OFFSET_IS_PRESENT);
+		final boolean isPresent = bytes.read_boolean(BINARY_OFFSET_IS_PRESENT);
 		
 		// luckily, an uninitialized instance (all-zeroes, meaning isPresent == false) is all that is required.
 		return isPresent
 			? OptionalDouble.of(
-				bytes.get_double(BINARY_OFFSET_VALUE)
+				bytes.read_double(BINARY_OFFSET_VALUE)
 			)
-			: XMemory.instantiate(OptionalDouble.class)
+			: XMemory.instantiateBlank(OptionalDouble.class)
 		;
 	}
 	

@@ -67,7 +67,7 @@ public class BinaryHandlerGenericMap<T extends Map<?, ?>> extends AbstractBinary
 
 	@Override
 	public T create(
-		final Binary                 bytes  ,
+		final Binary                      bytes     ,
 		final PersistenceObjectIdResolver idResolver
 	)
 	{

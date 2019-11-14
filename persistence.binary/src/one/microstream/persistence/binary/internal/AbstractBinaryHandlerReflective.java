@@ -95,12 +95,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final C collector
 	)
 	{
-		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
-		{
-			collector.accept(member.field());
-		}
-		
-		return collector;
+		return PersistenceTypeDefinitionMemberFieldReflective.unbox(members, collector);
 	}
 	
 	protected static final long equal(final long value1, final long value2) throws IllegalArgumentException
@@ -173,18 +168,24 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 	
 	protected static final long[] objectFieldOffsets(
+		final Class<?>                                                                   entityClass,
 		final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldReflective> members
 	)
 	{
-		final long[] offsets = new long[members.intSize()];
+		// (11.11.2019 TM)NOTE: important for usage of MemoryAccessorGeneric to provide the fields' class context
+		final Field[] fields = unbox(members, BulkList.New()).toArray(Field.class);
+		return XMemory.objectFieldOffsets(entityClass, fields);
 		
-		int i = 0;
-		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
-		{
-			offsets[i++] = XMemory.objectFieldOffset(member.field());
-		}
-		
-		return offsets;
+		// (11.11.2019 TM)NOTE: old logic without class context
+//		final long[] offsets = new long[members.intSize()];
+//
+//		int i = 0;
+//		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
+//		{
+//			offsets[i++] = XMemory.objectFieldOffset(member.field());
+//		}
+//
+//		return offsets;
 	}
 
 	
@@ -230,6 +231,15 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		referenceFields,
 		primitiveFields
 	;
+	
+	/* (28.10.2019 TM)TODO: encapsulate / abstract BinaryValue~ handling types.
+	 * While the per-field handling via the BinaryValue~ handling types is perfectly fine for JDK
+	 * and all fully Unsafe-compatible JVMs, it poses a considerable inefficiency for the generic
+	 * memory handling implementation. There, every call with an object-based "offset" has to be
+	 * translated to the corresponding field and then executed via that.
+	 * A more efficient solution would be to encapsulate / abstract all BinaryValue~ handling type instances
+	 * in a single BinaryObjectValues~ handling type and let its implementation use cached Fields directly.
+	 */
 
 
 	
@@ -248,8 +258,12 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	{
 		super(type, typeName);
 		
-		// Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
-		XMemory.ensureClassInitialized(type);
+		/*
+		 * Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
+		 * MemoryAccessor implementations that do not use the field base don't need to do anything here.
+		 * They probably also can't do anything to ensure a class is initialized.
+		 */
+		XMemory.ensureClassInitialized(type, persistableFields);
 		
 		final EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> instMembersInDeclOrdr =
 			deriveMembers(persistableFields, lengthResolver)
@@ -299,7 +313,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		
 	protected long[] initializeStoringMemoryOffsets()
 	{
-		return objectFieldOffsets(this.storingMembers);
+		return objectFieldOffsets(this.type(), this.storingMembers);
 	}
 	
 	protected long[] initializeSettingMemoryOffsets()
@@ -310,7 +324,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	
 	protected long[] initializeStoringRefMemOffsets()
 	{
-		return objectFieldOffsets(this.referenceMembers);
+		return objectFieldOffsets(this.type(), this.referenceMembers);
 	}
 	
 	protected EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterSettingMembers(

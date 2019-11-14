@@ -194,7 +194,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	protected long[] initializeSettingMemoryOffsets()
 	{
 		// additional long[] must be created instead of referencing that for storing offsets
-		return objectFieldOffsets(this.settingMembers());
+		return objectFieldOffsets(this.type(), this.settingMembers());
 	}
 	
 	@Override
@@ -300,12 +300,12 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	@Override
 	public int getPersistedEnumOrdinal(final Binary bytes)
 	{
-		return bytes.get_int(this.binaryOffsetOrdinal);
+		return bytes.read_int(this.binaryOffsetOrdinal);
 	}
 	
 	public String getName(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return (String)idResolver.lookupObject(bytes.get_long(this.binaryOffsetName));
+		return (String)idResolver.lookupObject(bytes.read_long(this.binaryOffsetName));
 	}
 	
 	private void validate(

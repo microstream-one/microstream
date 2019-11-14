@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.util.Stack;
 
-import one.microstream.memory.XMemoryJDK8;
+import one.microstream.memory.sun.SunJdk8Internals;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterableSizedArray;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -74,17 +74,17 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeSizedArray(
+		bytes.storeSizedArray(
 			this.typeId()                ,
 			objectId                     ,
 			BINARY_OFFSET_SIZED_ARRAY    ,
-			XMemoryJDK8.accessArray(instance),
+			SunJdk8Internals.accessArray(instance),
 			instance.size()              ,
 			handler
 		);
 		bytes.store_int(
-		    contentAddress + BINARY_OFFSET_CAPACITY_INCREMENT,
-		    XMemoryJDK8.getCapacityIncrement(instance)
+		    BINARY_OFFSET_CAPACITY_INCREMENT,
+		    SunJdk8Internals.getCapacityIncrement(instance)
 		);
 	}
 
@@ -103,16 +103,16 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 		
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			XMemoryJDK8.accessArray(instance),
+			SunJdk8Internals.accessArray(instance),
 			idResolver
 		);
-		XMemoryJDK8.setElementCount(instance, size);
+		SunJdk8Internals.setElementCount(instance, size);
 	}
 
 	@Override
 	public final void iterateInstanceReferences(final Stack<?> instance, final PersistenceFunction iterator)
 	{
-		Persistence.iterateReferences(iterator, XMemoryJDK8.accessArray(instance), 0, instance.size());
+		Persistence.iterateReferences(iterator, SunJdk8Internals.accessArray(instance), 0, instance.size());
 	}
 
 	@Override

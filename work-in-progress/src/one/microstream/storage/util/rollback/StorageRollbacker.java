@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import one.microstream.X;
+import one.microstream.memory.XMemory;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
@@ -16,7 +17,6 @@ import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.files.XFiles;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -193,7 +193,7 @@ class StorageRollbacker
 		throws Exception
 	{
 		final ByteBuffer    dbb = readFile(storeFile.fileChannel());
-		final long startAddress = PlatformInternals.getDirectBufferAddress(dbb);
+		final long startAddress = XMemory.getDirectByteBufferAddress(dbb);
 		final long boundAddress = startAddress + dbb.position();
 		
 		final StringRecognizer validator = new StringRecognizer();
@@ -299,7 +299,7 @@ class StorageRollbacker
 	private void cleanUp(final SourceFile storeFile, final FileChannel channel) throws Exception
 	{
 		final ByteBuffer    dbb = readFile(storeFile.fileChannel());
-		final long startAddress = PlatformInternals.getDirectBufferAddress(dbb);
+		final long startAddress = XMemory.getDirectByteBufferAddress(dbb);
 		final long boundAddress = startAddress + dbb.position();
 		
 		final EntityDataHeaderEvaluator validator = this.headerEvaluator;
@@ -407,8 +407,8 @@ class StorageRollbacker
 	{
 //		XDebug.println("Writing @" + address + "[" + length + "]");
 		
-		final ByteBuffer dbb = ByteBuffer.allocateDirect(X.checkArrayRange(length));
-		XMemory.copyRange(address, PlatformInternals.getDirectBufferAddress(dbb), length);
+		final ByteBuffer dbb = XMemory.allocateDirectNative(length);
+		XMemory.copyRange(address, XMemory.getDirectByteBufferAddress(dbb), length);
 		
 		while(dbb.hasRemaining())
 		{
@@ -438,7 +438,7 @@ class StorageRollbacker
 	
 	private static ByteBuffer readFile(final FileChannel channel) throws Exception
 	{
-		final ByteBuffer bb = ByteBuffer.allocateDirect(X.checkArrayRange(channel.size()));
+		final ByteBuffer bb = XMemory.allocateDirectNative(channel.size());
 		
 		while(bb.hasRemaining())
 		{

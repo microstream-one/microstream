@@ -20,7 +20,6 @@ import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.files.XFiles;
 import one.microstream.functional._charRangeProcedure;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -163,31 +162,32 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		)
 		{
 			super();
-			this.configuration                   = configuration                                                  ;
-			this.typeDictionary                  = typeDictionary                                                 ;
-			this.fileProvider                    = fileProvider                                                   ;
+			this.configuration                   = configuration ;
+			this.typeDictionary                  = typeDictionary;
+			this.fileProvider                    = fileProvider  ;
+			
 			// the * 2 is important for simplifying the flush check
-			this.bufferSize                      = Math.max(bufferSize, 2 * XMemory.defaultBufferSize())          ;
-			this.byteBuffer                      = ByteBuffer.allocateDirect(this.bufferSize)                     ;
-			this.byteBufferStartAddress          = PlatformInternals.getDirectBufferAddress(this.byteBuffer)            ;
-			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + XMemory.defaultBufferSize()      ;
-			this.simpleValueWriters              = this.deriveSimpleValueWriters(configuration)                   ;
-			this.theMappingNeverEnds             = this.derivePrimitiveToArrayWriters(this.simpleValueWriters)    ;
-			this.literalTrue                     = XChars.readChars(configuration.literalBooleanTrue())           ;
-			this.literalFalse                    = XChars.readChars(configuration.literalBooleanFalse())          ;
-			this.literalDelimiter                = configuration.csvConfiguration().literalDelimiter()            ;
-			this.listStarter                     = configuration.literalListStarter()                             ;
-			this.listSeparator                   = configuration.literalListSeparator()                           ;
-			this.listTerminator                  = configuration.literalListTerminator()                          ;
-			this.terminator                      = configuration.csvConfiguration().terminator()                  ;
-			this.escaper                         = configuration.csvConfiguration().escaper()                     ;
-			this.escapeHandler                   = configuration.csvConfiguration().escapeHandler()               ;
-			this.listHeaderUpdateBuffer          = ByteBuffer.allocateDirect((int)Binary.binaryListMinimumLength());
-			this.addressListHeaderUpdateBuffer   = PlatformInternals.getDirectBufferAddress(this.listHeaderUpdateBuffer)  ;
-			this.entityLengthUpdateBuffer        = ByteBuffer.allocateDirect(Binary.lengthLength())               ;
-			this.addressEntityLengthUpdateBuffer = PlatformInternals.getDirectBufferAddress(this.entityLengthUpdateBuffer);
-			this.objectIdValueHandler            = this.simpleValueWriters.get(long.class.getName())              ;
-			this.currentBufferAddress            = this.byteBufferStartAddress                                    ;
+			this.bufferSize                      = Math.max(bufferSize, 2 * XMemory.defaultBufferSize())      ;
+			this.byteBuffer                      = createBuffer(this.bufferSize)                              ;
+			this.byteBufferStartAddress          = address(this.byteBuffer)                                   ;
+			this.byteBufferFlushBoundAddress     = this.byteBufferStartAddress + XMemory.defaultBufferSize()  ;
+			this.simpleValueWriters              = this.deriveSimpleValueWriters(configuration)               ;
+			this.theMappingNeverEnds             = this.derivePrimitiveToArrayWriters(this.simpleValueWriters);
+			this.literalTrue                     = XChars.readChars(configuration.literalBooleanTrue())       ;
+			this.literalFalse                    = XChars.readChars(configuration.literalBooleanFalse())      ;
+			this.literalDelimiter                = configuration.csvConfiguration().literalDelimiter()        ;
+			this.listStarter                     = configuration.literalListStarter()                         ;
+			this.listSeparator                   = configuration.literalListSeparator()                       ;
+			this.listTerminator                  = configuration.literalListTerminator()                      ;
+			this.terminator                      = configuration.csvConfiguration().terminator()              ;
+			this.escaper                         = configuration.csvConfiguration().escaper()                 ;
+			this.escapeHandler                   = configuration.csvConfiguration().escapeHandler()           ;
+			this.listHeaderUpdateBuffer          = createBuffer((int)Binary.binaryListMinimumLength())        ;
+			this.addressListHeaderUpdateBuffer   = address(this.listHeaderUpdateBuffer)                       ;
+			this.entityLengthUpdateBuffer        = createBuffer(Binary.lengthLength())                        ;
+			this.addressEntityLengthUpdateBuffer = address(this.entityLengthUpdateBuffer)                     ;
+			this.objectIdValueHandler            = this.simpleValueWriters.get(long.class.getName())          ;
+			this.currentBufferAddress            = this.byteBufferStartAddress                                ;
 		}
 
 
@@ -195,6 +195,16 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		///////////////////////////////////////////////////////////////////////////
 		// declared methods //
 		/////////////////////
+		
+		private static ByteBuffer createBuffer(final int capacity)
+		{
+			return XMemory.allocateDirectNative(capacity);
+		}
+		
+		private static long address(final ByteBuffer dbb)
+		{
+			return XMemory.getDirectByteBufferAddress(dbb);
+		}
 
 		final EqConstHashTable<String, ValueHandler>  derivePrimitiveToArrayWriters(
 			final EqConstHashTable<String, ValueHandler> valueWriters

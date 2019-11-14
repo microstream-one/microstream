@@ -96,6 +96,16 @@ public interface EnqueingDomain<E> extends Domain<E>
 					(this.head = this.head.next).task = null;
 				}
 				
+				/* (30.09.2019 TM)FIXME: Concurrency: Domain#run
+				 * The initial code is unusably naive and only a first iteration for orientation.
+				 * Actually necessary is:
+				 * - an outer loop checking if the parent ApplicationTask is completed.
+				 * - an inner loop checking if the DomainTask is completed.
+				 * 
+				 * A DomainTask (more precisely: its connected parent ApplicationTask) can have a collection of
+				 * sub task items that have to be processed in a synchronized fashion by all related domains
+				 */
+				
 				/* (27.09.2019 TM)TODO: Concurrency: Domain running handling
 				 * Really no synchronized lock needed?
 				 * 

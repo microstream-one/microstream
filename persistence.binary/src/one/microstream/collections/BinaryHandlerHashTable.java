@@ -53,7 +53,7 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
+		return bytes.read_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 	
 	public static BinaryHandlerHashTable New()
@@ -96,7 +96,7 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeKeyValuesAsEntries(
+		bytes.storeKeyValuesAsEntries(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -105,15 +105,15 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 			handler
 		);
 		bytes.store_long(
-			contentAddress + BINARY_OFFSET_KEYS,
+			BINARY_OFFSET_KEYS,
 			handler.apply(instance.keys)
 		);
 		bytes.store_long(
-			contentAddress + BINARY_OFFSET_VALUES,
+			BINARY_OFFSET_VALUES,
 			handler.apply(instance.values)
 		);
 		bytes.store_float(
-			contentAddress + BINARY_OFFSET_HASH_DENSITY,
+			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}
@@ -144,12 +144,12 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_KEYS))
+			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_VALUES))
+			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_VALUES))
 		);
 		bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
@@ -171,8 +171,8 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 	@Override
 	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_KEYS));
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_VALUES));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_KEYS));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_VALUES));
 		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 

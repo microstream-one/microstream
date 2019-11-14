@@ -1,5 +1,7 @@
 package one.microstream.persistence.binary.types;
 
+import java.nio.ByteBuffer;
+
 public interface BinaryEntityDataReader
 {
 	/**
@@ -7,5 +9,5 @@ public interface BinaryEntityDataReader
 	 * 
 	 * @param entityAddress
 	 */
-	public void readBinaryEntityData(long entityAddress);
+	public void readBinaryEntities(ByteBuffer entitiesData);
 }

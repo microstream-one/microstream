@@ -12,7 +12,7 @@ public interface PersistenceInstantiator<M>
 
 	public static <T> T instantiateBlank(final Class<T> type)
 	{
-		return XMemory.instantiate(type);
+		return XMemory.instantiateBlank(type);
 	}
 	
 	

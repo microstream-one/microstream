@@ -10,6 +10,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
 import one.microstream.X;
+import one.microstream.memory.XMemory;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.Constant;
 import one.microstream.collections.types.XGettingCollection;
@@ -75,7 +76,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	private ByteBuffer readChunk(final ReadableByteChannel channel, final long chunkTotalLength)
 		throws IOException
 	{
-		final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(X.checkArrayRange(chunkTotalLength));
+		final ByteBuffer byteBuffer = XMemory.allocateDirectNative(X.checkArrayRange(chunkTotalLength));
 //		BinaryPersistence.setChunkTotalLength(byteBuffer);
 //		byteBuffer.position(8);
 		fillBuffer(byteBuffer, channel, this); // only one buffer per chunk in simple implementation
@@ -127,7 +128,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 //		 */
 //
 //		// good thing is: doing it manually gets rid of the clumsy flipping in this case
-//		return XMemory.get_long(PlatformInternals.getDirectBufferAddress(lengthBuffer));
+//		return XMemory.get_long(XMemory.getDirectByteBufferAddress(lengthBuffer));
 //	}
 
 	private static final void fillBuffer(

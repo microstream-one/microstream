@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import one.microstream.X;
 import one.microstream.collections.old.JavaUtilMapEntrySetFlattener;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemoryJDK8;
+import one.microstream.memory.sun.SunJdk8Internals;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -23,6 +23,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  * @author FH
  * @author TM
  */
+@Deprecated
 public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHandlerCustomCollection<LinkedHashMap<?, ?>>
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -47,12 +48,12 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 
 	static final float getLoadFactor(final Binary bytes)
 	{
-		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
+		return bytes.read_float(BINARY_OFFSET_LOAD_FACTOR);
 	}
 
 	static final boolean getAccessOrder(final Binary bytes)
 	{
-		return bytes.get_boolean(BINARY_OFFSET_ACCESS_ORDER);
+		return bytes.read_boolean(BINARY_OFFSET_ACCESS_ORDER);
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -97,7 +98,7 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeIterableAsList(
+		bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -107,12 +108,12 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 			handler
 		);
 		bytes.store_float(
-			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
-			XMemoryJDK8.getLoadFactor(instance)
+			BINARY_OFFSET_LOAD_FACTOR,
+			SunJdk8Internals.getLoadFactor(instance)
 		);
 		bytes.store_boolean(
-			contentAddress + BINARY_OFFSET_ACCESS_ORDER,
-			XMemoryJDK8.getAccessOrder(instance)
+			BINARY_OFFSET_ACCESS_ORDER,
+			SunJdk8Internals.getAccessOrder(instance)
 		);
 	}
 

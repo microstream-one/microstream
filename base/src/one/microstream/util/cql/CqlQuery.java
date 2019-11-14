@@ -277,16 +277,17 @@ public interface CqlQuery<I, O, R>
 		final Predicate<? super I>   selector  ,
 		final Function<? super I, O> projector ,
 		final Comparator<? super O>  comparator,
-		final Aggregator<O, R>       aggregator
+		final Aggregator<O, R>       aggregator,
+		final R                      target
 	)
 	{
 		return new Default<>(
-			source                  ,
-			skip                    ,
-			limit                   ,
-			selector                ,
-			projector               ,
-			comparator              ,
+			source    ,
+			skip      ,
+			limit     ,
+			selector  ,
+			projector ,
+			comparator,
 			CqlResultor.NewFromAggregator(aggregator)
 		);
 	}
@@ -354,7 +355,7 @@ public interface CqlQuery<I, O, R>
 			final Predicate<? super I>   selector  ,
 			final Function<? super I, O> projector ,
 			final Comparator<? super O>  comparator,
-			final CqlResultor<O, R>         resultor
+			final CqlResultor<O, R>      resultor
 		)
 		{
 			// every field may be null to support fluent API (and most are optional anyway)
@@ -427,7 +428,7 @@ public interface CqlQuery<I, O, R>
 			final Predicate<? super I>   selector  ,
 			final Function<? super I, O> projector ,
 			final Comparator<? super O>  comparator,
-			final CqlResultor<O, R>         resultor
+			final CqlResultor<O, R>      resultor
 		)
 		{
 			super(source, skip, limit, selector, projector, comparator, resultor);

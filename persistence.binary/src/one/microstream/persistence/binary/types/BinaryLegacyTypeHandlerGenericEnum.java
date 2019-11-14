@@ -75,7 +75,7 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 	
 	public int getOrdinal(final Binary bytes)
 	{
-		return bytes.get_int(this.binaryOffsetOrdinal);
+		return bytes.read_int(this.binaryOffsetOrdinal);
 	}
 	
 	@Override

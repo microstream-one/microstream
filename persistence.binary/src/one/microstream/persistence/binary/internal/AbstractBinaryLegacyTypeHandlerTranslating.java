@@ -112,8 +112,12 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 		this.targetOffsets    = targetOffsets   ;
 		this.listener         = listener        ;
 		
+
+		// (12.11.2019 TM)NOTE: must be derived from the NEW type definition since create relayouts the load data.
+		this.referenceTraversers = deriveReferenceTraversers(typeHandler, switchByteOrder);
+		
 		// reference traversers mut be derived from the old type definition that fits the persisted form.
-		this.referenceTraversers = deriveReferenceTraversers(typeDefinition, switchByteOrder);
+//		this.referenceTraversers = deriveReferenceTraversers(typeDefinition, switchByteOrder);
 	}
 	
 	
@@ -246,11 +250,7 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	@Override
 	public final void iterateLoadableReferences(final Binary rawData, final PersistenceObjectIdAcceptor iterator)
 	{
-		BinaryReferenceTraverser.iterateReferences(
-			rawData.loadItemEntityContentAddress(),
-			this.referenceTraversers,
-			iterator
-		);
+		rawData.iterateReferences(this.referenceTraversers, iterator);
 	}
 
 	// end of persisted-form-related methods //

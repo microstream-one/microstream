@@ -10,7 +10,6 @@ import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.XArrays;
 import one.microstream.concurrency.XThreads;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 
 public interface StorageLockFileManager extends Runnable
@@ -225,7 +224,7 @@ public interface StorageLockFileManager extends Runnable
 			 * The only reasonable thing to use with nio is the DirectByteBuffer, despite all the missing API
 			 * and API hiding issues.
 			 */
-			PlatformInternals.deallocateDirectBuffer(this.directByteBuffer);
+			XMemory.deallocateDirectByteBuffer(this.directByteBuffer);
 			this.allocateBuffer(capacity);
 			
 			return true;
@@ -233,7 +232,7 @@ public interface StorageLockFileManager extends Runnable
 		
 		private void allocateBuffer(final int capacity)
 		{
-			this.wrappedByteBuffer[0] = this.directByteBuffer = ByteBuffer.allocateDirect(capacity);
+			this.wrappedByteBuffer[0] = this.directByteBuffer = XMemory.allocateDirectNative(capacity);
 		}
 		
 		private String readString()
@@ -247,7 +246,7 @@ public interface StorageLockFileManager extends Runnable
 		{
 			final int fileLength = X.checkArrayRange(this.lockFile.length());
 			this.reader.readStorage(this.lockFile, 0, this.ensureReadingBuffer(fileLength), this);
-			XMemory.copyRangeToArray(PlatformInternals.getDirectBufferAddress(this.directByteBuffer), this.stringReadBuffer);
+			XMemory.copyRangeToArray(XMemory.getDirectByteBufferAddress(this.directByteBuffer), this.stringReadBuffer);
 		}
 						
 		private LockFileData readLockFileData()
@@ -439,7 +438,7 @@ public interface StorageLockFileManager extends Runnable
 			final byte[] bytes = this.vs.encodeBy(this.setup.charset());
 			final ByteBuffer[] bb = this.ensureWritingBuffer(bytes);
 			
-			XMemory.copyArrayToAddress(bytes, PlatformInternals.getDirectBufferAddress(this.directByteBuffer));
+			XMemory.copyArrayToAddress(bytes, XMemory.getDirectByteBufferAddress(this.directByteBuffer));
 			
 			this.writer.write(this.lockFile, bb);
 		}

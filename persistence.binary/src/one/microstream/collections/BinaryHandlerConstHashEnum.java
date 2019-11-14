@@ -44,7 +44,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
+		return bytes.read_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 	
 	public static BinaryHandlerConstHashEnum New()
@@ -82,7 +82,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeIterableAsList(
+		bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -93,7 +93,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 
 		// store hash density as (sole) header value
 		bytes.store_float(
-			contentAddress + BINARY_OFFSET_HASH_DENSITY,
+			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}
