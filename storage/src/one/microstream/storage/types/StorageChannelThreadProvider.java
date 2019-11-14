@@ -1,7 +1,7 @@
 package one.microstream.storage.types;
 
 @FunctionalInterface
-public interface StorageChannelThreadProvider
+public interface StorageChannelThreadProvider extends StorageThreadProviding
 {
 	/**
 	 * Provides a newly created, yet unstarted {@link Thread} instance wrapping the passed
@@ -13,18 +13,31 @@ public interface StorageChannelThreadProvider
 	 *
 	 * @return a {@link Thread} instance to be used as a storage channel worker thread.
 	 */
-	public Thread provideChannelThread(StorageChannel storageChannel);
+	public default Thread provideChannelThread(final StorageChannel storageChannel)
+	{
+		return this.provideChannelThread(storageChannel, StorageThreadNameProvider.NoOp());
+	}
+	
+	public Thread provideChannelThread(
+		StorageChannel            storageChannel    ,
+		StorageThreadNameProvider threadNameProvider
+	);
 
 
 
 	public final class Default implements StorageChannelThreadProvider
 	{
 		@Override
-		public Thread provideChannelThread(final StorageChannel storageChannel)
+		public Thread provideChannelThread(
+			final StorageChannel            storageChannel    ,
+			final StorageThreadNameProvider threadNameProvider
+		)
 		{
+			final String threadName = StorageChannel.class.getSimpleName() + "-" + storageChannel.channelIndex();
+			
 			return new Thread(
 				storageChannel,
-				StorageChannel.class.getSimpleName() + "-" + storageChannel.channelIndex()
+				threadNameProvider.provideThreadName(this, threadName)
 			);
 		}
 

@@ -198,6 +198,12 @@ public class Persistence
 	static final String OBJECT_ID_LABEL_SHORT = "OID";
 
 
+	
+	public static String engineName()
+	{
+		// kind of weird to put it here, but it has to be somewhere and the Persistence layer is the base for everything
+		return "MicroStream";
+	}
 
 	public static final String objectIdLabel()
 	{
