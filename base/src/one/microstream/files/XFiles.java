@@ -519,6 +519,19 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		return writeCount;
 	}
 	
+	public static boolean isEmpty(final File directory)
+	{
+		// because they couldn't have implemented an isEmpty or a getFileCount or something like that ...
+		return directory.listFiles().length == 0;
+	}
+	
+	public static boolean hasNoFiles(final File file)
+	{
+		final File[] files = file.listFiles();
+		
+		return files == null || files.length == 0;
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
