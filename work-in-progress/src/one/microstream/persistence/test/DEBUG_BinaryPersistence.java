@@ -19,24 +19,20 @@ public final class DEBUG_BinaryPersistence
 	public static final String oidToString(final long objectId)
 	{
 		final byte[] bytes = new byte[8];
-		XMemory.put_long(bytes, 0, objectId);
+		XMemory.set_longInBytes(bytes, 0, objectId);
 		return "OID = " + objectId + " (" + New().addHexDec(bytes) + ")";
 	}
 
 	public static final String tidToString(final long typeId)
 	{
 		final byte[] bytes = new byte[8];
-		XMemory.put_long(bytes, 0, typeId);
+		XMemory.set_longInBytes(bytes, 0, typeId);
 		return "TID = " + typeId + " (" + New().addHexDec(bytes) + ")";
 	}
 
 
 	public static final long[] getEntityHeaderLongsFromDataAddress(final Binary bytes)
 	{
-		if(bytes.loadItemEntityContentAddress() == 0)
-		{
-			throw new NullPointerException();
-		}
 		return new long[]
 		{
 			bytes.getBuildItemContentLength(),
@@ -48,7 +44,7 @@ public final class DEBUG_BinaryPersistence
 	public static final String getEntityHeaderFromDataAddress(final Binary bytes)
 	{
 		final long[] header = getEntityHeaderLongsFromDataAddress(bytes);
-		return "Entity @" + bytes.loadItemEntityContentAddress()
+		return "Entity "
 			+ "\nLEN=" + header[0] + " (" + Long.toHexString(header[0]).toUpperCase() + ")"
 			+ "\nTID=" + header[1] + " (" + Long.toHexString(header[1]).toUpperCase() + ")"
 			+ "\nOID=" + header[2] + " (" + Long.toHexString(header[2]).toUpperCase() + ")"
@@ -61,18 +57,26 @@ public final class DEBUG_BinaryPersistence
 		
 		final boolean isSwitchedByteOrder = bytes.isSwitchedByteOrder();
 		
-		bytes.iterateEntityData(entityAddress ->
+		bytes.iterateEntityData(entitiesData ->
 		{
-			final byte[] array = new byte[X.checkArrayRange(
-				isSwitchedByteOrder
-				? Long.reverseBytes(XMemory.get_long(entityAddress))
-				:                   XMemory.get_long(entityAddress)
-			)];
-			XMemory.copyRangeToArray(entityAddress, array);
-			final String s = format8ByteWise(0,
-				VarString.New().addHexDec(array).toString()
-			);
-			vs.add(s).lf();
+			final long startAddress = XMemory.getDirectByteBufferAddress(entitiesData);
+			final long boundAddress = XMemory.getDirectByteBufferAddress(entitiesData) + entitiesData.limit();
+			
+			long length;
+			for(long address = startAddress; address < boundAddress; address += length)
+			{
+				length = isSwitchedByteOrder
+					? Long.reverseBytes(XMemory.get_long(address))
+					: XMemory.get_long(address)
+				;
+				
+				final byte[] array = new byte[X.checkArrayRange(length)];
+				XMemory.copyRangeToArray(address, array);
+				final String s = format8ByteWise(0,
+					VarString.New().addHexDec(array).toString()
+				);
+				vs.add(s).lf();
+			}
 		});
 		
 		return vs.toString();

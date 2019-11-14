@@ -66,11 +66,11 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 		 * instance.setNote(new Note(note));
 		 */
 		
-		final String  contactId =  (String)idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_contactId));
-		final Address address   = (Address)idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_address  ));
-		final String  note      =  (String)idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_note     ));
-		final String  firstname =  (String)idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_firstname));
-		final String  lastname  =  (String)idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_lastname ));
+		final String  contactId =  (String)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_contactId));
+		final Address address   = (Address)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_address  ));
+		final String  note      =  (String)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_note     ));
+		final String  firstname =  (String)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_firstname));
+		final String  lastname  =  (String)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_lastname ));
 
 		instance.internalSetContactId(contactId);
 		instance.setAddress          (address)  ;
@@ -86,11 +86,11 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 	)
 	{
 		// clumsy offset code redundancy to be replaced by BinaryField w.i.p concept ...
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_contactId));
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_address  ));
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_note     ));
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_firstname));
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_lastname ));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_contactId));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_address  ));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_note     ));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_firstname));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_lastname ));
 	}
 
 	@Override

@@ -973,33 +973,47 @@ public final class XMath
 		return currentMin;
 	}
 
-	public static final double sum(final double... values)
+	public static final long sum(final byte... values)
 	{
-		double sum = 0d;
-		for(final double d : values)
+		long sum = 0;
+		for(final byte i : values)
 		{
-			sum += d;
+			sum += i;
 		}
+		
 		return sum;
 	}
 
-	public static final float sum(final float... values)
+	public static final long sum(final short... values)
 	{
-		float sum = 0f;
-		for(final float f : values)
+		long sum = 0;
+		for(final short i : values)
 		{
-			sum += f;
+			sum += i;
 		}
+		
 		return sum;
 	}
 
-	public static final int sum(final int... values)
+	public static final long sum(final int... values)
 	{
-		int sum = 0;
+		long sum = 0;
 		for(final int i : values)
 		{
 			sum += i;
 		}
+		
+		return sum;
+	}
+
+	public static final double sum(final float... values)
+	{
+		double sum = 0f;
+		for(final float f : values)
+		{
+			sum += f;
+		}
+		
 		return sum;
 	}
 
@@ -1009,6 +1023,16 @@ public final class XMath
 		for(final long l : values)
 		{
 			sum += l;
+		}
+		return sum;
+	}
+
+	public static final double sum(final double... values)
+	{
+		double sum = 0d;
+		for(final double d : values)
+		{
+			sum += d;
 		}
 		return sum;
 	}

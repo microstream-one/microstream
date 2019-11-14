@@ -56,7 +56,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 
 	private static float getBuildItemHashDensity(final Binary bytes)
 	{
-		return bytes.get_float(BINARY_OFFSET_HASH_DENSITY);
+		return bytes.read_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 
 	public static final void staticStore(
@@ -68,7 +68,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeIterableAsList(
+		bytes.storeIterableAsList(
 			typeId                ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -79,13 +79,13 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 
 		// persist hashEqualator and set the resulting oid at its binary place (first header value)
 		bytes.store_long(
-			contentAddress + BINARY_OFFSET_EQUALATOR,
+			BINARY_OFFSET_EQUALATOR,
 			persister.apply(instance.hashEqualator)
 		);
 
 		// store hash density as second header value
 		bytes.store_float(
-			contentAddress + BINARY_OFFSET_HASH_DENSITY,
+			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}
@@ -117,7 +117,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
+			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
 		);
 
 		// collect elements AFTER hashEqualator has been set because it is used in it
@@ -149,7 +149,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		final PersistenceObjectIdAcceptor iterator
 	)
 	{
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_EQUALATOR));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_EQUALATOR));
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 

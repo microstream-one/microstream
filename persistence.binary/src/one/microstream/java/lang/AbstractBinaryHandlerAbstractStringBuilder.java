@@ -56,14 +56,14 @@ extends AbstractBinaryHandlerCustom<B>
 			LENGTH_CAPACITY + (long)data.length * Character.BYTES
 		);
 		
-		final long contentAddress = bytes.storeEntityHeader(contentLength, this.typeId(), objectId);
-		bytes.store_long(contentAddress + OFFSET_CAPACITY, capacity);
-		bytes.storeCharsAsList(contentAddress + OFFSET_CHARS, data, 0, data.length);
+		bytes.storeEntityHeader(contentLength, this.typeId(), objectId);
+		bytes.store_long(OFFSET_CAPACITY, capacity);
+		bytes.storeCharsAsList(OFFSET_CHARS, data, 0, data.length);
 	}
 	
 	protected final int readCapacity(final Binary bytes)
 	{
-		return X.checkArrayRange(bytes.get_long(OFFSET_CAPACITY));
+		return X.checkArrayRange(bytes.read_long(OFFSET_CAPACITY));
 	}
 	
 	protected final char[] readChars(final Binary bytes)

@@ -1,12 +1,13 @@
 package one.microstream.network.types;
 
 import static one.microstream.X.notNull;
-import static one.microstream.bytes.XBytes.parseByteOrder;
 
 import java.nio.ByteOrder;
 
 import one.microstream.chars.VarString;
 import one.microstream.math.XMath;
+import one.microstream.memory.XMemory;
+
 
 public interface NetworkClientGreeting
 {
@@ -78,7 +79,7 @@ public interface NetworkClientGreeting
 					}
 					else if(TAG_BYTEORDER.equals(identifier))
 					{
-						byteOrder = parseByteOrder(standardParts[++i].trim());
+						byteOrder = XMemory.parseByteOrder(standardParts[++i].trim());
 					}
 					else if(TAG_SESSIONID.equals(identifier))
 					{

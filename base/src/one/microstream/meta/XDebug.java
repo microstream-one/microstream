@@ -24,7 +24,6 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.concurrency.XThreads;
 import one.microstream.files.XFiles;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
@@ -458,13 +457,13 @@ public final class XDebug
 			{
 				if(output)
 				{
-					println("Deleting "+f);
+					println("Deleting " + f);
 				}
 				Files.deleteIfExists(f.toPath());
 			}
 			catch(final Exception e)
 			{
-				throw new RuntimeException("Cannot delete file: "+f, e);
+				throw new RuntimeException("Cannot delete file: " + f, e);
 			}
 		}
 
@@ -507,7 +506,7 @@ public final class XDebug
 	
 	public static byte[] copyDirectByteBufferRange(final ByteBuffer bb, final int offset, final int length)
 	{
-		final long address = PlatformInternals.getDirectBufferAddress(bb);
+		final long address = XMemory.getDirectByteBufferAddress(bb);
 		final byte[] data = new byte[length];
 		XMemory.copyRangeToArray(address + XArrays.validateArrayIndex(length, offset), data);
 		return data;
@@ -529,6 +528,8 @@ public final class XDebug
 			XMemory.byteSizeInstance(c) + " byte size of one instance of "
 			+ c.getName()
 		);
+		
+		XMemory.ensureClassInitialized(c);
 		XReflect.iterateDeclaredFieldsUpwards(c, f ->
 		{
 			if(!Modifier.isStatic(f.getModifiers()))
@@ -537,7 +538,7 @@ public final class XDebug
 			}
 		});
 		System.out.println(
-			XMemory.byteSizeObjectHeader() + " Object header size (" + XMemory.byteSizeArrayObject(0) + " array header size)."
+			XMemory.byteSizeObjectHeader(c) + " Object header size (" + XMemory.byteSizeArrayObject(0) + " array header size)."
 				+ " Reference byte size = " + XMemory.byteSizeReference() + "."
 		);
 	}

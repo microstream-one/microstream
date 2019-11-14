@@ -7,11 +7,11 @@ import java.nio.channels.SocketChannel;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.types.PersistenceIdStrategy;
 import one.microstream.persistence.types.PersistenceObjectIdStrategy;
 import one.microstream.persistence.types.PersistenceTypeIdStrategy;
+
 
 public class Com
 {
@@ -108,8 +108,8 @@ public class Com
 		);
 		
 		// the ByteBuffer#put(byte[]) is, of course, a catastrophe, as usual in JDK code. Hence the direct way.
-		final ByteBuffer dbb = ByteBuffer.allocateDirect(assembledProtocolBytes.length);
-		final long dbbAddress = PlatformInternals.getDirectBufferAddress(dbb);
+		final ByteBuffer dbb = XMemory.allocateDirectNative(assembledProtocolBytes.length);
+		final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
 		XMemory.copyArrayToAddress(assembledProtocolBytes, dbbAddress);
 		// the bytebuffer's position remains at 0, limit at capacity. Both are correct for the first reading call.
 		

@@ -5,6 +5,9 @@ import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
 import java.lang.reflect.Field;
+import java.util.function.Consumer;
+
+import one.microstream.collections.types.XGettingCollection;
 
 public interface PersistenceTypeDefinitionMemberFieldReflective
 extends PersistenceTypeDefinitionMemberField, PersistenceTypeDescriptionMemberFieldReflective
@@ -21,6 +24,22 @@ extends PersistenceTypeDefinitionMemberField, PersistenceTypeDescriptionMemberFi
 	
 	@Override
 	public Field field();
+	
+	
+	
+	public static <C extends Consumer<? super Field>> C unbox(
+		final XGettingCollection<? extends PersistenceTypeDefinitionMemberFieldReflective> members,
+		final C collector
+	)
+	{
+		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
+		{
+			collector.accept(member.field());
+		}
+		
+		return collector;
+	}
+	
 		
 	public static PersistenceTypeDefinitionMemberFieldReflective New(
 		final String   runtimeDeclaringClass  ,

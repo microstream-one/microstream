@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import one.microstream.X;
 import one.microstream.collections.old.KeyValueFlatCollector;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemoryJDK8;
+import one.microstream.memory.sun.SunJdk8Internals;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -39,12 +39,12 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 
 	static final float getLoadFactor(final Binary bytes)
 	{
-		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
+		return bytes.read_float(BINARY_OFFSET_LOAD_FACTOR);
 	}
 
 	static final boolean getAccessOrder(final Binary bytes)
 	{
-		return bytes.get_boolean(BINARY_OFFSET_ACCESS_ORDER);
+		return bytes.read_boolean(BINARY_OFFSET_ACCESS_ORDER);
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -89,7 +89,7 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeMapEntrySet(
+		bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -97,12 +97,12 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 			handler
 		);
 		bytes.store_float(
-			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
-			XMemoryJDK8.getLoadFactor(instance)
+			BINARY_OFFSET_LOAD_FACTOR,
+			SunJdk8Internals.getLoadFactor(instance)
 		);
 		bytes.store_boolean(
-			contentAddress + BINARY_OFFSET_ACCESS_ORDER,
-			XMemoryJDK8.getAccessOrder(instance)
+			BINARY_OFFSET_ACCESS_ORDER,
+			SunJdk8Internals.getAccessOrder(instance)
 		);
 	}
 

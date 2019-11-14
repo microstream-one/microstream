@@ -15,7 +15,6 @@ import one.microstream.collections.ConstList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 
 public interface StorageTransactionsFileAnalysis
@@ -281,8 +280,8 @@ public interface StorageTransactionsFileAnalysis
 
 			fileChannel.position(startPosition);
 
-			final ByteBuffer buffer  = ByteBuffer.allocateDirect(XMemory.defaultBufferSize());
-			final long       address = PlatformInternals.getDirectBufferAddress(buffer);
+			final ByteBuffer buffer  = XMemory.allocateDirectNativeDefault();
+			final long       address = XMemory.getDirectByteBufferAddress(buffer);
 
 			// process whole file part by part
 			while(currentFilePosition < boundPosition)

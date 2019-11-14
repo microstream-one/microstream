@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 
@@ -38,8 +37,8 @@ public interface StorageDataFileItemIterator
 	{
 		public default ByteBuffer provideInitialBuffer()
 		{
-			// page-sized direct byte buffer as default
-			return ByteBuffer.allocateDirect(XMemory.defaultBufferSize());
+			// defaul-(page-ish)-sized direct byte buffer as default
+			return XMemory.allocateDirectNativeDefault();
 		}
 
 		/**
@@ -91,7 +90,7 @@ public interface StorageDataFileItemIterator
 			ConstantSizedBufferProvider(final int bufferCapacity)
 			{
 				super();
-				this.buffer = ByteBuffer.allocateDirect(bufferCapacity);
+				this.buffer = XMemory.allocateDirectNative(bufferCapacity);
 			}
 
 			@Override
@@ -223,7 +222,7 @@ public interface StorageDataFileItemIterator
 
 					// buffer is guaranteed to be filled exactely to its limit in any case
 					nextEntityLength = processBufferedEntities(
-						PlatformInternals.getDirectBufferAddress(buffer),
+						XMemory.getDirectByteBufferAddress(buffer),
 						buffer.limit(),
 						fileChannel,
 						itemProcessor

@@ -61,9 +61,10 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		)
 		{
 			super();
-			final BinaryReferenceTraverser[] referenceTraversers =
-				BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefinition.instanceMembers(), switchByteOrder)
-			;
+			final BinaryReferenceTraverser[] referenceTraversers = deriveReferenceTraversers(
+				typeDefinition.instanceMembers(),
+				switchByteOrder
+			);
 
 			this.typeDefinition       = typeDefinition;
 			this.isPrimitive          = typeDefinition.isPrimitiveType();
@@ -82,6 +83,14 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		static final BinaryReferenceTraverser[] deriveReferenceTraversers(
+			final XGettingEnum<? extends PersistenceTypeDefinitionMember> typeDefMembers,
+			final boolean                                                 switchByteOrder
+		)
+		{
+			return BinaryReferenceTraverser.Static.deriveReferenceTraversers(typeDefMembers, switchByteOrder);
+		}
 
 		@Override
 		public final long typeId()
@@ -142,7 +151,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			else
 			{
 				BinaryReferenceTraverser.iterateReferences(
-					Binary.entityContentAddress(entityCacheAddress),
+					Binary.toEntityContentOffset(entityCacheAddress),
 					this.referenceTraversers,
 					acceptor
 				);
@@ -158,7 +167,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			if(this.switchByteOrder)
 			{
 				BinaryReferenceTraverser.iterateReferenceRangeReversed(
-					Binary.entityContentAddress(entityCacheAddress),
+					Binary.toEntityContentOffset(entityCacheAddress),
 					this.simpleReferenceRange,
 					acceptor
 				);
@@ -166,7 +175,7 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			else
 			{
 				BinaryReferenceTraverser.iterateReferenceRange(
-					Binary.entityContentAddress(entityCacheAddress),
+					Binary.toEntityContentOffset(entityCacheAddress),
 					this.simpleReferenceRange,
 					acceptor
 				);

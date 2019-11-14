@@ -20,7 +20,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.files.XFiles;
-import one.microstream.memory.PlatformInternals;
+import one.microstream.memory.XMemory;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
 import one.microstream.storage.exceptions.StorageExceptionIoWritingChunk;
@@ -146,19 +146,19 @@ public interface StorageFileManager
 		private final StorageBackupHandler                 backupHandler                ;
 
 		private final ByteBuffer[]
-			entryBufferFileCreation   = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
-			entryBufferStore          = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthStore())}         ,
-			entryBufferTransfer       = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthTransfer())}      ,
-			entryBufferFileDeletion   = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
-			entryBufferFileTruncation = {ByteBuffer.allocateDirect(StorageTransactionsFileAnalysis.Logic.entryLengthFileTruncation())}
+			entryBufferFileCreation   = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
+			entryBufferStore          = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthStore())}         ,
+			entryBufferTransfer       = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthTransfer())}      ,
+			entryBufferFileDeletion   = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
+			entryBufferFileTruncation = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileTruncation())}
 		;
 
 		private final long
-			entryBufferFileCreationAddress   = PlatformInternals.getDirectBufferAddress(this.entryBufferFileCreation[0])  ,
-			entryBufferStoreAddress          = PlatformInternals.getDirectBufferAddress(this.entryBufferStore[0])         ,
-			entryBufferTransferAddress       = PlatformInternals.getDirectBufferAddress(this.entryBufferTransfer[0])      ,
-			entryBufferFileDeletionAddress   = PlatformInternals.getDirectBufferAddress(this.entryBufferFileDeletion[0])  ,
-			entryBufferFileTruncationAddress = PlatformInternals.getDirectBufferAddress(this.entryBufferFileTruncation[0])
+			entryBufferFileCreationAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileCreation[0])  ,
+			entryBufferStoreAddress          = XMemory.getDirectByteBufferAddress(this.entryBufferStore[0])         ,
+			entryBufferTransferAddress       = XMemory.getDirectByteBufferAddress(this.entryBufferTransfer[0])      ,
+			entryBufferFileDeletionAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileDeletion[0])  ,
+			entryBufferFileTruncationAddress = XMemory.getDirectByteBufferAddress(this.entryBufferFileTruncation[0])
 		;
 
 		{
@@ -216,8 +216,8 @@ public interface StorageFileManager
 			 * There is absolutely no reason whatsoever to not unnecessary shackle and borderline-ruin the JDK
 			 * tools for working with memory. Right?
 			 */
-			this.standardByteBuffer            = ByteBuffer.allocateDirect(
-				XTypes.to_int(standardBufferSizeProvider.provideBufferSize())
+			this.standardByteBuffer = XMemory.allocateDirectNative
+				(standardBufferSizeProvider.provideBufferSize()
 			);
 		}
 
@@ -337,7 +337,7 @@ public interface StorageFileManager
 		{
 			if(length > this.standardByteBuffer.capacity())
 			{
-				return ByteBuffer.allocateDirect(length);
+				return XMemory.allocateDirectNative(length);
 			}
 			this.standardByteBuffer.clear().limit(length);
 
@@ -349,7 +349,7 @@ public interface StorageFileManager
 			buffer.clear();
 			if(buffer != this.standardByteBuffer)
 			{
-				PlatformInternals.deallocateDirectBuffer(buffer); // hope this works, not tested yet
+				XMemory.deallocateDirectByteBuffer(buffer); // hope this works, not tested yet
 			}
 		}
 
@@ -647,7 +647,7 @@ public interface StorageFileManager
 			try
 			{
 				this.reader.readStorage(dataFile, entity.storagePosition, dataBuffer, this);
-				this.putLiveEntityData(entity, PlatformInternals.getDirectBufferAddress(dataBuffer), length, cacheChange);
+				this.putLiveEntityData(entity, XMemory.getDirectByteBufferAddress(dataBuffer), length, cacheChange);
 			}
 			catch(final Exception e)
 			{

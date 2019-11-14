@@ -41,6 +41,8 @@ import one.microstream.exceptions.ArrayCapacityException;
 import one.microstream.exceptions.WrapperRuntimeException;
 import one.microstream.functional.BooleanTerm;
 import one.microstream.functional._intIndexedSupplier;
+import one.microstream.functional._intProcedure;
+import one.microstream.math.XMath;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing._longKeyValue;
 import one.microstream.util.UtilStackTrace;
@@ -725,6 +727,14 @@ public final class X
 		}
 		return BulkList.New(elements);
 	}
+	
+	public static <E> XList<E> List(final Iterable<? extends E> elements)
+	{
+		final BulkList<E> newInstance = BulkList.New();
+		elements.forEach(newInstance);
+		
+		return newInstance;
+	}
 
 	@SafeVarargs
 	public static <E> ConstList<E> ConstList(final E... elements) throws NullPointerException
@@ -760,6 +770,14 @@ public final class X
 			return HashEnum.New();
 		}
 		return HashEnum.<E>New(elements);
+	}
+	
+	public static <E> HashEnum<E> Enum(final Iterable<? extends E> elements)
+	{
+		final HashEnum<E> newInstance = HashEnum.New();
+		elements.forEach(newInstance);
+		
+		return newInstance;
 	}
 
 	@SafeVarargs
@@ -1176,6 +1194,40 @@ public final class X
 		}
 		
 		throw exceptor.apply(value);
+	}
+	
+	public static <P extends _intProcedure> P repeat(final int amount, final P logic)
+	{
+		return repeat(0, amount, logic);
+	}
+	
+	public static <P extends _intProcedure> P repeat(final int startValue, final int length, final P logic)
+	{
+		final int bound = startValue + XMath.positive(length);
+		
+		for(int i = startValue; i < bound; i++)
+		{
+			logic.accept(i);
+		}
+		
+		return logic;
+	}
+	
+	public static <P extends Runnable> P repeat(final int amount, final P logic)
+	{
+		return repeat(0, amount, logic);
+	}
+	
+	public static <P extends Runnable> P repeat(final int startValue, final int length, final P logic)
+	{
+		final int bound = startValue + XMath.positive(length);
+		
+		for(int i = startValue; i < bound; i++)
+		{
+			logic.run();
+		}
+		
+		return logic;
 	}
 
 	

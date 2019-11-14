@@ -2,8 +2,8 @@ package one.microstream.test;
 
 import java.nio.ByteBuffer;
 
-import one.microstream.memory.PlatformInternals;
 import one.microstream.memory.XMemory;
+import one.microstream.memory.sun.JdkInternals;
 import sun.misc.Unsafe;
 
 public class MainTestUnsafeWrappingPerformance
@@ -12,15 +12,14 @@ public class MainTestUnsafeWrappingPerformance
 	private static final int RUNS = 100;
 	private static final long[] TIMES = new long[RUNS];
 
-	private static final Unsafe vm = (Unsafe)XMemory.getSystemInstance();
+	private static final Unsafe vm = JdkInternals.getMemoryAccess();
 
 
 
 	public static void main(final String[] args)
 	{
-		final ByteBuffer bb = ByteBuffer.allocateDirect((int)(SIZE * 4));
-//		final ByteBuffer bb = ByteBuffer.allocateDirect(SIZE * 4);
-		final long address = PlatformInternals.getDirectBufferAddress(bb);
+		final ByteBuffer bb = XMemory.allocateDirectNative(SIZE * 4);
+		final long address = XMemory.getDirectByteBufferAddress(bb);
 
 
 		for(int r = 0; r < RUNS; r++)

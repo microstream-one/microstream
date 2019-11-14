@@ -21,7 +21,7 @@ public interface CqlProjection<I, O> extends CqlIteration<I, O, XSequence<O>>
 	{
 		return CqlProjection.New(
 			this.getSource()   ,
-			CQL.asLong(count) ,
+			CQL.asLong(count)  ,
 			this.getLimit()    ,
 			this.getSelector() ,
 			this.getProjector(),
