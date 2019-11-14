@@ -11,27 +11,30 @@ public class MainTestGenericMemoryPerformance
 	
 	public static void main(final String[] args)
 	{
-		XMemory.setMemoryAccessor(MemoryAccessorGeneric.New(
-			JdkInternals.InstantiatorBlank(),
-			JdkInternals.DirectBufferDeallocator()
-		));
+		XMemory.setMemoryAccessor(
+			MemoryAccessorGeneric.New(
+				JdkInternals.InstantiatorBlank(),
+				JdkInternals.DirectBufferDeallocator()
+			)
+		);
 		
-		testAllocation();
+		testAll();
 	}
 	
-	static void testAllocation()
+	static void testAll()
 	{
-		testAllocation(S1);
+		testAll(S1);
 	}
 	
-	static void testAllocation(final Setup setup)
+	static void testAll(final Setup setup)
 	{
-		testAllocation(setup.runs, setup.totalSize, setup.chunkSizes);
+		test(setup.runs, setup.totalSize, setup.chunkSizes);
 	}
 	
-	static void testAllocation(final int runs, final int totalSize, final int... chunkSizes)
+	static void test(final int runs, final int totalSize, final int... chunkSizes)
 	{
 		final long[][] addressesses = new long[chunkSizes.length][];
+		
 		for(int r = 0; r < runs; r++)
 		{
 			printHeader();
@@ -39,6 +42,12 @@ public class MainTestGenericMemoryPerformance
 			{
 				final int size = chunkSizes[s];
 				final int count = totalSize / size;
+				if(count == 0)
+				{
+					printSkippedSize(size);
+					continue;
+				}
+				
 				final long[] addresses = new long[count];
 				addressesses[s] = addresses;
 				
@@ -50,6 +59,11 @@ public class MainTestGenericMemoryPerformance
 			{
 				final int size = chunkSizes[s];
 				final int count = totalSize / size;
+				if(count == 0)
+				{
+					printSkippedSize(size);
+					continue;
+				}
 				
 				testWritingLoop(count, size, addressesses[s]);
 			}
@@ -59,6 +73,11 @@ public class MainTestGenericMemoryPerformance
 			{
 				final int size = chunkSizes[s];
 				final int count = totalSize / size;
+				if(count == 0)
+				{
+					printSkippedSize(size);
+					continue;
+				}
 				
 				testDeallocationLoop(count, size, addressesses[s]);
 			}
@@ -88,9 +107,10 @@ public class MainTestGenericMemoryPerformance
 		for(int i = 0; i < count; i++)
 		{
 			final long address = addresses[i];
-			for(int b = 0; b < size; b++)
+			final int sizeBound = size - Long.BYTES;
+			for(int b = 0; b < sizeBound; b++)
 			{
-				XMemory.set_byte(address + b, (byte)127);
+				XMemory.set_long(address + b, Long.MAX_VALUE);
 			}
 		}
 		final long tStop = System.nanoTime();
@@ -114,6 +134,11 @@ public class MainTestGenericMemoryPerformance
 			label + count + " * " + size + "\t" + new java.text.DecimalFormat(NUMBER_FORMAT).format(duration)
 			+ "\taverage:\t" + new java.text.DecimalFormat(NUMBER_FORMAT).format(duration / count)
 		);
+	}
+	
+	static void printSkippedSize(final int size)
+	{
+		System.out.println("[Skipped]\t[" + size + "]");
 	}
 	
 	static void printHeader()
