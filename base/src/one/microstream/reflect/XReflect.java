@@ -6,7 +6,6 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
@@ -76,12 +75,13 @@ public final class XReflect
 		{
 			return setAccessible(field);
 		}
-		catch(final InaccessibleObjectException e)
-		{
-			// the geniuses struck again: they left out the (String, Throwable) constructor
-//			throw new InaccessibleObjectException(actualClass.toString() + "#" + deriveFieldIdentifier(field), e);
-			throw new RuntimeException(toFullQualifiedFieldName(actualClass, field), e);
-		}
+		// (14.11.2019 TM)NOTE: JDK 9
+//		catch(final InaccessibleObjectException e)
+//		{
+//			// the geniuses struck again: they left out the (String, Throwable) constructor
+////			throw new InaccessibleObjectException(actualClass.toString() + "#" + deriveFieldIdentifier(field), e);
+//			throw new RuntimeException(toFullQualifiedFieldName(actualClass, field), e);
+//		}
 		catch(final SecurityException e)
 		{
 			// oh, wow. Here, they actually managed to provide it.
@@ -98,7 +98,8 @@ public final class XReflect
 	}
 
 	// convenience method to allow simpler functional programming via method reference for that often needed use case.
-	public static final Field setAccessible(final Field field) throws InaccessibleObjectException, SecurityException
+	public static final Field setAccessible(final Field field)
+		throws SecurityException/*, InaccessibleObjectException*/
 	{
 		field.setAccessible(true);
 		
