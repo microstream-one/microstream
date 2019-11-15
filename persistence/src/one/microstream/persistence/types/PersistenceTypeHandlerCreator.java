@@ -29,8 +29,6 @@ public interface PersistenceTypeHandlerCreator<M>
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator;
 		final LambdaTypeRecognizer                  lambdaTypeRecognizer      ;
 		
-
-		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -166,6 +164,12 @@ public interface PersistenceTypeHandlerCreator<M>
 			{
 				return this.createTypeHandlerUnpersistable(type);
 			}
+			
+			// there can be enums marked as abstract (yes, they can), so this must come before the abstract check.
+			if(XReflect.isEnum(type)) // Class#isEnum is bugged!
+			{
+				return this.deriveTypeHandlerEnum(type);
+			}
 
 			// by default same as unpersistable
 			if(XReflect.isAbstract(type))
@@ -177,12 +181,6 @@ public interface PersistenceTypeHandlerCreator<M>
 			if(XReflect.isJavaUtilCollectionType(type))
 			{
 				return this.deriveTypeHandlerJavaUtilCollection(type);
-			}
-			
-			// and another special case
-			if(XReflect.isEnum(type)) // Class#isEnum is bugged!
-			{
-				return this.deriveTypeHandlerEnum(type);
 			}
 
 			// create generic handler for all other cases ("normal" classes without predefined handler)
