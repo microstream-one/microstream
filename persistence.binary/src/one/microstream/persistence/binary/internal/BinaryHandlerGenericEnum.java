@@ -101,17 +101,34 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		XReflect.validateIsEnum(enumType);
 		
 		final HashEnum<PersistenceTypeDefinitionMemberEnumConstant> enumConstants = HashEnum.New();
-		for(final Field field : enumType.getDeclaredFields())
+
+		// crazy nested enum classes return null here
+		final Object[] enumConstantsArray = enumType.getEnumConstants();
+		if(enumConstantsArray != null)
 		{
-			if(field.isEnumConstant())
+			// (15.11.2019 TM)NOTE: should work on any JVM and is even a little bit more elegant
+			for(final Object enumInstance : enumConstantsArray)
 			{
 				enumConstants.add(
 					PersistenceTypeDefinitionMemberEnumConstant.New(
-						field.getName()
+						((Enum<?>)enumInstance).name()
 					)
 				);
 			}
 		}
+		
+		// (15.11.2019 TM)NOTE: works on oracle JVM, but not on android (and potentially others)
+//		for(final Field field : enumType.getDeclaredFields())
+//		{
+//			if(field.isEnumConstant())
+//			{
+//				enumConstants.add(
+//					PersistenceTypeDefinitionMemberEnumConstant.New(
+//						field.getName()
+//					)
+//				);
+//			}
+//		}
 		
 		return enumConstants.immure();
 	}
