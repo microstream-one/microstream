@@ -9,6 +9,7 @@ import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
+import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.reflect.XReflect;
 
 public final class BinaryHandlerSingletonStatelessEnum<T> extends AbstractBinaryHandlerTrivial<T>
@@ -91,6 +92,13 @@ public final class BinaryHandlerSingletonStatelessEnum<T> extends AbstractBinary
 	public final T create(final Binary medium, final PersistenceObjectIdResolver idResolver)
 	{
 		return (T)XReflect.getDeclaredEnumClass(this.type()).getEnumConstants()[0];
+	}
+	
+	@Override
+	public final synchronized PersistenceTypeHandler<Binary, T> initialize(final long typeId)
+	{
+		// debug hook
+		return super.initialize(typeId);
 	}
 	
 }

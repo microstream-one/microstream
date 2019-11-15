@@ -358,7 +358,7 @@ public final class BinaryPersistence extends Persistence
 		return f.getTypeDictionaryProvider().provideTypeDictionary();
 	}
 	
-	static final int binaryValueSize(final Class<?> type)
+	public static final int binaryValueSize(final Class<?> type)
 	{
 		return type.isPrimitive()
 			? XMemory.byteSizePrimitive(type)

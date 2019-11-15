@@ -107,20 +107,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		
 		return value1;
 	}
-		
-	protected static void createSetters(
-		final Iterable<PersistenceTypeDefinitionMemberFieldReflective> settingMembers ,
-		final BinaryValueSetter[]                                      setters        ,
-		final boolean                                                  switchByteOrder
-	)
-	{
-		int i = 0;
-		for(final PersistenceTypeDefinitionMemberFieldReflective member : settingMembers)
-		{
-			setters[i++] = BinaryValueFunctions.getObjectValueSetter(member.type(), switchByteOrder);
-		}
-	}
-	
+			
 	protected static void createStorers(
 		final Class<?>                                                 entityType     ,
 		final Iterable<PersistenceTypeDefinitionMemberFieldReflective> storingMembers ,
@@ -173,8 +160,10 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	)
 	{
 		// (11.11.2019 TM)NOTE: important for usage of MemoryAccessorGeneric to provide the fields' class context
-		final Field[] fields = unbox(members, BulkList.New()).toArray(Field.class);
-		return XMemory.objectFieldOffsets(entityClass, fields);
+		final Field[] fields             = unbox(members, BulkList.New()).toArray(Field.class);
+		final long[]  objectFieldOffsets = XMemory.objectFieldOffsets(entityClass, fields);
+		
+		return objectFieldOffsets;
 		
 		// (11.11.2019 TM)NOTE: old logic without class context
 //		final long[] offsets = new long[members.intSize()];
@@ -232,6 +221,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		primitiveFields
 	;
 	
+	private final boolean switchByteOrder;
+	
 	/* (28.10.2019 TM)TODO: encapsulate / abstract BinaryValue~ handling types.
 	 * While the per-field handling via the BinaryValue~ handling types is perfectly fine for JDK
 	 * and all fully Unsafe-compatible JVMs, it poses a considerable inefficiency for the generic
@@ -257,6 +248,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	)
 	{
 		super(type, typeName);
+		
+		this.switchByteOrder = switchByteOrder;
 		
 		/*
 		 * Unsafe JavaDoc says ensureClassInitialized is "often needed" for getting the field base, so better do it.
@@ -293,8 +286,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		createStorers(type, this.storingMembers, this.storers, eagerEvaluator, switchByteOrder);
 		
 		// setters set a field's value from a buffered persistent form to the instance in memory.
-		this.setters = new BinaryValueSetter[this.settingMembers.intSize()];
-		createSetters(this.settingMembers, this.setters, switchByteOrder);
+		this.setters = this.deriveSetters();
 
 		// binary content length (without the entity header) is calculated based on the storing ("all") members.
 		this.binaryContentLength = calculcateBinaryContentLength(this.storingMembers);
@@ -318,8 +310,30 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	
 	protected long[] initializeSettingMemoryOffsets()
 	{
-		// no difference for "normal" (non-enum) types
+		// no difference by default (enums get skipping setters, but the offsets stay the same)
 		return this.storingMemoryOffsets;
+	}
+	
+	protected BinaryValueSetter[] deriveSetters()
+	{
+		final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> members = this.settingMembers;
+		
+		final BinaryValueSetter[] setters = new BinaryValueSetter[members.intSize()];
+		
+		int i = 0;
+		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
+		{
+			setters[i++] = this.deriveSetter(member);
+		}
+		
+		return setters;
+	}
+	
+	protected BinaryValueSetter deriveSetter(
+		final PersistenceTypeDefinitionMemberFieldReflective member
+	)
+	{
+		return BinaryValueFunctions.getObjectValueSetter(member.type(), this.isSwitchedByteOrder());
 	}
 	
 	protected long[] initializeStoringRefMemOffsets()
@@ -331,7 +345,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> members
 	)
 	{
-		// no difference for "normal" (non-enum) types
+		// by default, all members are settable (enums get skipping setters, but the fields stay the same)
 		return members;
 	}
 	
@@ -367,6 +381,11 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	///////////////////////////////////////////////////////////////////////////
 	// getters //
 	////////////
+	
+	public final boolean isSwitchedByteOrder()
+	{
+		return this.switchByteOrder;
+	}
 			
 	@Override
 	public XGettingEnum<Field> instanceFields()

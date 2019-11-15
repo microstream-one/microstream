@@ -315,6 +315,66 @@ public final class BinaryValueFunctions
 			return sourceAddress + Binary.objectIdByteLength();
 		}
 	};
+	
+	private static final BinaryValueSetter SETTER_SKIP_1 = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        sourceAddress,
+			final Object                      target       ,
+			final long                        targetOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			// just skipping the binary value
+			return sourceAddress + Byte.BYTES;
+		}
+	};
+	
+	private static final BinaryValueSetter SETTER_SKIP_2 = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        sourceAddress,
+			final Object                      target       ,
+			final long                        targetOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			// just skipping the binary value
+			return sourceAddress + Short.BYTES;
+		}
+	};
+	
+	private static final BinaryValueSetter SETTER_SKIP_4 = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        sourceAddress,
+			final Object                      target       ,
+			final long                        targetOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			// just skipping the binary value
+			return sourceAddress + Integer.BYTES;
+		}
+	};
+	
+	private static final BinaryValueSetter SETTER_SKIP_8 = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        sourceAddress,
+			final Object                      target       ,
+			final long                        targetOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			// just skipping the binary value
+			return sourceAddress + Long.BYTES;
+		}
+	};
 
 	public static BinaryValueStorer getObjectValueStorer(
 		final Class<?> type           ,
@@ -417,6 +477,20 @@ public final class BinaryValueFunctions
 
 		// normal case of standard reference as anything that is not primitive must be a reference.
 		return SETTER_REF_REVERSED;
+	}
+	
+	public static BinaryValueSetter getObjectValueSettingSkipper(final Class<?> type)
+	{
+		// note: byte order is irrelevant for just skipping n bytes
+		
+		switch(BinaryPersistence.binaryValueSize(type))
+		{
+			case Byte.BYTES   : return SETTER_SKIP_1; // byte & boolean
+			case Short.BYTES  : return SETTER_SKIP_2; // short & char
+			case Integer.BYTES: return SETTER_SKIP_4; // int & float
+			case Long.BYTES   : return SETTER_SKIP_8; // long & double & reference
+			default: throw new IllegalArgumentException();
+		}
 	}
 
 	
