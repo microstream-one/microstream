@@ -1,9 +1,7 @@
 package one.microstream.test.corp.main;
 
-import java.io.File;
 import java.util.Arrays;
 
-import one.microstream.persistence.internal.PrintingLegacyTypeMappingResultor;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.reflect.XReflect;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -20,17 +18,17 @@ public class MainTestStoreEnum
 		// creates and starts an embedded storage manager with all-default-settings.
 		final EmbeddedStorageManager storage = EmbeddedStorage
 			.Foundation()
-			.onConnectionFoundation(f ->
-			{
-				f.setLegacyTypeMappingResultor(
-					PrintingLegacyTypeMappingResultor.New(
-						f.getLegacyTypeMappingResultor()
-					)
-				);
-			})
-			.setRefactoringMappingProvider(
-				Persistence.RefactoringMapping(new File("Refactorings.csv"))
-			)
+//			.onConnectionFoundation(f ->
+//			{
+//				f.setLegacyTypeMappingResultor(
+//					PrintingLegacyTypeMappingResultor.New(
+//						f.getLegacyTypeMappingResultor()
+//					)
+//				);
+//			})
+//			.setRefactoringMappingProvider(
+//				Persistence.RefactoringMapping(new File("Refactorings.csv"))
+//			)
 			.start()
 		;
 		
@@ -88,7 +86,10 @@ public class MainTestStoreEnum
 			CrazyEnumSpecialState.Normal3,
 			StatefulEnum.Type1,
 			StatefulEnum.Type2,
-			StatefulEnum.Type3
+			StatefulEnum.Type3,
+			CrazyEnumAbstract.ONE,
+			CrazyEnumAbstract.TWO,
+			
 		};
 	}
 	
@@ -301,5 +302,30 @@ enum CrazyEnumSpecialState
 	{
 		return this.name() + "-" + this.crazyState;
 	}
+	
+}
+
+enum CrazyEnumAbstract // thanks to C.P.
+{
+	
+	ONE
+	{
+		@Override
+		void doSomething()
+		{
+			System.out.println("1.");
+		}
+	},
+	
+	TWO
+	{
+		@Override
+		void doSomething()
+		{
+			System.out.println("2.");
+		}
+	};
+
+	abstract void doSomething();
 	
 }
