@@ -3,6 +3,7 @@ package one.microstream.memory.android;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.functional.DefaultInstantiator;
 import sun.misc.Unsafe;
+import java.lang.reflect.Field;
 
 
 public final class AndroidInstantiator implements DefaultInstantiator
@@ -23,5 +24,32 @@ public final class AndroidInstantiator implements DefaultInstantiator
 			throw new RuntimeException(e);
 		}
 	}
+	
+
+    /*
+     * If magic values should be represented by constants and constants should be encapsulated by methods
+     * like instance fields should, then why use the code and memory detour of constants in the first place?
+     * Direct "Constant Methods" are the logical conclusion and they get jitted away, anyway.
+     */
+    static final String fieldNameUnsafe()
+    {
+        return "theUnsafe";
+    }
+
+
+    public static final Unsafe getMemoryAccess()
+    {
+        try
+        {
+            final Field theUnsafe = Unsafe.class.getDeclaredField(fieldNameUnsafe());
+            theUnsafe.setAccessible(true);
+            return (Unsafe)theUnsafe.get(null); // static field, no argument needed, may be null (see #get JavaDoc)
+        }
+        catch(final Exception e)
+        {
+            throw new Error("Could not obtain access to \"" + fieldNameUnsafe() + "\"", e);
+        }
+    }
+
 	
 }
