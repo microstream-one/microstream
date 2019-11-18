@@ -103,8 +103,8 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 		
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			SunJdk8Internals.accessArray(instance),
-			idResolver
+			idResolver,
+			SunJdk8Internals.accessArray(instance)
 		);
 		SunJdk8Internals.setElementCount(instance, size);
 	}

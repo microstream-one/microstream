@@ -35,19 +35,19 @@ public final class BinaryHandlerNativeArray_int extends AbstractBinaryHandlerNat
 	@Override
 	public void store(final Binary bytes, final int[] array, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeArray_int(this.typeId(), objectId, array);
+		bytes.store_ints(this.typeId(), objectId, array);
 	}
 
 	@Override
 	public int[] create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return bytes.createArray_int();
+		return bytes.create_ints();
 	}
 
 	@Override
 	public void update(final Binary bytes, final int[] instance, final PersistenceObjectIdResolver idResolver)
 	{
-		bytes.updateArray_int(instance);
+		bytes.update_ints(instance);
 	}
 
 }

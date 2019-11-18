@@ -125,8 +125,8 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 
 		instance.size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			instance.data            ,
-			idResolver
+			idResolver,
+			instance.data
 		);
 
 		// set equalator instance (must be done on memory-level due to final modifier. Little hacky, but okay)
