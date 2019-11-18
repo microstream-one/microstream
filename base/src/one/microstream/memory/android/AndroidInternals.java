@@ -116,18 +116,18 @@ public class AndroidInternals
 	}
 	
 	// "internal" prefixed method that is public, to indicate that it uses VM-internal details.
-	public static final void internalDeallocateDirectBuffer(final ByteBuffer directBuffer)
+	public static final boolean internalDeallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
 		// better check again in here, in case this method ever gets called from another context, e.g. reflective.
 		if(directBuffer == null)
 		{
-			return;
+			return false;
 		}
 		
 		if(METHOD_DirectByteBuffer_free == null)
 		{
 			// something went wrong and the method could not have been resolved, so just abort.
-			return;
+			return false;
 		}
 		
 		// important to prevent invoking the method on an instance of the wrong class.
@@ -140,8 +140,10 @@ public class AndroidInternals
 		catch(final Exception e)
 		{
 			// something went wrong during the method invokation. Again do nothing.
-			return;
+			return false;
 		}
+		
+		return true;
 	}
 	
 	public static final DefaultInstantiator InstantiatorBlank()

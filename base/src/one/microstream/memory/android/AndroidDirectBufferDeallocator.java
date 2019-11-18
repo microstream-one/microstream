@@ -34,9 +34,9 @@ public final class AndroidDirectBufferDeallocator implements DirectBufferDealloc
 	////////////
 	
 	@Override
-	public final void deallocateDirectBuffer(final ByteBuffer directBuffer)
+	public final boolean deallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
-		AndroidInternals.internalDeallocateDirectBuffer(directBuffer);
+		return AndroidInternals.internalDeallocateDirectBuffer(directBuffer);
 	}
 	
 }
