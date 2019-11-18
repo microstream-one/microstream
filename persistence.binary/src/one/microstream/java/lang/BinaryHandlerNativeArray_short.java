@@ -35,18 +35,18 @@ public final class BinaryHandlerNativeArray_short extends AbstractBinaryHandlerN
 	@Override
 	public void store(final Binary bytes, final short[] array, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeArray_short(this.typeId(), objectId, array);
+		bytes.store_shorts(this.typeId(), objectId, array);
 	}
 
 	@Override
 	public short[] create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return bytes.createArray_short();
+		return bytes.create_shorts();
 	}
 
 	@Override
 	public void update(final Binary bytes, final short[] instance, final PersistenceObjectIdResolver idResolver)
 	{
-		bytes.updateArray_short(instance);
+		bytes.update_shorts(instance);
 	}
 }
