@@ -5,9 +5,12 @@ import static one.microstream.X.notNull;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Properties;
+import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.exceptions.InstantiationRuntimeException;
+import one.microstream.memory.android.MicroStreamAndroidAdapter;
 import one.microstream.memory.sun.JdkMemoryAccessor;
 
 
@@ -30,7 +33,68 @@ public final class XMemory
 	
 	static
 	{
+		initializeMemoryAccess();
+	}
+	
+	private static VmInitializer[] createVmInitializers()
+	{
+		return X.array
+		(
+			// as defined by https://developer.android.com/reference/java/lang/System#getProperties()
+			new VmInitializer("Android",
+				properties ->
+					"The Android Project".equals(properties.get("java.vendor")),
+				() ->
+					MicroStreamAndroidAdapter.setupFull()
+			)
+			
+			// add additional initializers here
+		);
+	}
+	
+	private static void initializeMemoryAccess()
+	{
+		// no sense in permanently occupying memory with data that is only used exactly once during initialization
+		final VmInitializer[] initializers = createVmInitializers();
+		final Properties      properties   = System.getProperties();
+		
+		for(final VmInitializer initializer : initializers)
+		{
+			if(initializer.recognizer.test(properties))
+			{
+				initializer.action.run();
+				return;
+			}
+		}
+		
+		/* (18.11.2019 TM)NOTE:
+		 * If no specific initializer applied, the default initialization is used, assuming a fully
+		 * JDK/-Unsafe-compatible JVM. It might not seem that way, but this is actually the normal case.
+		 * Tests showed that almost all Java VM vendors fully support Unsafe. This is quite plausible:
+		 * They want to draw Java developers/applications onto their platform, so they try to provide
+		 * as much compatibility as possible, including Unsafe.
+		 * So far, the only known Java VM to not fully support Unsafe is Android.
+		 */
 		setMemoryHandling(JdkMemoryAccessor.New());
+	}
+
+	static final class VmInitializer
+	{
+		final String                name      ;
+		final Predicate<Properties> recognizer;
+		final Runnable              action    ;
+		
+		VmInitializer(
+			final String                name      ,
+			final Predicate<Properties> recognizer,
+			final Runnable              action
+		)
+		{
+			super();
+			this.name       = name      ;
+			this.recognizer = recognizer;
+			this.action     = action    ;
+		}
 	}
 	
 	public static final synchronized <H extends MemoryAccessor & MemorySizeProperties> void setMemoryHandling(
@@ -44,7 +108,7 @@ public final class XMemory
 		final MemoryAccessor memoryAccessor
 	)
 	{
-		setMemoryHandling(memoryAccessor, MemorySizeProperties.Default());
+		setMemoryHandling(memoryAccessor, MemorySizeProperties.Unsupported());
 	}
 
 	public static final synchronized void setMemoryHandling(

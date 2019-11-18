@@ -1,18 +1,19 @@
-package one.microstream.memory.sun;
+package one.microstream.memory.android;
 
 import java.nio.ByteBuffer;
 
 import one.microstream.memory.DirectBufferDeallocator;
 
-final class JdkDirectBufferDeallocator implements DirectBufferDeallocator
+
+public final class AndroidDirectBufferDeallocator implements DirectBufferDeallocator
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static final JdkDirectBufferDeallocator New()
+	public static final AndroidDirectBufferDeallocator New()
 	{
-		return new JdkDirectBufferDeallocator();
+		return new AndroidDirectBufferDeallocator();
 	}
 	
 	
@@ -21,7 +22,7 @@ final class JdkDirectBufferDeallocator implements DirectBufferDeallocator
 	// constructors //
 	/////////////////
 	
-	JdkDirectBufferDeallocator()
+	AndroidDirectBufferDeallocator()
 	{
 		super();
 	}
@@ -33,9 +34,9 @@ final class JdkDirectBufferDeallocator implements DirectBufferDeallocator
 	////////////
 	
 	@Override
-	public void deallocateDirectBuffer(final ByteBuffer directBuffer)
+	public final void deallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
-		JdkInternals.internalDeallocateDirectBuffer(directBuffer);
+		AndroidInternals.internalDeallocateDirectBuffer(directBuffer);
 	}
 	
 }

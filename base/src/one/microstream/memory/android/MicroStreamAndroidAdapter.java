@@ -39,7 +39,7 @@ public final class MicroStreamAndroidAdapter
 	/**
 	 * Sets up the memory accessing logic to use {@link MemoryAccessorGeneric}.
 	 * <p>
-	 * {@link AndroidInstantiator} ist used as the {@link DefaultInstantiator} implementation.
+	 * {@link AndroidInstantiatorBlank} ist used as the {@link DefaultInstantiator} implementation.
 	 * <p>
 	 * No platform-specific {@link DirectBufferDeallocator} is set, identical to {@link #setupBasic()}.
 	 * 
@@ -50,7 +50,7 @@ public final class MicroStreamAndroidAdapter
 	{
 		XMemory.setMemoryAccessor(
 			MemoryAccessorGeneric.New(
-				new AndroidInstantiator()
+				AndroidInternals.InstantiatorBlank()
 			)
 		);
 	}
@@ -58,9 +58,9 @@ public final class MicroStreamAndroidAdapter
 	/**
 	 * Sets up the memory accessing logic to use {@link MemoryAccessorGeneric}.
 	 * <p>
-	 * {@link AndroidInstantiator} ist used as the {@link DefaultInstantiator} implementation.
+	 * {@link AndroidInstantiatorBlank} ist used as the {@link DefaultInstantiator} implementation.
 	 * <p>
-	 * {@link AndroidDeallocator} is used as the {@link DirectBufferDeallocator}.
+	 * {@link AndroidDirectBufferDeallocator} is used as the {@link DirectBufferDeallocator}.
 	 * 
 	 * @see #setupBasic()
 	 * @see #setupWithInstantiator()
@@ -69,8 +69,8 @@ public final class MicroStreamAndroidAdapter
 	{
 		XMemory.setMemoryAccessor(
 			MemoryAccessorGeneric.New(
-				new AndroidInstantiator(),
-				new AndroidDeallocator()
+				AndroidInternals.InstantiatorBlank(),
+				AndroidInternals.DirectBufferDeallocator()
 			)
 		);
 	}
