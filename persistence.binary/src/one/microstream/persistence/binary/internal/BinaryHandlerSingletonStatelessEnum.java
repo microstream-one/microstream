@@ -1,5 +1,7 @@
 package one.microstream.persistence.binary.internal;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.X;
 import one.microstream.collections.Singleton;
 import one.microstream.collections.types.XGettingEnum;
@@ -52,8 +54,10 @@ public final class BinaryHandlerSingletonStatelessEnum<T> extends AbstractBinary
 	protected BinaryHandlerSingletonStatelessEnum(final Class<T> type)
 	{
 		super(validateIsSingletonEnumType(type));
+		
+		// the notNull is very important to detect incompatibility issues with other JVMs.
 		this.enumConstantMember = X.Singleton(
-			BinaryHandlerGenericEnum.deriveEnumConstantMembers(type).get()
+			notNull(BinaryHandlerGenericEnum.deriveEnumConstantMembers(type).get())
 		);
 	}
 	
