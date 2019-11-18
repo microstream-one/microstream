@@ -101,8 +101,8 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
 		instance.size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			instance.data,
-			idResolver
+			idResolver,
+			instance.data
 		);
 	}
 

@@ -123,8 +123,8 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 		instance.ensureCapacity(arrayLength);
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			SunJdk8Internals.accessArray(instance),
-			idResolver
+			idResolver,
+			SunJdk8Internals.accessArray(instance)
 		);
 		SunJdk8Internals.setSize(instance, size);
 	}

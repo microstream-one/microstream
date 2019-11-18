@@ -40,19 +40,19 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeArray_boolean(this.typeId(), objectId, array);
+		bytes.store_booleans(this.typeId(), objectId, array);
 	}
 
 	@Override
 	public final boolean[] create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return bytes.createArray_boolean();
+		return bytes.create_booleans();
 	}
 
 	@Override
 	public final void update(final Binary bytes, final boolean[] instance, final PersistenceObjectIdResolver idResolver)
 	{
-		bytes.updateArray_boolean(instance);
+		bytes.update_booleans(instance);
 	}
 
 }
