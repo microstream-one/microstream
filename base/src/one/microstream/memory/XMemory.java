@@ -150,9 +150,9 @@ public final class XMemory
 		return MEMORY_ACCESSOR.getDirectByteBufferAddress(directBuffer);
 	}
 
-	public static final void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
+	public static final boolean deallocateDirectByteBuffer(final ByteBuffer directBuffer)
 	{
-		MEMORY_ACCESSOR.deallocateDirectByteBuffer(directBuffer);
+		return MEMORY_ACCESSOR.deallocateDirectByteBuffer(directBuffer);
 	}
 
 	public static final boolean isDirectByteBuffer(final ByteBuffer byteBuffer)
