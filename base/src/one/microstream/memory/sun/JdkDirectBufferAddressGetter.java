@@ -4,10 +4,10 @@ import java.nio.ByteBuffer;
 
 import one.microstream.memory.DirectBufferAddressGetter;
 
-final class JdkDirectBufferAddress implements DirectBufferAddressGetter
+final class JdkDirectBufferAddressGetter implements DirectBufferAddressGetter
 {
 
-	JdkDirectBufferAddress()
+	JdkDirectBufferAddressGetter()
 	{
 		super();
 	}
