@@ -47,9 +47,9 @@ public interface MemorySizeProperties
 	
 		
 	
-	public static MemorySizeProperties Default()
+	public static MemorySizeProperties Unsupported()
 	{
-		return new MemorySizeProperties.Default();
+		return new MemorySizeProperties.Unsupported();
 	}
 	
 	/**
@@ -57,13 +57,13 @@ public interface MemorySizeProperties
 	 * 
 	 * @author TM
 	 */
-	public final class Default implements MemorySizeProperties
+	public final class Unsupported implements MemorySizeProperties
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Default()
+		Unsupported()
 		{
 			super();
 		}
@@ -87,7 +87,7 @@ public interface MemorySizeProperties
 		}
 
 		@Override
-		public int byteSizeInstance(final Class<?> type)
+		public final int byteSizeInstance(final Class<?> type)
 		{
 			return -1;
 		}
@@ -111,7 +111,7 @@ public interface MemorySizeProperties
 		}
 
 		@Override
-		public long byteSizeArray_boolean(final long elementCount)
+		public final long byteSizeArray_boolean(final long elementCount)
 		{
 			return -1;
 		}
