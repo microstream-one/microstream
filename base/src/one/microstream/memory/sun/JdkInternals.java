@@ -105,7 +105,7 @@ public final class JdkInternals
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// static methods //
+	// initialization //
 	///////////////////
 	
 	// direct byte buffer handling //
@@ -312,7 +312,7 @@ public final class JdkInternals
 			return null;
 		}
 		
-		return new JdkDirectBufferAddress();
+		return new JdkDirectBufferAddressGetter();
 	}
 	
 	private static DirectBufferDeallocator initializeDirectBufferDeallocator()
@@ -397,7 +397,7 @@ public final class JdkInternals
 		return directBufferAddressGetter.getDirectBufferAddress(directBuffer);
 	}
 	
-	// "internal" prefixed method that is public, to indicate that it uses JDK-internal details.
+	// "internal" prefixed method that is public, to indicate that it uses VM-internal details.
 	public static final void internalDeallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
 		// better check again in here, in case this method ever gets called from another context, e.g. reflective.
