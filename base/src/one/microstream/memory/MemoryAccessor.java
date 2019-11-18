@@ -32,7 +32,7 @@ public interface MemoryAccessor
 	
 	public long getDirectByteBufferAddress(ByteBuffer directBuffer);
 
-	public void deallocateDirectByteBuffer(ByteBuffer directBuffer);
+	public boolean deallocateDirectByteBuffer(ByteBuffer directBuffer);
 
 	public boolean isDirectByteBuffer(ByteBuffer byteBuffer);
 
