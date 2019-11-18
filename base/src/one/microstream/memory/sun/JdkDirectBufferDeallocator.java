@@ -33,9 +33,9 @@ final class JdkDirectBufferDeallocator implements DirectBufferDeallocator
 	////////////
 	
 	@Override
-	public void deallocateDirectBuffer(final ByteBuffer directBuffer)
+	public boolean deallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
-		JdkInternals.internalDeallocateDirectBuffer(directBuffer);
+		return JdkInternals.internalDeallocateDirectBuffer(directBuffer);
 	}
 	
 }
