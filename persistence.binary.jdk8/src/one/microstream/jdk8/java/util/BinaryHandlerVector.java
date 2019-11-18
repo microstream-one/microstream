@@ -107,8 +107,8 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 		
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY    ,
-			SunJdk8Internals.accessArray(instance),
-			idResolver
+			idResolver,
+			SunJdk8Internals.accessArray(instance)
 		);
 		SunJdk8Internals.setElementCount(instance, size);
 	}

@@ -68,7 +68,7 @@ extends AbstractBinaryHandlerCustom<B>
 	
 	protected final char[] readChars(final Binary bytes)
 	{
-		return bytes.buildArray_char(OFFSET_CHARS);
+		return bytes.build_chars(OFFSET_CHARS);
 	}
 
 	@Override

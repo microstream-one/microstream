@@ -589,7 +589,7 @@ public abstract class Binary implements Chunk
 	
 	public final <T extends XAddingMap<String, Long>> T buildRootMapping(final T mapping)
 	{
-		final long[] objectIds = this.buildArray_long(OFFSET_ROOTS_OID_LIST);
+		final long[] objectIds = this.build_longs(OFFSET_ROOTS_OID_LIST);
 		
 		final long oidListBinaryLength     = Binary.toBinaryListTotalByteLength(objectIds.length * Long.BYTES);
 		final long identifiersBinaryOffset = OFFSET_ROOTS_OID_LIST + oidListBinaryLength;
@@ -661,33 +661,7 @@ public abstract class Binary implements Chunk
 		));
 	}
 
-	/**
-	 * Updates the passed array up to the size defined by the binary data, returns the size.
-	 */
-	public final int updateSizedArrayObjectReferences(
-		final long                        headerOffset,
-		final Object[]                    array       ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		// (29.01.2019 TM)FIXME: priv#70: offset validation
-		
-		final int size = this.getSizedArrayElementCount(headerOffset);
-		if(array.length < size)
-		{
-			throw new IllegalArgumentException(); // (23.10.2013 TM)EXCP: proper exception
-		}
-		
-		this.updateArrayObjectReferences(
-			headerOffset + SIZED_ARRAY_OFFSET_ELEMENTS,
-			idResolver,
-			array,
-			0,
-			size
-		);
-		
-		return size;
-	}
+
 
 	public final int getSizedArrayLength(final long sizedArrayOffset)
 	{
@@ -803,6 +777,39 @@ public abstract class Binary implements Chunk
 		);
 	}
 	
+	/**
+	 * Iterates over all elements of a binary list. All elements must have the same binary length.
+	 * 
+	 * @param listOffset the binary offset at which the binary list (actually: its header) starts
+	 * @param reader the reader logic to be used by the iteration.
+	 * @return the element count that has been iterated.
+	 */
+	public final long iterateListStructureElements(
+		final long                listOffset,
+		final BinaryElementReader reader
+	)
+	{
+		final long listTotalByteLength = this.getBinaryListTotalByteLength(listOffset);
+		final long listElementCount    = this.getBinaryListElementCountUnvalidating(listOffset);
+		final long listContentLength   = toBinaryListContentByteLength(listTotalByteLength);
+		final long bytesPerElement     = listContentLength / listElementCount;
+		if(bytesPerElement * listElementCount != listContentLength)
+		{
+			// (18.11.2019 TM)EXCP: proper exception
+			throw new RuntimeException("Non-constant binary list element length.");
+		}
+		
+		final long startAddress = this.binaryListElementsAddress(listOffset);
+		final long boundAddress = startAddress + listContentLength;
+		
+		for(long address = startAddress; address < boundAddress; address += bytesPerElement)
+		{
+			reader.readElement(this, address);
+		}
+		
+		return listElementCount;
+	}
+	
 	public final void iterateListElementReferences(
 		final long                        listOffset,
 		final PersistenceObjectIdAcceptor iterator
@@ -871,7 +878,7 @@ public abstract class Binary implements Chunk
 		}
 	}
 
-	public final void storeArray_byte(final long typeId, final long objectId, final byte[] array)
+	public final void store_bytes(final long typeId, final long objectId, final byte[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength(array.length);
 		this.storeEntityHeader(totalByteLength, typeId, objectId);
@@ -881,7 +888,7 @@ public abstract class Binary implements Chunk
 		this.store_bytesToAddress(toBinaryListElementsOffset(this.address), array);
 	}
 
-	public final void storeArray_boolean(
+	public final void store_booleans(
 		final long      typeId  ,
 		final long      objectId,
 		final boolean[] array
@@ -895,7 +902,7 @@ public abstract class Binary implements Chunk
 		this.store_booleansToAddress(toBinaryListElementsOffset(this.address), array);
 	}
 	
-	public final void storeArray_short(final long typeId, final long objectId, final short[] array)
+	public final void store_shorts(final long typeId, final long objectId, final short[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Short.BYTES);
 		this.storeEntityHeader(totalByteLength, typeId, objectId);
@@ -905,7 +912,7 @@ public abstract class Binary implements Chunk
 		this.store_shortsToAddress(toBinaryListElementsOffset(this.address), array);
 	}
 
-	public final void storeArray_char(final long typeId, final long objectId, final char[] array)
+	public final void store_chars(final long typeId, final long objectId, final char[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Character.BYTES);
 		this.storeEntityHeader(totalByteLength, typeId, objectId);
@@ -915,7 +922,7 @@ public abstract class Binary implements Chunk
 		this.store_charsToAddress(toBinaryListElementsOffset(this.address), array);
 	}
 
-	public final void storeArray_int(final long typeId, final long objectId, final int[] array)
+	public final void store_ints(final long typeId, final long objectId, final int[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Integer.BYTES);
 		this.storeEntityHeader(totalByteLength, typeId, objectId);
@@ -925,7 +932,7 @@ public abstract class Binary implements Chunk
 		this.store_intsToAddress(toBinaryListElementsOffset(this.address), array);
 	}
 
-	public final void storeArray_float(final long typeId, final long objectId, final float[] array)
+	public final void store_floats(final long typeId, final long objectId, final float[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Float.BYTES);
 		this.storeEntityHeader(totalByteLength, typeId, objectId);
@@ -935,7 +942,7 @@ public abstract class Binary implements Chunk
 		this.store_floatsToAddress(toBinaryListElementsOffset(this.address),array);
 	}
 
-	public final void storeArray_long(final long typeId, final long objectId, final long[] array)
+	public final void store_longs(final long typeId, final long objectId, final long[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Long.BYTES);
 		this.storeEntityHeader(totalByteLength, typeId, objectId);
@@ -945,7 +952,7 @@ public abstract class Binary implements Chunk
 		this.store_longsToAddress(toBinaryListElementsOffset(this.address), array);
 	}
 
-	public final void storeArray_double(final long typeId, final long objectId, final double[] array)
+	public final void store_doubles(final long typeId, final long objectId, final double[] array)
 	{
 		final long totalByteLength = toBinaryListTotalByteLength((long)array.length * Double.BYTES);
 		this.storeEntityHeader(totalByteLength, typeId, objectId);
@@ -1101,7 +1108,7 @@ public abstract class Binary implements Chunk
 		long stringsOffset = toBinaryListElementsOffset(stringsListOffset); // first element address
 		for(int i = 0; i < array.length; i++)
 		{
-			array[i] = String.valueOf(this.buildArray_char(stringsOffset)); // build string element
+			array[i] = String.valueOf(this.build_chars(stringsOffset)); // build string element
 			stringsOffset += this.getBinaryListTotalByteLength(stringsOffset); // scroll to next element
 		}
 
@@ -1112,46 +1119,6 @@ public abstract class Binary implements Chunk
 	public final Byte buildByte()
 	{
 		return this.buildByte(0);
-	}
-
-	public final Boolean buildBoolean()
-	{
-		return this.buildBoolean(0);
-	}
-
-	public final Short buildShort()
-	{
-		return this.buildShort(0);
-	}
-
-	public final Character buildCharacter()
-	{
-		return this.buildCharacter(0);
-	}
-
-	public final Integer buildInteger()
-	{
-		return this.buildInteger(0);
-	}
-
-	public final Float buildFloat()
-	{
-		return this.buildFloat(0);
-	}
-
-	public final Long buildLong()
-	{
-		return this.buildLong(0);
-	}
-
-	public final Double buildDouble()
-	{
-		return this.buildDouble(0);
-	}
-	
-	public final Object buildPrimitiveWrapper(final Class<?> primitiveValueType)
-	{
-		return this.buildPrimitiveWrapper(primitiveValueType, 0);
 	}
 	
 	public final Byte buildByte(final long offset)
@@ -1184,10 +1151,20 @@ public abstract class Binary implements Chunk
 		return new Byte(this.read_byte(offset));
 	}
 
+	public final Boolean buildBoolean()
+	{
+		return this.buildBoolean(0);
+	}
+
 	public final Boolean buildBoolean(final long offset)
 	{
 		// see comment in #buildByte()
 		return new Boolean(this.read_boolean(offset));
+	}
+
+	public final Short buildShort()
+	{
+		return this.buildShort(0);
 	}
 
 	public final Short buildShort(final long offset)
@@ -1196,10 +1173,20 @@ public abstract class Binary implements Chunk
 		return new Short(this.read_short(offset));
 	}
 
+	public final Character buildCharacter()
+	{
+		return this.buildCharacter(0);
+	}
+
 	public final Character buildCharacter(final long offset)
 	{
 		// see comment in #buildByte()
 		return new Character(this.read_char(offset));
+	}
+
+	public final Integer buildInteger()
+	{
+		return this.buildInteger(0);
 	}
 
 	public final Integer buildInteger(final long offset)
@@ -1208,10 +1195,20 @@ public abstract class Binary implements Chunk
 		return new Integer(this.read_int(offset));
 	}
 
+	public final Float buildFloat()
+	{
+		return this.buildFloat(0);
+	}
+
 	public final Float buildFloat(final long offset)
 	{
 		// decimal value instances are not chached, so #valueOf() can be used safely.
 		return Float.valueOf(this.read_float(offset));
+	}
+
+	public final Long buildLong()
+	{
+		return this.buildLong(0);
 	}
 
 	public final Long buildLong(final long offset)
@@ -1220,12 +1217,22 @@ public abstract class Binary implements Chunk
 		return new Long(this.read_long(offset));
 	}
 
+	public final Double buildDouble()
+	{
+		return this.buildDouble(0);
+	}
+
 	public final Double buildDouble(final long offset)
 	{
 		// decimal value instances are not chached, so #valueOf() can be used safely.
 		return Double.valueOf(this.read_double(offset));
 	}
-
+	
+	public final Object buildPrimitiveWrapper(final Class<?> primitiveValueType)
+	{
+		return this.buildPrimitiveWrapper(primitiveValueType, 0);
+	}
+	
 	public final Object buildPrimitiveWrapper(final Class<?> primitiveValueType, final long offset)
 	{
 		if(primitiveValueType == int.class)
@@ -1264,201 +1271,202 @@ public abstract class Binary implements Chunk
 		// intentionally covers void.class
 		throw new IllegalArgumentException();
 	}
-	
-	public final byte[] buildArray_byte()
-	{
-		final long elementCount = this.getBinaryListElementCountValidating(0, Byte.BYTES);
-		final byte[] array;
-		this.update_bytesFromAddress(
-			toBinaryListElementsOffset(this.loadItemEntityContentAddress()),
-			array = new byte[X.checkArrayRange(elementCount)]
-		);
-		return array;
-	}
-
-	public final byte[] createArray_byte()
-	{
-		return new byte[X.checkArrayRange(this.getBinaryListElementCountValidating(0, Byte.BYTES))];
-	}
-
-	public final void updateArray_byte(final byte[] array)
-	{
-		this.validateLoadItemContentLength(array.length);
-		this.update_bytesFromAddress(
-			toBinaryListElementsOffset(this.loadItemEntityContentAddress()),
-			array
-		);
-	}
-
-	public final boolean[] createArray_boolean()
-	{
-		// because Boolean couldn't get a BYTES constant. Too much to ask.
-		return new boolean[X.checkArrayRange(this.getBinaryListElementCountValidating(0, Byte.BYTES))];
-	}
-
-	public final void updateArray_boolean(final boolean[] array)
-	{
-		this.validateLoadItemContentLength(array.length);
-		this.update_booleansFromAddress(
-			toBinaryListElementsOffset(this.loadItemEntityContentAddress()),
-			array
-		);
-	}
-
-	public final short[] createArray_short()
-	{
-		return new short[X.checkArrayRange(this.getBinaryListElementCountValidating(0, Short.BYTES))];
-	}
-
-	public final void updateArray_short(final short[] array)
-	{
-		this.validateLoadItemContentLength(array.length * Short.BYTES);
-		this.update_shortsFromAddress(
-			toBinaryListElementsOffset(this.loadItemEntityContentAddress()),
-			array
-		);
-	}
-
-	public final char[] createArray_char()
-	{
-		return this.createArray_char(0);
-	}
-	
-	public final char[] createArray_char(final long listOffset)
-	{
-		return new char[X.checkArrayRange(this.getBinaryListElementCountValidating(listOffset, Character.BYTES))];
-	}
-
-	public final void updateArray_char(final char[] array)
-	{
-		this.validateLoadItemContentLength(array.length * Short.BYTES);
-		this.updateArray_charUnvalidating(array, 0);
-	}
-		
+				
 	public final String buildString()
 	{
 		// since Java 9, there is no sane way to build a string without copying the loaded data multiple times.
-		return String.valueOf(this.buildArray_char());
+		return String.valueOf(this.build_chars());
 	}
 
-	public final char[] buildArray_char()
+	
+	public final byte[] create_bytes()
 	{
-		return this.buildArray_char(0);
-	}
-
-	public final char[] buildArray_char(final long listOffset)
-	{
-		// (01.02.2019 TM)FIXME: priv#70: offset validation
-		final char[] array = this.createArray_char(listOffset);
-		this.updateArray_charUnvalidating(array, listOffset);
-		
-		return array;
-	}
-
-	public final long[] buildArray_long()
-	{
-		return this.buildArray_long(0);
-	}
-
-	public final long[] buildArray_long(final long listOffset)
-	{
-		// (01.02.2019 TM)FIXME: priv#70: offset validation
-		final long[] array = this.createArray_long_unvalidating(listOffset);
-		this.update_longsFromAddress(
-			toBinaryListElementsOffset(this.loadItemEntityContentAddress() + listOffset),
-			array
-		);
-		
-		return array;
-	}
-
-	public final int[] createArray_int()
-	{
-		return new int[X.checkArrayRange(this.getBinaryListElementCountValidating(0, Integer.BYTES))];
-	}
-
-	public final void updateArray_int(final int[] array)
-	{
-		this.validateLoadItemContentLength(array.length * Integer.BYTES);
-		this.update_intsFromAddress(
-			toBinaryListElementsOffset(this.loadItemEntityContentAddress()),
-			array
-		);
-	}
-
-	public final float[] createArray_float()
-	{
-		return new float[X.checkArrayRange(this.getBinaryListElementCountValidating(0, Float.BYTES))];
-	}
-
-	public final void updateArray_float(final float[] array)
-	{
-		this.validateLoadItemContentLength(array.length * Float.BYTES);
-		this.update_floatsFromAddress(
-			toBinaryListElementsOffset(this.loadItemEntityContentAddress()),
-			array
-		);
-	}
-
-	public final long[] createArray_long()
-	{
-		return this.createArray_long_unvalidating(0);
+		return this.create_bytes(0);
 	}
 	
-	final long[] createArray_long_unvalidating(final long offset)
+	public final byte[] create_bytes(final long listOffset)
 	{
-		return new long[X.checkArrayRange(this.getBinaryListElementCountValidating(offset, Long.BYTES))];
+		return new byte[X.checkArrayRange(this.getBinaryListElementCountValidating(listOffset, Byte.BYTES))];
 	}
-
-	public final void updateArray_long(final long[] array)
+	
+		public final boolean[] create_booleans()
 	{
-		this.validateLoadItemContentLength(array.length * Long.BYTES);
-		this.update_longsFromAddress(
-			toBinaryListElementsOffset(this.loadItemEntityContentAddress()),
-			array
-		);
+		return this.create_booleans(0);
 	}
-
-	public final double[] createArray_double()
+	
+	public final boolean[] create_booleans(final long listOffset)
 	{
-		return new double[X.checkArrayRange(this.getBinaryListElementCountValidating(0, Double.BYTES))];
+		return new boolean[X.checkArrayRange(this.getBinaryListElementCountValidating(listOffset, Byte.BYTES))];
 	}
-
-	public final void updateArray_double(final double[] array)
+	
+		public final short[] create_shorts()
 	{
-		this.validateLoadItemContentLength(array.length * Double.BYTES);
-		this.update_doublesFromAddress(
-			toBinaryListElementsOffset(this.loadItemEntityContentAddress()),
-			array
-		);
+		return this.create_shorts(0);
 	}
-
-	public final void updateArrayObjectReferences(
-		final long                        binaryOffset,
-		final PersistenceObjectIdResolver oidResolver ,
-		final Object[]                    array       ,
-		final int                         arrayOffset ,
-		final int                         arrayLength
-	)
+	
+	public final short[] create_shorts(final long listOffset)
 	{
-		final long elementCount = this.getListElementCountReferences(binaryOffset);
-		if(elementCount < arrayLength)
-		{
-			throw new BinaryPersistenceExceptionStateArrayLength(
-				array,
-				X.checkArrayRange(elementCount)
-			);
-		}
+		return new short[X.checkArrayRange(this.getBinaryListElementCountValidating(listOffset, Short.BYTES))];
+	}
+	
+		public final char[] create_chars()
+	{
+		return this.create_chars(0);
+	}
+	
+	public final char[] create_chars(final long listOffset)
+	{
+		return new char[X.checkArrayRange(this.getBinaryListElementCountValidating(listOffset, Character.BYTES))];
+	}
+	
+		public final int[] create_ints()
+	{
+		return this.create_ints(0);
+	}
+	
+	public final int[] create_ints(final long listOffset)
+	{
+		return new int[X.checkArrayRange(this.getBinaryListElementCountValidating(listOffset, Integer.BYTES))];
+	}
+	
+		public final float[] create_floats()
+	{
+		return this.create_floats(0);
+	}
+	
+	public final float[] create_floats(final long listOffset)
+	{
+		return new float[X.checkArrayRange(this.getBinaryListElementCountValidating(listOffset, Float.BYTES))];
+	}
+	
+		public final long[] create_longs()
+	{
+		return this.create_longs(0);
+	}
+	
+	public final long[] create_longs(final long listOffset)
+	{
+		return new long[X.checkArrayRange(this.getBinaryListElementCountValidating(listOffset, Long.BYTES))];
+	}
+	
+		public final double[] create_doubles()
+	{
+		return this.create_doubles(0);
+	}
+	
+	public final double[] create_doubles(final long listOffset)
+	{
+		return new double[X.checkArrayRange(this.getBinaryListElementCountValidating(listOffset, Double.BYTES))];
+	}
+	
+	
+
+	public final byte[] build_bytes()
+	{
+		return this.build_bytes(0);
+	}
+	
+	public final byte[] build_bytes(final long listOffset)
+	{
+		final byte[] array = this.create_bytes(listOffset);
+		this.unvalidatingUpdate_bytes(listOffset, array);
 		
-		final long binaryElementsStartAddress = this.binaryListElementsAddress(binaryOffset);
-		for(int i = 0; i < arrayLength; i++)
-		{
-			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
-			array[arrayOffset + i] = oidResolver.lookupObject(
-				this.get_longFromAddress(binaryElementsStartAddress + referenceBinaryLength(i))
-			);
-		}
+		return array;
 	}
+	
+	public final boolean[] build_booleans()
+	{
+		return this.build_booleans(0);
+	}
+	
+	public final boolean[] build_booleans(final long listOffset)
+	{
+		final boolean[] array = this.create_booleans(listOffset);
+		this.unvalidatingUpdate_booleans(listOffset, array);
+		
+		return array;
+	}
+	
+	public final short[] build_shorts()
+	{
+		return this.build_shorts(0);
+	}
+	
+	public final short[] build_shorts(final long listOffset)
+	{
+		final short[] array = this.create_shorts(listOffset);
+		this.unvalidatingUpdate_shorts(listOffset, array);
+		
+		return array;
+	}
+		
+	public final char[] build_chars()
+	{
+		return this.build_chars(0);
+	}
+
+	public final char[] build_chars(final long listOffset)
+	{
+		// (01.02.2019 TM)FIXME: priv#70: offset validation
+		final char[] array = this.create_chars(listOffset);
+		this.unvalidatingUpdate_chars(listOffset, array);
+		
+		return array;
+	}
+	public final int[] build_ints()
+	{
+		return this.build_ints(0);
+	}
+	
+	public final int[] build_ints(final long listOffset)
+	{
+		final int[] array = this.create_ints(listOffset);
+		this.unvalidatingUpdate_ints(listOffset, array);
+		
+		return array;
+	}
+	
+	public final float[] build_floats()
+	{
+		return this.build_floats(0);
+	}
+	
+	public final float[] build_floats(final long listOffset)
+	{
+		final float[] array = this.create_floats(listOffset);
+		this.unvalidatingUpdate_floats(listOffset, array);
+		
+		return array;
+	}
+	
+	public final long[] build_longs()
+	{
+		return this.build_longs(0);
+	}
+
+	public final long[] build_longs(final long listOffset)
+	{
+		// (01.02.2019 TM)FIXME: priv#70: offset validation
+		final long[] array = this.create_longs(listOffset);
+		this.unvalidatingUpdate_longs(listOffset, array);
+		
+		return array;
+	}
+	
+	public final double[] build_doubles()
+	{
+		return this.build_doubles(0);
+	}
+
+	public final double[] build_doubles(final long listOffset)
+	{
+		// (01.02.2019 TM)FIXME: priv#70: offset validation
+		final double[] array = this.create_doubles(listOffset);
+		this.unvalidatingUpdate_doubles(listOffset, array);
+		
+		return array;
+	}
+	
 
 	public final void collectElementsIntoArray(
 		final long                        binaryOffset,
@@ -1532,20 +1540,6 @@ public abstract class Binary implements Chunk
 			);
 		}
 		return length;
-	}
-		
-	public final void updateFixedSize(
-		final Object                      instance     ,
-		final BinaryValueSetter[]         setters      ,
-		final long[]                      memoryOffsets,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		long address = this.loadItemEntityContentAddress();
-		for(int i = 0; i < setters.length; i++)
-		{
-			address = setters[i].setValueToMemory(address, instance, memoryOffsets[i], idResolver);
-		}
 	}
 			
 	public abstract long iterateReferences(
@@ -1874,7 +1868,7 @@ public abstract class Binary implements Chunk
 		// (08.02.2019 TM)EXCP: proper exception
 		throw new PersistenceException(
 			"Binary load item bounds violation: " + contentLength
-				+ " > " + this.getLoadItemAvailableContentLength()
+			+ " > " + this.getLoadItemAvailableContentLength()
 		);
 	}
 	
@@ -1934,15 +1928,243 @@ public abstract class Binary implements Chunk
 		return elementsDataAddress + elementsBinaryLength;
 	}
 	
-	final void updateArray_char(final char[] array, final long offset)
+	
+	public final void updateFixedSize(
+		final Object                      instance     ,
+		final BinaryValueSetter[]         setters      ,
+		final long[]                      memoryOffsets,
+		final PersistenceObjectIdResolver idResolver
+	)
 	{
-		this.validateLoadItemContentLength(offset + array.length * Short.BYTES);
-		this.updateArray_charUnvalidating(array, offset);
+		long address = this.loadItemEntityContentAddress();
+		for(int i = 0; i < setters.length; i++)
+		{
+			address = setters[i].setValueToMemory(address, instance, memoryOffsets[i], idResolver);
+		}
+	}
+
+		
+	/**
+	 * Updates the passed array up to the size defined by the binary data, returns the size.
+	 */
+	public final int updateSizedArrayObjectReferences(
+		final long                        binaryOffset    ,
+		final PersistenceObjectIdResolver objectIdResolver,
+		final Object[]                    array
+	)
+	{
+		// (29.01.2019 TM)FIXME: priv#70: offset validation
+		
+		final int size = this.getSizedArrayElementCount(binaryOffset);
+		if(array.length < size)
+		{
+			throw new IllegalArgumentException(); // (23.10.2013 TM)EXCP: proper exception
+		}
+		
+		this.updateArrayObjectReferences(binaryOffset+ SIZED_ARRAY_OFFSET_ELEMENTS, objectIdResolver, array, 0, size);
+		
+		return size;
 	}
 	
-	final void updateArray_charUnvalidating(final char[] array, final long offset)
+	public final void updateArrayObjectReferences1(
+		final long                        binaryListStartOffset,
+		final PersistenceObjectIdResolver objectIdResolver     ,
+		final Object[]                    array
+	)
+	{
+		this.updateArrayObjectReferences(binaryListStartOffset, objectIdResolver, array, 0, array.length);
+	}
+
+	public final void updateArrayObjectReferences(
+		final long                        binaryListStartOffset,
+		final PersistenceObjectIdResolver objectIdResolver     ,
+		final Object[]                    array                ,
+		final int                         arrayOffset          ,
+		final int                         arrayLength
+	)
+	{
+		final long elementCount = this.getListElementCountReferences(binaryListStartOffset);
+		if(elementCount > arrayLength)
+		{
+			throw new BinaryPersistenceExceptionStateArrayLength(
+				array,
+				X.checkArrayRange(elementCount)
+			);
+		}
+		
+		final long binaryElementsStartAddress = this.binaryListElementsAddress(binaryListStartOffset);
+		for(int i = 0; i < arrayLength; i++)
+		{
+			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
+			array[arrayOffset + i] = objectIdResolver.lookupObject(
+				this.get_longFromAddress(binaryElementsStartAddress + referenceBinaryLength(i))
+			);
+		}
+	}
+	
+	public final void update_bytes(final byte[] array)
+	{
+		this.validateLoadItemContentLength(array.length * Byte.BYTES);
+		this.unvalidatingUpdate_bytes(0, array);
+	}
+
+	public final void update_bytes(final long offset, final byte[] array)
+	{
+		this.validateLoadItemContentLength(offset + array.length * Byte.BYTES);
+		this.unvalidatingUpdate_bytes(offset, array);
+	}
+	
+	public final void update_booleans(final boolean[] array)
+	{
+		this.validateLoadItemContentLength(array.length * Byte.BYTES);
+		this.unvalidatingUpdate_booleans(0, array);
+	}
+	
+	public final void update_booleans(final long offset, final boolean[] array)
+	{
+		this.validateLoadItemContentLength(offset + array.length * Byte.BYTES);
+		this.unvalidatingUpdate_booleans(offset, array);
+	}
+	
+	public final void update_shorts(final short[] array)
+	{
+		this.validateLoadItemContentLength(array.length * Short.BYTES);
+		this.unvalidatingUpdate_shorts(0, array);
+	}
+	
+	public final void update_shorts(final long offset, final short[] array)
+	{
+		this.validateLoadItemContentLength(offset + array.length * Short.BYTES);
+		this.unvalidatingUpdate_shorts(offset, array);
+	}
+	
+	public final void update_chars(final char[] array)
+	{
+		this.validateLoadItemContentLength(array.length * Character.BYTES);
+		this.unvalidatingUpdate_chars(0, array);
+	}
+	
+	public final void update_chars(final long offset, final char[] array)
+	{
+		this.validateLoadItemContentLength(offset + array.length * Character.BYTES);
+		this.unvalidatingUpdate_chars(offset, array);
+	}
+	
+	public final void update_ints(final int[] array)
+	{
+		this.validateLoadItemContentLength(array.length * Integer.BYTES);
+		this.unvalidatingUpdate_ints(0, array);
+	}
+	
+	public final void update_ints(final long offset, final int[] array)
+	{
+		this.validateLoadItemContentLength(offset + array.length * Integer.BYTES);
+		this.unvalidatingUpdate_ints(offset, array);
+	}
+	
+	public final void update_floats(final float[] array)
+	{
+		this.validateLoadItemContentLength(array.length * Float.BYTES);
+		this.unvalidatingUpdate_floats(0, array);
+	}
+	
+	public final void update_floats(final long offset, final float[] array)
+	{
+		this.validateLoadItemContentLength(offset + array.length * Float.BYTES);
+		this.unvalidatingUpdate_floats(offset, array);
+	}
+	
+	public final void update_longs(final long[] array)
+	{
+		this.validateLoadItemContentLength(array.length * Long.BYTES);
+		this.unvalidatingUpdate_longs(0, array);
+	}
+	
+	public final void update_longs(final long offset, final long[] array)
+	{
+		this.validateLoadItemContentLength(offset + array.length * Long.BYTES);
+		this.unvalidatingUpdate_longs(offset, array);
+	}
+	
+	public final void update_doubles(final double[] array)
+	{
+		this.validateLoadItemContentLength(array.length * Double.BYTES);
+		this.unvalidatingUpdate_doubles(0, array);
+	}
+	
+	public final void update_doubles(final long offset, final double[] array)
+	{
+		this.validateLoadItemContentLength(offset + array.length * Double.BYTES);
+		this.unvalidatingUpdate_doubles(offset, array);
+	}
+	
+	
+	
+		
+
+	
+	
+	
+	final void unvalidatingUpdate_bytes(final long offset, final byte[] array)
+	{
+		this.update_bytesFromAddress(
+			this.binaryListElementsAddress(offset),
+			array
+		);
+	}
+
+	final void unvalidatingUpdate_booleans(final long offset, final boolean[] array)
+	{
+		this.update_booleansFromAddress(
+			this.binaryListElementsAddress(offset),
+			array
+		);
+	}
+
+	final void unvalidatingUpdate_shorts(final long offset, final short[] array)
+	{
+		this.update_shortsFromAddress(
+			this.binaryListElementsAddress(offset),
+			array
+		);
+	}
+
+	final void unvalidatingUpdate_chars(final long offset, final char[] array)
 	{
 		this.update_charsFromAddress(
+			this.binaryListElementsAddress(offset),
+			array
+		);
+	}
+
+
+	final void unvalidatingUpdate_ints(final long offset, final int[] array)
+	{
+		this.update_intsFromAddress(
+			this.binaryListElementsAddress(offset),
+			array
+		);
+	}
+
+	final void unvalidatingUpdate_floats(final long offset, final float[] array)
+	{
+		this.update_floatsFromAddress(
+			this.binaryListElementsAddress(offset),
+			array
+		);
+	}
+
+	final void unvalidatingUpdate_longs(final long offset, final long[] array)
+	{
+		this.update_longsFromAddress(
+			this.binaryListElementsAddress(offset),
+			array
+		);
+	}
+
+	final void unvalidatingUpdate_doubles(final long offset, final double[] array)
+	{
+		this.update_doublesFromAddress(
 			this.binaryListElementsAddress(offset),
 			array
 		);
