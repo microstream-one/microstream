@@ -398,12 +398,12 @@ public final class JdkInternals
 	}
 	
 	// "internal" prefixed method that is public, to indicate that it uses VM-internal details.
-	public static final void internalDeallocateDirectBuffer(final ByteBuffer directBuffer)
+	public static final boolean internalDeallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
 		// better check again in here, in case this method ever gets called from another context, e.g. reflective.
 		if(directBuffer == null)
 		{
-			return;
+			return false;
 		}
 		
 		XTypes.guaranteeDirectByteBuffer(directBuffer);
@@ -414,7 +414,7 @@ public final class JdkInternals
 		if(!(cleanerThunkDeallocatorRunnable instanceof Runnable))
 		{
 			// better to not deallocate and hope the DBB will get cleaned up by the GC instead of an exception
-			return;
+			return false;
 		}
 		
 		// at least secure this call externally against race conditions if the geniuses can't do it internally
@@ -435,6 +435,8 @@ public final class JdkInternals
 			 */
 			set_long(directBuffer, FIELD_OFFSET_Buffer_address, 0);
 		}
+		
+		return true;
 	}
 	
 	public static final void deallocateDirectBuffer(final ByteBuffer directBuffer)

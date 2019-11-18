@@ -62,7 +62,7 @@ import java.nio.ByteBuffer;
  */
 public interface DirectBufferDeallocator
 {
-	public void deallocateDirectBuffer(ByteBuffer directBuffer);
+	public boolean deallocateDirectBuffer(ByteBuffer directBuffer);
 	
 	
 	
@@ -80,9 +80,10 @@ public interface DirectBufferDeallocator
 		}
 		
 		@Override
-		public void deallocateDirectBuffer(final ByteBuffer directBuffer)
+		public boolean deallocateDirectBuffer(final ByteBuffer directBuffer)
 		{
 			// no-op by default because of too many design errors in JDK to provide a sane solution out of the box.
+			return false;
 		}
 		
 	}
