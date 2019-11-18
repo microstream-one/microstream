@@ -322,8 +322,8 @@ public final class JdkInternals
 		|| FIELD_OFFSET_Buffer_address < 0
 		)
 		{
-			// deallocator is left null and must be provided/set explicitely by the user
-			return null;
+			// deallocator is left as NoOp and must be provided/set explicitely by the user
+			return DirectBufferDeallocator.NoOp();
 		}
 		
 		return new JdkDirectBufferDeallocator();
@@ -347,7 +347,7 @@ public final class JdkInternals
 		final DirectBufferDeallocator deallocator
 	)
 	{
-		directBufferDeallocator = mayNull(deallocator);
+		directBufferDeallocator = notNull(deallocator);
 	}
 	
 	public static synchronized DirectBufferDeallocator getDirectBufferDeallocator()
@@ -439,20 +439,15 @@ public final class JdkInternals
 		return true;
 	}
 	
-	public static final void deallocateDirectBuffer(final ByteBuffer directBuffer)
+	public static final boolean deallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
 		// If no buffer to be deallocated is passed, no code is executed at all.
 		if(directBuffer == null)
 		{
-			return;
+			return false;
 		}
 		
-		if(directBufferDeallocator == null)
-		{
-			throw new Error("No means to explicitely deallocate a DirectBuffer available.");
-		}
-		
-		directBufferDeallocator.deallocateDirectBuffer(directBuffer);
+		return directBufferDeallocator.deallocateDirectBuffer(directBuffer);
 	}
 	
 	
