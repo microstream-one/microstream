@@ -48,9 +48,9 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	}
 
 	@Override
-	public final void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
+	public final boolean deallocateDirectByteBuffer(final ByteBuffer directBuffer)
 	{
-		this.actual.deallocateDirectByteBuffer(directBuffer);
+		return this.actual.deallocateDirectByteBuffer(directBuffer);
 	}
 
 	@Override

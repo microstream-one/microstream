@@ -47,9 +47,9 @@ public final class JdkMemoryAccessor implements MemoryAccessor, MemorySizeProper
 	}
 
 	@Override
-	public final void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
+	public final boolean deallocateDirectByteBuffer(final ByteBuffer directBuffer)
 	{
-		JdkInternals.deallocateDirectBuffer(directBuffer);
+		return JdkInternals.deallocateDirectBuffer(directBuffer);
 	}
 
 	@Override

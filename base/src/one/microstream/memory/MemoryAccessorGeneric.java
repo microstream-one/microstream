@@ -643,10 +643,11 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		throw new RuntimeException("Buffer not or no longer registered: " + identifier);
 	}
 	
-	public final void systemDeallocateDirectByteBuffer(final ByteBuffer directByteBuffer)
+	public final boolean systemDeallocateDirectByteBuffer(final ByteBuffer directByteBuffer)
 	{
 		XTypes.guaranteeDirectByteBuffer(directByteBuffer);
-		this.directBufferDeallocator.deallocateDirectBuffer(directByteBuffer);
+		
+		return this.directBufferDeallocator.deallocateDirectBuffer(directByteBuffer);
 	}
 	
 	
@@ -674,17 +675,17 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	}
 
 	@Override
-	public final void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
+	public final boolean deallocateDirectByteBuffer(final ByteBuffer directBuffer)
 	{
 		if(directBuffer == null)
 		{
 			// spare the hassle.
-			return;
+			return false;
 		}
 		
 		this.bufferRegistry.ensureRemoved(directBuffer);
 		
-		this.systemDeallocateDirectByteBuffer(directBuffer);
+		return this.systemDeallocateDirectByteBuffer(directBuffer);
 	}
 
 	@Override
