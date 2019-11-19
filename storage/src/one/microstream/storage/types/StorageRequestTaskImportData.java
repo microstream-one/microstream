@@ -24,6 +24,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		// constants //
 		//////////////
 		
+		/* (14.11.2019 TM)TODO: weird waiting time
+		 * This should be removed or at least configurable.
+		 */
 		private static final int SOURCE_FILE_WAIT_TIME_MS = 100;
 		
 		
@@ -61,23 +64,29 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
 			super(timestamp, channelCount);
-			this.importFiles = importFiles  ;
-
-			this.entityCaches    = new StorageEntityCache.Default[channelCount];
-			this.sourceFileTails = new SourceFileSlice[channelCount];
-			for(int i = 0; i < channelCount; i++)
-			{
-				this.sourceFileTails[i] = new SourceFileSlice(i, null, null, null);
-			}
-			this.sourceFileHeads        = this.sourceFileTails.clone();
+			this.importFiles            = importFiles;
 			this.objectIdRangeEvaluator = objectIdRangeEvaluator;
+			this.entityCaches           = new StorageEntityCache.Default[channelCount];
+			this.sourceFileTails        = createSourceFileSlices(channelCount);
+			this.sourceFileHeads        = this.sourceFileTails.clone();
 		}
 
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
+		// methods //
+		////////////
+		
+		private static SourceFileSlice[] createSourceFileSlices(final int channelCount)
+		{
+			final SourceFileSlice[] sourceFileTails = new SourceFileSlice[channelCount];
+			for(int i = 0; i < channelCount; i++)
+			{
+				sourceFileTails[i] = new SourceFileSlice(i, null, null, null);
+			}
+			
+			return sourceFileTails;
+		}
 
 		private boolean entityCacheCollectionNotComplete()
 		{
@@ -103,6 +112,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		final void readFiles()
 		{
 			final ItemReader itemReader = new ItemReader(this.entityCaches, this.sourceFileHeads);
+			
 			final StorageDataFileItemIterator iterator = StorageDataFileItemIterator.New(
 				StorageDataFileItemIterator.BufferProvider.New(),
 				itemReader
@@ -139,14 +149,14 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			////////////////////
 			
 			private final StorageEntityCache.Default[] entityCaches             ;
-			private final SourceFileSlice[]                   sourceFileHeads          ;
-			private final ChannelItem[]                       channelItems             ;
-			private final int                                 channelHash              ;
-			private       File                                file                     ;
-			private       FileLock                            fileLock                 ;
-			private       int                                 currentBatchChannel      ;
-			private       long                                currentSourceFilePosition;
-			private       long                                maxObjectId              ;
+			private final SourceFileSlice[]            sourceFileHeads          ;
+			private final ChannelItem[]                channelItems             ;
+			private final int                          channelHash              ;
+			private       File                         file                     ;
+			private       FileLock                     fileLock                 ;
+			private       int                          currentBatchChannel      ;
+			private       long                         currentSourceFilePosition;
+			private       long                         maxObjectId              ;
 
 			
 			
@@ -156,13 +166,13 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			
 			public ItemReader(
 				final StorageEntityCache.Default[] entityCaches   ,
-				final SourceFileSlice[]                   sourceFileHeads
+				final SourceFileSlice[]            sourceFileHeads
 			)
 			{
 				super();
-				this.entityCaches    = entityCaches                           ;
-				this.sourceFileHeads = sourceFileHeads                        ;
-				this.channelHash     = sourceFileHeads.length - 1             ;
+				this.entityCaches    = entityCaches              ;
+				this.sourceFileHeads = sourceFileHeads           ;
+				this.channelHash     = sourceFileHeads.length - 1;
 				this.channelItems    = XArrays.fill(
 					new ChannelItem[sourceFileHeads.length],
 					() ->
@@ -200,8 +210,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				final int intLength = X.checkArrayRange(length);
 
 				// read and validate entity head information
-				final long                             objectId     = Binary.getEntityObjectIdRawValue(address);
-				final int                              channelIndex = (int)objectId & this.channelHash;
+				final long                      objectId     = Binary.getEntityObjectIdRawValue(address);
+				final int                       channelIndex = (int)objectId & this.channelHash;
 				final StorageEntityType.Default type         = this.entityCaches[channelIndex].validateEntity(
 					intLength,
 					Binary.getEntityTypeIdRawValue(address),
@@ -305,12 +315,6 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			}
 
 		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
 
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)
@@ -430,9 +434,19 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 	static final class ChannelItem
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		final ImportBatch  headBatch  = new ImportBatch();
 		      ImportBatch  tailBatch ;
 		      ImportEntity tailEntity;
+		      
+		      
+		      
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		ChannelItem resetChains()
 		{
@@ -441,14 +455,25 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			this.tailEntity = null; // gets assigned with the first actual batch
 			return this;
 		}
+		
 	}
 
 	static final class SourceFileSlice
 	extends StorageInventoryFile.Default
 	implements StorageChannelImportSourceFile
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		final ImportBatch     headBatch   ;
 		      SourceFileSlice next        ;
+		      
+		      
+		      
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
 		SourceFileSlice(
 			final int         channelIndex,
@@ -458,8 +483,14 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		)
 		{
 			super(channelIndex, 0L, file, fileLock);
-			this.headBatch    = headBatch   ;
+			this.headBatch = headBatch;
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final void iterateBatches(final Consumer<? super StorageChannelImportBatch> iterator)
@@ -486,9 +517,19 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 	 */
 	static final class ImportBatch extends ImportEntity implements StorageChannelImportBatch
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		long        batchOffset;
 	    long        batchLength;
 		ImportBatch batchNext  ;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
 		ImportBatch()
 		{
@@ -506,6 +547,12 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			this.batchOffset = batchOffset ;
 			this.batchLength = entityLength;
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public long fileOffset()
@@ -529,13 +576,13 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		}
 
 		@Override
-		public ImportEntity first()
+		public final ImportEntity first()
 		{
 			return this.type != null  ? this  : this.batchNext;
 		}
 
 		@Override
-		public String toString()
+		public final String toString()
 		{
 			return "batch" + "[" + this.length + "]" + (this.batchNext == null ? "" : " " + this.batchNext.toString());
 		}
@@ -544,14 +591,24 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 	static class ImportEntity implements StorageChannelImportEntity
 	{
-		final int                              length  ;
-		final long                             objectId;
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		final int                       length  ;
+		final long                      objectId;
 		final StorageEntityType.Default type    ;
-		      ImportEntity                     next    ;
+		      ImportEntity              next    ;
+		      
+		      
+		      
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
 		ImportEntity(
-			final int                              length  ,
-			final long                             objectId,
+			final int                       length  ,
+			final long                      objectId,
 			final StorageEntityType.Default type
 		)
 		{
@@ -560,6 +617,12 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			this.objectId = objectId;
 			this.type     = type    ;
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
 		@Override
 		public final int length()

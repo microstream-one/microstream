@@ -1,9 +1,7 @@
 package one.microstream.test.corp.main;
 
-import java.io.File;
 import java.util.Arrays;
 
-import one.microstream.persistence.internal.PrintingLegacyTypeMappingResultor;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.reflect.XReflect;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -20,17 +18,17 @@ public class MainTestStoreEnum
 		// creates and starts an embedded storage manager with all-default-settings.
 		final EmbeddedStorageManager storage = EmbeddedStorage
 			.Foundation()
-			.onConnectionFoundation(f ->
-			{
-				f.setLegacyTypeMappingResultor(
-					PrintingLegacyTypeMappingResultor.New(
-						f.getLegacyTypeMappingResultor()
-					)
-				);
-			})
-			.setRefactoringMappingProvider(
-				Persistence.RefactoringMapping(new File("Refactorings.csv"))
-			)
+//			.onConnectionFoundation(f ->
+//			{
+//				f.setLegacyTypeMappingResultor(
+//					PrintingLegacyTypeMappingResultor.New(
+//						f.getLegacyTypeMappingResultor()
+//					)
+//				);
+//			})
+//			.setRefactoringMappingProvider(
+//				Persistence.RefactoringMapping(new File("Refactorings.csv"))
+//			)
 			.start()
 		;
 		
@@ -88,7 +86,10 @@ public class MainTestStoreEnum
 			CrazyEnumSpecialState.Normal3,
 			StatefulEnum.Type1,
 			StatefulEnum.Type2,
-			StatefulEnum.Type3
+			StatefulEnum.Type3,
+			CrazyEnumAbstract.ONE,
+			CrazyEnumAbstract.TWO,
+			
 		};
 	}
 	
@@ -146,9 +147,9 @@ enum SimpleEnum
 
 enum StatefulEnum
 {
-	Type1(177),
-	Type2(277),
-	Type3(377);
+	Type1("Type A", 177),
+	Type2("Type B", 277),
+	Type3("Type C", 377);
 	
 	
 	
@@ -156,7 +157,8 @@ enum StatefulEnum
 	// instance fields //
 	////////////////////
 	
-	private final int state;
+	private final int    state      ;
+	private final String displayName;
 	
 	
 	
@@ -164,9 +166,10 @@ enum StatefulEnum
 	// constructors //
 	/////////////////
 
-	private StatefulEnum(final int state)
+	private StatefulEnum(final String displayName, final int state)
 	{
-		this.state = state;
+		this.displayName = displayName;
+		this.state       = state      ;
 	}
 	
 	
@@ -175,15 +178,20 @@ enum StatefulEnum
 	// methods //
 	////////////
 	
-	public int state()
+	public final int state()
 	{
 		return this.state;
 	}
 	
-	@Override
-	public String toString()
+	public final String displayName()
 	{
-		return this.name() + "-" + this.state;
+		return this.displayName;
+	}
+	
+	@Override
+	public final String toString()
+	{
+		return this.name() + " - " + this.displayName() + "/" + this.state;
 	}
 	
 }
@@ -301,5 +309,30 @@ enum CrazyEnumSpecialState
 	{
 		return this.name() + "-" + this.crazyState;
 	}
+	
+}
+
+enum CrazyEnumAbstract // thanks to C.P.
+{
+	
+	ONE
+	{
+		@Override
+		void doSomething()
+		{
+			System.out.println("1.");
+		}
+	},
+	
+	TWO
+	{
+		@Override
+		void doSomething()
+		{
+			System.out.println("2.");
+		}
+	};
+
+	abstract void doSomething();
 	
 }

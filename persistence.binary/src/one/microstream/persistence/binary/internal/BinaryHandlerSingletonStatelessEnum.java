@@ -1,5 +1,7 @@
 package one.microstream.persistence.binary.internal;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.X;
 import one.microstream.collections.Singleton;
 import one.microstream.collections.types.XGettingEnum;
@@ -9,6 +11,7 @@ import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
+import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.reflect.XReflect;
 
 public final class BinaryHandlerSingletonStatelessEnum<T> extends AbstractBinaryHandlerTrivial<T>
@@ -51,8 +54,10 @@ public final class BinaryHandlerSingletonStatelessEnum<T> extends AbstractBinary
 	protected BinaryHandlerSingletonStatelessEnum(final Class<T> type)
 	{
 		super(validateIsSingletonEnumType(type));
+		
+		// the notNull is very important to detect incompatibility issues with other JVMs.
 		this.enumConstantMember = X.Singleton(
-			BinaryHandlerGenericEnum.deriveEnumConstantMembers(type).get()
+			notNull(BinaryHandlerGenericEnum.deriveEnumConstantMembers(type).get())
 		);
 	}
 	
@@ -91,6 +96,13 @@ public final class BinaryHandlerSingletonStatelessEnum<T> extends AbstractBinary
 	public final T create(final Binary medium, final PersistenceObjectIdResolver idResolver)
 	{
 		return (T)XReflect.getDeclaredEnumClass(this.type()).getEnumConstants()[0];
+	}
+	
+	@Override
+	public final synchronized PersistenceTypeHandler<Binary, T> initialize(final long typeId)
+	{
+		// debug hook
+		return super.initialize(typeId);
 	}
 	
 }

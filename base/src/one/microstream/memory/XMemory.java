@@ -5,7 +5,6 @@ import static one.microstream.X.notNull;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Properties;
 import java.util.function.Predicate;
 
 import one.microstream.X;
@@ -36,39 +35,77 @@ public final class XMemory
 		initializeMemoryAccess();
 	}
 	
-	private static VmInitializer[] createVmInitializers()
+	private static VmCheck[] createVmChecks()
 	{
 		return X.array
 		(
-			// as defined by https://developer.android.com/reference/java/lang/System#getProperties()
-			new VmInitializer("Android",
-				properties ->
-					"The Android Project".equals(properties.get("java.vendor")),
-				() ->
-					MicroStreamAndroidAdapter.setupFull()
+			/* See:
+			 * https://developer.android.com/reference/java/lang/System#getProperties()
+			 * https://stackoverflow.com/questions/4519556/how-to-determine-if-my-app-is-running-on-android
+			 */
+			VmCheckEquality("Supported Standard Android",
+				MicroStreamAndroidAdapter::setupFull,
+				entry("java.vendor"   , "The Android Project"),
+				entry("java.vm.vendor", "The Android Project")
+			),
+			
+			/*
+			 * There are non-standard, "cheap", "hacked", whatever implementations of Android that
+			 * differ from the standard android. Since those are not reliable to support the required
+			 * functionality, they are filtered out, here.
+			 * Of course there is still the possibility that an implementation returns the correct
+			 * vendor but is not "compatible enough". But then that's simply a platform insufficiency
+			 * that can't be handled here.
+			 * The purpose of this check is to create are more informative exception for recognizably
+			 * diverging cases instead of just defaulting to the JdkInternals and getting a
+			 * weird error of it not working.
+			 */
+			VmCheckContained("ERROR: UNHANDLED Android",
+				XMemory::throwUnhandledPlatformException,
+				entry("java.vendor"   , "Android"),
+				entry("java.vm.vendor", " Android")
 			)
 			
-			// add additional initializers here
+			// add additional checks here
 		);
+	}
+	
+	private static String systemPropertyToString(final String key)
+	{
+		return key + ": " + System.getProperty(key, "[null]");
+	}
+	
+	static final void throwUnhandledPlatformException()
+	{
+		// (19.11.2019 TM)EXCP: proper exception
+		throw new Error(
+			"Unhandled Java platform: "
+			+ systemPropertyToString("java.vendor") + ", "
+			+ systemPropertyToString("java.vm.vendor")
+		);
+	}
+	
+	private static String[] entry(final String key, final String value)
+	{
+		return new String[]{key, value};
 	}
 	
 	private static void initializeMemoryAccess()
 	{
-		// no sense in permanently occupying memory with data that is only used exactly once during initialization
-		final VmInitializer[] initializers = createVmInitializers();
-		final Properties      properties   = System.getProperties();
+		// no sense in permanently occupying memory with data that is only used exactly once during initialization.
+		final VmCheck[] vmChecks = createVmChecks();
 		
-		for(final VmInitializer initializer : initializers)
+		for(final VmCheck vmCheck : vmChecks)
 		{
-			if(initializer.recognizer.test(properties))
+			// can either set an Memory accessing/handling implementation or throw an Error.
+			if(vmCheck.check())
 			{
-				initializer.action.run();
 				return;
 			}
 		}
 		
 		/* (18.11.2019 TM)NOTE:
-		 * If no specific initializer applied, the default initialization is used, assuming a fully
+		 * If no specific vm check applied, the default initialization is used, assuming a fully
 		 * JDK/-Unsafe-compatible JVM. It might not seem that way, but this is actually the normal case.
 		 * Tests showed that almost all Java VM vendors fully support Unsafe. This is quite plausible:
 		 * They want to draw Java developers/applications onto their platform, so they try to provide
@@ -77,23 +114,137 @@ public final class XMemory
 		 */
 		setMemoryHandling(JdkMemoryAccessor.New());
 	}
-
-	static final class VmInitializer
+	
+	private static VmCheck VmCheckEquality(
+		final String      name                        ,
+		final Runnable    action                      ,
+		final String[]... systemPropertyChecksEquality
+	)
 	{
-		final String                name      ;
-		final Predicate<Properties> recognizer;
-		final Runnable              action    ;
+		return new VmCheck(
+			name,
+			SystemPropertyCheckEquality(
+				systemPropertyChecksEquality
+			),
+			action
+		);
+	}
+	
+	private static VmCheck VmCheckContained(
+		final String      name                         ,
+		final Runnable    action                       ,
+		final String[]... systemPropertyChecksContained
+	)
+	{
+		return new VmCheck(
+			name,
+			SystemPropertyCheckContained(
+				systemPropertyChecksContained
+			),
+			action
+		);
+	}
+	
+	static final VmCheck VmInitializer(
+		final String     name                         ,
+		final Runnable   action                       ,
+		final String[][] systemPropertyChecksEquality ,
+		final String[][] systemPropertyChecksContained
+	)
+	{
+		return new VmCheck(
+			name,
+			SystemPropertyCheck(
+				systemPropertyChecksEquality,
+				systemPropertyChecksContained
+			),
+			action
+		);
+	}
+	
+	private static Predicate<VmCheck> SystemPropertyCheckEquality(
+		final String[][] systemPropertyChecksEquality
+	)
+	{
+		return SystemPropertyCheck(systemPropertyChecksEquality, new String[0][]);
+	}
+	
+	private static Predicate<VmCheck> SystemPropertyCheckContained(
+		final String[][] systemPropertyChecksContained
+	)
+	{
+		return SystemPropertyCheck(new String[0][], systemPropertyChecksContained);
+	}
+	
+	private static Predicate<VmCheck> SystemPropertyCheck(
+		final String[][] systemPropertyChecksEquality,
+		final String[][] systemPropertyChecksContained
+	)
+	{
+		return check ->
+		{
+			for(final String[] s : systemPropertyChecksEquality)
+			{
+				if(s == null)
+				{
+					continue;
+				}
+				if(System.getProperty(s[0], "").equals(s[1]))
+				{
+					return true;
+				}
+			}
+			
+			for(final String[] s : systemPropertyChecksContained)
+			{
+				if(s == null)
+				{
+					continue;
+				}
+				if(System.getProperty(s[0], "").toUpperCase().contains(s[1].toUpperCase()))
+				{
+					return true;
+				}
+			}
+			
+			// no check applied
+			return false;
+		};
+	}
+	
+
+	static final class VmCheck
+	{
+		final String                   name  ;
+		final Predicate<VmCheck> tester;
+		final Runnable                 action;
 		
-		VmInitializer(
-			final String                name      ,
-			final Predicate<Properties> recognizer,
-			final Runnable              action
+		VmCheck(
+			final String                   name  ,
+			final Predicate<VmCheck> tester,
+			final Runnable                 action
 		)
 		{
 			super();
-			this.name       = name      ;
-			this.recognizer = recognizer;
-			this.action     = action    ;
+			this.name   = name  ;
+			this.tester = tester;
+			this.action = action;
+		}
+		
+		final boolean test()
+		{
+			return this.tester.test(this);
+		}
+		
+		final boolean check()
+		{
+			if(this.test())
+			{
+				this.action.run();
+				return true;
+			}
+			
+			return false;
 		}
 	}
 	
