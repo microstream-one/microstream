@@ -4,6 +4,7 @@ import java.nio.ByteOrder;
 
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.types.StorageDataChunkValidator.Provider2;
 import one.microstream.storage.types.StorageFileWriter.Provider;
@@ -156,6 +157,20 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
 	 */
 	public StorageChannelsCreator getChannelCreator();
+
+	/**
+	 * Returns the currently set {@link StorageThreadNameProvider} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * 
+	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 */
+	public StorageThreadNameProvider getThreadNameProvider();
 	
 	/**
 	 * Returns the currently set {@link StorageChannelThreadProvider} instance.
@@ -170,7 +185,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
 	 */
 	public StorageChannelThreadProvider getChannelThreadProvider();
-	
+		
 	/**
 	 * Returns the currently set {@link StorageBackupThreadProvider} instance.
 	 * <p>
@@ -554,6 +569,15 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public F setChannelCreator(StorageChannelsCreator channelCreator);
 	
 	/**
+	 * Sets the {@link StorageThreadNameProvider} instance to be used for the assembly.
+	 * 
+	 * @param threadNameProvider the instance to be used.
+	 * 
+	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 */
+	public F setThreadNameProvider(StorageThreadNameProvider threadNameProvider);
+	
+	/**
 	 * Sets the {@link StorageChannelThreadProvider} instance to be used for the assembly.
 	 * 
 	 * @param channelThreadProvider the instance to be used.
@@ -790,6 +814,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageDataChunkValidator.Provider    dataChunkValidatorProvider   ;
 		private StorageDataChunkValidator.Provider2   dataChunkValidatorProvider2  ;
 		private StorageChannelsCreator                channelCreator               ;
+		private StorageThreadNameProvider             threadNameProvider           ;
 		private StorageChannelThreadProvider          channelThreadProvider        ;
 		private StorageBackupThreadProvider           backupThreadProvider         ;
 		private ProcessIdentityProvider               processIdentityProvider      ;
@@ -804,7 +829,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageFileWriter.Provider            writerProvider               ;
 		private StorageGCZombieOidHandler             gCZombieOidHandler           ;
 		private StorageRootOidSelector.Provider       rootOidSelectorProvider      ;
-		private StorageobjectIdMarkQueue.Creator           oidMarkQueueCreator          ;
+		private StorageobjectIdMarkQueue.Creator      oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageDataFileValidator.Creator      dataFileValidatorCreator     ;
 		private BinaryEntityRawDataIterator.Provider  entityDataIteratorProvider   ;
@@ -878,7 +903,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageDataChunkValidator.Provider ensureDataChunkValidatorProvider()
 		{
-			return getDataChunkValidatorProvider2().provideDataChunkValidatorProvider(this);
+			return this.getDataChunkValidatorProvider2().provideDataChunkValidatorProvider(this);
 		}
 
 		protected StorageDataChunkValidator.Provider2 ensureDataChunkValidatorProvider2()
@@ -889,6 +914,11 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		protected StorageChannelsCreator ensureChannelCreator()
 		{
 			return new StorageChannelsCreator.Default();
+		}
+
+		protected StorageThreadNameProvider ensureThreadNameProvider()
+		{
+			return StorageThreadNameProvider.Prefixer(Persistence.engineName() + '-');
 		}
 
 		protected StorageChannelThreadProvider ensureChannelThreadProvider()
@@ -914,6 +944,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		protected StorageThreadProvider ensureThreadProvider()
 		{
 			return StorageThreadProvider.New(
+				this.getThreadNameProvider(),
 				this.getChannelThreadProvider(),
 				this.getBackupThreadProvider(),
 				this.getLockFileManagerThreadProvider()
@@ -1096,6 +1127,16 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.channelCreator = this.dispatch(this.ensureChannelCreator());
 			}
 			return this.channelCreator;
+		}
+		
+		@Override
+		public StorageThreadNameProvider getThreadNameProvider()
+		{
+			if(this.threadNameProvider == null)
+			{
+				this.threadNameProvider = this.dispatch(this.ensureThreadNameProvider());
+			}
+			return this.threadNameProvider;
 		}
 
 		@Override
@@ -1394,6 +1435,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		public F setChannelCreator(final StorageChannelsCreator channelCreator)
 		{
 			this.channelCreator = channelCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setThreadNameProvider(final StorageThreadNameProvider threadNameProvider)
+		{
+			this.threadNameProvider = threadNameProvider;
 			return this.$();
 		}
 

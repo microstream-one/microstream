@@ -1,7 +1,7 @@
 package one.microstream.storage.types;
 
 @FunctionalInterface
-public interface StorageLockFileManagerThreadProvider
+public interface StorageLockFileManagerThreadProvider extends StorageThreadProviding
 {
 	/**
 	 * Provides a newly created, yet unstarted {@link Thread} instance wrapping the passed
@@ -13,7 +13,15 @@ public interface StorageLockFileManagerThreadProvider
 	 *
 	 * @return a {@link Thread} instance to be used as a storage lock file managing worker thread.
 	 */
-	public Thread provideLockFileManagerThread(StorageLockFileManager lockFileManager);
+	public default Thread provideLockFileManagerThread(final StorageLockFileManager lockFileManager)
+	{
+		return this.provideLockFileManagerThread(lockFileManager, StorageThreadNameProvider.NoOp());
+	}
+	
+	public Thread provideLockFileManagerThread(
+		StorageLockFileManager    lockFileManager   ,
+		StorageThreadNameProvider threadNameProvider
+	);
 	
 
 	
@@ -30,11 +38,16 @@ public interface StorageLockFileManagerThreadProvider
 		}
 		
 		@Override
-		public Thread provideLockFileManagerThread(final StorageLockFileManager lockFileManager)
+		public Thread provideLockFileManagerThread(
+			final StorageLockFileManager    lockFileManager   ,
+			final StorageThreadNameProvider threadNameProvider
+		)
 		{
+			final String threadName = StorageLockFileManager.class.getSimpleName();
+			
 			return new Thread(
 				lockFileManager,
-				StorageLockFileManager.class.getSimpleName()
+				threadNameProvider.provideThreadName(this, threadName)
 			);
 		}
 

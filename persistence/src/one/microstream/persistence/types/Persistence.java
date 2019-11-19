@@ -159,6 +159,8 @@ public class Persistence
 	static final long TID_java_util_ConcurrentSkipListSet  = 66L;
 	static final long TID_java_util_WeakHashMap            = 67L;
 
+	static final long TID_java_util_Locale                 = 68L;
+
 	// arrays (only 1D) of common types
 	static final long TID_ARRAY_byte           = 100L + TID_PRIMITIVE_byte   ;
 	static final long TID_ARRAY_boolean        = 100L + TID_PRIMITIVE_boolean;
@@ -187,7 +189,7 @@ public class Persistence
 	static final long TID_ARRAY_AbsStringBuffr = 100L + TID_AbstractStringBuilder;
 	static final long TID_ARRAY_StringBuffer   = 100L + TID_StringBuffer         ;
 	static final long TID_ARRAY_StringBuilder  = 100L + TID_StringBuilder        ;
-
+	
 	static final long TID_persistence_Lazy = 10000L;
 
 	// CHECKSTYLE.ON: ConstantName
@@ -196,6 +198,12 @@ public class Persistence
 	static final String OBJECT_ID_LABEL_SHORT = "OID";
 
 
+	
+	public static String engineName()
+	{
+		// kind of weird to put it here, but it has to be somewhere and the Persistence layer is the base for everything
+		return "MicroStream";
+	}
 
 	public static final String objectIdLabel()
 	{
@@ -341,6 +349,7 @@ public class Persistence
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentSkipListMap.class, TID_java_util_ConcurrentSkipListMap);
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentSkipListSet.class, TID_java_util_ConcurrentSkipListSet);
 
+		NATIVE_TYPES.add(java.util.Locale.class, TID_java_util_Locale);
 		
 		/* (27.03.2012)FIXME more native types
 		 * java.nio.Path etc.

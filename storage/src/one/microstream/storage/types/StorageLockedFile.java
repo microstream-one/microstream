@@ -1,5 +1,7 @@
 package one.microstream.storage.types;
 
+import static one.microstream.X.notNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -97,7 +99,10 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 
 	public static StorageLockedFile New(final File file, final FileLock lock)
 	{
-		return new StorageLockedFile.Default(file, lock);
+		return new StorageLockedFile.Default(
+			notNull(file),
+			notNull(lock)
+		);
 	}
 
 	public class Default implements StorageLockedFile
@@ -123,12 +128,14 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		// constructors //
 		/////////////////
 
-		public Default(final File file, final FileLock lock)
+		protected Default(final File file, final FileLock lock)
 		{
 			super();
-			this.file         = file          ;
-			this.lock         = lock          ;
-			this.fileChannel  = lock.channel();
+			this.file = file;
+			this.lock = lock;
+			
+			// null channel required for SourceFileSlice tail dummy instances
+			this.fileChannel = lock == null ? null : lock.channel();
 		}
 
 

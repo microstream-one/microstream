@@ -60,6 +60,7 @@ import one.microstream.java.util.BinaryHandlerIdentityHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashSet;
 import one.microstream.java.util.BinaryHandlerLinkedList;
+import one.microstream.java.util.BinaryHandlerLocale;
 import one.microstream.java.util.BinaryHandlerOptionalDouble;
 import one.microstream.java.util.BinaryHandlerOptionalInt;
 import one.microstream.java.util.BinaryHandlerOptionalLong;
@@ -200,6 +201,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerBigDecimal.New(),
 			BinaryHandlerFile.New()      ,
 			BinaryHandlerDate.New()      ,
+			BinaryHandlerLocale.New()    ,
 			
 			BinaryHandlerOptionalInt.New(),
 			BinaryHandlerOptionalLong.New(),
@@ -356,7 +358,7 @@ public final class BinaryPersistence extends Persistence
 		return f.getTypeDictionaryProvider().provideTypeDictionary();
 	}
 	
-	static final int binaryValueSize(final Class<?> type)
+	public static final int binaryValueSize(final Class<?> type)
 	{
 		return type.isPrimitive()
 			? XMemory.byteSizePrimitive(type)
