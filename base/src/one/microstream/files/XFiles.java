@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -145,13 +146,69 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 
 		return file;
 	}
-
-	// (29.10.2018 TM)NOTE: this is a reflection-specific method. If still used somewhere, copy it there.
-//	public static String packageStringToFolderPathString(final String packageString)
-//	{
-//		return XChars.ensureCharAtEnd(packageString.replaceAll("\\.", "/"), '/');
-//	}
 	
+	public static final Path ensureWriteableFile(final Path file) throws FilePathException
+	{
+		/* (19.11.2019 TM)NOTE:
+		 * "Path" must be the dumbest idea on earth for a name to represent a file or a directory.
+		 * "Path" is way too generic. A physical way is also a path. A reference track is a path. The rules of
+		 * a cult can be a "path". Etc etc.
+		 * It is traceable that they needed another short and unique type name after "File" was already
+		 * taken by their clumsy first attempt, but still: Who talks (primarily!) about "paths" when referring to
+		 * files and directories? No one. Of course, every file has a uniquely identifying path in the file system,
+		 * but the concept a file is more than just being a path. It has content, attributes, a "primary" name,
+		 * a suffix, etc.
+		 * A "Path" does not indicate all this. All the concept of a "Path" stands for is:
+		 * "follow me and you will get to your destination".
+		 * When an API forces people to talk about "paths" when they actually mean files, it's nothing but a
+		 * complication.
+		 * At least they finally understood to design with interfaces instead of classes (halleluja!), but they did
+		 * it on a very basic, beginner-like level. The proper solution would have been:
+		 * interface FileItem (or "FSItem" if you must)
+		 * interface File extends FileItem
+		 * interface Directory extends FileItem
+		 * 
+		 * With Directory having methods like
+		 * iterateFiles
+		 * iterateDirectories
+		 * iterateItems
+		 * etc.
+		 * Proper typing. It would have been, could be wonderful.
+		 * But noooo. A singular, diffusely general "Path" is the best they could have come up with.
+		 * And clumsiest-possible API like Files.newDirectoryStream(mustHappenToBeADirectoryOrElseYouAreInTrouble).
+		 * 
+		 * So now we are stuck with "Path" to indiscriminately talk about files and directories alike.
+		 * Thanks to the JDK geniuses once again.
+		 * But I refuse to name the variables "path" instead of "file".
+		 * If there is a name of type String, the variable is "String name" and not "String string // this is a name".
+		 * So "Path file" and "Path directory" it is.
+		 * The same applies to method names. It's about ensuring a writeable FILE, an actual file, not a directory
+		 * and not some pilgrim path on which you are allowed to write a diary or something like that.
+		 */
+		
+		if(Files.notExists(file))
+		{
+			try
+			{
+				Files.createFile(file);
+			}
+			catch(final FileAlreadyExistsException e)
+			{
+				// alright then
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		if(!Files.isWritable(file))
+		{
+			throw new FilePathException(file, "Unwritable file");
+		}
+		
+		return file;
+	}
 
 	public static final char[] readCharsFromFileDefaultCharset(final File file) throws IOException
 	{
