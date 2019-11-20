@@ -159,7 +159,7 @@ public class Com
 		;
 		protocolStringConverter.assemble(vs, protocol);
 		
-		final char[] lengthString = XChars.readChars(XChars.asString(vs.length()));
+		final char[] lengthString = XChars.readChars(XChars.String(vs.length()));
 		vs.setChars(lengthCharCount - lengthString.length, lengthString);
 		
 		return vs;
