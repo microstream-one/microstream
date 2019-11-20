@@ -1052,7 +1052,7 @@ public class Persistence
 	{
 		// (19.04.2018 TM)EXCP: proper exception
 		final String fileContent = XIO.execute(() ->
-			XFiles.readStringFromFile(file.toPath())
+			XFiles.readString(file.toPath())
 		);
 		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
 		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());

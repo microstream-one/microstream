@@ -1089,7 +1089,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final char[] input;
 			try
 			{
-				input = XFiles.readStringFromFile(file, XChars.utf8()).toCharArray();
+				input = XFiles.readString(file, XChars.utf8()).toCharArray();
 			}
 			catch(final IOException e)
 			{

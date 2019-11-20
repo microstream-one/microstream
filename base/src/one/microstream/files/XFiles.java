@@ -9,7 +9,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import one.microstream.X;
@@ -113,6 +112,17 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		}
 		
 		return writeCount;
+	}
+	
+	public static final <T> T performOneShotOperation(
+		final Path                          file     ,
+		final IoOperationSR<FileChannel, T> operation
+	)
+		throws IOException
+	{
+		final FileChannel fileChannel = FileChannel.open(file);
+		
+		return performClosingOperation(fileChannel, operation);
 	}
 	
 	public static final <T> T performClosingOperation(
@@ -234,20 +244,14 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	// java.util.File // javaUtilFileMarker
 	///////////////////
 
-	public static final File buildFile(final String... items)
+	public static final File File(final String... items)
 	{
 		return new File(buildFilePath(items));
 	}
 
-	public static final File buildFile(final File parent, final String... items)
+	public static final File File(final File parent, final String... items)
 	{
 		return new File(parent, buildFilePath(items));
-	}
-		
-	public static boolean isEmpty(final File directory)
-	{
-		// because they couldn't have implemented an isEmpty or a getFileCount or something like that ...
-		return directory.listFiles().length == 0;
 	}
 	
 	public static boolean hasNoFiles(final File file)
@@ -343,24 +347,6 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		}
 	}
 	
-	public static final <E extends Exception> void writeStringToFile(
-		final File                     file           ,
-		final String                   string         ,
-		final Charset                  charset        ,
-		final Function<IOException, E> exceptionMapper
-	)
-		throws E
-	{
-		try
-		{
-			writeStringToFile(file, string, charset);
-		}
-		catch(final IOException e)
-		{
-			throw exceptionMapper.apply(e);
-		}
-	}
-
 	public static final FileChannel createWritingFileChannel(final File file) throws FileException, IOException
 	{
 		return createWritingFileChannel(file, false);
@@ -439,21 +425,21 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	// java.nio.file.Path //
 	///////////////////////
 	
-	public static String readStringFromFile(final Path file)
+	public static String readString(final Path file)
 		throws IOException
 	{
-		return readStringFromFile(file, XChars.standardCharset());
+		return readString(file, XChars.standardCharset());
 	}
 	
-	public static String readStringFromFile(final Path file, final Charset charSet)
+	public static String readString(final Path file, final Charset charSet)
 		throws IOException
 	{
-		final byte[] bytes = read_bytesFromFile(file);
+		final byte[] bytes = read_bytes(file);
 		
 		return XChars.String(bytes, charSet);
 	}
 	
-	public static byte[] read_bytesFromFile(final Path file)
+	public static byte[] read_bytes(final Path file)
 		throws IOException
 	{
 		final ByteBuffer content = readFile(file);
@@ -463,13 +449,84 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		return bytes;
 	}
 	
-	public static ByteBuffer readFile(final Path file)
+	public static ByteBuffer readFile(final Path file) throws IOException
+	{
+		return performOneShotOperation(file, XFiles::readFile);
+	}
+	
+
+	
+	public static final long writeAppend(final Path file, final String string)
 		throws IOException
 	{
-		return performClosingOperation(
-			FileChannel.open(file),
-			XFiles::readFile
+		return writeAppend(file, string, XChars.standardCharset());
+	}
+	
+	public static final long writeAppend(final Path file, final String string, final Charset charset)
+		throws IOException
+	{
+		final byte[] bytes = string.getBytes(charset);
+
+		return writeAppend(file, bytes);
+	}
+	
+	public static final long writeAppend(final Path file, final byte[] bytes)
+		throws IOException
+	{
+		final ByteBuffer dbb = ByteBuffer.allocateDirect(bytes.length);
+		dbb.put(bytes);
+		dbb.flip();
+		
+		final Long writeCount = performOneShotOperation(file, fc ->
+			writeAppend(fc, dbb)
 		);
+		
+		XMemory.deallocateDirectByteBuffer(dbb);
+		
+		return writeCount;
+	}
+	
+	public static long writeAppend(final Path file, final ByteBuffer buffer)
+		throws IOException
+	{
+		// (20.11.2019 TM)FIXME: priv#157: NonWritableChannelException
+		return performOneShotOperation(file, fc ->
+			writeAppend(fc, buffer)
+		);
+	}
+	
+	public static long writeAppend(final FileChannel fileChannel, final ByteBuffer buffer)
+		throws IOException
+	{
+		// appending logic
+		return write(fileChannel, buffer, fileChannel.size());
+	}
+	
+	public static long write(
+		final FileChannel fileChannel ,
+		final ByteBuffer  buffer      ,
+		final long        filePosition
+	)
+		throws IOException
+	{
+		fileChannel.position(filePosition);
+		
+		return write(fileChannel, buffer);
+	}
+	
+	public static long write(
+		final FileChannel fileChannel,
+		final ByteBuffer  buffer
+	)
+		throws IOException
+	{
+		long writeCount = 0;
+		while(buffer.hasRemaining())
+		{
+			writeCount += fileChannel.write(buffer);
+		}
+		
+		return writeCount;
 	}
 	
 	// (20.11.2019 TM)FIXME: priv#157

@@ -56,7 +56,7 @@ public abstract class AbstractProviderByFile
 	protected String read()
 	{
 		return XIO.execute(() ->
-			XFiles.readStringFromFile(this.file.toPath())
+			XFiles.readString(this.file.toPath())
 		);
 	}
 

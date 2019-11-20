@@ -86,7 +86,7 @@ public class CompositeConfig
 			final char[] input;
 			try
 			{
-				input = XFiles.readStringFromFile(file.toPath(), XChars.defaultJvmCharset()).toCharArray();
+				input = XFiles.readString(file.toPath(), XChars.defaultJvmCharset()).toCharArray();
 			}
 			catch(final IOException e)
 			{
