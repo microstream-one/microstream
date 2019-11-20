@@ -128,7 +128,7 @@ public class MainSearchBinaryStringInFiles
 	{
 		try
 		{
-			final byte[] fileContent = XFiles.read_bytesFromFile(f.toPath());
+			final byte[] fileContent = XFiles.read_bytes(f.toPath());
 			for(final byte[] s : strings)
 			{
 				int index = 0;

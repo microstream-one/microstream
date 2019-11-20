@@ -56,7 +56,7 @@ public class MainTestCsvFunctionality
 		System.out.println("||||||||||||||||||||");
 		System.out.println(xcsv);
 		System.out.println("||||||||||||||||||||");
-		final char[] input = XFiles.readStringFromFile(xcsv.toPath(), XChars.defaultJvmCharset()).toCharArray();
+		final char[] input = XFiles.readString(xcsv.toPath(), XChars.defaultJvmCharset()).toCharArray();
 
 		for(int i = 1; i --> 0;)
 		{

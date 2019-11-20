@@ -69,7 +69,7 @@ public class MainTestCsvPerformance
 
 	private static void doit() throws Throwable
 	{
-		final char[] input  = XFiles.readStringFromFile(
+		final char[] input  = XFiles.readString(
 			new File("D:/TestExport.csv").toPath(),
 			XChars.defaultJvmCharset()
 		).toCharArray();
