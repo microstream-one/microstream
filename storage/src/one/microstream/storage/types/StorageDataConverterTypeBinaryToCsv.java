@@ -25,6 +25,7 @@ import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.files.FileException;
 import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -603,7 +604,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private void reset() throws IOException
 		{
-			XFiles.closeSilent(this.fileChannel);
+			XIO.closeSilent(this.fileChannel);
 			this.typeId       =   -1;
 			this.typeDescription  = null;
 			this.valueWriters = null;

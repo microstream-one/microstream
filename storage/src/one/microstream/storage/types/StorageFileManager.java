@@ -19,7 +19,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
@@ -124,7 +124,7 @@ public interface StorageFileManager
 			}
 			catch(final IOException e)
 			{
-				XFiles.closeSilent(channel);
+				XIO.closeSilent(channel);
 				throw new RuntimeException(e); // (04.05.2013)EXCP: proper exception
 			}
 		}

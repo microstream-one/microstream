@@ -27,10 +27,10 @@ public class WrapperRuntimeException extends RuntimeException
 
 	public WrapperRuntimeException(final Exception actual)
 	{
-		super();
+		super(actual);
 		this.actual = actual;
 		// can't use fillInStackTrace() because of diletantic constructor-intrinsic call in Throwable
-		this.setStackTrace(this.actual.getStackTrace());
+//		this.setStackTrace(this.actual.getStackTrace());
 	}
 
 
@@ -50,28 +50,28 @@ public class WrapperRuntimeException extends RuntimeException
 	// override methods //
 	/////////////////////
 
-	@Override
-	public synchronized Throwable getCause()
-	{
-		return this.actual.getCause();
-	}
-
-	@Override
-	public StackTraceElement[] getStackTrace()
-	{
-		return this.actual.getStackTrace();
-	}
-
-	@Override
-	public String getMessage()
-	{
-		return this.actual.getMessage();
-	}
-
-	@Override
-	public synchronized Throwable fillInStackTrace()
-	{
-		return this;
-	}
+//	@Override
+//	public synchronized Throwable getCause()
+//	{
+//		return this.actual.getCause();
+//	}
+//
+//	@Override
+//	public StackTraceElement[] getStackTrace()
+//	{
+//		return this.actual.getStackTrace();
+//	}
+//
+//	@Override
+//	public String getMessage()
+//	{
+//		return this.actual.getMessage();
+//	}
+//
+//	@Override
+//	public synchronized Throwable fillInStackTrace()
+//	{
+//		return this;
+//	}
 
 }

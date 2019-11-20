@@ -8,7 +8,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 
 
 public interface StorageLockedFile extends StorageFile //, AutoCloseable
@@ -82,7 +82,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		}
 		catch(final Exception e)
 		{
-			XFiles.closeSilent(channel);
+			XIO.closeSilent(channel);
 			// (28.06.2014)EXCP: proper exception
 			throw new RuntimeException("Cannot obtain lock for file " + file, e);
 		}

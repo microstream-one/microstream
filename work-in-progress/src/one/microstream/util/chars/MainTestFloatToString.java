@@ -28,7 +28,7 @@ public class MainTestFloatToString
 	{
 		final String s1 = Float.toString(d);
 //		System.out.println("testing "+s1);
-		final String s2 = XChars.toString(d);
+		final String s2 = XChars.asString(d);
 		if(s1.equals(s2))
 		{
 			System.out.println(s2);
