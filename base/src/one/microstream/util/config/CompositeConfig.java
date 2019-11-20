@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import one.microstream.chars.CsvParserCharArray;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
@@ -85,7 +86,7 @@ public class CompositeConfig
 			final char[] input;
 			try
 			{
-				input = XFiles.readCharsFromFileDefaultCharset(file);
+				input = XFiles.readStringFromFile(file.toPath(), XChars.defaultJvmCharset()).toCharArray();
 			}
 			catch(final IOException e)
 			{

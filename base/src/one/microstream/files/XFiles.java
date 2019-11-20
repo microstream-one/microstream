@@ -9,7 +9,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -367,98 +366,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 
 		return file;
 	}
-	
-	
-	
-	public static final char[] readCharsFromFileDefaultCharset(final File file) throws IOException
-	{
-		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
-		return XChars.readChars(readStringFromFileDefaultCharset(file));
-	}
-
-	public static final char[] readCharsFromFileDefaultCharset(
-		final File                          file            ,
-		final Consumer<? super IOException> exceptionHandler
-	)
-	{
-		return readCharsFromFile(file, XChars.defaultJvmCharset(), exceptionHandler);
-	}
-
-	public static final char[] readCharsFromFile(
-		final File                          file            ,
-		final Charset                       charset         ,
-		final Consumer<? super IOException> exceptionHandler
-	)
-	{
-		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
-		final String content;
-
-		try
-		{
-			content = readStringFromFile(file, charset);
-		}
-		catch(final IOException e)
-		{
-			exceptionHandler.accept(e);
-
-			// if the handler did not rethrow the exception, the calling context must be okay with receiving null.
-			return null;
-		}
-
-		return XChars.readChars(content);
-	}
 		
-	public static final char[] readCharsFromFileUtf8(final File file)
-	{
-		return readCharsFromFileUtf8(file, RuntimeException::new);
-	}
-	
-	public static final char[] readCharsFromFileUtf8(
-		final File                          file            ,
-		final Consumer<? super IOException> exceptionHandler
-	)
-	{
-		return readCharsFromFile(file, XChars.utf8(), exceptionHandler);
-	}
-
-	public static final String readStringFromFileDefaultCharset(final File file) throws IOException
-	{
-		return readStringFromFile(file, XChars.defaultJvmCharset());
-	}
-
-	public static final String readStringFromFile(final File file, final Charset charset) throws IOException
-	{
-		try(final FileInputStream fis = new FileInputStream(file))
-		{
-			return XChars.readStringFromInputStream(fis, charset);
-		}
-	}
-	
-	public static final <E extends Exception> String readStringFromFile(
-		final File                     file           ,
-		final Charset                  charset        ,
-		final Function<IOException, E> exceptionMapper
-	)
-		throws E
-	{
-		try
-		{
-			return readStringFromFile(file, charset);
-		}
-		catch(final IOException e)
-		{
-			throw exceptionMapper.apply(e);
-		}
-	}
-
-	public static final byte[] readBytesFromFile(final File file) throws IOException
-	{
-		try(final FileInputStream fis = new FileInputStream(file))
-		{
-			return XChars.readAllBytesFromInputStream(fis).toByteArray();
-		}
-	}
-	
 	public static final void writeStringToFile(final File file, final String string) throws IOException
 	{
 		writeStringToFile(file, string, XChars.standardCharset());

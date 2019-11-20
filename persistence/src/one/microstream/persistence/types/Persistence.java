@@ -11,7 +11,6 @@ import java.lang.reflect.TypeVariable;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,6 +35,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
 import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
@@ -561,7 +561,7 @@ public class Persistence
 	 */
 	public static final Charset standardCharset()
 	{
-		return StandardCharsets.UTF_8;
+		return XChars.utf8();
 	}
 	
 	public static String defaultFilenameTypeDictionary()
@@ -1051,10 +1051,8 @@ public class Persistence
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final File file)
 	{
 		// (19.04.2018 TM)EXCP: proper exception
-		final String fileContent = XFiles.readStringFromFile(
-			file,
-			Persistence.standardCharset(),
-			RuntimeException::new
+		final String fileContent = XIO.execute(() ->
+			XFiles.readStringFromFile(file.toPath())
 		);
 		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
 		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());

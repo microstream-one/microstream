@@ -32,7 +32,7 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 		}
 		try
 		{
-			return XFiles.readStringFromFile(file, Persistence.standardCharset());
+			return XFiles.readStringFromFile(file.toPath(), Persistence.standardCharset());
 		}
 		catch(final IOException e)
 		{

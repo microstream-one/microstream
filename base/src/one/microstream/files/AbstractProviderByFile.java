@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import java.io.File;
 
 import one.microstream.chars.XChars;
+import one.microstream.io.XIO;
 
 public abstract class AbstractProviderByFile
 {
@@ -49,7 +50,9 @@ public abstract class AbstractProviderByFile
 
 	protected String read()
 	{
-		return XFiles.readStringFromFile(this.file, XChars.standardCharset(), RuntimeException::new);
+		return XIO.execute(() ->
+			XFiles.readStringFromFile(this.file.toPath())
+		);
 	}
 
 }
