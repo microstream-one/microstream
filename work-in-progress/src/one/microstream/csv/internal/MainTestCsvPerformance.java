@@ -3,6 +3,7 @@ package one.microstream.csv.internal;
 import java.io.File;
 
 import one.microstream.chars.StringTable;
+import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
 import one.microstream.files.XFiles;
 import one.microstream.util.csv.CsvContent;
@@ -68,9 +69,10 @@ public class MainTestCsvPerformance
 
 	private static void doit() throws Throwable
 	{
-		final char[]            input  = XFiles.readCharsFromFileDefaultCharset(
-			new File("D:/TestExport.csv")
-		);
+		final char[] input  = XFiles.readStringFromFile(
+			new File("D:/TestExport.csv").toPath(),
+			XChars.defaultJvmCharset()
+		).toCharArray();
 
 		final CsvContentBuilderCharArray builder = CsvContentBuilderCharArray.New();
 		final CsvContent                 parsed  = builder.build("data", _charArrayRange.New(input));

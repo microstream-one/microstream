@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import one.microstream.chars.StringTable;
+import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
 import one.microstream.files.XFiles;
 import one.microstream.typing.KeyValue;
@@ -55,7 +56,7 @@ public class MainTestCsvFunctionality
 		System.out.println("||||||||||||||||||||");
 		System.out.println(xcsv);
 		System.out.println("||||||||||||||||||||");
-		final char[] input = XFiles.readCharsFromFileDefaultCharset(xcsv);
+		final char[] input = XFiles.readStringFromFile(xcsv.toPath(), XChars.defaultJvmCharset()).toCharArray();
 
 		for(int i = 1; i --> 0;)
 		{

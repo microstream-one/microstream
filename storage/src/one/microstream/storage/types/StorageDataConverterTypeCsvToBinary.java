@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 import java.util.Iterator;
 
 import one.microstream.X;
@@ -18,6 +19,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
+import one.microstream.exceptions.IORuntimeException;
 import one.microstream.files.XFiles;
 import one.microstream.functional._charRangeProcedure;
 import one.microstream.io.XIO;
@@ -1076,24 +1078,33 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		final void parseCurrentFile()
 		{
-			final char[] input = XFiles.readCharsFromFileUtf8(
-				new File(this.sourceFile.identifier()),
+			// (20.11.2019 TM)NOTE: old before priv#157
+//			final char[] input = XFiles.readCharsFromFileUtf8(
+//				new File(this.sourceFile.identifier()),
+//				e -> throw new IORuntimeException(e);
+//			);
+			
+			// (20.11.2019 TM)NOTE: new with priv#157
+			final Path file = new File(this.sourceFile.identifier()).toPath();
+			final char[] input;
+			try
+			{
+				input = XFiles.readStringFromFile(file, XChars.utf8()).toCharArray();
+			}
+			catch(final IOException e)
+			{
 				/* (18.09.2018 TM)TODO: unchecked throwing really necessary?
 				 * Copied from StorageRequestTaskImportData#internalProcessBy:
 				 * if it is a normal problem, there should be a proper wrapping exception for it
 				 * instead of hacking the JVM.
 				 */
-				e -> handleIoException(e)
-			);
+				throw new IORuntimeException(e);
+			}
+			
 			final CsvParserCharArray parser = CsvParserCharArray.New();
 			parser.parseCsvData(this.configuration.csvConfiguration(), _charArrayRange.New(input), this, this);
 		}
 		
-		static final void handleIoException(final IOException e)
-		{
-			throw new RuntimeException(e);
-		}
-
 		final void clearCurrentFileState()
 		{
 			// flush buffer to be sure. Unnecessary case gets checked inside
