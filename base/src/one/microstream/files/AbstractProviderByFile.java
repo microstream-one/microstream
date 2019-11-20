@@ -15,7 +15,12 @@ public abstract class AbstractProviderByFile
 	
 	public static final void write(final File file, final String value)
 	{
-		XFiles.writeStringToFile(file, value, XChars.standardCharset(), RuntimeException::new);
+		XIO.execute(() ->
+		{
+			XFiles.writeStringToFile(file, value, XChars.standardCharset());
+			
+			return null;
+		});
 	}
 
 

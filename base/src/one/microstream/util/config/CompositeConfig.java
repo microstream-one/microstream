@@ -302,7 +302,7 @@ public class CompositeConfig
 
 		try
 		{
-			XFiles.writeStringToFileDefaultCharset(file, vs.toString());
+			XFiles.writeStringToFile(file, vs.toString(), XChars.defaultJvmCharset());
 		}
 		catch(final IOException e)
 		{

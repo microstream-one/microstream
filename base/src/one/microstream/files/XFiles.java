@@ -17,7 +17,7 @@ import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.functional.XFunc;
-import one.microstream.io.IoFunction;
+import one.microstream.io.IoOperationSR;
 import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 
@@ -117,59 +117,20 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	
 	public static final <T> T performClosingOperation(
 		final FileChannel                fileChannel,
-		final IoFunction<FileChannel, T> operation
+		final IoOperationSR<FileChannel, T> operation
 	)
 		throws IOException
 	{
 		try
 		{
-			return operation.performOperation(fileChannel);
+			return operation.executeSR(fileChannel);
 		}
 		finally
 		{
 			fileChannel.close();
 		}
 	}
-	
-	public static String readStringFromFileDefaultCharset(final Path file)
-		throws IOException
-	{
-		return readStringFromFile(file, XChars.defaultJvmCharset());
-	}
-	
-	public static String readStringFromFile(final Path file)
-		throws IOException
-	{
-		return readStringFromFile(file, XChars.standardCharset());
-	}
-	
-	public static String readStringFromFile(final Path file, final Charset charSet)
-		throws IOException
-	{
-		final byte[] bytes = read_bytesFromFile(file);
 		
-		return XChars.String(bytes, charSet);
-	}
-	
-	public static byte[] read_bytesFromFile(final Path file)
-		throws IOException
-	{
-		final ByteBuffer content = readFile(file);
-		final byte[]     bytes   = XMemory.toArray(content);
-		XMemory.deallocateDirectByteBuffer(content);
-		
-		return bytes;
-	}
-	
-	public static ByteBuffer readFile(final Path file)
-		throws IOException
-	{
-		return performClosingOperation(
-			FileChannel.open(file),
-			XFiles::readFile
-		);
-	}
-	
 	public static ByteBuffer readFile(final FileChannel fileChannel)
 		throws IOException
 	{
@@ -270,7 +231,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// java.util.File //
+	// java.util.File // javaUtilFileMarker
 	///////////////////
 
 	public static final File buildFile(final String... items)
@@ -332,6 +293,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		{
 			ensureDirectory(parent);
 		}
+		
 		return ensureFile(file);
 	}
 
@@ -371,16 +333,6 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	{
 		writeStringToFile(file, string, XChars.standardCharset());
 	}
-	
-	public static final void writeStringToFileUtf8(final File file, final String string) throws IOException
-	{
-		writeStringToFile(file, string, XChars.utf8());
-	}
-
-	public static final void writeStringToFileDefaultCharset(final File file, final String string) throws IOException
-	{
-		writeStringToFile(file, string, XChars.defaultJvmCharset());
-	}
 
 	public static final void writeStringToFile(final File file, final String string, final Charset charset)
 		throws IOException
@@ -408,8 +360,6 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 			throw exceptionMapper.apply(e);
 		}
 	}
-
-
 
 	public static final FileChannel createWritingFileChannel(final File file) throws FileException, IOException
 	{
@@ -475,6 +425,8 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	{
 		mergeBinary(sourceFiles, targetFile, XFunc.all());
 	}
+	
+	// javaUtilFileMarker
 		
 	public static void move(final File sourceFile, final File targetFile) throws IORuntimeException, RuntimeException
 	{
@@ -486,6 +438,39 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	///////////////////////////////////////////////////////////////////////////
 	// java.nio.file.Path //
 	///////////////////////
+	
+	public static String readStringFromFile(final Path file)
+		throws IOException
+	{
+		return readStringFromFile(file, XChars.standardCharset());
+	}
+	
+	public static String readStringFromFile(final Path file, final Charset charSet)
+		throws IOException
+	{
+		final byte[] bytes = read_bytesFromFile(file);
+		
+		return XChars.String(bytes, charSet);
+	}
+	
+	public static byte[] read_bytesFromFile(final Path file)
+		throws IOException
+	{
+		final ByteBuffer content = readFile(file);
+		final byte[]     bytes   = XMemory.toArray(content);
+		XMemory.deallocateDirectByteBuffer(content);
+		
+		return bytes;
+	}
+	
+	public static ByteBuffer readFile(final Path file)
+		throws IOException
+	{
+		return performClosingOperation(
+			FileChannel.open(file),
+			XFiles::readFile
+		);
+	}
 	
 	// (20.11.2019 TM)FIXME: priv#157
 	
