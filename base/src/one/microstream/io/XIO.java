@@ -12,11 +12,47 @@ public final class XIO
 	// methods //
 	////////////
 	
-	public static <T> T execute(final IoOperation<T> operation) throws IORuntimeException
+	public static void execute(final IoOperation operation) throws IORuntimeException
 	{
 		try
 		{
-			return operation.performOperation();
+			operation.execute();
+		}
+		catch(final IOException e)
+		{
+			throw UtilStackTrace.cutStacktraceByOne(new IORuntimeException(e));
+		}
+	}
+	
+	public static <T> T execute(final IoOperationR<T> operation) throws IORuntimeException
+	{
+		try
+		{
+			return operation.executeR();
+		}
+		catch(final IOException e)
+		{
+			throw UtilStackTrace.cutStacktraceByOne(new IORuntimeException(e));
+		}
+	}
+	
+	public static <S> void execute(final IoOperationS<S> operation, final S subject) throws IORuntimeException
+	{
+		try
+		{
+			operation.executeS(subject);
+		}
+		catch(final IOException e)
+		{
+			throw UtilStackTrace.cutStacktraceByOne(new IORuntimeException(e));
+		}
+	}
+	
+	public static <S, R> R execute(final IoOperationSR<S, R> operation, final S subject) throws IORuntimeException
+	{
+		try
+		{
+			return operation.executeSR(subject);
 		}
 		catch(final IOException e)
 		{

@@ -10,6 +10,7 @@ import javax.swing.text.Document;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.files.XFiles;
 
 public class MainTestRTF
@@ -62,7 +63,7 @@ public class MainTestRTF
 		// cut spaces and remove everything beyond one blank line
 		s = s.replaceAll("\\n\\s+\\n", "\n\n").replaceAll("(\\n){3,}+", "\n\n");
 				
-		XFiles.writeStringToFileDefaultCharset(target, s);
+		XFiles.writeStringToFile(target, s, XChars.defaultJvmCharset());
 	}
 
 }

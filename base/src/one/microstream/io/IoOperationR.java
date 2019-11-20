@@ -4,7 +4,7 @@ import java.io.IOException;
 
 
 @FunctionalInterface
-public interface IoOperation
+public interface IoOperationR<R>
 {
-	public void execute() throws IOException;
+	public R executeR() throws IOException;
 }
