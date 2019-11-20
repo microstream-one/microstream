@@ -7,7 +7,9 @@ import static one.microstream.X.notNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -191,6 +193,39 @@ public final class XChars
 	public static final boolean isNonWhitespace(final char c)
 	{
 		return c >= LOWEST_NON_WHITESPACE;
+	}
+	
+	/**
+	 * It's UTF-8!
+	 * 
+	 * @return {@link StandardCharsets#UTF_8}
+	 */
+	public static final Charset utf8()
+	{
+		return StandardCharsets.UTF_8;
+	}
+
+	/**
+	 * Returns {@link StandardCharsets#UTF_8}, because any other one out there is nonsense as a standard.
+	 * 
+	 * @return {@code java.nio.charset.Charset.forName("UTF-8")}.
+	 */
+	public static final Charset standardCharset()
+	{
+		return utf8();
+	}
+
+	/**
+	 * Alias for {@link Charset#defaultCharset()}, which returns sometimes the one thing and sometimes another.
+	 * It is strongly advised to use a reliable {@link Charset} querying method, like {@link utf8}, which also
+	 * is the only reasonable choice for the {@link standardCharset}.
+	 * 
+	 * @return {@link Charset#defaultCharset()}
+	 */
+	public static final Charset defaultJvmCharset()
+	{
+		// "Returns the default charset of this Java virtual machine." Hence the method name.
+		return Charset.defaultCharset();
 	}
 
 	public static final void validateIndex(final char[] chars, final int index)
@@ -741,11 +776,18 @@ public final class XChars
 		return s == null || s.isEmpty();
 	}
 
-	public static final String string(final char c)
+	/**
+	 * This method does intentionally not use the pseudo-constructor naming pattern since it does not create
+	 * new instances of {@link String}. Instead, it returns a constant instance of an intrinsic look-up table.
+	 * 
+	 * @param c the character value to be represented as a {@link String}.
+	 * @return a {@link String} containing the passed character value.
+	 */
+	public static final String asString(final char c)
 	{
-		/* yields an average 25% better performance compared to plain String.valueOf()
+		/*
+		 * Yields an average 25% better performance compared to plain String.valueOf()
 		 * If this already exists somewhere in JDK, it couldn't be found before implementing this method.
-		 * If not: shame on them ^^.
 		 */
 		switch(c)
 		{
@@ -853,7 +895,7 @@ public final class XChars
 	}
 
 	// aaand another method missing in the JDK.
-	public static final String String(final char... chars)
+	public static final String asString(final char... chars)
 	{
 		return String.valueOf(chars);
 	}
@@ -1773,7 +1815,7 @@ public final class XChars
 		return offset + LITERAL_LENGTH_FALSE;
 	}
 
-	public static final String toString(final byte value)
+	public static final String String(final byte value)
 	{
 		// performance-optimized version with minimal instantiating and pointer indirection
 		final char[] chars;
@@ -1784,12 +1826,12 @@ public final class XChars
 		);
 	}
 
-	public static final String toString(final boolean value)
+	public static final String String(final boolean value)
 	{
 		return Boolean.toString(value); // just for completeness
 	}
 
-	public static final String toString(final short value)
+	public static final String String(final short value)
 	{
 		// performance-optimized version with minimal instantiating and pointer indirection
 		final char[] chars;
@@ -1800,12 +1842,12 @@ public final class XChars
 		);
 	}
 
-	public static final String toString(final char value)
+	public static final String String(final char value)
 	{
 		return String.valueOf(value); // just for completeness
 	}
 
-	public static final String toString(final int value)
+	public static final String String(final int value)
 	{
 		// performance-optimized version with minimal instantiating and pointer indirection
 		final char[] chars;
@@ -1816,7 +1858,7 @@ public final class XChars
 		);
 	}
 
-	public static final String toString(final float value)
+	public static final String String(final float value)
 	{
 //		final char[] chars;
 //		return new String(
@@ -1824,10 +1866,10 @@ public final class XChars
 //			0,
 //			CharConversion_float.put(value, chars, 0)
 //		);
-		return toString((double)value);
+		return String((double)value);
 	}
 
-	public static final String toString(final long value)
+	public static final String String(final long value)
 	{
 		final char[] chars;
 		return new String(
@@ -1837,7 +1879,7 @@ public final class XChars
 		);
 	}
 
-	public static final String toString(final double value)
+	public static final String String(final double value)
 	{
 		final char[] chars;
 		return new String(
@@ -1846,25 +1888,97 @@ public final class XChars
 			CharConversion_double.put(value, chars, 0)
 		);
 	}
+	
+	public static final String String(final char[] chars)
+	{
+		return new String(chars);
+	}
+	
+	public static final String String(
+		final char[] chars  ,
+		final int    offset ,
+		final int    length
+	)
+	{
+		return String(chars, offset, length);
+	}
+	
+	public static final String String(final byte[] chars)
+	{
+		return String(chars, standardCharset());
+	}
+	
+	public static final String String(final byte[] chars, final Charset charset)
+	{
+		return String(chars, 0, chars.length, charset);
+	}
+	
+	public static final String String(
+		final byte[] chars  ,
+		final int    offset ,
+		final int    length
+	)
+	{
+		return String(chars, offset, length, standardCharset());
+	}
+	
+	public static final String String(
+		final byte[]  chars  ,
+		final int     offset ,
+		final int     length ,
+		final Charset charset
+	)
+	{
+		return new String(chars, offset, length, charset);
+	}
+	
+	public static final String String(final ByteBuffer chars)
+	{
+		return String(chars, standardCharset());
+	}
+	
+	public static final String String(final ByteBuffer chars, final Charset charset)
+	{
+		return new String(XMemory.toArray(chars), charset);
+	}
+	
+	public static final String String(
+		final ByteBuffer chars  ,
+		final int        offset ,
+		final int        length
+	)
+	{
+		return String(chars, offset, length, standardCharset());
+	}
+	
+	public static final String String(
+		final ByteBuffer chars  ,
+		final int        offset ,
+		final int        length ,
+		final Charset    charset
+	)
+	{
+		return new String(XMemory.toArray(chars, offset, length), charset);
+	}
 
 
-	public static final StringBuilder toStringBuilder(final VarString vs)
+	public static final StringBuilder StringBuilder(final VarString vs)
 	{
 		return new StringBuilder(vs.size).append(vs.data, 0, vs.size);
 	}
 
-	public static final StringBuilder toStringBuilder(final VarString vs, final int offset, final int length)
+	public static final StringBuilder StringBuilder(final VarString vs, final int offset, final int length)
 	{
 		vs.validateRange(offset, length);
 		return new StringBuilder(length).append(vs.data, offset, length);
 	}
 
-	public static final StringBuffer toStringBuffer(final VarString vs)
+	public static final StringBuffer StringBuffer(final VarString vs)
 	{
 		return new StringBuffer(vs.size).append(vs.data, 0, vs.size);
 	}
 
-	public static final StringBuffer toStringBuffer(final VarString vs, final int offset, final int length)
+	public static final StringBuffer StringBuffer(final VarString vs, final int offset, final int length)
 	{
 		vs.validateRange(offset, length);
 		return new StringBuffer(length).append(vs.data, offset, length);

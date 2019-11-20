@@ -2,7 +2,7 @@ package one.microstream.network.test.sessionless;
 
 import java.nio.channels.SocketChannel;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.network.simplesession.LogicSimpleNetwork;
 import one.microstream.network.types.NetworkConnectionProcessor;
 import one.microstream.network.types.NetworkFactoryServerSessionless;
@@ -34,7 +34,7 @@ public class MainTestSessionlessServer
 		}
 		finally
 		{
-			XFiles.closeSilent(connection); // close channel after every message in simple example
+			XIO.closeSilent(connection); // close channel after every message in simple example
 			System.gc();                         // suggest gc to keep example's memory usage constant
 		}
 	}

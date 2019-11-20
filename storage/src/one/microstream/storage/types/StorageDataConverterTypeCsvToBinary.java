@@ -20,6 +20,7 @@ import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.files.XFiles;
 import one.microstream.functional._charRangeProcedure;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -1099,7 +1100,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.flushBuffer();
 
 			StorageLockedFile.closeSilent(this.targetFile);
-			XFiles.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
+			XIO.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
 
 			this.sourceFile            = null;
 			this.targetFile            = null;
@@ -1547,7 +1548,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 			catch(final IOException e)
 			{
-				XFiles.closeSilent(this.targetFileChannel);
+				XIO.closeSilent(this.targetFileChannel);
 				throw new RuntimeException(e); // (15.10.2014 TM)EXCP: proper exception
 			}
 			finally

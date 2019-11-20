@@ -627,7 +627,7 @@ final class Generator
 		final City[] allCity = this.allCity;
 		for(int i = 0; i < allCity.length; i++)
 		{
-			allCity[i] = Test.City(XChars.toString(i));
+			allCity[i] = Test.City(XChars.asString(i));
 		}
 	}
 
@@ -638,7 +638,7 @@ final class Generator
 		for(int i = 0; i < allStreet.length; i++)
 		{
 			final City city = random(allCity);
-			final Street street = allStreet[i] = Test.Street(city, XChars.toString(i));
+			final Street street = allStreet[i] = Test.Street(city, XChars.asString(i));
 			city.registerStreet(street);
 		}
 	}
@@ -651,7 +651,7 @@ final class Generator
 		for(int i = 0; i < allPostalAddress.length; i++)
 		{
 			final Street street = random(allStreet);
-			allPostalAddress[i] = Test.PostalAddress(street, XChars.toString(i));
+			allPostalAddress[i] = Test.PostalAddress(street, XChars.asString(i));
 		}
 	}
 
@@ -675,7 +675,7 @@ final class Generator
 
 		for(int i = 0; i < allProduct.length; i++)
 		{
-			final String number = XChars.toString(i);
+			final String number = XChars.asString(i);
 			final Vendor vendor = this.supplyVendor();
 			final Product product = allProduct[i] = Test.Product("product "+number, vendor, generatePrice());
 			vendor.registerProduct(product);
@@ -688,7 +688,7 @@ final class Generator
 
 		for(int i = 0; i < allPerson.length; i++)
 		{
-			final String number = XChars.toString(i);
+			final String number = XChars.asString(i);
 			final Person person = allPerson[i] = Test.Person('p'+number, "firstname"+number,"lastname"+number, null);
 			person.setAddress(this.createAddress(person, number));
 			person.address().postalAddress().street().registerContact(person);
@@ -701,7 +701,7 @@ final class Generator
 
 		for(int i = 0; i < allCorporation.length; i++)
 		{
-			final String number = XChars.toString(i);
+			final String number = XChars.asString(i);
 			final Corporation corporation = allCorporation[i] = Test.Corporation(
 				'c'+number,
 				"corp-"+number,
@@ -747,7 +747,7 @@ final class Generator
 
 		for(int i = 0; i < allOrder.length; i++)
 		{
-			final String number = XChars.toString(i);
+			final String number = XChars.asString(i);
 			final Customer customer = random(allCustomer);
 
 			final OrderItem initialOrderItem = this.supplyOrderItem();

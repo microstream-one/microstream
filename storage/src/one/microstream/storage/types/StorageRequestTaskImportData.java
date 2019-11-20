@@ -9,7 +9,7 @@ import one.microstream.X;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.concurrency.XThreads;
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.storage.types.StorageDataFileItemIterator.ItemProcessor;
 
@@ -419,7 +419,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				for(SourceFileSlice file = s; (file = file.next) != null;)
 				{
 //					DEBUGStorage.println("Closing silently: " + file);
-					XFiles.closeSilent(file.fileChannel);
+					XIO.closeSilent(file.fileChannel);
 				}
 			}
 		}

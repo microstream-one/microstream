@@ -1,6 +1,5 @@
 package one.microstream.files;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,18 +7,20 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.functional.XFunc;
+import one.microstream.io.IoFunction;
+import one.microstream.io.XIO;
+import one.microstream.memory.XMemory;
 
 /**
  * @author Thomas Muenz
@@ -27,470 +28,9 @@ import one.microstream.functional.XFunc;
  */
 public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 {
-	
-	public static final Charset utf8()
-	{
-		return StandardCharsets.UTF_8;
-	}
-	
-	/**
-	 * Returns {@link StandardCharsets#UTF_8}, because any other one out there is nonsense as a standard.
-	 * 
-	 * @return {@code java.nio.charset.Charset.forName("UTF-8")}.
-	 */
-	public static final Charset standardCharset()
-	{
-		return utf8();
-	}
-	
-	/**
-	 * Alias for {@link Charset#defaultCharset()}, which returns sometimes the one thing and sometimes another.
-	 * It is strongly advised to use a reliable {@link Charset} querying method, like {@link #utf8()}, which also
-	 * is the only reasonable choice for the {@link #standardCharset()}.
-	 * 
-	 * @return {@link Charset#defaultCharset()}
-	 */
-	public static final Charset defaultCharset()
-	{
-		return Charset.defaultCharset();
-	}
-	
-	
-	public static final String ensureNormalizedPathSeperators(final String path)
-	{
-		if(path.indexOf('\\') < 0)
-		{
-			return path;
-		}
-		
-		return path.replace('\\', '/');
-	}
-	
-	public static final String ensureTrailingSlash(final String path)
-	{
-		if(path.charAt(path.length() - 1) == '/')
-		{
-			return path;
-		}
-		
-		return path + '/';
-	}
-	
-	public static final File ensureDirectory(final File directory) throws DirectoryException
-	{
-		try
-		{
-			if(directory.exists())
-			{
-				return directory;
-			}
-			
-			synchronized(directory)
-			{
-				if(!directory.mkdirs())
-				{
-					// check again in case it has been created in the meantime (race condition)
-					if(!directory.exists())
-					{
-						throw new DirectoryException(directory, "Directory could not have been created.");
-					}
-				}
-			}
-		}
-		catch(final SecurityException e)
-		{
-			throw new DirectoryException(directory, e);
-		}
-
-		return directory;
-	}
-
-	public static final File ensureDirectoryAndFile(final File file) throws FileException
-	{
-		final File parent;
-		if((parent = file.getParentFile()) != null)
-		{
-			ensureDirectory(parent);
-		}
-		return ensureFile(file);
-	}
-
-	public static final File ensureFile(final File file) throws FileException
-	{
-		try
-		{
-			file.createNewFile();
-		}
-		catch(final IOException e)
-		{
-			throw new FileException(file, e);
-		}
-		return file;
-	}
-
-	public static final File ensureWriteableFile(final File file) throws FileException
-	{
-		try
-		{
-			file.createNewFile();
-		}
-		catch(final IOException e)
-		{
-			throw new FileException(file, e);
-		}
-
-		if(!file.canWrite())
-		{
-			throw new FileException(file, "Unwritable file");
-		}
-
-		return file;
-	}
-	
-	public static final Path ensureWriteableFile(final Path file) throws FilePathException
-	{
-		/* (19.11.2019 TM)NOTE:
-		 * "Path" must be the dumbest idea on earth for a name to represent a file or a directory.
-		 * "Path" is way too generic. A physical way is also a path. A reference track is a path. The rules of
-		 * a cult can be a "path". Etc etc.
-		 * It is traceable that they needed another short and unique type name after "File" was already
-		 * taken by their clumsy first attempt, but still: Who talks (primarily!) about "paths" when referring to
-		 * files and directories? No one. Of course, every file has a uniquely identifying path in the file system,
-		 * but the concept a file is more than just being a path. It has content, attributes, a "primary" name,
-		 * a suffix, etc.
-		 * A "Path" does not indicate all this. All the concept of a "Path" stands for is:
-		 * "follow me and you will get to your destination".
-		 * When an API forces people to talk about "paths" when they actually mean files, it's nothing but a
-		 * complication.
-		 * At least they finally understood to design with interfaces instead of classes (halleluja!), but they did
-		 * it on a very basic, beginner-like level. The proper solution would have been:
-		 * interface FileItem (or "FSItem" if you must)
-		 * interface File extends FileItem
-		 * interface Directory extends FileItem
-		 * 
-		 * With Directory having methods like
-		 * iterateFiles
-		 * iterateDirectories
-		 * iterateItems
-		 * etc.
-		 * Proper typing. It would have been, could be wonderful.
-		 * But noooo. A singular, diffusely general "Path" is the best they could have come up with.
-		 * And clumsiest-possible API like Files.newDirectoryStream(mustHappenToBeADirectoryOrElseYouAreInTrouble).
-		 * 
-		 * So now we are stuck with "Path" to indiscriminately talk about files and directories alike.
-		 * Thanks to the JDK geniuses once again.
-		 * But I refuse to name the variables "path" instead of "file".
-		 * If there is a name of type String, the variable is "String name" and not "String string // this is a name".
-		 * So "Path file" and "Path directory" it is.
-		 * The same applies to method names. It's about ensuring a writeable FILE, an actual file, not a directory
-		 * and not some pilgrim path on which you are allowed to write a diary or something like that.
-		 */
-		
-		if(Files.notExists(file))
-		{
-			try
-			{
-				Files.createFile(file);
-			}
-			catch(final FileAlreadyExistsException e)
-			{
-				// alright then
-			}
-			catch(final IOException e)
-			{
-				throw new IORuntimeException(e);
-			}
-		}
-		
-		if(!Files.isWritable(file))
-		{
-			throw new FilePathException(file, "Unwritable file");
-		}
-		
-		return file;
-	}
-
-	public static final char[] readCharsFromFileDefaultCharset(final File file) throws IOException
-	{
-		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
-		return XChars.readChars(readStringFromFileDefaultCharset(file));
-	}
-
-	public static final char[] readCharsFromFileDefaultCharset(
-		final File                          file            ,
-		final Consumer<? super IOException> exceptionHandler
-	)
-	{
-		return readCharsFromFile(file, defaultCharset(), exceptionHandler);
-	}
-
-	public static final char[] readCharsFromFile(
-		final File                          file            ,
-		final Charset                       charset         ,
-		final Consumer<? super IOException> exceptionHandler
-	)
-	{
-		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
-		final String content;
-
-		try
-		{
-			content = readStringFromFile(file, charset);
-		}
-		catch(final IOException e)
-		{
-			exceptionHandler.accept(e);
-
-			// if the handler did not rethrow the exception, the calling context must be okay with receiving null.
-			return null;
-		}
-
-		return XChars.readChars(content);
-	}
-		
-	public static final char[] readCharsFromFileUtf8(final File file)
-	{
-		return readCharsFromFileUtf8(file, RuntimeException::new);
-	}
-	
-	public static final char[] readCharsFromFileUtf8(
-		final File                          file            ,
-		final Consumer<? super IOException> exceptionHandler
-	)
-	{
-		return readCharsFromFile(file, utf8(), exceptionHandler);
-	}
-
-	public static final String readStringFromFileDefaultCharset(final File file) throws IOException
-	{
-		return readStringFromFile(file, defaultCharset());
-	}
-
-	public static final char[] readCharsFromFile(final File file, final Charset charset) throws IOException
-	{
-		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
-		return XChars.readChars(readStringFromFile(file, charset));
-	}
-
-	public static final String readStringFromFile(final File file, final Charset charset) throws IOException
-	{
-		try(final FileInputStream fis = new FileInputStream(file))
-		{
-			return XChars.readStringFromInputStream(fis, charset);
-		}
-	}
-	
-	public static final <E extends Exception> String readStringFromFile(
-		final File                     file           ,
-		final Charset                  charset        ,
-		final Function<IOException, E> exceptionMapper
-	)
-		throws E
-	{
-		try
-		{
-			return readStringFromFile(file, charset);
-		}
-		catch(final IOException e)
-		{
-			throw exceptionMapper.apply(e);
-		}
-	}
-
-	public static final byte[] readBytesFromFile(final File file) throws IOException
-	{
-		try(final FileInputStream fis = new FileInputStream(file))
-		{
-			return XChars.readAllBytesFromInputStream(fis).toByteArray();
-		}
-	}
-	
-	public static final void writeStringToFile(final File file, final String string) throws IOException
-	{
-		writeStringToFile(file, string, standardCharset());
-	}
-	
-	public static final void writeStringToFileUtf8(final File file, final String string) throws IOException
-	{
-		writeStringToFile(file, string, utf8());
-	}
-
-	public static final void writeStringToFileDefaultCharset(final File file, final String string) throws IOException
-	{
-		writeStringToFile(file, string, defaultCharset());
-	}
-
-	public static final void writeStringToFile(final File file, final String string, final Charset charset)
-		throws IOException
-	{
-		try(final FileOutputStream out = new FileOutputStream(ensureWriteableFile(file)))
-		{
-			out.write(string.getBytes(charset));
-		}
-	}
-	
-	public static final <E extends Exception> void writeStringToFile(
-		final File                     file           ,
-		final String                   string         ,
-		final Charset                  charset        ,
-		final Function<IOException, E> exceptionMapper
-	)
-		throws E
-	{
-		try
-		{
-			writeStringToFile(file, string, charset);
-		}
-		catch(final IOException e)
-		{
-			throw exceptionMapper.apply(e);
-		}
-	}
-
-
-	public static final String buildFilePath(final String... items)
-	{
-		return VarString.New().list("/", items).toString();
-	}
-
-	public static final File buildFile(final String... items)
-	{
-		return new File(buildFilePath(items));
-	}
-
-	public static final File buildFile(final File parent, final String... items)
-	{
-		return new File(parent, buildFilePath(items));
-	}
-
-
-	@SuppressWarnings("resource") // channel handles the closing, unjustified warning
-	public static void copyFile(final File in, final File out) throws IOException
-	{
-		final FileChannel inChannel  = new FileInputStream(in).getChannel();
-		final FileChannel outChannel = new FileOutputStream(out).getChannel();
-		try
-		{
-			inChannel.transferTo(0, inChannel.size(), outChannel);
-		}
-		catch(final IOException e)
-		{
-			throw e;
-		}
-		finally
-		{
-			if(inChannel != null)
-			{
-				inChannel.close();
-			}
-			if(outChannel != null)
-			{
-				outChannel.close();
-			}
-		}
-	}
-
-	public static final FileChannel createWritingFileChannel(final File file) throws FileException, IOException
-	{
-		return createWritingFileChannel(file, false);
-	}
-
-	@SuppressWarnings("resource") // channel handles the closing, hacky JDK API tricking the JLS, so funny
-	public static final FileChannel createWritingFileChannel(final File file, final boolean append)
-		throws FileException, IOException
-	{
-		// seriously, no writeable FileChannel without unnecessary FOS first? No proper example googleable.
-		return new FileOutputStream(ensureWriteableFile(file), append).getChannel();
-	}
-
-	@SuppressWarnings("resource") // channel handles the closing, hacky JDK API tricking the JLS, so funny
-	public static final FileChannel createReadingFileChannel(final File file) throws IOException
-	{
-		// seriously, no writeable FileChannel without unnecessary FIS first? No proper example googleable.
-		return new FileInputStream(file).getChannel();
-	}
-
-
-	public static final void mergeBinary(
-		final Iterable<File>          sourceFiles,
-		final File                    targetFile ,
-		final Predicate<? super File> selector
-	)
-	{
-		FileChannel channel = null;
-		try
-		{
-			channel = createWritingFileChannel(targetFile, true);
-			for(final File sourceFile : sourceFiles)
-			{
-				if(!selector.test(sourceFile))
-				{
-					continue;
-				}
-				final FileChannel sourceChannel = createReadingFileChannel(sourceFile);
-				try
-				{
-					sourceChannel.transferTo(0, sourceChannel.size(), channel);
-				}
-				finally
-				{
-					XFiles.closeSilent(sourceChannel);
-				}
-			}
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // (28.10.2014)TODO: proper exception
-		}
-		finally
-		{
-			XFiles.closeSilent(channel);
-		}
-	}
-
-	public static final void mergeBinary(
-		final Iterable<File>         sourceFiles,
-		final File                   targetFile
-	)
-	{
-		mergeBinary(sourceFiles, targetFile, XFunc.all());
-	}
-	
-
-	public static void closeSilent(final Closeable closable)
-	{
-		if(closable == null)
-		{
-			return;
-		}
-		try
-		{
-			closable.close();
-		}
-		catch(final Exception t)
-		{
-			// sshhh, silence!
-		}
-	}
-	
-	public static void move(final File sourceFile, final File targetFile) throws IORuntimeException, RuntimeException
-	{
-		final Path source = sourceFile.toPath();
-		final Path target = targetFile.toPath();
-		
-		try
-		{
-			Files.move(source, target);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-		catch(final Exception e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
+	///////////////////////////////////////////////////////////////////////////
+	// java.nio.channels.FileChannel //
+	//////////////////////////////////
 	
 	public static ByteBuffer determineLastNonEmpty(final ByteBuffer[] byteBuffers)
 	{
@@ -576,6 +116,174 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		return writeCount;
 	}
 	
+	public static final <T> T performClosingOperation(
+		final FileChannel                fileChannel,
+		final IoFunction<FileChannel, T> operation
+	)
+		throws IOException
+	{
+		try
+		{
+			return operation.performOperation(fileChannel);
+		}
+		finally
+		{
+			fileChannel.close();
+		}
+	}
+	
+	public static String readStringFromFileDefaultCharset(final Path file)
+		throws IOException
+	{
+		return readStringFromFile(file, XChars.defaultJvmCharset());
+	}
+	
+	public static String readStringFromFile(final Path file)
+		throws IOException
+	{
+		return readStringFromFile(file, XChars.standardCharset());
+	}
+	
+	public static String readStringFromFile(final Path file, final Charset charSet)
+		throws IOException
+	{
+		final byte[] bytes = read_bytesFromFile(file);
+		
+		return XChars.String(bytes, charSet);
+	}
+	
+	public static byte[] read_bytesFromFile(final Path file)
+		throws IOException
+	{
+		final ByteBuffer content = readFile(file);
+		final byte[]     bytes   = XMemory.toArray(content);
+		XMemory.deallocateDirectByteBuffer(content);
+		
+		return bytes;
+	}
+	
+	public static ByteBuffer readFile(final Path file)
+		throws IOException
+	{
+		return performClosingOperation(
+			FileChannel.open(file),
+			XFiles::readFile
+		);
+	}
+	
+	public static ByteBuffer readFile(final FileChannel fileChannel)
+		throws IOException
+	{
+		return readFile(fileChannel, 0, fileChannel.size());
+	}
+	
+	public static ByteBuffer readFile(
+		final FileChannel fileChannel,
+		final long        filePosition,
+		final long        length
+	)
+		throws IOException
+	{
+		// always hilarious to see that a low-level IO-tool has a int size limitation. Geniuses.
+		final ByteBuffer dbb = ByteBuffer.allocateDirect(X.checkArrayRange(length));
+		
+		readFile(fileChannel, dbb, filePosition, dbb.limit());
+		
+		dbb.flip();
+		
+		return dbb;
+	}
+	
+	public static long readFile(
+		final FileChannel fileChannel ,
+		final ByteBuffer  targetBuffer
+	)
+		throws IOException
+	{
+		return readFile(fileChannel, targetBuffer, 0, fileChannel.size());
+	}
+		
+	public static long readFile(
+		final FileChannel fileChannel ,
+		final ByteBuffer  targetBuffer,
+		final long        filePosition,
+		final long        length
+	)
+		throws IOException
+	{
+		if(targetBuffer.remaining() < length)
+		{
+			// (20.11.2019 TM)EXCP: proper exception
+			throw new IllegalArgumentException(
+				"Provided target buffer has not enough space remaining to load the file content: "
+				+ targetBuffer.remaining() + " < " + length
+			);
+		}
+
+		final int  targetLimit = X.checkArrayRange(targetBuffer.position() + length);
+		final long fileLength  = fileChannel.size();
+		
+		long fileOffset = X.validateRange(fileLength, filePosition, length);
+		targetBuffer.limit(targetLimit);
+		
+		// reading should be done in one fell swoop, but better be sure
+		long readCount = 0;
+		while(targetBuffer.hasRemaining())
+		{
+			readCount += fileChannel.read(targetBuffer, fileOffset);
+			fileOffset = filePosition + readCount;
+		}
+
+		return readCount;
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Generic path string utility logic //
+	//////////////////////////////////////
+	
+	public static final String ensureNormalizedPathSeperators(final String path)
+	{
+		if(path.indexOf('\\') < 0)
+		{
+			return path;
+		}
+		
+		return path.replace('\\', '/');
+	}
+	
+	public static final String ensureTrailingSlash(final String path)
+	{
+		if(path.charAt(path.length() - 1) == '/')
+		{
+			return path;
+		}
+		
+		return path + '/';
+	}
+	
+	public static final String buildFilePath(final String... items)
+	{
+		return VarString.New().list("/", items).toString();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// java.util.File //
+	///////////////////
+
+	public static final File buildFile(final String... items)
+	{
+		return new File(buildFilePath(items));
+	}
+
+	public static final File buildFile(final File parent, final String... items)
+	{
+		return new File(parent, buildFilePath(items));
+	}
+		
 	public static boolean isEmpty(final File directory)
 	{
 		// because they couldn't have implemented an isEmpty or a getFileCount or something like that ...
@@ -589,6 +297,305 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		return files == null || files.length == 0;
 	}
 	
+	public static final File ensureDirectory(final File directory) throws DirectoryException
+	{
+		try
+		{
+			if(directory.exists())
+			{
+				return directory;
+			}
+			
+			synchronized(directory)
+			{
+				if(!directory.mkdirs())
+				{
+					// check again in case it has been created in the meantime (race condition)
+					if(!directory.exists())
+					{
+						throw new DirectoryException(directory, "Directory could not have been created.");
+					}
+				}
+			}
+		}
+		catch(final SecurityException e)
+		{
+			throw new DirectoryException(directory, e);
+		}
+
+		return directory;
+	}
+
+	public static final File ensureDirectoryAndFile(final File file) throws FileException
+	{
+		final File parent;
+		if((parent = file.getParentFile()) != null)
+		{
+			ensureDirectory(parent);
+		}
+		return ensureFile(file);
+	}
+
+	public static final File ensureFile(final File file) throws FileException
+	{
+		try
+		{
+			file.createNewFile();
+		}
+		catch(final IOException e)
+		{
+			throw new FileException(file, e);
+		}
+		return file;
+	}
+
+	public static final File ensureWriteableFile(final File file) throws FileException
+	{
+		try
+		{
+			file.createNewFile();
+		}
+		catch(final IOException e)
+		{
+			throw new FileException(file, e);
+		}
+
+		if(!file.canWrite())
+		{
+			throw new FileException(file, "Unwritable file");
+		}
+
+		return file;
+	}
+	
+	
+	
+	public static final char[] readCharsFromFileDefaultCharset(final File file) throws IOException
+	{
+		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
+		return XChars.readChars(readStringFromFileDefaultCharset(file));
+	}
+
+	public static final char[] readCharsFromFileDefaultCharset(
+		final File                          file            ,
+		final Consumer<? super IOException> exceptionHandler
+	)
+	{
+		return readCharsFromFile(file, XChars.defaultJvmCharset(), exceptionHandler);
+	}
+
+	public static final char[] readCharsFromFile(
+		final File                          file            ,
+		final Charset                       charset         ,
+		final Consumer<? super IOException> exceptionHandler
+	)
+	{
+		// sadly the geniuses wrapped generic char[] operations inside the String value type class, so it must be hacked
+		final String content;
+
+		try
+		{
+			content = readStringFromFile(file, charset);
+		}
+		catch(final IOException e)
+		{
+			exceptionHandler.accept(e);
+
+			// if the handler did not rethrow the exception, the calling context must be okay with receiving null.
+			return null;
+		}
+
+		return XChars.readChars(content);
+	}
+		
+	public static final char[] readCharsFromFileUtf8(final File file)
+	{
+		return readCharsFromFileUtf8(file, RuntimeException::new);
+	}
+	
+	public static final char[] readCharsFromFileUtf8(
+		final File                          file            ,
+		final Consumer<? super IOException> exceptionHandler
+	)
+	{
+		return readCharsFromFile(file, XChars.utf8(), exceptionHandler);
+	}
+
+	public static final String readStringFromFileDefaultCharset(final File file) throws IOException
+	{
+		return readStringFromFile(file, XChars.defaultJvmCharset());
+	}
+
+	public static final String readStringFromFile(final File file, final Charset charset) throws IOException
+	{
+		try(final FileInputStream fis = new FileInputStream(file))
+		{
+			return XChars.readStringFromInputStream(fis, charset);
+		}
+	}
+	
+	public static final <E extends Exception> String readStringFromFile(
+		final File                     file           ,
+		final Charset                  charset        ,
+		final Function<IOException, E> exceptionMapper
+	)
+		throws E
+	{
+		try
+		{
+			return readStringFromFile(file, charset);
+		}
+		catch(final IOException e)
+		{
+			throw exceptionMapper.apply(e);
+		}
+	}
+
+	public static final byte[] readBytesFromFile(final File file) throws IOException
+	{
+		try(final FileInputStream fis = new FileInputStream(file))
+		{
+			return XChars.readAllBytesFromInputStream(fis).toByteArray();
+		}
+	}
+	
+	public static final void writeStringToFile(final File file, final String string) throws IOException
+	{
+		writeStringToFile(file, string, XChars.standardCharset());
+	}
+	
+	public static final void writeStringToFileUtf8(final File file, final String string) throws IOException
+	{
+		writeStringToFile(file, string, XChars.utf8());
+	}
+
+	public static final void writeStringToFileDefaultCharset(final File file, final String string) throws IOException
+	{
+		writeStringToFile(file, string, XChars.defaultJvmCharset());
+	}
+
+	public static final void writeStringToFile(final File file, final String string, final Charset charset)
+		throws IOException
+	{
+		try(final FileOutputStream out = new FileOutputStream(ensureWriteableFile(file)))
+		{
+			out.write(string.getBytes(charset));
+		}
+	}
+	
+	public static final <E extends Exception> void writeStringToFile(
+		final File                     file           ,
+		final String                   string         ,
+		final Charset                  charset        ,
+		final Function<IOException, E> exceptionMapper
+	)
+		throws E
+	{
+		try
+		{
+			writeStringToFile(file, string, charset);
+		}
+		catch(final IOException e)
+		{
+			throw exceptionMapper.apply(e);
+		}
+	}
+
+
+
+	public static final FileChannel createWritingFileChannel(final File file) throws FileException, IOException
+	{
+		return createWritingFileChannel(file, false);
+	}
+
+	@SuppressWarnings("resource") // channel handles the closing, hacky JDK API tricking the JLS, so funny
+	public static final FileChannel createWritingFileChannel(final File file, final boolean append)
+		throws FileException, IOException
+	{
+		// seriously, no writeable FileChannel without unnecessary FOS first? No proper example googleable.
+		return new FileOutputStream(ensureWriteableFile(file), append).getChannel();
+	}
+
+	@SuppressWarnings("resource") // channel handles the closing, hacky JDK API tricking the JLS, so funny
+	public static final FileChannel createReadingFileChannel(final File file) throws IOException
+	{
+		// seriously, no writeable FileChannel without unnecessary FIS first? No proper example googleable.
+		return new FileInputStream(file).getChannel();
+	}
+
+	public static final void mergeBinary(
+		final Iterable<File>          sourceFiles,
+		final File                    targetFile ,
+		final Predicate<? super File> selector
+	)
+	{
+		FileChannel channel = null;
+		try
+		{
+			channel = createWritingFileChannel(targetFile, true);
+			for(final File sourceFile : sourceFiles)
+			{
+				if(!selector.test(sourceFile))
+				{
+					continue;
+				}
+				final FileChannel sourceChannel = createReadingFileChannel(sourceFile);
+				try
+				{
+					sourceChannel.transferTo(0, sourceChannel.size(), channel);
+				}
+				finally
+				{
+					XIO.closeSilent(sourceChannel);
+				}
+			}
+		}
+		catch(final IOException e)
+		{
+			throw new RuntimeException(e); // (28.10.2014)TODO: proper exception
+		}
+		finally
+		{
+			XIO.closeSilent(channel);
+		}
+	}
+
+	public static final void mergeBinary(
+		final Iterable<File> sourceFiles,
+		final File           targetFile
+	)
+	{
+		mergeBinary(sourceFiles, targetFile, XFunc.all());
+	}
+		
+	public static void move(final File sourceFile, final File targetFile) throws IORuntimeException, RuntimeException
+	{
+		move(sourceFile.toPath(), targetFile.toPath());
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// java.nio.file.Path //
+	///////////////////////
+	
+	// (20.11.2019 TM)FIXME: priv#157
+	
+	public static void move(final Path sourceFile, final Path targetFile) throws IORuntimeException, RuntimeException
+	{
+		try
+		{
+			Files.move(sourceFile, targetFile);
+		}
+		catch(final IOException e)
+		{
+			throw new IORuntimeException(e);
+		}
+		catch(final Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
 	
 	
 	///////////////////////////////////////////////////////////////////////////

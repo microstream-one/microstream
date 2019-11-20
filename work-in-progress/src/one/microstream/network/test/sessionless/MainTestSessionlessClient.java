@@ -3,7 +3,7 @@ package one.microstream.network.test.sessionless;
 import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.network.simplesession.LogicSimpleNetwork;
 
 /**
@@ -36,7 +36,7 @@ public class MainTestSessionlessClient
 				System.out.println(System.currentTimeMillis()+" Server said: "+answer);
 			}
 			finally {
-				XFiles.closeSilent(channel);
+				XIO.closeSilent(channel);
 				System.gc();
 			}
 		}
