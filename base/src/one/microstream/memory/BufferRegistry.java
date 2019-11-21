@@ -249,7 +249,7 @@ public class BufferRegistry
 			System.out.println(
 				"cleanUp: hashIndex " + i + "..."
 			);
-			for(Entry e = hashTable[i], last = null; e != null; e = (last = e).link)
+			for(Entry e = hashTable[i], last = null; e != null; e = e.link)
 			{
 				// (21.11.2019 TM)FIXME: priv#176
 				System.out.print(
@@ -257,7 +257,6 @@ public class BufferRegistry
 				);
 				if(e.isHollow())
 				{
-					
 					// kick it out consistently (currentLowestFreeIndex NOT updated! See below)
 					indexTable[e.index] = null;
 					if(last == null)
@@ -266,6 +265,7 @@ public class BufferRegistry
 					}
 					else
 					{
+						// sets the link of the same last instance multiple times in case of consecutive hollow entries.
 						last.link = e.link;
 					}
 					size--;
@@ -275,9 +275,14 @@ public class BufferRegistry
 					System.out.println(
 						" is hollow. Removed. New size: " + size
 					);
+					
+					// last remains the same since e gets kicked out
 				}
 				else
 				{
+					// only non-hollow entries are accepted as last because hollow ones get kicked out.
+					last = e;
+					
 					// (21.11.2019 TM)FIXME: priv#176
 					System.out.println(
 						" is filled. Size remains " + size
