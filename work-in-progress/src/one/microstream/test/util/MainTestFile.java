@@ -8,7 +8,7 @@ public class MainTestFile
 {
 	public static void main(final String[] args)
 	{
-		final File f = buildFile("c:", "my", "sub", "dir", "file.txt");
+		final File f = File("c:", "my", "sub", "dir", "file.txt");
 		System.out.println(f);
 	}
 }

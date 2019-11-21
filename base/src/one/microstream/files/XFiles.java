@@ -1,5 +1,8 @@
 package one.microstream.files;
 
+import static java.nio.file.StandardOpenOption.READ;
+import static java.nio.file.StandardOpenOption.WRITE;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,12 +11,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.collections.XArrays;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.functional.XFunc;
 import one.microstream.io.IoOperationSR;
@@ -114,15 +119,28 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		return writeCount;
 	}
 	
-	public static final <T> T performOneShotOperation(
+	public static final <T> T readOneShot(
 		final Path                          file     ,
 		final IoOperationSR<FileChannel, T> operation
 	)
 		throws IOException
 	{
-		final FileChannel fileChannel = FileChannel.open(file);
-		
-		return performClosingOperation(fileChannel, operation);
+		return performClosingOperation(
+			openFileChannelReading(file),
+			operation
+		);
+	}
+	
+	public static final <T> T writeOneShot(
+		final Path                          file     ,
+		final IoOperationSR<FileChannel, T> operation
+	)
+		throws IOException
+	{
+		return performClosingOperation(
+			openFileChannelWriting(file),
+			operation
+		);
 	}
 	
 	public static final <T> T performClosingOperation(
@@ -451,10 +469,20 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	
 	public static ByteBuffer readFile(final Path file) throws IOException
 	{
-		return performOneShotOperation(file, XFiles::readFile);
+		return readOneShot(file, XFiles::readFile);
 	}
 	
-
+	public static FileChannel openFileChannelReading(final Path file, final OpenOption... options)
+		throws IOException
+	{
+		return FileChannel.open(file, XArrays.ensureContained(options, READ));
+	}
+	
+	public static FileChannel openFileChannelWriting(final Path file, final OpenOption... options)
+		throws IOException
+	{
+		return FileChannel.open(file, XArrays.ensureContained(options, WRITE));
+	}
 	
 	public static final long writeAppend(final Path file, final String string)
 		throws IOException
@@ -477,7 +505,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		dbb.put(bytes);
 		dbb.flip();
 		
-		final Long writeCount = performOneShotOperation(file, fc ->
+		final Long writeCount = writeOneShot(file, fc ->
 			writeAppend(fc, dbb)
 		);
 		
@@ -489,8 +517,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	public static long writeAppend(final Path file, final ByteBuffer buffer)
 		throws IOException
 	{
-		// (20.11.2019 TM)FIXME: priv#157: NonWritableChannelException
-		return performOneShotOperation(file, fc ->
+		return writeOneShot(file, fc ->
 			writeAppend(fc, buffer)
 		);
 	}
