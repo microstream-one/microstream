@@ -223,7 +223,17 @@ public final class BinaryValueFunctions
 		{
 			final int rawBits = Float.floatToRawIntBits(XMemory.get_float(source, srcOffset));
 			final int reversed = Integer.reverseBytes(rawBits);
-			XMemory.set_float(trgAddress, Float.intBitsToFloat(reversed));
+						
+			/* (21.11.2019 TM)NOTE:
+			 * Float.intBitsToFloat JavaDoc states:
+			 * "[...] this method may not be able to return a float NaN
+			 * with exactly [the] same bit pattern as the int argument."
+			 * To compensate for this, the reversed int is used directly.
+			 * A switched byte order reader or the inverse function to this
+			 * will both read the correct float value.
+			 * DirectByteBuffer does the same thing when reversing a double.
+			 */
+			XMemory.set_int(trgAddress, reversed);
 			return trgAddress + Float.BYTES;
 		}
 	};
@@ -256,7 +266,17 @@ public final class BinaryValueFunctions
 		{
 			final long rawBits = Double.doubleToRawLongBits(XMemory.get_double(source, srcOffset));
 			final long reversed = Long.reverseBytes(rawBits);
-			XMemory.set_double(trgAddress, Double.longBitsToDouble(reversed));
+			
+			/* (21.11.2019 TM)NOTE:
+			 * Double.longBitsToDouble JavaDoc states:
+			 * "[...] this method may not be able to return a double NaN
+			 * with exactly [the] same bit pattern as the long argument."
+			 * To compensate for this, the reversed long is used directly.
+			 * A switched byte order reader or the inverse function to this
+			 * will both read the correct double value.
+			 * DirectByteBuffer does the same thing when reversing a double.
+			 */
+			XMemory.set_long(trgAddress, reversed);
 			return trgAddress + Double.BYTES;
 		}
 	};
@@ -493,8 +513,15 @@ public final class BinaryValueFunctions
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			final int rawBits = Float.floatToRawIntBits(XMemory.get_float(srcAddress));
-			final int reversed = Integer.reverseBytes(rawBits);
+			/* (21.11.2019 TM)NOTE:
+			 * Float.intBitsToFloat JavaDoc states:
+			 * "[...] this method may not be able to return a float NaN
+			 * with exactly [the] same bit pattern as the int argument."
+			 * To compensate for this, the raw value is read as an int and
+			 * reversed to produce the proper bit pattern for the
+			 * original/desired float value before calling the conversion.
+			 */
+			final int reversed = Integer.reverseBytes(XMemory.get_int(srcAddress));
 			XMemory.set_float(target, trgOffset, Float.intBitsToFloat(reversed));
 			return srcAddress + Float.BYTES;
 		}
@@ -526,8 +553,15 @@ public final class BinaryValueFunctions
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			final long rawBits = Double.doubleToRawLongBits(XMemory.get_double(srcAddress));
-			final long reversed = Long.reverseBytes(rawBits);
+			/* (21.11.2019 TM)NOTE:
+			 * Double.longBitsToDouble JavaDoc states:
+			 * "[...] this method may not be able to return a double NaN
+			 * with exactly [the] same bit pattern as the long argument."
+			 * To compensate for this, the raw value is read as a long and
+			 * reversed to produce the proper bit pattern for the
+			 * original/desired double value before calling the conversion.
+			 */
+			final long reversed = Long.reverseBytes(XMemory.get_long(srcAddress));
 			XMemory.set_double(target, trgOffset, Double.longBitsToDouble(reversed));
 			return srcAddress + Double.BYTES;
 		}
