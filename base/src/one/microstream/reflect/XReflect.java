@@ -870,9 +870,9 @@ public final class XReflect
 	 * @param object
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Class<? extends T> getClass(final T object)
+	public static <T> Class<T> getClass(final T object)
 	{
-		return (Class<? extends T>)object.getClass();
+		return (Class<T>)object.getClass();
 	}
 	
 	public static char fieldIdentifierDelimiter()

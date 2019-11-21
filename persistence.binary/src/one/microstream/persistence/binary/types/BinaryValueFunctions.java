@@ -6,63 +6,131 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryValueFunctions
 {
-	private static final BinaryValueStorer STORE_1 = new BinaryValueStorer()
+	///////////////////////////////////////////////////////////////////////////
+	// constants //
+	//////////////
+	
+	private static final BinaryValueStorer STORE_byte = new BinaryValueStorer()
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  src          ,
-			final long                    srcOffset    ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
-			XMemory.set_byte(targetAddress, XMemory.get_byte(src, srcOffset));
-			return targetAddress + Byte.BYTES;
+			XMemory.set_byte(trgAddress, XMemory.get_byte(source, srcOffset));
+			return trgAddress + Byte.BYTES;
+		}
+	};
+	
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueStorer STORE_boolean = new BinaryValueStorer()
+	{
+		@Override
+		public long storeValueFromMemory(
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
+			final PersistenceStoreHandler handler
+		)
+		{
+			XMemory.set_boolean(trgAddress, XMemory.get_boolean(source, srcOffset));
+			return trgAddress + Byte.BYTES; // there is no Boolean.BYTES because lol
 		}
 	};
 
-	private static final BinaryValueStorer STORE_2 = new BinaryValueStorer()
+	private static final BinaryValueStorer STORE_short = new BinaryValueStorer()
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  src          ,
-			final long                    srcOffset    ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
-			XMemory.set_short(targetAddress, XMemory.get_short(src, srcOffset));
-			return targetAddress + Short.BYTES;
+			XMemory.set_short(trgAddress, XMemory.get_short(source, srcOffset));
+			return trgAddress + Short.BYTES;
 		}
 	};
 
-	private static final BinaryValueStorer STORE_4 = new BinaryValueStorer()
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueStorer STORE_char = new BinaryValueStorer()
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  src          ,
-			final long                    srcOffset    ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
-			XMemory.set_int(targetAddress, XMemory.get_int(src, srcOffset));
-			return targetAddress + Integer.BYTES;
+			XMemory.set_char(trgAddress, XMemory.get_char(source, srcOffset));
+			return trgAddress + Character.BYTES;
 		}
 	};
 
-	private static final BinaryValueStorer STORE_8 = new BinaryValueStorer()
+	private static final BinaryValueStorer STORE_int = new BinaryValueStorer()
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  src          ,
-			final long                    srcOffset    ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
-			XMemory.set_long(targetAddress, XMemory.get_long(src, srcOffset));
-			return targetAddress + Long.BYTES;
+			XMemory.set_int(trgAddress, XMemory.get_int(source, srcOffset));
+			return trgAddress + Integer.BYTES;
+		}
+	};
+
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueStorer STORE_float = new BinaryValueStorer()
+	{
+		@Override
+		public long storeValueFromMemory(
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
+			final PersistenceStoreHandler handler
+		)
+		{
+			XMemory.set_float(trgAddress, XMemory.get_float(source, srcOffset));
+			return trgAddress + Float.BYTES;
+		}
+	};
+
+	private static final BinaryValueStorer STORE_long = new BinaryValueStorer()
+	{
+		@Override
+		public long storeValueFromMemory(
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
+			final PersistenceStoreHandler handler
+		)
+		{
+			XMemory.set_long(trgAddress, XMemory.get_long(source, srcOffset));
+			return trgAddress + Long.BYTES;
+		}
+	};
+
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueStorer STORE_double = new BinaryValueStorer()
+	{
+		@Override
+		public long storeValueFromMemory(
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
+			final PersistenceStoreHandler handler
+		)
+		{
+			XMemory.set_double(trgAddress, XMemory.get_double(source, srcOffset));
+			return trgAddress + Double.BYTES;
 		}
 	};
 	
@@ -70,14 +138,14 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  src          ,
-			final long                    srcOffset    ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
-			XMemory.set_long(targetAddress, handler.apply(XMemory.getObject(src, srcOffset)));
-			return targetAddress + Binary.objectIdByteLength();
+			XMemory.set_long(trgAddress, handler.apply(XMemory.getObject(source, srcOffset)));
+			return trgAddress + Binary.objectIdByteLength();
 		}
 	};
 	
@@ -85,59 +153,131 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source       ,
-			final long                    sourceOffset ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
-			XMemory.set_long(targetAddress, handler.applyEager(XMemory.getObject(source, sourceOffset)));
-			return targetAddress + Binary.objectIdByteLength();
+			XMemory.set_long(trgAddress, handler.applyEager(XMemory.getObject(source, srcOffset)));
+			return trgAddress + Binary.objectIdByteLength();
 		}
 	};
 	
-	private static final BinaryValueStorer STORE_2_REVERSED = new BinaryValueStorer()
+	private static final BinaryValueStorer STORE_short_REVERSED = new BinaryValueStorer()
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  src          ,
-			final long                    srcOffset    ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
-			XMemory.set_short(targetAddress, Short.reverseBytes(XMemory.get_short(src, srcOffset)));
-			return targetAddress + Short.BYTES;
+			XMemory.set_short(trgAddress, Short.reverseBytes(XMemory.get_short(source, srcOffset)));
+			return trgAddress + Short.BYTES;
 		}
 	};
 
-	private static final BinaryValueStorer STORE_4_REVERSED = new BinaryValueStorer()
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueStorer STORE_char_REVERSED = new BinaryValueStorer()
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  src          ,
-			final long                    srcOffset    ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
-			XMemory.set_int(targetAddress, Integer.reverseBytes(XMemory.get_int(src, srcOffset)));
-			return targetAddress + Integer.BYTES;
+			XMemory.set_char(trgAddress, Character.reverseBytes(XMemory.get_char(source, srcOffset)));
+			return trgAddress + Character.BYTES;
 		}
 	};
 
-	private static final BinaryValueStorer STORE_8_REVERSED = new BinaryValueStorer()
+	private static final BinaryValueStorer STORE_int_REVERSED = new BinaryValueStorer()
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  src          ,
-			final long                    srcOffset    ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
-			XMemory.set_long(targetAddress, Long.reverseBytes(XMemory.get_long(src, srcOffset)));
-			return targetAddress + Long.BYTES;
+			XMemory.set_int(trgAddress, Integer.reverseBytes(XMemory.get_int(source, srcOffset)));
+			return trgAddress + Integer.BYTES;
+		}
+	};
+	
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueStorer STORE_float_REVERSED = new BinaryValueStorer()
+	{
+		@Override
+		public long storeValueFromMemory(
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
+			final PersistenceStoreHandler handler
+		)
+		{
+			final int rawBits = Float.floatToRawIntBits(XMemory.get_float(source, srcOffset));
+			final int reversed = Integer.reverseBytes(rawBits);
+						
+			/* (21.11.2019 TM)NOTE:
+			 * Float.intBitsToFloat JavaDoc states:
+			 * "[...] this method may not be able to return a float NaN
+			 * with exactly [the] same bit pattern as the int argument."
+			 * To compensate for this, the reversed int is used directly.
+			 * A switched byte order reader or the inverse function to this
+			 * will both read the correct float value.
+			 * DirectByteBuffer does the same thing when reversing a double.
+			 */
+			XMemory.set_int(trgAddress, reversed);
+			return trgAddress + Float.BYTES;
+		}
+	};
+
+	private static final BinaryValueStorer STORE_long_REVERSED = new BinaryValueStorer()
+	{
+		@Override
+		public long storeValueFromMemory(
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
+			final PersistenceStoreHandler handler
+		)
+		{
+			XMemory.set_long(trgAddress, Long.reverseBytes(XMemory.get_long(source, srcOffset)));
+			return trgAddress + Long.BYTES;
+		}
+	};
+
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueStorer STORE_double_REVERSED = new BinaryValueStorer()
+	{
+		@Override
+		public long storeValueFromMemory(
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
+			final PersistenceStoreHandler handler
+		)
+		{
+			final long rawBits = Double.doubleToRawLongBits(XMemory.get_double(source, srcOffset));
+			final long reversed = Long.reverseBytes(rawBits);
+			
+			/* (21.11.2019 TM)NOTE:
+			 * Double.longBitsToDouble JavaDoc states:
+			 * "[...] this method may not be able to return a double NaN
+			 * with exactly [the] same bit pattern as the long argument."
+			 * To compensate for this, the reversed long is used directly.
+			 * A switched byte order reader or the inverse function to this
+			 * will both read the correct double value.
+			 * DirectByteBuffer does the same thing when reversing a double.
+			 */
+			XMemory.set_long(trgAddress, reversed);
+			return trgAddress + Double.BYTES;
 		}
 	};
 	
@@ -145,17 +285,17 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  src          ,
-			final long                    srcOffset    ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
 			XMemory.set_long(
-				targetAddress,
-				Long.reverseBytes(handler.apply(XMemory.getObject(src, srcOffset)))
+				trgAddress,
+				Long.reverseBytes(handler.apply(XMemory.getObject(source, srcOffset)))
 			);
-			return targetAddress + Binary.objectIdByteLength();
+			return trgAddress + Binary.objectIdByteLength();
 		}
 	};
 	
@@ -163,77 +303,141 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source       ,
-			final long                    sourceOffset ,
-			final long                    targetAddress,
+			final Object                  source    ,
+			final long                    srcOffset ,
+			final long                    trgAddress,
 			final PersistenceStoreHandler handler
 		)
 		{
 			XMemory.set_long(
-				targetAddress,
-				Long.reverseBytes(handler.applyEager(XMemory.getObject(source, sourceOffset)))
+				trgAddress,
+				Long.reverseBytes(handler.applyEager(XMemory.getObject(source, srcOffset)))
 			);
-			return targetAddress + Binary.objectIdByteLength();
+			return trgAddress + Binary.objectIdByteLength();
 		}
 	};
 	
-	private static final BinaryValueSetter SETTER_1 = new BinaryValueSetter()
+	private static final BinaryValueSetter SETTER_byte = new BinaryValueSetter()
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			XMemory.set_byte(target, targetOffset, XMemory.get_byte(sourceAddress));
-			return sourceAddress + Byte.BYTES;
+			XMemory.set_byte(target, trgOffset, XMemory.get_byte(srcAddress));
+			return srcAddress + Byte.BYTES;
+		}
+	};
+
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueSetter SETTER_boolean = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			XMemory.set_boolean(target, trgOffset, XMemory.get_boolean(srcAddress));
+			return srcAddress + Byte.BYTES; // there is no Boolean.BYTES because lol
 		}
 	};
 	
-	private static final BinaryValueSetter SETTER_2 = new BinaryValueSetter()
+	private static final BinaryValueSetter SETTER_char = new BinaryValueSetter()
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			XMemory.set_short(target, targetOffset, XMemory.get_short(sourceAddress));
-			return sourceAddress + Short.BYTES;
+			XMemory.set_char(target, trgOffset, XMemory.get_char(srcAddress));
+			return srcAddress + Character.BYTES;
 		}
 	};
 
-	private static final BinaryValueSetter SETTER_4 = new BinaryValueSetter()
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueSetter SETTER_short = new BinaryValueSetter()
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			XMemory.set_int(target, targetOffset, XMemory.get_int(sourceAddress));
-			return sourceAddress + Integer.BYTES;
+			XMemory.set_short(target, trgOffset, XMemory.get_short(srcAddress));
+			return srcAddress + Short.BYTES;
 		}
 	};
 
-	private static final BinaryValueSetter SETTER_8 = new BinaryValueSetter()
+	private static final BinaryValueSetter SETTER_int = new BinaryValueSetter()
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			XMemory.set_long(target, targetOffset, XMemory.get_long(sourceAddress));
-			return sourceAddress + Long.BYTES;
+			XMemory.set_int(target, trgOffset, XMemory.get_int(srcAddress));
+			return srcAddress + Integer.BYTES;
+		}
+	};
+
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueSetter SETTER_float = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			XMemory.set_float(target, trgOffset, XMemory.get_float(srcAddress));
+			return srcAddress + Float.BYTES;
+		}
+	};
+
+	private static final BinaryValueSetter SETTER_long = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			XMemory.set_long(target, trgOffset, XMemory.get_long(srcAddress));
+			return srcAddress + Long.BYTES;
+		}
+	};
+
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueSetter SETTER_double = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			XMemory.set_double(target, trgOffset, XMemory.get_double(srcAddress));
+			return srcAddress + Double.BYTES;
 		}
 	};
 	
@@ -241,59 +445,125 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			XMemory.setObject(target, targetOffset, idResolver.lookupObject(XMemory.get_long(sourceAddress)));
-			return sourceAddress + Binary.objectIdByteLength();
+			XMemory.setObject(target, trgOffset, idResolver.lookupObject(XMemory.get_long(srcAddress)));
+			return srcAddress + Binary.objectIdByteLength();
 		}
 	};
 	
-	private static final BinaryValueSetter SETTER_2_REVERSED = new BinaryValueSetter()
+	private static final BinaryValueSetter SETTER_short_REVERSED = new BinaryValueSetter()
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			XMemory.set_short(target, targetOffset, Short.reverseBytes(XMemory.get_short(sourceAddress)));
-			return sourceAddress + Short.BYTES;
+			XMemory.set_short(target, trgOffset, Short.reverseBytes(XMemory.get_short(srcAddress)));
+			return srcAddress + Short.BYTES;
 		}
 	};
 
-	private static final BinaryValueSetter SETTER_4_REVERSED = new BinaryValueSetter()
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueSetter SETTER_char_REVERSED = new BinaryValueSetter()
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			XMemory.set_int(target, targetOffset, Integer.reverseBytes(XMemory.get_int(sourceAddress)));
-			return sourceAddress + Integer.BYTES;
+			XMemory.set_char(target, trgOffset, Character.reverseBytes(XMemory.get_char(srcAddress)));
+			return srcAddress + Character.BYTES;
 		}
 	};
 
-	private static final BinaryValueSetter SETTER_8_REVERSED = new BinaryValueSetter()
+	private static final BinaryValueSetter SETTER_int_REVERSED = new BinaryValueSetter()
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
-			XMemory.set_long(target, targetOffset, Long.reverseBytes(XMemory.get_long(sourceAddress)));
-			return sourceAddress + Long.BYTES;
+			XMemory.set_int(target, trgOffset, Integer.reverseBytes(XMemory.get_int(srcAddress)));
+			return srcAddress + Integer.BYTES;
+		}
+	};
+
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueSetter SETTER_float_REVERSED = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			/* (21.11.2019 TM)NOTE:
+			 * Float.intBitsToFloat JavaDoc states:
+			 * "[...] this method may not be able to return a float NaN
+			 * with exactly [the] same bit pattern as the int argument."
+			 * To compensate for this, the raw value is read as an int and
+			 * reversed to produce the proper bit pattern for the
+			 * original/desired float value before calling the conversion.
+			 */
+			final int reversed = Integer.reverseBytes(XMemory.get_int(srcAddress));
+			XMemory.set_float(target, trgOffset, Float.intBitsToFloat(reversed));
+			return srcAddress + Float.BYTES;
+		}
+	};
+
+	private static final BinaryValueSetter SETTER_long_REVERSED = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			XMemory.set_long(target, trgOffset, Long.reverseBytes(XMemory.get_long(srcAddress)));
+			return srcAddress + Long.BYTES;
+		}
+	};
+
+	// required for use with reflection instead of Unsafe
+	private static final BinaryValueSetter SETTER_double_REVERSED = new BinaryValueSetter()
+	{
+		@Override
+		public long setValueToMemory(
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
+			final PersistenceObjectIdResolver idResolver
+		)
+		{
+			/* (21.11.2019 TM)NOTE:
+			 * Double.longBitsToDouble JavaDoc states:
+			 * "[...] this method may not be able to return a double NaN
+			 * with exactly [the] same bit pattern as the long argument."
+			 * To compensate for this, the raw value is read as a long and
+			 * reversed to produce the proper bit pattern for the
+			 * original/desired double value before calling the conversion.
+			 */
+			final long reversed = Long.reverseBytes(XMemory.get_long(srcAddress));
+			XMemory.set_double(target, trgOffset, Double.longBitsToDouble(reversed));
+			return srcAddress + Double.BYTES;
 		}
 	};
 	
@@ -301,18 +571,18 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
 			XMemory.setObject(
 				target,
-				targetOffset,
-				idResolver.lookupObject(Long.reverseBytes(XMemory.get_long(sourceAddress)))
+				trgOffset,
+				idResolver.lookupObject(Long.reverseBytes(XMemory.get_long(srcAddress)))
 			);
-			return sourceAddress + Binary.objectIdByteLength();
+			return srcAddress + Binary.objectIdByteLength();
 		}
 	};
 	
@@ -320,14 +590,14 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
 			// just skipping the binary value
-			return sourceAddress + Byte.BYTES;
+			return srcAddress + Byte.BYTES;
 		}
 	};
 	
@@ -335,14 +605,14 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
 			// just skipping the binary value
-			return sourceAddress + Short.BYTES;
+			return srcAddress + Short.BYTES;
 		}
 	};
 	
@@ -350,14 +620,14 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
 			// just skipping the binary value
-			return sourceAddress + Integer.BYTES;
+			return srcAddress + Integer.BYTES;
 		}
 	};
 	
@@ -365,17 +635,23 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long setValueToMemory(
-			final long                        sourceAddress,
-			final Object                      target       ,
-			final long                        targetOffset ,
+			final long                        srcAddress,
+			final Object                      target    ,
+			final long                        trgOffset ,
 			final PersistenceObjectIdResolver idResolver
 		)
 		{
 			// just skipping the binary value
-			return sourceAddress + Long.BYTES;
+			return srcAddress + Long.BYTES;
 		}
 	};
 
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
 	public static BinaryValueStorer getObjectValueStorer(
 		final Class<?> type           ,
 		final boolean  isEager        ,
@@ -388,18 +664,48 @@ public final class BinaryValueFunctions
 			return getObjectValueStorerReversed(type, isEager);
 		}
 		
-		// primitive special cases
+		/* Primitive special cases.
+		 * Must be all 8 type-specific instead of just 4 size-specific for reflection fallback
+		 * See MemoryAccessorGeneric.
+		 */
 		if(type.isPrimitive())
 		{
 			// "forced" is not applicable for primitive values
-			switch(XMemory.byteSizePrimitive(type))
+			if(type == byte.class)
 			{
-				case Byte.BYTES   : return STORE_1; // byte & boolean
-				case Short.BYTES  : return STORE_2; // short & char
-				case Integer.BYTES: return STORE_4; // int & float
-				case Long.BYTES   : return STORE_8; // long & double
-				default: throw new IllegalArgumentException();
+				return STORE_byte;
 			}
+			if(type == boolean.class)
+			{
+				return STORE_boolean;
+			}
+			if(type == short.class)
+			{
+				return STORE_short;
+			}
+			if(type == char.class)
+			{
+				return STORE_char;
+			}
+			if(type == int.class)
+			{
+				return STORE_int;
+			}
+			if(type == float.class)
+			{
+				return STORE_float;
+			}
+			if(type == long.class)
+			{
+				return STORE_long;
+			}
+			if(type == double.class)
+			{
+				return STORE_double;
+			}
+			
+			// unknown / unhandled primitive (e.g. void)
+			throw new IllegalArgumentException();
 		}
 
 		// reference case. Either "eager" or normal.
@@ -415,18 +721,48 @@ public final class BinaryValueFunctions
 	)
 		throws IllegalArgumentException
 	{
-		// primitive special cases
+		/* Primitive special cases.
+		 * Must be all 8 type-specific instead of just 4 size-specific for reflection fallback
+		 * See MemoryAccessorGeneric.
+		 */
 		if(type.isPrimitive())
 		{
 			// "forced" is not applicable for primitive values
-			switch(XMemory.byteSizePrimitive(type))
+			if(type == byte.class)
 			{
-				case Byte.BYTES   : return STORE_1; // byte & boolean
-				case Short.BYTES  : return STORE_2_REVERSED; // short & char
-				case Integer.BYTES: return STORE_4_REVERSED; // int & float
-				case Long.BYTES   : return STORE_8_REVERSED; // long & double
-				default: throw new IllegalArgumentException();
+				return STORE_byte;
 			}
+			if(type == boolean.class)
+			{
+				return STORE_boolean;
+			}
+			if(type == short.class)
+			{
+				return STORE_short_REVERSED;
+			}
+			if(type == char.class)
+			{
+				return STORE_char_REVERSED;
+			}
+			if(type == int.class)
+			{
+				return STORE_int_REVERSED;
+			}
+			if(type == float.class)
+			{
+				return STORE_float_REVERSED;
+			}
+			if(type == long.class)
+			{
+				return STORE_long_REVERSED;
+			}
+			if(type == double.class)
+			{
+				return STORE_double_REVERSED;
+			}
+			
+			// unknown / unhandled primitive (e.g. void)
+			throw new IllegalArgumentException();
 		}
 
 		// reference case. Either "eager" or normal.
@@ -443,17 +779,48 @@ public final class BinaryValueFunctions
 			return getObjectValueSetterReversed(type);
 		}
 		
-		// primitive special cases
+		/* Primitive special cases.
+		 * Must be all 8 type-specific instead of just 4 size-specific for reflection fallback
+		 * See MemoryAccessorGeneric.
+		 */
 		if(type.isPrimitive())
 		{
-			switch(XMemory.byteSizePrimitive(type))
+			// "forced" is not applicable for primitive values
+			if(type == byte.class)
 			{
-				case Byte.BYTES   : return SETTER_1; // byte & boolean
-				case Short.BYTES  : return SETTER_2; // short & char
-				case Integer.BYTES: return SETTER_4; // int & float
-				case Long.BYTES   : return SETTER_8; // long & double
-				default: throw new IllegalArgumentException();
+				return SETTER_byte;
 			}
+			if(type == boolean.class)
+			{
+				return SETTER_boolean;
+			}
+			if(type == short.class)
+			{
+				return SETTER_short;
+			}
+			if(type == char.class)
+			{
+				return SETTER_char;
+			}
+			if(type == int.class)
+			{
+				return SETTER_int;
+			}
+			if(type == float.class)
+			{
+				return SETTER_float;
+			}
+			if(type == long.class)
+			{
+				return SETTER_long;
+			}
+			if(type == double.class)
+			{
+				return SETTER_double;
+			}
+			
+			// unknown / unhandled primitive (e.g. void)
+			throw new IllegalArgumentException();
 		}
 
 		// normal case of standard reference as anything that is not primitive must be a reference.
@@ -462,17 +829,48 @@ public final class BinaryValueFunctions
 	
 	public static BinaryValueSetter getObjectValueSetterReversed(final Class<?> type)
 	{
-		// primitive special cases
+		/* Primitive special cases.
+		 * Must be all 8 type-specific instead of just 4 size-specific for reflection fallback
+		 * See MemoryAccessorGeneric.
+		 */
 		if(type.isPrimitive())
 		{
-			switch(XMemory.byteSizePrimitive(type))
+			// "forced" is not applicable for primitive values
+			if(type == byte.class)
 			{
-				case Byte.BYTES   : return SETTER_1; // byte & boolean
-				case Short.BYTES  : return SETTER_2_REVERSED; // short & char
-				case Integer.BYTES: return SETTER_4_REVERSED; // int & float
-				case Long.BYTES   : return SETTER_8_REVERSED; // long & double
-				default: throw new IllegalArgumentException();
+				return SETTER_byte;
 			}
+			if(type == boolean.class)
+			{
+				return SETTER_boolean;
+			}
+			if(type == short.class)
+			{
+				return SETTER_short_REVERSED;
+			}
+			if(type == char.class)
+			{
+				return SETTER_char_REVERSED;
+			}
+			if(type == int.class)
+			{
+				return SETTER_int_REVERSED;
+			}
+			if(type == float.class)
+			{
+				return SETTER_float_REVERSED;
+			}
+			if(type == long.class)
+			{
+				return SETTER_long_REVERSED;
+			}
+			if(type == double.class)
+			{
+				return SETTER_double_REVERSED;
+			}
+			
+			// unknown / unhandled primitive (e.g. void)
+			throw new IllegalArgumentException();
 		}
 
 		// normal case of standard reference as anything that is not primitive must be a reference.
@@ -489,7 +887,7 @@ public final class BinaryValueFunctions
 			case Short.BYTES  : return SETTER_SKIP_2; // short & char
 			case Integer.BYTES: return SETTER_SKIP_4; // int & float
 			case Long.BYTES   : return SETTER_SKIP_8; // long & double & reference
-			default: throw new IllegalArgumentException();
+			default: throw new IllegalArgumentException(); // e.g. void
 		}
 	}
 
