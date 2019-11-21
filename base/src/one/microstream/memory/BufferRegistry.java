@@ -304,7 +304,12 @@ public class BufferRegistry
 		 * So given the currentLowestFreeIndex is consistent, the loop above WILL find
 		 * at least one free array slot and never reach here.
 		 */
-		// (21.11.2019 TM)FIXME: and of COURSE it happened during testing with Android.
+		/* (21.11.2019 TM)FIXME: and of COURSE it happened during testing with Android.
+		 * Values were: 63, 64, 54, 64
+		 * Meaning: currentLowestFreeIndex is not consistent.
+		 * And it means the special case of 63 being the only free index (not the case here)
+		 * has to be handled specially.
+		 */
 		throw new Error(
 			"Inconsistent byte buffer registry: currentLowestFreeIndex = " + this.currentLowestFreeIndex
 			+ ", indexTable.length = " + this.indexTable.length + "."

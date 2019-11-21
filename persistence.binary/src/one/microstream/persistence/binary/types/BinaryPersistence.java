@@ -79,7 +79,7 @@ import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListSet;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.binary.internal.BinaryHandlerSingletonStatelessEnum;
-import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
+import one.microstream.persistence.binary.internal.BinaryHandlerStatelessConstant;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.lazy.BinaryHandlerLazy;
 import one.microstream.persistence.types.Persistence;
@@ -218,12 +218,16 @@ public final class BinaryPersistence extends Persistence
 			 * (and Java in general), it is necessary to explicitly define stateless handlers for those
 			 * pseudo-stateless empty types with useless fields.
 			 * Rant over. Yes, I feel much better now.
+			 * 
+			 * Also, to avoid an erroneous instance creation that BinaryHandlerStateless might perform
+			 * (e.g. when using a dummy object registry as tools might do), the constant instance itself
+			 * has to be returned in case the create should ever be invoked.
 			 */
-			BinaryHandlerStateless.New(Collections.emptyNavigableSet().getClass()),
-			BinaryHandlerStateless.New(Collections.emptyNavigableMap().getClass()),
+			BinaryHandlerStatelessConstant.New(Collections.emptyNavigableSet()),
+			BinaryHandlerStatelessConstant.New(Collections.emptyNavigableMap()),
 			
-			// not an enum, as opposed to NaturalOrderComparator. Because lol, why do something consistently, right?
-			BinaryHandlerStateless.New(Collections.reverseOrder().getClass())
+			// not an enum, as opposed to NaturalOrderComparator.
+			BinaryHandlerStatelessConstant.New(Collections.reverseOrder())
 		);
 		
 		/* (24.10.2013 TM)TODO: priv#117 more native handlers (Path, Instant and whatnot)
