@@ -9,11 +9,14 @@ import java.util.Arrays;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.functional.DefaultInstantiator;
+import one.microstream.math.XMath;
+import one.microstream.memory.sun.JdkInternals;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.XTypes;
 
@@ -2234,7 +2237,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	///////////////////////////////////////////////////////////////////////////
 	// testing //
 	////////////
-	/*
+	//*
 		
 	static void print32BitHeader()
 	{
@@ -2714,6 +2717,31 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		printCounters(allocations, deallocations);
 	}
 	
+	static void testBufferRegisteringAndDeregisteringIssue176()
+	{
+		final int amount = 63;
+		
+		final MemoryAccessorGeneric memory = MemoryAccessorGeneric.New();
+		
+		final int bigChunkByteCount = 500;
+		
+		final long[] addresses = new long[amount];
+		X.repeat(1, amount, (final int i) ->
+		{
+			System.out.println(
+				VarString.New().add("  Allocate ").padLeft(Integer.toString(i), XMath.log10discrete(amount) + 1, ' ').add(' ')
+			);
+			addresses[i - 1] = allocateAndPrintRegisteredSimple(memory, bigChunkByteCount);
+		});
+		
+		System.out.println("Allocations done.");
+		
+		memory.freeMemory(addresses[0]);
+		
+		final long address = allocateAndPrintRegisteredSimple(memory, bigChunkByteCount);
+		System.out.println("#63: " + address);
+	}
+	
 	static void compareSpecific(final TestEntity entity, final MemoryAccessorGeneric memory)
 	{
 		System.out.println("Compare specific:");
@@ -2872,6 +2900,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 //		testObjectFields();
 //		testBufferRegistering();
 		testBufferRegisteringAndDeregisteringMixed(100);
+//		testBufferRegisteringAndDeregisteringIssue176();
 	}
 	//*/
 	
