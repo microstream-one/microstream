@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import one.microstream.hashing.XHashing;
 import one.microstream.math.XMath;
 
+// note: does not have to be synchronized since it is only used privately in a synchronized parent instance.
 public class BufferRegistry
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -237,12 +238,26 @@ public class BufferRegistry
 		// load working copy from heap (always funny)
 		int size = this.size;
 		
+		// (21.11.2019 TM)FIXME: priv#176
+		System.out.println(
+			"cleanUp: current size = " + size
+		);
+		
 		for(int i = 0; i < capacity; i++)
 		{
+			// (21.11.2019 TM)FIXME: priv#176
+			System.out.println(
+				"cleanUp: hashIndex " + i + "..."
+			);
 			for(Entry e = hashTable[i], last = null; e != null; e = (last = e).link)
 			{
+				// (21.11.2019 TM)FIXME: priv#176
+				System.out.print(
+					"cleanUp: entry with index #" + e.index
+				);
 				if(e.isHollow())
 				{
+					
 					// kick it out consistently (currentLowestFreeIndex NOT updated! See below)
 					indexTable[e.index] = null;
 					if(last == null)
@@ -254,12 +269,29 @@ public class BufferRegistry
 						last.link = e.link;
 					}
 					size--;
+					
+
+					// (21.11.2019 TM)FIXME: priv#176
+					System.out.println(
+						" is hollow. Removed. New size: " + size
+					);
+				}
+				else
+				{
+					// (21.11.2019 TM)FIXME: priv#176
+					System.out.println(
+						" is filled. Size remains " + size
+					);
 				}
 			}
 		}
-		
 
 		this.updateLowestFreeIndex();
+		
+		// (21.11.2019 TM)FIXME: priv#176
+		System.out.println(
+			"cleanUp: new size = " + size
+		);
 		
 		// store to heap (always funny)
 		this.size = size;
