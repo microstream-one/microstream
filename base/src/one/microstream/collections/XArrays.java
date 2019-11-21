@@ -1,5 +1,7 @@
 package one.microstream.collections;
 
+import static one.microstream.X.notNull;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -544,10 +546,45 @@ public final class XArrays
 			}
 			buffer.add(e); // element not yet contained in a1, add to buffer
 		}
+		
+		@SuppressWarnings("unchecked") // cast safety ensured by compiler. T[] has component type T.
+		final T[] newArray = buffer.toArray((Class<T>)a1.getClass().getComponentType());
 
-		final T[] newArray = X.ArrayOfSameType(buffer.data, buffer.size);
-		System.arraycopy(buffer.data, 0, newArray, 0, buffer.size);
 		return newArray;
+	}
+	
+	@SafeVarargs
+	public static final <T> T[] ensureContained(final T[] a1, final T... a2)
+	{
+		notNull(a1);
+		if(a2 == null)
+		{
+			return a1;
+		}
+
+		a2:
+		for(final T e2 : a2)
+		{
+			for(final T e1 : a1)
+			{
+				if(e2 == e1)
+				{
+					// element found in a1, continue with next a2 element
+					continue a2;
+				}
+			}
+			
+			// at least one element of a2 is not contained in a1. So they are merged (identitywise).
+			final HashEnum<T> merger = HashEnum.New(a1).addAll(a2);
+			
+			@SuppressWarnings("unchecked") // cast safety ensured by compiler. T[] has component type T.
+			final T[] merged = merger.toArray((Class<T>)a1.getClass().getComponentType());
+
+			return merged;
+		}
+		
+		// all elements of a2 were found in a1. No need to modify anything.
+		return a1;
 	}
 
 	/**
@@ -1853,24 +1890,24 @@ public final class XArrays
 	public static final void set_shortInBytes(final byte[] bytes, final int index, final short value)
 	{
 		XArrays.validateArrayIndex(bytes.length, index + 1);
-		bytes[index    ] = (byte)(value & 0xFF);
-		bytes[index + 1] = (byte)(value >>> Byte.SIZE);
+		bytes[index    ] = (byte)(value >>> 0*Byte.SIZE);
+		bytes[index + 1] = (byte)(value >>> 1*Byte.SIZE);
 	}
 
 	public static final void set_charInBytes(final byte[] bytes, final int index, final char value)
 	{
 		XArrays.validateArrayIndex(bytes.length, index + 1);
-		bytes[index    ] = (byte)(value & 0xFF);
-		bytes[index + 1] = (byte)(value >>> Byte.SIZE);
+		bytes[index    ] = (byte)(value >>> 0*Byte.SIZE);
+		bytes[index + 1] = (byte)(value >>> 1*Byte.SIZE);
 	}
 
 	public static final void set_intInBytes(final byte[] bytes, final int index, final int value)
 	{
 		XArrays.validateArrayIndex(bytes.length, index + 3);
-//		bytes[index    ] = (byte)(TODO);
-//		bytes[index + 1] = (byte)(TODO);
-//		bytes[index + 2] = (byte)(TODO);
-//		bytes[index + 3] = (byte)(TODO);
+		bytes[index + 0] = (byte)(value >>> 0*Byte.SIZE);
+		bytes[index + 1] = (byte)(value >>> 1*Byte.SIZE);
+		bytes[index + 2] = (byte)(value >>> 2*Byte.SIZE);
+		bytes[index + 3] = (byte)(value >>> 3*Byte.SIZE);
 	}
 
 	public static final void set_floatInBytes(final byte[] bytes, final int index, final float value)
@@ -1881,14 +1918,14 @@ public final class XArrays
 	public static final void set_longInBytes(final byte[] bytes, final int index, final long value)
 	{
 		XArrays.validateArrayIndex(bytes.length, index + 7);
-//		bytes[index    ] = (byte)(TODO);
-//		bytes[index + 1] = (byte)(TODO);
-//		bytes[index + 2] = (byte)(TODO);
-//		bytes[index + 3] = (byte)(TODO);
-//		bytes[index + 4] = (byte)(TODO);
-//		bytes[index + 5] = (byte)(TODO);
-//		bytes[index + 6] = (byte)(TODO);
-//		bytes[index + 7] = (byte)(TODO);
+		bytes[index + 0] = (byte)(value >>> 0*Byte.SIZE);
+		bytes[index + 1] = (byte)(value >>> 1*Byte.SIZE);
+		bytes[index + 2] = (byte)(value >>> 2*Byte.SIZE);
+		bytes[index + 3] = (byte)(value >>> 3*Byte.SIZE);
+		bytes[index + 4] = (byte)(value >>> 4*Byte.SIZE);
+		bytes[index + 5] = (byte)(value >>> 5*Byte.SIZE);
+		bytes[index + 6] = (byte)(value >>> 6*Byte.SIZE);
+		bytes[index + 7] = (byte)(value >>> 7*Byte.SIZE);
 	}
 
 	public static final void set_doubleInBytes(final byte[] bytes, final int index, final double value)
