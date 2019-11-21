@@ -8,15 +8,11 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import one.microstream.X;
-import one.microstream.chars.VarString;
-import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.functional.DefaultInstantiator;
-import one.microstream.math.XMath;
-import one.microstream.memory.sun.JdkInternals;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.XTypes;
 
@@ -670,7 +666,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	// direct byte buffer handling //
 	
 	@Override
-	public final long getDirectByteBufferAddress(final ByteBuffer directBuffer)
+	public final synchronized long getDirectByteBufferAddress(final ByteBuffer directBuffer)
 	{
 		final int registeredIndex = this.bufferRegistry.ensureRegistered(directBuffer);
 		
@@ -678,7 +674,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	}
 
 	@Override
-	public final boolean deallocateDirectByteBuffer(final ByteBuffer directBuffer)
+	public final synchronized boolean deallocateDirectByteBuffer(final ByteBuffer directBuffer)
 	{
 		if(directBuffer == null)
 		{
@@ -1436,6 +1432,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final void set_floatInBytes(final byte[] bytes, final int index, final float value)
 	{
+		// byte order check inside
 		this.set_intInBytes(bytes, index, Float.floatToRawIntBits(value));
 	}
 
@@ -1449,6 +1446,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	@Override
 	public final void set_doubleInBytes(final byte[] bytes, final int index, final double value)
 	{
+		// byte order check inside
 		this.set_longInBytes(bytes, index, Double.doubleToRawLongBits(value));
 	}
 
@@ -2017,7 +2015,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	}
 	
 	@Override
-	public void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
+	public final synchronized void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
 	{
 		final Field[] fields = BulkList.New(usedFields).toArray(Field.class);
 		
@@ -2035,8 +2033,14 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	{
 		return this.reversing;
 	}
+		
 	
 	
+	///////////////////////////////////////////////////////////////////////////
+	// testing //
+	////////////
+	/*
+
 	public static VarString assembleChunkTypeInformation(final VarString vs, final long address)
 	{
 		if(isSmallChunkAddress(address))
@@ -2231,13 +2235,6 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		
 		return memory;
 	}
-	
-	
-	
-	///////////////////////////////////////////////////////////////////////////
-	// testing //
-	////////////
-	//*
 		
 	static void print32BitHeader()
 	{
