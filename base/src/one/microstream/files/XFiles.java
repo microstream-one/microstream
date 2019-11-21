@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -119,32 +120,42 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		return writeCount;
 	}
 	
-	public static final <T> T readOneShot(
-		final Path                          file     ,
-		final IoOperationSR<FileChannel, T> operation
-	)
+	public static long writeAppend(final FileChannel fileChannel, final ByteBuffer buffer)
 		throws IOException
 	{
-		return performClosingOperation(
-			openFileChannelReading(file),
-			operation
-		);
+		// appending logic
+		return write(fileChannel, buffer, fileChannel.size());
 	}
 	
-	public static final <T> T writeOneShot(
-		final Path                          file     ,
-		final IoOperationSR<FileChannel, T> operation
+	public static long write(
+		final FileChannel fileChannel ,
+		final ByteBuffer  buffer      ,
+		final long        filePosition
 	)
 		throws IOException
 	{
-		return performClosingOperation(
-			openFileChannelWriting(file),
-			operation
-		);
+		fileChannel.position(filePosition);
+		
+		return write(fileChannel, buffer);
+	}
+	
+	public static long write(
+		final FileChannel fileChannel,
+		final ByteBuffer  buffer
+	)
+		throws IOException
+	{
+		long writeCount = 0;
+		while(buffer.hasRemaining())
+		{
+			writeCount += fileChannel.write(buffer);
+		}
+		
+		return writeCount;
 	}
 	
 	public static final <T> T performClosingOperation(
-		final FileChannel                fileChannel,
+		final FileChannel                   fileChannel,
 		final IoOperationSR<FileChannel, T> operation
 	)
 		throws IOException
@@ -443,6 +454,92 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 	// java.nio.file.Path //
 	///////////////////////
 	
+	// (21.11.2019 TM)FIXME: priv#157: replicate remaining File util methods
+		
+	public static final Path ensureWriteableFile(final Path file) throws FilePathException
+	{
+		/* (19.11.2019 TM)NOTE:
+		 * "Path" must be the dumbest idea on earth for a name to represent a file or a directory.
+		 * "Path" is way too generic. A physical way is also a path. A reference track is a path. The rules of
+		 * a cult can be a "path". Etc etc.
+		 * It is traceable that they needed another short and unique type name after "File" was already
+		 * taken by their clumsy first attempt, but still: Who talks (primarily!) about "paths" when referring to
+		 * files and directories? No one. Of course, every file has a uniquely identifying path in the file system,
+		 * but the concept a file is more than just being a path. It has content, attributes, a "primary" name,
+		 * a suffix, etc.
+		 * A "Path" does not indicate all this. All the concept of a "Path" stands for is:
+		 * "follow me and you will get to your destination".
+		 * When an API forces people to talk about "paths" when they actually mean files, it's nothing but a
+		 * complication.
+		 * At least they finally understood to design with interfaces instead of classes (halleluja!), but they did
+		 * it on a very basic, beginner-like level. The proper solution would have been:
+		 * interface FileItem (or "FSItem" if you must)
+		 * interface File extends FileItem
+		 * interface Directory extends FileItem
+		 * 
+		 * With Directory having methods like
+		 * iterateFiles
+		 * iterateDirectories
+		 * iterateItems
+		 * etc.
+		 * Proper typing. It would have been, could be wonderful.
+		 * But noooo. A singular, diffusely general "Path" is the best they could have come up with.
+		 * And clumsiest-possible API like Files.newDirectoryStream(mustHappenToBeADirectoryOrElseYouAreInTrouble).
+		 * 
+		 * So now we are stuck with "Path" to indiscriminately talk about files and directories alike.
+		 * Thanks to the JDK geniuses once again.
+		 * But I refuse to name the variables "path" instead of "file".
+		 * If there is a name of type String, the variable is "String name" and not "String string // this is a name".
+		 * So "Path file" and "Path directory" it is.
+		 * The same applies to method names. It's about ensuring a writeable FILE, an actual file, not a directory
+		 * and not some pilgrim path on which you are allowed to write a diary or something like that.
+		 */
+		
+		if(Files.notExists(file))
+		{
+			try
+			{
+				Files.createFile(file);
+			}
+			catch(final FileAlreadyExistsException e)
+			{
+				// alright then
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		if(!Files.isWritable(file))
+		{
+			throw new FilePathException(file, "Unwritable file");
+		}
+		
+		return file;
+	}
+	
+	public static FileChannel openFileChannelReading(final Path file, final OpenOption... options)
+		throws IOException
+	{
+		return FileChannel.open(file, XArrays.ensureContained(options, READ));
+	}
+	
+	public static FileChannel openFileChannelWriting(final Path file, final OpenOption... options)
+		throws IOException
+	{
+		return FileChannel.open(file, XArrays.ensureContained(options, WRITE));
+	}
+	
+	public static final <T> T readOneShot(final Path file, final IoOperationSR<FileChannel, T> operation)
+		throws IOException
+	{
+		return performClosingOperation(
+			openFileChannelReading(file),
+			operation
+		);
+	}
+	
 	public static String readString(final Path file)
 		throws IOException
 	{
@@ -472,16 +569,16 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		return readOneShot(file, XFiles::readFile);
 	}
 	
-	public static FileChannel openFileChannelReading(final Path file, final OpenOption... options)
+	public static final <T> T writeOneShot(
+		final Path                          file     ,
+		final IoOperationSR<FileChannel, T> operation
+	)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, READ));
-	}
-	
-	public static FileChannel openFileChannelWriting(final Path file, final OpenOption... options)
-		throws IOException
-	{
-		return FileChannel.open(file, XArrays.ensureContained(options, WRITE));
+		return performClosingOperation(
+			openFileChannelWriting(file),
+			operation
+		);
 	}
 	
 	public static final long writeAppend(final Path file, final String string)
@@ -522,42 +619,6 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 		);
 	}
 	
-	public static long writeAppend(final FileChannel fileChannel, final ByteBuffer buffer)
-		throws IOException
-	{
-		// appending logic
-		return write(fileChannel, buffer, fileChannel.size());
-	}
-	
-	public static long write(
-		final FileChannel fileChannel ,
-		final ByteBuffer  buffer      ,
-		final long        filePosition
-	)
-		throws IOException
-	{
-		fileChannel.position(filePosition);
-		
-		return write(fileChannel, buffer);
-	}
-	
-	public static long write(
-		final FileChannel fileChannel,
-		final ByteBuffer  buffer
-	)
-		throws IOException
-	{
-		long writeCount = 0;
-		while(buffer.hasRemaining())
-		{
-			writeCount += fileChannel.write(buffer);
-		}
-		
-		return writeCount;
-	}
-	
-	// (20.11.2019 TM)FIXME: priv#157
-	
 	public static void move(final Path sourceFile, final Path targetFile) throws IORuntimeException, RuntimeException
 	{
 		try
@@ -573,6 +634,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 			throw new RuntimeException(e);
 		}
 	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
