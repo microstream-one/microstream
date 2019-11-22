@@ -190,7 +190,7 @@ public class Persistence
 	static final long TID_ARRAY_StringBuffer   = 100L + TID_StringBuffer         ;
 	static final long TID_ARRAY_StringBuilder  = 100L + TID_StringBuilder        ;
 	
-	static final long TID_persistence_Lazy = 10000L;
+	static final long TID_persistence_Lazy_Default = 10000L;
 
 	// CHECKSTYLE.ON: ConstantName
 
@@ -384,7 +384,7 @@ public class Persistence
 
 		// framework types //
 
-		NATIVE_TYPES.add(Lazy.class, TID_persistence_Lazy);
+		NATIVE_TYPES.add(Lazy.Default.class, TID_persistence_Lazy_Default);
 	}
 
 
@@ -393,8 +393,6 @@ public class Persistence
 	{
 		return TID_Class;
 	}
-
-
 
 	public static final boolean isNativeType(final Class<?> type)
 	{
@@ -467,33 +465,6 @@ public class Persistence
 		return registry;
 	}
 
-	public static final boolean getCached(
-		final PersistenceObjectIdResolver objectIdResolver,
-		final Object[]                    target          ,
-		final int                         targetOffset    ,
-		final long[]                      objectIds
-	)
-	{
-		for(int i = 0; i < objectIds.length; i++)
-		{
-			final Object cachedInstance;
-			if((cachedInstance = objectIdResolver.lookupObject(objectIds[i])) != null)
-			{
-				target[targetOffset + i] = cachedInstance;
-				objectIds[i] = 0L;
-			}
-		}
-		for(int i = targetOffset; i < target.length; i++)
-		{
-			if(target[i] == null)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-
 
 
 	public static long validateObjectId(final long id) throws PersistenceExceptionConsistencyInvalidObjectId
@@ -516,9 +487,9 @@ public class Persistence
 
 	public static final void iterateReferences(
 		final PersistenceFunction iterator,
-		final Object[]        array   ,
-		final int             offset  ,
-		final int             length
+		final Object[]            array   ,
+		final int                 offset  ,
+		final int                 length
 	)
 	{
 		final int bound = offset + length;
