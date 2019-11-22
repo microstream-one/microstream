@@ -1019,14 +1019,12 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		final int targetLimit = determineActualCopyLimit(targetBound, targetBuffer);
 		
 		XArrays.validateRange0toUpperBound(targetLimit, targetPosition, intLength);
-		
-		// store both buffers' current navigational state to restore them later (badly designed concerns mix in BBs)
-		final int targetBufferCurrentPosition = targetBuffer.position();
-		final int targetBufferCurrentLimit    = targetBuffer.limit();
 
-		// restore buffer navigational states
-		targetBuffer.limit(targetPosition + intLength);
-		targetBuffer.position(targetPosition);
+		// store both buffer current navigational state to restore them later (badly designed concerns mix in BBs)
+		final long targetCurrentPosLim = XMemory.getPositionLimit(targetBuffer);
+
+		// prepare buffer navigational states
+		XMemory.setPositionLimit(targetBuffer, targetPosition, targetPosition + intLength);
 		
 		final int bound = targetPosition + intLength;
 		
@@ -1037,8 +1035,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		}
 
 		// restore buffer navigational states in case they are used by external logic (badly designed concerns mix in BBs)
-		targetBuffer.limit   (targetBufferCurrentLimit);
-		targetBuffer.position(targetBufferCurrentPosition);
+		XMemory.setPositionLimit(targetBuffer, targetCurrentPosLim);
 	}
 	
 	
