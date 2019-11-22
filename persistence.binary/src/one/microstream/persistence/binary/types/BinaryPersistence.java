@@ -81,7 +81,7 @@ import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.binary.internal.BinaryHandlerSingletonStatelessEnum;
 import one.microstream.persistence.binary.internal.BinaryHandlerStatelessConstant;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import one.microstream.persistence.lazy.BinaryHandlerLazy;
+import one.microstream.persistence.lazy.BinaryHandlerLazyDefault;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -294,7 +294,7 @@ public final class BinaryPersistence extends Persistence
 			// still creepy JDK 1.7 collections
 			BinaryHandlerConcurrentLinkedDeque.New(),
 
-			BinaryHandlerLazy.New(),
+			BinaryHandlerLazyDefault.New(),
 			
 			// the way Optional is implemented, only a generically (low-level) working handler can handle it correctly
 			typeHandlerCreator.createTypeHandler(Optional.class)
