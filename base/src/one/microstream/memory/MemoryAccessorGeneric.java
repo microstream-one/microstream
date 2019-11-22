@@ -1594,7 +1594,12 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
 		for(int i = 0; i < target.length; i++)
 		{
-			target[i] = XTypes.to_boolean(buffer.get(position));
+			// (22.11.2019 TM)FIXME: priv#176: debuggable variables
+			final byte    rawValue     = buffer.get(position);
+			final boolean booleanValue = XTypes.to_boolean(rawValue);
+			target[i] = booleanValue;
+			
+//			target[i] = XTypes.to_boolean(buffer.get(position));
 		}
 	}
 
@@ -1706,7 +1711,6 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		// restore buffer navigational state in case they are used by external logic (badly designed concerns mix in BBs)
 		targetBuffer.limit   (targetBufferCurrentLimit);
 		targetBuffer.position(targetBufferCurrentPosition);
-		
 	}
 	
 	@Override
@@ -1718,7 +1722,11 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
 		for(int i = 0; i < array.length; i++)
 		{
-			buffer.put(position + i, XTypes.to_byte(array[i]));
+			// (22.11.2019 TM)FIXME: priv#176: debuggable variables
+			final boolean booleanValue   = array[i];
+			final byte    convertedvalue = XTypes.to_byte(array[i]);
+			buffer.put(position + i, convertedvalue);
+//			buffer.put(position + i, XTypes.to_byte(array[i]));
 		}
 	}
 	
