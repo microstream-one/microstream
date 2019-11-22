@@ -1055,7 +1055,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	public final synchronized boolean get_boolean(final long address)
 	{
 		// because providing a ByteBuffer#get/putBoolean was too hard to do for them...
-		return this.get_byte(address) != 0;
+		return XTypes.to_boolean(this.get_byte(address));
 	}
 
 	@Override
@@ -1594,7 +1594,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		// thanks to incredibly insufficient API design of ByteBuffer, there is no properly efficient way to do it.
 		for(int i = 0; i < target.length; i++)
 		{
-			target[i] = buffer.get(position) != 0;
+			target[i] = XTypes.to_boolean(buffer.get(position + i));
 		}
 	}
 
@@ -1706,7 +1706,6 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		// restore buffer navigational state in case they are used by external logic (badly designed concerns mix in BBs)
 		targetBuffer.limit   (targetBufferCurrentLimit);
 		targetBuffer.position(targetBufferCurrentPosition);
-		
 	}
 	
 	@Override

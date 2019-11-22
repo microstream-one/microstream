@@ -256,7 +256,7 @@ public final class XTypes
 	
 	public static final boolean to_boolean(final byte value)
 	{
-		return value != (byte)0;
+		return value != 0;
 	}
 
 	public static final int to_int(final boolean value)
