@@ -122,6 +122,10 @@ public final class JdkInternals
 	// must be initialized first for the initializing methods to be able to use it.
 	static final ArrayList<Warning> INITIALIZATION_WARNINGS = new ArrayList<>();
 			
+	/*
+	 * See
+	 * http://stackoverflow.com/questions/8462200/examples-of-forcing-freeing-of-native-memory-direct-bytebuffer-has-allocated-us
+	 */
 	static final Class<?> CLASS_Cleaner = tryIterativeResolveType(
 		// initial type name
 		"sun.misc.Cleaner",
