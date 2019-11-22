@@ -75,18 +75,8 @@ public class BufferRegistry
 	
 	private void updateLowestFreeIndex()
 	{
-		// (21.11.2019 TM)FIXME: priv#176
-		System.out.print(
-			"updateLowestFreeIndex: currentLowestFreeIndex = " + this.currentLowestFreeIndex
-		);
-		
 		// it is probably faster to determine it from scratch and the end instead of updating it several times
 		this.currentLowestFreeIndex = determineLowestFreeIndex(this.indexTable);
-		
-		// (21.11.2019 TM)FIXME: priv#176
-		System.out.println(
-			", changed to " + this.currentLowestFreeIndex + "."
-		);
 	}
 	
 	private int hash(final ByteBuffer byteBuffer)
@@ -98,17 +88,8 @@ public class BufferRegistry
 	{
 		if(freeIndex >= this.currentLowestFreeIndex)
 		{
-			// (21.11.2019 TM)FIXME: priv#176
-			System.out.println(
-				"updateCurrentLowestFreeIndex: free index " + freeIndex + " >= " + this.currentLowestFreeIndex + ". No update."
-			);
 			return;
 		}
-		
-		// (21.11.2019 TM)FIXME: priv#176
-		System.out.println(
-			"updateCurrentLowestFreeIndex: free index " + freeIndex + " < " + this.currentLowestFreeIndex + ". Update."
-		);
 
 		this.currentLowestFreeIndex = freeIndex;
 	}
@@ -139,11 +120,6 @@ public class BufferRegistry
 		
 		if(++this.size >= this.increaseBound)
 		{
-			// (21.11.2019 TM)FIXME: priv#176
-			System.out.println(
-				"ensureRegistered: checking for rebuild. New size = " + this.size + " >= " + this.increaseBound
-			);
-			
 			this.checkForIncrementingRebuild();
 		}
 
@@ -171,21 +147,11 @@ public class BufferRegistry
 	{
 		if(this.hasHollowEncounters())
 		{
-			// (21.11.2019 TM)FIXME: priv#176
-			System.out.println(
-				"checkForIncrementingRebuild: hollow cleanup instead of rebuild."
-			);
-			
 			// just clean up the garbage to make at least 1 more space instead of a costly table increase
 			this.cleanUp();
 		}
 		else
 		{
-			// (21.11.2019 TM)FIXME: priv#176
-			System.out.println(
-				"checkForIncrementingRebuild: incrementingRebuild."
-			);
-			
 			// tables really need to be increased
 			this.incrementingRebuild();
 		}
@@ -200,7 +166,8 @@ public class BufferRegistry
 
 			// (08.11.2019 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Buffer registry cannot be increased beyond the specified maximum capacity of " + this.maximumCapacityBound
+				"Buffer registry cannot be increased beyond the specified maximum capacity of "
+				+ this.maximumCapacityBound
 			);
 		}
 		
@@ -211,7 +178,8 @@ public class BufferRegistry
 			
 			// (08.11.2019 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"Buffer registry cannot be increased beyond the technical maximum capacity of " + XMath.highestPowerOf2_int()
+				"Buffer registry cannot be increased beyond the technical maximum capacity of "
+				+ XMath.highestPowerOf2_int()
 			);
 			
 			/* Note:
@@ -238,23 +206,10 @@ public class BufferRegistry
 		// load working copy from heap (always funny)
 		int size = this.size;
 		
-		// (21.11.2019 TM)FIXME: priv#176
-		System.out.println(
-			"cleanUp: current size = " + size
-		);
-		
 		for(int i = 0; i < capacity; i++)
 		{
-			// (21.11.2019 TM)FIXME: priv#176
-			System.out.println(
-				"cleanUp: hashIndex " + i + "..."
-			);
 			for(Entry e = hashTable[i], last = null; e != null; e = e.link)
 			{
-				// (21.11.2019 TM)FIXME: priv#176
-				System.out.print(
-					"cleanUp: entry with index #" + e.index
-				);
 				if(e.isHollow())
 				{
 					// kick it out consistently (currentLowestFreeIndex NOT updated! See below)
@@ -269,34 +224,18 @@ public class BufferRegistry
 						last.link = e.link;
 					}
 					size--;
-					
-
-					// (21.11.2019 TM)FIXME: priv#176
-					System.out.println(
-						" is hollow. Removed. New size: " + size
-					);
-					
+										
 					// last remains the same since e gets kicked out
 				}
 				else
 				{
 					// only non-hollow entries are accepted as last because hollow ones get kicked out.
 					last = e;
-					
-					// (21.11.2019 TM)FIXME: priv#176
-					System.out.println(
-						" is filled. Size remains " + size
-					);
 				}
 			}
 		}
 
 		this.updateLowestFreeIndex();
-		
-		// (21.11.2019 TM)FIXME: priv#176
-		System.out.println(
-			"cleanUp: new size = " + size
-		);
 		
 		// store to heap (always funny)
 		this.size = size;
@@ -321,11 +260,6 @@ public class BufferRegistry
 	
 	private void shrink()
 	{
-		// (21.11.2019 TM)FIXME: priv#176
-		System.out.println(
-			"shrink: rebuild to " + this.shrinkBound + "."
-		);
-		
 		this.rebuild(this.shrinkBound);
 	}
 	
@@ -337,12 +271,7 @@ public class BufferRegistry
 		final int     newHashRange = newCapacity - 1;
 		final Entry[] newIndxTable = new Entry[newCapacity];
 		final Entry[] newHashTable = new Entry[newCapacity];
-		
-		// (21.11.2019 TM)FIXME: priv#176
-		System.out.println(
-			"rebuild: oldCapacity = " + oldCapacity + " -> newCapacity = " + newCapacity
-		);
-		
+				
 		// load working copy from heap (always funny)
 		int size = this.size;
 		
@@ -371,14 +300,6 @@ public class BufferRegistry
 
 	private int determineFreeIndex()
 	{
-		// (21.11.2019 TM)FIXME: priv#176
-		System.out.println(
-			"determineFreeIndex: currentLowestFreeIndex = " + this.currentLowestFreeIndex
-			+ ", indexTable.length = " + this.indexTable.length + "."
-			+ " Size = " + this.size
-		);
-		
-		
 		final int currentFreeIndex = this.currentLowestFreeIndex;
 		
 		final Entry[] indexTable = this.indexTable;
@@ -398,17 +319,10 @@ public class BufferRegistry
 		 * So given the currentLowestFreeIndex is consistent, the loop above WILL find
 		 * at least one free array slot and never reach here.
 		 */
-		/* (21.11.2019 TM)FIXME: and of COURSE it happened during testing with Android.
-		 * Values were: 63, 64, 54, 64
-		 * Meaning: currentLowestFreeIndex is not consistent.
-		 * And it means the special case of 63 being the only free index (not the case here)
-		 * has to be handled specially.
-		 */
 		throw new Error(
 			"Inconsistent byte buffer registry: currentLowestFreeIndex = " + this.currentLowestFreeIndex
 			+ ", indexTable.length = " + this.indexTable.length + "."
-			+ " No free index found."
-			+ " Size = " + this.size + ", increaseBound = " + this.increaseBound
+			+ " No free index found." + " Size = " + this.size
 		);
 	}
 	
@@ -427,21 +341,10 @@ public class BufferRegistry
 			last.link = entry.link;
 		}
 		
-
-		// (21.11.2019 TM)FIXME: priv#176
-		System.out.println(
-			"removeEntry: clear index " + entry.index + "."
-		);
-		
 		this.clearIndex(entry.index);
 		
 		if(--this.size < this.shrinkBound)
 		{
-			// (21.11.2019 TM)FIXME: priv#176
-			System.out.println(
-				"removeEntry: checkShrink."
-			);
-			
 			this.checkShrink();
 		}
 	}
