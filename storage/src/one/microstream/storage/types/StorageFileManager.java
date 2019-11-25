@@ -6,11 +6,11 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.notNegative;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -111,7 +111,8 @@ public interface StorageFileManager
 			return storagePositions;
 		}
 
-		static final FileLock openFileChannel(final File file)
+		// (25.11.2019 TM)FIXME: priv#175: check if really not used anymore
+		static final FileLock openFileChannel(final Path file)
 		{
 //			DEBUGStorage.println("Thread " + Thread.currentThread().getName() + " opening channel for " + file);
 			FileChannel channel = null;

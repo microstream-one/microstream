@@ -1,6 +1,6 @@
 package one.microstream.test.util;
 
-import static one.microstream.files.XFiles.File;
+import static one.microstream.io.XFiles.File;
 
 import java.io.File;
 

@@ -1,4 +1,4 @@
-package one.microstream.files;
+package one.microstream.io;
 
 import java.io.File;
 

@@ -2,7 +2,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
@@ -496,7 +496,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public final void importFiles(final XGettingEnum<File> importFiles)
+		public final void importFiles(final XGettingEnum<Path> importFiles)
 		{
 			this.singletonConnection().importFiles(importFiles);
 		}

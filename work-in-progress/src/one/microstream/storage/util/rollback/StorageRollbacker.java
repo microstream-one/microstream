@@ -16,7 +16,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.files.XFiles;
+import one.microstream.io.XFiles;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;

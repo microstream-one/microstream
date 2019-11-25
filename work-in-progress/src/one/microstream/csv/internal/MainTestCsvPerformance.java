@@ -1,11 +1,9 @@
 package one.microstream.csv.internal;
 
-import java.io.File;
-
 import one.microstream.chars.StringTable;
 import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
-import one.microstream.files.XFiles;
+import one.microstream.io.XPaths;
 import one.microstream.util.csv.CsvContent;
 import one.microstream.util.csv.CsvContentBuilderCharArray;
 
@@ -69,8 +67,8 @@ public class MainTestCsvPerformance
 
 	private static void doit() throws Throwable
 	{
-		final char[] input  = XFiles.readString(
-			new File("D:/TestExport.csv").toPath(),
+		final char[] input  = XPaths.readString(
+			XPaths.Path("D:/TestExport.csv"),
 			XChars.defaultJvmCharset()
 		).toCharArray();
 

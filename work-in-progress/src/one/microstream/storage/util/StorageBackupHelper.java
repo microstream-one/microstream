@@ -1,8 +1,9 @@
 package one.microstream.storage.util;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import one.microstream.chars.VarString;
+import one.microstream.io.XPaths;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeDictionaryAssembler;
@@ -30,7 +31,7 @@ public final class StorageBackupHelper
 	public static void backup(
 		final EmbeddedStorageManager       storageManager        ,
 		final EmbeddedStorageFoundation<?> storageFoundation     ,
-		final File                         targetDirectory       ,
+		final Path                         targetDirectory       ,
 		final String                       typeDictionaryFileName
 	)
 	{
@@ -40,7 +41,7 @@ public final class StorageBackupHelper
 	public static void backup(
 		final EmbeddedStorageManager                 storageManager        ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation  ,
-		final File                                   targetDirectory       ,
+		final Path                                   targetDirectory       ,
 		final String                                 typeDictionaryFileName
 	)
 	{
@@ -51,7 +52,7 @@ public final class StorageBackupHelper
 
 	static void backupData(
 		final EmbeddedStorageManager storageManager          ,
-		final File                   targetDirectory         ,
+		final Path                   targetDirectory         ,
 		final boolean                runFullGarbageCollection
 	)
 	{
@@ -67,7 +68,7 @@ public final class StorageBackupHelper
 
 	static void backupMetadata(
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation  ,
-		final File                                   targetDirectory       ,
+		final Path                                   targetDirectory       ,
 		final String                                 typeDictionaryFileName
 	)
 	{
@@ -81,9 +82,9 @@ public final class StorageBackupHelper
 		final String typeDictString = dictionaryAssembler.assemble(VarString.New(), typeDictionary).toString();
 
 		// arbitrary file names, preferably the same that were used for creating the EmbeddedStorageConnectionFoundation instance.
-//		final File fileOid = new File(targetDirectory, "MyObjectId.oid");
-//		final File fileTid = new File(targetDirectory, "MyTypeId.oid");
-		final File fileTDc = new File(targetDirectory, typeDictionaryFileName);
+//		final Path fileOid = XPaths.Path(targetDirectory, "MyObjectId.oid");
+//		final Path fileTid = XPaths.Path(targetDirectory, "MyTypeId.oid");
+		final Path fileTDc = XPaths.Path(targetDirectory, typeDictionaryFileName);
 
 		// write current metadata's state to the specified files (= "metadata backup")
 		PersistenceTypeDictionaryFileHandler.writeTypeDictionary(fileTDc, typeDictString);

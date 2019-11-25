@@ -1,11 +1,13 @@
 package one.microstream.storage.util;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import one.microstream.collections.BulkList;
+import one.microstream.io.XPaths;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
@@ -56,7 +58,10 @@ public class UtilStorageCsvExport
 	 * @return Die Statistik der OGS Binary Export Funktion, siehe {@link StorageEntityTypeExportStatistics}.
 	 * @see UtilStorageCsvExport#exportCsv(EmbeddedStorageManager, File, Predicate)
 	 */
-	public static StorageEntityTypeExportStatistics exportCsv(final EmbeddedStorageManager storage, final File targetDirectory)
+	public static StorageEntityTypeExportStatistics exportCsv(
+		final EmbeddedStorageManager storage        ,
+		final Path                   targetDirectory
+	)
 	{
 		return exportCsv(storage, targetDirectory, null);
 	}
@@ -72,7 +77,7 @@ public class UtilStorageCsvExport
 	 */
 	public static StorageEntityTypeExportStatistics exportCsv(
 		final EmbeddedStorageManager                      storage         ,
-		final File                                        targetDirectory ,
+		final Path                                        targetDirectory ,
 		final Predicate<? super StorageEntityTypeHandler> exportTypeFilter
 	)
 	{
@@ -87,13 +92,13 @@ public class UtilStorageCsvExport
 	
 	static StorageEntityTypeExportStatistics internalExportBinaryAndConvert(
 		final EmbeddedStorageManager                      storage        ,
-		final File                                        targetDirectory,
+		final Path                                        targetDirectory,
 		final Predicate<? super StorageEntityTypeHandler> exportFilter
 	)
 	{
-		final File binDirectory = ensureDirectory(new File(targetDirectory, SUB_DIRECTORY_BIN));
+		final Path binDirectory = XPaths.ensureDirectoryUnchecked(XPaths.Path(targetDirectory, SUB_DIRECTORY_BIN));
 
-		final BulkList<File> exportFiles = BulkList.New(1000);
+		final BulkList<Path> exportFiles = BulkList.New(1000);
 		
 		final long tStart = System.nanoTime();
 		final StorageEntityTypeExportStatistics result = internalExportTypes(
@@ -116,8 +121,8 @@ public class UtilStorageCsvExport
 	static final StorageEntityTypeExportStatistics internalExportTypes(
 		final StorageConnection                           storageConnection  ,
 		final Predicate<? super StorageEntityTypeHandler> isExportType       ,
-		final File                                        targetDirectory    ,
-		final Consumer<? super File>                      exportFileCollector,
+		final Path                                        targetDirectory    ,
+		final Consumer<? super Path>                      exportFileCollector,
 		final String                                      fileSuffix
 	)
 	{
@@ -130,25 +135,25 @@ public class UtilStorageCsvExport
 		
 		result.typeStatistics().values().iterate(s ->
 			exportFileCollector.accept(
-				new File(s.file().identifier())
+				XPaths.Path(s.file().identifier())
 			)
 		);
 		
 		return result;
 	}
 	
-	static File internalConvertToCsv(
+	static Path internalConvertToCsv(
 		final EmbeddedStorageManager storage     ,
-		final File                   csvDirectory,
-		final Iterator<File>         binaryFiles ,
+		final Path                   csvDirectory,
+		final Iterator<Path>         binaryFiles ,
 		final String                 fileSuffix
 	)
 	{
 		final String effectiveFileSuffix = "." + fileSuffix;
 		
-		final Predicate<File> filter = file ->
-			!file.isDirectory()
-			&& file.getName().endsWith(effectiveFileSuffix)
+		final Predicate<Path> filter = file ->
+			!XPaths.isDirectoryUnchecked(file)
+			&& XPaths.getFileName(file).endsWith(effectiveFileSuffix)
 		;
 		
 		final long tStart = System.nanoTime();
@@ -161,9 +166,9 @@ public class UtilStorageCsvExport
 	
 	static void internalConvertFiles(
 		final StorageTypeDictionary   typeDictionary    ,
-		final File                    csvTargetDirectory,
-		final Iterator<File>          fileProvider      ,
-		final Predicate<? super File> filter            ,
+		final Path                    csvTargetDirectory,
+		final Iterator<Path>          fileProvider      ,
+		final Predicate<? super Path> filter            ,
 		final String                  name
 	)
 	{
@@ -178,7 +183,7 @@ public class UtilStorageCsvExport
 
 		while(true)
 		{
-			final File file;
+			final Path file;
 			
 			// fileProvider is queried by multiple threads and must therefore be used in a synchronized fashion.
 			synchronized(fileProvider)
@@ -212,9 +217,9 @@ public class UtilStorageCsvExport
 		}
 	}
 	
-	static void printAction(final String name, final String action, final File file)
+	static void printAction(final String name, final String action, final Path file)
 	{
-		System.out.println((name == null ? "" : name + " ") + action + " " + file.getPath());
+		System.out.println((name == null ? "" : name + " ") + action + " " + XPaths.getFilePath(file));
 	}
 	
 	static final File ensureDirectory(final File directory)
@@ -260,13 +265,13 @@ public class UtilStorageCsvExport
 		// export all
 		UtilStorageCsvExport.exportCsv(
 			storage,
-			new File("C:/StorageExportTest_2018-02-20-1600_ALL")
+			XPaths.Path("C:/StorageExportTest_2018-02-20-1600_ALL")
 		);
 		
 		// Export-Type-Filter example: only export Strings
 		UtilStorageCsvExport.exportCsv(
 			storage,
-			new File("C:/StorageExportTest_2018-02-20-1600_Strings"),
+			XPaths.Path("C:/StorageExportTest_2018-02-20-1600_Strings"),
 			t -> t.typeName().equals(String.class.getName())
 		);
 		

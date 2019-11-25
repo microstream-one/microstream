@@ -1,15 +1,15 @@
-package one.microstream.files;
+package one.microstream.io;
 
-import java.io.File;
+import java.nio.file.Path;
 
 
-public class FileException extends RuntimeException
+public class FilePathException extends RuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 
-	private final File subject;
+	private final Path subject;
 
 
 
@@ -17,25 +17,25 @@ public class FileException extends RuntimeException
 	// constructors //
 	/////////////////
 
-	public FileException(final File subject)
+	public FilePathException(final Path subject)
 	{
 		super();
 		this.subject = subject;
 	}
 
-	public FileException(final File subject, final String message, final Throwable cause)
+	public FilePathException(final Path subject, final String message, final Throwable cause)
 	{
 		super(message, cause);
 		this.subject = subject;
 	}
 
-	public FileException(final File subject, final String message)
+	public FilePathException(final Path subject, final String message)
 	{
 		super(message);
 		this.subject = subject;
 	}
 
-	public FileException(final File subject, final Throwable cause)
+	public FilePathException(final Path subject, final Throwable cause)
 	{
 		super(cause);
 		this.subject = subject;
@@ -47,7 +47,7 @@ public class FileException extends RuntimeException
 	// getters //
 	////////////
 
-	public File getSubject()
+	public Path getSubject()
 	{
 		return this.subject;
 	}

@@ -2,6 +2,7 @@ package one.microstream.storage.types;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 
 import one.microstream.persistence.types.Persistence;
 
@@ -115,18 +116,32 @@ public final class Storage
 	}
 	
 	/**
-	 * {@linkDoc StorageFileProvider#New(File)}
+	 * Alias for {@code FileProvider(storageDirectory.toPath())}
 	 * 
-	 * @param storageDirectory {@linkDoc StorageFileProvider#New(File):}
+	 * @param storageDirectory {@linkDoc StorageFileProvider#New(Path):}
 	 * 
-	 * @return {@linkDoc StorageFileProvider#New(File)@return}
+	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
+	 * 
+	 * @see Storage#FileProvider(Path)
+	 */
+	public static final StorageFileProvider FileProvider(final File storageDirectory)
+	{
+		return FileProvider(storageDirectory.toPath());
+	}
+	
+	/**
+	 * {@linkDoc StorageFileProvider#New(Path)}
+	 * 
+	 * @param storageDirectory {@linkDoc StorageFileProvider#New(Path):}
+	 * 
+	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
 	 * 
 	 * @see Storage#FileProvider()
 	 * @see StorageFileProvider#New(File)
 	 * @see StorageFileProvider.Builder
 	 * @see StorageFileProvider.Defaults
 	 */
-	public static final StorageFileProvider FileProvider(final File storageDirectory)
+	public static final StorageFileProvider FileProvider(final Path storageDirectory)
 	{
 		return StorageFileProvider.New(storageDirectory);
 	}

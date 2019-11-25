@@ -5,8 +5,8 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
-import one.microstream.files.FileException;
-import one.microstream.files.XFiles;
+import one.microstream.io.FileException;
+import one.microstream.io.XFiles;
 import one.microstream.io.XIO;
 
 public final class ProtageFileSystem

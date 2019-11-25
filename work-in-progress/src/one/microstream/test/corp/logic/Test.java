@@ -2,7 +2,7 @@ package one.microstream.test.corp.logic;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,6 +18,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XTable;
+import one.microstream.io.XPaths;
 import one.microstream.math.XMath;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis;
@@ -275,26 +276,26 @@ public class Test
 		System.out.println(TIME_FORMAT.format(XTime.now())+": "+object);
 	}
 
-	public static File provideTimestampedDirectory(final File directory, final String prefix)
+	public static Path provideTimestampedDirectory(final Path directory, final String prefix)
 	{
-		return new File(directory, prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date()));
+		return XPaths.Path(directory, prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date()));
 	}
 
-	public static File provideTimestampedDirectory(final String prefix)
+	public static Path provideTimestampedDirectory(final String prefix)
 	{
 		return provideTimestampedDirectory(null, prefix);
 	}
 
 
-	public static void printTransactionsFiles(final File... files)
+	public static void printTransactionsFiles(final Path... files)
 	{
-		for(final File file : files)
+		for(final Path file : files)
 		{
 			printTransactionsFile(file);
 		}
 	}
 
-	public static String assembleTransactionsFile(final File file)
+	public static String assembleTransactionsFile(final Path file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
 		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
@@ -304,19 +305,19 @@ public class Test
 		return s.toString();
 	}
 	
-	public static void printTransactionsFile(final File file)
+	public static void printTransactionsFile(final Path file)
 	{
 		final String s = assembleTransactionsFile(file);
 		System.out.println(s.toString());
 	}
 
-	public static void printTransactionsFiles(final File storageDirectory, final int channelCount)
+	public static void printTransactionsFiles(final Path storageDirectory, final int channelCount)
 	{
-		final File[] files = new File[channelCount];
+		final Path[] files = new Path[channelCount];
 
 		for(int i = 0; i < files.length; i++)
 		{
-			files[i] = new File(new File(storageDirectory, "channel_"+i), "transactions_"+i+".sft");
+			files[i] = XPaths.Path(XPaths.Path(storageDirectory, "channel_"+i), "transactions_"+i+".sft");
 		}
 		printTransactionsFiles(files);
 	}

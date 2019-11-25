@@ -5,10 +5,15 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.chars.VarString;
-import one.microstream.files.XFiles;
+import one.microstream.exceptions.IORuntimeException;
+import one.microstream.io.XPaths;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionaryIoHandler;
@@ -112,19 +117,32 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		C collectFile(
 			final C      collector       ,
 			final int    channelIndex    ,
-			final File   storageDirectory,
+			final Path   storageDirectory,
 			final String fileBaseName    ,
 			final String suffix
 		)
 		{
-			final File[] files = storageDirectory.listFiles();
-			if(files != null)
+			try(DirectoryStream<Path> stream = Files.newDirectoryStream(storageDirectory))
 			{
-				for(final File file : files)
-				{
-					internalCollectFile(collector, channelIndex, file, fileBaseName, suffix);
-				}
+		        for(final Path file : stream)
+		        {
+		        	internalCollectFile(collector, channelIndex, file, fileBaseName, suffix);
+		        }
+		    }
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
 			}
+			
+			// (25.11.2019 TM)NOTE: old before priv#157
+//			final File[] files = storageDirectory.listFiles();
+//			if(files != null)
+//			{
+//				for(final File file : files)
+//				{
+//					internalCollectFile(collector, channelIndex, file, fileBaseName, suffix);
+//				}
+//			}
 
 			return collector;
 		}
@@ -132,17 +150,17 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		private static final void internalCollectFile(
 			final Consumer<? super StorageNumberedFile> collector   ,
 			final int                                   hashIndex   ,
-			final File                                  file        ,
+			final Path                                  file        ,
 			final String                                fileBaseName,
 			final String                                suffix
 		)
 		{
-			if(file.isDirectory())
+			if(XPaths.isDirectoryUnchecked(file))
 			{
 				return;
 			}
 
-			final String filename = file.getName();
+			final String filename = XPaths.getFileName(file);
 			if(!filename.startsWith(fileBaseName))
 			{
 				return;
@@ -511,14 +529,14 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	 * @see StorageFileProvider.Builder
 	 * @see StorageFileProvider.Defaults
 	 */
-	public static StorageFileProvider New(final File storageDirectory)
+	public static StorageFileProvider New(final Path storageDirectory)
 	{
 		/* (07.05.2019 TM)NOTE: string-based paths are planned to be replaced by an abstraction of
 		 * storage files and directories that will replace any direct references to the file-system.
 		 * Since that work is not completed, yet, the string approach has been used as a working temporary solution.
 		 */
 		return Storage.FileProviderBuilder()
-			.setBaseDirectory(storageDirectory.getPath())
+			.setBaseDirectory(storageDirectory.toString())
 			.createFileProvider()
 		;
 	}
@@ -682,21 +700,21 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			/* (04.03.2019 TM)TODO: forced delegating API is not a clean solution.
 			 * This is only a temporary solution. See the task containing "PersistenceDataFile".
 			 */
-			final File directory = new File(this.baseDirectory());
-			XFiles.ensureDirectory(directory);
+			final Path directory = XPaths.Path(this.baseDirectory());
+			XPaths.ensureDirectoryUnchecked(directory);
 			
-			final File file = new File(directory, this.typeDictionaryFileName());
+			final Path file = XPaths.Path(directory, this.typeDictionaryFileName());
 			return this.fileHandlerCreator.createTypeDictionaryIoHandler(file, writeListener);
 		}
 
-		public final File provideChannelDirectory(final String parentDirectory, final int hashIndex)
+		public final Path provideChannelDirectory(final String parentDirectory, final int hashIndex)
 		{
-			return XFiles.ensureDirectory(
-				new File(parentDirectory, this.channelDirectoryPrefix() + hashIndex)
+			return XPaths.ensureDirectoryUnchecked(
+				XPaths.Path(parentDirectory, this.channelDirectoryPrefix() + hashIndex)
 			);
 		}
 
-		public File provideChannelDirectory(final int channelIndex)
+		public Path provideChannelDirectory(final int channelIndex)
 		{
 			return this.provideChannelDirectory(this.baseDirectory(), channelIndex);
 		}
@@ -704,7 +722,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		@Override
 		public final StorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
 		{
-			final File file = new File(
+			final Path file = XPaths.Path(
 				this.provideChannelDirectory(channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber)
 			);
@@ -715,7 +733,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		@Override
 		public StorageNumberedFile provideTransactionsFile(final int channelIndex)
 		{
-			final File file = new File(
+			final Path file = XPaths.Path(
 				this.provideChannelDirectory(channelIndex),
 				this.provideTransactionFileName(channelIndex)
 			);
@@ -726,7 +744,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		@Override
 		public StorageLockedFile provideLockFile()
 		{
-			final File lockFile = new File(this.baseDirectory(), this.lockFileName());
+			final Path lockFile = XPaths.Path(this.baseDirectory(), this.lockFileName());
 			
 			return StorageLockedFile.openLockedFile(lockFile);
 		}
@@ -743,7 +761,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final int  channelIndex = fileToBeDeleted.channelIndex();
 			final long fileNumber   = fileToBeDeleted.number();
 			
-			final File file = new File(
+			final Path file = XPaths.Path(
 				this.provideChannelDirectory(deletionDirectory, channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber)
 			);
@@ -766,7 +784,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final int  channelIndex = fileToBeTruncated.channelIndex();
 			final long fileNumber   = fileToBeTruncated.number();
 			
-			final File file = new File(
+			final Path file = XPaths.Path(
 				this.provideChannelDirectory(truncationDirectory, channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber)
 				+ "_truncated_from_" + fileToBeTruncated.length() + "_to_" + newLength

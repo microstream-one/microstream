@@ -1,7 +1,7 @@
 package one.microstream.persistence.test;
 
 import static one.microstream.X.notNull;
-import static one.microstream.files.XFiles.ensureWriteableFile;
+import static one.microstream.io.XFiles.ensureWriteableFile;
 
 import java.io.File;
 import java.io.FileOutputStream;

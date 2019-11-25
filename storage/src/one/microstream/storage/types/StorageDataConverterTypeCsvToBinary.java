@@ -20,9 +20,9 @@ import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.exceptions.IORuntimeException;
-import one.microstream.files.XFiles;
 import one.microstream.functional._charRangeProcedure;
 import one.microstream.io.XIO;
+import one.microstream.io.XPaths;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -1089,7 +1089,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final char[] input;
 			try
 			{
-				input = XFiles.readString(file, XChars.utf8()).toCharArray();
+				input = XPaths.readString(file, XChars.utf8()).toCharArray();
 			}
 			catch(final IOException e)
 			{

@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.files.XFiles;
+import one.microstream.io.XFiles;
 import one.microstream.storage.io.ProtageWritableDirectory;
 import one.microstream.storage.io.ProtageWritableFile;
 

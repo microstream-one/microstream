@@ -23,7 +23,7 @@ import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.concurrency.XThreads;
-import one.microstream.files.XFiles;
+import one.microstream.io.XFiles;
 import one.microstream.memory.XMemory;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;

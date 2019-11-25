@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.function.Supplier;
 
 import one.microstream.collections.XUtilsCollection;
-import one.microstream.files.XFiles;
+import one.microstream.io.XFiles;
 import one.microstream.storage.exceptions.StorageExceptionExportFailed;
 import one.microstream.time.XTime;
 

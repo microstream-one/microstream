@@ -4,7 +4,7 @@ import java.io.File;
 
 import one.microstream.X;
 import one.microstream.collections.types.XList;
-import one.microstream.files.XFiles;
+import one.microstream.io.XFiles;
 
 public class MainTestMergeFiles
 {

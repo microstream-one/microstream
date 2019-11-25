@@ -2,7 +2,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.function.Predicate;
 
 import one.microstream.collections.types.XGettingEnum;
@@ -78,7 +78,7 @@ public interface StorageRequestAcceptor
 	public void exportChannels(StorageIoHandler fileHandler, boolean performGarbageCollection)
 		throws InterruptedException;
 
-	public void importFiles(XGettingEnum<File> importFiles) throws InterruptedException;
+	public void importFiles(XGettingEnum<Path> importFiles) throws InterruptedException;
 
 	public StorageRawFileStatistics createStatistics() throws InterruptedException;
 
@@ -235,7 +235,7 @@ public interface StorageRequestAcceptor
 		}
 
 		@Override
-		public void importFiles(final XGettingEnum<File> importFiles) throws InterruptedException
+		public void importFiles(final XGettingEnum<Path> importFiles) throws InterruptedException
 		{
 			waitOnTask(this.taskBroker.enqueueImportFromFilesTask(importFiles));
 		}
