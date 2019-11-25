@@ -3,8 +3,8 @@ package various;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import one.microstream.files.XFiles;
 import one.microstream.io.XIO;
+import one.microstream.io.XPaths;
 
 public class MainTestWriteAppendStringToFile
 {
@@ -14,12 +14,12 @@ public class MainTestWriteAppendStringToFile
 		final Path file = Paths.get("D:/testString.txt");
 		
 		final String s = XIO.execute(() ->
-			XFiles.readString(file)
+			XPaths.readString(file)
 		);
 		System.out.println(s);
 		
 		final Long writeCount = XIO.execute(() ->
-			XFiles.writeAppend(file, s)
+			XPaths.writeAppending(file, s)
 		);
 		System.out.println("Written bytes: " + writeCount);
 	}

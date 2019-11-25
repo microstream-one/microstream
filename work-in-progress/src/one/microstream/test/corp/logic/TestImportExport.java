@@ -1,11 +1,11 @@
 package one.microstream.test.corp.logic;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.function.Predicate;
 
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XSequence;
-import one.microstream.files.XFiles;
+import one.microstream.io.XPaths;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageConnection;
@@ -23,23 +23,23 @@ import one.microstream.util.cql.CQL;
 public class TestImportExport
 {
 	@SuppressWarnings("unused")
-	public static void testExport(final EmbeddedStorageManager storage, final File targetDirectory)
+	public static void testExport(final EmbeddedStorageManager storage, final Path targetDirectory)
 	{
 		final StorageConnection storageConnection = storage.createConnection();
 		long tStart, tStop;
-		final File bin2Dir, csvDir;
+		final Path bin2Dir, csvDir;
 
 		tStart = System.nanoTime();
-		final XSequence<File> exportFiles = exportTypes(
+		final XSequence<Path> exportFiles = exportTypes(
 			storageConnection,
-			XFiles.ensureDirectory(new File(targetDirectory, "bin")),
+			XPaths.ensureDirectoryUnchecked(XPaths.Path(targetDirectory, "bin")),
 			"dat"
 		);
 		tStop = System.nanoTime();
 		System.out.println("Data export to binary files complete. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
 		tStart = System.nanoTime();
-		csvDir = convertBinToCsv(storage.typeDictionary(), exportFiles, file -> file.getName().endsWith(".dat"));
+		csvDir = convertBinToCsv(storage.typeDictionary(), exportFiles, file -> XPaths.getFileName(file).endsWith(".dat"));
 		tStop = System.nanoTime();
 		System.out.println("Conversion of binary to csv complete. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
@@ -75,9 +75,9 @@ public class TestImportExport
 //		storage.shutdown();
 	}
 
-	static final XSequence<File> exportTypes(
+	static final XSequence<Path> exportTypes(
 		final StorageConnection storageConnection,
-		final File              targetDirectory  ,
+		final Path              targetDirectory  ,
 		final String            fileSuffix
 )
 	{
@@ -86,22 +86,22 @@ public class TestImportExport
 		);
 		System.out.println(result);
 
-		final XSequence<File> exportFiles = CQL
+		final XSequence<Path> exportFiles = CQL
 			.from(result.typeStatistics().values())
-			.project(s -> new File(s.file().identifier()))
+			.project(s -> XPaths.Path(s.file().identifier()))
 			.execute()
 		;
 
 		return exportFiles;
 	}
 
-	protected static File convertBinToCsv(
+	protected static Path convertBinToCsv(
 		final StorageTypeDictionary typeDictionary,
-		final XGettingCollection<File> binaryFiles,
-		final Predicate<? super File> filter
+		final XGettingCollection<Path> binaryFiles,
+		final Predicate<? super Path> filter
 	)
 	{
-		final File directory = new File(binaryFiles.get().getParentFile().getParentFile(), "csv");
+		final Path directory = XPaths.Path(binaryFiles.get().getParent().getParent(), "csv");
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			new StorageEntityTypeConversionFileProvider.Default(directory, "csv"),
@@ -111,7 +111,7 @@ public class TestImportExport
 			4096
 		);
 
-		for(final File file : binaryFiles)
+		for(final Path file : binaryFiles)
 		{
 			if(!filter.test(file))
 			{
@@ -130,11 +130,11 @@ public class TestImportExport
 		return directory;
 	}
 
-	static File convertCsvToBin(
+	static Path convertCsvToBin(
 		final PersistenceTypeDictionary typeDictionary ,
-		final XGettingCollection<File>  binaryFiles    ,
-		final File                      targetDirectory,
-		final Predicate<? super File>   filter
+		final XGettingCollection<Path>  binaryFiles    ,
+		final Path                      targetDirectory,
+		final Predicate<? super Path>   filter
 	)
 	{
 		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
@@ -145,7 +145,7 @@ public class TestImportExport
 			)
 		);
 
-		for(final File file : binaryFiles)
+		for(final Path file : binaryFiles)
 		{
 			if(!filter.test(file))
 			{

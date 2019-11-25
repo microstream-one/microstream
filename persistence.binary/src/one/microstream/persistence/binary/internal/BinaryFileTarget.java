@@ -2,12 +2,13 @@ package one.microstream.persistence.binary.internal;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 
-import one.microstream.files.FileException;
-import one.microstream.files.XFiles;
+import one.microstream.io.FileException;
+import one.microstream.io.XIO;
+import one.microstream.io.XPaths;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.PersistenceTarget;
@@ -18,7 +19,7 @@ public class BinaryFileTarget implements PersistenceTarget<Binary>
 	// instance fields //
 	////////////////////
 
-	private final File file;
+	private final Path file;
 
 
 
@@ -26,7 +27,7 @@ public class BinaryFileTarget implements PersistenceTarget<Binary>
 	// constructors //
 	/////////////////
 
-	public BinaryFileTarget(final File file)
+	public BinaryFileTarget(final Path file)
 	{
 		super();
 		this.file = notNull(file);
@@ -38,9 +39,9 @@ public class BinaryFileTarget implements PersistenceTarget<Binary>
 	// declared methods //
 	/////////////////////
 
-	protected FileChannel createChannel(final File file) throws FileException, IOException
+	protected FileChannel createChannel(final Path file) throws FileException, IOException
 	{
-		return XFiles.createWritingFileChannel(file);
+		return XPaths.openFileChannelWriting(file);
 	}
 
 
@@ -54,7 +55,7 @@ public class BinaryFileTarget implements PersistenceTarget<Binary>
 	{
 		try(final FileChannel fileChannel = this.createChannel(this.file))
 		{
-			XFiles.appendAllGuaranteed(fileChannel, chunk.buffers());
+			XIO.appendAllGuaranteed(fileChannel, chunk.buffers());
 		}
 		catch(final IOException e)
 		{

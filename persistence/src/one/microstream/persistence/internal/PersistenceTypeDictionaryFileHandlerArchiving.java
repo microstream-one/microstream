@@ -3,18 +3,18 @@ package one.microstream.persistence.internal;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 
 import one.microstream.concurrency.XThreads;
-import one.microstream.files.XFiles;
+import one.microstream.io.XPaths;
 import one.microstream.persistence.types.PersistenceTypeDictionaryStorer;
 
 
 public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTypeDictionaryFileHandler
 {
 	public static PersistenceTypeDictionaryFileHandlerArchiving New(
-		final File                            file         ,
+		final Path                            file         ,
 		final PersistenceTypeDictionaryStorer writeListener
 	)
 	{
@@ -30,8 +30,8 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	// instance fields //
 	////////////////////
 	
-	private final File   directory ;
-	private final File   tdArchive ;
+	private final Path   directory ;
+	private final Path   tdArchive ;
 	private final String filePrefix;
 	private final String fileSuffix;
 	
@@ -42,15 +42,15 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	/////////////////
 
 	PersistenceTypeDictionaryFileHandlerArchiving(
-		final File                            file         ,
+		final Path                            file         ,
 		final PersistenceTypeDictionaryStorer writeListener
 	)
 	{
 		super(file, writeListener);
-		this.directory = file.getParentFile();
-		this.tdArchive = new File(this.directory, "TypeDictionaryArchive");
+		this.directory = file.getParent();
+		this.tdArchive = XPaths.Path(this.directory, "TypeDictionaryArchive");
 		
-		final String fileName = file.getName();
+		final String fileName = file.toString();
 		final int dotIndex = fileName.lastIndexOf('.');
 		
 		if(dotIndex < 0)
@@ -71,13 +71,13 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	// methods //
 	////////////
 	
-	private File buildArchiveFile()
+	private Path buildArchiveFile()
 	{
 		final SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss_SSS");
 		final String fileName = this.filePrefix + sdf.format(System.currentTimeMillis()) + this.fileSuffix;
 		
-		final File file = new File(this.tdArchive, fileName);
-		if(file.exists())
+		final Path file = XPaths.Path(this.tdArchive, fileName);
+		if(XPaths.existsUnchecked(file))
 		{
 			// yes, it's weird, but it actually happened during testing. Multiple updates and moves per ms.
 			XThreads.sleep(1); // crucial to prevent hundreds or even thousands of retries.
@@ -89,7 +89,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	
 	private void moveCurrentFileToArchive()
 	{
-		XFiles.ensureDirectory(this.tdArchive);
+		XPaths.ensureDirectoryUnchecked(this.tdArchive);
 		UtilPersistenceIo.move(this.file(), this.buildArchiveFile());
 	}
 	
@@ -97,7 +97,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	protected synchronized void writeTypeDictionary(final String typeDictionaryString)
 	{
 		// there is no file to be moved on the first call.
-		if(this.file().exists())
+		if(XPaths.existsUnchecked(this.file()))
 		{
 			this.moveCurrentFileToArchive();
 		}

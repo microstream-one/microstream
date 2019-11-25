@@ -6,7 +6,8 @@ import java.io.File;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
-import one.microstream.files.XFiles;
+import one.microstream.io.XFiles;
+import one.microstream.io.XPaths;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
@@ -69,7 +70,7 @@ public class MainUtilRecoverStorageFiles
 	static void printTransactionsFile()
 	{
 		final StorageTransactionsFile tf = StorageTransactionsFile.parseFile(
-			new File(PATH_CORRUPTED + "/channel_0/transactions_0.sft")
+			XPaths.Path(PATH_CORRUPTED + "/channel_0/transactions_0.sft")
 		);
 		tf.entries().iterate(System.out::println);
 	}

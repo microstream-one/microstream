@@ -1,7 +1,9 @@
 package one.microstream.test.corp.main;
 
 import java.io.File;
+import java.nio.file.Path;
 
+import one.microstream.io.XPaths;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -15,14 +17,14 @@ public class MainTestStorageExampleMore
 {
 	// root of the application's data model graph
 	static final Reference<ClientCorporation> ROOT          = Reference.New(null)       ;
-	static final File                         DIRECTORY     = new File("C:/StorageTest");
+	static final Path                         DIRECTORY     = XPaths.Path("C:/StorageTest");
 	static final int                          CHANNEl_COUNT = 4                         ;
 
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation(
 			Storage.ConfigurationBuilder()
-			.setStorageFileProvider   (Storage.FileProvider(DIRECTORY)            ) // location for the database files
+			.setStorageFileProvider   (Storage.FileProvider(DIRECTORY)            )     // location for the database files
 			.setChannelCountProvider  (Storage.ChannelCountProvider(CHANNEl_COUNT))     // storage channel/thread count (default 1)
 			.setHousekeepingController(Storage.HousekeepingController(100, 10_000_000)) // time configuration for housekeeping, caching, etc.
 			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluator(10_000))            // evalutator for removing entities from the cache

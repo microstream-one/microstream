@@ -1,10 +1,10 @@
 package one.microstream.persistence.test;
 
 import static one.microstream.X.notNull;
-import static one.microstream.files.XFiles.ensureDirectory;
 
-import java.io.File;
+import java.nio.file.Path;
 
+import one.microstream.io.XPaths;
 import one.microstream.persistence.binary.internal.BinaryFileStorage;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.internal.CompositeIdProvider;
@@ -20,11 +20,11 @@ public class TestComponentProvider extends InvocationLogging
 	// constants //
 	//////////////
 
-	protected static final File TEST_DIRECTORY = new File("c:/Files/");
+	protected static final Path TEST_DIRECTORY = XPaths.Path("c:/Files/");
 
 	// application- (test-) specific components //
 	protected static final TestComponentProvider TEST = new TestComponentProvider(
-		 ensureDirectory(TEST_DIRECTORY)
+		 XPaths.ensureDirectoryUnchecked(TEST_DIRECTORY)
 		,Persistence.defaultFilenameTypeDictionary()
 		,FileObjectIdStrategy.defaultFilename()
 		,FileTypeIdStrategy.defaultFilename()
@@ -42,7 +42,7 @@ public class TestComponentProvider extends InvocationLogging
 	// instance fields //
 	////////////////////
 
-	private final File directory;
+	private final Path   directory;
 	private final String filenameTypeDictionary;
 	private final String filenameTypeId;
 	private final String filenameObjectId;
@@ -65,7 +65,7 @@ public class TestComponentProvider extends InvocationLogging
 	}
 
 	protected TestComponentProvider(
-		final File   directory,
+		final Path   directory,
 		final String filenameTypeDictionary,
 		final String filenameTypeId,
 		final String filenameObjectId
@@ -81,7 +81,7 @@ public class TestComponentProvider extends InvocationLogging
 	}
 
 	TestComponentProvider(
-		final File directory,
+		final Path directory,
 		final String filenameTypeDictionary,
 		final String filenameTypeId,
 		final String filenameObjectId,
@@ -108,8 +108,8 @@ public class TestComponentProvider extends InvocationLogging
 		if(this.idProvider == null)
 		{
 			this.idProvider = CompositeIdProvider.New(
-				dispatch(FileTypeIdStrategy.New  (new File(this.directory, this.filenameTypeId  )).createTypeIdProvider()),
-				dispatch(FileObjectIdStrategy.New(new File(this.directory, this.filenameObjectId)).createObjectIdProvider())
+				dispatch(FileTypeIdStrategy.New  (XPaths.Path(this.directory, this.filenameTypeId  )).createTypeIdProvider()),
+				dispatch(FileObjectIdStrategy.New(XPaths.Path(this.directory, this.filenameObjectId)).createObjectIdProvider())
 			).initialize();
 		}
 		return this.idProvider;
@@ -120,8 +120,8 @@ public class TestComponentProvider extends InvocationLogging
 		if(this.persistenceStorage == null && this.filenameData != null)
 		{
 			this.persistenceStorage = new BinaryFileStorage(
-				dispatch(new DEBUG_BinaryFileSource(System.out, new File(this.directory, this.filenameData))),
-				dispatch(new DEBUG_BinaryFileTarget(System.out, new File(this.directory, this.filenameData)))
+				dispatch(new DEBUG_BinaryFileSource(System.out, XPaths.Path(this.directory, this.filenameData))),
+				dispatch(new DEBUG_BinaryFileTarget(System.out, XPaths.Path(this.directory, this.filenameData)))
 			);
 		}
 		return this.persistenceStorage;
@@ -132,7 +132,7 @@ public class TestComponentProvider extends InvocationLogging
 		if(this.dictionaryStorage == null)
 		{
 			this.dictionaryStorage = dispatch(
-				PersistenceTypeDictionaryFileHandler.New(new File(this.directory, this.filenameTypeDictionary))
+				PersistenceTypeDictionaryFileHandler.New(XPaths.Path(this.directory, this.filenameTypeDictionary))
 			);
 		}
 		return this.dictionaryStorage;

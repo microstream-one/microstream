@@ -1,8 +1,8 @@
 package one.microstream.persistence.internal;
 
-import java.io.File;
+import java.nio.file.Path;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XPaths;
 import one.microstream.persistence.exceptions.PersistenceException;
 
 /*
@@ -12,11 +12,11 @@ import one.microstream.persistence.exceptions.PersistenceException;
  */
 public class UtilPersistenceIo
 {
-	public static void move(final File sourceFile, final File targetFile)
+	public static void move(final Path sourceFile, final Path targetFile)
 	{
 		try
 		{
-			XFiles.move(sourceFile, targetFile);
+			XPaths.move(sourceFile, targetFile);
 		}
 		catch(final Exception e)
 		{

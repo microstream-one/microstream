@@ -16,8 +16,9 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.exceptions.IORuntimeException;
-import one.microstream.files.XFiles;
 import one.microstream.functional.Aggregator;
+import one.microstream.io.XFiles;
+import one.microstream.io.XPaths;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.Substituter;
 import one.microstream.util.csv.CsvAssembler;
@@ -86,7 +87,7 @@ public class CompositeConfig
 			final char[] input;
 			try
 			{
-				input = XFiles.readString(file.toPath(), XChars.defaultJvmCharset()).toCharArray();
+				input = XPaths.readString(file.toPath(), XChars.defaultJvmCharset()).toCharArray();
 			}
 			catch(final IOException e)
 			{
@@ -302,7 +303,7 @@ public class CompositeConfig
 
 		try
 		{
-			XFiles.writeStringToFile(file, vs.toString(), XChars.defaultJvmCharset());
+			XFiles.writeStringToFile(file, vs.toString());
 		}
 		catch(final IOException e)
 		{

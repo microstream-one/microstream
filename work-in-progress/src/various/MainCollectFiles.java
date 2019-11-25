@@ -3,7 +3,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XFiles;
 
 
 public class MainCollectFiles

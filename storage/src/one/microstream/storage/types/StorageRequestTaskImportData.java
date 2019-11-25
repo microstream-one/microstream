@@ -1,8 +1,8 @@
 package one.microstream.storage.types;
 
-import java.io.File;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -35,7 +35,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		// instance fields //
 		////////////////////
 
-		private final XGettingEnum<File>            importFiles           ;
+		private final XGettingEnum<Path>            importFiles           ;
 		private final StorageEntityCache.Default[]  entityCaches          ;
 		private final StorageObjectIdRangeEvaluator objectIdRangeEvaluator;
 		
@@ -59,7 +59,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			final long                          timestamp             ,
 			final int                           channelCount          ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
-			final XGettingEnum<File>            importFiles
+			final XGettingEnum<Path>            importFiles
 		)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
@@ -118,7 +118,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				itemReader
 			);
 
-			for(final File file : this.importFiles)
+			for(final Path file : this.importFiles)
 			{
 //				DEBUGStorage.println("Reader reading source file " + file);
 				try
@@ -152,7 +152,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			private final SourceFileSlice[]            sourceFileHeads          ;
 			private final ChannelItem[]                channelItems             ;
 			private final int                          channelHash              ;
-			private       File                         file                     ;
+			private       Path                         file                     ;
 			private       FileLock                     fileLock                 ;
 			private       int                          currentBatchChannel      ;
 			private       long                         currentSourceFilePosition;
@@ -283,7 +283,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				item.tailBatch.batchLength += length;
 			}
 
-			final void setSourceFile(final File file, final FileLock fileLock)
+			final void setSourceFile(final Path file, final FileLock fileLock)
 			{
 				// next source file is set up
 				this.currentBatchChannel       =       -1; // invalid value to guarantee change on first entity.
@@ -477,7 +477,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 		SourceFileSlice(
 			final int         channelIndex,
-			final File        file        ,
+			final Path        file        ,
 			final FileLock    fileLock    ,
 			final ImportBatch headBatch
 		)

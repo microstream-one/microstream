@@ -1,11 +1,11 @@
-package one.microstream.files;
+package one.microstream.io;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
-import one.microstream.chars.XChars;
-import one.microstream.io.XIO;
+import one.microstream.exceptions.IORuntimeException;
 
 public abstract class AbstractProviderByFile
 {
@@ -13,11 +13,11 @@ public abstract class AbstractProviderByFile
 	// static methods //
 	///////////////////
 	
-	public static final void write(final File file, final String value)
+	public static final void write(final Path file, final String value)
 	{
 		XIO.execute(() ->
 		{
-			XFiles.writeStringToFile(file, value, XChars.standardCharset());
+			XPaths.write(file, value);
 			
 			return null;
 		});
@@ -29,7 +29,7 @@ public abstract class AbstractProviderByFile
 	// instance fields //
 	////////////////////
 
-	private final File file;
+	private final Path file;
 
 
 
@@ -37,7 +37,7 @@ public abstract class AbstractProviderByFile
 	// constructors //
 	/////////////////
 
-	public AbstractProviderByFile(final File file)
+	public AbstractProviderByFile(final Path file)
 	{
 		super();
 		this.file = notNull(file);
@@ -50,13 +50,20 @@ public abstract class AbstractProviderByFile
 	
 	protected boolean canRead()
 	{
-		return this.file.exists();
+		try
+		{
+			return XPaths.exists(this.file);
+		}
+		catch(final IOException e)
+		{
+			throw new IORuntimeException(e);
+		}
 	}
 
 	protected String read()
 	{
 		return XIO.execute(() ->
-			XFiles.readString(this.file.toPath())
+			XPaths.readString(this.file)
 		);
 	}
 

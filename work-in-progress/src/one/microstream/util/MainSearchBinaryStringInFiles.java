@@ -1,26 +1,26 @@
 package one.microstream.util;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.collections.XArrays;
-import one.microstream.files.XFiles;
+import one.microstream.io.XPaths;
 import one.microstream.memory.XMemory;
 
 public class MainSearchBinaryStringInFiles
 {
-	static final BiConsumer<File, Consumer<? super File>> LOGGING = (f, p) ->
+	static final BiConsumer<Path, Consumer<? super Path>> LOGGING = (f, p) ->
 	{
 		System.out.println("Processing "+f);
 		p.accept(f);
 		System.out.println(" * done processing "+f);
 	};
 
-	static final BiConsumer<File, Consumer<? super File>> DIRECT = (f, p) -> p.accept(f);
+	static final BiConsumer<Path, Consumer<? super Path>> DIRECT = (f, p) -> p.accept(f);
 
 	
 	private static void searchLCM(final long... objectIds)
@@ -36,17 +36,17 @@ public class MainSearchBinaryStringInFiles
 		System.out.println("\nSearching for " + objectId);
 		searchStringsInFiles(
 			DIRECT,
-			X.array(new File("D:/_Corp/20190313_2330_Rollback/garbage/").listFiles()),
+			XPaths.listChildrenUnchecked(XPaths.Path("D:/_Corp/20190313_2330_Rollback/garbage/")),
 			XMemory.asByteArray(objectId)
 		);
 		searchStringsInFiles(
 			DIRECT,
-			X.array(new File("D:/_Corp/20190313_2330_Rollback/cleaned/channel_0_864.dat")),
+			X.array(XPaths.Path("D:/_Corp/20190313_2330_Rollback/cleaned/channel_0_864.dat")),
 			XMemory.asByteArray(objectId)
 		);
 		searchStringsInFiles(
 			DIRECT,
-			X.array(new File("D:/_Corp/2019-03-14_ProdDb/20190313_2330_autobackup_prod_kaputt/backup_daily_2019-03-13Z/channel_0/channel_0_872.dat")),
+			X.array(XPaths.Path("D:/_Corp/2019-03-14_ProdDb/20190313_2330_autobackup_prod_kaputt/backup_daily_2019-03-13Z/channel_0/channel_0_872.dat")),
 			XMemory.asByteArray(objectId)
 		);
 	}
@@ -84,15 +84,15 @@ public class MainSearchBinaryStringInFiles
 	}
 
 
-	static void searchStringsInFiles(final File[] files, final byte[]... strings)
+	static void searchStringsInFiles(final Path[] files, final byte[]... strings)
 	{
 		searchStringsInFiles(DIRECT, files, strings);
 	}
 
 	static void searchStringsInFiles(
-		final BiConsumer<File, Consumer<? super File>> logic  ,
-		final File[]                                    files  ,
-		final byte[]...                                 strings
+		final BiConsumer<Path, Consumer<? super Path>> logic  ,
+		final Path[]                                   files  ,
+		final byte[]...                                strings
 	)
 	{
 		final long tStart = System.nanoTime();
@@ -103,16 +103,16 @@ public class MainSearchBinaryStringInFiles
 	}
 
 	static void innerSearchStringsInFiles(
-		final BiConsumer<File, Consumer<? super File>> logic  ,
-		final File[]                                     files  ,
-		final byte[]...                                  strings
+		final BiConsumer<Path, Consumer<? super Path>> logic  ,
+		final Path[]                                   files  ,
+		final byte[]...                                strings
 	)
 	{
-		for(final File f : files)
+		for(final Path f : files)
 		{
-			if(f.isDirectory())
+			if(XPaths.isDirectoryUnchecked(f))
 			{
-				innerSearchStringsInFiles(logic, f.listFiles(), strings);
+				innerSearchStringsInFiles(logic, XPaths.listChildrenUnchecked(f), strings);
 			}
 			else
 			{
@@ -123,12 +123,12 @@ public class MainSearchBinaryStringInFiles
 	}
 
 
-	static void searchStringsInFile(final File f, final byte[]... strings)
+	static void searchStringsInFile(final Path f, final byte[]... strings)
 		throws RuntimeException
 	{
 		try
 		{
-			final byte[] fileContent = XFiles.read_bytes(f.toPath());
+			final byte[] fileContent = XPaths.read_bytes(f);
 			for(final byte[] s : strings)
 			{
 				int index = 0;

@@ -1,9 +1,9 @@
 package one.microstream.test.corp.main;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import one.microstream.collections.HashEnum;
-import one.microstream.files.XFiles;
+import one.microstream.io.XPaths;
 import one.microstream.persistence.lazy.Lazy;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
@@ -39,7 +39,7 @@ public class MainTestStorageImportData
 	
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 	
-	static final File EXPORT_DIRECTORY = new File("export"); // root is working directory
+	static final Path EXPORT_DIRECTORY = XPaths.Path("export"); // root is working directory
 	
 	static final int ID_OFFSET = 0; // change to 1000 or so
 
@@ -57,14 +57,12 @@ public class MainTestStorageImportData
 			STORAGE.storeRoot();
 			Test.print("Storing completed.");
 		}
-		else if(!XFiles.hasNoFiles(EXPORT_DIRECTORY))
+		else if(!XPaths.hasNoFilesUnchecked(EXPORT_DIRECTORY))
 		{
 			Test.print("Importing data ...");
 			STORAGE.importFiles(
-				HashEnum.New(
-					EXPORT_DIRECTORY.listFiles(file ->
-						file.getName().endsWith(".dat")
-					)
+				XPaths.listChildrenUnchecked(EXPORT_DIRECTORY, HashEnum.New(), file ->
+					XPaths.getFileName(file).endsWith(".dat")
 				)
 			);
 			Test.print("Data import completed.");

@@ -1,6 +1,7 @@
 package one.microstream.storage.types;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
@@ -58,6 +59,14 @@ public final class EmbeddedStorage
 		);
 	}
 	
+	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
+		final File directory
+	)
+	{
+		return ConnectionFoundation(directory.toPath());
+	}
+	
+	
 	/**
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageConnectionFoundation} instance
 	 * using the passed {@literal directory} and default method references provided by {@link Persistence}.
@@ -69,13 +78,13 @@ public final class EmbeddedStorage
 	 * 
 	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler)@return}
 	 * 
-	 * @see PersistenceTypeDictionaryFileHandler#NewInDirectory(File)
+	 * @see PersistenceTypeDictionaryFileHandler#NewInDirectory(Path)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)
 	 * @see Persistence
 	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final File directory
+		final Path directory
 	)
 	{
 		return ConnectionFoundation(

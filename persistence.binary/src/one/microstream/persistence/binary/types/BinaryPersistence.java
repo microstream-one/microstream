@@ -1,7 +1,7 @@
 package one.microstream.persistence.binary.types;
 
-import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
@@ -352,7 +352,7 @@ public final class BinaryPersistence extends Persistence
 		return new BinaryFieldLengthResolver.Default();
 	}
 		
-	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
+	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final Path dictionaryFile)
 	{
 		final BinaryPersistenceFoundation<?> f = BinaryPersistenceFoundation.New()
 			.setTypeDictionaryLoader(

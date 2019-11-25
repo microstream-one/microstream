@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
-import one.microstream.files.XFiles;
+import one.microstream.io.XFiles;
 import one.microstream.meta.XDebug;
 
 
