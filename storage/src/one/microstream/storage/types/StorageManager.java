@@ -477,6 +477,7 @@ public interface StorageManager extends StorageController
 				}
 				catch(final InterruptedException e)
 				{
+					this.operationController.deactivate();
 					throw new RuntimeException(e); // (15.06.2013)EXCP: proper exception
 				}
 				catch(final Throwable t)
