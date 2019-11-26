@@ -11,6 +11,7 @@ import java.lang.reflect.TypeVariable;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1003,8 +1004,16 @@ public class Persistence
 		;
 	}
 	
+	@Deprecated
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final File refactoringsFile
+	)
+	{
+		return RefactoringMapping(refactoringsFile.toPath());
+	}
+	
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+		final Path refactoringsFile
 	)
 	{
 		return RefactoringMapping(
@@ -1019,11 +1028,17 @@ public class Persistence
 		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
 	}
 	
+	@Deprecated
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final File file)
+	{
+		return readRefactoringMappings(file.toPath());
+	}
+	
+	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final Path file)
 	{
 		// (19.04.2018 TM)EXCP: proper exception
 		final String fileContent = XIO.execute(() ->
-			XPaths.readString(file.toPath())
+			XPaths.readString(file)
 		);
 		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
 		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());

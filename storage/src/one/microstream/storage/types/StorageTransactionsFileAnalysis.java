@@ -591,6 +591,13 @@ public interface StorageTransactionsFileAnalysis
 			{
 				return false;
 			}
+			
+			// (26.11.2019 TM)NOTE: ultra makeshift solution to narrow down giant transaction logs
+//			if(Storage.millisecondsToSeconds(Logic.getEntryTimestamp(address)) < 1574031600000L)
+//			{
+//				return true;
+//			}
+			
 			this.vs
 			.add(StorageTransactionsFile.EntryType.DATA_STORE.typeName()).tab();
 			this.addCommonTimestampPart(address);
@@ -609,6 +616,13 @@ public interface StorageTransactionsFileAnalysis
 			{
 				return false;
 			}
+
+			// (26.11.2019 TM)NOTE: ultra makeshift solution to narrow down giant transaction logs
+//			if(Storage.millisecondsToSeconds(Logic.getEntryTimestamp(address)) < 1574031600000L)
+//			{
+//				return true;
+//			}
+			
 			this.vs
 			.add(StorageTransactionsFile.EntryType.DATA_TRANSFER.typeName()).tab();
 			this.addCommonTimestampPart(address);
