@@ -450,7 +450,13 @@ public interface StorageBackupHandler extends Runnable
 				
 				final long oldBackupFileLength = targetChannel.size();
 				
-				// better check again right before trying to copy from a channel file.
+				// Better check again right before trying to copy from a channel file.
+				/* (27.11.2019 TM)TODO: backup copying race condition
+				 * Hm. Actually, the activity check and the actual copy have to be executed
+				 * under the SAME lock held on the sourceFile that is also required to close it.
+				 * Without that, there can always be a race condition happening between the two calls.
+				 * This naive call here makes that gap very tiny, but it is still there.
+				 */
 				if(!this.operationController.isChannelProcessingEnabled())
 				{
 					return;
