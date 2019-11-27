@@ -1,6 +1,5 @@
 package one.microstream.storage.types;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
@@ -51,7 +50,7 @@ public interface StorageFile
 	
 	/**
 	 * Returns a string that gives {@link #name()} a unique identity.
-	 * Example: The parent directory path of a {@link File}.
+	 * Example: The parent directory path of a file.
 	 * 
 	 */
 	public String qualifier();

@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
+import java.nio.file.Path;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
@@ -177,6 +178,21 @@ public interface PersistenceTypeHandlerCreator<M>
 				return this.createTypeHandlerAbstractType(type);
 			}
 			
+			/* (27.11.2019 TM)TODO: priv#186: interface type handling abstraction
+			 * Hardcoding every interface that needs special treatment here is not a good solution.
+			 * Instead, a "interface -> SpecialTypeCreator" registry has to be implemented here,
+			 * with the current two cases as default entries and potentially more to come.
+			 * Including customized entries, of course.
+			 * 
+			 * Actually, this could and would have to include abstract classes as well.
+			 */
+			
+			// another special handling for the Path interface, but this is not a good solution. See the TODO.
+			if(Path.class.isAssignableFrom(type))
+			{
+				return this.deriveTypeHandlerGenericPath(type);
+			}
+			
 			// collections need special handling to avoid dramatically inefficient generic structures
 			if(XReflect.isJavaUtilCollectionType(type))
 			{
@@ -221,6 +237,8 @@ public interface PersistenceTypeHandlerCreator<M>
 
 			return this.createTypeHandlerEnum(type, persistableFields);
 		}
+		
+		protected abstract <T> PersistenceTypeHandler<M, T> deriveTypeHandlerGenericPath(Class<T> type);
 		
 		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerJavaUtilCollection(final Class<T> type)
 		{

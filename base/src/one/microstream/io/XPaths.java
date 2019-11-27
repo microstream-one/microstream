@@ -35,6 +35,8 @@ public final class XPaths
 	 * "Path" must be the dumbest idea on earth for a name to represent a file or a directory.
 	 * "Path" is way too generic. A physical way is also a path. A reference track is a path. The rules of
 	 * a cult can be a "path". Etc etc.
+	 * It's explicitely not a generic "can-be-anything-Path", it is designed to represent a FileSystem file.
+	 * 
 	 * It is traceable that they needed another short and unique type name after "File" was already
 	 * taken by their clumsy first attempt, but still: Who talks (primarily!) about "paths" when referring to
 	 * files and directories? No one. Of course, every file has a uniquely identifying path in the file system,
@@ -545,6 +547,8 @@ public final class XPaths
 	)
 		throws IOException
 	{
+		ensureWriteableFileUnchecked(file);
+		
 		return XIO.performClosingOperation(
 			openFileChannelWriting(file),
 			operation

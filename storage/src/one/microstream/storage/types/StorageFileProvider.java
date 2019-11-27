@@ -4,7 +4,6 @@ import static one.microstream.X.coalesce;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -504,7 +503,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	 * 
 	 * @return {@linkDoc StorageFileProvider#New(File)@return}
 	 * 
-	 * @see StorageFileProvider#New(File)
+	 * @see StorageFileProvider#New(Path)
 	 * @see StorageFileProvider.Builder
 	 * @see StorageFileProvider.Defaults
 	 */
@@ -516,7 +515,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	}
 	
 	/**
-	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with the passed {@link File}
+	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with the passed file
 	 * as the storage directory and defaults provided by {@link StorageFileProvider.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.

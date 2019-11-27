@@ -79,7 +79,7 @@ public interface EmbeddedStorageFoundationCreator
 		)
 		{
 			return Storage.FileProviderBuilder()
-				.setBaseDirectory         (baseDirectory.getAbsolutePath()          )
+				.setBaseDirectory         (baseDirectory.toAbsolutePath().toString())
 				.setDeletionDirectory     (configuration.getDeletionDirectory()     )
 				.setTruncationDirectory   (configuration.getTruncationDirectory()   )
 				.setChannelDirectoryPrefix(configuration.getChannelDirectoryPrefix())

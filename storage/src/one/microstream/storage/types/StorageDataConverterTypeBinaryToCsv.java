@@ -3,12 +3,12 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 import static one.microstream.chars.MemoryCharConversionUTF8.toSingleByte;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.chars.CharConversion_float;
@@ -24,8 +24,8 @@ import one.microstream.collections.LimitList;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.io.FileException;
-import one.microstream.io.XFiles;
 import one.microstream.io.XIO;
+import one.microstream.io.XPaths;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -150,11 +150,11 @@ public interface StorageDataConverterTypeBinaryToCsv
 		// static methods //
 		///////////////////
 
-		static final FileChannel createFileChannel(final File file) throws StorageException
+		static final FileChannel createFileChannel(final Path file) throws StorageException
 		{
 			try
 			{
-				return XFiles.createWritingFileChannel(file);
+				return XPaths.openFileChannelWriting(file);
 			}
 			catch(FileException | IOException e)
 			{
@@ -356,8 +356,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private void openChannel() throws IOException
 		{
 			final StorageLockedFile file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
-			final File directory = new File(file.qualifier());
-			XFiles.ensureDirectory(directory);
+			final Path directory = XPaths.Path(file.qualifier());
+			XPaths.ensureDirectoryUnchecked(directory);
 			this.fileChannel = file.fileChannel();
 		}
 
