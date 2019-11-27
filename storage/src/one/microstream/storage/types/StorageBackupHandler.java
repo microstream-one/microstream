@@ -450,18 +450,20 @@ public interface StorageBackupHandler extends Runnable
 				
 				final long oldBackupFileLength = targetChannel.size();
 				
-				// Better check again right before trying to copy from a channel file.
-				/* (27.11.2019 TM)TODO: backup copying race condition
-				 * Hm. Actually, the activity check and the actual copy have to be executed
-				 * under the SAME lock held on the sourceFile that is also required to close it.
-				 * Without that, there can always be a race condition happening between the two calls.
-				 * This naive call here makes that gap very tiny, but it is still there.
+				/* (27.11.2019 TM)TODO: priv#125, priv#183: storage backup handler self-sustaining file accessing?
+				 * If a storage file has already been closed but the backup handler still has it as an
+				 * item to be processed, should it temporarily reopen it again, process it and then close it?
+				 * Or should it abort with an exception?
+				 * Or abort silently?
+				 * Or should a backup item register as a user at the source file,
+				 * processing it deregisters a user and only if the user count is 0 may a file actually
+				 * be closed?
+				 * Or should files maybe be opened and closed on demand or at least retried anyway?
+				 * E.g. a temporary connection loss / re-mount, etc.
+				 * Complex topic ...
+				 * 
 				 */
-				if(!this.operationController.isChannelProcessingEnabled())
-				{
-					return;
-				}
-				
+								
 				try
 				{
 					final long byteCount = sourceChannel.transferTo(sourcePosition, length, targetChannel);
