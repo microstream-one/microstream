@@ -231,9 +231,32 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		public final EmbeddedStorageManager.Default start()
 		{
 			this.storageManager.start();
-
-			this.ensureRequiredTypeHandlers();
-			this.initialize();
+			
+			try
+			{
+				this.ensureRequiredTypeHandlers();
+				this.initialize();
+			}
+			catch(final Throwable t)
+			{
+				try
+				{
+					if(this.storageManager instanceof StorageKillable)
+					{
+						((StorageKillable)this.storageManager).killStorage(t);
+					}
+					else
+					{
+						this.storageManager.shutdown();
+					}
+				}
+				catch(final Throwable t1)
+				{
+					t1.addSuppressed(t);
+					throw t1;
+				}
+				throw t;
+			}
 			
 			return this;
 		}

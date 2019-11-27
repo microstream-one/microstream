@@ -1110,7 +1110,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			// flush buffer to be sure. Unnecessary case gets checked inside
 			this.flushBuffer();
 
-			StorageLockedFile.closeSilent(this.targetFile);
+			StorageFile.closeSilent(this.targetFile);
 			XIO.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
 
 			this.sourceFile            = null;

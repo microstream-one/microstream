@@ -87,6 +87,7 @@ public interface StorageBackupHandler extends Runnable
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+		
 		private final StorageBackupSetup         backupSetup        ;
 		private final ChannelInventory[]         channelInventories ;
 		private final StorageBackupItemQueue     itemQueue          ;
@@ -180,26 +181,38 @@ public interface StorageBackupHandler extends Runnable
 		public void run()
 		{
 			// must be the method instead of the field to check the lock but don't conver the whole loop
-			while(this.isRunning())
+			try
 			{
-				try
+				// can not / may not copy storage files if the storage is not running (has locked and opend files, etc.)
+				while(this.isRunning() && this.operationController.checkProcessingEnabled())
 				{
-					if(!this.itemQueue.processNextItem(this, 10_000))
+					try
 					{
-						this.validator.freeMemory();
+						if(!this.itemQueue.processNextItem(this, 10_000))
+						{
+							this.validator.freeMemory();
+						}
+					}
+					catch(final InterruptedException e)
+					{
+						// still not sure about the viability of interruption handling in a case like this.
+						this.stop();
+					}
+					catch(final RuntimeException e)
+					{
+						this.operationController.registerDisruptingProblem(e);
+						// see outer try-finally for cleanup
+						throw e;
 					}
 				}
-				catch(final InterruptedException e)
-				{
-					// still not sure about the viability of interruption handling in a case like this.
-					this.stop();
-				}
-				catch(final RuntimeException e)
-				{
-					this.operationController.registerDisruptingProblem(e);
-					throw e;
-				}
 			}
+			finally
+			{
+				// must close all open files on any aborting case (after stopping and before throwing an exception)
+				this.closeAllDataFiles();
+			}
+			
+			
 		}
 		
 		private void tryInitialize(final int channelIndex)
@@ -438,6 +451,18 @@ public interface StorageBackupHandler extends Runnable
 				
 				final long oldBackupFileLength = targetChannel.size();
 				
+				// Better check again right before trying to copy from a channel file.
+				/* (27.11.2019 TM)TODO: backup copying race condition
+				 * Hm. Actually, the activity check and the actual copy have to be executed
+				 * under the SAME lock held on the sourceFile that is also required to close it.
+				 * Without that, there can always be a race condition happening between the two calls.
+				 * This naive call here makes that gap very tiny, but it is still there.
+				 */
+				if(!this.operationController.isChannelProcessingEnabled())
+				{
+					return;
+				}
+				
 				try
 				{
 					final long byteCount = sourceChannel.transferTo(sourcePosition, length, targetChannel);
@@ -507,6 +532,20 @@ public interface StorageBackupHandler extends Runnable
 			
 			// no user decrement since only the identifier is required and the actual file can well have been deleted.
 		}
+		
+		final void closeAllDataFiles()
+		{
+			for(final ChannelInventory channel : this.channelInventories)
+			{
+				StorageFile.closeSilent(channel.transactionFile);
+				for(final StorageBackupFile dataFile : channel.dataFiles.values())
+				{
+					StorageFile.closeSilent(dataFile);
+				}
+			}
+		}
+		
+		
 		
 		static final class ChannelInventory implements StorageHashChannelPart
 		{
