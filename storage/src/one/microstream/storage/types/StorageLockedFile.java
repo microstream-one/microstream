@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import one.microstream.io.XIO;
 import one.microstream.io.XPaths;
@@ -35,7 +36,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 	public boolean hasNoUsers();
 	
 
-	@SuppressWarnings("resource") // resource closed internally by FileChannel (JDK tricking Java compiler ^^)
+//	@SuppressWarnings("resource") // resource closed internally by FileChannel (JDK tricking Java compiler ^^)
 	public static FileLock openLockedFileChannel(final Path file)
 	{
 		// the file is always completely and unshared locked.
@@ -44,7 +45,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		try
 		{
 			// resource closed internally by FileChannel (JDK tricking Java compiler ^^)
-			channel = XPaths.openFileChannelRW(file);
+			channel = XPaths.openFileChannelRW(file, StandardOpenOption.CREATE);
 //			channel = new RandomAccessFile(file, "rw").getChannel();
 
 

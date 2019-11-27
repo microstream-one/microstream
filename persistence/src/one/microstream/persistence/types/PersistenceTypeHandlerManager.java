@@ -536,6 +536,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				PersistenceTypeHandler<M, T> typeHandler;
 				if((typeHandler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
 				{
+					// (27.11.2019 TM)TODO: priv#187 concrete -> abstract type mapping here?
+					
 					typeHandler = this.typeHandlerProvider.provideTypeHandler(type);
 					this.registerTypeHandler(typeHandler);
 					this.registerEnumContantRoots(typeHandler);

@@ -209,6 +209,21 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				this.switchByteOrder
 			);
 		}
+
+		// all casts are type checked dynamically, but the compiler doesn't understand that
+//		@SuppressWarnings("unchecked")
+		@Override
+		protected <T> PersistenceTypeHandler<Binary, T> deriveTypeHandlerGenericPath(
+			final Class<T> type
+		)
+		{
+			/* (27.11.2019 TM)FIXME: BinaryHandlerPath
+			 * See comment there.
+			 */
+			throw new one.microstream.meta.NotImplementedYetError();
+			
+//			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerPath.New();
+		}
 		
 		// all casts are type checked dynamically, but the compiler doesn't understand that
 		@SuppressWarnings("unchecked")

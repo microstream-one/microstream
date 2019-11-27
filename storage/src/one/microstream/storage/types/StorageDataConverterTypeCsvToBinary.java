@@ -2,7 +2,6 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -1085,7 +1084,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 //			);
 			
 			// (20.11.2019 TM)NOTE: new with priv#157
-			final Path file = new File(this.sourceFile.identifier()).toPath();
+			final Path file = XPaths.Path(this.sourceFile.identifier());
 			final char[] input;
 			try
 			{

@@ -3,6 +3,7 @@ package one.microstream.storage.types;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import one.microstream.persistence.types.Persistence;
 
@@ -105,7 +106,7 @@ public final class Storage
 	 * 
 	 * @return {@linkDoc StorageFileProvider#New()@return}
 	 * 
-	 * @see Storage#FileProvider(File)
+	 * @see Storage#FileProvider(Path)
 	 * @see StorageFileProvider#New()
 	 * @see StorageFileProvider.Builder
 	 * @see StorageFileProvider.Defaults
@@ -124,6 +125,7 @@ public final class Storage
 	 * 
 	 * @see Storage#FileProvider(Path)
 	 */
+	@Deprecated
 	public static final StorageFileProvider FileProvider(final File storageDirectory)
 	{
 		return FileProvider(storageDirectory.toPath());
@@ -137,7 +139,7 @@ public final class Storage
 	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
 	 * 
 	 * @see Storage#FileProvider()
-	 * @see StorageFileProvider#New(File)
+	 * @see StorageFileProvider#New(Path)
 	 * @see StorageFileProvider.Builder
 	 * @see StorageFileProvider.Defaults
 	 */
@@ -152,7 +154,7 @@ public final class Storage
 	 * @return {@linkDoc StorageFileProvider#Builder()@return}
 	 * 
 	 * @see Storage#FileProvider()
-	 * @see Storage#FileProvider(File)
+	 * @see Storage#FileProvider(Path)
 	 * @see StorageFileProvider.Builder
 	 */
 	public static final StorageFileProvider.Builder<?> FileProviderBuilder()
@@ -401,6 +403,12 @@ public final class Storage
 		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio, cleanUpHeadFile);
 	}
 	
+	@Deprecated
+	public static final StorageBackupSetup BackupSetup(final File backupDirectory)
+	{
+		return BackupSetup(backupDirectory.toPath());
+	}
+	
 	/**
 	 * {@linkDoc StorageBackupSetup#New(File)}
 	 * 
@@ -411,25 +419,25 @@ public final class Storage
 	 * @see StorageBackupSetup#New(StorageFileProvider)
 	 * @see StorageBackupHandler
 	 */
-	public static final StorageBackupSetup BackupSetup(final File backupDirectory)
+	public static final StorageBackupSetup BackupSetup(final Path backupDirectory)
 	{
 		return StorageBackupSetup.New(backupDirectory);
 	}
 	
 	/**
-	 * {@linkDoc StorageBackupSetup#New(File)}
+	 * {@linkDoc StorageBackupSetup#New(Path)}
 	 * 
 	 * @param backupDirectoryPath the path to the backup directory
 	 * 
 	 * @return {@linkDoc StorageBackupSetup#New(File)@return}
 	 * 
-	 * @see StorageBackupSetup#New(File)
+	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupSetup#New(StorageFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final String backupDirectoryPath)
 	{
-		return StorageBackupSetup.New(new File(backupDirectoryPath));
+		return StorageBackupSetup.New(Paths.get(backupDirectoryPath));
 	}
 
 	/**
@@ -439,7 +447,7 @@ public final class Storage
 	 * 
 	 * @return {@linkDoc StorageBackupSetup#New(StorageFileProvider)@return}
 	 * 
-	 * @see StorageBackupSetup#New(File)
+	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final StorageFileProvider backupFileProvider)
