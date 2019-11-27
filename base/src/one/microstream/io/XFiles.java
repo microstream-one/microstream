@@ -1,17 +1,9 @@
 package one.microstream.io;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.util.function.Predicate;
 
 import one.microstream.chars.VarString;
-import one.microstream.chars.XChars;
-import one.microstream.exceptions.IORuntimeException;
-import one.microstream.functional.XFunc;
 
 /**
  * @author Thomas Muenz
@@ -144,97 +136,7 @@ public final class XFiles // Yes, yes. X-Files. Very funny and all that.
 
 		return file;
 	}
-	
-	// File FielChannel creation //
-	
-	public static final FileChannel createWritingFileChannel(final File file) throws FileException, IOException
-	{
-		return createWritingFileChannel(file, false);
-	}
-
-	@SuppressWarnings("resource") // channel handles the closing, hacky JDK API tricking the JLS, so funny
-	public static final FileChannel createWritingFileChannel(final File file, final boolean append)
-		throws FileException, IOException
-	{
-		// seriously, no writeable FileChannel without unnecessary FOS first? No proper example googleable.
-		return new FileOutputStream(ensureWriteableFile(file), append).getChannel();
-	}
-
-	@SuppressWarnings("resource") // channel handles the closing, hacky JDK API tricking the JLS, so funny
-	public static final FileChannel createReadingFileChannel(final File file) throws IOException
-	{
-		// seriously, no writeable FileChannel without unnecessary FIS first? No proper example googleable.
-		return new FileInputStream(file).getChannel();
-	}
-	
-	// File writing //
-		
-	public static final void writeStringToFile(final File file, final String string) throws IOException
-	{
-		writeStringToFile(file, string, XChars.standardCharset());
-	}
-
-	public static final void writeStringToFile(final File file, final String string, final Charset charset)
-		throws IOException
-	{
-		try(final FileOutputStream out = new FileOutputStream(ensureWriteableFile(file)))
-		{
-			out.write(string.getBytes(charset));
-		}
-	}
-
-	public static final void mergeBinary(
-		final Iterable<File>          sourceFiles,
-		final File                    targetFile ,
-		final Predicate<? super File> selector
-	)
-	{
-		FileChannel channel = null;
-		try
-		{
-			channel = createWritingFileChannel(targetFile, true);
-			for(final File sourceFile : sourceFiles)
-			{
-				if(!selector.test(sourceFile))
-				{
-					continue;
-				}
-				final FileChannel sourceChannel = createReadingFileChannel(sourceFile);
-				try
-				{
-					sourceChannel.transferTo(0, sourceChannel.size(), channel);
-				}
-				finally
-				{
-					XIO.closeSilent(sourceChannel);
-				}
-			}
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // (28.10.2014)TODO: proper exception
-		}
-		finally
-		{
-			XIO.closeSilent(channel);
-		}
-	}
-
-	public static final void mergeBinary(
-		final Iterable<File> sourceFiles,
-		final File           targetFile
-	)
-	{
-		mergeBinary(sourceFiles, targetFile, XFunc.all());
-	}
-		
-	public static void move(final File sourceFile, final File targetFile) throws IORuntimeException, RuntimeException
-	{
-		XIO.execute(() ->
-			XPaths.move(sourceFile.toPath(), targetFile.toPath())
-		);
-	}
-	
+				
 	
 	
 	

@@ -17,7 +17,6 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.functional.Aggregator;
-import one.microstream.io.XFiles;
 import one.microstream.io.XPaths;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.Substituter;
@@ -303,7 +302,7 @@ public class CompositeConfig
 
 		try
 		{
-			XFiles.writeStringToFile(file, vs.toString());
+			XPaths.write(file.toPath(), vs.toString());
 		}
 		catch(final IOException e)
 		{

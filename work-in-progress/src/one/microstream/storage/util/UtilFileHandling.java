@@ -1,6 +1,5 @@
 package one.microstream.storage.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -9,7 +8,7 @@ import java.util.function.Function;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
-import one.microstream.io.XFiles;
+import one.microstream.io.XPaths;
 import one.microstream.meta.XDebug;
 
 
@@ -19,7 +18,7 @@ public class UtilFileHandling
 	// constants //
 	//////////////
 	
-	private static final Function<String, HashEnum<File>> FILE_INDEX_SUPPLIER = f -> HashEnum.New();
+	private static final Function<String, HashEnum<Path>> FILE_INDEX_SUPPLIER = f -> HashEnum.New();
 	
 	
 	
@@ -27,14 +26,14 @@ public class UtilFileHandling
 	// static methods //
 	///////////////////
 	
-	public static Function<String, HashEnum<File>> fileIndexSupplier()
+	public static Function<String, HashEnum<Path>> fileIndexSupplier()
 	{
 		return FILE_INDEX_SUPPLIER;
 	}
 	
-	public static File mustDirectory(final File file)
+	public static Path mustDirectory(final Path file)
 	{
-		if(file.isDirectory())
+		if(XPaths.isDirectoryUnchecked(file))
 		{
 			return file;
 		}
@@ -42,11 +41,14 @@ public class UtilFileHandling
 		throw new RuntimeException("Not a directory: " + file);
 	}
 	
-	public static Function<File, String> fileIdentitySimpleNameSizeChangeTime()
+	public static Function<Path, String> fileIdentitySimpleNameSizeChangeTime()
 	{
-		return (final File file) ->
+		return (final Path file) ->
 		{
-			return file.getName() + " $" + file.length() + " @" + file.lastModified();
+			return XPaths.getFileName(file)
+				+ " $" + XPaths.sizeUnchecked(file)
+				+ " @" + XPaths.lastModifiedUnchecked(file)
+			;
 		};
 	}
 	
@@ -54,17 +56,17 @@ public class UtilFileHandling
 	
 	
 	public static final void indexFiles(
-		final File                                directory     ,
-		final EqHashTable<String, HashEnum<File>> indexedFiles  ,
-		final Function<File, String>              fileIdentifier
+		final Path                                directory     ,
+		final EqHashTable<String, HashEnum<Path>> indexedFiles  ,
+		final Function<Path, String>              fileIdentifier
 	)
 	{
 //		XDebug.println("Indexing directory " + directory);
 		
-		final File[] files = directory.listFiles();
-		for(final File file : files)
+		final Path[] files = XPaths.listChildrenUnchecked(directory);
+		for(final Path file : files)
 		{
-			if(file.isDirectory())
+			if(XPaths.isDirectoryUnchecked(file))
 			{
 				continue;
 			}
@@ -76,9 +78,9 @@ public class UtilFileHandling
 				XDebug.println(indexedFiles.size() + " files processed.");
 			}
 		}
-		for(final File file : files)
+		for(final Path file : files)
 		{
-			if(file.isDirectory())
+			if(XPaths.isDirectoryUnchecked(file))
 			{
 				indexFiles(file, indexedFiles, fileIdentifier);
 			}
@@ -86,12 +88,12 @@ public class UtilFileHandling
 	}
 	
 	public static void move(
-		final File targetSourceFile,
-		final File targetTargetFile
+		final Path targetSourceFile,
+		final Path targetTargetFile
 	)
 	{
-		XFiles.ensureDirectory(targetTargetFile.getParentFile());
-		if(targetTargetFile.exists())
+		XPaths.ensureDirectoryUnchecked(targetTargetFile.getParent());
+		if(XPaths.existsUnchecked(targetTargetFile))
 		{
 			System.out.println("x already exists: " + targetTargetFile);
 			System.out.println();
@@ -101,8 +103,8 @@ public class UtilFileHandling
 		System.out.println("Moving " + targetSourceFile);
 		System.out.println(" to -> " + targetTargetFile);
 
-		final Path source = targetSourceFile.toPath();
-		final Path target = targetTargetFile.toPath();
+		final Path source = targetSourceFile;
+		final Path target = targetTargetFile;
 		try
 		{
 			Files.move(source, target);

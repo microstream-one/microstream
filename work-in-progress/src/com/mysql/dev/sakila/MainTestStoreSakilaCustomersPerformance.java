@@ -31,7 +31,7 @@ public class MainTestStoreSakilaCustomersPerformance
 	static
 	{
 		// the database directory is completely cleaned before every execution.
-		XDebug.deleteAllFiles(DIRECTORY.toFile(), true);
+		XDebug.deleteAllFiles(DIRECTORY, true);
 	}
 	
 	/**

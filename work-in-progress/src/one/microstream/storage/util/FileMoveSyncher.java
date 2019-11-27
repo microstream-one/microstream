@@ -1,11 +1,12 @@
 package one.microstream.storage.util;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.function.Function;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingCollection;
+import one.microstream.io.XPaths;
 import one.microstream.meta.XDebug;
 
 
@@ -15,7 +16,7 @@ public class FileMoveSyncher
 	// instance fields //
 	////////////////////
 	
-	private final Function<File, String> fileIdentifier;
+	private final Function<Path, String> fileIdentifier;
 	
 	
 	
@@ -23,7 +24,7 @@ public class FileMoveSyncher
 	// constructors //
 	/////////////////
 	
-	public FileMoveSyncher(final Function<File, String> fileIdentifier)
+	public FileMoveSyncher(final Function<Path, String> fileIdentifier)
 	{
 		super();
 		this.fileIdentifier = fileIdentifier;
@@ -35,24 +36,24 @@ public class FileMoveSyncher
 	// methods //
 	////////////
 
-	public void moveSynch(final File sourceDirectory, final File targetDirectory)
+	public void moveSynch(final Path sourceDirectory, final Path targetDirectory)
 	{
 		UtilFileHandling.mustDirectory(sourceDirectory);
 		UtilFileHandling.mustDirectory(targetDirectory);
 		
-		final EqHashTable<String, HashEnum<File>> indexedFiles = EqHashTable.New();
+		final EqHashTable<String, HashEnum<Path>> indexedFiles = EqHashTable.New();
 		
 		XDebug.println("Indexing files ...");
 		UtilFileHandling.indexFiles(targetDirectory, indexedFiles, this.fileIdentifier);
 		XDebug.println("Indexed unique files: " + indexedFiles.size());
 
-		final String sourceDirectoryBase = sourceDirectory.getAbsolutePath();
+		final String sourceDirectoryBase = XPaths.toAbsoluteNormalizedPath(sourceDirectory);
 		
 		removePerfectMatches(
 			sourceDirectory,
 			targetDirectory,
 			sourceDirectoryBase.length(),
-			targetDirectory.getAbsolutePath().length(),
+			XPaths.toAbsoluteNormalizedPath(targetDirectory).length(),
 			indexedFiles,
 			this.fileIdentifier
 		);
@@ -65,15 +66,15 @@ public class FileMoveSyncher
 			sourceDirectory,
 			targetDirectory,
 			sourceDirectoryBase.length(),
-			targetDirectory.getAbsolutePath().length(),
+			XPaths.toAbsoluteNormalizedPath(targetDirectory).length(),
 			indexedFiles,
 			this.fileIdentifier
 		);
 	}
 	
-	private static String getRelativePath(final File f, final int directoryBaseLength)
+	private static String getRelativePath(final Path f, final int directoryBaseLength)
 	{
-		return f.getAbsolutePath().substring(directoryBaseLength);
+		return f.toAbsolutePath().normalize().toString().substring(directoryBaseLength);
 	}
 	
 	/**
@@ -81,12 +82,12 @@ public class FileMoveSyncher
 	 * of the same file would get moved around with every execution.
 	 */
 	static void removePerfectMatches(
-		final File                                sourceBaseDirectory,
-		final File                                targetBaseDirectory,
+		final Path                                sourceBaseDirectory,
+		final Path                                targetBaseDirectory,
 		final int                                 srcBaseLength      ,
 		final int                                 trgBaseLength      ,
-		final EqHashTable<String, HashEnum<File>> indexFiles         ,
-		final Function<File, String>              fileIdentifier
+		final EqHashTable<String, HashEnum<Path>> indexFiles         ,
+		final Function<Path, String>              fileIdentifier
 	)
 	{
 		removePerfectMatches(
@@ -101,37 +102,37 @@ public class FileMoveSyncher
 	}
 	
 	static void removePerfectMatches(
-		final File                                sourceBaseDirectory,
-		final File                                targetBaseDirectory,
+		final Path                                sourceBaseDirectory,
+		final Path                                targetBaseDirectory,
 		final int                                 srcBaseLength      ,
 		final int                                 trgBaseLength      ,
-		final File                                sourceDirectory    ,
-		final EqHashTable<String, HashEnum<File>> indexFiles         ,
-		final Function<File, String>              fileIdentifier
+		final Path                                sourceDirectory    ,
+		final EqHashTable<String, HashEnum<Path>> indexFiles         ,
+		final Function<Path, String>              fileIdentifier
 	)
 	{
-		final File[] sourceFiles = sourceDirectory.listFiles();
+		final Path[] sourceFiles = XPaths.listChildrenUnchecked(sourceDirectory);
 		
-		for(final File sourceFile : sourceFiles)
+		for(final Path sourceFile : sourceFiles)
 		{
-			if(sourceFile.isDirectory())
+			if(XPaths.isDirectoryUnchecked(sourceFile))
 			{
 				continue;
 			}
 
 			final String  sourceFileIdentity = fileIdentifier.apply(sourceFile);
-			final HashEnum<File> targetFiles = indexFiles.get(sourceFileIdentity);
+			final HashEnum<Path> targetFiles = indexFiles.get(sourceFileIdentity);
 			if(targetFiles == null)
 			{
 				continue;
 			}
 			
-			final String relativeSourcePath = getRelativePath(sourceFile.getParentFile(), srcBaseLength);
+			final String relativeSourcePath = getRelativePath(sourceFile.getParent(), srcBaseLength);
 
 			// select most suited file ? (e.g. by relative path backwards)
 			targetFiles.removeBy(f ->
 			{
-				final String relativeTargetPath = getRelativePath(f.getParentFile(), trgBaseLength);
+				final String relativeTargetPath = getRelativePath(f.getParent(), trgBaseLength);
 				if(relativeSourcePath.equals(relativeTargetPath))
 				{
 //					System.out.println("Removing perfect match " + f.getAbsolutePath());
@@ -141,9 +142,9 @@ public class FileMoveSyncher
 			});
 		}
 		
-		for(final File sourceFile : sourceFiles)
+		for(final Path sourceFile : sourceFiles)
 		{
-			if(!sourceFile.isDirectory())
+			if(!XPaths.isDirectoryUnchecked(sourceFile))
 			{
 				continue;
 			}
@@ -161,15 +162,15 @@ public class FileMoveSyncher
 	
 	static final void synchMoveDirectoryContent(
 		final String                              srcDirBase     ,
-		final File                                sourceDirectory,
-		final File                                trgDirBase     ,
+		final Path                                sourceDirectory,
+		final Path                                trgDirBase     ,
 		final int                                 srcBaseLength  ,
 		final int                                 trgBaseLength  ,
-		final EqHashTable<String, HashEnum<File>> indexFiles     ,
-		final Function<File, String>              fileIdentifier
+		final EqHashTable<String, HashEnum<Path>> indexFiles     ,
+		final Function<Path, String>              fileIdentifier
 	)
 	{
-		final File[] sourceFiles = sourceDirectory.listFiles();
+		final Path[] sourceFiles = XPaths.listChildrenUnchecked(sourceDirectory);
 		final String relativeSourcePath = getRelativePath(sourceDirectory, srcBaseLength);
 		synchMoveActualFiles(srcDirBase, trgDirBase, srcBaseLength, trgBaseLength, relativeSourcePath, sourceFiles, indexFiles, fileIdentifier);
 		synchMoveSubDirs(srcDirBase, trgDirBase, srcBaseLength, trgBaseLength, sourceFiles, indexFiles, fileIdentifier);
@@ -177,37 +178,37 @@ public class FileMoveSyncher
 	
 	static final void synchMoveActualFiles(
 		final String                              sourceDirectoryBase,
-		final File                                targetDirectoryBase,
+		final Path                                targetDirectoryBase,
 		final int                                 srcBaseLength      ,
 		final int                                 trgBaseLength      ,
 		final String                              relativeSourcePath ,
-		final File[]                              sourceFiles        ,
-		final EqHashTable<String, HashEnum<File>> indexFiles         ,
-		final Function<File, String>              fileIdentifier
+		final Path[]                              sourceFiles        ,
+		final EqHashTable<String, HashEnum<Path>> indexFiles         ,
+		final Function<Path, String>              fileIdentifier
 	)
 	{
-		for(final File sourceFile : sourceFiles)
+		for(final Path sourceFile : sourceFiles)
 		{
-			if(sourceFile.isDirectory())
+			if(XPaths.isDirectoryUnchecked(sourceFile))
 			{
 				continue;
 			}
 			
 			final String  sourceFileIdentity = fileIdentifier.apply(sourceFile);
-			final HashEnum<File> targetFiles = indexFiles.get(sourceFileIdentity);
-			final File    matchingTargetFile = searchMatchingFile(sourceFile, targetFiles, srcBaseLength, trgBaseLength);
+			final HashEnum<Path> targetFiles = indexFiles.get(sourceFileIdentity);
+			final Path    matchingTargetFile = searchMatchingFile(sourceFile, targetFiles, srcBaseLength, trgBaseLength);
 			if(matchingTargetFile == null)
 			{
 				// copy source file? But then this tool becomes a complete file syncher instead of just a move-syncher.
 				continue;
 			}
 			
-			final File newTargetDirectory = new File(targetDirectoryBase, relativeSourcePath);
-			final File newTargetFile      = new File(newTargetDirectory, matchingTargetFile.getName());
+			final Path newTargetDirectory = XPaths.Path(targetDirectoryBase, relativeSourcePath);
+			final Path newTargetFile      = XPaths.Path(newTargetDirectory, XPaths.getFileName(matchingTargetFile));
 			
-			System.out.println("$ " + sourceFile.getAbsolutePath());
-			System.out.println("> " + newTargetFile.getAbsolutePath());
-			System.out.println("< " + matchingTargetFile.getAbsolutePath());
+			System.out.println("$ " + XPaths.toAbsoluteNormalizedPath(sourceFile));
+			System.out.println("> " + XPaths.toAbsoluteNormalizedPath(newTargetFile));
+			System.out.println("< " + XPaths.toAbsoluteNormalizedPath(matchingTargetFile));
 			System.out.println();
 			
 			UtilFileHandling.move(matchingTargetFile, newTargetFile);
@@ -218,17 +219,17 @@ public class FileMoveSyncher
 		
 	static final void synchMoveSubDirs(
 		final String                              sourceDirectoryBase,
-		final File                                targetDirectoryBase,
+		final Path                                targetDirectoryBase,
 		final int                                 srcBaseLength      ,
 		final int                                 trgBaseLength      ,
-		final File[]                              sourceFiles        ,
-		final EqHashTable<String, HashEnum<File>> indexFiles         ,
-		final Function<File, String>              fileIdentifier
+		final Path[]                              sourceFiles        ,
+		final EqHashTable<String, HashEnum<Path>> indexFiles         ,
+		final Function<Path, String>              fileIdentifier
 	)
 	{
-		for(final File sourceFile : sourceFiles)
+		for(final Path sourceFile : sourceFiles)
 		{
-			if(!sourceFile.isDirectory())
+			if(!XPaths.isDirectoryUnchecked(sourceFile))
 			{
 				continue;
 			}
@@ -245,9 +246,9 @@ public class FileMoveSyncher
 		}
 	}
 	
-	static File searchMatchingFile(
-		final File                               sourceFile               ,
-		final XGettingCollection<? extends File> targetFiles              ,
+	static Path searchMatchingFile(
+		final Path                               sourceFile               ,
+		final XGettingCollection<? extends Path> targetFiles              ,
 		final int                                sourceDirectoryBaseLength,
 		final int                                targetDirectoryBaseLength
 	)
@@ -257,15 +258,15 @@ public class FileMoveSyncher
 			return null;
 		}
 
-		final String relativeSourcePath = getRelativePath(sourceFile.getParentFile(), sourceDirectoryBaseLength);
+		final String relativeSourcePath = getRelativePath(sourceFile.getParent(), sourceDirectoryBaseLength);
 
 		/* (08.06.2019 TM)FIXME: select most suited file (e.g. by relative path backwards)
 		 * because otherwise for duplicate files, one gets moved to another location
 		 * and then it is missing (file not found exception) for the next location.
 		 */
-		for(final File f : targetFiles)
+		for(final Path f : targetFiles)
 		{
-			final String relativeTargetPath = getRelativePath(f.getParentFile(), targetDirectoryBaseLength);
+			final String relativeTargetPath = getRelativePath(f.getParent(), targetDirectoryBaseLength);
 			if(relativeSourcePath.equals(relativeTargetPath))
 			{
 				// if there is already a matching file, discard all other potential matches
@@ -283,8 +284,8 @@ public class FileMoveSyncher
 	{
 		final FileMoveSyncher fms = new FileMoveSyncher(UtilFileHandling.fileIdentitySimpleNameSizeChangeTime());
 		fms.moveSynch(
-			new File("G:\\media"),
-			new File("T:\\media")
+			XPaths.Path("G:\\media"),
+			XPaths.Path("T:\\media")
 		);
 	}
 	
