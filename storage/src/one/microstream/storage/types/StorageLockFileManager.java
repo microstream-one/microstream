@@ -463,7 +463,7 @@ public interface StorageLockFileManager extends Runnable
 				return;
 			}
 			
-			StorageLockedFile.closeSilent(this.lockFile);
+			StorageFile.closeSilent(this.lockFile);
 			this.lockFile = null;
 		}
 		
