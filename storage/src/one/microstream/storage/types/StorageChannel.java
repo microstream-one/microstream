@@ -309,7 +309,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 //				DEBUGStorage.println(this.channelIndex + " current Task: " + currentTask);
 			}
 
-			DebugStorage.println("Storage channel " + this.channelIndex + " stops working.");
+			DebugStorage.println("Storage channel " + this.channelIndex + " stopped working.");
 		}
 
 

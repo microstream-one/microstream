@@ -35,24 +35,6 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 	public boolean hasNoUsers();
 	
 
-
-	public static void closeSilent(final StorageLockedFile file)
-	{
-		if(file == null)
-		{
-			return;
-		}
-		
-		try
-		{
-			file.close();
-		}
-		catch(final Exception t)
-		{
-			// sshhh, silence!
-		}
-	}
-
 	@SuppressWarnings("resource") // resource closed internally by FileChannel (JDK tricking Java compiler ^^)
 	public static FileLock openLockedFileChannel(final File file)
 	{

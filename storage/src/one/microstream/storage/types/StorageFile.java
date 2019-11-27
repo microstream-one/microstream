@@ -117,6 +117,24 @@ public interface StorageFile
 		}
 	}
 	
+	// (07.07.2016 TM)FIXME: check and fix or comment all calls to this method
+	public static void closeSilent(final StorageFile file)
+	{
+		if(file == null)
+		{
+			return;
+		}
+		
+		try
+		{
+			file.close();
+		}
+		catch(final Exception t)
+		{
+			// sshhh, silence!
+		}
+	}
+	
 	
 	public static VarString assembleNameAndSize(final VarString vs, final StorageFile file)
 	{
