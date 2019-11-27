@@ -340,6 +340,10 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				DebugStorage.println(this.channelIndex + " encountered exception " + t);
 				this.exceptionHandler.handleException(t, this);
 			}
+			finally
+			{
+				this.closeAllResources();
+			}
 		}
 
 		@Override
@@ -579,11 +583,16 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				storageInventory
 			);
 		}
+		
+		final void closeAllResources()
+		{
+			this.fileManager.clearRegisteredFiles();
+		}
 
 		@Override
 		public final void clear()
 		{
-			this.fileManager.clearRegisteredFiles();
+			this.closeAllResources();
 			this.entityCache.clearState();
 		}
 

@@ -555,35 +555,15 @@ public interface StorageManager extends StorageController
 		@Override
 		public void killStorage(final Throwable cause)
 		{
-			/* (27.11.2019 TM)FIXME:
-			 * - stop operation controller
-			 * - kill all storage channels
-			 * - kill backup thread if present
+			/*
+			 * Immediately deactivates all activities without waiting for currently existing work items to be
+			 * completed.
+			 * 
+			 * Deactivates all threads (Channel threads, lock file thread, backup thread).
+			 * All terminating threads cleanup their resources (e.g. opened files).
+			 * So this is all that must be necessary
 			 */
-			
-			try
-			{
-				this.operationController.deactivate();
-				
-				for(final ChannelKeeper ck : this.channelKeepers)
-				{
-					ck.channel.clear();
-				}
-				
-				if(this.backupHandler != null)
-				{
-					// end the backup thread after the current action and closes all open files
-					this.backupHandler.setRunning(false);
-				}
-			}
-			catch(final Throwable t)
-			{
-				/*
-				 *  suppressed adding is done by the calling context since
-				 *  it cannot rely on this implementation to do it.
-				 */
-				throw t;
-			}
+			this.operationController.deactivate();
 		}
 
 	}
