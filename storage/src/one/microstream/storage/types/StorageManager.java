@@ -565,6 +565,12 @@ public interface StorageManager extends StorageController
 			 * So this is all that must be necessary
 			 */
 			this.operationController.deactivate();
+			
+			// backup handler must be treated specially since it is normally intended to finish its items on its own.
+			if(this.backupHandler != null)
+			{
+				this.backupHandler.setRunning(false);
+			}
 		}
 
 	}
