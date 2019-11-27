@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import one.microstream.X;
-import one.microstream.memory.XMemory;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
@@ -17,6 +16,7 @@ import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.io.XFiles;
+import one.microstream.io.XPaths;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -127,7 +127,7 @@ class StorageRollbacker
 			vs.lf();
 		}
 		
-		XFiles.writeStringToFile(new File(this.recDirectory, "lcm_prod_Strings.txt"), vs.toString());
+		XPaths.write(new File(this.recDirectory, "lcm_prod_Strings.txt").toPath(), vs.toString());
 	}
 	
 	public EqHashTable<Long, String> recoverStrings() throws Exception

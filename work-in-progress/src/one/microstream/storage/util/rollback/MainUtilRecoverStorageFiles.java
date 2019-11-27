@@ -80,7 +80,7 @@ public class MainUtilRecoverStorageFiles
 		final File sourceFile = new File(PATH_CORRUPTED + "/channel_0/channel_0_491.dat");
 				
 		final File dir = XFiles.ensureDirectory(new File(PATH_CORRUPTED, "strings"));
-		XDebug.deleteAllFiles(dir, false);
+		XDebug.deleteAllFiles(dir.toPath(), false);
 		
 		// 2019-03-13 (2019-03-14)
 //		final StorageRollbacker sr = new StorageRollbacker(

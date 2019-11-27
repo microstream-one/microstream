@@ -75,7 +75,7 @@ public class TestStorage extends TestComponentProvider
 	static void deleteOutput(final File dir)
 	{
 		System.out.println("Resetting " + dir);
-		XDebug.deleteAllFiles(dir, false);
+		XDebug.deleteAllFiles(dir.toPath(), false);
 		System.out.println("done");
 	}
 

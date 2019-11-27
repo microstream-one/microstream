@@ -258,7 +258,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 	{
 		final File dir = new File("c:/Files");
 		System.out.println("Resetting "+dir);
-		XDebug.deleteAllFiles(dir, false);
+		XDebug.deleteAllFiles(dir.toPath(), false);
 		System.out.println("done");
 	}
 

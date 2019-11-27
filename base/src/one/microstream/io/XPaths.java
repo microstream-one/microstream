@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -367,6 +368,23 @@ public final class XPaths
 		}
 	}
 	
+	public static final long lastModified(final Path file) throws IOException
+	{
+		return Files.getLastModifiedTime(file).toMillis();
+	}
+	
+	public static final long lastModifiedUnchecked(final Path file) throws IORuntimeException
+	{
+		try
+		{
+			return lastModified(file);
+		}
+		catch(final IOException e)
+		{
+			throw new IORuntimeException(e);
+		}
+	}
+	
 	public static final <P extends Path> P ensureDirectory(final P directory) throws IOException
 	{
 		// Let's hope calling this on an already existing directory is not too much overhead ...
@@ -465,6 +483,11 @@ public final class XPaths
 		{
 			throw new IORuntimeException(e);
 		}
+	}
+	
+	public static String toAbsoluteNormalizedPath(final Path file)
+	{
+		return file.toAbsolutePath().normalize().toString();
 	}
 	
 	public static FileChannel openFileChannelReading(final Path file)
@@ -649,6 +672,51 @@ public final class XPaths
 		return writeOneShot(file, fc ->
 			XIO.writeAppending(fc, buffer)
 		);
+	}
+	
+	public static final void mergeBinary(
+		final Iterable<Path>          sourceFiles,
+		final Path                    targetFile ,
+		final Predicate<? super Path> selector
+	)
+	{
+		FileChannel channel = null;
+		try
+		{
+			channel = XPaths.openFileChannelWriting(targetFile, StandardOpenOption.APPEND);
+			for(final Path sourceFile : sourceFiles)
+			{
+				if(!selector.test(sourceFile))
+				{
+					continue;
+				}
+				final FileChannel sourceChannel = XPaths.openFileChannelReading(sourceFile);
+				try
+				{
+					sourceChannel.transferTo(0, sourceChannel.size(), channel);
+				}
+				finally
+				{
+					XIO.closeSilent(sourceChannel);
+				}
+			}
+		}
+		catch(final IOException e)
+		{
+			throw new RuntimeException(e); // (28.10.2014)TODO: proper exception
+		}
+		finally
+		{
+			XIO.closeSilent(channel);
+		}
+	}
+
+	public static final void mergeBinary(
+		final Iterable<Path> sourceFiles,
+		final Path           targetFile
+	)
+	{
+		mergeBinary(sourceFiles, targetFile, XFunc.all());
 	}
 	
 	public static void move(final Path sourceFile, final Path targetFile)
