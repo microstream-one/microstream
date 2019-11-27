@@ -450,6 +450,12 @@ public interface StorageBackupHandler extends Runnable
 				
 				final long oldBackupFileLength = targetChannel.size();
 				
+				// better check again right before trying to copy from a channel file.
+				if(!this.operationController.isChannelProcessingEnabled())
+				{
+					return;
+				}
+				
 				try
 				{
 					final long byteCount = sourceChannel.transferTo(sourcePosition, length, targetChannel);
