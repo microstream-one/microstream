@@ -37,7 +37,7 @@ public interface StorageManager extends StorageController
 	
 
 
-	public final class Default implements StorageManager, Unpersistable
+	public final class Default implements StorageManager, Unpersistable, StorageKillable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -118,7 +118,7 @@ public interface StorageManager extends StorageController
 			final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ,
 			final StorageGCZombieOidHandler            zombieOidHandler              ,
 			final StorageRootOidSelector.Provider      rootOidSelectorProvider       ,
-			final StorageobjectIdMarkQueue.Creator          oidMarkQueueCreator           ,
+			final StorageobjectIdMarkQueue.Creator     oidMarkQueueCreator           ,
 			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ,
 			final boolean                              switchByteOrder               ,
 			final StorageLockFileSetup                 lockFileSetup                 ,
@@ -240,7 +240,7 @@ public interface StorageManager extends StorageController
 			{
 				for(final ChannelKeeper keeper : this.channelKeepers)
 				{
-					keeper.thread.start();
+					keeper.channelThread.start();
 				}
 				initializingTask.waitOnCompletion();
 			}
@@ -318,16 +318,16 @@ public interface StorageManager extends StorageController
 		// "Please do not disturb the Keepers" :-D
 		static final class ChannelKeeper
 		{
-			final int            channelIndex;
-			final StorageChannel processor   ;
-			final Thread         thread      ;
+			final int            channelIndex ;
+			final StorageChannel channel      ;
+			final Thread         channelThread;
 
-			ChannelKeeper(final int channelIndex, final StorageChannel processor, final Thread thread)
+			ChannelKeeper(final int channelIndex, final StorageChannel channel, final Thread thread)
 			{
 				super();
-				this.channelIndex = channelIndex;
-				this.processor    = processor   ;
-				this.thread       = thread      ;
+				this.channelIndex  = channelIndex;
+				this.channel       = channel     ;
+				this.channelThread = thread      ;
 			}
 		}
 
@@ -550,6 +550,40 @@ public interface StorageManager extends StorageController
 				this.dataChunkValidatorProvider.provideDataChunkValidator(this.typeDictionary),
 				this.taskbroker
 			);
+		}
+		
+		@Override
+		public void killStorage(final Throwable cause)
+		{
+			/* (27.11.2019 TM)FIXME:
+			 * - stop operation controller
+			 * - kill all storage channels
+			 * - kill backup thread if present
+			 */
+			
+			try
+			{
+				this.operationController.deactivate();
+				
+				for(final ChannelKeeper ck : this.channelKeepers)
+				{
+					ck.channel.clear();
+				}
+				
+				if(this.backupHandler != null)
+				{
+					// end the backup thread after the current action and closes all open files
+					this.backupHandler.setRunning(false);
+				}
+			}
+			catch(final Throwable t)
+			{
+				/*
+				 *  suppressed adding is done by the calling context since
+				 *  it cannot rely on this implementation to do it.
+				 */
+				throw t;
+			}
 		}
 
 	}
