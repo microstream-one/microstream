@@ -25,20 +25,20 @@ public class MainTestExportConvertImport extends TestStorage
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		final XSequence<Path> exportFiles = exportTypes(
 			storageConnection,
-			XIO.ensureDirectoryUnchecked(XIO.Path(targetDirectory, "bin")),
+			XIO.unchecked.ensureDirectory(XIO.Path(targetDirectory, "bin")),
 			"dat"
 		);
 		final Path csvDir = convertBinToCsv(exportFiles, file -> XIO.getFileName(file).endsWith(".dat"));
 
 		final Path bin2Dir = MainTestConvertCsvToBin.convertCsvToBin(
 			STORAGE.typeDictionary(),
-			XIO.listEntriesUnchecked(targetDirectory, BulkList.New()),
+			XIO.unchecked.listEntries(targetDirectory, BulkList.New()),
 			XIO.Path(csvDir.getParent(), "bin2"),
 			XFunc.all()
 		);
 
 //		STORAGE.truncateData();
-		storageConnection.importFiles(EqHashEnum.New(XIO.listEntriesUnchecked(bin2Dir)));
+		storageConnection.importFiles(EqHashEnum.New(XIO.unchecked.listEntries(bin2Dir)));
 //		storageConnection.importFiles(EqHashEnum.New(new File("C:/Files/export/bin2/one.microstream.persistence.types.PersistenceRoots$Default.dat")));
 
 		STORAGE.shutdown();

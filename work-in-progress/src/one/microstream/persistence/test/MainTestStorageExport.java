@@ -65,7 +65,7 @@ public class MainTestStorageExport extends TestStorage
 
 	static void testExport()
 	{
-		final Path directory = XIO.ensureDirectoryUnchecked(XIO.Path("C:/Files/export/bin"));
+		final Path directory = XIO.unchecked.ensureDirectory(XIO.Path("C:/Files/export/bin"));
 		
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		final XSequence<Path> exportFiles = exportTypes(

@@ -33,7 +33,7 @@ public class UtilFileHandling
 	
 	public static Path mustDirectory(final Path file)
 	{
-		if(XIO.isDirectoryUnchecked(file))
+		if(XIO.unchecked.isDirectory(file))
 		{
 			return file;
 		}
@@ -46,8 +46,8 @@ public class UtilFileHandling
 		return (final Path file) ->
 		{
 			return XIO.getFileName(file)
-				+ " $" + XIO.sizeUnchecked(file)
-				+ " @" + XIO.lastModifiedUnchecked(file)
+				+ " $" + XIO.unchecked.size(file)
+				+ " @" + XIO.unchecked.lastModified(file)
 			;
 		};
 	}
@@ -63,10 +63,10 @@ public class UtilFileHandling
 	{
 //		XDebug.println("Indexing directory " + directory);
 		
-		final Path[] files = XIO.listEntriesUnchecked(directory);
+		final Path[] files = XIO.unchecked.listEntries(directory);
 		for(final Path file : files)
 		{
-			if(XIO.isDirectoryUnchecked(file))
+			if(XIO.unchecked.isDirectory(file))
 			{
 				continue;
 			}
@@ -80,7 +80,7 @@ public class UtilFileHandling
 		}
 		for(final Path file : files)
 		{
-			if(XIO.isDirectoryUnchecked(file))
+			if(XIO.unchecked.isDirectory(file))
 			{
 				indexFiles(file, indexedFiles, fileIdentifier);
 			}
@@ -92,8 +92,8 @@ public class UtilFileHandling
 		final Path targetTargetFile
 	)
 	{
-		XIO.ensureDirectoryUnchecked(targetTargetFile.getParent());
-		if(XIO.existsUnchecked(targetTargetFile))
+		XIO.unchecked.ensureDirectory(targetTargetFile.getParent());
+		if(XIO.unchecked.exists(targetTargetFile))
 		{
 			System.out.println("x already exists: " + targetTargetFile);
 			System.out.println();

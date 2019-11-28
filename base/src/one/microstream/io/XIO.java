@@ -36,7 +36,8 @@ public final class XIO
 	// methods //
 	////////////
 	
-	public static void execute(final IoOperation operation) throws IORuntimeException
+	public static void unchecked(final IoOperation operation)
+		throws IORuntimeException
 	{
 		try
 		{
@@ -48,7 +49,8 @@ public final class XIO
 		}
 	}
 	
-	public static <T> T execute(final IoOperationR<T> operation) throws IORuntimeException
+	public static <T> T unchecked(final IoOperationR<T> operation)
+		throws IORuntimeException
 	{
 		try
 		{
@@ -60,7 +62,8 @@ public final class XIO
 		}
 	}
 	
-	public static <S> void execute(final IoOperationS<S> operation, final S subject) throws IORuntimeException
+	public static <S> void unchecked(final IoOperationS<S> operation, final S subject)
+		throws IORuntimeException
 	{
 		try
 		{
@@ -72,7 +75,8 @@ public final class XIO
 		}
 	}
 	
-	public static <S, R> R execute(final IoOperationSR<S, R> operation, final S subject) throws IORuntimeException
+	public static <S, R> R unchecked(final IoOperationSR<S, R> operation, final S subject)
+		throws IORuntimeException
 	{
 		try
 		{
@@ -127,9 +131,7 @@ public final class XIO
 		return VarString.New().list("/", items).toString();
 	}
 	
-	
-	// (28.11.2019 TM)FIXME: priv#157: maybe move everything over to XIO?
-	
+		
 	
 	/* (19.11.2019 TM)NOTE:
 	 * "Path" must be the dumbest idea on earth for a name to represent a file or a directory.
@@ -174,6 +176,12 @@ public final class XIO
 	 * and not some pilgrim path on which you are allowed to write a diary or something like that.
 	 */
 
+	public static final Path Path(final String path)
+	{
+		// just for completeness' sake and ease of workflow
+		return Paths.get(path);
+	}
+	
 	public static final Path Path(final String... items)
 	{
 		// because why make it simple...
@@ -187,7 +195,10 @@ public final class XIO
 		 * Not even a defined, reliable getter method for the string representation.
 		 * Oh wait, there's #getFileName() ... but oh... wait... lol
 		 */
-		return Paths.get(parent.toString(), items);
+		return parent != null
+			? Paths.get(parent.toString(), items)
+			: Path(items)
+		;
 	}
 	
 	/**
@@ -223,18 +234,6 @@ public final class XIO
 		return Files.isDirectory(path);
 	}
 	
-	public static boolean isDirectoryUnchecked(final Path path) throws IORuntimeException
-	{
-		try
-		{
-			return isDirectory(path);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-	}
-	
 	// because the IDE-generated ", null" for their method drives one crazy when working with it.
 	public static boolean exists(final Path path) throws IOException
 	{
@@ -242,50 +241,16 @@ public final class XIO
 		return Files.exists(path);
 	}
 	
-	public static final boolean existsUnchecked(final Path directory) throws IORuntimeException
-	{
-		try
-		{
-			return exists(directory);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-	}
-	
 	public static final boolean delete(final Path path) throws IOException
 	{
 		return Files.deleteIfExists(path);
 	}
 	
-	public static final boolean deleteUnchecked(final Path path) throws IORuntimeException
-	{
-		try
-		{
-			return delete(path);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-	}
+	
 	
 	public static Path[] listEntries(final Path directory) throws IOException
 	{
 		return listEntries(directory, XFunc.all());
-	}
-	
-	public static final Path[] listEntriesUnchecked(final Path directory) throws IORuntimeException
-	{
-		try
-		{
-			return listEntries(directory, XFunc.all());
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
 	}
 	
 	public static Path[] listEntries(
@@ -297,22 +262,6 @@ public final class XIO
 		return listEntries(directory, BulkList.New(), selector).toArray(Path.class);
 	}
 	
-	public static Path[] listEntriesUnchecked(
-		final Path                    directory,
-		final Predicate<? super Path> selector
-	)
-		throws IORuntimeException
-	{
-		try
-		{
-			return listEntries(directory, selector);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-	}
-	
 	public static <C extends XAddingCollection<? super Path>> C listEntries(
 		final Path directory,
 		final C    target
@@ -320,22 +269,6 @@ public final class XIO
 		throws IOException
 	{
 		return iterateEntries(directory, target);
-	}
-	
-	public static final <C extends XAddingCollection<? super Path>> C listEntriesUnchecked(
-		final Path directory,
-		final C    target
-	)
-		throws IORuntimeException
-	{
-		try
-		{
-			return listEntries(directory, target);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
 	}
 	
 	public static <C extends XAddingCollection<? super Path>> C listEntries(
@@ -346,23 +279,6 @@ public final class XIO
 		throws IOException
 	{
 		return iterateEntries(directory, target, selector);
-	}
-	
-	public static final <C extends XAddingCollection<? super Path>> C listEntriesUnchecked(
-		final Path                    directory,
-		final C                       target   ,
-		final Predicate<? super Path> selector
-	)
-		throws IORuntimeException
-	{
-		try
-		{
-			return listEntries(directory, target, selector);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
 	}
 	
 	public static <C extends Consumer<? super Path>> C iterateEntries(
@@ -396,39 +312,6 @@ public final class XIO
 		return logic;
 	}
 	
-	public static <C extends Consumer<? super Path>> C iterateEntriesUnchecked(
-		final Path directory,
-		final C    logic
-	)
-		throws IORuntimeException
-	{
-		try
-		{
-			return iterateEntries(directory, logic);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-	}
-	
-	public static <C extends Consumer<? super Path>> C iterateEntriesUnchecked(
-		final Path                    directory,
-		final C                       logic    ,
-		final Predicate<? super Path> selector
-	)
-		throws IORuntimeException
-	{
-		try
-		{
-			return iterateEntries(directory, logic, selector);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-	}
-	
 	
 	
 	public static boolean hasNoFiles(final Path directory) throws IOException
@@ -443,45 +326,9 @@ public final class XIO
 		}
 	}
 	
-	public static final boolean hasNoFilesUnchecked(final Path directory) throws IORuntimeException
-	{
-		try
-		{
-			return hasNoFiles(directory);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-	}
-	
-	public static final long sizeUnchecked(final Path file) throws IORuntimeException
-	{
-		try
-		{
-			return Files.size(file);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-	}
-	
 	public static final long lastModified(final Path file) throws IOException
 	{
 		return Files.getLastModifiedTime(file).toMillis();
-	}
-	
-	public static final long lastModifiedUnchecked(final Path file) throws IORuntimeException
-	{
-		try
-		{
-			return lastModified(file);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
 	}
 	
 	public static String toAbsoluteNormalizedPath(final Path file)
@@ -499,18 +346,6 @@ public final class XIO
 		return directory;
 	}
 	
-	public static final <P extends Path> P ensureDirectoryUnchecked(final P directory) throws IORuntimeException
-	{
-		try
-		{
-			return ensureDirectory(directory);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-	}
-	
 	public static final <P extends Path> P ensureDirectoryAndFile(final P file) throws IOException
 	{
 		final Path parent;
@@ -520,18 +355,6 @@ public final class XIO
 		}
 		
 		return ensureFile(file);
-	}
-
-	public static final <P extends Path> P ensureDirectoryAndFileUnchecked(final P file) throws IORuntimeException
-	{
-		try
-		{
-			return ensureDirectoryAndFile(file);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
 	}
 
 	public static final <P extends Path> P ensureFile(final P file) throws IOException
@@ -554,18 +377,6 @@ public final class XIO
 		
 		return file;
 	}
-	
-	public static final <P extends Path> P ensureFileUnchecked(final P file) throws IORuntimeException
-	{
-		try
-		{
-			return ensureFile(file);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
-	}
 		
 	public static final <P extends Path> P ensureWriteableFile(final P file) throws IOException, FilePathException
 	{
@@ -577,18 +388,6 @@ public final class XIO
 		}
 		
 		return file;
-	}
-	
-	public static final <P extends Path> P ensureWriteableFileUnchecked(final P file) throws IORuntimeException
-	{
-		try
-		{
-			return ensureWriteableFile(file);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
 	}
 	
 		
@@ -640,6 +439,44 @@ public final class XIO
 		);
 	}
 	
+	
+	/**
+	 * Extreme convenience method. Normally, methods handling files should not accept file path strings, but only
+	 * properly typed file instances like {@link Path}.
+	 * However, for a convenience method, there is not much safety won writing
+	 * {@code readString(Path("./my/path/myFile.txt"))}, only verbosity.<br>
+	 * So when already using a convenience method, anyway, why not make it really convienent and accept file path
+	 * strings right away?
+	 * 
+	 * @param filePath
+	 * @return
+	 * @throws IOException
+	 */
+	public static String readString(final String filePath)
+		throws IOException
+	{
+		return readString(Path(filePath));
+	}
+	
+	/**
+	 * Extreme convenience method. Normally, methods handling files should not accept file path strings, but only
+	 * properly typed file instances like {@link Path}.
+	 * However, for a convenience method, there is not much safety won writing
+	 * {@code readString(Path("./my/path/myFile.txt"))}, only verbosity.<br>
+	 * So when already using a convenience method, anyway, why not make it really convienent and accept file path
+	 * strings right away?
+	 * 
+	 * @param filePath
+	 * @param charSet
+	 * @return
+	 * @throws IOException
+	 */
+	public static String readString(final String filePath, final Charset charSet)
+		throws IOException
+	{
+		return readString(Path(filePath), charSet);
+	}
+	
 	public static String readString(final Path file)
 		throws IOException
 	{
@@ -657,16 +494,16 @@ public final class XIO
 	public static byte[] read_bytes(final Path file)
 		throws IOException
 	{
-		final ByteBuffer content = readFile(file);
+		final ByteBuffer content = read(file);
 		final byte[]     bytes   = XMemory.toArray(content);
 		XMemory.deallocateDirectByteBuffer(content);
 		
 		return bytes;
 	}
 	
-	public static ByteBuffer readFile(final Path file) throws IOException
+	public static ByteBuffer read(final Path file) throws IOException
 	{
-		return readOneShot(file, XIO::readFile);
+		return readOneShot(file, XIO::read);
 	}
 	
 	
@@ -677,16 +514,14 @@ public final class XIO
 	)
 		throws IOException
 	{
-		ensureWriteableFileUnchecked(file);
+		ensureWriteableFile(file);
 		
 		return XIO.performClosingOperation(
 			openFileChannelWriting(file),
 			operation
 		);
 	}
-	
-	
-	
+		
 	public static final long write(final Path file, final String string)
 		throws IOException
 	{
@@ -1004,13 +839,13 @@ public final class XIO
 		}
 	}
 		
-	public static ByteBuffer readFile(final FileChannel fileChannel)
+	public static ByteBuffer read(final FileChannel fileChannel)
 		throws IOException
 	{
-		return readFile(fileChannel, 0, fileChannel.size());
+		return read(fileChannel, 0, fileChannel.size());
 	}
 	
-	public static ByteBuffer readFile(
+	public static ByteBuffer read(
 		final FileChannel fileChannel,
 		final long        filePosition,
 		final long        length
@@ -1020,23 +855,23 @@ public final class XIO
 		// always hilarious to see that a low-level IO-tool has a int size limitation. Geniuses.
 		final ByteBuffer dbb = ByteBuffer.allocateDirect(X.checkArrayRange(length));
 		
-		readFile(fileChannel, dbb, filePosition, dbb.limit());
+		read(fileChannel, dbb, filePosition, dbb.limit());
 		
 		dbb.flip();
 		
 		return dbb;
 	}
 	
-	public static long readFile(
+	public static long read(
 		final FileChannel fileChannel ,
 		final ByteBuffer  targetBuffer
 	)
 		throws IOException
 	{
-		return readFile(fileChannel, targetBuffer, 0, fileChannel.size());
+		return read(fileChannel, targetBuffer, 0, fileChannel.size());
 	}
 		
-	public static long readFile(
+	public static long read(
 		final FileChannel fileChannel ,
 		final ByteBuffer  targetBuffer,
 		final long        filePosition,
@@ -1070,16 +905,265 @@ public final class XIO
 		return readCount;
 	}
 	
-	public static final long sizeUnchecked(final FileChannel fileChannel) throws IORuntimeException
+	// breaks naming conventions intentionally to indicate a modification of called methods instead of a type
+	public static final class unchecked
 	{
-		try
+		public static final long size(final FileChannel fileChannel) throws IORuntimeException
 		{
-			return fileChannel.size();
+			try
+			{
+				return fileChannel.size();
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
 		}
-		catch(final IOException e)
+		
+		public static boolean isDirectory(final Path path) throws IORuntimeException
 		{
-			throw new IORuntimeException(e);
+			try
+			{
+				return XIO.isDirectory(path);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
 		}
+		
+		public static final boolean exists(final Path path) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.exists(path);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final boolean delete(final Path path) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.delete(path);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final Path[] listEntries(final Path directory) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.listEntries(directory, XFunc.all());
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static Path[] listEntries(
+			final Path                    directory,
+			final Predicate<? super Path> selector
+		)
+			throws IORuntimeException
+		{
+			try
+			{
+				return XIO.listEntries(directory, selector);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final <C extends XAddingCollection<? super Path>> C listEntries(
+			final Path directory,
+			final C    target
+		)
+			throws IORuntimeException
+		{
+			try
+			{
+				return XIO.listEntries(directory, target);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final <C extends XAddingCollection<? super Path>> C listEntries(
+			final Path                    directory,
+			final C                       target   ,
+			final Predicate<? super Path> selector
+		)
+			throws IORuntimeException
+		{
+			try
+			{
+				return XIO.listEntries(directory, target, selector);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static <C extends Consumer<? super Path>> C iterateEntries(
+			final Path directory,
+			final C    logic
+		)
+			throws IORuntimeException
+		{
+			try
+			{
+				return XIO.iterateEntries(directory, logic);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static <C extends Consumer<? super Path>> C iterateEntries(
+			final Path                    directory,
+			final C                       logic    ,
+			final Predicate<? super Path> selector
+		)
+			throws IORuntimeException
+		{
+			try
+			{
+				return XIO.iterateEntries(directory, logic, selector);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final boolean hasNoFiles(final Path directory) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.hasNoFiles(directory);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final long size(final Path file) throws IORuntimeException
+		{
+			try
+			{
+				return Files.size(file);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final long lastModified(final Path file) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.lastModified(file);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final <P extends Path> P ensureDirectory(final P directory) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.ensureDirectory(directory);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+
+		public static final <P extends Path> P ensureDirectoryAndFile(final P file) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.ensureDirectoryAndFile(file);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final <P extends Path> P ensureFile(final P file) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.ensureFile(file);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final <P extends Path> P ensureWriteableFile(final P file) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.ensureWriteableFile(file);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static void move(final Path sourceFile, final Path targetFile)
+			throws IORuntimeException, RuntimeException
+		{
+			try
+			{
+				XIO.move(sourceFile, targetFile);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		/**
+		 * Dummy constructor to prevent instantiation of this static-only utility class.
+		 * 
+		 * @throws UnsupportedOperationException
+		 */
+		private unchecked()
+		{
+			// static only
+			throw new UnsupportedOperationException();
+		}
+		
 	}
 		
 	

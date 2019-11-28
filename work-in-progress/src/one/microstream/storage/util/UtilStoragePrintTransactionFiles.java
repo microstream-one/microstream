@@ -55,7 +55,7 @@ public class UtilStoragePrintTransactionFiles
 	{
 		for(final Path file : files)
 		{
-			if(XIO.isDirectoryUnchecked(file))
+			if(XIO.unchecked.isDirectory(file))
 			{
 				continue;
 			}

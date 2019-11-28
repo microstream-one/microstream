@@ -38,7 +38,7 @@ public interface EmbeddedStorageFoundationCreator
 		@Override
 		public EmbeddedStorageFoundation<?> createFoundation(final Configuration configuration)
 		{
-			final Path                          baseDirectory          = XIO.ensureDirectoryUnchecked(XIO.Path(configuration.getBaseDirectory()));
+			final Path                          baseDirectory          = XIO.unchecked.ensureDirectory(XIO.Path(configuration.getBaseDirectory()));
 			final StorageFileProvider           fileProvider           = this.createFileProvider(configuration, baseDirectory);
 			final StorageChannelCountProvider   channelCountProvider   = this.createChannelCountProvider(configuration);
 			final StorageHousekeepingController housekeepingController = this.createHousekeepingController(configuration);

@@ -13,7 +13,7 @@ public final class ProtageFileSystem
 	public static final File createWriteableFile(final File directory, final String fileName)
 	{
 		final File file = new File(directory, fileName);
-		XIO.ensureFileUnchecked(file.toPath());
+		XIO.unchecked.ensureFile(file.toPath());
 		
 		return validateWriteableFile(file);
 	}

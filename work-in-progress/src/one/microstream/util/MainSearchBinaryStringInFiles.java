@@ -76,7 +76,7 @@ public class MainSearchBinaryStringInFiles
 	)
 	{
 		System.out.println("\nSearching in directory " + directory);
-		searchStringsInFiles(logic, XIO.listEntriesUnchecked(directory), strings);
+		searchStringsInFiles(logic, XIO.unchecked.listEntries(directory), strings);
 	}
 
 	static void searchStringsInFiles(
@@ -100,9 +100,9 @@ public class MainSearchBinaryStringInFiles
 	{
 		for(final Path f : files)
 		{
-			if(XIO.isDirectoryUnchecked(f))
+			if(XIO.unchecked.isDirectory(f))
 			{
-				innerSearchStringsInFiles(logic, XIO.listEntriesUnchecked(f), strings);
+				innerSearchStringsInFiles(logic, XIO.unchecked.listEntries(f), strings);
 			}
 			else
 			{

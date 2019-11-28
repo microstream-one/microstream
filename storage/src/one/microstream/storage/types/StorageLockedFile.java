@@ -161,13 +161,13 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		public boolean delete()
 		{
 			this.close();
-			return XIO.deleteUnchecked(this.file);
+			return XIO.unchecked.delete(this.file);
 		}
 		
 		@Override
 		public boolean exists()
 		{
-			return XIO.existsUnchecked(this.file);
+			return XIO.unchecked.exists(this.file);
 		}
 
 		@Override
@@ -210,7 +210,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		@Override
 		public String toString()
 		{
-			return this.file + " (" + XIO.sizeUnchecked(this.fileChannel) + ")";
+			return this.file + " (" + XIO.unchecked.size(this.fileChannel) + ")";
 		}
 
 	}

@@ -1036,7 +1036,7 @@ public class Persistence
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final Path file)
 	{
 		// (19.04.2018 TM)EXCP: proper exception
-		final String fileContent = XIO.execute(() ->
+		final String fileContent = XIO.unchecked(() ->
 			XIO.readString(file)
 		);
 		final StringTable                        stringTable = StringTable.Static.parse(fileContent);

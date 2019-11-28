@@ -111,11 +111,11 @@ public class FileMoveSyncher
 		final Function<Path, String>              fileIdentifier
 	)
 	{
-		final Path[] sourceFiles = XIO.listEntriesUnchecked(sourceDirectory);
+		final Path[] sourceFiles = XIO.unchecked.listEntries(sourceDirectory);
 		
 		for(final Path sourceFile : sourceFiles)
 		{
-			if(XIO.isDirectoryUnchecked(sourceFile))
+			if(XIO.unchecked.isDirectory(sourceFile))
 			{
 				continue;
 			}
@@ -144,7 +144,7 @@ public class FileMoveSyncher
 		
 		for(final Path sourceFile : sourceFiles)
 		{
-			if(!XIO.isDirectoryUnchecked(sourceFile))
+			if(!XIO.unchecked.isDirectory(sourceFile))
 			{
 				continue;
 			}
@@ -170,7 +170,7 @@ public class FileMoveSyncher
 		final Function<Path, String>              fileIdentifier
 	)
 	{
-		final Path[] sourceFiles = XIO.listEntriesUnchecked(sourceDirectory);
+		final Path[] sourceFiles = XIO.unchecked.listEntries(sourceDirectory);
 		final String relativeSourcePath = getRelativePath(sourceDirectory, srcBaseLength);
 		synchMoveActualFiles(srcDirBase, trgDirBase, srcBaseLength, trgBaseLength, relativeSourcePath, sourceFiles, indexFiles, fileIdentifier);
 		synchMoveSubDirs(srcDirBase, trgDirBase, srcBaseLength, trgBaseLength, sourceFiles, indexFiles, fileIdentifier);
@@ -189,7 +189,7 @@ public class FileMoveSyncher
 	{
 		for(final Path sourceFile : sourceFiles)
 		{
-			if(XIO.isDirectoryUnchecked(sourceFile))
+			if(XIO.unchecked.isDirectory(sourceFile))
 			{
 				continue;
 			}
@@ -229,7 +229,7 @@ public class FileMoveSyncher
 	{
 		for(final Path sourceFile : sourceFiles)
 		{
-			if(!XIO.isDirectoryUnchecked(sourceFile))
+			if(!XIO.unchecked.isDirectory(sourceFile))
 			{
 				continue;
 			}

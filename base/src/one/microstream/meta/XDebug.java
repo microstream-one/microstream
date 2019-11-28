@@ -443,13 +443,13 @@ public final class XDebug
 
 	public static final void deleteAllFiles(final Path directory, final boolean output)
 	{
-		if(!XIO.existsUnchecked(directory))
+		if(!XIO.unchecked.exists(directory))
 		{
 			return;
 		}
-		XIO.iterateEntriesUnchecked(directory, f ->
+		XIO.unchecked.iterateEntries(directory, f ->
 		{
-			if(XIO.isDirectoryUnchecked(f))
+			if(XIO.unchecked.isDirectory(f))
 			{
 				deleteAllFiles(f, output);
 			}
@@ -470,7 +470,7 @@ public final class XDebug
 
 	public static void copyFile(final Path sourceRoot, final Path subject, final Path targetRoot) throws IOException
 	{
-		if(XIO.isDirectoryUnchecked(subject))
+		if(XIO.unchecked.isDirectory(subject))
 		{
 			copyDirectory(sourceRoot, subject, targetRoot);
 		}
@@ -480,11 +480,16 @@ public final class XDebug
 		}
 	}
 
-	public static void copyDirectory(final Path sourceRoot, final Path subject, final Path targetRoot) throws IOException
+	public static void copyDirectory(
+		final Path sourceRoot,
+		final Path subject   ,
+		final Path targetRoot
+	)
+		throws IOException
 	{
 		try
 		{
-			XIO.iterateEntriesUnchecked(targetRoot, file ->
+			XIO.unchecked.iterateEntries(targetRoot, file ->
 			{
 				try
 				{
@@ -498,7 +503,7 @@ public final class XDebug
 		}
 		catch(final IORuntimeException e)
 		{
-			// this is a joke. Damned checked exception
+			// this is a joke. Damned checked exceptions.
 			throw e.getActual();
 		}
 	}

@@ -77,7 +77,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 		final String fileName = this.filePrefix + sdf.format(System.currentTimeMillis()) + this.fileSuffix;
 		
 		final Path file = XIO.Path(this.tdArchive, fileName);
-		if(XIO.existsUnchecked(file))
+		if(XIO.unchecked.exists(file))
 		{
 			// yes, it's weird, but it actually happened during testing. Multiple updates and moves per ms.
 			XThreads.sleep(1); // crucial to prevent hundreds or even thousands of retries.
@@ -89,7 +89,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	
 	private void moveCurrentFileToArchive()
 	{
-		XIO.ensureDirectoryUnchecked(this.tdArchive);
+		XIO.unchecked.ensureDirectory(this.tdArchive);
 		UtilPersistenceIo.move(this.file(), this.buildArchiveFile());
 	}
 	
@@ -97,7 +97,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	protected synchronized void writeTypeDictionary(final String typeDictionaryString)
 	{
 		// there is no file to be moved on the first call.
-		if(XIO.existsUnchecked(this.file()))
+		if(XIO.unchecked.exists(this.file()))
 		{
 			this.moveCurrentFileToArchive();
 		}

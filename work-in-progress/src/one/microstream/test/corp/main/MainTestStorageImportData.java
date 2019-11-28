@@ -57,11 +57,11 @@ public class MainTestStorageImportData
 			STORAGE.storeRoot();
 			Test.print("Storing completed.");
 		}
-		else if(!XIO.hasNoFilesUnchecked(EXPORT_DIRECTORY))
+		else if(!XIO.unchecked.hasNoFiles(EXPORT_DIRECTORY))
 		{
 			Test.print("Importing data ...");
 			STORAGE.importFiles(
-				XIO.listEntriesUnchecked(EXPORT_DIRECTORY, HashEnum.New(), file ->
+				XIO.unchecked.listEntries(EXPORT_DIRECTORY, HashEnum.New(), file ->
 					XIO.getFileName(file).endsWith(".dat")
 				)
 			);

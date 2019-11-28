@@ -69,7 +69,7 @@ public interface StorageEntityTypeConversionFileProvider
 			final Path file = XIO.Path(
 				this.directory, typeDescription.typeName() + "_" + typeDescription.typeId() + this.cachedFileSuffix
 			);
-			XIO.ensureDirectoryUnchecked(this.directory);
+			XIO.unchecked.ensureDirectory(this.directory);
 			
 			return StorageLockedFile.openLockedFile(file);
 		}
