@@ -3,7 +3,7 @@ package one.microstream.persistence.test;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.storage.types.StorageDataFileItemIterator;
 import one.microstream.storage.types.StorageDataFileItemIterator.ItemProcessor;
@@ -14,7 +14,7 @@ public class MainTestPrintDataFileInventory
 	public static void main(final String[] args) throws IOException
 	{
 		final FileChannel fc = StorageLockedFile.openLockedFile(
-			XPaths.Path("D:/Bonus25/storage_2015-03-19 ID Fehler lokal/graveyard1/channel_1_129.dat")
+			XIO.Path("D:/Bonus25/storage_2015-03-19 ID Fehler lokal/graveyard1/channel_1_129.dat")
 		).fileChannel();
 		StorageDataFileItemIterator.Default.processInputFile(fc, new DataFileInventoryPrinter());
 	}

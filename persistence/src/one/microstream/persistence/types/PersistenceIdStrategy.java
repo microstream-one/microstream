@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.nio.file.Path;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.internal.FileObjectIdStrategy;
 import one.microstream.persistence.internal.FileTypeIdStrategy;
 
@@ -56,8 +56,8 @@ public interface PersistenceIdStrategy extends PersistenceObjectIdStrategy, Pers
 	)
 	{
 		return NewFromFiles(
-			XPaths.Path(directory, objectIdFilename),
-			XPaths.Path(directory, typeIdFilename)
+			XIO.Path(directory, objectIdFilename),
+			XIO.Path(directory, typeIdFilename)
 		);
 	}
 	

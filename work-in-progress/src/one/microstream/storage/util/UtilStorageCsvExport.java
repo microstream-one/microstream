@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import one.microstream.collections.BulkList;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
@@ -96,7 +96,7 @@ public class UtilStorageCsvExport
 		final Predicate<? super StorageEntityTypeHandler> exportFilter
 	)
 	{
-		final Path binDirectory = XPaths.ensureDirectoryUnchecked(XPaths.Path(targetDirectory, SUB_DIRECTORY_BIN));
+		final Path binDirectory = XIO.ensureDirectoryUnchecked(XIO.Path(targetDirectory, SUB_DIRECTORY_BIN));
 
 		final BulkList<Path> exportFiles = BulkList.New(1000);
 		
@@ -135,7 +135,7 @@ public class UtilStorageCsvExport
 		
 		result.typeStatistics().values().iterate(s ->
 			exportFileCollector.accept(
-				XPaths.Path(s.file().identifier())
+				XIO.Path(s.file().identifier())
 			)
 		);
 		
@@ -152,8 +152,8 @@ public class UtilStorageCsvExport
 		final String effectiveFileSuffix = "." + fileSuffix;
 		
 		final Predicate<Path> filter = file ->
-			!XPaths.isDirectoryUnchecked(file)
-			&& XPaths.getFileName(file).endsWith(effectiveFileSuffix)
+			!XIO.isDirectoryUnchecked(file)
+			&& XIO.getFileName(file).endsWith(effectiveFileSuffix)
 		;
 		
 		final long tStart = System.nanoTime();
@@ -219,7 +219,7 @@ public class UtilStorageCsvExport
 	
 	static void printAction(final String name, final String action, final Path file)
 	{
-		System.out.println((name == null ? "" : name + " ") + action + " " + XPaths.getFilePath(file));
+		System.out.println((name == null ? "" : name + " ") + action + " " + XIO.getFilePath(file));
 	}
 	
 	static final File ensureDirectory(final File directory)
@@ -265,13 +265,13 @@ public class UtilStorageCsvExport
 		// export all
 		UtilStorageCsvExport.exportCsv(
 			storage,
-			XPaths.Path("C:/StorageExportTest_2018-02-20-1600_ALL")
+			XIO.Path("C:/StorageExportTest_2018-02-20-1600_ALL")
 		);
 		
 		// Export-Type-Filter example: only export Strings
 		UtilStorageCsvExport.exportCsv(
 			storage,
-			XPaths.Path("C:/StorageExportTest_2018-02-20-1600_Strings"),
+			XIO.Path("C:/StorageExportTest_2018-02-20-1600_Strings"),
 			t -> t.typeName().equals(String.class.getName())
 		);
 		

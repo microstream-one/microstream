@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import one.microstream.X;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XSequence;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageConnection;
 
 
@@ -65,7 +65,7 @@ public class MainTestStorageExport extends TestStorage
 
 	static void testExport()
 	{
-		final Path directory = XPaths.ensureDirectoryUnchecked(XPaths.Path("C:/Files/export/bin"));
+		final Path directory = XIO.ensureDirectoryUnchecked(XIO.Path("C:/Files/export/bin"));
 		
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		final XSequence<Path> exportFiles = exportTypes(
@@ -73,7 +73,7 @@ public class MainTestStorageExport extends TestStorage
 			directory,
 			"dat"
 		);
-		convertBinToCsv(exportFiles, file -> XPaths.getFileName(file).endsWith(".dat"));
+		convertBinToCsv(exportFiles, file -> XIO.getFileName(file).endsWith(".dat"));
 	}
 }
 

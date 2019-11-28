@@ -16,7 +16,7 @@ import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XSequence;
 import one.microstream.functional.XFunc;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -101,7 +101,7 @@ public class TestStorage extends TestComponentProvider
 
 	protected static Path convertBinToCsv(final XGettingCollection<Path> binaryFiles, final Predicate<? super Path> filter)
 	{
-		final Path dir = XPaths.Path(binaryFiles.get().getParent().getParent(), "csv");
+		final Path dir = XIO.Path(binaryFiles.get().getParent().getParent(), "csv");
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			new StorageEntityTypeConversionFileProvider.Default(dir, "csv"),
@@ -142,7 +142,7 @@ public class TestStorage extends TestComponentProvider
 
 	protected static void convertCsvToBin(final XGettingCollection<Path> binaryFiles, final Predicate<? super Path> filter)
 	{
-		final Path directory = XPaths.Path(binaryFiles.get().getParent().getParent(), "bin2");
+		final Path directory = XIO.Path(binaryFiles.get().getParent().getParent(), "bin2");
 		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			STORAGE.typeDictionary(),
@@ -174,7 +174,7 @@ public class TestStorage extends TestComponentProvider
 
 		final XSequence<Path> exportFiles = CQL
 			.from(result.typeStatistics().values())
-			.project(s -> XPaths.Path(s.file().identifier()))
+			.project(s -> XIO.Path(s.file().identifier()))
 			.execute()
 		;
 

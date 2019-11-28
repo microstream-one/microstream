@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.nio.file.Path;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 
 
@@ -66,10 +66,10 @@ public interface StorageEntityTypeConversionFileProvider
 		)
 		{
 			// TypeId must be included since only that is the unique identifier of a type.
-			final Path file = XPaths.Path(
+			final Path file = XIO.Path(
 				this.directory, typeDescription.typeName() + "_" + typeDescription.typeId() + this.cachedFileSuffix
 			);
-			XPaths.ensureDirectoryUnchecked(this.directory);
+			XIO.ensureDirectoryUnchecked(this.directory);
 			
 			return StorageLockedFile.openLockedFile(file);
 		}

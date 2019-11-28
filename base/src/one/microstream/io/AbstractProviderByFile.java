@@ -17,7 +17,7 @@ public abstract class AbstractProviderByFile
 	{
 		XIO.execute(() ->
 		{
-			XPaths.write(file, value);
+			XIO.write(file, value);
 			
 			return null;
 		});
@@ -52,7 +52,7 @@ public abstract class AbstractProviderByFile
 	{
 		try
 		{
-			return XPaths.exists(this.file);
+			return XIO.exists(this.file);
 		}
 		catch(final IOException e)
 		{
@@ -63,7 +63,7 @@ public abstract class AbstractProviderByFile
 	protected String read()
 	{
 		return XIO.execute(() ->
-			XPaths.readString(this.file)
+			XIO.readString(this.file)
 		);
 	}
 

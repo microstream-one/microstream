@@ -23,7 +23,7 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.concurrency.XThreads;
 import one.microstream.exceptions.IORuntimeException;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
@@ -443,13 +443,13 @@ public final class XDebug
 
 	public static final void deleteAllFiles(final Path directory, final boolean output)
 	{
-		if(!XPaths.existsUnchecked(directory))
+		if(!XIO.existsUnchecked(directory))
 		{
 			return;
 		}
-		XPaths.iterateChildrenUnchecked(directory, f ->
+		XIO.iterateEntriesUnchecked(directory, f ->
 		{
-			if(XPaths.isDirectoryUnchecked(f))
+			if(XIO.isDirectoryUnchecked(f))
 			{
 				deleteAllFiles(f, output);
 			}
@@ -470,7 +470,7 @@ public final class XDebug
 
 	public static void copyFile(final Path sourceRoot, final Path subject, final Path targetRoot) throws IOException
 	{
-		if(XPaths.isDirectoryUnchecked(subject))
+		if(XIO.isDirectoryUnchecked(subject))
 		{
 			copyDirectory(sourceRoot, subject, targetRoot);
 		}
@@ -484,7 +484,7 @@ public final class XDebug
 	{
 		try
 		{
-			XPaths.iterateChildrenUnchecked(targetRoot, file ->
+			XIO.iterateEntriesUnchecked(targetRoot, file ->
 			{
 				try
 				{
@@ -507,9 +507,9 @@ public final class XDebug
 	{
 		final String sourceRootPath = sourceRoot.toAbsolutePath().normalize().toString();
 		final String subjectPath    = subject.toAbsolutePath().normalize().toString();
-		final Path   targetFile     = XPaths.Path(targetRoot, subjectPath.substring(sourceRootPath.length()));
+		final Path   targetFile     = XIO.Path(targetRoot, subjectPath.substring(sourceRootPath.length()));
 
-		XPaths.ensureDirectoryAndFile(targetFile);
+		XIO.ensureDirectoryAndFile(targetFile);
 
 		final Path sourcePath      = subject;
 		final Path destinationPath = targetFile;

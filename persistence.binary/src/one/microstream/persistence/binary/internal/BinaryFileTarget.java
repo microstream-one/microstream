@@ -8,7 +8,6 @@ import java.nio.file.Path;
 
 import one.microstream.io.FileException;
 import one.microstream.io.XIO;
-import one.microstream.io.XPaths;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.PersistenceTarget;
@@ -41,7 +40,7 @@ public class BinaryFileTarget implements PersistenceTarget<Binary>
 
 	protected FileChannel createChannel(final Path file) throws FileException, IOException
 	{
-		return XPaths.openFileChannelWriting(file);
+		return XIO.openFileChannelWriting(file);
 	}
 
 

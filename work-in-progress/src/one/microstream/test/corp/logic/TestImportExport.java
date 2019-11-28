@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XSequence;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageConnection;
@@ -32,14 +32,14 @@ public class TestImportExport
 		tStart = System.nanoTime();
 		final XSequence<Path> exportFiles = exportTypes(
 			storageConnection,
-			XPaths.ensureDirectoryUnchecked(XPaths.Path(targetDirectory, "bin")),
+			XIO.ensureDirectoryUnchecked(XIO.Path(targetDirectory, "bin")),
 			"dat"
 		);
 		tStop = System.nanoTime();
 		System.out.println("Data export to binary files complete. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
 		tStart = System.nanoTime();
-		csvDir = convertBinToCsv(storage.typeDictionary(), exportFiles, file -> XPaths.getFileName(file).endsWith(".dat"));
+		csvDir = convertBinToCsv(storage.typeDictionary(), exportFiles, file -> XIO.getFileName(file).endsWith(".dat"));
 		tStop = System.nanoTime();
 		System.out.println("Conversion of binary to csv complete. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
@@ -88,7 +88,7 @@ public class TestImportExport
 
 		final XSequence<Path> exportFiles = CQL
 			.from(result.typeStatistics().values())
-			.project(s -> XPaths.Path(s.file().identifier()))
+			.project(s -> XIO.Path(s.file().identifier()))
 			.execute()
 		;
 
@@ -101,7 +101,7 @@ public class TestImportExport
 		final Predicate<? super Path> filter
 	)
 	{
-		final Path directory = XPaths.Path(binaryFiles.get().getParent().getParent(), "csv");
+		final Path directory = XIO.Path(binaryFiles.get().getParent().getParent(), "csv");
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			new StorageEntityTypeConversionFileProvider.Default(directory, "csv"),

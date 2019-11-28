@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.typing.KeyValue;
 
@@ -65,7 +65,7 @@ public class FileDuplicateChecker
 			UtilFileHandling.fileIdentitySimpleNameSizeChangeTime()
 		);
 		fms.checkForDuplicates(
-			XPaths.Path("G:\\media")
+			XIO.Path("G:\\media")
 		);
 	}
 	

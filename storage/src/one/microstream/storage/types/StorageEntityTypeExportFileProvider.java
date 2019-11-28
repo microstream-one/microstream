@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.nio.file.Path;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 
 
 public interface StorageEntityTypeExportFileProvider
@@ -62,7 +62,7 @@ public interface StorageEntityTypeExportFileProvider
 		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler entityType)
 		{
 			// TypeId must be included since only that is the unique identifier of a type.
-			final Path file = XPaths.Path(this.directory, entityType.typeName() + "_" + entityType.typeId() + this.cachedFileSuffix);
+			final Path file = XIO.Path(this.directory, entityType.typeName() + "_" + entityType.typeId() + this.cachedFileSuffix);
 			return StorageLockedFile.openLockedFile(file);
 
 //			final VarString vs = VarString.New()

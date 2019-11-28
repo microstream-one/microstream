@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.function.Supplier;
 
 import one.microstream.collections.XUtilsCollection;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.storage.exceptions.StorageExceptionExportFailed;
 import one.microstream.time.XTime;
 
@@ -160,7 +160,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 			{
 				try
 				{
-					this.channel = XPaths.openFileChannelWriting(this.file);
+					this.channel = XIO.openFileChannelWriting(this.file);
 				}
 				catch(final IOException e)
 				{

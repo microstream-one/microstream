@@ -7,7 +7,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Path;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
 public interface StorageNumberedFile extends StorageChannelFile
@@ -93,31 +93,31 @@ public interface StorageNumberedFile extends StorageChannelFile
 		@Override
 		public final String qualifier()
 		{
-			return XPaths.getFilePath(this.file.getParent());
+			return XIO.getFilePath(this.file.getParent());
 		}
 		
 		@Override
 		public final String identifier()
 		{
-			return XPaths.getFilePath(this.file);
+			return XIO.getFilePath(this.file);
 		}
 		
 		@Override
 		public final String name()
 		{
-			return XPaths.getFileName(this.file);
+			return XIO.getFileName(this.file);
 		}
 		
 		@Override
 		public final boolean delete()
 		{
-			return XPaths.deleteUnchecked(this.file);
+			return XIO.deleteUnchecked(this.file);
 		}
 		
 		@Override
 		public final boolean exists()
 		{
-			return XPaths.existsUnchecked(this.file);
+			return XIO.existsUnchecked(this.file);
 		}
 		
 		@Override
@@ -152,7 +152,7 @@ public interface StorageNumberedFile extends StorageChannelFile
 				throw new RuntimeException();
 			}
 			
-			return XPaths.sizeUnchecked(this.file);
+			return XIO.sizeUnchecked(this.file);
 		}
 		
 		@Override

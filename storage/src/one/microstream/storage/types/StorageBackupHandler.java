@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import one.microstream.X;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.internal.UtilPersistenceIo;
 import one.microstream.storage.exceptions.StorageExceptionBackupCopying;
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
@@ -367,8 +367,8 @@ public interface StorageBackupHandler extends Runnable
 			}
 			
 			final String movedTargetFileName = this.createDeletionFileName(backupTransactionFile);
-			final Path actualTargetFile = XPaths.Path(deletionTargetFile.qualifier(), movedTargetFileName) ;
-			UtilPersistenceIo.move(XPaths.Path(backupTransactionFile.identifier()), actualTargetFile);
+			final Path actualTargetFile = XIO.Path(deletionTargetFile.qualifier(), movedTargetFileName) ;
+			UtilPersistenceIo.move(XIO.Path(backupTransactionFile.identifier()), actualTargetFile);
 		}
 		
 		private String createDeletionFileName(final StorageBackupFile backupTransactionFile)

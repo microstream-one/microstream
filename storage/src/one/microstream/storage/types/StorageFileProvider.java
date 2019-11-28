@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 import one.microstream.chars.VarString;
 import one.microstream.exceptions.IORuntimeException;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionaryIoHandler;
@@ -154,12 +154,12 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final String                                suffix
 		)
 		{
-			if(XPaths.isDirectoryUnchecked(file))
+			if(XIO.isDirectoryUnchecked(file))
 			{
 				return;
 			}
 
-			final String filename = XPaths.getFileName(file);
+			final String filename = XIO.getFileName(file);
 			if(!filename.startsWith(fileBaseName))
 			{
 				return;
@@ -699,17 +699,17 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			/* (04.03.2019 TM)TODO: forced delegating API is not a clean solution.
 			 * This is only a temporary solution. See the task containing "PersistenceDataFile".
 			 */
-			final Path directory = XPaths.Path(this.baseDirectory());
-			XPaths.ensureDirectoryUnchecked(directory);
+			final Path directory = XIO.Path(this.baseDirectory());
+			XIO.ensureDirectoryUnchecked(directory);
 			
-			final Path file = XPaths.Path(directory, this.typeDictionaryFileName());
+			final Path file = XIO.Path(directory, this.typeDictionaryFileName());
 			return this.fileHandlerCreator.createTypeDictionaryIoHandler(file, writeListener);
 		}
 
 		public final Path provideChannelDirectory(final String parentDirectory, final int hashIndex)
 		{
-			return XPaths.ensureDirectoryUnchecked(
-				XPaths.Path(parentDirectory, this.channelDirectoryPrefix() + hashIndex)
+			return XIO.ensureDirectoryUnchecked(
+				XIO.Path(parentDirectory, this.channelDirectoryPrefix() + hashIndex)
 			);
 		}
 
@@ -721,7 +721,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		@Override
 		public final StorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
 		{
-			final Path file = XPaths.Path(
+			final Path file = XIO.Path(
 				this.provideChannelDirectory(channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber)
 			);
@@ -732,7 +732,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		@Override
 		public StorageNumberedFile provideTransactionsFile(final int channelIndex)
 		{
-			final Path file = XPaths.Path(
+			final Path file = XIO.Path(
 				this.provideChannelDirectory(channelIndex),
 				this.provideTransactionFileName(channelIndex)
 			);
@@ -743,7 +743,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		@Override
 		public StorageLockedFile provideLockFile()
 		{
-			final Path lockFile = XPaths.Path(this.baseDirectory(), this.lockFileName());
+			final Path lockFile = XIO.Path(this.baseDirectory(), this.lockFileName());
 			
 			return StorageLockedFile.openLockedFile(lockFile);
 		}
@@ -760,7 +760,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final int  channelIndex = fileToBeDeleted.channelIndex();
 			final long fileNumber   = fileToBeDeleted.number();
 			
-			final Path file = XPaths.Path(
+			final Path file = XIO.Path(
 				this.provideChannelDirectory(deletionDirectory, channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber)
 			);
@@ -783,7 +783,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final int  channelIndex = fileToBeTruncated.channelIndex();
 			final long fileNumber   = fileToBeTruncated.number();
 			
-			final Path file = XPaths.Path(
+			final Path file = XIO.Path(
 				this.provideChannelDirectory(truncationDirectory, channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber)
 				+ "_truncated_from_" + fileToBeTruncated.length() + "_to_" + newLength

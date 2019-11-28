@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import one.microstream.X;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.functional.XFunc;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
 import one.microstream.storage.types.StorageDataConverterTypeBinaryToCsv;
@@ -18,7 +18,7 @@ public class MainTestConvertBinToCsv
 	public static void main(final String[] args)
 	{
 		convertBinToCsv(
-			X.List(XPaths.Path("C:/Files/export/bin/ExportTest.dat")),
+			X.List(XIO.Path("C:/Files/export/bin/ExportTest.dat")),
 			XFunc.all()
 		);
 	}
@@ -31,9 +31,9 @@ public class MainTestConvertBinToCsv
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			new StorageEntityTypeConversionFileProvider.Default(
-				XPaths.Path(binaryFiles.get().getParent().getParent(), "csv"), "csv"
+				XIO.Path(binaryFiles.get().getParent().getParent(), "csv"), "csv"
 			),
-			BinaryPersistence.provideTypeDictionaryFromFile(XPaths.Path("C:/Files/PersistenceTypeDictionary.ptd")),
+			BinaryPersistence.provideTypeDictionaryFromFile(XIO.Path("C:/Files/PersistenceTypeDictionary.ptd")),
 			null,
 			1<<20,
 			1<<20

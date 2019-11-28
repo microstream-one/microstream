@@ -6,7 +6,7 @@ import one.microstream.com.ComProtocol;
 import one.microstream.com.ComProtocolProvider;
 import one.microstream.com.ComProtocolStringConverter;
 import one.microstream.com.binary.ComPersistenceAdaptorBinary;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.binary.types.BinaryPersistenceFoundation;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
@@ -19,7 +19,7 @@ public class MainTestParseProtocol
 	{
 		final BinaryPersistenceFoundation<?> pf = BinaryPersistence.Foundation()
 			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirectory(
-				XPaths.ensureDirectoryUnchecked(XPaths.Path("TypeDictionary"))
+				XIO.ensureDirectoryUnchecked(XIO.Path("TypeDictionary"))
 			))
 //			.setObjectIdProvider(PersistenceObjectIdProvider.Transient())
 //			.setTypeIdProvider(PersistenceTypeIdProvider.Transient())

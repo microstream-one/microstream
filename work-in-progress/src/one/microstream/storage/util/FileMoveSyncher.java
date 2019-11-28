@@ -6,7 +6,7 @@ import java.util.function.Function;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingCollection;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 
 
@@ -47,13 +47,13 @@ public class FileMoveSyncher
 		UtilFileHandling.indexFiles(targetDirectory, indexedFiles, this.fileIdentifier);
 		XDebug.println("Indexed unique files: " + indexedFiles.size());
 
-		final String sourceDirectoryBase = XPaths.toAbsoluteNormalizedPath(sourceDirectory);
+		final String sourceDirectoryBase = XIO.toAbsoluteNormalizedPath(sourceDirectory);
 		
 		removePerfectMatches(
 			sourceDirectory,
 			targetDirectory,
 			sourceDirectoryBase.length(),
-			XPaths.toAbsoluteNormalizedPath(targetDirectory).length(),
+			XIO.toAbsoluteNormalizedPath(targetDirectory).length(),
 			indexedFiles,
 			this.fileIdentifier
 		);
@@ -66,7 +66,7 @@ public class FileMoveSyncher
 			sourceDirectory,
 			targetDirectory,
 			sourceDirectoryBase.length(),
-			XPaths.toAbsoluteNormalizedPath(targetDirectory).length(),
+			XIO.toAbsoluteNormalizedPath(targetDirectory).length(),
 			indexedFiles,
 			this.fileIdentifier
 		);
@@ -111,11 +111,11 @@ public class FileMoveSyncher
 		final Function<Path, String>              fileIdentifier
 	)
 	{
-		final Path[] sourceFiles = XPaths.listChildrenUnchecked(sourceDirectory);
+		final Path[] sourceFiles = XIO.listEntriesUnchecked(sourceDirectory);
 		
 		for(final Path sourceFile : sourceFiles)
 		{
-			if(XPaths.isDirectoryUnchecked(sourceFile))
+			if(XIO.isDirectoryUnchecked(sourceFile))
 			{
 				continue;
 			}
@@ -144,7 +144,7 @@ public class FileMoveSyncher
 		
 		for(final Path sourceFile : sourceFiles)
 		{
-			if(!XPaths.isDirectoryUnchecked(sourceFile))
+			if(!XIO.isDirectoryUnchecked(sourceFile))
 			{
 				continue;
 			}
@@ -170,7 +170,7 @@ public class FileMoveSyncher
 		final Function<Path, String>              fileIdentifier
 	)
 	{
-		final Path[] sourceFiles = XPaths.listChildrenUnchecked(sourceDirectory);
+		final Path[] sourceFiles = XIO.listEntriesUnchecked(sourceDirectory);
 		final String relativeSourcePath = getRelativePath(sourceDirectory, srcBaseLength);
 		synchMoveActualFiles(srcDirBase, trgDirBase, srcBaseLength, trgBaseLength, relativeSourcePath, sourceFiles, indexFiles, fileIdentifier);
 		synchMoveSubDirs(srcDirBase, trgDirBase, srcBaseLength, trgBaseLength, sourceFiles, indexFiles, fileIdentifier);
@@ -189,7 +189,7 @@ public class FileMoveSyncher
 	{
 		for(final Path sourceFile : sourceFiles)
 		{
-			if(XPaths.isDirectoryUnchecked(sourceFile))
+			if(XIO.isDirectoryUnchecked(sourceFile))
 			{
 				continue;
 			}
@@ -203,12 +203,12 @@ public class FileMoveSyncher
 				continue;
 			}
 			
-			final Path newTargetDirectory = XPaths.Path(targetDirectoryBase, relativeSourcePath);
-			final Path newTargetFile      = XPaths.Path(newTargetDirectory, XPaths.getFileName(matchingTargetFile));
+			final Path newTargetDirectory = XIO.Path(targetDirectoryBase, relativeSourcePath);
+			final Path newTargetFile      = XIO.Path(newTargetDirectory, XIO.getFileName(matchingTargetFile));
 			
-			System.out.println("$ " + XPaths.toAbsoluteNormalizedPath(sourceFile));
-			System.out.println("> " + XPaths.toAbsoluteNormalizedPath(newTargetFile));
-			System.out.println("< " + XPaths.toAbsoluteNormalizedPath(matchingTargetFile));
+			System.out.println("$ " + XIO.toAbsoluteNormalizedPath(sourceFile));
+			System.out.println("> " + XIO.toAbsoluteNormalizedPath(newTargetFile));
+			System.out.println("< " + XIO.toAbsoluteNormalizedPath(matchingTargetFile));
 			System.out.println();
 			
 			UtilFileHandling.move(matchingTargetFile, newTargetFile);
@@ -229,7 +229,7 @@ public class FileMoveSyncher
 	{
 		for(final Path sourceFile : sourceFiles)
 		{
-			if(!XPaths.isDirectoryUnchecked(sourceFile))
+			if(!XIO.isDirectoryUnchecked(sourceFile))
 			{
 				continue;
 			}
@@ -284,8 +284,8 @@ public class FileMoveSyncher
 	{
 		final FileMoveSyncher fms = new FileMoveSyncher(UtilFileHandling.fileIdentitySimpleNameSizeChangeTime());
 		fms.moveSynch(
-			XPaths.Path("G:\\media"),
-			XPaths.Path("T:\\media")
+			XIO.Path("G:\\media"),
+			XIO.Path("T:\\media")
 		);
 	}
 	

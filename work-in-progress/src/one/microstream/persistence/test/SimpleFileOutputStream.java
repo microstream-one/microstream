@@ -1,12 +1,13 @@
 package one.microstream.persistence.test;
 
 import static one.microstream.X.notNull;
-import static one.microstream.io.XFiles.ensureWriteableFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import one.microstream.io.XIO;
 
 public class SimpleFileOutputStream extends OutputStream
 {
@@ -41,7 +42,8 @@ public class SimpleFileOutputStream extends OutputStream
 		{
 			try
 			{
-				this.fos = new FileOutputStream(ensureWriteableFile(this.file));
+				XIO.ensureWriteableFileUnchecked(this.file.toPath());
+				this.fos = new FileOutputStream(this.file);
 			}
 			catch(final Exception e)
 			{

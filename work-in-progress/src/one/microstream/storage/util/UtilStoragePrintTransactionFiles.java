@@ -5,7 +5,7 @@ import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis;
 import one.microstream.util.cql.CQL;
 
@@ -39,7 +39,7 @@ public class UtilStoragePrintTransactionFiles
 		printTransactionsFiles(
 			CQL
 			.from(X.List(filePaths))
-			.project(XPaths::Path)
+			.project(XIO::Path)
 			.execute()
 			.toArray(Path.class)
 		);
@@ -55,7 +55,7 @@ public class UtilStoragePrintTransactionFiles
 	{
 		for(final Path file : files)
 		{
-			if(XPaths.isDirectoryUnchecked(file))
+			if(XIO.isDirectoryUnchecked(file))
 			{
 				continue;
 			}

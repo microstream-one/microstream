@@ -25,7 +25,6 @@ import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.io.FileException;
 import one.microstream.io.XIO;
-import one.microstream.io.XPaths;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -154,7 +153,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			try
 			{
-				return XPaths.openFileChannelWriting(file);
+				return XIO.openFileChannelWriting(file);
 			}
 			catch(FileException | IOException e)
 			{
@@ -356,8 +355,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private void openChannel() throws IOException
 		{
 			final StorageLockedFile file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
-			final Path directory = XPaths.Path(file.qualifier());
-			XPaths.ensureDirectoryUnchecked(directory);
+			final Path directory = XIO.Path(file.qualifier());
+			XIO.ensureDirectoryUnchecked(directory);
 			this.fileChannel = file.fileChannel();
 		}
 

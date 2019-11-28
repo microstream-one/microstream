@@ -15,7 +15,7 @@ import one.microstream.collections.ConstList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 
 public interface StorageTransactionsFileAnalysis
@@ -383,7 +383,7 @@ public interface StorageTransactionsFileAnalysis
 			final FileChannel channel = null;
 			try
 			{
-				if(!XPaths.exists(file))
+				if(!XIO.exists(file))
 				{
 					return vs;
 				}
