@@ -25,6 +25,7 @@ public interface StorageChannelsCreator
 		StorageobjectIdMarkQueue.Creator     oidMarkQueueCreator          ,
 		StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
 		StorageBackupHandler                 backupHandler                ,
+		StorageEventLogger                   eventLogger                  ,
 		boolean                              switchByteOrder              ,
 		long                                 rootTypeId
 	);
@@ -57,6 +58,7 @@ public interface StorageChannelsCreator
 			final StorageobjectIdMarkQueue.Creator     oidMarkQueueCreator          ,
 			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
 			final StorageBackupHandler                 backupHandler                ,
+			final StorageEventLogger                   eventLogger                  ,
 			final boolean                              switchByteOrder              ,
 			final long                                 rootTypeId
 		)
@@ -74,7 +76,10 @@ public interface StorageChannelsCreator
 			{
 				markQueues[i] = oidMarkQueueCreator.createOidMarkQueue(markBufferLength);
 			}
-			final StorageEntityMarkMonitor markMonitor = entityMarkMonitorCreator.createEntityMarkMonitor(markQueues);
+			final StorageEntityMarkMonitor markMonitor = entityMarkMonitorCreator.createEntityMarkMonitor(
+				markQueues,
+				eventLogger
+			);
 			
 			final BufferSizeProviderIncremental loadingBufferSizeProvider = BufferSizeProviderIncremental.New(loadingBufferSize);
 			final BufferSizeProvider readingDefaultBufferSizeProvider     = BufferSizeProvider.New(readingDefaultBufferSize);
@@ -92,6 +97,7 @@ public interface StorageChannelsCreator
 					rootOidSelectorProvider.provideRootOidSelector(i),
 					rootTypeId                                       ,
 					markQueues[i]                                    ,
+					eventLogger                                      ,
 					markBufferLength                                 ,
 					markingWaitTimeMs
 				);
@@ -121,9 +127,10 @@ public interface StorageChannelsCreator
 					operationController      ,
 					housekeepingController   ,
 					entityCache              ,
-					switchByteOrder             ,
+					switchByteOrder          ,
 					loadingBufferSizeProvider,
-					fileManager
+					fileManager              ,
+					eventLogger
 				);
 
 			}

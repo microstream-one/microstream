@@ -72,6 +72,7 @@ public interface StorageManager extends StorageController
 		private final StorageBackupSetup                   backupSetup                   ;
 		private final StorageLockFileSetup                 lockFileSetup                 ;
 		private final StorageLockFileManager.Creator       lockFileManagerCreator        ;
+		private final StorageEventLogger                   eventLogger                   ;
 		private final boolean                              switchByteOrder               ;
 
 
@@ -123,7 +124,8 @@ public interface StorageManager extends StorageController
 			final boolean                              switchByteOrder               ,
 			final StorageLockFileSetup                 lockFileSetup                 ,
 			final StorageLockFileManager.Creator       lockFileManagerCreator        ,
-			final StorageExceptionHandler              exceptionHandler
+			final StorageExceptionHandler              exceptionHandler              ,
+			final StorageEventLogger                   eventLogger
 		)
 		{
 			super();
@@ -159,6 +161,7 @@ public interface StorageManager extends StorageController
 			this.lockFileManagerCreator         = notNull(lockFileManagerCreator)              ;
 			this.backupSetup                    = mayNull(storageConfiguration.backupSetup())  ;
 			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
+			this.eventLogger                    = notNull(eventLogger)                         ;
 			this.switchByteOrder                =         switchByteOrder                      ;
 		}
 
@@ -360,6 +363,7 @@ public interface StorageManager extends StorageController
 				this.oidMarkQueueCreator                   ,
 				this.entityMarkMonitorCreator              ,
 				this.provideBackupHandler()                ,
+				this.eventLogger                           ,
 				this.switchByteOrder                       ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);

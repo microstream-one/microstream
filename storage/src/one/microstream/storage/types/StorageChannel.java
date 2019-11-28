@@ -100,6 +100,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final StorageEntityCache.Default    entityCache              ;
 		private final boolean                       switchByteOrder          ;
 		private final BufferSizeProviderIncremental loadingBufferSizeProvider;
+		private final StorageEventLogger            eventLogger              ;
 
 		private final HousekeepingTask[] housekeepingTasks =
 		{
@@ -138,7 +139,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageEntityCache.Default    entityCache              ,
 			final boolean                       switchByteOrder          ,
 			final BufferSizeProviderIncremental loadingBufferSizeProvider,
-			final StorageFileManager.Default    fileManager
+			final StorageFileManager.Default    fileManager              ,
+			final StorageEventLogger            eventLogger
 		)
 		{
 			super();
@@ -150,6 +152,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			this.entityCache               =     notNull(entityCache)              ;
 			this.housekeepingController    =     notNull(housekeepingController)   ;
 			this.loadingBufferSizeProvider =     notNull(loadingBufferSizeProvider);
+			this.eventLogger               =     notNull(eventLogger)              ;
 			this.switchByteOrder           =             switchByteOrder           ;
 		}
 
@@ -285,7 +288,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				 */
 				if(!operationController.checkProcessingEnabled())
 				{
-					DebugStorage.println(this.channelIndex + " processing disabled.");
+					this.eventLogger.logChannelProcessingDisabled(this);
 					break;
 				}
 
@@ -308,8 +311,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				}
 //				DEBUGStorage.println(this.channelIndex + " current Task: " + currentTask);
 			}
-
-			DebugStorage.println("Storage channel " + this.channelIndex + " stopped working.");
+			
+			this.eventLogger.logChannelStoppedWorking(this);
 		}
 
 
@@ -337,7 +340,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				 * Note: applies to interruption as well, because on privately managed threads,
 				 * interruping ultimately means just stop running in a ordered fashion
 				 */
-				DebugStorage.println(this.channelIndex + " encountered exception " + t);
+				this.eventLogger.logDisruption(this, t);
 				this.exceptionHandler.handleException(t, this);
 			}
 			finally
