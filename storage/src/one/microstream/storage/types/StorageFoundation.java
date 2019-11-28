@@ -493,6 +493,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
 	 */
 	public StorageExceptionHandler getExceptionHandler();
+	
+	public StorageEventLogger getEventLogger();
 
 	
 	
@@ -783,7 +785,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setExceptionHandler(StorageExceptionHandler exceptionHandler);
-
+	
+	
+	public F setEventLogger(StorageEventLogger eventLogger);
 	
 	
 	/**
@@ -838,6 +842,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageLockFileSetup.Provider         lockFileSetupProvider        ;
 		private StorageLockFileManager.Creator        lockFileManagerCreator       ;
 		private StorageExceptionHandler               exceptionHandler             ;
+		private StorageEventLogger                    eventLogger                  ;
 
 		
 		
@@ -1033,6 +1038,11 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		protected StorageExceptionHandler ensureExceptionHandler()
 		{
 			return StorageExceptionHandler.New();
+		}
+		
+		protected StorageEventLogger ensureEventLogger()
+		{
+			return StorageEventLogger.NoOp();
 		}
 		
 		// provide instead of ensure because the instance may be null (meaning no lock file)
@@ -1376,6 +1386,16 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			}
 			return this.exceptionHandler;
 		}
+		
+		@Override
+		public StorageEventLogger getEventLogger()
+		{
+			if(this.eventLogger == null)
+			{
+				this.eventLogger = this.dispatch(this.ensureEventLogger());
+			}
+			return this.eventLogger;
+		}
 
 		
 		
@@ -1636,6 +1656,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return this.$();
 		}
 		
+		@Override
+		public F setEventLogger(final StorageEventLogger eventLogger)
+		{
+			this.eventLogger = eventLogger;
+			return this.$();
+		}
+		
 		public final boolean isByteOrderMismatch()
 		{
 			/* (11.02.2019 TM)NOTE: On byte order switching:
@@ -1682,7 +1709,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.isByteOrderMismatch()             ,
 				this.getLockFileSetup()                ,
 				this.getLockFileManagerCreator()       ,
-				this.getExceptionHandler()
+				this.getExceptionHandler()             ,
+				this.getEventLogger()
 			);
 		}
 
