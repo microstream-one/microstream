@@ -167,7 +167,7 @@ public class MainTestStorage extends TestStorage
 //			public Path provideExportFile(final StorageEntityTypeHandler entityType)
 //			{
 //				return XIO.Path(
-//					XIO.ensureDirectoryUnchecked(XIO.Path("c:/Files/export/")),
+//					XIO.unchecked.ensureDirectory(XIO.Path("c:/Files/export/")),
 //					entityType.typeName()+".bin"
 //				);
 //			}
@@ -237,7 +237,7 @@ public class MainTestStorage extends TestStorage
 		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
 			XIO.Path("C:/FilesImport/PersistenceTypeDictionary.ptd")
 		);
-		final XEnum<Path>               dataFiles  = XIO.listEntriesUnchecked(
+		final XEnum<Path>               dataFiles  = XIO.unchecked.listEntries(
 			XIO.Path("C:/FilesImport/channel_0"), HashEnum.New()
 		)
 			.sort((f1, f2) -> Long.compare(parseStorageFileNumber(f1), parseStorageFileNumber(f2)))

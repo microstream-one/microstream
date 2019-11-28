@@ -12,12 +12,12 @@ public class MainTestWriteAppendStringToFile
 	{
 		final Path file = Paths.get("D:/testString.txt");
 		
-		final String s = XIO.execute(() ->
+		final String s = XIO.unchecked(() ->
 			XIO.readString(file)
 		);
 		System.out.println(s);
 		
-		final Long writeCount = XIO.execute(() ->
+		final Long writeCount = XIO.unchecked(() ->
 			XIO.writeAppending(file, s)
 		);
 		System.out.println("Written bytes: " + writeCount);

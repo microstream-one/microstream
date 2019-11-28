@@ -78,7 +78,7 @@ public class MainUtilRecoverStorageFiles
 	{
 		final Path sourceFile = XIO.Path(PATH_CORRUPTED + "/channel_0/channel_0_491.dat");
 				
-		final Path dir = XIO.ensureDirectoryUnchecked(XIO.Path(PATH_CORRUPTED, "strings"));
+		final Path dir = XIO.unchecked.ensureDirectory(XIO.Path(PATH_CORRUPTED, "strings"));
 		XDebug.deleteAllFiles(dir, false);
 		
 		// 2019-03-13 (2019-03-14)

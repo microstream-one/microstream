@@ -24,7 +24,7 @@ public class TestComponentProvider extends InvocationLogging
 
 	// application- (test-) specific components //
 	protected static final TestComponentProvider TEST = new TestComponentProvider(
-		 XIO.ensureDirectoryUnchecked(TEST_DIRECTORY)
+		 XIO.unchecked.ensureDirectory(TEST_DIRECTORY)
 		,Persistence.defaultFilenameTypeDictionary()
 		,FileObjectIdStrategy.defaultFilename()
 		,FileTypeIdStrategy.defaultFilename()

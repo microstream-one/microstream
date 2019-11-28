@@ -35,7 +35,7 @@ public class MainTestRTF
 
 		for(final Path f : files)
 		{
-			if(XIO.isDirectoryUnchecked(f) || !XIO.getFileName(f).endsWith(".rtf") || XIO.getFileName(f).contains(INVALIDATOR))
+			if(XIO.unchecked.isDirectory(f) || !XIO.getFileName(f).endsWith(".rtf") || XIO.getFileName(f).contains(INVALIDATOR))
 			{
 				continue;
 			}

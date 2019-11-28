@@ -356,7 +356,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			final StorageLockedFile file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
 			final Path directory = XIO.Path(file.qualifier());
-			XIO.ensureDirectoryUnchecked(directory);
+			XIO.unchecked.ensureDirectory(directory);
 			this.fileChannel = file.fileChannel();
 		}
 

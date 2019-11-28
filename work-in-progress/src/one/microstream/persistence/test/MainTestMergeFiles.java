@@ -26,12 +26,12 @@ public class MainTestMergeFiles
 		final Path... channelDirectories
 	)
 	{
-		XIO.ensureWriteableFileUnchecked(targetFile);
+		XIO.unchecked.ensureWriteableFile(targetFile);
 
 		final XList<Path> sourceFiles = X.List();
 		for(final Path file : channelDirectories)
 		{
-			XIO.listEntriesUnchecked(file, sourceFiles);
+			XIO.unchecked.listEntries(file, sourceFiles);
 		}
 
 		XIO.mergeBinary(sourceFiles, targetFile, f -> f.toString().endsWith(fileSuffix));

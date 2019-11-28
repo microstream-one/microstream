@@ -96,7 +96,7 @@ public class UtilStorageCsvExport
 		final Predicate<? super StorageEntityTypeHandler> exportFilter
 	)
 	{
-		final Path binDirectory = XIO.ensureDirectoryUnchecked(XIO.Path(targetDirectory, SUB_DIRECTORY_BIN));
+		final Path binDirectory = XIO.unchecked.ensureDirectory(XIO.Path(targetDirectory, SUB_DIRECTORY_BIN));
 
 		final BulkList<Path> exportFiles = BulkList.New(1000);
 		
@@ -152,7 +152,7 @@ public class UtilStorageCsvExport
 		final String effectiveFileSuffix = "." + fileSuffix;
 		
 		final Predicate<Path> filter = file ->
-			!XIO.isDirectoryUnchecked(file)
+			!XIO.unchecked.isDirectory(file)
 			&& XIO.getFileName(file).endsWith(effectiveFileSuffix)
 		;
 		

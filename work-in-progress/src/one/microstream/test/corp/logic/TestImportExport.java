@@ -32,7 +32,7 @@ public class TestImportExport
 		tStart = System.nanoTime();
 		final XSequence<Path> exportFiles = exportTypes(
 			storageConnection,
-			XIO.ensureDirectoryUnchecked(XIO.Path(targetDirectory, "bin")),
+			XIO.unchecked.ensureDirectory(XIO.Path(targetDirectory, "bin")),
 			"dat"
 		);
 		tStop = System.nanoTime();

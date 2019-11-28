@@ -21,7 +21,7 @@ public class MainUtilTransactionFileConverter
 		}
 		
 		final Path file = XIO.Path(args[0]);
-		if(!XIO.existsUnchecked(file))
+		if(!XIO.unchecked.exists(file))
 		{
 			System.out.println("File not found: " + args[0]);
 			XThreads.sleep(1000);

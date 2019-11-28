@@ -42,7 +42,7 @@ public class SimpleFileOutputStream extends OutputStream
 		{
 			try
 			{
-				XIO.ensureWriteableFileUnchecked(this.file.toPath());
+				XIO.unchecked.ensureWriteableFile(this.file.toPath());
 				this.fos = new FileOutputStream(this.file);
 			}
 			catch(final Exception e)

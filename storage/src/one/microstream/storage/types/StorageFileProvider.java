@@ -154,7 +154,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final String                                suffix
 		)
 		{
-			if(XIO.isDirectoryUnchecked(file))
+			if(XIO.unchecked.isDirectory(file))
 			{
 				return;
 			}
@@ -700,7 +700,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			 * This is only a temporary solution. See the task containing "PersistenceDataFile".
 			 */
 			final Path directory = XIO.Path(this.baseDirectory());
-			XIO.ensureDirectoryUnchecked(directory);
+			XIO.unchecked.ensureDirectory(directory);
 			
 			final Path file = XIO.Path(directory, this.typeDictionaryFileName());
 			return this.fileHandlerCreator.createTypeDictionaryIoHandler(file, writeListener);
@@ -708,7 +708,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 		public final Path provideChannelDirectory(final String parentDirectory, final int hashIndex)
 		{
-			return XIO.ensureDirectoryUnchecked(
+			return XIO.unchecked.ensureDirectory(
 				XIO.Path(parentDirectory, this.channelDirectoryPrefix() + hashIndex)
 			);
 		}

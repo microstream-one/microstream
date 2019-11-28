@@ -41,7 +41,7 @@ public class MainCollectFiles
 			fileSuffix,
 			filePath -> {
 				System.out.println(filePath);
-				XIO.ensureDirectoryAndFileUnchecked(XIO.Path(targetDir, filePath));
+				XIO.unchecked.ensureDirectoryAndFile(XIO.Path(targetDir, filePath));
 			}
 		);
 	}
@@ -54,7 +54,7 @@ public class MainCollectFiles
 	)
 		throws IOException
 	{
-		final Path[] files = XIO.listEntriesUnchecked(sourceDirectory);
+		final Path[] files = XIO.unchecked.listEntries(sourceDirectory);
 		if(files == null)
 		{
 			return;
@@ -62,7 +62,7 @@ public class MainCollectFiles
 
 		for(final Path file : files)
 		{
-			if(XIO.isDirectoryUnchecked(file))
+			if(XIO.unchecked.isDirectory(file))
 			{
 				processFiles(file, type, logic);
 				continue;

@@ -289,7 +289,7 @@ class StorageRollbacker
 	private Path createCleanUpFile()
 	{
 		return XIO.Path(
-			XIO.ensureDirectoryUnchecked(XIO.Path(this.recDirectory, "cleaned")),
+			XIO.unchecked.ensureDirectory(XIO.Path(this.recDirectory, "cleaned")),
 			"channel_0_" + (this.lowestFileNumber + 1) + ".dat"
 		);
 	}
@@ -385,7 +385,7 @@ class StorageRollbacker
 		throws Exception
 	{
 		final Path partFile = XIO.Path(
-			XIO.ensureDirectoryUnchecked(XIO.Path(this.recDirectory, "garbage")),
+			XIO.unchecked.ensureDirectory(XIO.Path(this.recDirectory, "garbage")),
 			"Garbage_" + storeFile.number() + "_@" + (address - addressBase) + "[" + length + "]"
 		);
 		writeBytes(address, length, partFile);
@@ -528,7 +528,7 @@ class StorageRollbacker
 	private RecFile createRecFile(final Long fileNumber)
 	{
 		final Path file = XIO.Path(
-			XIO.ensureDirectoryUnchecked(XIO.Path(this.recDirectory, "rollback")),
+			XIO.unchecked.ensureDirectory(XIO.Path(this.recDirectory, "rollback")),
 			this.recFilePrefix + fileNumber + ".dat"
 		);
 		final RecFile rf = new RecFile(fileNumber, file);
@@ -540,7 +540,7 @@ class StorageRollbacker
 	private StoreFile createStoreFile(final Long fileNumber)
 	{
 		final Path file = XIO.Path(
-			XIO.ensureDirectoryUnchecked(XIO.Path(this.recDirectory, "stores")),
+			XIO.unchecked.ensureDirectory(XIO.Path(this.recDirectory, "stores")),
 			this.storeFilePrefix + fileNumber + ".dat"
 		);
 		return new StoreFile(fileNumber, file);
@@ -549,7 +549,7 @@ class StorageRollbacker
 
 	static FileChannel openChannel(final Path file)
 	{
-		return XIO.execute(() ->
+		return XIO.unchecked(() ->
 			XIO.openFileChannelRW(file)
 		);
 	}

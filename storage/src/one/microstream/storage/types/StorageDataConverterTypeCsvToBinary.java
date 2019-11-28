@@ -1079,7 +1079,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			 * if it is a normal problem, there should be a proper wrapping exception for it
 			 * instead of hacking the JVM.
 			 */
-			final char[] input = XIO.execute(()->
+			final char[] input = XIO.unchecked(()->
 				XIO.readString(
 					XIO.Path(this.sourceFile.identifier()),
 					XChars.utf8()

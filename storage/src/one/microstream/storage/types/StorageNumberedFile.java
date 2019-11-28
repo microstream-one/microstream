@@ -111,13 +111,13 @@ public interface StorageNumberedFile extends StorageChannelFile
 		@Override
 		public final boolean delete()
 		{
-			return XIO.deleteUnchecked(this.file);
+			return XIO.unchecked.delete(this.file);
 		}
 		
 		@Override
 		public final boolean exists()
 		{
-			return XIO.existsUnchecked(this.file);
+			return XIO.unchecked.exists(this.file);
 		}
 		
 		@Override
@@ -152,7 +152,7 @@ public interface StorageNumberedFile extends StorageChannelFile
 				throw new RuntimeException();
 			}
 			
-			return XIO.sizeUnchecked(this.file);
+			return XIO.unchecked.size(this.file);
 		}
 		
 		@Override

@@ -15,7 +15,7 @@ public abstract class AbstractProviderByFile
 	
 	public static final void write(final Path file, final String value)
 	{
-		XIO.execute(() ->
+		XIO.unchecked(() ->
 		{
 			XIO.write(file, value);
 			
@@ -62,7 +62,7 @@ public abstract class AbstractProviderByFile
 
 	protected String read()
 	{
-		return XIO.execute(() ->
+		return XIO.unchecked(() ->
 			XIO.readString(this.file)
 		);
 	}
