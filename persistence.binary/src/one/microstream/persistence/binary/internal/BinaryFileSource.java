@@ -12,7 +12,7 @@ import one.microstream.X;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.Constant;
 import one.microstream.collections.types.XGettingCollection;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import one.microstream.persistence.binary.types.Binary;
@@ -163,7 +163,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	@Override
 	public XGettingCollection<? extends Binary> read() throws PersistenceExceptionTransfer
 	{
-		try(final FileChannel fch = XPaths.openFileChannelReading(this.file))
+		try(final FileChannel fch = XIO.openFileChannelReading(this.file))
 		{
 			return this.read(fch.size(), fch);
 		}

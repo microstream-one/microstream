@@ -3,7 +3,7 @@ package one.microstream.storage.types;
 import java.io.File;
 import java.nio.file.Path;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
@@ -127,7 +127,7 @@ public final class EmbeddedStorage
 	 */
 	public static Path defaultStorageDirectory()
 	{
-		return XPaths.Path(StorageFileProvider.Defaults.defaultStorageDirectory());
+		return XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory());
 	}
 	
 	

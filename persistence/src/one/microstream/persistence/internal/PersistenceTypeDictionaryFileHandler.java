@@ -6,7 +6,7 @@ import static one.microstream.X.notNull;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionSource;
 import one.microstream.persistence.types.Persistence;
@@ -28,12 +28,12 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 	{
 		try
 		{
-			if(!XPaths.exists(file))
+			if(!XIO.exists(file))
 			{
 				return defaultString;
 			}
 			
-			return XPaths.readString(file, Persistence.standardCharset());
+			return XIO.readString(file, Persistence.standardCharset());
 		}
 		catch(final IOException e)
 		{
@@ -45,7 +45,7 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 	{
 		try
 		{
-			XPaths.write(file, typeDictionaryString, Persistence.standardCharset());
+			XIO.write(file, typeDictionaryString, Persistence.standardCharset());
 		}
 		catch(final Exception t)
 		{
@@ -70,7 +70,7 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 	)
 	{
 		return new PersistenceTypeDictionaryFileHandler(
-			XPaths.Path(directory, Persistence.defaultFilenameTypeDictionary()),
+			XIO.Path(directory, Persistence.defaultFilenameTypeDictionary()),
 			mayNull(writeListener)
 		);
 	}
@@ -157,7 +157,7 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 	public static PersistenceTypeDictionaryFileHandler.Provider ProviderInDirectory(final Path directory)
 	{
 		return new PersistenceTypeDictionaryFileHandler.Provider(
-			XPaths.Path(directory, Persistence.defaultFilenameTypeDictionary())
+			XIO.Path(directory, Persistence.defaultFilenameTypeDictionary())
 		);
 	}
 	

@@ -11,7 +11,7 @@ import javax.swing.text.rtf.RTFEditorKit;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 
 public class MainTestRTF
 {
@@ -20,8 +20,8 @@ public class MainTestRTF
 	
 	public static void main(final String[] args) throws Exception
 	{
-//		mergeRtfs(XPaths.Path("D:/rtftest/"));
-		mergeRtfs(XPaths.Path("D:/_HumanLegacy/HuLe Docs/E01 Turning Point/Szenen"));
+//		mergeRtfs(XIO.Path("D:/rtftest/"));
+		mergeRtfs(XIO.Path("D:/_HumanLegacy/HuLe Docs/E01 Turning Point/Szenen"));
 	}
 
 	// very hacky, ignoring exceptions etc., only for provisional use
@@ -30,12 +30,12 @@ public class MainTestRTF
 		final VarString vs = VarString.New(1_000_000);
 
 		// sort by filename, just in case
-		final Path[] files = XPaths.listChildren(dir);
-		Arrays.sort(files, (f1, f2) -> XPaths.getFileName(f1).compareTo(XPaths.getFileName(f2)));
+		final Path[] files = XIO.listEntries(dir);
+		Arrays.sort(files, (f1, f2) -> XIO.getFileName(f1).compareTo(XIO.getFileName(f2)));
 
 		for(final Path f : files)
 		{
-			if(XPaths.isDirectoryUnchecked(f) || !XPaths.getFileName(f).endsWith(".rtf") || XPaths.getFileName(f).contains(INVALIDATOR))
+			if(XIO.isDirectoryUnchecked(f) || !XIO.getFileName(f).endsWith(".rtf") || XIO.getFileName(f).contains(INVALIDATOR))
 			{
 				continue;
 			}
@@ -51,7 +51,7 @@ public class MainTestRTF
 			vs.add(text);
 		}
 
-		final Path target = XPaths.Path(dir.getParent(), XPaths.getFileName(dir)+"_merged_rtf.txt");
+		final Path target = XIO.Path(dir.getParent(), XIO.getFileName(dir)+"_merged_rtf.txt");
 		String s = vs.toString();
 		
 		// remove lol-cr
@@ -63,7 +63,7 @@ public class MainTestRTF
 		// cut spaces and remove everything beyond one blank line
 		s = s.replaceAll("\\n\\s+\\n", "\n\n").replaceAll("(\\n){3,}+", "\n\n");
 				
-		XPaths.write(target, s, XChars.defaultJvmCharset());
+		XIO.write(target, s, XChars.defaultJvmCharset());
 	}
 
 }

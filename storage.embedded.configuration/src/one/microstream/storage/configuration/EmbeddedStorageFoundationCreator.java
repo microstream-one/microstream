@@ -5,7 +5,7 @@ import static one.microstream.chars.XChars.isEmpty;
 
 import java.nio.file.Path;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
@@ -38,7 +38,7 @@ public interface EmbeddedStorageFoundationCreator
 		@Override
 		public EmbeddedStorageFoundation<?> createFoundation(final Configuration configuration)
 		{
-			final Path                          baseDirectory          = XPaths.ensureDirectoryUnchecked(XPaths.Path(configuration.getBaseDirectory()));
+			final Path                          baseDirectory          = XIO.ensureDirectoryUnchecked(XIO.Path(configuration.getBaseDirectory()));
 			final StorageFileProvider           fileProvider           = this.createFileProvider(configuration, baseDirectory);
 			final StorageChannelCountProvider   channelCountProvider   = this.createChannelCountProvider(configuration);
 			final StorageHousekeepingController housekeepingController = this.createHousekeepingController(configuration);
@@ -65,7 +65,7 @@ public interface EmbeddedStorageFoundationCreator
 			{
 				storageFoundation.getConnectionFoundation().setTypeDictionaryIoHandler(
 					PersistenceTypeDictionaryFileHandler.New(
-						XPaths.Path(baseDirectory, typeDictionaryFilename)
+						XIO.Path(baseDirectory, typeDictionaryFilename)
 					)
 				);
 			}
@@ -130,7 +130,7 @@ public interface EmbeddedStorageFoundationCreator
 			return typeDictionaryFilename == null
 				? null
 				: PersistenceTypeDictionaryFileHandler.New(
-					XPaths.Path(baseDirectory, typeDictionaryFilename)
+					XIO.Path(baseDirectory, typeDictionaryFilename)
 				);
 		}
 	}

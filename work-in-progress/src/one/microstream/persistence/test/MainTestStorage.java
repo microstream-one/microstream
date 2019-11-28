@@ -10,7 +10,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XEnum;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.lazy.Lazy;
@@ -164,10 +164,10 @@ public class MainTestStorage extends TestStorage
 
 //		storageConnection.exportTypes(new StorageEntityTypeExportFileProvider() {
 //			@Override
-//			public File provideExportFile(final StorageEntityTypeHandler entityType)
+//			public Path provideExportFile(final StorageEntityTypeHandler entityType)
 //			{
-//				return new File(
-//					XFiles.ensureDirectory(new File("c:/Files/export/")),
+//				return XIO.Path(
+//					XIO.ensureDirectoryUnchecked(XIO.Path("c:/Files/export/")),
 //					entityType.typeName()+".bin"
 //				);
 //			}
@@ -235,10 +235,10 @@ public class MainTestStorage extends TestStorage
 	{
 		final StorageConnection         connection = STORAGE.createConnection();
 		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
-			XPaths.Path("C:/FilesImport/PersistenceTypeDictionary.ptd")
+			XIO.Path("C:/FilesImport/PersistenceTypeDictionary.ptd")
 		);
-		final XEnum<Path>               dataFiles  = XPaths.listChildrenUnchecked(
-			XPaths.Path("C:/FilesImport/channel_0"), HashEnum.New()
+		final XEnum<Path>               dataFiles  = XIO.listEntriesUnchecked(
+			XIO.Path("C:/FilesImport/channel_0"), HashEnum.New()
 		)
 			.sort((f1, f2) -> Long.compare(parseStorageFileNumber(f1), parseStorageFileNumber(f2)))
 		;
@@ -249,7 +249,7 @@ public class MainTestStorage extends TestStorage
 
 	static long parseStorageFileNumber(final Path file)
 	{
-		final String filename = XPaths.getFileName(file);
+		final String filename = XIO.getFileName(file);
 		return Long.valueOf(filename.substring(filename.lastIndexOf('_')+1, filename.lastIndexOf('.')));
 	}
 

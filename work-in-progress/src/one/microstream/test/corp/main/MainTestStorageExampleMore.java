@@ -3,7 +3,7 @@ package one.microstream.test.corp.main;
 import java.io.File;
 import java.nio.file.Path;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -17,7 +17,7 @@ public class MainTestStorageExampleMore
 {
 	// root of the application's data model graph
 	static final Reference<ClientCorporation> ROOT          = Reference.New(null)       ;
-	static final Path                         DIRECTORY     = XPaths.Path("C:/StorageTest");
+	static final Path                         DIRECTORY     = XIO.Path("C:/StorageTest");
 	static final int                          CHANNEl_COUNT = 4                         ;
 
 	// create a storage manager, link the root, start the "embedded" database

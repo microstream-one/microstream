@@ -36,7 +36,6 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
 import one.microstream.io.XIO;
-import one.microstream.io.XPaths;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
@@ -1038,7 +1037,7 @@ public class Persistence
 	{
 		// (19.04.2018 TM)EXCP: proper exception
 		final String fileContent = XIO.execute(() ->
-			XPaths.readString(file)
+			XIO.readString(file)
 		);
 		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
 		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());

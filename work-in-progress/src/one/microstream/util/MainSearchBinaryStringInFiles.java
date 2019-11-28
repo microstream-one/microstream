@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 import one.microstream.chars.VarString;
 import one.microstream.collections.XArrays;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 
 public class MainSearchBinaryStringInFiles
@@ -36,11 +36,11 @@ public class MainSearchBinaryStringInFiles
 		
 		System.out.println("\nSearching for " + objectId);
 		searchStringsInDirectory(
-			XPaths.Path("D:/_Caweco/dbs/2019-11-18/channel_0/"),
+			XIO.Path("D:/_Caweco/dbs/2019-11-18/channel_0/"),
 			byteString
 		);
 		searchStringsInDirectory(
-			XPaths.Path("D:/_Caweco/dbs/2019-11-25/channel_0/"),
+			XIO.Path("D:/_Caweco/dbs/2019-11-25/channel_0/"),
 			byteString
 		);
 	}
@@ -50,7 +50,7 @@ public class MainSearchBinaryStringInFiles
 //		System.out.println(System.currentTimeMillis());
 //		System.out.println(XTime.timestamp(2019, 11, 18).getTime());
 		
-//		Test.printTransactionsFiles(XPaths.Path("D:/_Caweco/dbs/2019-11-25"), 1);
+//		Test.printTransactionsFiles(XIO.Path("D:/_Caweco/dbs/2019-11-25"), 1);
 		
 		searchLCM(
 			1000000000001703272L,
@@ -76,7 +76,7 @@ public class MainSearchBinaryStringInFiles
 	)
 	{
 		System.out.println("\nSearching in directory " + directory);
-		searchStringsInFiles(logic, XPaths.listChildrenUnchecked(directory), strings);
+		searchStringsInFiles(logic, XIO.listEntriesUnchecked(directory), strings);
 	}
 
 	static void searchStringsInFiles(
@@ -100,9 +100,9 @@ public class MainSearchBinaryStringInFiles
 	{
 		for(final Path f : files)
 		{
-			if(XPaths.isDirectoryUnchecked(f))
+			if(XIO.isDirectoryUnchecked(f))
 			{
-				innerSearchStringsInFiles(logic, XPaths.listChildrenUnchecked(f), strings);
+				innerSearchStringsInFiles(logic, XIO.listEntriesUnchecked(f), strings);
 			}
 			else
 			{
@@ -118,7 +118,7 @@ public class MainSearchBinaryStringInFiles
 	{
 		try
 		{
-			final byte[] fileContent = XPaths.read_bytes(f);
+			final byte[] fileContent = XIO.read_bytes(f);
 			for(final byte[] s : strings)
 			{
 				int index = 0;

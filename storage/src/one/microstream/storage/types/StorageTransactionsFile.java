@@ -12,7 +12,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XCollection;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.exceptions.IORuntimeException;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis.EntryIterator;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis.Logic;
 
@@ -40,7 +40,7 @@ public interface StorageTransactionsFile
 		final FileChannel channel = null;
 		try
 		{
-			if(!XPaths.exists(file))
+			if(!XIO.exists(file))
 			{
 				return StorageTransactionsFile.New();
 			}

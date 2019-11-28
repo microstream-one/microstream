@@ -1,7 +1,7 @@
 package one.microstream.test.corp.main;
 
 import one.microstream.chars.VarString;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis;
 
@@ -30,7 +30,7 @@ public class MainTestBackupPrintTransactionFiles
 		for(int i = 0; i < channelCount; i++)
 		{
 			final VarString vs = StorageTransactionsFileAnalysis.Logic.parseFile(
-				XPaths.Path(baseDirectory
+				XIO.Path(baseDirectory
 					+ "/" + StorageFileProvider.Defaults.defaultChannelDirectoryPrefix() + i
 					+"/" + StorageFileProvider.Defaults.defaultTransactionFilePrefix() + i
 					+ StorageFileProvider.Defaults.defaultTransactionFileSuffix()

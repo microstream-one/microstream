@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.nio.file.Path;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.binary.internal.BinaryFileStorage;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.internal.CompositeIdProvider;
@@ -20,11 +20,11 @@ public class TestComponentProvider extends InvocationLogging
 	// constants //
 	//////////////
 
-	protected static final Path TEST_DIRECTORY = XPaths.Path("c:/Files/");
+	protected static final Path TEST_DIRECTORY = XIO.Path("c:/Files/");
 
 	// application- (test-) specific components //
 	protected static final TestComponentProvider TEST = new TestComponentProvider(
-		 XPaths.ensureDirectoryUnchecked(TEST_DIRECTORY)
+		 XIO.ensureDirectoryUnchecked(TEST_DIRECTORY)
 		,Persistence.defaultFilenameTypeDictionary()
 		,FileObjectIdStrategy.defaultFilename()
 		,FileTypeIdStrategy.defaultFilename()
@@ -108,8 +108,8 @@ public class TestComponentProvider extends InvocationLogging
 		if(this.idProvider == null)
 		{
 			this.idProvider = CompositeIdProvider.New(
-				dispatch(FileTypeIdStrategy.New  (XPaths.Path(this.directory, this.filenameTypeId  )).createTypeIdProvider()),
-				dispatch(FileObjectIdStrategy.New(XPaths.Path(this.directory, this.filenameObjectId)).createObjectIdProvider())
+				dispatch(FileTypeIdStrategy.New  (XIO.Path(this.directory, this.filenameTypeId  )).createTypeIdProvider()),
+				dispatch(FileObjectIdStrategy.New(XIO.Path(this.directory, this.filenameObjectId)).createObjectIdProvider())
 			).initialize();
 		}
 		return this.idProvider;
@@ -120,8 +120,8 @@ public class TestComponentProvider extends InvocationLogging
 		if(this.persistenceStorage == null && this.filenameData != null)
 		{
 			this.persistenceStorage = new BinaryFileStorage(
-				dispatch(new DEBUG_BinaryFileSource(System.out, XPaths.Path(this.directory, this.filenameData))),
-				dispatch(new DEBUG_BinaryFileTarget(System.out, XPaths.Path(this.directory, this.filenameData)))
+				dispatch(new DEBUG_BinaryFileSource(System.out, XIO.Path(this.directory, this.filenameData))),
+				dispatch(new DEBUG_BinaryFileTarget(System.out, XIO.Path(this.directory, this.filenameData)))
 			);
 		}
 		return this.persistenceStorage;
@@ -132,7 +132,7 @@ public class TestComponentProvider extends InvocationLogging
 		if(this.dictionaryStorage == null)
 		{
 			this.dictionaryStorage = dispatch(
-				PersistenceTypeDictionaryFileHandler.New(XPaths.Path(this.directory, this.filenameTypeDictionary))
+				PersistenceTypeDictionaryFileHandler.New(XIO.Path(this.directory, this.filenameTypeDictionary))
 			);
 		}
 		return this.dictionaryStorage;

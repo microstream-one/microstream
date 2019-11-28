@@ -6,7 +6,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
 import one.microstream.io.FileException;
-import one.microstream.io.XFiles;
 import one.microstream.io.XIO;
 
 public final class ProtageFileSystem
@@ -14,7 +13,7 @@ public final class ProtageFileSystem
 	public static final File createWriteableFile(final File directory, final String fileName)
 	{
 		final File file = new File(directory, fileName);
-		XFiles.ensureFile(file);
+		XIO.ensureFileUnchecked(file.toPath());
 		
 		return validateWriteableFile(file);
 	}

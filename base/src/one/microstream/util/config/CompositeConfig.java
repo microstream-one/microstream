@@ -17,7 +17,7 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.functional.Aggregator;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.Substituter;
 import one.microstream.util.csv.CsvAssembler;
@@ -86,7 +86,7 @@ public class CompositeConfig
 			final char[] input;
 			try
 			{
-				input = XPaths.readString(file.toPath(), XChars.defaultJvmCharset()).toCharArray();
+				input = XIO.readString(file.toPath(), XChars.defaultJvmCharset()).toCharArray();
 			}
 			catch(final IOException e)
 			{
@@ -302,7 +302,7 @@ public class CompositeConfig
 
 		try
 		{
-			XPaths.write(file.toPath(), vs.toString());
+			XIO.write(file.toPath(), vs.toString());
 		}
 		catch(final IOException e)
 		{

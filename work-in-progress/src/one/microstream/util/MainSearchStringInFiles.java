@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.functional.TriConsumer;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 
 public class MainSearchStringInFiles
 {
@@ -24,7 +24,7 @@ public class MainSearchStringInFiles
 	public static void main(final String[] args) throws Exception
 	{
 		searchStringsInFiles(DIRECT,
-			XPaths.listChildren(XPaths.Path("C:/BonusExportTest_2017-06-28_16-13-47.581/csv")),
+			XIO.listEntries(XIO.Path("C:/BonusExportTest_2017-06-28_16-13-47.581/csv")),
 			MainSearchStringInFiles::printOid,
 			
 //			"1000000000056176168" // KeyAhVlUSt$Default
@@ -43,7 +43,7 @@ public class MainSearchStringInFiles
 
 	static String[] loadIds(final Path file, final String separator) throws Exception
 	{
-		final String fileContent = XPaths.readString(file, XChars.defaultJvmCharset());
+		final String fileContent = XIO.readString(file, XChars.defaultJvmCharset());
 
 		final String[] parts = fileContent.split(separator);
 
@@ -107,7 +107,7 @@ public class MainSearchStringInFiles
 	{
 		try
 		{
-			final String fileContent = XPaths.readString(f, XChars.defaultJvmCharset());
+			final String fileContent = XIO.readString(f, XChars.defaultJvmCharset());
 			for(final String s : strings)
 			{
 				final int index = fileContent.indexOf(s);

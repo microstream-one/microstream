@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.io.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.storage.io.ProtageWritableDirectory;
 import one.microstream.storage.io.ProtageWritableFile;
 
@@ -24,10 +24,10 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		ProtageFileSystem.validateExistingDirectory(directory);
 		ProtageFileSystem.validateIsDirectory(directory);
 		
-		final String qualifier  = XFiles.ensureNormalizedPathSeperators(directory.getParent());
+		final String qualifier  = XIO.ensureNormalizedPathSeperators(directory.getParent());
 		final String name       = directory.getName();
-		final String identifier = XFiles.ensureTrailingSlash(qualifier) + name;
-		final String qualIdent  = XFiles.ensureTrailingSlash(identifier);
+		final String identifier = XIO.ensureTrailingSlash(qualifier) + name;
+		final String qualIdent  = XIO.ensureTrailingSlash(identifier);
 		
 		final EqHashTable<String, ProtageFileFS.Default>   files      = EqHashTable.New();
 		final XGettingTable<String, ProtageFileFS.Default> viewFiles  = files.view();

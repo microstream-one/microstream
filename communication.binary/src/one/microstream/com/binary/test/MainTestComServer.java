@@ -16,7 +16,7 @@ public class MainTestComServer
 	{
 //		final BinaryPersistenceFoundation<?> persistence = BinaryPersistence.Foundation()
 //			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirecoty(
-//				XFiles.ensureDirectory(new File("TypeDictionary"))
+//				XIO.ensureDirectoryUnchecked(XIO.Path("TypeDictionary"))
 //			))
 //			.setObjectIdProvider(PersistenceObjectIdProvider.Transient())
 //			.setTypeIdProvider(PersistenceTypeIdProvider.Transient())

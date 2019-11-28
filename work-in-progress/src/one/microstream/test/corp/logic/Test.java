@@ -18,7 +18,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XTable;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.math.XMath;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis;
@@ -278,7 +278,7 @@ public class Test
 
 	public static Path provideTimestampedDirectory(final Path directory, final String prefix)
 	{
-		return XPaths.Path(directory, prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date()));
+		return XIO.Path(directory, prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date()));
 	}
 
 	public static Path provideTimestampedDirectory(final String prefix)
@@ -317,7 +317,7 @@ public class Test
 
 		for(int i = 0; i < files.length; i++)
 		{
-			files[i] = XPaths.Path(XPaths.Path(storageDirectory, "channel_"+i), "transactions_"+i+".sft");
+			files[i] = XIO.Path(XIO.Path(storageDirectory, "channel_"+i), "transactions_"+i+".sft");
 		}
 		printTransactionsFiles(files);
 	}

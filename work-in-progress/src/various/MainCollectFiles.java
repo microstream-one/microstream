@@ -1,16 +1,16 @@
 package various;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
-import one.microstream.io.XFiles;
+import one.microstream.io.XIO;
 
 
 public class MainCollectFiles
 {
-	static final File sourceDirectory = new File("C:\\");
+	static final Path sourceDirectory = XIO.Path("C:\\");
 
-	static final File targetDirectory = new File("D:\\lolz");
+	static final Path targetDirectory = XIO.Path("D:\\lolz");
 
 	public static void main(final String[] args) throws Throwable
 	{
@@ -31,49 +31,49 @@ public class MainCollectFiles
 	}
 
 
-	static final void collect(final File sourceDirectory, final String fileType) throws IOException
+	static final void collect(final Path sourceDirectory, final String fileType) throws IOException
 	{
 		final String fileSuffix = '.'+fileType.toLowerCase();
-		final File targetDir = new File(targetDirectory, fileType.toUpperCase());
+		final Path targetDir = XIO.Path(targetDirectory, fileType.toUpperCase());
 
 		processFiles(
 			sourceDirectory,
 			fileSuffix,
 			filePath -> {
 				System.out.println(filePath);
-				XFiles.ensureDirectoryAndFile(new File(targetDir, filePath));
+				XIO.ensureDirectoryAndFileUnchecked(XIO.Path(targetDir, filePath));
 			}
 		);
 	}
 
 
 	static final void processFiles(
-		final File                      sourceDirectory,
-		final String                    type           ,
+		final Path                     sourceDirectory,
+		final String                   type           ,
 		final Consumer<? super String> logic
 	)
 		throws IOException
 	{
-		final File[] files = sourceDirectory.listFiles();
+		final Path[] files = XIO.listEntriesUnchecked(sourceDirectory);
 		if(files == null)
 		{
 			return;
 		}
 
-		for(final File file : files)
+		for(final Path file : files)
 		{
-			if(file.isDirectory())
+			if(XIO.isDirectoryUnchecked(file))
 			{
 				processFiles(file, type, logic);
 				continue;
 			}
-			final String path = file.getAbsolutePath();
+			final String path = XIO.toAbsoluteNormalizedPath(file);
 			if(!path.substring(path.length() - type.length(), path.length()).toLowerCase().equals(type))
 			{
 				continue;
 			}
 
-			final String name    = file.getName();
+			final String name    = XIO.getFileName(file);
 			final String dirPart = path.substring(0, path.length() - name.length() - 1);
 			final String result  = dirPart.substring(3, dirPart.length()).replace('\\', '_')+'!'+name;
 			logic.accept(result);

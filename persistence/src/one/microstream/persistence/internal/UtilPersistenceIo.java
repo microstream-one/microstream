@@ -2,7 +2,7 @@ package one.microstream.persistence.internal;
 
 import java.nio.file.Path;
 
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.exceptions.PersistenceException;
 
 /*
@@ -16,7 +16,7 @@ public class UtilPersistenceIo
 	{
 		try
 		{
-			XPaths.move(sourceFile, targetFile);
+			XIO.move(sourceFile, targetFile);
 		}
 		catch(final Exception e)
 		{

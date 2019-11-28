@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import one.microstream.io.XIO;
-import one.microstream.io.XPaths;
 
 
 public interface StorageLockedFile extends StorageFile //, AutoCloseable
@@ -45,7 +44,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		try
 		{
 			// resource closed internally by FileChannel (JDK tricking Java compiler ^^)
-			channel = XPaths.openFileChannelRW(file, StandardOpenOption.CREATE);
+			channel = XIO.openFileChannelRW(file, StandardOpenOption.CREATE);
 //			channel = new RandomAccessFile(file, "rw").getChannel();
 
 
@@ -143,32 +142,32 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		@Override
 		public String qualifier()
 		{
-			return XPaths.getFilePath(this.file.getParent());
+			return XIO.getFilePath(this.file.getParent());
 		}
 		
 		@Override
 		public String identifier()
 		{
-			return XPaths.getFilePath(this.file);
+			return XIO.getFilePath(this.file);
 		}
 		
 		@Override
 		public String name()
 		{
-			return XPaths.getFileName(this.file);
+			return XIO.getFileName(this.file);
 		}
 		
 		@Override
 		public boolean delete()
 		{
 			this.close();
-			return XPaths.deleteUnchecked(this.file);
+			return XIO.deleteUnchecked(this.file);
 		}
 		
 		@Override
 		public boolean exists()
 		{
-			return XPaths.existsUnchecked(this.file);
+			return XIO.existsUnchecked(this.file);
 		}
 
 		@Override

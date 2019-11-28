@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 
 
@@ -33,7 +33,7 @@ public class UtilFileHandling
 	
 	public static Path mustDirectory(final Path file)
 	{
-		if(XPaths.isDirectoryUnchecked(file))
+		if(XIO.isDirectoryUnchecked(file))
 		{
 			return file;
 		}
@@ -45,9 +45,9 @@ public class UtilFileHandling
 	{
 		return (final Path file) ->
 		{
-			return XPaths.getFileName(file)
-				+ " $" + XPaths.sizeUnchecked(file)
-				+ " @" + XPaths.lastModifiedUnchecked(file)
+			return XIO.getFileName(file)
+				+ " $" + XIO.sizeUnchecked(file)
+				+ " @" + XIO.lastModifiedUnchecked(file)
 			;
 		};
 	}
@@ -63,10 +63,10 @@ public class UtilFileHandling
 	{
 //		XDebug.println("Indexing directory " + directory);
 		
-		final Path[] files = XPaths.listChildrenUnchecked(directory);
+		final Path[] files = XIO.listEntriesUnchecked(directory);
 		for(final Path file : files)
 		{
-			if(XPaths.isDirectoryUnchecked(file))
+			if(XIO.isDirectoryUnchecked(file))
 			{
 				continue;
 			}
@@ -80,7 +80,7 @@ public class UtilFileHandling
 		}
 		for(final Path file : files)
 		{
-			if(XPaths.isDirectoryUnchecked(file))
+			if(XIO.isDirectoryUnchecked(file))
 			{
 				indexFiles(file, indexedFiles, fileIdentifier);
 			}
@@ -92,8 +92,8 @@ public class UtilFileHandling
 		final Path targetTargetFile
 	)
 	{
-		XPaths.ensureDirectoryUnchecked(targetTargetFile.getParent());
-		if(XPaths.existsUnchecked(targetTargetFile))
+		XIO.ensureDirectoryUnchecked(targetTargetFile.getParent());
+		if(XIO.existsUnchecked(targetTargetFile))
 		{
 			System.out.println("x already exists: " + targetTargetFile);
 			System.out.println();

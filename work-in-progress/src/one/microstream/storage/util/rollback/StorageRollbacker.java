@@ -2,11 +2,10 @@ package one.microstream.storage.util.rollback;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
@@ -15,8 +14,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.io.XFiles;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -32,7 +30,7 @@ class StorageRollbacker
 	final long                          lowestFileNumber;
 	final EntityDataHeaderEvaluator     headerEvaluator ;
 	final EqHashTable<Long, SourceFile> sourceFiles     ;
-	final File                          recDirectory    ;
+	final Path                          recDirectory    ;
 	final String                        recFilePrefix   ;
 	final String                        storeFilePrefix ;
 	
@@ -47,8 +45,8 @@ class StorageRollbacker
 	
 	StorageRollbacker(
 		final long                      lowestFileNumber,
-		final XGettingTable<Long, File> sourceFiles     ,
-		final File                      recDirectory    ,
+		final XGettingTable<Long, Path> sourceFiles     ,
+		final Path                      recDirectory    ,
 		final String                    recFilePrefix   ,
 		final String                    storeFilePrefix ,
 		final EntityDataHeaderEvaluator headerEvaluator
@@ -70,12 +68,12 @@ class StorageRollbacker
 	////////////
 	
 	private final EqHashTable<Long, SourceFile> setupSourceFiles(
-		final XGettingTable<Long, File> inputSourceFiles
+		final XGettingTable<Long, Path> inputSourceFiles
 	)
 	{
 		final EqHashTable<Long, SourceFile> sourceFiles = EqHashTable.New();
 		
-		for(final KeyValue<Long, File> e : inputSourceFiles)
+		for(final KeyValue<Long, Path> e : inputSourceFiles)
 		{
 			sourceFiles.add(e.key(), new SourceFile.Default(e.key(), e.value()));
 		}
@@ -105,7 +103,7 @@ class StorageRollbacker
 	
 	public void cleanUpDirect() throws Exception
 	{
-		final File cleanedFile = this.createCleanUpFile();
+		final Path cleanedFile = this.createCleanUpFile();
 		final FileChannel channel = openChannel(cleanedFile);
 		
 		for(final SourceFile file : this.sourceFiles.values())
@@ -127,7 +125,7 @@ class StorageRollbacker
 			vs.lf();
 		}
 		
-		XPaths.write(new File(this.recDirectory, "lcm_prod_Strings.txt").toPath(), vs.toString());
+		XIO.write(XIO.Path(this.recDirectory, "lcm_prod_Strings.txt"), vs.toString());
 	}
 	
 	public EqHashTable<Long, String> recoverStrings() throws Exception
@@ -279,7 +277,7 @@ class StorageRollbacker
 	
 	private void cleanUpStores() throws Exception
 	{
-		final File cleanedFile = this.createCleanUpFile();
+		final Path cleanedFile = this.createCleanUpFile();
 		final FileChannel channel = openChannel(cleanedFile);
 		
 		for(final SourceFile s : this.storeFiles.values())
@@ -288,10 +286,10 @@ class StorageRollbacker
 		}
 	}
 	
-	private File createCleanUpFile()
+	private Path createCleanUpFile()
 	{
-		return new File(
-			XFiles.ensureDirectory(new File(this.recDirectory, "cleaned")),
+		return XIO.Path(
+			XIO.ensureDirectoryUnchecked(XIO.Path(this.recDirectory, "cleaned")),
 			"channel_0_" + (this.lowestFileNumber + 1) + ".dat"
 		);
 	}
@@ -386,14 +384,14 @@ class StorageRollbacker
 	)
 		throws Exception
 	{
-		final File partFile = new File(
-			XFiles.ensureDirectory(new File(this.recDirectory, "garbage")),
+		final Path partFile = XIO.Path(
+			XIO.ensureDirectoryUnchecked(XIO.Path(this.recDirectory, "garbage")),
 			"Garbage_" + storeFile.number() + "_@" + (address - addressBase) + "[" + length + "]"
 		);
 		writeBytes(address, length, partFile);
 	}
 	
-	private static void writeBytes(final long address, final long length, final File file) throws Exception
+	private static void writeBytes(final long address, final long length, final Path file) throws Exception
 	{
 		writeBytes(address, length, openChannel(file));
 	}
@@ -529,8 +527,8 @@ class StorageRollbacker
 
 	private RecFile createRecFile(final Long fileNumber)
 	{
-		final File file = new File(
-			XFiles.ensureDirectory(new File(this.recDirectory, "rollback")),
+		final Path file = XIO.Path(
+			XIO.ensureDirectoryUnchecked(XIO.Path(this.recDirectory, "rollback")),
 			this.recFilePrefix + fileNumber + ".dat"
 		);
 		final RecFile rf = new RecFile(fileNumber, file);
@@ -541,25 +539,19 @@ class StorageRollbacker
 
 	private StoreFile createStoreFile(final Long fileNumber)
 	{
-		final File file = new File(
-			XFiles.ensureDirectory(new File(this.recDirectory, "stores")),
+		final Path file = XIO.Path(
+			XIO.ensureDirectoryUnchecked(XIO.Path(this.recDirectory, "stores")),
 			this.storeFilePrefix + fileNumber + ".dat"
 		);
 		return new StoreFile(fileNumber, file);
 	}
 	
 
-	@SuppressWarnings("resource")
-	static FileChannel openChannel(final File file)
+	static FileChannel openChannel(final Path file)
 	{
-		try
-		{
-			return new RandomAccessFile(file, "rw").getChannel();
-		}
-		catch(final Exception e)
-		{
-			throw new Error(e);
-		}
+		return XIO.execute(() ->
+			XIO.openFileChannelRW(file)
+		);
 	}
 	
 	
@@ -567,7 +559,7 @@ class StorageRollbacker
 	{
 		final BulkList<RecEntry> recEntries = BulkList.New();
 		
-		RecFile(final Long number, final File file)
+		RecFile(final Long number, final Path file)
 		{
 			super(number, file);
 		}
@@ -644,7 +636,7 @@ class StorageRollbacker
 	{
 		final BulkList<StoreEntry> storeEntries = BulkList.New();
 		
-		StoreFile(final Long number, final File file)
+		StoreFile(final Long number, final Path file)
 		{
 			super(number, file);
 		}
@@ -654,10 +646,10 @@ class StorageRollbacker
 	static abstract class AbstractFile
 	{
 		final Long        number    ;
-		final File        file      ;
+		final Path        file      ;
 		final FileChannel fileChannel;
 
-		AbstractFile(final Long number, final File file)
+		AbstractFile(final Long number, final Path file)
 		{
 			super();
 			this.number      = number           ;
@@ -670,7 +662,7 @@ class StorageRollbacker
 			return this.number;
 		}
 		
-		public final File file()
+		public final Path file()
 		{
 			return this.file;
 		}
@@ -685,14 +677,14 @@ class StorageRollbacker
 	{
 		public Long number();
 		
-		public File file();
+		public Path file();
 		
 		public FileChannel fileChannel();
 		
 		
 		public final class Default extends AbstractFile implements SourceFile
 		{
-			Default(final Long number, final File file)
+			Default(final Long number, final Path file)
 			{
 				super(number, file);
 			}

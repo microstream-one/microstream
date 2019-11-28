@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import one.microstream.X;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.functional.XFunc;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
@@ -20,9 +20,9 @@ public class MainTestConvertCsvToBin
 	public static void main(final String[] args)
 	{
 		convertCsvToBin(
-			BinaryPersistence.provideTypeDictionaryFromFile(XPaths.Path("C:/Files/PersistenceTypeDictionary.ptd")),
-			X.List(XPaths.Path("C:/Files/export/csv/ExportTest.csv")),
-			XPaths.Path("C:/Files/export/bin2"),
+			BinaryPersistence.provideTypeDictionaryFromFile(XIO.Path("C:/Files/PersistenceTypeDictionary.ptd")),
+			X.List(XIO.Path("C:/Files/export/csv/ExportTest.csv")),
+			XIO.Path("C:/Files/export/bin2"),
 			XFunc.all()
 		);
 	}

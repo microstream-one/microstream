@@ -1390,7 +1390,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	///////////////////////
 	
 	/**
-	 * Alias for {@code this.encodeBy(XFiles.standardCharset());} for general purpose encoding, with the "standard"
+	 * Alias for {@code this.encodeBy(XChars.standardCharset());} for general purpose encoding, with the "standard"
 	 * being UTF-8 ({@link XChars#utf8()}), because any other charset is nonsense for a general case.
 	 * 
 	 * @return the character data of this instance as an UTF-8 byte array.

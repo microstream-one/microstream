@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 
 import one.microstream.concurrency.XThreads;
-import one.microstream.io.XPaths;
+import one.microstream.io.XIO;
 import one.microstream.persistence.types.PersistenceTypeDictionaryStorer;
 
 
@@ -48,7 +48,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	{
 		super(file, writeListener);
 		this.directory = file.getParent();
-		this.tdArchive = XPaths.Path(this.directory, "TypeDictionaryArchive");
+		this.tdArchive = XIO.Path(this.directory, "TypeDictionaryArchive");
 		
 		final String fileName = file.toString();
 		final int dotIndex = fileName.lastIndexOf('.');
@@ -76,8 +76,8 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 		final SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss_SSS");
 		final String fileName = this.filePrefix + sdf.format(System.currentTimeMillis()) + this.fileSuffix;
 		
-		final Path file = XPaths.Path(this.tdArchive, fileName);
-		if(XPaths.existsUnchecked(file))
+		final Path file = XIO.Path(this.tdArchive, fileName);
+		if(XIO.existsUnchecked(file))
 		{
 			// yes, it's weird, but it actually happened during testing. Multiple updates and moves per ms.
 			XThreads.sleep(1); // crucial to prevent hundreds or even thousands of retries.
@@ -89,7 +89,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	
 	private void moveCurrentFileToArchive()
 	{
-		XPaths.ensureDirectoryUnchecked(this.tdArchive);
+		XIO.ensureDirectoryUnchecked(this.tdArchive);
 		UtilPersistenceIo.move(this.file(), this.buildArchiveFile());
 	}
 	
@@ -97,7 +97,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	protected synchronized void writeTypeDictionary(final String typeDictionaryString)
 	{
 		// there is no file to be moved on the first call.
-		if(XPaths.existsUnchecked(this.file()))
+		if(XIO.existsUnchecked(this.file()))
 		{
 			this.moveCurrentFileToArchive();
 		}
