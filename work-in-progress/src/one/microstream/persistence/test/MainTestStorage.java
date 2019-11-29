@@ -1,13 +1,16 @@
 package one.microstream.persistence.test;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Date;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
+import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XEnum;
+import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.lazy.Lazy;
@@ -161,10 +164,10 @@ public class MainTestStorage extends TestStorage
 
 //		storageConnection.exportTypes(new StorageEntityTypeExportFileProvider() {
 //			@Override
-//			public File provideExportFile(final StorageEntityTypeHandler entityType)
+//			public Path provideExportFile(final StorageEntityTypeHandler entityType)
 //			{
-//				return new File(
-//					XFiles.ensureDirectory(new File("c:/Files/export/")),
+//				return XIO.Path(
+//					XIO.unchecked.ensureDirectory(XIO.Path("c:/Files/export/")),
 //					entityType.typeName()+".bin"
 //				);
 //			}
@@ -232,9 +235,11 @@ public class MainTestStorage extends TestStorage
 	{
 		final StorageConnection         connection = STORAGE.createConnection();
 		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
-			new File("C:/FilesImport/PersistenceTypeDictionary.ptd")
+			XIO.Path("C:/FilesImport/PersistenceTypeDictionary.ptd")
 		);
-		final XEnum<File>               dataFiles  = X.Enum(new File("C:/FilesImport/channel_0").listFiles())
+		final XEnum<Path>               dataFiles  = XIO.unchecked.listEntries(
+			XIO.Path("C:/FilesImport/channel_0"), HashEnum.New()
+		)
 			.sort((f1, f2) -> Long.compare(parseStorageFileNumber(f1), parseStorageFileNumber(f2)))
 		;
 
@@ -242,9 +247,9 @@ public class MainTestStorage extends TestStorage
 		connection.importFiles(dataFiles);
 	}
 
-	static long parseStorageFileNumber(final File file)
+	static long parseStorageFileNumber(final Path file)
 	{
-		final String filename = file.getName();
+		final String filename = XIO.getFileName(file);
 		return Long.valueOf(filename.substring(filename.lastIndexOf('_')+1, filename.lastIndexOf('.')));
 	}
 
@@ -421,15 +426,15 @@ public class MainTestStorage extends TestStorage
 		return array;
 	}
 
-	static void printTransactionsFiles(final File... files)
+	static void printTransactionsFiles(final Path... files)
 	{
-		for(final File file : files)
+		for(final Path file : files)
 		{
 			printTransactionsFile(file);
 		}
 	}
 
-	static void printTransactionsFile(final File file)
+	static void printTransactionsFile(final Path file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
 		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();

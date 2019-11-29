@@ -3,12 +3,12 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 import static one.microstream.chars.MemoryCharConversionUTF8.toSingleByte;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.chars.CharConversion_float;
@@ -23,8 +23,8 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.LimitList;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.files.FileException;
-import one.microstream.files.XFiles;
+import one.microstream.io.FileException;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -149,11 +149,11 @@ public interface StorageDataConverterTypeBinaryToCsv
 		// static methods //
 		///////////////////
 
-		static final FileChannel createFileChannel(final File file) throws StorageException
+		static final FileChannel createFileChannel(final Path file) throws StorageException
 		{
 			try
 			{
-				return XFiles.createWritingFileChannel(file);
+				return XIO.openFileChannelWriting(file);
 			}
 			catch(FileException | IOException e)
 			{
@@ -355,8 +355,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private void openChannel() throws IOException
 		{
 			final StorageLockedFile file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
-			final File directory = new File(file.qualifier());
-			XFiles.ensureDirectory(directory);
+			final Path directory = XIO.Path(file.qualifier());
+			XIO.unchecked.ensureDirectory(directory);
 			this.fileChannel = file.fileChannel();
 		}
 
@@ -603,7 +603,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private void reset() throws IOException
 		{
-			XFiles.closeSilent(this.fileChannel);
+			XIO.closeSilent(this.fileChannel);
 			this.typeId       =   -1;
 			this.typeDescription  = null;
 			this.valueWriters = null;

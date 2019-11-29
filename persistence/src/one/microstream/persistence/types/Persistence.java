@@ -11,7 +11,7 @@ import java.lang.reflect.TypeVariable;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,7 +35,7 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
@@ -532,7 +532,7 @@ public class Persistence
 	 */
 	public static final Charset standardCharset()
 	{
-		return StandardCharsets.UTF_8;
+		return XChars.utf8();
 	}
 	
 	public static String defaultFilenameTypeDictionary()
@@ -1003,8 +1003,16 @@ public class Persistence
 		;
 	}
 	
+	@Deprecated
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final File refactoringsFile
+	)
+	{
+		return RefactoringMapping(refactoringsFile.toPath());
+	}
+	
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+		final Path refactoringsFile
 	)
 	{
 		return RefactoringMapping(
@@ -1019,13 +1027,17 @@ public class Persistence
 		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
 	}
 	
+	@Deprecated
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final File file)
 	{
+		return readRefactoringMappings(file.toPath());
+	}
+	
+	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final Path file)
+	{
 		// (19.04.2018 TM)EXCP: proper exception
-		final String fileContent = XFiles.readStringFromFile(
-			file,
-			Persistence.standardCharset(),
-			RuntimeException::new
+		final String fileContent = XIO.unchecked(() ->
+			XIO.readString(file)
 		);
 		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
 		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());

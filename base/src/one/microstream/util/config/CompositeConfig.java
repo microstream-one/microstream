@@ -9,14 +9,15 @@ import java.util.function.Consumer;
 
 import one.microstream.chars.CsvParserCharArray;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.exceptions.IORuntimeException;
-import one.microstream.files.XFiles;
 import one.microstream.functional.Aggregator;
+import one.microstream.io.XIO;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.Substituter;
 import one.microstream.util.csv.CsvAssembler;
@@ -85,7 +86,7 @@ public class CompositeConfig
 			final char[] input;
 			try
 			{
-				input = XFiles.readCharsFromFileDefaultCharset(file);
+				input = XIO.readString(file.toPath(), XChars.defaultJvmCharset()).toCharArray();
 			}
 			catch(final IOException e)
 			{
@@ -301,7 +302,7 @@ public class CompositeConfig
 
 		try
 		{
-			XFiles.writeStringToFileDefaultCharset(file, vs.toString());
+			XIO.write(file.toPath(), vs.toString());
 		}
 		catch(final IOException e)
 		{

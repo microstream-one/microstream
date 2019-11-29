@@ -27,7 +27,7 @@ public class MainTestShutdownLockedFiles
 		System.out.println("Storage is shut down.");
 		
 		// or delete manually via OS file browser instead
-		XDebug.deleteAllFiles(storageDirectory, true);
+		XDebug.deleteAllFiles(storageDirectory.toPath(), true);
 		
 		// priv#167: not reproducible
 	}

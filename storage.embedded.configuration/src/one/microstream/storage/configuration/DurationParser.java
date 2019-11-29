@@ -80,6 +80,7 @@ public interface DurationParser
 					case "m" : return Duration.ofMinutes(amount);
 					case "h" : return Duration.ofHours(amount);
 					case "d" : return Duration.ofDays(amount);
+					default  : break; // fall through to exception
 				}
 			}
 			

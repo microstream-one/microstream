@@ -2,7 +2,9 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
+
+import one.microstream.io.XIO;
 
 
 public interface StorageEntityTypeExportFileProvider
@@ -17,7 +19,7 @@ public interface StorageEntityTypeExportFileProvider
 		// instance fields //
 		////////////////////
 
-		private final File   directory ;
+		private final Path   directory ;
 		private final String fileSuffix;
 
 		private final transient String cachedFileSuffix;
@@ -28,7 +30,7 @@ public interface StorageEntityTypeExportFileProvider
 		// constructors //
 		/////////////////
 
-		public Default(final File directory, final String fileSuffix)
+		public Default(final Path directory, final String fileSuffix)
 		{
 			super();
 			this.directory        = notNull(directory);
@@ -60,7 +62,7 @@ public interface StorageEntityTypeExportFileProvider
 		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler entityType)
 		{
 			// TypeId must be included since only that is the unique identifier of a type.
-			final File file = new File(this.directory, entityType.typeName() + "_" + entityType.typeId() + this.cachedFileSuffix);
+			final Path file = XIO.Path(this.directory, entityType.typeName() + "_" + entityType.typeId() + this.cachedFileSuffix);
 			return StorageLockedFile.openLockedFile(file);
 
 //			final VarString vs = VarString.New()

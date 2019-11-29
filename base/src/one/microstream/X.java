@@ -38,6 +38,7 @@ import one.microstream.collections.types.XReference;
 import one.microstream.collections.types.XSet;
 import one.microstream.concurrency.ThreadSafe;
 import one.microstream.exceptions.ArrayCapacityException;
+import one.microstream.exceptions.IndexBoundsException;
 import one.microstream.exceptions.WrapperRuntimeException;
 import one.microstream.functional.BooleanTerm;
 import one.microstream.functional._intIndexedSupplier;
@@ -1228,6 +1229,61 @@ public final class X
 		}
 		
 		return logic;
+	}
+		
+	public static final long validateIndex(
+		final long availableLength,
+		final long index
+	)
+		throws IndexBoundsException
+	{
+		if(index < 0)
+		{
+			throw IndexBoundsException(0, availableLength, index, "Index < 0", 1);
+		}
+		if(index >= availableLength)
+		{
+			throw IndexBoundsException(0, availableLength, index, "Index >= bound", 1);
+		}
+		
+		return index;
+	}
+	
+	public static final long validateRange(final long availableLength, final long startIndex, final long length)
+	{
+		if(startIndex < 0)
+		{
+			throw IndexBoundsException(0, availableLength, startIndex, "StartIndex < 0", 1);
+		}
+		if(startIndex >= availableLength)
+		{
+			throw IndexBoundsException(0, availableLength, startIndex, "StartIndex >= bound", 1);
+		}
+		
+		if(length < 0)
+		{
+			throw IndexBoundsException(startIndex, availableLength, length, "Length < 0", 1);
+		}
+		if(startIndex + length - 1 >= availableLength)
+		{
+			throw IndexBoundsException(0, availableLength, startIndex + length - 1, "LastIndex >= bound", 1);
+		}
+		
+		return startIndex;
+	}
+	
+	public static final IndexBoundsException IndexBoundsException(
+		final long   startIndex        ,
+		final long   indexBound        ,
+		final long   index             ,
+		final String message           ,
+		final int    stackTraceCutDepth
+	)
+	{
+		return UtilStackTrace.cutStacktraceByN(
+			new IndexBoundsException(startIndex, indexBound, index, message),
+			stackTraceCutDepth + 1
+		);
 	}
 
 	

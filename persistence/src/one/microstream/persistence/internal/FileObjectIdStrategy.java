@@ -2,8 +2,9 @@ package one.microstream.persistence.internal;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
 
+import one.microstream.io.XIO;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceObjectIdStrategy;
 
@@ -33,7 +34,7 @@ public final class FileObjectIdStrategy implements PersistenceObjectIdStrategy
 		return "ObjectId.oid";
 	}
 	
-	public static FileObjectIdStrategy NewInDirectory(final File directory)
+	public static FileObjectIdStrategy NewInDirectory(final Path directory)
 	{
 		return New(
 			directory        ,
@@ -41,15 +42,15 @@ public final class FileObjectIdStrategy implements PersistenceObjectIdStrategy
 		);
 	}
 	
-	public static FileObjectIdStrategy New(final File directory, final String objectIdFilename)
+	public static FileObjectIdStrategy New(final Path directory, final String objectIdFilename)
 	{
 		return new FileObjectIdStrategy(
-			new File(directory, objectIdFilename)
+			XIO.Path(directory, objectIdFilename)
 		);
 	}
 	
 	
-	public static FileObjectIdStrategy New(final File objectIdFile)
+	public static FileObjectIdStrategy New(final Path objectIdFile)
 	{
 		return new FileObjectIdStrategy(
 			notNull(objectIdFile)
@@ -62,7 +63,7 @@ public final class FileObjectIdStrategy implements PersistenceObjectIdStrategy
 	// instance fields //
 	////////////////////
 	
-	private final File objectIdFile;
+	private final Path objectIdFile;
 	
 	
 	
@@ -70,7 +71,7 @@ public final class FileObjectIdStrategy implements PersistenceObjectIdStrategy
 	// constructors //
 	/////////////////
 
-	FileObjectIdStrategy(final File objectIdFile)
+	FileObjectIdStrategy(final Path objectIdFile)
 	{
 		super();
 		this.objectIdFile = objectIdFile;

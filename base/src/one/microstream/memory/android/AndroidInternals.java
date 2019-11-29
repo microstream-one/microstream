@@ -64,6 +64,26 @@ public class AndroidInternals
 	/*
 	 * See android libcore class DirectByteBuffer, method public final void free().
 	 * https://android.googlesource.com/platform/libcore/+/f33eae7e84eb6d3b0f4e86b59605bb3de73009f3/luni/src/main/java/java/nio/DirectByteBuffer.java#280
+	 * 
+	 * (22.11.2019 TM)NOTE:
+	 * This only works on certain Android versions. In others, a "Cleaner" instance similar to the JDK
+	 * implementation is used. I currently don't even know which ones are newer and which are older.
+	 * A proper research and case distinction implementation would be required here.
+	 * However, since the whole reason for the explicit deallocation logic is more based on a server use case
+	 * and might not ever happen on Android at all AND given that it works (should work?) at least on some android
+	 * versions and given the very low priority that results from all that, this distinction is currently not made.
+	 * 
+	 * See
+	 * http://stackoverflow.com/questions/8462200/examples-of-forcing-freeing-of-native-memory-direct-bytebuffer-has-allocated-us
+	 * In short:
+	 * A server application with very low heap consumption but very high off-heap consumtion could run for hours without
+	 * a JVM GC ever being called. So the DBBs would never get collected, their allocated off-heap memory never freed.
+	 * The JDK geniuses simply forgot the most basic rule of memory handling: if you can allocate memory explicitely,
+	 * you MUST have a way to deallocate it explicitely, as well.
+	 * But for an Android app, such a scenario is very unlikely, so it is hardly important.
+	 * 
+	 * The lookup and usage of the #free method is done in such a fashion that they never throw an exception.
+	 * So if the #free method is not present on a Android version, the deallocation method simply does nothing.
 	 */
 	static final String METHOD_NAME_DirectByteBuffer_free = "free"; // just switch to "address" to test with JDK.
 	

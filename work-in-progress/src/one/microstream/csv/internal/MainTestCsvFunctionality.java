@@ -1,11 +1,12 @@
 package one.microstream.csv.internal;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import one.microstream.chars.StringTable;
+import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.csv.CsvContent;
 import one.microstream.util.csv.CsvContentBuilderCharArray;
@@ -25,7 +26,7 @@ public class MainTestCsvFunctionality
 
 	static final CsvContentBuilderCharArray BUILDER = CsvContentBuilderCharArray.New();
 
-	static final File     DIR   = new File("D:/xcsv/");
+	static final Path     DIR   = XIO.Path("D:/xcsv/");
 	static final String[] FILES = {
 		"xcsv_sample_01.xcsv",
 		"xcsv_sample_02.xcsv",
@@ -46,21 +47,21 @@ public class MainTestCsvFunctionality
 	{
 		for(final String file : FILES)
 		{
-			parseXCsv(new File(DIR, file));
+			parseXCsv(XIO.Path(DIR, file));
 		}
 	}
 
-	static final void parseXCsv(final File xcsv) throws IOException
+	static final void parseXCsv(final Path xcsv) throws IOException
 	{
 		System.out.println("||||||||||||||||||||");
 		System.out.println(xcsv);
 		System.out.println("||||||||||||||||||||");
-		final char[] input = XFiles.readCharsFromFileDefaultCharset(xcsv);
+		final char[] input = XIO.readString(xcsv, XChars.defaultJvmCharset()).toCharArray();
 
 		for(int i = 1; i --> 0;)
 		{
 			final long tStart = System.nanoTime();
-			final CsvContent tables = BUILDER.build(xcsv.getName(), _charArrayRange.New(input));
+			final CsvContent tables = BUILDER.build(XIO.getFileName(xcsv), _charArrayRange.New(input));
 			final long tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 

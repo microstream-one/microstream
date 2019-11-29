@@ -6,8 +6,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import one.microstream.memory.XMemory;
+import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
-import one.microstream.files.XFiles;
 
 public interface ComConnectionHandler<C>
 {
@@ -173,7 +173,7 @@ public interface ComConnectionHandler<C>
 			
 			// buffer position must be reset for the decoder to see the bytes
 			lengthBuffer.position(0);
-			final String lengthDigits = XFiles.standardCharset().decode(lengthBuffer).toString();
+			final String lengthDigits = XChars.standardCharset().decode(lengthBuffer).toString();
 			final int    length       = Integer.parseInt(lengthDigits);
 			
 			final ByteBuffer protocolBuffer = XMemory.allocateDirectNative(length - this.protocolLengthDigitCount);
@@ -181,7 +181,7 @@ public interface ComConnectionHandler<C>
 			
 			// buffer position must be reset to after the separator for the decoder to see the bytes
 			protocolBuffer.position(1);
-			final char[] protocolChars = XFiles.standardCharset().decode(protocolBuffer).array();
+			final char[] protocolChars = XChars.standardCharset().decode(protocolBuffer).array();
 			
 			return stringConverter.parse(_charArrayRange.New(protocolChars));
 		}

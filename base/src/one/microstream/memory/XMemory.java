@@ -1020,6 +1020,53 @@ public final class XMemory
 		return allocateDirectNative(XMemory.defaultBufferSize());
 	}
 	
+	// another episode of "They couldn't even implement the most basic functionality."
+	public static final byte[] toArray(final ByteBuffer source)
+	{
+		final int currentSourcePosition = source.position();
+		
+		final byte[] bytes = new byte[source.remaining()];
+		source.get(bytes, 0, bytes.length);
+		
+		// why would a querying methode intrinsically increase the position? WHY?
+		source.position(currentSourcePosition);
+		
+		return bytes;
+	}
+	
+	public static final byte[] toArray(final ByteBuffer source, final int position, final int length)
+	{
+		final long plState = getPositionLimit(source);
+		setPositionLimit(source, position, position + length);
+		
+		final byte[] bytes = new byte[length];
+		source.get(bytes, 0, length);
+		
+		// why would a querying methode intrinsically increase the position? WHY?
+		setPositionLimit(source, plState);
+		
+		return bytes;
+	}
+	
+	public static final long getPositionLimit(final ByteBuffer buffer)
+	{
+		return ((long)buffer.position() << Integer.SIZE) + buffer.limit();
+	}
+	
+	public static final ByteBuffer setPositionLimit(final ByteBuffer buffer, final long positionLimit)
+	{
+		return setPositionLimit(buffer, (int)(positionLimit >>> Integer.SIZE), (int)positionLimit);
+	}
+	
+	public static final ByteBuffer setPositionLimit(final ByteBuffer buffer, final int position, final int limit)
+	{
+		// must set limit first because position is validated against it!
+		buffer.limit(limit);
+		buffer.position(position);
+		
+		return buffer;
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////

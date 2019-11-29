@@ -2,7 +2,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
 
 public interface StorageBackupSetup
 {
@@ -32,11 +32,11 @@ public interface StorageBackupSetup
 	 * @see StorageBackupSetup#New(StorageFileProvider)
 	 * @see StorageBackupHandler
 	 */
-	public static StorageBackupSetup New(final File backupDirectory)
+	public static StorageBackupSetup New(final Path backupDirectory)
 	{
 		final StorageFileProvider backupFileProvider = Storage
 			.FileProviderBuilder()
-			.setBaseDirectory(backupDirectory.getPath())
+			.setBaseDirectory(backupDirectory.toString())
 			.createFileProvider()
 		;
 		return New(backupFileProvider);
@@ -52,7 +52,7 @@ public interface StorageBackupSetup
 	 * 
 	 * @return a new {@link StorageBackupSetup} instance.
 	 * 
-	 * @see StorageBackupSetup#New(File)
+	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupHandler
 	 */
 	public static StorageBackupSetup New(final StorageFileProvider backupFileProvider)

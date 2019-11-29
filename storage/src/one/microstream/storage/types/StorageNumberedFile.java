@@ -2,11 +2,12 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Path;
 
+import one.microstream.io.XIO;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
 public interface StorageNumberedFile extends StorageChannelFile
@@ -27,7 +28,7 @@ public interface StorageNumberedFile extends StorageChannelFile
 	
 	
 	
-	public static StorageNumberedFile New(final int channelIndex, final long number, final File file)
+	public static StorageNumberedFile New(final int channelIndex, final long number, final Path file)
 	{
 		return new StorageNumberedFile.Default(
 			channelIndex ,
@@ -44,7 +45,7 @@ public interface StorageNumberedFile extends StorageChannelFile
 
 		final int      channelIndex;
 		final long     number      ;
-		final File     file        ;
+		final Path     file        ;
 	          FileLock lock        ;
 
 	          
@@ -53,7 +54,7 @@ public interface StorageNumberedFile extends StorageChannelFile
 		// constructors //
 		/////////////////
 
-		Default(final int channelIndex, final long number, final File file)
+		Default(final int channelIndex, final long number, final Path file)
 		{
 			super();
 			this.channelIndex = channelIndex;
@@ -84,7 +85,7 @@ public interface StorageNumberedFile extends StorageChannelFile
 			return this.number;
 		}
 		
-		public final File file()
+		public final Path file()
 		{
 			return this.file;
 		}
@@ -92,31 +93,31 @@ public interface StorageNumberedFile extends StorageChannelFile
 		@Override
 		public final String qualifier()
 		{
-			return this.file.getParent();
+			return XIO.getFilePath(this.file.getParent());
 		}
 		
 		@Override
 		public final String identifier()
 		{
-			return this.file.getPath();
+			return XIO.getFilePath(this.file);
 		}
 		
 		@Override
 		public final String name()
 		{
-			return this.file.getName();
+			return XIO.getFileName(this.file);
 		}
 		
 		@Override
 		public final boolean delete()
 		{
-			return this.file.delete();
+			return XIO.unchecked.delete(this.file);
 		}
 		
 		@Override
 		public final boolean exists()
 		{
-			return this.file.exists();
+			return XIO.unchecked.exists(this.file);
 		}
 		
 		@Override
@@ -151,7 +152,7 @@ public interface StorageNumberedFile extends StorageChannelFile
 				throw new RuntimeException();
 			}
 			
-			return this.file.length();
+			return XIO.unchecked.size(this.file);
 		}
 		
 		@Override

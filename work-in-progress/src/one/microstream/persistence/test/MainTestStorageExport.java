@@ -10,13 +10,13 @@ import static one.microstream.X.longs;
 import static one.microstream.X.shorts;
 import static one.microstream.X.strings;
 
-import java.io.File;
 import java.math.BigInteger;
+import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XSequence;
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageConnection;
 
 
@@ -65,15 +65,15 @@ public class MainTestStorageExport extends TestStorage
 
 	static void testExport()
 	{
-		final File directory = XFiles.ensureDirectory(new File("C:/Files/export/bin"));
+		final Path directory = XIO.unchecked.ensureDirectory(XIO.Path("C:/Files/export/bin"));
 		
 		final StorageConnection storageConnection = STORAGE.createConnection();
-		final XSequence<File> exportFiles = exportTypes(
+		final XSequence<Path> exportFiles = exportTypes(
 			storageConnection,
 			directory,
 			"dat"
 		);
-		convertBinToCsv(exportFiles, file -> file.getName().endsWith(".dat"));
+		convertBinToCsv(exportFiles, file -> XIO.getFileName(file).endsWith(".dat"));
 	}
 }
 
