@@ -13,7 +13,6 @@ import one.microstream.X;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.exceptions.ArrayCapacityException;
-import one.microstream.files.XFiles;
 import one.microstream.functional._charProcedure;
 import one.microstream.math.XMath;
 
@@ -1391,15 +1390,15 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	///////////////////////
 	
 	/**
-	 * Alias for {@code this.encodeBy(XFiles.standardCharset());} for general purpose encoding, with the "standard"
-	 * being UTF-8 ({@link XFiles#utf8()}), because any other charset is nonsense for a general case.
+	 * Alias for {@code this.encodeBy(XChars.standardCharset());} for general purpose encoding, with the "standard"
+	 * being UTF-8 ({@link XChars#utf8()}), because any other charset is nonsense for a general case.
 	 * 
 	 * @return the character data of this instance as an UTF-8 byte array.
 	 * @see #encodeBy(Charset)
 	 */
 	public final byte[] encode()
 	{
-		return this.encodeBy(XFiles.standardCharset());
+		return this.encodeBy(XChars.standardCharset());
 	}
 	
 	public final byte[] encodeBy(final Charset charset)

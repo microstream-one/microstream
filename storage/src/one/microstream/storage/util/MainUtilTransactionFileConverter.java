@@ -1,12 +1,12 @@
 package one.microstream.storage.util;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import one.microstream.chars.VarString;
 import one.microstream.collections.XArrays;
 import one.microstream.concurrency.XThreads;
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis;
 
 public class MainUtilTransactionFileConverter
@@ -20,8 +20,8 @@ public class MainUtilTransactionFileConverter
 			System.exit(-1);
 		}
 		
-		final File file = new File(args[0]);
-		if(!file.exists())
+		final Path file = XIO.Path(args[0]);
+		if(!XIO.unchecked.exists(file))
 		{
 			System.out.println("File not found: " + args[0]);
 			XThreads.sleep(1000);
@@ -35,12 +35,12 @@ public class MainUtilTransactionFileConverter
 		final String result = s.toString();
 		System.out.println("Converted String length: " + result.length());
 		
-		final File outputFile = new File(file.getParentFile(), file.getName() + ".txt");
+		final Path outputFile = XIO.Path(file.getParent(), XIO.getFileName(file) + ".txt");
 		System.out.println("Writing File " + outputFile);
 		
 		try
 		{
-			XFiles.writeStringToFile(outputFile, result);
+			XIO.write(outputFile, result);
 		}
 		catch(final IOException e)
 		{

@@ -1,9 +1,10 @@
 package one.microstream.persistence.test;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.functional.XFunc;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
 import one.microstream.storage.types.StorageDataConverterTypeBinaryToCsv;
 import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
@@ -12,29 +13,29 @@ import one.microstream.storage.types.StorageLockedFile;
 @SuppressWarnings("unused")
 public class MainTestConvertTwice extends TestStorage
 {
-	static final File   dir      = new File("D:/zStorageConversionBug");
+	static final Path   dir      = XIO.Path("D:/zStorageConversionBug");
 	static final String filename = "java.lang.String";
 
 	public static void main(final String[] args)
 	{
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
-			new StorageEntityTypeConversionFileProvider.Default(new File(dir, "csv"), "csv"),
+			new StorageEntityTypeConversionFileProvider.Default(XIO.Path(dir, "csv"), "csv"),
 			STORAGE.typeDictionary(),
 			null,
 			4096,
 			4096
 		);
 		final StorageLockedFile file = StorageLockedFile.openLockedFile(
-			new File(new File(dir, "bin"), filename + ".dat")
+			XIO.Path(XIO.Path(dir, "bin"), filename + ".dat")
 		);
 		converter.convertDataFile(file);
 
 
-		final File bin2Dir = MainTestConvertCsvToBin.convertCsvToBin(
+		final Path bin2Dir = MainTestConvertCsvToBin.convertCsvToBin(
 			STORAGE.typeDictionary(),
-			X.List(new File(new File(dir, "csv"), filename + ".csv")),
-			new File(dir, "bin2"),
+			X.List(XIO.Path(XIO.Path(dir, "csv"), filename + ".csv")),
+			XIO.Path(dir, "bin2"),
 			XFunc.all()
 		);
 	}

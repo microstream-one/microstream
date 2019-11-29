@@ -70,6 +70,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private final StorageGCZombieOidHandler          zombieOidHandler  ;
 		private final StorageRootOidSelector             rootOidSelector   ;
 		private final RootEntityRootOidSelectionIterator rootEntityIterator;
+		private final StorageEventLogger                 eventLogger       ;
 
 		// currently only used for entity iteration
 		private       StorageFileManager.Default         fileManager       ; // pseudo-final
@@ -112,6 +113,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageRootOidSelector      rootOidSelector    ,
 			final long                        rootTypeId         ,
 			final StorageobjectIdMarkQueue    oidMarkQueue       ,
+			final StorageEventLogger          eventLogger        ,
 			final int                         markingBufferLength,
 			final long                        markingWaitTimeMs
 		)
@@ -131,6 +133,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.markingOidBuffer     = new long[markingBufferLength];
 			this.rootEntityIterator   = new RootEntityRootOidSelectionIterator(rootOidSelector);
 			this.typeHead             = new StorageEntityType.Default(this.channelIndex);
+			this.eventLogger          = eventLogger;
 			this.initializeState();
 			this.referenceMarker      = markMonitor.provideReferenceMarker(this);
 		}
@@ -887,7 +890,11 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				// externalized/modularized zombie oid handling
 				if(entry == null)
 				{
-					this.zombieOidHandler.handleZombieOid(oidsBuffer[oidsMarkIndex - 1]);
+					if(!this.zombieOidHandler.handleZombieOid(oidsBuffer[oidsMarkIndex - 1]))
+					{
+						// if the handler didn't throw an exception but didn't say it's handled, either, then log it.
+						this.eventLogger.logGarbageCollectorEncounteredZombieObjectId(oidsBuffer[oidsMarkIndex - 1]);
+					}
 					continue;
 				}
 				
@@ -1188,8 +1195,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			if(this.usedCacheSize == 0)
 			{
 				this.resetLiveCursor();
-
-				DebugStorage.println(this.channelIndex + " completed live check.");
+				
+				this.eventLogger.logLiveCheckComplete(this);
 
 				// report live check completed
 				return true;

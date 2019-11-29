@@ -1,11 +1,12 @@
 package one.microstream.persistence.test;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.functional.XFunc;
+import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
@@ -19,18 +20,18 @@ public class MainTestConvertCsvToBin
 	public static void main(final String[] args)
 	{
 		convertCsvToBin(
-			BinaryPersistence.provideTypeDictionaryFromFile(new File("C:/Files/PersistenceTypeDictionary.ptd")),
-			X.List(new File("C:/Files/export/csv/ExportTest.csv")),
-			new File("C:/Files/export/bin2"),
+			BinaryPersistence.provideTypeDictionaryFromFile(XIO.Path("C:/Files/PersistenceTypeDictionary.ptd")),
+			X.List(XIO.Path("C:/Files/export/csv/ExportTest.csv")),
+			XIO.Path("C:/Files/export/bin2"),
 			XFunc.all()
 		);
 	}
 
-	static File convertCsvToBin(
+	static Path convertCsvToBin(
 		final PersistenceTypeDictionary typeDictionary ,
-		final XGettingCollection<File>  binaryFiles    ,
-		final File                      targetDirectory,
-		final Predicate<? super File>   filter
+		final XGettingCollection<Path>  binaryFiles    ,
+		final Path                      targetDirectory,
+		final Predicate<? super Path>   filter
 	)
 	{
 		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
@@ -41,7 +42,7 @@ public class MainTestConvertCsvToBin
 			)
 		);
 		
-		for(final File file : binaryFiles)
+		for(final Path file : binaryFiles)
 		{
 			if(!filter.test(file))
 			{

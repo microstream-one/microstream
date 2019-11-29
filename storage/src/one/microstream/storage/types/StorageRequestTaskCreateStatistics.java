@@ -1,13 +1,13 @@
 package one.microstream.storage.types;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.function.Supplier;
 
 import one.microstream.collections.XUtilsCollection;
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.storage.exceptions.StorageExceptionExportFailed;
 import one.microstream.time.XTime;
 
@@ -109,7 +109,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 
 		        final    int                      channelCount  ;
 		        final    StorageEntityTypeHandler type          ;
-		        final    File                     file          ;
+		        final    Path                     file          ;
 		private volatile int                      currentChannel;
 		private volatile FileChannel              channel       ;
 
@@ -119,7 +119,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		ExportItem(final int channelCount, final StorageEntityTypeHandler type, final File file)
+		ExportItem(final int channelCount, final StorageEntityTypeHandler type, final Path file)
 		{
 			super();
 			this.channelCount = channelCount;
@@ -160,7 +160,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 			{
 				try
 				{
-					this.channel = XFiles.createWritingFileChannel(this.file);
+					this.channel = XIO.openFileChannelWriting(this.file);
 				}
 				catch(final IOException e)
 				{

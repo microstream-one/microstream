@@ -1,30 +1,30 @@
 package one.microstream.util;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
-import one.microstream.files.XFiles;
 import one.microstream.functional.TriConsumer;
+import one.microstream.io.XIO;
 
 public class MainSearchStringInFiles
 {
-	static final BiConsumer<File, Consumer<? super File>> LOGGING = (f, p) ->
+	static final BiConsumer<Path, Consumer<? super Path>> LOGGING = (f, p) ->
 	{
 		System.out.println("Processing "+f);
 		p.accept(f);
 		System.out.println(" * done processing "+f);
 	};
 
-	static final BiConsumer<File, Consumer<? super File>> DIRECT = (f, p) -> p.accept(f);
+	static final BiConsumer<Path, Consumer<? super Path>> DIRECT = (f, p) -> p.accept(f);
 
 	public static void main(final String[] args) throws Exception
 	{
 		searchStringsInFiles(DIRECT,
-			new File("C:/BonusExportTest_2017-06-28_16-13-47.581/csv").listFiles(),
+			XIO.listEntries(XIO.Path("C:/BonusExportTest_2017-06-28_16-13-47.581/csv")),
 			MainSearchStringInFiles::printOid,
 			
 //			"1000000000056176168" // KeyAhVlUSt$Default
@@ -41,9 +41,9 @@ public class MainSearchStringInFiles
 	}
 
 
-	static String[] loadIds(final File file, final String separator) throws Exception
+	static String[] loadIds(final Path file, final String separator) throws Exception
 	{
-		final String fileContent = XFiles.readStringFromFileDefaultCharset(file);
+		final String fileContent = XIO.readString(file, XChars.defaultJvmCharset());
 
 		final String[] parts = fileContent.split(separator);
 
@@ -67,13 +67,13 @@ public class MainSearchStringInFiles
 	}
 
 
-	static void searchStringsInFiles(final File[] files, final String... strings)
+	static void searchStringsInFiles(final Path[] files, final String... strings)
 	{
 		searchStringsInFiles(files, null, strings);
 	}
 	
 	static void searchStringsInFiles(
-		final File[]                                files        ,
+		final Path[]                                files        ,
 		final TriConsumer<String, Integer, Integer> matchCallback,
 		final String...                             strings
 	)
@@ -82,14 +82,14 @@ public class MainSearchStringInFiles
 	}
 
 	static void searchStringsInFiles(
-		final BiConsumer<File, Consumer<? super File>> logic        ,
-		final File[]                                    files        ,
+		final BiConsumer<Path, Consumer<? super Path>> logic        ,
+		final Path[]                                    files        ,
 		final TriConsumer<String, Integer, Integer>     matchCallback,
 		final String...                                 strings
 	)
 	{
 		final long tStart = System.nanoTime();
-		for(final File f : files)
+		for(final Path f : files)
 		{
 			logic.accept(f, file -> searchStringsInFile(file, matchCallback, strings));
 			System.gc();
@@ -99,7 +99,7 @@ public class MainSearchStringInFiles
 	}
 
 	static void searchStringsInFile(
-		final File                                  f            ,
+		final Path                                  f            ,
 		final TriConsumer<String, Integer, Integer> matchCallback,
 		final String...                             strings
 	)
@@ -107,7 +107,7 @@ public class MainSearchStringInFiles
 	{
 		try
 		{
-			final String fileContent = XFiles.readStringFromFileDefaultCharset(f);
+			final String fileContent = XIO.readString(f, XChars.defaultJvmCharset());
 			for(final String s : strings)
 			{
 				final int index = fileContent.indexOf(s);

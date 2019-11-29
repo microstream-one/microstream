@@ -2,7 +2,6 @@ package one.microstream.meta;
 
 import static one.microstream.time.XTime.now;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
@@ -23,7 +22,8 @@ import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.concurrency.XThreads;
-import one.microstream.files.XFiles;
+import one.microstream.exceptions.IORuntimeException;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
@@ -435,21 +435,21 @@ public final class XDebug
 		System.out.println(vs);
 	}
 	
-	public static void resetDirecory(final File target, final File source, final boolean output) throws IOException
+	public static void resetDirecory(final Path target, final Path source, final boolean output) throws IOException
 	{
 		deleteAllFiles(target, output);
 		copyFile(source, source, target);
 	}
 
-	public static final void deleteAllFiles(final File directory, final boolean output)
+	public static final void deleteAllFiles(final Path directory, final boolean output)
 	{
-		if(!directory.exists())
+		if(!XIO.unchecked.exists(directory))
 		{
 			return;
 		}
-		for(final File f : directory.listFiles())
+		XIO.unchecked.iterateEntries(directory, f ->
 		{
-			if(f.isDirectory())
+			if(XIO.unchecked.isDirectory(f))
 			{
 				deleteAllFiles(f, output);
 			}
@@ -459,19 +459,18 @@ public final class XDebug
 				{
 					println("Deleting " + f);
 				}
-				Files.deleteIfExists(f.toPath());
+				Files.deleteIfExists(f);
 			}
 			catch(final Exception e)
 			{
 				throw new RuntimeException("Cannot delete file: " + f, e);
 			}
-		}
-
+		});
 	}
 
-	public static void copyFile(final File sourceRoot, final File subject, final File targetRoot) throws IOException
+	public static void copyFile(final Path sourceRoot, final Path subject, final Path targetRoot) throws IOException
 	{
-		if(subject.isDirectory())
+		if(XIO.unchecked.isDirectory(subject))
 		{
 			copyDirectory(sourceRoot, subject, targetRoot);
 		}
@@ -481,24 +480,44 @@ public final class XDebug
 		}
 	}
 
-	public static void copyDirectory(final File sourceRoot, final File subject, final File targetRoot) throws IOException
+	public static void copyDirectory(
+		final Path sourceRoot,
+		final Path subject   ,
+		final Path targetRoot
+	)
+		throws IOException
 	{
-		for(final File file : subject.listFiles())
+		try
 		{
-			copyFile(sourceRoot, file, targetRoot);
+			XIO.unchecked.iterateEntries(targetRoot, file ->
+			{
+				try
+				{
+					copyFile(sourceRoot, file, targetRoot);
+				}
+				catch(final IOException e)
+				{
+					throw new IORuntimeException(e);
+				}
+			});
+		}
+		catch(final IORuntimeException e)
+		{
+			// this is a joke. Damned checked exceptions.
+			throw e.getActual();
 		}
 	}
 
-	public static void copyActualFile(final File sourceRoot, final File subject, final File targetRoot) throws IOException
+	public static void copyActualFile(final Path sourceRoot, final Path subject, final Path targetRoot) throws IOException
 	{
-		final String sourceRootPath = sourceRoot.getAbsolutePath();
-		final String subjectPath    = subject.getAbsolutePath();
-		final File   targetFile     = new File(targetRoot, subjectPath.substring(sourceRootPath.length()));
+		final String sourceRootPath = sourceRoot.toAbsolutePath().normalize().toString();
+		final String subjectPath    = subject.toAbsolutePath().normalize().toString();
+		final Path   targetFile     = XIO.Path(targetRoot, subjectPath.substring(sourceRootPath.length()));
 
-		XFiles.ensureDirectoryAndFile(targetFile);
+		XIO.ensureDirectoryAndFile(targetFile);
 
-		final Path sourcePath      = subject.toPath();
-		final Path destinationPath = targetFile.toPath();
+		final Path sourcePath      = subject;
+		final Path destinationPath = targetFile;
 
 		Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 	}

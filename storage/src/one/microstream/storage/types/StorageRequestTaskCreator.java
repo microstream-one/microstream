@@ -2,7 +2,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.function.Predicate;
 
 import one.microstream.collections.types.XGettingEnum;
@@ -61,7 +61,7 @@ public interface StorageRequestTaskCreator
 		int                           channelCount          ,
 		StorageDataFileEvaluator      fileEvaluator         ,
 		StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
-		XGettingEnum<File>            importFiles
+		XGettingEnum<Path>            importFiles
 	);
 
 	public StorageChannelTaskShutdown createShutdownTask(
@@ -230,9 +230,9 @@ public interface StorageRequestTaskCreator
 		@Override
 		public StorageRequestTaskImportData createImportFromFilesTask(
 			final int                           channelCount          ,
-			final StorageDataFileEvaluator          fileEvaluator         ,
+			final StorageDataFileEvaluator      fileEvaluator         ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
-			final XGettingEnum<File>            importFiles
+			final XGettingEnum<Path>            importFiles
 		)
 		{
 			return new StorageRequestTaskImportData.Default(

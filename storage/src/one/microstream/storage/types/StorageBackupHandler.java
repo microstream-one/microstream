@@ -2,13 +2,14 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 
 import one.microstream.X;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
+import one.microstream.io.XIO;
 import one.microstream.persistence.internal.UtilPersistenceIo;
 import one.microstream.storage.exceptions.StorageExceptionBackupCopying;
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
@@ -366,8 +367,8 @@ public interface StorageBackupHandler extends Runnable
 			}
 			
 			final String movedTargetFileName = this.createDeletionFileName(backupTransactionFile);
-			final File actualTargetFile = new File(deletionTargetFile.qualifier(), movedTargetFileName) ;
-			UtilPersistenceIo.move(new File(backupTransactionFile.identifier()), actualTargetFile);
+			final Path actualTargetFile = XIO.Path(deletionTargetFile.qualifier(), movedTargetFileName) ;
+			UtilPersistenceIo.move(XIO.Path(backupTransactionFile.identifier()), actualTargetFile);
 		}
 		
 		private String createDeletionFileName(final StorageBackupFile backupTransactionFile)

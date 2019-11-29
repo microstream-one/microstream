@@ -2,7 +2,6 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -18,8 +17,8 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.files.XFiles;
 import one.microstream.functional._charRangeProcedure;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -1075,31 +1074,29 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		final void parseCurrentFile()
 		{
-			final char[] input = XFiles.readCharsFromFileUtf8(
-				new File(this.sourceFile.identifier()),
-				/* (18.09.2018 TM)TODO: unchecked throwing really necessary?
-				 * Copied from StorageRequestTaskImportData#internalProcessBy:
-				 * if it is a normal problem, there should be a proper wrapping exception for it
-				 * instead of hacking the JVM.
-				 */
-				e -> handleIoException(e)
-			);
+			/* (18.09.2018 TM)TODO: unchecked exception really necessary?
+			 * Copied from StorageRequestTaskImportData#internalProcessBy:
+			 * if it is a normal problem, there should be a proper wrapping exception for it
+			 * instead of hacking the JVM.
+			 */
+			final char[] input = XIO.unchecked(()->
+				XIO.readString(
+					XIO.Path(this.sourceFile.identifier()),
+					XChars.utf8()
+				)
+			).toCharArray();
+						
 			final CsvParserCharArray parser = CsvParserCharArray.New();
 			parser.parseCsvData(this.configuration.csvConfiguration(), _charArrayRange.New(input), this, this);
 		}
 		
-		static final void handleIoException(final IOException e)
-		{
-			throw new RuntimeException(e);
-		}
-
 		final void clearCurrentFileState()
 		{
 			// flush buffer to be sure. Unnecessary case gets checked inside
 			this.flushBuffer();
 
 			StorageFile.closeSilent(this.targetFile);
-			XFiles.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
+			XIO.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
 
 			this.sourceFile            = null;
 			this.targetFile            = null;
@@ -1547,7 +1544,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 			catch(final IOException e)
 			{
-				XFiles.closeSilent(this.targetFileChannel);
+				XIO.closeSilent(this.targetFileChannel);
 				throw new RuntimeException(e); // (15.10.2014 TM)EXCP: proper exception
 			}
 			finally

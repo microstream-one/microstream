@@ -2,11 +2,11 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -15,6 +15,7 @@ import one.microstream.collections.ConstList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 
 public interface StorageTransactionsFileAnalysis
@@ -371,23 +372,24 @@ public interface StorageTransactionsFileAnalysis
 			}
 		}
 
-		public static VarString parseFile(final File file)
+		public static VarString parseFile(final Path file)
 		{
 			return parseFile(file, VarString.New());
 		}
 
-		public static VarString parseFile(final File file, final VarString vs)
+		public static VarString parseFile(final Path file, final VarString vs)
 		{
-			if(!file.exists())
-			{
-				return vs;
-			}
-			
 			      FileLock    lock    = null;
 			final FileChannel channel = null;
 			try
 			{
+				if(!XIO.exists(file))
+				{
+					return vs;
+				}
+				
 				lock = StorageLockedFile.openLockedFileChannel(file);
+				
 				return parseFile(lock.channel(), vs);
 			}
 			catch(final IOException e)
@@ -589,6 +591,13 @@ public interface StorageTransactionsFileAnalysis
 			{
 				return false;
 			}
+			
+			// (26.11.2019 TM)NOTE: ultra makeshift solution to narrow down giant transaction logs
+//			if(Storage.millisecondsToSeconds(Logic.getEntryTimestamp(address)) < 1574031600000L)
+//			{
+//				return true;
+//			}
+			
 			this.vs
 			.add(StorageTransactionsFile.EntryType.DATA_STORE.typeName()).tab();
 			this.addCommonTimestampPart(address);
@@ -607,6 +616,13 @@ public interface StorageTransactionsFileAnalysis
 			{
 				return false;
 			}
+
+			// (26.11.2019 TM)NOTE: ultra makeshift solution to narrow down giant transaction logs
+//			if(Storage.millisecondsToSeconds(Logic.getEntryTimestamp(address)) < 1574031600000L)
+//			{
+//				return true;
+//			}
+			
 			this.vs
 			.add(StorageTransactionsFile.EntryType.DATA_TRANSFER.typeName()).tab();
 			this.addCommonTimestampPart(address);

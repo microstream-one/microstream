@@ -1019,14 +1019,12 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		final int targetLimit = determineActualCopyLimit(targetBound, targetBuffer);
 		
 		XArrays.validateRange0toUpperBound(targetLimit, targetPosition, intLength);
-		
-		// store both buffers' current navigational state to restore them later (badly designed concerns mix in BBs)
-		final int targetBufferCurrentPosition = targetBuffer.position();
-		final int targetBufferCurrentLimit    = targetBuffer.limit();
 
-		// restore buffer navigational states
-		targetBuffer.limit(targetPosition + intLength);
-		targetBuffer.position(targetPosition);
+		// store both buffer current navigational state to restore them later (badly designed concerns mix in BBs)
+		final long targetCurrentPosLim = XMemory.getPositionLimit(targetBuffer);
+
+		// prepare buffer navigational states
+		XMemory.setPositionLimit(targetBuffer, targetPosition, targetPosition + intLength);
 		
 		final int bound = targetPosition + intLength;
 		
@@ -1037,8 +1035,7 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		}
 
 		// restore buffer navigational states in case they are used by external logic (badly designed concerns mix in BBs)
-		targetBuffer.limit   (targetBufferCurrentLimit);
-		targetBuffer.position(targetBufferCurrentPosition);
+		XMemory.setPositionLimit(targetBuffer, targetCurrentPosLim);
 	}
 	
 	
@@ -1484,26 +1481,20 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 			return;
 		}
 		
-		// store both buffer current navigational states to restore them later (badly designed concerns mix in BBs)
-		final int sourceBufferCurrentPosition = sourceBuffer.position();
-		final int sourceBufferCurrentLimit    = sourceBuffer.limit();
-		final int targetBufferCurrentPosition = targetBuffer.position();
-		final int targetBufferCurrentLimit    = targetBuffer.limit();
+		// store both buffer current navigational state to restore them later (badly designed concerns mix in BBs)
+		final long sourceCurrentPosLim = XMemory.getPositionLimit(sourceBuffer);
+		final long targetCurrentPosLim = XMemory.getPositionLimit(targetBuffer);
 
-		// restore buffer navigational states
-		sourceBuffer.limit(sourcePosition + intLength);
-		sourceBuffer.position(sourcePosition);
-		targetBuffer.limit(targetPosition + intLength);
-		targetBuffer.position(targetPosition);
+		// prepare buffer navigational states
+		XMemory.setPositionLimit(sourceBuffer, sourcePosition, sourcePosition + intLength);
+		XMemory.setPositionLimit(targetBuffer, targetPosition, targetPosition + intLength);
 				
 		// the actual copying with properly validated and setup navigational states
 		targetBuffer.put(sourceBuffer);
 		
 		// restore buffer navigational states in case they are used by external logic (badly designed concerns mix in BBs)
-		sourceBuffer.limit   (sourceBufferCurrentLimit);
-		sourceBuffer.position(sourceBufferCurrentPosition);
-		targetBuffer.limit   (targetBufferCurrentLimit);
-		targetBuffer.position(targetBufferCurrentPosition);
+		XMemory.setPositionLimit(sourceBuffer, sourceCurrentPosLim);
+		XMemory.setPositionLimit(targetBuffer, targetCurrentPosLim);
 	}
 	
 	private void copyRangeSameBuffer(
@@ -1515,12 +1506,10 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		final ByteBuffer sameBuffer
 	)
 	{
-		// store both buffer current navigational states to restore them later (badly designed concerns mix in BBs)
-		final int currentPosition = sameBuffer.position();
-		final int currentLimit    = sameBuffer.limit();
+		// store both buffer current navigational state to restore them later (badly designed concerns mix in BBs)
+		final long currentPosLim = XMemory.getPositionLimit(sameBuffer);
 		
-		sameBuffer.limit(sourcePosition + intLength);
-		sameBuffer.position(sourcePosition);
+		XMemory.setPositionLimit(sameBuffer, sourcePosition, sourcePosition + intLength);
 		
 		/*
 		 * "will be BIG_ENDIAN". Just like that. Like the morons they are. Slice a LE buffer, you get a BE. Naturally.
@@ -1534,15 +1523,13 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		 */
 		final ByteBuffer slice = sameBuffer.slice().order(sameBuffer.order());
 
-		sameBuffer.limit(targetPosition + intLength);
-		sameBuffer.position(targetPosition);
+		XMemory.setPositionLimit(sameBuffer, targetPosition, targetPosition + intLength);
 		
 		// the actual copying with properly validated and setup navigational states
 		sameBuffer.put(slice);
 
 		// restore buffer navigational states in case they are used by external logic (badly designed concerns mix in BBs)
-		sameBuffer.limit   (currentLimit);
-		sameBuffer.position(currentPosition);
+		XMemory.setPositionLimit(sameBuffer, currentPosLim);
 	}
 	
 	private static int determineActualCopyLimit(final int definedLimit, final ByteBuffer bb)
@@ -1570,19 +1557,16 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		XArrays.validateRange0toUpperBound(sourceLimit, sourcePosition, target.length);
 		
 		// store both buffer current navigational state to restore them later (badly designed concerns mix in BBs)
-		final int sourceBufferCurrentPosition = sourceBuffer.position();
-		final int sourceBufferCurrentLimit    = sourceBuffer.limit();
+		final long sourceCurrentPosLim = XMemory.getPositionLimit(sourceBuffer);
 
-		// restore buffer navigational state
-		sourceBuffer.limit(sourcePosition + target.length);
-		sourceBuffer.position(sourcePosition);
+		// prepare buffer navigational state
+		XMemory.setPositionLimit(sourceBuffer, sourcePosition, sourcePosition + target.length);
 		
 		// the actual copying with properly validated and setup navigational state
 		sourceBuffer.get(target);
 		
 		// restore buffer navigational states in case they are used by external logic (badly designed concerns mix in BBs)
-		sourceBuffer.limit   (sourceBufferCurrentLimit);
-		sourceBuffer.position(sourceBufferCurrentPosition);
+		XMemory.setPositionLimit(sourceBuffer, sourceCurrentPosLim);
 	}
 	
 	@Override
@@ -1691,21 +1675,18 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 		final int targetLimit = determineActualCopyLimit(targetBound, targetBuffer);
 		
 		XArrays.validateRange0toUpperBound(targetLimit, targetPosition, array.length);
-		
-		// store buffer current navigational state to restore them later (badly designed concerns mix in BBs)
-		final int targetBufferCurrentPosition = targetBuffer.position();
-		final int targetBufferCurrentLimit    = targetBuffer.limit();
 
-		// restore buffer navigational state
-		targetBuffer.limit(targetPosition + array.length);
-		targetBuffer.position(targetPosition);
+		// store both buffer current navigational state to restore them later (badly designed concerns mix in BBs)
+		final long targetCurrentPosLim = XMemory.getPositionLimit(targetBuffer);
+
+		// prepare buffer navigational state
+		XMemory.setPositionLimit(targetBuffer, targetPosition, targetPosition + array.length);
 		
 		// the actual copying with properly validated and setup navigational state
 		targetBuffer.put(array);
 		
-		// restore buffer navigational state in case they are used by external logic (badly designed concerns mix in BBs)
-		targetBuffer.limit   (targetBufferCurrentLimit);
-		targetBuffer.position(targetBufferCurrentPosition);
+		// restore buffer navigational states in case they are used by external logic (badly designed concerns mix in BBs)
+		XMemory.setPositionLimit(targetBuffer, targetCurrentPosLim);
 	}
 	
 	@Override

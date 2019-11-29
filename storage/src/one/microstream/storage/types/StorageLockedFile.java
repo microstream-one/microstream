@@ -2,13 +2,13 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 
 
 public interface StorageLockedFile extends StorageFile //, AutoCloseable
@@ -35,8 +35,8 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 	public boolean hasNoUsers();
 	
 
-	@SuppressWarnings("resource") // resource closed internally by FileChannel (JDK tricking Java compiler ^^)
-	public static FileLock openLockedFileChannel(final File file)
+//	@SuppressWarnings("resource") // resource closed internally by FileChannel (JDK tricking Java compiler ^^)
+	public static FileLock openLockedFileChannel(final Path file)
 	{
 		// the file is always completely and unshared locked.
 		final FileLock lock;
@@ -44,7 +44,9 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		try
 		{
 			// resource closed internally by FileChannel (JDK tricking Java compiler ^^)
-			channel = new RandomAccessFile(file, "rw").getChannel();
+			channel = XIO.openFileChannelRW(file, StandardOpenOption.CREATE);
+//			channel = new RandomAccessFile(file, "rw").getChannel();
+
 
 			/*
 			 * Tests showed that Java file locks even on Windows don't work properly:
@@ -64,7 +66,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		}
 		catch(final Exception e)
 		{
-			XFiles.closeSilent(channel);
+			XIO.closeSilent(channel);
 			// (28.06.2014)EXCP: proper exception
 			throw new RuntimeException("Cannot obtain lock for file " + file, e);
 		}
@@ -72,14 +74,14 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		return lock;
 	}
 
-	public static StorageLockedFile openLockedFile(final File file)
+	public static StorageLockedFile openLockedFile(final Path file)
 	{
 		return StorageLockedFile.New(file, openLockedFileChannel(file));
 	}
 
 
 
-	public static StorageLockedFile New(final File file, final FileLock lock)
+	public static StorageLockedFile New(final Path file, final FileLock lock)
 	{
 		return new StorageLockedFile.Default(
 			notNull(file),
@@ -93,7 +95,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		// instance fields //
 		////////////////////
 
-		final File file;
+		final Path file;
 
 		/*
 		 * note that the channel's position is always implicitely at the end of the file
@@ -110,7 +112,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		// constructors //
 		/////////////////
 
-		protected Default(final File file, final FileLock lock)
+		protected Default(final Path file, final FileLock lock)
 		{
 			super();
 			this.file = file;
@@ -126,7 +128,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		// methods //
 		////////////
 
-		public final File file()
+		public final Path file()
 		{
 			return this.file;
 		}
@@ -140,32 +142,32 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		@Override
 		public String qualifier()
 		{
-			return this.file.getParent();
+			return XIO.getFilePath(this.file.getParent());
 		}
 		
 		@Override
 		public String identifier()
 		{
-			return this.file.getPath();
+			return XIO.getFilePath(this.file);
 		}
 		
 		@Override
 		public String name()
 		{
-			return this.file.getName();
+			return XIO.getFileName(this.file);
 		}
 		
 		@Override
 		public boolean delete()
 		{
 			this.close();
-			return this.file.delete();
+			return XIO.unchecked.delete(this.file);
 		}
 		
 		@Override
 		public boolean exists()
 		{
-			return this.file.exists();
+			return XIO.unchecked.exists(this.file);
 		}
 
 		@Override
@@ -208,7 +210,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		@Override
 		public String toString()
 		{
-			return this.file + " (" + this.file.length() + ")";
+			return this.file + " (" + XIO.unchecked.size(this.fileChannel) + ")";
 		}
 
 	}
