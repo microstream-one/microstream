@@ -11,6 +11,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -188,17 +189,30 @@ public final class XIO
 		return Paths.get("", notNull(items));
 	}
 
+	/**
+	 * Creates a sub-path under the passed {@code parent} {@link Path} inside the same {@link FileSystem}.
+	 * <p>
+	 * Note that this is fundamentally different to {@link #Path(String...)} or {@link Paths#get(String, String...)}
+	 * since those two end up using {@code FileSystems.getDefault()}, no matter the {@link FileSystem} that the passed
+	 * parent {@link Path} is associated with.
+	 * 
+	 * @param  parent the {@code parent} {@link Path} of the new sub-path.
+	 * @param  items the path items defining the sub-path under the passed {@code parent} {@link Path}.
+	 * @return a sub-path under the passed {@code parent} {@link Path}.
+	 */
 	public static final Path Path(final Path parent, final String... items)
 	{
+		if(parent == null)
+		{
+			return Path(items);
+		}
+		
 		/*
 		 * They seem to really have made every mistake possible on the Path API.
 		 * Not even a defined, reliable getter method for the string representation.
 		 * Oh wait, there's #getFileName() ... but oh... wait... lol
 		 */
-		return parent != null
-			? Paths.get(parent.toString(), items)
-			: Path(items)
-		;
+		return parent.getFileSystem().getPath(parent.toString(), items);
 	}
 	
 	/**
