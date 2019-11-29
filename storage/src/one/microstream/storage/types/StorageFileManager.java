@@ -80,7 +80,7 @@ public interface StorageFileManager
 
 
 
-	public final class Default implements StorageFileManager, StorageReaderCallback
+	public final class Default implements StorageFileManager, StorageReaderCallback, StorageFileUser
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -1346,6 +1346,7 @@ public interface StorageFileManager
 				throw new RuntimeException(this.channelIndex() + " has inconsistent pending deletes: count = " + this.pendingFileDeletes + ", wants to delete " + file); // (31.10.2014 TM)EXCP: proper exception
 			}
 			this.pendingFileDeletes--;
+			
 			this.deleteFile(file);
 		}
 
@@ -1387,12 +1388,11 @@ public interface StorageFileManager
 				// never check current head file for dissolving
 //				DEBUGStorage.println(this.channelIndex + " (head " + this.headFile.number() + ")" + " checking " + this.fileCleanupCursor);
 
-				// this never applies to head files automatically
-				if(this.fileCleanupCursor.hasNoUsers())
+				// delete pending file and do special case checking. This never applies to head files automatically
+				if(!this.fileCleanupCursor.executeIfUnsued(f ->
+					this.deletePendingFile(this.fileCleanupCursor)
+				))
 				{
-					// delete pending file and do special case checking
-					this.deletePendingFile(this.fileCleanupCursor);
-
 					// account for special case of removed file being the anchor file (sadly redundant to below)
 					if(this.fileCleanupCursor == cycleAnchorFile)
 					{
@@ -1455,7 +1455,7 @@ public interface StorageFileManager
 
 		private boolean incrementalDissolveStorageFile(
 			final StorageDataFile.Default file               ,
-			final long                           nanoTimeBudgetBound
+			final long                    nanoTimeBudgetBound
 		)
 		{
 //			DEBUGStorage.println("incrementally dissolving " + file);
@@ -1463,14 +1463,9 @@ public interface StorageFileManager
 			if(this.incrementalTransferEntities(file, nanoTimeBudgetBound))
 			{
 //				DEBUGStorage.println(" * dissolved completely, deleting: " + file);
-
-				// decrement user count to account for the no longer existing content
-				if(file.decrementUserCount())
+				if(file.unregisterUsageClosing(this, f -> this.deleteFile(file)))
 				{
-//					DEBUGStorage.println(this.channelIndex + " deleting right away: " + file);
-
-					// if file's content was migrated completely and there are no more users, remove the file
-					this.deleteFile(file);
+//					DEBUGStorage.println(this.channelIndex + " deleted right away: " + file);
 					return true;
 				}
 
@@ -1490,7 +1485,7 @@ public interface StorageFileManager
 //			DEBUGStorage.println(this.channelIndex + " deleting " + file);
 
 			file.detach();
-			file.close();
+			file.close(); // idempotent. No harm in calling on an already closed file.
 
 			/* must write transaction file entry BEFORE actually deleting the file (inverted logic)
 			 * Otherwise, consider the following scenario:

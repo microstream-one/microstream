@@ -1,7 +1,10 @@
 package one.microstream.test.corp.main;
 
+import one.microstream.io.XIO;
+import one.microstream.meta.XDebug;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
@@ -44,6 +47,9 @@ public class MainTestStorageExample
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
 			Test.print("Data export completed.");
 		}
+		
+		STORAGE.shutdown();
+		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
 		
 		// no shutdown required, the storage concept is inherently crash-safe
 		System.exit(0);

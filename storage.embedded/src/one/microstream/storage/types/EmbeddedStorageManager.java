@@ -380,6 +380,12 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		{
 			return this.storageManager.isRunning();
 		}
+		
+		@Override
+		public final boolean isActive()
+		{
+			return this.storageManager.isActive();
+		}
 
 		@Override
 		public final boolean isStartingUp()
