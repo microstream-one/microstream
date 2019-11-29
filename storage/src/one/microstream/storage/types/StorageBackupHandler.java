@@ -17,7 +17,7 @@ import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageForN
 import one.microstream.storage.exceptions.StorageExceptionBackupInconsistentFileLength;
 import one.microstream.storage.types.StorageBackupHandler.Default.ChannelInventory;
 
-public interface StorageBackupHandler extends Runnable
+public interface StorageBackupHandler extends Runnable, StorageActivePart
 {
 	public StorageBackupSetup setup();
 	
@@ -53,6 +53,9 @@ public interface StorageBackupHandler extends Runnable
 	}
 	
 	public boolean isRunning();
+	
+	@Override
+	public boolean isActive();
 	
 	public StorageBackupHandler setRunning(boolean running);
 	
@@ -94,7 +97,8 @@ public interface StorageBackupHandler extends Runnable
 		private final StorageOperationController operationController;
 		private final StorageDataFileValidator   validator          ;
 		
-		private boolean running;
+		private boolean running; // being "ordered" to run.
+		private boolean active ; // being actually active, e.g. executing the last loop before running check.
 		
 		
 		
@@ -134,6 +138,12 @@ public interface StorageBackupHandler extends Runnable
 		public final synchronized boolean isRunning()
 		{
 			return this.running;
+		}
+		
+		@Override
+		public final synchronized boolean isActive()
+		{
+			return this.active;
 		}
 		
 		@Override
@@ -183,6 +193,8 @@ public interface StorageBackupHandler extends Runnable
 			// must be the method instead of the field to check the lock but don't conver the whole loop
 			try
 			{
+				this.active = true;
+				
 				// can not / may not copy storage files if the storage is not running (has locked and opend files, etc.)
 				while(this.isRunning() && this.operationController.checkProcessingEnabled())
 				{
@@ -210,6 +222,8 @@ public interface StorageBackupHandler extends Runnable
 			{
 				// must close all open files on any aborting case (after stopping and before throwing an exception)
 				this.closeAllDataFiles();
+				
+				this.active = false;
 			}
 			
 			
@@ -508,8 +522,6 @@ public interface StorageBackupHandler extends Runnable
 			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
 			
 			this.copyFilePart(sourceFile, sourcePosition, copyLength, backupTargetFile);
-
-			sourceFile.decrementUserCount();
 		}
 
 		@Override
