@@ -11,7 +11,9 @@ public interface _charArrayRange
 	public int start();
 
 	public int bound();
-
+  
+	
+	
 
 	public static Default New(final String value)
 	{
