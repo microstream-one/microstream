@@ -16,6 +16,7 @@ public class UtilPersistenceIo
 	{
 		try
 		{
+//			XIO.ensureDirectoryAndFile(targetFile);
 			XIO.move(sourceFile, targetFile);
 		}
 		catch(final Exception e)

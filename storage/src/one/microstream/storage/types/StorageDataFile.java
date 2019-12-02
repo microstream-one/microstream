@@ -64,7 +64,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 		public static final StorageDataFile.Default New(
 			final StorageFileManager.Default parent,
-			final StorageInventoryFile              file
+			final StorageInventoryFile       file
 		)
 		{
 			return new StorageDataFile.Default(parent, file);
@@ -82,10 +82,6 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 		final StorageEntity.Default head = StorageEntity.Default.createDummy();
 		final StorageEntity.Default tail = StorageEntity.Default.createDummy();
-
-		// (29.11.2019 TM)FIXME: priv#125: replace with initial registration
-		// data files always start with exactely one user to account for their content.
-//		private int users = 1;
 		
 		private long fileTotalLength;
 		private long fileDataLength ;
@@ -109,6 +105,9 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			this.file          = file     ;
 			this.head.fileNext = this.tail;
 			this.tail.filePrev = this.head;
+			
+			// must register parent user before anything else can use the instance, of course.
+			this.registerUsage(parent);
 		}
 
 
@@ -388,6 +387,13 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		{
 			return this.file.unregisterUsageClosing(fileUser, file ->
 				closingAction.accept(this)
+			);
+		}
+		
+		public boolean executeIfUnsuedData(final Consumer<? super StorageDataFile.Default> action)
+		{
+			return this.file.executeIfUnsued(file ->
+				action.accept(this)
 			);
 		}
 		

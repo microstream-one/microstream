@@ -3,10 +3,8 @@ package one.microstream.persistence.binary.types;
 import static java.lang.System.identityHashCode;
 import static one.microstream.X.notNull;
 
-import one.microstream.chars.XChars;
 import one.microstream.hashing.XHashing;
 import one.microstream.math.XMath;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
@@ -466,7 +464,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			 * Or maybe the TypeHandlerCreator must create a special TypeHandler that calls that method?
 			 * Would be much more elegant than doing an 99.9% unnecessary special-casing check in here...
 			 */
-			XDebug.println("Storing " + item.oid + ": " + XChars.systemString(item.instance));
+			// (02.12.2019 TM)FIXME: priv#190
+//			XDebug.println("Storing " + item.oid + ": " + XChars.systemString(item.instance));
 			
 //			XDebug.debugln("Storing\t" + item.oid + "\t" + item.typeHandler.typeName());
 			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
@@ -475,7 +474,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		@Override
 		public final void accept(final long objectId, final Object instance)
 		{
-			XDebug.println("Registering " + objectId + ": " + XChars.systemString(instance));
+			// (02.12.2019 TM)FIXME: priv#190
+//			XDebug.println("Registering " + objectId + ": " + XChars.systemString(instance));
 			
 			// ensure handler (or fail if type is not persistable) before ensuring an OID.
 			this.tail = this.tail.next = this.registerObjectId(
