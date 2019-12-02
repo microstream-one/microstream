@@ -175,6 +175,9 @@ public interface StorageFileManager
 		private final ByteBuffer standardByteBuffer;
 
 		private StorageDataFile.Default fileCleanupCursor, headFile;
+		
+		// to avoid permanent lambda instantiation
+		private final Consumer<? super StorageDataFile.Default> deleter = this::deleteFile;
 
 		private long uncommittedDataLength;
 
@@ -1369,17 +1372,7 @@ public interface StorageFileManager
 //			DEBUGStorage.println(this.channelIndex + " cleanupcheck with budget of " + (nanoTimeBudgetBound - System.nanoTime()));
 
 //			DEBUGStorage.println(this.channelIndex + " checks for file cleanup with budget " + (nanoTimeBudgetBound - System.nanoTime()));
-
-			/* (24.09.2014 TM)TOdO: Channel refuses to clean up files sometimes
-			 * Sometimes, the housekeepingfile of one channel is null when cleanup is issued,
-			 * resulting in old files not being cleaned up at all.
-			 * Question is:
-			 * - Why is the the housekeeping file null if there is still something to clean up?
-			 *   especially if the big file is the only file and it obviously hadn't been checked.
-			 * (17.11.2014 TM)NOTE:
-			 * Don't know if this can happen at all since the fixed GC race condition.
-			 * Endless testing with both incremental and issued full house keeping never caused any problem since then.
-			 */
+			
 			StorageDataFile.Default cycleAnchorFile = this.fileCleanupCursor;
 
 			// intentionally no minimum first loop execution as cleanup is not important if the system has heavy load
@@ -1463,7 +1456,7 @@ public interface StorageFileManager
 			if(this.incrementalTransferEntities(file, nanoTimeBudgetBound))
 			{
 //				DEBUGStorage.println(" * dissolved completely, deleting: " + file);
-				if(file.unregisterUsageClosing(this, f -> this.deleteFile(file)))
+				if(file.unregisterUsageClosingData(this, this.deleter))
 				{
 //					DEBUGStorage.println(this.channelIndex + " deleted right away: " + file);
 					return true;
