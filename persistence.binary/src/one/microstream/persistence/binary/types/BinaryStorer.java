@@ -3,8 +3,10 @@ package one.microstream.persistence.binary.types;
 import static java.lang.System.identityHashCode;
 import static one.microstream.X.notNull;
 
+import one.microstream.chars.XChars;
 import one.microstream.hashing.XHashing;
 import one.microstream.math.XMath;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
@@ -464,6 +466,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			 * Or maybe the TypeHandlerCreator must create a special TypeHandler that calls that method?
 			 * Would be much more elegant than doing an 99.9% unnecessary special-casing check in here...
 			 */
+			XDebug.println("Storing " + item.oid + ": " + XChars.systemString(item.instance));
 			
 //			XDebug.debugln("Storing\t" + item.oid + "\t" + item.typeHandler.typeName());
 			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
@@ -472,8 +475,10 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		@Override
 		public final void accept(final long objectId, final Object instance)
 		{
+			XDebug.println("Registering " + objectId + ": " + XChars.systemString(instance));
+			
 			// ensure handler (or fail if type is not persistable) before ensuring an OID.
-			this.tail = this.tail.next = this.registerobjectId(
+			this.tail = this.tail.next = this.registerObjectId(
 				instance,
 				this.typeManager.ensureTypeHandler(instance),
 				objectId
@@ -488,7 +493,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			return objectId;
 		}
 				
-		public final Item registerobjectId(
+		public final Item registerObjectId(
 			final Object                                 instance   ,
 			final PersistenceTypeHandler<Binary, Object> typeHandler,
 			final long                                   objectId
@@ -507,7 +512,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		@Override
 		public final void registerSkip(final Object instance, final long objectId)
 		{
-			this.registerobjectId(instance, null, objectId);
+			this.registerObjectId(instance, null, objectId);
 		}
 
 		@Override
@@ -519,7 +524,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			 * - if handler == null indicates a skip-entry, then handler must be checked for null.
 			 *   alternative: dummy handler that does nothing.
 			 */
-			this.registerobjectId(instance, null, this.objectManager.lookupObjectId(instance));
+			this.registerObjectId(instance, null, this.objectManager.lookupObjectId(instance));
 		}
 		
 	}
