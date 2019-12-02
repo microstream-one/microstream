@@ -53,6 +53,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		try
 		{
 			channel = XIO.openFileChannelRW(file, StandardOpenOption.CREATE);
+//			channel = XIO.openFileChannelRW(XIO.unchecked.ensureDirectoryAndFile(file));
 
 			/*
 			 * Tests showed that Java file locks even on Windows don't work properly:
@@ -64,16 +65,17 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 			 * As there is no alternative available and it at least works within Java, it is kept nevertheless.
 			 */
 			lock = channel.tryLock();
-			channel.position(channel.size());
 			if(lock == null)
 			{
 				// (29.11.2019 TM)EXCP: proper exception
 				throw new RuntimeException("File seems to be already locked: " + file);
 			}
+			channel.position(channel.size());
 		}
-		catch(final Exception e)
+		catch(final IOException e)
 		{
-			XIO.closeSilent(channel);
+			XIO.unchecked.close(channel, e);
+			
 			// (28.06.2014)EXCP: proper exception
 			throw new RuntimeException("Cannot obtain lock for file " + file, e);
 		}

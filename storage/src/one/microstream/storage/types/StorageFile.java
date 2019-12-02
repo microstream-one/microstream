@@ -116,8 +116,8 @@ public interface StorageFile
 		}
 	}
 	
-	// (07.07.2016 TM)FIXME: check and fix or comment all calls to this method
-	public static void closeSilent(final StorageFile file)
+	// (02.12.2019 TM)NOTE: intentionally no single-argument alternative to hint to proper cause handling :).
+	public static void close(final StorageFile file, final Throwable cause)
 	{
 		if(file == null)
 		{
@@ -128,9 +128,13 @@ public interface StorageFile
 		{
 			file.close();
 		}
-		catch(final Exception t)
+		catch(final Throwable t)
 		{
-			// sshhh, silence!
+			if(cause != null)
+			{
+				t.addSuppressed(cause);
+			}
+			throw t;
 		}
 	}
 	

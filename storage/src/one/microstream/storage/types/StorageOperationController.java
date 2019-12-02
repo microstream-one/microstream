@@ -15,13 +15,13 @@ public interface StorageOperationController
 	
 	public boolean checkProcessingEnabled() throws StorageExceptionDisruptingExceptions;
 	
-	public void registerDisruptingProblem(Throwable problem);
+	public void registerDisruption(Throwable disruption);
 	
-	public XGettingSequence<Throwable> disruptingProblems();
+	public XGettingSequence<Throwable> disruptions();
 	
-	public default boolean hasDisruptingProblems()
+	public default boolean hasDisruptions()
 	{
-		return !this.disruptingProblems().isEmpty();
+		return !this.disruptions().isEmpty();
 	}
 	
 	public void setChannelProcessingEnabled(boolean enabled);
@@ -51,9 +51,9 @@ public interface StorageOperationController
 
 		private final WeakReference<StorageManager> storageManagerReference;
 		private final StorageChannelCountProvider   channelCountProvider   ;
-		private final BulkList<Throwable>           disruptingProblems      = BulkList.New();
+		private final BulkList<Throwable>           disruptions      = BulkList.New();
 		
-		private boolean hasDisruptingProblems   ;
+		private boolean hasDisruptions   ;
 		private boolean channelProcessingEnabled;
 
 
@@ -112,10 +112,10 @@ public interface StorageOperationController
 		@Override
 		public final synchronized boolean checkProcessingEnabled() throws StorageExceptionDisruptingExceptions
 		{
-			if(this.hasDisruptingProblems)
+			if(this.hasDisruptions)
 			{
 				// registering a problem has already set the processing flag to false.
-				throw new StorageExceptionDisruptingExceptions(this.disruptingProblems.immure());
+				throw new StorageExceptionDisruptingExceptions(this.disruptions.immure());
 			}
 			
 			// if the database managing instance is no longer reachable (used), there is no point in continue processing
@@ -131,23 +131,23 @@ public interface StorageOperationController
 		}
 
 		@Override
-		public final synchronized void registerDisruptingProblem(final Throwable problem)
+		public final synchronized void registerDisruption(final Throwable disruption)
 		{
-			this.disruptingProblems.add(problem);
-			this.hasDisruptingProblems = true;
+			this.disruptions.add(disruption);
+			this.hasDisruptions = true;
 			this.channelProcessingEnabled = false;
 		}
 
 		@Override
-		public final synchronized XGettingSequence<Throwable> disruptingProblems()
+		public final synchronized XGettingSequence<Throwable> disruptions()
 		{
-			return this.disruptingProblems.immure();
+			return this.disruptions.immure();
 		}
 		
 		@Override
-		public final synchronized boolean hasDisruptingProblems()
+		public final synchronized boolean hasDisruptions()
 		{
-			return this.hasDisruptingProblems;
+			return this.hasDisruptions;
 		}
 
 	}

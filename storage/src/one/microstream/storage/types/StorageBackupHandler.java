@@ -168,7 +168,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			}
 			catch(final RuntimeException e)
 			{
-				this.operationController.registerDisruptingProblem(e);
+				this.operationController.registerDisruption(e);
 				throw e;
 			}
 		}
@@ -182,7 +182,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			}
 			catch(final RuntimeException e)
 			{
-				this.operationController.registerDisruptingProblem(e);
+				this.operationController.registerDisruption(e);
 				throw e;
 			}
 		}
@@ -212,7 +212,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 					}
 					catch(final RuntimeException e)
 					{
-						this.operationController.registerDisruptingProblem(e);
+						this.operationController.registerDisruption(e);
 						// see outer try-finally for cleanup
 						throw e;
 					}
@@ -222,10 +222,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			{
 				// must close all open files on any aborting case (after stopping and before throwing an exception)
 				this.closeAllDataFiles();
-				
 				this.active = false;
 			}
-			
 			
 		}
 		
@@ -464,20 +462,6 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				final FileChannel targetChannel = backupTargetFile.fileChannel();
 				
 				final long oldBackupFileLength = targetChannel.size();
-				
-				/* (27.11.2019 TM)TODO: priv#125, priv#183: storage backup handler self-sustaining file accessing?
-				 * If a storage file has already been closed but the backup handler still has it as an
-				 * item to be processed, should it temporarily reopen it again, process it and then close it?
-				 * Or should it abort with an exception?
-				 * Or abort silently?
-				 * Or should a backup item register as a user at the source file,
-				 * processing it deregisters a user and only if the user count is 0 may a file actually
-				 * be closed?
-				 * Or should files maybe be opened and closed on demand or at least retried anyway?
-				 * E.g. a temporary connection loss / re-mount, etc.
-				 * Complex topic ...
-				 * 
-				 */
 								
 				try
 				{
@@ -549,13 +533,22 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		
 		final void closeAllDataFiles()
 		{
+			final DisruptionCollectorExecuting<StorageBackupFile> closer = DisruptionCollectorExecuting.New(file ->
+				StorageFile.close(file, null)
+			);
+			
 			for(final ChannelInventory channel : this.channelInventories)
 			{
-				StorageFile.closeSilent(channel.transactionFile);
+				closer.executeOn(channel.transactionFile);
 				for(final StorageBackupFile dataFile : channel.dataFiles.values())
 				{
-					StorageFile.closeSilent(dataFile);
+					closer.executeOn(dataFile);
 				}
+			}
+			
+			if(closer.hasDisruptions())
+			{
+				throw new RuntimeException(closer.toMultiCauseException());
 			}
 		}
 		

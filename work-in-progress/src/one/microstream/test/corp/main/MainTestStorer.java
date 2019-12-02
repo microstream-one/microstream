@@ -17,10 +17,11 @@ public class MainTestStorer
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
-	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 
 	public static void main(final String[] args)
 	{
+		final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
+		
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
 		if(STORAGE.root() == null)
 		{
@@ -48,6 +49,18 @@ public class MainTestStorer
 		}
 		
 		STORAGE.shutdown();
+		
+//		while(STORAGE.isActive())
+//		{
+//			XThreads.sleep(10);
+//		}
+//		System.err.println(STORAGE.isActive());
+//
+//		STORAGE = null;
+//		System.gc();
+		
+//		XThreads.sleep(1000);
+		
 		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
 		
 		// no shutdown required, the storage concept is inherently crash-safe

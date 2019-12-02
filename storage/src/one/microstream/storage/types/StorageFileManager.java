@@ -9,8 +9,6 @@ import static one.microstream.math.XMath.notNegative;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -19,7 +17,6 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
@@ -111,25 +108,6 @@ public interface StorageFileManager
 			return storagePositions;
 		}
 
-		// (25.11.2019 TM)FIXME: priv#175: check if really not used anymore
-		static final FileLock openFileChannel(final Path file)
-		{
-//			DEBUGStorage.println("Thread " + Thread.currentThread().getName() + " opening channel for " + file);
-			FileChannel channel = null;
-			try
-			{
-				final FileLock fileLock = StorageLockedFile.openLockedFileChannel(file);
-				channel = fileLock.channel();
-				channel.position(channel.size());
-				return fileLock;
-			}
-			catch(final IOException e)
-			{
-				XIO.closeSilent(channel);
-				throw new RuntimeException(e); // (04.05.2013)EXCP: proper exception
-			}
-		}
-
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -178,6 +156,7 @@ public interface StorageFileManager
 		
 		// to avoid permanent lambda instantiation
 		private final Consumer<? super StorageDataFile.Default> deleter = this::deleteFile;
+		private final Consumer<? super StorageDataFile.Default> pendingDeleter = this::deletePendingFile;
 
 		private long uncommittedDataLength;
 
@@ -312,13 +291,12 @@ public interface StorageFileManager
 
 		final void clearRegisteredFiles()
 		{
-			// (07.07.2016 TM)FIXME: why close silent? What about OS/IO/network problems?
 			/* (07.07.2016 TM)TODO: StorageFileCloser
 			 * to abstract the delicate task of closing files.
 			 * Or better enhance StorageFileProvider to a StorageFileHandler
 			 * that handles both creation and closing.
 			 */
-			StorageFile.closeSilent(this.fileTransactions);
+			this.fileTransactions.unregisterUsageClosing(this, null);
 
 			if(this.headFile == null)
 			{
@@ -330,7 +308,7 @@ public interface StorageFileManager
 			StorageDataFile.Default file = headFile;
 			do
 			{
-				StorageFile.closeSilent(file);
+				file.unregisterUsageClosing(this, null);
 			}
 			while((file = file.next) != headFile);
 
@@ -746,7 +724,7 @@ public interface StorageFileManager
 			}
 			catch(final IOException e)
 			{
-				StorageFile.closeSilent(file);
+				StorageFile.close(file, e);
 				throw new RuntimeException(e); // (29.08.2014)EXCP: proper exception
 			}
 		}
@@ -1088,7 +1066,7 @@ public interface StorageFileManager
 			}
 			catch(final Exception e)
 			{
-				StorageFile.closeSilent(tfile);
+				StorageFile.close(tfile, e);
 				throw e;
 			}
 		}
@@ -1199,6 +1177,8 @@ public interface StorageFileManager
 		private void setTransactionsFile(final StorageInventoryFile transactionsFile)
 		{
 			this.fileTransactions = transactionsFile;
+			
+			transactionsFile.registerUsage(this);
 		}
 
 		final void clearState()
@@ -1382,10 +1362,15 @@ public interface StorageFileManager
 //				DEBUGStorage.println(this.channelIndex + " (head " + this.headFile.number() + ")" + " checking " + this.fileCleanupCursor);
 
 				// delete pending file and do special case checking. This never applies to head files automatically
-				if(!this.fileCleanupCursor.executeIfUnsued(f ->
-					this.deletePendingFile(this.fileCleanupCursor)
-				))
+				if(!this.fileCleanupCursor.hasUsers())
 				{
+					// an iterable (non-detached) file with no users can only mean a pending delete.
+					if(!this.fileCleanupCursor.executeIfUnsuedData(this.pendingDeleter))
+					{
+						// should a new usage have been registered right after checking, then break and try again later
+						break;
+					}
+					
 					// account for special case of removed file being the anchor file (sadly redundant to below)
 					if(this.fileCleanupCursor == cycleAnchorFile)
 					{
