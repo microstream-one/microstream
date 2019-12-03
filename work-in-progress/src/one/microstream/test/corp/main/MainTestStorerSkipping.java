@@ -1,38 +1,45 @@
 package one.microstream.test.corp.main;
 
-import one.microstream.io.XIO;
-import one.microstream.meta.XDebug;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
-import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
 
-public class MainTestStorer
+public class MainTestStorerSkipping
 {
 	static
 	{
-		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
+//		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
 	}
+	
+	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 	
 	// creates and starts an embedded storage manager with all-default-settings.
 
 	public static void main(final String[] args)
 	{
-		final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
-		
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
 		if(STORAGE.root() == null)
 		{
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			STORAGE.setRoot(generateModelData());
+			final Entity rootEntity = generateModelDataRoot();
+//			fillRootEntity(rootEntity);
+			STORAGE.setRoot(rootEntity);
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
 			Test.print("Storing completed.");
+
+//			Test.print("Storing with skip ...");
+//			fillRootEntity(rootEntity);
+//			final Storer storer = STORAGE.createStorer();
+//			storer.skipNulled(rootEntity.other.other); // root other is e2
+//			storer.store(rootEntity);
+//			storer.commit();
+//			Test.print("Storing with skip completed.");
 		}
 		else
 		{
@@ -50,26 +57,24 @@ public class MainTestStorer
 		
 		STORAGE.shutdown();
 		
-//		while(STORAGE.isActive())
-//		{
-//			XThreads.sleep(10);
-//		}
-//		System.err.println(STORAGE.isActive());
-//
-//		STORAGE = null;
-//		System.gc();
-		
-//		XThreads.sleep(1000);
-		
-		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
-		
 		// no shutdown required, the storage concept is inherently crash-safe
 		System.exit(0);
 	}
 	
-	static Entity generateModelData()
+	static Entity generateModelDataRoot()
 	{
 		final Entity root = new Entity().setName("root");
+		
+		return root;
+	}
+	
+	static Entity generateModelData()
+	{
+		return fillRootEntity(generateModelDataRoot());
+	}
+	
+	static Entity fillRootEntity(final Entity root)
+	{
 		final Entity e1 = new Entity().setName("e1");
 		root.setOther(e1);
 		final Entity e2 = new Entity().setName("e2");
@@ -95,6 +100,12 @@ public class MainTestStorer
 		{
 			this.other = other;
 			return this;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return Entity.class.getSimpleName() + " " + this.name;
 		}
 		
 	}

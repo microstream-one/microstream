@@ -1,6 +1,5 @@
 package one.microstream.test.corp.main;
 
-import one.microstream.memory.XMemory;
 import one.microstream.concurrency.XThreads;
 import one.microstream.memory.XMemory;
 
