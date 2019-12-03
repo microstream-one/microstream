@@ -38,6 +38,8 @@ public interface StorageTransactionsFile
 	{
 		      FileLock    lock    = null;
 		final FileChannel channel = null;
+		
+		Throwable suppressed = null;
 		try
 		{
 			if(!XIO.exists(file))
@@ -51,31 +53,16 @@ public interface StorageTransactionsFile
 		}
 		catch(final IOException e)
 		{
+			suppressed = e;
 			throw new IORuntimeException(e);
 		}
 		finally
 		{
-			closeSilent(lock);
-			closeSilent(channel);
+			XIO.unchecked.close(lock, suppressed);
+			XIO.unchecked.close(channel, suppressed);
 		}
 	}
-	
-	public static void closeSilent(final AutoCloseable closable)
-	{
-		if(closable == null)
-		{
-			return;
-		}
-		try
-		{
-			closable.close();
-		}
-		catch(final Exception t)
-		{
-			// sshhh, silence!
-		}
-	}
-	
+		
 	
 	public static StorageTransactionsFile New()
 	{

@@ -381,6 +381,8 @@ public interface StorageTransactionsFileAnalysis
 		{
 			      FileLock    lock    = null;
 			final FileChannel channel = null;
+			
+			Throwable suppressed = null;
 			try
 			{
 				if(!XIO.exists(file))
@@ -394,28 +396,13 @@ public interface StorageTransactionsFileAnalysis
 			}
 			catch(final IOException e)
 			{
+				suppressed = e;
 				throw new RuntimeException(e); // (12.09.2014 TM)EXCP: proper exception
 			}
 			finally
 			{
-				closeSilent(lock);
-				closeSilent(channel);
-			}
-		}
-		
-		public static void closeSilent(final AutoCloseable closable)
-		{
-			if(closable == null)
-			{
-				return;
-			}
-			try
-			{
-				closable.close();
-			}
-			catch(final Exception t)
-			{
-				// sshhh, silence!
+				XIO.unchecked.close(lock, suppressed);
+				XIO.unchecked.close(channel, suppressed);
 			}
 		}
 

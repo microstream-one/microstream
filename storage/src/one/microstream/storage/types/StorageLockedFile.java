@@ -7,7 +7,10 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.function.Consumer;
 
+import one.microstream.collections.XArrays;
+import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.XIO;
 
 
@@ -18,21 +21,27 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 	@Override
 	public default long length()
 	{
-		try
-		{
-			return this.fileChannel().size();
-		}
-		catch(final IOException e)
-		{
-			throw new RuntimeException(e); // (08.12.2014)EXCP: proper exception
-		}
+		return XIO.unchecked.size(this.fileChannel());
 	}
+
+	public boolean hasUsers();
 	
-	public int incrementUserCount();
-
-	public boolean decrementUserCount();
-
-	public boolean hasNoUsers();
+	public boolean executeIfUnsued(Consumer<? super StorageLockedFile> action);
+	
+	public boolean registerUsage(StorageFileUser fileUser);
+	
+	public boolean clearUsages(StorageFileUser fileUser);
+	
+	public boolean unregisterUsage(StorageFileUser fileUser);
+		
+	public boolean unregisterUsageClosing(StorageFileUser fileUser, Consumer<? super StorageLockedFile> closingAction);
+	
+	@Override
+	public void close();
+	
+	public boolean tryClose();
+	
+		
 	
 
 //	@SuppressWarnings("resource") // resource closed internally by FileChannel (JDK tricking Java compiler ^^)
@@ -43,10 +52,8 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		FileChannel channel = null;
 		try
 		{
-			// resource closed internally by FileChannel (JDK tricking Java compiler ^^)
 			channel = XIO.openFileChannelRW(file, StandardOpenOption.CREATE);
-//			channel = new RandomAccessFile(file, "rw").getChannel();
-
+//			channel = XIO.openFileChannelRW(XIO.unchecked.ensureDirectoryAndFile(file));
 
 			/*
 			 * Tests showed that Java file locks even on Windows don't work properly:
@@ -58,15 +65,17 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 			 * As there is no alternative available and it at least works within Java, it is kept nevertheless.
 			 */
 			lock = channel.tryLock();
-			channel.position(channel.size());
 			if(lock == null)
 			{
+				// (29.11.2019 TM)EXCP: proper exception
 				throw new RuntimeException("File seems to be already locked: " + file);
 			}
+			channel.position(channel.size());
 		}
-		catch(final Exception e)
+		catch(final IOException e)
 		{
-			XIO.closeSilent(channel);
+			XIO.unchecked.close(channel, e);
+			
 			// (28.06.2014)EXCP: proper exception
 			throw new RuntimeException("Cannot obtain lock for file " + file, e);
 		}
@@ -104,7 +113,31 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		final FileLock    lock       ;
 		final FileChannel fileChannel;
 		
-		private int users;
+		private Usage[] usages     = new Usage[1];
+		private int     usagesSize = 0;
+		
+		static final class Usage
+		{
+			StorageFileUser user ;
+			int             count;
+			
+			Usage(final StorageFileUser user)
+			{
+				super();
+				this.user = user;
+			}
+			
+			final boolean increment()
+			{
+				return ++this.count == 1;
+			}
+			
+			final boolean decrement()
+			{
+				return --this.count == 0;
+			}
+			
+		}
 
 
 
@@ -171,7 +204,34 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		}
 
 		@Override
-		public final synchronized void close()
+		public synchronized final void close()
+		{
+			if(this.hasUsers())
+			{
+				// (29.11.2019 TM)EXCP: proper exception
+				throw new RuntimeException(
+					this.getClass().getCanonicalName() + " still has registered users and cannot be closed: " + this
+				);
+			}
+			
+			this.internalClose();
+		}
+		
+		@Override
+		public synchronized final boolean tryClose()
+		{
+			if(this.hasUsers())
+			{
+				return false;
+			}
+			
+			this.internalClose();
+			return true;
+		}
+		
+		
+		
+		final void internalClose()
 		{
 			if(this.fileChannel.isOpen())
 			{
@@ -182,29 +242,113 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 				}
 				catch(final IOException e)
 				{
-					throw new RuntimeException(e);
+					throw new IORuntimeException(e);
 				}
 			}
 		}
 		
 
+		private Usage ensureEntry(final StorageFileUser fileUser)
+		{
+			/* note: for very short arrays (~ 5 references), arrays are faster than hash tables.
+			 * The planned/expected user count for storage files should be something around 2-3.
+			 */
+			for(int i = 0; i < this.usagesSize; i++)
+			{
+				if(this.usages[i].user == fileUser)
+				{
+					return this.usages[i];
+				}
+			}
+			
+			if(this.usagesSize >= this.usages.length)
+			{
+				this.usages = XArrays.enlarge(this.usages, this.usages.length * 2);
+			}
+			
+			return this.usages[this.usagesSize++] = new Usage(fileUser);
+		}
+		
 
 		@Override
-		public synchronized int incrementUserCount()
+		public synchronized final boolean hasUsers()
 		{
-			return ++this.users;
+			return this.usagesSize != 0;
+		}
+		
+		@Override
+		public synchronized final boolean executeIfUnsued(final Consumer<? super StorageLockedFile> action)
+		{
+			if(this.hasUsers())
+			{
+				return false;
+			}
+			
+			action.accept(this);
+			
+			return true;
 		}
 
 		@Override
-		public synchronized boolean decrementUserCount()
+		public synchronized final boolean registerUsage(final StorageFileUser fileUser)
 		{
-			return --this.users == 0;
+			return this.ensureEntry(fileUser).increment();
 		}
-
+		
 		@Override
-		public synchronized boolean hasNoUsers()
+		public synchronized final boolean clearUsages(final StorageFileUser fileUser)
 		{
-			return this.users == 0;
+			for(int i = 0; i < this.usagesSize; i++)
+			{
+				if(this.usages[i].user == fileUser)
+				{
+					XArrays.removeFromIndex(this.usages, this.usagesSize--, i);
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public synchronized final boolean unregisterUsage(final StorageFileUser fileUser)
+		{
+			for(int i = 0; i < this.usagesSize; i++)
+			{
+				if(this.usages[i].user == fileUser)
+				{
+					if(this.usages[i].decrement())
+					{
+						XArrays.removeFromIndex(this.usages, this.usagesSize--, i);
+						return true;
+					}
+					
+					return false;
+				}
+			}
+			
+			// (29.11.2019 TM)EXCP: proper exception
+			throw new RuntimeException(StorageFileUser.class.getSimpleName() + " not found " + fileUser);
+		}
+				
+		@Override
+		public boolean unregisterUsageClosing(
+			final StorageFileUser                     fileUser     ,
+			final Consumer<? super StorageLockedFile> closingAction
+		)
+		{
+			if(this.unregisterUsage(fileUser) && !this.hasUsers())
+			{
+				if(closingAction != null)
+				{
+					closingAction.accept(this);
+				}
+				
+				this.internalClose();
+				return true;
+			}
+			
+			return false;
 		}
 
 		@Override

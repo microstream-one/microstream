@@ -16,4 +16,6 @@ public interface StorageBackupItemEnqueuer
 	public void enqueueDeletionItem(
 		StorageInventoryFile file
 	);
+	
+//	public StorageFileUser fileUser();
 }

@@ -1,5 +1,6 @@
 package one.microstream.collections;
 
+import static one.microstream.X.ArrayOfSameType;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Array;
@@ -1137,6 +1138,56 @@ public final class XArrays
 		}
 		System.arraycopy(src, srcPos, dest, destPos, length);
 		return dest;
+	}
+	
+	public static <T> T[] enlarge(final T[] array, final int newLength)
+	{
+		if(newLength <= array.length)
+		{
+			if(newLength == array.length)
+			{
+				return array;
+			}
+			throw new IllegalArgumentException();
+		}
+		
+		final T[] newArray = ArrayOfSameType(array, newLength);
+		System.arraycopy(array, 0, newArray, 0, array.length);
+		
+		return newArray;
+	}
+	
+	public static <T> T[] shrink(final T[] array, final int newLength)
+	{
+		if(newLength >= array.length)
+		{
+			if(newLength == array.length)
+			{
+				return array;
+			}
+			throw new IllegalArgumentException();
+		}
+		
+		final T[] newArray = ArrayOfSameType(array, newLength);
+		System.arraycopy(array, 0, newArray, 0, newLength);
+		
+		return newArray;
+	}
+	
+	public static <T> T removeFromIndex(final T[] strings, final int size, final int i)
+	{
+		final T removed = strings[i];
+		if(i + 1 == size)
+		{
+			strings[i] = null;
+		}
+		else
+		{
+			System.arraycopy(strings, i + 1, strings, i, size - i - 1);
+			strings[size - 1] = null;
+		}
+		
+		return removed;
 	}
 
 	public static final boolean containsNull(final Object[] data, final int offset, final int length)

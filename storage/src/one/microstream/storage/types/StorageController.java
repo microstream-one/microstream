@@ -1,7 +1,7 @@
 package one.microstream.storage.types;
 
 
-public interface StorageController
+public interface StorageController extends StorageActivePart
 {
 	public StorageController start();
 
