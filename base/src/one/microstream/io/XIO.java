@@ -11,6 +11,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -88,18 +89,49 @@ public final class XIO
 		}
 	}
 	
-	public static final <C extends Closeable> C closeSilent(final C closable)
+	public static final <C extends Closeable> C close(
+		final C         closable  ,
+		final Throwable suppressed
+	)
+		throws IOException
 	{
-		if(closable != null)
+		if(closable == null)
 		{
-			try
-			{
-				closable.close();
-			}
-			catch(final Exception t)
-			{
-				// sshhh, silence!
-			}
+			return null;
+		}
+		
+		try
+		{
+			closable.close();
+		}
+		catch(final IOException t)
+		{
+			t.addSuppressed(suppressed);
+			throw t;
+		}
+		
+		return closable;
+	}
+	
+	public static final <C extends AutoCloseable> C close(
+		final C         closable  ,
+		final Throwable suppressed
+	)
+		throws Exception
+	{
+		if(closable == null)
+		{
+			return null;
+		}
+		
+		try
+		{
+			closable.close();
+		}
+		catch(final Exception t)
+		{
+			t.addSuppressed(suppressed);
+			throw t;
 		}
 		
 		return closable;
@@ -188,17 +220,30 @@ public final class XIO
 		return Paths.get("", notNull(items));
 	}
 
+	/**
+	 * Creates a sub-path under the passed {@code parent} {@link Path} inside the same {@link FileSystem}.
+	 * <p>
+	 * Note that this is fundamentally different to {@link #Path(String...)} or {@link Paths#get(String, String...)}
+	 * since those two end up using {@code FileSystems.getDefault()}, no matter the {@link FileSystem} that the passed
+	 * parent {@link Path} is associated with.
+	 * 
+	 * @param  parent the {@code parent} {@link Path} of the new sub-path.
+	 * @param  items the path items defining the sub-path under the passed {@code parent} {@link Path}.
+	 * @return a sub-path under the passed {@code parent} {@link Path}.
+	 */
 	public static final Path Path(final Path parent, final String... items)
 	{
+		if(parent == null)
+		{
+			return Path(items);
+		}
+		
 		/*
 		 * They seem to really have made every mistake possible on the Path API.
 		 * Not even a defined, reliable getter method for the string representation.
 		 * Oh wait, there's #getFileName() ... but oh... wait... lol
 		 */
-		return parent != null
-			? Paths.get(parent.toString(), items)
-			: Path(items)
-		;
+		return parent.getFileSystem().getPath(parent.toString(), items);
 	}
 	
 	/**
@@ -281,6 +326,17 @@ public final class XIO
 		return iterateEntries(directory, target, selector);
 	}
 	
+	/**
+	 * Warning: this (because of using Files.newDirectoryStream) does some weird file opening/locking stuff.
+	 * <p>
+	 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
+	 * 
+	 * @param <C>
+	 * @param directory
+	 * @param logic
+	 * @return
+	 * @throws IOException
+	 */
 	public static <C extends Consumer<? super Path>> C iterateEntries(
 		final Path directory,
 		final C    logic
@@ -290,6 +346,18 @@ public final class XIO
 		return iterateEntries(directory, logic, XFunc.all());
 	}
 	
+	/**
+	 * Warning: this (because of using Files.newDirectoryStream) does some weird file opening/locking stuff.
+	 * <p>
+	 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
+	 * 
+	 * @param <C>
+	 * @param directory
+	 * @param logic
+	 * @param selector
+	 * @return
+	 * @throws IOException
+	 */
 	public static <C extends Consumer<? super Path>> C iterateEntries(
 		final Path                    directory,
 		final C                       logic    ,
@@ -633,31 +701,36 @@ public final class XIO
 		FileChannel channel = null;
 		try
 		{
-			channel = openFileChannelWriting(targetFile, StandardOpenOption.APPEND);
-			for(final Path sourceFile : sourceFiles)
+			Throwable suppressed = null;
+			try
 			{
-				if(!selector.test(sourceFile))
+				channel = openFileChannelWriting(targetFile, StandardOpenOption.APPEND);
+				for(final Path sourceFile : sourceFiles)
 				{
-					continue;
+					if(!selector.test(sourceFile))
+					{
+						continue;
+					}
+					
+					try(final FileChannel sourceChannel = openFileChannelReading(sourceFile))
+					{
+						sourceChannel.transferTo(0, sourceChannel.size(), channel);
+					}
 				}
-				final FileChannel sourceChannel = openFileChannelReading(sourceFile);
-				try
-				{
-					sourceChannel.transferTo(0, sourceChannel.size(), channel);
-				}
-				finally
-				{
-					XIO.closeSilent(sourceChannel);
-				}
+			}
+			catch(final IOException e)
+			{
+				suppressed = e;
+			}
+			finally
+			{
+				XIO.close(channel, suppressed);
 			}
 		}
 		catch(final IOException e)
 		{
-			throw new RuntimeException(e); // (28.10.2014)TODO: proper exception
-		}
-		finally
-		{
-			XIO.closeSilent(channel);
+			// (28.10.2014)TODO: proper exception
+			throw new IORuntimeException(e);
 		}
 	}
 
@@ -908,6 +981,39 @@ public final class XIO
 	// breaks naming conventions intentionally to indicate a modification of called methods instead of a type
 	public static final class unchecked
 	{
+		public static final <C extends Closeable> C close(
+			final C         closable  ,
+			final Throwable suppressed
+		)
+			throws IORuntimeException
+		{
+			try
+			{
+				return XIO.close(closable, suppressed);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		public static final <C extends AutoCloseable> C close(
+			final C         closable  ,
+			final Throwable suppressed
+		)
+			throws RuntimeException
+		{
+			try
+			{
+				return XIO.close(closable, suppressed);
+			}
+			catch(final Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+		
+		
 		public static final long size(final FileChannel fileChannel) throws IORuntimeException
 		{
 			try
@@ -1017,6 +1123,17 @@ public final class XIO
 			}
 		}
 		
+		/**
+		 * Warning: this (because of using Files.newDirectoryStream) does some weird file opening/locking stuff.
+		 * <p>
+		 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
+		 * 
+		 * @param <C>
+		 * @param directory
+		 * @param logic
+		 * @return
+		 * @throws IORuntimeException
+		 */
 		public static <C extends Consumer<? super Path>> C iterateEntries(
 			final Path directory,
 			final C    logic
@@ -1032,7 +1149,19 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-		
+
+		/**
+		 * Warning: this (because of using Files.newDirectoryStream) does some weird file opening/locking stuff.
+		 * <p>
+		 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
+		 * 
+		 * @param <C>
+		 * @param directory
+		 * @param logic
+		 * @param selector
+		 * @return
+		 * @throws IORuntimeException
+		 */
 		public static <C extends Consumer<? super Path>> C iterateEntries(
 			final Path                    directory,
 			final C                       logic    ,

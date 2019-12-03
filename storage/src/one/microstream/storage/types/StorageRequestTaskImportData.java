@@ -413,14 +413,24 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 		private void cleanUpResources()
 		{
+			final DisruptionCollectorExecuting<FileChannel> closer = DisruptionCollectorExecuting.New(fc ->
+				XIO.close(fc, null)
+			);
+			
 			for(final SourceFileSlice s : this.sourceFileTails)
 			{
 				// the first slice is a dummy with no FileChannel instance
 				for(SourceFileSlice file = s; (file = file.next) != null;)
 				{
-//					DEBUGStorage.println("Closing silently: " + file);
-					XIO.closeSilent(file.fileChannel);
+//					DEBUGStorage.println("Closing: " + file);
+					closer.executeOn(file.fileChannel);
 				}
+			}
+			
+			if(closer.hasDisruptions())
+			{
+				 // (02.12.2019 TM)EXCP: proper exception
+				throw new RuntimeException(closer.toMultiCauseException());
 			}
 		}
 

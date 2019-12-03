@@ -34,7 +34,7 @@ public interface StorageManager extends StorageController
 	public boolean shutdown();
 
 	public StorageObjectIdRangeEvaluator objectIdRangeEvaluator();
-	
+		
 
 
 	public final class Default implements StorageManager, Unpersistable, StorageKillable
@@ -183,6 +183,38 @@ public interface StorageManager extends StorageController
 			return this.isChannelProcessingEnabled();
 		}
 		
+		@Override
+		public final boolean isActive()
+		{
+			synchronized(this.stateLock)
+			{
+				/*
+				 * If running is true, then it must be active as well (or will be shortly)
+				 * If not, one or more channels might still be active.
+				 * And if there is a backup handler, that might still be active, too.
+				 * 
+				 * Only if every active part is inactive is the whole storage inactive as well.
+				 */
+				return this.isRunning()
+					|| this.hasActiveChannels()
+					|| this.backupHandler != null && this.backupHandler.isActive()
+				;
+			}
+		}
+		
+		private boolean hasActiveChannels()
+		{
+			for(final ChannelKeeper keeper : this.channelKeepers)
+			{
+				if(keeper.isActive())
+				{
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
 		private boolean isChannelProcessingEnabled()
 		{
 			synchronized(this.stateLock)
@@ -319,7 +351,7 @@ public interface StorageManager extends StorageController
 
 
 		// "Please do not disturb the Keepers" :-D
-		static final class ChannelKeeper
+		static final class ChannelKeeper implements StorageActivePart
 		{
 			final int            channelIndex ;
 			final StorageChannel channel      ;
@@ -332,7 +364,15 @@ public interface StorageManager extends StorageController
 				this.channel       = channel     ;
 				this.channelThread = thread      ;
 			}
+			
+			@Override
+			public final boolean isActive()
+			{
+				return this.channel.isActive();
+			}
 		}
+		
+		
 
 		private void createChannels()
 		{
