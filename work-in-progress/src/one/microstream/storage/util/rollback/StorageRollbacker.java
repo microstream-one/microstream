@@ -417,23 +417,7 @@ class StorageRollbacker
 		 * This is (currently!) only a oneshot-"script", not an application.
 		 */
 	}
-	
-	public static void closeSilent(final AutoCloseable closable)
-	{
-		if(closable == null)
-		{
-			return;
-		}
-		try
-		{
-			closable.close();
-		}
-		catch(final Exception t)
-		{
-			// sshhh, silence!
-		}
-	}
-	
+		
 	private static ByteBuffer readFile(final FileChannel channel) throws Exception
 	{
 		final ByteBuffer bb = XMemory.allocateDirectNative(channel.size());

@@ -18,11 +18,11 @@ import java.util.function.Supplier;
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.concurrency.XThreads;
-import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.reflect.XReflect;
@@ -72,18 +72,36 @@ public final class XDebug
 	{
 		println(s, 1);
 	}
+	
+	public static final void print(final String s)
+	{
+		print(s, 1);
+	}
 
 	public static final void println(final String s, final int stackTraceCut)
 	{
 		// index 1 is always safely this method call itself, index 2 is always safely the calling context
 		final StackTraceElement e = XThreads.getStackTraceElement(2 + stackTraceCut);
 
-		System.out.println(
-			VarString.New(LINE_BUFFER_INITIAL_SIZE)
+		System.out.println(formatString(s, e));
+	}
+	
+	public static final void print(final String s, final int stackTraceCut)
+	{
+		// index 1 is always safely this method call itself, index 2 is always safely the calling context
+		final StackTraceElement e = XThreads.getStackTraceElement(2 + stackTraceCut);
+
+		System.out.print(formatString(s, e));
+	}
+	
+	public static String formatString(final String s, final StackTraceElement e)
+	{
+		return VarString.New(LINE_BUFFER_INITIAL_SIZE)
 			.padRight(toMethodLink(e), SOURCE_POSITION_PADDING, ' ')
 			.add(formatCommonTime(now()))
 			.add(TIME_SEPERATOR)
-			.add(s))
+			.add(s)
+			.toString()
 		;
 	}
 	
@@ -440,14 +458,18 @@ public final class XDebug
 		deleteAllFiles(target, output);
 		copyFile(source, source, target);
 	}
-
+	
 	public static final void deleteAllFiles(final Path directory, final boolean output)
 	{
 		if(!XIO.unchecked.exists(directory))
 		{
 			return;
 		}
-		XIO.unchecked.iterateEntries(directory, f ->
+				
+		// iterating entries on the fly (Files.newDirectoryStream) does some weird file opening stuff, so better copy it.
+		final BulkList<Path> entries = XIO.unchecked.listEntries(directory, BulkList.New());
+
+		for(final Path f : entries)
 		{
 			if(XIO.unchecked.isDirectory(f))
 			{
@@ -457,7 +479,7 @@ public final class XDebug
 			{
 				if(output)
 				{
-					println("Deleting " + f);
+					println("Deleting " + f.toAbsolutePath());
 				}
 				Files.deleteIfExists(f);
 			}
@@ -465,7 +487,8 @@ public final class XDebug
 			{
 				throw new RuntimeException("Cannot delete file: " + f, e);
 			}
-		});
+		}
+		
 	}
 
 	public static void copyFile(final Path sourceRoot, final Path subject, final Path targetRoot) throws IOException
@@ -487,24 +510,10 @@ public final class XDebug
 	)
 		throws IOException
 	{
-		try
+		final BulkList<Path> entries = XIO.unchecked.listEntries(targetRoot, BulkList.New());
+		for(final Path entry : entries)
 		{
-			XIO.unchecked.iterateEntries(targetRoot, file ->
-			{
-				try
-				{
-					copyFile(sourceRoot, file, targetRoot);
-				}
-				catch(final IOException e)
-				{
-					throw new IORuntimeException(e);
-				}
-			});
-		}
-		catch(final IORuntimeException e)
-		{
-			// this is a joke. Damned checked exceptions.
-			throw e.getActual();
+			copyFile(sourceRoot, entry, targetRoot);
 		}
 	}
 

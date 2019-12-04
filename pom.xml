@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>02.00.01-MS-GA-SNAPSHOT</version>
+	<version>02.01.01-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -83,8 +81,8 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:ssh://git@bitbucket.org:microstreamone/microstream.git</connection>
-		<developerConnection>scm:git:ssh//git@bitbucket.org:microstreamone/microstream.git</developerConnection>
+		<connection>scm:git:git@bitbucket.org:microstreamone/microstream.git</connection>
+		<developerConnection>scm:git:git@bitbucket.org:microstreamone/microstream.git</developerConnection>
 		<url>https://bitbucket.org/microstreamone/microstream.git</url>
 		<tag>HEAD</tag>
 	</scm>
@@ -137,27 +135,14 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 			</plugin>
-<!--			<plugin>
+			<plugin>
 				<groupId>one.microstream</groupId>
 				<artifactId>sourcestub-maven-plugin</artifactId>
-			</plugin> -->
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
 			</plugin>
-			<!-- Disable before release -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>		
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -182,7 +167,7 @@
 						</archive>
 					</configuration>
 				</plugin>
-<!--				<plugin>
+				<plugin>
 					<groupId>one.microstream</groupId>
 					<artifactId>sourcestub-maven-plugin</artifactId>
 					<version>2.1.1</version>
@@ -202,7 +187,7 @@
 							</configuration>
 						</execution>
 					</executions>
-				</plugin> -->
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
@@ -304,7 +289,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -317,7 +302,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>

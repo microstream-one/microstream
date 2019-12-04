@@ -1,9 +1,9 @@
 package one.microstream.storage.types;
 
-public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
+public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, StorageFileUser
 {
 	public boolean processNextItem(StorageBackupHandler handler, long timeoutMs) throws InterruptedException;
-	
+
 	
 	
 	public static StorageBackupItemQueue New()
@@ -70,6 +70,9 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 			final long                 length
 		)
 		{
+			sourceFile.registerUsage(this);
+			
+			// no try-catch with unregisterUsage required since the following code is too simple to fail.
 			synchronized(this.head)
 			{
 				this.tail = this.tail.next = new Item(sourceFile, sourcePosition, length);
@@ -102,6 +105,9 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer
 				final Item itemToBeProcessed = this.head.next;
 				
 				itemToBeProcessed.processBy(handler);
+				
+				// the backup thread can be the last active part of an already shutdown storage, so it has to clean up.
+				itemToBeProcessed.sourceFile.unregisterUsageClosing(this, null);
 				
 				if((this.head.next = itemToBeProcessed.next) == null)
 				{

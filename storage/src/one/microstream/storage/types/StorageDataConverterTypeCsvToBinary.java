@@ -17,6 +17,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
+import one.microstream.exceptions.IORuntimeException;
 import one.microstream.functional._charRangeProcedure;
 import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
@@ -1066,10 +1067,10 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		private void setSourceFile(final StorageFile file)
 		{
-			this.clearCurrentFileState();
+			this.flushCloseClear();
 
 			// set instance state at the end to guarantee consistency
-			this.sourceFile        = file;
+			this.sourceFile = file;
 		}
 
 		final void parseCurrentFile()
@@ -1089,19 +1090,45 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final CsvParserCharArray parser = CsvParserCharArray.New();
 			parser.parseCsvData(this.configuration.csvConfiguration(), _charArrayRange.New(input), this, this);
 		}
-		
-		final void clearCurrentFileState()
+				
+		final void flushCloseClear()
 		{
-			// flush buffer to be sure. Unnecessary case gets checked inside
-			this.flushBuffer();
-
-			StorageFile.closeSilent(this.targetFile);
-			XIO.closeSilent(this.targetFileChannel); // already done by locked file, but it's clearer that way
-
-			this.sourceFile            = null;
-			this.targetFile            = null;
-			this.targetFileChannel     = null;
-			this.actualCsvConfiguation = null;
+			/* (02.12.2019 TM)NOTE:
+			 * Doesn't "really" handling all error cases robustly mean that EVERY call has to be executed
+			 * in its own cascade level of try-finally?
+			 * If this is done really properly, virtually all code becomes unreadable...
+			 */
+			
+			Throwable suppressed = null;
+			try
+			{
+				// flush buffer to be sure. Unnecessary case gets checked inside
+				this.flushBuffer();
+			}
+			catch(final Throwable t)
+			{
+				suppressed = t;
+				throw t;
+			}
+			finally
+			{
+				this.closeAndClear(suppressed);
+			}
+		}
+		
+		final void closeAndClear(final Throwable suppressed)
+		{
+			try
+			{
+				StorageFile.close(this.targetFile, suppressed);
+			}
+			finally
+			{
+				this.sourceFile            = null;
+				this.targetFile            = null;
+				this.targetFileChannel     = null;
+				this.actualCsvConfiguation = null;
+			}
 		}
 
 		final void validateTypeNames(final XGettingList<String> dataColumntypes)
@@ -1544,8 +1571,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 			catch(final IOException e)
 			{
-				XIO.closeSilent(this.targetFileChannel);
-				throw new RuntimeException(e); // (15.10.2014 TM)EXCP: proper exception
+				XIO.unchecked.close(this.targetFileChannel, e);
+				throw new IORuntimeException(e); // (15.10.2014 TM)EXCP: proper exception
 			}
 			finally
 			{
@@ -1578,15 +1605,17 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 			catch(final IOException e)
 			{
-				throw new RuntimeException(e); // (07.10.2014 TM)EXCP: proper exception
+				throw new IORuntimeException(e); // (07.10.2014 TM)EXCP: proper exception
 			}
+			finally
+			{
+				// exactely 'limit' bytes are guaranteed to have been written.
+				this.targetFileActualLength += this.byteBuffer.limit();
 
-			// exactely 'limit' bytes are guaranteed to have been written.
-			this.targetFileActualLength += this.byteBuffer.limit();
-
-			// reset buffer state.
-			this.byteBuffer.clear();
-			this.currentBufferAddress = this.byteBufferStartAddress;
+				// reset buffer state.
+				this.byteBuffer.clear();
+				this.currentBufferAddress = this.byteBufferStartAddress;
+			}
 		}
 
 		final void checkForFlush()
@@ -1670,7 +1699,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			this.setSourceFile(file);
 			this.parseCurrentFile();
-			this.clearCurrentFileState();
+			this.flushCloseClear();
 		}
 		
 		static final String getSuffixlessFileName(final StorageFile file)
