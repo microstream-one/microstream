@@ -1,9 +1,10 @@
 package one.microstream.network.test.sessionless;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.network.simplesession.LogicSimpleNetwork;
 
 /**
@@ -28,6 +29,8 @@ public class MainTestSessionlessClient
 		for(int i = REQUEST_COUNT; i --> 0;)
 		{
 			final SocketChannel channel = LogicSimpleNetwork.openRemoteChannel(localhost);
+			
+			Throwable suppressed = null;
 			try
 			{
 				Thread.sleep(REQUEST_DELAY); // simulate that client does a lot of work before sending the message
@@ -35,8 +38,14 @@ public class MainTestSessionlessClient
 				final String answer = LogicSimpleNetwork.communicate(channel, message);
 				System.out.println(System.currentTimeMillis()+" Server said: "+answer);
 			}
-			finally {
-				XFiles.closeSilent(channel);
+			catch(final IOException e)
+			{
+				suppressed = e;
+				throw e;
+			}
+			finally
+			{
+				XIO.close(channel, suppressed);
 				System.gc();
 			}
 		}

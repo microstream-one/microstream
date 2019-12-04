@@ -11,6 +11,8 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.types.BinaryValueFunctions;
+import one.microstream.persistence.binary.types.BinaryValueSetter;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
@@ -42,7 +44,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	
 	public static boolean isJavaLangEnumName(final PersistenceTypeDefinitionMember member)
 	{
-		// intentionally no reference to the name since. Although final modifier and field type is not much better ...
+		// intentionally no reference to the name. Although final modifier and field type is not much better ...
 		return isJavaLangEnumMember(member)
 			&& member.type() == String.class
 		;
@@ -50,7 +52,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	
 	public static boolean isJavaLangEnumOrdinal(final PersistenceTypeDefinitionMember member)
 	{
-		// intentionally no reference to the name since. Although final modifier and field type is not much better ...
+		// intentionally no reference to the name. Although final modifier and field type is not much better ...
 		return isJavaLangEnumMember(member)
 			&& member.type() == int.class
 		;
@@ -101,17 +103,34 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		XReflect.validateIsEnum(enumType);
 		
 		final HashEnum<PersistenceTypeDefinitionMemberEnumConstant> enumConstants = HashEnum.New();
-		for(final Field field : enumType.getDeclaredFields())
+
+		// crazy nested enum classes return null here
+		final Object[] enumConstantsArray = enumType.getEnumConstants();
+		if(enumConstantsArray != null)
 		{
-			if(field.isEnumConstant())
+			// (15.11.2019 TM)NOTE: should work on any JVM and is even a little bit more elegant
+			for(final Object enumInstance : enumConstantsArray)
 			{
 				enumConstants.add(
 					PersistenceTypeDefinitionMemberEnumConstant.New(
-						field.getName()
+						((Enum<?>)enumInstance).name()
 					)
 				);
 			}
 		}
+		
+		// (15.11.2019 TM)NOTE: works on oracle JVM, but not on android (and potentially others)
+//		for(final Field field : enumType.getDeclaredFields())
+//		{
+//			if(field.isEnumConstant())
+//			{
+//				enumConstants.add(
+//					PersistenceTypeDefinitionMemberEnumConstant.New(
+//						field.getName()
+//					)
+//				);
+//			}
+//		}
 		
 		return enumConstants.immure();
 	}
@@ -183,20 +202,14 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	//////////////////////
 	
 	@Override
-	protected EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> filterSettingMembers(
-		final EqConstHashEnum<PersistenceTypeDefinitionMemberFieldReflective> members
-	)
+	protected BinaryValueSetter deriveSetter(final PersistenceTypeDefinitionMemberFieldReflective member)
 	{
-		return members.filterTo(MemberEnum(), this::settableField).immure();
+		return this.isUnsettableField(member)
+			? BinaryValueFunctions.getObjectValueSettingSkipper(member.type())
+			: BinaryValueFunctions.getObjectValueSetter(member.type(), this.isSwitchedByteOrder())
+		;
 	}
-	
-	@Override
-	protected long[] initializeSettingMemoryOffsets()
-	{
-		// additional long[] must be created instead of referencing that for storing offsets
-		return objectFieldOffsets(this.settingMembers());
-	}
-	
+			
 	@Override
 	protected EqConstHashEnum<PersistenceTypeDefinitionMember> deriveAllMembers(
 		final XGettingSequence<? extends PersistenceTypeDefinitionMember> instanceMembers
@@ -227,7 +240,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	// methods //
 	////////////
 	
-	protected final boolean settableField(final PersistenceTypeDefinitionMemberFieldReflective m)
+	protected final boolean isUnsettableField(final PersistenceTypeDefinitionMemberFieldReflective m)
 	{
 		/*
 		 * Final primitive fields and final value type fields ("value instance constants") may not be settable, either.
@@ -237,7 +250,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		 * Any mutable field must be loaded and set, that is no question.
 		 * But silently changing a final primitive field's value ... that can actually only be a bug.
 		 */
-		return !this.isJavaLangEnumField(m) && !this.isFinalPrimitiveField(m) && !this.isFinalValueTypeField(m);
+		return this.isJavaLangEnumField(m) || this.isFinalPrimitiveField(m) || this.isFinalValueTypeField(m);
 	}
 	
 	protected final boolean isJavaLangEnumField(final PersistenceTypeDefinitionMemberFieldReflective m)
@@ -300,12 +313,12 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	@Override
 	public int getPersistedEnumOrdinal(final Binary bytes)
 	{
-		return bytes.get_int(this.binaryOffsetOrdinal);
+		return bytes.read_int(this.binaryOffsetOrdinal);
 	}
 	
 	public String getName(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return (String)idResolver.lookupObject(bytes.get_long(this.binaryOffsetName));
+		return (String)idResolver.lookupObject(bytes.read_long(this.binaryOffsetName));
 	}
 	
 	private void validate(

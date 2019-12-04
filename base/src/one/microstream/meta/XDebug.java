@@ -2,7 +2,6 @@ package one.microstream.meta;
 
 import static one.microstream.time.XTime.now;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
@@ -19,12 +18,12 @@ import java.util.function.Supplier;
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.concurrency.XThreads;
-import one.microstream.files.XFiles;
-import one.microstream.memory.PlatformInternals;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
@@ -436,21 +435,25 @@ public final class XDebug
 		System.out.println(vs);
 	}
 	
-	public static void resetDirecory(final File target, final File source, final boolean output) throws IOException
+	public static void resetDirecory(final Path target, final Path source, final boolean output) throws IOException
 	{
 		deleteAllFiles(target, output);
 		copyFile(source, source, target);
 	}
-
-	public static final void deleteAllFiles(final File directory, final boolean output)
+	
+	public static final void deleteAllFiles(final Path directory, final boolean output)
 	{
-		if(!directory.exists())
+		if(!XIO.unchecked.exists(directory))
 		{
 			return;
 		}
-		for(final File f : directory.listFiles())
+				
+		// iterating entries on the fly (Files.newDirectoryStream) does some weird file opening stuff, so better copy it.
+		final BulkList<Path> entries = XIO.unchecked.listEntries(directory, BulkList.New());
+
+		for(final Path f : entries)
 		{
-			if(f.isDirectory())
+			if(XIO.unchecked.isDirectory(f))
 			{
 				deleteAllFiles(f, output);
 			}
@@ -458,21 +461,21 @@ public final class XDebug
 			{
 				if(output)
 				{
-					println("Deleting "+f);
+					println("Deleting " + f.toAbsolutePath());
 				}
-				Files.deleteIfExists(f.toPath());
+				Files.deleteIfExists(f);
 			}
 			catch(final Exception e)
 			{
-				throw new RuntimeException("Cannot delete file: "+f, e);
+				throw new RuntimeException("Cannot delete file: " + f, e);
 			}
 		}
-
+		
 	}
 
-	public static void copyFile(final File sourceRoot, final File subject, final File targetRoot) throws IOException
+	public static void copyFile(final Path sourceRoot, final Path subject, final Path targetRoot) throws IOException
 	{
-		if(subject.isDirectory())
+		if(XIO.unchecked.isDirectory(subject))
 		{
 			copyDirectory(sourceRoot, subject, targetRoot);
 		}
@@ -482,24 +485,30 @@ public final class XDebug
 		}
 	}
 
-	public static void copyDirectory(final File sourceRoot, final File subject, final File targetRoot) throws IOException
+	public static void copyDirectory(
+		final Path sourceRoot,
+		final Path subject   ,
+		final Path targetRoot
+	)
+		throws IOException
 	{
-		for(final File file : subject.listFiles())
+		final BulkList<Path> entries = XIO.unchecked.listEntries(targetRoot, BulkList.New());
+		for(final Path entry : entries)
 		{
-			copyFile(sourceRoot, file, targetRoot);
+			copyFile(sourceRoot, entry, targetRoot);
 		}
 	}
 
-	public static void copyActualFile(final File sourceRoot, final File subject, final File targetRoot) throws IOException
+	public static void copyActualFile(final Path sourceRoot, final Path subject, final Path targetRoot) throws IOException
 	{
-		final String sourceRootPath = sourceRoot.getAbsolutePath();
-		final String subjectPath    = subject.getAbsolutePath();
-		final File   targetFile     = new File(targetRoot, subjectPath.substring(sourceRootPath.length()));
+		final String sourceRootPath = sourceRoot.toAbsolutePath().normalize().toString();
+		final String subjectPath    = subject.toAbsolutePath().normalize().toString();
+		final Path   targetFile     = XIO.Path(targetRoot, subjectPath.substring(sourceRootPath.length()));
 
-		XFiles.ensureDirectoryAndFile(targetFile);
+		XIO.ensureDirectoryAndFile(targetFile);
 
-		final Path sourcePath      = subject.toPath();
-		final Path destinationPath = targetFile.toPath();
+		final Path sourcePath      = subject;
+		final Path destinationPath = targetFile;
 
 		Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 	}
@@ -507,7 +516,7 @@ public final class XDebug
 	
 	public static byte[] copyDirectByteBufferRange(final ByteBuffer bb, final int offset, final int length)
 	{
-		final long address = PlatformInternals.getDirectBufferAddress(bb);
+		final long address = XMemory.getDirectByteBufferAddress(bb);
 		final byte[] data = new byte[length];
 		XMemory.copyRangeToArray(address + XArrays.validateArrayIndex(length, offset), data);
 		return data;
@@ -529,6 +538,8 @@ public final class XDebug
 			XMemory.byteSizeInstance(c) + " byte size of one instance of "
 			+ c.getName()
 		);
+		
+		XMemory.ensureClassInitialized(c);
 		XReflect.iterateDeclaredFieldsUpwards(c, f ->
 		{
 			if(!Modifier.isStatic(f.getModifiers()))
@@ -537,7 +548,7 @@ public final class XDebug
 			}
 		});
 		System.out.println(
-			XMemory.byteSizeObjectHeader() + " Object header size (" + XMemory.byteSizeArrayObject(0) + " array header size)."
+			XMemory.byteSizeObjectHeader(c) + " Object header size (" + XMemory.byteSizeArrayObject(0) + " array header size)."
 				+ " Reference byte size = " + XMemory.byteSizeReference() + "."
 		);
 	}

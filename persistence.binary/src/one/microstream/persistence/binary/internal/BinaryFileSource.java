@@ -2,17 +2,18 @@ package one.microstream.persistence.binary.internal;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.Constant;
 import one.microstream.collections.types.XGettingCollection;
+import one.microstream.io.XIO;
+import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.ChunksWrapper;
@@ -25,7 +26,7 @@ import one.microstream.persistence.types.PersistenceSource;
 
 public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaiter
 {
-	public static final BinaryFileSource New(final File file, final boolean switchByteOrder)
+	public static final BinaryFileSource New(final Path file, final boolean switchByteOrder)
 	{
 		return new BinaryFileSource(
 			notNull(file),
@@ -47,7 +48,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// instance fields //
 	////////////////////
 
-	private final File    file           ;
+	private final Path    file           ;
 	private final boolean switchByteOrder;
 	
 	// (11.07.2019 TM)NOTE: removed, see comments at occurance for reason.
@@ -59,7 +60,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// constructors //
 	/////////////////
 
-	BinaryFileSource(final File file, final boolean switchByteOrder)
+	BinaryFileSource(final Path file, final boolean switchByteOrder)
 	{
 		super();
 		this.switchByteOrder = switchByteOrder;
@@ -75,7 +76,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	private ByteBuffer readChunk(final ReadableByteChannel channel, final long chunkTotalLength)
 		throws IOException
 	{
-		final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(X.checkArrayRange(chunkTotalLength));
+		final ByteBuffer byteBuffer = XMemory.allocateDirectNative(X.checkArrayRange(chunkTotalLength));
 //		BinaryPersistence.setChunkTotalLength(byteBuffer);
 //		byteBuffer.position(8);
 		fillBuffer(byteBuffer, channel, this); // only one buffer per chunk in simple implementation
@@ -127,7 +128,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 //		 */
 //
 //		// good thing is: doing it manually gets rid of the clumsy flipping in this case
-//		return XMemory.get_long(PlatformInternals.getDirectBufferAddress(lengthBuffer));
+//		return XMemory.get_long(XMemory.getDirectByteBufferAddress(lengthBuffer));
 //	}
 
 	private static final void fillBuffer(
@@ -162,17 +163,9 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	@Override
 	public XGettingCollection<? extends Binary> read() throws PersistenceExceptionTransfer
 	{
-		/* Instantiation detour should still be faster than the weird Set instantiating FileChannel.open()
-		 */
-		try(final FileInputStream fis = new FileInputStream(this.file); final FileChannel fch = fis.getChannel())
+		try(final FileChannel fch = XIO.openFileChannelReading(this.file))
 		{
-			/* How very clever of those geniuses to make all the ByteBuffer constructors
-			 * package private and thus lock out everyone who needs to implement a tailored
-			 * efficient implementation (e.g. one with only exactly one long field in it like here).
-			 * That stupidity combined with their usual horrible hacker code style is already enough
-			 * to damage the faith in the professionalism of that "new" IO stuff. Hurray.
-			 */
-			return this.read(this.file.length(), fch);
+			return this.read(fch.size(), fch);
 		}
 		catch(final Exception t)
 		{

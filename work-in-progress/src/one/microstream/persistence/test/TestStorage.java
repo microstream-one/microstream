@@ -3,6 +3,7 @@ package one.microstream.persistence.test;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -15,6 +16,7 @@ import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XSequence;
 import one.microstream.functional.XFunc;
+import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -73,7 +75,7 @@ public class TestStorage extends TestComponentProvider
 	static void deleteOutput(final File dir)
 	{
 		System.out.println("Resetting " + dir);
-		XDebug.deleteAllFiles(dir, false);
+		XDebug.deleteAllFiles(dir.toPath(), false);
 		System.out.println("done");
 	}
 
@@ -87,19 +89,19 @@ public class TestStorage extends TestComponentProvider
 		return TEST.initialize(EmbeddedStorageConnectionFoundation.New());
 	}
 
-	protected static File convertBinToCsv(final File... binaryFiles)
+	protected static Path convertBinToCsv(final Path... binaryFiles)
 	{
 		return convertBinToCsv(EqHashEnum.New(binaryFiles));
 	}
 
-	protected static File convertBinToCsv(final XGettingCollection<File> binaryFiles)
+	protected static Path convertBinToCsv(final XGettingCollection<Path> binaryFiles)
 	{
 		return convertBinToCsv(binaryFiles, XFunc.all());
 	}
 
-	protected static File convertBinToCsv(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
+	protected static Path convertBinToCsv(final XGettingCollection<Path> binaryFiles, final Predicate<? super Path> filter)
 	{
-		final File dir = new File(binaryFiles.get().getParentFile().getParentFile(), "csv");
+		final Path dir = XIO.Path(binaryFiles.get().getParent().getParent(), "csv");
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			new StorageEntityTypeConversionFileProvider.Default(dir, "csv"),
@@ -109,7 +111,7 @@ public class TestStorage extends TestComponentProvider
 			4096
 		);
 
-		for(final File file : binaryFiles)
+		for(final Path file : binaryFiles)
 		{
 			if(!filter.test(file))
 			{
@@ -133,21 +135,21 @@ public class TestStorage extends TestComponentProvider
 		return dir;
 	}
 
-	protected static void convertCsvToBin(final File... binaryFiles)
+	protected static void convertCsvToBin(final Path... binaryFiles)
 	{
 		convertCsvToBin(X.List(binaryFiles), XFunc.all());
 	}
 
-	protected static void convertCsvToBin(final XGettingCollection<File> binaryFiles, final Predicate<? super File> filter)
+	protected static void convertCsvToBin(final XGettingCollection<Path> binaryFiles, final Predicate<? super Path> filter)
 	{
-		final File directory = new File(binaryFiles.get().getParentFile().getParentFile(), "bin2");
+		final Path directory = XIO.Path(binaryFiles.get().getParent().getParent(), "bin2");
 		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			STORAGE.typeDictionary(),
 			new StorageEntityTypeConversionFileProvider.Default(directory, "dat2")
 		);
 
-		for(final File file : binaryFiles)
+		for(final Path file : binaryFiles)
 		{
 			if(!filter.test(file))
 			{
@@ -159,9 +161,9 @@ public class TestStorage extends TestComponentProvider
 		}
 	}
 
-	static final XSequence<File> exportTypes(
+	static final XSequence<Path> exportTypes(
 		final StorageConnection storageConnection,
-		final File              targetDirectory  ,
+		final Path              targetDirectory  ,
 		final String            fileSuffix
 )
 	{
@@ -170,9 +172,9 @@ public class TestStorage extends TestComponentProvider
 		);
 		System.out.println(result);
 
-		final XSequence<File> exportFiles = CQL
+		final XSequence<Path> exportFiles = CQL
 			.from(result.typeStatistics().values())
-			.project(s -> new File(s.file().identifier()))
+			.project(s -> XIO.Path(s.file().identifier()))
 			.execute()
 		;
 

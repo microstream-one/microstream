@@ -1,17 +1,23 @@
 package one.microstream.persistence.internal;
 
-import java.io.File;
+import java.nio.file.Path;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.persistence.exceptions.PersistenceException;
 
+/*
+ * Prefix "Util" to be excluded from the usual "Persistence~" type suggestions
+ * but be easily findable when searching for "Util~".
+ * It makes so much sense that way. Really weird that noone else does it that way.
+ */
 public class UtilPersistenceIo
 {
-	public static void move(final File sourceFile, final File targetFile)
+	public static void move(final Path sourceFile, final Path targetFile)
 	{
 		try
 		{
-			XFiles.move(sourceFile, targetFile);
+//			XIO.ensureDirectoryAndFile(targetFile);
+			XIO.move(sourceFile, targetFile);
 		}
 		catch(final Exception e)
 		{

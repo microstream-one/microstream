@@ -1,7 +1,5 @@
 package one.microstream.persistence.types;
 
-import java.io.File;
-
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 
@@ -25,7 +23,7 @@ public interface PersistenceSource<M>
 	public XGettingCollection<? extends M> readByObjectIds(PersistenceIdSet[] oids) throws PersistenceExceptionTransfer;
 	
 	/**
-	 * Prepare to read from this source. E.g. open a defined {@link File}.
+	 * Prepare to read from this source. E.g. open a defined file.
 	 * 
 	 */
 	public default void prepareSource()

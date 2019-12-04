@@ -1,7 +1,5 @@
 package one.microstream.persistence.types;
 
-import java.io.File;
-
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 
 public interface PersistenceTarget<M>
@@ -9,7 +7,7 @@ public interface PersistenceTarget<M>
 	public void write(M data) throws PersistenceExceptionTransfer;
 	
 	/**
-	 * Prepare to write to this target. E.g. open a defined {@link File}.
+	 * Prepare to write to this target. E.g. open a defined file.
 	 * 
 	 */
 	public default void prepareTarget()

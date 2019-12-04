@@ -50,7 +50,7 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	@Override
 	public BigDecimal create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return new BigDecimal(bytes.buildArray_char());
+		return new BigDecimal(bytes.build_chars());
 	}
 
 }

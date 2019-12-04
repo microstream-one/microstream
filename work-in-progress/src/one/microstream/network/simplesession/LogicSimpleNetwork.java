@@ -161,7 +161,7 @@ public final class LogicSimpleNetwork
 		final byte[] bytes = string.getBytes(CHARSET);
 		if(buffer.capacity() < bytes.length + BYTE_SIZE_LENGTH_HEADER)
 		{
-			checkedBuffer = ByteBuffer.allocateDirect(bytes.length + BYTE_SIZE_LENGTH_HEADER);
+			checkedBuffer = XMemory.allocateDirectNative(bytes.length + BYTE_SIZE_LENGTH_HEADER);
 		}
 		else
 		{
@@ -174,13 +174,13 @@ public final class LogicSimpleNetwork
 	public static final void sendString(final String string, final SocketChannel channel, final int responseTimeout)
 		throws IOException
 	{
-		sendString(string, channel, ByteBuffer.allocateDirect(XMemory.pageSize()), responseTimeout);
+		sendString(string, channel, XMemory.allocateDirectNativeDefault(), responseTimeout);
 	}
 
 	public static final void sendString(final String string, final SocketChannel channel)
 		throws IOException
 	{
-		sendString(string, channel, ByteBuffer.allocateDirect(XMemory.pageSize()), DEFAULT_RESPONSE_TIMEOUT);
+		sendString(string, channel, XMemory.allocateDirectNativeDefault(), DEFAULT_RESPONSE_TIMEOUT);
 	}
 
 	// reading //
@@ -211,7 +211,7 @@ public final class LogicSimpleNetwork
 
 		if(length > buffer.capacity())
 		{
-			checkedBuffer = ByteBuffer.allocateDirect(length);
+			checkedBuffer = XMemory.allocateDirectNative(length);
 		}
 		else
 		{
@@ -278,14 +278,14 @@ public final class LogicSimpleNetwork
 	)
 		throws IOException
 	{
-		return readString(channel, ByteBuffer.allocateDirect(XMemory.pageSize()), responseTimeout, maxStringLength);
+		return readString(channel, XMemory.allocateDirectNativeDefault(), responseTimeout, maxStringLength);
 	}
 
 	public static final String readString(final SocketChannel channel, final int maxStringLength) throws IOException
 	{
 		return readString(
 			channel,
-			ByteBuffer.allocateDirect(XMemory.pageSize()),
+			XMemory.allocateDirectNativeDefault(),
 			DEFAULT_RESPONSE_TIMEOUT,
 			maxStringLength
 		);

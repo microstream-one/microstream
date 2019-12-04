@@ -5,7 +5,7 @@ import java.util.Properties;
 import one.microstream.X;
 import one.microstream.collections.old.KeyValueFlatCollector;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemoryJDK8;
+import one.microstream.memory.sun.SunJdk8Internals;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -77,7 +77,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeMapEntrySet(
+		bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -86,8 +86,8 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 		);
 
 		bytes.store_long(
-			contentAddress + BINARY_OFFSET_DEFAULTS,
-			handler.apply(XMemoryJDK8.accessDefaults(instance))
+			BINARY_OFFSET_DEFAULTS,
+			handler.apply(SunJdk8Internals.accessDefaults(instance))
 		);
 	}
 	
@@ -107,10 +107,10 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	{
 		instance.clear();
 		
-		final Object defaults = idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_DEFAULTS));
+		final Object defaults = idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_DEFAULTS));
 		
 		// the cast is important to ensure the type validity of the resolved defaults instance.
-		XMemoryJDK8.setDefaults(instance, (Properties)defaults);
+		SunJdk8Internals.setDefaults(instance, (Properties)defaults);
 		
 		final int elementCount = getElementCount(bytes);
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
@@ -127,14 +127,14 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	@Override
 	public final void iterateInstanceReferences(final Properties instance, final PersistenceFunction iterator)
 	{
-		iterator.apply(XMemoryJDK8.accessDefaults(instance));
+		iterator.apply(SunJdk8Internals.accessDefaults(instance));
 		Persistence.iterateReferencesMap(iterator, instance);
 	}
 	
 	@Override
 	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_DEFAULTS));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_DEFAULTS));
 		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	

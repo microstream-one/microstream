@@ -38,9 +38,12 @@ import one.microstream.collections.types.XReference;
 import one.microstream.collections.types.XSet;
 import one.microstream.concurrency.ThreadSafe;
 import one.microstream.exceptions.ArrayCapacityException;
+import one.microstream.exceptions.IndexBoundsException;
 import one.microstream.exceptions.WrapperRuntimeException;
 import one.microstream.functional.BooleanTerm;
 import one.microstream.functional._intIndexedSupplier;
+import one.microstream.functional._intProcedure;
+import one.microstream.math.XMath;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing._longKeyValue;
 import one.microstream.util.UtilStackTrace;
@@ -725,6 +728,14 @@ public final class X
 		}
 		return BulkList.New(elements);
 	}
+	
+	public static <E> XList<E> List(final Iterable<? extends E> elements)
+	{
+		final BulkList<E> newInstance = BulkList.New();
+		elements.forEach(newInstance);
+		
+		return newInstance;
+	}
 
 	@SafeVarargs
 	public static <E> ConstList<E> ConstList(final E... elements) throws NullPointerException
@@ -760,6 +771,14 @@ public final class X
 			return HashEnum.New();
 		}
 		return HashEnum.<E>New(elements);
+	}
+	
+	public static <E> HashEnum<E> Enum(final Iterable<? extends E> elements)
+	{
+		final HashEnum<E> newInstance = HashEnum.New();
+		elements.forEach(newInstance);
+		
+		return newInstance;
 	}
 
 	@SafeVarargs
@@ -1176,6 +1195,95 @@ public final class X
 		}
 		
 		throw exceptor.apply(value);
+	}
+	
+	public static <P extends _intProcedure> P repeat(final int amount, final P logic)
+	{
+		return repeat(0, amount, logic);
+	}
+	
+	public static <P extends _intProcedure> P repeat(final int startValue, final int length, final P logic)
+	{
+		final int bound = startValue + XMath.positive(length);
+		
+		for(int i = startValue; i < bound; i++)
+		{
+			logic.accept(i);
+		}
+		
+		return logic;
+	}
+	
+	public static <P extends Runnable> P repeat(final int amount, final P logic)
+	{
+		return repeat(0, amount, logic);
+	}
+	
+	public static <P extends Runnable> P repeat(final int startValue, final int length, final P logic)
+	{
+		final int bound = startValue + XMath.positive(length);
+		
+		for(int i = startValue; i < bound; i++)
+		{
+			logic.run();
+		}
+		
+		return logic;
+	}
+		
+	public static final long validateIndex(
+		final long availableLength,
+		final long index
+	)
+		throws IndexBoundsException
+	{
+		if(index < 0)
+		{
+			throw IndexBoundsException(0, availableLength, index, "Index < 0", 1);
+		}
+		if(index >= availableLength)
+		{
+			throw IndexBoundsException(0, availableLength, index, "Index >= bound", 1);
+		}
+		
+		return index;
+	}
+	
+	public static final long validateRange(final long availableLength, final long startIndex, final long length)
+	{
+		if(startIndex < 0)
+		{
+			throw IndexBoundsException(0, availableLength, startIndex, "StartIndex < 0", 1);
+		}
+		if(startIndex >= availableLength)
+		{
+			throw IndexBoundsException(0, availableLength, startIndex, "StartIndex >= bound", 1);
+		}
+		
+		if(length < 0)
+		{
+			throw IndexBoundsException(startIndex, availableLength, length, "Length < 0", 1);
+		}
+		if(startIndex + length - 1 >= availableLength)
+		{
+			throw IndexBoundsException(0, availableLength, startIndex + length - 1, "LastIndex >= bound", 1);
+		}
+		
+		return startIndex;
+	}
+	
+	public static final IndexBoundsException IndexBoundsException(
+		final long   startIndex        ,
+		final long   indexBound        ,
+		final long   index             ,
+		final String message           ,
+		final int    stackTraceCutDepth
+	)
+	{
+		return UtilStackTrace.cutStacktraceByN(
+			new IndexBoundsException(startIndex, indexBound, index, message),
+			stackTraceCutDepth + 1
+		);
 	}
 
 	

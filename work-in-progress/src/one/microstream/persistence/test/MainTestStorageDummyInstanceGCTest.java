@@ -7,7 +7,6 @@ import one.microstream.concurrency.XThreads;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.lazy.Lazy;
 import one.microstream.persistence.types.Storer;
-import one.microstream.storage.types.DebugStorage;
 import one.microstream.storage.types.StorageConnection;
 
 
@@ -67,7 +66,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 		{
 			final Date now = new Date();
 
-			DebugStorage.println("#" + i + " storing @" + now.getTime());
+			XDebug.println("#" + i + " storing @" + now.getTime());
 
 			final Storer storer = connection.createStorer();
 
@@ -89,11 +88,11 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 			final long dateOid = connection.persistenceManager().lookupObjectId(now);
 
-			DebugStorage.println("#" + i + " storing " + storer.size());
+			XDebug.println("#" + i + " storing " + storer.size());
 
 			storer.commit();
 
-			DebugStorage.println("#" + i + " stored." + " (" + dateOid + ")");
+			XDebug.println("#" + i + " stored." + " (" + dateOid + ")");
 
 			XThreads.sleep(WAIT_TIME);
 		}
@@ -121,7 +120,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 		{
 			final Date now = new Date();
 
-			DebugStorage.println("#" + i + " storing @" + now.getTime());
+			XDebug.println("#" + i + " storing @" + now.getTime());
 
 			final Storer storer = connection.createStorer();
 
@@ -133,11 +132,11 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 			final long dateOid = connection.persistenceManager().lookupObjectId(now);
 
-			DebugStorage.println("#" + i + " storing " + storer.size());
+			XDebug.println("#" + i + " storing " + storer.size());
 
 			storer.commit();
 
-			DebugStorage.println("#" + i + " stored." + " (" + dateOid + ")");
+			XDebug.println("#" + i + " stored." + " (" + dateOid + ")");
 
 			XThreads.sleep(WAIT_TIME);
 		}
@@ -155,7 +154,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 		{
 			final Date now = new Date();
 
-			DebugStorage.println("#" + i + " storing @" + now.getTime());
+			XDebug.println("#" + i + " storing @" + now.getTime());
 
 			final Storer storer = connection.createStorer();
 
@@ -167,11 +166,11 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 
 			final long dateOid = connection.persistenceManager().lookupObjectId(now);
 
-			DebugStorage.println("#" + i + " storing " + storer.size());
+			XDebug.println("#" + i + " storing " + storer.size());
 
 			storer.commit();
 
-			DebugStorage.println("#" + i + " stored." + " (" + dateOid + ")");
+			XDebug.println("#" + i + " stored." + " (" + dateOid + ")");
 
 			XThreads.sleep(WAIT_TIME);
 		}
@@ -258,7 +257,7 @@ public class MainTestStorageDummyInstanceGCTest extends TestStorage
 	{
 		final File dir = new File("c:/Files");
 		System.out.println("Resetting "+dir);
-		XDebug.deleteAllFiles(dir, false);
+		XDebug.deleteAllFiles(dir.toPath(), false);
 		System.out.println("done");
 	}
 

@@ -1,6 +1,6 @@
 package com.mysql.dev.sakila;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 
+import one.microstream.io.XIO;
 import one.microstream.math.XMath;
 import one.microstream.meta.XDebug;
 import one.microstream.reference.Reference;
@@ -22,10 +23,10 @@ import one.microstream.time.XTime;
 public class MainTestStoreSakilaCustomersPerformance
 {
 	/**
-	 * Since the MicroStraem storing performance considerably depends on the disk speed, it is important to use
+	 * Since the MicroStream storing performance considerably depends on the disk speed, it is important to use
 	 * an SSD to get significant results.
 	 */
-	static final File DIRECTORY = new File("C:/" + MainTestStoreSakilaCustomersPerformance.class.getSimpleName());
+	static final Path DIRECTORY = XIO.Path("C:/" + MainTestStoreSakilaCustomersPerformance.class.getSimpleName());
 	
 	static
 	{

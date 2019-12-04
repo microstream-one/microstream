@@ -64,11 +64,17 @@ public interface StorageEntity
 		// constants //
 		//////////////
 
-		// Quite a lot, but that's the price of simplicity and performance (GC etc.)
-		private static final int MEMORY_CONSUMPTION_BYTES = // 84/120 bytes (+/-coops).
-			XMemory.byteSizeInstance(StorageEntity.Default.class)
-			+ XMemory.byteSizeReference() // take into account oid hash table slot in entity cache
-		;
+		// Quite a lot, concept for minimizing overhead and pushing the data off-heap already exists.
+//		private static final int MEMORY_CONSUMPTION_BYTES = // 84/120 bytes (+/-coops).
+//			XMemory.byteSizeInstance(StorageEntity.Default.class)
+//			+ XMemory.byteSizeReference() // take into account oid hash table slot in entity cache
+//		;
+		
+		// currently not used, but might come in handy for other/future intentions
+//		public static final int memoryConsumptionBytes()
+//		{
+//			return MEMORY_CONSUMPTION_BYTES;
+//		}
 
 		// enough for ~17 years since class initialization with 256ms resolution.
 		private static final long TOUCHED_SHIFT_COUNT  = 8;
@@ -89,18 +95,6 @@ public interface StorageEntity
 		static final byte GC_GRAY       = +1; // marked but waiting for reference iteration marking
 		static final byte GC_INITIAL    =  0; // created/updated. Not marked, but not to be deleted in current GC round.
 		static final byte GC_WHITE      = -1; // not marked
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-
-		// currently not used, but might come in handy for other/future intentions
-		public static final int memoryConsumptionBytes()
-		{
-			return MEMORY_CONSUMPTION_BYTES;
-		}
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -380,8 +374,6 @@ public interface StorageEntity
 				this.internalLoadFullEntityData();
 			}
 			// already fully loaded, nothing to do
-
-
 
 			// (05.04.2016 TM)NOTE: suboptimal order and unnecessary double loading
 //			if(this.isLive() && !this.onlyRefsCached)

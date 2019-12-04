@@ -11,7 +11,7 @@ import java.lang.reflect.TypeVariable;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,7 +35,7 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
@@ -159,6 +159,8 @@ public class Persistence
 	static final long TID_java_util_ConcurrentSkipListSet  = 66L;
 	static final long TID_java_util_WeakHashMap            = 67L;
 
+	static final long TID_java_util_Locale                 = 68L;
+
 	// arrays (only 1D) of common types
 	static final long TID_ARRAY_byte           = 100L + TID_PRIMITIVE_byte   ;
 	static final long TID_ARRAY_boolean        = 100L + TID_PRIMITIVE_boolean;
@@ -187,8 +189,8 @@ public class Persistence
 	static final long TID_ARRAY_AbsStringBuffr = 100L + TID_AbstractStringBuilder;
 	static final long TID_ARRAY_StringBuffer   = 100L + TID_StringBuffer         ;
 	static final long TID_ARRAY_StringBuilder  = 100L + TID_StringBuilder        ;
-
-	static final long TID_persistence_Lazy = 10000L;
+	
+	static final long TID_persistence_Lazy_Default = 10000L;
 
 	// CHECKSTYLE.ON: ConstantName
 
@@ -196,6 +198,12 @@ public class Persistence
 	static final String OBJECT_ID_LABEL_SHORT = "OID";
 
 
+	
+	public static String engineName()
+	{
+		// kind of weird to put it here, but it has to be somewhere and the Persistence layer is the base for everything
+		return "MicroStream";
+	}
 
 	public static final String objectIdLabel()
 	{
@@ -341,6 +349,7 @@ public class Persistence
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentSkipListMap.class, TID_java_util_ConcurrentSkipListMap);
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentSkipListSet.class, TID_java_util_ConcurrentSkipListSet);
 
+		NATIVE_TYPES.add(java.util.Locale.class, TID_java_util_Locale);
 		
 		/* (27.03.2012)FIXME more native types
 		 * java.nio.Path etc.
@@ -375,7 +384,7 @@ public class Persistence
 
 		// framework types //
 
-		NATIVE_TYPES.add(Lazy.class, TID_persistence_Lazy);
+		NATIVE_TYPES.add(Lazy.Default.class, TID_persistence_Lazy_Default);
 	}
 
 
@@ -384,8 +393,6 @@ public class Persistence
 	{
 		return TID_Class;
 	}
-
-
 
 	public static final boolean isNativeType(final Class<?> type)
 	{
@@ -458,33 +465,6 @@ public class Persistence
 		return registry;
 	}
 
-	public static final boolean getCached(
-		final PersistenceObjectIdResolver objectIdResolver,
-		final Object[]                    target          ,
-		final int                         targetOffset    ,
-		final long[]                      objectIds
-	)
-	{
-		for(int i = 0; i < objectIds.length; i++)
-		{
-			final Object cachedInstance;
-			if((cachedInstance = objectIdResolver.lookupObject(objectIds[i])) != null)
-			{
-				target[targetOffset + i] = cachedInstance;
-				objectIds[i] = 0L;
-			}
-		}
-		for(int i = targetOffset; i < target.length; i++)
-		{
-			if(target[i] == null)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-
 
 
 	public static long validateObjectId(final long id) throws PersistenceExceptionConsistencyInvalidObjectId
@@ -507,9 +487,9 @@ public class Persistence
 
 	public static final void iterateReferences(
 		final PersistenceFunction iterator,
-		final Object[]        array   ,
-		final int             offset  ,
-		final int             length
+		final Object[]            array   ,
+		final int                 offset  ,
+		final int                 length
 	)
 	{
 		final int bound = offset + length;
@@ -552,7 +532,7 @@ public class Persistence
 	 */
 	public static final Charset standardCharset()
 	{
-		return StandardCharsets.UTF_8;
+		return XChars.utf8();
 	}
 	
 	public static String defaultFilenameTypeDictionary()
@@ -746,7 +726,7 @@ public class Persistence
 		}
 		
 		/*
-		 * Kind of an overkill / backdoor, but the idea is that mutex references are usually just Object-typed
+		 * Kind of an overkill / loophole, but the idea is that mutex references are usually just Object-typed
 		 * fields. It is highly unlikely that an internal collection structure (array, Entry type, etc.) would
 		 * be referenced by just an Object-typed field instead of a properly typed field.
 		 */
@@ -1023,8 +1003,16 @@ public class Persistence
 		;
 	}
 	
+	@Deprecated
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final File refactoringsFile
+	)
+	{
+		return RefactoringMapping(refactoringsFile.toPath());
+	}
+	
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+		final Path refactoringsFile
 	)
 	{
 		return RefactoringMapping(
@@ -1039,13 +1027,17 @@ public class Persistence
 		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
 	}
 	
+	@Deprecated
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final File file)
 	{
+		return readRefactoringMappings(file.toPath());
+	}
+	
+	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final Path file)
+	{
 		// (19.04.2018 TM)EXCP: proper exception
-		final String fileContent = XFiles.readStringFromFile(
-			file,
-			Persistence.standardCharset(),
-			RuntimeException::new
+		final String fileContent = XIO.unchecked(() ->
+			XIO.readString(file)
 		);
 		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
 		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());

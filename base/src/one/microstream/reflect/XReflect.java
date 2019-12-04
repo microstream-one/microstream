@@ -4,6 +4,7 @@ package one.microstream.reflect;
 import static one.microstream.X.notEmpty;
 import static one.microstream.X.notNull;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -18,12 +19,16 @@ import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
+import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XMap;
 import one.microstream.collections.types.XReference;
 import one.microstream.exceptions.IllegalAccessRuntimeException;
+import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.exceptions.NoSuchFieldRuntimeException;
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.functional.Instantiator;
+import one.microstream.functional.XFunc;
+import one.microstream.memory.XMemory;
 import one.microstream.typing.XTypes;
 import one.microstream.util.UtilStackTrace;
 
@@ -36,10 +41,68 @@ import one.microstream.util.UtilStackTrace;
  */
 public final class XReflect
 {
-	public static final Field setAccessible(final Field field)
+	public static final <T> T defaultInstantiate(final Class<T> type)
+		throws NoSuchMethodRuntimeException, InstantiationRuntimeException
 	{
-		// because lol
+		final Constructor<T> defaultConstructor;
+		try
+		{
+			defaultConstructor = type.getConstructor();
+		}
+		catch(final NoSuchMethodException e)
+		{
+			// childich checked exceptions ...
+			throw new NoSuchMethodRuntimeException(e);
+		}
+		
+		try
+		{
+			return defaultConstructor.newInstance();
+		}
+		catch(final InstantiationException e)
+		{
+			throw new InstantiationRuntimeException(e);
+		}
+		catch(final Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static final Field setAccessible(final Class<?> actualClass, final Field field)
+	{
+		try
+		{
+			return setAccessible(field);
+		}
+		// (14.11.2019 TM)NOTE: JDK 9
+//		catch(final InaccessibleObjectException e)
+//		{
+//			// the geniuses struck again: they left out the (String, Throwable) constructor
+////			throw new InaccessibleObjectException(actualClass.toString() + "#" + deriveFieldIdentifier(field), e);
+//			throw new RuntimeException(toFullQualifiedFieldName(actualClass, field), e);
+//		}
+		catch(final SecurityException e)
+		{
+			// oh, wow. Here, they actually managed to provide it.
+			throw new SecurityException(toFullQualifiedFieldName(actualClass, field), e);
+		}
+		catch(final RuntimeException e)
+		{
+			throw new RuntimeException(toFullQualifiedFieldName(actualClass, field), e);
+		}
+		catch(final Error e)
+		{
+			throw new Error(toFullQualifiedFieldName(actualClass, field), e);
+		}
+	}
+
+	// convenience method to allow simpler functional programming via method reference for that often needed use case.
+	public static final Field setAccessible(final Field field)
+		throws SecurityException/*, InaccessibleObjectException*/
+	{
 		field.setAccessible(true);
+		
 		return field;
 	}
 
@@ -807,9 +870,9 @@ public final class XReflect
 	 * @param object
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Class<? extends T> getClass(final T object)
+	public static <T> Class<T> getClass(final T object)
 	{
-		return (Class<? extends T>)object.getClass();
+		return (Class<T>)object.getClass();
 	}
 	
 	public static char fieldIdentifierDelimiter()
@@ -825,6 +888,17 @@ public final class XReflect
 	public static char nestedClassNameSeparator()
 	{
 		return '$';
+	}
+	
+	public static String toFullQualifiedFieldName(
+		final Class<?>                actualClass,
+		final java.lang.reflect.Field field
+	)
+	{
+		return actualClass == field.getDeclaringClass()
+			? deriveFieldIdentifier(field)
+			: toFullQualifiedFieldName(actualClass, deriveFieldIdentifier(field))
+		;
 	}
 
 	public static String deriveFieldIdentifier(final java.lang.reflect.Field field)
@@ -1019,6 +1093,71 @@ public final class XReflect
 	{
 		// horribly wrong name for a validation method
 		return Proxy.isProxyClass(c);
+	}
+	
+	public static Field[] collectPrimitiveFieldsByByteSize(final Field[] fields, final int byteSize)
+	{
+		if(byteSize != XMemory.byteSize_byte()
+		&& byteSize != XMemory.byteSize_short()
+		&& byteSize != XMemory.byteSize_int()
+		&& byteSize != XMemory.byteSize_long()
+		)
+		{
+			throw new IllegalArgumentException("Invalid Java primitive byte size: " + byteSize);
+		}
+
+		final Field[] primFields = new Field[fields.length];
+		int primFieldsCount = 0;
+		for(int i = 0; i < fields.length; i++)
+		{
+			if(fields[i].getType().isPrimitive() && XMemory.byteSizePrimitive(fields[i].getType()) == byteSize)
+			{
+				primFields[primFieldsCount++] = fields[i];
+			}
+		}
+		return Arrays.copyOf(primFields, primFieldsCount);
+	}
+	
+	public static final Field[] collectInstanceFields(final Class<?> objectClass)
+	{
+		return collectInstanceFields(objectClass, XFunc.all());
+	}
+	
+	public static final Field[] collectInstanceFields(final Class<?> objectClass, final Predicate<? super Field> selector)
+	{
+		final BulkList<Field> objectFields = BulkList.New(20);
+		XReflect.iterateDeclaredFieldsUpwards(objectClass, field ->
+		{
+			// non-instance fields are always discarded
+			if(!XReflect.isInstanceField(field))
+			{
+				return;
+			}
+			if(selector != null && !selector.test(field))
+			{
+				return;
+			}
+			
+			objectFields.add(field);
+		});
+		
+		final Field[] array = XArrays.reverse(objectFields.toArray(Field.class));
+		
+		return array;
+	}
+	
+	public static int calculatePrimitivesLength(final Field[] primFields)
+	{
+		int length = 0;
+		for(int i = 0; i < primFields.length; i++)
+		{
+			if(!primFields[i].getType().isPrimitive())
+			{
+				throw new IllegalArgumentException("Not a primitive field: " + primFields[i]);
+			}
+			length += XMemory.byteSizePrimitive(primFields[i].getType());
+		}
+		return length;
 	}
 		
 

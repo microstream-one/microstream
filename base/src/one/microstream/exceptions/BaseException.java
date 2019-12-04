@@ -73,7 +73,7 @@ public class BaseException extends RuntimeException
 	{
 		final String explicitMessage = this.message();
 		return explicitMessage != null
-			? " (" + explicitMessage + ")"
+			? ": " + explicitMessage
 			: ""
 		;
 	}

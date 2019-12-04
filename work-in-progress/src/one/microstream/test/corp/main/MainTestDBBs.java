@@ -1,7 +1,5 @@
 package one.microstream.test.corp.main;
 
-import java.nio.ByteBuffer;
-
 import one.microstream.concurrency.XThreads;
 import one.microstream.memory.XMemory;
 
@@ -30,6 +28,6 @@ public class MainTestDBBs
 		final long address = XMemory.allocate(100000);
 		XMemory.free(address);
 		
-		return ByteBuffer.allocateDirect(100000).capacity();
+		return XMemory.allocateDirectNative(100000).capacity();
 	}
 }

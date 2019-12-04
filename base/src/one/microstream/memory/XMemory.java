@@ -1,12 +1,17 @@
 package one.microstream.memory;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.nio.ByteOrder;
-import java.util.Arrays;
+import static one.microstream.X.notNull;
 
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.function.Predicate;
+
+import one.microstream.X;
 import one.microstream.exceptions.InstantiationRuntimeException;
-import sun.misc.Unsafe;
+import one.microstream.memory.android.MicroStreamAndroidAdapter;
+import one.microstream.memory.sun.JdkMemoryAccessor;
+
 
 
 /**
@@ -20,164 +25,413 @@ public final class XMemory
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
-
-	// used by other classes in other projects but same package
-	static final Unsafe VM = (Unsafe)getSystemInstance();
-
-	// better calculate it once instead of making wild assumptions that can change (e.g. 64 bit coops has only 12 byte)
-	private static final int BYTE_SIZE_OBJECT_HEADER = calculateByteSizeObjectHeader();
-
-	// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
-	// (04.07.2019 TM)NOTE: since these past investigations were naively JDK-specific, that is a dangerous assumption.
-	private static final int
-		MEMORY_ALIGNMENT_FACTOR =                           8,
-		MEMORY_ALIGNMENT_MODULO = MEMORY_ALIGNMENT_FACTOR - 1,
-		MEMORY_ALIGNMENT_MASK   = ~MEMORY_ALIGNMENT_MODULO
-	;
-
-	// constant names documenting that a value shall be shifted by n bits. Also to get CheckStyle off my back.
-	private static final int
-		BITS1 = 1,
-		BITS2 = 2,
-		BITS3 = 3
-	;
-
-	static final String fieldNameUnsafe()
+	
+	static MemoryAccessor       MEMORY_ACCESSOR         ;
+	static MemoryAccessor       MEMORY_ACCESSOR_REVERSED;
+	static MemorySizeProperties MEMORY_SIZE_PROPERTIES  ;
+	
+	static
 	{
-		return "theUnsafe";
+		initializeMemoryAccess();
 	}
 	
-	// return type not specified to avoid public API dependencies to sun implementation details
-	public static final Object getSystemInstance()
+	private static VmCheck[] createVmChecks()
 	{
-		// all that clumsy detour ... x_x
-		if(XMemory.class.getClassLoader() == null)
-		{
-			return Unsafe.getUnsafe(); // Not on bootclasspath
-		}
-		try
-		{
-			final Field theUnsafe = Unsafe.class.getDeclaredField(fieldNameUnsafe());
-			theUnsafe.setAccessible(true);
-			return theUnsafe.get(null); // static field, no argument needed, may be null (see #get JavaDoc)
-		}
-		catch(final Exception e)
-		{
-			throw new Error("Could not obtain access to \"" + fieldNameUnsafe() + "\"", e);
-		}
+		return X.array
+		(
+			/* See:
+			 * https://developer.android.com/reference/java/lang/System#getProperties()
+			 * https://stackoverflow.com/questions/4519556/how-to-determine-if-my-app-is-running-on-android
+			 */
+			VmCheckEquality("Supported Standard Android",
+				MicroStreamAndroidAdapter::setupFull,
+				entry("java.vendor"   , "The Android Project"),
+				entry("java.vm.vendor", "The Android Project")
+			),
+			
+			/*
+			 * There are non-standard, "cheap", "hacked", whatever implementations of Android that
+			 * differ from the standard android. Since those are not reliable to support the required
+			 * functionality, they are filtered out, here.
+			 * Of course there is still the possibility that an implementation returns the correct
+			 * vendor but is not "compatible enough". But then that's simply a platform insufficiency
+			 * that can't be handled here.
+			 * The purpose of this check is to create are more informative exception for recognizably
+			 * diverging cases instead of just defaulting to the JdkInternals and getting a
+			 * weird error of it not working.
+			 */
+			VmCheckContained("ERROR: UNHANDLED Android",
+				XMemory::throwUnhandledPlatformException,
+				entry("java.vendor"   , "Android"),
+				entry("java.vm.vendor", " Android")
+			)
+			
+			// add additional checks here
+		);
 	}
 	
-	public static long objectFieldOffset(final Field field)
+	private static String systemPropertyToString(final String key)
 	{
-		return VM.objectFieldOffset(field);
+		return key + ": " + System.getProperty(key, "[null]");
 	}
-
-	public static long[] objectFieldOffsets(final Field[] fields)
+	
+	static final void throwUnhandledPlatformException()
 	{
-		final long[] offsets = new long[fields.length];
-		for(int i = 0; i < fields.length; i++)
+		// (19.11.2019 TM)EXCP: proper exception
+		throw new Error(
+			"Unhandled Java platform: "
+			+ systemPropertyToString("java.vendor") + ", "
+			+ systemPropertyToString("java.vm.vendor")
+		);
+	}
+	
+	private static String[] entry(final String key, final String value)
+	{
+		return new String[]{key, value};
+	}
+	
+	private static void initializeMemoryAccess()
+	{
+		// no sense in permanently occupying memory with data that is only used exactly once during initialization.
+		final VmCheck[] vmChecks = createVmChecks();
+		
+		for(final VmCheck vmCheck : vmChecks)
 		{
-			if(Modifier.isStatic(fields[i].getModifiers()))
+			// can either set an Memory accessing/handling implementation or throw an Error.
+			if(vmCheck.check())
 			{
-				throw new IllegalArgumentException("Not an instance field: " + fields[i]);
+				return;
 			}
-			offsets[i] = VM.objectFieldOffset(fields[i]);
 		}
-		return offsets;
+		
+		/* (18.11.2019 TM)NOTE:
+		 * If no specific vm check applied, the default initialization is used, assuming a fully
+		 * JDK/-Unsafe-compatible JVM. It might not seem that way, but this is actually the normal case.
+		 * Tests showed that almost all Java VM vendors fully support Unsafe. This is quite plausible:
+		 * They want to draw Java developers/applications onto their platform, so they try to provide
+		 * as much compatibility as possible, including Unsafe.
+		 * So far, the only known Java VM to not fully support Unsafe is Android.
+		 */
+		setMemoryHandling(JdkMemoryAccessor.New());
 	}
 	
-	static final long internalGetFieldOffset(final Class<?> type, final String declaredFieldName)
+	private static VmCheck VmCheckEquality(
+		final String      name                        ,
+		final Runnable    action                      ,
+		final String[]... systemPropertyChecksEquality
+	)
 	{
-		// minimal algorithm, only for local use
-		for(Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass())
+		return new VmCheck(
+			name,
+			SystemPropertyCheckEquality(
+				systemPropertyChecksEquality
+			),
+			action
+		);
+	}
+	
+	private static VmCheck VmCheckContained(
+		final String      name                         ,
+		final Runnable    action                       ,
+		final String[]... systemPropertyChecksContained
+	)
+	{
+		return new VmCheck(
+			name,
+			SystemPropertyCheckContained(
+				systemPropertyChecksContained
+			),
+			action
+		);
+	}
+	
+	static final VmCheck VmInitializer(
+		final String     name                         ,
+		final Runnable   action                       ,
+		final String[][] systemPropertyChecksEquality ,
+		final String[][] systemPropertyChecksContained
+	)
+	{
+		return new VmCheck(
+			name,
+			SystemPropertyCheck(
+				systemPropertyChecksEquality,
+				systemPropertyChecksContained
+			),
+			action
+		);
+	}
+	
+	private static Predicate<VmCheck> SystemPropertyCheckEquality(
+		final String[][] systemPropertyChecksEquality
+	)
+	{
+		return SystemPropertyCheck(systemPropertyChecksEquality, new String[0][]);
+	}
+	
+	private static Predicate<VmCheck> SystemPropertyCheckContained(
+		final String[][] systemPropertyChecksContained
+	)
+	{
+		return SystemPropertyCheck(new String[0][], systemPropertyChecksContained);
+	}
+	
+	private static Predicate<VmCheck> SystemPropertyCheck(
+		final String[][] systemPropertyChecksEquality,
+		final String[][] systemPropertyChecksContained
+	)
+	{
+		return check ->
 		{
-			try
+			for(final String[] s : systemPropertyChecksEquality)
 			{
-				for(final Field field : c.getDeclaredFields())
+				if(s == null)
 				{
-					if(field.getName().equals(declaredFieldName))
-					{
-						return VM.objectFieldOffset(field);
-					}
+					continue;
+				}
+				if(System.getProperty(s[0], "").equals(s[1]))
+				{
+					return true;
 				}
 			}
-			catch(final Exception e)
+			
+			for(final String[] s : systemPropertyChecksContained)
 			{
-				throw new Error(e); // explode and die :)
+				if(s == null)
+				{
+					continue;
+				}
+				if(System.getProperty(s[0], "").toUpperCase().contains(s[1].toUpperCase()))
+				{
+					return true;
+				}
 			}
-		}
-		throw new Error("Field not found: " + type.getName() + '#' + declaredFieldName);
+			
+			// no check applied
+			return false;
+		};
 	}
+	
 
-	public static final Object getStaticReference(final Field field)
+	static final class VmCheck
 	{
-		if(!Modifier.isStatic(field.getModifiers()))
-		{
-			throw new IllegalArgumentException();
-		}
-		return VM.getObject(VM.staticFieldBase(field), VM.staticFieldOffset(field));
-	}
+		final String                   name  ;
+		final Predicate<VmCheck> tester;
+		final Runnable                 action;
 		
+		VmCheck(
+			final String                   name  ,
+			final Predicate<VmCheck> tester,
+			final Runnable                 action
+		)
+		{
+			super();
+			this.name   = name  ;
+			this.tester = tester;
+			this.action = action;
+		}
+		
+		final boolean test()
+		{
+			return this.tester.test(this);
+		}
+		
+		final boolean check()
+		{
+			if(this.test())
+			{
+				this.action.run();
+				return true;
+			}
+			
+			return false;
+		}
+	}
+	
+	public static final synchronized <H extends MemoryAccessor & MemorySizeProperties> void setMemoryHandling(
+		final H memoryHandler
+	)
+	{
+		setMemoryHandling(memoryHandler, memoryHandler);
+	}
+	
+	public static final synchronized void setMemoryAccessor(
+		final MemoryAccessor memoryAccessor
+	)
+	{
+		setMemoryHandling(memoryAccessor, MemorySizeProperties.Unsupported());
+	}
+
+	public static final synchronized void setMemoryHandling(
+		final MemoryAccessor       memoryAccessor      ,
+		final MemorySizeProperties memorySizeProperties
+	)
+	{
+		MEMORY_ACCESSOR          = notNull(memoryAccessor);
+		MEMORY_ACCESSOR_REVERSED = notNull(memoryAccessor.toReversing());
+		MEMORY_SIZE_PROPERTIES   = notNull(memorySizeProperties);
+	}
+	
+	public static final synchronized MemoryAccessor memoryAccessor()
+	{
+		return MEMORY_ACCESSOR;
+	}
+	
+	public static final synchronized MemoryAccessor memoryAccessorReversing()
+	{
+		return MEMORY_ACCESSOR_REVERSED;
+	}
+	
+	public static final synchronized MemorySizeProperties memorySizeProperties()
+	{
+		return MEMORY_SIZE_PROPERTIES;
+	}
+	
+	public static final void guaranteeUsability()
+	{
+		MEMORY_ACCESSOR.guaranteeUsability();
+	}
+	
+	
+	
+	// direct byte buffer handling //
+	
+	public static final long getDirectByteBufferAddress(final ByteBuffer directBuffer)
+	{
+		return MEMORY_ACCESSOR.getDirectByteBufferAddress(directBuffer);
+	}
+
+	public static final boolean deallocateDirectByteBuffer(final ByteBuffer directBuffer)
+	{
+		return MEMORY_ACCESSOR.deallocateDirectByteBuffer(directBuffer);
+	}
+
+	public static final boolean isDirectByteBuffer(final ByteBuffer byteBuffer)
+	{
+		return MEMORY_ACCESSOR.isDirectByteBuffer(byteBuffer);
+	}
+
+	public static final ByteBuffer guaranteeDirectByteBuffer(final ByteBuffer directBuffer)
+	{
+		return MEMORY_ACCESSOR.guaranteeDirectByteBuffer(directBuffer);
+	}
 	
 
 	
-	public static final int bitSize_byte()
+	// memory allocation //
+	
+	public static final long allocate(final long bytes)
 	{
-		return Byte.SIZE;
+		return MEMORY_ACCESSOR.allocateMemory(bytes);
 	}
 
-	public static final int bitSize_boolean()
+	public static final long reallocate(final long address, final long bytes)
 	{
-		return Byte.SIZE;
+		return MEMORY_ACCESSOR.reallocateMemory(address, bytes);
 	}
 
-	public static final int bitSize_short()
+	public static final void free(final long address)
 	{
-		return Short.SIZE;
+		MEMORY_ACCESSOR.freeMemory(address);
 	}
 
-	public static final int bitSize_char()
+	public static final void fillMemory(final long address, final long length, final byte value)
 	{
-		return Character.SIZE;
+		MEMORY_ACCESSOR.fillMemory(address, length, value);
 	}
-
-	public static final int bitSize_int()
+	
+	
+	
+	// memory size querying logic //
+	
+	/**
+	 * Arbitrary value that coincidently matches most hardware's standard page
+	 * sizes without being hard-tied to an actual pageSize system value.
+	 * So this value is an educated guess and almost always a "good" value when
+	 * paged-sized-ish buffer sizes are needed, while still not being at the
+	 * mercy of an OS's JVM implementation.
+	 * 
+	 * @return a "good" value for a paged-sized-ish default buffer size.
+	 */
+	public static final int defaultBufferSize()
 	{
-		return Integer.SIZE;
+		// source: https://en.wikipedia.org/wiki/Page_(computer_memory)
+		return 4096;
 	}
-
-	public static final int bitSize_float()
+	
+	public static final int pageSize()
 	{
-		return Float.SIZE;
+		return MEMORY_SIZE_PROPERTIES.pageSize();
 	}
-
-	public static final int bitSize_long()
+	
+	public static final int byteSizeInstance(final Class<?> c)
 	{
-		return Long.SIZE;
+		return MEMORY_SIZE_PROPERTIES.byteSizeInstance(c);
 	}
-
-	public static final int bitSize_double()
+	
+	public static final int byteSizeObjectHeader(final Class<?> c)
 	{
-		return Double.SIZE;
+		return MEMORY_SIZE_PROPERTIES.byteSizeObjectHeader(c);
 	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// memory byte size methods //
-	/////////////////////////////
-
+	
+	public static final int byteSizeFieldValue(final Field field)
+	{
+		return MEMORY_SIZE_PROPERTIES.byteSizeFieldValue(field);
+	}
+	
 	public static final int byteSizeFieldValue(final Class<?> type)
 	{
-		return type.isPrimitive()
-			? byteSizePrimitive(type)
-			: byteSizeReference()
-		;
+		return MEMORY_SIZE_PROPERTIES.byteSizeFieldValue(type);
+	}
+	
+	public static final long byteSizeArray_byte(final long elementCount)
+	{
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_byte(elementCount);
 	}
 
+	public static final long byteSizeArray_boolean(final long elementCount)
+	{
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_boolean(elementCount);
+	}
+
+	public static final long byteSizeArray_short(final long elementCount)
+	{
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_short(elementCount);
+	}
+
+	public static final long byteSizeArray_char(final long elementCount)
+	{
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_char(elementCount);
+	}
+
+	public static final long byteSizeArray_int(final long elementCount)
+	{
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_int(elementCount);
+	}
+
+	public static final long byteSizeArray_float(final long elementCount)
+	{
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_float(elementCount);
+	}
+
+	public static final long byteSizeArray_long(final long elementCount)
+	{
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_long(elementCount);
+	}
+
+	public static final long byteSizeArray_double(final long elementCount)
+	{
+		return MEMORY_SIZE_PROPERTIES.byteSizeArray_double(elementCount);
+	}
+
+	public static final long byteSizeArrayObject(final long elementCount)
+	{
+		return MEMORY_SIZE_PROPERTIES.byteSizeArrayObject(elementCount);
+	}
+	
 	public static final int byteSizePrimitive(final Class<?> type)
 	{
-		// onec again missing JDK functionality. Roughly ordered by probability.
+		// once again missing JDK functionality. Roughly ordered by probability.
 		if(type == int.class)
 		{
 			return byteSize_int();
@@ -211,7 +465,13 @@ public final class XMemory
 			return byteSize_short();
 		}
 				
-		throw new IllegalArgumentException(); // intentionally covers void.class
+		// intentionally covers void.class
+		throw new IllegalArgumentException();
+	}
+	
+	public static final int bitSize_byte()
+	{
+		return Byte.SIZE;
 	}
 
 	public static final int byteSize_byte()
@@ -254,790 +514,463 @@ public final class XMemory
 		return Double.BYTES;
 	}
 
-	public static final int byteSizeObjectHeader()
-	{
-		return BYTE_SIZE_OBJECT_HEADER;
-	}
-
 	public static final int byteSizeReference()
 	{
-		return Unsafe.ARRAY_OBJECT_INDEX_SCALE;
+		return MEMORY_SIZE_PROPERTIES.byteSizeReference();
 	}
 
-	public static final long byteSizeArray_byte(final long elementCount)
+	public static final int bitSize_boolean()
 	{
-		return ARRAY_BYTE_BASE_OFFSET + elementCount;
+		return Byte.SIZE;
 	}
 
-	public static final long byteSizeArray_boolean(final long elementCount)
+	public static final int bitSize_short()
 	{
-		return ARRAY_BOOLEAN_BASE_OFFSET + elementCount;
+		return Short.SIZE;
 	}
 
-	public static final long byteSizeArray_short(final long elementCount)
+	public static final int bitSize_char()
 	{
-		return ARRAY_SHORT_BASE_OFFSET + (elementCount << BITS1);
+		return Character.SIZE;
 	}
 
-	public static final long byteSizeArray_char(final long elementCount)
+	public static final int bitSize_int()
 	{
-		return ARRAY_CHAR_BASE_OFFSET + (elementCount << BITS1);
+		return Integer.SIZE;
 	}
 
-	public static final long byteSizeArray_int(final long elementCount)
+	public static final int bitSize_float()
 	{
-		return ARRAY_INT_BASE_OFFSET + (elementCount << BITS2);
+		return Float.SIZE;
 	}
 
-	public static final long byteSizeArray_float(final long elementCount)
+	public static final int bitSize_long()
 	{
-		return ARRAY_FLOAT_BASE_OFFSET + (elementCount << BITS2);
+		return Long.SIZE;
 	}
 
-	public static final long byteSizeArray_long(final long elementCount)
+	public static final int bitSize_double()
 	{
-		return ARRAY_LONG_BASE_OFFSET + (elementCount << BITS3);
-	}
-
-	public static final long byteSizeArray_double(final long elementCount)
-	{
-		return ARRAY_DOUBLE_BASE_OFFSET + (elementCount << BITS3);
-	}
-
-	public static final long byteSizeArrayObject(final long elementCount)
-	{
-		return ARRAY_OBJECT_BASE_OFFSET + elementCount * byteSizeReference();
-	}
-
-	private static final int calculateByteSizeObjectHeader()
-	{
-		// min logic should be unnecessary but better exclude any source for potential errors
-		long minOffset = Long.MAX_VALUE;
-		final Field[] declaredFields = XMemory.class.getDeclaredFields();
-		for(final Field field : declaredFields)
-		{
-			if(Modifier.isStatic(field.getModifiers()))
-			{
-				continue;
-			}
-			if(VM.objectFieldOffset(field) < minOffset)
-			{
-				minOffset = VM.objectFieldOffset(field);
-			}
-		}
-		if(minOffset == Long.MAX_VALUE)
-		{
-			throw new Error("Could not find object header dummy field in class " + XMemory.class);
-		}
-		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
-	}
-
-	public static final int byteSizeInstance(final Class<?> type)
-	{
-		if(type.isPrimitive())
-		{
-			throw new IllegalArgumentException();
-		}
-		if(type.isArray())
-		{
-			// instance byte size accounts only array header (object header plus length field plus overhead)
-			return VM.arrayBaseOffset(type);
-		}
-		if(type == Object.class)
-		{
-			// required because Object's super class is null (see below)
-			return byteSizeObjectHeader();
-		}
-
-		// declared fields suffice as all super class fields are positioned before them
-		final Field[] declaredFields = type.getDeclaredFields();
-		long maxInstanceFieldOffset = 0;
-		Field maxInstanceField = null;
-		for(int i = 0; i < declaredFields.length; i++)
-		{
-			if(Modifier.isStatic(declaredFields[i].getModifiers()))
-			{
-				continue;
-			}
-			final long fieldOffset = VM.objectFieldOffset(declaredFields[i]);
-//			XDebug.debugln(fieldOffset + "\t" + declaredFields[i]);
-			if(fieldOffset >= maxInstanceFieldOffset)
-			{
-				maxInstanceField = declaredFields[i];
-				maxInstanceFieldOffset = fieldOffset;
-			}
-		}
-
-		// no declared instance field at all, fall back to super class fields recursively
-		if(maxInstanceField == null)
-		{
-			return byteSizeInstance(type.getSuperclass());
-		}
-
-		// memory alignment is a wild assumption at this point. Hopefully it will always be true. Otherwise it's a bug.
-		return (int)alignAddress(maxInstanceFieldOffset + byteSizeFieldValue(maxInstanceField.getType()));
-	}
-
-	public static final long alignAddress(final long address)
-	{
-		if((address & MEMORY_ALIGNMENT_MODULO) == 0)
-		{
-			return address; // already aligned
-		}
-		// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
-		return (address & MEMORY_ALIGNMENT_MASK) + MEMORY_ALIGNMENT_FACTOR;
-	}
-
-	public static Field[] collectPrimitiveFieldsByByteSize(final Field[] fields, final int byteSize)
-	{
-		if(byteSize != byteSize_byte()
-		&& byteSize != byteSize_short()
-		&& byteSize != byteSize_int()
-		&& byteSize != byteSize_long()
-		)
-		{
-			throw new IllegalArgumentException("Invalid Java primitive byte size: " + byteSize);
-		}
-
-		final Field[] primFields = new Field[fields.length];
-		int primFieldsCount = 0;
-		for(int i = 0; i < fields.length; i++)
-		{
-			if(fields[i].getType().isPrimitive() && XMemory.byteSizePrimitive(fields[i].getType()) == byteSize)
-			{
-				primFields[primFieldsCount++] = fields[i];
-			}
-		}
-		return Arrays.copyOf(primFields, primFieldsCount);
-	}
-
-	public static int calculatePrimitivesLength(final Field[] primFields)
-	{
-		int length = 0;
-		for(int i = 0; i < primFields.length; i++)
-		{
-			if(!primFields[i].getType().isPrimitive())
-			{
-				throw new IllegalArgumentException("Not a primitive field: " + primFields[i]);
-			}
-			length += XMemory.byteSizePrimitive(primFields[i].getType());
-		}
-		return length;
-	}
-
-	public static Object getStaticFieldBase(final Field field)
-	{
-		return VM.staticFieldBase(notNull(field)); // throws IllegalArgumentException, so no need to check here
-	}
-
-	public static long[] staticFieldOffsets(final Field[] fields)
-	{
-		final long[] offsets = new long[fields.length];
-		for(int i = 0; i < fields.length; i++)
-		{
-			if(!Modifier.isStatic(fields[i].getModifiers()))
-			{
-				throw new IllegalArgumentException("Not a static field: " + fields[i]);
-			}
-			offsets[i] = (int)VM.staticFieldOffset(fields[i]);
-		}
-		return offsets;
-	}
-
-	public static byte[] asByteArray(final long[] longArray)
-	{
-		final byte[] bytes = new byte[checkArrayRange((long)longArray.length << BITS3)];
-		VM.copyMemory(longArray, ARRAY_LONG_BASE_OFFSET, bytes, ARRAY_BYTE_BASE_OFFSET, bytes.length);
-		return bytes;
-	}
-
-	public static byte[] asByteArray(final long value)
-	{
-		final byte[] bytes = new byte[byteSize_long()];
-		put_long(bytes, 0, value);
-		return bytes;
+		return Double.SIZE;
 	}
 	
-	/**
-	 * Arbitrary value that coincidently matches most hardware's page sizes
-	 * without being hard-tied to Unsafe#pageSize.
-	 * So this value is an educated guess and most of the time (almost always)
-	 * a "good" value when paged-sized-ish buffer sizes are needed, while still
-	 * not being at the mercy of an OS's JVM implementation.
-	 * 
-	 * @return a "good" value for a paged-sized-ish default buffer size.
-	 */
-	public static int defaultBufferSize()
+	
+
+	// field offset abstraction //
+	
+	public static final long objectFieldOffset(final Field field)
 	{
-		return 4096;
+		return MEMORY_ACCESSOR.objectFieldOffset(field);
+	}
+
+	public static final long[] objectFieldOffsets(final Field[] fields)
+	{
+		return MEMORY_ACCESSOR.objectFieldOffsets(fields);
 	}
 	
-	/**
-	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).
-	 * Use with care (and the dependency to a system value in mind!).
-	 * 
-	 * @return the system's memory "page size".
-	 */
-	public static int pageSize()
+	public static final long objectFieldOffset(final Class<?> c, final Field field)
 	{
-		return VM.pageSize();
+		return MEMORY_ACCESSOR.objectFieldOffset(c, field);
 	}
+
+	public static final long[] objectFieldOffsets(final Class<?> c, final Field[] fields)
+	{
+		return MEMORY_ACCESSOR.objectFieldOffsets(c, fields);
+	}
+		
 	
-	/*
-	 * Rationale for these local constants:
-	 * For Unsafe putting methods like Unsafe#putInt etc, there were two versions before Java 9:
-	 * One with an int offset (deprecated) and one with a long offset.
-	 * The base offset constants are ints, so they have to be casted for the compiler to select the corrent
-	 * method option.
-	 * However, in Java 9, the int variant disappeared (finally). That now causes an "unnecessary cast" warning.
-	 * But removing it would mean in Java 8 and below, the int variant would be chosen and a deprecation warning would
-	 * be displayed.
-	 * So the only way to use those methods without warnings in either version is to have a constant that is
-	 * naturally of type long.
-	 */
-	private static final long
-		ARRAY_BYTE_BASE_OFFSET    = Unsafe.ARRAY_BYTE_BASE_OFFSET   ,
-		ARRAY_BOOLEAN_BASE_OFFSET = Unsafe.ARRAY_BOOLEAN_BASE_OFFSET,
-		ARRAY_SHORT_BASE_OFFSET   = Unsafe.ARRAY_SHORT_BASE_OFFSET  ,
-		ARRAY_CHAR_BASE_OFFSET    = Unsafe.ARRAY_CHAR_BASE_OFFSET   ,
-		ARRAY_INT_BASE_OFFSET     = Unsafe.ARRAY_INT_BASE_OFFSET    ,
-		ARRAY_FLOAT_BASE_OFFSET   = Unsafe.ARRAY_FLOAT_BASE_OFFSET  ,
-		ARRAY_LONG_BASE_OFFSET    = Unsafe.ARRAY_LONG_BASE_OFFSET   ,
-		ARRAY_DOUBLE_BASE_OFFSET  = Unsafe.ARRAY_DOUBLE_BASE_OFFSET ,
-		ARRAY_OBJECT_BASE_OFFSET  = Unsafe.ARRAY_OBJECT_BASE_OFFSET
-	;
-	
-	public static void put_byte(final byte[] bytes, final int index, final short value)
-	{
-		VM.putShort(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
-	}
-	
-	public static void put_boolean(final byte[] bytes, final int index, final char value)
-	{
-		VM.putChar(bytes, ARRAY_BOOLEAN_BASE_OFFSET + index, value);
-	}
 
-	public static void put_short(final byte[] bytes, final int index, final short value)
-	{
-		VM.putShort(bytes, ARRAY_SHORT_BASE_OFFSET+ index, value);
-	}
-
-	public static void put_char(final byte[] bytes, final int index, final char value)
-	{
-		VM.putChar(bytes, ARRAY_CHAR_BASE_OFFSET + index, value);
-	}
-
-	public static void put_int(final byte[] bytes, final int index, final int value)
-	{
-		VM.putInt(bytes, ARRAY_INT_BASE_OFFSET + index, value);
-	}
-
-	public static void put_float(final byte[] bytes, final int index, final float value)
-	{
-		VM.putFloat(bytes, ARRAY_FLOAT_BASE_OFFSET + index, value);
-	}
-
-	public static void put_long(final byte[] bytes, final int index, final long value)
-	{
-		VM.putLong(bytes, ARRAY_LONG_BASE_OFFSET + index, value);
-	}
-
-	public static void put_double(final byte[] bytes, final int index, final double value)
-	{
-		VM.putDouble(bytes, ARRAY_DOUBLE_BASE_OFFSET + index, value);
-	}
-
-	public static void _longInByteArray(final byte[] bytes, final long value)
-	{
-		VM.putLong(bytes, ARRAY_BYTE_BASE_OFFSET, value);
-	}
-
-	public static long _longFromByteArray(final byte[] bytes)
-	{
-		return VM.getLong(bytes, ARRAY_BYTE_BASE_OFFSET);
-	}
-
-
+	// address-based getters for primitive values //
 
 	public static final byte get_byte(final long address)
 	{
-		return VM.getByte(address);
+		return MEMORY_ACCESSOR.get_byte(address);
 	}
 
 	public static final boolean get_boolean(final long address)
 	{
-		return VM.getBoolean(null, address);
+		return MEMORY_ACCESSOR.get_boolean(address);
 	}
 
 	public static final short get_short(final long address)
 	{
-		return VM.getShort(address);
+		return MEMORY_ACCESSOR.get_short(address);
 	}
 
 	public static final char get_char(final long address)
 	{
-		return VM.getChar(address);
+		return MEMORY_ACCESSOR.get_char(address);
 	}
 
 	public static final int get_int(final long address)
 	{
-		return VM.getInt(address);
+		return MEMORY_ACCESSOR.get_int(address);
 	}
 
 	public static final float get_float(final long address)
 	{
-		return VM.getFloat(address);
+		return MEMORY_ACCESSOR.get_float(address);
 	}
 
 	public static final long get_long(final long address)
 	{
-		return VM.getLong(address);
+		return MEMORY_ACCESSOR.get_long(address);
 	}
 
 	public static final double get_double(final long address)
 	{
-		return VM.getDouble(address);
+		return MEMORY_ACCESSOR.get_double(address);
 	}
 
-	public static final Object getObject(final long address)
+	// note: getting a pointer from a non-Object-relative address makes no sense.
+
+	
+	
+	// object-based getters for primitive values and references //
+	
+	public static final byte get_byte(final Object instance, final long offset)
 	{
-		return VM.getObject(null, address);
+		return MEMORY_ACCESSOR.get_byte(instance, offset);
 	}
 
-
-	public static final byte get_byte(final Object instance, final long address)
+	public static final boolean get_boolean(final Object instance, final long offset)
 	{
-		return VM.getByte(instance, address);
+		return MEMORY_ACCESSOR.get_boolean(instance, offset);
 	}
 
-	public static final boolean get_boolean(final Object instance, final long address)
+	public static final short get_short(final Object instance, final long offset)
 	{
-		return VM.getBoolean(instance, address);
+		return MEMORY_ACCESSOR.get_short(instance, offset);
 	}
 
-	public static final short get_short(final Object instance, final long address)
+	public static final char get_char(final Object instance, final long offset)
 	{
-		return VM.getShort(instance, address);
+		return MEMORY_ACCESSOR.get_char(instance, offset);
 	}
 
-	public static final char get_char(final Object instance, final long address)
+	public static final int get_int(final Object instance, final long offset)
 	{
-		return VM.getChar(instance, address);
+		return MEMORY_ACCESSOR.get_int(instance, offset);
 	}
 
-	public static final int get_int(final Object instance, final long address)
+	public static final float get_float(final Object instance, final long offset)
 	{
-		return VM.getInt(instance, address);
+		return MEMORY_ACCESSOR.get_float(instance, offset);
 	}
 
-	public static final float get_float(final Object instance, final long address)
+	public static final long get_long(final Object instance, final long offset)
 	{
-		return VM.getInt(instance, address);
+		return MEMORY_ACCESSOR.get_long(instance, offset);
 	}
 
-	public static final long get_long(final Object instance, final long address)
+	public static final double get_double(final Object instance, final long offset)
 	{
-		return VM.getLong(instance, address);
+		return MEMORY_ACCESSOR.get_double(instance, offset);
 	}
 
-	public static final double get_double(final Object instance, final long address)
+	public static final Object getObject(final Object instance, final long offset)
 	{
-		return VM.getInt(instance, address);
+		return MEMORY_ACCESSOR.getObject(instance, offset);
 	}
+	
+	
 
-	public static final Object getObject(final Object instance, final long address)
-	{
-		return VM.getObject(instance, address);
-	}
-
-
-
+	// address-based setters for primitive values //
 
 	public static final void set_byte(final long address, final byte value)
 	{
-		VM.putByte(address, value);
+		MEMORY_ACCESSOR.set_byte(address, value);
 	}
 
 	public static final void set_boolean(final long address, final boolean value)
 	{
 		// where the heck is Unsafe#putBoolean(long, boolean)? Forgot to implement? Wtf?
-		VM.putBoolean(null, address, value);
+		MEMORY_ACCESSOR.set_boolean(address, value);
 	}
 
 	public static final void set_short(final long address, final short value)
 	{
-		VM.putShort(address, value);
+		MEMORY_ACCESSOR.set_short(address, value);
 	}
 
 	public static final void set_char(final long address, final char value)
 	{
-		VM.putChar(address, value);
+		MEMORY_ACCESSOR.set_char(address, value);
 	}
 
 	public static final void set_int(final long address, final int value)
 	{
-		VM.putInt(address, value);
+		MEMORY_ACCESSOR.set_int(address, value);
 	}
 
 	public static final void set_float(final long address, final float value)
 	{
-		VM.putFloat(address, value);
+		MEMORY_ACCESSOR.set_float(address, value);
 	}
 
 	public static final void set_long(final long address, final long value)
 	{
-		VM.putLong(address, value);
+		MEMORY_ACCESSOR.set_long(address, value);
 	}
 
 	public static final void set_double(final long address, final double value)
 	{
-		VM.putDouble(address, value);
+		MEMORY_ACCESSOR.set_double(address, value);
 	}
+	
+	// note: setting a pointer to a non-Object-relative address makes no sense.
+	
+	
+
+	// object-based setters for primitive values and references //
 
 	public static final void set_byte(final Object instance, final long offset, final byte value)
 	{
-		VM.putByte(instance, offset, value);
+		MEMORY_ACCESSOR.set_byte(instance, offset, value);
 	}
 
 	public static final void set_boolean(final Object instance, final long offset, final boolean value)
 	{
-		VM.putBoolean(instance, offset, value);
+		MEMORY_ACCESSOR.set_boolean(instance, offset, value);
 	}
 
 	public static final void set_short(final Object instance, final long offset, final short value)
 	{
-		VM.putShort(instance, offset, value);
+		MEMORY_ACCESSOR.set_short(instance, offset, value);
 	}
 
 	public static final void set_char(final Object instance, final long offset, final char value)
 	{
-		VM.putChar(instance, offset, value);
+		MEMORY_ACCESSOR.set_char(instance, offset, value);
 	}
 
 	public static final void set_int(final Object instance, final long offset, final int value)
 	{
-		VM.putInt(instance, offset, value);
+		MEMORY_ACCESSOR.set_int(instance, offset, value);
 	}
 
 	public static final void set_float(final Object instance, final long offset, final float value)
 	{
-		VM.putFloat(instance, offset, value);
+		MEMORY_ACCESSOR.set_float(instance, offset, value);
 	}
 
 	public static final void set_long(final Object instance, final long offset, final long value)
 	{
-		VM.putLong(instance, offset, value);
+		MEMORY_ACCESSOR.set_long(instance, offset, value);
 	}
 
 	public static final void set_double(final Object instance, final long offset, final double value)
 	{
-		VM.putDouble(instance, offset, value);
+		MEMORY_ACCESSOR.set_double(instance, offset, value);
 	}
 
 	public static final void setObject(final Object instance, final long offset, final Object value)
 	{
-		VM.putObject(instance, offset, value);
+		MEMORY_ACCESSOR.setObject(instance, offset, value);
 	}
+	
+	
+
+	// transformative byte array primitive value setters //
+
+	public static final void set_byteInBytes(final byte[] bytes, final int index, final byte value)
+	{
+		MEMORY_ACCESSOR.set_byteInBytes(bytes, index, value);
+	}
+	
+	public static final void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
+	{
+		MEMORY_ACCESSOR.set_booleanInBytes(bytes, index, value);
+	}
+
+	public static final void set_shortInBytes(final byte[] bytes, final int index, final short value)
+	{
+		MEMORY_ACCESSOR.set_shortInBytes(bytes, index, value);
+	}
+
+	public static final void set_charInBytes(final byte[] bytes, final int index, final char value)
+	{
+		MEMORY_ACCESSOR.set_charInBytes(bytes, index, value);
+	}
+
+	public static final void set_intInBytes(final byte[] bytes, final int index, final int value)
+	{
+		MEMORY_ACCESSOR.set_intInBytes(bytes, index, value);
+	}
+
+	public static final void set_floatInBytes(final byte[] bytes, final int index, final float value)
+	{
+		MEMORY_ACCESSOR.set_floatInBytes(bytes, index, value);
+	}
+
+	public static final void set_longInBytes(final byte[] bytes, final int index, final long value)
+	{
+		MEMORY_ACCESSOR.set_longInBytes(bytes, index, value);
+	}
+
+	public static final void set_doubleInBytes(final byte[] bytes, final int index, final double value)
+	{
+		MEMORY_ACCESSOR.set_doubleInBytes(bytes, index, value);
+	}
+
+	
+
+	// generic variable-length range copying //
 
 	public static final void copyRange(final long sourceAddress, final long targetAddress, final long length)
 	{
-		VM.copyMemory(sourceAddress, targetAddress, length);
+		MEMORY_ACCESSOR.copyRange(sourceAddress, targetAddress, length);
 	}
+	
+	
 
-	public static final void copyRange(
-		final Object source,
-		final long   sourceOffset,
-		final Object target,
-		final long   targetOffset,
-		final long   length
-	)
-	{
-		VM.copyMemory(source, sourceOffset, target, targetOffset, length);
-	}
+	// address-to-array range copying //
 
 	public static final void copyRangeToArray(final long sourceAddress, final byte[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_BYTE_BASE_OFFSET, target.length);
+		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
 	
-	public static final void copyRangeToArray(
-		final long   sourceAddress,
-		final byte[] target       ,
-		final int    targetIndex  ,
-		final long   length
-	)
-	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_BYTE_BASE_OFFSET + targetIndex, length);
-	}
-
 	public static final void copyRangeToArray(final long sourceAddress, final boolean[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_BOOLEAN_BASE_OFFSET, target.length);
+		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final short[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_SHORT_BASE_OFFSET, target.length << BITS1);
+		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final char[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET, target.length << BITS1);
+		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
 	
-	public static final void copyRangeToArray(
-		final long   sourceAddress,
-		final char[] target       ,
-		final int    targetIndex  ,
-		final long   targetLength
-	)
-	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET + (targetIndex << BITS1), targetLength << BITS1);
-	}
-
 	public static final void copyRangeToArray(final long sourceAddress, final int[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_INT_BASE_OFFSET, target.length << BITS2);
+		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final float[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_FLOAT_BASE_OFFSET, target.length << BITS2);
+		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final long[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_LONG_BASE_OFFSET, target.length << BITS3);
+		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final double[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_DOUBLE_BASE_OFFSET, target.length << BITS3);
+		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
+		
+	
 
-	
-	
-	// copyArrayToAddress //
+	// array-to-address range copying //
 
 	public static final void copyArrayToAddress(final byte[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_BYTE_BASE_OFFSET, null, targetAddress, array.length);
-	}
-
-	public static final void copyArrayToAddress(
-		final byte[] array        ,
-		final int    offset       ,
-		final int    length       ,
-		final long   targetAddress
-	)
-	{
-		VM.copyMemory(array, ARRAY_BYTE_BASE_OFFSET + offset, null, targetAddress, length);
+		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
 	
 	public static final void copyArrayToAddress(final boolean[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_BOOLEAN_BASE_OFFSET, null, targetAddress, array.length);
-	}
-
-	public static final void copyArrayToAddress(
-		final boolean[] array        ,
-		final int       offset       ,
-		final int       length       ,
-		final long      targetAddress
-	)
-	{
-		VM.copyMemory(array, ARRAY_BOOLEAN_BASE_OFFSET + offset, null, targetAddress, length);
+		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
 	
 	public static final void copyArrayToAddress(final short[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET, null, targetAddress, array.length << BITS1);
-	}
-
-	public static final void copyArrayToAddress(
-		final short[] array        ,
-		final int     offset       ,
-		final int     length       ,
-		final long    targetAddress
-	)
-	{
-		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
+		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
 
 	public static final void copyArrayToAddress(final char[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET, null, targetAddress, array.length << BITS1);
-	}
-	
-	public static final void copyArrayToAddress(
-		final char[] array        ,
-		final int    offset       ,
-		final int    length       ,
-		final long   targetAddress
-	)
-	{
-		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET + (offset << BITS1), null, targetAddress, length << BITS1);
+		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
 	
 	public static final void copyArrayToAddress(final int[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
-	}
-
-	public static final void copyArrayToAddress(
-		final int[] array        ,
-		final int   offset       ,
-		final int   length       ,
-		final long  targetAddress
-	)
-	{
-		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
+		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
 	
 	public static final void copyArrayToAddress(final float[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, array.length << BITS2);
-	}
-
-	public static final void copyArrayToAddress(
-		final float[] array        ,
-		final int     offset       ,
-		final int     length       ,
-		final long    targetAddress
-	)
-	{
-		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET + (offset << BITS2), null, targetAddress, length << BITS2);
+		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
 	
 	public static final void copyArrayToAddress(final long[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET, null, targetAddress, array.length << BITS3);
-	}
-
-	public static final void copyArrayToAddress(
-		final long[]   array        ,
-		final int      offset       ,
-		final int      length       ,
-		final long     targetAddress
-	)
-	{
-		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
+		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
 	
 	public static final void copyArrayToAddress(final double[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length << BITS3);
+		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
+	}
+	
+	
+	
+	// conversion to byte array //
+
+	public static final byte[] asByteArray(final long[] longArray)
+	{
+		return MEMORY_ACCESSOR.asByteArray(longArray);
 	}
 
-	public static final void copyArrayToAddress(
-		final double[] array        ,
-		final int      offset       ,
-		final int      length       ,
-		final long     targetAddress
-	)
+	public static final byte[] asByteArray(final long value)
 	{
-		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET + (offset << BITS3), null, targetAddress, length << BITS3);
+		return MEMORY_ACCESSOR.asByteArray(value);
+	}
+	
+
+
+	// special system methods, not really memory-related //
+
+	public static final void ensureClassInitialized(final Class<?> c)
+	{
+		MEMORY_ACCESSOR.ensureClassInitialized(c);
+	}
+	
+	public static final void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
+	{
+		MEMORY_ACCESSOR.ensureClassInitialized(c, usedFields);
+	}
+		
+	public static final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
+	{
+		return MEMORY_ACCESSOR.instantiateBlank(c);
 	}
 
 	
-
-	public static final byte get_byteFromBytes(final byte[] data, final int offset)
-	{
-		return VM.getByte(data, ARRAY_BYTE_BASE_OFFSET + offset);
-	}
-
-	public static final boolean get_booleanFromBytes(final byte[] data, final int offset)
-	{
-		return VM.getBoolean(data, ARRAY_BOOLEAN_BASE_OFFSET + offset);
-	}
-
-	public static final short get_shortFromBytes(final byte[] data, final int offset)
-	{
-		return VM.getShort(data, ARRAY_SHORT_BASE_OFFSET + offset);
-	}
-
-	public static final char get_charFromBytes(final byte[] data, final int offset)
-	{
-		return VM.getChar(data, ARRAY_CHAR_BASE_OFFSET + offset);
-	}
-
-	public static final int get_intFromBytes(final byte[] data, final int offset)
-	{
-		return VM.getInt(data, ARRAY_INT_BASE_OFFSET + offset);
-	}
-
-	public static final float get_floatFromBytes(final byte[] data, final int offset)
-	{
-		return VM.getFloat(data, ARRAY_FLOAT_BASE_OFFSET + offset);
-	}
-
-	public static final long get_longFromBytes(final byte[] data, final int offset)
-	{
-		return VM.getLong(data, ARRAY_LONG_BASE_OFFSET + offset);
-	}
-
-	public static final double get_doubleFromBytes(final byte[] data, final int offset)
-	{
-		return VM.getDouble(data, ARRAY_DOUBLE_BASE_OFFSET + offset);
-	}
-
-	public static final long allocate(final long bytes)
-	{
-		return VM.allocateMemory(bytes);
-	}
-
-	public static final long reallocate(final long address, final long bytes)
-	{
-		return VM.reallocateMemory(address, bytes);
-	}
-
-	public static final void fillRange(final long address, final long length, final byte value)
-	{
-		VM.setMemory(address, length, value);
-	}
-
-	public static final void free(final long address)
-	{
-		VM.freeMemory(address);
-	}
-
-	public static final boolean compareAndSwap_int(
-		final Object subject    ,
-		final long   offset     ,
-		final int    expected   ,
-		final int    replacement
-	)
-	{
-		return VM.compareAndSwapInt(subject, offset, expected, replacement);
-	}
-
-	public static final boolean compareAndSwap_long(
-		final Object subject    ,
-		final long   offset     ,
-		final long   expected   ,
-		final long   replacement
-	)
-	{
-		return VM.compareAndSwapLong(subject, offset, expected, replacement);
-	}
-
-	public static final boolean compareAndSwapObject(
-		final Object subject    ,
-		final long   offset     ,
-		final Object expected   ,
-		final Object replacement
-	)
-	{
-		return VM.compareAndSwapObject(subject, offset, expected, replacement);
-	}
-	
-	public static ByteOrder nativeByteOrder()
+	public static final ByteOrder nativeByteOrder()
 	{
 		return ByteOrder.nativeOrder();
 	}
 	
+	public static final boolean isBigEndianNativeOrder()
+	{
+		return ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
+	}
+	
+	public static final boolean isLittleEndianNativeOrder()
+	{
+		return ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+	}
+	
+	/**
+	 * Parses a {@link String} instance to a {@link ByteOrder} instance according to {@code ByteOrder#toString()}
+	 * or throws an {@link IllegalArgumentException} if the passed string does not match exactely one of the
+	 * {@link ByteOrder} constant instances' string representation.
+	 *
+	 * @param byteOrder the string representing the {@link ByteOrder} instance to be parsed.
+	 * @return the recognized {@link ByteOrder}
+	 * @throws IllegalArgumentException if the string can't be recognized as a {@link ByteOrder} constant instance.
+	 * @see ByteOrder#toString()
+	 */
 	// because they (he) couldn't have implemented that where it belongs.
-	public static ByteOrder resolveByteOrder(final String name)
+	public static final ByteOrder parseByteOrder(final String name)
 	{
 		if(name.equals(ByteOrder.BIG_ENDIAN.toString()))
 		{
@@ -1052,76 +985,88 @@ public final class XMemory
 		throw new RuntimeException("Unknown ByteOrder: \"" + name + "\"");
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static final <T> T instantiate(final Class<T> c) throws InstantiationRuntimeException
+	/**
+	 * Alias for {@code ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder())}.
+	 * See {@link ByteBuffer#allocateDirect(int)} for details.
+	 * 
+	 * @param capacity
+	 *         The new buffer's capacity, in bytes
+	 * 
+	 * @return a newly created direct byte buffer with the specified capacity and the platform's native byte order.
+	 * 
+     * @throws IllegalArgumentException
+     *         If the {@code capacity} is a negative integer.
+     * 
+	 * @see ByteBuffer#allocateDirect(int)
+	 * @see ByteBuffer#order(ByteOrder)
+	 */
+	public static final ByteBuffer allocateDirectNative(final int capacity) throws IllegalArgumentException
 	{
-		try
-		{
-			return (T)VM.allocateInstance(c);
-		}
-		catch(final InstantiationException e)
-		{
-			throw new InstantiationRuntimeException(e);
-		}
+		return ByteBuffer
+			.allocateDirect(capacity)
+			.order(ByteOrder.nativeOrder())
+		;
 	}
 	
-
-	
-	////////////////////////////////////////////////////////////////////////
-	// some nasty util methods not directly related to memory operations //
-	//////////////////////////////////////////////////////////////////////
-
-	public static final void throwUnchecked(final Throwable t)
+	public static final ByteBuffer allocateDirectNative(final long capacity) throws IllegalArgumentException
 	{
-		VM.throwException(t);
+		return allocateDirectNative(
+			X.checkArrayRange(capacity)
+		);
 	}
 	
-	public static final void ensureClassInitialized(final Class<?>... classes)
+	public static final ByteBuffer allocateDirectNativeDefault()
 	{
-		for(final Class<?> c : classes)
-		{
-			ensureClassInitialized(c);
-		}
-	}
-
-	public static final void ensureClassInitialized(final Class<?> c)
-	{
-		VM.ensureClassInitialized(c);
+		return allocateDirectNative(XMemory.defaultBufferSize());
 	}
 	
-
-	
-	////////////////////////////////////////////////////////
-	// copies of general logic to eliminate dependencies //
-	//////////////////////////////////////////////////////
-	
-	private static final int checkArrayRange(final long capacity)
+	// another episode of "They couldn't even implement the most basic functionality."
+	public static final byte[] toArray(final ByteBuffer source)
 	{
-		// " >= " proved to be faster in tests than ">" (probably due to simple sign checking)
-		if(capacity > Integer.MAX_VALUE)
-		{
-			throw new IllegalArgumentException("Invalid array length: " + capacity);
-		}
+		final int currentSourcePosition = source.position();
 		
-		return (int)capacity;
+		final byte[] bytes = new byte[source.remaining()];
+		source.get(bytes, 0, bytes.length);
+		
+		// why would a querying methode intrinsically increase the position? WHY?
+		source.position(currentSourcePosition);
+		
+		return bytes;
 	}
 	
-	private static final <T> T notNull(final T object) throws NullPointerException
+	public static final byte[] toArray(final ByteBuffer source, final int position, final int length)
 	{
-		if(object == null)
-		{
-			// removing this method's stack trace entry is kind of a hack. On the other hand, it's not.
-			throw new NullPointerException();
-		}
+		final long plState = getPositionLimit(source);
+		setPositionLimit(source, position, position + length);
 		
-		return object;
+		final byte[] bytes = new byte[length];
+		source.get(bytes, 0, length);
+		
+		// why would a querying methode intrinsically increase the position? WHY?
+		setPositionLimit(source, plState);
+		
+		return bytes;
 	}
-
-
-
-	// implicitely used in #calculateByteSizeObjectHeader
-	Object calculateByteSizeObjectHeaderFieldOffsetDummy;
-
+	
+	public static final long getPositionLimit(final ByteBuffer buffer)
+	{
+		return ((long)buffer.position() << Integer.SIZE) + buffer.limit();
+	}
+	
+	public static final ByteBuffer setPositionLimit(final ByteBuffer buffer, final long positionLimit)
+	{
+		return setPositionLimit(buffer, (int)(positionLimit >>> Integer.SIZE), (int)positionLimit);
+	}
+	
+	public static final ByteBuffer setPositionLimit(final ByteBuffer buffer, final int position, final int limit)
+	{
+		// must set limit first because position is validated against it!
+		buffer.limit(limit);
+		buffer.position(position);
+		
+		return buffer;
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -1140,4 +1085,3 @@ public final class XMemory
 	}
 
 }
-

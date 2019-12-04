@@ -2,7 +2,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
@@ -15,6 +15,7 @@ import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceRootsProvider;
+import one.microstream.persistence.types.PersistenceRootsView;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.Reference;
@@ -44,6 +45,8 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	public Reference<Object> defaultRoot();
 	
 	public Object customRoot();
+	
+	public PersistenceRootsView viewRoots();
 	
 	public default long storeRoot()
 	{
@@ -150,7 +153,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		////////////
 
 		@Override
-		public Object root()
+		public final Object root()
 		{
 			final Object customRoot = this.customRoot();
 			if(customRoot != null)
@@ -168,7 +171,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 		
 		@Override
-		public Object setRoot(final Object newRoot)
+		public final Object setRoot(final Object newRoot)
 		{
 			final Object customRoot = this.customRoot();
 			if(customRoot != null)
@@ -195,15 +198,21 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 		
 		@Override
-		public Reference<Object> defaultRoot()
+		public final Reference<Object> defaultRoot()
 		{
 			return this.rootsProvider.provideRoots().defaultRoot();
 		}
 		
 		@Override
-		public Object customRoot()
+		public final Object customRoot()
 		{
 			return this.rootsProvider.provideRoots().customRoot();
+		}
+		
+		@Override
+		public final PersistenceRootsView viewRoots()
+		{
+			return this.rootsProvider.provideRoots();
 		}
 
 		@Override
@@ -213,7 +222,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public Storer createStorer()
+		public final Storer createStorer()
 		{
 			return this.singletonConnection().createStorer();
 		}
@@ -222,9 +231,32 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		public final EmbeddedStorageManager.Default start()
 		{
 			this.storageManager.start();
-
-			this.ensureRequiredTypeHandlers();
-			this.initialize();
+			
+			try
+			{
+				this.ensureRequiredTypeHandlers();
+				this.initialize();
+			}
+			catch(final Throwable t)
+			{
+				try
+				{
+					if(this.storageManager instanceof StorageKillable)
+					{
+						((StorageKillable)this.storageManager).killStorage(t);
+					}
+					else
+					{
+						this.storageManager.shutdown();
+					}
+				}
+				catch(final Throwable t1)
+				{
+					t1.addSuppressed(t);
+					throw t1;
+				}
+				throw t;
+			}
 			
 			return this;
 		}
@@ -348,6 +380,12 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		{
 			return this.storageManager.isRunning();
 		}
+		
+		@Override
+		public final boolean isActive()
+		{
+			return this.storageManager.isActive();
+		}
 
 		@Override
 		public final boolean isStartingUp()
@@ -422,7 +460,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public boolean issueFileCheck(final long nanoTimeBudgetBound)
+		public final boolean issueFileCheck(final long nanoTimeBudgetBound)
 		{
 			return this.singletonConnection().issueFileCheck(nanoTimeBudgetBound);
 		}
@@ -487,7 +525,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		}
 
 		@Override
-		public final void importFiles(final XGettingEnum<File> importFiles)
+		public final void importFiles(final XGettingEnum<Path> importFiles)
 		{
 			this.singletonConnection().importFiles(importFiles);
 		}

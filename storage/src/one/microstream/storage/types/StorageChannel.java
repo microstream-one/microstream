@@ -20,7 +20,7 @@ import one.microstream.typing.KeyValue;
 import one.microstream.util.BufferSizeProviderIncremental;
 
 
-public interface StorageChannel extends Runnable, StorageHashChannelPart
+public interface StorageChannel extends Runnable, StorageHashChannelPart, StorageActivePart
 {
 	public StorageTypeDictionary typeDictionary();
 
@@ -100,6 +100,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		private final StorageEntityCache.Default    entityCache              ;
 		private final boolean                       switchByteOrder          ;
 		private final BufferSizeProviderIncremental loadingBufferSizeProvider;
+		private final StorageEventLogger            eventLogger              ;
 
 		private final HousekeepingTask[] housekeepingTasks =
 		{
@@ -120,6 +121,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		 * @see StorageHousekeepingController#housekeepingTimeBudgetNs(long)
 		 */
 		private long housekeepingIntervalBudgetNs;
+		
+		private boolean active;
 
 
 
@@ -138,7 +141,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			final StorageEntityCache.Default    entityCache              ,
 			final boolean                       switchByteOrder          ,
 			final BufferSizeProviderIncremental loadingBufferSizeProvider,
-			final StorageFileManager.Default    fileManager
+			final StorageFileManager.Default    fileManager              ,
+			final StorageEventLogger            eventLogger
 		)
 		{
 			super();
@@ -150,6 +154,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 			this.entityCache               =     notNull(entityCache)              ;
 			this.housekeepingController    =     notNull(housekeepingController)   ;
 			this.loadingBufferSizeProvider =     notNull(loadingBufferSizeProvider);
+			this.eventLogger               =     notNull(eventLogger)              ;
 			this.switchByteOrder           =             switchByteOrder           ;
 		}
 
@@ -285,7 +290,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				 */
 				if(!operationController.checkProcessingEnabled())
 				{
-					DebugStorage.println(this.channelIndex + " processing disabled.");
+					this.eventLogger.logChannelProcessingDisabled(this);
 					break;
 				}
 
@@ -308,8 +313,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				}
 //				DEBUGStorage.println(this.channelIndex + " current Task: " + currentTask);
 			}
-
-			DebugStorage.println("Storage channel " + this.channelIndex + " stops working.");
+			
+			this.eventLogger.logChannelStoppedWorking(this);
 		}
 
 
@@ -317,10 +322,30 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public synchronized boolean isActive()
+		{
+			return this.active;
+		}
+		
+		private synchronized void activate()
+		{
+			this.active = true;
+		}
+		
+		private synchronized void deactivate()
+		{
+			this.active = false;
+		}
 
 		@Override
 		public final void run()
 		{
+			// first thing to do
+			this.activate();
+			
+			Throwable workingDisruption = null;
 			try
 			{
 				this.work();
@@ -337,8 +362,28 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				 * Note: applies to interruption as well, because on privately managed threads,
 				 * interruping ultimately means just stop running in a ordered fashion
 				 */
-				DebugStorage.println(this.channelIndex + " encountered exception " + t);
+				workingDisruption = t;
+				this.eventLogger.logDisruption(this, t);
 				this.exceptionHandler.handleException(t, this);
+			}
+			finally
+			{
+				try
+				{
+					this.closeAllResources();
+				}
+				catch(final Throwable t1)
+				{
+					if(workingDisruption != null)
+					{
+						t1.addSuppressed(workingDisruption);
+					}
+				}
+				finally
+				{
+					// finally finally: guaranteed last thing to do ever in any case. Ever. Really. Good night.
+					this.deactivate();
+				}
 			}
 		}
 
@@ -579,11 +624,16 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart
 				storageInventory
 			);
 		}
+		
+		final void closeAllResources()
+		{
+			this.fileManager.clearRegisteredFiles();
+		}
 
 		@Override
 		public final void clear()
 		{
-			this.fileManager.clearRegisteredFiles();
+			this.closeAllResources();
 			this.entityCache.clearState();
 		}
 

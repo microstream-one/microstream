@@ -48,7 +48,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		return (Comparator<? super E>)idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_COMPARATOR));
+		return (Comparator<? super E>)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_COMPARATOR));
 	}
 	
 	public static BinaryHandlerConcurrentSkipListMap New()
@@ -87,7 +87,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeMapEntrySet(
+		bytes.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -96,7 +96,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 		);
 		
 		bytes.store_long(
-			contentAddress + BINARY_OFFSET_COMPARATOR,
+			BINARY_OFFSET_COMPARATOR,
 			handler.apply(instance.comparator())
 		);
 	}
@@ -154,7 +154,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	@Override
 	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_COMPARATOR));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_COMPARATOR));
 		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	

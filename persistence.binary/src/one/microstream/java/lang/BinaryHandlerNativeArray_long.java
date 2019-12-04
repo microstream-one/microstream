@@ -35,19 +35,19 @@ public final class BinaryHandlerNativeArray_long extends AbstractBinaryHandlerNa
 	@Override
 	public void store(final Binary bytes, final long[] array, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeArray_long(this.typeId(), objectId, array);
+		bytes.store_longs(this.typeId(), objectId, array);
 	}
 
 	@Override
 	public long[] create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return bytes.createArray_long();
+		return bytes.create_longs();
 	}
 
 	@Override
 	public void update(final Binary bytes, final long[] instance, final PersistenceObjectIdResolver idResolver)
 	{
-		bytes.updateArray_long(instance);
+		bytes.update_longs(instance);
 	}
 
 }

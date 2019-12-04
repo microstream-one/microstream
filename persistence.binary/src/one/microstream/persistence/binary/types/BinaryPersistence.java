@@ -1,7 +1,7 @@
 package one.microstream.persistence.binary.types;
 
-import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
@@ -60,6 +60,7 @@ import one.microstream.java.util.BinaryHandlerIdentityHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashMap;
 import one.microstream.java.util.BinaryHandlerLinkedHashSet;
 import one.microstream.java.util.BinaryHandlerLinkedList;
+import one.microstream.java.util.BinaryHandlerLocale;
 import one.microstream.java.util.BinaryHandlerOptionalDouble;
 import one.microstream.java.util.BinaryHandlerOptionalInt;
 import one.microstream.java.util.BinaryHandlerOptionalLong;
@@ -78,9 +79,9 @@ import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListSet;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.binary.internal.BinaryHandlerSingletonStatelessEnum;
-import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
+import one.microstream.persistence.binary.internal.BinaryHandlerStatelessConstant;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import one.microstream.persistence.lazy.BinaryHandlerLazy;
+import one.microstream.persistence.lazy.BinaryHandlerLazyDefault;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -171,6 +172,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerPrimitive.New(double .class),
 
 			BinaryHandlerClass.New(typeHandlerManager),
+			
 			BinaryHandlerByte.New()     ,
 			BinaryHandlerBoolean.New()  ,
 			BinaryHandlerShort.New()    ,
@@ -182,7 +184,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerVoid.New()     ,
 			BinaryHandlerObject.New()   ,
 			
-			BinaryHandlerString.New()      ,
+			BinaryHandlerString.New()       ,
 			BinaryHandlerStringBuffer.New() ,
 			BinaryHandlerStringBuilder.New(),
 
@@ -199,12 +201,33 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerBigDecimal.New(),
 			BinaryHandlerFile.New()      ,
 			BinaryHandlerDate.New()      ,
+			BinaryHandlerLocale.New()    ,
 			
 			BinaryHandlerOptionalInt.New(),
 			BinaryHandlerOptionalLong.New(),
 			BinaryHandlerOptionalDouble.New(),
 			
-			BinaryHandlerStateless.New(Collections.reverseOrder().getClass()) // not an enum
+			/* (12.11.2019 TM)NOTE:
+			 * One might think that "empty" implementations of a collection interface would have no fields, anyway.
+			 * But no-ho-ho, not when the JDK geniuses are involved.
+			 * The horrible, unexplicably stupidly written code for those classes brainlessly and uselessly
+			 * extends 5 other classes, some of which bring along several times redundant delegate fields.
+			 * Those fields cause access warnings (and access exceptions in the future) when trying to set them
+			 * accessible in the generic handler implementation.
+			 * To avoid all that hassle and compensate their intern-like design skills when it comes to interfaces
+			 * (and Java in general), it is necessary to explicitly define stateless handlers for those
+			 * pseudo-stateless empty types with useless fields.
+			 * Rant over. Yes, I feel much better now.
+			 * 
+			 * Also, to avoid an erroneous instance creation that BinaryHandlerStateless might perform
+			 * (e.g. when using a dummy object registry as tools might do), the constant instance itself
+			 * has to be returned in case the create should ever be invoked.
+			 */
+			BinaryHandlerStatelessConstant.New(Collections.emptyNavigableSet()),
+			BinaryHandlerStatelessConstant.New(Collections.emptyNavigableMap()),
+			
+			// not an enum, as opposed to NaturalOrderComparator.
+			BinaryHandlerStatelessConstant.New(Collections.reverseOrder())
 		);
 		
 		/* (24.10.2013 TM)TODO: priv#117 more native handlers (Path, Instant and whatnot)
@@ -271,7 +294,7 @@ public final class BinaryPersistence extends Persistence
 			// still creepy JDK 1.7 collections
 			BinaryHandlerConcurrentLinkedDeque.New(),
 
-			BinaryHandlerLazy.New(),
+			BinaryHandlerLazyDefault.New(),
 			
 			// the way Optional is implemented, only a generically (low-level) working handler can handle it correctly
 			typeHandlerCreator.createTypeHandler(Optional.class)
@@ -329,7 +352,7 @@ public final class BinaryPersistence extends Persistence
 		return new BinaryFieldLengthResolver.Default();
 	}
 		
-	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final File dictionaryFile)
+	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final Path dictionaryFile)
 	{
 		final BinaryPersistenceFoundation<?> f = BinaryPersistenceFoundation.New()
 			.setTypeDictionaryLoader(
@@ -339,7 +362,7 @@ public final class BinaryPersistence extends Persistence
 		return f.getTypeDictionaryProvider().provideTypeDictionary();
 	}
 	
-	static final int binaryValueSize(final Class<?> type)
+	public static final int binaryValueSize(final Class<?> type)
 	{
 		return type.isPrimitive()
 			? XMemory.byteSizePrimitive(type)

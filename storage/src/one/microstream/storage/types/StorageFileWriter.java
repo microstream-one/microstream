@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
 
@@ -36,7 +36,7 @@ public interface StorageFileWriter
 	{
 		try
 		{
-			return XFiles.appendAllGuaranteed(file.fileChannel(), byteBuffers);
+			return XIO.appendAllGuaranteed(file.fileChannel(), byteBuffers);
 		}
 		catch(final IOException e)
 		{

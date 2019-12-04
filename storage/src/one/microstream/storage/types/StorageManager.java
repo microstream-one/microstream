@@ -34,10 +34,10 @@ public interface StorageManager extends StorageController
 	public boolean shutdown();
 
 	public StorageObjectIdRangeEvaluator objectIdRangeEvaluator();
-	
+		
 
 
-	public final class Default implements StorageManager, Unpersistable
+	public final class Default implements StorageManager, Unpersistable, StorageKillable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -72,6 +72,7 @@ public interface StorageManager extends StorageController
 		private final StorageBackupSetup                   backupSetup                   ;
 		private final StorageLockFileSetup                 lockFileSetup                 ;
 		private final StorageLockFileManager.Creator       lockFileManagerCreator        ;
+		private final StorageEventLogger                   eventLogger                   ;
 		private final boolean                              switchByteOrder               ;
 
 
@@ -118,12 +119,13 @@ public interface StorageManager extends StorageController
 			final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ,
 			final StorageGCZombieOidHandler            zombieOidHandler              ,
 			final StorageRootOidSelector.Provider      rootOidSelectorProvider       ,
-			final StorageobjectIdMarkQueue.Creator          oidMarkQueueCreator           ,
+			final StorageobjectIdMarkQueue.Creator     oidMarkQueueCreator           ,
 			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ,
 			final boolean                              switchByteOrder               ,
 			final StorageLockFileSetup                 lockFileSetup                 ,
 			final StorageLockFileManager.Creator       lockFileManagerCreator        ,
-			final StorageExceptionHandler              exceptionHandler
+			final StorageExceptionHandler              exceptionHandler              ,
+			final StorageEventLogger                   eventLogger
 		)
 		{
 			super();
@@ -159,6 +161,7 @@ public interface StorageManager extends StorageController
 			this.lockFileManagerCreator         = notNull(lockFileManagerCreator)              ;
 			this.backupSetup                    = mayNull(storageConfiguration.backupSetup())  ;
 			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
+			this.eventLogger                    = notNull(eventLogger)                         ;
 			this.switchByteOrder                =         switchByteOrder                      ;
 		}
 
@@ -178,6 +181,38 @@ public interface StorageManager extends StorageController
 		public final boolean isRunning()
 		{
 			return this.isChannelProcessingEnabled();
+		}
+		
+		@Override
+		public final boolean isActive()
+		{
+			synchronized(this.stateLock)
+			{
+				/*
+				 * If running is true, then it must be active as well (or will be shortly)
+				 * If not, one or more channels might still be active.
+				 * And if there is a backup handler, that might still be active, too.
+				 * 
+				 * Only if every active part is inactive is the whole storage inactive as well.
+				 */
+				return this.isRunning()
+					|| this.hasActiveChannels()
+					|| this.backupHandler != null && this.backupHandler.isActive()
+				;
+			}
+		}
+		
+		private boolean hasActiveChannels()
+		{
+			for(final ChannelKeeper keeper : this.channelKeepers)
+			{
+				if(keeper.isActive())
+				{
+					return true;
+				}
+			}
+			
+			return false;
 		}
 		
 		private boolean isChannelProcessingEnabled()
@@ -240,7 +275,7 @@ public interface StorageManager extends StorageController
 			{
 				for(final ChannelKeeper keeper : this.channelKeepers)
 				{
-					keeper.thread.start();
+					keeper.channelThread.start();
 				}
 				initializingTask.waitOnCompletion();
 			}
@@ -316,20 +351,28 @@ public interface StorageManager extends StorageController
 
 
 		// "Please do not disturb the Keepers" :-D
-		static final class ChannelKeeper
+		static final class ChannelKeeper implements StorageActivePart
 		{
-			final int            channelIndex;
-			final StorageChannel processor   ;
-			final Thread         thread      ;
+			final int            channelIndex ;
+			final StorageChannel channel      ;
+			final Thread         channelThread;
 
-			ChannelKeeper(final int channelIndex, final StorageChannel processor, final Thread thread)
+			ChannelKeeper(final int channelIndex, final StorageChannel channel, final Thread thread)
 			{
 				super();
-				this.channelIndex = channelIndex;
-				this.processor    = processor   ;
-				this.thread       = thread      ;
+				this.channelIndex  = channelIndex;
+				this.channel       = channel     ;
+				this.channelThread = thread      ;
+			}
+			
+			@Override
+			public final boolean isActive()
+			{
+				return this.channel.isActive();
 			}
 		}
+		
+		
 
 		private void createChannels()
 		{
@@ -360,6 +403,7 @@ public interface StorageManager extends StorageController
 				this.oidMarkQueueCreator                   ,
 				this.entityMarkMonitorCreator              ,
 				this.provideBackupHandler()                ,
+				this.eventLogger                           ,
 				this.switchByteOrder                       ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);
@@ -477,6 +521,7 @@ public interface StorageManager extends StorageController
 				}
 				catch(final InterruptedException e)
 				{
+					this.operationController.deactivate();
 					throw new RuntimeException(e); // (15.06.2013)EXCP: proper exception
 				}
 				catch(final Throwable t)
@@ -550,6 +595,26 @@ public interface StorageManager extends StorageController
 				this.dataChunkValidatorProvider.provideDataChunkValidator(this.typeDictionary),
 				this.taskbroker
 			);
+		}
+		
+		@Override
+		public void killStorage(final Throwable cause)
+		{
+			/*
+			 * Immediately deactivates all activities without waiting for currently existing work items to be
+			 * completed.
+			 * 
+			 * Deactivates all threads (Channel threads, lock file thread, backup thread).
+			 * All terminating threads cleanup their resources (e.g. opened files).
+			 * So this is all that must be necessary
+			 */
+			this.operationController.deactivate();
+			
+			// backup handler must be treated specially since it is normally intended to finish its items on its own.
+			if(this.backupHandler != null)
+			{
+				this.backupHandler.setRunning(false);
+			}
 		}
 
 	}

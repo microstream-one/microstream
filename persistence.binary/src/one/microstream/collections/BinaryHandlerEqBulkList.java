@@ -87,7 +87,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference
-		final long contentAddress = bytes.storeSizedArray(
+		bytes.storeSizedArray(
 			this.typeId()            ,
 			objectId                 ,
 			BINARY_OFFSET_SIZED_ARRAY,
@@ -98,7 +98,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 
 		// persist equalator and set the resulting oid at its binary place
 		bytes.store_long(
-			contentAddress + BINARY_OFFSET_EQUALATOR,
+			BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.equalator)
 		);
 	}
@@ -125,15 +125,15 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 
 		instance.size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			instance.data            ,
-			idResolver
+			idResolver,
+			instance.data
 		);
 
 		// set equalator instance (must be done on memory-level due to final modifier. Little hacky, but okay)
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			idResolver.lookupObject(bytes.get_long(BINARY_OFFSET_EQUALATOR))
+			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
 		);
 	}
 
@@ -147,7 +147,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 	@Override
 	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		iterator.acceptObjectId(bytes.get_long(BINARY_OFFSET_EQUALATOR));
+		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_EQUALATOR));
 		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
 

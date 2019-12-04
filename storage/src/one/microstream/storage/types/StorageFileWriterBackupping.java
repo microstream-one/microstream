@@ -43,10 +43,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		{
 			final long oldTargetFileLength = targetFile.length();
 			final long byteCount = this.delegate.writeStore(targetFile, byteBuffers);
-			
-			// every item increases the user count, even if its the same file multiple times.
-			targetFile.incrementUserCount();
-			
+						
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
 			this.itemEnqueuer.enqueueCopyingItem(targetFile, oldTargetFileLength, byteCount);
 			
@@ -64,9 +61,6 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 			final long oldTargetFileLength = targetFile.length();
 			this.delegate.writeImport(sourceFile, sourceOffset, copyLength, targetFile);
 			
-			// every item increases the user count, even if its the same file multiple times.
-			targetFile.incrementUserCount();
-			
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
 			this.itemEnqueuer.enqueueCopyingItem(targetFile, oldTargetFileLength, copyLength);
 			
@@ -83,9 +77,6 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		{
 			final long oldTargetFileLength = targetFile.length();
 			this.delegate.writeTransfer(sourceFile, sourceOffset, length, targetFile);
-			
-			// every item increases the user count, even if its the same file multiple times.
-			targetFile.incrementUserCount();
 			
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
 			this.itemEnqueuer.enqueueCopyingItem(targetFile, oldTargetFileLength, length);
@@ -107,9 +98,6 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 				dataFile
 			);
 			
-			// every item increases the user count, even if its the same file multiple times.
-			transactionFile.incrementUserCount();
-			
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
 			this.itemEnqueuer.enqueueCopyingItem(transactionFile, oldLength, byteCount);
 			
@@ -119,10 +107,10 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		@Override
 		public final long writeTransactionEntryStore(
 			final StorageInventoryFile transactionFile,
-			final ByteBuffer[]             byteBuffers    ,
-			final StorageDataFile<?>       dataFile       ,
-			final long                     dataFileOffset ,
-			final long                     storeLength
+			final ByteBuffer[]         byteBuffers    ,
+			final StorageDataFile<?>   dataFile       ,
+			final long                 dataFileOffset ,
+			final long                 storeLength
 		)
 		{
 			final long oldLength = transactionFile.length();
@@ -133,9 +121,6 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 				dataFileOffset ,
 				storeLength
 			);
-			
-			// every item increases the user count, even if its the same file multiple times.
-			transactionFile.incrementUserCount();
 			
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
 			this.itemEnqueuer.enqueueCopyingItem(transactionFile, oldLength, byteCount);
@@ -161,9 +146,6 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 				storeLength
 			);
 			
-			// every item increases the user count, even if its the same file multiple times.
-			transactionFile.incrementUserCount();
-			
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
 			this.itemEnqueuer.enqueueCopyingItem(transactionFile, oldLength, byteCount);
 			
@@ -183,9 +165,6 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 				byteBuffers    ,
 				dataFile
 			);
-			
-			// every item increases the user count, even if its the same file multiple times.
-			transactionFile.incrementUserCount();
 			
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
 			this.itemEnqueuer.enqueueCopyingItem(transactionFile, oldLength, byteCount);
@@ -208,9 +187,6 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 				file           ,
 				newFileLength
 			);
-			
-			// every item increases the user count, even if its the same file multiple times.
-			transactionFile.incrementUserCount();
 			
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
 			this.itemEnqueuer.enqueueCopyingItem(transactionFile, oldLength, byteCount);

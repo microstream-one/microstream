@@ -1,14 +1,12 @@
 package one.microstream.com.binary.test;
 
-import java.io.File;
-
 import one.microstream.com.Com;
 import one.microstream.com.ComFoundation;
 import one.microstream.com.ComProtocol;
 import one.microstream.com.ComProtocolProvider;
 import one.microstream.com.ComProtocolStringConverter;
 import one.microstream.com.binary.ComPersistenceAdaptorBinary;
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.binary.types.BinaryPersistenceFoundation;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
@@ -21,7 +19,7 @@ public class MainTestParseProtocol
 	{
 		final BinaryPersistenceFoundation<?> pf = BinaryPersistence.Foundation()
 			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirectory(
-				XFiles.ensureDirectory(new File("TypeDictionary"))
+				XIO.unchecked.ensureDirectory(XIO.Path("TypeDictionary"))
 			))
 //			.setObjectIdProvider(PersistenceObjectIdProvider.Transient())
 //			.setTypeIdProvider(PersistenceTypeIdProvider.Transient())

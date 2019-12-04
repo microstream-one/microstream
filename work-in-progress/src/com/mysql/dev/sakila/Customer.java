@@ -29,13 +29,13 @@ public class Customer
 	
 	/**
 	 * A surrogate primary key used to uniquely identify each customer in the table.<p>
-	 * MicroStraem note:<br>
+	 * MicroStream note:<br>
 	 * Such primitive value Ids are superfluous in an object-oriented datamodel as the reference itself is the identity.
 	 * The internal swizzling Id-Value used by the storage engine is usually invisible to the user.
 	 * However, this value is kept because it might have meaning as a business logical value, as well.
-	 * (and because MicroStraem is tremendously faster, anyway)<br>
+	 * (and because MicroStream is tremendously faster, anyway)<br>
 	 * Side note: usting a SMALLINT as an entity id allows only very tiny databases. The {@link Customer} instances
-	 * created for the MicroStraem test cause this value to overflow numerous times. However, since it is superfluous,
+	 * created for the MicroStream test cause this value to overflow numerous times. However, since it is superfluous,
 	 * anyway, this is not a problem.
 	 */
 	private final short customerId;
@@ -43,7 +43,7 @@ public class Customer
 	/**
 	 * A foreign key identifying the customer's “home store.” Customers are not limited to renting only from
 	 * this store, but this is the store they generally shop at.<p>
-	 * MicroStraem note:<br>
+	 * MicroStream note:<br>
 	 * Such primitive value Ids are usually not used in an object-oriented model to express a reference.
 	 * Instead, a direct reference to an instance of type "Store" would be used.
 	 * However, again, the value is kept for comparability reasons.
@@ -67,7 +67,7 @@ public class Customer
 
 	/**
 	 * A foreign key identifying the customer's address in the address table.
-	 * MicroStraem note:<br>
+	 * MicroStream note:<br>
 	 * See {@link #storeId}.
 	 */
 	private short addressId;
@@ -80,11 +80,11 @@ public class Customer
 
 	/**
 	 * The date the customer was added to the system. This date is automatically set using a trigger during an INSERT.
-	 * MicroStraem note:<br>
+	 * MicroStream note:<br>
 	 * {@link LocalDateTime} is badly written and would have to be replaced by a competent implementation for
 	 * reasonable usability. A custom-written {@link BinaryTypeHandler} could compensate the inefficiency on the
 	 * storage-level, but that is not done here to avoid giving the impression of trickery.
-	 * Instead, MicroStraem atones for the once again bad programming in the JDK.
+	 * Instead, MicroStream atones for the once again bad programming in the JDK.
 	 */
 	private LocalDateTime createDate;
 
@@ -103,7 +103,7 @@ public class Customer
 		final short         customerId,
 		final byte          storeId   ,
 		final String        firstName ,
-		final String        last_name ,
+		final String        lastName ,
 		final String        email     ,
 		final short         addressId ,
 		final boolean       active    ,
@@ -115,7 +115,7 @@ public class Customer
 		this.customerId = customerId;
 		this.storeId    = storeId   ;
 		this.firstName  = firstName ;
-		this.lastName  = last_name ;
+		this.lastName   = lastName  ;
 		this.email      = email     ;
 		this.addressId  = addressId ;
 		this.active     = active    ;
@@ -129,8 +129,8 @@ public class Customer
 	// getters & setters //
 	//////////////////////
 	
-	/* MicroStraem note:
-	 * Those getters and setters are completely irrelevant for MicroStraem.
+	/* MicroStream note:
+	 * Those getters and setters are completely irrelevant for MicroStream.
 	 * Their main purpose is to conform to OOP design.
 	 */
 	

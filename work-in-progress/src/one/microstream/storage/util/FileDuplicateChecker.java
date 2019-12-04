@@ -1,10 +1,11 @@
 package one.microstream.storage.util;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.function.Function;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
+import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.typing.KeyValue;
 
@@ -15,7 +16,7 @@ public class FileDuplicateChecker
 	// instance fields //
 	////////////////////
 	
-	private final Function<File, String> fileIdentifier;
+	private final Function<Path, String> fileIdentifier;
 	
 	
 	
@@ -23,7 +24,7 @@ public class FileDuplicateChecker
 	// constructors //
 	/////////////////
 	
-	public FileDuplicateChecker(final Function<File, String> fileIdentifier)
+	public FileDuplicateChecker(final Function<Path, String> fileIdentifier)
 	{
 		super();
 		this.fileIdentifier = fileIdentifier;
@@ -35,18 +36,18 @@ public class FileDuplicateChecker
 	// methods //
 	////////////
 
-	public final void checkForDuplicates(final File directory)
+	public final void checkForDuplicates(final Path directory)
 	{
 		UtilFileHandling.mustDirectory(directory);
 		
-		final EqHashTable<String, HashEnum<File>> indexedFiles = EqHashTable.New();
+		final EqHashTable<String, HashEnum<Path>> indexedFiles = EqHashTable.New();
 		
 		XDebug.println("Indexing files ...");
 		UtilFileHandling.indexFiles(directory, indexedFiles, this.fileIdentifier);
 		XDebug.println("Indexed unique files: " + indexedFiles.size());
 		
 		// (02.06.2019 TM)FIXME: collect and sort by file size
-		for(final KeyValue<String, HashEnum<File>> e : indexedFiles)
+		for(final KeyValue<String, HashEnum<Path>> e : indexedFiles)
 		{
 			if(e.value().size() > 1)
 			{
@@ -64,7 +65,7 @@ public class FileDuplicateChecker
 			UtilFileHandling.fileIdentitySimpleNameSizeChangeTime()
 		);
 		fms.checkForDuplicates(
-			new File("G:\\media")
+			XIO.Path("G:\\media")
 		);
 	}
 	

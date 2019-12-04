@@ -1,7 +1,9 @@
 package one.microstream.storage.types;
 
 import java.io.File;
+import java.nio.file.Path;
 
+import one.microstream.io.XIO;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
@@ -44,7 +46,7 @@ public final class EmbeddedStorage
 	 * 
 	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)@return}
 	 * 
-	 * @see #ConnectionFoundation(File)
+	 * @see #ConnectionFoundation(Path)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)
 	 * @see Persistence
 	 */
@@ -58,6 +60,15 @@ public final class EmbeddedStorage
 		);
 	}
 	
+	@Deprecated
+	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
+		final File directory
+	)
+	{
+		return ConnectionFoundation(directory.toPath());
+	}
+	
+	
 	/**
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageConnectionFoundation} instance
 	 * using the passed {@literal directory} and default method references provided by {@link Persistence}.
@@ -69,13 +80,13 @@ public final class EmbeddedStorage
 	 * 
 	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler)@return}
 	 * 
-	 * @see PersistenceTypeDictionaryFileHandler#NewInDirectory(File)
+	 * @see PersistenceTypeDictionaryFileHandler#NewInDirectory(Path)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)
 	 * @see Persistence
 	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final File directory
+		final Path directory
 	)
 	{
 		return ConnectionFoundation(
@@ -95,7 +106,7 @@ public final class EmbeddedStorage
 	 * @return a new {@link EmbeddedStorageConnectionFoundation} instance.
 	 * 
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
-	 * @see #ConnectionFoundation(File)
+	 * @see #ConnectionFoundation(Path)
 	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler ,
@@ -114,9 +125,9 @@ public final class EmbeddedStorage
 	 * 
 	 * @return the default storage directory located in the current working directory.
 	 */
-	public static File defaultStorageDirectory()
+	public static Path defaultStorageDirectory()
 	{
-		return new File(StorageFileProvider.Defaults.defaultStorageDirectory());
+		return XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory());
 	}
 	
 	
@@ -126,19 +137,27 @@ public final class EmbeddedStorage
 	 * using {@link #defaultStorageDirectory()} as its storage directory and default values for
 	 * its {@link StorageConfiguration}.
 	 * <p>
-	 * Calls {@link #ConnectionFoundation(File)} with {@link #defaultStorageDirectory()}.
+	 * Calls {@link #ConnectionFoundation(Path)} with {@link #defaultStorageDirectory()}.
 	 * 
 	 * @return a new all-default {@link EmbeddedStorageFoundation} instance.
 	 * 
-	 * @see #Foundation(File)
+	 * @see #Foundation(Path)
 	 * @see #Foundation(StorageConfiguration)
 	 * @see #Foundation(StorageConfiguration.Builder)
-	 * @see #Foundation(File, StorageConfiguration.Builder)
+	 * @see #Foundation(Path, StorageConfiguration.Builder)
 	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageFoundation<?> Foundation()
 	{
 		return Foundation(EmbeddedStorage.defaultStorageDirectory());
+	}
+	
+	@Deprecated
+	public static final EmbeddedStorageFoundation<?> Foundation(
+		final File directory
+	)
+	{
+		return Foundation(directory.toPath());
 	}
 	
 	/**
@@ -156,11 +175,11 @@ public final class EmbeddedStorage
 	 * @see #Foundation()
 	 * @see #Foundation(StorageConfiguration)
 	 * @see #Foundation(StorageConfiguration.Builder)
-	 * @see #Foundation(File, StorageConfiguration.Builder)
+	 * @see #Foundation(Path, StorageConfiguration.Builder)
 	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageFoundation<?> Foundation(
-		final File directory
+		final Path directory
 	)
 	{
 		// no directory ensuring required since the file provider does that internally
@@ -181,7 +200,7 @@ public final class EmbeddedStorage
 	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed configuration.
 	 * 
 	 * @see #Foundation()
-	 * @see #Foundation(File)
+	 * @see #Foundation(Path)
 	 * @see #Foundation(StorageConfiguration.Builder)
 	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
@@ -215,7 +234,7 @@ public final class EmbeddedStorage
 	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed directory and configuration.
 	 * 
 	 * @see #Foundation()
-	 * @see #Foundation(File)
+	 * @see #Foundation(Path)
 	 * @see #Foundation(StorageConfiguration)
 	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
@@ -240,7 +259,7 @@ public final class EmbeddedStorage
 	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed configuration.
 	 * 
 	 * @see #Foundation()
-	 * @see #Foundation(File)
+	 * @see #Foundation(Path)
 	 * @see #Foundation(StorageConfiguration)
 	 * @see #Foundation(StorageConfiguration.Builder)
 	 */
@@ -265,15 +284,23 @@ public final class EmbeddedStorage
 	 * 
 	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 * 
-	 * @see #start(File)
+	 * @see #start(Path)
 	 * @see #start(StorageConfiguration)
 	 * @see #start(StorageConfiguration.Builder)
-	 * @see #start(File, StorageConfiguration.Builder)
+	 * @see #start(Path, StorageConfiguration.Builder)
 	 * @see #start(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageManager start()
 	{
 		return start((Object)null);
+	}
+	
+	@Deprecated
+	public static final EmbeddedStorageManager start(
+		final File directory
+	)
+	{
+		return start(directory.toPath());
 	}
 	
 	/**
@@ -289,11 +316,11 @@ public final class EmbeddedStorage
 	 * @see #start()
 	 * @see #start(StorageConfiguration)
 	 * @see #start(StorageConfiguration.Builder)
-	 * @see #start(File, StorageConfiguration.Builder)
+	 * @see #start(Path, StorageConfiguration.Builder)
 	 * @see #start(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageManager start(
-		final File directory
+		final Path directory
 	)
 	{
 		return start(null, directory);
@@ -310,9 +337,9 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 * 
 	 * @see #start()
-	 * @see #start(File)
+	 * @see #start(Path)
 	 * @see #start(StorageConfiguration.Builder)
-	 * @see #start(File, StorageConfiguration.Builder)
+	 * @see #start(Path, StorageConfiguration.Builder)
 	 * @see #start(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageManager start(
@@ -333,9 +360,9 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 * 
 	 * @see #start()
-	 * @see #start(File)
+	 * @see #start(Path)
 	 * @see #start(StorageConfiguration)
-	 * @see #start(File, StorageConfiguration.Builder)
+	 * @see #start(Path, StorageConfiguration.Builder)
 	 * @see #start(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageManager start(
@@ -359,10 +386,10 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 * 
 	 * @see #start()
-	 * @see #start(File)
+	 * @see #start(Path)
 	 * @see #start(StorageConfiguration)
 	 * @see #start(StorageConfiguration.Builder)
-	 * @see #start(File, StorageConfiguration.Builder)
+	 * @see #start(Path, StorageConfiguration.Builder)
 	 */
 	public static final EmbeddedStorageManager start(
 		final StorageConfiguration                   configuration       ,
@@ -385,10 +412,10 @@ public final class EmbeddedStorage
 	 * 
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 * 
-	 * @see #start(Object, File)
+	 * @see #start(Object, Path)
 	 * @see #start(Object, StorageConfiguration)
 	 * @see #start(Object, StorageConfiguration.Builder)
-	 * @see #start(Object, File, StorageConfiguration.Builder)
+	 * @see #start(Object, Path, StorageConfiguration.Builder)
 	 * @see #start(Object, StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageManager start(
@@ -399,6 +426,15 @@ public final class EmbeddedStorage
 			Foundation(),
 			root
 		);
+	}
+	
+	@Deprecated
+	public static final EmbeddedStorageManager start(
+		final Object root     ,
+		final File   directory
+	)
+	{
+		return start(root, directory.toPath());
 	}
 	
 	/**
@@ -417,12 +453,12 @@ public final class EmbeddedStorage
 	 * @see #start(Object)
 	 * @see #start(Object, StorageConfiguration)
 	 * @see #start(Object, StorageConfiguration.Builder)
-	 * @see #start(Object, File, StorageConfiguration.Builder)
+	 * @see #start(Object, Path, StorageConfiguration.Builder)
 	 * @see #start(Object, StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageManager start(
 		final Object root     ,
-		final File   directory
+		final Path   directory
 	)
 	{
 		return createAndStartStorageManager(
@@ -445,9 +481,9 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 * 
 	 * @see #start(Object)
-	 * @see #start(Object, File)
+	 * @see #start(Object, Path)
 	 * @see #start(Object, StorageConfiguration.Builder)
-	 * @see #start(Object, File, StorageConfiguration.Builder)
+	 * @see #start(Object, Path, StorageConfiguration.Builder)
 	 * @see #start(Object, StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageManager start(
@@ -475,9 +511,9 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 * 
 	 * @see #start(Object)
-	 * @see #start(Object, File)
+	 * @see #start(Object, Path)
 	 * @see #start(Object, StorageConfiguration)
-	 * @see #start(Object, File, StorageConfiguration.Builder)
+	 * @see #start(Object, Path, StorageConfiguration.Builder)
 	 * @see #start(Object, StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageManager start(
@@ -507,10 +543,10 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 * 
 	 * @see #start(Object)
-	 * @see #start(Object, File)
+	 * @see #start(Object, Path)
 	 * @see #start(Object, StorageConfiguration)
 	 * @see #start(Object, StorageConfiguration.Builder)
-	 * @see #start(Object, File, StorageConfiguration.Builder)
+	 * @see #start(Object, Path, StorageConfiguration.Builder)
 	 */
 	public static final EmbeddedStorageManager start(
 		final Object                                 root                ,
