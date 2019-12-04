@@ -13,8 +13,7 @@ public class MainTestStorageExample
 {
 	static
 	{
-//		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
-//		XMemory.setMemoryAccessor(MemoryAccessorGeneric.New(JdkInternals.InstantiatorBlank()));
+		Test.clearDefaultStorageDirectory();
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
