@@ -72,18 +72,36 @@ public final class XDebug
 	{
 		println(s, 1);
 	}
+	
+	public static final void print(final String s)
+	{
+		print(s, 1);
+	}
 
 	public static final void println(final String s, final int stackTraceCut)
 	{
 		// index 1 is always safely this method call itself, index 2 is always safely the calling context
 		final StackTraceElement e = XThreads.getStackTraceElement(2 + stackTraceCut);
 
-		System.out.println(
-			VarString.New(LINE_BUFFER_INITIAL_SIZE)
+		System.out.println(formatString(s, e));
+	}
+	
+	public static final void print(final String s, final int stackTraceCut)
+	{
+		// index 1 is always safely this method call itself, index 2 is always safely the calling context
+		final StackTraceElement e = XThreads.getStackTraceElement(2 + stackTraceCut);
+
+		System.out.print(formatString(s, e));
+	}
+	
+	public static String formatString(final String s, final StackTraceElement e)
+	{
+		return VarString.New(LINE_BUFFER_INITIAL_SIZE)
 			.padRight(toMethodLink(e), SOURCE_POSITION_PADDING, ' ')
 			.add(formatCommonTime(now()))
 			.add(TIME_SEPERATOR)
-			.add(s))
+			.add(s)
+			.toString()
 		;
 	}
 	
