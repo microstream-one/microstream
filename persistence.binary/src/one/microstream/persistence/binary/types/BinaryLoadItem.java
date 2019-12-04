@@ -62,11 +62,17 @@ public class BinaryLoadItem extends Binary
 		final PersistenceObjectIdAcceptor acceptor
 	)
 	{
+		if(this.address == 0)
+		{
+			throw new Error("Dummy Load Items cannot iterate references.");
+		}
+		
 		long a = this.address;
 		for(int i = 0; i < traversers.length; i++)
 		{
 			a = traversers[i].apply(a, acceptor);
 		}
+		
 		return a;
 	}
 	
@@ -87,7 +93,9 @@ public class BinaryLoadItem extends Binary
 	@Override
 	public String toString()
 	{
-		return "LoadItem OID=" + this.getBuildItemObjectId()
+		
+		
+		return "LoadItem OID=" + (this.address == 0 ? "[Dummy]" : Long.toString(this.getBuildItemObjectId()))
 			+ (this.handler == null
 				? "[no handler]"
 				: ", Type=" + this.handler.typeId() + " " + this.handler.typeName())
