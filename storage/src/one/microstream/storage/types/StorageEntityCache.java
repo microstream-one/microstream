@@ -37,6 +37,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 	public void copyRoots(ChunksBuffer dataCollector);
 
 	public long cacheSize();
+	
+	public long clearCache();
 
 
 
@@ -231,6 +233,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		final void clearState()
 		{
+			this.clearCache();
+			
 			// must lock independently of gcPhaseMonitor to avoid deadlock!
 			this.resetState();
 		}
@@ -1016,6 +1020,21 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		public final long cacheSize()
 		{
 			return this.usedCacheSize;
+		}
+		
+		@Override
+		public final long clearCache()
+		{
+			if(this.usedCacheSize == 0)
+			{
+				return 0;
+			}
+			
+			final long currentUsedCacheSize = this.usedCacheSize;
+			
+			this.internalLiveCheck(Long.MAX_VALUE, (s, t, e) -> true);
+			
+			return currentUsedCacheSize;
 		}
 
 		@Override
