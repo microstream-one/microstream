@@ -370,7 +370,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 			{
 				try
 				{
-					this.closeAllResources();
+					this.clear();
 				}
 				catch(final Throwable t1)
 				{
