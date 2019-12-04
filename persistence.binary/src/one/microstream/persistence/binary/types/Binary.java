@@ -1285,6 +1285,51 @@ public abstract class Binary implements Chunk
 	
 	public final Byte buildByte()
 	{
+		return this.buildByte(0);
+	}
+
+	public final Boolean buildBoolean()
+	{
+		return this.buildBoolean(0);
+	}
+
+	public final Short buildShort()
+	{
+		return this.buildShort(0);
+	}
+
+	public final Character buildCharacter()
+	{
+		return this.buildCharacter(0);
+	}
+
+	public final Integer buildInteger()
+	{
+		return this.buildInteger(0);
+	}
+
+	public final Float buildFloat()
+	{
+		return this.buildFloat(0);
+	}
+
+	public final Long buildLong()
+	{
+		return this.buildLong(0);
+	}
+
+	public final Double buildDouble()
+	{
+		return this.buildDouble(0);
+	}
+	
+	public final Object buildPrimitiveWrapper(final Class<?> primitiveValueType)
+	{
+		return this.buildPrimitiveWrapper(primitiveValueType, 0);
+	}
+	
+	public final Byte buildByte(final long offset)
+	{
 		/*
 		 * Deprecated with Java 9, with the hint "It is rarely appropriate to use this constructor".
 		 * 
@@ -1310,49 +1355,89 @@ public abstract class Binary implements Chunk
 		 * or yet another hack has to be applied by low-level-instantiating an instance and low-level setting
 		 * its value into the final field.
 		 */
-		return new Byte(this.read_byte(this.loadItemEntityContentAddress()));
+		return new Byte(this.read_byte(this.loadItemEntityContentAddress() + offset));
 	}
 
-	public final Boolean buildBoolean()
+	public final Boolean buildBoolean(final long offset)
 	{
 		// see comment in #buildByte()
-		return new Boolean(this.read_boolean(this.loadItemEntityContentAddress()));
+		return new Boolean(this.read_boolean(this.loadItemEntityContentAddress() + offset));
 	}
 
-	public final Short buildShort()
+	public final Short buildShort(final long offset)
 	{
 		// see comment in #buildByte()
-		return new Short(this.read_short(this.loadItemEntityContentAddress()));
+		return new Short(this.read_short(this.loadItemEntityContentAddress() + offset));
 	}
 
-	public final Character buildCharacter()
+	public final Character buildCharacter(final long offset)
 	{
 		// see comment in #buildByte()
-		return new Character(this.read_char(this.loadItemEntityContentAddress()));
+		return new Character(this.read_char(this.loadItemEntityContentAddress() + offset));
 	}
 
-	public final Integer buildInteger()
+	public final Integer buildInteger(final long offset)
 	{
 		// see comment in #buildByte()
-		return new Integer(this.read_int(this.loadItemEntityContentAddress()));
+		return new Integer(this.read_int(this.loadItemEntityContentAddress() + offset));
 	}
 
-	public final Float buildFloat()
+	public final Float buildFloat(final long offset)
 	{
 		// decimal value instances are not chached, so #valueOf() can be used safely.
 		return Float.valueOf(this.read_float(this.loadItemEntityContentAddress()));
 	}
 
-	public final Long buildLong()
+	public final Long buildLong(final long offset)
 	{
 		// see comment in #buildByte()
-		return new Long(this.read_long(this.loadItemEntityContentAddress()));
+		return new Long(this.read_long(this.loadItemEntityContentAddress() + offset));
 	}
 
-	public final Double buildDouble()
+	public final Double buildDouble(final long offset)
 	{
 		// decimal value instances are not chached, so #valueOf() can be used safely.
-		return Double.valueOf(this.read_double(this.loadItemEntityContentAddress()));
+		return Double.valueOf(this.read_double(this.loadItemEntityContentAddress() + offset));
+	}
+
+	public final Object buildPrimitiveWrapper(final Class<?> primitiveValueType, final long offset)
+	{
+		// Roughly ordered by probability.
+		if(primitiveValueType == int.class)
+		{
+			return this.buildInteger(offset);
+		}
+		if(primitiveValueType == long.class)
+		{
+			return this.buildLong(offset);
+		}
+		if(primitiveValueType == double.class)
+		{
+			return this.buildDouble(offset);
+		}
+		if(primitiveValueType == char.class)
+		{
+			return this.buildCharacter(offset);
+		}
+		if(primitiveValueType == boolean.class)
+		{
+			return this.buildBoolean(offset);
+		}
+		if(primitiveValueType == byte.class)
+		{
+			return this.buildByte(offset);
+		}
+		if(primitiveValueType == float.class)
+		{
+			return this.buildFloat(offset);
+		}
+		if(primitiveValueType == short.class)
+		{
+			return this.buildShort(offset);
+		}
+				
+		// intentionally covers void.class
+		throw new IllegalArgumentException();
 	}
 	
 	public final byte[] buildArray_byte()

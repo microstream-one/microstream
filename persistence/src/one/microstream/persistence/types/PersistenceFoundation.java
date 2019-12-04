@@ -2287,7 +2287,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 					this.getRegistererCreator(),
 					this.getPersistenceTarget(),
 					this.getPersistenceSource(),
-					this.getBufferSizeProvider()
+					this.getBufferSizeProvider(),
+					this.getTargetByteOrder()
 				)
 			;
 			return newPersistenceManager;
