@@ -13,11 +13,11 @@ public class MainTestStorageLoopingStarts
 	{
 		Test.clearDefaultStorageDirectory();
 		
-		runLoopingStarts(200, 10, 400);
+		runLoopingStarts(2000, 10, 100);
 		
 		System.exit(0);
 	}
-	
+		
 	static void runLoopingStarts(final int amount, final int gcModulo, final int sleepTime)
 	{
 		final Object root = Test.generateModelData(20000);
