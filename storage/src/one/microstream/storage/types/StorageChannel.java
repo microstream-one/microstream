@@ -633,8 +633,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		@Override
 		public final void clear()
 		{
-			this.closeAllResources();
 			this.entityCache.clearState();
+			this.closeAllResources();
 		}
 
 		@Override
