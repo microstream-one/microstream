@@ -157,8 +157,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			}
 
 			final long objectIdLocal;
-			if((objectIdLocal = this.lookupOid(instance)) != Persistence.nullId())
+			if((objectIdLocal = this.lookupOid(instance)) >= 0)
 			{
+				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
 				return objectIdLocal;
 			}
 			
@@ -187,8 +188,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			 * the local registry.
 			 */
 			final long objectIdLocal;
-			if((objectIdLocal = this.lookupOid(instance)) != Persistence.nullId())
+			if((objectIdLocal = this.lookupOid(instance)) >= 0)
 			{
+				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
 				return objectIdLocal;
 			}
 
@@ -345,6 +347,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		@Override
 		public void storeSelfStoring(final SelfStoring storing)
 		{
+			this.ensureInitialized();
 			storing.storeBy(this);
 		}
 
@@ -402,8 +405,9 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 					return e.oid;
 				}
 			}
-			
-			return Persistence.nullId();
+
+			// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
+			return -1;
 		}
 
 		
@@ -435,7 +439,6 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			this.hashSlots = newSlots;
 			this.hashRange = newRange;
 		}
-
 		
 		/**
 		 * Stores the passed instance (always) and interprets it as the root of a graph to be traversed and
@@ -444,7 +447,19 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		 */
 		protected final long storeGraph(final Object root)
 		{
-			final long rootOid = this.registerAdd(notNull(root));
+			/* (03.12.2019 TM)NOTE:
+			 * Special case logic to handle explicitely passed instances:
+			 * - if already handled by this storer, don't handle again.
+			 * - register to be handled in any case, even if already registered in the object registry.
+			 * - handle all registered items recursively (but transformed to an iteration).
+			 * Note that this is NOT the same as apply, which does NOT store if the instance is already registry-known.
+			 */
+			long rootOid;
+			if((rootOid = this.lookupOid(root)) >= 0)
+			{
+				return rootOid;
+			}
+			rootOid = this.registerAdd(notNull(root));
 
 			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
 			for(Item item = this.tail; item != null; item = item.next)
@@ -465,15 +480,17 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			 * Would be much more elegant than doing an 99.9% unnecessary special-casing check in here...
 			 */
 			
-//			XDebug.debugln("Storing\t" + item.oid + "\t" + item.typeHandler.typeName());
+//			XDebug.println("Storing     " + item.oid + ": " + XChars.systemString(item.instance) + " ("  + item.instance + ")");
 			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
 		}
 		
 		@Override
 		public final void accept(final long objectId, final Object instance)
 		{
+//			XDebug.println("Registering " + objectId + ": " + XChars.systemString(instance) + " ("  + instance + ")");
+			
 			// ensure handler (or fail if type is not persistable) before ensuring an OID.
-			this.tail = this.tail.next = this.registerobjectId(
+			this.tail = this.tail.next = this.registerObjectId(
 				instance,
 				this.typeManager.ensureTypeHandler(instance),
 				objectId
@@ -488,7 +505,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			return objectId;
 		}
 				
-		public final Item registerobjectId(
+		public final Item registerObjectId(
 			final Object                                 instance   ,
 			final PersistenceTypeHandler<Binary, Object> typeHandler,
 			final long                                   objectId
@@ -505,21 +522,39 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 		
 		@Override
-		public final void registerSkip(final Object instance, final long objectId)
+		public final boolean skipMapped(final Object instance, final long objectId)
 		{
-			this.registerobjectId(instance, null, objectId);
+			return this.internalSkip(instance, objectId);
 		}
 
 		@Override
-		public final void registerSkip(final Object instance)
+		public final boolean skip(final Object instance)
 		{
-			/* (07.12.2018 TM)FIXME: why only lookup? What if it's not registered, yet?
-			 * The whole skipping thing must be overhauled:
-			 * - why register the oid? as a kind of lazy special case storing? Must be commented, then.
-			 * - if handler == null indicates a skip-entry, then handler must be checked for null.
-			 *   alternative: dummy handler that does nothing.
-			 */
-			this.registerobjectId(instance, null, this.objectManager.lookupObjectId(instance));
+			// will be null-id if not found, so the reference will be stored as null.
+			final long foundObjectId = this.objectManager.lookupObjectId(instance);
+			return this.internalSkip(instance, foundObjectId);
+		}
+		
+		@Override
+		public final boolean skipNulled(final Object instance)
+		{
+			// lookup return -1 on failure, so 0 is a valid lookup result.
+			return this.internalSkip(instance, Persistence.nullId());
+		}
+		
+		final boolean internalSkip(final Object instance, final long objectId)
+		{
+			this.ensureInitialized();
+			
+			// prevent redundant registrations, of course.
+			if(this.lookupOid(instance) >= 0)
+			{
+				return false;
+			}
+			
+			this.registerObjectId(instance, null, objectId);
+			
+			return true;
 		}
 		
 	}

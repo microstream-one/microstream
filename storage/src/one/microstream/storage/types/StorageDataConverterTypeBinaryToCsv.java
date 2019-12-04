@@ -553,6 +553,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			// (13.10.2018 TM)FIXME: replace autoclose by external closing
 			try(SeekableByteChannel inputChannel = (this.currentSourceFile = file).fileChannel())
 			{
+				Throwable suppressed = null;
 				try
 				{
 					StorageDataFileItemIterator.Default.processInputFile(inputChannel, this, this, 0, inputChannel.size());
@@ -560,11 +561,12 @@ public interface StorageDataConverterTypeBinaryToCsv
 				}
 				catch(final WriteException e)
 				{
+					suppressed = e;
 					throw new RuntimeException(e.ioException);
 				}
 				finally
 				{
-					this.reset();
+					this.reset(suppressed);
 				}
 			}
 			catch(final IOException e)
@@ -601,13 +603,19 @@ public interface StorageDataConverterTypeBinaryToCsv
 			return this.writeStart;
 		}
 
-		private void reset() throws IOException
+		private void reset(final Throwable suppressed) throws IOException
 		{
-			XIO.closeSilent(this.fileChannel);
-			this.typeId       =   -1;
-			this.typeDescription  = null;
-			this.valueWriters = null;
-			this.fileChannel  = null;
+			try
+			{
+				XIO.close(this.fileChannel, suppressed);
+			}
+			finally
+			{
+				this.typeId          =   -1;
+				this.typeDescription = null;
+				this.valueWriters    = null;
+				this.fileChannel     = null;
+			}
 		}
 
 		private void checkForFlush() throws IOException

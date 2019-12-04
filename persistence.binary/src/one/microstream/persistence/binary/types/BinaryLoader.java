@@ -574,8 +574,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		
 		private BinaryLoadItem createLoadItemDummy()
 		{
+			// (04.12.2019 TM)NOTE: Oooor simply allocate a non-memory-leaking instance and fix toString()...
+			return new BinaryLoadItem(0);
+			
 			// tricky: dummies must have a valid memory address or else calling toString in the debugger crashes the JVM.
-			return new BinaryLoadItem(XMemory.allocate(Binary.entityHeaderLength()) + Binary.entityHeaderLength());
+//			return new BinaryLoadItem(XMemory.allocate(Binary.entityHeaderLength()) + Binary.entityHeaderLength());
 		}
 
 		private void clearBuildItems()

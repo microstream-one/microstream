@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * A type extending the simple {@link PersistenceStoring} to enable stateful store handling.
  * This can be used to do what is generally called "transactions": preprocess data to be stored and then store
  * either all or nothing.<br>
- * It can also be used to skip certain references. See {@link #registerSkip(Object)}<br>
+ * It can also be used to skip certain references. See {@link #skip(Object)}<br>
  * The deviating naming (missing "Persistence" prefix) is intentional to support convenience
  * on the application code level.
  *
@@ -33,34 +33,68 @@ public interface Storer extends PersistenceStoring
 	 * This skip means that if the passed {@literal instance} is encountered while collecting data to be persisted,
 	 * its data will NOT be collected. References to the passed {@literal instance} will be persisted as the
 	 * passed {@literal objectId}.
+	 * <p>
+	 * <u>Warning</u>:<br>
+	 * This method can be very useful to rearrange object graphs on the persistence level, but it can also cause
+	 * inconsistencies if not used perfectly correctly.<br>
+	 * It is strongly advised to use one of the following alternatives instead:
+	 * {@link #skip(Object)}
+	 * {@link #skipNulled(Object)}
 	 * 
 	 * @param instance the instance / reference to be skipped.
 	 * 
 	 * @param objectId the objectId to be used as a reference to the skipped instance.
 	 * 
-	 * @see #registerSkip(Object)
+	 * @return {@literal true} if the instance has been newly registered, {@literal false} if it already was.
+	 * 
+	 * @see #skip(Object)
+	 * @see #skipNulled(Object)
 	 */
-	public void registerSkip(Object instance, long objectId);
+	public boolean skipMapped(Object instance, long objectId);
 
 	/**
 	 * Registers the passed {@literal instance} to be skipped from the data persisting process.
 	 * <p>
 	 * This skip means that if the passed {@literal instance} is encountered while collecting data to be persisted,
-	 * its data will NOT be collected.
+	 * its data will NOT be collected. If the instance is already registered under a certain object id at the used
+	 * {@link PersistenceObjectRegistry}, then is associated object id will be used. Otherwise, the null-Id will be
+	 * used, effectively "nulling out" all references to this instance on the persistent level.<br>
+	 * The latter behavior is exactly the same as {@link #skipNulled(Object)}.
 	 * 
 	 * @param instance the instance / reference to be skipped.
 	 * 
-	 * @see #registerSkip(Object, long)
+	 * @return {@literal true} if the instance has been newly registered, {@literal false} if it already was.
+	 * 
+	 * @see #skipNulled(Object)
+	 * @see #skipMapped(Object, long)
 	 */
-	public void registerSkip(Object instance);
+	public boolean skip(Object instance);
+	
+	/**
+	 * Registers the passed {@literal instance} to be skipped from the data persisting process.
+	 * <p>
+	 * This skip means that if the passed {@literal instance} is encountered while collecting data to be persisted,
+	 * its data will NOT be collected. References to this instance will always be persisted as null, no matter if
+	 * the instance is already registered for a certain object id at the used {@link PersistenceObjectRegistry}
+	 * or not.<br>
+	 * To make the skipping consider existing object id registrations, use {@link #skip(Object)}.
+	 * 
+	 * @param instance the instance / reference to be skipped by using .
+	 * 
+	 * @return {@literal true} if the instance has been newly registered, {@literal false} if it already was.
+	 * 
+	 * @see #skip(Object)
+	 * @see #skipMapped(Object, long)
+	 */
+	public boolean skipNulled(Object instance);
 
 	/**
 	 * @return the amount of unique instances / references that have already been registered by this
 	 * {@link Storer} instance. This includes both instances encountered during the data collection process and
 	 * instances that have explicitely been registered to be skipped.
 	 * 
-	 * @see #registerSkip(Object)
-	 * @see #registerSkip(Object, long)
+	 * @see #skip(Object)
+	 * @see #skipMapped(Object, long)
 	 */
 	public long size();
 

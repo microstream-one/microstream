@@ -15,7 +15,7 @@ public class MainTestStorageImportData
 {
 	static
 	{
-//		XDebug.deleteAllFiles(new File(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
+//		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
 	}
 	
 	/* (14.11.2019 TM)NOTE:

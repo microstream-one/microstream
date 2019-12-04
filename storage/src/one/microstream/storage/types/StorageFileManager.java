@@ -9,8 +9,6 @@ import static one.microstream.math.XMath.notNegative;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -19,7 +17,6 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
@@ -80,7 +77,7 @@ public interface StorageFileManager
 
 
 
-	public final class Default implements StorageFileManager, StorageReaderCallback
+	public final class Default implements StorageFileManager, StorageReaderCallback, StorageFileUser
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -109,25 +106,6 @@ public interface StorageFileManager
 			}
 			
 			return storagePositions;
-		}
-
-		// (25.11.2019 TM)FIXME: priv#175: check if really not used anymore
-		static final FileLock openFileChannel(final Path file)
-		{
-//			DEBUGStorage.println("Thread " + Thread.currentThread().getName() + " opening channel for " + file);
-			FileChannel channel = null;
-			try
-			{
-				final FileLock fileLock = StorageLockedFile.openLockedFileChannel(file);
-				channel = fileLock.channel();
-				channel.position(channel.size());
-				return fileLock;
-			}
-			catch(final IOException e)
-			{
-				XIO.closeSilent(channel);
-				throw new RuntimeException(e); // (04.05.2013)EXCP: proper exception
-			}
 		}
 
 
@@ -175,6 +153,10 @@ public interface StorageFileManager
 		private final ByteBuffer standardByteBuffer;
 
 		private StorageDataFile.Default fileCleanupCursor, headFile;
+		
+		// to avoid permanent lambda instantiation
+		private final Consumer<? super StorageDataFile.Default> deleter = this::deleteFile;
+		private final Consumer<? super StorageDataFile.Default> pendingDeleter = this::deletePendingFile;
 
 		private long uncommittedDataLength;
 
@@ -309,13 +291,12 @@ public interface StorageFileManager
 
 		final void clearRegisteredFiles()
 		{
-			// (07.07.2016 TM)FIXME: why close silent? What about OS/IO/network problems?
 			/* (07.07.2016 TM)TODO: StorageFileCloser
 			 * to abstract the delicate task of closing files.
 			 * Or better enhance StorageFileProvider to a StorageFileHandler
 			 * that handles both creation and closing.
 			 */
-			StorageFile.closeSilent(this.fileTransactions);
+			this.fileTransactions.unregisterUsageClosing(this, null);
 
 			if(this.headFile == null)
 			{
@@ -327,7 +308,7 @@ public interface StorageFileManager
 			StorageDataFile.Default file = headFile;
 			do
 			{
-				StorageFile.closeSilent(file);
+				file.unregisterUsageClosing(this, null);
 			}
 			while((file = file.next) != headFile);
 
@@ -743,7 +724,7 @@ public interface StorageFileManager
 			}
 			catch(final IOException e)
 			{
-				StorageFile.closeSilent(file);
+				StorageFile.close(file, e);
 				throw new RuntimeException(e); // (29.08.2014)EXCP: proper exception
 			}
 		}
@@ -1085,7 +1066,7 @@ public interface StorageFileManager
 			}
 			catch(final Exception e)
 			{
-				StorageFile.closeSilent(tfile);
+				StorageFile.close(tfile, e);
 				throw e;
 			}
 		}
@@ -1196,6 +1177,8 @@ public interface StorageFileManager
 		private void setTransactionsFile(final StorageInventoryFile transactionsFile)
 		{
 			this.fileTransactions = transactionsFile;
+			
+			transactionsFile.registerUsage(this);
 		}
 
 		final void clearState()
@@ -1346,6 +1329,7 @@ public interface StorageFileManager
 				throw new RuntimeException(this.channelIndex() + " has inconsistent pending deletes: count = " + this.pendingFileDeletes + ", wants to delete " + file); // (31.10.2014 TM)EXCP: proper exception
 			}
 			this.pendingFileDeletes--;
+			
 			this.deleteFile(file);
 		}
 
@@ -1368,17 +1352,7 @@ public interface StorageFileManager
 //			DEBUGStorage.println(this.channelIndex + " cleanupcheck with budget of " + (nanoTimeBudgetBound - System.nanoTime()));
 
 //			DEBUGStorage.println(this.channelIndex + " checks for file cleanup with budget " + (nanoTimeBudgetBound - System.nanoTime()));
-
-			/* (24.09.2014 TM)TOdO: Channel refuses to clean up files sometimes
-			 * Sometimes, the housekeepingfile of one channel is null when cleanup is issued,
-			 * resulting in old files not being cleaned up at all.
-			 * Question is:
-			 * - Why is the the housekeeping file null if there is still something to clean up?
-			 *   especially if the big file is the only file and it obviously hadn't been checked.
-			 * (17.11.2014 TM)NOTE:
-			 * Don't know if this can happen at all since the fixed GC race condition.
-			 * Endless testing with both incremental and issued full house keeping never caused any problem since then.
-			 */
+			
 			StorageDataFile.Default cycleAnchorFile = this.fileCleanupCursor;
 
 			// intentionally no minimum first loop execution as cleanup is not important if the system has heavy load
@@ -1387,12 +1361,16 @@ public interface StorageFileManager
 				// never check current head file for dissolving
 //				DEBUGStorage.println(this.channelIndex + " (head " + this.headFile.number() + ")" + " checking " + this.fileCleanupCursor);
 
-				// this never applies to head files automatically
-				if(this.fileCleanupCursor.hasNoUsers())
+				// delete pending file and do special case checking. This never applies to head files automatically
+				if(!this.fileCleanupCursor.hasUsers())
 				{
-					// delete pending file and do special case checking
-					this.deletePendingFile(this.fileCleanupCursor);
-
+					// an iterable (non-detached) file with no users can only mean a pending delete.
+					if(!this.fileCleanupCursor.executeIfUnsuedData(this.pendingDeleter))
+					{
+						// should a new usage have been registered right after checking, then break and try again later
+						break;
+					}
+					
 					// account for special case of removed file being the anchor file (sadly redundant to below)
 					if(this.fileCleanupCursor == cycleAnchorFile)
 					{
@@ -1455,7 +1433,7 @@ public interface StorageFileManager
 
 		private boolean incrementalDissolveStorageFile(
 			final StorageDataFile.Default file               ,
-			final long                           nanoTimeBudgetBound
+			final long                    nanoTimeBudgetBound
 		)
 		{
 //			DEBUGStorage.println("incrementally dissolving " + file);
@@ -1463,14 +1441,9 @@ public interface StorageFileManager
 			if(this.incrementalTransferEntities(file, nanoTimeBudgetBound))
 			{
 //				DEBUGStorage.println(" * dissolved completely, deleting: " + file);
-
-				// decrement user count to account for the no longer existing content
-				if(file.decrementUserCount())
+				if(file.unregisterUsageClosingData(this, this.deleter))
 				{
-//					DEBUGStorage.println(this.channelIndex + " deleting right away: " + file);
-
-					// if file's content was migrated completely and there are no more users, remove the file
-					this.deleteFile(file);
+//					DEBUGStorage.println(this.channelIndex + " deleted right away: " + file);
 					return true;
 				}
 
@@ -1490,7 +1463,7 @@ public interface StorageFileManager
 //			DEBUGStorage.println(this.channelIndex + " deleting " + file);
 
 			file.detach();
-			file.close();
+			file.close(); // idempotent. No harm in calling on an already closed file.
 
 			/* must write transaction file entry BEFORE actually deleting the file (inverted logic)
 			 * Otherwise, consider the following scenario:

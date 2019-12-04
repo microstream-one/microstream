@@ -134,6 +134,7 @@ public interface StorageLockFileManager extends Runnable
 		{
 			final long updateInterval = this.setup.updateInterval();
 			
+			Throwable closingCause = null;
 			try
 			{
 				this.checkInitialized();
@@ -147,13 +148,14 @@ public interface StorageLockFileManager extends Runnable
 			}
 			catch(final Exception e)
 			{
-				this.operationController.registerDisruptingProblem(e);
+				closingCause = e;
+				this.operationController.registerDisruption(e);
 				throw e;
 			}
 			finally
 			{
 				// ensure closed file in any case. Regular shutdown or forceful shutdown by exception.
-				this.ensureClosedFile();
+				this.ensureClosedLockFile(closingCause);
 			}
 		}
 		
@@ -163,15 +165,15 @@ public interface StorageLockFileManager extends Runnable
 			{
 				return;
 			}
-			
+
 			try
 			{
 				this.initialize();
 			}
 			catch(final Exception e)
 			{
-				this.operationController.registerDisruptingProblem(e);
-				this.ensureClosedFile();
+				this.operationController.registerDisruption(e);
+				this.ensureClosedLockFile(e);
 				throw e;
 			}
 		}
@@ -456,14 +458,14 @@ public interface StorageLockFileManager extends Runnable
 			this.writeLockFileData();
 		}
 		
-		private void ensureClosedFile()
+		private void ensureClosedLockFile(final Throwable cause)
 		{
 			if(this.lockFile == null)
 			{
 				return;
 			}
 			
-			StorageFile.closeSilent(this.lockFile);
+			StorageFile.close(this.lockFile, cause);
 			this.lockFile = null;
 		}
 		
