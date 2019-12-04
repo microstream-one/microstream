@@ -58,9 +58,9 @@ public interface PersistenceMemberSimilator extends Similator<PersistenceTypeDef
 			
 //			XDebug.println(
 //				sourceMember.name()
-//				+"\t---["+nameSimilarity+","+typeSimilarity+"="+(nameSimilarity + typeSimilarity ) / 2.0f
-//				+"]--->\t"
-//				+targetMember.name()
+//				+ "\t---[" + nameSimilarity + "," + typeSimilarity + "=" + (nameSimilarity + typeSimilarity ) / 2.0f
+//				+ "]--->\t"
+//				+ targetMember.name()
 //			);
 			
 			return (nameSimilarity + typeSimilarity ) / 2.0f;

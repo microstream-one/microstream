@@ -1,6 +1,5 @@
 package one.microstream.storage.types;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
@@ -51,7 +50,7 @@ public interface StorageFile
 	
 	/**
 	 * Returns a string that gives {@link #name()} a unique identity.
-	 * Example: The parent directory path of a {@link File}.
+	 * Example: The parent directory path of a file.
 	 * 
 	 */
 	public String qualifier();
@@ -114,6 +113,28 @@ public interface StorageFile
 		catch(final IOException e)
 		{
 			throw new StorageExceptionIo(e); // damned checked exception
+		}
+	}
+	
+	// (02.12.2019 TM)NOTE: intentionally no single-argument alternative to hint to proper cause handling :).
+	public static void close(final StorageFile file, final Throwable cause)
+	{
+		if(file == null)
+		{
+			return;
+		}
+		
+		try
+		{
+			file.close();
+		}
+		catch(final Throwable t)
+		{
+			if(cause != null)
+			{
+				t.addSuppressed(cause);
+			}
+			throw t;
 		}
 	}
 	

@@ -2,9 +2,9 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 
 
@@ -20,7 +20,7 @@ public interface StorageEntityTypeConversionFileProvider
 		// instance fields //
 		////////////////////
 
-		private final File   directory ;
+		private final Path   directory ;
 		private final String fileSuffix;
 
 		private final transient String cachedFileSuffix;
@@ -31,7 +31,7 @@ public interface StorageEntityTypeConversionFileProvider
 		// constructors //
 		/////////////////
 
-		public Default(final File directory, final String fileSuffix)
+		public Default(final Path directory, final String fileSuffix)
 		{
 			super();
 			this.directory        = notNull(directory);
@@ -66,10 +66,10 @@ public interface StorageEntityTypeConversionFileProvider
 		)
 		{
 			// TypeId must be included since only that is the unique identifier of a type.
-			final File file = new File(
+			final Path file = XIO.Path(
 				this.directory, typeDescription.typeName() + "_" + typeDescription.typeId() + this.cachedFileSuffix
 			);
-			XFiles.ensureDirectory(this.directory);
+			XIO.unchecked.ensureDirectory(this.directory);
 			
 			return StorageLockedFile.openLockedFile(file);
 		}

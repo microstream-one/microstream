@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 
+import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XGettingEnum;
@@ -91,15 +92,27 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		}
 				
 		private static HashTable<PersistenceTypeDefinitionMember, Long> createFieldOffsetMap(
+			final Class<?>                                                               entityClass,
 			final XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> members
 		)
 		{
+			// (11.11.2019 TM)NOTE: important for usage of MemoryAccessorGeneric to provide the fields' class context
+			final Field[] fields = PersistenceTypeDefinitionMemberFieldReflective
+				.unbox(members, BulkList.New())
+				.toArray(Field.class)
+			;
+			final long[] offsets = XMemory.objectFieldOffsets(entityClass, fields);
+			
 			final HashTable<PersistenceTypeDefinitionMember, Long> memberOffsets = HashTable.New();
+			int i = 0;
 			for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
 			{
-				final Field field = notNull(member.field());
-				final long fieldOffset = XMemory.objectFieldOffset(field);
-				memberOffsets.add(member, fieldOffset);
+				memberOffsets.add(member, offsets[i++]);
+
+				// (11.11.2019 TM)NOTE: old logic without class context
+//				final Field field = notNull(member.field());
+//				final long fieldOffset = XMemory.objectFieldOffset(field);
+//				memberOffsets.add(member, fieldOffset);
 			}
 			
 			return memberOffsets;
@@ -217,6 +230,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		{
 			// May only use setting members here, since legacy type mapping is only about setting values, not storing.
 			final HashTable<PersistenceTypeDefinitionMember, Long> targetMemberOffsets = createFieldOffsetMap(
+				currentTypeHandler.type(),
 				currentTypeHandler.settingMembers()
 			);
 			

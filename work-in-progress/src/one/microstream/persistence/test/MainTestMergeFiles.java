@@ -1,39 +1,39 @@
 package one.microstream.persistence.test;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.collections.types.XList;
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 
 public class MainTestMergeFiles
 {
 	public static void main(final String[] args)
 	{
 		mergeStorageFiles(
-			new File("d:/merged.dat"),
+			XIO.Path("d:/merged.dat"),
 			".dat",
-			new File("D:/Bonus25/storage/channel_0"),
-			new File("D:/Bonus25/storage/channel_1"),
-			new File("D:/Bonus25/storage/channel_2"),
-			new File("D:/Bonus25/storage/channel_3")
+			XIO.Path("D:/Bonus25/storage/channel_0"),
+			XIO.Path("D:/Bonus25/storage/channel_1"),
+			XIO.Path("D:/Bonus25/storage/channel_2"),
+			XIO.Path("D:/Bonus25/storage/channel_3")
 		);
 	}
 
 	public static final void mergeStorageFiles(
-		final File    targetFile        ,
+		final Path    targetFile        ,
 		final String  fileSuffix        ,
-		final File... channelDirectories
+		final Path... channelDirectories
 	)
 	{
-		XFiles.ensureWriteableFile(targetFile);
+		XIO.unchecked.ensureWriteableFile(targetFile);
 
-		final XList<File> sourceFiles = X.List();
-		for(final File file : channelDirectories)
+		final XList<Path> sourceFiles = X.List();
+		for(final Path file : channelDirectories)
 		{
-			sourceFiles.addAll(file.listFiles());
+			XIO.unchecked.listEntries(file, sourceFiles);
 		}
 
-		XFiles.mergeBinary(sourceFiles, targetFile, f -> f.getPath().endsWith(fileSuffix));
+		XIO.mergeBinary(sourceFiles, targetFile, f -> f.toString().endsWith(fileSuffix));
 	}
 }

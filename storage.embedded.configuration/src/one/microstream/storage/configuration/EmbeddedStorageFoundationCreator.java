@@ -2,10 +2,10 @@
 package one.microstream.storage.configuration;
 
 import static one.microstream.chars.XChars.isEmpty;
-import static one.microstream.files.XFiles.ensureDirectory;
 
-import java.io.File;
+import java.nio.file.Path;
 
+import one.microstream.io.XIO;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
@@ -38,18 +38,18 @@ public interface EmbeddedStorageFoundationCreator
 		@Override
 		public EmbeddedStorageFoundation<?> createFoundation(final Configuration configuration)
 		{
-			final File                            baseDir                = ensureDirectory(new File(configuration.getBaseDirectory()));
-			final StorageFileProvider             fileProvider           = this.createFileProvider(configuration, baseDir);
-			final StorageChannelCountProvider     channelCountProvider   = this.createChannelCountProvider(configuration);
-			final StorageHousekeepingController   housekeepingController = this.createHousekeepingController(configuration);
-			final StorageDataFileEvaluator        dataFileEvaluator      = this.createDataFileEvaluator(configuration);
-			final StorageEntityCacheEvaluator     entityCacheEvaluator   = this.createEntityCacheEvaluator(configuration);
+			final Path                          baseDirectory          = XIO.unchecked.ensureDirectory(XIO.Path(configuration.getBaseDirectory()));
+			final StorageFileProvider           fileProvider           = this.createFileProvider(configuration, baseDirectory);
+			final StorageChannelCountProvider   channelCountProvider   = this.createChannelCountProvider(configuration);
+			final StorageHousekeepingController housekeepingController = this.createHousekeepingController(configuration);
+			final StorageDataFileEvaluator      dataFileEvaluator      = this.createDataFileEvaluator(configuration);
+			final StorageEntityCacheEvaluator   entityCacheEvaluator   = this.createEntityCacheEvaluator(configuration);
 			
 			final StorageConfiguration.Builder<?> configBuilder = Storage.ConfigurationBuilder()
 				.setStorageFileProvider   (fileProvider          )
 				.setChannelCountProvider  (channelCountProvider  )
 				.setHousekeepingController(housekeepingController)
-				.setDataFileEvaluator         (dataFileEvaluator     )
+				.setDataFileEvaluator     (dataFileEvaluator     )
 				.setEntityCacheEvaluator  (entityCacheEvaluator  );
 			
 			String backupDirectory;
@@ -65,7 +65,7 @@ public interface EmbeddedStorageFoundationCreator
 			{
 				storageFoundation.getConnectionFoundation().setTypeDictionaryIoHandler(
 					PersistenceTypeDictionaryFileHandler.New(
-						new File(baseDir, typeDictionaryFilename)
+						XIO.Path(baseDirectory, typeDictionaryFilename)
 					)
 				);
 			}
@@ -73,10 +73,13 @@ public interface EmbeddedStorageFoundationCreator
 			return storageFoundation;
 		}
 		
-		protected StorageFileProvider createFileProvider(final Configuration configuration, final File baseDir)
+		protected StorageFileProvider createFileProvider(
+			final Configuration configuration,
+			final Path          baseDirectory
+		)
 		{
 			return Storage.FileProviderBuilder()
-				.setBaseDirectory         (baseDir      .getAbsolutePath()          )
+				.setBaseDirectory         (baseDirectory.toAbsolutePath().toString())
 				.setDeletionDirectory     (configuration.getDeletionDirectory()     )
 				.setTruncationDirectory   (configuration.getTruncationDirectory()   )
 				.setChannelDirectoryPrefix(configuration.getChannelDirectoryPrefix())
@@ -118,13 +121,16 @@ public interface EmbeddedStorageFoundationCreator
 			);
 		}
 
-		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryFileHandler(final Configuration configuration, final File baseDir)
+		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryFileHandler(
+			final Configuration configuration,
+			final Path          baseDirectory
+		)
 		{
 			final String typeDictionaryFilename = configuration.getTypeDictionaryFilename();
 			return typeDictionaryFilename == null
 				? null
 				: PersistenceTypeDictionaryFileHandler.New(
-					new File(baseDir, typeDictionaryFilename)
+					XIO.Path(baseDirectory, typeDictionaryFilename)
 				);
 		}
 	}

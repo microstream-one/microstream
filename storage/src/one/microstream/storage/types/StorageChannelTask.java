@@ -33,7 +33,11 @@ public interface StorageChannelTask extends StorageTask
 		public Abstract(final long timestamp, final int channelCount)
 		{
 			super(timestamp);
-			this.problems = new Throwable[this.remainingForProcessing = this.remainingForCompletion = channelCount];
+			
+			// (20.11.2019 TM)NOTE: inlined assignments caused an "Unsafe" error on an ARM machine. No kidding.
+			this.remainingForProcessing = channelCount;
+			this.remainingForCompletion = channelCount;
+			this.problems = new Throwable[channelCount];
 		}
 
 

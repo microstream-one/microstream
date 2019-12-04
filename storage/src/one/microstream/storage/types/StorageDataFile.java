@@ -2,6 +2,7 @@ package one.microstream.storage.types;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.function.Consumer;
 
 import one.microstream.math.XMath;
 import one.microstream.storage.exceptions.StorageException;
@@ -63,7 +64,7 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 		public static final StorageDataFile.Default New(
 			final StorageFileManager.Default parent,
-			final StorageInventoryFile              file
+			final StorageInventoryFile       file
 		)
 		{
 			return new StorageDataFile.Default(parent, file);
@@ -81,9 +82,6 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 
 		final StorageEntity.Default head = StorageEntity.Default.createDummy();
 		final StorageEntity.Default tail = StorageEntity.Default.createDummy();
-
-		// data files always start with exactely one user to account for their content.
-		private int users = 1;
 		
 		private long fileTotalLength;
 		private long fileDataLength ;
@@ -107,6 +105,9 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			this.file          = file     ;
 			this.head.fileNext = this.tail;
 			this.tail.filePrev = this.head;
+			
+			// must register parent user before anything else can use the instance, of course.
+			this.registerUsage(parent);
 		}
 
 
@@ -344,23 +345,69 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 		}
 
 		@Override
-		public synchronized int incrementUserCount()
+		public boolean hasUsers()
 		{
-			return ++this.users;
+			return this.file.hasUsers();
 		}
-
+		
 		@Override
-		public synchronized boolean decrementUserCount()
+		public boolean executeIfUnsued(final Consumer<? super StorageLockedFile> action)
 		{
-			return --this.users == 0;
+			return this.file.executeIfUnsued(action);
 		}
-
+		
 		@Override
-		public synchronized boolean hasNoUsers()
+		public boolean registerUsage(final StorageFileUser fileUser)
 		{
-			return this.users == 0;
+			return this.file.registerUsage(fileUser);
+		}
+		
+		@Override
+		public boolean clearUsages(final StorageFileUser fileUser)
+		{
+			return this.file.clearUsages(fileUser);
+		}
+		
+		@Override
+		public boolean unregisterUsage(final StorageFileUser fileUser)
+		{
+			return this.file.unregisterUsage(fileUser);
+		}
+		
+		@Override
+		public boolean unregisterUsageClosing(final StorageFileUser fileUser, final Consumer<? super StorageLockedFile> closingAction)
+		{
+			return this.file.unregisterUsageClosing(fileUser, closingAction);
 		}
 
+		public final boolean unregisterUsageClosingData(
+			final StorageFileUser                           fileUser     ,
+			final Consumer<? super StorageDataFile.Default> closingAction
+		)
+		{
+			return this.file.unregisterUsageClosing(fileUser, file ->
+				closingAction.accept(this)
+			);
+		}
+		
+		public boolean executeIfUnsuedData(final Consumer<? super StorageDataFile.Default> action)
+		{
+			return this.file.executeIfUnsued(file ->
+				action.accept(this)
+			);
+		}
+		
+		@Override
+		public void close()
+		{
+			this.file.close();
+		}
+		
+		@Override
+		public boolean tryClose()
+		{
+			return this.file.tryClose();
+		}
 		@Override
 		public boolean isHeadFile()
 		{

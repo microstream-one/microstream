@@ -12,6 +12,8 @@ import java.nio.channels.NetworkChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import one.microstream.memory.XMemory;
+
 public final class XSockets
 {
 	public static ByteOrder byteOrder()
@@ -216,7 +218,7 @@ public final class XSockets
 
 		if(length > buffer.capacity())
 		{
-			checkedBuffer = ByteBuffer.allocateDirect(length);
+			checkedBuffer = XMemory.allocateDirectNative(length);
 		}
 		else
 		{

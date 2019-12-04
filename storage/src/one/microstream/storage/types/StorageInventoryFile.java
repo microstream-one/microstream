@@ -1,7 +1,9 @@
 package one.microstream.storage.types;
 
-import java.io.File;
+import static one.microstream.X.notNull;
+
 import java.nio.channels.FileLock;
+import java.nio.file.Path;
 
 
 public interface StorageInventoryFile extends StorageLockedFile, StorageNumberedFile
@@ -17,13 +19,13 @@ public interface StorageInventoryFile extends StorageLockedFile, StorageNumbered
 	public static StorageInventoryFile New(
 		final int  channelIndex,
 		final long number      ,
-		final File file
+		final Path file
 	)
 	{
 		return new StorageInventoryFile.Default(
 			channelIndex,
 			number,
-			file,
+			notNull(file),
 			StorageLockedFile.openLockedFileChannel(file)
 		);
 	}
@@ -48,7 +50,7 @@ public interface StorageInventoryFile extends StorageLockedFile, StorageNumbered
 		Default(
 			final int      channelIndex,
 			final long     number      ,
-			final File     file        ,
+			final Path     file        ,
 			final FileLock lock
 		)
 		{

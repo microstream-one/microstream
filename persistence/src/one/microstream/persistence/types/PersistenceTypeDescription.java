@@ -2,7 +2,9 @@ package one.microstream.persistence.types;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
+import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingSequence;
+import one.microstream.util.cql.CQL;
 
 /**
  * Data that describes the persistence-relevant aspects of a type, meaning its full type name and all its
@@ -19,6 +21,24 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> allMembers();
 	
 	public XGettingSequence<? extends PersistenceTypeDescriptionMember> instanceMembers();
+	
+	public default XGettingSequence<? extends PersistenceTypeDescriptionMember> instanceReferenceMembers()
+	{
+		return CQL
+			.<PersistenceTypeDescriptionMember>from(this.instanceMembers())
+			.select(m -> m.isReference())
+			.executeInto(HashEnum.<PersistenceTypeDescriptionMember>New())
+		;
+	}
+	
+	public default XGettingSequence<? extends PersistenceTypeDescriptionMember> instancePrimitiveMembers()
+	{
+		return CQL
+			.<PersistenceTypeDescriptionMember>from(this.instanceMembers())
+			.select(m -> m.isPrimitive())
+			.executeInto(HashEnum.<PersistenceTypeDescriptionMember>New())
+		;
+	}
 	
 	/* (30.06.2015 TM)TODO: PersistenceTypeDescription Generics
 	 * Must consider Generics Type information as well, at least as a simple normalized String for

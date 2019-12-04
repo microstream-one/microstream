@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 import one.microstream.X;
 import one.microstream.collections.old.OldCollections;
-import one.microstream.memory.XMemoryJDK8;
+import one.microstream.memory.sun.SunJdk8Internals;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -37,7 +37,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 
 	static final float getLoadFactor(final Binary bytes)
 	{
-		return bytes.get_float(BINARY_OFFSET_LOAD_FACTOR);
+		return bytes.read_float(BINARY_OFFSET_LOAD_FACTOR);
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -81,7 +81,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	)
 	{
 		// store elements simply as array binary form
-		final long contentAddress = bytes.storeIterableAsList(
+		bytes.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -92,8 +92,8 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 
 		// store load factor as (sole) header value
 		bytes.store_float(
-			contentAddress + BINARY_OFFSET_LOAD_FACTOR,
-			XMemoryJDK8.getLoadFactor(instance)
+			BINARY_OFFSET_LOAD_FACTOR,
+			SunJdk8Internals.getLoadFactor(instance)
 		);
 	}
 

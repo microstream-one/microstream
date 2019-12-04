@@ -2,7 +2,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.function.Predicate;
 
 import one.microstream.collections.types.XGettingEnum;
@@ -107,7 +107,7 @@ public interface StorageConnection extends PersistenceStoring
 	);
 	
 
-	public void importFiles(XGettingEnum<File> importFiles);
+	public void importFiles(XGettingEnum<Path> importFiles);
 
 	/* (13.07.2015)TODO: load by type somehow
 	 * Query by typeId already implemented. Question is how to best provide it to the user.
@@ -417,7 +417,7 @@ public interface StorageConnection extends PersistenceStoring
 		}
 
 		@Override
-		public void importFiles(final XGettingEnum<File> importFiles)
+		public void importFiles(final XGettingEnum<Path> importFiles)
 		{
 			try
 			{

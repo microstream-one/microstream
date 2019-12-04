@@ -35,19 +35,19 @@ public final class BinaryHandlerNativeArray_byte extends AbstractBinaryHandlerNa
 	@Override
 	public void store(final Binary bytes, final byte[] array, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeArray_byte(this.typeId(), objectId, array);
+		bytes.store_bytes(this.typeId(), objectId, array);
 	}
 
 	@Override
 	public byte[] create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return bytes.createArray_byte();
+		return bytes.create_bytes();
 	}
 
 	@Override
 	public void update(final Binary bytes, final byte[] instance, final PersistenceObjectIdResolver idResolver)
 	{
-		bytes.updateArray_byte(instance);
+		bytes.update_bytes(instance);
 	}
 
 }

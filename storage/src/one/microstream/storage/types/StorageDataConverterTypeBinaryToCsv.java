@@ -3,12 +3,12 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 import static one.microstream.chars.MemoryCharConversionUTF8.toSingleByte;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.chars.CharConversion_float;
@@ -23,9 +23,8 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.LimitList;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.files.FileException;
-import one.microstream.files.XFiles;
-import one.microstream.memory.PlatformInternals;
+import one.microstream.io.FileException;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -150,11 +149,11 @@ public interface StorageDataConverterTypeBinaryToCsv
 		// static methods //
 		///////////////////
 
-		static final FileChannel createFileChannel(final File file) throws StorageException
+		static final FileChannel createFileChannel(final Path file) throws StorageException
 		{
 			try
 			{
-				return XFiles.createWritingFileChannel(file);
+				return XIO.openFileChannelWriting(file);
 			}
 			catch(FileException | IOException e)
 			{
@@ -298,15 +297,15 @@ public interface StorageDataConverterTypeBinaryToCsv
 			this.literalByteLengthFalse  = this.literalFalse.length                           ;
 
 			this.readBufferSize          = Math.max(readBufferSize, XMemory.defaultBufferSize());
-			this.readBufferNormal        = ByteBuffer.allocateDirect(this.readBufferSize)      ;
-			this.readBufferLarge         = ByteBuffer.allocateDirect(0); // don't squander memory if normal size is already huge
+			this.readBufferNormal        = XMemory.allocateDirectNative(this.readBufferSize);
+			this.readBufferLarge         = XMemory.allocateDirectNative(0); // don't squander memory if normal size is already huge
 
 			this.writeBufferSize         = writeBufferSize(writeBufferSize);
-			this.writeBuffer             = ByteBuffer.allocateDirect(this.writeBufferSize)    ;
-			this.writeStart              = PlatformInternals.getDirectBufferAddress(this.writeBuffer) ;
-			this.writeBound              = this.writeAddress + this.writeBuffer.capacity()    ;
-			this.flushBound              = this.writeBound - FLUSH_BUFFER_RANGE               ;
-			this.writeAddress            = this.writeStart                                    ;
+			this.writeBuffer             = XMemory.allocateDirectNative(this.writeBufferSize)   ;
+			this.writeStart              = XMemory.getDirectByteBufferAddress(this.writeBuffer);
+			this.writeBound              = this.writeAddress + this.writeBuffer.capacity()     ;
+			this.flushBound              = this.writeBound - FLUSH_BUFFER_RANGE                ;
+			this.writeAddress            = this.writeStart                                     ;
 		}
 
 
@@ -356,8 +355,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private void openChannel() throws IOException
 		{
 			final StorageLockedFile file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
-			final File directory = new File(file.qualifier());
-			XFiles.ensureDirectory(directory);
+			final Path directory = XIO.Path(file.qualifier());
+			XIO.unchecked.ensureDirectory(directory);
 			this.fileChannel = file.fileChannel();
 		}
 
@@ -436,7 +435,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			XMemory.set_byte(this.writeAddress, valueSeparator);
 			this.writeAddress += LITERAL_BYTE_SIZE_SINGLE_CHAR;
 
-			long address = Binary.entityContentAddress(entityAddress);
+			long address = Binary.toEntityContentOffset(entityAddress);
 			for(final ValueWriter writer : this.valueWriters)
 			{
 				address = writer.writeValue(address);
@@ -554,6 +553,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			// (13.10.2018 TM)FIXME: replace autoclose by external closing
 			try(SeekableByteChannel inputChannel = (this.currentSourceFile = file).fileChannel())
 			{
+				Throwable suppressed = null;
 				try
 				{
 					StorageDataFileItemIterator.Default.processInputFile(inputChannel, this, this, 0, inputChannel.size());
@@ -561,11 +561,12 @@ public interface StorageDataConverterTypeBinaryToCsv
 				}
 				catch(final WriteException e)
 				{
+					suppressed = e;
 					throw new RuntimeException(e.ioException);
 				}
 				finally
 				{
-					this.reset();
+					this.reset(suppressed);
 				}
 			}
 			catch(final IOException e)
@@ -602,13 +603,19 @@ public interface StorageDataConverterTypeBinaryToCsv
 			return this.writeStart;
 		}
 
-		private void reset() throws IOException
+		private void reset(final Throwable suppressed) throws IOException
 		{
-			XFiles.closeSilent(this.fileChannel);
-			this.typeId       =   -1;
-			this.typeDescription  = null;
-			this.valueWriters = null;
-			this.fileChannel  = null;
+			try
+			{
+				XIO.close(this.fileChannel, suppressed);
+			}
+			finally
+			{
+				this.typeId          =   -1;
+				this.typeDescription = null;
+				this.valueWriters    = null;
+				this.fileChannel     = null;
+			}
 		}
 
 		private void checkForFlush() throws IOException
@@ -705,8 +712,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 		final long writeComplexMultiple(final ValueWriter[] valueWriters, final long valueReadAddress)
 			throws IOException
 		{
-			final long elementCount  = Binary.getBinaryListElementCountRawValue(valueReadAddress);
-			      long address       = Binary.toBinaryListElementsAddress(valueReadAddress);
+			final long elementCount  = XMemory.get_long(Binary.toBinaryListElementCountOffset(valueReadAddress));
+			      long address       = Binary.toBinaryListElementsOffset(valueReadAddress);
 			final byte listStarter   = this.listStarter;
 			final byte listSeparator = this.listSeparator;
 
@@ -730,8 +737,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 		final long writeComplexSingle(final ValueWriter valueWriter, final long valueReadAddress)
 			throws IOException
 		{
-			final long elementCount = Binary.getBinaryListElementCountRawValue(valueReadAddress);
-			      long address      = Binary.toBinaryListElementsAddress(valueReadAddress);
+			final long elementCount = XMemory.get_long(Binary.toBinaryListElementCountOffset(valueReadAddress));
+			      long address      = Binary.toBinaryListElementsOffset(valueReadAddress);
 			final byte listSeparator = this.listSeparator;
 
 			this.write(this.listStarter);
@@ -958,10 +965,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					final long bound = valueReadAddress + Binary.getBinaryListTotalByteLengthRawValue(valueReadAddress);
+					final long bound = valueReadAddress + XMemory.get_long(Binary.toBinaryListByteLengthOffset(valueReadAddress));
 					
 					UTF8.this.write_chars(
-						Binary.toBinaryListElementsAddress(valueReadAddress),
+						Binary.toBinaryListElementsOffset(valueReadAddress),
 						bound
 					);
 					
@@ -977,10 +984,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 				@Override
 				public long writeValue(final long valueReadAddress) throws IOException
 				{
-					final long bound = valueReadAddress + Binary.getBinaryListTotalByteLengthRawValue(valueReadAddress);
+					final long bound = valueReadAddress + XMemory.get_long(Binary.toBinaryListByteLengthOffset(valueReadAddress));
 					
 					UTF8.this.write_bytes(
-						Binary.toBinaryListElementsAddress(valueReadAddress),
+						Binary.toBinaryListElementsOffset(valueReadAddress),
 						bound
 					);
 					
@@ -1045,8 +1052,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 
 			// large buffer has to be enlarged
-			PlatformInternals.deallocateDirectBuffer(this.readBufferLarge);
-			return this.readBufferLarge = ByteBuffer.allocateDirect(X.checkArrayRange(nextEntityLength));
+			XMemory.deallocateDirectByteBuffer(this.readBufferLarge);
+			return this.readBufferLarge = XMemory.allocateDirectNative(nextEntityLength);
 		}
 
 		static final class WriteException extends RuntimeException

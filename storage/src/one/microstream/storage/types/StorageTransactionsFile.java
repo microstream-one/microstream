@@ -2,15 +2,17 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XCollection;
 import one.microstream.collections.types.XGettingSequence;
+import one.microstream.exceptions.IORuntimeException;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis.EntryIterator;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis.Logic;
 
@@ -32,48 +34,35 @@ public interface StorageTransactionsFile
 		return StorageTransactionsFile.New(entries);
 	}
 	
-	public static StorageTransactionsFile parseFile(final File file)
+	public static StorageTransactionsFile parseFile(final Path file) throws IORuntimeException
 	{
-		if(!file.exists())
-		{
-			return StorageTransactionsFile.New();
-		}
-		
 		      FileLock    lock    = null;
 		final FileChannel channel = null;
+		
+		Throwable suppressed = null;
 		try
 		{
+			if(!XIO.exists(file))
+			{
+				return StorageTransactionsFile.New();
+			}
+			
 			lock = StorageLockedFile.openLockedFileChannel(file);
+			
 			return parseFile(lock.channel());
 		}
 		catch(final IOException e)
 		{
-			// (12.09.2014 TM)EXCP: proper exception
-			throw new RuntimeException(e);
+			suppressed = e;
+			throw new IORuntimeException(e);
 		}
 		finally
 		{
-			closeSilent(lock);
-			closeSilent(channel);
+			XIO.unchecked.close(lock, suppressed);
+			XIO.unchecked.close(channel, suppressed);
 		}
 	}
-	
-	public static void closeSilent(final AutoCloseable closable)
-	{
-		if(closable == null)
-		{
-			return;
-		}
-		try
-		{
-			closable.close();
-		}
-		catch(final Exception t)
-		{
-			// sshhh, silence!
-		}
-	}
-	
+		
 	
 	public static StorageTransactionsFile New()
 	{

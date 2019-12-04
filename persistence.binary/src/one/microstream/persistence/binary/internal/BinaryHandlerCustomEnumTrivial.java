@@ -56,12 +56,12 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 	
 	protected static long getNameObjectId(final Binary bytes)
 	{
-		return bytes.get_long(BINARY_OFFSET_NAME);
+		return bytes.read_long(BINARY_OFFSET_NAME);
 	}
 	
 	protected static int getOrdinalValue(final Binary bytes)
 	{
-		return bytes.get_int(BINARY_OFFSET_ORDINAL);
+		return bytes.read_int(BINARY_OFFSET_ORDINAL);
 	}
 	
 	@Override
@@ -111,9 +111,10 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-		bytes.store_long(contentAddress + BINARY_OFFSET_NAME, 	 handler.apply(instance.name()));
-		bytes.store_long(contentAddress + BINARY_OFFSET_ORDINAL, instance.ordinal()            );
+		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
+		
+		bytes.store_long(BINARY_OFFSET_NAME   , handler.apply(instance.name()));
+		bytes.store_long(BINARY_OFFSET_ORDINAL, instance.ordinal()            );
 	}
 	
 }

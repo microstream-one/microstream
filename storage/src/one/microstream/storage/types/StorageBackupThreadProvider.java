@@ -1,7 +1,7 @@
 package one.microstream.storage.types;
 
 @FunctionalInterface
-public interface StorageBackupThreadProvider
+public interface StorageBackupThreadProvider extends StorageThreadProviding
 {
 	/**
 	 * Provides a newly created, yet unstarted {@link Thread} instance wrapping the passed
@@ -13,9 +13,17 @@ public interface StorageBackupThreadProvider
 	 *
 	 * @return a {@link Thread} instance to be used as a storage backup worker thread.
 	 */
-	public Thread provideBackupThread(StorageBackupHandler backupHandler);
+	public default Thread provideBackupThread(final StorageBackupHandler backupHandler)
+	{
+		return this.provideBackupThread(backupHandler, StorageThreadNameProvider.NoOp());
+	}
+	
+	public Thread provideBackupThread(
+		StorageBackupHandler      backupHandler     ,
+		StorageThreadNameProvider threadNameProvider
+	);
 
-
+	
 	
 	public static StorageBackupThreadProvider New()
 	{
@@ -24,17 +32,32 @@ public interface StorageBackupThreadProvider
 
 	public final class Default implements StorageBackupThreadProvider
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
 		Default()
 		{
 			super();
 		}
 		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
 		@Override
-		public Thread provideBackupThread(final StorageBackupHandler backupHandler)
+		public Thread provideBackupThread(
+			final StorageBackupHandler      backupHandler     ,
+			final StorageThreadNameProvider threadNameProvider
+		)
 		{
+			final String threadName = StorageBackupHandler.class.getSimpleName();
+			
 			return new Thread(
 				backupHandler,
-				StorageBackupHandler.class.getSimpleName()
+				threadNameProvider.provideThreadName(this, threadName)
 			);
 		}
 

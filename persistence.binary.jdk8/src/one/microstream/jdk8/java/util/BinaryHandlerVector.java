@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.util.Vector;
 
-import one.microstream.memory.XMemoryJDK8;
+import one.microstream.memory.sun.SunJdk8Internals;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterableSizedArray;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -74,17 +74,17 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 		final PersistenceStoreHandler handler
 	)
 	{
-		final long contentAddress = bytes.storeSizedArray(
-			this.typeId()                ,
-			objectId                     ,
-			BINARY_OFFSET_SIZED_ARRAY    ,
-			XMemoryJDK8.accessArray(instance),
-			instance.size()              ,
+		bytes.storeSizedArray(
+			this.typeId()                    ,
+			objectId                         ,
+			BINARY_OFFSET_SIZED_ARRAY        ,
+			SunJdk8Internals.accessArray(instance),
+			instance.size()                  ,
 			handler
 		);
 		bytes.store_int(
-		    contentAddress + BINARY_OFFSET_CAPACITY_INCREMENT,
-		    XMemoryJDK8.getCapacityIncrement(instance)
+		    BINARY_OFFSET_CAPACITY_INCREMENT,
+		    SunJdk8Internals.getCapacityIncrement(instance)
 		);
 	}
 
@@ -94,7 +94,7 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 		// capacityIncrement can be any int value, even negative. So no validation can be done here.
 		return new Vector<>(
 			1,
-			bytes.get_int(BINARY_OFFSET_CAPACITY_INCREMENT)
+			bytes.read_int(BINARY_OFFSET_CAPACITY_INCREMENT)
 		);
 	}
 
@@ -107,16 +107,16 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 		
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY    ,
-			XMemoryJDK8.accessArray(instance),
-			idResolver
+			idResolver,
+			SunJdk8Internals.accessArray(instance)
 		);
-		XMemoryJDK8.setElementCount(instance, size);
+		SunJdk8Internals.setElementCount(instance, size);
 	}
 
 	@Override
 	public final void iterateInstanceReferences(final Vector<?> instance, final PersistenceFunction iterator)
 	{
-		Persistence.iterateReferences(iterator, XMemoryJDK8.accessArray(instance), 0, instance.size());
+		Persistence.iterateReferences(iterator, SunJdk8Internals.accessArray(instance), 0, instance.size());
 	}
 
 	@Override

@@ -2,11 +2,11 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -15,7 +15,7 @@ import one.microstream.collections.ConstList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.memory.PlatformInternals;
+import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 
 public interface StorageTransactionsFileAnalysis
@@ -281,8 +281,8 @@ public interface StorageTransactionsFileAnalysis
 
 			fileChannel.position(startPosition);
 
-			final ByteBuffer buffer  = ByteBuffer.allocateDirect(XMemory.defaultBufferSize());
-			final long       address = PlatformInternals.getDirectBufferAddress(buffer);
+			final ByteBuffer buffer  = XMemory.allocateDirectNativeDefault();
+			final long       address = XMemory.getDirectByteBufferAddress(buffer);
 
 			// process whole file part by part
 			while(currentFilePosition < boundPosition)
@@ -372,49 +372,37 @@ public interface StorageTransactionsFileAnalysis
 			}
 		}
 
-		public static VarString parseFile(final File file)
+		public static VarString parseFile(final Path file)
 		{
 			return parseFile(file, VarString.New());
 		}
 
-		public static VarString parseFile(final File file, final VarString vs)
+		public static VarString parseFile(final Path file, final VarString vs)
 		{
-			if(!file.exists())
-			{
-				return vs;
-			}
-			
 			      FileLock    lock    = null;
 			final FileChannel channel = null;
+			
+			Throwable suppressed = null;
 			try
 			{
+				if(!XIO.exists(file))
+				{
+					return vs;
+				}
+				
 				lock = StorageLockedFile.openLockedFileChannel(file);
+				
 				return parseFile(lock.channel(), vs);
 			}
 			catch(final IOException e)
 			{
+				suppressed = e;
 				throw new RuntimeException(e); // (12.09.2014 TM)EXCP: proper exception
 			}
 			finally
 			{
-				closeSilent(lock);
-				closeSilent(channel);
-			}
-		}
-		
-		public static void closeSilent(final AutoCloseable closable)
-		{
-			if(closable == null)
-			{
-				return;
-			}
-			try
-			{
-				closable.close();
-			}
-			catch(final Exception t)
-			{
-				// sshhh, silence!
+				XIO.unchecked.close(lock, suppressed);
+				XIO.unchecked.close(channel, suppressed);
 			}
 		}
 
@@ -590,6 +578,13 @@ public interface StorageTransactionsFileAnalysis
 			{
 				return false;
 			}
+			
+			// (26.11.2019 TM)NOTE: ultra makeshift solution to narrow down giant transaction logs
+//			if(Storage.millisecondsToSeconds(Logic.getEntryTimestamp(address)) < 1574031600000L)
+//			{
+//				return true;
+//			}
+			
 			this.vs
 			.add(StorageTransactionsFile.EntryType.DATA_STORE.typeName()).tab();
 			this.addCommonTimestampPart(address);
@@ -608,6 +603,13 @@ public interface StorageTransactionsFileAnalysis
 			{
 				return false;
 			}
+
+			// (26.11.2019 TM)NOTE: ultra makeshift solution to narrow down giant transaction logs
+//			if(Storage.millisecondsToSeconds(Logic.getEntryTimestamp(address)) < 1574031600000L)
+//			{
+//				return true;
+//			}
+			
 			this.vs
 			.add(StorageTransactionsFile.EntryType.DATA_TRANSFER.typeName()).tab();
 			this.addCommonTimestampPart(address);

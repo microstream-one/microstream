@@ -1,8 +1,8 @@
 package various;
 
 
-import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
@@ -10,7 +10,8 @@ import javax.swing.text.Document;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import one.microstream.chars.VarString;
-import one.microstream.files.XFiles;
+import one.microstream.chars.XChars;
+import one.microstream.io.XIO;
 
 public class MainTestRTF
 {
@@ -19,22 +20,22 @@ public class MainTestRTF
 	
 	public static void main(final String[] args) throws Exception
 	{
-//		mergeRtfs(new File("D:/rtftest/"));
-		mergeRtfs(new File("D:/_HumanLegacy/HuLe Docs/E01 Turning Point/Szenen"));
+//		mergeRtfs(XIO.Path("D:/rtftest/"));
+		mergeRtfs(XIO.Path("D:/_HumanLegacy/HuLe Docs/E01 Turning Point/Szenen"));
 	}
 
 	// very hacky, ignoring exceptions etc., only for provisional use
-	public static void mergeRtfs(final File dir) throws Exception
+	public static void mergeRtfs(final Path dir) throws Exception
 	{
 		final VarString vs = VarString.New(1_000_000);
 
 		// sort by filename, just in case
-		final File[] files = dir.listFiles();
-		Arrays.sort(files, (f1, f2) -> f1.getName().compareTo(f2.getName()));
+		final Path[] files = XIO.listEntries(dir);
+		Arrays.sort(files, (f1, f2) -> XIO.getFileName(f1).compareTo(XIO.getFileName(f2)));
 
-		for(final File f : files)
+		for(final Path f : files)
 		{
-			if(f.isDirectory() || !f.getName().endsWith(".rtf") || f.getName().contains(INVALIDATOR))
+			if(XIO.unchecked.isDirectory(f) || !XIO.getFileName(f).endsWith(".rtf") || XIO.getFileName(f).contains(INVALIDATOR))
 			{
 				continue;
 			}
@@ -42,7 +43,7 @@ public class MainTestRTF
 
 			final RTFEditorKit rtfParser = new RTFEditorKit();
 			final Document document = rtfParser.createDefaultDocument();
-			rtfParser.read(new FileInputStream(f), document, 0);
+			rtfParser.read(new FileInputStream(f.toFile()), document, 0);
 			final String text = document.getText(0, document.getLength());
 			
 //			vs.lf().add(f.getName().substring(0, f.getName().length() - 4)).lf().lf();
@@ -50,7 +51,7 @@ public class MainTestRTF
 			vs.add(text);
 		}
 
-		final File target = new File(dir.getParent(), dir.getName()+"_merged_rtf.txt");
+		final Path target = XIO.Path(dir.getParent(), XIO.getFileName(dir)+"_merged_rtf.txt");
 		String s = vs.toString();
 		
 		// remove lol-cr
@@ -62,7 +63,7 @@ public class MainTestRTF
 		// cut spaces and remove everything beyond one blank line
 		s = s.replaceAll("\\n\\s+\\n", "\n\n").replaceAll("(\\n){3,}+", "\n\n");
 				
-		XFiles.writeStringToFileDefaultCharset(target, s);
+		XIO.write(target, s, XChars.defaultJvmCharset());
 	}
 
 }

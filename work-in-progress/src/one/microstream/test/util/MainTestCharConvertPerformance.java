@@ -43,7 +43,7 @@ public class MainTestCharConvertPerformance
 			{
 				for(i = 0; i < SIZE; i++)
 				{
-					s = XChars.string(chars[i]);
+					s = XChars.asString(chars[i]);
 //					s = String.valueOf(chars[i]);
 				}
 			}

@@ -35,19 +35,19 @@ public final class BinaryHandlerNativeArray_float extends AbstractBinaryHandlerN
 	@Override
 	public void store(final Binary bytes, final float[] array, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeArray_float(this.typeId(), objectId, array);
+		bytes.store_floats(this.typeId(), objectId, array);
 	}
 
 	@Override
 	public float[] create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
-		return bytes.createArray_float();
+		return bytes.create_floats();
 	}
 
 	@Override
 	public void update(final Binary bytes, final float[] instance, final PersistenceObjectIdResolver idResolver)
 	{
-		bytes.updateArray_float(instance);
+		bytes.update_floats(instance);
 	}
 
 }

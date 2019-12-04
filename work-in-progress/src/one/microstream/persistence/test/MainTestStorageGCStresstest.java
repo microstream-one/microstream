@@ -3,8 +3,8 @@ package one.microstream.persistence.test;
 import one.microstream.chars.XChars;
 import one.microstream.concurrency.XThreads;
 import one.microstream.math.XMath;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.lazy.Lazy;
-import one.microstream.storage.types.DebugStorage;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageDataFileEvaluator;
@@ -53,40 +53,40 @@ public class MainTestStorageGCStresstest extends TestStorage
 		{
 //			if(Math.random() < 0.1)
 //			{
-//				DEBUGStorage.println("#### GC #### (#"+i+") @ " + System.currentTimeMillis());
+//				XDebug.println("#### GC #### (#"+i+") @ " + System.currentTimeMillis());
 //				storageCleanup(connection);
 //			}
 
 			// (25.04.2018 TM)FIXME: actually requires a FullStorer#store call now
 			connection.store(ref.get()[XMath.random(size)]);
 //			connection.storeFull(ref.get()[XMath.random(size)]);
-			DebugStorage.println("stored #"+i);
+			XDebug.println("stored #"+i);
 
 			ref.clear();
 			XThreads.sleep(WAIT_TIME);
 //			connection.issueFullCacheCheck((a, b, c) -> true);
 //			connection.issueFullFileCheck(fileEvaluatorHard);
 			final Object o = ref.get();
-			DebugStorage.println("loaded: "+XChars.systemString(o));
+			XDebug.println("loaded: "+XChars.systemString(o));
 		}
 		exit();
 	}
 
 	public static void storageCleanup(final StorageConnection connection, final Double dissolveRatio)
 	{
-		DebugStorage.println("GC#1");
+		XDebug.println("GC#1");
 		connection.issueFullGarbageCollection();
-		DebugStorage.println("GC#2");
+		XDebug.println("GC#2");
 		connection.issueFullGarbageCollection();
 
-		DebugStorage.println("cache check");
+		XDebug.println("cache check");
 		connection.issueFullCacheCheck();
 
-		DebugStorage.println("file check");
+		XDebug.println("file check");
 		connection.issueFullFileCheck(
 			Storage.DataFileEvaluator(100, 10_000, 0.99999)
 		);
-		DebugStorage.println("Done cleanup");
+		XDebug.println("Done cleanup");
 	}
 
 }

@@ -2,7 +2,7 @@ package one.microstream.network.test.sessionless;
 
 import java.nio.channels.SocketChannel;
 
-import one.microstream.files.XFiles;
+import one.microstream.io.XIO;
 import one.microstream.network.simplesession.LogicSimpleNetwork;
 import one.microstream.network.types.NetworkConnectionProcessor;
 import one.microstream.network.types.NetworkFactoryServerSessionless;
@@ -21,6 +21,8 @@ public class MainTestSessionlessServer
 	static final void echoRequest(final SocketChannel connection)
 	{
 		System.out.println(System.currentTimeMillis()+" Received client request from "+connection.socket().getInetAddress());
+
+		Throwable suppressed = null;
 		try
 		{
 			final String message = LogicSimpleNetwork.readString(connection);        // read message
@@ -30,12 +32,13 @@ public class MainTestSessionlessServer
 		}
 		catch(final Throwable t)
 		{
+			suppressed = t;
 			t.printStackTrace();     // just print the problem in simple example
 		}
 		finally
 		{
-			XFiles.closeSilent(connection); // close channel after every message in simple example
-			System.gc();                         // suggest gc to keep example's memory usage constant
+			XIO.unchecked.close(connection, suppressed); // close channel after every message in simple example
+			System.gc();                                 // suggest gc to keep example's memory usage constant
 		}
 	}
 

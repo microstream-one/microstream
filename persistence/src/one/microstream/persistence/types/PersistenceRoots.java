@@ -2,6 +2,8 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import java.util.function.BiConsumer;
+
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
@@ -9,16 +11,20 @@ import one.microstream.reference.Reference;
 import one.microstream.util.cql.CQL;
 
 
-public interface PersistenceRoots
+public interface PersistenceRoots extends PersistenceRootsView
 {
+	@Override
 	public String defaultRootIdentifier();
 	
+	@Override
 	public Reference<Object> defaultRoot();
 	                                       
+	@Override
 	public String customRootIdentifier();
 	
+	@Override
 	public Object customRoot();
-	
+
 	public XGettingTable<String, Object> entries();
 	
 	public boolean hasChanged();
@@ -26,7 +32,18 @@ public interface PersistenceRoots
 	public void reinitializeEntries(XGettingTable<String, Object> newEntries);
 
 	public void updateEntries(XGettingTable<String, Object> newEntries);
+	
+	@Override
+	public default <C extends BiConsumer<String, Object>> C iterateEntries(final C iterator)
+	{
+		this.entries().iterate(e ->
+			iterator.accept(e.key(), e.value())
+		);
+		
+		return iterator;
+	}
 
+	
 	
 	public static PersistenceRoots New(final PersistenceRootResolver rootResolver)
 	{
@@ -51,6 +68,8 @@ public interface PersistenceRoots
 				false
 			);
 		}
+		
+		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

@@ -1,12 +1,12 @@
 package one.microstream.persistence.test;
 
-import java.io.File;
+import java.nio.file.Path;
 
-import one.microstream.X;
+import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.types.XSequence;
-import one.microstream.files.XFiles;
 import one.microstream.functional.XFunc;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageConnection;
 
 public class MainTestExportConvertImport extends TestStorage
@@ -16,29 +16,29 @@ public class MainTestExportConvertImport extends TestStorage
 		ROOT.set(testGraphEvenMoreManyType());
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		storageConnection.store(ROOT);
-		testExport(new File("C:/Files/export"));
+		testExport(XIO.Path("C:/Files/export"));
 		exit();
 	}
 
-	static void testExport(final File targetDirectory)
+	static void testExport(final Path targetDirectory)
 	{
 		final StorageConnection storageConnection = STORAGE.createConnection();
-		final XSequence<File> exportFiles = exportTypes(
+		final XSequence<Path> exportFiles = exportTypes(
 			storageConnection,
-			XFiles.ensureDirectory(new File(targetDirectory, "bin")),
+			XIO.unchecked.ensureDirectory(XIO.Path(targetDirectory, "bin")),
 			"dat"
 		);
-		final File csvDir = convertBinToCsv(exportFiles, file -> file.getName().endsWith(".dat"));
+		final Path csvDir = convertBinToCsv(exportFiles, file -> XIO.getFileName(file).endsWith(".dat"));
 
-		final File bin2Dir = MainTestConvertCsvToBin.convertCsvToBin(
+		final Path bin2Dir = MainTestConvertCsvToBin.convertCsvToBin(
 			STORAGE.typeDictionary(),
-			X.List(csvDir.listFiles()),
-			new File(csvDir.getParent(), "bin2"),
+			XIO.unchecked.listEntries(targetDirectory, BulkList.New()),
+			XIO.Path(csvDir.getParent(), "bin2"),
 			XFunc.all()
 		);
 
 //		STORAGE.truncateData();
-		storageConnection.importFiles(EqHashEnum.New(bin2Dir.listFiles()));
+		storageConnection.importFiles(EqHashEnum.New(XIO.unchecked.listEntries(bin2Dir)));
 //		storageConnection.importFiles(EqHashEnum.New(new File("C:/Files/export/bin2/one.microstream.persistence.types.PersistenceRoots$Default.dat")));
 
 		STORAGE.shutdown();

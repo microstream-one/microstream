@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import one.microstream.memory.PlatformInternals;
+import one.microstream.memory.XMemory;
 
 
 public class ChannelCommon
@@ -44,12 +44,12 @@ public class ChannelCommon
 
 	static String readString(final SocketChannel sourceChannel) throws IOException
 	{
-		final ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+		final ByteBuffer buffer = XMemory.allocateDirectNative(1024);
 		sourceChannel.read(buffer);
 		buffer.flip();
 		final byte[] bytes;
 		buffer.get(bytes = new byte[buffer.limit()]);
-		PlatformInternals.deallocateDirectBuffer(buffer);
+		XMemory.deallocateDirectByteBuffer(buffer);
 		return new String(bytes, CHARSET);
 	}
 

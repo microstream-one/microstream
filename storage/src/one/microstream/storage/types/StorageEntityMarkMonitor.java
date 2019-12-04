@@ -50,16 +50,22 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	public interface Creator
 	{
-		public StorageEntityMarkMonitor createEntityMarkMonitor(StorageobjectIdMarkQueue[] oidMarkQueues);
+		public StorageEntityMarkMonitor createEntityMarkMonitor(
+			StorageobjectIdMarkQueue[] oidMarkQueues,
+			StorageEventLogger         eventLogger
+		);
 
 
 
 		public final class Default implements StorageEntityMarkMonitor.Creator
 		{
 			@Override
-			public StorageEntityMarkMonitor createEntityMarkMonitor(final StorageobjectIdMarkQueue[] objectIdMarkQueues)
+			public StorageEntityMarkMonitor createEntityMarkMonitor(
+				final StorageobjectIdMarkQueue[] objectIdMarkQueues,
+				final StorageEventLogger         eventLogger
+			)
 			{
-				return new StorageEntityMarkMonitor.Default(objectIdMarkQueues.clone());
+				return new StorageEntityMarkMonitor.Default(objectIdMarkQueues.clone(), eventLogger);
 			}
 
 		}
@@ -73,17 +79,19 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		// instance fields //
 		////////////////////
 
-		private final StorageobjectIdMarkQueue[] oidMarkQueues          ;
-		private final int                   channelCount           ;
-		private final int                   channelHash            ;
-		private       long                  pendingMarksCount      ;
-		private final boolean[]             pendingStoreUpdates    ;
-		private       int                   pendingStoreUpdateCount;
-
-		private final boolean[]             needsSweep             ;
-		private       int                   sweepingChannelCount   ;
-
-		private final long[]                channelRootOids         ;
+		private final StorageobjectIdMarkQueue[] oidMarkQueues;
+		private final StorageEventLogger         eventLogger  ;
+		
+		private final int       channelCount           ;
+		private final int       channelHash            ;
+		private       long      pendingMarksCount      ;
+		private final boolean[] pendingStoreUpdates    ;
+		private       int       pendingStoreUpdateCount;
+                                
+		private final boolean[] needsSweep             ;
+		private       int       sweepingChannelCount   ;
+                                
+		private final long[]    channelRootOids        ;
 
 		private long sweepGeneration     ;
 		private long lastSweepStart      ;
@@ -118,10 +126,11 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		// constructors //
 		/////////////////
 
-		Default(final StorageobjectIdMarkQueue[] oidMarkQueues)
+		Default(final StorageobjectIdMarkQueue[] oidMarkQueues, final StorageEventLogger eventLogger)
 		{
 			super();
 			this.oidMarkQueues       = oidMarkQueues                 ;
+			this.eventLogger         = eventLogger                   ;
 			this.channelCount        = oidMarkQueues.length          ;
 			this.channelHash         = this.channelCount - 1         ;
 			this.pendingStoreUpdates = new boolean[this.channelCount];
@@ -150,7 +159,8 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				// (07.07.2016 TM)EXCP: proper exception
 				throw new RuntimeException(
 					"pending marks count (" + this.pendingMarksCount +
-					") is smaller than the number to be advanced (" + amount + ").");
+					") is smaller than the number to be advanced (" + amount + ")."
+				);
 			}
 
 			/*
@@ -191,7 +201,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		{
 			if(this.gcColdPhaseComplete)
 			{
-				DebugStorage.println("GC already complete.");
+				this.eventLogger.logGarbageCollectorNotNeeded();
 				return;
 			}
 
@@ -209,14 +219,15 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				this.gcColdPhaseComplete = true;
 				this.lastGcColdCompletion = System.currentTimeMillis();
 				this.gcColdGeneration++;
-				DebugStorage.println("Completed GC #" + this.gcColdGeneration + " @ " + this.lastGcColdCompletion);
+				this.eventLogger.logGarbageCollectorCompleted(this.gcColdGeneration, this.lastGcColdCompletion);
 			}
 			else
 			{
 				this.gcHotPhaseComplete = true;
 				this.lastGcHotCompletion = System.currentTimeMillis();
 				this.gcHotGeneration++;
-				DebugStorage.println("Completed GC Hot Phase #" + this.gcHotGeneration + " @ " + this.lastGcHotCompletion);
+				this.eventLogger.logGarbageCollectorCompletedHotPhase(this.gcHotGeneration, this.lastGcHotCompletion);
+				
 			}
 		}
 
@@ -295,7 +306,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			// mark this channel as having completed the sweep
 			this.needsSweep[channel.channelIndex()] = false;
 			
-			DebugStorage.println(channel.channelIndex() + " completed sweeping.");
+			this.eventLogger.logGarbageCollectorSweepingComplete(channel);
 
 			// decrement sweep channel count and execute completion logic if required.
 			if(--this.sweepingChannelCount == 0)
@@ -457,10 +468,10 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		static final class CachingReferenceMarker implements StorageReferenceMarker
 		{
 			private final StorageEntityMarkMonitor.Default markMonitor        ;
-			private final long[][]                                oidsPerChannel     ;
-			private final int[]                                   oidsPerChannelSizes;
-			private final int                                     channelHash        ;
-			private final int                                     bufferLength       ;
+			private final long[][]                         oidsPerChannel     ;
+			private final int[]                            oidsPerChannelSizes;
+			private final int                              channelHash        ;
+			private final int                              bufferLength       ;
 
 			CachingReferenceMarker(
 				final StorageEntityMarkMonitor.Default markMonitor ,
@@ -533,7 +544,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			{
 				synchronized(this.oidMarkQueues[currentIndex])
 				{
-					return lockAllMarkQueues(currentIndex - 1, logic);
+					return this.lockAllMarkQueues(currentIndex - 1, logic);
 				}
 			}
 
@@ -552,7 +563,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				;
 				for(int i = 0; i < this.oidMarkQueues.length; i++)
 				{
-					vs.lf().padLeft(Long.toString(this.oidMarkQueues[i].size()), 10, ' ').blank().add("in channel #"+i);
+					vs.lf().padLeft(Long.toString(this.oidMarkQueues[i].size()), 10, ' ').add(" in channel #" + i);
 				}
 
 				vs
