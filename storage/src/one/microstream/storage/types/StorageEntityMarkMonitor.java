@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import one.microstream.chars.VarString;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.storage.exceptions.StorageException;
 
 
 /**
@@ -157,7 +158,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			if(this.pendingMarksCount < amount)
 			{
 				// (07.07.2016 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new StorageException(
 					"pending marks count (" + this.pendingMarksCount +
 					") is smaller than the number to be advanced (" + amount + ")."
 				);
@@ -332,7 +333,8 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			{
 				if(this.oidMarkQueues[i].hasElements())
 				{
-					throw new RuntimeException(); // (01.08.2016 TM)EXCP: proper exception
+					// (01.08.2016 TM)EXCP: proper exception
+					throw new StorageException("ObjectId mark queue for channel " + i + " still has elements.");
 				}
 				this.oidMarkQueues[i].reset();
 			}

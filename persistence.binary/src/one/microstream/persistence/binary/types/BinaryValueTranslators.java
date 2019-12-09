@@ -2,6 +2,7 @@ package one.microstream.persistence.binary.types;
 
 import one.microstream.X;
 import one.microstream.memory.XMemory;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.lazy.Lazy;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
@@ -38,7 +39,7 @@ public final class BinaryValueTranslators
 	)
 	{
 		// (18.09.2018 TM)EXCP: proper exception
-		throw new RuntimeException(
+		throw new PersistenceException(
 			"Cannot convert between primitive and reference values: "
 			+ sourceType + " <-> " + targetType+ "."
 		);

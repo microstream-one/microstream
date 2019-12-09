@@ -9,6 +9,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.math.XMath;
 import one.microstream.memory.XMemory;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceInstanceHandler;
 import one.microstream.persistence.types.PersistenceLoader;
@@ -776,7 +777,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			if(!(initial instanceof PersistenceRoots))
 			{
 				// (21.10.2013 TM)EXCP: proper exception
-				throw new RuntimeException("Initially read data is no roots instance");
+				throw new PersistenceException("Initially read data is no roots instance");
 			}
 			return (PersistenceRoots)initial;
 		}

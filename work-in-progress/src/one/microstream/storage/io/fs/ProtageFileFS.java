@@ -188,7 +188,7 @@ public interface ProtageFileFS extends ProtageNioChannelFile
 			}
 			catch(final IOException e)
 			{
-				throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+				throw new RuntimeException(e); // (01.10.2014 TM)EXCP: proper exception
 			}
 		}
 		
@@ -279,7 +279,7 @@ public interface ProtageFileFS extends ProtageNioChannelFile
 			}
 			catch(final IOException e)
 			{
-				throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+				throw new RuntimeException(e); // (01.10.2014 TM)EXCP: proper exception
 			}
 		}
 		

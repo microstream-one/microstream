@@ -20,6 +20,7 @@ import one.microstream.exceptions.NoSuchFieldRuntimeException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.binary.types.BinaryTypeHandler;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
@@ -341,7 +342,7 @@ extends BinaryTypeHandler.Abstract<T>
 			}
 			
 			// (04.04.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				XChars.systemString(this)
 				+ " already initialized by an invokation from class "
 				+ this.initializationInvokingClass.getName()
@@ -367,7 +368,7 @@ extends BinaryTypeHandler.Abstract<T>
 			if(!binaryFieldsInOrder.add(name, field))
 			{
 				// (04.04.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					BinaryField.class.getSimpleName() + " with the name \"" + name + "\" is already registered."
 				);
 			}
@@ -422,7 +423,7 @@ extends BinaryTypeHandler.Abstract<T>
 			catch(final Exception e)
 			{
 				// (17.04.2019 TM)EXCP: proper exception
-				throw new RuntimeException(e);
+				throw new PersistenceException(e);
 			}
 		}
 	}
@@ -482,7 +483,7 @@ extends BinaryTypeHandler.Abstract<T>
 			if(binaryField != lastBinaryField)
 			{
 				// (18.04.2019 TM)EXCP: proper exception
-				throw new RuntimeException("Non-last binary field with variable length: " + binaryField.name());
+				throw new PersistenceException("Non-last binary field with variable length: " + binaryField.name());
 			}
 		}
 	}

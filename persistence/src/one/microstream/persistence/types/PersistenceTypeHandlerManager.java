@@ -12,6 +12,7 @@ import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
@@ -97,7 +98,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		catch(final Exception e)
 		{
 			// (20.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Enum constants collection failed for type handler " + typeHandler.toRuntimeTypeIdentifier()
 			);
 		}
@@ -360,7 +361,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			}
 			
 			// (10.10.2018 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Missing runtime type for required type handler for type: " + typeDefinition.runtimeTypeName()
 			);
 		}
@@ -651,7 +652,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 					if(enumRootEntries == null)
 					{
 						// (29.08.2019 TM)EXCP: proper exception
-						throw new RuntimeException("Discarded enum constants cannot be registered as roots.");
+						throw new PersistenceException("Discarded enum constants cannot be registered as roots.");
 					}
 					
 					modifiedRootEntries.add(enumRootIdentifier, enumRootEntries);
@@ -675,7 +676,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			if(!(existingEntry instanceof Object[]))
 			{
 				// (08.08.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Invalid root instance of type " + existingEntry.getClass().getName()
 					+ " for enum type entry " + this.deriveEnumRootIdentifier(typeHandler)
 					+ " of type " + typeHandler.type().getName()
@@ -686,7 +687,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			if(!XArrays.equals((Object[])existingEntry, typeHandler.type().getEnumConstants()))
 			{
 				// (08.08.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Root entry already exists with inconsistent enum constants"
 					+ " for enum type entry " + this.deriveEnumRootIdentifier(typeHandler)
 					+ " of type " + typeHandler.type().getName()

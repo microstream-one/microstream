@@ -2,6 +2,7 @@ package one.microstream.persistence.types;
 
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.persistence.exceptions.PersistenceException;
 
 public interface PersistenceTypeMismatchValidator<M>
 {
@@ -41,7 +42,7 @@ public interface PersistenceTypeMismatchValidator<M>
 			vs.deleteLast().setLast(']');
 			
 			// (21.05.2018 TM)EXCP: proper exception
-			throw new RuntimeException("Persistence type definition mismatch for the following types: " + vs);
+			throw new PersistenceException("Persistence type definition mismatch for the following types: " + vs);
 			
 		}
 	}

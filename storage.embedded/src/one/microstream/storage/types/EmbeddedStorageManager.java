@@ -332,7 +332,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			if(statistics.liveDataLength() != 0)
 			{
 				// (14.09.2015 TM)EXCP: proper exception
-				throw new RuntimeException("No roots found for existing data.");
+				throw new StorageException("No roots found for existing data.");
 			}
 
 			return this.rootsProvider.provideRoots();

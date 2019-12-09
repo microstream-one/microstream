@@ -22,6 +22,7 @@ import one.microstream.persistence.binary.internal.BinaryHandlerGenericEnum;
 import one.microstream.persistence.binary.internal.BinaryHandlerGenericType;
 import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
 import one.microstream.persistence.binary.internal.BinaryHandlerUnpersistable;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
@@ -270,7 +271,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			// this is as far as generic type analysis gets. Surrender.
 			
 			// (16.07.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Collection type cannot be handled generically and requires a custom "
 				+ PersistenceTypeHandler.class.getName() + " to be registered: "
 				+ type,

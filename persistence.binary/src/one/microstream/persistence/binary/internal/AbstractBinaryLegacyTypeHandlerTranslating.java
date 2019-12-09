@@ -10,6 +10,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryLegacyTypeHandler;
 import one.microstream.persistence.binary.types.BinaryReferenceTraverser;
 import one.microstream.persistence.binary.types.BinaryValueSetter;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
@@ -59,7 +60,7 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 		if(translatorsWithTargetOffsets.containsSearched(isNullEntry))
 		{
 			// (02.09.2019 TM)EXCP: proper exception
-			throw new RuntimeException("Value translator mapping contains an invalid null-entry.");
+			throw new PersistenceException("Value translator mapping contains an invalid null-entry.");
 		}
 	}
 	

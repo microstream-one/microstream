@@ -12,6 +12,7 @@ import one.microstream.X;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
 import one.microstream.typing.XTypes;
 
@@ -192,7 +193,8 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 				else
 				{
 					// entity length may never be 0 or the iteration will hang forever
-					throw new RuntimeException("Zero length data item."); // (29.08.2014)EXCP: proper exception
+					// (29.08.2014 TM)EXCP: proper exception
+					throw new StorageException("Zero length data item.");
 				}
 			}
 			

@@ -8,6 +8,7 @@ import java.nio.channels.FileLock;
 import java.nio.file.Path;
 
 import one.microstream.io.XIO;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
 public interface StorageNumberedFile extends StorageChannelFile
@@ -149,7 +150,7 @@ public interface StorageNumberedFile extends StorageChannelFile
 			if(!this.exists())
 			{
 				// (19.02.2019 TM)EXCP: proper exception
-				throw new RuntimeException();
+				throw new StorageException();
 			}
 			
 			return XIO.unchecked.size(this.file);

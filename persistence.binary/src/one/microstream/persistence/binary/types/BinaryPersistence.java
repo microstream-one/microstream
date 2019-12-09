@@ -80,6 +80,7 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.binary.internal.BinaryHandlerSingletonStatelessEnum;
 import one.microstream.persistence.binary.internal.BinaryHandlerStatelessConstant;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.lazy.BinaryHandlerLazyDefault;
 import one.microstream.persistence.types.Persistence;
@@ -149,7 +150,7 @@ public final class BinaryPersistence extends Persistence
 		if(nativeTypeId == 0)
 		{
 			// (07.11.2018 TM)EXCP: proper exception
-			throw new RuntimeException("No native TypeId found for type " + typeHandler.type());
+			throw new PersistenceException("No native TypeId found for type " + typeHandler.type());
 		}
 		
 		typeHandler.initialize(nativeTypeId);

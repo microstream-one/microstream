@@ -12,6 +12,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.collections.types.XTable;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reference.Reference;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
@@ -55,7 +56,7 @@ public interface PersistenceRootResolver
 			if(!unresolvedIdentifiers.isEmpty())
 			{
 				// (19.04.2018 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"The following root identifiers cannot be resolved: " + unresolvedIdentifiers
 				);
 			}
@@ -267,7 +268,7 @@ public interface PersistenceRootResolver
 			if(enumTypeHandler == null)
 			{
 				// (13.08.2019 TM)EXCP: proper exception
-				throw new RuntimeException("Unknown TypeId: " + enumTypeId);
+				throw new PersistenceException("Unknown TypeId: " + enumTypeId);
 			}
 			
 			// Checks for enum type internally. May be null for discarded (i.e. legacy) enums.
@@ -404,7 +405,7 @@ public interface PersistenceRootResolver
 			if(mappedEntry == null)
 			{
 				// (19.04.2018 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Refactoring mapping target identifier cannot be resolved: " + targetIdentifier
 				);
 			}

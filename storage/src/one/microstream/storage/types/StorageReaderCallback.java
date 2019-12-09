@@ -3,6 +3,8 @@ package one.microstream.storage.types;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import one.microstream.storage.exceptions.StorageException;
+
 public interface StorageReaderCallback
 {
 	public void validateIncrementalRead(
@@ -24,8 +26,8 @@ public interface StorageReaderCallback
 	{
 		if(lastReadCount < 0)
 		{
-			// (30.06.2013)EXCP: proper exception
-			throw new RuntimeException(
+			// (30.06.2013 TM)EXCP: proper exception
+			throw new StorageException(
 				"Could not read data in file " +file.identifier()+ " at position " + filePosition
 			);
 		}

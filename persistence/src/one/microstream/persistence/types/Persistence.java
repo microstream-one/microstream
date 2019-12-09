@@ -36,6 +36,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
 import one.microstream.io.XIO;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
@@ -351,7 +352,7 @@ public class Persistence
 
 		NATIVE_TYPES.add(java.util.Locale.class, TID_java_util_Locale);
 		
-		/* (27.03.2012)FIXME more native types
+		/* (27.03.2012 TM)FIXME more native types
 		 * java.nio.Path etc.
 		 * Also see class BinaryPersistence for TypeHandlers
 		 */
@@ -1105,7 +1106,7 @@ public class Persistence
 		if(!XReflect.isSubEnum(type))
 		{
 			// (05.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException("Not an Enum type: " + type.getName());
+			throw new PersistenceException("Not an Enum type: " + type.getName());
 		}
 		
 		notNull(substituteClassIdentifierSeparator);
@@ -1121,7 +1122,7 @@ public class Persistence
 		}
 		
 		// (02.08.2019 TM)EXCP: proper exception
-		throw new RuntimeException("Orphan sub enum type: " + type.getName());
+		throw new PersistenceException("Orphan sub enum type: " + type.getName());
 	}
 
 	

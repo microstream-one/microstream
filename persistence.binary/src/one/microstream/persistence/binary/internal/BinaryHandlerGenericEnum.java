@@ -13,6 +13,7 @@ import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryValueFunctions;
 import one.microstream.persistence.binary.types.BinaryValueSetter;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
@@ -92,7 +93,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		}
 		
 		// (01.08.2019 TM)EXCP: proper exception
-		throw new RuntimeException("Member not found in member list.");
+		throw new PersistenceException("Member not found in member list.");
 	}
 		
 	public static XImmutableEnum<PersistenceTypeDefinitionMemberEnumConstant> deriveEnumConstantMembers(
@@ -268,7 +269,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		}
 		
 		// (01.08.2019 TM)EXCP: proper exception
-		throw new RuntimeException("Unknown " + java.lang.Enum.class.getName() + " field: " + m.name());
+		throw new PersistenceException("Unknown " + java.lang.Enum.class.getName() + " field: " + m.name());
 	}
 	
 	protected final boolean isFinalPrimitiveField(final PersistenceTypeDefinitionMemberFieldReflective m)
@@ -332,7 +333,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		if(persistentOrdinal != instance.ordinal())
 		{
 			// (01.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Inconcistency for " + instance.getDeclaringClass().getName() + "." + instance.name()
 			);
 		}
@@ -341,7 +342,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		if(!instance.name().equals(persistentName))
 		{
 			// (09.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Enum constant inconsistency:"
 				+ " in type " + this.type().getName()
 				+ " persisted instance with ordinal " + persistentOrdinal + ", name \"" + persistentName + "\""

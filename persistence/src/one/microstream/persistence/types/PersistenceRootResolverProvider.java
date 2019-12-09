@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import one.microstream.X;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reference.Reference;
 import one.microstream.typing.KeyValue;
 
@@ -280,7 +281,8 @@ public interface PersistenceRootResolverProvider
 				return;
 			}
 			
-			throw new RuntimeException(); // (17.04.2018 TM)EXCP: proper exception
+			// (17.04.2018 TM)EXCP: proper exception
+			throw new PersistenceException("Root entry already registered for identifier \"" + identifier + '"');
 		}
 		
 		private PersistenceRootResolver createRootResolver()
