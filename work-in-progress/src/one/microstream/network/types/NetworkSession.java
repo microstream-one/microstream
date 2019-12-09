@@ -92,7 +92,7 @@ public interface NetworkSession<M>
 			}
 			catch(final IOException e)
 			{
-				// (06.10.2012)FIXME: close session / handle exception properly. Exceptionhandler?
+				// (06.10.2012 TM)FIXME: close session / handle exception properly. Exceptionhandler?
 				e.printStackTrace();
 			}
 		}

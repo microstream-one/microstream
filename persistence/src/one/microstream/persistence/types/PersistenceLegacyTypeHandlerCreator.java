@@ -1,6 +1,7 @@
 package one.microstream.persistence.types;
 
 import one.microstream.collections.BulkList;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reflect.XReflect;
 import one.microstream.util.similarity.Similarity;
 
@@ -47,7 +48,7 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 					else
 					{
 						// (26.08.2019 TM)EXCP: proper exception
-						throw new RuntimeException(
+						throw new PersistenceException(
 							"Unmapped legacy enum constant: " + legacyTypeDef + "#" + legacyMember.name()
 						);
 					}
@@ -63,7 +64,7 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 					else
 					{
 						// (26.08.2019 TM)EXCP: proper exception
-						throw new RuntimeException(
+						throw new PersistenceException(
 							"Inconsistent target enum constant: " + currentTypeDef + "#" + targetCurrentConstant.name()
 						);
 					}

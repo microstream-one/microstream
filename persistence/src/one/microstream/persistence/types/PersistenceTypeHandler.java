@@ -52,7 +52,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 */
 	public void complete(M medium, T instance, PersistenceObjectIdResolver idResolver);
 
-	/* (06.10.2012)XXX: PersistenceDomainTypeHandler<M,T> ?
+	/* (06.10.2012 TM)XXX: PersistenceDomainTypeHandler<M,T> ?
 	 * to bind a generic TypeHandler to a specific registry inside a Domain
 	 * specific registry could replace the oidResolver parameter.
 	 * But only in an additional overloaded method.

@@ -10,6 +10,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDictionary;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
@@ -113,7 +114,7 @@ public interface PersistenceTypeDictionary
 		}
 		
 		// (07.11.2018 TM)EXCP: proper exception
-		throw new RuntimeException("Uninitialized TypeId for type definition " + typeDefinition.typeName());
+		throw new PersistenceException("Uninitialized TypeId for type definition " + typeDefinition.typeName());
 	}
 	
 	public static void validateTypeIds(final Iterable<? extends PersistenceTypeDefinition> typeDefinitions)

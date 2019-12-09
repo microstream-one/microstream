@@ -137,7 +137,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 		// validate to the best of possibilities (or should an immutable instance be updatedable from outside?)
 		if(instance.size != 0)
 		{
-			throw new IllegalStateException(); // (28.10.2013)EXCP: proper exception
+			throw new IllegalStateException(); // (28.10.2013 TM)EXCP: proper exception
 		}
 		
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level

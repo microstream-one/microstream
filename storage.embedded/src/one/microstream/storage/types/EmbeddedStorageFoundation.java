@@ -422,7 +422,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			return this.getConnectionFoundation().getRootResolverProvider();
 		}
 
-		/* (02.03.2014)TODO: Storage Configuration more dynamic
+		/* (02.03.2014 TM)TODO: Storage Configuration more dynamic
 		 *  The configuration must be provided in the creation process, not set idependantly.
 		 *  Example: cache evaluator might have to know all the channel caches.
 		 *  To avoid initializer loops (configuration must exist for the channels to be created),

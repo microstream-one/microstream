@@ -8,6 +8,7 @@ import java.nio.file.Path;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.LambdaTypeRecognizer;
@@ -80,7 +81,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			if(type.isPrimitive())
 			{
 				// (29.04.2017 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Primitive types must be handled by default (dummy) handler implementations."
 				);
 			}
@@ -89,7 +90,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			if(type == Class.class)
 			{
 				// (18.09.2018 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Persisting Class instances requires a special-tailored "
 					+ PersistenceTypeHandler.class.getSimpleName()
 					+ " and cannot be done in a generic way."
@@ -100,7 +101,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			if(XReflect.isProxyClass(type))
 			{
 				// (20.08.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Proxy classes (subclasses of " + Proxy.class.getName() + ") are not supported."
 				);
 			}
@@ -111,8 +112,8 @@ public interface PersistenceTypeHandlerCreator<M>
 				// array special cases
 				if(type.getComponentType().isPrimitive())
 				{
-					// (01.04.2013)EXCP: proper exception
-					throw new RuntimeException(
+					// (01.04.2013 TM)EXCP: proper exception
+					throw new PersistenceException(
 						"Persisting primitive component type arrays requires a special-tailored "
 						+ PersistenceTypeHandler.class.getSimpleName()
 						+ " and cannot be done in a generic way."
@@ -153,7 +154,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			if(this.lambdaTypeRecognizer.isLambdaType(type))
 			{
 				// (17.04.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Lambdas are not supported as they cannot be resolved during loading"
 					+ " due to insufficient reflection mechanisms provided by Java."
 				);
@@ -211,7 +212,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			}
 			
 			// (23.07.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Type \"" + type.getName() +
 				"\" not persistable due to problematic fields "
 				+ problematicFields.toString()

@@ -22,14 +22,14 @@ import one.microstream.persistence.types.Unpersistable;
  */
 public interface StorageConnection extends PersistenceStoring
 {
-	/* (11.05.2014)TODO: Proper InterruptedException handling
+	/* (11.05.2014 TM)TODO: Proper InterruptedException handling
 	 *  just returning, especially returning null (see below) seems quite dangerous.
 	 *  Research how to handle such cases properly.
 	 *  Difficult: what to return if the thread has been aborted? Throw an exception?
 	 *  Maybe set the thread's interrupted flag (seen once in an article)
 	 */
 
-	// (03.12.2014)TODO: method to query the transactions files content because channels have a lock on it
+	// (03.12.2014 TM)TODO: method to query the transactions files content because channels have a lock on it
 
 	// currently only for type parameter fixation
 
@@ -109,7 +109,7 @@ public interface StorageConnection extends PersistenceStoring
 
 	public void importFiles(XGettingEnum<Path> importFiles);
 
-	/* (13.07.2015)TODO: load by type somehow
+	/* (13.07.2015 TM)TODO: load by type somehow
 	 * Query by typeId already implemented. Question is how to best provide it to the user.
 	 * As a result HashTable or Sequence?
 	 * By class or by type id or both?

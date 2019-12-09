@@ -5,6 +5,7 @@ import one.microstream.collections.ConstHashEnum;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
@@ -129,7 +130,7 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 		if(persistentOrdinal != instance.ordinal())
 		{
 			// (01.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Inconcistency for " + instance.getDeclaringClass().getName() + "." + instance.name()
 			);
 		}
@@ -138,7 +139,7 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 		if(!instance.name().equals(persistentName))
 		{
 			// (09.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Enum constant inconsistency:"
 				+ " in type " + this.type().getName()
 				+ " persisted instance with ordinal " + persistentOrdinal + ", name \"" + persistentName + "\""

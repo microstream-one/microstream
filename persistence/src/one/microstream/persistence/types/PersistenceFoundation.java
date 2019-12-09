@@ -37,8 +37,8 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	@Override
 	public PersistenceFoundation<M, F> Clone();
 
-	public InstanceDispatcherLogic getInstanceDispatcherLogic(); // (14.04.2013)XXX: move dispatching aspect to separate super type
-
+	// (14.04.2013 TM)XXX: move dispatching aspect to separate super type
+	public InstanceDispatcherLogic getInstanceDispatcherLogic();
 	
 	public XMap<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers();
 

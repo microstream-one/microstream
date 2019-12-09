@@ -156,7 +156,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 
 		// scroll to end of simple literal
 
-		// (28.11.2013)NOTE: improved to recognize enclosed non-control whitespaces. Should make no problems, could it?
+		// (28.11.2013 TM)NOTE: improved to recognize enclosed non-control whitespaces. Should make no problems, could it?
 		while(i < iBound && input[i] != valueSeparator && input[i] != recordSeparator && input[i] != terminator)
 		{
 			i++;
@@ -639,7 +639,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			final int i1 = parseSegmentStart(input, i, iBound, literalBuilder, config);
 			if(i1 == i)
 			{
-				throw new RuntimeException("invalid segment start at index " + i); // (17.11.2014)EXCP: proper exception
+				throw new RuntimeException("invalid segment start at index " + i); // (17.11.2014 TM)EXCP: proper exception
 			}
 			i = parseSegment(
 				input                    ,
@@ -662,7 +662,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			);
 			if(i >= iBound || input[i] != segmentTerminator)
 			{
-				throw new RuntimeException("unclosed segment at index " + i); // (17.11.2014)EXCP: proper exception
+				throw new RuntimeException("unclosed segment at index " + i); // (17.11.2014 TM)EXCP: proper exception
 			}
 			i = CsvRecordParserCharArray.Static.skipSkippable(input, i + 1, iBound, config.commentSignal(), config);
 		}
@@ -745,7 +745,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 
 			if(i >= iBound || input[i] == terminator)
 			{
-				// (22.11.2014)EXCP: proper exception
+				// (22.11.2014 TM)EXCP: proper exception
 				throw new RuntimeException("Unclosed header type line at index " + i);
 			}
 

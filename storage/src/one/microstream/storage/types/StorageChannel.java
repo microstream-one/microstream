@@ -49,7 +49,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 
 	public void exportData(StorageIoHandler fileHandler);
 
-	// (19.07.2014)TODO: refactor storage typing to avoid classes in public API
+	// (19.07.2014 TM)TODO: refactor storage typing to avoid classes in public API
 	public StorageEntityCache.Default prepareImportData();
 
 	public void importData(StorageChannelImportSourceFile importFile);
@@ -655,7 +655,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 
 	public final class EntityCollectorByOid implements _longProcedure
 	{
-		// (01.06.2013)TODO: clean up / consolidate all internal implementations
+		// (01.06.2013 TM)TODO: clean up / consolidate all internal implementations
 
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

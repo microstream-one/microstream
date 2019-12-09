@@ -86,7 +86,7 @@ public interface NetworkMessageHandler<S extends NetworkSession<?>>
 		@Override
 		public void handleMessage(final S messageSession)
 		{
-			/* (24.10.2012)XXX: what about counting enqueued messageSessions to throttle down heavy load?
+			/* (24.10.2012 TM)XXX: what about counting enqueued messageSessions to throttle down heavy load?
 			 * Or is there a more elegant way like some kind of adaptive sleep time or so?
 			 */
 			this.threadManager.accept(messageSession);

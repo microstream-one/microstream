@@ -57,7 +57,7 @@ public interface CsvConfiguration
 
 	public default char lineSeparator()
 	{
-		// (22.11.2014)TODO: make line separator configurable
+		// (22.11.2014 TM)TODO: make line separator configurable
 		return '\n';
 	}
 

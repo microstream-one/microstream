@@ -340,7 +340,7 @@ public abstract class Binary implements Chunk
 
 	public final long getEntityLength()
 	{
-		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
+		// (06.09.2014 TM)TODO: test and comment if " + 0" gets eliminated by JIT
 		return this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_LEN);
 	}
 
@@ -599,7 +599,7 @@ public abstract class Binary implements Chunk
 		if(objectIds.length != identifiers.length)
 		{
 			// just to be safe
-			throw new RuntimeException(); // (21.10.2013 TM)EXCP: proper exception
+			throw new PersistenceException(); // (21.10.2013 TM)EXCP: proper exception
 		}
 
 		// To really validate consistency completely
@@ -610,7 +610,7 @@ public abstract class Binary implements Chunk
 			if(!objectIdUniquenessChecker.add(objectIds[i]))
 			{
 				// (02.09.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Persisted root entries have a duplicate root objectId for entry ("
 					+ identifiers[i] + " -> " + objectIds[i] + ")"
 				);
@@ -619,7 +619,7 @@ public abstract class Binary implements Chunk
 			if(!mapping.add(identifiers[i], objectIds[i]))
 			{
 				// (02.09.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Persisted root entries have a duplicate root identifiers for entry ("
 					+ identifiers[i] + " -> " + objectIds[i] + ")"
 				);
@@ -729,7 +729,7 @@ public abstract class Binary implements Chunk
 			
 	public final long getLoadItemAvailableContentLength()
 	{
-		// (06.09.2014)TODO: test and comment if " + 0" (OFFSET_LEN) gets eliminated by JIT
+		// (06.09.2014 TM)TODO: test and comment if " + 0" (OFFSET_LEN) gets eliminated by JIT
 		return entityContentLength(this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_LEN));
 	}
 	
@@ -796,7 +796,7 @@ public abstract class Binary implements Chunk
 		if(bytesPerElement * listElementCount != listContentLength)
 		{
 			// (18.11.2019 TM)EXCP: proper exception
-			throw new RuntimeException("Non-constant binary list element length.");
+			throw new PersistenceException("Non-constant binary list element length.");
 		}
 		
 		final long startAddress = this.binaryListElementsAddress(listOffset);
@@ -1823,7 +1823,7 @@ public abstract class Binary implements Chunk
 	
 	final long getEntityBoundAddress()
 	{
-		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
+		// (06.09.2014 TM)TODO: test and comment if " + 0" gets eliminated by JIT
 		return this.loadItemEntityAddress() + this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_LEN);
 	}
 	
@@ -1893,7 +1893,7 @@ public abstract class Binary implements Chunk
 		if(address != elementsBinaryBound || iterator.hasNext())
 		{
 			// (22.04.2016 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Inconsistent element count: specified " + elementCount
 				+ " vs. iterated " + elementsBinaryBound / entryLength
 			);
@@ -2181,7 +2181,7 @@ public abstract class Binary implements Chunk
 		if(offset > byteBuffer.capacity())
 		{
 			// (10.10.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Specified offset exceeds buffer capacity: " + offset + " > " + byteBuffer.capacity()
 			);
 		}

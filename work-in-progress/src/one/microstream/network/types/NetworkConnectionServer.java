@@ -228,7 +228,7 @@ public interface NetworkConnectionServer extends NetworkServer
 			this.deactivating = true;
 			this.active = false;
 			this.internalDeactivate();
-			// (01.10.2012)FIXME: wait for all threads to die ? How to bring in threads from subclasses?
+			// (01.10.2012 TM)FIXME: wait for all threads to die ? How to bring in threads from subclasses?
 			this.shutdown = true;
 			this.deactivating = false;
 			return true;

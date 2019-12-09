@@ -496,7 +496,7 @@ public interface StorageEntity
 		@Override
 		public final long objectId()
 		{
-			/* (08.08.2015)NOTE: tests showed no performance penalty for using this method instead of the field itself.
+			/* (08.08.2015 TM)NOTE: tests showed no performance penalty for using this method instead of the field itself.
 			 * Probably due to this currently being the method's sole implementation and getting lined by the JVM.
 			 */
 			return this.objectId;

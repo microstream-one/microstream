@@ -9,6 +9,7 @@ import one.microstream.chars.XChars;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.math.XMath;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResult;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -137,7 +138,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		}
 		
 		// (10.10.2018 TM)EXCP: proper exception
-		throw new RuntimeException(
+		throw new PersistenceException(
 			"User-aborted legacy type mapping for type " + legacyTypeDefinition.toTypeIdentifier()
 		);
 	}

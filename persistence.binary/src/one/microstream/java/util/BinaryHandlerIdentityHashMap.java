@@ -6,6 +6,7 @@ import one.microstream.X;
 import one.microstream.chars.XChars;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
@@ -112,7 +113,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 				if(castedInstance.putIfAbsent(k, v) != null)
 				{
 					// (22.04.2016 TM)EXCP: proper exception
-					throw new RuntimeException(
+					throw new PersistenceException(
 						"Duplicate key reference in " + IdentityHashMap.class.getSimpleName()
 						+ " " + XChars.systemString(instance)
 					);

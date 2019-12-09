@@ -6,6 +6,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.equality.Equalator;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing.TypeMappingLookup;
@@ -210,7 +211,7 @@ public interface PersistenceLegacyTypeMapper<M>
 				if(explicitNewMembers.contains(resolved.value()))
 				{
 					// (11.10.2018 TM)EXCP: proper exception
-					throw new RuntimeException(
+					throw new PersistenceException(
 						"Duplicate target entry " + resolved.value().identifier()
 						+ " for type " + currentTypeHandler.toTypeIdentifier() + "."
 					);

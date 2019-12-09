@@ -7,6 +7,7 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceLegacyTypeMapper;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResult;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
@@ -83,7 +84,7 @@ public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTy
 			else
 			{
 				// (11.10.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Inconsistent current type member mapping: " + currentMember.identifier());
+				throw new PersistenceException("Inconsistent current type member mapping: " + currentMember.identifier());
 			}
 		}
 		
