@@ -20,13 +20,9 @@ import one.microstream.typing.KeyValue;
 
 public interface PersistenceRootResolver
 {
-	public String defaultRootIdentifier();
+	public String rootIdentifier();
 	
-	public Reference<Object> defaultRoot();
-	
-	public String customRootIdentifier();
-	
-	public PersistenceRootEntry customRootEntry();
+	public PersistenceRootEntry rootEntry();
 	
 	public PersistenceRootEntry resolveRootInstance(String identifier);
 	
