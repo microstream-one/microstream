@@ -36,10 +36,10 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	private final PersistenceRootResolverProvider rootResolverProvider;
 
 	/**
-	 * The handler instance directly known the global registry might suprise at first and seem like a shortcut hack.
+	 * The handler instance directly knowing the global registry might suprise at first and seem like a shortcut hack.
 	 * However, when taking a closer look at the task of this handler: (globally) resolving global root instances,
 	 * it becomes clear that a direct access for registering resolved global instances at the global registry is
-	 * indeed part of this handler's task
+	 * indeed part of this handler's task.
 	 */
 	final PersistenceObjectRegistry globalRegistry;
 
@@ -89,6 +89,11 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	@Override
 	public final PersistenceRoots.Default create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
 	{
+		/* (10.12.2019 TM)TODO: PersistenceRoots constants instance oid association
+		 * This method could collect all oids per identifer in the binary data and associate all
+		 * linkable constants instances with their oid at the objectRegistry very easily and elegantly, here.
+		 * Then there wouldn't be unnecessarily created instances that get discarded later on in update().
+		 */
 		return PersistenceRoots.Default.New(
 			this.rootResolverProvider.provideRootResolver()
 		);

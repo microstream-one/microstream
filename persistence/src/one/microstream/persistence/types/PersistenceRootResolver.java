@@ -12,6 +12,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.collections.types.XTable;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reference.Reference;
 import one.microstream.reflect.XReflect;
@@ -78,6 +79,12 @@ public interface PersistenceRootResolver
 		
 		for(final PersistenceRootEntry entry : entries.values())
 		{
+			// (10.12.2019 TM)FIXME: /!\ DEBUG priv#194
+			if(entry.identifier().toUpperCase().contains("ROOT"))
+			{
+				XDebug.println("ROOT");
+			}
+			
 			// may be null if explicitely removed
 			final Object rootInstance = entry.instance();
 			resolvedRoots.add(entry.identifier(), rootInstance);

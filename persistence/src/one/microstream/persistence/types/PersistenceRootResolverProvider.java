@@ -289,6 +289,7 @@ public interface PersistenceRootResolverProvider
 		{
 			if(!this.hasRootRegistered())
 			{
+				// (10.12.2019 TM)FIXME: priv#194 overhaul
 				this.registerDefaultRoot(
 					this.defaultDefaultRoot()
 				);
