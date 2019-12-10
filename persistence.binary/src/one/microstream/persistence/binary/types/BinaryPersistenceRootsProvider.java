@@ -94,6 +94,9 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 				this.rootResolverProvider,
 				objectRegistry
 			);
+			
+			// (10.12.2019 TM)TODO: priv#194: register BinaryHandlerPersistenceRootReferenceDefault here
+			
 			typeHandlerRegistry.registerTypeHandler(handler);
 		}
 
