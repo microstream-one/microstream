@@ -199,9 +199,7 @@ public interface PersistenceRootResolver
 		// instance fields //
 		////////////////////
 		
-		private final String                                                defaultRootIdentifier      ;
-		private final Reference<Object>                                     defaultRoot                ;
-		private final String                                                customRootIdentifier       ;
+		private final String                                                rootIdentifier             ;
 		private final EqConstHashTable<String, PersistenceRootEntry>        definedRootEntries         ;
 		private final Reference<? extends PersistenceTypeHandlerManager<?>> referenceTypeHandlerManager;
 		
@@ -214,17 +212,13 @@ public interface PersistenceRootResolver
 		/////////////////
 
 		Default(
-			final String                                                defaultRootIdentifier      ,
-			final Reference<Object>                                     defaultRoot                ,
-			final String                                                customRootIdentifier       ,
+			final String                                                rootIdentifier             ,
 			final EqConstHashTable<String, PersistenceRootEntry>        definedRootEntries         ,
 			final Reference<? extends PersistenceTypeHandlerManager<?>> referenceTypeHandlerManager
 		)
 		{
 			super();
-			this.defaultRootIdentifier       = defaultRootIdentifier      ;
-			this.customRootIdentifier        = customRootIdentifier       ;
-			this.defaultRoot                 = defaultRoot                ;
+			this.rootIdentifier              = rootIdentifier             ;
 			this.definedRootEntries          = definedRootEntries         ;
 			this.referenceTypeHandlerManager = referenceTypeHandlerManager;
 		}

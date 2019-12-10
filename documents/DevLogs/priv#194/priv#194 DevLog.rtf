@@ -1,6 +1,5 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
-\pard\sl276\slmult1\f0\fs28\lang7 Root-Handling Wiedermal\par
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 Root-Handling Wiedermal\par
 (Ticket #J117)\par
 2019-12-10\par
 \par
@@ -84,6 +83,29 @@ also NACH dem ersten\par
 Und dort ist eh schon diese verz\'f6gert initialisierte refTypeHandlerManager drin. Also sollte klappen.\par
 \par
 Aber eigentlich kann mir das eh egal sein. Ich steck die Referenz auf die RootReference einfach in den PersistenceRootResolverProvider direkt rein. So wie dort auch jetzt schon alle m\'f6glichen root identifier drin h\'e4ngen.\par
-Das passt schon.\fs22\par
+Das passt schon.\par
+\par
+\par
+\par
+Homeoffice:\par
+Branches auschecken usw. funktioniert alles auf Anhieb.\par
+In Eclipse ist dank Maven wie \'fcblich alles erst mal rot. Also Maven -> update machen.\par
+L\'e4sst alle Probleme verschwinden bis auf:\par
+Missing artifact one.microstream:persistence.binary.jdk8:jar:02.01.01-MS-GA-SNAPSHOT\par
+\par
+Install und projekte cleanen usw. bringt nix.\par
+Ach, ich hab das Projekt dazu tats\'e4chlich nicht angelegt.\par
+Naja. Ist eigentlich egal, fix ich irgendwann mal. Der Rest passt ja. Probleme mit ge\'e4nderten Metadaten-Dateien im Sourcetree erzeugt es auch nicht, also wurscht.\par
+Ah: kurz mal "import project" versucht und ging sogar reibungslos.\par
+Passt.\par
+\par
+Ok. Dann gehts jetzt mal los damit, den PersistenceRootResolverProvider umzubauen.\par
+Hui, da fliegen tonnenweise Methoden raus f\'fcr die zweispurige alte L\'f6sung ...\par
+\par
+Hm. Jetzt hab ich die Variante mit dem CustomRootSupplier registrieren rausgeworfen, weil die PersistenceRootReference gleich der Supplier ist.\par
+Aber was ist mit dem Fall, dass die Anwendung aus Initialisierungsreihenfolgegr\'fcnde die Rootinstanz erst sp\'e4ter liefern kann...?\par
+Dar\'fcber muss ich mal nachdenken ...\par
+\par
+\fs22\par
 }
  

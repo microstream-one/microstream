@@ -2,9 +2,12 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.mayNull;
 
-public interface PersistenceRootReference
+import java.util.function.Supplier;
+
+public interface PersistenceRootReference extends Supplier<Object>
 {
-	public Object getRoot();
+	@Override
+	public Object get();
 	
 	public Object setRoot(Object newRoot);
 	
@@ -44,7 +47,7 @@ public interface PersistenceRootReference
 		////////////
 		
 		@Override
-		public final Object getRoot()
+		public final Object get()
 		{
 			return this.root;
 		}
