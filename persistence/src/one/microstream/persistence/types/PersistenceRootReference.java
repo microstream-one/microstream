@@ -9,14 +9,36 @@ public interface PersistenceRootReference extends Supplier<Object>
 	@Override
 	public Object get();
 	
-	public Object setRoot(Object newRoot);
+	public default Object setRoot(final Object newRoot)
+	{
+		return this.setRootSupplier(() ->
+			newRoot
+		);
+	}
+	
+	public Object setRootSupplier(Supplier<?> rootSupplier);
+
+	public <F extends PersistenceFunction> F iterate(F iterator);
 	
 	
+
+	public static PersistenceRootReference New()
+	{
+		return New(null);
+	}
 	
 	public static PersistenceRootReference New(final Object root)
 	{
+		final PersistenceRootReference.Default instance = new PersistenceRootReference.Default(null);
+		instance.setRoot(root);
+		
+		return instance;
+	}
+	
+	public static PersistenceRootReference New(final Supplier<?> rootSupplier)
+	{
 		return new PersistenceRootReference.Default(
-			mayNull(root)
+			mayNull(rootSupplier)
 		);
 	}
 	
@@ -26,7 +48,8 @@ public interface PersistenceRootReference extends Supplier<Object>
 		// instance fields //
 		////////////////////
 		
-		private Object root;
+		// there is no problem that cannot be solved through one more level of indirection
+		private Supplier<?> rootSupplier;
 		
 		
 		
@@ -34,10 +57,10 @@ public interface PersistenceRootReference extends Supplier<Object>
 		// constructors //
 		/////////////////
 
-		Default(final Object root)
+		Default(final Supplier<?> rootSupplier)
 		{
 			super();
-			this.root = root;
+			this.rootSupplier = rootSupplier;
 		}
 		
 		
@@ -49,25 +72,32 @@ public interface PersistenceRootReference extends Supplier<Object>
 		@Override
 		public final Object get()
 		{
-			return this.root;
+			return this.rootSupplier != null
+				? this.rootSupplier.get()
+				: null
+			;
 		}
 		
 		@Override
-		public final Object setRoot(final Object newRoot)
+		public final Object setRootSupplier(final Supplier<?> rootSupplier)
 		{
-			final Object currentRoot = this.root;
-			this.root = newRoot;
+			final Object currentRoot = this.get();
+			this.rootSupplier = rootSupplier;
 			
 			return currentRoot;
 		}
 		
-		public final void iterate(final PersistenceFunction iterator)
+		@Override
+		public final <F extends PersistenceFunction> F iterate(final F iterator)
 		{
-			if(this.root == null)
+			final Object currentRoot = this.get();
+			if(currentRoot == null)
 			{
-				return;
+				return iterator;
 			}
-			iterator.apply(this.root);
+			iterator.apply(currentRoot);
+			
+			return iterator;
 		}
 		
 	}

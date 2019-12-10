@@ -971,7 +971,7 @@ public class Persistence
 	)
 	{
 		return PersistenceRootResolverProvider.New()
-			.registerCustomRoot(rootInstance)
+			.registerRoot(rootInstance)
 		;
 	}
 	
@@ -981,7 +981,7 @@ public class Persistence
 	)
 	{
 		return PersistenceRootResolverProvider.New()
-			.registerCustomRoot(rootIdentifier, rootInstance)
+			.registerRoot(rootIdentifier, rootInstance)
 		;
 	}
 	
@@ -990,7 +990,7 @@ public class Persistence
 	)
 	{
 		return PersistenceRootResolverProvider.New()
-			.registerCustomRootSupplier(rootInstanceSupplier)
+			.registerRootSupplier(rootInstanceSupplier)
 		;
 	}
 	
@@ -1000,7 +1000,7 @@ public class Persistence
 	)
 	{
 		return PersistenceRootResolverProvider.New()
-			.registerCustomRootSupplier(rootIdentifier, rootInstanceSupplier)
+			.registerRootSupplier(rootIdentifier, rootInstanceSupplier)
 		;
 	}
 	

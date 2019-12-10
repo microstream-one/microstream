@@ -34,19 +34,28 @@ public interface PersistenceRootResolverProvider
 		final Object instance
 	)
 	{
-		return this.registerRoot(identifier, () -> instance);
+		return this.registerRootSupplier(identifier, () -> instance);
 	}
 	
-	public PersistenceRootResolverProvider registerRoot(String identifier, Supplier<?> instanceSupplier);
+
+	public default PersistenceRootResolverProvider registerRootSupplier(final Supplier<?> instanceSupplier)
+	{
+		return this.registerRootSupplier(this.rootIdentifier(), instanceSupplier);
+	}
 	
-	public default PersistenceRootResolverProvider registerRoots(final XGettingTable<String, Supplier<?>> roots)
+	public PersistenceRootResolverProvider registerRootSupplier(String identifier, Supplier<?> instanceSupplier);
+	
+	public default PersistenceRootResolverProvider registerRootSuppliers(
+		final XGettingTable<String, Supplier<?>> roots
+	)
 	{
 		synchronized(this)
 		{
 			roots.iterate(kv ->
-				this.registerRoot(kv.key(), kv.value())
+				this.registerRootSupplier(kv.key(), kv.value())
 			);
 		}
+		
 		return this;
 	}
 	
@@ -178,7 +187,7 @@ public interface PersistenceRootResolverProvider
 		}
 		
 		@Override
-		public final synchronized PersistenceRootResolverProvider registerRoot(
+		public final synchronized PersistenceRootResolverProvider registerRootSupplier(
 			final String      identifier      ,
 			final Supplier<?> instanceSupplier
 		)
