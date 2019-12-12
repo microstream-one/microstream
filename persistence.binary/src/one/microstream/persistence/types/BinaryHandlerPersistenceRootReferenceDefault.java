@@ -91,9 +91,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 		 * Then there wouldn't be unnecessarily created instances that get discarded later on in update().
 		 */
 		// (10.12.2019 TM)FIXME: priv#194
-		return PersistenceRoots.Default.New(
-			this.rootResolverProvider.provideRootResolver()
-		);
+		return this.instance;
 	}
 
 	@Override

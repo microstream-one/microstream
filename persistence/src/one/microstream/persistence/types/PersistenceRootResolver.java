@@ -22,11 +22,14 @@ public interface PersistenceRootResolver
 {
 	public String rootIdentifier();
 	
-	public PersistenceRootEntry rootEntry();
-	
 	public PersistenceRootEntry resolveRootInstance(String identifier);
 	
 	public XGettingTable<String, PersistenceRootEntry> definedEntries();
+	
+	public default PersistenceRootEntry rootEntry()
+	{
+		return this.definedEntries().get(this.rootIdentifier());
+	}
 	
 	public default XGettingTable<String, PersistenceRootEntry> resolveRootEntries(
 		final XGettingEnum<String> identifiers
@@ -196,6 +199,7 @@ public interface PersistenceRootResolver
 		////////////////////
 		
 		private final String                                                rootIdentifier             ;
+		private final PersistenceRootReference                              rootReference              ;
 		private final EqConstHashTable<String, PersistenceRootEntry>        definedRootEntries         ;
 		private final Reference<? extends PersistenceTypeHandlerManager<?>> referenceTypeHandlerManager;
 		
@@ -209,12 +213,14 @@ public interface PersistenceRootResolver
 
 		Default(
 			final String                                                rootIdentifier             ,
+			final PersistenceRootReference                              rootReference              ,
 			final EqConstHashTable<String, PersistenceRootEntry>        definedRootEntries         ,
 			final Reference<? extends PersistenceTypeHandlerManager<?>> referenceTypeHandlerManager
 		)
 		{
 			super();
 			this.rootIdentifier              = rootIdentifier             ;
+			this.rootReference               = rootReference              ;
 			this.definedRootEntries          = definedRootEntries         ;
 			this.referenceTypeHandlerManager = referenceTypeHandlerManager;
 		}
@@ -224,6 +230,18 @@ public interface PersistenceRootResolver
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final String rootIdentifier()
+		{
+			return this.rootIdentifier;
+		}
+
+		@Override
+		public final XGettingTable<String, PersistenceRootEntry> definedEntries()
+		{
+			return this.definedRootEntries;
+		}
 		
 		private PersistenceTypeHandlerManager<?> typeHandlerManager()
 		{
@@ -275,37 +293,6 @@ public interface PersistenceRootResolver
 				enumConstants // debuggability line break, do not remove!
 			);
 		}
-
-		@Override
-		public String defaultRootIdentifier()
-		{
-			return this.defaultRootIdentifier;
-		}
-		
-		@Override
-		public Reference<Object> defaultRoot()
-		{
-			return this.defaultRoot;
-		}
-		
-		@Override
-		public String customRootIdentifier()
-		{
-			return this.customRootIdentifier;
-		}
-		
-		@Override
-		public PersistenceRootEntry customRootEntry()
-		{
-			return this.definedEntries().get(this.customRootIdentifier);
-		}
-		
-
-		@Override
-		public XGettingTable<String, PersistenceRootEntry> definedEntries()
-		{
-			return this.definedRootEntries;
-		}
 		
 	}
 	
@@ -351,13 +338,19 @@ public interface PersistenceRootResolver
 		////////////
 		
 		@Override
-		public XGettingTable<String, PersistenceRootEntry> definedEntries()
+		public final String rootIdentifier()
+		{
+			return this.actualRootResolver.rootIdentifier();
+		}
+		
+		@Override
+		public final XGettingTable<String, PersistenceRootEntry> definedEntries()
 		{
 			return this.actualRootResolver.definedEntries();
 		}
 
 		@Override
-		public PersistenceRootEntry resolveRootInstance(final String identifier)
+		public final PersistenceRootEntry resolveRootInstance(final String identifier)
 		{
 			/*
 			 * Mapping lookups take precedence over the direct resolving attempt.
@@ -408,30 +401,6 @@ public interface PersistenceRootResolver
 			}
 			
 			return mappedEntry;
-		}
-		
-		@Override
-		public String defaultRootIdentifier()
-		{
-			return this.actualRootResolver.defaultRootIdentifier();
-		}
-
-		@Override
-		public Reference<Object> defaultRoot()
-		{
-			return this.actualRootResolver.defaultRoot();
-		}
-
-		@Override
-		public String customRootIdentifier()
-		{
-			return this.actualRootResolver.customRootIdentifier();
-		}
-
-		@Override
-		public PersistenceRootEntry customRootEntry()
-		{
-			return this.actualRootResolver.customRootEntry();
 		}
 				
 	}
