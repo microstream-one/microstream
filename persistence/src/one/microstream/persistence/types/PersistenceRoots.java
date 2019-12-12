@@ -58,7 +58,6 @@ public interface PersistenceRoots extends PersistenceRootsView
 		
 		public static PersistenceRoots.Default New(final PersistenceRootResolver rootResolver)
 		{
-			// theoretically, it is correct to have no explicit root but only implicit ones via constants.
 			return new PersistenceRoots.Default(
 				notNull(rootResolver)               ,
 				rootResolver.defaultRootIdentifier(),
@@ -80,12 +79,10 @@ public interface PersistenceRoots extends PersistenceRootsView
 		 * Its only pupose here is to indicate that the fields are not directly persisted.
 		 */
 
-		final transient PersistenceRootResolver          rootResolver         ;
-		final transient String                           defaultRootIdentifier;
-		final transient Reference<Object>                defaultRoot          ;
-		final transient String                           customRootIdentifier ;
-		      transient EqConstHashTable<String, Object> resolvedEntries      ;
-		      transient boolean                          hasChanged           ;
+		final transient PersistenceRootResolver          rootResolver   ;
+		final transient PersistenceRootReference         root           ;
+		      transient EqConstHashTable<String, Object> resolvedEntries;
+		      transient boolean                          hasChanged     ;
 		
 		
 		
@@ -94,21 +91,17 @@ public interface PersistenceRoots extends PersistenceRootsView
 		/////////////////
 		
 		Default(
-			final PersistenceRootResolver          rootResolver         ,
-			final String                           defaultRootIdentifier,
-			final Reference<Object>                defaultRoot          ,
-			final String                           customRootIdentifier ,
-			final EqConstHashTable<String, Object> resolvedEntries      ,
+			final PersistenceRootResolver          rootResolver   ,
+			final PersistenceRootReference         root           ,
+			final EqConstHashTable<String, Object> resolvedEntries,
 			final boolean                          hasChanged
 		)
 		{
 			super();
-			this.rootResolver          = rootResolver         ;
-			this.defaultRootIdentifier = defaultRootIdentifier;
-			this.defaultRoot           = defaultRoot          ;
-			this.customRootIdentifier  = customRootIdentifier ;
-			this.resolvedEntries       = resolvedEntries      ;
-			this.hasChanged            = hasChanged           ;
+			this.rootResolver    = rootResolver   ;
+			this.root            = root           ;
+			this.resolvedEntries = resolvedEntries;
+			this.hasChanged      = hasChanged     ;
 		}
 
 		
