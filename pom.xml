@@ -37,6 +37,9 @@
 		<module>storage</module>
 		<module>storage.embedded</module>
 		<module>storage.embedded.configuration</module>
+		<module>viewer</module>		
+		<module>viewer.server</module>
+		<module>viewer.dataobjects</module>
 	</modules>
 
 	<repositories>
