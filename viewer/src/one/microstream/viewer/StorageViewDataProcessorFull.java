@@ -44,6 +44,7 @@ public class StorageViewDataProcessorFull implements StorageViewDataProcessor
 		obj.setType(description.getPersistenceTypeDefinition().typeName());
 		obj.setMemberCount(description.getMembers().size());
 		obj.setMembers(this.simplifyMembers(description.getMembers()));
+		obj.setNativeValue(description.getPrimitiveInstance());
 
 		return obj;
 	}
