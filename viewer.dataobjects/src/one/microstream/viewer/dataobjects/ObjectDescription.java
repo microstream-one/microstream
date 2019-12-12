@@ -6,6 +6,7 @@ public class ObjectDescription
 	private String typeName;
 	private MemberDescription[] members;
 	private int memberCount;
+	private Object nativeValue;
 
 	public ObjectDescription()
 	{
@@ -50,5 +51,15 @@ public class ObjectDescription
 	public int getMemberCount()
 	{
 		return this.memberCount;
+	}
+
+	public Object getNativeValue()
+	{
+		return this.nativeValue;
+	}
+
+	public void setNativeValue(final Object nativeValue)
+	{
+		this.nativeValue = nativeValue;
 	}
 }

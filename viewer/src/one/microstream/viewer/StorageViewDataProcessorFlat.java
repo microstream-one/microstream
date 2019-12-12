@@ -43,6 +43,7 @@ public class StorageViewDataProcessorFlat implements StorageViewDataProcessor
 		obj.setObjectId(Long.toString(description.getObjectId()));
 		obj.setType(description.getPersistenceTypeDefinition().typeName());
 		obj.setMemberCount(description.getMembers().size());
+		obj.setNativeValue(description.getPrimitiveInstance());
 
 		return obj;
 	}
