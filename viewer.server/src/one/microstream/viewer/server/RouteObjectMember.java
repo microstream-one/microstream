@@ -68,16 +68,4 @@ public class RouteObjectMember extends RouteBase
 			throw new InvalidRouteParameters("requested element count invalid");
 		}
 	}
-
-	private long validateObjectId(final Request request)
-	{
-		try
-		{
-			return Long.parseLong(request.params(":oid"));
-		}
-		catch(final NumberFormatException e )
-		{
-			throw new InvalidRouteParameters("Object Id invalid");
-		}
-	}
 }

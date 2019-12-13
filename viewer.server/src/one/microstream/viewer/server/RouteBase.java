@@ -1,6 +1,7 @@
 package one.microstream.viewer.server;
 
 import one.microstream.viewer.StorageRestAdapter;
+import spark.Request;
 import spark.Route;
 
 public abstract class RouteBase implements Route
@@ -26,7 +27,21 @@ public abstract class RouteBase implements Route
 	// methods //
 	////////////
 
-	public StorageRestAdapter<String> getStorageRestAdapter() {
+	public StorageRestAdapter<String> getStorageRestAdapter()
+	{
 		return this.storageRestAdapter;
+	}
+
+
+	protected long validateObjectId(final Request request)
+	{
+		try
+		{
+			return Long.parseLong(request.params(":oid"));
+		}
+		catch(final NumberFormatException e )
+		{
+			throw new InvalidRouteParameters("Object Id invalid");
+		}
 	}
 }

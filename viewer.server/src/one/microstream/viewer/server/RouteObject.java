@@ -23,11 +23,9 @@ public class RouteObject extends RouteBase
 	@Override
 	public String handle(final Request request, final Response response)
 	{
-		//get named parameter
-		final String paramOid = request.params(":oid");
+		final long objectId = this.validateObjectId(request);
 
-		final String jsonString = this.getStorageRestAdapter().getObject(
-			Long.parseLong(paramOid));
+		final String jsonString = this.getStorageRestAdapter().getObject(objectId);
 
 		response.type("application/json");
 		return jsonString;
