@@ -12,11 +12,14 @@ import java.util.List;
 public interface ObjectDescriptionConverter<T>
 {
 	T convert (ObjectDescription objectDescription);
-	ObjectDescription convertToObjectDescription(T from);
+	ObjectDescription toObjectDescription(T from);
 
 	T convert(RootObjectDescription rootObjectDescription);
-	RootObjectDescription convertToRootObjectDescription(T json);
+	RootObjectDescription toRootObjectDescription(T from);
 
 	T convert(MemberDescription preprocessed);
+	MemberDescription toMemberDescription(T from);
+
 	T convert(List<MemberDescription> preprocessed);
+	List<MemberDescription> toMemberList(T from);
 }

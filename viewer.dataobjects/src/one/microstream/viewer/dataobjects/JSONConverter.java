@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 
 
@@ -36,7 +37,7 @@ public class JSONConverter implements ObjectDescriptionConverter<String>
 	}
 
 	@Override
-	public ObjectDescription convertToObjectDescription(final String json)
+	public ObjectDescription toObjectDescription(final String json)
 	{
 		return this.gson.fromJson(json, ObjectDescription.class);
 	}
@@ -48,7 +49,7 @@ public class JSONConverter implements ObjectDescriptionConverter<String>
 	}
 
 	@Override
-	public RootObjectDescription convertToRootObjectDescription(final String json)
+	public RootObjectDescription toRootObjectDescription(final String json)
 	{
 		return this.gson.fromJson(json, RootObjectDescription.class);
 	}
@@ -60,8 +61,21 @@ public class JSONConverter implements ObjectDescriptionConverter<String>
 	}
 
 	@Override
+	public MemberDescription toMemberDescription(final String from)
+	{
+		return this.gson.fromJson(from, MemberDescription.class);
+	}
+
+	@Override
 	public String convert(final List<MemberDescription> memberDescriptions)
 	{
 		return this.gson.toJson(memberDescriptions);
 	}
+
+	@Override
+	public List<MemberDescription> toMemberList(final String json)
+	{
+		return this.gson.fromJson(json, new TypeToken<List<MemberDescription>>(){}.getType());
+	}
+
 }

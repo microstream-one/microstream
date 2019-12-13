@@ -41,7 +41,7 @@ public class StorageViewDataProcessorFlat implements StorageViewDataProcessor
 		final ObjectDescription obj = new ObjectDescription();
 
 		obj.setObjectId(Long.toString(description.getObjectId()));
-		obj.setType(description.getPersistenceTypeDefinition().typeName());
+		obj.setTypeName(description.getPersistenceTypeDefinition().typeName());
 		obj.setMemberCount(description.getMembers().size());
 		obj.setNativeValue(description.getPrimitiveInstance());
 
@@ -65,7 +65,7 @@ public class StorageViewDataProcessorFlat implements StorageViewDataProcessor
 	{
 		final ObjectDescription obj = new ObjectDescription();
 
-		obj.setType(ViewerObjectReference.class.getTypeName());
+		obj.setTypeName(ViewerObjectReference.class.getTypeName());
 
 		return obj;
 	}
@@ -81,13 +81,13 @@ public class StorageViewDataProcessorFlat implements StorageViewDataProcessor
 		{
 			final MemberValue value = new MemberValue();
 			value.setValue(member.getValue().toString());
-			simpleMember.setValue(value);
+			simpleMember.setMemberValue(value);
 		}
 		else if (member instanceof ViewerObjectReference)
 		{
 			final ReferenceValue value = new ReferenceValue();
 			value.setValue(Long.toString(((ViewerObjectReferenceWrapper)member.getValue()).getObjectId()));
-			simpleMember.setValue(value);
+			simpleMember.setMemberValue(value);
 		}
 		else if(member instanceof ViewerObjectMemberList)
 		{

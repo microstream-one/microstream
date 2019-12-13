@@ -33,12 +33,12 @@ public class MemberDescription
 		this.typeName = typeName;
 	}
 
-	public MemberValue getValue()
+	public MemberValue getMemberValue()
 	{
 		return this.memberValue;
 	}
 
-	public void setValue(final MemberValue memberValue)
+	public void setMemberValue(final MemberValue memberValue)
 	{
 		this.memberValue = memberValue;
 	}
