@@ -20,7 +20,6 @@ public class RouteObject extends RouteBase
 	// methods //
 	////////////
 
-
 	@Override
 	public String handle(final Request request, final Response response)
 	{

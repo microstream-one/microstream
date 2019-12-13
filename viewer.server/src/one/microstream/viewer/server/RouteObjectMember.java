@@ -1,7 +1,5 @@
 package one.microstream.viewer.server;
 
-import java.util.regex.PatternSyntaxException;
-
 import one.microstream.viewer.StorageRestAdapter;
 import spark.Request;
 import spark.Response;
@@ -24,42 +22,62 @@ public class RouteObjectMember extends RouteBase
 	@Override
 	public String handle(final Request request, final Response response)
 	{
-		//get named parameter
-		long objectId = 0;
-		int requestedElementsCount = 0;
-		int[] subRoute = null;
+		final long objectId = this.validateObjectId(request);
+		final int requestedElementsCount = this.validateElementCount(request);
+		final int[] memberIndices = this.validateMemberIndices(request);
 
-		try
-		{
-			objectId = Long.parseLong(request.params(":oid"));
-			requestedElementsCount = Integer.parseInt(request.params(":count"));
-		}
-		catch(final NumberFormatException e)
-		{
-			throw new InvalidRouteParameters();
-		}
-
-		try
-		{
-			final String[] splats = request.splat()[0].split("/");
-			subRoute = new int[splats.length];
-			for(int i = 0; i < splats.length; i++)
-			{
-				subRoute[i] = Integer.parseInt(splats[i]);
-			}
-
-		}
-		catch(final NumberFormatException | NullPointerException | PatternSyntaxException  e)
-		{
-			throw new InvalidRouteParameters();
-		}
 
 		final String jsonString = this.getStorageRestAdapter().getObject(
 			objectId,
 			requestedElementsCount,
-			subRoute);
+			memberIndices);
 
 		response.type("application/json");
 		return jsonString;
+	}
+
+	private int[] validateMemberIndices(final Request request)
+	{
+		try
+		{
+			final String[] splats = request.splat()[0].split("/");
+
+			final int[] indices = new int[splats.length];
+			for(int i = 0; i < splats.length; i++)
+			{
+				indices[i] = Integer.parseInt(splats[i]);
+			}
+
+			return indices;
+		}
+		catch(final NumberFormatException | ArrayIndexOutOfBoundsException e )
+		{
+			throw new InvalidRouteParameters("invalid member indices");
+		}
+
+	}
+
+	private int validateElementCount(final Request request)
+	{
+		try
+		{
+			return Integer.parseInt(request.params(":count"));
+		}
+		catch(final NumberFormatException e )
+		{
+			throw new InvalidRouteParameters("requested element count invalid");
+		}
+	}
+
+	private long validateObjectId(final Request request)
+	{
+		try
+		{
+			return Long.parseLong(request.params(":oid"));
+		}
+		catch(final NumberFormatException e )
+		{
+			throw new InvalidRouteParameters("Object Id invalid");
+		}
 	}
 }

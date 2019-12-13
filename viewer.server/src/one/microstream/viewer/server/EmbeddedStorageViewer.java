@@ -57,7 +57,7 @@ public class EmbeddedStorageViewer
 		this.sparkService.exception(InvalidRouteParameters.class, (e, request, response) ->
 			{
 				response.status(404);
-				response.body("invalid route parameters!");
+				response.body(e.getMessage());
 			} );
 		this.sparkService.exception(ViewerException.class, (e, request, response) ->
 		{
