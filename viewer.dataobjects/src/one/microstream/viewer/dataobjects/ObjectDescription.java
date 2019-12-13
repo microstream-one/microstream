@@ -23,12 +23,12 @@ public class ObjectDescription
 		this.ObjectId = objectId;
 	}
 
-	public String getType()
+	public String getTypeName()
 	{
 		return this.typeName;
 	}
 
-	public void setType(final String type)
+	public void setTypeName(final String type)
 	{
 		this.typeName = type;
 	}
