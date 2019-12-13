@@ -5,23 +5,16 @@ import java.util.regex.PatternSyntaxException;
 import one.microstream.viewer.StorageRestAdapter;
 import spark.Request;
 import spark.Response;
-import spark.Route;
 
-public class RouteObjectMember implements Route
+public class RouteObjectMember extends RouteBase
 {
-	///////////////////////////////////////////////////////////////////////////
-	// instance fields //
-	////////////////////
-
-	private final StorageRestAdapter<String> storageRestAdapter;
-
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
 	public RouteObjectMember(final StorageRestAdapter<String> embeddedStorageRestAdapter)
 	{
-		this.storageRestAdapter = embeddedStorageRestAdapter;
+		super(embeddedStorageRestAdapter);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -61,7 +54,7 @@ public class RouteObjectMember implements Route
 			throw new InvalidRouteParameters();
 		}
 
-		final String jsonString = this.storageRestAdapter.getObject(
+		final String jsonString = this.getStorageRestAdapter().getObject(
 			objectId,
 			requestedElementsCount,
 			subRoute);

@@ -3,24 +3,18 @@ package one.microstream.viewer.server;
 import one.microstream.viewer.StorageRestAdapter;
 import spark.Request;
 import spark.Response;
-import spark.Route;
 
-public class RouteUserRoot implements Route
+public class RouteUserRoot extends RouteBase
 {
-	///////////////////////////////////////////////////////////////////////////
-	// instance fields //
-	////////////////////
-
-	private final StorageRestAdapter<String> storageRestAdapter;
-
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
 	public RouteUserRoot(final StorageRestAdapter<String> embeddedStorageRestAdapter)
 	{
-		this.storageRestAdapter = embeddedStorageRestAdapter;
+		super(embeddedStorageRestAdapter);
 	}
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
@@ -29,7 +23,7 @@ public class RouteUserRoot implements Route
 	@Override
 	public String handle(final Request request, final Response response)
 	{
-		final String jsonString = this.storageRestAdapter.getRoot();
+		final String jsonString = this.getStorageRestAdapter().getRoot();
 
 		response.type("application/json");
 		return jsonString;
