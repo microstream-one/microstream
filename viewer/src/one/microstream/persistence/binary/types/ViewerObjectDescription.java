@@ -123,9 +123,15 @@ public class ViewerObjectDescription implements ViewerMemberProvider
 	@Override
 	public List<ViewerObjectMemberDescription> getMembers(final int offset, final int count)
 	{
-		//TODO: handle IndexOutOfBoundsException
-		final List<ViewerObjectMemberDescription> allMembers = this.getMembers();
-		return allMembers.subList(offset, offset+count);
+		try
+		{
+			final List<ViewerObjectMemberDescription> allMembers = this.getMembers();
+			return allMembers.subList(offset, offset+count);
+		}
+		catch(final IndexOutOfBoundsException e)
+		{
+			throw new ViewerException("no member for offset " + offset + " count " + count);
+		}
 	}
 
 	public void setParent(final ViewerObjectMemberDescription parent)
@@ -141,7 +147,14 @@ public class ViewerObjectDescription implements ViewerMemberProvider
 	@Override
 	public ViewerObjectMemberDescription getMember(final int index)
 	{
-		final PersistenceTypeDefinitionMember member = this.persistenceTypeDefinition.instanceMembers().at(index);
-		return ViewerObjectMemberDescription.New(member, this.values[index]);
+		try
+		{
+			final PersistenceTypeDefinitionMember member = this.persistenceTypeDefinition.instanceMembers().at(index);
+			return ViewerObjectMemberDescription.New(member, this.values[index]);
+		}
+		catch(final IndexOutOfBoundsException e)
+		{
+			throw new ViewerException("no member for index " + index);
+		}
 	}
 }

@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import one.microstream.persistence.binary.types.ViewerBinaryPersistenceManager;
+import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.persistence.binary.types.ViewerObjectDescription;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceRootsView;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 public class EmbeddedStorageRestAdapter
@@ -41,7 +43,19 @@ public class EmbeddedStorageRestAdapter
 	 */
 	public ViewerObjectDescription getStorageObject(final long objectId)
 	{
-		return this.viewerPersistenceManager.getStorageObject(objectId);
+		try
+		{
+			return this.viewerPersistenceManager.getStorageObject(objectId);
+		}
+		//TODO will be a StorageException soon ...
+		catch(final RuntimeException e)
+		{
+			if(e.getCause() instanceof StorageException)
+			{
+				throw new ViewerException(e.getCause().getMessage());
+			}
+			throw e;
+		}
 	}
 
 	/**
