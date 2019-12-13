@@ -29,7 +29,7 @@ public class RouteObjectMember implements Route
 	////////////
 
 	@Override
-	public String handle(final Request request, final Response response) throws Exception
+	public String handle(final Request request, final Response response)
 	{
 		//get named parameter
 		long objectId = 0;

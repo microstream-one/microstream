@@ -117,13 +117,26 @@ public class StorageViewDataProcessorFull implements StorageViewDataProcessor
 	}
 
 	@Override
-	public List<MemberDescription> process(final List<ViewerObjectMemberDescription> members)
+	public List<MemberDescription> processMemberList(final List<ViewerObjectMemberDescription> members)
 	{
 		final List<MemberDescription> descriptions = new ArrayList<>(members.size());
 
 		for (final ViewerObjectMemberDescription memberDescription : members)
 		{
 			descriptions.add(this.simplifiyMember(memberDescription));
+		}
+
+		return descriptions;
+	}
+
+	@Override
+	public List<RootObjectDescription> processRootList(final List<ViewerRootDescription> roots)
+	{
+		final List<RootObjectDescription> descriptions = new ArrayList<>(roots.size());
+
+		for (final ViewerRootDescription rootDescription : roots)
+		{
+			descriptions.add(new RootObjectDescription(rootDescription.getName(), Long.toString(rootDescription.getObjectId())));
 		}
 
 		return descriptions;

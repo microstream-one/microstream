@@ -5,7 +5,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class RouteObject implements Route
+public class RouteRoots implements Route
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -17,7 +17,7 @@ public class RouteObject implements Route
 	// constructors //
 	/////////////////
 
-	public RouteObject(final StorageRestAdapter<String> embeddedStorageRestAdapter)
+	public RouteRoots(final StorageRestAdapter<String> embeddedStorageRestAdapter)
 	{
 		this.storageRestAdapter = embeddedStorageRestAdapter;
 	}
@@ -29,11 +29,7 @@ public class RouteObject implements Route
 	@Override
 	public String handle(final Request request, final Response response)
 	{
-		//get named parameter
-		final String paramOid = request.params(":oid");
-
-		final String jsonString = this.storageRestAdapter.getObject(
-			Long.parseLong(paramOid));
+		final String jsonString = this.storageRestAdapter.getAllRoots();
 
 		response.type("application/json");
 		return jsonString;

@@ -20,6 +20,9 @@ public interface ObjectDescriptionConverter<T>
 	T convert(MemberDescription preprocessed);
 	MemberDescription toMemberDescription(T from);
 
-	T convert(List<MemberDescription> preprocessed);
+	T convertMemberList(List<MemberDescription> preprocessed);
 	List<MemberDescription> toMemberList(T from);
+
+	T convertRootList(List<RootObjectDescription> processRootList);
+	List<RootObjectDescription> toRootList(T from);
 }

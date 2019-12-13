@@ -27,7 +27,7 @@ public class RouteUserRoot implements Route
 	////////////
 
 	@Override
-	public String handle(final Request request, final Response response) throws Exception
+	public String handle(final Request request, final Response response)
 	{
 		final String jsonString = this.storageRestAdapter.getRoot();
 

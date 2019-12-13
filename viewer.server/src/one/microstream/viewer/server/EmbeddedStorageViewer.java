@@ -51,6 +51,7 @@ public class EmbeddedStorageViewer
 	{
 		this.sparkService.staticFiles.location("resources/");
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/root",  					new RouteUserRoot(this.embeddedStorageRestAdapter)));
+		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/roots",  					new RouteRoots(this.embeddedStorageRestAdapter)));
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/object/:oid",  			new RouteObject(this.embeddedStorageRestAdapter)));
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/object/:oid/:count/*", 	new RouteObjectMember(this.embeddedStorageRestAdapter)));
 		this.sparkService.exception(InvalidRouteParameters.class, (e, request, response) ->

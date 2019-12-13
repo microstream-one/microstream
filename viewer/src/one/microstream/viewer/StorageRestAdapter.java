@@ -15,7 +15,7 @@ public class StorageRestAdapter<T> extends EmbeddedStorageRestAdapter
 	// instance fields //
 	////////////////////
 
-	private final ObjectDescriptionConverter<T> coverter;
+	private final ObjectDescriptionConverter<T> converter;
 	private final StorageViewDataProcessor preprocessor;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ public class StorageRestAdapter<T> extends EmbeddedStorageRestAdapter
 		final StorageViewDataProcessor preprocessor)
 	{
 		super(storage);
-		this.coverter = converter;
+		this.converter = converter;
 		this.preprocessor = preprocessor;;
 	}
 
@@ -39,7 +39,7 @@ public class StorageRestAdapter<T> extends EmbeddedStorageRestAdapter
 	{
 		final ViewerObjectDescription description = super.getStorageObject(objectId);
 		final ObjectDescription preprocessed = this.preprocessor.process(description);
-		return this.coverter.convert(preprocessed);
+		return this.converter.convert(preprocessed);
 	}
 
 	public T getObject(final long objectId, final int... childIndices)
@@ -54,7 +54,7 @@ public class StorageRestAdapter<T> extends EmbeddedStorageRestAdapter
 		if(description != null)
 		{
 			final MemberDescription preprocessed = this.preprocessor.process(description);
-			return this.coverter.convert(preprocessed);
+			return this.converter.convert(preprocessed);
 		}
 
 		return null;
@@ -72,13 +72,20 @@ public class StorageRestAdapter<T> extends EmbeddedStorageRestAdapter
 		final int childIndex = childIndices[childIndices.length -1];
 		final List<ViewerObjectMemberDescription> members = object.getMembers(childIndex , maxElements);
 
-		final List<MemberDescription> preprocessed = this.preprocessor.process(members);
-		return this.coverter.convert(preprocessed);
+		final List<MemberDescription> preprocessed = this.preprocessor.processMemberList(members);
+		return this.converter.convertMemberList(preprocessed);
 	}
 
 	public T getRoot()
 	{
 		final ViewerRootDescription root = super.getUserRoot();
-		return this.coverter.convert(this.preprocessor.process(root));
+		return this.converter.convert(this.preprocessor.process(root));
+	}
+
+
+	public T getAllRoots()
+	{
+		final List<ViewerRootDescription> roots = super.getRoots();
+		return this.converter.convertRootList(this.preprocessor.processRootList(roots));
 	}
 }
