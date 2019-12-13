@@ -1,15 +1,11 @@
 package one.microstream.viewer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import one.microstream.persistence.binary.types.ViewerObjectDescription;
 import one.microstream.persistence.binary.types.ViewerObjectReferenceWrapper;
 import one.microstream.viewer.dataobjects.MemberDescription;
 import one.microstream.viewer.dataobjects.MemberValue;
 import one.microstream.viewer.dataobjects.ObjectDescription;
 import one.microstream.viewer.dataobjects.ReferenceValue;
-import one.microstream.viewer.dataobjects.RootObjectDescription;
 
 /**
  *
@@ -18,7 +14,7 @@ import one.microstream.viewer.dataobjects.RootObjectDescription;
  * of the input objects
  *
  */
-public class StorageViewDataProcessorFlat implements StorageViewDataProcessor
+public class StorageViewDataProcessorFlat extends StorageViewDataProcessorBase
 {
 
 	///////////////////////////////////////////////////////////////////////////
@@ -49,83 +45,34 @@ public class StorageViewDataProcessorFlat implements StorageViewDataProcessor
 	}
 
 	@Override
-	public RootObjectDescription process(final ViewerRootDescription description)
+	public MemberDescription process(final ViewerObjectMemberDescription member)
 	{
-		return new RootObjectDescription(description.getName(), Long.toString(description.getObjectId()));
-	}
+		final MemberDescription memberDescription = new MemberDescription();
 
-	@Override
-	public MemberDescription process(final ViewerObjectMemberDescription o)
-	{
-		return this.simplifiyMember(o);
-	}
-
-	@Override
-	public ObjectDescription process(final ViewerObjectReference o)
-	{
-		final ObjectDescription obj = new ObjectDescription();
-
-		obj.setTypeName(ViewerObjectReference.class.getTypeName());
-
-		return obj;
-	}
-
-	private MemberDescription simplifiyMember(final ViewerObjectMemberDescription member)
-	{
-		final MemberDescription simpleMember = new MemberDescription();
-
-		simpleMember.setName(member.getName());
-		simpleMember.setType(member.getTypeName());
+		memberDescription.setName(member.getName());
+		memberDescription.setType(member.getTypeName());
 
 		if (member instanceof ViewerObjectMemberSimple)
 		{
 			final MemberValue value = new MemberValue();
 			value.setValue(member.getValue().toString());
-			simpleMember.setMemberValue(value);
+			memberDescription.setMemberValue(value);
 		}
 		else if (member instanceof ViewerObjectReference)
 		{
 			final ReferenceValue value = new ReferenceValue();
 			value.setValue(Long.toString(((ViewerObjectReferenceWrapper)member.getValue()).getObjectId()));
-			simpleMember.setMemberValue(value);
+			memberDescription.setMemberValue(value);
 		}
 		else if(member instanceof ViewerObjectMemberList)
 		{
-			simpleMember.setMemberCount(member.getMembers().size());
+			memberDescription.setMemberCount(member.getMembers().size());
 		}
 		else if(member instanceof ViewerObjectMemberComplexList)
 		{
-			simpleMember.setMemberCount(member.getMembers().size());
+			memberDescription.setMemberCount(member.getMembers().size());
 		}
 
-		return simpleMember;
-	}
-
-
-	@Override
-	public List<MemberDescription> processMemberList(final List<ViewerObjectMemberDescription> members)
-	{
-		final List<MemberDescription> descriptions = new ArrayList<>(members.size());
-
-		for (final ViewerObjectMemberDescription memberDescription : members)
-		{
-			descriptions.add(this.simplifiyMember(memberDescription));
-		}
-
-		return descriptions;
-	}
-
-
-	@Override
-	public List<RootObjectDescription> processRootList(final List<ViewerRootDescription> roots)
-	{
-		final List<RootObjectDescription> descriptions = new ArrayList<>(roots.size());
-
-		for (final ViewerRootDescription rootDescription : roots)
-		{
-			descriptions.add(new RootObjectDescription(rootDescription.getName(), Long.toString(rootDescription.getObjectId())));
-		}
-
-		return descriptions;
+		return memberDescription;
 	}
 }
