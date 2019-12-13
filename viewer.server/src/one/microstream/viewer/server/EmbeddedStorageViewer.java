@@ -1,5 +1,6 @@
 package one.microstream.viewer.server;
 
+import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.viewer.StorageRestAdapter;
 import one.microstream.viewer.StorageViewDataProcessorFlat;
@@ -57,6 +58,11 @@ public class EmbeddedStorageViewer
 				response.status(404);
 				response.body("invalid route parameters!");
 			} );
+		this.sparkService.exception(ViewerException.class, (e, request, response) ->
+		{
+			response.status(404);
+			response.body(e.getMessage());
+		} );
 		this.sparkService.init();
 		this.sparkService.awaitInitialization();
 

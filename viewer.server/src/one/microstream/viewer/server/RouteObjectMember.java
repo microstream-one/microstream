@@ -61,7 +61,6 @@ public class RouteObjectMember implements Route
 			throw new InvalidRouteParameters();
 		}
 
-
 		final String jsonString = this.storageRestAdapter.getObject(
 			objectId,
 			requestedElementsCount,
