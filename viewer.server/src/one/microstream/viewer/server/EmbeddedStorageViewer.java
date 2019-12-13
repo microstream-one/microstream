@@ -27,8 +27,7 @@ public class EmbeddedStorageViewer
 	 */
 	public EmbeddedStorageViewer(final EmbeddedStorageManager storage)
 	{
-		this.sparkService = Service.ignite();
-		this.embeddedStorageRestAdapter = new StorageRestAdapter<>(storage, new JSONConverter(), new StorageViewDataProcessorFlat());
+		this(storage, Service.ignite());
 	}
 
 	/*
@@ -36,6 +35,7 @@ public class EmbeddedStorageViewer
 	 */
 	public EmbeddedStorageViewer(final EmbeddedStorageManager storage, final Service sparkService)
 	{
+		super();
 		this.sparkService = sparkService;
 		this.embeddedStorageRestAdapter = new StorageRestAdapter<>(storage, new JSONConverter(), new StorageViewDataProcessorFlat());
 	}
