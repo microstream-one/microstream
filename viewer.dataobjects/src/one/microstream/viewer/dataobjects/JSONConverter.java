@@ -67,15 +67,27 @@ public class JSONConverter implements ObjectDescriptionConverter<String>
 	}
 
 	@Override
-	public String convert(final List<MemberDescription> memberDescriptions)
+	public String convertMemberList(final List<MemberDescription> memberDescriptions)
 	{
 		return this.gson.toJson(memberDescriptions);
 	}
 
 	@Override
-	public List<MemberDescription> toMemberList(final String json)
+	public List<MemberDescription> toMemberList(final String from)
 	{
-		return this.gson.fromJson(json, new TypeToken<List<MemberDescription>>(){}.getType());
+		return this.gson.fromJson(from, new TypeToken<List<MemberDescription>>(){}.getType());
+	}
+
+	@Override
+	public String convertRootList(final List<RootObjectDescription> rootDescriptions)
+	{
+		return this.gson.toJson(rootDescriptions);
+	}
+
+	@Override
+	public List<RootObjectDescription> toRootList(final String from)
+	{
+		return this.gson.fromJson(from, new TypeToken<List<RootObjectDescription>>(){}.getType());
 	}
 
 }

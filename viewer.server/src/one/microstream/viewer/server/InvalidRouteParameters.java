@@ -1,5 +1,5 @@
 package one.microstream.viewer.server;
 
-public class InvalidRouteParameters extends Exception {
+public class InvalidRouteParameters extends RuntimeException {
 
 }

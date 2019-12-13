@@ -24,6 +24,7 @@ public interface StorageViewDataProcessor
 
 	ObjectDescription process(ViewerObjectReference o);
 
-	List<MemberDescription> process(List<ViewerObjectMemberDescription> members);
+	List<MemberDescription> processMemberList(List<ViewerObjectMemberDescription> members);
 
+	List<RootObjectDescription> processRootList(List<ViewerRootDescription> roots);
 }
