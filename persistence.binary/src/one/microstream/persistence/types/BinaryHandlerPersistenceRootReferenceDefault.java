@@ -75,8 +75,12 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 		final PersistenceStoreHandler          handler
 	)
 	{
-		// (10.12.2019 TM)FIXME: priv#194
-		bytes.storeRoots(this.typeId(), objectId, instance.entries(), handler);
+		// root instance may even be null. Probably just temporarily to "truncate" a database or something like that.
+		final Object rootInstance  = instance.get()             ;
+		final long   contentLength = Binary.objectIdByteLength();
+		final long   rootObjectId  = handler.apply(rootInstance);
+		bytes.storeEntityHeader(contentLength, this.typeId(), objectId);
+		bytes.store_long(rootObjectId);
 	}
 
 	@Override
@@ -102,6 +106,8 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 	)
 	{
 		// (10.12.2019 TM)FIXME: priv#194
+		final long   rootObjectId = bytes.read_long(0);
+		final Object rootInstance = handler.lookupObject(rootObjectId);
 	}
 
 		

@@ -63,15 +63,6 @@ public abstract class Binary implements Chunk
 	
 	// header (currently) constists of only LEN, TID, OID. The extra constant has sementical reasons.
 	private static final int LENGTH_ENTITY_HEADER = (int)OFFSET_DAT;
-
-	/* (29.01.2019 TM)TODO: test and comment bit shifting multiplication performance
-	 * test and comment if this really makes a difference in performance.
-	 * The redundant length is ugly.
-	 */
-	/**
-	 * "<< 3" is a performance optimization for "* 8".
-	 */
-	private static final int LONG_BYTE_LENGTH_BITSHIFT_COUNT = 3;
 	
 	private static final int
 		LIST_OFFSET_BYTE_LENGTH   = 0                                     ,
@@ -217,7 +208,8 @@ public abstract class Binary implements Chunk
 	
 	public static long referenceBinaryLength(final long referenceCount)
 	{
-		return referenceCount << Binary.LONG_BYTE_LENGTH_BITSHIFT_COUNT; // reference (ID) binary length is 8
+		// should be optimized by the compiler to "<< 3" instead of "* 8".
+		return referenceCount * Binary.LENGTH_OID;
 	}
 	
 	public static long calculateReferenceListTotalBinaryLength(final long count)
