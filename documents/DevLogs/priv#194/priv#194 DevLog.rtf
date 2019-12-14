@@ -128,6 +128,29 @@ Irgendwie so m\'fcsste es gehen ...\par
 \par
 2019-12-14\par
 \par
-Jetzt hab ich mal Ruhe, um an dem Thema weiterzumachen ...\fs22\par
+Jetzt hab ich mal Ruhe, um an dem Thema weiterzumachen ...\par
+\par
+H\'e4? Wieso ist jetzt das JDK8 Projekt wieder ein Maven Fehler? Das ging doch neulich ...\par
+Oh Mann x_x.\par
+Und wieder Maven Update und wieder passt es danach. Ich hoff, ich muss jetzt nicht jedes mal ein Maven Update machen, um ohne falsche Fehlermeldung arbeiten zu k\'f6nnen ...\par
+\par
+Mal den BinaryHandler fertig implementieren, damit der nervige Compilerfehler verschwindet.\par
+\par
+Ah. Problem:\par
+Wenn PersistenceRootReference intern eine supplier Logik hat, kann das potenziell (sogar wahrscheinlich) eine Lambda und das ist nicht persistierbar.\par
+Hm. Aber muss es eigentlich gar nicht. Der Supplier ist ja nur ein Hilfsmittel daf\'fcr, falls Anwendungslogik die Root Instanz erst sp\'e4ter oder indirekt liefern kann oder will.\par
+Sobald es mal in den store geht, ist die Instanz auf jeden Fall da und nur die muss abgespeichert werden. Also ohne Supplier.\par
+Und Laden ist nat\'fcrlich trivial: Instanz laden und in der PersistenceRootReference  Instanz mit einem "() -> " wrappen. Fertig.\par
+\par
+Wobei aber trotzdem die Frage ist: Macht es denn wirklich Sinn, dass man in Form des Suppliers eine Indirektion registrieren kann?\par
+Bei einer simplen Variante wie .start() sicher nicht, weil wenn die Root Instanz w\'e4hrend der Ausf\'fchrung der start Methode verf\'fcgbar ist, dann ist sie das davor auch schon (also ablaufreihenfolgenm\'e4\'dfig. Zeitlich darf es keine Rolle spielen, dann kann man auch gleich mit dem Aufruf der ganzen start Methode warten). Also sinnlos.\par
+Gut, wo es schon Sinn machen kann ist:\par
+Man konfiguriert sich die Foundation komplett zusammen, aber ruft bei der die create~Manager bzw. start Methode noch nicht auf, weil die Root Instanz noch nicht verf\'fcgbar ist.\par
+Erst, wenn der Supplier auch ein brauchbares Ergebnis liefern kann (ablaufm\'e4\'dfig gemeint. NICHT zeitlich.), wird die .start() der fertig konfigurierten Foundation aufgerufen.\par
+Daf\'fcr machts Sinnn.\par
+Serialisierungsm\'e4\'dfig machts keinen Unterschied, weil eh nur die Instanz direkt gespeichert wird.\par
+Also lass ich es so.\par
+\par
+\fs22\par
 }
  
