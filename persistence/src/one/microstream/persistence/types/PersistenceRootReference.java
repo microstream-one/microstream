@@ -56,8 +56,8 @@ public interface PersistenceRootReference extends Supplier<Object>
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
-
 		Default(final Supplier<?> rootSupplier)
+		
 		{
 			super();
 			this.rootSupplier = rootSupplier;

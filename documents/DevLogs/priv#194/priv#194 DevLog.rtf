@@ -174,6 +174,18 @@ Ist eigentlich ein No-Op.\par
 Ne, nur dann, wenn es schon eine definierte Instanz gibt.\par
 ... Oder m\'fcsste die dann validiert werden mit der geladenen?\par
 Ne Moment: Gibt's \'fcberhaupt eine geladene? Ne, weil #create ja die definierte Instanz f\'fcr die objectId registriert hat ...\par
-Jetzt bin ich verwirrt ... o_O.\fs22\par
+Jetzt bin ich verwirrt ... o_O.\par
+\par
+Erst mal anders rum:\par
+Wenn keine root Instanz gesetzt ist, dann die aus der Datenbank geladene und instanzierte setzen.\par
+Kommentar dazu.\par
+return.\par
+\par
+Jetzt der knifflige Fall.\par
+Mal \'fcberlegen.\par
+Gut w\'e4r, wenn die BinaryHandlerPersistenceRootReferenceDefault#update gleich die Typvalidierung machen k\'f6nnte.\par
+Mal schauen, ob man das zum BinaryLoader zur\'fcck-delegieren kann. Die Entries haben ja die objectId und den Handler. Das m\'fcsste gehen.\par
+...\par
+\fs22\par
 }
  
