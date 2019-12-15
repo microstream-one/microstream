@@ -66,6 +66,11 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	static long getRootObjectId(final Binary bytes)
+	{
+		return bytes.read_long(0);
+	}
 
 	@Override
 	public final void store(
@@ -89,12 +94,26 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 		final PersistenceObjectIdResolver idResolver
 	)
 	{
-		/* (10.12.2019 TM)TODO: PersistenceRoots constants instance oid association
-		 * This method could collect all oids per identifer in the binary data and associate all
-		 * linkable constants instances with their oid at the objectRegistry very easily and elegantly, here.
-		 * Then there wouldn't be unnecessarily created instances that get discarded later on in update().
-		 */
-		// (10.12.2019 TM)FIXME: priv#194
+		final Object rootInstance = this.instance.get();
+		if(rootInstance != null)
+		{
+			/*
+			 * If the singleton instance references a defined root object, it must be registered for the persisted
+			 * objectId, even if the id references a record of different, incompatible, type. This conflict
+			 * has to be recognized and reported in the corresponding type handler, but the defined root instance
+			 * must have the persisted root object id associated in any case. Otherwise, there would be an
+			 * inconsistency: a generic instance would be created for the persisted record and be generically
+			 * registered with the persistetd object id, thus leaving no object id for the actually defined root
+			 * instance to be registered/associated with.
+			 * If no rootInstance is defined, there is no such conflict. The generic instance of whatever type
+			 * gets created and registered and can be queried by the application logic after initialization is
+			 * complete.
+			 */
+			final long rootObjectId = getRootObjectId(bytes);
+			idResolver.registerRoot(this.instance.get(), rootObjectId);
+		}
+		
+		// instance is a singleton. Hence, no instance is created, here, but the singleton is returned.
 		return this.instance;
 	}
 
@@ -105,8 +124,18 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 		final PersistenceObjectIdResolver      handler
 	)
 	{
+		final Object rootInstance = this.instance.get();
+		if(rootInstance != null)
+		{
+			/*
+			 * If the singleton instance references a defined root object, this method is a no-op:
+			 * The effective root instance is already set, there is nothing to
+			 */
+			return;
+		}
+		
 		// (10.12.2019 TM)FIXME: priv#194
-		final long   rootObjectId = bytes.read_long(0);
+		final long   rootObjectId = getRootObjectId(bytes);
 		final Object rootInstance = handler.lookupObject(rootObjectId);
 	}
 

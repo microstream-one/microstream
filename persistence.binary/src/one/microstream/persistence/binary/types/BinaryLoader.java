@@ -310,6 +310,12 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		{
 			return this.getBuildInstance(objectId);
 		}
+		
+		@Override
+		public final void registerRoot(final Object object, final long objectId)
+		{
+			this.registry.registerObject(objectId, object);
+		}
 
 		private void build()
 		{
