@@ -125,18 +125,20 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 	)
 	{
 		final Object rootInstance = this.instance.get();
-		if(rootInstance != null)
+		if(rootInstance == null)
 		{
 			/*
-			 * If the singleton instance references a defined root object, this method is a no-op:
-			 * The effective root instance is already set, there is nothing to
+			 * If the instance has no explicit root instance set, a
+			 * generically loaded and instantiated root instance is set.
 			 */
+			final long   rootObjectId = getRootObjectId(bytes);
+			final Object loadedRoot   = handler.lookupObject(rootObjectId);
+			this.instance.setRoot(loadedRoot);
+
 			return;
 		}
 		
 		// (10.12.2019 TM)FIXME: priv#194
-		final long   rootObjectId = getRootObjectId(bytes);
-		final Object rootInstance = handler.lookupObject(rootObjectId);
 	}
 
 		
