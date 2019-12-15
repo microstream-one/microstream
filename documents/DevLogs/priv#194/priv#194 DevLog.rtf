@@ -151,6 +151,22 @@ Daf\'fcr machts Sinnn.\par
 Serialisierungsm\'e4\'dfig machts keinen Unterschied, weil eh nur die Instanz direkt gespeichert wird.\par
 Also lass ich es so.\par
 \par
+\par
+2019-12-15\par
+\par
+Bissl weitermachen, damit mal die Compilerfehler raus kommen.\par
+\par
+Hm. Also sollte BinaryHandler#create gleich die Instanz registrieren? Dann m\'fcsste PersistenceObjectIdResolver erweitert werden bzw. f\'fcr #create durch was erweitertes ersetzt werden ... . Vielleicht w\'e4re eine allgemeine Erweiterung aber besser. Irgendwann braucht man das vielleicht auch mal in #update.\par
+Dann muss der BinaryLoader aber den ObjectManager kennen, damit der nicht einfach direkt in die Registry reinregistriert, ohne entsprechende Pr\'fcflogik durch den Manager.\par
+Oh, achso: Das ist ja gar nicht das typische "Manager is a Registry" Pattern. Weil die ObjectRegistry fr\'fcher ja der Spezailfall war. Der ObjectManager hat gar keine vorgeschaltete Logik.\par
+Dann kann es auch die Registry bleiben ...\par
+\par
+Das Problem an der Registrierei ist halt:\par
+Wenn sich die Rootinstanz typm\'e4\'dfig ge\'e4ndert hat, wird eine "falsche" (eher neue) Instanz f\'fcr die bestehende und immer noch g\'fcltige OID registriert und erst im BinaryHandler gibts dann eine ClassCastException, die wieder keiner checkt.\par
+Wenn man nicht registriert, wird beim Laden eine \'fcberfl\'fcssige Instanz aus der Datenbank erzeugt, f\'fcr die bestehende OID registriert und dann kann man die eigentliche Instanz daf\'fcr nicht mehr registrieren. Das w\'e4re dann sogar ein Bug.\par
+Also geht eigentlich nur Variante #1...\par
+\par
+\par
 \fs22\par
 }
  

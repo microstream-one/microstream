@@ -68,19 +68,19 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		////////////////////
 
 		// may be a relay lookup that provides special handlers providing logic
-		private final boolean                                        switchByteOrder          ;
-		private final PersistenceTypeHandlerLookup<Binary>           typeHandlerLookup        ;
-		private final PersistenceObjectRegistry                      registry                 ;
+		private final PersistenceTypeHandlerLookup<Binary> typeHandlerLookup;
+		private final PersistenceObjectRegistry            registry         ;
+		private final PersistenceSourceSupplier<Binary>    sourceSupplier   ;
+		private final LoadItemsChain                       loadItems        ;
+		private final boolean                              switchByteOrder  ;
+		
 		private final BulkList<XGettingCollection<? extends Binary>> anchor = new BulkList<>();
-
+		
 		private final PersistenceInstanceHandler skipObjectRegisterer = (objectId, instance) ->
 			this.putBuildItem(
 				this.createSkipItem(objectId, instance)
 			)
 		;
-
-		private final PersistenceSourceSupplier<Binary> sourceSupplier;
-		private final LoadItemsChain                    loadItems     ;
 
 
 
