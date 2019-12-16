@@ -19,7 +19,7 @@ public interface PersistenceRootResolverProvider
 
 	public default String rootIdentifier()
 	{
-		return Persistence.customRootIdentifier();
+		return Persistence.rootIdentifier();
 	}
 	
 	public default boolean hasRootRegistered()
@@ -221,6 +221,7 @@ public interface PersistenceRootResolverProvider
 		{
 			final PersistenceRootResolver resolver = new PersistenceRootResolver.Default(
 				this.rootIdentifier()     ,
+				this.rootReference        ,
 				this.rootEntries.immure() ,
 				this.refTypeHandlerManager
 			);

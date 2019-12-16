@@ -4,10 +4,21 @@ import static one.microstream.X.mayNull;
 
 import java.util.function.Supplier;
 
-public interface PersistenceRootReference extends Supplier<Object>
+import one.microstream.reference.Reference;
+
+public interface PersistenceRootReference extends PersistenceRootReferencing, Reference<Object>
 {
 	@Override
 	public Object get();
+
+	@Override
+	public <F extends PersistenceFunction> F iterate(F iterator);
+	
+	@Override
+	public default void set(final Object newRoot)
+	{
+		this.setRoot(newRoot);
+	}
 	
 	public default Object setRoot(final Object newRoot)
 	{
@@ -17,8 +28,6 @@ public interface PersistenceRootReference extends Supplier<Object>
 	}
 	
 	public Object setRootSupplier(Supplier<?> rootSupplier);
-
-	public <F extends PersistenceFunction> F iterate(F iterator);
 	
 	
 

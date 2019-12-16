@@ -7,24 +7,14 @@ import java.util.function.BiConsumer;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.reference.Reference;
 import one.microstream.util.cql.CQL;
 
 
 public interface PersistenceRoots extends PersistenceRootsView
 {
 	@Override
-	public String defaultRootIdentifier();
+	public PersistenceRootReference root();
 	
-	@Override
-	public Reference<Object> defaultRoot();
-	                                       
-	@Override
-	public String customRootIdentifier();
-	
-	@Override
-	public Object customRoot();
-
 	public XGettingTable<String, Object> entries();
 	
 	public boolean hasChanged();
@@ -59,11 +49,8 @@ public interface PersistenceRoots extends PersistenceRootsView
 		public static PersistenceRoots.Default New(final PersistenceRootResolver rootResolver)
 		{
 			return new PersistenceRoots.Default(
-				notNull(rootResolver)               ,
-				rootResolver.defaultRootIdentifier(),
-				rootResolver.defaultRoot()          ,
-				rootResolver.customRootIdentifier() ,
-				null                                ,
+				notNull(rootResolver),
+				null                 ,
 				false
 			);
 		}
@@ -80,7 +67,6 @@ public interface PersistenceRoots extends PersistenceRootsView
 		 */
 
 		final transient PersistenceRootResolver          rootResolver   ;
-		final transient PersistenceRootReference         root           ;
 		      transient EqConstHashTable<String, Object> resolvedEntries;
 		      transient boolean                          hasChanged     ;
 		
@@ -92,14 +78,12 @@ public interface PersistenceRoots extends PersistenceRootsView
 		
 		Default(
 			final PersistenceRootResolver          rootResolver   ,
-			final PersistenceRootReference         root           ,
 			final EqConstHashTable<String, Object> resolvedEntries,
 			final boolean                          hasChanged
 		)
 		{
 			super();
 			this.rootResolver    = rootResolver   ;
-			this.root            = root           ;
 			this.resolvedEntries = resolvedEntries;
 			this.hasChanged      = hasChanged     ;
 		}
@@ -109,35 +93,17 @@ public interface PersistenceRoots extends PersistenceRootsView
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		@Override
-		public final String defaultRootIdentifier()
-		{
-			return this.defaultRootIdentifier;
-		}
-
-		@Override
-		public final Reference<Object> defaultRoot()
-		{
-			return this.defaultRoot;
-		}
-
-		@Override
-		public final String customRootIdentifier()
-		{
-			return this.customRootIdentifier;
-		}
-
-		@Override
-		public final Object customRoot()
-		{
-			return this.entries().get(this.customRootIdentifier);
-		}
 		
 		@Override
 		public final synchronized boolean hasChanged()
 		{
 			return this.hasChanged;
+		}
+		
+		@Override
+		public final synchronized PersistenceRootReference root()
+		{
+			return this.rootResolver.root();
 		}
 
 		@Override

@@ -316,6 +316,31 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		{
 			this.registry.registerObject(objectId, object);
 		}
+		
+		@Override
+		public void validateType(final Object object, final long objectId)
+		{
+			final BinaryLoadItem loadItem = this.lookupLoadItem(objectId);
+			if(loadItem == null)
+			{
+				// empty data base or really persisted null-root ("truncation"). Valid, of course, so return.
+				return;
+			}
+			
+			if(object.getClass() == loadItem.handler.type())
+			{
+				// object's type is valid for its loadItem's type handler (= typeId)
+				return;
+			}
+			
+			// (15.12.2019 TM)EXCP: proper exception
+			throw new PersistenceException(
+				"Type mismatch: object type (" + object.getClass()
+				+ ") does not match the loaded type id: "
+				+ loadItem.handler.toTypeIdentifier()
+			);
+			
+		}
 
 		private void build()
 		{
@@ -540,6 +565,21 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 					return this.getEffectiveInstance(e);
 				}
 			}
+			
+			return null;
+		}
+		
+		private BinaryLoadItem lookupLoadItem(final long objectId)
+		{
+			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
+			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(objectId & this.buildItemsHashRange)]; e != null; e = e.link)
+			{
+				if(e.getBuildItemObjectId() == objectId)
+				{
+					return e;
+				}
+			}
+			
 			return null;
 		}
 

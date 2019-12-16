@@ -9,4 +9,6 @@ public interface PersistenceObjectIdResolver extends PersistenceObjectLookup
 	
 	public void registerRoot(Object object, long objectId);
 	
+	public void validateType(Object object, long objectId);
+	
 }

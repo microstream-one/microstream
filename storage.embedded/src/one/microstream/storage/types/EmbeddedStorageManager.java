@@ -42,14 +42,21 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	
 	public Object setRoot(Object newRoot);
 	
+	@Deprecated
 	public Reference<Object> defaultRoot();
-	
-	public Object customRoot();
+
+	@Deprecated
+	public default Object customRoot()
+	{
+		return this.root();
+	}
 	
 	public PersistenceRootsView viewRoots();
 	
 	public default long storeRoot()
 	{
+		// (16.12.2019 TM)FIXME: priv#194: overhaul
+		
 		// if a default root is present, there cannot be a custom root, so store the default root
 		final Reference<Object> defaultRoot = this.defaultRoot();
 		if(defaultRoot != null)
