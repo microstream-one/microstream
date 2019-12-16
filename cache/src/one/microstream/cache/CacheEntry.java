@@ -1,12 +1,10 @@
 
 package one.microstream.cache;
 
-import java.util.Map;
-
 import one.microstream.typing.KeyValue;
 
 
-public interface CacheEntry<K, V> extends javax.cache.Cache.Entry<K, V>, KeyValue<K, V>, Map.Entry<K, V>, Unwrappable
+public interface CacheEntry<K, V> extends javax.cache.Cache.Entry<K, V>, KeyValue<K, V>, Unwrappable
 {
 	@Override
 	public default K key()
@@ -21,12 +19,6 @@ public interface CacheEntry<K, V> extends javax.cache.Cache.Entry<K, V>, KeyValu
 	}
 	
 	@Override
-	public default V setValue(final V value)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
 	public default <T> T unwrap(final Class<T> clazz)
 	{
 		return Unwrappable.Static.unwrap(this, clazz);
@@ -36,32 +28,32 @@ public interface CacheEntry<K, V> extends javax.cache.Cache.Entry<K, V>, KeyValu
 	{
 		return new Default<>(key, value);
 	}
-	
+
 	public static class Default<K, V> implements CacheEntry<K, V>
 	{
 		private final K key;
 		private final V value;
-		
+
 		Default(final K key, final V value)
 		{
 			super();
-			
+
 			this.key   = key;
 			this.value = value;
 		}
-		
+
 		@Override
 		public K getKey()
 		{
 			return this.key;
 		}
-		
+
 		@Override
 		public V getValue()
 		{
 			return this.value;
 		}
-		
+
 	}
 	
 }

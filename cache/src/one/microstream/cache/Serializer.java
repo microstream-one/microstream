@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -37,9 +38,24 @@ public interface Serializer extends Closeable
 	@Override
 	public void close();
 	
-	public static Serializer New()
+	public static Serializer get(final ClassLoader classLoader)
 	{
-		return new Default();
+		return Static.get(classLoader);
+	}
+	
+	public static class Static
+	{
+		private final static WeakHashMap<ClassLoader, Serializer> cache = new WeakHashMap<>();
+		
+		static synchronized Serializer get(final ClassLoader classLoader)
+		{
+			return cache.computeIfAbsent(classLoader, cl -> new Serializer.Default());
+		}
+		
+		private Static()
+		{
+			throw new Error();
+		}
 	}
 	
 	public static class Default implements Serializer
@@ -98,8 +114,7 @@ public interface Serializer extends Closeable
 				final BinaryPersistenceFoundation<?> foundation = BinaryPersistence.Foundation()
 					.setPersistenceSource(this.persistenceSource)
 					.setPersistenceTarget(this.persistenceTarget)
-					.setContextDispatcher(
-						PersistenceContextDispatcher.LocalObjectRegistration());
+					.setContextDispatcher(PersistenceContextDispatcher.LocalObjectRegistration());
 				
 				foundation.setTypeDictionaryManager(
 					PersistenceTypeDictionaryManager.Transient(
