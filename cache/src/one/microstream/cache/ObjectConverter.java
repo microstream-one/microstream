@@ -1,16 +1,23 @@
 
 package one.microstream.cache;
 
-import java.lang.ref.WeakReference;
-
-
-public interface ObjectConverter<T>
+public interface ObjectConverter
 {
-	public Object toInternal(T value);
+	public <T> Object toInternal(T value);
 	
-	public T fromInternal(Object internal);
+	public <T> T fromInternal(Object internal);
 	
-	public static class ByReference<T> implements ObjectConverter<T>
+	public static ObjectConverter ByReference()
+	{
+		return new ByReference();
+	}
+	
+	public static ObjectConverter ByValue(final Serializer serializer)
+	{
+		return new ByValue(serializer);
+	}
+	
+	public static class ByReference implements ObjectConverter
 	{
 		ByReference()
 		{
@@ -18,41 +25,43 @@ public interface ObjectConverter<T>
 		}
 		
 		@Override
-		public Object toInternal(final T value)
+		public <T> Object toInternal(final T value)
 		{
 			return value;
 		}
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public T fromInternal(final Object internal)
+		public <T> T fromInternal(final Object internal)
 		{
 			return (T)internal;
 		}
 	}
 	
-	public static class ByValue<T> implements ObjectConverter<T>
+	public static class ByValue implements ObjectConverter
 	{
-		private final WeakReference<ClassLoader> classLoaderRef;
+		private final Serializer serializer;
 		
-		ByValue(final WeakReference<ClassLoader> classLoaderRef)
+		ByValue(final Serializer serializer)
 		{
 			super();
 			
-			this.classLoaderRef = classLoaderRef;
+			this.serializer = serializer;
 		}
 		
 		@Override
-		public Object toInternal(final T value)
+		public <T> Object toInternal(final T value)
 		{
-			
+			final byte[] data = this.serializer.write(value);
+			return SerializedObject.New(value.hashCode(), data);
 		}
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public T fromInternal(final Object internal)
+		public <T> T fromInternal(final Object internal)
 		{
-			
+			final byte[] data = ((SerializedObject)internal).serializedData();
+			return (T)this.serializer.read(data);
 		}
 	}
 }
