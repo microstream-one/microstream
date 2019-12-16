@@ -186,6 +186,28 @@ Mal \'fcberlegen.\par
 Gut w\'e4r, wenn die BinaryHandlerPersistenceRootReferenceDefault#update gleich die Typvalidierung machen k\'f6nnte.\par
 Mal schauen, ob man das zum BinaryLoader zur\'fcck-delegieren kann. Die Entries haben ja die objectId und den Handler. Das m\'fcsste gehen.\par
 ...\par
+\par
+\par
+2019-12-16\par
+\par
+Validierung bauen.\par
+Wieder mal lustiger Sonderfall: Was ist, wenn kein Eintrag f\'fcr die OID gefunden wird?\par
+M\'fcsste aber valide sein, z.B. bei leerer Datenbank oder bei tats\'e4chlich absichtlich gel\'f6schtem Root, z.B. f\'fcr "Truncatation".\par
+\par
+PersistenceRoots refactoren:\par
+Die ganzen alten Methoden kommen raus. Das kann man sich nun \'fcber den RootsResolver direkt geben lassen.\par
+\par
+HM, aber als deprecated variante m\'fcssen sie trotzdem noch bleiben.\par
+Aber dann nur als default Methode in PersistenceRootsView.\par
+\par
+Wenn PersistenceRootReference nun noch Reference implementieren w\'fcrde, br\'e4uchte keine der alten Methoden eine UnsupportedOperationException werden.\par
+Bzw. das macht wohl sowieso Sinn.\par
+\par
+Hm. Bzw. es muss f\'fcr die ~View Ebene ja dann noch eine read-only Typisierungsebene geben.\par
+Das mach ich mal.\par
+\par
+Hm, aber Moment: In PersistenceRootsView brauch ich keine deprecated Methoden lassen. Das ist nicht convenience API. Ich lass das nur im EmbeddedStorageManager.\par
+So umbauen.\par
 \fs22\par
 }
  

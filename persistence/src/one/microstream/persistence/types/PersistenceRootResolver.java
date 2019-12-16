@@ -22,6 +22,8 @@ public interface PersistenceRootResolver
 {
 	public String rootIdentifier();
 	
+	public PersistenceRootReference root();
+	
 	public PersistenceRootEntry resolveRootInstance(String identifier);
 	
 	public XGettingTable<String, PersistenceRootEntry> definedEntries();
@@ -236,6 +238,12 @@ public interface PersistenceRootResolver
 		{
 			return this.rootIdentifier;
 		}
+		
+		@Override
+		public final PersistenceRootReference root()
+		{
+			return this.rootReference;
+		}
 
 		@Override
 		public final XGettingTable<String, PersistenceRootEntry> definedEntries()
@@ -341,6 +349,12 @@ public interface PersistenceRootResolver
 		public final String rootIdentifier()
 		{
 			return this.actualRootResolver.rootIdentifier();
+		}
+		
+		@Override
+		public final PersistenceRootReference root()
+		{
+			return this.actualRootResolver.root();
 		}
 		
 		@Override

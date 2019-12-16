@@ -953,16 +953,21 @@ public class Persistence
 			null // debuggability line break, do not remove!
 		);
 	}
-	
+
+	@Deprecated
 	public static final String defaultRootIdentifier()
 	{
-		// assumed to be the "special case", hence specifically named.
 		return "defaultRoot";
 	}
-	
+
+	@Deprecated
 	public static final String customRootIdentifier()
 	{
-		// assumed to be the "normal" case, hence generically named "root".
+		return rootIdentifier();
+	}
+	
+	public static final String rootIdentifier()
+	{
 		return "root";
 	}
 	
