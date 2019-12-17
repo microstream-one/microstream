@@ -15,8 +15,6 @@ public interface PersistenceRootResolverProvider
 {
 	public PersistenceRootReference rootReference();
 	
-	// (10.12.2019 TM)FIXME: priv#194: clean up old root handling methods
-
 	public default String rootIdentifier()
 	{
 		return Persistence.rootIdentifier();

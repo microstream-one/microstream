@@ -36,7 +36,7 @@ public interface PersistenceRootsView
 //		;
 //	}
 	
-	public PersistenceRootReferencing root();
+	public PersistenceRootReferencing rootReference();
 	
 		
 	public <C extends BiConsumer<String, Object>> C iterateEntries(C iterator);
