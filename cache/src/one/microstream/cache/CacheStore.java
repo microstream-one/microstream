@@ -6,6 +6,7 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.cache.Cache.Entry;
@@ -114,10 +115,25 @@ public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 		public synchronized void deleteAll(final Collection<?> keys) throws CacheWriterException
 		{
 			final XTable<K, Lazy<V>> cacheTable;
-			if((cacheTable = this.cacheTable(false)) != null
-				&& cacheTable.removeBy(kv -> keys.contains(kv.key())) > 0)
+			if((cacheTable = this.cacheTable(false)) != null)
 			{
-				this.storage.store(cacheTable);
+				boolean     changed  = false;
+				final Iterator<?> iterator = keys.iterator();
+				while(iterator.hasNext())
+				{
+					@SuppressWarnings("unchecked")
+					final
+					K key = (K)iterator.next();
+					if(cacheTable.removeFor(key) != null)
+					{
+						iterator.remove();
+						changed = true;
+					}
+				}
+				if(changed)
+				{
+					this.storage.store(cacheTable);
+				}
 			}
 		}
 		

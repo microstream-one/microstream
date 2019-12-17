@@ -1,25 +1,50 @@
 
 package one.microstream.cache;
 
+import static one.microstream.X.notNull;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import javax.cache.CacheException;
+import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.CompleteConfiguration;
 import javax.cache.configuration.Configuration;
 import javax.cache.configuration.Factory;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryExpiredListener;
+import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import javax.cache.event.EventType;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.EternalExpiryPolicy;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.integration.CacheLoader;
+import javax.cache.integration.CacheLoaderException;
 import javax.cache.integration.CacheWriter;
 import javax.cache.integration.CacheWriterException;
+import javax.cache.integration.CompletionListener;
+import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.EntryProcessorException;
 
 import one.microstream.cache.MBeanServerRegistrationUtility.ObjectNameType;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XList;
+import one.microstream.exceptions.IORuntimeException;
+import one.microstream.typing.KeyValue;
 
 
 public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
@@ -28,6 +53,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	public CacheManager getCacheManager();
 	
 	public long size();
+	
+	public void putAll(
+		Map<? extends K, ? extends V> map,
+		boolean replaceExistingValues);
+	
+	public void putAll(
+		Map<? extends K, ? extends V> map,
+		boolean replaceExistingValues,
+		boolean useWriteThrough);
 	
 	public void setManagementEnabled(boolean enabled);
 	
@@ -50,14 +84,16 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private final MutableConfiguration<K, V>            configuration;
 		private ObjectConverter                             objectConverter;
 		private CacheLoader<K, V>                           cacheLoader;
-		private CacheWriter<? super K, ? super V>           cacheWriter;
+		private CacheWriter<K, V>                           cacheWriter;
 		private boolean                                     isReadThrough;
 		private boolean                                     isWriteThrough;
 		private ExpiryPolicy                                expiryPolicy;
 		private XList<CacheEntryListenerRegistration<K, V>> listenerRegistrations;
 		private CacheMXBean                                 cacheMXBean;
 		private CacheStatisticsMXBean                       cacheStatisticsMXBean;
+		private boolean                                     isStatisticsEnabled;
 		private EqHashTable<Object, CachedValue>            hashTable;
+		private ExecutorService                             executorService;
 		private volatile boolean                            isClosed = false;
 		
 		Default(
@@ -72,7 +108,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.manager       = manager;
 			
 			/*
-			 * We don't know if configuration is mutable, so we make a defense copy.
+			 * We don't know if configuration is mutable, so we make a defensive copy.
 			 */
 			this.configuration = this.copyConfiguration(configuration);
 			
@@ -107,7 +143,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory;
 			if((cacheWriterFactory = this.configuration.getCacheWriterFactory()) != null)
 			{
-				this.cacheWriter = cacheWriterFactory.create();
+				this.cacheWriter = (CacheWriter<K, V>)cacheWriterFactory.create();
 			}
 			
 			this.isReadThrough  = this.configuration.isReadThrough() && this.cacheLoader != null;
@@ -127,12 +163,14 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			{
 				this.setManagementEnabled(true);
 			}
-			if(this.configuration.isStatisticsEnabled())
+			if(this.isStatisticsEnabled = this.configuration.isStatisticsEnabled())
 			{
 				this.setStatisticsEnabled(true);
 			}
 			
-			this.hashTable = EqHashTable.New();
+			this.hashTable       = EqHashTable.New();
+			
+			this.executorService = Executors.newFixedThreadPool(1);
 		}
 		
 		@Override
@@ -159,22 +197,228 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
+		public void registerCacheEntryListener(
+			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
+		{
+			notNull(cacheEntryListenerConfiguration);
+			
+			this.configuration.addCacheEntryListenerConfiguration(cacheEntryListenerConfiguration);
+			
+			synchronized(this.listenerRegistrations)
+			{
+				this.listenerRegistrations.add(CacheEntryListenerRegistration.New(cacheEntryListenerConfiguration));
+			}
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void deregisterCacheEntryListener(
+			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
+		{
+			notNull(cacheEntryListenerConfiguration);
+			
+			synchronized(this.listenerRegistrations)
+			{
+				if(this.listenerRegistrations
+					.removeBy(reg -> cacheEntryListenerConfiguration.equals(reg.configuration())) > 0)
+				{
+					this.configuration.removeCacheEntryListenerConfiguration(cacheEntryListenerConfiguration);
+				}
+			}
+		}
+		
+		@Override
 		public boolean isClosed()
 		{
 			return this.isClosed;
 		}
 		
 		@Override
+		public synchronized void close()
+		{
+			if(this.isClosed)
+			{
+				return;
+			}
+			
+			this.isClosed = true;
+			
+			// TODO this.manager.releaseCache(this);
+			
+			this.setStatisticsEnabled(false);
+			this.setManagementEnabled(false);
+			
+			this.closeIfCloseable(this.cacheLoader);
+			this.closeIfCloseable(this.cacheWriter);
+			this.closeIfCloseable(this.expiryPolicy);
+			this.listenerRegistrations.forEach(this::closeIfCloseable);
+			
+			this.executorService.shutdown();
+			try
+			{
+				this.executorService.awaitTermination(10, TimeUnit.SECONDS);
+			}
+			catch(final InterruptedException e)
+			{
+				throw new CacheException(e);
+			}
+			
+			this.hashTable.clear();
+		}
+		
+		@Override
+		public long size()
+		{
+			synchronized(this.hashTable)
+			{
+				return this.hashTable.size();
+			}
+		}
+		
+		@Override
+		public V get(final K key)
+		{
+			this.ensureOpen();
+			
+			this.validateKey(key);
+			
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			
+			final V                          value           = this.getValue(key, eventDispatcher);
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			return value;
+		}
+		
+		@Override
+		public Map<K, V> getAll(final Set<? extends K> keys)
+		{
+			this.ensureOpen();
+			
+			keys.forEach(this::validateKey);
+			
+			final HashMap<K, V>              result          = new HashMap<>(keys.size());
+			
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			
+			for(final K key : keys)
+			{
+				V value;
+				if((value = this.getValue(key, eventDispatcher)) != null)
+				{
+					result.put(key, value);
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			return result;
+		}
+		
+		@Override
+		public boolean containsKey(final K key)
+		{
+			this.ensureOpen();
+			
+			this.validateKey(key);
+			
+			final Object internalKey = this.objectConverter.toInternal(key);
+			final long   now         = System.currentTimeMillis();
+			
+			synchronized(this.hashTable)
+			{
+				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				return cachedValue != null && !cachedValue.isExpiredAt(now);
+			}
+		}
+		
+		@Override
+		public void loadAll(
+			final Set<? extends K> keys,
+			final boolean replaceExistingValues,
+			final CompletionListener completionListener)
+		{
+			this.ensureOpen();
+			
+			if(this.isReadThrough)
+			{
+				keys.forEach(this::validateKey);
+				
+				this.submit(() -> this.loadAllInternal(keys, replaceExistingValues, completionListener));
+			}
+			else if(completionListener != null)
+			{
+				completionListener.onCompletion();
+			}
+		}
+		
+		private void loadAllInternal(
+			final Set<? extends K> keys,
+			final boolean replaceExistingValues,
+			final CompletionListener completionListener)
+		{
+			try
+			{
+				final ArrayList<K> keysToLoad = new ArrayList<>();
+				for(final K key : keys)
+				{
+					if(replaceExistingValues || !this.containsKey(key))
+					{
+						keysToLoad.add(key);
+					}
+				}
+				
+				Map<? extends K, ? extends V> loaded;
+				try
+				{
+					loaded = this.cacheLoader.loadAll(keysToLoad);
+				}
+				catch(final CacheLoaderException e)
+				{
+					throw e;
+				}
+				catch(final Exception e)
+				{
+					throw new CacheLoaderException(e);
+				}
+				
+				for(final K key : keysToLoad)
+				{
+					if(loaded.get(key) == null)
+					{
+						loaded.remove(key);
+					}
+				}
+				
+				this.putAll(loaded, replaceExistingValues, false);
+				
+				if(completionListener != null)
+				{
+					completionListener.onCompletion();
+				}
+			}
+			catch(final Exception e)
+			{
+				if(completionListener != null)
+				{
+					completionListener.onException(e);
+				}
+			}
+		}
+		
+		@Override
 		public void put(final K key, final V value)
 		{
-			final boolean statisticsEnabled = this.isStatisticsEnabled();
-			final long    start             = statisticsEnabled
+			final long start = this.isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
 			
 			this.ensureOpen();
 			
-			this.validate(key, value);
+			this.validateKeyValue(key, value);
 			
 			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
 			int                              putCount        = 0;
@@ -184,10 +428,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			synchronized(this.hashTable)
 			{
-				CachedValue   cachedValue       = this.hashTable.get(internalKey);
-				final boolean isOldEntryExpired = cachedValue != null && cachedValue.isExpiredAt(now);
+				CachedValue   cachedValue = this.hashTable.get(internalKey);
+				final boolean isExpired   = cachedValue != null && cachedValue.isExpiredAt(now);
 				
-				if(isOldEntryExpired)
+				if(isExpired)
 				{
 					final V expiredValue = this.objectConverter.fromInternal(cachedValue.value());
 					this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
@@ -195,17 +439,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				
 				final CacheEntry<K, V> entry = CacheEntry.New(key, value);
 				
-				if(cachedValue == null || isOldEntryExpired)
+				if(cachedValue == null || isExpired)
 				{
 					final long expiryTime = this.expiryForCreation().getAdjustedTime(now);
-					
 					cachedValue = CachedValue.New(internalValue, now, expiryTime);
 					
-					// todo #32 writes should not happen on a new expired entry
-					this.writeCacheEntry(entry);
-					
-					// check that new entry is not already expired, in which case it should
-					// not be added to the cache or listeners called or writers called.
 					if(cachedValue.isExpiredAt(now))
 					{
 						this.processExpiries(key, internalKey, eventDispatcher,
@@ -214,19 +452,21 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					else
 					{
 						this.hashTable.put(internalKey, cachedValue);
+						this.writeCacheEntry(entry);
 						putCount++;
+						
 						eventDispatcher.addEvent(CacheEntryCreatedListener.class,
 							new CacheEvent<>(this, EventType.CREATED, key, value));
 					}
 				}
 				else
 				{
-					final V oldValue = this.objectConverter.fromInternal(cachedValue.value());
+					final V oldValue = this.objectConverter.fromInternal(cachedValue.value(now));
 					
-					this.writeCacheEntry(entry);
-					this.updateExpiry(cachedValue, now);
+					this.updateExpiryForUpdate(cachedValue, now);
 					
 					cachedValue.value(internalValue, now);
+					this.writeCacheEntry(entry);
 					putCount++;
 					
 					eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
@@ -236,39 +476,909 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				eventDispatcher.dispatch(this.listenerRegistrations);
 			}
 			
-			if(statisticsEnabled && putCount > 0)
+			if(this.isStatisticsEnabled && putCount > 0)
 			{
 				this.cacheStatisticsMXBean.increaseCachePuts(putCount);
 				this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
 			}
 		}
 		
-		private void updateExpiry(final CachedValue cachedValue, final long now)
+		@Override
+		public V getAndPut(final K key, final V value)
 		{
-			try
+			final long start = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			this.ensureOpen();
+			
+			this.validateKeyValue(key, value);
+			
+			V                                result;
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			int                              putCount        = 0;
+			final long                       now             = System.currentTimeMillis();
+			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			final Object                     internalValue   = this.objectConverter.toInternal(value);
+			
+			synchronized(this.hashTable)
 			{
-				final Duration duration = this.expiryPolicy.getExpiryForUpdate();
-				if(duration != null)
+				CachedValue   cachedValue = this.hashTable.get(internalKey);
+				final boolean isExpired   = cachedValue != null && cachedValue.isExpiredAt(now);
+				
+				if(isExpired)
 				{
-					cachedValue.expiryTime(duration.getAdjustedTime(now));
+					final V expiredValue = this.objectConverter.fromInternal(cachedValue.value());
+					this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+				}
+				
+				final CacheEntry<K, V> entry = CacheEntry.New(key, value);
+				
+				if(cachedValue == null || isExpired)
+				{
+					result = null;
+					
+					final long expiryTime = this.expiryForCreation().getAdjustedTime(now);
+					cachedValue = CachedValue.New(internalValue, now, expiryTime);
+					
+					if(cachedValue.isExpiredAt(now))
+					{
+						this.processExpiries(key, internalKey, eventDispatcher,
+							this.objectConverter.fromInternal(cachedValue.value()));
+					}
+					else
+					{
+						this.hashTable.put(internalKey, cachedValue);
+						this.writeCacheEntry(entry);
+						putCount++;
+						
+						eventDispatcher.addEvent(CacheEntryCreatedListener.class,
+							new CacheEvent<>(this, EventType.CREATED, key, value));
+					}
+				}
+				else
+				{
+					final V oldValue = result = this.objectConverter.fromInternal(cachedValue.value(now));
+					
+					this.updateExpiryForUpdate(cachedValue, now);
+					
+					cachedValue.value(internalValue, now);
+					this.writeCacheEntry(entry);
+					putCount++;
+					
+					eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
+						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue));
+				}
+				
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
+			
+			if(this.isStatisticsEnabled)
+			{
+				if(result == null)
+				{
+					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+				}
+				else
+				{
+					this.cacheStatisticsMXBean.increaseCacheHits(1);
+				}
+				
+				this.cacheStatisticsMXBean.addGetTimeNano(System.nanoTime() - start);
+				
+				if(putCount > 0)
+				{
+					this.cacheStatisticsMXBean.increaseCachePuts(putCount);
+					this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
 				}
 			}
-			catch(final Throwable t)
+			
+			return result;
+		}
+		
+		@Override
+		public void putAll(final Map<? extends K, ? extends V> map)
+		{
+			this.putAll(map, true);
+		}
+		
+		@Override
+		public void putAll(
+			final Map<? extends K, ? extends V> map,
+			final boolean replaceExistingValues)
+		{
+			this.putAll(map, replaceExistingValues, true);
+		}
+		
+		@Override
+		public void putAll(
+			final Map<? extends K, ? extends V> map,
+			final boolean replaceExistingValues,
+			final boolean useWriteThrough)
+		{
+			final long start = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			this.ensureOpen();
+			
+			map.keySet().forEach(this::validateKey);
+			map.values().forEach(this::validateValue);
+			
+			final long                       now             = System.currentTimeMillis();
+			int                              putCount        = 0;
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			CacheWriterException             exception       = null;
+			
+			synchronized(this.hashTable)
 			{
-				// XXX Spec says leave the expiry time untouched when we can't determine a duration
+				final boolean                                           isWriteThrough =
+					this.isWriteThrough && useWriteThrough;
+				
+				final Collection<Cache.Entry<? extends K, ? extends V>> entriesToWrite = new ArrayList<>();
+				final HashSet<K>                                        keysToPut      = new HashSet<>();
+				for(final Map.Entry<? extends K, ? extends V> entry : map.entrySet())
+				{
+					final K key   = entry.getKey();
+					final V value = entry.getValue();
+					
+					keysToPut.add(key);
+					
+					if(isWriteThrough)
+					{
+						entriesToWrite.add(CacheEntry.New(key, value));
+					}
+				}
+				
+				if(isWriteThrough)
+				{
+					try
+					{
+						this.cacheWriter.writeAll(entriesToWrite);
+					}
+					catch(final CacheWriterException e)
+					{
+						exception = e;
+					}
+					catch(final Exception e)
+					{
+						exception = new CacheWriterException(e);
+					}
+					
+					for(final Cache.Entry<? extends K, ? extends V> entry : entriesToWrite)
+					{
+						keysToPut.remove(entry.getKey());
+					}
+				}
+				
+				for(final K key : keysToPut)
+				{
+					final V       value         = map.get(key);
+					final Object  internalKey   = this.objectConverter.toInternal(key);
+					final Object  internalValue = this.objectConverter.toInternal(value);
+					CachedValue   cachedValue   = this.hashTable.get(internalKey);
+					
+					final boolean isExpired     = cachedValue != null && cachedValue.isExpiredAt(now);
+					if(cachedValue == null || isExpired)
+					{
+						if(isExpired)
+						{
+							final V expiredValue = this.objectConverter.fromInternal(cachedValue.value());
+							this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+						}
+						
+						final long expiryTime = this.expiryForCreation().getAdjustedTime(now);
+						cachedValue = CachedValue.New(internalValue, now, expiryTime);
+						if(cachedValue.isExpiredAt(now))
+						{
+							this.processExpiries(key, internalKey, eventDispatcher, value);
+						}
+						else
+						{
+							this.hashTable.put(internalKey, cachedValue);
+							
+							eventDispatcher.addEvent(CacheEntryCreatedListener.class,
+								new CacheEvent<>(this, EventType.CREATED, key, value));
+							
+							/*
+							 * This method called from loadAll when useWriteThrough is false. Do not count loads as puts
+							 * per statistics table in specification.
+							 * 
+							 */
+							if(useWriteThrough)
+							{
+								putCount++;
+							}
+						}
+					}
+					else if(replaceExistingValues)
+					{
+						final V oldValue = this.objectConverter.fromInternal(cachedValue.value());
+						
+						this.updateExpiryForUpdate(cachedValue, now);
+						
+						cachedValue.value(internalValue, now);
+						
+						/*
+						 * Do not count loadAll calls as puts. useWriteThrough is false when called from loadAll.
+						 */
+						if(useWriteThrough)
+						{
+							putCount++;
+						}
+						
+						eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
+							new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue));
+					}
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			if(this.isStatisticsEnabled && putCount > 0)
+			{
+				this.cacheStatisticsMXBean.increaseCachePuts(putCount);
+				this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
+			}
+			
+			if(exception != null)
+			{
+				throw exception;
 			}
 		}
 		
-		private void processExpiries(
-			final K key,
-			final Object internalKey,
-			final CacheEventDispatcher<K, V> dispatcher,
-			final V expiredValue)
+		@Override
+		public boolean putIfAbsent(final K key, final V value)
 		{
-			this.hashTable.removeFor(internalKey);
-			dispatcher.addEvent(
-				CacheEntryExpiredListener.class,
-				new CacheEvent<>(this, EventType.EXPIRED, key, expiredValue, expiredValue));
+			final long start = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			this.ensureOpen();
+			
+			this.validateKeyValue(key, value);
+			
+			final long                       now             = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			final Object                     internalValue   = this.objectConverter.toInternal(value);
+			boolean                          result;
+			
+			synchronized(this.hashTable)
+			{
+				CachedValue   cachedValue = this.hashTable.get(internalKey);
+				
+				final boolean isExpired   = cachedValue != null && cachedValue.isExpiredAt(now);
+				if(cachedValue == null || cachedValue.isExpiredAt(now))
+				{
+					final CacheEntry<K, V> entry = CacheEntry.New(key, value);
+					this.writeCacheEntry(entry);
+					
+					if(isExpired)
+					{
+						final V expiredValue = this.objectConverter.fromInternal(cachedValue.value());
+						this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+					}
+					
+					final long expiryTime = this.expiryForCreation().getAdjustedTime(now);
+					cachedValue = CachedValue.New(internalValue, now, expiryTime);
+					if(cachedValue.isExpiredAt(now))
+					{
+						this.processExpiries(key, internalKey, eventDispatcher, value);
+						
+						// no expiry event for created entry that expires before put in cache.
+						// do not put entry in cache.
+						result = false;
+					}
+					else
+					{
+						this.hashTable.put(internalKey, cachedValue);
+						result = true;
+						
+						eventDispatcher.addEvent(CacheEntryCreatedListener.class,
+							new CacheEvent<>(this, EventType.CREATED, key, value));
+					}
+				}
+				else
+				{
+					result = false;
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			if(this.isStatisticsEnabled)
+			{
+				if(result)
+				{
+					this.cacheStatisticsMXBean.increaseCachePuts(1);
+					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+					this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
+				}
+				else
+				{
+					this.cacheStatisticsMXBean.increaseCacheHits(1);
+				}
+			}
+			
+			return result;
+		}
+		
+		@Override
+		public boolean remove(final K key)
+		{
+			final long start = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			this.ensureOpen();
+			
+			this.validateKey(key);
+			
+			final long                       now             = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			boolean                          result;
+			
+			synchronized(this.hashTable)
+			{
+				this.deleteCacheEntry(key);
+				
+				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				if(cachedValue == null)
+				{
+					return false;
+				}
+				
+				if(cachedValue.isExpiredAt(now))
+				{
+					result = false;
+				}
+				else
+				{
+					this.hashTable.removeFor(internalKey);
+					final V value = this.objectConverter.fromInternal(cachedValue.value());
+					
+					eventDispatcher.addEvent(CacheEntryRemovedListener.class,
+						new CacheEvent<>(this, EventType.REMOVED, key, value, value));
+					
+					result = true;
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			if(result && this.isStatisticsEnabled)
+			{
+				this.cacheStatisticsMXBean.increaseCacheRemovals(1);
+				this.cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
+			}
+			
+			return result;
+		}
+		
+		@Override
+		public boolean remove(final K key, final V oldValue)
+		{
+			final long start = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			this.ensureOpen();
+			
+			this.validateKeyValue(key, oldValue);
+			
+			final long                       now             = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			long                             hitCount        = 0;
+			boolean                          result;
+			
+			synchronized(this.hashTable)
+			{
+				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				if(cachedValue == null || cachedValue.isExpiredAt(now))
+				{
+					result = false;
+				}
+				else
+				{
+					hitCount++;
+					
+					final Object internalValue    = cachedValue.value();
+					final Object oldInternalValue = this.objectConverter.toInternal(oldValue);
+					
+					if(internalValue.equals(oldInternalValue))
+					{
+						this.deleteCacheEntry(key);
+						
+						this.hashTable.removeFor(internalKey);
+						
+						eventDispatcher.addEvent(CacheEntryRemovedListener.class,
+							new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue));
+						
+						result = true;
+					}
+					else
+					{
+						this.updateExpiryForAccess(cachedValue, now);
+						
+						result = false;
+					}
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			if(this.isStatisticsEnabled)
+			{
+				final long duration = System.nanoTime() - start;
+				if(result)
+				{
+					this.cacheStatisticsMXBean.increaseCacheRemovals(1);
+					this.cacheStatisticsMXBean.addRemoveTimeNano(duration);
+				}
+				this.cacheStatisticsMXBean.addGetTimeNano(duration);
+				if(hitCount == 1)
+				{
+					this.cacheStatisticsMXBean.increaseCacheHits(hitCount);
+				}
+				else
+				{
+					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+				}
+			}
+			
+			return result;
+		}
+		
+		@Override
+		public V getAndRemove(final K key)
+		{
+			final long start = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			this.ensureOpen();
+			
+			this.validateKey(key);
+			
+			final long                       now             = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			V                                result;
+			
+			synchronized(this.hashTable)
+			{
+				this.deleteCacheEntry(key);
+				
+				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				if(cachedValue == null || cachedValue.isExpiredAt(now))
+				{
+					result = null;
+				}
+				else
+				{
+					this.hashTable.removeFor(internalKey);
+					result = this.objectConverter.fromInternal(cachedValue.value(now));
+					
+					eventDispatcher.addEvent(CacheEntryRemovedListener.class,
+						new CacheEvent<>(this, EventType.REMOVED, key, result, result));
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			if(this.isStatisticsEnabled)
+			{
+				final long duration = System.nanoTime() - start;
+				this.cacheStatisticsMXBean.addGetTimeNano(duration);
+				if(result != null)
+				{
+					this.cacheStatisticsMXBean.increaseCacheHits(1);
+					this.cacheStatisticsMXBean.increaseCacheRemovals(1);
+					this.cacheStatisticsMXBean.addRemoveTimeNano(duration);
+				}
+				else
+				{
+					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+				}
+			}
+			
+			return result;
+		}
+		
+		@Override
+		public boolean replace(final K key, final V oldValue, final V newValue)
+		{
+			final long start = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			this.ensureOpen();
+			
+			this.validateKey(key);
+			this.validateValue(oldValue);
+			this.validateValue(newValue);
+			
+			final long                       now             = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			long                             hitCount        = 0;
+			boolean                          result;
+			
+			synchronized(this.hashTable)
+			{
+				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				if(cachedValue == null || cachedValue.isExpiredAt(now))
+				{
+					result = false;
+				}
+				else
+				{
+					hitCount++;
+					
+					final Object oldInternalValue = this.objectConverter.toInternal(oldValue);
+					
+					if(cachedValue.value().equals(oldInternalValue))
+					{
+						final CacheEntry<K, V> entry = CacheEntry.New(key, newValue);
+						this.writeCacheEntry(entry);
+						
+						this.updateExpiryForUpdate(cachedValue, now);
+						
+						final Object newInternalValue = this.objectConverter.toInternal(newValue);
+						cachedValue.value(newInternalValue, now);
+						
+						eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
+							new CacheEvent<>(this, EventType.UPDATED, key, newValue, oldValue));
+						
+						result = true;
+					}
+					else
+					{
+						this.updateExpiryForAccess(cachedValue, now);
+						
+						result = false;
+					}
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			if(this.isStatisticsEnabled)
+			{
+				final long duration = System.nanoTime() - start;
+				if(result)
+				{
+					this.cacheStatisticsMXBean.increaseCachePuts(1);
+					this.cacheStatisticsMXBean.addPutTimeNano(duration);
+				}
+				this.cacheStatisticsMXBean.addGetTimeNano(duration);
+				if(hitCount == 1)
+				{
+					this.cacheStatisticsMXBean.increaseCacheHits(hitCount);
+				}
+				else
+				{
+					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+				}
+			}
+			
+			return result;
+		}
+		
+		@Override
+		public boolean replace(final K key, final V value)
+		{
+			final long start = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			this.ensureOpen();
+			
+			this.validateKeyValue(key, value);
+			
+			final long                       now             = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			boolean                          result;
+			
+			synchronized(this.hashTable)
+			{
+				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				if(cachedValue == null || cachedValue.isExpiredAt(now))
+				{
+					result = false;
+				}
+				else
+				{
+					final V                oldValue = this.objectConverter.fromInternal(cachedValue.value());
+					
+					final CacheEntry<K, V> entry    = CacheEntry.New(key, value);
+					this.writeCacheEntry(entry);
+					
+					this.updateExpiryForUpdate(cachedValue, now);
+					
+					final Object newInternalValue = this.objectConverter.toInternal(value);
+					cachedValue.value(newInternalValue, now);
+					
+					eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
+						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue));
+					
+					result = true;
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			if(this.isStatisticsEnabled)
+			{
+				final long duration = System.nanoTime() - start;
+				this.cacheStatisticsMXBean.addGetTimeNano(duration);
+				if(result)
+				{
+					this.cacheStatisticsMXBean.increaseCachePuts(1);
+					this.cacheStatisticsMXBean.increaseCacheHits(1);
+					this.cacheStatisticsMXBean.addPutTimeNano(duration);
+				}
+				else
+				{
+					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+				}
+			}
+			
+			return result;
+		}
+		
+		@Override
+		public V getAndReplace(final K key, final V value)
+		{
+			final long start = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			this.ensureOpen();
+			
+			this.validateKeyValue(key, value);
+			
+			final long                       now             = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			V                                result;
+			
+			synchronized(this.hashTable)
+			{
+				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				if(cachedValue == null || cachedValue.isExpiredAt(now))
+				{
+					result = null;
+				}
+				else
+				{
+					final V                oldValue = this.objectConverter.fromInternal(cachedValue.value());
+					
+					final CacheEntry<K, V> entry    = CacheEntry.New(key, value);
+					this.writeCacheEntry(entry);
+					
+					this.updateExpiryForUpdate(cachedValue, now);
+					
+					final Object newInternalValue = this.objectConverter.toInternal(value);
+					cachedValue.value(newInternalValue, now);
+					
+					eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
+						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue));
+					
+					result = oldValue;
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			if(this.isStatisticsEnabled)
+			{
+				final long duration = System.nanoTime() - start;
+				this.cacheStatisticsMXBean.addGetTimeNano(duration);
+				if(result != null)
+				{
+					this.cacheStatisticsMXBean.increaseCachePuts(1);
+					this.cacheStatisticsMXBean.increaseCacheHits(1);
+					this.cacheStatisticsMXBean.addPutTimeNano(duration);
+				}
+				else
+				{
+					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+				}
+			}
+			
+			return result;
+		}
+		
+		@Override
+		public void removeAll(final Set<? extends K> keys)
+		{
+			this.ensureOpen();
+			
+			keys.forEach(this::validateKey);
+			
+			final long                       now             = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final HashSet<K>                 cacheWriterKeys = new HashSet<>();
+			final HashSet<Object>            deletedKeys     = new HashSet<>();
+			cacheWriterKeys.addAll(keys);
+			CacheException exception = null;
+			
+			synchronized(this.hashTable)
+			{
+				if(this.isWriteThrough)
+				{
+					try
+					{
+						this.cacheWriter.deleteAll(cacheWriterKeys);
+					}
+					catch(final CacheWriterException e)
+					{
+						exception = e;
+					}
+					catch(final Exception e)
+					{
+						exception = new CacheWriterException(e);
+					}
+					
+					// At this point, cacheWriterKeys will contain only those that were _not_ written
+					// Now delete only those that the writer deleted
+					for(final K key : keys)
+					{
+						// only delete those keys that the writer deleted. per CacheWriter spec.
+						if(!cacheWriterKeys.contains(key))
+						{
+							final Object      internalKey = this.objectConverter.toInternal(key);
+							final CachedValue cachedValue = this.hashTable.removeFor(internalKey);
+							if(cachedValue != null)
+							{
+								deletedKeys.add(key);
+								
+								final V value = this.objectConverter.fromInternal(cachedValue.value());
+								
+								if(cachedValue.isExpiredAt(now))
+								{
+									this.processExpiries(key, internalKey, eventDispatcher, value);
+								}
+								else
+								{
+									eventDispatcher.addEvent(CacheEntryRemovedListener.class,
+										new CacheEvent<>(this, EventType.REMOVED, key, value, value));
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					for(final K key : keys)
+					{
+						// only delete those keys that the writer deleted. per CacheWriter spec.
+						final Object      internalKey = this.objectConverter.toInternal(key);
+						final CachedValue cachedValue = this.hashTable.removeFor(internalKey);
+						if(cachedValue != null)
+						{
+							deletedKeys.add(key);
+							
+							final V value = this.objectConverter.fromInternal(cachedValue.value());
+							
+							if(cachedValue.isExpiredAt(now))
+							{
+								this.processExpiries(key, internalKey, eventDispatcher, value);
+							}
+							else
+							{
+								eventDispatcher.addEvent(CacheEntryRemovedListener.class,
+									new CacheEvent<>(this, EventType.REMOVED, key, value, value));
+							}
+						}
+					}
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			if(this.isStatisticsEnabled)
+			{
+				this.cacheStatisticsMXBean.increaseCacheRemovals(deletedKeys.size());
+			}
+			
+			if(exception != null)
+			{
+				throw exception;
+			}
+		}
+		
+		@Override
+		public void removeAll()
+		{
+			this.ensureOpen();
+			
+			int                              removed         = 0;
+			final long                       now             = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			CacheException                   exception       = null;
+			
+			synchronized(this.hashTable)
+			{
+				final HashSet<K> keys = new HashSet<>();
+				this.hashTable.keys().forEach(key -> keys.add(this.objectConverter.fromInternal(key)));
+				final HashSet<K> keysToDelete = new HashSet<>(keys);
+				
+				if(this.isWriteThrough && keysToDelete.size() > 0)
+				{
+					try
+					{
+						this.cacheWriter.deleteAll(keysToDelete);
+					}
+					catch(final CacheWriterException e)
+					{
+						exception = e;
+					}
+					catch(final Exception e)
+					{
+						exception = new CacheWriterException(e);
+					}
+				}
+				
+				// remove the deleted keys that were successfully deleted from the set
+				for(final K key : keys)
+				{
+					if(!keysToDelete.contains(key))
+					{
+						final Object      internalKey = this.objectConverter.toInternal(key);
+						final CachedValue cachedValue = this.hashTable.removeFor(internalKey);
+						
+						final V           value       = this.objectConverter.fromInternal(cachedValue.value());
+						
+						if(cachedValue.isExpiredAt(now))
+						{
+							this.processExpiries(key, internalKey, eventDispatcher, value);
+						}
+						else
+						{
+							eventDispatcher.addEvent(CacheEntryRemovedListener.class,
+								new CacheEvent<>(this, EventType.REMOVED, key, value, value));
+							removed++;
+						}
+					}
+				}
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			if(this.isStatisticsEnabled)
+			{
+				this.cacheStatisticsMXBean.increaseCacheRemovals(removed);
+			}
+			
+			if(exception != null)
+			{
+				throw exception;
+			}
+		}
+		
+		@Override
+		public void clear()
+		{
+			this.ensureOpen();
+			
+			synchronized(this.hashTable)
+			{
+				this.hashTable.clear();
+			}
+		}
+		
+		@Override
+		public Iterator<Cache.Entry<K, V>> iterator()
+		{
+			this.ensureOpen();
+			
+			return new EntryIterator(this.hashTable.iterator());
 		}
 		
 		@Override
@@ -311,6 +1421,244 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.configuration.setManagementEnabled(enabled);
 		}
 		
+		@Override
+		public <T> Map<K, javax.cache.processor.EntryProcessorResult<T>>
+			invokeAll(
+				final Set<? extends K> keys,
+				final EntryProcessor<K, V, T> entryProcessor,
+				final Object... arguments)
+		{
+			this.ensureOpen();
+			
+			keys.forEach(this::validateKey);
+			
+			notNull(entryProcessor);
+			
+			final HashMap<K, javax.cache.processor.EntryProcessorResult<T>> map = new HashMap<>();
+			for(final K key : keys)
+			{
+				EntryProcessorResult<T> result = null;
+				try
+				{
+					final T t = this.invoke(key, entryProcessor, arguments);
+					result = t == null
+						? null
+						: EntryProcessorResult.New(t);
+				}
+				catch(final Exception e)
+				{
+					result = EntryProcessorResult.New(e);
+				}
+				if(result != null)
+				{
+					map.put(key, result);
+				}
+			}
+			
+			return map;
+		}
+		
+		@Override
+		public <T> T invoke(final K key, final EntryProcessor<K, V, T> entryProcessor, final Object... arguments)
+			throws EntryProcessorException
+		{
+			long start = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			this.ensureOpen();
+			
+			this.validateKey(key);
+			
+			notNull(entryProcessor);
+			
+			final long                       now             = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			T                                result          = null;
+			
+			synchronized(this.hashTable)
+			{
+				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				final boolean     isExpired   = cachedValue != null && cachedValue.isExpiredAt(now);
+				
+				if(isExpired)
+				{
+					final V expiredValue = this.objectConverter.fromInternal(cachedValue.value());
+					this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+				}
+				
+				if(this.isStatisticsEnabled)
+				{
+					if(cachedValue == null || isExpired)
+					{
+						this.cacheStatisticsMXBean.increaseCacheMisses(1);
+					}
+					else
+					{
+						this.cacheStatisticsMXBean.increaseCacheHits(1);
+					}
+					final long nanoTime = System.nanoTime();
+					this.cacheStatisticsMXBean.addGetTimeNano(nanoTime - start);
+					// restart
+					start = nanoTime;
+				}
+				
+				final MutableCacheEntry<K, V> entry = MutableCacheEntry.New(
+					this.objectConverter, key, cachedValue, now,
+					this.isReadThrough ? this.cacheLoader : null);
+				try
+				{
+					result = entryProcessor.process(entry, arguments);
+				}
+				catch(final CacheException e)
+				{
+					throw e;
+				}
+				catch(final Exception e)
+				{
+					throw new EntryProcessorException(e);
+				}
+				
+				this.finishInvocation(key, internalKey, cachedValue, entry, start, now, eventDispatcher);
+			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
+			
+			return result;
+		}
+		
+		@SuppressWarnings("incomplete-switch")
+		private void finishInvocation(
+			final K key,
+			final Object internalKey,
+			final CachedValue cachedValue,
+			final MutableCacheEntry<K, V> entry,
+			final long start,
+			final long now,
+			final CacheEventDispatcher<K, V> eventDispatcher)
+		{
+			switch(entry.getOperation())
+			{
+				case ACCESS:
+				{
+					this.updateExpiryForAccess(cachedValue, now);
+				}
+					break;
+				
+				case CREATE:
+				case LOAD:
+				{
+					this.finishInvocationCreateLoad(key, internalKey, entry, start, now, eventDispatcher);
+				}
+					break;
+				
+				case UPDATE:
+				{
+					this.finishInvocationUpdate(key, entry, cachedValue, start, now, eventDispatcher);
+				}
+					break;
+				
+				case REMOVE:
+				{
+					this.finishInvocationRemove(key, internalKey, cachedValue, start, eventDispatcher);
+				}
+					break;
+			}
+		}
+		
+		private void finishInvocationCreateLoad(
+			final K key,
+			final Object internalKey,
+			final MutableCacheEntry<K, V> entry,
+			final long start,
+			final long now,
+			final CacheEventDispatcher<K, V> eventDispatcher)
+		{
+			CachedValue            cachedValue;
+			final CacheEntry<K, V> e = CacheEntry.New(key, entry.getValue());
+			
+			if(entry.getOperation() == MutableCacheEntry.Operation.CREATE)
+			{
+				this.writeCacheEntry(e);
+			}
+			
+			final long expiryTime = this.expiryForCreation().getAdjustedTime(now);
+			cachedValue =
+				CachedValue.New(this.objectConverter.toInternal(entry.getValue()), now, expiryTime);
+			
+			if(cachedValue.isExpiredAt(now))
+			{
+				final V previousValue = this.objectConverter.fromInternal(cachedValue.value());
+				this.processExpiries(key, internalKey, eventDispatcher, previousValue);
+			}
+			else
+			{
+				this.hashTable.put(internalKey, cachedValue);
+				
+				eventDispatcher.addEvent(CacheEntryCreatedListener.class,
+					new CacheEvent<>(this, EventType.CREATED, key, entry.getValue()));
+				
+				// do not count LOAD as a put for cache statistics.
+				if(this.isStatisticsEnabled && entry.getOperation() == MutableCacheEntry.Operation.CREATE)
+				{
+					this.cacheStatisticsMXBean.increaseCachePuts(1);
+					this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
+				}
+			}
+		}
+		
+		private void finishInvocationUpdate(
+			final K key,
+			final MutableCacheEntry<K, V> entry,
+			final CachedValue cachedValue,
+			final long start,
+			final long now,
+			final CacheEventDispatcher<K, V> eventDispatcher)
+		{
+			final V                oldValue = this.objectConverter.fromInternal(cachedValue.value());
+			
+			final CacheEntry<K, V> e        = CacheEntry.New(key, entry.getValue());
+			this.writeCacheEntry(e);
+			
+			this.updateExpiryForUpdate(cachedValue, now);
+			
+			cachedValue.value(this.objectConverter.toInternal(entry.getValue()), now);
+			
+			eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
+				new CacheEvent<>(this, EventType.UPDATED, key, entry.getValue(), oldValue));
+			
+			if(this.isStatisticsEnabled)
+			{
+				this.cacheStatisticsMXBean.increaseCachePuts(1);
+				this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
+			}
+		}
+		
+		private void finishInvocationRemove(
+			final K key,
+			final Object internalKey,
+			final CachedValue cachedValue,
+			final long start,
+			final CacheEventDispatcher<K, V> eventDispatcher)
+		{
+			this.deleteCacheEntry(key);
+			
+			final V oldValue = cachedValue == null
+				? null
+				: this.objectConverter.fromInternal(cachedValue.value());
+			this.hashTable.removeFor(internalKey);
+			
+			eventDispatcher.addEvent(CacheEntryRemovedListener.class,
+				new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue));
+			
+			if(this.isStatisticsEnabled)
+			{
+				this.cacheStatisticsMXBean.increaseCacheRemovals(1);
+				this.cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
+			}
+		}
+		
 		private void ensureOpen()
 		{
 			if(this.isClosed())
@@ -319,33 +1667,155 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 		
-		@SuppressWarnings("unchecked")
-		private boolean isStatisticsEnabled()
+		private void validateKeyValue(final K key, final V value)
 		{
-			return this.getConfiguration(CompleteConfiguration.class).isStatisticsEnabled();
+			this.validateKey(key);
+			this.validateValue(value);
 		}
 		
-		private void validate(final K key, final V value)
+		private void validateKey(final K key)
 		{
 			if(key == null)
 			{
 				throw new NullPointerException("key cannot be null");
 			}
+			
+			final Class<?> keyType = this.configuration.getKeyType();
+			if(Object.class != keyType && !keyType.isAssignableFrom(key.getClass()))
+			{
+				throw new ClassCastException("Type mismatch for key: " + key + " <> " + keyType.getName());
+			}
+		}
+		
+		private void validateValue(final V value)
+		{
 			if(value == null)
 			{
 				throw new NullPointerException("value cannot be null");
 			}
 			
-			final Class<?> keyType   = this.configuration.getKeyType();
 			final Class<?> valueType = this.configuration.getValueType();
-			if(Object.class != keyType && !keyType.isAssignableFrom(key.getClass()))
-			{
-				throw new ClassCastException("Type mismatch for key: " + key + " <> " + keyType.getName());
-			}
 			if(Object.class != valueType && !valueType.isAssignableFrom(value.getClass()))
 			{
 				throw new ClassCastException("Type mismatch for value: " + value + " <> " + valueType.getName());
 			}
+		}
+		
+		private V getValue(final K key, final CacheEventDispatcher<K, V> eventDispatcher)
+		{
+			final long   start       = this.isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			final long   now         = System.currentTimeMillis();
+			final Object internalKey = this.objectConverter.toInternal(key);
+			CachedValue  cachedValue = null;
+			V            value       = null;
+			
+			synchronized(this.hashTable)
+			{
+				cachedValue = this.hashTable.get(internalKey);
+				
+				final boolean isExpired = cachedValue != null && cachedValue.isExpiredAt(now);
+				
+				if(cachedValue == null || isExpired)
+				{
+					if(isExpired)
+					{
+						final V expiredValue = isExpired
+							? this.objectConverter.fromInternal(cachedValue.value())
+							: null;
+						this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+					}
+					
+					if(this.isStatisticsEnabled)
+					{
+						this.cacheStatisticsMXBean.increaseCacheMisses(1);
+					}
+					
+					value = this.loadCacheEntry(key, value);
+					
+					if(value != null)
+					{
+						final long   expiryTime    = this.expiryForCreation().getAdjustedTime(now);
+						final Object internalValue = this.objectConverter.toInternal(value);
+						cachedValue = CachedValue.New(internalValue, now, expiryTime);
+						
+						if(cachedValue.isExpiredAt(now))
+						{
+							value = null;
+						}
+						else
+						{
+							this.hashTable.put(internalKey, cachedValue);
+							
+							eventDispatcher.addEvent(CacheEntryCreatedListener.class,
+								new CacheEvent<>(this, EventType.CREATED, key, value));
+						}
+					}
+				}
+				else
+				{
+					value = this.objectConverter.fromInternal(cachedValue.value(now));
+					this.updateExpiryForAccess(cachedValue, now);
+					
+					if(this.isStatisticsEnabled)
+					{
+						this.cacheStatisticsMXBean.increaseCacheHits(1);
+					}
+				}
+			}
+			
+			if(this.isStatisticsEnabled)
+			{
+				this.cacheStatisticsMXBean.addGetTimeNano(System.nanoTime() - start);
+			}
+			
+			return value;
+		}
+		
+		private void updateExpiryForAccess(final CachedValue cachedValue, final long now)
+		{
+			try
+			{
+				final Duration duration = this.expiryPolicy.getExpiryForAccess();
+				if(duration != null)
+				{
+					cachedValue.expiryTime(duration.getAdjustedTime(now));
+				}
+			}
+			catch(final Throwable t)
+			{
+				// XXX Spec says leave the expiry time untouched when we can't determine a duration
+			}
+		}
+		
+		private void updateExpiryForUpdate(final CachedValue cachedValue, final long now)
+		{
+			try
+			{
+				final Duration duration = this.expiryPolicy.getExpiryForUpdate();
+				if(duration != null)
+				{
+					cachedValue.expiryTime(duration.getAdjustedTime(now));
+				}
+			}
+			catch(final Throwable t)
+			{
+				// XXX Spec says leave the expiry time untouched when we can't determine a duration
+			}
+		}
+		
+		private void processExpiries(
+			final K key,
+			final Object internalKey,
+			final CacheEventDispatcher<K, V> dispatcher,
+			final V expiredValue)
+		{
+			this.hashTable.removeFor(internalKey);
+			dispatcher.addEvent(
+				CacheEntryExpiredListener.class,
+				new CacheEvent<>(this, EventType.EXPIRED, key, expiredValue, expiredValue));
 		}
 		
 		private Duration expiryForCreation()
@@ -364,6 +1834,32 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private Duration defaultDuration()
 		{
 			return Duration.ETERNAL;
+		}
+		
+		private void submit(final Runnable task)
+		{
+			this.executorService.submit(task);
+		}
+		
+		private V loadCacheEntry(final K key, final V value)
+		{
+			if(this.isReadThrough)
+			{
+				try
+				{
+					return this.cacheLoader.load(key);
+				}
+				catch(final CacheWriterException e)
+				{
+					throw e;
+				}
+				catch(final Exception e)
+				{
+					throw new CacheWriterException(e);
+				}
+			}
+			
+			return value;
 		}
 		
 		private void writeCacheEntry(final CacheEntry<K, V> entry)
@@ -402,6 +1898,162 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					throw new CacheWriterException(e);
 				}
 			}
+		}
+		
+		private void closeIfCloseable(final Object obj)
+		{
+			if(obj instanceof Closeable)
+			{
+				try
+				{
+					((Closeable)obj).close();
+				}
+				catch(final IOException e)
+				{
+					throw new IORuntimeException(e);
+				}
+			}
+		}
+		
+		private final class EntryIterator implements Iterator<Cache.Entry<K, V>>
+		{
+			private final Iterator<KeyValue<Object, CachedValue>> iterator;
+			private CacheEntry<K, V>                              nextEntry;
+			private CacheEntry<K, V>                              lastEntry;
+			private final long                                    now;
+			
+			EntryIterator(final Iterator<KeyValue<Object, CachedValue>> iterator)
+			{
+				this.iterator  = iterator;
+				this.nextEntry = null;
+				this.lastEntry = null;
+				this.now       = System.currentTimeMillis();
+			}
+			
+			private void fetch()
+			{
+				final long start = Cache.Default.this.isStatisticsEnabled
+					? System.nanoTime()
+					: 0;
+				while(this.nextEntry == null && this.iterator.hasNext())
+				{
+					final KeyValue<Object, CachedValue> entry       = this.iterator.next();
+					final CachedValue                   cachedValue = entry.value();
+					
+					final K                             key         =
+						Cache.Default.this.objectConverter.fromInternal(entry.key());
+					try
+					{
+						if(!cachedValue.isExpiredAt(this.now))
+						{
+							final V value =
+								Cache.Default.this.objectConverter.fromInternal(cachedValue.value(this.now));
+							this.nextEntry = CacheEntry.New(key, value);
+							
+							try
+							{
+								Cache.Default.this.updateExpiryForAccess(cachedValue, this.now);
+							}
+							catch(final Throwable t)
+							{
+								// leave the expiry time untouched when we can't determine a duration
+							}
+						}
+					}
+					finally
+					{
+						if(Cache.Default.this.isStatisticsEnabled && this.nextEntry != null)
+						{
+							Cache.Default.this.cacheStatisticsMXBean.increaseCacheHits(1);
+							Cache.Default.this.cacheStatisticsMXBean.addGetTimeNano(System.nanoTime() - start);
+						}
+					}
+				}
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public boolean hasNext()
+			{
+				if(this.nextEntry == null)
+				{
+					this.fetch();
+				}
+				return this.nextEntry != null;
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public Entry<K, V> next()
+			{
+				if(this.hasNext())
+				{
+					// remember the lastEntry (so that we call allow for removal)
+					this.lastEntry = this.nextEntry;
+					
+					// reset nextEntry to force fetching the next available entry
+					this.nextEntry = null;
+					
+					return this.lastEntry;
+				}
+				else
+				{
+					throw new NoSuchElementException();
+				}
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void remove()
+			{
+				int cacheRemovals = 0;
+				if(this.lastEntry == null)
+				{
+					throw new IllegalStateException("Must progress to the next entry to remove");
+				}
+				
+				final long start = Cache.Default.this.isStatisticsEnabled
+					? System.nanoTime()
+					: 0;
+				try
+				{
+					Cache.Default.this.deleteCacheEntry(this.lastEntry.getKey());
+					
+					// NOTE: there is the possibility here that the entry the application
+					// retrieved
+					// may have been replaced / expired or already removed since it
+					// retrieved it.
+					
+					// we simply don't care here as multiple-threads are ok to remove and see
+					// such side-effects
+					this.iterator.remove();
+					cacheRemovals++;
+					
+					// raise "remove" event
+					final CacheEventDispatcher<K, V> dispatcher = CacheEventDispatcher.New();
+					dispatcher.addEvent(CacheEntryRemovedListener.class,
+						new CacheEvent<>(Cache.Default.this, EventType.REMOVED, this.lastEntry.getKey(),
+							this.lastEntry.getValue(), this.lastEntry.getValue()));
+					dispatcher.dispatch(Cache.Default.this.listenerRegistrations);
+				}
+				finally
+				{
+					// reset lastEntry (we can't attempt to remove it again)
+					this.lastEntry = null;
+					if(Cache.Default.this.isStatisticsEnabled && cacheRemovals > 0)
+					{
+						Cache.Default.this.cacheStatisticsMXBean.increaseCacheRemovals(cacheRemovals);
+						Cache.Default.this.cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
+					}
+				}
+			}
+			
 		}
 		
 	}
