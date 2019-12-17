@@ -10,7 +10,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 
-class MBeanServerRegistrationUtility
+class MBeanServerRegistrationUtils
 {
 	private static MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 	
@@ -119,7 +119,7 @@ class MBeanServerRegistrationUtility
 		return string == null ? "" : string.replaceAll(",|:|=|\n", ".");
 	}
 	
-	private MBeanServerRegistrationUtility()
+	private MBeanServerRegistrationUtils()
 	{
 		throw new Error();
 	}

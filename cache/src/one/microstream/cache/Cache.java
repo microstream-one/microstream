@@ -39,7 +39,7 @@ import javax.cache.integration.CompletionListener;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
 
-import one.microstream.cache.MBeanServerRegistrationUtility.ObjectNameType;
+import one.microstream.cache.MBeanServerRegistrationUtils.ObjectNameType;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XList;
@@ -1418,11 +1418,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.isStatisticsEnabled = enabled;
 			if(enabled)
 			{
-				MBeanServerRegistrationUtility.registerCacheObject(this, ObjectNameType.Statistics);
+				MBeanServerRegistrationUtils.registerCacheObject(this, ObjectNameType.Statistics);
 			}
 			else
 			{
-				MBeanServerRegistrationUtility.unregisterCacheObject(this, ObjectNameType.Statistics);
+				MBeanServerRegistrationUtils.unregisterCacheObject(this, ObjectNameType.Statistics);
 			}
 		}
 		
@@ -1431,11 +1431,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		{
 			if(enabled)
 			{
-				MBeanServerRegistrationUtility.registerCacheObject(this, ObjectNameType.Configuration);
+				MBeanServerRegistrationUtils.registerCacheObject(this, ObjectNameType.Configuration);
 			}
 			else
 			{
-				MBeanServerRegistrationUtility.unregisterCacheObject(this, ObjectNameType.Configuration);
+				MBeanServerRegistrationUtils.unregisterCacheObject(this, ObjectNameType.Configuration);
 			}
 		}
 		
