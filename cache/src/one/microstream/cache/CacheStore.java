@@ -23,22 +23,22 @@ import one.microstream.storage.types.EmbeddedStorageManager;
 
 public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 {
-	public static <K, V> CacheStore<K, V> New(final EmbeddedStorageManager storage, final String cacheName)
+	public static <K, V> CacheStore<K, V> New(final String cacheKey, final EmbeddedStorageManager storage)
 	{
-		return new Default<>(storage, cacheName);
+		return new Default<>(cacheKey, storage);
 	}
 	
 	public static class Default<K, V> implements CacheStore<K, V>
 	{
+		private final String                 cacheKey;
 		private final EmbeddedStorageManager storage;
-		private final String                 cacheName;
 		
-		Default(final EmbeddedStorageManager storage, final String cacheName)
+		Default(final String cacheKey, final EmbeddedStorageManager storage)
 		{
 			super();
-			
-			this.storage   = notNull(storage);
-			this.cacheName = notEmpty(cacheName);
+
+			this.cacheKey = notEmpty(cacheKey);
+			this.storage  = notNull(storage);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -53,7 +53,7 @@ public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 					this.storage.storeRoot();
 				}
 				XTable<K, Lazy<V>> cacheTable;
-				if((cacheTable = Lazy.get(root.get(this.cacheName))) == null && create)
+				if((cacheTable = Lazy.get(root.get(this.cacheKey))) == null && create)
 				{
 					this.storage.store(cacheTable = EqHashTable.New());
 				}
@@ -64,76 +64,117 @@ public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 		@Override
 		public synchronized V load(final K key) throws CacheLoaderException
 		{
-			final XTable<K, Lazy<V>> cacheTable;
-			return (cacheTable = this.cacheTable(false)) != null
-				? Lazy.get(cacheTable.get(key))
-				: null;
+			try
+			{
+				final XTable<K, Lazy<V>> cacheTable;
+				return (cacheTable = this.cacheTable(false)) != null
+					? Lazy.get(cacheTable.get(key))
+					: null;
+			}
+			catch(final Exception e)
+			{
+				throw new CacheLoaderException(e);
+			}
 		}
 		
 		@Override
 		public synchronized Map<K, V> loadAll(final Iterable<? extends K> keys) throws CacheLoaderException
 		{
-			final Map<K, V>          result = new HashMap<>();
-			final XTable<K, Lazy<V>> cacheTable;
-			if((cacheTable = this.cacheTable(false)) != null)
+			try
 			{
-				keys.forEach(key -> result.put(key, Lazy.get(cacheTable.get(key))));
+				final Map<K, V>          result = new HashMap<>();
+				final XTable<K, Lazy<V>> cacheTable;
+				if((cacheTable = this.cacheTable(false)) != null)
+				{
+					keys.forEach(key -> result.put(key, Lazy.get(cacheTable.get(key))));
+				}
+				return result;
 			}
-			return result;
+			catch(final Exception e)
+			{
+				throw new CacheLoaderException(e);
+			}
 		}
 		
 		@Override
 		public synchronized void write(final Entry<? extends K, ? extends V> entry) throws CacheWriterException
 		{
-			final XTable<K, Lazy<V>> cacheTable = this.cacheTable(true);
-			cacheTable.put(entry.getKey(), Lazy.Reference(entry.getValue()));
-			this.storage.store(cacheTable);
+			try
+			{
+				final XTable<K, Lazy<V>> cacheTable = this.cacheTable(true);
+				cacheTable.put(entry.getKey(), Lazy.Reference(entry.getValue()));
+				this.storage.store(cacheTable);
+			}
+			catch(final Exception e)
+			{
+				throw new CacheWriterException(e);
+			}
 		}
 		
 		@Override
 		public synchronized void writeAll(final Collection<Entry<? extends K, ? extends V>> entries)
 			throws CacheWriterException
 		{
-			final XTable<K, Lazy<V>> cacheTable = this.cacheTable(true);
-			entries.forEach(entry -> cacheTable.put(entry.getKey(), Lazy.Reference(entry.getValue())));
-			this.storage.store(cacheTable);
+			try
+			{
+				final XTable<K, Lazy<V>> cacheTable = this.cacheTable(true);
+				entries.forEach(entry -> cacheTable.put(entry.getKey(), Lazy.Reference(entry.getValue())));
+				this.storage.store(cacheTable);
+			}
+			catch(final Exception e)
+			{
+				throw new CacheWriterException(e);
+			}
 		}
 		
 		@SuppressWarnings("unchecked") // Object in typed interface [sigh]
 		@Override
 		public synchronized void delete(final Object key) throws CacheWriterException
 		{
-			final XTable<K, Lazy<V>> cacheTable;
-			if((cacheTable = this.cacheTable(false)) != null
-				&& cacheTable.removeFor((K)key) != null)
+			try
 			{
-				this.storage.store(cacheTable);
+				final XTable<K, Lazy<V>> cacheTable;
+				if((cacheTable = this.cacheTable(false)) != null
+					&& cacheTable.removeFor((K)key) != null)
+				{
+					this.storage.store(cacheTable);
+				}
+			}
+			catch(final Exception e)
+			{
+				throw new CacheWriterException(e);
 			}
 		}
 		
 		@Override
 		public synchronized void deleteAll(final Collection<?> keys) throws CacheWriterException
 		{
-			final XTable<K, Lazy<V>> cacheTable;
-			if((cacheTable = this.cacheTable(false)) != null)
+			try
 			{
-				boolean     changed  = false;
-				final Iterator<?> iterator = keys.iterator();
-				while(iterator.hasNext())
+				final XTable<K, Lazy<V>> cacheTable;
+				if((cacheTable = this.cacheTable(false)) != null)
 				{
-					@SuppressWarnings("unchecked")
-					final
-					K key = (K)iterator.next();
-					if(cacheTable.removeFor(key) != null)
+					boolean           changed  = false;
+					final Iterator<?> iterator = keys.iterator();
+					while(iterator.hasNext())
 					{
-						iterator.remove();
-						changed = true;
+						@SuppressWarnings("unchecked")
+						final K key = (K)iterator.next();
+						if(cacheTable.removeFor(key) != null)
+						{
+							iterator.remove();
+							changed = true;
+						}
+					}
+					if(changed)
+					{
+						this.storage.store(cacheTable);
 					}
 				}
-				if(changed)
-				{
-					this.storage.store(cacheTable);
-				}
+			}
+			catch(final Exception e)
+			{
+				throw new CacheWriterException(e);
 			}
 		}
 		

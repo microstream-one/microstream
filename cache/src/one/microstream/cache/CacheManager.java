@@ -7,6 +7,8 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.Properties;
 
+import javax.cache.CacheException;
+import javax.cache.configuration.CompleteConfiguration;
 import javax.cache.configuration.Configuration;
 
 import one.microstream.collections.EqHashTable;
@@ -14,6 +16,8 @@ import one.microstream.collections.EqHashTable;
 
 public interface CacheManager extends javax.cache.CacheManager
 {
+	public void removeCache(final String cacheName);
+	
 	@Override
 	public default <T> T unwrap(final Class<T> clazz)
 	{
@@ -90,57 +94,155 @@ public interface CacheManager extends javax.cache.CacheManager
 		public <K, V, C extends Configuration<K, V>> Cache<K, V>
 			createCache(final String cacheName, final C configuration) throws IllegalArgumentException
 		{
-			// TODO Auto-generated method stub
-			return null;
+			if(this.getCache(cacheName) != null)
+			{
+				throw new CacheException("A cache named " + cacheName + " already exists.");
+			}
+			
+			notNull(configuration);
+			
+			synchronized(this.caches)
+			{
+				final Cache<K, V> cache = Cache.New(cacheName, this, configuration, this.getClassLoader());
+				this.caches.put(cacheName, cache);
+				return cache;
+			}
 		}
 		
-		@Override
-		public <K, V> Cache<K, V> getCache(final String cacheName, final Class<K> keyType, final Class<V> valueType)
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
+		@SuppressWarnings("unchecked")
 		@Override
 		public <K, V> Cache<K, V> getCache(final String cacheName)
 		{
-			// TODO Auto-generated method stub
-			return null;
+			this.ensureOpen();
+			
+			synchronized(this.caches)
+			{
+				return (Cache<K, V>)this.caches.get(notNull(cacheName));
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public <K, V> Cache<K, V> getCache(final String cacheName, final Class<K> keyType, final Class<V> valueType)
+		{
+			this.ensureOpen();
+			
+			notNull(keyType);
+			notNull(valueType);
+			
+			Cache<K, V> cache;
+			synchronized(this.caches)
+			{
+				cache = (Cache<K, V>)this.caches.get(notNull(cacheName));
+			}
+			if(cache == null)
+			{
+				return null;
+			}
+			
+			final CompleteConfiguration<K, V> configuration       = cache.getConfiguration(CompleteConfiguration.class);
+			final Class<K>                    configuredKeyType   = configuration.getKeyType();
+			final Class<V>                    configuredValueType = configuration.getValueType();
+			if(configuredKeyType != null && !configuredKeyType.equals(keyType))
+			{
+				throw new ClassCastException("Incompatible key types: " + keyType + " <> " + configuredKeyType);
+			}
+			if(configuredValueType != null && !configuredValueType.equals(valueType))
+			{
+				throw new ClassCastException("Incompatible value types: " + valueType + " <> " + configuredValueType);
+			}
+			
+			return cache;
 		}
 		
 		@Override
 		public Iterable<String> getCacheNames()
 		{
-			// TODO Auto-generated method stub
-			return null;
+			this.ensureOpen();
+			
+			synchronized(this.caches)
+			{
+				return this.caches.keys().immure();
+			}
 		}
 		
 		@Override
 		public void destroyCache(final String cacheName)
 		{
-			// TODO Auto-generated method stub
+			this.ensureOpen();
 			
+			Cache<?, ?> cache;
+			synchronized(this.caches)
+			{
+				cache = this.caches.get(notNull(cacheName));
+			}
+			cache.close();
+		}
+		
+		@Override
+		public void removeCache(final String cacheName)
+		{
+			notNull(cacheName);
+			
+			synchronized(this.caches)
+			{
+				this.caches.removeFor(cacheName);
+			}
 		}
 		
 		@Override
 		public void enableManagement(final String cacheName, final boolean enabled)
 		{
-			// TODO Auto-generated method stub
+			this.ensureOpen();
 			
+			synchronized(this.caches)
+			{
+				this.caches.get(notNull(cacheName)).setManagementEnabled(enabled);
+			}
 		}
 		
 		@Override
 		public void enableStatistics(final String cacheName, final boolean enabled)
 		{
-			// TODO Auto-generated method stub
+			this.ensureOpen();
 			
+			synchronized(this.caches)
+			{
+				this.caches.get(notNull(cacheName)).setStatisticsEnabled(enabled);
+			}
 		}
 		
 		@Override
-		public void close()
+		public synchronized void close()
 		{
-			// TODO Auto-generated method stub
+			if(this.isClosed)
+			{
+				// no-op
+				return;
+			}
 			
+			this.isClosed = true;
+			
+			this.cachingProvider.remove(this.getURI(), this.getClassLoader());
+			
+			try
+			{
+				this.caches.values().forEach(Cache::close);
+			}
+			finally
+			{
+				this.caches.clear();
+			}
 		}
+		
+		private void ensureOpen()
+		{
+			if(this.isClosed)
+			{
+				throw new IllegalStateException("CacheManager is closed");
+			}
+		}
+		
 	}
+	
 }

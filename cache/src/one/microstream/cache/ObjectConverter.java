@@ -36,6 +36,7 @@ public interface ObjectConverter
 		{
 			return (T)internal;
 		}
+		
 	}
 	
 	public static class ByValue implements ObjectConverter
@@ -63,5 +64,7 @@ public interface ObjectConverter
 			final byte[] data = ((SerializedObject)internal).serializedData();
 			return (T)this.serializer.read(data);
 		}
+		
 	}
+	
 }

@@ -41,5 +41,7 @@ public interface SerializedObject
 			return obj == this ||
 				(obj instanceof SerializedObject && obj.hashCode() == this.hashCode);
 		}
+		
 	}
+	
 }
