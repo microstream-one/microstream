@@ -77,6 +77,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		return Unwrappable.Static.unwrap(this, clazz);
 	}
 	
+	public static <K, V> Cache<K, V> New(
+		final String name,
+		final CacheManager manager,
+		final Configuration<K, V> configuration,
+		final ClassLoader classLoader)
+	{
+		return new Default<>(name, manager, configuration, classLoader);
+	}
+	
 	public static class Default<K, V> implements Cache<K, V>
 	{
 		private final String                                name;
@@ -85,8 +94,6 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private ObjectConverter                             objectConverter;
 		private CacheLoader<K, V>                           cacheLoader;
 		private CacheWriter<K, V>                           cacheWriter;
-		private boolean                                     isReadThrough;
-		private boolean                                     isWriteThrough;
 		private ExpiryPolicy                                expiryPolicy;
 		private XList<CacheEntryListenerRegistration<K, V>> listenerRegistrations;
 		private CacheMXBean                                 cacheMXBean;
@@ -135,19 +142,22 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				? ObjectConverter.ByValue(Serializer.get(classLoader))
 				: ObjectConverter.ByReference();
 			
-			final Factory<CacheLoader<K, V>> cacheLoaderFactory;
-			if((cacheLoaderFactory = this.configuration.getCacheLoaderFactory()) != null)
+			if(this.configuration.isReadThrough())
 			{
-				this.cacheLoader = cacheLoaderFactory.create();
+				final Factory<CacheLoader<K, V>> cacheLoaderFactory;
+				if((cacheLoaderFactory = this.configuration.getCacheLoaderFactory()) != null)
+				{
+					this.cacheLoader = cacheLoaderFactory.create();
+				}
 			}
-			final Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory;
-			if((cacheWriterFactory = this.configuration.getCacheWriterFactory()) != null)
+			if(this.configuration.isWriteThrough())
 			{
-				this.cacheWriter = (CacheWriter<K, V>)cacheWriterFactory.create();
+				final Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory;
+				if((cacheWriterFactory = this.configuration.getCacheWriterFactory()) != null)
+				{
+					this.cacheWriter = (CacheWriter<K, V>)cacheWriterFactory.create();
+				}
 			}
-			
-			this.isReadThrough  = this.configuration.isReadThrough() && this.cacheLoader != null;
-			this.isWriteThrough = this.configuration.isWriteThrough() && this.cacheWriter != null;
 			
 			Factory<ExpiryPolicy> expiryPolicyFactory;
 			this.expiryPolicy          = (expiryPolicyFactory = this.configuration.getExpiryPolicyFactory()) != null
@@ -163,7 +173,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			{
 				this.setManagementEnabled(true);
 			}
-			if(this.isStatisticsEnabled = this.configuration.isStatisticsEnabled())
+			if(this.configuration.isStatisticsEnabled())
 			{
 				this.setStatisticsEnabled(true);
 			}
@@ -210,9 +220,6 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 		
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public void deregisterCacheEntryListener(
 			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
@@ -245,7 +252,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			this.isClosed = true;
 			
-			// TODO this.manager.releaseCache(this);
+			this.manager.removeCache(this.name);
 			
 			this.setStatisticsEnabled(false);
 			this.setManagementEnabled(false);
@@ -343,7 +350,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		{
 			this.ensureOpen();
 			
-			if(this.isReadThrough)
+			if(this.cacheLoader != null)
 			{
 				keys.forEach(this::validateKey);
 				
@@ -412,19 +419,20 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public void put(final K key, final V value)
 		{
-			final long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			this.validateKeyValue(key, value);
 			
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			int                              putCount        = 0;
-			final long                       now             = System.currentTimeMillis();
-			final Object                     internalKey     = this.objectConverter.toInternal(key);
-			final Object                     internalValue   = this.objectConverter.toInternal(value);
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			int                              putCount            = 0;
+			final long                       now                 = System.currentTimeMillis();
+			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			final Object                     internalValue       = this.objectConverter.toInternal(value);
 			
 			synchronized(this.hashTable)
 			{
@@ -476,7 +484,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				eventDispatcher.dispatch(this.listenerRegistrations);
 			}
 			
-			if(this.isStatisticsEnabled && putCount > 0)
+			if(isStatisticsEnabled && putCount > 0)
 			{
 				this.cacheStatisticsMXBean.increaseCachePuts(putCount);
 				this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
@@ -486,20 +494,21 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public V getAndPut(final K key, final V value)
 		{
-			final long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			this.validateKeyValue(key, value);
 			
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
 			V                                result;
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			int                              putCount        = 0;
-			final long                       now             = System.currentTimeMillis();
-			final Object                     internalKey     = this.objectConverter.toInternal(key);
-			final Object                     internalValue   = this.objectConverter.toInternal(value);
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			int                              putCount            = 0;
+			final long                       now                 = System.currentTimeMillis();
+			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			final Object                     internalValue       = this.objectConverter.toInternal(value);
 			
 			synchronized(this.hashTable)
 			{
@@ -553,7 +562,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				eventDispatcher.dispatch(this.listenerRegistrations);
 			}
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				if(result == null)
 				{
@@ -596,24 +605,25 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final boolean replaceExistingValues,
 			final boolean useWriteThrough)
 		{
-			final long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			map.keySet().forEach(this::validateKey);
 			map.values().forEach(this::validateValue);
 			
-			final long                       now             = System.currentTimeMillis();
-			int                              putCount        = 0;
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			CacheWriterException             exception       = null;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			final long                       now                 = System.currentTimeMillis();
+			int                              putCount            = 0;
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			CacheWriterException             exception           = null;
 			
 			synchronized(this.hashTable)
 			{
 				final boolean                                           isWriteThrough =
-					this.isWriteThrough && useWriteThrough;
+					this.cacheWriter != null && useWriteThrough;
 				
 				final Collection<Cache.Entry<? extends K, ? extends V>> entriesToWrite = new ArrayList<>();
 				final HashSet<K>                                        keysToPut      = new HashSet<>();
@@ -715,7 +725,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
 			
-			if(this.isStatisticsEnabled && putCount > 0)
+			if(isStatisticsEnabled && putCount > 0)
 			{
 				this.cacheStatisticsMXBean.increaseCachePuts(putCount);
 				this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
@@ -730,18 +740,19 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public boolean putIfAbsent(final K key, final V value)
 		{
-			final long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			this.validateKeyValue(key, value);
 			
-			final long                       now             = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			final Object                     internalKey     = this.objectConverter.toInternal(key);
-			final Object                     internalValue   = this.objectConverter.toInternal(value);
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			final long                       now                 = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			final Object                     internalValue       = this.objectConverter.toInternal(value);
 			boolean                          result;
 			
 			synchronized(this.hashTable)
@@ -787,7 +798,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				if(result)
 				{
@@ -807,17 +818,18 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public boolean remove(final K key)
 		{
-			final long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			this.validateKey(key);
 			
-			final long                       now             = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			final long                       now                 = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final Object                     internalKey         = this.objectConverter.toInternal(key);
 			boolean                          result;
 			
 			synchronized(this.hashTable)
@@ -848,7 +860,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
 			
-			if(result && this.isStatisticsEnabled)
+			if(result && isStatisticsEnabled)
 			{
 				this.cacheStatisticsMXBean.increaseCacheRemovals(1);
 				this.cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
@@ -860,18 +872,19 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public boolean remove(final K key, final V oldValue)
 		{
-			final long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			this.validateKeyValue(key, oldValue);
 			
-			final long                       now             = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			final Object                     internalKey     = this.objectConverter.toInternal(key);
-			long                             hitCount        = 0;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			final long                       now                 = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			boolean                          hit                 = false;
 			boolean                          result;
 			
 			synchronized(this.hashTable)
@@ -883,7 +896,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 				else
 				{
-					hitCount++;
+					hit = true;
 					
 					final Object internalValue    = cachedValue.value();
 					final Object oldInternalValue = this.objectConverter.toInternal(oldValue);
@@ -910,7 +923,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				final long duration = System.nanoTime() - start;
 				if(result)
@@ -919,9 +932,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					this.cacheStatisticsMXBean.addRemoveTimeNano(duration);
 				}
 				this.cacheStatisticsMXBean.addGetTimeNano(duration);
-				if(hitCount == 1)
+				if(hit)
 				{
-					this.cacheStatisticsMXBean.increaseCacheHits(hitCount);
+					this.cacheStatisticsMXBean.increaseCacheHits(1);
 				}
 				else
 				{
@@ -935,17 +948,18 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public V getAndRemove(final K key)
 		{
-			final long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			this.validateKey(key);
 			
-			final long                       now             = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			final long                       now                 = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final Object                     internalKey         = this.objectConverter.toInternal(key);
 			V                                result;
 			
 			synchronized(this.hashTable)
@@ -969,7 +983,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				final long duration = System.nanoTime() - start;
 				this.cacheStatisticsMXBean.addGetTimeNano(duration);
@@ -991,20 +1005,21 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public boolean replace(final K key, final V oldValue, final V newValue)
 		{
-			final long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			this.validateKey(key);
 			this.validateValue(oldValue);
 			this.validateValue(newValue);
 			
-			final long                       now             = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			final Object                     internalKey     = this.objectConverter.toInternal(key);
-			long                             hitCount        = 0;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			final long                       now                 = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			long                             hitCount            = 0;
 			boolean                          result;
 			
 			synchronized(this.hashTable)
@@ -1046,7 +1061,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				final long duration = System.nanoTime() - start;
 				if(result)
@@ -1071,17 +1086,18 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public boolean replace(final K key, final V value)
 		{
-			final long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			this.validateKeyValue(key, value);
 			
-			final long                       now             = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			final long                       now                 = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final Object                     internalKey         = this.objectConverter.toInternal(key);
 			boolean                          result;
 			
 			synchronized(this.hashTable)
@@ -1112,7 +1128,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				final long duration = System.nanoTime() - start;
 				this.cacheStatisticsMXBean.addGetTimeNano(duration);
@@ -1134,17 +1150,18 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public V getAndReplace(final K key, final V value)
 		{
-			final long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			this.validateKeyValue(key, value);
 			
-			final long                       now             = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
+			
+			final long                       now                 = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final Object                     internalKey         = this.objectConverter.toInternal(key);
 			V                                result;
 			
 			synchronized(this.hashTable)
@@ -1175,7 +1192,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				final long duration = System.nanoTime() - start;
 				this.cacheStatisticsMXBean.addGetTimeNano(duration);
@@ -1201,16 +1218,17 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			keys.forEach(this::validateKey);
 			
-			final long                       now             = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			final HashSet<K>                 cacheWriterKeys = new HashSet<>();
-			final HashSet<Object>            deletedKeys     = new HashSet<>();
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       now                 = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final HashSet<K>                 cacheWriterKeys     = new HashSet<>();
+			final HashSet<Object>            deletedKeys         = new HashSet<>();
 			cacheWriterKeys.addAll(keys);
 			CacheException exception = null;
 			
 			synchronized(this.hashTable)
 			{
-				if(this.isWriteThrough)
+				if(this.cacheWriter != null)
 				{
 					try
 					{
@@ -1282,7 +1300,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				this.cacheStatisticsMXBean.increaseCacheRemovals(deletedKeys.size());
 			}
@@ -1298,10 +1316,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		{
 			this.ensureOpen();
 			
-			int                              removed         = 0;
-			final long                       now             = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			CacheException                   exception       = null;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			int                              removed             = 0;
+			final long                       now                 = System.currentTimeMillis();
+			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			CacheException                   exception           = null;
 			
 			synchronized(this.hashTable)
 			{
@@ -1309,7 +1328,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				this.hashTable.keys().forEach(key -> keys.add(this.objectConverter.fromInternal(key)));
 				final HashSet<K> keysToDelete = new HashSet<>(keys);
 				
-				if(this.isWriteThrough && keysToDelete.size() > 0)
+				if(this.cacheWriter != null && keysToDelete.size() > 0)
 				{
 					try
 					{
@@ -1351,7 +1370,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				this.cacheStatisticsMXBean.increaseCacheRemovals(removed);
 			}
@@ -1396,6 +1415,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public void setStatisticsEnabled(final boolean enabled)
 		{
+			this.isStatisticsEnabled = enabled;
 			if(enabled)
 			{
 				MBeanServerRegistrationUtility.registerCacheObject(this, ObjectNameType.Statistics);
@@ -1404,7 +1424,6 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			{
 				MBeanServerRegistrationUtility.unregisterCacheObject(this, ObjectNameType.Statistics);
 			}
-			this.configuration.setStatisticsEnabled(enabled);
 		}
 		
 		@Override
@@ -1418,7 +1437,6 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			{
 				MBeanServerRegistrationUtility.unregisterCacheObject(this, ObjectNameType.Configuration);
 			}
-			this.configuration.setManagementEnabled(enabled);
 		}
 		
 		@Override
@@ -1462,13 +1480,14 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		public <T> T invoke(final K key, final EntryProcessor<K, V, T> entryProcessor, final Object... arguments)
 			throws EntryProcessorException
 		{
-			long start = this.isStatisticsEnabled
-				? System.nanoTime()
-				: 0;
-			
 			this.ensureOpen();
 			
 			this.validateKey(key);
+			
+			final boolean isStatisticsEnabled = this.isStatisticsEnabled;
+			long          start               = isStatisticsEnabled
+				? System.nanoTime()
+				: 0;
 			
 			notNull(entryProcessor);
 			
@@ -1488,7 +1507,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
 				}
 				
-				if(this.isStatisticsEnabled)
+				if(isStatisticsEnabled)
 				{
 					if(cachedValue == null || isExpired)
 					{
@@ -1505,8 +1524,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 				
 				final MutableCacheEntry<K, V> entry = MutableCacheEntry.New(
-					this.objectConverter, key, cachedValue, now,
-					this.isReadThrough ? this.cacheLoader : null);
+					this.objectConverter, key, cachedValue, now, this.cacheLoader);
 				try
 				{
 					result = entryProcessor.process(entry, arguments);
@@ -1520,7 +1538,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					throw new EntryProcessorException(e);
 				}
 				
-				this.finishInvocation(key, internalKey, cachedValue, entry, start, now, eventDispatcher);
+				this.finishInvocation(key, internalKey, cachedValue, entry, start, now, eventDispatcher,
+					isStatisticsEnabled);
 			}
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
@@ -1536,7 +1555,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final MutableCacheEntry<K, V> entry,
 			final long start,
 			final long now,
-			final CacheEventDispatcher<K, V> eventDispatcher)
+			final CacheEventDispatcher<K, V> eventDispatcher,
+			final boolean isStatisticsEnabled)
 		{
 			switch(entry.getOperation())
 			{
@@ -1549,19 +1569,22 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				case CREATE:
 				case LOAD:
 				{
-					this.finishInvocationCreateLoad(key, internalKey, entry, start, now, eventDispatcher);
+					this.finishInvocationCreateLoad(key, internalKey, entry, start, now, eventDispatcher,
+						isStatisticsEnabled);
 				}
 					break;
 				
 				case UPDATE:
 				{
-					this.finishInvocationUpdate(key, entry, cachedValue, start, now, eventDispatcher);
+					this.finishInvocationUpdate(key, entry, cachedValue, start, now, eventDispatcher,
+						isStatisticsEnabled);
 				}
 					break;
 				
 				case REMOVE:
 				{
-					this.finishInvocationRemove(key, internalKey, cachedValue, start, eventDispatcher);
+					this.finishInvocationRemove(key, internalKey, cachedValue, start, eventDispatcher,
+						isStatisticsEnabled);
 				}
 					break;
 			}
@@ -1573,7 +1596,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final MutableCacheEntry<K, V> entry,
 			final long start,
 			final long now,
-			final CacheEventDispatcher<K, V> eventDispatcher)
+			final CacheEventDispatcher<K, V> eventDispatcher,
+			final boolean isStatisticsEnabled)
 		{
 			CachedValue            cachedValue;
 			final CacheEntry<K, V> e = CacheEntry.New(key, entry.getValue());
@@ -1600,7 +1624,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					new CacheEvent<>(this, EventType.CREATED, key, entry.getValue()));
 				
 				// do not count LOAD as a put for cache statistics.
-				if(this.isStatisticsEnabled && entry.getOperation() == MutableCacheEntry.Operation.CREATE)
+				if(isStatisticsEnabled && entry.getOperation() == MutableCacheEntry.Operation.CREATE)
 				{
 					this.cacheStatisticsMXBean.increaseCachePuts(1);
 					this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
@@ -1614,7 +1638,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CachedValue cachedValue,
 			final long start,
 			final long now,
-			final CacheEventDispatcher<K, V> eventDispatcher)
+			final CacheEventDispatcher<K, V> eventDispatcher,
+			final boolean isStatisticsEnabled)
 		{
 			final V                oldValue = this.objectConverter.fromInternal(cachedValue.value());
 			
@@ -1628,7 +1653,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
 				new CacheEvent<>(this, EventType.UPDATED, key, entry.getValue(), oldValue));
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				this.cacheStatisticsMXBean.increaseCachePuts(1);
 				this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
@@ -1640,7 +1665,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final Object internalKey,
 			final CachedValue cachedValue,
 			final long start,
-			final CacheEventDispatcher<K, V> eventDispatcher)
+			final CacheEventDispatcher<K, V> eventDispatcher,
+			final boolean isStatisticsEnabled)
 		{
 			this.deleteCacheEntry(key);
 			
@@ -1652,7 +1678,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			eventDispatcher.addEvent(CacheEntryRemovedListener.class,
 				new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue));
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				this.cacheStatisticsMXBean.increaseCacheRemovals(1);
 				this.cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
@@ -1661,7 +1687,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		private void ensureOpen()
 		{
-			if(this.isClosed())
+			if(this.isClosed)
 			{
 				throw new IllegalStateException("Cache is closed");
 			}
@@ -1703,14 +1729,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		private V getValue(final K key, final CacheEventDispatcher<K, V> eventDispatcher)
 		{
-			final long   start       = this.isStatisticsEnabled
+			final boolean isStatisticsEnabled = this.isStatisticsEnabled;
+			final long    start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
 			
-			final long   now         = System.currentTimeMillis();
-			final Object internalKey = this.objectConverter.toInternal(key);
-			CachedValue  cachedValue = null;
-			V            value       = null;
+			final long    now                 = System.currentTimeMillis();
+			final Object  internalKey         = this.objectConverter.toInternal(key);
+			CachedValue   cachedValue         = null;
+			V             value               = null;
 			
 			synchronized(this.hashTable)
 			{
@@ -1728,7 +1755,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
 					}
 					
-					if(this.isStatisticsEnabled)
+					if(isStatisticsEnabled)
 					{
 						this.cacheStatisticsMXBean.increaseCacheMisses(1);
 					}
@@ -1759,14 +1786,14 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					value = this.objectConverter.fromInternal(cachedValue.value(now));
 					this.updateExpiryForAccess(cachedValue, now);
 					
-					if(this.isStatisticsEnabled)
+					if(isStatisticsEnabled)
 					{
 						this.cacheStatisticsMXBean.increaseCacheHits(1);
 					}
 				}
 			}
 			
-			if(this.isStatisticsEnabled)
+			if(isStatisticsEnabled)
 			{
 				this.cacheStatisticsMXBean.addGetTimeNano(System.nanoTime() - start);
 			}
@@ -1786,7 +1813,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 			catch(final Throwable t)
 			{
-				// XXX Spec says leave the expiry time untouched when we can't determine a duration
+				// Spec says leave the expiry time untouched when we can't determine a duration
 			}
 		}
 		
@@ -1802,7 +1829,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 			catch(final Throwable t)
 			{
-				// XXX Spec says leave the expiry time untouched when we can't determine a duration
+				// Spec says leave the expiry time untouched when we can't determine a duration
 			}
 		}
 		
@@ -1820,7 +1847,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		private Duration expiryForCreation()
 		{
-			// XXX Spec says if exception happens, a default duration should be used.
+			// Spec says if exception happens, a default duration should be used.
 			try
 			{
 				return this.expiryPolicy.getExpiryForCreation();
@@ -1843,7 +1870,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		private V loadCacheEntry(final K key, final V value)
 		{
-			if(this.isReadThrough)
+			if(this.cacheLoader != null)
 			{
 				try
 				{
@@ -1864,7 +1891,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		private void writeCacheEntry(final CacheEntry<K, V> entry)
 		{
-			if(this.isWriteThrough)
+			if(this.cacheWriter != null)
 			{
 				try
 				{
@@ -1883,7 +1910,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		private void deleteCacheEntry(final K key)
 		{
-			if(this.isWriteThrough)
+			if(this.cacheWriter != null)
 			{
 				try
 				{
@@ -1921,18 +1948,20 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			private CacheEntry<K, V>                              nextEntry;
 			private CacheEntry<K, V>                              lastEntry;
 			private final long                                    now;
+			private final boolean                                 isStatisticsEnabled;
 			
 			EntryIterator(final Iterator<KeyValue<Object, CachedValue>> iterator)
 			{
-				this.iterator  = iterator;
-				this.nextEntry = null;
-				this.lastEntry = null;
-				this.now       = System.currentTimeMillis();
+				this.iterator            = iterator;
+				this.nextEntry           = null;
+				this.lastEntry           = null;
+				this.now                 = System.currentTimeMillis();
+				this.isStatisticsEnabled = Cache.Default.this.isStatisticsEnabled;
 			}
 			
 			private void fetch()
 			{
-				final long start = Cache.Default.this.isStatisticsEnabled
+				final long start = this.isStatisticsEnabled
 					? System.nanoTime()
 					: 0;
 				while(this.nextEntry == null && this.iterator.hasNext())
@@ -1956,13 +1985,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 							}
 							catch(final Throwable t)
 							{
-								// leave the expiry time untouched when we can't determine a duration
+								// Spec says leave the expiry time untouched when we can't determine a duration
 							}
 						}
 					}
 					finally
 					{
-						if(Cache.Default.this.isStatisticsEnabled && this.nextEntry != null)
+						if(this.isStatisticsEnabled && this.nextEntry != null)
 						{
 							Cache.Default.this.cacheStatisticsMXBean.increaseCacheHits(1);
 							Cache.Default.this.cacheStatisticsMXBean.addGetTimeNano(System.nanoTime() - start);
@@ -1971,9 +2000,6 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 			}
 			
-			/**
-			 * {@inheritDoc}
-			 */
 			@Override
 			public boolean hasNext()
 			{
@@ -1984,9 +2010,6 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				return this.nextEntry != null;
 			}
 			
-			/**
-			 * {@inheritDoc}
-			 */
 			@Override
 			public Entry<K, V> next()
 			{
@@ -2006,32 +2029,27 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 			}
 			
-			/**
-			 * {@inheritDoc}
-			 */
 			@Override
 			public void remove()
 			{
-				int cacheRemovals = 0;
 				if(this.lastEntry == null)
 				{
 					throw new IllegalStateException("Must progress to the next entry to remove");
 				}
 				
-				final long start = Cache.Default.this.isStatisticsEnabled
+				final long start         = this.isStatisticsEnabled
 					? System.nanoTime()
 					: 0;
+				int        cacheRemovals = 0;
 				try
 				{
 					Cache.Default.this.deleteCacheEntry(this.lastEntry.getKey());
 					
-					// NOTE: there is the possibility here that the entry the application
-					// retrieved
-					// may have been replaced / expired or already removed since it
-					// retrieved it.
-					
-					// we simply don't care here as multiple-threads are ok to remove and see
-					// such side-effects
+					/*
+					 * NOTE: There is the possibility here that the entry the application retrieved may have been
+					 * replaced / expired or already removed since it retrieved it. We simply don't care here as
+					 * multiple-threads are ok to remove and see such side-effects.
+					 */
 					this.iterator.remove();
 					cacheRemovals++;
 					
@@ -2046,7 +2064,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				{
 					// reset lastEntry (we can't attempt to remove it again)
 					this.lastEntry = null;
-					if(Cache.Default.this.isStatisticsEnabled && cacheRemovals > 0)
+					if(this.isStatisticsEnabled && cacheRemovals > 0)
 					{
 						Cache.Default.this.cacheStatisticsMXBean.increaseCacheRemovals(cacheRemovals);
 						Cache.Default.this.cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
