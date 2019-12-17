@@ -2,6 +2,7 @@
 package one.microstream.cache;
 
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.LongSupplier;
 
 
 public interface CacheStatisticsMXBean extends javax.cache.management.CacheStatisticsMXBean
@@ -25,16 +26,11 @@ public interface CacheStatisticsMXBean extends javax.cache.management.CacheStati
 	public void addRemoveTimeNano(final long duration);
 	
 	
-	public static CacheStatisticsMXBean New(final Cache<?, ?> cache)
-	{
-		return new Default(cache);
-	}
-	
 	public static class Default implements CacheStatisticsMXBean
 	{
 		private final static long     NANOSECONDS_IN_A_MICROSECOND = 1000L;
 		
-		private final transient Cache<?, ?> cache;
+		private final transient LongSupplier sizeSupplier;
 		
 		private final AtomicLong      cacheRemovals                = new AtomicLong();
 		private final AtomicLong      cacheExpiries                = new AtomicLong();
@@ -46,9 +42,9 @@ public interface CacheStatisticsMXBean extends javax.cache.management.CacheStati
 		private final AtomicLong      cacheGetTimeTakenNanos       = new AtomicLong();
 		private final AtomicLong      cacheRemoveTimeTakenNanos    = new AtomicLong();
 		
-		Default(final Cache<?, ?> cache)
+		Default(final LongSupplier sizeSupplier)
 		{
-			this.cache = cache;
+			this.sizeSupplier = sizeSupplier;
 		}
 		
 		@Override
@@ -67,7 +63,7 @@ public interface CacheStatisticsMXBean extends javax.cache.management.CacheStati
 		
 		public long getEntryCount()
 		{
-			return ((Cache<?, ?>)this.cache).size();
+			return this.sizeSupplier.getAsLong();
 		}
 		
 		@Override

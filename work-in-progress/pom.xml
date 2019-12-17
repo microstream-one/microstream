@@ -31,6 +31,16 @@
 			<artifactId>persistence.binary.jdk8</artifactId>
 			<version>02.01.01-MS-GA-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>cache</artifactId>
+			<version>02.01.01-MS-GA-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+			<version>1.1.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
