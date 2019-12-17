@@ -36,7 +36,7 @@ public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 		Default(final String cacheKey, final EmbeddedStorageManager storage)
 		{
 			super();
-
+			
 			this.cacheKey = notEmpty(cacheKey);
 			this.storage  = notNull(storage);
 		}
@@ -46,16 +46,22 @@ public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 		{
 			synchronized(this.storage)
 			{
+				boolean                                  storeRoot = false;
 				XTable<String, Lazy<XTable<K, Lazy<V>>>> root;
 				if((root = (XTable<String, Lazy<XTable<K, Lazy<V>>>>)this.storage.root()) == null)
 				{
 					this.storage.setRoot(root = EqHashTable.New());
-					this.storage.storeRoot();
+					storeRoot = true;
 				}
 				XTable<K, Lazy<V>> cacheTable;
 				if((cacheTable = Lazy.get(root.get(this.cacheKey))) == null && create)
 				{
-					this.storage.store(cacheTable = EqHashTable.New());
+					root.put(this.cacheKey, Lazy.Reference(cacheTable = EqHashTable.New()));
+					storeRoot = true;
+				}
+				if(storeRoot)
+				{
+					this.storage.storeRoot();
 				}
 				return cacheTable;
 			}

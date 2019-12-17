@@ -13,7 +13,7 @@ import javax.management.ObjectName;
 class MBeanServerRegistrationUtils
 {
 	private static MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-	
+		
 	public enum ObjectNameType
 	{
 		Statistics,
@@ -26,6 +26,7 @@ class MBeanServerRegistrationUtils
 	{
 		// these can change during runtime, so always look it up
 		final ObjectName registeredObjectName = calculateObjectName(cache, objectNameType);
+				
 		try
 		{
 			if(objectNameType.equals(ObjectNameType.Configuration))
@@ -52,7 +53,6 @@ class MBeanServerRegistrationUtils
 	
 	static boolean isRegistered(final Cache<?, ?> cache, final ObjectNameType objectNameType)
 	{
-		
 		Set<ObjectName>  registeredObjectNames = null;
 		
 		final ObjectName objectName            = calculateObjectName(cache, objectNameType);

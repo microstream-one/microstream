@@ -166,8 +166,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			this.listenerRegistrations = BulkList.New();
 			
-			this.cacheMXBean           = CacheMXBean.New(this);
-			this.cacheStatisticsMXBean = CacheStatisticsMXBean.New(this);
+			this.cacheMXBean           = new CacheMXBean.Default(this.configuration);
+			this.cacheStatisticsMXBean = new CacheStatisticsMXBean.Default(this::size);
 			
 			if(this.configuration.isManagementEnabled())
 			{
