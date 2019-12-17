@@ -13,7 +13,7 @@ import one.microstream.util.cql.CQL;
 public interface PersistenceRoots extends PersistenceRootsView
 {
 	@Override
-	public PersistenceRootReference root();
+	public PersistenceRootReference rootReference();
 	
 	public XGettingTable<String, Object> entries();
 	
@@ -101,7 +101,7 @@ public interface PersistenceRoots extends PersistenceRootsView
 		}
 		
 		@Override
-		public final synchronized PersistenceRootReference root()
+		public final synchronized PersistenceRootReference rootReference()
 		{
 			return this.rootResolver.root();
 		}

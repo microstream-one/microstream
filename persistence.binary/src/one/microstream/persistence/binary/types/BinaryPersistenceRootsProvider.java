@@ -2,9 +2,11 @@ package one.microstream.persistence.binary.types;
 
 import static one.microstream.X.notNull;
 
+import one.microstream.persistence.types.BinaryHandlerPersistenceRootReferenceDefault;
 import one.microstream.persistence.types.BinaryHandlerPersistenceRootsDefault;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
+import one.microstream.persistence.types.PersistenceRootReference;
 import one.microstream.persistence.types.PersistenceRootResolver;
 import one.microstream.persistence.types.PersistenceRootResolverProvider;
 import one.microstream.persistence.types.PersistenceRoots;
@@ -90,14 +92,20 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 			final PersistenceObjectRegistry                    objectRegistry
 		)
 		{
-			final BinaryHandlerPersistenceRootsDefault handler = BinaryHandlerPersistenceRootsDefault.New(
+			final BinaryHandlerPersistenceRootsDefault rootsHandler = BinaryHandlerPersistenceRootsDefault.New(
 				this.rootResolverProvider,
 				objectRegistry
 			);
 			
-			// (10.12.2019 TM)TODO: priv#194: register BinaryHandlerPersistenceRootReferenceDefault here
+			final PersistenceRootReference rootReference = this.rootResolverProvider.rootReference();
+			final BinaryHandlerPersistenceRootReferenceDefault rootRefHandler = BinaryHandlerPersistenceRootReferenceDefault.New(
+				rootReference,
+				objectRegistry
+			);
 			
-			typeHandlerRegistry.registerTypeHandler(handler);
+			
+			typeHandlerRegistry.registerTypeHandler(rootsHandler);
+			typeHandlerRegistry.registerTypeHandler(rootRefHandler);
 		}
 
 	}
