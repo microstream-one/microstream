@@ -13,7 +13,7 @@ import one.microstream.typing.KeyValue;
 
 public interface PersistenceRootResolverProvider
 {
-	public PersistenceRootReference rootReference();
+	public PersistenceRootReferenceProvider<M> rootReference();
 	
 	public default String rootIdentifier()
 	{
