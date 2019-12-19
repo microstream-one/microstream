@@ -249,6 +249,13 @@ Ah: Der PersistenceRootResolverProvider hat eh schon einen Medium-bezogenen Teil
 Haha:\par
 Jetzt w\'fcrde das eigentlich alles super passen. Nur die Convenience-Methoden in ~Persistence passen jetzt nicht mehr.\par
 Der PersistenceRootResolverProvider braucht nun zwingend einen RootReferenceProvider. Und der braucht eine Binary Implementierung, die es im Persistence Projekt nicht gibt.\par
-Das verkompliziert bzw. eigentlich ruiniert den Convenience-Charakter...\fs22\par
+Das verkompliziert bzw. eigentlich ruiniert den Convenience-Charakter...\par
+\par
+Jetzt wei\'df ich, wie ich es mach:\par
+Das RootReferenceProvider Zeug kommt in den BinaryPersistenceRootsProvider rein. Das ist eh schon Binary Ebene. Beim PersistenceRootResolverProvider wird dann nur noch registriert.\par
+Sehr sch\'f6n ...\par
+\par
+Jo. So muss das funktionieren. Jetzt leider abendessen.\par
+\fs22\par
 }
  

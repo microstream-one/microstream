@@ -9,6 +9,7 @@ import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistryEns
 import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlerCreator;
 import one.microstream.persistence.types.PersistenceManager;
+import one.microstream.persistence.types.PersistenceRootReferenceProvider;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
 
@@ -253,8 +254,15 @@ extends PersistenceFoundation<Binary, F>
 		protected PersistenceRootsProvider<Binary> ensureRootsProviderInternal()
 		{
 			return BinaryPersistenceRootsProvider.New(
-				this.getRootResolverProvider()
+				this.getRootResolverProvider(),
+				this.getRootReferenceProvider()
 			);
+		}
+		
+		@Override
+		protected PersistenceRootReferenceProvider<Binary> ensureRootReferenceProvider()
+		{
+			return BinaryRootReferenceProvider<PersistenceRootReference>
 		}
 		
 		@Override
