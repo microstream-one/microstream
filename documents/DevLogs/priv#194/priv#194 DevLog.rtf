@@ -237,6 +237,18 @@ Bzw. mit einem kleinen Trick kann das vermieden werden:\par
 Der PersistenceRootReferenceProvider wird zweimal \'fcbergeben:\par
 Einmal an den untypisierten PersistenceRootResolverProvider, aber nur, um die RootReference zu liefern.\par
 Und einmal an den eh schon typisierte PersistenceRootsProvider, damit der den Handler registrieren kann.\par
-Perfekte L\'f6sung. So mach ichs.\fs22\par
+Perfekte L\'f6sung. So mach ichs.\par
+\par
+\par
+Hm, wobei: Wenn man 2 Referenzen hat, k\'f6nnte theoretisch zweimal was unterschiedliches gesetzt werden und der TypeHandler passt nicht mehr zur Instanz oder sowas.\par
+Bei einer einzelnen Referenz kann sowas halt nicht passieren.\par
+Evtl. w\'e4r es das doch wert, den PersistenceRootResolverProvider zu typisieren ... Mal schauen.\par
+\par
+Ah: Der PersistenceRootResolverProvider hat eh schon einen Medium-bezogenen Teil mit <?>. Dann w\'e4r es gleich das Sauberste, den mitzutypisieren.\par
+\par
+Haha:\par
+Jetzt w\'fcrde das eigentlich alles super passen. Nur die Convenience-Methoden in ~Persistence passen jetzt nicht mehr.\par
+Der PersistenceRootResolverProvider braucht nun zwingend einen RootReferenceProvider. Und der braucht eine Binary Implementierung, die es im Persistence Projekt nicht gibt.\par
+Das verkompliziert bzw. eigentlich ruiniert den Convenience-Charakter...\fs22\par
 }
  
