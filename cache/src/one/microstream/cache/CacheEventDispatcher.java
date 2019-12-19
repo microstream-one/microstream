@@ -87,7 +87,7 @@ public interface CacheEventDispatcher<K, V>
 				for(final CacheEntryListenerRegistration<K, V> registration : registrations)
 				{
 					final CacheEntryListener<? super K, ? super V> listener =
-						registration.cacheEntryListener();
+						registration.getCacheEntryListener();
 					if(type.isInstance(listener))
 					{
 						final Iterable<CacheEntryEvent<? extends K, ? extends V>> selectedEvents =
@@ -104,7 +104,7 @@ public interface CacheEventDispatcher<K, V>
 			final XList<CacheEvent<K, V>> events)
 		{
 			CqlSelection<CacheEvent<K, V>>                    selection = CQL.from(events);
-			final CacheEntryEventFilter<? super K, ? super V> filter    = registration.cacheEntryFilter();
+			final CacheEntryEventFilter<? super K, ? super V> filter    = registration.getCacheEntryFilter();
 			if(filter != null)
 			{
 				selection = selection.select(e -> filter.evaluate(e));
@@ -119,7 +119,7 @@ public interface CacheEventDispatcher<K, V>
 			final CacheEntryListenerRegistration<K, V> registration,
 			final CacheEvent<K, V> event)
 		{
-			if(registration.oldValueRequired())
+			if(registration.isOldValueRequired())
 			{
 				return new CacheEvent<>(
 					event.getCache(),

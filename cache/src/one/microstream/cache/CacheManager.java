@@ -1,7 +1,9 @@
 
 package one.microstream.cache;
 
+import static one.microstream.X.coalesce;
 import static one.microstream.X.notNull;
+import static one.microstream.chars.XChars.notEmpty;
 
 import java.lang.ref.WeakReference;
 import java.net.URI;
@@ -10,6 +12,10 @@ import java.util.Properties;
 import javax.cache.CacheException;
 import javax.cache.configuration.CompleteConfiguration;
 import javax.cache.configuration.Configuration;
+import javax.cache.configuration.Factory;
+import javax.cache.expiry.ExpiryPolicy;
+import javax.cache.integration.CacheLoader;
+import javax.cache.integration.CacheWriter;
 
 import one.microstream.collections.EqHashTable;
 
@@ -94,19 +100,66 @@ public interface CacheManager extends javax.cache.CacheManager
 		public <K, V, C extends Configuration<K, V>> Cache<K, V>
 			createCache(final String cacheName, final C configuration) throws IllegalArgumentException
 		{
+			notEmpty(cacheName);
+			notNull(configuration);
+			
 			if(this.getCache(cacheName) != null)
 			{
 				throw new CacheException("A cache named " + cacheName + " already exists.");
 			}
-			
-			notNull(configuration);
-			
+						
 			synchronized(this.caches)
 			{
-				final Cache<K, V> cache = Cache.New(cacheName, this, configuration, this.getClassLoader());
+				final Cache<K, V> cache = this.createCacheInternal(cacheName, configuration);
 				this.caches.put(cacheName, cache);
 				return cache;
 			}
+		}
+
+		// cache reader typing differs from cache writer typing (?)
+		@SuppressWarnings("unchecked")
+		private <K, V, C extends Configuration<K, V>> Cache<K, V>
+			createCacheInternal(final String cacheName, final C config)
+		{
+			final CacheConfiguration<K, V> configuration   = CacheConfiguration.New(config);
+			
+			final ObjectConverter          objectConverter = configuration.isStoreByValue()
+				? ObjectConverter.ByValue(Serializer.get(Thread.currentThread().getContextClassLoader()))
+				: ObjectConverter.ByReference();
+			
+			CacheLoader<K, V> cacheLoader = null;
+			if(configuration.isReadThrough())
+			{
+				final Factory<CacheLoader<K, V>> cacheLoaderFactory;
+				if((cacheLoaderFactory = configuration.getCacheLoaderFactory()) != null)
+				{
+					cacheLoader = cacheLoaderFactory.create();
+				}
+			}
+
+			CacheWriter<K, V> cacheWriter = null;
+			if(configuration.isWriteThrough())
+			{
+				final Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory;
+				if((cacheWriterFactory = configuration.getCacheWriterFactory()) != null)
+				{
+					cacheWriter = (CacheWriter<K, V>)cacheWriterFactory.create();
+				}
+			}
+			
+			final Factory<ExpiryPolicy> expiryPolicyFactory = coalesce(
+				configuration.getExpiryPolicyFactory(),
+				CacheConfiguration.DefaultExpiryPolicyFactory());
+			final ExpiryPolicy expiryPolicy = expiryPolicyFactory.create();
+			
+			return Cache.New(
+				cacheName,
+				this,
+				configuration,
+				objectConverter,
+				cacheLoader,
+				cacheWriter,
+				expiryPolicy);
 		}
 		
 		@SuppressWarnings("unchecked")

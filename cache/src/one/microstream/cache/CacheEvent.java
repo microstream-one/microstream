@@ -13,7 +13,7 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 	private final V       oldValue;
 	private final boolean oldValueAvailable;
 	
-	public CacheEvent(
+	CacheEvent(
 		final Cache<K, V> source,
 		final EventType eventType,
 		final K key,
@@ -22,7 +22,7 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 		this(source, eventType, key, value, null, false);
 	}
 	
-	public CacheEvent(
+	CacheEvent(
 		final Cache<K, V> source,
 		final EventType eventType,
 		final K key,
@@ -32,7 +32,7 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 		this(source, eventType, key, value, oldValue, true);
 	}
 	
-	public CacheEvent(
+	CacheEvent(
 		final Cache<K, V> source,
 		final EventType eventType,
 		final K key,
