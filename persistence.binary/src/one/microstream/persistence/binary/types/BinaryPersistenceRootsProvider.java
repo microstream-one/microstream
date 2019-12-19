@@ -2,7 +2,6 @@ package one.microstream.persistence.binary.types;
 
 import static one.microstream.X.notNull;
 
-import one.microstream.persistence.types.BinaryHandlerPersistenceRootReferenceDefault;
 import one.microstream.persistence.types.BinaryHandlerPersistenceRootsDefault;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
@@ -11,12 +10,13 @@ import one.microstream.persistence.types.PersistenceRootResolver;
 import one.microstream.persistence.types.PersistenceRootResolverProvider;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceRootsProvider;
+import one.microstream.persistence.types.PersistenceTypeHandler;
 
 
 public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider<Binary>
 {
 	public static BinaryPersistenceRootsProvider New(
-		final PersistenceRootResolverProvider rootResolverProvider
+		final PersistenceRootResolverProvider<Binary> rootResolverProvider
 	)
 	{
 		return new BinaryPersistenceRootsProvider.Default(
@@ -30,7 +30,7 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		// instance fields //
 		////////////////////
 
-		final PersistenceRootResolverProvider rootResolverProvider;
+		final PersistenceRootResolverProvider<Binary> rootResolverProvider;
 		
 		transient PersistenceRootResolver rootResolver;
 		transient PersistenceRoots        roots       ;
@@ -41,7 +41,7 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		// constructors //
 		/////////////////
 		
-		Default(final PersistenceRootResolverProvider rootResolverProvider)
+		Default(final PersistenceRootResolverProvider<Binary> rootResolverProvider)
 		{
 			super();
 			this.rootResolverProvider = rootResolverProvider;
@@ -97,15 +97,12 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 				objectRegistry
 			);
 			
-			final PersistenceRootReference rootReference = this.rootResolverProvider.rootReference();
-			final BinaryHandlerPersistenceRootReferenceDefault rootRefHandler = BinaryHandlerPersistenceRootReferenceDefault.New(
-				rootReference,
-				objectRegistry
-			);
-			
+			final PersistenceTypeHandler<Binary, ? extends PersistenceRootReference> rootReferenceHandler =
+				this.rootResolverProvider.rootReferenceProvider().provideTypeHandler()
+			;
 			
 			typeHandlerRegistry.registerTypeHandler(rootsHandler);
-			typeHandlerRegistry.registerTypeHandler(rootRefHandler);
+			typeHandlerRegistry.registerTypeHandler(rootReferenceHandler);
 		}
 
 	}
