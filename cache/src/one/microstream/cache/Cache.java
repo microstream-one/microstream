@@ -19,17 +19,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.cache.CacheException;
 import javax.cache.configuration.CacheEntryListenerConfiguration;
-import javax.cache.configuration.CompleteConfiguration;
 import javax.cache.configuration.Configuration;
-import javax.cache.configuration.Factory;
-import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryExpiredListener;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import javax.cache.event.EventType;
 import javax.cache.expiry.Duration;
-import javax.cache.expiry.EternalExpiryPolicy;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheLoaderException;
@@ -39,7 +35,6 @@ import javax.cache.integration.CompletionListener;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
 
-import one.microstream.cache.MBeanServerRegistrationUtils.ObjectNameType;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XList;
@@ -51,6 +46,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 {
 	@Override
 	public CacheManager getCacheManager();
+	
+	public CacheConfiguration<K, V> getConfiguration();
 	
 	public long size();
 	
@@ -67,10 +64,6 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	
 	public void setStatisticsEnabled(boolean enabled);
 	
-	public CacheMXBean getCacheMXBean();
-	
-	public CacheStatisticsMXBean getCacheStatisticsMXBean();
-	
 	@Override
 	public default <T> T unwrap(final Class<T> clazz)
 	{
@@ -80,107 +73,67 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	public static <K, V> Cache<K, V> New(
 		final String name,
 		final CacheManager manager,
-		final Configuration<K, V> configuration,
-		final ClassLoader classLoader)
+		final CacheConfiguration<K, V> configuration,
+		final ObjectConverter objectConverter,
+		final CacheLoader<K, V> cacheLoader,
+		final CacheWriter<K, V> cacheWriter,
+		final ExpiryPolicy expiryPolicy)
 	{
-		return new Default<>(name, manager, configuration, classLoader);
+		return new Default<>(name, manager, configuration, objectConverter, cacheLoader, cacheWriter, expiryPolicy);
 	}
 	
 	public static class Default<K, V> implements Cache<K, V>
 	{
-		private final String                                name;
-		private final CacheManager                          manager;
-		private final MutableConfiguration<K, V>            configuration;
-		private ObjectConverter                             objectConverter;
-		private CacheLoader<K, V>                           cacheLoader;
-		private CacheWriter<K, V>                           cacheWriter;
-		private ExpiryPolicy                                expiryPolicy;
-		private XList<CacheEntryListenerRegistration<K, V>> listenerRegistrations;
-		private CacheMXBean                                 cacheMXBean;
-		private CacheStatisticsMXBean                       cacheStatisticsMXBean;
-		private boolean                                     isStatisticsEnabled;
-		private EqHashTable<Object, CachedValue>            hashTable;
-		private ExecutorService                             executorService;
-		private volatile boolean                            isClosed = false;
+		private final String                                      name;
+		private final CacheManager                                manager;
+		private final CacheConfiguration<K, V>                    configuration;
+		private final ObjectConverter                             objectConverter;
+		private final CacheLoader<K, V>                           cacheLoader;
+		private final CacheWriter<K, V>                           cacheWriter;
+		private final ExpiryPolicy                                expiryPolicy;
+		private final XList<CacheEntryListenerRegistration<K, V>> listenerRegistrations;
+		private final EqHashTable<Object, CachedValue>            hashTable;
+		private final ExecutorService                             executorService;
+		private final CacheMXBean                                 cacheMXBean;
+		private final CacheStatisticsMXBean                       cacheStatisticsMXBean;
+		private volatile boolean                                  isStatisticsEnabled;
+		private volatile boolean                                  isClosed;
 		
 		Default(
 			final String name,
 			final CacheManager manager,
-			final Configuration<K, V> configuration,
-			final ClassLoader classLoader)
+			final CacheConfiguration<K, V> configuration,
+			final ObjectConverter objectConverter,
+			final CacheLoader<K, V> cacheLoader,
+			final CacheWriter<K, V> cacheWriter,
+			final ExpiryPolicy expiryPolicy)
 		{
 			super();
 			
-			this.name          = name;
-			this.manager       = manager;
-			
-			/*
-			 * We don't know if configuration is mutable, so we make a defensive copy.
-			 */
-			this.configuration = this.copyConfiguration(configuration);
-			
-			this.init(classLoader);
-		}
-		
-		private MutableConfiguration<K, V> copyConfiguration(final Configuration<K, V> configuration)
-		{
-			if(configuration instanceof CompleteConfiguration)
-			{
-				return new MutableConfiguration<>((CompleteConfiguration<K, V>)configuration);
-			}
-			
-			final MutableConfiguration<K, V> mutableConfiguration = new MutableConfiguration<>();
-			mutableConfiguration.setStoreByValue(configuration.isStoreByValue());
-			mutableConfiguration.setTypes(configuration.getKeyType(), configuration.getValueType());
-			return new MutableConfiguration<>(mutableConfiguration);
-		}
-		
-		@SuppressWarnings("unchecked")
-		void init(final ClassLoader classLoader)
-		{
-			this.objectConverter = this.configuration.isStoreByValue()
-				? ObjectConverter.ByValue(Serializer.get(classLoader))
-				: ObjectConverter.ByReference();
-			
-			if(this.configuration.isReadThrough())
-			{
-				final Factory<CacheLoader<K, V>> cacheLoaderFactory;
-				if((cacheLoaderFactory = this.configuration.getCacheLoaderFactory()) != null)
-				{
-					this.cacheLoader = cacheLoaderFactory.create();
-				}
-			}
-			if(this.configuration.isWriteThrough())
-			{
-				final Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory;
-				if((cacheWriterFactory = this.configuration.getCacheWriterFactory()) != null)
-				{
-					this.cacheWriter = (CacheWriter<K, V>)cacheWriterFactory.create();
-				}
-			}
-			
-			Factory<ExpiryPolicy> expiryPolicyFactory;
-			this.expiryPolicy          = (expiryPolicyFactory = this.configuration.getExpiryPolicyFactory()) != null
-				? expiryPolicyFactory.create()
-				: new EternalExpiryPolicy();
+			this.name                  = name;
+			this.manager               = manager;
+			this.configuration         = configuration;
+			this.objectConverter       = objectConverter;
+			this.cacheLoader           = cacheLoader;
+			this.cacheWriter           = cacheWriter;
+			this.expiryPolicy          = expiryPolicy;
 			
 			this.listenerRegistrations = BulkList.New();
-			
+			this.hashTable             = EqHashTable.New();
+			this.executorService       = Executors.newFixedThreadPool(1);
 			this.cacheMXBean           = new CacheMXBean.Default(this.configuration);
 			this.cacheStatisticsMXBean = new CacheStatisticsMXBean.Default(this::size);
 			
-			if(this.configuration.isManagementEnabled())
+			configuration.getCacheEntryListenerConfigurations().forEach(this::registerCacheEntryListener);
+			
+			if(configuration.isManagementEnabled())
 			{
 				this.setManagementEnabled(true);
 			}
-			if(this.configuration.isStatisticsEnabled())
+			if(configuration.isStatisticsEnabled())
 			{
 				this.setStatisticsEnabled(true);
 			}
-			
-			this.hashTable       = EqHashTable.New();
-			
-			this.executorService = Executors.newFixedThreadPool(1);
 		}
 		
 		@Override
@@ -193,6 +146,12 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		public CacheManager getCacheManager()
 		{
 			return this.manager;
+		}
+		
+		@Override
+		public CacheConfiguration<K, V> getConfiguration()
+		{
+			return this.configuration;
 		}
 		
 		@Override
@@ -212,8 +171,6 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		{
 			notNull(cacheEntryListenerConfiguration);
 			
-			this.configuration.addCacheEntryListenerConfiguration(cacheEntryListenerConfiguration);
-			
 			synchronized(this.listenerRegistrations)
 			{
 				this.listenerRegistrations.add(CacheEntryListenerRegistration.New(cacheEntryListenerConfiguration));
@@ -228,11 +185,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			synchronized(this.listenerRegistrations)
 			{
-				if(this.listenerRegistrations
-					.removeBy(reg -> cacheEntryListenerConfiguration.equals(reg.configuration())) > 0)
-				{
-					this.configuration.removeCacheEntryListenerConfiguration(cacheEntryListenerConfiguration);
-				}
+				this.listenerRegistrations.removeBy(
+					reg -> cacheEntryListenerConfiguration.equals(reg.getConfiguration()));
 			}
 		}
 		
@@ -1401,28 +1355,16 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public CacheMXBean getCacheMXBean()
-		{
-			return this.cacheMXBean;
-		}
-		
-		@Override
-		public CacheStatisticsMXBean getCacheStatisticsMXBean()
-		{
-			return this.cacheStatisticsMXBean;
-		}
-		
-		@Override
 		public void setStatisticsEnabled(final boolean enabled)
 		{
 			this.isStatisticsEnabled = enabled;
 			if(enabled)
 			{
-				MBeanServerRegistrationUtils.registerCacheObject(this, ObjectNameType.Statistics);
+				MBeanServerUtils.registerCacheObject(this, this.cacheStatisticsMXBean);
 			}
 			else
 			{
-				MBeanServerRegistrationUtils.unregisterCacheObject(this, ObjectNameType.Statistics);
+				MBeanServerUtils.unregisterCacheObject(this, this.cacheStatisticsMXBean);
 			}
 		}
 		
@@ -1431,11 +1373,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		{
 			if(enabled)
 			{
-				MBeanServerRegistrationUtils.registerCacheObject(this, ObjectNameType.Configuration);
+				MBeanServerUtils.registerCacheObject(this, this.cacheMXBean);
 			}
 			else
 			{
-				MBeanServerRegistrationUtils.unregisterCacheObject(this, ObjectNameType.Configuration);
+				MBeanServerUtils.unregisterCacheObject(this, this.cacheMXBean);
 			}
 		}
 		

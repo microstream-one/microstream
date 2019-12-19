@@ -8,15 +8,15 @@ import javax.cache.event.CacheEntryListener;
 
 public interface CacheEntryListenerRegistration<K, V>
 {
-	public CacheEntryListener<? super K, ? super V> cacheEntryListener();
+	public CacheEntryListener<? super K, ? super V> getCacheEntryListener();
 	
-	public CacheEntryEventFilter<? super K, ? super V> cacheEntryFilter();
+	public CacheEntryEventFilter<? super K, ? super V> getCacheEntryFilter();
 	
-	public CacheEntryListenerConfiguration<K, V> configuration();
+	public CacheEntryListenerConfiguration<K, V> getConfiguration();
 	
-	public boolean oldValueRequired();
+	public boolean isOldValueRequired();
 	
-	public boolean synchronous();
+	public boolean isSynchronous();
 	
 	public static <K, V> CacheEntryListenerRegistration<K, V>
 		New(final CacheEntryListenerConfiguration<K, V> configuration)
@@ -46,31 +46,31 @@ public interface CacheEntryListenerRegistration<K, V>
 		}
 		
 		@Override
-		public CacheEntryListener<? super K, ? super V> cacheEntryListener()
+		public CacheEntryListener<? super K, ? super V> getCacheEntryListener()
 		{
 			return this.listener;
 		}
 		
 		@Override
-		public CacheEntryEventFilter<? super K, ? super V> cacheEntryFilter()
+		public CacheEntryEventFilter<? super K, ? super V> getCacheEntryFilter()
 		{
 			return this.filter;
 		}
 		
 		@Override
-		public CacheEntryListenerConfiguration<K, V> configuration()
+		public CacheEntryListenerConfiguration<K, V> getConfiguration()
 		{
 			return this.configuration;
 		}
 		
 		@Override
-		public boolean oldValueRequired()
+		public boolean isOldValueRequired()
 		{
 			return this.oldValueRequired;
 		}
 		
 		@Override
-		public boolean synchronous()
+		public boolean isSynchronous()
 		{
 			return this.synchronous;
 		}
@@ -105,31 +105,31 @@ public interface CacheEntryListenerRegistration<K, V>
 			final CacheEntryListenerRegistration<?, ?> other = (CacheEntryListenerRegistration<?, ?>)object;
 			if(this.filter == null)
 			{
-				if(other.cacheEntryFilter() != null)
+				if(other.getCacheEntryFilter() != null)
 				{
 					return false;
 				}
 			}
-			else if(!this.filter.equals(other.cacheEntryFilter()))
+			else if(!this.filter.equals(other.getCacheEntryFilter()))
 			{
 				return false;
 			}
-			if(this.oldValueRequired != other.oldValueRequired())
+			if(this.oldValueRequired != other.isOldValueRequired())
 			{
 				return false;
 			}
-			if(this.synchronous != other.synchronous())
+			if(this.synchronous != other.isSynchronous())
 			{
 				return false;
 			}
 			if(this.listener == null)
 			{
-				if(other.cacheEntryListener() != null)
+				if(other.getCacheEntryListener() != null)
 				{
 					return false;
 				}
 			}
-			else if(!this.listener.equals(other.cacheEntryListener()))
+			else if(!this.listener.equals(other.getCacheEntryListener()))
 			{
 				return false;
 			}
