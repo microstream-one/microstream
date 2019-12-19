@@ -225,6 +225,18 @@ Hm. Die Typisierung bei dem Handler wird ein Problem ...\par
 L\'f6sung ... nat\'fcrlich: Ein PersistenceRootReferenceProvider.\par
 \par
 \'c4h, Mist, das infiziert den ganzen, eigentlich Medium-losen RootResolving Code mit <M>.\par
-Da muss ich nochmal dr\'fcber nachdenken ...\fs22\par
+Da muss ich nochmal dr\'fcber nachdenken ...\par
+\par
+\par
+2019-12-19\par
+\par
+Naja. So schlimm ist das nicht.\par
+Der PersistenceRootsProvider ist eh schon auf das Medium typisiert.\par
+Da w\'e4r eine Typisierung des PersistenceRootResolverProvider jetzt auch kein Drama mehr.\par
+Bzw. mit einem kleinen Trick kann das vermieden werden:\par
+Der PersistenceRootReferenceProvider wird zweimal \'fcbergeben:\par
+Einmal an den untypisierten PersistenceRootResolverProvider, aber nur, um die RootReference zu liefern.\par
+Und einmal an den eh schon typisierte PersistenceRootsProvider, damit der den Handler registrieren kann.\par
+Perfekte L\'f6sung. So mach ichs.\fs22\par
 }
  
