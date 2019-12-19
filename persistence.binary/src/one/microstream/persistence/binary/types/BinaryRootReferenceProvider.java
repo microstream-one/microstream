@@ -26,7 +26,7 @@ PersistenceTypeHandler<Binary, R>
 	)
 	{
 		return New(
-			PersistenceRootReference.New(rootSupplier),
+			new PersistenceRootReference.Default(rootSupplier),
 			globalRegistry
 		);
 	}
@@ -66,7 +66,7 @@ PersistenceTypeHandler<Binary, R>
 		/////////////////
 
 		Default(
-			final PersistenceRootReference.Default instance      ,
+			final PersistenceRootReference.Default rootReference ,
 			final PersistenceObjectRegistry        globalRegistry
 			)
 		{
@@ -74,9 +74,9 @@ PersistenceTypeHandler<Binary, R>
 				PersistenceRootReference.Default.class,
 				CustomFields(
 					CustomField(Object.class, "root")
-					)
-				);
-			this.rootReference       = instance      ;
+				)
+			);
+			this.rootReference  = rootReference ;
 			this.globalRegistry = globalRegistry;
 		}
 

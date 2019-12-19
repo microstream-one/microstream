@@ -149,7 +149,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	
 	public PersistenceFieldEvaluator getFieldEvaluatorCollection();
 	
-	public PersistenceRootResolverProvider<M> getRootResolverProvider();
+	public PersistenceRootResolverProvider getRootResolverProvider();
 	
 	public PersistenceRootReferenceProvider<M> getRootReferenceProvider();
 	
@@ -289,7 +289,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public F setReferenceFieldEagerEvaluator(PersistenceEagerStoringFieldEvaluator evaluator);
 
-	public F setRootResolverProvider(PersistenceRootResolverProvider<M> rootResolverProvider);
+	public F setRootResolverProvider(PersistenceRootResolverProvider rootResolverProvider);
 	
 	public F setRootReferenceProvider(PersistenceRootReferenceProvider<M> rootReferenceProvider);
 		
@@ -443,7 +443,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceCustomTypeHandlerRegistry<M>        customTypeHandlerRegistry       ;
 		private PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer;
 		private BufferSizeProviderIncremental                  bufferSizeProvider              ;
-		private PersistenceRootResolverProvider<M>             rootResolverProvider            ;
+		private PersistenceRootResolverProvider                rootResolverProvider            ;
 		private PersistenceRootsProvider<M>                    rootsProvider                   ;
 		private PersistenceRootReferenceProvider<M>            rootReferenceProvider           ;
 		private ByteOrder                                      targetByteOrder                 ;
@@ -1041,7 +1041,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceRootResolverProvider<M> getRootResolverProvider()
+		public PersistenceRootResolverProvider getRootResolverProvider()
 		{
 			if(this.rootResolverProvider == null)
 			{
@@ -1657,7 +1657,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public F setRootResolverProvider(final PersistenceRootResolverProvider<M> rootResolverProvider)
+		public F setRootResolverProvider(final PersistenceRootResolverProvider rootResolverProvider)
 		{
 			this.rootResolverProvider = rootResolverProvider;
 			return this.$();
@@ -2222,15 +2222,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			throw new MissingFoundationPartException(PersistenceFieldLengthResolver.class);
 		}
 		
-		protected PersistenceRootResolverProvider<M> ensureRootResolverProvider()
+		protected PersistenceRootResolverProvider ensureRootResolverProvider()
 		{
 			final PersistenceTypeDescriptionResolverProvider refactoring  = this.getTypeDescriptionResolverProvider();
 			final PersistenceTypeResolver                    typeResolver = this.getTypeResolver();
-			final PersistenceRootReferenceProvider<M>        rootRefProvd = this.getRootReferenceProvider();
 			
 			// must use the foundation's type resolver instance instead of creating a new default one internally.
-			final PersistenceRootResolverProvider<M> resolverProvider = PersistenceRootResolverProvider
-				.New(rootRefProvd, typeResolver)
+			final PersistenceRootResolverProvider resolverProvider = PersistenceRootResolverProvider
+				.New(typeResolver)
 				.setTypeDescriptionResolverProvider(refactoring)
 				.setTypeHandlerManager(this.referenceTypeHandlerManager)
 			;
