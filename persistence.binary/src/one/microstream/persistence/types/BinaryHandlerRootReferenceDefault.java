@@ -1,32 +1,12 @@
 package one.microstream.persistence.types;
 
-import static one.microstream.X.mayNull;
-import static one.microstream.X.notNull;
-
+import one.microstream.chars.XChars;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.exceptions.PersistenceException;
 
-
-public final class BinaryHandlerPersistenceRootReferenceDefault
-extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
+public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 {
-	///////////////////////////////////////////////////////////////////////////
-	// static methods //
-	///////////////////
-	
-	public static BinaryHandlerPersistenceRootReferenceDefault New(
-		final PersistenceRootReference.Default instance      ,
-		final PersistenceObjectRegistry        globalRegistry
-	)
-	{
-		return new BinaryHandlerPersistenceRootReferenceDefault(
-			mayNull(instance),
-			notNull(globalRegistry)
-		);
-	}
-
-	
-	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
@@ -37,7 +17,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 	 * it becomes clear that a direct access for registering resolved global instances at the global registry is
 	 * indeed part of this handler's task.
 	 */
-	final PersistenceRootReference.Default instance      ;
+	final PersistenceRootReference.Default rootReference ;
 	final PersistenceObjectRegistry        globalRegistry;
 
 
@@ -46,10 +26,10 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 	// constructors //
 	/////////////////
 
-	BinaryHandlerPersistenceRootReferenceDefault(
-		final PersistenceRootReference.Default instance      ,
+	BinaryHandlerRootReferenceDefault(
+		final PersistenceRootReference.Default rootReference ,
 		final PersistenceObjectRegistry        globalRegistry
-	)
+		)
 	{
 		super(
 			PersistenceRootReference.Default.class,
@@ -57,7 +37,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 				CustomField(Object.class, "root")
 			)
 		);
-		this.instance       = instance      ;
+		this.rootReference  = rootReference ;
 		this.globalRegistry = globalRegistry;
 	}
 
@@ -66,7 +46,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
+
 	static long getRootObjectId(final Binary bytes)
 	{
 		return bytes.read_long(0);
@@ -78,7 +58,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 		final PersistenceRootReference.Default instance,
 		final long                             objectId,
 		final PersistenceStoreHandler          handler
-	)
+		)
 	{
 		// root instance may even be null. Probably just temporarily to "truncate" a database or something like that.
 		final Object rootInstance  = instance.get()             ;
@@ -92,9 +72,9 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 	public final PersistenceRootReference.Default create(
 		final Binary                      bytes     ,
 		final PersistenceObjectIdResolver idResolver
-	)
+		)
 	{
-		final Object rootInstance = this.instance.get();
+		final Object rootInstance = this.rootReference.get();
 		if(rootInstance != null)
 		{
 			/*
@@ -110,11 +90,11 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 			 * complete.
 			 */
 			final long rootObjectId = getRootObjectId(bytes);
-			idResolver.registerRoot(this.instance.get(), rootObjectId);
+			idResolver.registerRoot(this.rootReference.get(), rootObjectId);
 		}
-		
+
 		// instance is a singleton. Hence, no instance is created, here, but the singleton is returned.
-		return this.instance;
+		return this.rootReference;
 	}
 
 	@Override
@@ -124,29 +104,55 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 		final PersistenceObjectIdResolver      handler
 	)
 	{
-		final Object rootInstance = this.instance.get();
+		if(instance != this.rootReference)
+		{
+			// (20.12.2019 TM)EXCP: proper exception
+			throw new PersistenceException(
+				"Initialized root reference and loaded root reference are not the same: initialized = "
+				+ XChars.systemString(this.rootReference)
+				+ " <-> loaded = "
+				+ XChars.systemString(instance)
+			);
+		}
+		
+		final long   rootObjectId = getRootObjectId(bytes);
+		final Object loadedRoot   = handler.lookupObject(rootObjectId);
+		
+		final Object rootInstance = this.rootReference.get();
 		if(rootInstance == null)
 		{
 			/*
 			 * If the instance has no explicit root instance set, a
 			 * generically loaded and instantiated root instance is set.
 			 */
-			final long   rootObjectId = getRootObjectId(bytes);
-			final Object loadedRoot   = handler.lookupObject(rootObjectId);
-			this.instance.setRoot(loadedRoot);
+			this.rootReference.setRoot(loadedRoot);
 
 			return;
 		}
 		
-		// (10.12.2019 TM)FIXME: priv#194
+		if(rootInstance == loadedRoot)
+		{
+			/*
+			 * If referenced and loaded root are the same, everything is fine. No-op at this point.
+			 * (#create should already have ensured that this case applies, but who knows ...)
+			 */
+			return;
+		}
+		
+		// (20.12.2019 TM)EXCP: proper exception
+		throw new PersistenceException(
+			"Initialized root instance and loaded root instance are not the same: initialized = "
+			+ XChars.systemString(rootInstance)
+			+ " <-> loaded = "
+			+ XChars.systemString(loadedRoot)
+		);
 	}
 
-		
 	@Override
 	public final void iterateInstanceReferences(
 		final PersistenceRootReference.Default instance,
 		final PersistenceFunction              iterator
-	)
+		)
 	{
 		instance.iterate(iterator);
 	}
@@ -160,7 +166,9 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 	@Override
 	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
 	{
-		// (10.12.2019 TM)FIXME: priv#194
+		// trivial single-reference
+		final long rootObjectId = getRootObjectId(bytes);
+		iterator.acceptObjectId(rootObjectId);
 	}
 
 	@Override
@@ -180,5 +188,5 @@ extends AbstractBinaryHandlerCustom<PersistenceRootReference.Default>
 	{
 		return false;
 	}
-
+			
 }
