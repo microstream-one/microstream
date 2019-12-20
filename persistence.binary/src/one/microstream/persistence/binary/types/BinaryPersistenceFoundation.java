@@ -4,6 +4,7 @@ import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XEnum;
 import one.microstream.collections.types.XTable;
+import one.microstream.persistence.types.BinaryRootReferenceProvider;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistryEnsurer;
 import one.microstream.persistence.types.PersistenceFoundation;
@@ -262,7 +263,7 @@ extends PersistenceFoundation<Binary, F>
 		@Override
 		protected PersistenceRootReferenceProvider<Binary> ensureRootReferenceProvider()
 		{
-			return BinaryRootReferenceProvider<PersistenceRootReference>
+			return BinaryRootReferenceProvider.New();
 		}
 		
 		@Override

@@ -107,7 +107,7 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 			);
 			
 			final PersistenceTypeHandler<Binary, ? extends PersistenceRootReference> rootReferenceHandler =
-				this.rootReferenceProvider.provideTypeHandler()
+				this.rootReferenceProvider.provideTypeHandler(objectRegistry)
 			;
 			
 			typeHandlerRegistry.registerTypeHandler(rootsHandler);
