@@ -13,7 +13,7 @@ public class MainTestStorageExample
 {
 	static
 	{
-		Test.clearDefaultStorageDirectory();
+//		Test.clearDefaultStorageDirectory();
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
@@ -27,11 +27,15 @@ public class MainTestStorageExample
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			STORAGE.setRoot(Test.generateModelData(10000));
+			STORAGE.setRoot(Test.generateModelData(100));
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
 			Test.print("Storing completed.");
+			
+			Test.print("Exporting data ...");
+			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
+			Test.print("Data export completed.");
 		}
 		else
 		{

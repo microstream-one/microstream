@@ -2224,13 +2224,15 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		protected PersistenceRootResolverProvider ensureRootResolverProvider()
 		{
-			final PersistenceTypeDescriptionResolverProvider refactoring  = this.getTypeDescriptionResolverProvider();
-			final PersistenceTypeResolver                    typeResolver = this.getTypeResolver();
-			
+			final PersistenceTypeDescriptionResolverProvider tDReslvProvdr = this.getTypeDescriptionResolverProvider();
+			final PersistenceTypeResolver                    typeResolver  = this.getTypeResolver();
+			final PersistenceRootReferenceProvider<?>        rootRefProvdr = this.getRootReferenceProvider();
+			final PersistenceRootReference                   rootReference = rootRefProvdr.provideRootReference();
+						
 			// must use the foundation's type resolver instance instead of creating a new default one internally.
 			final PersistenceRootResolverProvider resolverProvider = PersistenceRootResolverProvider
-				.New(typeResolver)
-				.setTypeDescriptionResolverProvider(refactoring)
+				.New(rootReference, typeResolver)
+				.setTypeDescriptionResolverProvider(tDReslvProvdr)
 				.setTypeHandlerManager(this.referenceTypeHandlerManager)
 			;
 			

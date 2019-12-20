@@ -21,7 +21,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 import one.microstream.X;
 import one.microstream.chars.StringTable;
@@ -947,13 +946,6 @@ public class Persistence
 		return enumRootIdentifier != null && enumRootIdentifier.startsWith(enumRootIdentifierStart());
 	}
 	
-	public static final PersistenceRootResolverProvider RootResolverProvider()
-	{
-		return RootResolverProvider(() ->
-			null // debuggability line break, do not remove!
-		);
-	}
-
 	@Deprecated
 	public static final String defaultRootIdentifier()
 	{
@@ -970,45 +962,7 @@ public class Persistence
 	{
 		return "root";
 	}
-	
-	public static final PersistenceRootResolverProvider RootResolverProvider(
-		final Object rootInstance
-	)
-	{
-		return PersistenceRootResolverProvider.New()
-			.registerRoot(rootInstance)
-		;
-	}
-	
-	public static final PersistenceRootResolverProvider RootResolverProvider(
-		final String rootIdentifier,
-		final Object rootInstance
-	)
-	{
-		return PersistenceRootResolverProvider.New()
-			.registerRoot(rootIdentifier, rootInstance)
-		;
-	}
-	
-	public static final PersistenceRootResolverProvider RootResolverProvider(
-		final Supplier<?> rootInstanceSupplier
-	)
-	{
-		return PersistenceRootResolverProvider.New()
-			.registerRootSupplier(rootInstanceSupplier)
-		;
-	}
-	
-	public static final PersistenceRootResolverProvider RootResolverProvider(
-		final String      rootIdentifier      ,
-		final Supplier<?> rootInstanceSupplier
-	)
-	{
-		return PersistenceRootResolverProvider.New()
-			.registerRootSupplier(rootIdentifier, rootInstanceSupplier)
-		;
-	}
-	
+		
 	@Deprecated
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final File refactoringsFile
