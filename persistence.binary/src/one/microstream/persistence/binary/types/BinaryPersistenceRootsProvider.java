@@ -65,7 +65,6 @@ public interface BinaryPersistenceRootsProvider extends PersistenceRootsProvider
 		{
 			if(this.rootResolver == null)
 			{
-				this.rootResolverProvider.setRootReference(this.rootReferenceProvider.provideRootReference());
 				this.rootResolver = this.rootResolverProvider.provideRootResolver();
 			}
 			

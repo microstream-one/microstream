@@ -263,7 +263,51 @@ Jo. So muss das funktionieren. Jetzt leider abendessen.\par
 Ach, ne, Moment. Erst noch nach TODOs suchen.\par
 #update im Handler ist ja noch gar nicht fertig. Gut, dass ich TODOs setz...\par
 \par
+So, jetzt testen.\par
+Keine Exception. Aber der sieht beim Laden den Root nicht. Debuggen ...\par
+Bleibt nicht mal im Roots BinaryHandler stehen ... kann nicht sein.\par
+Ach lol. Ewig rumdebuggt. Grund: Es wird nix gespeichert. Darum wird auch nix geladen. Checker.\par
+Also beim Speichern debuggen ...\par
+\par
+Aha. Die RootReference wird mit OID 0 gespeichert ...\par
+Ah. Die root instance is null. Ich denk da wird irgendwo noch die eigentliche root Instance anstatt die neue rootReference Instance abgefragt ...\par
+\par
+Na endlich gefunden: Die neue Methode PersistenceRootResolverProvider#setRootReference wird zu sp\'e4t aufgerufen. Da muss ich mal noch an der Aufrufreihenfolge und den Abh\'e4ngigkeiten feilen ...\par
+\par
+Ahja:\par
+Entweder kommt die RootReference Instanz zu sp\'e4t (damit sie als non-null einmalig registriert und dann ihr Eintrag in der entries HashTable nie mehr ver\'e4ndert wird ... wobei dann die neue setter methode sinnlos w\'e4re...)\par
+ODER\par
+Die Setter Methode muss auch den entries HashTable Eintrag aktualisieren. Wobei dabei immer noch die Aufrufreihenfolge kniffig w\'e4re ...\par
+\par
+Mal schauen, ob Variante #1 geht...\par
+\par
+Ahja: Geht teilweise. Man kann eine Variante machen, wo die rootReference gleich bei der Instanzierung \'fcbergeben wird, aber dann fehlt die ja eben bei den Convenience Methoden (siehe oben).\par
+Zwei Varianten mitf\'fchren w\'e4r bl\'f6d. Dann doch lieber die Logik konsolidiert auf Variante #2.\par
+Wobei das Problem ein bisschen komplexer ist:\par
+In PersistenceFoundation#ensureRootResolverProvider passiert ohnehin schon so viel, dass es nix mehr mit Convenience zu tun hat, das manuell nachbilden - und ohne Sourcecode "raten" - zu m\'fcssen.\par
+\par
+Es gibt auch kein aktuelles Beispiel mehr zu den Persistence.RootResolver~ Methoden mehr. F\'fcr das RefactoringMapping hab ich eine extra L\'f6sung gemacht. Der Rest sind die Interna, die man extern nicht so ohne weiteres nachbilden kann.\par
+Wozu dann also noch diese Methoden?\par
+Und wenn die rausfliegen, dann kann man auch gleich wieder die RootReference direkt bei der Instanzierung \'fcbergeben ...\par
+Hm...\par
+\par
+Umbauen.\par
+\par
+So, jetzt w\'e4r das gefixt. RootReference ist non-null.\par
+Aber der Root-Eintrag in der Roots Instanz ist immer noch null.\par
+Weil die RootReference Instanz ja ein Supplier ist und solang die auf null zeigt, wird zu root null resolvet.\par
+Das k\'f6nnte man zwar so lassen und die RootReference dann nur zur Laufzeit dazwischenklemmen, aber das w\'fcrde den urspr\'fcnglichen Sinn der Reference killen: N\'e4mlich eine Referenz zu haben, so dass man bei storeRoot nur diese eine Referenz speichern muss anstatt die gesamte Roots Instanz. Wenn ich das jetzt hier weglasse, kann ich gleich die ganze RootReference l\'f6schen ...\par
+Also darf die selber kein Supplier sein, sondern muss f\'fcr sich genommen schon die Root Instanz (auf technischer Ebene gesehen) sein.\par
+\par
+Umbauen.\par
+So. Nicht-null.\par
+Mal schauen, ob es jetzt schon geht ...\par
+\par
+Jo. Damit wird jetzt immerhin schon mal was konsistentes gespeichert.\par
+\par
+Ladetest: Ah, sieht die root noch nicht. Naja, muss ich dann auch noch debuggen und fixen.\par
 \par
 \fs22\par
+\par
 }
  

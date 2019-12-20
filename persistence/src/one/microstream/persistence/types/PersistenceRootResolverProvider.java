@@ -28,8 +28,6 @@ public interface PersistenceRootResolverProvider
 	}
 
 	public PersistenceRootResolverProvider registerRoot(Object root);
-
-	public PersistenceRootResolverProvider setRootReference(PersistenceRootReference rootReference);
 	
 	public default PersistenceRootResolverProvider registerRoot(
 		final String identifier,
@@ -79,24 +77,27 @@ public interface PersistenceRootResolverProvider
 	
 	
 	
-	public static PersistenceRootResolverProvider New()
+	public static PersistenceRootResolverProvider New(final PersistenceRootReference rootReference)
 	{
-		return New(PersistenceTypeResolver.Default());
+		return New(rootReference, PersistenceTypeResolver.Default());
 	}
 	
 	public static <M> PersistenceRootResolverProvider New(
-		final PersistenceTypeResolver typeResolver
+		final PersistenceRootReference rootReference,
+		final PersistenceTypeResolver  typeResolver
 	)
 	{
-		return New(typeResolver, PersistenceRootEntry::New);
+		return New(rootReference, typeResolver, PersistenceRootEntry::New);
 	}
 	
 	public static PersistenceRootResolverProvider New(
-		final PersistenceTypeResolver             typeResolver         ,
-		final PersistenceRootEntry.Provider       entryProvider
+		final PersistenceRootReference      rootReference,
+		final PersistenceTypeResolver       typeResolver ,
+		final PersistenceRootEntry.Provider entryProvider
 	)
 	{
 		final PersistenceRootResolverProvider.Default builder = new PersistenceRootResolverProvider.Default(
+			notNull(rootReference),
 			notNull(typeResolver) ,
 			notNull(entryProvider)
 		);
@@ -114,7 +115,7 @@ public interface PersistenceRootResolverProvider
 		private final PersistenceRootEntry.Provider                         entryProvider                  ;
 		private final PersistenceTypeResolver                               typeResolver                   ;
 		private final EqHashTable<String, PersistenceRootEntry>             rootEntries                    ;
-		private       PersistenceRootReference                              rootReference                  ;
+		private final PersistenceRootReference                              rootReference                  ;
 		private       PersistenceTypeDescriptionResolverProvider            typeDescriptionResolverProvider;
 		private       PersistenceRefactoringMappingProvider                 refactoringMapping             ;
 		private       Reference<? extends PersistenceTypeHandlerManager<?>> refTypeHandlerManager          ;
@@ -129,11 +130,13 @@ public interface PersistenceRootResolverProvider
 		/////////////////
 		
 		Default(
+			final PersistenceRootReference      rootReference,
 			final PersistenceTypeResolver       typeResolver ,
 			final PersistenceRootEntry.Provider entryProvider
 		)
 		{
 			super();
+			this.rootReference = rootReference; // must be non-null from the start for #initializeRootEntries to work!
 			this.typeResolver  = typeResolver ;
 			this.entryProvider = entryProvider;
 			
@@ -152,14 +155,13 @@ public interface PersistenceRootResolverProvider
 			return this.rootReference;
 		}
 		
-		@Override
-		public final synchronized PersistenceRootResolverProvider setRootReference(
-			final PersistenceRootReference rootReference
-		)
+		private Supplier<?> createRootReferenceSupplier()
 		{
-			this.rootReference = rootReference;
+			final PersistenceRootReference rootReference = this.rootReference;
 			
-			return this;
+			return () ->
+				rootReference
+			;
 		}
 		
 		/**
@@ -175,7 +177,7 @@ public interface PersistenceRootResolverProvider
 			}
 
 			// gets registered once initially and never modified afterwards
-			this.initializeEntry(entries, this.rootIdentifier(), this.rootReference());
+			this.initializeEntry(entries, this.rootIdentifier(), this.createRootReferenceSupplier());
 							
 			return entries;
 		}

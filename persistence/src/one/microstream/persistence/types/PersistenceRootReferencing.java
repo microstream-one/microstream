@@ -1,11 +1,9 @@
 package one.microstream.persistence.types;
 
-import java.util.function.Supplier;
-
 import one.microstream.reference.Referencing;
 
 
-public interface PersistenceRootReferencing extends Supplier<Object>, Referencing<Object>
+public interface PersistenceRootReferencing extends Referencing<Object>
 {
 	@Override
 	public Object get();
