@@ -9,6 +9,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.math.XMath;
 import one.microstream.memory.XMemory;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceInstanceHandler;
@@ -300,7 +301,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			 * context-specific handler implementation.
 			 */
 
-//			XDebug.debugln("refs of " + entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.oid);
+			XDebug.println("refs of " + entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.getEntityObjectId());
 
 			entry.handler.iterateLoadableReferences(entry, this);
 		}
@@ -531,6 +532,8 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 					return true;
 				}
 			}
+			
+			// (21.12.2019 TM)FIXME: priv#194: why does a querying method register stuff?
 
 			// if a reference is unrequired (e.g. constant), simply register it as a build item right away
 			if(this.handleKnownObject(objectId, this.skipObjectRegisterer))
@@ -836,7 +839,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 
 		private final void requireReference(final long objectId)
 		{
-			// add-logic: only put if not contained yet (single-lookup)
+			// add-logic: only put if not contained yet (single lookup)
 			this.loadItems.addLoadItem(objectId);
 		}
 

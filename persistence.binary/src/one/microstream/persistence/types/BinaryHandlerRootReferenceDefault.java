@@ -1,6 +1,7 @@
 package one.microstream.persistence.types;
 
 import one.microstream.chars.XChars;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceException;
@@ -168,6 +169,10 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 	{
 		// trivial single-reference
 		final long rootObjectId = getRootObjectId(bytes);
+		
+		// (21.12.2019 TM)FIXME: priv#194
+		XDebug.println("requiring root object id " + rootObjectId);
+		
 		iterator.acceptObjectId(rootObjectId);
 	}
 
