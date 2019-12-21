@@ -307,7 +307,21 @@ Jo. Damit wird jetzt immerhin schon mal was konsistentes gespeichert.\par
 \par
 Ladetest: Ah, sieht die root noch nicht. Naja, muss ich dann auch noch debuggen und fixen.\par
 \par
-\fs22\par
 \par
+\par
+2019-12-21\par
+\par
+Laden debuggen.\par
+\par
+Ach lol. Da stand nach dem shutdown noch ein delete all files. Nat\'fcrlich findet der Neustart dann keine Daten. Ich Checker.\par
+Also dynamischer Root passt.\par
+Jetzt noch statische Variante testen.\par
+\par
+AppRoot-Instanz wird nicht geupdatet. Hmpfl...\par
+Seltsam. Die Daten f\'fcr AppRoot gibts, aber dessen Referenz wird nicht mehr requiret.\par
+Bei der Recherche danach Auff\'e4lligkeit in BinaryLoader#isUnrequiredReference gefunden. Muss ich mir mal anschauen ...\par
+\par
+\par
+\fs22\par
 }
  
