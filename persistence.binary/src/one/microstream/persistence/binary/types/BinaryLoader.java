@@ -451,6 +451,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			{
 				return;
 			}
+			
 			// oid is required to have data loaded even if instance is already in global registry
 			this.requireReference(objectId);
 		}
@@ -467,6 +468,16 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		private       int              buildItemsSize                                  ;
 		private       BinaryLoadItem[] buildItemsHashSlots = new BinaryLoadItem[DEFAULT_HASH_SLOTS_LENGTH];
 		private       int              buildItemsHashRange = this.buildItemsHashSlots.length - 1;
+
+		/*
+		 * A little hacky, but worth it:
+		 * Since BinaryLoadItem does not hold an oid value explicitely, but instead reads it from the entity header
+		 * in the binary data, a skip item has to emulate/fake such data with the explicit skip oid written at a
+		 * conforming offset. Skip items are hardly ever used, so the little detour and memory footprint overhead
+		 * are well worth it if spares an additional explicit 8 byte long field for the millions and millions
+		 * of common case entities.
+		 */
+		private final ByteBuffer skipItemDummyBuffer = XMemory.allocateDirectNative(Binary.entityHeaderLength());
 
 
 
@@ -524,7 +535,12 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 				return true;
 			}
 
-			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
+			/*
+			 * Checks for both, already loaded items and skip items.
+			 * 
+			 * Note regarding hash distribution: OIDs are assumed to be roughly sequential,
+			 * hence (id ^ id >>> 32) should not be necessary for good distribution.
+			 */
 			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(objectId & this.buildItemsHashRange)]; e != null; e = e.link)
 			{
 				if(e.getBuildItemObjectId() == objectId)
@@ -601,23 +617,13 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		
 		private BinaryLoadItem createSkipItem(final long objectId, final Object instance)
 		{
-			/*
-			 * A little hacky, but worth it:
-			 * Since BinaryLoadItem does not hold an oid value explicitely, but instead reads it from the entity header
-			 * in the binary data, a skip item has to emulate/fake such data with the explicit skip oid written at a
-			 * conforming offset. Skip items are hardly ever used, so the little detour and memory footprint overhead
-			 * are well worth it if spares an additional explicit 8 byte long field for the millions and millions
-			 * of common case entities.
-			 */
-			final ByteBuffer dbb = XMemory.allocateDirectNative(Binary.entityHeaderLength());
-			
 			// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
 			final BinaryLoadItem skipItem = new BinaryLoadItem(0);
-			skipItem.modifyLoadItem(dbb, 0, 0, 0, objectId);
-			skipItem.existingInstance = instance;
 			
-			// skip items will never use the helper instance for anything, since they are skip dummies.
-			skipItem.registerHelper(dbb, dbb);
+			// (21.12.2019 TM)FIXME: priv#194: if shared skip item dummy buffer, then objectId must be an explicit field.
+			
+			skipItem.modifyLoadItem(this.skipItemDummyBuffer, 0, 0, 0, objectId);
+			skipItem.existingInstance = instance;
 			
 			return skipItem;
 		}
