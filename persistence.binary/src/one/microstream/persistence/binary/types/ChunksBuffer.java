@@ -244,12 +244,14 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		{
 			return this; // already completed
 		}
+		
 		this.updateCurrentBufferPosition();
 		this.currentBuffer             = null;
-		this.currentBufferStartAddress = 0L;
-		this.currentAddress            = 0L;
-		this.address     = 0L;
-		this.currentBound              = 0L;
+		this.currentBufferStartAddress =   0L;
+		this.currentAddress            =   0L;
+		this.address                   =   0L;
+		this.currentBound              =   0L;
+		
 		return this;
 	}
 	

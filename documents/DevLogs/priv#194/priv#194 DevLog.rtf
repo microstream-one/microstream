@@ -322,6 +322,27 @@ Seltsam. Die Daten f\'fcr AppRoot gibts, aber dessen Referenz wird nicht mehr re
 Bei der Recherche danach Auff\'e4lligkeit in BinaryLoader#isUnrequiredReference gefunden. Muss ich mir mal anschauen ...\par
 \par
 \par
+2019-12-22\par
+\par
+Jetzt mal debuggen, warum das nicht gefunden wird ...\par
+Achso. Erst mal BinaryLoader#isUnrequiredReference untersuchen.\par
+Dabei BinaryLoadItem optimieren ...\par
+\par
+Testen.\par
+JVM Crash.\par
+Debuggen.\par
+Ach. Die getter Methoden f\'fcr oid, tid, length gibt's doppelt. War mir nie aufgefallen.\par
+Konsolidieren.\par
+Testen.\par
+Passt.\par
+\par
+Jetzt wei\'df ich auch, warum das ignoriert wird:\par
+Die #create im RootReference Handler registriert die eigentliche Root-Instanz vorab global.\par
+Die BinaryLoader#isUnrequiredReference registriert global bereits bekannte Instanzen als Skip-Item.\par
+Skip-Items werden ... \'fcberraschenderweise ... geskippt.\par
+Darum wird die Root nicht geupdatet.\par
+Die L\'f6sung sollte sein:\par
+Registrieren lokal UND global.\par
 \fs22\par
 }
  

@@ -152,7 +152,7 @@ public interface PersistenceTypeDictionary
 	
 	public static long determineHighestTypeId(final XGettingTable<Long, PersistenceTypeDefinition> allTypesPerTypeId)
 	{
-		long maxTypeId = -1;
+		long maxTypeId = Persistence.notFoundId();
 
 		for(final Long typeId : allTypesPerTypeId.keys())
 		{

@@ -18,6 +18,7 @@ import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionI
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidListElements;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import one.microstream.persistence.exceptions.PersistenceException;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
@@ -86,13 +87,7 @@ public abstract class Binary implements Chunk
 	private static final long KEY_VALUE_REFERENCE_COUNT = 2;
 	
 	private static final long KEY_VALUE_BINARY_LENGTH = KEY_VALUE_REFERENCE_COUNT * LENGTH_OID;
-	
-	// special crazy sh*t negative offsets
-	private static final long
-		CONTENT_ADDRESS_NEGATIVE_OFFSET_TID = OFFSET_TID - LENGTH_ENTITY_HEADER,
-		CONTENT_ADDRESS_NEGATIVE_OFFSET_OID = OFFSET_OID - LENGTH_ENTITY_HEADER
-	;
-	
+		
 	static
 	{
 		/* (08.11.2019 TM)NOTE: the binary persistence layer
@@ -329,36 +324,42 @@ public abstract class Binary implements Chunk
 	{
 		return false;
 	}
-
-	public final long getEntityLength()
+	
+	public final long getBuildItemTotalLength()
 	{
-		// (06.09.2014 TM)TODO: test and comment if " + 0" gets eliminated by JIT
-		return this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_LEN);
-	}
-
-	public final long getEntityTypeId()
-	{
-		return this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_TID);
-	}
-
-	public final long getEntityObjectId()
-	{
-		return this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_OID);
+		return this.isSkipItem()
+			? -1
+			: this.internalBuildItemTotalLength()
+		;
 	}
 
 	public final long getBuildItemContentLength()
 	{
-		return this.get_longFromAddress(this.loadItemEntityContentAddress() - LENGTH_ENTITY_HEADER)	- LENGTH_ENTITY_HEADER;
+		return this.isSkipItem()
+			? -1
+			: this.internalBuildItemTotalLength() - LENGTH_ENTITY_HEADER
+		;
+	}
+	
+	private long internalBuildItemTotalLength()
+	{
+		return this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_LEN);
 	}
 
 	public final long getBuildItemTypeId()
 	{
-		return this.get_longFromAddress(this.loadItemEntityContentAddress() + CONTENT_ADDRESS_NEGATIVE_OFFSET_TID);
+		return this.isSkipItem()
+			? Persistence.notFoundId()
+			: this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_TID)
+		;
 	}
 
 	public final long getBuildItemObjectId()
 	{
-		return this.get_longFromAddress(this.loadItemEntityContentAddress() + CONTENT_ADDRESS_NEGATIVE_OFFSET_OID);
+		return this.isSkipItem()
+			? -this.loadItemEntityContentAddress()
+			: this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_OID)
+		;
 	}
 			
 	public abstract void storeEntityHeader(
@@ -708,9 +709,9 @@ public abstract class Binary implements Chunk
 		if(this.loadItemEntityContentAddress() + listOffset + listTotalByteLength > this.getEntityBoundAddress())
 		{
 			throw new BinaryPersistenceExceptionInvalidList(
-				this.getEntityLength(),
-				this.getEntityObjectId(),
-				this.getEntityTypeId(),
+				this.getBuildItemTotalLength(),
+				this.getBuildItemObjectId(),
+				this.getBuildItemTypeId(),
 				listOffset,
 				listTotalByteLength
 			);
@@ -738,9 +739,9 @@ public abstract class Binary implements Chunk
 		)
 		{
 			throw new BinaryPersistenceExceptionInvalidListElements(
-				this.getEntityLength(),
-				this.getEntityObjectId(),
-				this.getEntityTypeId(),
+				this.getBuildItemTotalLength(),
+				this.getBuildItemObjectId(),
+				this.getBuildItemTypeId(),
 				listOffset,
 				listTotalByteLength,
 				listElementCount,
@@ -1836,6 +1837,21 @@ public abstract class Binary implements Chunk
 	}
 			
 	abstract long loadItemEntityContentAddress();
+	
+	private boolean isSkipItem()
+	{
+		return this.address < 0;
+	}
+	
+	protected final boolean isDummyItem()
+	{
+		return this.address == 0;
+	}
+	
+	protected final boolean isProper()
+	{
+		return this.address > 0;
+	}
 	
 	private long loadItemEntityAddress()
 	{

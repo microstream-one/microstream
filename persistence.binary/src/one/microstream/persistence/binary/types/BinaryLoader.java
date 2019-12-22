@@ -12,7 +12,6 @@ import one.microstream.memory.XMemory;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
-import one.microstream.persistence.types.PersistenceInstanceHandler;
 import one.microstream.persistence.types.PersistenceLoader;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
@@ -77,12 +76,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		
 		private final BulkList<XGettingCollection<? extends Binary>> anchor = new BulkList<>();
 		
-		private final PersistenceInstanceHandler skipObjectRegisterer = (objectId, instance) ->
-			this.putBuildItem(
-				this.createSkipItem(objectId, instance)
-			)
-		;
-
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -301,7 +294,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			 * context-specific handler implementation.
 			 */
 
-			XDebug.println("refs of " + entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.getEntityObjectId());
+			XDebug.println(
+				entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.getBuildItemObjectId()
+			);
 
 			entry.handler.iterateLoadableReferences(entry, this);
 		}
@@ -353,6 +348,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		{
 			for(BinaryLoadItem entry = this.buildItemsHead.next; entry != null; entry = entry.next)
 			{
+				// (22.12.2019 TM)FIXME: priv#194: debugging print
+				XDebug.println("Building " + entry);
+				
 				// dummy-buildItems for skipping (filtering) OIDs don't have data and can and may not update anything.
 				if(!entry.hasData())
 				{
@@ -469,16 +467,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		private       BinaryLoadItem[] buildItemsHashSlots = new BinaryLoadItem[DEFAULT_HASH_SLOTS_LENGTH];
 		private       int              buildItemsHashRange = this.buildItemsHashSlots.length - 1;
 
-		/*
-		 * A little hacky, but worth it:
-		 * Since BinaryLoadItem does not hold an oid value explicitely, but instead reads it from the entity header
-		 * in the binary data, a skip item has to emulate/fake such data with the explicit skip oid written at a
-		 * conforming offset. Skip items are hardly ever used, so the little detour and memory footprint overhead
-		 * are well worth it if spares an additional explicit 8 byte long field for the millions and millions
-		 * of common case entities.
-		 */
-		private final ByteBuffer skipItemDummyBuffer = XMemory.allocateDirectNative(Binary.entityHeaderLength());
-
 
 
 		private Object internalGetFirst()
@@ -520,6 +508,12 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 				this.rebuildBuildItems();
 			}
 		}
+		
+		private void putSkipItem(final long objectId, final Object instance)
+		{
+			// skip items do not require a type handler, only objectId and optional instance.
+			this.putBuildItem(new BinaryLoadItem(objectId, instance));
+		}
 
 		/* required reference is one that does not meet any of the following conditions:
 		 * - null
@@ -536,7 +530,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 			}
 
 			/*
-			 * Checks for both, already loaded items and skip items.
+			 * Checks for both already loaded items and skip items.
 			 * 
 			 * Note regarding hash distribution: OIDs are assumed to be roughly sequential,
 			 * hence (id ^ id >>> 32) should not be necessary for good distribution.
@@ -549,29 +543,20 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 				}
 			}
 			
-			// (21.12.2019 TM)FIXME: priv#194: why does a querying method register stuff?
+			/* (21.12.2019 TM)FIXME: priv#194: why does a querying method register stuff?
+			 * Is it really correct to always skip referenced already loaded instances?
+			 */
 
 			// if a reference is unrequired (e.g. constant), simply register it as a build item right away
-			if(this.handleKnownObject(objectId, this.skipObjectRegisterer))
+			final Object instance;
+			if((instance = this.registry.lookupObject(objectId)) != null)
 			{
+				this.putSkipItem(objectId, instance);
 				return true;
 			}
 			
 			// reaching here means the reference is really required to be resolved (loaded)
 			return false;
-		}
-		
-		private boolean handleKnownObject(final long objectId, final PersistenceInstanceHandler handler)
-		{
-			final Object instance = this.registry.lookupObject(objectId);
-			if(instance == null)
-			{
-				return false;
-			}
-			
-			handler.handle(objectId, instance);
-			
-			return true;
 		}
 
 		private Object getBuildInstance(final long objectId)
@@ -612,20 +597,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 				}
 			}
 			
-			this.putBuildItem(this.createSkipItem(objectId, null));
-		}
-		
-		private BinaryLoadItem createSkipItem(final long objectId, final Object instance)
-		{
-			// skip items do not require a type handler, only objectId, a fakeContentAddress and optional instance
-			final BinaryLoadItem skipItem = new BinaryLoadItem(0);
-			
-			// (21.12.2019 TM)FIXME: priv#194: if shared skip item dummy buffer, then objectId must be an explicit field.
-			
-			skipItem.modifyLoadItem(this.skipItemDummyBuffer, 0, 0, 0, objectId);
-			skipItem.existingInstance = instance;
-			
-			return skipItem;
+			this.putSkipItem(objectId, null);
 		}
 		
 		private BinaryLoadItem createLoadItemDummy()
