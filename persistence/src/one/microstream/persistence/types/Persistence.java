@@ -87,9 +87,6 @@ public class Persistence
 	static final long START_CID_REAL = START_CID_BASE +    10_000L; // first 10K reserved for JLS constants
 	static final long START_TID_REAL = START_TID_BASE + 1_000_000L; // first new type gets 1M1 assigned.
 
-	static final long OID_NULL =  0L;
-	static final long TID_NULL = OID_NULL; // same as OID null because TIDs are actually OIDs.
-
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 
 	// java.lang and basic types.
@@ -227,7 +224,12 @@ public class Persistence
 
 	public static final long nullId()
 	{
-		return OID_NULL;
+		return 0L;
+	}
+	
+	public static final long notFoundId()
+	{
+		return -1L;
 	}
 
 	public static final PersistenceTypeIdLookup createDefaultTypeLookup()
@@ -1109,7 +1111,7 @@ public class Persistence
 			@Override
 			public boolean isInRange(final long id)
 			{
-				return id == Persistence.OID_NULL;
+				return id == Persistence.nullId();
 			}
 		},
 		TID
@@ -1162,7 +1164,7 @@ public class Persistence
 					: OID
 				: id >= Persistence.FIRST_TID
 					? TID
-					: id == Persistence.OID_NULL
+					: id == Persistence.nullId()
 						? NULL
 						: UNDEFINED
 			;
