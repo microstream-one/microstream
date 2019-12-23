@@ -3,7 +3,7 @@ package one.microstream.java.lang;
 import one.microstream.X;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public abstract class AbstractBinaryHandlerAbstractStringBuilder<B/*extends AbstractStringBuilder*/>
@@ -98,7 +98,7 @@ extends AbstractBinaryHandlerCustom<B>
 	@Override
 	public final void iterateLoadableReferences(
 		final Binary                      medium  ,
-		final PersistenceObjectIdAcceptor iterator
+		final PersistenceReferenceLoader iterator
 	)
 	{
 		// references to be loaded

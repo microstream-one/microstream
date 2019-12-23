@@ -8,7 +8,7 @@ import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.reflect.XReflect;
@@ -121,7 +121,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}

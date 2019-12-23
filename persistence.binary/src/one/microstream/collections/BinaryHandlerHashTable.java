@@ -8,7 +8,7 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -169,7 +169,7 @@ extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
 	{
 		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_KEYS));
 		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_VALUES));

@@ -22,8 +22,8 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistenc
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
@@ -529,7 +529,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
 	{
 		// "bytes" points to the entity content address, the offsets are relative to the content address.
 		bytes.iterateReferenceRange(

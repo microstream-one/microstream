@@ -6,7 +6,7 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIt
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
@@ -113,7 +113,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
 	{
 		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}

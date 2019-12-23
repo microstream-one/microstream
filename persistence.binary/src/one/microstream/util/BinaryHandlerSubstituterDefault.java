@@ -3,8 +3,8 @@ package one.microstream.util;
 import one.microstream.collections.BinaryHandlerEqHashEnum;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -104,8 +104,8 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 
 	@Override
 	public final void iterateLoadableReferences(
-		final Binary                      bytes   ,
-		final PersistenceObjectIdAcceptor iterator
+		final Binary                     bytes   ,
+		final PersistenceReferenceLoader iterator
 	)
 	{
 		BinaryHandlerEqHashEnum.staticIteratePersistedReferences(bytes, iterator);

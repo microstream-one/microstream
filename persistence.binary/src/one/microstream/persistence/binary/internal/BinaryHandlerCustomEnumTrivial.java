@@ -2,8 +2,8 @@ package one.microstream.persistence.binary.internal;
 
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistence;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractBinaryHandlerCustomEnum<T>
@@ -84,8 +84,8 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 
 	@Override
 	public void iterateLoadableReferences(
-		final Binary                      bytes   ,
-		final PersistenceObjectIdAcceptor iterator
+		final Binary                     bytes   ,
+		final PersistenceReferenceLoader iterator
 	)
 	{
 		iterator.acceptObjectId(getNameObjectId(bytes));

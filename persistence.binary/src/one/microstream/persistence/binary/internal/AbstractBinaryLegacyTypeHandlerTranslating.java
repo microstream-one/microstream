@@ -14,8 +14,8 @@ import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
@@ -249,7 +249,7 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	// persisted-form-related methods, so the old type definition (or derivatives of it) has be used //
 
 	@Override
-	public final void iterateLoadableReferences(final Binary rawData, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary rawData, final PersistenceReferenceLoader iterator)
 	{
 		rawData.iterateReferences(this.referenceTraversers, iterator);
 	}

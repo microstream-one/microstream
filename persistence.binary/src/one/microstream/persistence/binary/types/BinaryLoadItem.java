@@ -98,9 +98,9 @@ public class BinaryLoadItem extends Binary
 	@Override
 	public String toString()
 	{
-		return "LoadItem OID=" + (this.isDummyItem() ? "[Dummy]" : Long.toString(this.getBuildItemObjectId()))
+		return "LoadItem OID=" + (this.isDummyItem() ? " [Dummy]" : Long.toString(this.getBuildItemObjectId()))
 			+ (this.handler == null
-				? "[no handler]"
+				? " [no handler]"
 				: ", Type=" + this.handler.typeId() + " " + this.handler.typeName())
 		;
 	}

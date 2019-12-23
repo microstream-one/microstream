@@ -2,8 +2,8 @@ package one.microstream.persistence.lazy;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -151,8 +151,8 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 
 	@Override
 	public final void iterateLoadableReferences(
-		final Binary                      offset  ,
-		final PersistenceObjectIdAcceptor iterator
+		final Binary                     offset  ,
+		final PersistenceReferenceLoader iterator
 	)
 	{
 		// the lazy reference is not naturally loadable, but special-handled by this handler
