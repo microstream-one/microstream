@@ -1,7 +1,6 @@
 package one.microstream.persistence.types;
 
 import one.microstream.chars.XChars;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceException;
@@ -91,7 +90,7 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 			 * complete.
 			 */
 			final long rootObjectId = getRootObjectId(bytes);
-			idResolver.requireRoot(this.rootReference.get(), rootObjectId);
+			idResolver.requireRoot(rootInstance, rootObjectId);
 		}
 
 		// instance is a singleton. Hence, no instance is created, here, but the singleton is returned.
@@ -169,9 +168,6 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 	{
 		// trivial single-reference
 		final long rootObjectId = getRootObjectId(bytes);
-		
-		// (21.12.2019 TM)FIXME: priv#194
-		XDebug.println("requiring root object id " + rootObjectId);
 		
 		// must require reference eagerly here as the call in #create did not create a build item.
 		iterator.requireReferenceEager(rootObjectId);

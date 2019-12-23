@@ -76,7 +76,10 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		
 		private final BulkList<XGettingCollection<? extends Binary>> anchor = new BulkList<>();
 		
-		// (17.10.2013 TM)XXX: refactor to builditems instance similar to ... idk storer or so.
+		/* (17.10.2013 TM)XXX: refactor to builditems instance similar to ... idk storer or so.
+		 * Also, loadItems and buildItems could be combined to produce less memory waste and
+		 * maybe speed up loading.
+		 */
 
 		///////////////////////////////////////////////////////////////////////////
 		// build items map //
@@ -369,9 +372,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		{
 			for(BinaryLoadItem entry = this.buildItemsHead.next; entry != null; entry = entry.next)
 			{
-				// (22.12.2019 TM)FIXME: priv#194: debugging print
-				XDebug.println("Building " + entry);
-				
 				// dummy-buildItems for skipping (filtering) OIDs don't have data and can and may not update anything.
 				if(!entry.hasData())
 				{
@@ -547,12 +547,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObje
 		 */
 		private boolean isUnrequiredReferenceLazy(final long objectId)
 		{
-			// (23.12.2019 TM)FIXME: /!\ DEBUG priv#194
-			if(objectId == 1000000000000000028L)
-			{
-				XDebug.println("1000000000000000028");
-			}
-			
 			// spare pointless null reference roundtrips
 			if(isUnrequiredReferenceEager(objectId))
 			{
