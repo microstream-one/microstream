@@ -343,6 +343,91 @@ Skip-Items werden ... \'fcberraschenderweise ... geskippt.\par
 Darum wird die Root nicht geupdatet.\par
 Die L\'f6sung sollte sein:\par
 Registrieren lokal UND global.\par
+\par
+\par
+2019-12-23\par
+\par
+Mann mann. Nach einigem Rumbasteln mit viel zu kompliziertem Code und trotzdem keinem erfolgreichen Ergebnis muss ich jetzt erst nochmal zusammenschreiben, wie der Ladealgorithmus genau funktioniert.\par
+Und dann schau ich, wo man was registrieren bzw. \'e4ndern muss.\par
+\par
+1.) Schleife aus:\par
+- OIDs sammeln als LoadItems\par
+- An Storage schicken\par
+- Ergebnis iterieren und BinaryLoadItems daraus bauen. Dabei existingInstance aus Registry oder #create Aufruf.\par
+- BinaryLoadItems iteren und dabei Referenzen in Binary Daten OIDs sammeln\par
+  Dabei f\'fcr jede oid #isUnrequiredReference:\par
+\tab wenn schon BinaryLoadItem daf\'fcr vorhanden, abbruch (nicht sammeln).\par
+\tab wenn globale instanz vorhanden, als skip item registrieren und abbruch (nicht sammeln).\par
+    ansonsten oid sammeln\par
+(Jeder LoadItem Entry wird ge-channel-hasht und jeder Cycle cleart die LoadItems)\par
+\par
+2.) BinaryLoadItems linear durchlaufen:\par
+- effective instance feststellen (inzwischen existierende globale Instanz oder createdInstance)\par
+- effective instance updaten mit handler#update\par
+\par
+3.) BinaryLoadItems nochmal linear durchlaufen:\par
+- effective instance fertigstellen mit handler#complete\par
+(nur n\'f6tig f\'fcr d\'e4mlich kaputt designte JDK Hash collections)\par
+\par
+\par
+Problem f\'fcr root Instanz ist:\par
+Es soll einerseits im #create f\'fcr RootReference die Root Instanz schon global registriert werden.\par
+Andererseits soll sie aber nicht als skip item als schon global existierende Instanz registriert werden.\par
+\par
+Das ist ein Widerspruch.\par
+\par
+Es kann auch nicht einfach ein BinaryLoadItem erzeugt werden, weil das dann nicht die daten aus der Datenbank enth\'e4lt.\par
+BinaryLoadItems m\'fcssen aus den geladenen Daten erzeugt werden, ansonsten k\'f6nnen es nur skip items sein.\par
+\par
+\par
+Das Konzept hat grunds\'e4tzlich verschiedene Probleme:\par
+- Es werden Instanzen erzeugt, die sp\'e4ter aber gar nicht verwendet werden.\par
+- Existierende Instanzen f\'fchren zu skip-items, auch wenn es eigentlich Konstanten/Enums/Root sind, die geupdatet werden sollen.\par
+\par
+Wobei es bei root Instanzen seltsamerweise funktioniert.\par
+Ich glaub, weil die nicht global registriert werden.\par
+Daf\'fcr werden f\'fcr sie sinnlos lokale Instanzen erzeugt.\par
+\par
+Es fehlt eine Fallunterscheidung, dass bestimmte Instanzen zwar schon global vorhanden sein sollen (d.h. keine lokale Instanz f\'fcr sie erstellen), aber trotzdem ihre Daten geladen werden sollen.\par
+\par
+Also quasi ein requireReferenceLazy (bisher) und requireReferenceEager (neu f\'fcr Konstanten-Sonderf\'e4lle wie z.B. Root).\par
+\par
+So bau ich das mal ein.\par
+\par
+Testen ...\par
+Sieht gut aus.\par
+Testklassen besser bauen:\par
+#1 f\'fcr statischen root.\par
+#2 f\'fcr dynamischen root.\par
+\par
+Funktioniert beides.\par
+\par
+Und Idee: Root Identifier umbenennen von "root" zu "ROOT". Damit sind beide veraltete F\'e4lle ganz leicht erkennbar.\par
+Testen. Passt. Nat\'fcrlich. War ja nur ein anderer String.\par
+\par
+Jetzt ist noch interessant:\par
+Datenbank mit einer Variante anlegen und dann mit der anderen starten. Das muss jetzt gehen ...\par
+\par
+Test #2 nach #1: funktioniert.\par
+Btw: Test mit falschem Typ: Gibt TypeCastException wie erwartet.\par
+Test #1 nach #2: funktioniert.\par
+\par
+So. Jetzt will ich noch wissen, wieso die AppRoot Instanz zwei LoadItems hat. Spielt zwar f\'fcr das Funktionieren offensichtlich keine Rolle, aber das darf eigentlich gar nicht m\'f6glich sein und deutet auf ein Problem hin...\par
+\par
+A, deswegen:\par
+- #create wird zuerst aufgerufen (wie erwartet) und ruft seinerseits #requireReferenceEager auf (auch wie erwartet).\par
+- Aber es wird dabei kein build Item angelegt.\par
+- Dann kommt der #iterateLoadableReferences Aufruf und darin wird der \'fcbliche #requireReferenceLazy Aufruf gemacht.\par
+- Das erzeugt den skip Eintrag (zuerst)\par
+- Danach kommen die geladenen Daten von der Datenbank durch den requireEager und sorgen f\'fcr das korrekte BuildItem.\par
+\par
+Hmhm.\par
+Eigentlich m\'fcsste als L\'f6sung reichen, in #iterateLoadableReferences  auch die eager Variante aufzurufen.\par
+Testen.\par
+Funktioniert!\par
+\par
+Vorsichtshalber nochmal beide Varianten komplett testen, nicht dass was kaputt gegangen ist.\par
+Passt!\par
 \fs22\par
 }
  

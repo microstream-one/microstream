@@ -91,7 +91,7 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 			 * complete.
 			 */
 			final long rootObjectId = getRootObjectId(bytes);
-			idResolver.registerRoot(this.rootReference.get(), rootObjectId);
+			idResolver.requireRoot(this.rootReference.get(), rootObjectId);
 		}
 
 		// instance is a singleton. Hence, no instance is created, here, but the singleton is returned.
@@ -165,7 +165,7 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
 	{
 		// trivial single-reference
 		final long rootObjectId = getRootObjectId(bytes);
@@ -173,7 +173,8 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 		// (21.12.2019 TM)FIXME: priv#194
 		XDebug.println("requiring root object id " + rootObjectId);
 		
-		iterator.acceptObjectId(rootObjectId);
+		// must require reference eagerly here as the call in #create did not create a build item.
+		iterator.requireReferenceEager(rootObjectId);
 	}
 
 	@Override

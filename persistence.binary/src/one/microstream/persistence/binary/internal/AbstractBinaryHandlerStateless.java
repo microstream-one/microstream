@@ -3,7 +3,7 @@ package one.microstream.persistence.binary.internal;
 import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHandlerCustom<T>
@@ -67,7 +67,7 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	@Override
 	public final void iterateLoadableReferences(
 		final Binary                      medium  ,
-		final PersistenceObjectIdAcceptor iterator
+		final PersistenceReferenceLoader iterator
 	)
 	{
 		// no state, no reference, no-op.

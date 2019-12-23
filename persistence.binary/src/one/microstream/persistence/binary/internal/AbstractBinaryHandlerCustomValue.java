@@ -2,7 +2,7 @@ package one.microstream.persistence.binary.internal;
 
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 
 
@@ -40,7 +40,7 @@ extends AbstractBinaryHandlerCustom<T>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary offset, final PersistenceReferenceLoader iterator)
 	{
 		// no references
 	}

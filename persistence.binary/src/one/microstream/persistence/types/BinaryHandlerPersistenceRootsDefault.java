@@ -174,7 +174,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
 	{
 		// the nice thing about this layout is: the references can be accessed directly as if it was a simple list
 		bytes.iterateListElementReferences(0, iterator);

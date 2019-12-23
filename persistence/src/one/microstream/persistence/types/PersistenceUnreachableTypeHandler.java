@@ -35,7 +35,7 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default void iterateLoadableReferences(final M medium, final PersistenceObjectIdAcceptor iterator)
+	public default void iterateLoadableReferences(final M medium, final PersistenceReferenceLoader iterator)
 	{
 		// no-op: for all intents and purposes, an unreachable instance's references need not and must not be iterated.
 	}

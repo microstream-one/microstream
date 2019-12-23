@@ -1,7 +1,7 @@
 package one.microstream.persistence.binary.internal;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -72,7 +72,7 @@ extends AbstractBinaryHandlerCustomIterable<T>
 	}
 
 	@Override
-	public void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
 	{
 		bytes.iterateListElementReferences(this.binaryOffsetElements(), iterator);
 	}

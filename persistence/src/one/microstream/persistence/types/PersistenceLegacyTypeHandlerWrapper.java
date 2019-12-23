@@ -66,7 +66,7 @@ public class PersistenceLegacyTypeHandlerWrapper<M, T> extends PersistenceLegacy
 	}
 
 	@Override
-	public void iterateLoadableReferences(final M medium, final PersistenceObjectIdAcceptor iterator)
+	public void iterateLoadableReferences(final M medium, final PersistenceReferenceLoader iterator)
 	{
 		// current type handler perfectly fits the old types structure, so it can be used here.
 		this.typeHandler.iterateLoadableReferences(medium, iterator);

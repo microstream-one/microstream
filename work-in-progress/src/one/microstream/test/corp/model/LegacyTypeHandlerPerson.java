@@ -3,8 +3,8 @@ package one.microstream.test.corp.model;
 import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryLegacyTypeHandler;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 
 public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCustom<Person>
 {
@@ -81,8 +81,8 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 
 	@Override
 	public final void iterateLoadableReferences(
-		final Binary                      bytes   ,
-		final PersistenceObjectIdAcceptor iterator
+		final Binary                     bytes   ,
+		final PersistenceReferenceLoader iterator
 	)
 	{
 		// clumsy offset code redundancy to be replaced by BinaryField w.i.p concept ...

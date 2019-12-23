@@ -957,12 +957,13 @@ public class Persistence
 	@Deprecated
 	public static final String customRootIdentifier()
 	{
-		return rootIdentifier();
+		return "root";
 	}
 	
 	public static final String rootIdentifier()
 	{
-		return "root";
+		// must be upper case to be distinct from old custom root concept for automatic version change detection.
+		return "ROOT";
 	}
 		
 	@Deprecated

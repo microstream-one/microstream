@@ -31,7 +31,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
 	public void iterateInstanceReferences(T instance, PersistenceFunction iterator);
 
-	public void iterateLoadableReferences(M medium, PersistenceObjectIdAcceptor iterator);
+	public void iterateLoadableReferences(M medium, PersistenceReferenceLoader iterator);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
 	public void store(M medium, T instance, long objectId, PersistenceStoreHandler handler);
