@@ -8,8 +8,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -122,7 +122,7 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 	}
 
 	@Override
-	public final ConstHashTable<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final ConstHashTable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return ConstHashTable.NewCustom(
 			getBuildItemElementCount(bytes),
@@ -132,9 +132,9 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 
 	@Override
 	public final void update(
-		final Binary                      bytes     ,
-		final ConstHashTable<?, ?>        instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes   ,
+		final ConstHashTable<?, ?>   instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// validate to the best of possibilities (or should an immutable instance be updatedable from outside?)
@@ -150,17 +150,17 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_KEYS))
+			handler.lookupObject(bytes.read_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_VALUES))
+			handler.lookupObject(bytes.read_long(BINARY_OFFSET_VALUES))
 		);
 		bytes.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
 			getBuildItemElementCount(bytes),
-			idResolver,
+			handler,
 			casted::internalAdd
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)

@@ -22,7 +22,7 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistenc
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
@@ -498,10 +498,10 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public abstract T create(final Binary bytes, PersistenceObjectIdResolver idResolver);
+	public abstract T create(final Binary bytes, PersistenceLoadHandler handler);
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
@@ -513,11 +513,11 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			throw new TypeCastException(this.type(), instance);
 		}
 
-		bytes.updateFixedSize(instance, this.setters, this.settingMemoryOffsets, idResolver);
+		bytes.updateFixedSize(instance, this.setters, this.settingMemoryOffsets, handler);
 	}
 
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}

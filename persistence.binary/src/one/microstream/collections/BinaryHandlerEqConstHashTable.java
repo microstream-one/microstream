@@ -9,8 +9,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -131,19 +131,22 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 	}
 
 	@Override
-	public final EqConstHashTable<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final EqConstHashTable<?, ?> create(
+		final Binary                 data   ,
+		final PersistenceLoadHandler handler
+	)
 	{
 		return EqConstHashTable.NewCustom(
-			getBuildItemElementCount(bytes),
-			getBuildItemHashDensity(bytes)
+			getBuildItemElementCount(data),
+			getBuildItemHashDensity(data)
 		);
 	}
 
 	@Override
 	public final void update(
-		final Binary                      bytes     ,
-		final EqConstHashTable<?, ?>      instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data    ,
+		final EqConstHashTable<?, ?> instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// validate to the best of possibilities (or should an immutable instance be updatedable from outside?)
@@ -159,36 +162,43 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQUALATOR),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_EQUALATOR))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_KEYS))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_VALUES))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_VALUES))
 		);
-		instance.size = bytes.collectKeyValueReferences(
+		instance.size = data.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
-			getBuildItemElementCount(bytes),
-			idResolver,
+			getBuildItemElementCount(data),
+			handler,
 			casted::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqConstHashTable<?, ?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void complete(
+		final Binary                 data    ,
+		final EqConstHashTable<?, ?> instance,
+		final PersistenceLoadHandler handler
+	)
 	{
 		// rehash all previously unhashed collected elements
 		instance.internalRehash();
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final EqConstHashTable<?, ?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(
+		final EqConstHashTable<?, ?> instance,
+		final PersistenceFunction    iterator
+	)
 	{
 		iterator.apply(instance.hashEqualator);
 		iterator.apply(instance.keys);

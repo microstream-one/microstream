@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.Vector;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
 public final class BinaryHandlerVector extends AbstractBinaryHandlerList<Vector<?>>
@@ -41,7 +41,7 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerList<Vector<
 	////////////
 
 	@Override
-	public final Vector<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final Vector<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new Vector<>();
 	}

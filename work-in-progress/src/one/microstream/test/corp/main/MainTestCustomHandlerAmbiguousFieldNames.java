@@ -3,7 +3,7 @@ package one.microstream.test.corp.main;
 import one.microstream.X;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public class MainTestCustomHandlerAmbiguousFieldNames
@@ -35,7 +35,7 @@ final class MyTypeHandler extends AbstractBinaryHandlerCustomValueFixedLength<St
 	}
 
 	@Override
-	public String create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public String create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		throw new one.microstream.meta.NotImplementedYetError(); // FIXME AbstractBinaryHandlerCustom<String>#create()
 	}

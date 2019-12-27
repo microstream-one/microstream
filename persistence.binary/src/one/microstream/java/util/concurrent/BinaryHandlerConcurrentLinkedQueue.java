@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import one.microstream.java.util.AbstractBinaryHandlerQueue;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
 public final class BinaryHandlerConcurrentLinkedQueue
@@ -45,7 +45,7 @@ extends AbstractBinaryHandlerQueue<ConcurrentLinkedQueue<?>>
 	////////////
 	
 	@Override
-	public ConcurrentLinkedQueue<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public ConcurrentLinkedQueue<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new ConcurrentLinkedQueue<>();
 	}

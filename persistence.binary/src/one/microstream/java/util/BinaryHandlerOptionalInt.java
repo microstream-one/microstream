@@ -5,7 +5,7 @@ import java.util.OptionalInt;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomValueFixedLength<OptionalInt>
@@ -92,7 +92,7 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 	}
 
 	@Override
-	public OptionalInt create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public OptionalInt create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		final boolean isPresent = bytes.read_boolean(BINARY_OFFSET_IS_PRESENT);
 		

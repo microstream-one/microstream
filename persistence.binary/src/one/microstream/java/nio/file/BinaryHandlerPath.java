@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -61,7 +61,7 @@ public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVar
 	}
 
 	@Override
-	public Path create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public Path create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		// the URI schema is responsible to trigger the correct resolving and produce an instance of the right type.
 		return Paths.get(URI.create(bytes.buildString()));

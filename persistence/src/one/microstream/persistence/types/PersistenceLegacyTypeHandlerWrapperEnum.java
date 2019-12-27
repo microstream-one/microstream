@@ -53,7 +53,7 @@ extends PersistenceLegacyTypeHandlerWrapper<M, T>
 	////////////
 	
 	@Override
-	public T create(final M medium, final PersistenceObjectIdResolver idResolver)
+	public T create(final M medium, final PersistenceLoadHandler handler)
 	{
 		// this is all there is on this level for this implementation / case.
 		return PersistenceLegacyTypeHandler.resolveEnumConstant(this, medium, this.ordinalMapping);

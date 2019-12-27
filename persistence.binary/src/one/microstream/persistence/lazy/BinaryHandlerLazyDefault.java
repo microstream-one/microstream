@@ -2,7 +2,7 @@ package one.microstream.persistence.lazy;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -88,7 +88,7 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 	}
 
 	@Override
-	public final Lazy.Default<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final Lazy.Default<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		/* (27.04.2016 TM)NOTE: registering a Lazy instance with a reference manager
 		 * without having the object supplier set yet might cause an inconsistency if the
@@ -103,23 +103,23 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 
 	@Override
 	public final void update(
-		final Binary                      bytes     ,
-		final Lazy.Default<?>             instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes   ,
+		final Lazy.Default<?>        instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		/* intentionally no subject lookup here as premature strong referencing
 		 * might defeat the purpose of memory freeing lazy referencing if no
 		 * other strong reference to the subject is present at the moment.
 		 */
-		instance.setLoader(idResolver.getObjectRetriever());
+		instance.setLoader(handler.getObjectRetriever());
 	}
 
 	@Override
 	public final void complete(
 		final Binary                      medium    ,
 		final Lazy.Default<?>             instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final PersistenceLoadHandler handler
 	)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)

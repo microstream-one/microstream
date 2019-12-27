@@ -9,8 +9,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -119,7 +119,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 	}
 
 	@Override
-	public final EqConstHashEnum<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final EqConstHashEnum<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return EqConstHashEnum.New(
 			getBuildItemElementCount(bytes),
@@ -129,9 +129,9 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 
 	@Override
 	public final void update(
-		final Binary                      bytes     ,
-		final EqConstHashEnum<?>          instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes   ,
+		final EqConstHashEnum<?>     instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// validate to the best of possibilities (or should an immutable instance be updatedable from outside?)
@@ -147,20 +147,20 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
 		);
 
 		// collect elements AFTER hashEqualator has been set because it is used in it
 		instance.size = bytes.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
-			idResolver,
+			handler,
 			casted::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqConstHashEnum<?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void complete(final Binary medium, final EqConstHashEnum<?> instance, final PersistenceLoadHandler handler)
 	{
 		// rehash all previously unhashed collected elements
 		instance.internalRehash();

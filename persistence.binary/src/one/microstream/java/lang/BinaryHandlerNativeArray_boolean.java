@@ -1,7 +1,7 @@
 package one.microstream.java.lang;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandlerNativeArrayPrimitive<boolean[]>
@@ -44,13 +44,13 @@ public final class BinaryHandlerNativeArray_boolean extends AbstractBinaryHandle
 	}
 
 	@Override
-	public final boolean[] create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final boolean[] create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.create_booleans();
 	}
 
 	@Override
-	public final void update(final Binary bytes, final boolean[] instance, final PersistenceObjectIdResolver idResolver)
+	public final void update(final Binary bytes, final boolean[] instance, final PersistenceLoadHandler handler)
 	{
 		bytes.update_booleans(instance);
 	}

@@ -8,8 +8,8 @@ import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.reflect.XReflect;
 
@@ -96,7 +96,7 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	}
 
 	@Override
-	public final A create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final A create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		final long rawElementCount = bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS);
 		return this.arrayType.cast(
@@ -105,13 +105,13 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	}
 
 	@Override
-	public final void update(final Binary bytes, final A instance, final PersistenceObjectIdResolver idResolver)
+	public final void update(final Binary bytes, final A instance, final PersistenceLoadHandler handler)
 	{
 		final Object[] arrayInstance = (Object[])instance;
 		
 		// better check length consistency here. No clear required.
 		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_ELEMENTS);
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, idResolver, arrayInstance);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, arrayInstance);
 	}
 	
 	@Override

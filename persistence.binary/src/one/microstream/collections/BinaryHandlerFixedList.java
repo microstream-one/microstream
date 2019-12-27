@@ -5,8 +5,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -80,7 +80,7 @@ extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 	}
 
 	@Override
-	public final FixedList<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final FixedList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new FixedList<>(
 			X.checkArrayRange(bytes.getListElementCountReferences(0))
@@ -88,13 +88,13 @@ extends AbstractBinaryHandlerCustomCollection<FixedList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final FixedList<?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void update(final Binary bytes, final FixedList<?> instance, final PersistenceLoadHandler handler)
 	{
 		final Object[] arrayInstance = instance.data;
 
 		// Length must be checked for consistency reasons. No clearing required.
 		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_LIST);
-		bytes.collectElementsIntoArray(BINARY_OFFSET_LIST, idResolver, arrayInstance);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_LIST, handler, arrayInstance);
 	}
 
 	@Override

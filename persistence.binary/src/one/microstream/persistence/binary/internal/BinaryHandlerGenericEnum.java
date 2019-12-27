@@ -17,7 +17,7 @@ import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
@@ -296,7 +296,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	}
 		
 	@Override
-	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final T create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		/*
 		 * Can't validate here since the name String instance might not have been created, yet. See #update.
@@ -317,15 +317,15 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		return bytes.read_int(this.binaryOffsetOrdinal);
 	}
 	
-	public String getName(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public String getName(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return (String)idResolver.lookupObject(bytes.read_long(this.binaryOffsetName));
+		return (String)handler.lookupObject(bytes.read_long(this.binaryOffsetName));
 	}
 	
 	private void validate(
-		final Binary                      bytes     ,
-		final T                           instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes   ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// validate ordinal, just in case.
@@ -338,7 +338,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 			);
 		}
 		
-		final String persistentName = this.getName(bytes, idResolver);
+		final String persistentName = this.getName(bytes, handler);
 		if(!instance.name().equals(persistentName))
 		{
 			// (09.08.2019 TM)EXCP: proper exception
@@ -353,13 +353,13 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	}
 		
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		// must thoroughly validate the linked jvm-generated(!) instance before modifying its state!
-		this.validate(bytes, instance, idResolver);
+		this.validate(bytes, instance, handler);
 		
 		// super class logic already uses only setting members, i.e. not ordinal and name.
-		super.update(bytes, instance, idResolver);
+		super.update(bytes, instance, handler);
 	}
 
 }

@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
@@ -78,7 +78,7 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 	}
 
 	@Override
-	public final Class<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final Class<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		final long typeId = bytes.read_long(0);
 		

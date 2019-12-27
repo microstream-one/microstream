@@ -2,7 +2,7 @@ package one.microstream.java.lang;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerString extends AbstractBinaryHandlerCustomValueVariableLength<String>
@@ -50,7 +50,7 @@ public final class BinaryHandlerString extends AbstractBinaryHandlerCustomValueV
 	}
 
 	@Override
-	public String create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public String create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.buildString();
 	}

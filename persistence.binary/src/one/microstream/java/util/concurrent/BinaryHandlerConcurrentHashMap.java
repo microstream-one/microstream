@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import one.microstream.X;
 import one.microstream.java.util.AbstractBinaryHandlerMap;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
 public final class BinaryHandlerConcurrentHashMap extends AbstractBinaryHandlerMap<ConcurrentHashMap<?, ?>>
@@ -45,7 +45,7 @@ public final class BinaryHandlerConcurrentHashMap extends AbstractBinaryHandlerM
 	////////////
 	
 	@Override
-	public ConcurrentHashMap<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public ConcurrentHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new ConcurrentHashMap<>(
 			X.checkArrayRange(getElementCount(bytes))

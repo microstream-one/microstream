@@ -428,6 +428,56 @@ Funktioniert!\par
 \par
 Vorsichtshalber nochmal beide Varianten komplett testen, nicht dass was kaputt gegangen ist.\par
 Passt!\par
+\par
+\par
+Plan f\'fcr Abw\'e4rtskompatibilit\'e4t:\par
+\par
+Pr\'fcfung auf "root" und "defaultRoot" an passender Stelle als Sonderfall einbauen, durch "ROOT" mit RootReference Instanz ersetzen und dann sicherstellen, dass neu abgespeichert wird.\par
+Damit "upgradet" die erste Initialisierung mit der neuen Version die Root automatisch. Nach ein paar Versionen kann man den Code dann rausl\'f6schen.\par
+\par
+Muss nat\'fcrlich in BinaryHandlerPersistenceRootsDefault#update sein.\par
+rootResolver#resolveRootEntries k\'f6nnte eine spezielle Implementierung von PersistenceRootEntry zur\'fcckgeben, die in rootResolver#resolveRootInstances dann den ge\'e4nderten Eintrag erzeugt.\par
+\par
+Evtl. beide adden, um sicherzugehen, dass vom alten Root die referenzierte Instanz da ist.\par
+Dann in #complete referenzen umh\'e4ngen und alten Eintrag removen.\par
+\par
+CustomRoot m\'fcsste simpler werden, weil in diesem Fall die "Roots" Instanz die Root-Instanz direkt referenziert.l\par
+\par
+\par
+2019-12-27\par
+\par
+Ich hab seit dem 23. so viel daran gearbeitet (und an bissl Code Refactoring), dass mir das wahrscheinlich niemand glauben w\'fcrde, also hab ich es nicht als Arbeitszeit geloggt.\par
+Aber jetzt mach ich mal wieder mit Arbeitszeit weiter und schreib gleich mal die Erkenntnisse und Konzepte der vier abzudeckenden F\'e4lle auf:\par
+\par
+1.) Root == null & customRoot exists\par
+In BinaryHandlerPersistenceRootsDefault#update einfach die customRoot Instanz als Root setzen. Tada.\par
+\par
+2.) Root == null & defaultRoot exists\par
+In BinaryHandlerPersistenceRootsDefault#update einfach die defaultRoot Instanz als supplier in Root setzen. Hrhr.\par
+\par
+3.) Root != null & customRoot exists\par
+Die Root Instanz muss f\'fcr die customRoot OID registriert werden, um f\'fcr das Laden verkn\'fcpft zu werden\par
+Und zwar in der Lade-/Creation Phase, also in BinaryHandlerPersistenceRootsDefault#create, damit die Verkn\'fcpfung steht, bevor der Handler f\'fcr die Root Instanz aufgerufen wird.\par
+\par
+4.) Root != null & defaultRoot exists\par
+Das hier ist der kniffligste Fall. Die Root Instanz muss f\'fcr die OID der von der defaultRoot Instanz referenzierte Root Instanz registriert werden. Also um eine Ecke mehr.\par
+Das Problem daran:\par
+Es reicht, die OID aus dem Binary Datensatz der defaultRoot (Singleton Instanz) auszulesen.\par
+ABER:\par
+Im BinaryHandlerPersistenceRootsDefault#create Aufruf w\'e4hrend der Lade-/Creation Phase sind die Daten noch nicht da.\par
+W\'e4hrend der Update Phase gibt es schon eine Instanz, die von BinaryHandlerSingleton#create erzeugt worden ist.\par
+Allerdings, hier ist die Hoffnung:\par
+- Die Lade-/Creation Phase registriert nicht bei der global Registry\par
+- In der Update Phase wird nochmal gepr\'fcft, ob es zwischenzeitlich eine global registrierte Instanz gibt. Das ist die Gelegenheit, die Verkn\'fcpfung unterzubringen!\par
+- W\'e4hrend der Update Phase kann man sich den Binary Datensatz f\'fcr die defaultRoot vom LoadHandler holen, auslesen und dann die Instanz registrieren.\par
+Das einzige Problem daran: Das klappt nur unter der Annahme, dass das BinaryHandler#update f\'fcr die Roots vor dem BinaryHandler#update f\'fcr den Singleton aufgerufen wird. Aber da die Roots die allererste Instanz ever ist (die system Root-Root-Root-Instanz), sollte diese Annahme immer (100%) zutreffen.\par
+\par
+1-3 hab ich schon gel\'f6st.\par
+#4 Muss ich noch anschauen ...\par
+\par
+\par
+\par
+\par
 \fs22\par
 }
  

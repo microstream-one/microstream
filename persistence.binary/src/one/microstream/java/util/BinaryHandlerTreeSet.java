@@ -9,8 +9,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -37,11 +37,11 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	
 	@SuppressWarnings("unchecked")
 	private static <E> Comparator<? super E> getComparator(
-		final Binary                      bytes     ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes  ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		return (Comparator<? super E>)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_COMPARATOR));
+		return (Comparator<? super E>)handler.lookupObject(bytes.read_long(BINARY_OFFSET_COMPARATOR));
 	}
 
 	static final int getElementCount(final Binary bytes)
@@ -102,15 +102,15 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	}
 	
 	@Override
-	public final TreeSet<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final TreeSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new TreeSet<>(
-			getComparator(bytes, idResolver)
+			getComparator(bytes, handler)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final TreeSet<?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void update(final Binary bytes, final TreeSet<?> instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
 		
@@ -119,12 +119,12 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 		 * which might not yet be available when this method is called. Hence the detour to #complete.
 		 */
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, idResolver, elementsHelper);
+		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
 		bytes.registerHelper(instance, elementsHelper);
 	}
 	
 	@Override
-	public final void complete(final Binary bytes, final TreeSet<?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void complete(final Binary bytes, final TreeSet<?> instance, final PersistenceLoadHandler handler)
 	{
 		OldCollections.populateCollectionFromHelperArray(instance, bytes.getHelper(instance));
 	}

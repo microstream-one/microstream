@@ -4,7 +4,7 @@ import java.util.Date;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFixedLength<Date>
@@ -74,13 +74,13 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 	}
 
 	@Override
-	public Date create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public Date create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new Date(bytes.read_long(0));
 	}
 
 	@Override
-	public void update(final Binary bytes, final Date instance, final PersistenceObjectIdResolver idResolver)
+	public void update(final Binary bytes, final Date instance, final PersistenceLoadHandler handler)
 	{
 		instance.setTime(bytes.read_long(0));
 	}

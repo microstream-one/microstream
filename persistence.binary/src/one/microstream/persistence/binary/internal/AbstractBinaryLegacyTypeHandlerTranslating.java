@@ -14,7 +14,7 @@ import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
@@ -257,18 +257,18 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	// end of persisted-form-related methods //
 	
 	@Override
-	public final T create(final Binary rawData, final PersistenceObjectIdResolver idResolver)
+	public final T create(final Binary rawData, final PersistenceLoadHandler handler)
 	{
 		// the method splitting might help jitting out the not occuring case.
 		return this.listener == null
-			? this.internalCreate(rawData, idResolver)
-			: this.internalCreateListening(rawData, idResolver)
+			? this.internalCreate(rawData, handler)
+			: this.internalCreateListening(rawData, handler)
 		;
 	}
 	
-	private final T internalCreateListening(final Binary rawData, final PersistenceObjectIdResolver idResolver)
+	private final T internalCreateListening(final Binary rawData, final PersistenceLoadHandler handler)
 	{
-		final T instance = this.internalCreate(rawData, idResolver);
+		final T instance = this.internalCreate(rawData, handler);
 		this.listener.registerLegacyTypeHandlingCreation(
 			rawData.getBuildItemObjectId(),
 			instance,
@@ -279,6 +279,6 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 		return instance;
 	}
 	
-	protected abstract T internalCreate(Binary rawData, PersistenceObjectIdResolver idResolver);
+	protected abstract T internalCreate(Binary rawData, PersistenceLoadHandler handler);
 	
 }

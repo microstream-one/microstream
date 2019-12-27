@@ -3,7 +3,7 @@ package one.microstream.util;
 import one.microstream.collections.BinaryHandlerEqHashEnum;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -69,7 +69,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	@Override
 	public final Substituter.Default<?> create(
 		final Binary                      bytes     ,
-		final PersistenceObjectIdResolver idResolver
+		final PersistenceLoadHandler handler
 	)
 	{
 		// hashEqualator gets set in update
@@ -80,12 +80,12 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	public final void update(
 		final Binary                      bytes     ,
 		final Substituter.Default<?>      instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final PersistenceLoadHandler handler
 	)
 	{
 		synchronized(instance)
 		{
-			BinaryHandlerEqHashEnum.staticUpdate(bytes, instance.elements, idResolver);
+			BinaryHandlerEqHashEnum.staticUpdate(bytes, instance.elements, handler);
 		}
 	}
 
@@ -93,7 +93,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	public void complete(
 		final Binary                      medium    ,
 		final Substituter.Default<?>      instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final PersistenceLoadHandler handler
 	)
 	{
 		synchronized(instance)

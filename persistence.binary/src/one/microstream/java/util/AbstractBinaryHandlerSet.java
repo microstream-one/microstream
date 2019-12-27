@@ -6,7 +6,7 @@ import one.microstream.X;
 import one.microstream.collections.old.OldCollections;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterableSimpleListElements;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
 public abstract class AbstractBinaryHandlerSet<T extends Set<?>>
@@ -34,16 +34,16 @@ extends AbstractBinaryHandlerCustomIterableSimpleListElements<T>
 	}
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
 		final Object[] elementsHelper = new Object[X.checkArrayRange(getElementCount(bytes))];
-		bytes.collectElementsIntoArray(this.binaryOffsetElements(), idResolver, elementsHelper);
+		bytes.collectElementsIntoArray(this.binaryOffsetElements(), handler, elementsHelper);
 		bytes.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public void complete(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void complete(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		OldCollections.populateCollectionFromHelperArray(instance, bytes.getHelper(instance));
 	}

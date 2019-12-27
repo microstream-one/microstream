@@ -11,7 +11,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -118,7 +118,7 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	}
 
 	@Override
-	public final LinkedHashMap<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final LinkedHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler idResolver)
 	{
 		return new LinkedHashMap<>(
 			getElementCount(bytes) / 2,
@@ -131,7 +131,7 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	public final void update(
 		final Binary                      bytes     ,
 		final LinkedHashMap<?, ?>         instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final PersistenceLoadHandler idResolver
 	)
 	{
 		instance.clear();
@@ -141,7 +141,7 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	}
 
 	@Override
-	public void complete(final Binary bytes, final LinkedHashMap<?, ?> instance, final PersistenceObjectIdResolver idResolver)
+	public void complete(final Binary bytes, final LinkedHashMap<?, ?> instance, final PersistenceLoadHandler idResolver)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}

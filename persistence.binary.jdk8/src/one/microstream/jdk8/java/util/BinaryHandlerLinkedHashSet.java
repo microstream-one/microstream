@@ -10,7 +10,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -98,7 +98,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public final LinkedHashSet<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final LinkedHashSet<?> create(final Binary bytes, final PersistenceLoadHandler idResolver)
 	{
 		return new LinkedHashSet<>(
 			getElementCount(bytes),
@@ -107,7 +107,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public final void update(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void update(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler idResolver)
 	{
 		instance.clear();
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];
@@ -116,7 +116,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public void complete(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceObjectIdResolver idResolver)
+	public void complete(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler idResolver)
 	{
 		OldCollections.populateCollectionFromHelperArray(instance, bytes.getHelper(instance));
 	}

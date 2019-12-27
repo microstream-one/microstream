@@ -2,7 +2,7 @@ package one.microstream.java.lang;
 
 import one.microstream.chars.XChars;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -46,13 +46,13 @@ public final class BinaryHandlerStringBuilder extends AbstractBinaryHandlerAbstr
 	}
 
 	@Override
-	public final StringBuilder create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final StringBuilder create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new StringBuilder(this.readCapacity(bytes));
 	}
 
 	@Override
-	public void update(final Binary bytes, final StringBuilder instance, final PersistenceObjectIdResolver idResolver)
+	public void update(final Binary bytes, final StringBuilder instance, final PersistenceLoadHandler handler)
 	{
 		// because implementing a clear() would have been too hard for the JDK Pros.
 		instance.delete(0, instance.length());

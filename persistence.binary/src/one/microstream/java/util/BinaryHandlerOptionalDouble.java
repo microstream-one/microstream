@@ -5,7 +5,7 @@ import java.util.OptionalDouble;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCustomValueFixedLength<OptionalDouble>
@@ -79,7 +79,7 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 	}
 
 	@Override
-	public OptionalDouble create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public OptionalDouble create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		final boolean isPresent = bytes.read_boolean(BINARY_OFFSET_IS_PRESENT);
 		

@@ -1,5 +1,6 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.util.function.BiConsumer;
@@ -37,7 +38,7 @@ public interface PersistenceRoots extends PersistenceRootsView
 	
 	public static PersistenceRoots New(final PersistenceRootResolver rootResolver)
 	{
-		return PersistenceRoots.Default.New(rootResolver);
+		return PersistenceRoots.Default.New(rootResolver, null);
 	}
 
 	public final class Default implements PersistenceRoots
@@ -46,11 +47,15 @@ public interface PersistenceRoots extends PersistenceRootsView
 		// static methods //
 		///////////////////
 		
-		public static PersistenceRoots.Default New(final PersistenceRootResolver rootResolver)
+		public static PersistenceRoots.Default New(
+			final PersistenceRootResolver   rootResolver ,
+			final EqHashTable<String, Long> rootIdMapping
+		)
 		{
 			return new PersistenceRoots.Default(
-				notNull(rootResolver),
-				null                 ,
+				notNull(rootResolver) ,
+				mayNull(rootIdMapping),
+				null                  ,
 				false
 			);
 		}
@@ -62,11 +67,12 @@ public interface PersistenceRoots extends PersistenceRootsView
 		////////////////////
 		
 		/*
-		 * The transient actually doesn't matter at all since a custom TypeHandler is used.
-		 * Its only pupose here is to indicate that the fields are not directly persisted.
+		 * The transient keyword actually doesn't matter at all since a custom TypeHandler is used.
+		 * Its only purpose here is to indicate that the fields are not directly persisted.
 		 */
 
 		final transient PersistenceRootResolver          rootResolver   ;
+	          transient EqHashTable<String, Long>        rootIdMapping  ;
 		      transient EqConstHashTable<String, Object> resolvedEntries;
 		      transient boolean                          hasChanged     ;
 		
@@ -78,12 +84,14 @@ public interface PersistenceRoots extends PersistenceRootsView
 		
 		Default(
 			final PersistenceRootResolver          rootResolver   ,
+			final EqHashTable<String, Long>        rootIdMapping  ,
 			final EqConstHashTable<String, Object> resolvedEntries,
 			final boolean                          hasChanged
 		)
 		{
 			super();
 			this.rootResolver    = rootResolver   ;
+			this.rootIdMapping   = rootIdMapping  ;
 			this.resolvedEntries = resolvedEntries;
 			this.hasChanged      = hasChanged     ;
 		}

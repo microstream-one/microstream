@@ -43,6 +43,9 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	 */
 	final PersistenceObjectRegistry globalRegistry;
 
+	// (25.12.2019 TM)FIXME: priv#94: remove if not required
+//	final PersistenceObjectManager objectManager;
+
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -52,6 +55,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	BinaryHandlerPersistenceRootsDefault(
 		final PersistenceRootResolverProvider rootResolverProvider,
 		final PersistenceObjectRegistry       globalRegistry
+//		final PersistenceObjectManager        objectManager
 	)
 	{
 		super(
@@ -66,6 +70,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 			)
 		);
 		this.rootResolverProvider = rootResolverProvider;
+//		this.objectManager        = objectManager       ;
 		this.globalRegistry       = globalRegistry      ;
 	}
 
@@ -87,35 +92,61 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	}
 
 	@Override
-	public final PersistenceRoots.Default create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final PersistenceRoots.Default create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
+		// The identifier -> objectId root id mapping is created (and validated) from the loaded data.
+		final EqHashTable<String, Long> rootIdMapping = bytes.buildRootMapping(EqHashTable.New());
+		
+		this.ensureRefactoredCustomRootLink(rootIdMapping, handler);
+		
 		/* (10.12.2019 TM)TODO: PersistenceRoots constants instance oid association
 		 * This method could collect all oids per identifer in the binary data and associate all
 		 * linkable constants instances with their oid at the objectRegistry very easily and elegantly, here.
 		 * Then there wouldn't be unnecessarily created instances that get discarded later on in update().
 		 */
 		return PersistenceRoots.Default.New(
-			this.rootResolverProvider.provideRootResolver()
+			this.rootResolverProvider.provideRootResolver(),
+			rootIdMapping
 		);
+	}
+	
+	private void ensureRefactoredCustomRootLink(
+		final EqHashTable<String, Long> rootIdMapping,
+		final PersistenceLoadHandler    handler
+	)
+	{
+		final Long customRootOid = rootIdMapping.get(Persistence.customRootIdentifier());
+		if(customRootOid == null)
+		{
+			return;
+		}
+		
+		final Object rootInstance = this.rootResolverProvider.rootReference().get();
+		if(rootInstance == null)
+		{
+			return;
+		}
+
+		handler.requireRoot(rootInstance, customRootOid);
+		
+		// default root cannot be handled at creation time. See #update.
 	}
 
 	@Override
 	public final void update(
-		final Binary                      bytes   ,
-		final PersistenceRoots.Default    instance,
-		final PersistenceObjectIdResolver handler
+		final Binary                   bytes   ,
+		final PersistenceRoots.Default instance,
+		final PersistenceLoadHandler   handler
 	)
 	{
-		// The once provided and then set root resolver is used right away in here.
-		final PersistenceRootResolver rootResolver = instance.rootResolver;
+		final PersistenceRootResolver   rootResolver  = instance.rootResolver ;
+		final EqHashTable<String, Long> rootIdMapping = instance.rootIdMapping;
 		
-		// The identifier -> objectId root id mapping is created (and validated) from the loaded data.
-		final XGettingTable<String, Long> rootIdMapping = bytes.buildRootMapping(EqHashTable.New());
+		final EqHashTable<String, PersistenceRootEntry> resolvedRootEntries = EqHashTable.New();
+		this.ensureRefactoredOldRoots(rootIdMapping, resolvedRootEntries, handler);
 
 		// Root identifiers are resolved to root entries (with potentially mapped (= different) identifiers internally)
-		final XGettingTable<String, PersistenceRootEntry> resolvedRootEntries = rootResolver.resolveRootEntries(
-			rootIdMapping.keys()
-		);
+		rootResolver.resolveRootEntries(resolvedRootEntries, rootIdMapping.keys());
 		
 		// The entries are resolved to a mapping of current (= potentially mapped) identifiers to root instances.
 		final XGettingTable<String, Object> resolvedRoots = rootResolver.resolveRootInstances(resolvedRootEntries);
@@ -126,6 +157,45 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		// The resolved instances need to be registered for their objectIds. Properly mapped to consider removed ones.
 		this.registerInstancesPerObjectId(resolvedRootEntries, rootIdMapping);
 	}
+	
+	private boolean ensureRefactoredOldRoots(
+		final EqHashTable<String, Long>                 rootIdMapping,
+		final EqHashTable<String, PersistenceRootEntry> resolvedRoots,
+		final PersistenceLoadHandler                    handler
+	)
+	{
+		final Object root = this.rootResolverProvider.rootReference().get();
+		
+		
+		final Long defaultRootOid = rootIdMapping.get(Persistence.defaultRootIdentifier());
+		if(defaultRootOid != null)
+		{
+			final Object defaultRoot = handler.lookupObject(defaultRootOid);
+			
+			// (27.12.2019 TM)FIXME: priv#194: register existing root instance for default root's root oid
+			
+			// FIXME BinaryHandlerPersistenceRootsDefault#ensureRefactoredOldRoots()
+			throw new one.microstream.meta.NotImplementedYetError();
+//			return true;
+		}
+		
+		final Long customRootOid = rootIdMapping.get(Persistence.customRootIdentifier());
+		if(customRootOid != null)
+		{
+			final Object customRoot = handler.lookupObject(customRootOid);
+			this.rootResolverProvider.rootReference().set(customRoot);
+			// (26.12.2019 TM)FIXME: must update existing root instance in root reference. will be tricky...
+			resolvedRoots.add(Persistence.customRootIdentifier(), null);
+			
+			// FIXME BinaryHandlerPersistenceRootsDefault#ensureRefactoredOldRoots()
+			throw new one.microstream.meta.NotImplementedYetError();
+//			return true;
+		}
+		
+		// FIXME BinaryHandlerPersistenceRootsDefault#ensureRefactoredOldRoots()
+		throw new one.microstream.meta.NotImplementedYetError();
+//		return false;
+	}
 
 	private void registerInstancesPerObjectId(
 		final XGettingTable<String, PersistenceRootEntry> resolvedRootEntries,
@@ -133,6 +203,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	)
 	{
 		final PersistenceObjectRegistry registry = this.globalRegistry;
+//		final PersistenceObjectManager objectManager = this.objectManager;
 
 		// lock the whole registry for the complete registration process because it might be used by other threads.
 		synchronized(registry)
@@ -152,6 +223,17 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 				}
 			}
 		}
+	}
+	
+	@Override
+	public final void complete(
+		final Binary                   data    ,
+		final PersistenceRoots.Default instance,
+		final PersistenceLoadHandler   handler
+	)
+	{
+		// temporary id mapping is no longer required
+		instance.rootIdMapping = null;
 	}
 		
 	@Override

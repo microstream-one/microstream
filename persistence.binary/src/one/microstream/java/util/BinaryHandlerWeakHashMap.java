@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.WeakHashMap;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
 public final class BinaryHandlerWeakHashMap extends AbstractBinaryHandlerMap<WeakHashMap<?, ?>>
@@ -41,7 +41,7 @@ public final class BinaryHandlerWeakHashMap extends AbstractBinaryHandlerMap<Wea
 	////////////
 
 	@Override
-	public final WeakHashMap<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final WeakHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new WeakHashMap<>();
 	}
