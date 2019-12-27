@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.Stack;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
 public final class BinaryHandlerStack extends AbstractBinaryHandlerList<Stack<?>>
@@ -41,7 +41,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerList<Stack<?>
 	////////////
 
 	@Override
-	public final Stack<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final Stack<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new Stack<>();
 	}

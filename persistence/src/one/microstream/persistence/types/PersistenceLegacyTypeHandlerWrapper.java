@@ -73,21 +73,21 @@ public class PersistenceLegacyTypeHandlerWrapper<M, T> extends PersistenceLegacy
 	}
 
 	@Override
-	public T create(final M medium, final PersistenceObjectIdResolver idResolver)
+	public T create(final M medium, final PersistenceLoadHandler handler)
 	{
-		return this.typeHandler.create(medium, idResolver);
+		return this.typeHandler.create(medium, handler);
 	}
 
 	@Override
-	public void update(final M medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void update(final M medium, final T instance, final PersistenceLoadHandler handler)
 	{
-		this.typeHandler.update(medium, instance, idResolver);
+		this.typeHandler.update(medium, instance, handler);
 	}
 
 	@Override
-	public void complete(final M medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void complete(final M medium, final T instance, final PersistenceLoadHandler handler)
 	{
-		this.typeHandler.complete(medium, instance, idResolver);
+		this.typeHandler.complete(medium, instance, handler);
 	}
 	
 	@Override

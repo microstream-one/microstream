@@ -6,7 +6,7 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIt
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
@@ -86,13 +86,13 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<BulkList<?>>
 	}
 
 	@Override
-	public final BulkList<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final BulkList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new BulkList<>();
 	}
 
 	@Override
-	public final void update(final Binary bytes, final BulkList<?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void update(final Binary bytes, final BulkList<?> instance, final PersistenceLoadHandler handler)
 	{
 		// must clear to avoid memory leaks due to residual references beyond the new size in existing instances.
 		instance.clear();
@@ -102,7 +102,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<BulkList<?>>
 		
 		instance.size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			idResolver,
+			handler,
 			instance.data
 		);
 	}

@@ -9,7 +9,7 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -74,23 +74,23 @@ extends AbstractBinaryHandlerCustomCollection<T>
 
 	@Override
 	public void update(
-		final Binary                      bytes     ,
-		final T                           instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes   ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		instance.clear();
 		final int elementCount = X.checkArrayRange(getElementCount(bytes));
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, idResolver, collector);
+		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
 		bytes.registerHelper(instance, collector.yield());
 	}
 
 	@Override
 	public void complete(
-		final Binary                      bytes     ,
-		final T                           instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes   ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
@@ -98,8 +98,8 @@ extends AbstractBinaryHandlerCustomCollection<T>
 	
 	@Override
 	public void iterateInstanceReferences(
-		final T                       instance,
-		final PersistenceFunction     iterator
+		final T                   instance,
+		final PersistenceFunction iterator
 	)
 	{
 		Persistence.iterateReferencesMap(iterator, instance);
@@ -107,11 +107,11 @@ extends AbstractBinaryHandlerCustomCollection<T>
 
 	@Override
 	public void iterateLoadableReferences(
-		final Binary                      bytes   ,
-		final PersistenceReferenceLoader iterator
+		final Binary                     bytes ,
+		final PersistenceReferenceLoader loader
 	)
 	{
-		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, loader);
 	}
 		
 }

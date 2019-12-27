@@ -22,7 +22,7 @@ import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.binary.types.BinaryTypeHandler;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
@@ -307,10 +307,10 @@ extends BinaryTypeHandler.Abstract<T>
 	}
 
 	@Override
-	public abstract T create(Binary bytes, PersistenceObjectIdResolver idResolver);
+	public abstract T create(Binary data, PersistenceLoadHandler handler);
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void update(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		/* No-op update logic by default. This is useful for all immutable value types (String, Integer, etc.).
 		 * Value types never get updated. The value is only set once at instance creation time.
@@ -319,7 +319,7 @@ extends BinaryTypeHandler.Abstract<T>
 	}
 
 	@Override
-	public void complete(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void complete(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}

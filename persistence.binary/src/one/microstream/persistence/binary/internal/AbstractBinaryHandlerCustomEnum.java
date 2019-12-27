@@ -7,7 +7,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.Persistence;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
 import one.microstream.reflect.XReflect;
@@ -88,10 +88,10 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 	
 	protected abstract int getOrdinal(Binary bytes);
 	
-	protected abstract String getName(Binary bytes, PersistenceObjectIdResolver idResolver);
+	protected abstract String getName(Binary bytes, PersistenceLoadHandler handler);
 	
 	@Override
-	public T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public T create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		// copied from BinaryHandlerEnum#create
 		
@@ -120,9 +120,9 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 	}
 	
 	protected void validate(
-		final Binary                      bytes     ,
-		final T                           instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes   ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// validate ordinal, just in case.
@@ -135,7 +135,7 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 			);
 		}
 		
-		final String persistentName = this.getName(bytes, idResolver);
+		final String persistentName = this.getName(bytes, handler);
 		if(!instance.name().equals(persistentName))
 		{
 			// (09.08.2019 TM)EXCP: proper exception
@@ -150,13 +150,13 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 	}
 		
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		// must thoroughly validate the linked jvm-generated(!) instance before modifying its state!
-		this.validate(bytes, instance, idResolver);
+		this.validate(bytes, instance, handler);
 		
 		// super class logic is currently no-op, but is called here for future consistency.
-		super.update(bytes, instance, idResolver);
+		super.update(bytes, instance, handler);
 	}
 	
 }

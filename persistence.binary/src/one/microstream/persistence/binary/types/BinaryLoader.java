@@ -13,7 +13,7 @@ import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceObjectRetriever;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
@@ -24,7 +24,7 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerLookup;
 import one.microstream.reference._intReference;
 
-public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceObjectIdResolver
+public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoadHandler
 {
 	public interface Creator extends PersistenceLoader.Creator<Binary>
 	{

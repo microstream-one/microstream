@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -44,11 +44,11 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 		
 	@SuppressWarnings("unchecked")
 	private static <E> Comparator<? super E> getComparator(
-		final Binary                      bytes     ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes  ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		return (Comparator<? super E>)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_COMPARATOR));
+		return (Comparator<? super E>)handler.lookupObject(bytes.read_long(BINARY_OFFSET_COMPARATOR));
 	}
 	
 	public static BinaryHandlerConcurrentSkipListMap New()
@@ -103,20 +103,20 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	
 	@Override
 	public final ConcurrentSkipListMap<?, ?> create(
-		final Binary                      bytes     ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes  ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		return new ConcurrentSkipListMap<>(
-			getComparator(bytes, idResolver)
+			getComparator(bytes, handler)
 		);
 	}
 
 	@Override
 	public final void update(
-		final Binary                      bytes     ,
-		final ConcurrentSkipListMap<?, ?> instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                      bytes   ,
+		final ConcurrentSkipListMap<?, ?> instance,
+		final PersistenceLoadHandler      handler
 	)
 	{
 		instance.clear();
@@ -127,7 +127,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 		 */
 		final int elementCount = getElementCount(bytes);
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, idResolver, collector);
+		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
 		bytes.registerHelper(instance, collector.yield());
 	}
 
@@ -135,7 +135,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 	public final void complete(
 		final Binary                      bytes   ,
 		final ConcurrentSkipListMap<?, ?> instance,
-		final PersistenceObjectIdResolver      builder
+		final PersistenceLoadHandler      builder
 	)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));

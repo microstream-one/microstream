@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomValueVariableLength<BigInteger>
@@ -47,7 +47,7 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomVa
 	}
 
 	@Override
-	public BigInteger create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public BigInteger create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new BigInteger(bytes.build_bytes());
 	}

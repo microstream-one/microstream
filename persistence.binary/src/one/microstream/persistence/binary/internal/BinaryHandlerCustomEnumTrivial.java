@@ -2,7 +2,7 @@ package one.microstream.persistence.binary.internal;
 
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistence;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -65,9 +65,9 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 	}
 	
 	@Override
-	protected String getName(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	protected String getName(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return (String)idResolver.lookupObject(getNameObjectId(bytes));
+		return (String)handler.lookupObject(getNameObjectId(bytes));
 	}
 	
 	@Override

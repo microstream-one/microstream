@@ -11,7 +11,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -93,7 +93,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	
 
 	@Override
-	public final Properties create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final Properties create(final Binary bytes, final PersistenceLoadHandler idResolver)
 	{
 		return new Properties();
 	}
@@ -102,7 +102,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	public final void update(
 		final Binary                      bytes     ,
 		final Properties                  instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final PersistenceLoadHandler idResolver
 	)
 	{
 		instance.clear();
@@ -119,7 +119,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	}
 
 	@Override
-	public void complete(final Binary bytes, final Properties instance, final PersistenceObjectIdResolver idResolver)
+	public void complete(final Binary bytes, final Properties instance, final PersistenceLoadHandler idResolver)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}

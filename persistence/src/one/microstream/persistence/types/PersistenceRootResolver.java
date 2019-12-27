@@ -11,6 +11,7 @@ import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.collections.types.XMap;
 import one.microstream.collections.types.XTable;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceException;
@@ -33,12 +34,12 @@ public interface PersistenceRootResolver
 		return this.definedEntries().get(this.rootIdentifier());
 	}
 	
-	public default XGettingTable<String, PersistenceRootEntry> resolveRootEntries(
-		final XGettingEnum<String> identifiers
+	public default void resolveRootEntries(
+		final XMap<String, PersistenceRootEntry> resolvedEntriesAcceptor,
+		final XGettingEnum<String>               identifiers
 	)
 	{
-		final EqHashTable<String, PersistenceRootEntry> resolvedRoots         = EqHashTable.New();
-		final EqHashEnum<String>                        unresolvedIdentifiers = EqHashEnum.New();
+		final EqHashEnum<String> unresolvedIdentifiers = EqHashEnum.New();
 		
 		synchronized(this)
 		{
@@ -47,9 +48,9 @@ public interface PersistenceRootResolver
 				final PersistenceRootEntry resolvedRootEntry = this.resolveRootInstance(identifier);
 				if(resolvedRootEntry != null)
 				{
-					resolvedRoots.add(identifier, resolvedRootEntry);
+					resolvedEntriesAcceptor.add(identifier, resolvedRootEntry);
 				}
-				else
+				else if(!resolvedEntriesAcceptor.keys().contains(identifier))
 				{
 					unresolvedIdentifiers.add(identifier);
 				}
@@ -63,8 +64,6 @@ public interface PersistenceRootResolver
 				);
 			}
 		}
-		
-		return resolvedRoots;
 	}
 	
 	public default XGettingTable<String, Object> resolveDefinedRootInstances()
@@ -87,8 +86,9 @@ public interface PersistenceRootResolver
 			}
 			
 			// may be null if explicitely removed
-			final Object rootInstance = entry.instance();
-			resolvedRoots.add(entry.identifier(), rootInstance);
+			final String rootIdentifier = entry.identifier();
+			final Object rootInstance   = entry.instance()  ;
+			resolvedRoots.add(rootIdentifier, rootInstance);
 		}
 		
 		return resolvedRoots;
@@ -260,7 +260,7 @@ public interface PersistenceRootResolver
 			
 			return this.cachedTypeHandlerManager;
 		}
-								
+		
 		@Override
 		public final PersistenceRootEntry resolveRootInstance(final String identifier)
 		{
@@ -270,6 +270,8 @@ public interface PersistenceRootResolver
 				// directly registered / "normal" root entries are returned right away.
 				return rootEntry;
 			}
+			
+			// (23.12.2019 TM)FIXME: priv#194: maybe insert special case handling for backwards compatability here.
 			
 			return this.resolveRootEnumConstants(identifier);
 		}

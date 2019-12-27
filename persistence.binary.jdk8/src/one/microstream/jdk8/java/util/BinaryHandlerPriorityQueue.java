@@ -11,7 +11,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -44,7 +44,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	@SuppressWarnings("unchecked")
 	private static <E> Comparator<? super E> getComparator(
 		final Binary                      bytes     ,
-		final PersistenceObjectIdResolver idResolver
+		final PersistenceLoadHandler idResolver
 	)
 	{
 		return (Comparator<? super E>)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_COMPARATOR));
@@ -101,7 +101,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public final PriorityQueue<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final PriorityQueue<?> create(final Binary bytes, final PersistenceLoadHandler idResolver)
 	{
 		return new PriorityQueue<>(
 			bytes.getSizedArrayLength(BINARY_OFFSET_ELEMENTS),
@@ -113,7 +113,7 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	public final void update(
 		final Binary                      bytes     ,
 		final PriorityQueue<?>            instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final PersistenceLoadHandler idResolver
 	)
 	{
 		// instance must be cleared in case an existing one is updated

@@ -70,8 +70,8 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 
 	@Override
 	public final PersistenceRootReference.Default create(
-		final Binary                      bytes     ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes  ,
+		final PersistenceLoadHandler handler
 		)
 	{
 		final Object rootInstance = this.rootReference.get();
@@ -90,7 +90,7 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 			 * complete.
 			 */
 			final long rootObjectId = getRootObjectId(bytes);
-			idResolver.requireRoot(rootInstance, rootObjectId);
+			handler.requireRoot(rootInstance, rootObjectId);
 		}
 
 		// instance is a singleton. Hence, no instance is created, here, but the singleton is returned.
@@ -101,7 +101,7 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 	public final void update(
 		final Binary                           bytes   ,
 		final PersistenceRootReference.Default instance,
-		final PersistenceObjectIdResolver      handler
+		final PersistenceLoadHandler      handler
 	)
 	{
 		if(instance != this.rootReference)

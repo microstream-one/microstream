@@ -1,6 +1,6 @@
 package one.microstream.persistence.binary.types;
 
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
 public interface BinaryValueSetter
@@ -38,6 +38,6 @@ public interface BinaryValueSetter
 		long                        address     ,
 		Object                      target      ,
 		long                        targetOffset,
-		PersistenceObjectIdResolver idResolver
+		PersistenceLoadHandler idResolver
 	);
 }

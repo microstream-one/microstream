@@ -36,10 +36,10 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
 	public void store(M medium, T instance, long objectId, PersistenceStoreHandler handler);
 
-	public T create(M medium, PersistenceObjectIdResolver idResolver);
+	public T create(M medium, PersistenceLoadHandler handler);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for loading
-	public void update(M medium, T instance, PersistenceObjectIdResolver idResolver);
+	public void update(M medium, T instance, PersistenceLoadHandler handler);
 
 	/**
 	 * Completes an initially built instance after all loaded instances have been built.
@@ -50,7 +50,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 * @param instance
 	 * @param handler
 	 */
-	public void complete(M medium, T instance, PersistenceObjectIdResolver idResolver);
+	public void complete(M medium, T instance, PersistenceLoadHandler handler);
 
 	/* (06.10.2012 TM)XXX: PersistenceDomainTypeHandler<M,T> ?
 	 * to bind a generic TypeHandler to a specific registry inside a Domain

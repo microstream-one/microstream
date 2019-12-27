@@ -11,8 +11,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIt
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -104,7 +104,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 	}
 
 	@Override
-	public final EqBulkList<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final EqBulkList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		// this method only creates shallow instances, so hashEqualator gets set during update like other references.
 		return new EqBulkList<>((Equalator<?>)null);
@@ -112,9 +112,9 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 
 	@Override
 	public final void update(
-		final Binary                      bytes     ,
-		final EqBulkList<?>               instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 bytes   ,
+		final EqBulkList<?>          instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// must clear to avoid memory leaks due to residual references beyond the new size in existing instances.
@@ -125,7 +125,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 
 		instance.size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			idResolver,
+			handler,
 			instance.data
 		);
 
@@ -133,7 +133,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
 		);
 	}
 

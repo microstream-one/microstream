@@ -13,7 +13,6 @@ public class MainTestStorageAppRoot1
 //		Test.clearDefaultStorageDirectory();
 	}
 	
-	
 	// Option 1: Explicit application root provided at startup (specific typing)
 	static final AppRoot APP_ROOT = new AppRoot();
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start(APP_ROOT);

@@ -47,7 +47,7 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default T create(final M medium, final PersistenceObjectIdResolver idResolver)
+	public default T create(final M medium, final PersistenceLoadHandler handler)
 	{
 		// (01.06.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(
@@ -56,13 +56,13 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default void update(final M medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public default void update(final M medium, final T instance, final PersistenceLoadHandler handler)
 	{
 		// nothing to do here in either case (null or exception)
 	}
 
 	@Override
-	public default void complete(final M medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public default void complete(final M medium, final T instance, final PersistenceLoadHandler handler)
 	{
 		// nothing to do here in either case (null or exception)
 	}
