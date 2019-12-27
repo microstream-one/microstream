@@ -2,10 +2,12 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.reference.Referencing;
 import one.microstream.typing.KeyValue;
 
 
@@ -97,6 +99,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		// The identifier -> objectId root id mapping is created (and validated) from the loaded data.
 		final EqHashTable<String, Long> rootIdMapping = bytes.buildRootMapping(EqHashTable.New());
 		
+		// root refactoring case #1: root != null & customRoot exists
 		this.ensureRefactoredCustomRootLink(rootIdMapping, handler);
 		
 		/* (10.12.2019 TM)TODO: PersistenceRoots constants instance oid association
@@ -127,6 +130,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 			return;
 		}
 
+		// root refactoring case #1: root != null & customRoot exists
 		handler.requireRoot(rootInstance, customRootOid);
 		
 		// default root cannot be handled at creation time. See #update.
@@ -164,37 +168,88 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		final PersistenceLoadHandler                    handler
 	)
 	{
-		final Object root = this.rootResolverProvider.rootReference().get();
-		
-		
+		final Long customRootOid  = rootIdMapping.get(Persistence.customRootIdentifier());
 		final Long defaultRootOid = rootIdMapping.get(Persistence.defaultRootIdentifier());
-		if(defaultRootOid != null)
+		
+		// quick check to abort for the non-refactoring (= normal) cases
+		if(customRootOid == null && defaultRootOid == null)
 		{
-			final Object defaultRoot = handler.lookupObject(defaultRootOid);
-			
-			// (27.12.2019 TM)FIXME: priv#194: register existing root instance for default root's root oid
-			
-			// FIXME BinaryHandlerPersistenceRootsDefault#ensureRefactoredOldRoots()
-			throw new one.microstream.meta.NotImplementedYetError();
-//			return true;
+			return false;
 		}
 		
-		final Long customRootOid = rootIdMapping.get(Persistence.customRootIdentifier());
+		// reaching here means some refactoring has to be done. There are 4 cases to be covered.
+
+		final Object root = this.rootResolverProvider.rootReference().get();
+		if(root != null)
+		{
+			// root refactoring case #1: root == null & customRoot exists
+			if(customRootOid != null)
+			{
+				final Object customRoot = handler.lookupObject(customRootOid);
+				if(customRoot == null)
+				{
+					throw new Error(
+						"Root instance missing for identifier \"" + Persistence.customRootIdentifier() + "\""
+					);
+				}
+				
+				this.rootResolverProvider.rootReference().set(customRoot);
+				resolvedRoots.add(Persistence.customRootIdentifier(), null);
+				
+				return true;
+			}
+
+			// root refactoring case #2: root == null & defaultRoot exists
+			if(defaultRootOid != null)
+			{
+				final Object defaultRoot = handler.lookupObject(defaultRootOid);
+				if(defaultRoot == null)
+				{
+					throw new Error(
+						"Root instance missing for identifier \"" + Persistence.defaultRootIdentifier() + "\""
+					);
+				}
+				if(!(defaultRoot instanceof Referencing<?>))
+				{
+					throw new Error(
+						"Inconsistently typed default root instance: " + XChars.systemString(defaultRoot)
+					);
+				}
+				
+				final Referencing<?> casted = (Referencing<?>)defaultRoot;
+				
+				// safe as storing a root reference only stores the actual instance's objectId, not the supplier.
+				this.rootResolverProvider.rootReference().setRootSupplier(() ->
+					casted.get()
+				);
+				
+				return true;
+			}
+			
+			return false;
+		}
+
+		// root refactoring case #3: root != null & customRoot exists
 		if(customRootOid != null)
 		{
-			final Object customRoot = handler.lookupObject(customRootOid);
-			this.rootResolverProvider.rootReference().set(customRoot);
-			// (26.12.2019 TM)FIXME: must update existing root instance in root reference. will be tricky...
-			resolvedRoots.add(Persistence.customRootIdentifier(), null);
+			handler.registerObject(root, customRootOid);
 			
-			// FIXME BinaryHandlerPersistenceRootsDefault#ensureRefactoredOldRoots()
-			throw new one.microstream.meta.NotImplementedYetError();
-//			return true;
+			return true;
+		}
+
+		// root refactoring case #4: root == null & defaultRoot exists
+		if(defaultRootOid != null)
+		{
+			final Binary defaultRootLoadItem = handler.lookupLoadItem(defaultRootOid);
+			final long defaultRootInstanceObjectId = BinaryHandlerSingleton.getReferenceObjectId(defaultRootLoadItem);
+			
+			handler.registerObject(root, defaultRootInstanceObjectId);
+			
+			return true;
 		}
 		
-		// FIXME BinaryHandlerPersistenceRootsDefault#ensureRefactoredOldRoots()
-		throw new one.microstream.meta.NotImplementedYetError();
-//		return false;
+		// no refactoring case found
+		return false;
 	}
 
 	private void registerInstancesPerObjectId(
