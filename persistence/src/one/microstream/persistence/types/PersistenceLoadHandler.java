@@ -9,6 +9,11 @@ public interface PersistenceLoadHandler extends PersistenceObjectLookup
 	
 	public void requireRoot(Object object, long objectId);
 	
+	public void registerObject(Object object, long objectId);
+	
 	public void validateType(Object object, long objectId);
+	
+	
+	public Binary lookupLoadItem(long objectId);
 	
 }

@@ -12,8 +12,8 @@ import one.microstream.memory.XMemory;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
-import one.microstream.persistence.types.PersistenceLoader;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceLoader;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceObjectRetriever;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
@@ -333,8 +333,15 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		public final void requireRoot(final Object object, final long objectId)
 		{
 			// must explicitely require reference, otherwise #isUnrequiredReference will skip it as already existing.
-			this.registry.registerObject(objectId, object);
+			this.registerObject(object, objectId);
 			this.requireReferenceEager(objectId);
+		}
+		
+
+		@Override
+		public final void registerObject(final Object object, final long objectId)
+		{
+			this.registry.registerObject(objectId, object);
 		}
 		
 		@Override
