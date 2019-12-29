@@ -19,6 +19,7 @@ import one.microstream.collections.BinaryHandlerFixedList;
 import one.microstream.collections.BinaryHandlerHashEnum;
 import one.microstream.collections.BinaryHandlerHashTable;
 import one.microstream.collections.BinaryHandlerLimitList;
+import one.microstream.collections.BinaryHandlerSingleton;
 import one.microstream.collections.ConstList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingSequence;
@@ -322,6 +323,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerConstHashTable.New()      ,
 			BinaryHandlerEqHashTable.New()         ,
 			BinaryHandlerEqConstHashTable.New()    ,
+			BinaryHandlerSingleton.New()           ,
 
 			BinaryHandlerSubstituterDefault.New()
 			/* (29.10.2013 TM)TODO: more MicroStream default custom handlers

@@ -98,9 +98,11 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	{
 		// The identifier -> objectId root id mapping is created (and validated) from the loaded data.
 		final EqHashTable<String, Long> rootIdMapping = bytes.buildRootMapping(EqHashTable.New());
+
+		// (28.12.2019 TM)FIXME: priv#194: cleanup if not needed. Including removing the temporarily held idMapping.
 		
-		// root refactoring case #1: root != null & customRoot exists
-		this.ensureRefactoredCustomRootLink(rootIdMapping, handler);
+//		// root refactoring case #1: root != null & customRoot exists
+//		this.ensureRefactoredCustomRootLink(rootIdMapping, handler);
 		
 		/* (10.12.2019 TM)TODO: PersistenceRoots constants instance oid association
 		 * This method could collect all oids per identifer in the binary data and associate all
@@ -113,28 +115,29 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		);
 	}
 	
-	private void ensureRefactoredCustomRootLink(
-		final EqHashTable<String, Long> rootIdMapping,
-		final PersistenceLoadHandler    handler
-	)
-	{
-		final Long customRootOid = rootIdMapping.get(Persistence.customRootIdentifier());
-		if(customRootOid == null)
-		{
-			return;
-		}
-		
-		final Object rootInstance = this.rootResolverProvider.rootReference().get();
-		if(rootInstance == null)
-		{
-			return;
-		}
-
-		// root refactoring case #1: root != null & customRoot exists
-		handler.requireRoot(rootInstance, customRootOid);
-		
-		// default root cannot be handled at creation time. See #update.
-	}
+	// (28.12.2019 TM)FIXME: priv#194: delete if not needed
+//	private void ensureRefactoredCustomRootLink(
+//		final EqHashTable<String, Long> rootIdMapping,
+//		final PersistenceLoadHandler    handler
+//	)
+//	{
+//		final Long customRootOid = rootIdMapping.get(Persistence.customRootIdentifier());
+//		if(customRootOid == null)
+//		{
+//			return;
+//		}
+//
+//		final Object rootInstance = this.rootResolverProvider.rootReference().get();
+//		if(rootInstance == null)
+//		{
+//			return;
+//		}
+//
+//		// root refactoring case #1: root != null & customRoot exists
+//		handler.requireRoot(rootInstance, customRootOid);
+//
+//		// default root cannot be handled at creation time. See #update.
+//	}
 
 	@Override
 	public final void update(
@@ -162,6 +165,11 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		this.registerInstancesPerObjectId(resolvedRootEntries, rootIdMapping);
 	}
 	
+	/**
+	 * @deprecated this method is as deprecated as the old root concept's identifier it uses.
+	 * See {@link Persistence#customRootIdentifier()} and {@link Persistence#defaultRootIdentifier()}.
+	 */
+	@Deprecated
 	private boolean ensureRefactoredOldRoots(
 		final EqHashTable<String, Long>                 rootIdMapping,
 		final EqHashTable<String, PersistenceRootEntry> resolvedRoots,
@@ -171,16 +179,20 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		final Long customRootOid  = rootIdMapping.get(Persistence.customRootIdentifier());
 		final Long defaultRootOid = rootIdMapping.get(Persistence.defaultRootIdentifier());
 		
-		// quick check to abort for the non-refactoring (= normal) cases
+		// quick check to abort for the non-refactoring (= normal) cases.
 		if(customRootOid == null && defaultRootOid == null)
 		{
 			return false;
 		}
 		
-		// reaching here means some refactoring has to be done. There are 4 cases to be covered.
+		/*
+		 * Reaching here means some refactoring has to be done. There are 4 cases to be covered.
+		 * This is intentionally one big messy method to limit the deprecated conversion logic
+		 * to one single method.
+		 */
 
 		final Object root = this.rootResolverProvider.rootReference().get();
-		if(root != null)
+		if(root == null)
 		{
 			// root refactoring case #1: root == null & customRoot exists
 			if(customRootOid != null)
@@ -225,27 +237,26 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 				
 				return true;
 			}
-			
-			return false;
 		}
-
-		// root refactoring case #3: root != null & customRoot exists
-		if(customRootOid != null)
+		else
 		{
-			handler.registerObject(root, customRootOid);
-			
-			return true;
-		}
+			// root instance is not null, so it has to be associated with the existing objectIds
 
-		// root refactoring case #4: root == null & defaultRoot exists
-		if(defaultRootOid != null)
-		{
-			final Binary defaultRootLoadItem = handler.lookupLoadItem(defaultRootOid);
-			final long defaultRootInstanceObjectId = BinaryHandlerSingleton.getReferenceObjectId(defaultRootLoadItem);
-			
-			handler.registerObject(root, defaultRootInstanceObjectId);
-			
-			return true;
+			// root refactoring case #3: root != null & customRoot exists
+			if(customRootOid != null)
+			{
+				handler.registerCustomRootRefactoring(root, customRootOid);
+				
+				return true;
+			}
+
+			// root refactoring case #4: root == null & defaultRoot exists
+			if(defaultRootOid != null)
+			{
+				handler.registerDefaultRootRefactoring(root, defaultRootOid);
+				
+				return true;
+			}
 		}
 		
 		// no refactoring case found

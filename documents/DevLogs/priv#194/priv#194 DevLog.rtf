@@ -481,7 +481,20 @@ Mist. PersistenceLoadHandler ist nicht auf das Medium typisiert, d.h. es kann ni
 Besonders \'e4rgerlich ist: normalerweise muss es das auch gar nicht. Nur f\'fcr den einen deprecated Root Refactoring Fall w\'e4r es n\'f6tig.\par
 So ein Mist..\par
 \par
+Simple L\'f6sung:\par
+In PersistenceLoadHandler einfach die folgenden zwei Methoden:\par
+@Deprecated\par
+public void registerCustomRootRefactoring(Object rootInstance, long customRootObjectId);\tab\par
+@Deprecated\par
+public void registerDefaultRootRefactoring(Object rootInstance, long defaultRootObjectId);\par
 \par
+Entsprechend umbauen.\par
+\par
+Dann noch einen BinaryHandlerSingleton.\par
+\par
+Damit w\'e4r alles fertig zum testen.\par
 \fs22\par
+\par
+\par
 }
  
