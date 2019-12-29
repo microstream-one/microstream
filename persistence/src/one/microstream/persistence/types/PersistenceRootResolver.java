@@ -79,6 +79,12 @@ public interface PersistenceRootResolver
 		
 		for(final PersistenceRootEntry entry : entries.values())
 		{
+			if(entry == null)
+			{
+				// null-entries can (only) happen via automatic refactoring of old root types (custom/default).
+				continue;
+			}
+			
 			// (10.12.2019 TM)FIXME: /!\ DEBUG priv#194
 			if(entry.identifier().toUpperCase().contains("ROOT"))
 			{

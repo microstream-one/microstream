@@ -234,6 +234,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 				this.rootResolverProvider.rootReference().setRootSupplier(() ->
 					casted.get()
 				);
+				resolvedRoots.add(Persistence.defaultRootIdentifier(), null);
 				
 				return true;
 			}
@@ -246,6 +247,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 			if(customRootOid != null)
 			{
 				handler.registerCustomRootRefactoring(root, customRootOid);
+				resolvedRoots.add(Persistence.customRootIdentifier(), null);
 				
 				return true;
 			}
@@ -254,6 +256,7 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 			if(defaultRootOid != null)
 			{
 				handler.registerDefaultRootRefactoring(root, defaultRootOid);
+				resolvedRoots.add(Persistence.defaultRootIdentifier(), null);
 				
 				return true;
 			}
@@ -276,6 +279,12 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		{
 			for(final KeyValue<String, PersistenceRootEntry> rootEntry : resolvedRootEntries)
 			{
+				if(rootEntry.value() == null)
+				{
+					// null-entries can (only) happen via automatic refactoring of old root types (custom/default).
+					continue;
+				}
+				
 				final Object rootInstance = rootEntry.value().instance();
 				
 				// instances can be null when either explicitly registered to be null in the refactoring or legacy enum
