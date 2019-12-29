@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import one.microstream.collections.BinaryHandlerSingleton;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.math.XMath;
@@ -330,18 +331,34 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 		
 		@Override
-		public final void requireRoot(final Object object, final long objectId)
+		public final void requireRoot(final Object rootInstance, final long rootObjectId)
 		{
+			this.registerRoot(rootInstance, rootObjectId);
+			
 			// must explicitely require reference, otherwise #isUnrequiredReference will skip it as already existing.
-			this.registerObject(object, objectId);
-			this.requireReferenceEager(objectId);
+			this.requireReferenceEager(rootObjectId);
 		}
-		
 
 		@Override
-		public final void registerObject(final Object object, final long objectId)
+		public final void registerCustomRootRefactoring(final Object rootInstance, final long customRootObjectId)
 		{
-			this.registry.registerObject(objectId, object);
+			this.registerRoot(rootInstance, customRootObjectId);
+		}
+		
+		@Override
+		@Deprecated
+		public final void registerDefaultRootRefactoring(final Object rootInstance, final long defaultRootObjectId)
+		{
+			final Binary defaultRootLoadItem = this.lookupLoadItem(defaultRootObjectId);
+			final long defaultRootInstanceObjectId = BinaryHandlerSingleton.getReferenceObjectId(defaultRootLoadItem);
+
+			this.registerRoot(rootInstance, defaultRootInstanceObjectId);
+		}
+		
+		private void registerRoot(final Object rootInstance, final long rootObjectId)
+		{
+			// (28.12.2019 TM)FIXME: priv#194: wouldn't it be enough (and "cleaner") to only register as local instance?
+			this.registry.registerObject(rootObjectId, rootInstance);
 		}
 		
 		@Override
@@ -611,7 +628,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			
 			return null;
 		}
-		
+
 		private BinaryLoadItem lookupLoadItem(final long objectId)
 		{
 			// ids are assumed to be roughly sequential, hence (id ^ id >>> 32) should not be necessary for distribution
