@@ -55,7 +55,7 @@ public final class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTr
 	}
 
 	@Override
-	public final void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public final void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());
 	}

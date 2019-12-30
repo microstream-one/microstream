@@ -32,6 +32,16 @@ public final class BinaryHandlerFloat extends AbstractBinaryHandlerCustomValueFi
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static float instanceState(final Float instance)
+	{
+		return instance.floatValue();
+	}
+	
+	private static float binaryState(final Binary data)
+	{
+		return data.read_float(0);
+	}
 
 	@Override
 	public void store(final Binary bytes, final Float instance, final long objectId, final PersistenceStoreHandler handler)
@@ -43,6 +53,24 @@ public final class BinaryHandlerFloat extends AbstractBinaryHandlerCustomValueFi
 	public Float create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.buildFloat();
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Float                  instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final float instanceState = instanceState(instance);
+		final float binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

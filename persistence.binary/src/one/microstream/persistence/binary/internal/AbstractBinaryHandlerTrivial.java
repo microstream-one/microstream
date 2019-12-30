@@ -34,7 +34,7 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	////////////
 
 	@Override
-	public void update(final Binary medium, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary medium, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op, no state to update
 	}

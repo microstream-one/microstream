@@ -35,7 +35,7 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	}
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op
 	}

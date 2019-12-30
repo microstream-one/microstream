@@ -32,6 +32,16 @@ public final class BinaryHandlerInteger extends AbstractBinaryHandlerCustomValue
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static int instanceState(final Integer instance)
+	{
+		return instance.intValue();
+	}
+	
+	private static int binaryState(final Binary data)
+	{
+		return data.read_int(0);
+	}
 
 	@Override
 	public void store(final Binary bytes, final Integer instance, final long objectId, final PersistenceStoreHandler handler)
@@ -43,6 +53,24 @@ public final class BinaryHandlerInteger extends AbstractBinaryHandlerCustomValue
 	public Integer create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.buildInteger();
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Integer                instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final int instanceState = instanceState(instance);
+		final int binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

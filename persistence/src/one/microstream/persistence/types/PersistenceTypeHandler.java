@@ -39,14 +39,14 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	public T create(M medium, PersistenceLoadHandler handler);
 	
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for loading
-	public default void initialize(final M medium, final T instance, final PersistenceLoadHandler handler)
+	public default void initializeState(final M medium, final T instance, final PersistenceLoadHandler handler)
 	{
 		// for non-value-types, initialize is the same as update. Value-types
-		this.update(medium, instance, handler);
+		this.updateState(medium, instance, handler);
 	}
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for loading
-	public void update(M medium, T instance, PersistenceLoadHandler handler);
+	public void updateState(M medium, T instance, PersistenceLoadHandler handler);
 
 	/**
 	 * Completes an initially built instance after all loaded instances have been built.

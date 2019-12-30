@@ -100,7 +100,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	public final void update(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
 	{
 		// rawData is rerouted to the newly allocated memory (handled by a DirectByteBuffer) with rearranged values.
-		this.typeHandler().update(rawData, instance, handler);
+		this.typeHandler().updateState(rawData, instance, handler);
 	}
 
 	@Override

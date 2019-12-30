@@ -54,5 +54,22 @@ public final class BinaryHandlerString extends AbstractBinaryHandlerCustomValueV
 	{
 		return bytes.buildString();
 	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final String                 instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final String binaryState = data.buildString();
+		
+		if(instance.equals(binaryState))
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instance, binaryState);
+	}
 
 }

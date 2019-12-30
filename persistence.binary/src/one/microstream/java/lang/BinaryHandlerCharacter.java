@@ -32,6 +32,16 @@ public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomVal
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static char instanceState(final Character instance)
+	{
+		return instance.charValue();
+	}
+	
+	private static char binaryState(final Binary data)
+	{
+		return data.read_char(0);
+	}
 
 	@Override
 	public void store(final Binary bytes, final Character instance, final long objectId, final PersistenceStoreHandler handler)
@@ -43,6 +53,24 @@ public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomVal
 	public Character create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.buildCharacter();
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Character              instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final char instanceState = instanceState(instance);
+		final char binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

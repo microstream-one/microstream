@@ -33,7 +33,7 @@ extends AbstractBinaryHandlerCustomIterableSimpleListElements<T>
 	}
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		// instance must be cleared in case an existing one is updated
 		instance.clear();

@@ -34,7 +34,7 @@ extends AbstractBinaryHandlerCustomIterableSimpleListElements<T>
 	}
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
 		final Object[] elementsHelper = new Object[X.checkArrayRange(getElementCount(bytes))];

@@ -54,7 +54,7 @@ public final class BinaryHandlerVoid extends AbstractBinaryHandlerStateless<Void
 	}
 	
 	@Override
-	public void update(
+	public void updateState(
 		final Binary                 bytes   ,
 		final Void                   instance,
 		final PersistenceLoadHandler handler

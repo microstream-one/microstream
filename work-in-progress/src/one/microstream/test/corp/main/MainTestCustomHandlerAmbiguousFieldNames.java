@@ -31,13 +31,22 @@ final class MyTypeHandler extends AbstractBinaryHandlerCustomValueFixedLength<St
 	@Override
 	public void store(final Binary bytes, final String instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME AbstractBinaryHandlerCustom<String>#store()
+		// FIXME AbstractBinaryHandlerCustom<String>#store()
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	@Override
 	public String create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME AbstractBinaryHandlerCustom<String>#create()
+		// FIXME AbstractBinaryHandlerCustom<String>#create()
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+
+	@Override
+	public void validateState(final Binary data, final String instance, final PersistenceLoadHandler handler)
+	{
+		// FIXME AbstractBinaryHandlerCustomValue<String>#validateState()
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 	
 }

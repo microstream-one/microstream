@@ -57,6 +57,17 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static double instanceState(final OptionalDouble instance)
+	{
+		// or ELSE!!!
+		return instance.orElse(0.0);
+	}
+	
+	private static double binaryState(final Binary data)
+	{
+		return data.read_double(BINARY_OFFSET_VALUE);
+	}
 
 	@Override
 	public void store(
@@ -74,7 +85,7 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 
 		bytes.store_double(
 			BINARY_OFFSET_VALUE,
-			instance.orElse(0.0)
+			instanceState(instance)
 		);
 	}
 
@@ -90,6 +101,24 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 			)
 			: XMemory.instantiateBlank(OptionalDouble.class)
 		;
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final OptionalDouble         instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final double instanceState = instanceState(instance);
+		final double binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 	
 }
