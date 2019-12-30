@@ -447,7 +447,14 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				final Object effectiveInstance = this.getEffectiveInstance(entry);
 				if(effectiveInstance != null)
 				{
-					entry.handler.update(entry, effectiveInstance, this);
+					if(effectiveInstance == entry.createdInstance)
+					{
+						entry.handler.initialize(entry, effectiveInstance, this);
+					}
+					else
+					{
+						entry.handler.update(entry, effectiveInstance, this);
+					}
 				}
 				
 				// (26.08.2019 TM)NOTE: old version

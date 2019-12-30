@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.reference.Referencing;
@@ -182,6 +183,8 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		// quick check to abort for the non-refactoring (= normal) cases.
 		if(customRootOid == null && defaultRootOid == null)
 		{
+			// (30.12.2019 TM)FIXME: priv#194 DEBUG
+			XDebug.println("No old root refactoring needed.");
 			return false;
 		}
 		
@@ -204,6 +207,9 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 						"Root instance missing for identifier \"" + Persistence.customRootIdentifier() + "\""
 					);
 				}
+				
+				// (30.12.2019 TM)FIXME: priv#194 DEBUG
+				XDebug.println("Root Refactoring case #1: root == null & customRoot exists");
 				
 				this.rootResolverProvider.rootReference().set(customRoot);
 				resolvedRoots.add(Persistence.customRootIdentifier(), null);
@@ -228,6 +234,9 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 					);
 				}
 				
+				// (30.12.2019 TM)FIXME: priv#194 DEBUG
+				XDebug.println("Root Refactoring case #2: root == null & defaultRoot exists");
+				
 				final Referencing<?> casted = (Referencing<?>)defaultRoot;
 				
 				// safe as storing a root reference only stores the actual instance's objectId, not the supplier.
@@ -246,15 +255,21 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 			// root refactoring case #3: root != null & customRoot exists
 			if(customRootOid != null)
 			{
+				// (30.12.2019 TM)FIXME: priv#194 DEBUG
+				XDebug.println("Root Refactoring case #3: root != null & customRoot exists");
+				
 				handler.registerCustomRootRefactoring(root, customRootOid);
 				resolvedRoots.add(Persistence.customRootIdentifier(), null);
 				
 				return true;
 			}
 
-			// root refactoring case #4: root == null & defaultRoot exists
+			// root refactoring case #4: root != null & defaultRoot exists
 			if(defaultRootOid != null)
 			{
+				// (30.12.2019 TM)FIXME: priv#194 DEBUG
+				XDebug.println("Root Refactoring case #4: root != null & defaultRoot exists");
+				
 				handler.registerDefaultRootRefactoring(root, defaultRootOid);
 				resolvedRoots.add(Persistence.defaultRootIdentifier(), null);
 				

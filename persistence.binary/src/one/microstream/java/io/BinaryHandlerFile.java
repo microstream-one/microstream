@@ -39,17 +39,39 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVar
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static String instanceState(final File instance)
+	{
+		return instance.getPath();
+	}
+	
+	private static String binaryState(final Binary data)
+	{
+		return data.buildString();
+	}
 
 	@Override
 	public void store(final Binary bytes, final File instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeStringValue(this.typeId(), objectId, instance.getPath());
+		bytes.storeStringValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
 	public File create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return new File(bytes.buildString());
+		return new File(binaryState(bytes));
+	}
+	
+
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final File                   instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		compareSimpleState(instance, instanceState(instance), binaryState(data));
 	}
 
 }

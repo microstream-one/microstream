@@ -1,13 +1,15 @@
 package one.microstream.collections;
 
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCollection;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
 // (28.12.2019 TM)NOTE: the sole purpose of this implementation is to provide the explicit method #getReferenceObjectId
-public final class BinaryHandlerSingleton extends AbstractBinaryHandlerCustomValueFixedLength<Singleton<Object>>
+public final class BinaryHandlerSingleton extends AbstractBinaryHandlerCustomCollection<Singleton<Object>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -85,6 +87,31 @@ public final class BinaryHandlerSingleton extends AbstractBinaryHandlerCustomVal
 		final long refObjectId = getReferenceObjectId(data);
 		final Object reference = handler.lookupObject(refObjectId);
 		instance.element = reference;
+	}
+	
+	@Override
+	public void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
+	{
+		final long refObjectId = getReferenceObjectId(data);
+		iterator.acceptObjectId(refObjectId);
+	}
+	
+	@Override
+	public void iterateInstanceReferences(final Singleton<Object> instance, final PersistenceFunction iterator)
+	{
+		iterator.apply(instance.element);
+	}
+
+	@Override
+	public final boolean hasPersistedVariableLength()
+	{
+		return false;
+	}
+	
+	@Override
+	public final boolean hasVaryingPersistedLengthInstances()
+	{
+		return false;
 	}
 
 }
