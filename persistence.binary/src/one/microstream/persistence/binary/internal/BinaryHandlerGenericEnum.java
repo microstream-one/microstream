@@ -353,13 +353,13 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	}
 		
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		// must thoroughly validate the linked jvm-generated(!) instance before modifying its state!
 		this.validate(bytes, instance, handler);
 		
 		// super class logic already uses only setting members, i.e. not ordinal and name.
-		super.update(bytes, instance, handler);
+		super.updateState(bytes, instance, handler);
 	}
 
 }

@@ -39,6 +39,16 @@ public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueV
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static String instanceState(final Locale instance)
+	{
+		return instance.toLanguageTag();
+	}
+	
+	private static String binaryState(final Binary data)
+	{
+		return data.buildString();
+	}
 
 	@Override
 	public final void store(
@@ -49,7 +59,7 @@ public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueV
 	)
 	{
 		// for once, they managed to do a kind of proper de/serialization logic. Amazing.
-		bytes.storeStringValue(this.typeId(), objectId, instance.toLanguageTag());
+		bytes.storeStringValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
@@ -58,7 +68,17 @@ public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueV
 		final PersistenceLoadHandler handler
 	)
 	{
-		return Locale.forLanguageTag(bytes.buildString());
+		return Locale.forLanguageTag(binaryState(bytes));
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Locale                 instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		compareSimpleState(instance, instanceState(instance), binaryState(data));
 	}
 
 }

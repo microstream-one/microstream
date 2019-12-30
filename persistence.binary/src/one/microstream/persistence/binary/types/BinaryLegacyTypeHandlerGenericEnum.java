@@ -85,10 +85,10 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 	}
 	
 	@Override
-	public void update(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
 	{
 		// debug hook
-		super.update(rawData, instance, handler);
+		super.updateState(rawData, instance, handler);
 	}
 	
 }

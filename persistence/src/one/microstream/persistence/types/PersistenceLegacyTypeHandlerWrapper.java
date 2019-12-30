@@ -79,9 +79,9 @@ public class PersistenceLegacyTypeHandlerWrapper<M, T> extends PersistenceLegacy
 	}
 
 	@Override
-	public void update(final M medium, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final M medium, final T instance, final PersistenceLoadHandler handler)
 	{
-		this.typeHandler.update(medium, instance, handler);
+		this.typeHandler.updateState(medium, instance, handler);
 	}
 
 	@Override

@@ -501,7 +501,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	public abstract T create(final Binary bytes, PersistenceLoadHandler handler);
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.

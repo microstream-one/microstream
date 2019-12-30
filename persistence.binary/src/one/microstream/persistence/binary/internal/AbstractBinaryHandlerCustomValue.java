@@ -49,7 +49,7 @@ extends AbstractBinaryHandlerCustom<T>
 	}
 	
 	@Override
-	public void initialize(final Binary data, final T instance, final PersistenceLoadHandler handler)
+	public void initializeState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		/*
 		 * No-op update logic by default. This is useful for all immutable value types (String, Integer, etc.)
@@ -87,7 +87,7 @@ extends AbstractBinaryHandlerCustom<T>
 	}
 	
 	@Override
-	public void update(final Binary data, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		this.validateState(data, instance, handler);
 	}

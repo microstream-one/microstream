@@ -47,6 +47,16 @@ public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVar
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static String instanceState(final Path instance)
+	{
+		return instance.toUri().toString();
+	}
+	
+	private static String binaryState(final Binary data)
+	{
+		return data.buildString();
+	}
 
 	@Override
 	public void store(
@@ -57,14 +67,24 @@ public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVar
 	)
 	{
 		// uri starts with a schema specification that basically defines the type/implementation of the path.
-		bytes.storeStringValue(this.typeId(), objectId, instance.toUri().toString());
+		bytes.storeStringValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
 	public Path create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		// the URI schema is responsible to trigger the correct resolving and produce an instance of the right type.
-		return Paths.get(URI.create(bytes.buildString()));
+		return Paths.get(URI.create(binaryState(bytes)));
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Path                   instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		compareSimpleState(instance, instanceState(instance), binaryState(data));
 	}
 
 }

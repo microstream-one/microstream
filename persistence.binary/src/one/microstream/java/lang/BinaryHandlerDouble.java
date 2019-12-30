@@ -32,6 +32,16 @@ public final class BinaryHandlerDouble extends AbstractBinaryHandlerCustomValueF
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static double instanceState(final Double instance)
+	{
+		return instance.doubleValue();
+	}
+	
+	private static double binaryState(final Binary data)
+	{
+		return data.read_double(0);
+	}
 
 	@Override
 	public void store(final Binary bytes, final Double instance, final long objectId, final PersistenceStoreHandler handler)
@@ -43,6 +53,24 @@ public final class BinaryHandlerDouble extends AbstractBinaryHandlerCustomValueF
 	public Double create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.buildDouble();
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Double                 instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final double instanceState = instanceState(instance);
+		final double binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

@@ -73,7 +73,7 @@ extends AbstractBinaryHandlerCustomCollection<T>
 	}
 
 	@Override
-	public void update(
+	public void updateState(
 		final Binary                 bytes   ,
 		final T                      instance,
 		final PersistenceLoadHandler handler

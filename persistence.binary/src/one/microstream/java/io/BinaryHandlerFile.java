@@ -62,8 +62,6 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVar
 		return new File(binaryState(bytes));
 	}
 	
-
-	
 	@Override
 	public void validateState(
 		final Binary                 data    ,

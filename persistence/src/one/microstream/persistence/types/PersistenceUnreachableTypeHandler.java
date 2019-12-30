@@ -56,7 +56,7 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default void update(final M medium, final T instance, final PersistenceLoadHandler handler)
+	public default void updateState(final M medium, final T instance, final PersistenceLoadHandler handler)
 	{
 		// nothing to do here in either case (null or exception)
 	}

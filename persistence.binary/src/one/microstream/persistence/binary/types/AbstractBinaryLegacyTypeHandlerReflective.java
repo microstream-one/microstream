@@ -67,7 +67,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 	
 	@Override
-	public void update(
+	public void updateState(
 		final Binary                 data    ,
 		final T                      instance,
 		final PersistenceLoadHandler handler

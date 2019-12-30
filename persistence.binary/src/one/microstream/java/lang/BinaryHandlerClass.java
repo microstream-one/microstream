@@ -7,7 +7,6 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
-import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.reference.Referencing;
 
@@ -60,6 +59,16 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private long instanceState(final Class<?> instance)
+	{
+		return this.typeHandlerManager.get().ensureTypeHandler(instance).typeId();
+	}
+	
+	private static long binaryState(final Binary data)
+	{
+		return data.read_long(0);
+	}
 
 	@Override
 	public final void store(
@@ -69,18 +78,18 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 		final PersistenceStoreHandler handler
 	)
 	{
-		final PersistenceTypeHandler<?, ?> typeHandler = this.typeHandlerManager.get().ensureTypeHandler(instance);
+		final long classTypeId = this.instanceState(instance);
 		bytes.storeLong(
 			this.typeId(),
 			objectId,
-			typeHandler.typeId()
+			classTypeId
 		);
 	}
 
 	@Override
 	public final Class<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		final long typeId = bytes.read_long(0);
+		final long typeId = binaryState(bytes);
 		
 		final PersistenceTypeDefinition typeDefinition = this.typeHandlerManager.get()
 			.typeDictionary()
@@ -91,6 +100,24 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 		final Class<?> resolvedInstance = typeDefinition.type();
 		
 		return resolvedInstance;
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Class<?>               instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final long instanceState = this.instanceState(instance);
+		final long binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

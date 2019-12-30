@@ -63,26 +63,65 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static long instanceState(final Date instance)
+	{
+		return instance.getTime();
+	}
+	
+	private static long binaryState(final Binary data)
+	{
+		return data.read_long(0);
+	}
 
 	@Override
-	public void store(final Binary bytes, final Date instance, final long objectId, final PersistenceStoreHandler handler)
+	public final void store(
+		final Binary                  bytes   ,
+		final Date                    instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
 	{
 		bytes.storeEntityHeader(LENGTH_TIMESTAMP, this.typeId(), objectId);
 		
 		// the data content of a date is simple the timestamp long, nothing else
-		bytes.store_long(instance.getTime());
+		bytes.store_long(instanceState(instance));
 	}
 
 	@Override
-	public Date create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Date create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
-		return new Date(bytes.read_long(0));
+		return new Date(binaryState(bytes));
+	}
+	
+	@Override
+	public final void initialize(final Binary data, final Date instance, final PersistenceLoadHandler handler)
+	{
+		this.update(data, instance, handler);
 	}
 
 	@Override
-	public void update(final Binary bytes, final Date instance, final PersistenceLoadHandler handler)
+	public final void update(final Binary bytes, final Date instance, final PersistenceLoadHandler handler)
 	{
-		instance.setTime(bytes.read_long(0));
+		instance.setTime(binaryState(bytes));
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Date                   instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final long instanceState = instanceState(instance);
+		final long binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

@@ -57,6 +57,17 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static long instanceState(final OptionalLong instance)
+	{
+		// or ELSE!!!
+		return instance.orElse(0L);
+	}
+	
+	private static long binaryState(final Binary data)
+	{
+		return data.read_long(0);
+	}
 
 	@Override
 	public void store(
@@ -74,7 +85,7 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 
 		bytes.store_long(
 			BINARY_OFFSET_VALUE,
-			instance.orElse(0L)
+			instanceState(instance)
 		);
 	}
 
@@ -90,6 +101,24 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 			)
 			: XMemory.instantiateBlank(OptionalLong.class)
 		;
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final OptionalLong           instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final long instanceState = instanceState(instance);
+		final long binaryState   = binaryState(data);
+				
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 	
 }

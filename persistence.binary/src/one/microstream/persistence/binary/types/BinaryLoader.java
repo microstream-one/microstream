@@ -357,7 +357,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		
 		private void registerRoot(final Object rootInstance, final long rootObjectId)
 		{
-			// (28.12.2019 TM)FIXME: priv#194: wouldn't it be enough (and "cleaner") to only register as local instance?
+			// root instances are global, so it is apropirate and required to register it globally right away
 			this.registry.registerObject(rootObjectId, rootInstance);
 		}
 		
@@ -449,11 +449,11 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 				{
 					if(effectiveInstance == entry.createdInstance)
 					{
-						entry.handler.initialize(entry, effectiveInstance, this);
+						entry.handler.initializeState(entry, effectiveInstance, this);
 					}
 					else
 					{
-						entry.handler.update(entry, effectiveInstance, this);
+						entry.handler.updateState(entry, effectiveInstance, this);
 					}
 				}
 				

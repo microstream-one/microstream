@@ -32,6 +32,16 @@ public final class BinaryHandlerLong extends AbstractBinaryHandlerCustomValueFix
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static long instanceState(final Long instance)
+	{
+		return instance.longValue();
+	}
+	
+	private static long binaryState(final Binary data)
+	{
+		return data.read_long(0);
+	}
 
 	@Override
 	public void store(final Binary bytes, final Long instance, final long objectId, final PersistenceStoreHandler handler)
@@ -43,6 +53,24 @@ public final class BinaryHandlerLong extends AbstractBinaryHandlerCustomValueFix
 	public Long create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.buildLong();
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Long                   instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final long instanceState = instanceState(instance);
+		final long binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

@@ -32,6 +32,16 @@ public final class BinaryHandlerShort extends AbstractBinaryHandlerCustomValueFi
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static short instanceState(final Short instance)
+	{
+		return instance.shortValue();
+	}
+	
+	private static short binaryState(final Binary data)
+	{
+		return data.read_short(0);
+	}
 
 	@Override
 	public void store(final Binary bytes, final Short instance, final long objectId, final PersistenceStoreHandler handler)
@@ -43,6 +53,24 @@ public final class BinaryHandlerShort extends AbstractBinaryHandlerCustomValueFi
 	public Short create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return bytes.buildShort();
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Short                  instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final short instanceState = instanceState(instance);
+		final short binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }
