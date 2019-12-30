@@ -1,6 +1,7 @@
 package one.microstream.java.math;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
@@ -39,6 +40,16 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomVa
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static byte[] instanceState(final BigInteger instance)
+	{
+		return instance.toByteArray();
+	}
+	
+	private static byte[] binaryState(final Binary data)
+	{
+		return data.build_bytes();
+	}
 
 	@Override
 	public void store(final Binary bytes, final BigInteger instance, final long objectId, final PersistenceStoreHandler handler)
@@ -50,6 +61,24 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomVa
 	public BigInteger create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new BigInteger(bytes.build_bytes());
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final BigInteger             instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final byte[] instanceState = instanceState(instance);
+		final byte[] binaryState   = binaryState(data);
+		
+		if(Arrays.equals(instanceState, binaryState))
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, Arrays.toString(instanceState), Arrays.toString(binaryState));
 	}
 	
 }

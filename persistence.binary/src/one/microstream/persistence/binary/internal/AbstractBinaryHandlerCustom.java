@@ -310,15 +310,6 @@ extends BinaryTypeHandler.Abstract<T>
 	public abstract T create(Binary data, PersistenceLoadHandler handler);
 
 	@Override
-	public void update(final Binary data, final T instance, final PersistenceLoadHandler handler)
-	{
-		/* No-op update logic by default. This is useful for all immutable value types (String, Integer, etc.).
-		 * Value types never get updated. The value is only set once at instance creation time.
-		 * Subsequently provided (potentially different) values are ignored intentionally.
-		 */
-	}
-
-	@Override
 	public void complete(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)

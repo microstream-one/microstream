@@ -38,13 +38,13 @@ extends AbstractBinaryHandlerCustom<T>
 	}
 	
 	@Override
-	public final boolean hasPersistedVariableLength()
+	public boolean hasPersistedVariableLength()
 	{
 		return true;
 	}
 	
 	@Override
-	public final boolean hasVaryingPersistedLengthInstances()
+	public boolean hasVaryingPersistedLengthInstances()
 	{
 		return true;
 	}
