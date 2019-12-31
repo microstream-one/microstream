@@ -82,7 +82,7 @@ public interface PersistenceRootResolverProvider
 		return New(rootReference, PersistenceTypeResolver.Default());
 	}
 	
-	public static <M> PersistenceRootResolverProvider New(
+	public static <D> PersistenceRootResolverProvider New(
 		final PersistenceRootReference rootReference,
 		final PersistenceTypeResolver  typeResolver
 	)

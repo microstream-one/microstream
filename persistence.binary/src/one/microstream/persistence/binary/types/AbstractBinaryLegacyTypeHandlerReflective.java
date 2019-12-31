@@ -78,7 +78,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler handler)
+	public final void complete(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op for reflective logic
 	}

@@ -73,13 +73,13 @@ public final class BinaryHandlerSingleton extends AbstractBinaryHandlerCustomCol
 	}
 
 	@Override
-	public Singleton<Object> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public Singleton<Object> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return Singleton.New(null);
 	}
 
 	@Override
-	public void update(final Binary data, final Singleton<Object> instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary data, final Singleton<Object> instance, final PersistenceLoadHandler handler)
 	{
 //		@SuppressWarnings("unchecked")
 //		final Singleton<Object> casted = instance;

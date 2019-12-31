@@ -85,20 +85,20 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 
 	@Override
 	public final void store(
-		final Binary                   bytes   ,
+		final Binary                   data    ,
 		final PersistenceRoots.Default instance,
 		final long                     objectId,
 		final PersistenceStoreHandler  handler
 	)
 	{
-		bytes.storeRoots(this.typeId(), objectId, instance.entries(), handler);
+		data.storeRoots(this.typeId(), objectId, instance.entries(), handler);
 	}
 
 	@Override
-	public final PersistenceRoots.Default create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final PersistenceRoots.Default create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		// The identifier -> objectId root id mapping is created (and validated) from the loaded data.
-		final EqHashTable<String, Long> rootIdMapping = bytes.buildRootMapping(EqHashTable.New());
+		final EqHashTable<String, Long> rootIdMapping = data.buildRootMapping(EqHashTable.New());
 
 		// (28.12.2019 TM)FIXME: priv#194: cleanup if not needed. Including removing the temporarily held idMapping.
 		
@@ -116,33 +116,9 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		);
 	}
 	
-	// (28.12.2019 TM)FIXME: priv#194: delete if not needed
-//	private void ensureRefactoredCustomRootLink(
-//		final EqHashTable<String, Long> rootIdMapping,
-//		final PersistenceLoadHandler    handler
-//	)
-//	{
-//		final Long customRootOid = rootIdMapping.get(Persistence.customRootIdentifier());
-//		if(customRootOid == null)
-//		{
-//			return;
-//		}
-//
-//		final Object rootInstance = this.rootResolverProvider.rootReference().get();
-//		if(rootInstance == null)
-//		{
-//			return;
-//		}
-//
-//		// root refactoring case #1: root != null & customRoot exists
-//		handler.requireRoot(rootInstance, customRootOid);
-//
-//		// default root cannot be handled at creation time. See #update.
-//	}
-
 	@Override
-	public final void update(
-		final Binary                   bytes   ,
+	public final void updateState(
+		final Binary                   data    ,
 		final PersistenceRoots.Default instance,
 		final PersistenceLoadHandler   handler
 	)
@@ -346,10 +322,10 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
 		// the nice thing about this layout is: the references can be accessed directly as if it was a simple list
-		bytes.iterateListElementReferences(0, iterator);
+		data.iterateListElementReferences(0, iterator);
 	}
 
 	@Override

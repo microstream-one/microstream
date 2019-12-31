@@ -50,14 +50,14 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 		return (Class)ConstHashTable.class;
 	}
 
-	private static int getBuildItemElementCount(final Binary bytes)
+	private static int getBuildItemElementCount(final Binary data)
 	{
-		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(data.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
 
-	private static float getBuildItemHashDensity(final Binary bytes)
+	private static float getBuildItemHashDensity(final Binary data)
 	{
-		return bytes.read_float(BINARY_OFFSET_HASH_DENSITY);
+		return data.read_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 	
 	public static BinaryHandlerConstHashTable New()
@@ -92,14 +92,14 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final ConstHashTable<?, ?>    instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeKeyValuesAsEntries(
+		data.storeKeyValuesAsEntries(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -107,32 +107,32 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 			instance.size()       ,
 			handler
 		);
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_KEYS,
 			handler.apply(instance.keys)
 		);
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_VALUES,
 			handler.apply(instance.values)
 		);
-		bytes.store_float(
+		data.store_float(
 			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}
 
 	@Override
-	public final ConstHashTable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final ConstHashTable<?, ?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return ConstHashTable.NewCustom(
-			getBuildItemElementCount(bytes),
-			getBuildItemHashDensity(bytes)
+			getBuildItemElementCount(data),
+			getBuildItemHashDensity(data)
 		);
 	}
 
 	@Override
-	public final void update(
-		final Binary                 bytes   ,
+	public final void updateState(
+		final Binary                 data    ,
 		final ConstHashTable<?, ?>   instance,
 		final PersistenceLoadHandler handler
 	)
@@ -150,16 +150,16 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			handler.lookupObject(bytes.read_long(BINARY_OFFSET_KEYS))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			handler.lookupObject(bytes.read_long(BINARY_OFFSET_VALUES))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_VALUES))
 		);
-		bytes.collectKeyValueReferences(
+		data.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
-			getBuildItemElementCount(bytes),
+			getBuildItemElementCount(data),
 			handler,
 			casted::internalAdd
 		);
@@ -175,11 +175,11 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashTable<?, ?>>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_KEYS));
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_VALUES));
-		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_KEYS));
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_VALUES));
+		data.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 }

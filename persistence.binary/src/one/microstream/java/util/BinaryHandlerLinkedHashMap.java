@@ -42,10 +42,10 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerMap<L
 	////////////
 
 	@Override
-	public final LinkedHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final LinkedHashMap<?, ?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new LinkedHashMap<>(
-			X.checkArrayRange(getElementCount(bytes))
+			X.checkArrayRange(getElementCount(data))
 		);
 	}
 

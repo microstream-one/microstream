@@ -54,26 +54,26 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 	// methods //
 	////////////
 	
-	protected static long getNameObjectId(final Binary bytes)
+	protected static long getNameObjectId(final Binary data)
 	{
-		return bytes.read_long(BINARY_OFFSET_NAME);
+		return data.read_long(BINARY_OFFSET_NAME);
 	}
 	
-	protected static int getOrdinalValue(final Binary bytes)
+	protected static int getOrdinalValue(final Binary data)
 	{
-		return bytes.read_int(BINARY_OFFSET_ORDINAL);
-	}
-	
-	@Override
-	protected String getName(final Binary bytes, final PersistenceLoadHandler handler)
-	{
-		return (String)handler.lookupObject(getNameObjectId(bytes));
+		return data.read_int(BINARY_OFFSET_ORDINAL);
 	}
 	
 	@Override
-	protected int getOrdinal(final Binary bytes)
+	protected String getName(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return getOrdinalValue(bytes);
+		return (String)handler.lookupObject(getNameObjectId(data));
+	}
+	
+	@Override
+	protected int getOrdinal(final Binary data)
+	{
+		return getOrdinalValue(data);
 	}
 
 	@Override
@@ -84,11 +84,11 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 
 	@Override
 	public void iterateLoadableReferences(
-		final Binary                     bytes   ,
+		final Binary                     data    ,
 		final PersistenceReferenceLoader iterator
 	)
 	{
-		iterator.acceptObjectId(getNameObjectId(bytes));
+		iterator.acceptObjectId(getNameObjectId(data));
 	}
 
 	@Override
@@ -105,16 +105,16 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 
 	@Override
 	public void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final T                       instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
+		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
 		
-		bytes.store_long(BINARY_OFFSET_NAME   , handler.apply(instance.name()));
-		bytes.store_long(BINARY_OFFSET_ORDINAL, instance.ordinal()            );
+		data.store_long(BINARY_OFFSET_NAME   , handler.apply(instance.name()));
+		data.store_long(BINARY_OFFSET_ORDINAL, instance.ordinal()            );
 	}
 	
 }

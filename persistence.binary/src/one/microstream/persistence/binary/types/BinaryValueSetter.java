@@ -31,13 +31,13 @@ public interface BinaryValueSetter
 	 * @param address the absolute source memory address of the value to be set.
 	 * @param target the target object to set the value to or {@code null} for absolute memory addressing.
 	 * @param targetOffset the target object's relative memory offset or an absolute target memory address.
-	 * @param idResolver a helper instance to resolve OIDs to instance references.
+	 * @param handler a helper instance to resolve OIDs to instance references.
 	 * @return absolute source memory address pointing at the first byte following the read value.
 	 */
 	public long setValueToMemory(
-		long                        address     ,
-		Object                      target      ,
-		long                        targetOffset,
-		PersistenceLoadHandler idResolver
+		long                   address     ,
+		Object                 target      ,
+		long                   targetOffset,
+		PersistenceLoadHandler handler
 	);
 }

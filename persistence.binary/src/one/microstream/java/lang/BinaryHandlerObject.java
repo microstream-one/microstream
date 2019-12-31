@@ -33,7 +33,7 @@ public final class BinaryHandlerObject extends AbstractBinaryHandlerStateless<Ob
 	/////////////////////
 
 	@Override
-	public final Object create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Object create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new Object(); // funny
 	}

@@ -95,7 +95,7 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Stack<?> instance, final PersistenceLoadHandler idResolver)
+	public final void updateState(final Binary bytes, final Stack<?> instance, final PersistenceLoadHandler idResolver)
 	{
 		// instance must be cleared and capacity-ensured in case an existing instance gets updated.
 		instance.clear();

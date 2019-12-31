@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -93,35 +93,35 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	
 
 	@Override
-	public final Properties create(final Binary bytes, final PersistenceLoadHandler idResolver)
+	public final Properties create(final Binary data, final PersistenceLoadHandler idResolver)
 	{
 		return new Properties();
 	}
 
 	@Override
-	public final void update(
-		final Binary                      bytes     ,
-		final Properties                  instance  ,
-		final PersistenceLoadHandler idResolver
+	public final void updateState(
+		final Binary                 data    ,
+		final Properties             instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		instance.clear();
 		
-		final Object defaults = idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_DEFAULTS));
+		final Object defaults = handler.lookupObject(data.read_long(BINARY_OFFSET_DEFAULTS));
 		
 		// the cast is important to ensure the type validity of the resolved defaults instance.
 		SunJdk8Internals.setDefaults(instance, (Properties)defaults);
 		
-		final int elementCount = getElementCount(bytes);
+		final int elementCount = getElementCount(data);
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, idResolver, collector);
-		bytes.registerHelper(instance, collector.yield());
+		data.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
+		data.registerHelper(instance, collector.yield());
 	}
 
 	@Override
-	public void complete(final Binary bytes, final Properties instance, final PersistenceLoadHandler idResolver)
+	public void complete(final Binary data, final Properties instance, final PersistenceLoadHandler handler)
 	{
-		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateMapFromHelperArray(instance, data.getHelper(instance));
 	}
 
 	@Override
@@ -132,10 +132,10 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerCustomCo
 	}
 	
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_DEFAULTS));
-		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_DEFAULTS));
+		data.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 }

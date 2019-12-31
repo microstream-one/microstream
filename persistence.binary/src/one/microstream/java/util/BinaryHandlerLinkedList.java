@@ -41,7 +41,7 @@ public final class BinaryHandlerLinkedList extends AbstractBinaryHandlerList<Lin
 	////////////
 
 	@Override
-	public final LinkedList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final LinkedList<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new LinkedList<>();
 	}

@@ -107,7 +107,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashMap<?, ?> instance, final PersistenceLoadHandler idResolver)
+	public final void updateState(final Binary bytes, final HashMap<?, ?> instance, final PersistenceLoadHandler idResolver)
 	{
 		instance.clear();
 		final int elementCount = getElementCount(bytes);

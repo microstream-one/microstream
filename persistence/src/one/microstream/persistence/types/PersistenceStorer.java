@@ -2,39 +2,39 @@ package one.microstream.persistence.types;
 
 import one.microstream.util.BufferSizeProviderIncremental;
 
-public interface PersistenceStorer<M> extends Storer
+public interface PersistenceStorer<D> extends Storer
 {
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PersistenceStorer<M> initialize();
+	public PersistenceStorer<D> initialize();
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PersistenceStorer<M> initialize(long initialCapacity);
+	public PersistenceStorer<D> initialize(long initialCapacity);
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PersistenceStorer<M> reinitialize();
+	public PersistenceStorer<D> reinitialize();
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PersistenceStorer<M> reinitialize(long initialCapacity);
+	public PersistenceStorer<D> reinitialize(long initialCapacity);
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PersistenceStorer<M> ensureCapacity(long desiredCapacity);
+	public PersistenceStorer<D> ensureCapacity(long desiredCapacity);
 
-	public interface Creator<M>
+	public interface Creator<D>
 	{
 		/**
 		 * Creates a {@link PersistenceStorer} instance with a storing logic that stores instances that are
@@ -48,11 +48,11 @@ public interface PersistenceStorer<M> extends Storer
 		 * @param target
 		 * @param bufferSizeProvider
 		 */
-		public PersistenceStorer<M> createLazyStorer(
-			PersistenceTypeHandlerManager<M> typeManager       ,
+		public PersistenceStorer<D> createLazyStorer(
+			PersistenceTypeHandlerManager<D> typeManager       ,
 			PersistenceObjectManager         objectManager     ,
 			PersistenceObjectRetriever       objectRetriever   ,
-			PersistenceTarget<M>             target            ,
+			PersistenceTarget<D>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
 		);
 		
@@ -66,11 +66,11 @@ public interface PersistenceStorer<M> extends Storer
 		 * @param target
 		 * @param bufferSizeProvider
 		 */
-		public default PersistenceStorer<M> createStorer(
-			final PersistenceTypeHandlerManager<M> typeManager       ,
+		public default PersistenceStorer<D> createStorer(
+			final PersistenceTypeHandlerManager<D> typeManager       ,
 			final PersistenceObjectManager         objectManager     ,
 			final PersistenceObjectRetriever       objectRetriever   ,
-			final PersistenceTarget<M>             target            ,
+			final PersistenceTarget<D>             target            ,
 			final BufferSizeProviderIncremental    bufferSizeProvider
 		)
 		{
@@ -93,11 +93,11 @@ public interface PersistenceStorer<M> extends Storer
 		 * @param target
 		 * @param bufferSizeProvider
 		 */
-		public PersistenceStorer<M> createEagerStorer(
-			PersistenceTypeHandlerManager<M> typeManager       ,
+		public PersistenceStorer<D> createEagerStorer(
+			PersistenceTypeHandlerManager<D> typeManager       ,
 			PersistenceObjectManager         objectManager     ,
 			PersistenceObjectRetriever       objectRetriever   ,
-			PersistenceTarget<M>             target            ,
+			PersistenceTarget<D>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
 		);
 	}

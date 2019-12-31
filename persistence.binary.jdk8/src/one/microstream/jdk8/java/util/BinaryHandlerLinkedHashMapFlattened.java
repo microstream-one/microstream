@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -118,26 +118,26 @@ public final class BinaryHandlerLinkedHashMapFlattened extends AbstractBinaryHan
 	}
 
 	@Override
-	public final LinkedHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler idResolver)
+	public final LinkedHashMap<?, ?> create(final Binary data, final PersistenceLoadHandler idResolver)
 	{
 		return new LinkedHashMap<>(
-			getElementCount(bytes) / 2,
-			getLoadFactor(bytes),
-			getAccessOrder(bytes)
+			getElementCount(data) / 2,
+			getLoadFactor(data),
+			getAccessOrder(data)
 		);
 	}
 
 	@Override
-	public final void update(
-		final Binary                      bytes     ,
-		final LinkedHashMap<?, ?>         instance  ,
-		final PersistenceLoadHandler idResolver
+	public final void updateState(
+		final Binary                 data    ,
+		final LinkedHashMap<?, ?>    instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		instance.clear();
-		final Object[] elementsHelper = new Object[getElementCount(bytes)];
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, idResolver, elementsHelper);
-		bytes.registerHelper(instance, elementsHelper);
+		final Object[] elementsHelper = new Object[getElementCount(data)];
+		data.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
+		data.registerHelper(instance, elementsHelper);
 	}
 
 	@Override

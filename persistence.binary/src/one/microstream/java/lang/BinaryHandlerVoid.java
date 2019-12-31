@@ -35,7 +35,7 @@ public final class BinaryHandlerVoid extends AbstractBinaryHandlerStateless<Void
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final Void                    instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
@@ -46,7 +46,7 @@ public final class BinaryHandlerVoid extends AbstractBinaryHandlerStateless<Void
 
 	@Override
 	public final Void create(
-		final Binary                 bytes  ,
+		final Binary                 data   ,
 		final PersistenceLoadHandler handler
 	)
 	{
@@ -55,7 +55,7 @@ public final class BinaryHandlerVoid extends AbstractBinaryHandlerStateless<Void
 	
 	@Override
 	public void updateState(
-		final Binary                 bytes   ,
+		final Binary                 data    ,
 		final Void                   instance,
 		final PersistenceLoadHandler handler
 	)

@@ -73,9 +73,9 @@ extends BinaryLegacyTypeHandlerGenericEnum<T>
 	////////////
 		
 	@Override
-	protected T internalCreate(final Binary bytes, final PersistenceLoadHandler handler)
+	protected T internalCreate(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return PersistenceLegacyTypeHandler.resolveEnumConstant(this, bytes, this.ordinalMapping);
+		return PersistenceLegacyTypeHandler.resolveEnumConstant(this, data, this.ordinalMapping);
 	}
 	
 	@Override

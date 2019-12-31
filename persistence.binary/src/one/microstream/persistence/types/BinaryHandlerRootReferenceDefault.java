@@ -47,14 +47,14 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 	// methods //
 	////////////
 
-	static long getRootObjectId(final Binary bytes)
+	static long getRootObjectId(final Binary data)
 	{
-		return bytes.read_long(0);
+		return data.read_long(0);
 	}
 
 	@Override
 	public final void store(
-		final Binary                           bytes   ,
+		final Binary                           data    ,
 		final PersistenceRootReference.Default instance,
 		final long                             objectId,
 		final PersistenceStoreHandler          handler
@@ -64,13 +64,13 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 		final Object rootInstance  = instance.get()             ;
 		final long   contentLength = Binary.objectIdByteLength();
 		final long   rootObjectId  = handler.apply(rootInstance);
-		bytes.storeEntityHeader(contentLength, this.typeId(), objectId);
-		bytes.store_long(rootObjectId);
+		data.storeEntityHeader(contentLength, this.typeId(), objectId);
+		data.store_long(rootObjectId);
 	}
 
 	@Override
 	public final PersistenceRootReference.Default create(
-		final Binary                 bytes  ,
+		final Binary                 data   ,
 		final PersistenceLoadHandler handler
 		)
 	{
@@ -89,7 +89,7 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 			 * gets created and registered and can be queried by the application logic after initialization is
 			 * complete.
 			 */
-			final long rootObjectId = getRootObjectId(bytes);
+			final long rootObjectId = getRootObjectId(data);
 			handler.requireRoot(rootInstance, rootObjectId);
 		}
 
@@ -98,10 +98,10 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 	}
 
 	@Override
-	public final void update(
-		final Binary                           bytes   ,
+	public final void updateState(
+		final Binary                           data    ,
 		final PersistenceRootReference.Default instance,
-		final PersistenceLoadHandler      handler
+		final PersistenceLoadHandler           handler
 	)
 	{
 		if(instance != this.rootReference)
@@ -115,7 +115,7 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 			);
 		}
 		
-		final long   rootObjectId = getRootObjectId(bytes);
+		final long   rootObjectId = getRootObjectId(data);
 		final Object loadedRoot   = handler.lookupObject(rootObjectId);
 		
 		final Object rootInstance = this.rootReference.get();
@@ -164,10 +164,10 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
 		// trivial single-reference
-		final long rootObjectId = getRootObjectId(bytes);
+		final long rootObjectId = getRootObjectId(data);
 		
 		// must require reference eagerly here as the call in #create did not create a build item.
 		iterator.requireReferenceEager(rootObjectId);

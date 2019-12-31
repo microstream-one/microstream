@@ -1,9 +1,9 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceSourceSupplier<M> extends PersistenceObjectRetriever
+public interface PersistenceSourceSupplier<D> extends PersistenceObjectRetriever
 {
 	@Override
 	public Object getObject(long objectId);
 
-	public PersistenceSource<M> source();
+	public PersistenceSource<D> source();
 }

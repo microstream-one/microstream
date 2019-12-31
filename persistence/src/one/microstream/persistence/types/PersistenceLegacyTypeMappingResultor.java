@@ -13,7 +13,7 @@ import one.microstream.util.similarity.Similarity;
 
 
 //@FunctionalInterface - well, lol.
-public interface PersistenceLegacyTypeMappingResultor<M>
+public interface PersistenceLegacyTypeMappingResultor<D>
 {
 	/**
 	 * Override this method to implement various functions like ...
@@ -32,9 +32,9 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	 * @param matchedMembers
 	 * 
 	 */
-	public default <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
+	public default <T> PersistenceLegacyTypeMappingResult<D, T> createMappingResult(
 		final PersistenceTypeDefinition                                                     legacyTypeDefinition,
-		final PersistenceTypeHandler<M, T>                                                  currentTypeHandler  ,
+		final PersistenceTypeHandler<D, T>                                                  currentTypeHandler  ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
 		final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers  ,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
@@ -51,9 +51,9 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 	
 	
 	
-	public static <M, T> PersistenceLegacyTypeMappingResult<M, T> createLegacyTypeMappingResult(
+	public static <D, T> PersistenceLegacyTypeMappingResult<D, T> createLegacyTypeMappingResult(
 		final PersistenceTypeDefinition                                                     legacyTypeDefinition,
-		final PersistenceTypeHandler<M, T>                                                  currentTypeHandler  ,
+		final PersistenceTypeHandler<D, T>                                                  currentTypeHandler  ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
 		final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers  ,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
@@ -130,12 +130,12 @@ public interface PersistenceLegacyTypeMappingResultor<M>
 		);
 	}
 		
-	public static <M> PersistenceLegacyTypeMappingResultor<M> New()
+	public static <D> PersistenceLegacyTypeMappingResultor<D> New()
 	{
 		return new PersistenceLegacyTypeMappingResultor.Default<>();
 	}
 	
-	public final class Default<M> implements PersistenceLegacyTypeMappingResultor<M>
+	public final class Default<D> implements PersistenceLegacyTypeMappingResultor<D>
 	{
 		// since default methods, the ability to instantiate stateless instances from interfaces is missing
 	}

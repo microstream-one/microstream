@@ -1,10 +1,10 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceRootReferenceProvider<M>
+public interface PersistenceRootReferenceProvider<D>
 {
 	public PersistenceRootReference provideRootReference();
 	
-	public PersistenceTypeHandler<M, ? extends PersistenceRootReference> provideTypeHandler(
+	public PersistenceTypeHandler<D, ? extends PersistenceRootReference> provideTypeHandler(
 		PersistenceObjectRegistry globalRegistry
 	);
 }

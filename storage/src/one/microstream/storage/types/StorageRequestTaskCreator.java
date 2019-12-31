@@ -16,7 +16,7 @@ public interface StorageRequestTaskCreator
 		StorageOperationController operationController
 	);
 
-	public StorageRequestTaskStoreEntities createSaveTask(Binary medium);
+	public StorageRequestTaskStoreEntities createSaveTask(Binary data);
 
 	public StorageRequestTaskLoadByOids createLoadTaskByOids(PersistenceIdSet[] loadOids);
 
@@ -124,11 +124,11 @@ public interface StorageRequestTaskCreator
 		}
 
 		@Override
-		public StorageRequestTaskStoreEntities createSaveTask(final Binary medium)
+		public StorageRequestTaskStoreEntities createSaveTask(final Binary data)
 		{
 			return new StorageRequestTaskStoreEntities.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				medium
+				data
 			);
 		}
 

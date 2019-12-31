@@ -43,7 +43,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerSet<L
 	////////////
 
 	@Override
-	public final LinkedHashSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final LinkedHashSet<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new LinkedHashSet<>();
 	}

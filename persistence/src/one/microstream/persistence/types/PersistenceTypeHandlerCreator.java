@@ -13,13 +13,13 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersist
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.LambdaTypeRecognizer;
 
-public interface PersistenceTypeHandlerCreator<M>
+public interface PersistenceTypeHandlerCreator<D>
 {
-	public <T> PersistenceTypeHandler<M, T> createTypeHandler(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
+	public <T> PersistenceTypeHandler<D, T> createTypeHandler(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
 
 	
 	
-	public abstract class Abstract<M> implements PersistenceTypeHandlerCreator<M>
+	public abstract class Abstract<D> implements PersistenceTypeHandlerCreator<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -75,7 +75,7 @@ public interface PersistenceTypeHandlerCreator<M>
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> createTypeHandler(final Class<T> type)
+		public <T> PersistenceTypeHandler<D, T> createTypeHandler(final Class<T> type)
 		{
 			// should never happen or more precisely: should only happen for unhandled primitive types
 			if(type.isPrimitive())
@@ -219,7 +219,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			);
 		}
 		
-		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerEntity(final Class<T> type)
+		protected <T> PersistenceTypeHandler<D, T> deriveTypeHandlerEntity(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
@@ -229,7 +229,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			return this.createTypeHandlerGeneric(type, persistableFields);
 		}
 		
-		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerEnum(final Class<T> type)
+		protected <T> PersistenceTypeHandler<D, T> deriveTypeHandlerEnum(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
@@ -239,9 +239,9 @@ public interface PersistenceTypeHandlerCreator<M>
 			return this.createTypeHandlerEnum(type, persistableFields);
 		}
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> deriveTypeHandlerGenericPath(Class<T> type);
+		protected abstract <T> PersistenceTypeHandler<D, T> deriveTypeHandlerGenericPath(Class<T> type);
 		
-		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerJavaUtilCollection(final Class<T> type)
+		protected <T> PersistenceTypeHandler<D, T> deriveTypeHandlerJavaUtilCollection(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
@@ -255,33 +255,33 @@ public interface PersistenceTypeHandlerCreator<M>
 			return this.createTypeHandlerGeneric(type, persistableFields);
 		}
 
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerAbstractType(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerAbstractType(
 			Class<T> type
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerUnpersistable(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerUnpersistable(
 			Class<T> type
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerEnum(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerEnum(
 			Class<T>            type             ,
 			XGettingEnum<Field> persistableFields
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerArray(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerArray(
 			Class<T> type
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGeneric(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerGeneric(
 			Class<T>            type             ,
 			XGettingEnum<Field> persistableFields
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGenericStateless(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerGenericStateless(
 			Class<T> type
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGenericJavaUtilCollection(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerGenericJavaUtilCollection(
 			Class<T> type
 		);
 		

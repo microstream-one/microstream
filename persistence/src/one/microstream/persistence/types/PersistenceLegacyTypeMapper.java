@@ -17,11 +17,11 @@ import one.microstream.util.similarity.MultiMatcher;
 import one.microstream.util.similarity.Similarity;
 import one.microstream.util.similarity.Similator;
 
-public interface PersistenceLegacyTypeMapper<M>
+public interface PersistenceLegacyTypeMapper<D>
 {
-	public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
+	public <T> PersistenceLegacyTypeHandler<D, T> ensureLegacyTypeHandler(
 		PersistenceTypeDefinition    legacyTypeDefinition,
-		PersistenceTypeHandler<M, T> currentTypeHandler
+		PersistenceTypeHandler<D, T> currentTypeHandler
 	);
 	
 	
@@ -81,13 +81,13 @@ public interface PersistenceLegacyTypeMapper<M>
 	}
 	
 	
-	public static <M> PersistenceLegacyTypeMapper<M> New(
+	public static <D> PersistenceLegacyTypeMapper<D> New(
 		final PersistenceTypeDescriptionResolverProvider  typeDescriptionResolverProvider,
 		final TypeMappingLookup<Float>                    typeSimilarity             ,
-		final PersistenceCustomTypeHandlerRegistry<M>     customTypeHandlerRegistry  ,
+		final PersistenceCustomTypeHandlerRegistry<D>     customTypeHandlerRegistry  ,
 		final PersistenceMemberMatchingProvider           memberMatchingProvider     ,
-		final PersistenceLegacyTypeMappingResultor<M>     resultor                   ,
-		final PersistenceLegacyTypeHandlerCreator<M>      legacyTypeHandlerCreator
+		final PersistenceLegacyTypeMappingResultor<D>     resultor                   ,
+		final PersistenceLegacyTypeHandlerCreator<D>      legacyTypeHandlerCreator
 	)
 	{
 		return new PersistenceLegacyTypeMapper.Default<>(
@@ -100,7 +100,7 @@ public interface PersistenceLegacyTypeMapper<M>
 		);
 	}
 
-	public class Default<M> implements PersistenceLegacyTypeMapper<M>
+	public class Default<D> implements PersistenceLegacyTypeMapper<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -108,10 +108,10 @@ public interface PersistenceLegacyTypeMapper<M>
 
 		private final PersistenceTypeDescriptionResolverProvider typeDescriptionResolverProvider;
 		private final TypeMappingLookup<Float>                   typeSimilarity                 ;
-		private final PersistenceCustomTypeHandlerRegistry<M>    customTypeHandlerRegistry      ;
+		private final PersistenceCustomTypeHandlerRegistry<D>    customTypeHandlerRegistry      ;
 		private final PersistenceMemberMatchingProvider          memberMatchingProvider         ;
-		private final PersistenceLegacyTypeMappingResultor<M>    resultor                       ;
-		private final PersistenceLegacyTypeHandlerCreator<M>     legacyTypeHandlerCreator       ;
+		private final PersistenceLegacyTypeMappingResultor<D>    resultor                       ;
+		private final PersistenceLegacyTypeHandlerCreator<D>     legacyTypeHandlerCreator       ;
 
 		
 		
@@ -122,10 +122,10 @@ public interface PersistenceLegacyTypeMapper<M>
 		protected Default(
 			final PersistenceTypeDescriptionResolverProvider typeDescriptionResolverProvider,
 			final TypeMappingLookup<Float>                   typeSimilarity                 ,
-			final PersistenceCustomTypeHandlerRegistry<M>    customTypeHandlerRegistry      ,
+			final PersistenceCustomTypeHandlerRegistry<D>    customTypeHandlerRegistry      ,
 			final PersistenceMemberMatchingProvider          memberMatchingProvider         ,
-			final PersistenceLegacyTypeMappingResultor<M>    resultor                       ,
-			final PersistenceLegacyTypeHandlerCreator<M>     legacyTypeHandlerCreator
+			final PersistenceLegacyTypeMappingResultor<D>    resultor                       ,
+			final PersistenceLegacyTypeHandlerCreator<D>     legacyTypeHandlerCreator
 		)
 		{
 			super();
@@ -143,9 +143,9 @@ public interface PersistenceLegacyTypeMapper<M>
 		// methods //
 		////////////
 				
-		private <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
+		private <T> PersistenceLegacyTypeHandler<D, T> createLegacyTypeHandler(
 			final PersistenceTypeDefinition    legacyTypeDefinition,
-			final PersistenceTypeHandler<M, T> currentTypeHandler
+			final PersistenceTypeHandler<D, T> currentTypeHandler
 		)
 		{
 			// explicit mappings take precedence
@@ -168,7 +168,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			);
 			
 			// bundle the mappings into a result, potentially with user callback, validation, modification, logging, etc.
-			final PersistenceLegacyTypeMappingResult<M, T> validResult = this.resultor.createMappingResult(
+			final PersistenceLegacyTypeMappingResult<D, T> validResult = this.resultor.createMappingResult(
 				legacyTypeDefinition,
 				currentTypeHandler  ,
 				explicitMappings    ,
@@ -184,7 +184,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
 			final HashEnum<PersistenceTypeDefinitionMember>                                   explicitNewMembers  ,
 			final PersistenceTypeDefinition                                                   legacyTypeDefinition,
-			final PersistenceTypeHandler<M, ?>                                                currentTypeHandler
+			final PersistenceTypeHandler<D, ?>                                                currentTypeHandler
 		)
 		{
 			final PersistenceTypeDescriptionResolver resolver = this.typeDescriptionResolverProvider.provideTypeDescriptionResolver();
@@ -234,7 +234,7 @@ public interface PersistenceLegacyTypeMapper<M>
 				
 		private MultiMatch<PersistenceTypeDefinitionMember> match(
 			final PersistenceTypeDefinition                                                   legacyTypeDefinition,
-			final PersistenceTypeHandler<M, ?>                                                currentTypeHandler  ,
+			final PersistenceTypeHandler<D, ?>                                                currentTypeHandler  ,
 			final HashTable<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
 			final HashEnum<PersistenceTypeDefinitionMember>                                   explicitNewMembers
 		)
@@ -292,11 +292,11 @@ public interface PersistenceLegacyTypeMapper<M>
 			return match;
 		}
 		
-		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandler(
+		private <T> PersistenceLegacyTypeHandler<D, T> lookupCustomHandler(
 			final PersistenceTypeDefinition legacyTypeDefinition
 		)
 		{
-			PersistenceLegacyTypeHandler<M, T> matchingHandler = this.lookupCustomHandlerByTypeId(legacyTypeDefinition);
+			PersistenceLegacyTypeHandler<D, T> matchingHandler = this.lookupCustomHandlerByTypeId(legacyTypeDefinition);
 			if(matchingHandler == null)
 			{
 				matchingHandler = this.lookupCustomHandlerByStructure(legacyTypeDefinition);
@@ -305,7 +305,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			return matchingHandler;
 		}
 		
-		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandlerByTypeId(
+		private <T> PersistenceLegacyTypeHandler<D, T> lookupCustomHandlerByTypeId(
 			final PersistenceTypeDefinition legacyTypeDefinition
 		)
 		{
@@ -314,7 +314,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			
 			// cast safety ensured by checking the typename, which "is" the T.
 			@SuppressWarnings("unchecked")
-			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandlerbyId = (PersistenceLegacyTypeHandler<M, T>)
+			final PersistenceLegacyTypeHandler<D, T> legacyTypeHandlerbyId = (PersistenceLegacyTypeHandler<D, T>)
 				this.customTypeHandlerRegistry.legacyTypeHandlers()
 				.search(h ->
 					h.typeId() == typeId
@@ -340,7 +340,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			return legacyTypeHandlerbyId;
 		}
 		
-		private <T> PersistenceLegacyTypeHandler<M, T> lookupCustomHandlerByStructure(
+		private <T> PersistenceLegacyTypeHandler<D, T> lookupCustomHandlerByStructure(
 			final PersistenceTypeDefinition legacyTypeDefinition
 		)
 		{
@@ -349,7 +349,7 @@ public interface PersistenceLegacyTypeMapper<M>
 			
 			// cast safety ensured by checking the typename, which "is" the T.
 			@SuppressWarnings("unchecked")
-			final PersistenceLegacyTypeHandler<M, T> matchingLegacyTypeHandler = (PersistenceLegacyTypeHandler<M, T>)
+			final PersistenceLegacyTypeHandler<D, T> matchingLegacyTypeHandler = (PersistenceLegacyTypeHandler<D, T>)
 				this.customTypeHandlerRegistry.legacyTypeHandlers()
 				.search(h ->
 					(type == null || h.type() == type)
@@ -362,13 +362,13 @@ public interface PersistenceLegacyTypeMapper<M>
 		}
 		
 		@Override
-		public <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
+		public <T> PersistenceLegacyTypeHandler<D, T> ensureLegacyTypeHandler(
 			final PersistenceTypeDefinition    legacyTypeDefinition,
-			final PersistenceTypeHandler<M, T> currentTypeHandler
+			final PersistenceTypeHandler<D, T> currentTypeHandler
 		)
 		{
 			// check for a custom handler with matching structure
-			final PersistenceLegacyTypeHandler<M, T> customHandler = this.lookupCustomHandler(legacyTypeDefinition);
+			final PersistenceLegacyTypeHandler<D, T> customHandler = this.lookupCustomHandler(legacyTypeDefinition);
 			if(customHandler != null)
 			{
 				/*

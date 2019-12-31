@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -101,19 +101,19 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public final PriorityQueue<?> create(final Binary bytes, final PersistenceLoadHandler idResolver)
+	public final PriorityQueue<?> create(final Binary bytes, final PersistenceLoadHandler handler)
 	{
 		return new PriorityQueue<>(
 			bytes.getSizedArrayLength(BINARY_OFFSET_ELEMENTS),
-			getComparator(bytes, idResolver)
+			getComparator(bytes, handler)
 		);
 	}
 
 	@Override
-	public final void update(
-		final Binary                      bytes     ,
-		final PriorityQueue<?>            instance  ,
-		final PersistenceLoadHandler idResolver
+	public final void updateState(
+		final Binary                 data    ,
+		final PriorityQueue<?>       instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// instance must be cleared in case an existing one is updated
@@ -122,10 +122,10 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 		@SuppressWarnings("unchecked")
 		final Queue<Object> castedInstance = (Queue<Object>)instance;
 		
-		bytes.collectObjectReferences(
+		data.collectObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
-			X.checkArrayRange(getElementCount(bytes)),
-			idResolver,
+			X.checkArrayRange(getElementCount(data)),
+			handler,
 			e ->
 				castedInstance.add(e)
 		);
@@ -139,10 +139,10 @@ public final class BinaryHandlerPriorityQueue extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_COMPARATOR));
-		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_COMPARATOR));
+		data.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 }

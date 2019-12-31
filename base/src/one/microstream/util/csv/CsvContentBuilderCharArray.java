@@ -74,12 +74,12 @@ public final class CsvContentBuilderCharArray implements CsvContent.Builder<_cha
 	/////////////////////
 
 	@Override
-	public CsvContent build(final String name, final _charArrayRange medium)
+	public CsvContent build(final String name, final _charArrayRange data)
 	{
-		final BulkList<StringTable> tables         = new BulkList<>();
+		final BulkList<StringTable> tables         = BulkList.New();
 		final TableCollector        tableCollector = new TableCollector(tables, this.tableCreator, this.stringCache);
 
-		final CsvConfiguration effectiveConfig = this.parser.parseCsvData(this.configuration, medium, tableCollector);
+		final CsvConfiguration effectiveConfig = this.parser.parseCsvData(this.configuration, data, tableCollector);
 
 		return CsvContent.Default.NewTranslated(name, tables, effectiveConfig);
 	}

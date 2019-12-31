@@ -86,18 +86,18 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 		return this.allMembers;
 	}
 	
-	protected abstract int getOrdinal(Binary bytes);
+	protected abstract int getOrdinal(Binary data);
 	
-	protected abstract String getName(Binary bytes, PersistenceLoadHandler handler);
+	protected abstract String getName(Binary data, PersistenceLoadHandler handler);
 	
 	@Override
-	public T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		// copied from BinaryHandlerEnum#create
 		
 		// Class detour required for AIC-like special subclass enums constants.
-		final Object[] jvmEnumConstants = XReflect.getDeclaredEnumClass(this.type()).getEnumConstants();
-		final int persistentOrdinal     = this.getOrdinal(bytes);
+		final Object[] jvmEnumConstants  = XReflect.getDeclaredEnumClass(this.type()).getEnumConstants();
+		final int      persistentOrdinal = this.getOrdinal(data);
 		
 		/*
 		 * Can't validate here since the name String instance might not have been created, yet. See #update.
@@ -120,13 +120,13 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 	}
 	
 	protected void validate(
-		final Binary                 bytes   ,
+		final Binary                 data    ,
 		final T                      instance,
 		final PersistenceLoadHandler handler
 	)
 	{
 		// validate ordinal, just in case.
-		final int persistentOrdinal = this.getOrdinal(bytes);
+		final int persistentOrdinal = this.getOrdinal(data);
 		if(persistentOrdinal != instance.ordinal())
 		{
 			// (01.08.2019 TM)EXCP: proper exception
@@ -135,7 +135,7 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 			);
 		}
 		
-		final String persistentName = this.getName(bytes, handler);
+		final String persistentName = this.getName(data, handler);
 		if(!instance.name().equals(persistentName))
 		{
 			// (09.08.2019 TM)EXCP: proper exception
@@ -150,10 +150,10 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 	}
 		
 	@Override
-	public void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// must thoroughly validate the linked jvm-generated(!) instance before modifying its state!
-		this.validate(bytes, instance, handler);
+		this.validate(data, instance, handler);
 	}
 	
 }

@@ -44,15 +44,15 @@ public final class BinaryHandlerByte extends AbstractBinaryHandlerCustomValueFix
 	}
 
 	@Override
-	public void store(final Binary bytes, final Byte instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(final Binary data, final Byte instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeByte(this.typeId(), objectId, instance.byteValue());
+		data.storeByte(this.typeId(), objectId, instance.byteValue());
 	}
 
 	@Override
-	public Byte create(final Binary bytes, final PersistenceLoadHandler handler)
+	public Byte create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return bytes.buildByte();
+		return data.buildByte();
 	}
 	
 	@Override

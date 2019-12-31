@@ -25,17 +25,17 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 
 	@Override
 	public void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final T                       instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeStateless(this.typeId(), objectId);
+		data.storeStateless(this.typeId(), objectId);
 	}
 
 	@Override
-	public void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op
 	}
@@ -66,7 +66,7 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	
 	@Override
 	public final void iterateLoadableReferences(
-		final Binary                      medium  ,
+		final Binary                     data    ,
 		final PersistenceReferenceLoader iterator
 	)
 	{

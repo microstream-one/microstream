@@ -37,16 +37,16 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	
 	@SuppressWarnings("unchecked")
 	private static <E> Comparator<? super E> getComparator(
-		final Binary                 bytes  ,
+		final Binary                 data   ,
 		final PersistenceLoadHandler handler
 	)
 	{
-		return (Comparator<? super E>)handler.lookupObject(bytes.read_long(BINARY_OFFSET_COMPARATOR));
+		return (Comparator<? super E>)handler.lookupObject(data.read_long(BINARY_OFFSET_COMPARATOR));
 	}
 
-	static final int getElementCount(final Binary bytes)
+	static final int getElementCount(final Binary data)
 	{
-		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(data.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
 	
 	public static BinaryHandlerTreeSet New()
@@ -79,14 +79,14 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final TreeSet<?>              instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeIterableAsList(
+		data.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -95,22 +95,22 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 			handler
 		);
 		
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_COMPARATOR,
 			handler.apply(instance.comparator())
 		);
 	}
 	
 	@Override
-	public final TreeSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final TreeSet<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new TreeSet<>(
-			getComparator(bytes, handler)
+			getComparator(data, handler)
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final TreeSet<?> instance, final PersistenceLoadHandler handler)
+	public final void updateState(final Binary data, final TreeSet<?> instance, final PersistenceLoadHandler handler)
 	{
 		instance.clear();
 		
@@ -118,15 +118,15 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 		 * Tree collections don't use hashing, but their comparing logic still uses the elements' state,
 		 * which might not yet be available when this method is called. Hence the detour to #complete.
 		 */
-		final Object[] elementsHelper = new Object[getElementCount(bytes)];
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
-		bytes.registerHelper(instance, elementsHelper);
+		final Object[] elementsHelper = new Object[getElementCount(data)];
+		data.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);
+		data.registerHelper(instance, elementsHelper);
 	}
 	
 	@Override
-	public final void complete(final Binary bytes, final TreeSet<?> instance, final PersistenceLoadHandler handler)
+	public final void complete(final Binary data, final TreeSet<?> instance, final PersistenceLoadHandler handler)
 	{
-		OldCollections.populateCollectionFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateCollectionFromHelperArray(instance, data.getHelper(instance));
 	}
 
 	@Override
@@ -137,10 +137,10 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_COMPARATOR));
-		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_COMPARATOR));
+		data.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 }

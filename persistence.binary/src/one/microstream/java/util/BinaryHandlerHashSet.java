@@ -43,7 +43,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerSet<HashSet
 	////////////
 
 	@Override
-	public final HashSet<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final HashSet<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new HashSet<>();
 	}

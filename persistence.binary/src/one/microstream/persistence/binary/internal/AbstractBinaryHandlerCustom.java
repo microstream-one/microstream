@@ -298,7 +298,7 @@ extends BinaryTypeHandler.Abstract<T>
 	}
 
 	@Override
-	public abstract void store(Binary bytes, T instance, long objectId, PersistenceStoreHandler handler);
+	public abstract void store(Binary data, T instance, long objectId, PersistenceStoreHandler handler);
 
 	@Override
 	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)

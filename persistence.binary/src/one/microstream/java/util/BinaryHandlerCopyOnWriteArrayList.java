@@ -41,7 +41,7 @@ public final class BinaryHandlerCopyOnWriteArrayList extends AbstractBinaryHandl
 	////////////
 
 	@Override
-	public final CopyOnWriteArrayList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final CopyOnWriteArrayList<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new CopyOnWriteArrayList<>();
 	}

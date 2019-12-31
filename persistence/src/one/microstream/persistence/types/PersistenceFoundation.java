@@ -27,48 +27,48 @@ import one.microstream.util.InstanceDispatcher;
  * Hence it can be seen as a kind of "master instance" of the built persistence layer or as its "foundation".
  *
  * @author Thomas Muenz
- * @param <M>
+ * @param <D>
  */
-public interface PersistenceFoundation<M, F extends PersistenceFoundation<M, ?>>
-extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
+public interface PersistenceFoundation<D, F extends PersistenceFoundation<D, ?>>
+extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 {
 	// the pseudo-self-type F is to avoid having to override every setter in every sub class (it was really tedious)
 	
 	@Override
-	public PersistenceFoundation<M, F> Clone();
+	public PersistenceFoundation<D, F> Clone();
 
 	// (14.04.2013 TM)XXX: move dispatching aspect to separate super type
 	public InstanceDispatcherLogic getInstanceDispatcherLogic();
 	
-	public XMap<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers();
+	public XMap<Class<?>, PersistenceTypeHandler<D, ?>> customTypeHandlers();
 
-	public XMap<Class<?>, PersistenceTypeInstantiator<M, ?>> customTypeInstantiators();
+	public XMap<Class<?>, PersistenceTypeInstantiator<D, ?>> customTypeInstantiators();
 	
-	public F registerCustomTypeHandlers(HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers);
+	public F registerCustomTypeHandlers(HashTable<Class<?>, PersistenceTypeHandler<D, ?>> customTypeHandlers);
 	
 	@SuppressWarnings("unchecked")
-	public F registerCustomTypeHandlers(PersistenceTypeHandler<M, ?>... customTypeHandlers);
+	public F registerCustomTypeHandlers(PersistenceTypeHandler<D, ?>... customTypeHandlers);
 	
-	public F registerCustomTypeHandlers(Iterable<? extends PersistenceTypeHandler<M, ?>> customTypeHandlers);
+	public F registerCustomTypeHandlers(Iterable<? extends PersistenceTypeHandler<D, ?>> customTypeHandlers);
 	
-	public F registerCustomTypeHandler(PersistenceTypeHandler<M, ?> customTypeHandler);
+	public F registerCustomTypeHandler(PersistenceTypeHandler<D, ?> customTypeHandler);
 	
-	public <T> F registerCustomInstantiator(Class<T> type, PersistenceTypeInstantiator<M, T> typeInstantiator);
+	public <T> F registerCustomInstantiator(Class<T> type, PersistenceTypeInstantiator<D, T> typeInstantiator);
 	
 	public PersistenceObjectIdProvider getObjectIdProvider();
 
 	public PersistenceTypeIdProvider getTypeIdProvider();
 
 
-	public PersistenceStorer.Creator<M> getStorerCreator();
+	public PersistenceStorer.Creator<D> getStorerCreator();
 
 	public PersistenceRegisterer.Creator getRegistererCreator();
 
-	public PersistenceLoader.Creator<M> getBuilderCreator();
+	public PersistenceLoader.Creator<D> getBuilderCreator();
 
-	public PersistenceTarget<M> getPersistenceTarget();
+	public PersistenceTarget<D> getPersistenceTarget();
 
-	public PersistenceSource<M> getPersistenceSource();
+	public PersistenceSource<D> getPersistenceSource();
 	
 	public PersistenceObjectRegistry getObjectRegistry();
 
@@ -78,15 +78,15 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	
 	public PersistenceTypeManager getTypeManager();
 
-	public PersistenceTypeHandlerManager<M> getTypeHandlerManager();
+	public PersistenceTypeHandlerManager<D> getTypeHandlerManager();
 	
-	public PersistenceContextDispatcher<M> getContextDispatcher();
+	public PersistenceContextDispatcher<D> getContextDispatcher();
 
-	public PersistenceTypeHandlerProvider<M> getTypeHandlerProvider();
+	public PersistenceTypeHandlerProvider<D> getTypeHandlerProvider();
 
-	public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer();
+	public PersistenceTypeHandlerEnsurer<D> getTypeHandlerEnsurer();
 
-	public PersistenceTypeHandlerRegistry<M> getTypeHandlerRegistry();
+	public PersistenceTypeHandlerRegistry<D> getTypeHandlerRegistry();
 
 	public PersistenceTypeDictionaryManager getTypeDictionaryManager();
 	
@@ -110,7 +110,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	
 	public PersistenceTypeLineageCreator getTypeLineageCreator();
 
-	public PersistenceTypeHandlerCreator<M> getTypeHandlerCreator();
+	public PersistenceTypeHandlerCreator<D> getTypeHandlerCreator();
 
 	/**
 	 * Creates if required and returns the {@link PersistenceCustomTypeHandlerRegistry} containing all custom tailored
@@ -121,17 +121,17 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	 * 
 	 * @return the (on-demand created) {@link PersistenceCustomTypeHandlerRegistry} instance.
 	 */
-	public PersistenceCustomTypeHandlerRegistry<M> getCustomTypeHandlerRegistry();
+	public PersistenceCustomTypeHandlerRegistry<D> getCustomTypeHandlerRegistry();
 	
-	public PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer();
+	public PersistenceCustomTypeHandlerRegistryEnsurer<D> customTypeHandlerRegistryEnsurer();
 	
-	public PersistenceCustomTypeHandlerRegistryEnsurer<M> getCustomTypeHandlerRegistryEnsurer();
+	public PersistenceCustomTypeHandlerRegistryEnsurer<D> getCustomTypeHandlerRegistryEnsurer();
 
 	public PersistenceTypeAnalyzer getTypeAnalyzer();
 	
 	public PersistenceTypeResolver getTypeResolver();
 	
-	public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator();
+	public PersistenceTypeMismatchValidator<D> getTypeMismatchValidator();
 	
 	public PersistenceTypeDefinitionCreator getTypeDefinitionCreator();
 
@@ -151,13 +151,13 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	
 	public PersistenceRootResolverProvider getRootResolverProvider();
 	
-	public PersistenceRootReferenceProvider<M> getRootReferenceProvider();
+	public PersistenceRootReferenceProvider<D> getRootReferenceProvider();
 	
-	public PersistenceRootsProvider<M> getRootsProvider();
+	public PersistenceRootsProvider<D> getRootsProvider();
 	
-	public PersistenceUnreachableTypeHandlerCreator<M> getUnreachableTypeHandlerCreator();
+	public PersistenceUnreachableTypeHandlerCreator<D> getUnreachableTypeHandlerCreator();
 	
-	public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper();
+	public PersistenceLegacyTypeMapper<D> getLegacyTypeMapper();
 
 	public PersistenceRefactoringMappingProvider getRefactoringMappingProvider();
 
@@ -173,19 +173,19 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	
 	public PersistenceMemberMatchingProvider getLegacyMemberMatchingProvider();
 	
-	public PersistenceLegacyTypeMappingResultor<M> getLegacyTypeMappingResultor();
+	public PersistenceLegacyTypeMappingResultor<D> getLegacyTypeMappingResultor();
 	
-	public PersistenceLegacyTypeHandlerCreator<M> getLegacyTypeHandlerCreator();
+	public PersistenceLegacyTypeHandlerCreator<D> getLegacyTypeHandlerCreator();
 	
-	public PersistenceLegacyTypeHandlingListener<M> getLegacyTypeHandlingListener();
+	public PersistenceLegacyTypeHandlingListener<D> getLegacyTypeHandlingListener();
 	
 	public PersistenceSizedArrayLengthController getSizedArrayLengthController();
 	
 	public LambdaTypeRecognizer getLambdaTypeRecognizer();
 
-	public PersistenceInstantiator<M> getInstantiator();
+	public PersistenceInstantiator<D> getInstantiator();
 	
-	public PersistenceTypeInstantiatorProvider<M> getInstantiatorProvider();
+	public PersistenceTypeInstantiatorProvider<D> getInstantiatorProvider();
 	
 	
 	
@@ -197,33 +197,33 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public F setObjectManager(PersistenceObjectManager objectManager);
 
-	public F setStorerCreator(PersistenceStorer.Creator<M> storerCreator);
+	public F setStorerCreator(PersistenceStorer.Creator<D> storerCreator);
 
-	public F setTypeHandlerManager(PersistenceTypeHandlerManager<M> typeHandlerManager);
+	public F setTypeHandlerManager(PersistenceTypeHandlerManager<D> typeHandlerManager);
 	
-	public F setContextDispatcher(PersistenceContextDispatcher<M> contextDispatcher);
+	public F setContextDispatcher(PersistenceContextDispatcher<D> contextDispatcher);
 
 	public F setTypeManager(PersistenceTypeManager typeManager);
 
-	public F setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup);
+	public F setTypeHandlerCreatorLookup(PersistenceTypeHandlerEnsurer<D> typeHandlerCreatorLookup);
 	
-	public F setTypeHandlerCreator(PersistenceTypeHandlerCreator<M> typeHandlerCreator);
+	public F setTypeHandlerCreator(PersistenceTypeHandlerCreator<D> typeHandlerCreator);
 	
 	public F setTypeAnalyzer(PersistenceTypeAnalyzer typeAnalyzer);
 	
 	public F setTypeResolver(PersistenceTypeResolver typeResolver);
 
-	public F setTypeHandlerRegistry(PersistenceTypeHandlerRegistry<M> typeHandlerRegistry);
+	public F setTypeHandlerRegistry(PersistenceTypeHandlerRegistry<D> typeHandlerRegistry);
 
-	public F setTypeHandlerProvider(PersistenceTypeHandlerProvider<M> typeHandlerProvider);
+	public F setTypeHandlerProvider(PersistenceTypeHandlerProvider<D> typeHandlerProvider);
 
 	public F setRegistererCreator(PersistenceRegisterer.Creator registererCreator);
 
-	public F setBuilderCreator(PersistenceLoader.Creator<M> builderCreator);
+	public F setBuilderCreator(PersistenceLoader.Creator<D> builderCreator);
 
-	public F setPersistenceTarget(PersistenceTarget<M> target);
+	public F setPersistenceTarget(PersistenceTarget<D> target);
 
-	public F setPersistenceSource(PersistenceSource<M> source);
+	public F setPersistenceSource(PersistenceSource<D> source);
 
 	public F setTypeDictionaryManager(PersistenceTypeDictionaryManager typeDictionaryManager);
 	
@@ -258,7 +258,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	
 	public F setTypeLineageCreator(PersistenceTypeLineageCreator typeLineageCreator);
 	
-	public F setTypeMismatchValidator(PersistenceTypeMismatchValidator<M> typeMismatchValidator);
+	public F setTypeMismatchValidator(PersistenceTypeMismatchValidator<D> typeMismatchValidator);
 	
 	public F setTypeDescriptionBuilder(PersistenceTypeDefinitionCreator typeDefinitionCreator);
 
@@ -291,18 +291,18 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 	public F setRootResolverProvider(PersistenceRootResolverProvider rootResolverProvider);
 	
-	public F setRootReferenceProvider(PersistenceRootReferenceProvider<M> rootReferenceProvider);
+	public F setRootReferenceProvider(PersistenceRootReferenceProvider<D> rootReferenceProvider);
 		
 	public F setLambdaTypeRecognizer(LambdaTypeRecognizer lambdaTypeRecognizer);
 
-	public F setRootsProvider(PersistenceRootsProvider<M> rootsProvider);
+	public F setRootsProvider(PersistenceRootsProvider<D> rootsProvider);
 	
 	public F setUnreachableTypeHandlerCreator(
-		PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
+		PersistenceUnreachableTypeHandlerCreator<D> unreachableTypeHandlerCreator
 	);
 	
 	public F setLegacyTypeMapper(
-		PersistenceLegacyTypeMapper<M> legacyTypeMapper
+		PersistenceLegacyTypeMapper<D> legacyTypeMapper
 	);
 	
 	public F setTypeSimilarity(
@@ -331,13 +331,13 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 	public F setLegacyMemberMatchingProvider(PersistenceMemberMatchingProvider legacyMemberMatchingProvider);
 		
-	public F setLegacyTypeMappingResultor(PersistenceLegacyTypeMappingResultor<M> legacyTypeMappingResultor);
+	public F setLegacyTypeMappingResultor(PersistenceLegacyTypeMappingResultor<D> legacyTypeMappingResultor);
 	
-	public F setLegacyTypeHandlerCreator(PersistenceLegacyTypeHandlerCreator<M> legacyTypeHandlerCreator);
+	public F setLegacyTypeHandlerCreator(PersistenceLegacyTypeHandlerCreator<D> legacyTypeHandlerCreator);
 	
-	public F setLegacyTypeHandlingListener(PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener);
+	public F setLegacyTypeHandlingListener(PersistenceLegacyTypeHandlingListener<D> legacyTypeHandlingListener);
 
-	public F setPersistenceChannel(PersistenceChannel<M> persistenceChannel);
+	public F setPersistenceChannel(PersistenceChannel<D> persistenceChannel);
 	
 	public F setSizedArrayLengthController(PersistenceSizedArrayLengthController sizedArrayLengthController);
 	
@@ -348,9 +348,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	public <P extends PersistenceTypeIdProvider & PersistenceObjectIdProvider>
 	F setIdProvider(P idProvider);
 		
-	public F setInstantiator(PersistenceInstantiator<M> instantiator);
+	public F setInstantiator(PersistenceInstantiator<D> instantiator);
 	
-	public F setInstantiatorProvider(PersistenceTypeInstantiatorProvider<M> instantiatorProvider);
+	public F setInstantiatorProvider(PersistenceTypeInstantiatorProvider<D> instantiatorProvider);
 	
 	/**
 	 * Executes the passed {@link PersistenceTypeHandlerRegistration} logic while supplying this instance's
@@ -361,10 +361,10 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	 * 
 	 * @return {@literal this} to allow method chaining.
 	 */
-	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<M> typeHandlerRegistration);
+	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<D> typeHandlerRegistration);
 		
 	public F setCustomTypeHandlerRegistryEnsurer(
-		PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer
+		PersistenceCustomTypeHandlerRegistryEnsurer<D> customTypeHandlerRegistryEnsurer
 	);
 	
 
@@ -372,42 +372,42 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 	 * generic name is intentional as the role of the created instance may change in extended types
 	 * (e.g. representing a database connection)
 	 */
-	public PersistenceManager<M> createPersistenceManager();
+	public PersistenceManager<D> createPersistenceManager();
 
 
 
-	public static <M> PersistenceFoundation<M, ?> New()
+	public static <D> PersistenceFoundation<D, ?> New()
 	{
 		return new PersistenceFoundation.Default<>();
 	}
 	
-	public class Default<M, F extends PersistenceFoundation.Default<M, ?>>
+	public class Default<D, F extends PersistenceFoundation.Default<D, ?>>
 	extends InstanceDispatcher.Default
-	implements PersistenceFoundation<M, F>, Unpersistable
+	implements PersistenceFoundation<D, F>, Unpersistable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
 		// required to resolve a TypeHandlerManager dependancy loop. Must be created anew to a
-		private final Reference<PersistenceTypeHandlerManager<M>> referenceTypeHandlerManager = X.Reference(null);
+		private final Reference<PersistenceTypeHandlerManager<D>> referenceTypeHandlerManager = X.Reference(null);
 		
-		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers = HashTable.New();
+		private final HashTable<Class<?>, PersistenceTypeHandler<D, ?>> customTypeHandlers = HashTable.New();
 		
-		private final HashTable<Class<?>, PersistenceTypeInstantiator<M, ?>> customTypeInstantiators = HashTable.New();
+		private final HashTable<Class<?>, PersistenceTypeInstantiator<D, ?>> customTypeInstantiators = HashTable.New();
 
 		private PersistenceObjectManager                       objectManager                   ;
 		private PersistenceObjectIdProvider                    oidProvider                     ;
 		private PersistenceTypeIdProvider                      tidProvider                     ;
 		private PersistenceTypeRegistry                        typeRegistry                    ;
 		private PersistenceObjectRegistry                      objectRegistry                  ;
-		private PersistenceTypeHandlerManager<M>               typeHandlerManager              ;
-		private PersistenceContextDispatcher<M>                contextDispatcher               ;
-		private PersistenceStorer.Creator<M>                   storerCreator                   ;
+		private PersistenceTypeHandlerManager<D>               typeHandlerManager              ;
+		private PersistenceContextDispatcher<D>                contextDispatcher               ;
+		private PersistenceStorer.Creator<D>                   storerCreator                   ;
 		private PersistenceRegisterer.Creator                  registererCreator               ;
-		private PersistenceLoader.Creator<M>                   builderCreator                  ;
-		private PersistenceTarget<M>                           target                          ;
-		private PersistenceSource<M>                           source                          ;
+		private PersistenceLoader.Creator<D>                   builderCreator                  ;
+		private PersistenceTarget<D>                           target                          ;
+		private PersistenceSource<D>                           source                          ;
 		private PersistenceFieldLengthResolver                 fieldFixedLengthResolver        ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorPersistable       ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorEnum              ;
@@ -416,9 +416,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		// (14.09.2018 TM)NOTE: that type handling stuff grows to a size where it could use its own foundation.
 		private PersistenceTypeManager                         typeManager                     ;
-		private PersistenceTypeHandlerEnsurer<M>               typeHandlerEnsurer              ;
-		private PersistenceTypeHandlerRegistry<M>              typeHandlerRegistry             ;
-		private PersistenceTypeHandlerProvider<M>              typeHandlerProvider             ;
+		private PersistenceTypeHandlerEnsurer<D>               typeHandlerEnsurer              ;
+		private PersistenceTypeHandlerRegistry<D>              typeHandlerRegistry             ;
+		private PersistenceTypeHandlerProvider<D>              typeHandlerProvider             ;
 		private PersistenceTypeDictionaryManager               typeDictionaryManager           ;
 		private PersistenceTypeDictionaryCreator               typeDictionaryCreator           ;
 		private PersistenceTypeDictionaryProvider              typeDictionaryProvider          ;
@@ -430,34 +430,34 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceTypeDictionaryAssembler             typeDictionaryAssembler         ;
 		private PersistenceTypeDictionaryStorer                typeDictionaryStorer            ;
 		private PersistenceTypeLineageCreator                  typeLineageCreator              ;
-		private PersistenceTypeHandlerCreator<M>               typeHandlerCreator              ;
+		private PersistenceTypeHandlerCreator<D>               typeHandlerCreator              ;
 		private PersistenceTypeAnalyzer                        typeAnalyzer                    ;
 		private PersistenceTypeResolver                        typeResolver                    ;
-		private PersistenceTypeMismatchValidator<M>            typeMismatchValidator           ;
+		private PersistenceTypeMismatchValidator<D>            typeMismatchValidator           ;
 		private PersistenceTypeDefinitionCreator               typeDefinitionCreator           ;
 		private PersistenceTypeEvaluator                       typeEvaluatorPersistable        ;
 		private LambdaTypeRecognizer                           lambdaTypeRecognizer            ;
 		private PersistenceSizedArrayLengthController          sizedArrayLengthController      ;
-		private PersistenceInstantiator<M>                     instantiator                    ;
-		private PersistenceTypeInstantiatorProvider<M>         instantiatorProvider            ;
-		private PersistenceCustomTypeHandlerRegistry<M>        customTypeHandlerRegistry       ;
-		private PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer;
+		private PersistenceInstantiator<D>                     instantiator                    ;
+		private PersistenceTypeInstantiatorProvider<D>         instantiatorProvider            ;
+		private PersistenceCustomTypeHandlerRegistry<D>        customTypeHandlerRegistry       ;
+		private PersistenceCustomTypeHandlerRegistryEnsurer<D> customTypeHandlerRegistryEnsurer;
 		private BufferSizeProviderIncremental                  bufferSizeProvider              ;
 		private PersistenceRootResolverProvider                rootResolverProvider            ;
-		private PersistenceRootsProvider<M>                    rootsProvider                   ;
-		private PersistenceRootReferenceProvider<M>            rootReferenceProvider           ;
+		private PersistenceRootsProvider<D>                    rootsProvider                   ;
+		private PersistenceRootReferenceProvider<D>            rootReferenceProvider           ;
 		private ByteOrder                                      targetByteOrder                 ;
 		
 		// (14.09.2018 TM)NOTE: that legacy mapping stuff grows to a size where it could use its own foundation.
-		private PersistenceUnreachableTypeHandlerCreator<M>    unreachableTypeHandlerCreator   ;
-		private PersistenceLegacyTypeMapper<M>                 legacyTypeMapper                ;
+		private PersistenceUnreachableTypeHandlerCreator<D>    unreachableTypeHandlerCreator   ;
+		private PersistenceLegacyTypeMapper<D>                 legacyTypeMapper                ;
 		private PersistenceRefactoringMappingProvider          refactoringMappingProvider      ;
 		private PersistenceTypeDescriptionResolverProvider     typeDescriptionResolverProvider ;
 		private TypeMapping<Float>                             typeSimilarity                  ;
 		private PersistenceMemberMatchingProvider              legacyMemberMatchingProvider    ;
-		private PersistenceLegacyTypeMappingResultor<M>        legacyTypeMappingResultor       ;
-		private PersistenceLegacyTypeHandlerCreator<M>         legacyTypeHandlerCreator        ;
-		private PersistenceLegacyTypeHandlingListener<M>       legacyTypeHandlingListener      ;
+		private PersistenceLegacyTypeMappingResultor<D>        legacyTypeMappingResultor       ;
+		private PersistenceLegacyTypeHandlerCreator<D>         legacyTypeHandlerCreator        ;
+		private PersistenceLegacyTypeHandlingListener<D>       legacyTypeHandlingListener      ;
 
 		private XEnum<? extends PersistenceRefactoringTypeIdentifierBuilder>   refactoringLegacyTypeIdentifierBuilders   ;
 		private XEnum<? extends PersistenceRefactoringMemberIdentifierBuilder> refactoringLegacyMemberIdentifierBuilders ;
@@ -487,7 +487,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceFoundation.Default<M, F> Clone()
+		public PersistenceFoundation.Default<D, F> Clone()
 		{
 			return new PersistenceFoundation.Default<>();
 		}
@@ -498,20 +498,20 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		/////////////////////////////////////////////////////
 		
 		@Override
-		public XMap<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers()
+		public XMap<Class<?>, PersistenceTypeHandler<D, ?>> customTypeHandlers()
 		{
 			return this.customTypeHandlers;
 		}
 
 		@Override
-		public PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer()
+		public PersistenceCustomTypeHandlerRegistryEnsurer<D> customTypeHandlerRegistryEnsurer()
 		{
 			return this.customTypeHandlerRegistryEnsurer;
 		}
 		
 		@Override
 		public synchronized F registerCustomTypeHandlers(
-			final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> customTypeHandlers
+			final HashTable<Class<?>, PersistenceTypeHandler<D, ?>> customTypeHandlers
 		)
 		{
 			this.customTypeHandlers.putAll(customTypeHandlers);
@@ -521,10 +521,10 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		@Override
 		@SuppressWarnings("unchecked")
 		public synchronized F registerCustomTypeHandlers(
-			 final PersistenceTypeHandler<M, ?>... customTypeHandlers
+			 final PersistenceTypeHandler<D, ?>... customTypeHandlers
 		)
 		{
-			for(final PersistenceTypeHandler<M, ?> customTypeHandler : customTypeHandlers)
+			for(final PersistenceTypeHandler<D, ?> customTypeHandler : customTypeHandlers)
 			{
 				this.registerCustomTypeHandler(customTypeHandler);
 			}
@@ -534,10 +534,10 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		@Override
 		public synchronized F registerCustomTypeHandlers(
-			 final Iterable<? extends PersistenceTypeHandler<M, ?>> customTypeHandlers
+			 final Iterable<? extends PersistenceTypeHandler<D, ?>> customTypeHandlers
 		)
 		{
-			for(final PersistenceTypeHandler<M, ?> customTypeHandler : customTypeHandlers)
+			for(final PersistenceTypeHandler<D, ?> customTypeHandler : customTypeHandlers)
 			{
 				this.registerCustomTypeHandler(customTypeHandler);
 			}
@@ -547,7 +547,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		@Override
 		public synchronized F registerCustomTypeHandler(
-			final PersistenceTypeHandler<M, ?> customTypeHandler
+			final PersistenceTypeHandler<D, ?> customTypeHandler
 		)
 		{
 			this.customTypeHandlers.put(customTypeHandler.type(), customTypeHandler);
@@ -555,7 +555,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public XMap<Class<?>, PersistenceTypeInstantiator<M, ?>> customTypeInstantiators()
+		public XMap<Class<?>, PersistenceTypeInstantiator<D, ?>> customTypeInstantiators()
 		{
 			return this.customTypeInstantiators;
 		}
@@ -563,7 +563,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		@Override
 		public synchronized <T> F registerCustomInstantiator(
 			final Class<T>                          type            ,
-			final PersistenceTypeInstantiator<M, T> typeInstantiator
+			final PersistenceTypeInstantiator<D, T> typeInstantiator
 		)
 		{
 			this.customTypeInstantiators.put(type, typeInstantiator);
@@ -582,7 +582,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return this.getInstanceDispatcherLogic();
 		}
 		
-		protected Reference<PersistenceTypeHandlerManager<M>> referenceTypeHandlerManager()
+		protected Reference<PersistenceTypeHandlerManager<D>> referenceTypeHandlerManager()
 		{
 			return this.referenceTypeHandlerManager;
 		}
@@ -652,7 +652,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceTypeHandlerManager<M> getTypeHandlerManager()
+		public PersistenceTypeHandlerManager<D> getTypeHandlerManager()
 		{
 			if(this.typeHandlerManager == null)
 			{
@@ -665,7 +665,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceContextDispatcher<M> getContextDispatcher()
+		public PersistenceContextDispatcher<D> getContextDispatcher()
 		{
 			if(this.contextDispatcher == null)
 			{
@@ -676,7 +676,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceStorer.Creator<M> getStorerCreator()
+		public PersistenceStorer.Creator<D> getStorerCreator()
 		{
 			if(this.storerCreator == null)
 			{
@@ -698,7 +698,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceLoader.Creator<M> getBuilderCreator()
+		public PersistenceLoader.Creator<D> getBuilderCreator()
 		{
 			if(this.builderCreator == null)
 			{
@@ -709,7 +709,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceTarget<M> getPersistenceTarget()
+		public PersistenceTarget<D> getPersistenceTarget()
 		{
 			if(this.target == null)
 			{
@@ -720,7 +720,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceSource<M> getPersistenceSource()
+		public PersistenceSource<D> getPersistenceSource()
 		{
 			if(this.source == null)
 			{
@@ -731,7 +731,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceTypeHandlerRegistry<M> getTypeHandlerRegistry()
+		public PersistenceTypeHandlerRegistry<D> getTypeHandlerRegistry()
 		{
 			if(this.typeHandlerRegistry == null)
 			{
@@ -742,7 +742,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceTypeHandlerProvider<M> getTypeHandlerProvider()
+		public PersistenceTypeHandlerProvider<D> getTypeHandlerProvider()
 		{
 			if(this.typeHandlerProvider == null)
 			{
@@ -764,7 +764,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceTypeHandlerEnsurer<M> getTypeHandlerEnsurer()
+		public PersistenceTypeHandlerEnsurer<D> getTypeHandlerEnsurer()
 		{
 			if(this.typeHandlerEnsurer == null)
 			{
@@ -885,7 +885,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceTypeHandlerCreator<M> getTypeHandlerCreator()
+		public PersistenceTypeHandlerCreator<D> getTypeHandlerCreator()
 		{
 			if(this.typeHandlerCreator == null)
 			{
@@ -896,7 +896,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceCustomTypeHandlerRegistry<M> getCustomTypeHandlerRegistry()
+		public PersistenceCustomTypeHandlerRegistry<D> getCustomTypeHandlerRegistry()
 		{
 			if(this.customTypeHandlerRegistry == null)
 			{
@@ -907,7 +907,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceCustomTypeHandlerRegistryEnsurer<M> getCustomTypeHandlerRegistryEnsurer()
+		public PersistenceCustomTypeHandlerRegistryEnsurer<D> getCustomTypeHandlerRegistryEnsurer()
 		{
 			if(this.customTypeHandlerRegistryEnsurer == null)
 			{
@@ -942,7 +942,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceTypeMismatchValidator<M> getTypeMismatchValidator()
+		public PersistenceTypeMismatchValidator<D> getTypeMismatchValidator()
 		{
 			if(this.typeMismatchValidator == null)
 			{
@@ -1052,7 +1052,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceRootReferenceProvider<M> getRootReferenceProvider()
+		public PersistenceRootReferenceProvider<D> getRootReferenceProvider()
 		{
 			if(this.rootReferenceProvider == null)
 			{
@@ -1063,7 +1063,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceUnreachableTypeHandlerCreator<M> getUnreachableTypeHandlerCreator()
+		public PersistenceUnreachableTypeHandlerCreator<D> getUnreachableTypeHandlerCreator()
 		{
 			if(this.unreachableTypeHandlerCreator == null)
 			{
@@ -1074,7 +1074,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceLegacyTypeMapper<M> getLegacyTypeMapper()
+		public PersistenceLegacyTypeMapper<D> getLegacyTypeMapper()
 		{
 			if(this.legacyTypeMapper == null)
 			{
@@ -1162,7 +1162,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 				
 		@Override
-		public PersistenceLegacyTypeMappingResultor<M> getLegacyTypeMappingResultor()
+		public PersistenceLegacyTypeMappingResultor<D> getLegacyTypeMappingResultor()
 		{
 			if(this.legacyTypeMappingResultor == null)
 			{
@@ -1173,7 +1173,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceLegacyTypeHandlerCreator<M> getLegacyTypeHandlerCreator()
+		public PersistenceLegacyTypeHandlerCreator<D> getLegacyTypeHandlerCreator()
 		{
 			if(this.legacyTypeHandlerCreator == null)
 			{
@@ -1184,7 +1184,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceLegacyTypeHandlingListener<M> getLegacyTypeHandlingListener()
+		public PersistenceLegacyTypeHandlingListener<D> getLegacyTypeHandlingListener()
 		{
 			if(this.legacyTypeHandlingListener == null)
 			{
@@ -1217,7 +1217,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
-		public PersistenceRootsProvider<M> getRootsProvider()
+		public PersistenceRootsProvider<D> getRootsProvider()
 		{
 			if(this.rootsProvider == null)
 			{
@@ -1227,14 +1227,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceInstantiator<M> getInstantiator()
+		public PersistenceInstantiator<D> getInstantiator()
 		{
 			// this is just a getter, not an on demand provider method. See #getInstantiatorProvider for that.
 			return this.instantiator;
 		}
 		
 		@Override
-		public PersistenceTypeInstantiatorProvider<M> getInstantiatorProvider()
+		public PersistenceTypeInstantiatorProvider<D> getInstantiatorProvider()
 		{
 			if(this.instantiatorProvider == null)
 			{
@@ -1304,7 +1304,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		@Override
 		public F setStorerCreator(
-			final PersistenceStorer.Creator<M> storerCreator
+			final PersistenceStorer.Creator<D> storerCreator
 		)
 		{
 			this.storerCreator = storerCreator;
@@ -1313,7 +1313,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		@Override
 		public F setTypeHandlerCreatorLookup(
-			final PersistenceTypeHandlerEnsurer<M> typeHandlerCreatorLookup
+			final PersistenceTypeHandlerEnsurer<D> typeHandlerCreatorLookup
 		)
 		{
 			this.typeHandlerEnsurer = typeHandlerCreatorLookup;
@@ -1322,7 +1322,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		@Override
 		public F setTypeHandlerCreator(
-			final PersistenceTypeHandlerCreator<M> typeHandlerCreator
+			final PersistenceTypeHandlerCreator<D> typeHandlerCreator
 		)
 		{
 			this.typeHandlerCreator = typeHandlerCreator;
@@ -1345,7 +1345,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		@Override
 		public F setTypeHandlerManager(
-			final PersistenceTypeHandlerManager<M> typeHandlerManager
+			final PersistenceTypeHandlerManager<D> typeHandlerManager
 		)
 		{
 			this.internalSetTypeHandlerManager(typeHandlerManager);
@@ -1353,7 +1353,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		private void internalSetTypeHandlerManager(
-			final PersistenceTypeHandlerManager<M> typeHandlerManager
+			final PersistenceTypeHandlerManager<D> typeHandlerManager
 		)
 		{
 			synchronized(this.referenceTypeHandlerManager)
@@ -1365,7 +1365,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		@Override
 		public F setContextDispatcher(
-			final PersistenceContextDispatcher<M> contextDispatcher
+			final PersistenceContextDispatcher<D> contextDispatcher
 		)
 		{
 			this.contextDispatcher = contextDispatcher;
@@ -1399,7 +1399,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		@Override
 		public F setTypeHandlerRegistry(
-			final PersistenceTypeHandlerRegistry<M> typeHandlerRegistry
+			final PersistenceTypeHandlerRegistry<D> typeHandlerRegistry
 		)
 		{
 			this.typeHandlerRegistry = typeHandlerRegistry;
@@ -1408,7 +1408,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		@Override
 		public F setTypeHandlerProvider(
-			final PersistenceTypeHandlerProvider<M> typeHandlerProvider
+			final PersistenceTypeHandlerProvider<D> typeHandlerProvider
 		)
 		{
 			this.typeHandlerProvider = typeHandlerProvider;
@@ -1426,7 +1426,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		@Override
 		public F setBuilderCreator(
-			final PersistenceLoader.Creator<M> builderCreator
+			final PersistenceLoader.Creator<D> builderCreator
 		)
 		{
 			this.builderCreator = builderCreator;
@@ -1435,7 +1435,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		@Override
 		public F setPersistenceTarget(
-			final PersistenceTarget<M> target
+			final PersistenceTarget<D> target
 		)
 		{
 			this.target = target;
@@ -1444,7 +1444,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		@Override
 		public F setPersistenceSource(
-			final PersistenceSource<M> source
+			final PersistenceSource<D> source
 		)
 		{
 			this.source = source;
@@ -1452,7 +1452,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public F setPersistenceChannel(final PersistenceChannel<M> persistenceChannel)
+		public F setPersistenceChannel(final PersistenceChannel<D> persistenceChannel)
 		{
 			this.setPersistenceSource(persistenceChannel);
 			this.setPersistenceTarget(persistenceChannel);
@@ -1577,7 +1577,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		@Override
 		public F setTypeMismatchValidator(
-			final PersistenceTypeMismatchValidator<M> typeMismatchValidator
+			final PersistenceTypeMismatchValidator<D> typeMismatchValidator
 		)
 		{
 			this.typeMismatchValidator = typeMismatchValidator;
@@ -1664,7 +1664,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public F setRootReferenceProvider(final PersistenceRootReferenceProvider<M> rootReferenceProvider)
+		public F setRootReferenceProvider(final PersistenceRootReferenceProvider<D> rootReferenceProvider)
 		{
 			this.rootReferenceProvider = rootReferenceProvider;
 			return this.$();
@@ -1681,7 +1681,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 
 		@Override
 		public F setRootsProvider(
-			final PersistenceRootsProvider<M> rootsProvider
+			final PersistenceRootsProvider<D> rootsProvider
 		)
 		{
 			this.rootsProvider = rootsProvider;
@@ -1690,7 +1690,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		@Override
 		public F setUnreachableTypeHandlerCreator(
-			final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator
+			final PersistenceUnreachableTypeHandlerCreator<D> unreachableTypeHandlerCreator
 		)
 		{
 			this.unreachableTypeHandlerCreator = unreachableTypeHandlerCreator;
@@ -1699,7 +1699,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		@Override
 		public F setLegacyTypeMapper(
-			final PersistenceLegacyTypeMapper<M> legacyTypeMapper
+			final PersistenceLegacyTypeMapper<D> legacyTypeMapper
 		)
 		{
 			this.legacyTypeMapper = legacyTypeMapper;
@@ -1769,7 +1769,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 				
 		@Override
 		public F setLegacyTypeMappingResultor(
-			final PersistenceLegacyTypeMappingResultor<M> legacyTypeMappingResultor
+			final PersistenceLegacyTypeMappingResultor<D> legacyTypeMappingResultor
 		)
 		{
 			this.legacyTypeMappingResultor = legacyTypeMappingResultor;
@@ -1778,7 +1778,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		@Override
 		public F setLegacyTypeHandlerCreator(
-			final PersistenceLegacyTypeHandlerCreator<M> legacyTypeHandlerCreator
+			final PersistenceLegacyTypeHandlerCreator<D> legacyTypeHandlerCreator
 		)
 		{
 			this.legacyTypeHandlerCreator = legacyTypeHandlerCreator;
@@ -1787,7 +1787,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		@Override
 		public F setLegacyTypeHandlingListener(
-			final PersistenceLegacyTypeHandlingListener<M> legacyTypeHandlingListener
+			final PersistenceLegacyTypeHandlingListener<D> legacyTypeHandlingListener
 		)
 		{
 			this.legacyTypeHandlingListener = legacyTypeHandlingListener;
@@ -1795,14 +1795,14 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public F setInstantiator(final PersistenceInstantiator<M> instantiator)
+		public F setInstantiator(final PersistenceInstantiator<D> instantiator)
 		{
 			this.instantiator = instantiator;
 			return this.$();
 		}
 		
 		@Override
-		public F setInstantiatorProvider(final PersistenceTypeInstantiatorProvider<M> instantiatorProvider)
+		public F setInstantiatorProvider(final PersistenceTypeInstantiatorProvider<D> instantiatorProvider)
 		{
 			this.instantiatorProvider = instantiatorProvider;
 			return this.$();
@@ -1817,7 +1817,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		
 		@Override
 		public F setCustomTypeHandlerRegistryEnsurer(
-			final PersistenceCustomTypeHandlerRegistryEnsurer<M> customTypeHandlerRegistryEnsurer
+			final PersistenceCustomTypeHandlerRegistryEnsurer<D> customTypeHandlerRegistryEnsurer
 		)
 		{
 			this.customTypeHandlerRegistryEnsurer = customTypeHandlerRegistryEnsurer;
@@ -1891,9 +1891,9 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return newTypeManager;
 		}
 
-		protected PersistenceTypeHandlerManager<M> ensureTypeHandlerManager()
+		protected PersistenceTypeHandlerManager<D> ensureTypeHandlerManager()
 		{
-			final PersistenceTypeHandlerManager<M> newTypeHandlerManager =
+			final PersistenceTypeHandlerManager<D> newTypeHandlerManager =
 				PersistenceTypeHandlerManager.New(
 					this.getTypeHandlerRegistry()          , // holds actually used (potentially generically created) handlers
 					this.getTypeHandlerProvider()          , // knows/contains the Custom~Registry w. default handlers/definitions
@@ -1907,7 +1907,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return newTypeHandlerManager;
 		}
 		
-		protected PersistenceContextDispatcher<M> ensureContextDispatcher()
+		protected PersistenceContextDispatcher<D> ensureContextDispatcher()
 		{
 			return PersistenceContextDispatcher.PassThrough();
 		}
@@ -1917,16 +1917,16 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return new PersistenceRegisterer.Default.Creator();
 		}
 
-		protected PersistenceTypeHandlerRegistry<M> ensureTypeHandlerRegistry()
+		protected PersistenceTypeHandlerRegistry<D> ensureTypeHandlerRegistry()
 		{
 			// note: sub class should/must register native type handlers in an overridden version of this method
-			final PersistenceTypeHandlerRegistry<M> newTypeHandlerRegistry =
+			final PersistenceTypeHandlerRegistry<D> newTypeHandlerRegistry =
 				new PersistenceTypeHandlerRegistry.Default<>(this.getTypeRegistry())
 			;
 			return newTypeHandlerRegistry;
 		}
 
-		protected PersistenceTypeHandlerProvider<M> ensureTypeHandlerProvider()
+		protected PersistenceTypeHandlerProvider<D> ensureTypeHandlerProvider()
 		{
 			return PersistenceTypeHandlerProviderCreating.New(
 				this.getTypeManager(),
@@ -2010,7 +2010,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return PersistenceTypeResolver.Default();
 		}
 
-		protected PersistenceTypeHandlerEnsurer<M> ensureTypeHandlerEnsurer()
+		protected PersistenceTypeHandlerEnsurer<D> ensureTypeHandlerEnsurer()
 		{
 			return PersistenceTypeHandlerEnsurer.New(
 				this.getCustomTypeHandlerRegistry(),
@@ -2035,7 +2035,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			);
 		}
 		
-		protected PersistenceTypeMismatchValidator<M> ensureTypeMismatchValidator()
+		protected PersistenceTypeMismatchValidator<D> ensureTypeMismatchValidator()
 		{
 			// (13.09.2018 TM)NOTE: changed for Legacy Type Mapping. Still a valid callback for monitoring purposes.
 			return Persistence.typeMismatchValidatorNoOp();
@@ -2077,12 +2077,12 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return Persistence.defaultReferenceFieldEagerEvaluator();
 		}
 		
-		protected PersistenceUnreachableTypeHandlerCreator<M> ensureUnreachableTypeHandlerCreator()
+		protected PersistenceUnreachableTypeHandlerCreator<D> ensureUnreachableTypeHandlerCreator()
 		{
 			return PersistenceUnreachableTypeHandlerCreator.New();
 		}
 		
-		protected PersistenceLegacyTypeMapper<M> ensureLegacyTypeMapper()
+		protected PersistenceLegacyTypeMapper<D> ensureLegacyTypeMapper()
 		{
 			return PersistenceLegacyTypeMapper.New(
 				this.getTypeDescriptionResolverProvider() ,
@@ -2136,18 +2136,18 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return PersistenceMemberMatchingProvider.New();
 		}
 				
-		protected PersistenceLegacyTypeMappingResultor<M> ensureLegacyTypeMappingResultor()
+		protected PersistenceLegacyTypeMappingResultor<D> ensureLegacyTypeMappingResultor()
 		{
 			// default is silent, which is dangerous when heuristics are in play. Should be wrapped by the user.
 			return PersistenceLegacyTypeMappingResultor.New();
 		}
 		
-		protected PersistenceLegacyTypeHandlerCreator<M> ensureLegacyTypeHandlerCreator()
+		protected PersistenceLegacyTypeHandlerCreator<D> ensureLegacyTypeHandlerCreator()
 		{
 			throw new MissingFoundationPartException(PersistenceLegacyTypeHandlerCreator.class);
 		}
 		
-		protected PersistenceLegacyTypeHandlingListener<M> ensureLegacyTypeHandlingListener()
+		protected PersistenceLegacyTypeHandlingListener<D> ensureLegacyTypeHandlingListener()
 		{
 			/*
 			 * this listener is purely optional, so by default, nothing is created.
@@ -2169,22 +2169,22 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		 * throw an exception if neither implementation nor set instance is available.
 		 */
 
-		protected PersistenceStorer.Creator<M> ensureStorerCreator()
+		protected PersistenceStorer.Creator<D> ensureStorerCreator()
 		{
 			throw new MissingFoundationPartException(PersistenceStorer.Creator.class);
 		}
 
-		protected PersistenceLoader.Creator<M> ensureBuilderCreator()
+		protected PersistenceLoader.Creator<D> ensureBuilderCreator()
 		{
 			throw new MissingFoundationPartException(PersistenceLoader.Creator.class);
 		}
 
-		protected PersistenceTarget<M> ensurePersistenceTarget()
+		protected PersistenceTarget<D> ensurePersistenceTarget()
 		{
 			throw new MissingFoundationPartException(PersistenceTarget.class);
 		}
 
-		protected PersistenceSource<M> ensurePersistenceSource()
+		protected PersistenceSource<D> ensurePersistenceSource()
 		{
 			throw new MissingFoundationPartException(PersistenceSource.class);
 		}
@@ -2199,17 +2199,17 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			throw new MissingFoundationPartException(PersistenceTypeDictionaryStorer.class);
 		}
 
-		protected PersistenceTypeHandlerCreator<M> ensureTypeHandlerCreator()
+		protected PersistenceTypeHandlerCreator<D> ensureTypeHandlerCreator()
 		{
 			throw new MissingFoundationPartException(PersistenceTypeHandlerCreator.class);
 		}
 
-		protected PersistenceCustomTypeHandlerRegistry<M> ensureCustomTypeHandlerRegistry()
+		protected PersistenceCustomTypeHandlerRegistry<D> ensureCustomTypeHandlerRegistry()
 		{
 			throw new MissingFoundationPartException(PersistenceCustomTypeHandlerRegistry.class);
 		}
 		
-		protected PersistenceCustomTypeHandlerRegistryEnsurer<M> ensureCustomTypeHandlerRegistryEnsurer(
+		protected PersistenceCustomTypeHandlerRegistryEnsurer<D> ensureCustomTypeHandlerRegistryEnsurer(
 			final F foundation
 		)
 		{
@@ -2239,19 +2239,19 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return resolverProvider;
 		}
 		
-		protected PersistenceRootReferenceProvider<M> ensureRootReferenceProvider()
+		protected PersistenceRootReferenceProvider<D> ensureRootReferenceProvider()
 		{
 			throw new MissingFoundationPartException(PersistenceRootReferenceProvider.class);
 		}
 		
-		protected PersistenceRootsProvider<M> ensureRootsProviderInternal()
+		protected PersistenceRootsProvider<D> ensureRootsProviderInternal()
 		{
 			throw new MissingFoundationPartException(PersistenceRootsProvider.class);
 		}
 
-		protected PersistenceRootsProvider<M> ensureRootsProvider()
+		protected PersistenceRootsProvider<D> ensureRootsProvider()
 		{
-			final PersistenceRootsProvider<M> rootsProvider = this.ensureRootsProviderInternal();
+			final PersistenceRootsProvider<D> rootsProvider = this.ensureRootsProviderInternal();
 			rootsProvider.registerRootsTypeHandlerCreator(
 				this.getCustomTypeHandlerRegistry(),
 				this.getObjectRegistry()
@@ -2260,7 +2260,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			return rootsProvider;
 		}
 		
-		protected PersistenceInstantiator<M> ensureInstantiator()
+		protected PersistenceInstantiator<D> ensureInstantiator()
 		{
 			return this.instantiator != null
 				? this.instantiator
@@ -2268,7 +2268,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 			;
 		}
 		
-		protected PersistenceTypeInstantiatorProvider<M> ensureInstantiatorProvider()
+		protected PersistenceTypeInstantiatorProvider<D> ensureInstantiatorProvider()
 		{
 			// empty table check done inside (constructor method concern)
 			return PersistenceTypeInstantiatorProvider.New(
@@ -2294,7 +2294,7 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		////////////
 
 		@Override
-		public F executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<M> typeHandlerRegistration)
+		public F executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<D> typeHandlerRegistration)
 		{
 			typeHandlerRegistration.registerTypeHandlers(
 				this.getCustomTypeHandlerRegistry(),
@@ -2305,12 +2305,12 @@ extends Cloneable<PersistenceFoundation<M, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
-		public PersistenceManager<M> createPersistenceManager()
+		public PersistenceManager<D> createPersistenceManager()
 		{
-			final PersistenceTypeHandlerManager<M> typeHandlerManager = this.getTypeHandlerManager();
+			final PersistenceTypeHandlerManager<D> typeHandlerManager = this.getTypeHandlerManager();
 			typeHandlerManager.initialize(); // initialize type handlers (i.e. import/validate type dictionary)
 
-			final PersistenceManager<M> newPersistenceManager =
+			final PersistenceManager<D> newPersistenceManager =
 				new PersistenceManager.Default<>(
 					this.getObjectRegistry(),
 					this.getObjectManager(),

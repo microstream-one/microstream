@@ -6,7 +6,7 @@ import java.nio.channels.SocketChannel;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.network.exceptions.NetworkExceptionConnectionValidation;
 
-public interface NetworkSession<M>
+public interface NetworkSession<D>
 {
 	public SocketChannel channel();
 
@@ -18,7 +18,7 @@ public interface NetworkSession<M>
 
 	public boolean needsProcessing() throws IORuntimeException;
 
-	public M readMessage();
+	public D readMessage();
 
 
 
@@ -34,7 +34,7 @@ public interface NetworkSession<M>
 
 
 
-	public abstract class Abstract<M> implements NetworkSession<M>
+	public abstract class Abstract<D> implements NetworkSession<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -66,7 +66,7 @@ public interface NetworkSession<M>
 			this.lastTouched = System.currentTimeMillis();
 		}
 
-		protected abstract M internalReadMessage();
+		protected abstract D internalReadMessage();
 
 		protected abstract boolean internalNeedsProcessing() throws IORuntimeException;
 
@@ -138,7 +138,7 @@ public interface NetworkSession<M>
 		}
 
 		@Override
-		public synchronized M readMessage()
+		public synchronized D readMessage()
 		{
 			this.readingThread = Thread.currentThread();
 			this.touch();

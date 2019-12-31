@@ -40,19 +40,19 @@ public final class BinaryHandlerString extends AbstractBinaryHandlerCustomValueV
 
 	@Override
 	public void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final String                  instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeStringValue(this.typeId(), objectId, instance);
+		data.storeStringValue(this.typeId(), objectId, instance);
 	}
 
 	@Override
-	public String create(final Binary bytes, final PersistenceLoadHandler handler)
+	public String create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return bytes.buildString();
+		return data.buildString();
 	}
 	
 	@Override

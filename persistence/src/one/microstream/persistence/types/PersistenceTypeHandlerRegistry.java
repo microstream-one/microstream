@@ -11,17 +11,17 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerCon
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyConflictedTypeId;
 import one.microstream.reflect.XReflect;
 
-public interface PersistenceTypeHandlerRegistry<M>
-extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTypeHandlerIterable<M>
+public interface PersistenceTypeHandlerRegistry<D>
+extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTypeHandlerIterable<D>
 {
-	public boolean registerTypeHandler(PersistenceTypeHandler<M, ?> typeHandler);
+	public boolean registerTypeHandler(PersistenceTypeHandler<D, ?> typeHandler);
 	
-	public boolean registerLegacyTypeHandler(PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler);
+	public boolean registerLegacyTypeHandler(PersistenceLegacyTypeHandler<D, ?> legacyTypeHandler);
 	
 	
 	
 
-	public static <M> PersistenceTypeHandlerRegistry.Default<M> New(
+	public static <D> PersistenceTypeHandlerRegistry.Default<D> New(
 		final PersistenceTypeRegistry typeRegistry
 	)
 	{
@@ -30,7 +30,7 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 		);
 	}
 
-	public final class Default<M> implements PersistenceTypeHandlerRegistry<M>
+	public final class Default<D> implements PersistenceTypeHandlerRegistry<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -38,8 +38,8 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 
 		private final PersistenceTypeRegistry typeRegistry;
 
-		private final MiniMap<Class<?>, PersistenceTypeHandler<M, ?>> handlersByType   = new MiniMap<>();
-		private final HashMapIdObject<PersistenceTypeHandler<M, ?>>   handlersByTypeId = HashMapIdObject.New();
+		private final MiniMap<Class<?>, PersistenceTypeHandler<D, ?>> handlersByType   = new MiniMap<>();
+		private final HashMapIdObject<PersistenceTypeHandler<D, ?>>   handlersByTypeId = HashMapIdObject.New();
 
 
 
@@ -73,19 +73,19 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 
 		@SuppressWarnings("unchecked") // cast type safety guaranteed by management logic
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final Class<T> type)
+		public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(final Class<T> type)
 		{
-			return (PersistenceTypeHandler<M, T>)this.handlersByType.get(type);
+			return (PersistenceTypeHandler<D, T>)this.handlersByType.get(type);
 		}
 
 		@Override
-		public PersistenceTypeHandler<M, ?> lookupTypeHandler(final long typeId)
+		public PersistenceTypeHandler<D, ?> lookupTypeHandler(final long typeId)
 		{
 			return this.handlersByTypeId.get(typeId);
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final T instance)
+		public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(final T instance)
 		{
 			// standard registry does not consider actual objects
 			return this.lookupTypeHandler(XReflect.getClass(instance));
@@ -118,7 +118,7 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 		}
 
 		@Override
-		public boolean registerTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
+		public boolean registerTypeHandler(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
 			synchronized(this.handlersByType)
 			{
@@ -127,7 +127,7 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 				this.typeRegistry.registerType(tid, type); // first ensure consistency of tid<->type combination
 
 				// check if handler is already registered for type
-				PersistenceTypeHandler<M, ?> actualHandler;
+				PersistenceTypeHandler<D, ?> actualHandler;
 				if((actualHandler = this.handlersByType.get(type)) != null)
 				{
 					if(actualHandler != typeHandler)
@@ -154,9 +154,9 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 			}
 		}
 		
-		private boolean synchCheckByTypeId(final PersistenceTypeHandler<M, ?> typeHandler)
+		private boolean synchCheckByTypeId(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
-			final PersistenceTypeHandler<M, ?> actualHandler;
+			final PersistenceTypeHandler<D, ?> actualHandler;
 			if((actualHandler = this.handlersByTypeId.get(typeHandler.typeId())) != null)
 			{
 				if(actualHandler != typeHandler)
@@ -176,7 +176,7 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 		
 
 		@Override
-		public boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler)
+		public boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<D, ?> legacyTypeHandler)
 		{
 			synchronized(this.handlersByType)
 			{
@@ -194,7 +194,7 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 			}
 		}
 
-		private void putMapping(final PersistenceTypeHandler<M, ?> typeHandler)
+		private void putMapping(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
 			this.handlersByType.put(typeHandler.type(), typeHandler);
 			this.handlersByTypeId.put(typeHandler.typeId(), typeHandler);
@@ -210,7 +210,7 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 		}
 
 		@Override
-		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(
+		public <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateTypeHandlers(
 			final C iterator
 		)
 		{
@@ -222,7 +222,7 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 		}
 		
 		@Override
-		public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(
+		public <C extends Consumer<? super PersistenceLegacyTypeHandler<D, ?>>> C iterateLegacyTypeHandlers(
 			final C iterator
 		)
 		{
@@ -232,7 +232,7 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 				{
 					if(th instanceof PersistenceLegacyTypeHandler)
 					{
-						iterator.accept((PersistenceLegacyTypeHandler<M, ?>)th);
+						iterator.accept((PersistenceLegacyTypeHandler<D, ?>)th);
 					}
 				});
 			}
@@ -241,7 +241,7 @@ extends PersistenceTypeHandlerLookup<M>, PersistenceTypeRegistry, PersistenceTyp
 		}
 		
 		@Override
-		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateAllTypeHandlers(final C iterator)
+		public <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateAllTypeHandlers(final C iterator)
 		{
 			synchronized(this.handlersByType)
 			{

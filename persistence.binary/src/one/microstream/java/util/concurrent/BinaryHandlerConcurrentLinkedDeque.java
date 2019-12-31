@@ -43,7 +43,7 @@ public final class BinaryHandlerConcurrentLinkedDeque extends AbstractBinaryHand
 	////////////
 
 	@Override
-	public ConcurrentLinkedDeque<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public ConcurrentLinkedDeque<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new ConcurrentLinkedDeque<>();
 	}

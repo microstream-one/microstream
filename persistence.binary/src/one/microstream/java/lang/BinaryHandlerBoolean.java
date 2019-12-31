@@ -44,15 +44,15 @@ public final class BinaryHandlerBoolean extends AbstractBinaryHandlerCustomValue
 	}
 
 	@Override
-	public void store(final Binary bytes, final Boolean instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(final Binary data, final Boolean instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeBoolean(this.typeId(), objectId, instanceState(instance));
+		data.storeBoolean(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
-	public Boolean create(final Binary bytes, final PersistenceLoadHandler handler)
+	public Boolean create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return bytes.buildBoolean();
+		return data.buildBoolean();
 	}
 	
 	@Override

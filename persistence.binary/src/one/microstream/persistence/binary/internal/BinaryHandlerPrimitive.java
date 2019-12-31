@@ -91,19 +91,19 @@ public final class BinaryHandlerPrimitive<T> extends AbstractBinaryHandlerTrivia
 	}
 	
 	@Override
-	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(final Binary data, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}

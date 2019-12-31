@@ -48,14 +48,14 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 		return (Class)EqConstHashEnum.class;
 	}
 
-	private static int getBuildItemElementCount(final Binary bytes)
+	private static int getBuildItemElementCount(final Binary data)
 	{
-		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(data.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
 
-	private static float getBuildItemHashDensity(final Binary bytes)
+	private static float getBuildItemHashDensity(final Binary data)
 	{
-		return bytes.read_float(BINARY_OFFSET_HASH_DENSITY);
+		return data.read_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 	
 	public static BinaryHandlerEqConstHashEnum New()
@@ -89,14 +89,14 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final EqConstHashEnum<?>      instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeIterableAsList(
+		data.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -106,30 +106,30 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 		);
 
 		// persist hashEqualator and set the resulting oid at its binary place (first header value)
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.hashEqualator)
 		);
 
 		// store hash density as second header value
-		bytes.store_float(
+		data.store_float(
 			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}
 
 	@Override
-	public final EqConstHashEnum<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final EqConstHashEnum<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return EqConstHashEnum.New(
-			getBuildItemElementCount(bytes),
-			getBuildItemHashDensity(bytes)
+			getBuildItemElementCount(data),
+			getBuildItemHashDensity(data)
 		);
 	}
 
 	@Override
-	public final void update(
-		final Binary                 bytes   ,
+	public final void updateState(
+		final Binary                 data    ,
 		final EqConstHashEnum<?>     instance,
 		final PersistenceLoadHandler handler
 	)
@@ -147,11 +147,11 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			handler.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_EQUALATOR))
 		);
 
 		// collect elements AFTER hashEqualator has been set because it is used in it
-		instance.size = bytes.collectListObjectReferences(
+		instance.size = data.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
 			handler,
 			casted::internalCollectUnhashed
@@ -160,7 +160,11 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqConstHashEnum<?> instance, final PersistenceLoadHandler handler)
+	public final void complete(
+		final Binary                 data    ,
+		final EqConstHashEnum<?>     instance,
+		final PersistenceLoadHandler handler
+	)
 	{
 		// rehash all previously unhashed collected elements
 		instance.internalRehash();
@@ -174,10 +178,10 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_EQUALATOR));
-		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_EQUALATOR));
+		data.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 }

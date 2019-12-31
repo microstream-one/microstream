@@ -66,10 +66,10 @@ public class BinaryHandlerGenericSet<T extends Set<?>> extends AbstractBinaryHan
 	////////////
 
 	@Override
-	public T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return this.instantiator.instantiateSet(
-			getElementCount(bytes)
+			getElementCount(data)
 		);
 	}
 
