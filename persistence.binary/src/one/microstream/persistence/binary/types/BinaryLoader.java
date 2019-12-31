@@ -10,7 +10,6 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.math.XMath;
 import one.microstream.memory.XMemory;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -316,11 +315,6 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			 * Note that the handler has been provided by the context instance, so it can already be a
 			 * context-specific handler implementation.
 			 */
-
-			XDebug.println(
-				entry.handler.typeName() + " " + entry.handler.typeId() + " " + entry.getBuildItemObjectId()
-			);
-
 			entry.handler.iterateLoadableReferences(entry, this);
 		}
 				

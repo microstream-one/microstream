@@ -13,7 +13,6 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.collections.types.XMap;
 import one.microstream.collections.types.XTable;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reference.Reference;
 import one.microstream.reflect.XReflect;
@@ -83,12 +82,6 @@ public interface PersistenceRootResolver
 			{
 				// null-entries can (only) happen via automatic refactoring of old root types (custom/default).
 				continue;
-			}
-			
-			// (10.12.2019 TM)FIXME: /!\ DEBUG priv#194
-			if(entry.identifier().toUpperCase().contains("ROOT"))
-			{
-				XDebug.println("ROOT");
 			}
 			
 			// may be null if explicitely removed
@@ -276,8 +269,6 @@ public interface PersistenceRootResolver
 				// directly registered / "normal" root entries are returned right away.
 				return rootEntry;
 			}
-			
-			// (23.12.2019 TM)FIXME: priv#194: maybe insert special case handling for backwards compatability here.
 			
 			return this.resolveRootEnumConstants(identifier);
 		}
