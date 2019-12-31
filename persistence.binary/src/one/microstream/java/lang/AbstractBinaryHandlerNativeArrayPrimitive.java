@@ -3,7 +3,7 @@ package one.microstream.java.lang;
 import one.microstream.collections.types.XImmutableSequence;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 
 public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends AbstractBinaryHandlerNativeArray<A>
@@ -33,7 +33,7 @@ public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends Abstr
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary offset, final PersistenceReferenceLoader iterator)
 	{
 		// no references to iterate in arrays with primitive component type
 	}

@@ -1,11 +1,11 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceContextDispatcher<M>
+public interface PersistenceContextDispatcher<D>
 {
 	// loading //
 	
-	public default PersistenceTypeHandlerLookup<M> dispatchTypeHandlerLookup(
-		final PersistenceTypeHandlerLookup<M> typeHandlerLookup
+	public default PersistenceTypeHandlerLookup<D> dispatchTypeHandlerLookup(
+		final PersistenceTypeHandlerLookup<D> typeHandlerLookup
 	)
 	{
 		return typeHandlerLookup;
@@ -20,8 +20,8 @@ public interface PersistenceContextDispatcher<M>
 	
 	// storing //
 	
-	public default PersistenceTypeHandlerManager<M> dispatchTypeHandlerManager(
-		final PersistenceTypeHandlerManager<M> typeHandlerManager
+	public default PersistenceTypeHandlerManager<D> dispatchTypeHandlerManager(
+		final PersistenceTypeHandlerManager<D> typeHandlerManager
 	)
 	{
 		return typeHandlerManager;
@@ -36,17 +36,17 @@ public interface PersistenceContextDispatcher<M>
 	
 	
 	
-	public static <M> PersistenceContextDispatcher.PassThrough<M> PassThrough()
+	public static <D> PersistenceContextDispatcher.PassThrough<D> PassThrough()
 	{
 		return new PersistenceContextDispatcher.PassThrough<>();
 	}
 	
-	public static <M> PersistenceContextDispatcher.LocalObjectRegistration<M> LocalObjectRegistration()
+	public static <D> PersistenceContextDispatcher.LocalObjectRegistration<D> LocalObjectRegistration()
 	{
 		return new PersistenceContextDispatcher.LocalObjectRegistration<>();
 	}
 	
-	public final class PassThrough<M> implements PersistenceContextDispatcher<M>
+	public final class PassThrough<D> implements PersistenceContextDispatcher<D>
 	{
 		PassThrough()
 		{
@@ -56,7 +56,7 @@ public interface PersistenceContextDispatcher<M>
 		// once again missing interface stateless instantiation.
 	}
 	
-	public final class LocalObjectRegistration<M> implements PersistenceContextDispatcher<M>
+	public final class LocalObjectRegistration<D> implements PersistenceContextDispatcher<D>
 	{
 		LocalObjectRegistration()
 		{

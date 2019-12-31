@@ -165,7 +165,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			if(this.fileManager != null && this.fileManager != fileManager)
 			{
-				throw new RuntimeException();
+				// (09.12.2019 TM)EXCP: proper exception
+				throw new StorageException("File manager already initialized.");
 			}
 			this.fileManager = fileManager;
 		}
@@ -361,7 +362,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		static final int hashNormalized(final long value, final int bitShiftCount, final int modulo)
 		{
-			// (09.08.2015)NOTE: included channel hash mod bit shifting to properly distribute in hash table
+			// (09.08.2015 TM)NOTE: included channel hash mod bit shifting to properly distribute in hash table
 			return (int)(value >>> bitShiftCount & modulo);
 		}
 
@@ -494,8 +495,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// validate channel for object Id
 			if(this.oidChannelIndex(objectId) != this.channelIndex)
 			{
-				// (05.05.2014)EXCP: proper exception
-				throw new RuntimeException("Invalid objectId " + objectId + " for hash channel " + this.channelIndex);
+				// (05.05.2014 TM)EXCP: proper exception
+				throw new StorageException("Invalid objectId " + objectId + " for hash channel " + this.channelIndex);
 			}
 		}
 		
@@ -555,7 +556,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				if((type = entry.typeInFile.type).typeId != typeId)
 				{
 					// (29.07.2014 TM)EXCP: proper exception
-					throw new RuntimeException(
+					throw new StorageException(
 						"Object Id already assigned to an entity of another type. "
 						+ "Existing: " + objcId + ", type " + type.typeId + ". "
 						+ "Subject: " + objcId + ", type " + typeId + "."
@@ -1375,7 +1376,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 			catch(final Exception e)
 			{
-				throw new RuntimeException("Exception in channel #" + this.channelIndex(), e);
+				// (09.12.2019 TM)EXCP: proper exception
+				throw new StorageException("Exception in channel #" + this.channelIndex(), e);
 			}
 		}
 

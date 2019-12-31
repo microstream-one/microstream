@@ -16,7 +16,7 @@ import one.microstream.typing.Composition;
 
 
 
-// (21.09.2013)FIXME: why are the entries no interfaces on the interface level?
+// (21.09.2013 TM)FIXME: why are the entries no interfaces on the interface level?
 public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN>> extends Iterable<E>, Composition
 {
 	public interface Entry<E, K, V, EN extends Entry<E, K, V, EN>> extends Composition

@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueVariableLength<Locale>
@@ -39,26 +39,46 @@ public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueV
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static String instanceState(final Locale instance)
+	{
+		return instance.toLanguageTag();
+	}
+	
+	private static String binaryState(final Binary data)
+	{
+		return data.buildString();
+	}
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final Locale                  instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// for once, they managed to do a kind of proper de/serialization logic. Amazing.
-		bytes.storeStringValue(this.typeId(), objectId, instance.toLanguageTag());
+		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
 	public Locale create(
-		final Binary                      bytes     ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data   ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		return Locale.forLanguageTag(bytes.buildString());
+		return Locale.forLanguageTag(binaryState(data));
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Locale                 instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		compareSimpleState(instance, instanceState(instance), binaryState(data));
 	}
 
 }

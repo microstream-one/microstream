@@ -7,8 +7,8 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryTypeHandler;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 
 public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.Abstract<T>
@@ -34,13 +34,13 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	////////////
 
 	@Override
-	public void update(final Binary medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op, no state to update
 	}
 	
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public final void complete(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		/* any "trival" implementation cannot have the need for a completion step
 		 * (see non-reference-hashing collections for other examples)
@@ -54,7 +54,7 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary offset, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
 		// no-op, no references
 	}

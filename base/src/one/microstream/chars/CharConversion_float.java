@@ -4,7 +4,7 @@ package one.microstream.chars;
 public final class CharConversion_float
 {
 	/* (24.07.2013 TM)FIXME: CharConversion_float: copy from CharConversion_double
-	 * (19.01.2014)NOTE: just copying and adjusting won't do because
+	 * (19.01.2014 TM)NOTE: just copying and adjusting won't do because
 	 *  long is too big (too many digits) and int is too small.
 	 *
 	 *  Additional logic is required that either assembles a full long and then cuts digits

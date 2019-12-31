@@ -1,10 +1,10 @@
 package one.microstream.persistence.types;
 
 @FunctionalInterface
-public interface PersistenceTypeHandlerRegistration<M>
+public interface PersistenceTypeHandlerRegistration<D>
 {
 	public void registerTypeHandlers(
-		PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry ,
+		PersistenceCustomTypeHandlerRegistry<D> customTypeHandlerRegistry ,
 		PersistenceSizedArrayLengthController   sizedArrayLengthController
 	);
 }

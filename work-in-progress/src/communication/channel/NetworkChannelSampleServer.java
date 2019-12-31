@@ -98,7 +98,7 @@ public class NetworkChannelSampleServer implements Runnable
 	{
 		// Get the keys corresponding to the activity that has been detected and process them one by one
 		final Set<SelectionKey> keys = this.selector.selectedKeys();
-		/* (01.09.2012)FIXME: Selector implementation
+		/* (01.09.2012 TM)FIXME: Selector implementation
 		 * Stupid iterator instance of stupid JDK collection should be replaced
 		 * Selector implementation with tailored XProcessingSet implementation is needed
 		 */
@@ -136,7 +136,7 @@ public class NetworkChannelSampleServer implements Runnable
 		}
 		catch(final Exception t)
 		{
-			// (01.09.2012)XXX: on-error cleanup for this socket?
+			// (01.09.2012 TM)XXX: on-error cleanup for this socket?
 			throw new NetworkException("Error while accepting connection", t);
 		}
 	}
@@ -162,7 +162,7 @@ public class NetworkChannelSampleServer implements Runnable
 		}
 		catch(final IOException ie)
 		{
-			// (01.09.2012)XXX: not sure if this is reasonable:
+			// (01.09.2012 TM)XXX: not sure if this is reasonable:
 			// On exception, remove this channel from the selector
 			key.cancel();
 		}
@@ -184,7 +184,7 @@ public class NetworkChannelSampleServer implements Runnable
 
 		System.out.println( "Processed "+this.buffer.limit()+" from "+sc );
 
-		return true; // (01.09.2012)FIXME: noobish flag has to be replaced by something proper
+		return true; // (01.09.2012 TM)FIXME: noobish flag has to be replaced by something proper
 	}
 
 
@@ -213,7 +213,7 @@ public class NetworkChannelSampleServer implements Runnable
 		}
 		catch(final Exception ie)
 		{
-			// (01.09.2012)FIXME: on-error clean up of resources (actually only here?)
+			// (01.09.2012 TM)FIXME: on-error clean up of resources (actually only here?)
 			throw new NetworkException(ie);
 		}
 	}

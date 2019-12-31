@@ -2238,7 +2238,7 @@ public final class XChars
 	{
 		validateRange(input, offset, length);
 
-		// (12.10.2014)TODO: implement efficient float parser
+		// (12.10.2014 TM)TODO: implement efficient float parser
 		return Float.parseFloat(String.valueOf(input, offset, length));
 	}
 
@@ -2246,7 +2246,7 @@ public final class XChars
 	{
 		validateRange(input, offset, length);
 
-		// (12.10.2014)TODO: implement efficient double parser
+		// (12.10.2014 TM)TODO: implement efficient double parser
 		return Double.parseDouble(String.valueOf(input, offset, length));
 	}
 

@@ -2,7 +2,7 @@ package one.microstream.java.lang;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomValueFixedLength<Character>
@@ -32,17 +32,45 @@ public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomVal
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
-	@Override
-	public void store(final Binary bytes, final Character instance, final long objectId, final PersistenceStoreHandler handler)
+	
+	private static char instanceState(final Character instance)
 	{
-		bytes.storeCharacter(this.typeId(), objectId, instance.charValue());
+		return instance.charValue();
+	}
+	
+	private static char binaryState(final Binary data)
+	{
+		return data.read_char(0);
 	}
 
 	@Override
-	public Character create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public void store(final Binary data, final Character instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		return bytes.buildCharacter();
+		data.storeCharacter(this.typeId(), objectId, instance.charValue());
+	}
+
+	@Override
+	public Character create(final Binary data, final PersistenceLoadHandler handler)
+	{
+		return data.buildCharacter();
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Character              instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final char instanceState = instanceState(instance);
+		final char binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

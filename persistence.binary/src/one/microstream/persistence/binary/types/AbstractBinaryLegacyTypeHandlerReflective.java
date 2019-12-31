@@ -3,7 +3,7 @@ package one.microstream.persistence.binary.types;
 import one.microstream.exceptions.TypeCastException;
 import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
@@ -41,16 +41,16 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 	
 	@Override
-	protected T internalCreate(final Binary rawData, final PersistenceObjectIdResolver idResolver)
+	protected T internalCreate(final Binary rawData, final PersistenceLoadHandler handler)
 	{
 		// (21.03.2019 TM)XXX: just passing to the type handler (in the end to the instantiator) can be dangerous
-		return this.typeHandler().create(rawData, idResolver);
+		return this.typeHandler().create(rawData, handler);
 	}
 	
 	protected void validateForUpdate(
-		final Binary                      rawData   ,
-		final T                           instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data    ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		/*
@@ -67,18 +67,18 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	}
 	
 	@Override
-	public void update(
-		final Binary                      rawData   ,
-		final T                           instance  ,
-		final PersistenceObjectIdResolver idResolver
+	public void updateState(
+		final Binary                 data    ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
-		this.validateForUpdate(rawData, instance, idResolver);
-		rawData.updateFixedSize(instance, this.valueTranslators(), this.targetOffsets(), idResolver);
+		this.validateForUpdate(data, instance, handler);
+		data.updateFixedSize(instance, this.valueTranslators(), this.targetOffsets(), handler);
 	}
 
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public final void complete(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op for reflective logic
 	}

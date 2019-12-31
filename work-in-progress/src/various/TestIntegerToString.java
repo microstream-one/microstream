@@ -453,7 +453,7 @@ public class TestIntegerToString
 	
 	
 	
-	// (22.02.2013)TODO byte toString
+	// (22.02.2013 TM)TODO byte toString
 	static int toStringPositive(final byte value, final char[] target, int offset)
 	{
 		if(value >= 100)
