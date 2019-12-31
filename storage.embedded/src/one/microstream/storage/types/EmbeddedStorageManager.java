@@ -10,7 +10,6 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceManager;
@@ -341,9 +340,6 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 					return;
 				}
 			}
-
-			// (30.12.2019 TM)FIXME: priv#194 DEBUG
-			XDebug.println("Roots instance gets update-stored");
 			
 			// any other case than a perfectly synchronous loaded roots instance needs to store
 			initConnection.store(loadedRoots);

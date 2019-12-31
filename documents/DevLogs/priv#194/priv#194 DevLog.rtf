@@ -498,8 +498,53 @@ Paar NPEs gefixt durch die nun vorkommenden null-RootEntries.\par
 Und ansonsten siehts gut aus. L\'e4uft durch.\par
 \par
 Sp\'e4ter muss ich mal alle 8 F\'e4lle (4 normal, 4 f\'fcr abw\'e4rtskompatibilit\'e4t) durchtesten, dann w\'e4r das ganze fertig.\par
+\par
+\par
+2019-12-31\par
+\par
+Endlich mal TypeHandler Parameter Benamungen bissl aufr\'e4umen.\par
+\par
+\par
+TODO:\par
+- Die 8 F\'e4lle f\'fcr Root Instanzen testen.\par
+- priv#194 tags abarbeiten\par
+- Test f\'fcr BigDecimal root (#155)\par
+\par
+\par
+\par
+Testen:\par
+\par
+Refactoring #3: root != null & customRoot exists\par
+1. Lauf: l\'e4dt und refactort korrekt. Speichert Roots neu ab.\par
+2. Lauf: l\'e4dt normal, ohne Refactoring.\par
+\par
+Refactoring #1: root == null & customRoot exists\par
+1. Lauf: l\'e4dt und refactort korrekt. Speichert Roots neu ab.\par
+2. Lauf: l\'e4dt normal, ohne Refactoring.\par
+\par
+Root Refactoring case #4: root != null & defaultRoot exists\par
+1. Lauf: l\'e4dt und refactort korrekt. Speichert Roots neu ab.\par
+2. Lauf: l\'e4dt normal, ohne Refactoring.\par
+\par
+Root Refactoring case #2: root == null & defaultRoot exists\par
+1. Lauf: l\'e4dt und refactort korrekt. Speichert Roots neu ab.\par
+2. Lauf: l\'e4dt normal, ohne Refactoring.\par
+\par
+\par
+Nochmal schnell die "normalen" 4 F\'e4lle testen:\par
+1. expliziten Root speichern und laden\par
+2. expliziten Root speichern und als impliziten laden\par
+3. impliziten Root speichern und laden\par
+4. impliziten Root speichern und als expliziten laden\par
+\par
+\par
+Passt.\par
+Dann test ich gleich noch die neue Validierung f\'fcr Value Types.\par
+\par
+Ah, interessanter Fall:\par
+Wenn man BigDecimal 456 durch 0 ersetzt, wie in #155 geschrieben, dann ist die Exception nicht von der State Validierung, sondern weil eine bisher nicht-konstanten-Instanz (oid 1~28) assoziiert werden soll mit der OID f\'fcr die Konstanten-Instanz f\'fcr BigDecimal 0. (1~14).\par
+\par
+Auf jeden Fall mal die MainTest Klasse "sch\'f6n" machen, kommentieren und Issues updaten.\par
 \fs22\par
-\par
-\par
 }
  

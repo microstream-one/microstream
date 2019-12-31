@@ -5,7 +5,6 @@ import static one.microstream.X.notNull;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.reference.Referencing;
@@ -46,9 +45,6 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	 */
 	final PersistenceObjectRegistry globalRegistry;
 
-	// (25.12.2019 TM)FIXME: priv#94: remove if not required
-//	final PersistenceObjectManager objectManager;
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -58,7 +54,6 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	BinaryHandlerPersistenceRootsDefault(
 		final PersistenceRootResolverProvider rootResolverProvider,
 		final PersistenceObjectRegistry       globalRegistry
-//		final PersistenceObjectManager        objectManager
 	)
 	{
 		super(
@@ -73,7 +68,6 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 			)
 		);
 		this.rootResolverProvider = rootResolverProvider;
-//		this.objectManager        = objectManager       ;
 		this.globalRegistry       = globalRegistry      ;
 	}
 
@@ -99,11 +93,6 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	{
 		// The identifier -> objectId root id mapping is created (and validated) from the loaded data.
 		final EqHashTable<String, Long> rootIdMapping = data.buildRootMapping(EqHashTable.New());
-
-		// (28.12.2019 TM)FIXME: priv#194: cleanup if not needed. Including removing the temporarily held idMapping.
-		
-//		// root refactoring case #1: root != null & customRoot exists
-//		this.ensureRefactoredCustomRootLink(rootIdMapping, handler);
 		
 		/* (10.12.2019 TM)TODO: PersistenceRoots constants instance oid association
 		 * This method could collect all oids per identifer in the binary data and associate all
@@ -159,8 +148,6 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		// quick check to abort for the non-refactoring (= normal) cases.
 		if(customRootOid == null && defaultRootOid == null)
 		{
-			// (30.12.2019 TM)FIXME: priv#194 DEBUG
-			XDebug.println("No old root refactoring needed.");
 			return false;
 		}
 		
@@ -183,9 +170,6 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 						"Root instance missing for identifier \"" + Persistence.customRootIdentifier() + "\""
 					);
 				}
-				
-				// (30.12.2019 TM)FIXME: priv#194 DEBUG
-				XDebug.println("Root Refactoring case #1: root == null & customRoot exists");
 				
 				this.rootResolverProvider.rootReference().set(customRoot);
 				resolvedRoots.add(Persistence.customRootIdentifier(), null);
@@ -210,9 +194,6 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 					);
 				}
 				
-				// (30.12.2019 TM)FIXME: priv#194 DEBUG
-				XDebug.println("Root Refactoring case #2: root == null & defaultRoot exists");
-				
 				final Referencing<?> casted = (Referencing<?>)defaultRoot;
 				
 				// safe as storing a root reference only stores the actual instance's objectId, not the supplier.
@@ -231,9 +212,6 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 			// root refactoring case #3: root != null & customRoot exists
 			if(customRootOid != null)
 			{
-				// (30.12.2019 TM)FIXME: priv#194 DEBUG
-				XDebug.println("Root Refactoring case #3: root != null & customRoot exists");
-				
 				handler.registerCustomRootRefactoring(root, customRootOid);
 				resolvedRoots.add(Persistence.customRootIdentifier(), null);
 				
@@ -243,9 +221,6 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 			// root refactoring case #4: root != null & defaultRoot exists
 			if(defaultRootOid != null)
 			{
-				// (30.12.2019 TM)FIXME: priv#194 DEBUG
-				XDebug.println("Root Refactoring case #4: root != null & defaultRoot exists");
-				
 				handler.registerDefaultRootRefactoring(root, defaultRootOid);
 				resolvedRoots.add(Persistence.defaultRootIdentifier(), null);
 				
@@ -263,7 +238,6 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	)
 	{
 		final PersistenceObjectRegistry registry = this.globalRegistry;
-//		final PersistenceObjectManager objectManager = this.objectManager;
 
 		// lock the whole registry for the complete registration process because it might be used by other threads.
 		synchronized(registry)
