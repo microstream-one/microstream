@@ -53,14 +53,14 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 		return (Class)EqConstHashTable.class;
 	}
 
-	private static int getBuildItemElementCount(final Binary bytes)
+	private static int getBuildItemElementCount(final Binary data)
 	{
-		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(data.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
 
-	private static float getBuildItemHashDensity(final Binary bytes)
+	private static float getBuildItemHashDensity(final Binary data)
 	{
-		return bytes.read_float(BINARY_OFFSET_HASH_DENSITY);
+		return data.read_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 	
 	public static BinaryHandlerEqConstHashTable New()
@@ -97,14 +97,14 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final EqConstHashTable<?, ?>  instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeKeyValuesAsEntries(
+		data.storeKeyValuesAsEntries(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -112,19 +112,19 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 			instance.size()       ,
 			handler
 		);
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.hashEqualator)
 		);
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_KEYS,
 			handler.apply(instance.keys)
 		);
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_VALUES,
 			handler.apply(instance.values)
 		);
-		bytes.store_float(
+		data.store_float(
 			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
@@ -143,7 +143,7 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 	}
 
 	@Override
-	public final void update(
+	public final void updateState(
 		final Binary                 data    ,
 		final EqConstHashTable<?, ?> instance,
 		final PersistenceLoadHandler handler
@@ -207,12 +207,12 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_EQUALATOR));
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_KEYS));
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_VALUES));
-		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_EQUALATOR));
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_KEYS));
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_VALUES));
+		data.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 }

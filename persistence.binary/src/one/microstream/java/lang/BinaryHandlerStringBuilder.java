@@ -36,29 +36,29 @@ public final class BinaryHandlerStringBuilder extends AbstractBinaryHandlerAbstr
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final StringBuilder           instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		this.storeData(bytes, XChars.toCharArray(instance), instance.capacity(), objectId, handler);
+		this.storeData(data, XChars.toCharArray(instance), instance.capacity(), objectId, handler);
 	}
 
 	@Override
-	public final StringBuilder create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final StringBuilder create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return new StringBuilder(this.readCapacity(bytes));
+		return new StringBuilder(this.readCapacity(data));
 	}
 
 	@Override
-	public void update(final Binary bytes, final StringBuilder instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary data, final StringBuilder instance, final PersistenceLoadHandler handler)
 	{
 		// because implementing a clear() would have been too hard for the JDK Pros.
 		instance.delete(0, instance.length());
 		
-		instance.ensureCapacity(this.readCapacity(bytes));
-		instance.append(this.readChars(bytes));
+		instance.ensureCapacity(this.readCapacity(data));
+		instance.append(this.readChars(data));
 	}
 
 }

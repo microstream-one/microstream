@@ -34,13 +34,13 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	////////////
 
 	@Override
-	public void updateState(final Binary medium, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op, no state to update
 	}
 	
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceLoadHandler handler)
+	public final void complete(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		/* any "trival" implementation cannot have the need for a completion step
 		 * (see non-reference-hashing collections for other examples)
@@ -54,7 +54,7 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary offset, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
 		// no-op, no references
 	}

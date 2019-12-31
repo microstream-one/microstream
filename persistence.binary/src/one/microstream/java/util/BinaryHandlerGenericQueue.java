@@ -66,10 +66,10 @@ public class BinaryHandlerGenericQueue<T extends Queue<?>> extends AbstractBinar
 	////////////
 
 	@Override
-	public T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return this.instantiator.instantiateQueue(
-			getElementCount(bytes)
+			getElementCount(data)
 		);
 	}
 	

@@ -41,9 +41,9 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerList<Arra
 	////////////
 
 	@Override
-	public final ArrayList<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final ArrayList<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		final long elementCount = getElementCount(bytes);
+		final long elementCount = getElementCount(data);
 		
 		/*
 		 * InitialCapacity 1 instead of default constructor is a workaround for yet another JDK moronity bug.

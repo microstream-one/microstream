@@ -51,15 +51,15 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVar
 	}
 
 	@Override
-	public void store(final Binary bytes, final File instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(final Binary data, final File instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeStringValue(this.typeId(), objectId, instanceState(instance));
+		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
-	public File create(final Binary bytes, final PersistenceLoadHandler handler)
+	public File create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return new File(binaryState(bytes));
+		return new File(binaryState(data));
 	}
 	
 	@Override

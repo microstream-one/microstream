@@ -209,10 +209,10 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	}
 	
 	@Override
-	public int getPersistedEnumOrdinal(final Binary medium)
+	public int getPersistedEnumOrdinal(final Binary data)
 	{
 		// Must pass through all default methods to be a correct wrapper.
-		return this.typeHandler.getPersistedEnumOrdinal(medium);
+		return this.typeHandler.getPersistedEnumOrdinal(data);
 	}
 	
 	

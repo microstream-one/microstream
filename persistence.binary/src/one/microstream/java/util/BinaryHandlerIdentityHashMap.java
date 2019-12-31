@@ -35,9 +35,9 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 		return (Class)IdentityHashMap.class; // no idea how to get ".class" to work otherwise
 	}
 
-	static final int getElementCount(final Binary bytes)
+	static final int getElementCount(final Binary data)
 	{
-		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(data.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
 	
 	public static BinaryHandlerIdentityHashMap New()
@@ -67,14 +67,14 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final IdentityHashMap<?, ?>   instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeMapEntrySet(
+		data.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -84,16 +84,16 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	}
 	
 	@Override
-	public final IdentityHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final IdentityHashMap<?, ?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new IdentityHashMap<>(
-			getElementCount(bytes)
+			getElementCount(data)
 		);
 	}
 
 	@Override
-	public final void update(
-		final Binary                 bytes   ,
+	public final void updateState(
+		final Binary                 data    ,
 		final IdentityHashMap<?, ?>  instance,
 		final PersistenceLoadHandler handler
 	)
@@ -104,9 +104,9 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 		final IdentityHashMap<Object, Object> castedInstance = (IdentityHashMap<Object, Object>)instance;
 		
 		// IdentityHashMap does not need the elementsHelper detour as identity hashing does not depend on contained data
-		bytes.collectKeyValueReferences(
+		data.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
-			getElementCount(bytes),
+			getElementCount(data),
 			handler,
 			(k, v) ->
 			{
@@ -129,9 +129,9 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		data.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 }

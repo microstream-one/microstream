@@ -44,15 +44,15 @@ public final class BinaryHandlerShort extends AbstractBinaryHandlerCustomValueFi
 	}
 
 	@Override
-	public void store(final Binary bytes, final Short instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(final Binary data, final Short instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeShort(this.typeId(), objectId, instance.shortValue());
+		data.storeShort(this.typeId(), objectId, instance.shortValue());
 	}
 
 	@Override
-	public Short create(final Binary bytes, final PersistenceLoadHandler handler)
+	public Short create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return bytes.buildShort();
+		return data.buildShort();
 	}
 	
 	@Override

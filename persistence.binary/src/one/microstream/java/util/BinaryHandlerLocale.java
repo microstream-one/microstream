@@ -52,23 +52,23 @@ public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueV
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final Locale                  instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// for once, they managed to do a kind of proper de/serialization logic. Amazing.
-		bytes.storeStringValue(this.typeId(), objectId, instanceState(instance));
+		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
 	public Locale create(
-		final Binary                 bytes  ,
+		final Binary                 data   ,
 		final PersistenceLoadHandler handler
 	)
 	{
-		return Locale.forLanguageTag(binaryState(bytes));
+		return Locale.forLanguageTag(binaryState(data));
 	}
 	
 	@Override

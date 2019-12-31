@@ -20,9 +20,9 @@ extends AbstractBinaryHandlerCustomIterable<T>
 	// static methods //
 	///////////////////
 	
-	protected static final long getElementCount(final Binary bytes)
+	protected static final long getElementCount(final Binary data)
 	{
-		return bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS);
+		return data.getListElementCountReferences(BINARY_OFFSET_ELEMENTS);
 	}
 	
 	
@@ -54,14 +54,14 @@ extends AbstractBinaryHandlerCustomIterable<T>
 	
 	@Override
 	public void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final T                       instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeIterableAsList(
+		data.storeIterableAsList(
 			this.typeId()                 ,
 			objectId                      ,
 			this.binaryOffsetElements()   ,
@@ -72,9 +72,9 @@ extends AbstractBinaryHandlerCustomIterable<T>
 	}
 
 	@Override
-	public void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		bytes.iterateListElementReferences(this.binaryOffsetElements(), iterator);
+		data.iterateListElementReferences(this.binaryOffsetElements(), iterator);
 	}
 	
 }

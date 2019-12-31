@@ -44,15 +44,15 @@ public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomVal
 	}
 
 	@Override
-	public void store(final Binary bytes, final Character instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(final Binary data, final Character instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeCharacter(this.typeId(), objectId, instance.charValue());
+		data.storeCharacter(this.typeId(), objectId, instance.charValue());
 	}
 
 	@Override
-	public Character create(final Binary bytes, final PersistenceLoadHandler handler)
+	public Character create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return bytes.buildCharacter();
+		return data.buildCharacter();
 	}
 	
 	@Override

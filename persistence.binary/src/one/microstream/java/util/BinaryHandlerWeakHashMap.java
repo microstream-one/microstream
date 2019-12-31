@@ -41,7 +41,7 @@ public final class BinaryHandlerWeakHashMap extends AbstractBinaryHandlerMap<Wea
 	////////////
 
 	@Override
-	public final WeakHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final WeakHashMap<?, ?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new WeakHashMap<>();
 	}

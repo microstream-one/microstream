@@ -73,15 +73,15 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 	
 	// note on initializing methods: exluding the java.lang.Enum fields must already be excluded in valueTranslators
 	
-	public int getOrdinal(final Binary bytes)
+	public int getOrdinal(final Binary data)
 	{
-		return bytes.read_int(this.binaryOffsetOrdinal);
+		return data.read_int(this.binaryOffsetOrdinal);
 	}
 	
 	@Override
-	protected T internalCreate(final Binary bytes, final PersistenceLoadHandler handler)
+	protected T internalCreate(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getOrdinal(bytes));
+		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getOrdinal(data));
 	}
 	
 	@Override

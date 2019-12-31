@@ -69,9 +69,9 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	////////////
 	
 	@Override
-	public final T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final T create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return this.instantiator.instantiate(bytes);
+		return this.instantiator.instantiate(data);
 	}
 
 }

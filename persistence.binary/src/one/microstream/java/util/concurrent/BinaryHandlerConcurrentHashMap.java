@@ -45,10 +45,10 @@ public final class BinaryHandlerConcurrentHashMap extends AbstractBinaryHandlerM
 	////////////
 	
 	@Override
-	public ConcurrentHashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public ConcurrentHashMap<?, ?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new ConcurrentHashMap<>(
-			X.checkArrayRange(getElementCount(bytes))
+			X.checkArrayRange(getElementCount(data))
 		);
 	}
 	

@@ -17,7 +17,7 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.util.similarity.MultiMatch;
 import one.microstream.util.similarity.Similarity;
 
-public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTypeMappingResultor<M>
+public class PrintingLegacyTypeMappingResultor<D> implements PersistenceLegacyTypeMappingResultor<D>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -130,8 +130,8 @@ public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTy
 		return vs.add(member.typeName()).blank().add(member.identifier());
 	}
 	
-	public static <M> PrintingLegacyTypeMappingResultor<M> New(
-		final PersistenceLegacyTypeMappingResultor<M> delegate
+	public static <D> PrintingLegacyTypeMappingResultor<D> New(
+		final PersistenceLegacyTypeMappingResultor<D> delegate
 	)
 	{
 		return new PrintingLegacyTypeMappingResultor<>(
@@ -145,7 +145,7 @@ public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTy
 	// instance fields //
 	////////////////////
 	
-	final PersistenceLegacyTypeMappingResultor<M> delegate;
+	final PersistenceLegacyTypeMappingResultor<D> delegate;
 	
 	
 	
@@ -153,7 +153,7 @@ public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTy
 	// constructors //
 	/////////////////
 	
-	PrintingLegacyTypeMappingResultor(final PersistenceLegacyTypeMappingResultor<M> delegate)
+	PrintingLegacyTypeMappingResultor(final PersistenceLegacyTypeMappingResultor<D> delegate)
 	{
 		super();
 		this.delegate = delegate;
@@ -166,15 +166,15 @@ public class PrintingLegacyTypeMappingResultor<M> implements PersistenceLegacyTy
 	////////////
 	
 	@Override
-	public <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
+	public <T> PersistenceLegacyTypeMappingResult<D, T> createMappingResult(
 		final PersistenceTypeDefinition                                                     legacyTypeDefinition,
-		final PersistenceTypeHandler<M, T>                                                  currentTypeHandler  ,
+		final PersistenceTypeHandler<D, T>                                                  currentTypeHandler  ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
 		final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers  ,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
-		final PersistenceLegacyTypeMappingResult<M, T> result = this.delegate.createMappingResult(
+		final PersistenceLegacyTypeMappingResult<D, T> result = this.delegate.createMappingResult(
 			legacyTypeDefinition, currentTypeHandler, explicitMappings, explicitNewMembers, matchedMembers
 		);
 		

@@ -45,7 +45,7 @@ extends AbstractBinaryHandlerQueue<ConcurrentLinkedQueue<?>>
 	////////////
 	
 	@Override
-	public ConcurrentLinkedQueue<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public ConcurrentLinkedQueue<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new ConcurrentLinkedQueue<>();
 	}

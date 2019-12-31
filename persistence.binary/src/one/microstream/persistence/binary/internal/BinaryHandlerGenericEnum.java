@@ -296,7 +296,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	}
 		
 	@Override
-	public final T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		/*
 		 * Can't validate here since the name String instance might not have been created, yet. See #update.
@@ -308,28 +308,28 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		 * Mismatches between persistent form and runtime type must be handled via a LegacyTypeHandler, not here.
 		 */
 		
-		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getPersistedEnumOrdinal(bytes));
+		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getPersistedEnumOrdinal(data));
 	}
 	
 	@Override
-	public int getPersistedEnumOrdinal(final Binary bytes)
+	public int getPersistedEnumOrdinal(final Binary data)
 	{
-		return bytes.read_int(this.binaryOffsetOrdinal);
+		return data.read_int(this.binaryOffsetOrdinal);
 	}
 	
-	public String getName(final Binary bytes, final PersistenceLoadHandler handler)
+	public String getName(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return (String)handler.lookupObject(bytes.read_long(this.binaryOffsetName));
+		return (String)handler.lookupObject(data.read_long(this.binaryOffsetName));
 	}
 	
 	private void validate(
-		final Binary                 bytes   ,
+		final Binary                 data    ,
 		final T                      instance,
 		final PersistenceLoadHandler handler
 	)
 	{
 		// validate ordinal, just in case.
-		final int persistentOrdinal = this.getPersistedEnumOrdinal(bytes);
+		final int persistentOrdinal = this.getPersistedEnumOrdinal(data);
 		if(persistentOrdinal != instance.ordinal())
 		{
 			// (01.08.2019 TM)EXCP: proper exception
@@ -338,7 +338,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 			);
 		}
 		
-		final String persistentName = this.getName(bytes, handler);
+		final String persistentName = this.getName(data, handler);
 		if(!instance.name().equals(persistentName))
 		{
 			// (09.08.2019 TM)EXCP: proper exception
@@ -353,13 +353,13 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	}
 		
 	@Override
-	public void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// must thoroughly validate the linked jvm-generated(!) instance before modifying its state!
-		this.validate(bytes, instance, handler);
+		this.validate(data, instance, handler);
 		
 		// super class logic already uses only setting members, i.e. not ordinal and name.
-		super.updateState(bytes, instance, handler);
+		super.updateState(data, instance, handler);
 	}
 
 }

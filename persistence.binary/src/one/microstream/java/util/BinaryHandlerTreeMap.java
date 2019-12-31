@@ -36,18 +36,18 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 		return (Class)TreeMap.class; // no idea how to get ".class" to work otherwise
 	}
 
-	static final int getElementCount(final Binary bytes)
+	static final int getElementCount(final Binary data)
 	{
-		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(data.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
 		
 	@SuppressWarnings("unchecked")
 	private static <E> Comparator<? super E> getComparator(
-		final Binary                 bytes  ,
+		final Binary                 data   ,
 		final PersistenceLoadHandler handler
 	)
 	{
-		return (Comparator<? super E>)handler.lookupObject(bytes.read_long(BINARY_OFFSET_COMPARATOR));
+		return (Comparator<? super E>)handler.lookupObject(data.read_long(BINARY_OFFSET_COMPARATOR));
 	}
 	
 	public static BinaryHandlerTreeMap New()
@@ -79,14 +79,14 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final TreeMap<?, ?>           instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeMapEntrySet(
+		data.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -94,23 +94,23 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 			handler
 		);
 		
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_COMPARATOR,
 			handler.apply(instance.comparator())
 		);
 	}
 	
 	@Override
-	public final TreeMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final TreeMap<?, ?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new TreeMap<>(
-			getComparator(bytes, handler)
+			getComparator(data, handler)
 		);
 	}
 
 	@Override
-	public final void update(
-		final Binary                 bytes   ,
+	public final void updateState(
+		final Binary                 data    ,
 		final TreeMap<?, ?>          instance,
 		final PersistenceLoadHandler handler
 	)
@@ -121,16 +121,16 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 		 * Tree collections don't use hashing, but their comparing logic still uses the elements' state,
 		 * which might not yet be available when this method is called. Hence the detour to #complete.
 		 */
-		final int elementCount = getElementCount(bytes);
+		final int elementCount = getElementCount(data);
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
-		bytes.registerHelper(instance, collector.yield());
+		data.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
+		data.registerHelper(instance, collector.yield());
 	}
 
 	@Override
-	public final void complete(final Binary bytes, final TreeMap<?, ?> instance, final PersistenceLoadHandler builder)
+	public final void complete(final Binary data, final TreeMap<?, ?> instance, final PersistenceLoadHandler handler)
 	{
-		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateMapFromHelperArray(instance, data.getHelper(instance));
 	}
 
 	@Override
@@ -141,10 +141,10 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_COMPARATOR));
-		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_COMPARATOR));
+		data.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 	
 }

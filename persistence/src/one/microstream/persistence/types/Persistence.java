@@ -628,12 +628,12 @@ public class Persistence
 		return XReflect.isOfAnyType(type, unpersistableTypes());
 	}
 	
-	public static final <M> PersistenceTypeMismatchValidator<M> typeMismatchValidatorFailing()
+	public static final <D> PersistenceTypeMismatchValidator<D> typeMismatchValidatorFailing()
 	{
 		return PersistenceTypeMismatchValidator.Failing();
 	}
 	
-	public static final <M> PersistenceTypeMismatchValidator<M> typeMismatchValidatorNoOp()
+	public static final <D> PersistenceTypeMismatchValidator<D> typeMismatchValidatorNoOp()
 	{
 		return PersistenceTypeMismatchValidator.NoOp();
 	}

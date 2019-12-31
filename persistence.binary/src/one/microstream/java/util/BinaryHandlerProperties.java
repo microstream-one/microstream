@@ -44,7 +44,7 @@ public final class BinaryHandlerProperties extends AbstractBinaryHandlerMap<Prop
 	////////////
 
 	@Override
-	public final Properties create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Properties create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new Properties();
 	}

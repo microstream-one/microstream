@@ -39,7 +39,7 @@ public final class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTr
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final T                       instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
@@ -49,13 +49,13 @@ public final class BinaryHandlerUnpersistable<T> extends AbstractBinaryHandlerTr
 	}
 
 	@Override
-	public final T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());
 	}
 
 	@Override
-	public final void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public final void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());
 	}

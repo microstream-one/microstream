@@ -7,42 +7,42 @@ import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 
-public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceTypeHandlerIterable<M>
+public interface PersistenceCustomTypeHandlerRegistry<D> extends PersistenceTypeHandlerIterable<D>
 {
-	public <T> boolean registerTypeHandler(PersistenceTypeHandler<M, T> typeHandler);
+	public <T> boolean registerTypeHandler(PersistenceTypeHandler<D, T> typeHandler);
 
-	public <T> boolean registerTypeHandler(Class<T> type, PersistenceTypeHandler<M, T> typeHandler);
+	public <T> boolean registerTypeHandler(Class<T> type, PersistenceTypeHandler<D, T> typeHandler);
 	
-	public <T> boolean registerLegacyTypeHandler(PersistenceLegacyTypeHandler<M, T> legacyTypeHandler);
+	public <T> boolean registerLegacyTypeHandler(PersistenceLegacyTypeHandler<D, T> legacyTypeHandler);
 	
-	public PersistenceCustomTypeHandlerRegistry<M> registerLegacyTypeHandlers(
-		XGettingCollection<? extends PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers
+	public PersistenceCustomTypeHandlerRegistry<D> registerLegacyTypeHandlers(
+		XGettingCollection<? extends PersistenceLegacyTypeHandler<D, ?>> legacyTypeHandlers
 	);
 
-	public PersistenceCustomTypeHandlerRegistry<M> registerTypeHandlers(
-		XGettingCollection<? extends PersistenceTypeHandler<M, ?>> typeHandlers
+	public PersistenceCustomTypeHandlerRegistry<D> registerTypeHandlers(
+		XGettingCollection<? extends PersistenceTypeHandler<D, ?>> typeHandlers
 	);
 	
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(Class<T> type);
+	public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(Class<T> type);
 		
-	public XGettingEnum<PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers();
+	public XGettingEnum<PersistenceLegacyTypeHandler<D, ?>> legacyTypeHandlers();
 
 	public boolean knowsType(Class<?> type);
 		
 	
 	
-	public static <M> PersistenceCustomTypeHandlerRegistry.Default<M> New()
+	public static <D> PersistenceCustomTypeHandlerRegistry.Default<D> New()
 	{
 		return new PersistenceCustomTypeHandlerRegistry.Default<>();
 	}
 
-	public final class Default<M> implements PersistenceCustomTypeHandlerRegistry<M>
+	public final class Default<D> implements PersistenceCustomTypeHandlerRegistry<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> liveTypeHandlers = HashTable.New();
+		private final HashTable<Class<?>, PersistenceTypeHandler<D, ?>> liveTypeHandlers = HashTable.New();
 		
 		/*
 		 * Really instance equality since:
@@ -50,7 +50,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		 * - Live type cannot be used for LTHs.
 		 * - This is just a collection of "potentially structure-compatible" handlers that get sorted out later.
 		 */
-		private final HashEnum<PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers = HashEnum.New() ;
+		private final HashEnum<PersistenceLegacyTypeHandler<D, ?>> legacyTypeHandlers = HashEnum.New() ;
 
 		
 		
@@ -78,7 +78,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		@Override
 		public final synchronized <T> boolean registerTypeHandler(
 			final Class<T>                     type                  ,
-			final PersistenceTypeHandler<M, T> typeHandlerInitializer
+			final PersistenceTypeHandler<D, T> typeHandlerInitializer
 		)
 		{
 			// put instead of add to allow custom-tailed replacments for native handlers (e.g. divergent TID or logic)
@@ -87,7 +87,7 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 
 		@Override
 		public <T> boolean registerTypeHandler(
-			final PersistenceTypeHandler<M, T> typeHandlerInitializer
+			final PersistenceTypeHandler<D, T> typeHandlerInitializer
 		)
 		{
 			return this.registerTypeHandler(
@@ -97,11 +97,11 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		}
 
 		@Override
-		public synchronized PersistenceCustomTypeHandlerRegistry.Default<M> registerTypeHandlers(
-			final XGettingCollection<? extends PersistenceTypeHandler<M, ?>> typeHandlerInitializers
+		public synchronized PersistenceCustomTypeHandlerRegistry.Default<D> registerTypeHandlers(
+			final XGettingCollection<? extends PersistenceTypeHandler<D, ?>> typeHandlerInitializers
 		)
 		{
-			for(final PersistenceTypeHandler<M, ?> th : typeHandlerInitializers)
+			for(final PersistenceTypeHandler<D, ?> th : typeHandlerInitializers)
 			{
 				this.registerTypeHandler(th);
 			}
@@ -111,18 +111,18 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		
 		@Override
 		public synchronized <T> boolean registerLegacyTypeHandler(
-			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandler
+			final PersistenceLegacyTypeHandler<D, T> legacyTypeHandler
 		)
 		{
 			return this.legacyTypeHandlers.add(legacyTypeHandler);
 		}
 		
 		@Override
-		public synchronized PersistenceCustomTypeHandlerRegistry<M> registerLegacyTypeHandlers(
-			final XGettingCollection<? extends PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers
+		public synchronized PersistenceCustomTypeHandlerRegistry<D> registerLegacyTypeHandlers(
+			final XGettingCollection<? extends PersistenceLegacyTypeHandler<D, ?>> legacyTypeHandlers
 		)
 		{
-			for(final PersistenceLegacyTypeHandler<M, ?> lth : legacyTypeHandlers)
+			for(final PersistenceLegacyTypeHandler<D, ?> lth : legacyTypeHandlers)
 			{
 				this.registerLegacyTypeHandler(lth);
 			}
@@ -131,32 +131,32 @@ public interface PersistenceCustomTypeHandlerRegistry<M> extends PersistenceType
 		}
 
 		@SuppressWarnings("unchecked") // cast type safety guaranteed by management logic
-		private <T> PersistenceTypeHandler<M, T> internalLookupTypeHandler(final Class<T> type)
+		private <T> PersistenceTypeHandler<D, T> internalLookupTypeHandler(final Class<T> type)
 		{
-			return (PersistenceTypeHandler<M, T>)this.liveTypeHandlers.get(type);
+			return (PersistenceTypeHandler<D, T>)this.liveTypeHandlers.get(type);
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final Class<T> type)
+		public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(final Class<T> type)
 		{
 			return this.internalLookupTypeHandler(type);
 		}
 		
 		@Override
-		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+		public <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateTypeHandlers(final C iterator)
 		{
 			this.liveTypeHandlers.values().iterate(iterator);
 			return iterator;
 		}
 		
 		@Override
-		public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(final C iterator)
+		public <C extends Consumer<? super PersistenceLegacyTypeHandler<D, ?>>> C iterateLegacyTypeHandlers(final C iterator)
 		{
 			return this.legacyTypeHandlers().iterate(iterator);
 		}
 		
 		@Override
-		public final XGettingEnum<PersistenceLegacyTypeHandler<M, ?>> legacyTypeHandlers()
+		public final XGettingEnum<PersistenceLegacyTypeHandler<D, ?>> legacyTypeHandlers()
 		{
 			return this.legacyTypeHandlers;
 		}

@@ -34,20 +34,20 @@ extends AbstractBinaryHandlerCustomIterableSimpleListElements<T>
 	}
 
 	@Override
-	public void updateState(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// generic-generic collection handler logic uses the set workaround logic to be safe in any case
 		instance.clear();
-		final Object[] elementsHelper = new Object[X.checkArrayRange(getElementCount(bytes))];
-		bytes.collectElementsIntoArray(this.binaryOffsetElements(), handler, elementsHelper);
-		bytes.registerHelper(instance, elementsHelper);
+		final Object[] elementsHelper = new Object[X.checkArrayRange(getElementCount(data))];
+		data.collectElementsIntoArray(this.binaryOffsetElements(), handler, elementsHelper);
+		data.registerHelper(instance, elementsHelper);
 	}
 
 	@Override
-	public void complete(final Binary bytes, final T instance, final PersistenceLoadHandler handler)
+	public void complete(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// generic-generic collection handler logic uses the set workaround logic to be safe in any case
-		OldCollections.populateCollectionFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateCollectionFromHelperArray(instance, data.getHelper(instance));
 	}
 	
 }

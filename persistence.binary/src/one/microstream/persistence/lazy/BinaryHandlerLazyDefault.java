@@ -42,7 +42,7 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final Lazy.Default<?>         instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
@@ -83,12 +83,12 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 		instance.link(referenceOid, handler.getObjectRetriever());
 
 		// lazy reference instance must be stored in any case
-		bytes.storeEntityHeader(Binary.referenceBinaryLength(1), this.typeId(), objectId);
-		bytes.store_long(referenceOid);
+		data.storeEntityHeader(Binary.referenceBinaryLength(1), this.typeId(), objectId);
+		data.store_long(referenceOid);
 	}
 
 	@Override
-	public final Lazy.Default<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Lazy.Default<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		/* (27.04.2016 TM)NOTE: registering a Lazy instance with a reference manager
 		 * without having the object supplier set yet might cause an inconsistency if the
@@ -96,14 +96,14 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 		 * ON the other hand: the lazy reference instance is not yet completed and whatever
 		 * logic iterates over the LRM's entries shouldn't rely on anything.
 		 */
-		final long objectId = bytes.read_long(0);
+		final long objectId = data.read_long(0);
 		
 		return Lazy.register(new Lazy.Default<>(null, objectId, null));
 	}
 
 	@Override
-	public final void update(
-		final Binary                 bytes   ,
+	public final void updateState(
+		final Binary                 data    ,
 		final Lazy.Default<?>        instance,
 		final PersistenceLoadHandler handler
 	)
@@ -117,8 +117,8 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 
 	@Override
 	public final void complete(
-		final Binary                      medium    ,
-		final Lazy.Default<?>             instance  ,
+		final Binary                 data    ,
+		final Lazy.Default<?>        instance,
 		final PersistenceLoadHandler handler
 	)
 	{

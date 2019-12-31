@@ -103,7 +103,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 	}
 
 	@Override
-	public final void update(final Binary bytes, final ArrayList<?> instance, final PersistenceLoadHandler idResolver)
+	public final void updateState(final Binary bytes, final ArrayList<?> instance, final PersistenceLoadHandler handler)
 	{
 		// instance must be cleared in case an existing one is updated
 		instance.clear();
@@ -123,7 +123,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<ArrayList<?>>
 		instance.ensureCapacity(arrayLength);
 		final int size = bytes.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			idResolver,
+			handler,
 			SunJdk8Internals.accessArray(instance)
 		);
 		SunJdk8Internals.setSize(instance, size);

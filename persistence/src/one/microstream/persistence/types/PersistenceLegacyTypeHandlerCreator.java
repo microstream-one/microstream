@@ -5,15 +5,15 @@ import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reflect.XReflect;
 import one.microstream.util.similarity.Similarity;
 
-public interface PersistenceLegacyTypeHandlerCreator<M>
+public interface PersistenceLegacyTypeHandlerCreator<D>
 {
-	public <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
-		PersistenceLegacyTypeMappingResult<M, T> mappingResult
+	public <T> PersistenceLegacyTypeHandler<D, T> createLegacyTypeHandler(
+		PersistenceLegacyTypeMappingResult<D, T> mappingResult
 	);
 		
 	
 	
-	public abstract class Abstract<M> implements PersistenceLegacyTypeHandlerCreator<M>
+	public abstract class Abstract<D> implements PersistenceLegacyTypeHandlerCreator<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
@@ -82,8 +82,8 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 		////////////
 		
 		@Override
-		public <T> PersistenceLegacyTypeHandler<M, T> createLegacyTypeHandler(
-			final PersistenceLegacyTypeMappingResult<M, T> result
+		public <T> PersistenceLegacyTypeHandler<D, T> createLegacyTypeHandler(
+			final PersistenceLegacyTypeMappingResult<D, T> result
 		)
 		{
 			if(PersistenceLegacyTypeMappingResult.isUnchangedInstanceStructure(result))
@@ -99,15 +99,15 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 			{
 				return this.deriveReflectiveHandler(
 					result,
-					(PersistenceTypeHandlerReflective<M, T>)result.currentTypeHandler()
+					(PersistenceTypeHandlerReflective<D, T>)result.currentTypeHandler()
 				);
 			}
 
 			return this.deriveCustomWrappingHandler(result);
 		}
 		
-		protected <T> PersistenceLegacyTypeHandler<M, T> createTypeHandlerUnchangedInstanceStructure(
-			final PersistenceLegacyTypeMappingResult<M, T> result
+		protected <T> PersistenceLegacyTypeHandler<D, T> createTypeHandlerUnchangedInstanceStructure(
+			final PersistenceLegacyTypeMappingResult<D, T> result
 		)
 		{
 			if(XReflect.isEnum(result.currentTypeHandler().type()))
@@ -118,16 +118,16 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 			return this.createTypeHandlerUnchangedInstanceStructureGenericType(result);
 		}
 				
-		protected <T> PersistenceLegacyTypeHandler<M, T> createTypeHandlerUnchangedInstanceStructureGenericEnum(
-			final PersistenceLegacyTypeMappingResult<M, T> result
+		protected <T> PersistenceLegacyTypeHandler<D, T> createTypeHandlerUnchangedInstanceStructureGenericEnum(
+			final PersistenceLegacyTypeMappingResult<D, T> result
 		)
 		{
 			return this.createTypeHandlerEnumWrapping(result, result.currentTypeHandler());
 		}
 		
-		protected <T> PersistenceLegacyTypeHandler<M, T> createTypeHandlerEnumWrapping(
-			final PersistenceLegacyTypeMappingResult<M, T> result     ,
-			final PersistenceTypeHandler<M, T>             typeHandler
+		protected <T> PersistenceLegacyTypeHandler<D, T> createTypeHandlerEnumWrapping(
+			final PersistenceLegacyTypeMappingResult<D, T> result     ,
+			final PersistenceTypeHandler<D, T>             typeHandler
 		)
 		{
 			if(PersistenceLegacyTypeMappingResult.isUnchangedStaticStructure(result))
@@ -148,8 +148,8 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 			);
 		}
 				
-		protected <T> PersistenceLegacyTypeHandler<M, T> createTypeHandlerUnchangedInstanceStructureGenericType(
-			final PersistenceLegacyTypeMappingResult<M, T> result
+		protected <T> PersistenceLegacyTypeHandler<D, T> createTypeHandlerUnchangedInstanceStructureGenericType(
+			final PersistenceLegacyTypeMappingResult<D, T> result
 		)
 		{
 			return PersistenceLegacyTypeHandlerWrapper.New(
@@ -158,13 +158,13 @@ public interface PersistenceLegacyTypeHandlerCreator<M>
 			);
 		}
 							
-		protected abstract <T> PersistenceLegacyTypeHandler<M, T> deriveCustomWrappingHandler(
-			PersistenceLegacyTypeMappingResult<M, T> mappingResult
+		protected abstract <T> PersistenceLegacyTypeHandler<D, T> deriveCustomWrappingHandler(
+			PersistenceLegacyTypeMappingResult<D, T> mappingResult
 		);
 		
-		protected abstract <T> PersistenceLegacyTypeHandler<M, T> deriveReflectiveHandler(
-			PersistenceLegacyTypeMappingResult<M, T> mappingResult,
-			PersistenceTypeHandlerReflective<M, T>   currentTypeHandler
+		protected abstract <T> PersistenceLegacyTypeHandler<D, T> deriveReflectiveHandler(
+			PersistenceLegacyTypeMappingResult<D, T> mappingResult,
+			PersistenceTypeHandlerReflective<D, T>   currentTypeHandler
 		);
 	}
 	

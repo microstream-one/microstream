@@ -44,10 +44,10 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerMap<Hasht
 	////////////
 
 	@Override
-	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Hashtable<?, ?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new Hashtable<>(
-			X.checkArrayRange(getElementCount(bytes))
+			X.checkArrayRange(getElementCount(data))
 		);
 	}
 	

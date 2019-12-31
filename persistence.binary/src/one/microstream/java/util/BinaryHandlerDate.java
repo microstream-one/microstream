@@ -76,34 +76,34 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final Date                    instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeEntityHeader(LENGTH_TIMESTAMP, this.typeId(), objectId);
+		data.storeEntityHeader(LENGTH_TIMESTAMP, this.typeId(), objectId);
 		
 		// the data content of a date is simple the timestamp long, nothing else
-		bytes.store_long(instanceState(instance));
+		data.store_long(instanceState(instance));
 	}
 
 	@Override
-	public final Date create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final Date create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return new Date(binaryState(bytes));
+		return new Date(binaryState(data));
 	}
 	
 	@Override
-	public final void initialize(final Binary data, final Date instance, final PersistenceLoadHandler handler)
+	public final void initializeState(final Binary data, final Date instance, final PersistenceLoadHandler handler)
 	{
-		this.update(data, instance, handler);
+		this.updateState(data, instance, handler);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Date instance, final PersistenceLoadHandler handler)
+	public final void updateState(final Binary data, final Date instance, final PersistenceLoadHandler handler)
 	{
-		instance.setTime(binaryState(bytes));
+		instance.setTime(binaryState(data));
 	}
 	
 	@Override

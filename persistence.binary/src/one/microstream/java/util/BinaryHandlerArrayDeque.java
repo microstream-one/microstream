@@ -49,7 +49,7 @@ public final class BinaryHandlerArrayDeque extends AbstractBinaryHandlerQueue<Ar
 	////////////
 	
 	@Override
-	public ArrayDeque<?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public ArrayDeque<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new ArrayDeque<>();
 	}

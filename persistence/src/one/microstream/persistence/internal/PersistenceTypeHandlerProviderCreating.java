@@ -13,15 +13,15 @@ import one.microstream.persistence.types.PersistenceTypeHandlerProvider;
 import one.microstream.persistence.types.PersistenceTypeLink;
 import one.microstream.persistence.types.PersistenceTypeManager;
 
-public final class PersistenceTypeHandlerProviderCreating<M> implements PersistenceTypeHandlerProvider<M>
+public final class PersistenceTypeHandlerProviderCreating<D> implements PersistenceTypeHandlerProvider<D>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static <M> PersistenceTypeHandlerProviderCreating<M> New(
-		final PersistenceTypeManager               typeManager       ,
-		final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer
+	public static <D> PersistenceTypeHandlerProviderCreating<D> New(
+		final PersistenceTypeManager           typeManager       ,
+		final PersistenceTypeHandlerEnsurer<D> typeHandlerEnsurer
 	)
 	{
 		return new PersistenceTypeHandlerProviderCreating<>(
@@ -36,8 +36,8 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	// instance fields //
 	////////////////////
 
-	private final PersistenceTypeManager               typeManager       ;
-	private final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer;
+	private final PersistenceTypeManager           typeManager       ;
+	private final PersistenceTypeHandlerEnsurer<D> typeHandlerEnsurer;
 
 		
 
@@ -46,8 +46,8 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	/////////////////
 
 	PersistenceTypeHandlerProviderCreating(
-		final PersistenceTypeManager               typeManager       ,
-		final PersistenceTypeHandlerEnsurer<M> typeHandlerEnsurer
+		final PersistenceTypeManager           typeManager       ,
+		final PersistenceTypeHandlerEnsurer<D> typeHandlerEnsurer
 	)
 	{
 		super();
@@ -61,20 +61,20 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	// methods //
 	////////////
 
-	protected final <T> PersistenceTypeHandler<M, T> provideTypeHandler(
+	protected final <T> PersistenceTypeHandler<D, T> provideTypeHandler(
 		final Class<T> type  ,
 		final long     typeId
 	)
 		throws PersistenceExceptionTypeNotPersistable
 	{
-		final PersistenceTypeHandler<M, T> protoTypeHandler = this.ensureTypeHandler(type);
-		final PersistenceTypeHandler<M, T> typeHandler      = protoTypeHandler.initialize(typeId);
+		final PersistenceTypeHandler<D, T> protoTypeHandler = this.ensureTypeHandler(type);
+		final PersistenceTypeHandler<D, T> typeHandler      = protoTypeHandler.initialize(typeId);
 
 		return typeHandler;
 	}
 
 	@Override
-	public final <T> PersistenceTypeHandler<M, T> provideTypeHandler(final Class<T> type)
+	public final <T> PersistenceTypeHandler<D, T> provideTypeHandler(final Class<T> type)
 	{
 		// type<->tid mapping is created in advance.
 		final long typeId = this.typeManager.ensureTypeId(type);
@@ -145,26 +145,26 @@ public final class PersistenceTypeHandlerProviderCreating<M> implements Persiste
 	}
 	
 	@Override
-	public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
+	public final <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable
 	{
 		return this.typeHandlerEnsurer.ensureTypeHandler(type);
 	}
 	
 	@Override
-	public final <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+	public final <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateTypeHandlers(final C iterator)
 	{
 		return this.typeHandlerEnsurer.iterateTypeHandlers(iterator);
 	}
 	
 	@Override
-	public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(final C iterator)
+	public <C extends Consumer<? super PersistenceLegacyTypeHandler<D, ?>>> C iterateLegacyTypeHandlers(final C iterator)
 	{
 		return this.typeHandlerEnsurer.iterateLegacyTypeHandlers(iterator);
 	}
 	
 	@Override
-	public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateAllTypeHandlers(final C iterator)
+	public <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateAllTypeHandlers(final C iterator)
 	{
 		return this.typeHandlerEnsurer.iterateAllTypeHandlers(iterator);
 	}

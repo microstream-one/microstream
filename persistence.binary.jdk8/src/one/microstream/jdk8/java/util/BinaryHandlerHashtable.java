@@ -108,7 +108,7 @@ public final class BinaryHandlerHashtable extends AbstractBinaryHandlerCustomCol
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler idResolver)
+	public final void updateState(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler idResolver)
 	{
 		instance.clear();
 		final int elementCount = getElementCount(bytes);

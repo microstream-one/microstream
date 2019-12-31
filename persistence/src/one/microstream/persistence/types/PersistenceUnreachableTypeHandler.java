@@ -17,10 +17,10 @@ import java.util.function.Consumer;
  * 
  * @author TM
  *
- * @param <M>
+ * @param <D>
  * @param <T>
  */
-public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLegacyTypeHandler<M, T>
+public interface PersistenceUnreachableTypeHandler<D, T> extends PersistenceLegacyTypeHandler<D, T>
 {
 	@Override
 	public default boolean hasInstanceReferences()
@@ -35,7 +35,7 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default void iterateLoadableReferences(final M medium, final PersistenceReferenceLoader iterator)
+	public default void iterateLoadableReferences(final D data, final PersistenceReferenceLoader iterator)
 	{
 		// no-op: for all intents and purposes, an unreachable instance's references need not and must not be iterated.
 	}
@@ -47,7 +47,7 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default T create(final M medium, final PersistenceLoadHandler handler)
+	public default T create(final D data, final PersistenceLoadHandler handler)
 	{
 		// (01.06.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(
@@ -56,13 +56,13 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	}
 
 	@Override
-	public default void updateState(final M medium, final T instance, final PersistenceLoadHandler handler)
+	public default void updateState(final D data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// nothing to do here in either case (null or exception)
 	}
 
 	@Override
-	public default void complete(final M medium, final T instance, final PersistenceLoadHandler handler)
+	public default void complete(final D data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// nothing to do here in either case (null or exception)
 	}
@@ -76,7 +76,7 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 	
 	
 	
-	public static <M, T> PersistenceUnreachableTypeHandler<M, T> New(
+	public static <D, T> PersistenceUnreachableTypeHandler<D, T> New(
 		final PersistenceTypeDefinition typeDefinition
 	)
 	{
@@ -85,9 +85,9 @@ public interface PersistenceUnreachableTypeHandler<M, T> extends PersistenceLega
 		);
 	}
 	
-	public class Default<M, T>
-	extends PersistenceLegacyTypeHandler.Abstract<M, T>
-	implements PersistenceUnreachableTypeHandler<M, T>
+	public class Default<D, T>
+	extends PersistenceLegacyTypeHandler.Abstract<D, T>
+	implements PersistenceUnreachableTypeHandler<D, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //

@@ -107,7 +107,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 	}
 
 	@Override
-	public final void update(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler idResolver)
+	public final void updateState(final Binary bytes, final LinkedHashSet<?> instance, final PersistenceLoadHandler idResolver)
 	{
 		instance.clear();
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];

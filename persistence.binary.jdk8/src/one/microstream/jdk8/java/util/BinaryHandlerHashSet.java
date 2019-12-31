@@ -107,7 +107,7 @@ public final class BinaryHandlerHashSet extends AbstractBinaryHandlerCustomColle
 	}
 
 	@Override
-	public final void update(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler idResolver)
+	public final void updateState(final Binary bytes, final HashSet<?> instance, final PersistenceLoadHandler idResolver)
 	{
 		instance.clear();
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];

@@ -66,10 +66,10 @@ public class BinaryHandlerGenericCollection<T extends Collection<?>> extends Abs
 	////////////
 
 	@Override
-	public T create(final Binary bytes, final PersistenceLoadHandler handler)
+	public T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return this.instantiator.instantiateCollection(
-			getElementCount(bytes)
+			getElementCount(data)
 		);
 	}
 

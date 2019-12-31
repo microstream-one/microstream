@@ -41,7 +41,7 @@ public final class BinaryHandlerHashMap extends AbstractBinaryHandlerMap<HashMap
 	////////////
 
 	@Override
-	public final HashMap<?, ?> create(final Binary bytes, final PersistenceLoadHandler handler)
+	public final HashMap<?, ?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new HashMap<>();
 	}
