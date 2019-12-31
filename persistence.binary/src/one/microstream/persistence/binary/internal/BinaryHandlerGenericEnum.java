@@ -13,10 +13,11 @@ import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryValueFunctions;
 import one.microstream.persistence.binary.types.BinaryValueSetter;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
@@ -92,7 +93,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		}
 		
 		// (01.08.2019 TM)EXCP: proper exception
-		throw new RuntimeException("Member not found in member list.");
+		throw new PersistenceException("Member not found in member list.");
 	}
 		
 	public static XImmutableEnum<PersistenceTypeDefinitionMemberEnumConstant> deriveEnumConstantMembers(
@@ -268,7 +269,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		}
 		
 		// (01.08.2019 TM)EXCP: proper exception
-		throw new RuntimeException("Unknown " + java.lang.Enum.class.getName() + " field: " + m.name());
+		throw new PersistenceException("Unknown " + java.lang.Enum.class.getName() + " field: " + m.name());
 	}
 	
 	protected final boolean isFinalPrimitiveField(final PersistenceTypeDefinitionMemberFieldReflective m)
@@ -295,7 +296,7 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	}
 		
 	@Override
-	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		/*
 		 * Can't validate here since the name String instance might not have been created, yet. See #update.
@@ -307,41 +308,41 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		 * Mismatches between persistent form and runtime type must be handled via a LegacyTypeHandler, not here.
 		 */
 		
-		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getPersistedEnumOrdinal(bytes));
+		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getPersistedEnumOrdinal(data));
 	}
 	
 	@Override
-	public int getPersistedEnumOrdinal(final Binary bytes)
+	public int getPersistedEnumOrdinal(final Binary data)
 	{
-		return bytes.read_int(this.binaryOffsetOrdinal);
+		return data.read_int(this.binaryOffsetOrdinal);
 	}
 	
-	public String getName(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public String getName(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return (String)idResolver.lookupObject(bytes.read_long(this.binaryOffsetName));
+		return (String)handler.lookupObject(data.read_long(this.binaryOffsetName));
 	}
 	
 	private void validate(
-		final Binary                      bytes     ,
-		final T                           instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data    ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// validate ordinal, just in case.
-		final int persistentOrdinal = this.getPersistedEnumOrdinal(bytes);
+		final int persistentOrdinal = this.getPersistedEnumOrdinal(data);
 		if(persistentOrdinal != instance.ordinal())
 		{
 			// (01.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Inconcistency for " + instance.getDeclaringClass().getName() + "." + instance.name()
 			);
 		}
 		
-		final String persistentName = this.getName(bytes, idResolver);
+		final String persistentName = this.getName(data, handler);
 		if(!instance.name().equals(persistentName))
 		{
 			// (09.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Enum constant inconsistency:"
 				+ " in type " + this.type().getName()
 				+ " persisted instance with ordinal " + persistentOrdinal + ", name \"" + persistentName + "\""
@@ -352,13 +353,13 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	}
 		
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// must thoroughly validate the linked jvm-generated(!) instance before modifying its state!
-		this.validate(bytes, instance, idResolver);
+		this.validate(data, instance, handler);
 		
 		// super class logic already uses only setting members, i.e. not ordinal and name.
-		super.update(bytes, instance, idResolver);
+		super.updateState(data, instance, handler);
 	}
 
 }

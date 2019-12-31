@@ -18,12 +18,12 @@ import one.microstream.persistence.types.PersistenceTypeLink;
  *
  * @author Thomas Muenz
  *
- * @param <M>
+ * @param <D>
  */
-public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceTypeHandlerProvider<M>
+public class PersistenceTypeHandlerProviderFailing<D> implements PersistenceTypeHandlerProvider<D>
 {
 	@Override
-	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(final Class<T> type)
+	public <T> PersistenceTypeHandler<D, T> provideTypeHandler(final Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable
 	{
 		throw new PersistenceExceptionTypeNotPersistable(type);
@@ -117,7 +117,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 	
 	@Override
-	public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
+	public final <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable
 	{
 		/*
@@ -128,7 +128,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 	
 	@Override
-	public final <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+	public final <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateTypeHandlers(final C iterator)
 	{
 		/*
 		 * This is not an API OOP misdesign abuse of this exception (like in the JDK), but
@@ -138,7 +138,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 	
 	@Override
-	public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(final C iterator)
+	public <C extends Consumer<? super PersistenceLegacyTypeHandler<D, ?>>> C iterateLegacyTypeHandlers(final C iterator)
 	{
 		/*
 		 * This is not an API OOP misdesign abuse of this exception (like in the JDK), but
@@ -148,7 +148,7 @@ public class PersistenceTypeHandlerProviderFailing<M> implements PersistenceType
 	}
 	
 	@Override
-	public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateAllTypeHandlers(final C iterator)
+	public <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateAllTypeHandlers(final C iterator)
 	{
 		/*
 		 * This is not an API OOP misdesign abuse of this exception (like in the JDK), but

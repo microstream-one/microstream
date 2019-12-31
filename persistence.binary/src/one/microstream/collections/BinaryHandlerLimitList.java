@@ -6,8 +6,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIt
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -69,13 +69,13 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final LimitList<?>            instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeSizedArray(
+		data.storeSizedArray(
 			this.typeId()            ,
 			objectId                 ,
 			BINARY_OFFSET_SIZED_ARRAY,
@@ -86,22 +86,22 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 	}
 
 	@Override
-	public final LimitList<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final LimitList<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return new LimitList<>(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
+		return new LimitList<>(this.determineArrayLength(data, BINARY_OFFSET_SIZED_ARRAY));
 	}
 
 	@Override
-	public final void update(final Binary bytes, final LimitList<?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void updateState(final Binary data, final LimitList<?> instance, final PersistenceLoadHandler handler)
 	{
 		// must clear to avoid memory leaks due to residual references beyond the new size in existing instances.
 		instance.clear();
 		
 		// length must be checked for consistency reasons
-		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
-		instance.size = bytes.updateSizedArrayObjectReferences(
+		instance.ensureCapacity(this.determineArrayLength(data, BINARY_OFFSET_SIZED_ARRAY));
+		instance.size = data.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			idResolver,
+			handler,
 			instance.data
 		);
 	}
@@ -113,9 +113,9 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
+		data.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
 
 }

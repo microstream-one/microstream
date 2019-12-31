@@ -3,8 +3,8 @@ package one.microstream.util;
 import one.microstream.collections.BinaryHandlerEqHashEnum;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -54,7 +54,7 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final Substituter.Default<?>  instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
@@ -62,53 +62,53 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	{
 		synchronized(instance)
 		{
-			BinaryHandlerEqHashEnum.staticStore(bytes, instance.elements, this.typeId(), objectId, handler);
+			BinaryHandlerEqHashEnum.staticStore(data, instance.elements, this.typeId(), objectId, handler);
 		}
 	}
 
 	@Override
 	public final Substituter.Default<?> create(
-		final Binary                      bytes     ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data   ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// hashEqualator gets set in update
-		return new Substituter.Default<>(BinaryHandlerEqHashEnum.staticCreate(bytes));
+		return new Substituter.Default<>(BinaryHandlerEqHashEnum.staticCreate(data));
 	}
 
 	@Override
-	public final void update(
-		final Binary                      bytes     ,
-		final Substituter.Default<?>      instance  ,
-		final PersistenceObjectIdResolver idResolver
+	public final void updateState(
+		final Binary                 data    ,
+		final Substituter.Default<?> instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		synchronized(instance)
 		{
-			BinaryHandlerEqHashEnum.staticUpdate(bytes, instance.elements, idResolver);
+			BinaryHandlerEqHashEnum.staticUpdate(data, instance.elements, handler);
 		}
 	}
 
 	@Override
 	public void complete(
-		final Binary                      medium    ,
-		final Substituter.Default<?>      instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data    ,
+		final Substituter.Default<?> instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		synchronized(instance)
 		{
-			BinaryHandlerEqHashEnum.staticComplete(medium, instance.elements);
+			BinaryHandlerEqHashEnum.staticComplete(data, instance.elements);
 		}
 	}
 
 	@Override
 	public final void iterateLoadableReferences(
-		final Binary                      bytes   ,
-		final PersistenceObjectIdAcceptor iterator
+		final Binary                     data    ,
+		final PersistenceReferenceLoader iterator
 	)
 	{
-		BinaryHandlerEqHashEnum.staticIteratePersistedReferences(bytes, iterator);
+		BinaryHandlerEqHashEnum.staticIteratePersistedReferences(data, iterator);
 	}
 
 	@Override

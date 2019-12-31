@@ -24,7 +24,7 @@ public class MainTestStorageInstantiator
 		.start()
 	;
 	
-	public static <T> T instantiate(final Class<T> type, final Binary bytes)
+	public static <T> T instantiate(final Class<T> type, final Binary data)
 		throws InstantiationRuntimeException
 	{
 		System.out.print("  Creating a blank " + type.getSimpleName() + " instance of ... ");
@@ -34,7 +34,7 @@ public class MainTestStorageInstantiator
 		return instance;
 	}
 	
-	public static Person instantiatePerson(final Binary bytes)
+	public static Person instantiatePerson(final Binary data)
 		throws InstantiationRuntimeException
 	{
 		System.out.print("* Creating a constructed " + Person.class.getSimpleName() + " instance ... ");

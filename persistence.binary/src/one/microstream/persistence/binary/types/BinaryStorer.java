@@ -407,10 +407,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			}
 
 			// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
-			return -1;
+			return Persistence.notFoundId();
 		}
-
-		
 
 		public final void rebuildStoreItems()
 		{

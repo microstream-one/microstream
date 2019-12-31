@@ -3,6 +3,7 @@ package one.microstream.persistence.binary.internal;
 import static one.microstream.X.notNull;
 
 import one.microstream.math.XMath;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberCreator;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
@@ -172,7 +173,8 @@ public interface BinaryField extends PersistenceTypeDefinitionMemberFieldGeneric
 					return offset;
 				}
 				
-				throw new RuntimeException(); // (04.04.2019 TM)EXCP: proper exception
+				// (04.04.2019 TM)EXCP: proper exception
+				throw new PersistenceException("Offset already assigned: " + this.offset + ". Passed: " + offset);
 			}
 			
 			return this.offset = XMath.notNegative(offset);
@@ -191,7 +193,7 @@ public interface BinaryField extends PersistenceTypeDefinitionMemberFieldGeneric
 				}
 				
 				// (04.04.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Name already initialized: current name \"" + currentName + "\" != \"" + name + "\""
 				);
 			}

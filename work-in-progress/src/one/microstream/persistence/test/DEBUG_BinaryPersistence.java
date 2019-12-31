@@ -31,19 +31,19 @@ public final class DEBUG_BinaryPersistence
 	}
 
 
-	public static final long[] getEntityHeaderLongsFromDataAddress(final Binary bytes)
+	public static final long[] getEntityHeaderLongsFromDataAddress(final Binary data)
 	{
 		return new long[]
 		{
-			bytes.getBuildItemContentLength(),
-			bytes.getBuildItemTypeId(),
-			bytes.getBuildItemObjectId()
+			data.getBuildItemContentLength(),
+			data.getBuildItemTypeId(),
+			data.getBuildItemObjectId()
 		};
 	}
 
-	public static final String getEntityHeaderFromDataAddress(final Binary bytes)
+	public static final String getEntityHeaderFromDataAddress(final Binary data)
 	{
-		final long[] header = getEntityHeaderLongsFromDataAddress(bytes);
+		final long[] header = getEntityHeaderLongsFromDataAddress(data);
 		return "Entity "
 			+ "\nLEN=" + header[0] + " (" + Long.toHexString(header[0]).toUpperCase() + ")"
 			+ "\nTID=" + header[1] + " (" + Long.toHexString(header[1]).toUpperCase() + ")"
@@ -51,13 +51,13 @@ public final class DEBUG_BinaryPersistence
 		;
 	}
 
-	public static final String binaryToString(final Binary bytes)
+	public static final String binaryToString(final Binary data)
 	{
 		final VarString vs = VarString.New(4096);
 		
-		final boolean isSwitchedByteOrder = bytes.isSwitchedByteOrder();
+		final boolean isSwitchedByteOrder = data.isSwitchedByteOrder();
 		
-		bytes.iterateEntityData(entitiesData ->
+		data.iterateEntityData(entitiesData ->
 		{
 			final long startAddress = XMemory.getDirectByteBufferAddress(entitiesData);
 			final long boundAddress = XMemory.getDirectByteBufferAddress(entitiesData) + entitiesData.limit();

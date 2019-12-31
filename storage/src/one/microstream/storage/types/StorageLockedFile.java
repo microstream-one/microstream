@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import one.microstream.collections.XArrays;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.XIO;
+import one.microstream.storage.exceptions.StorageException;
 
 
 public interface StorageLockedFile extends StorageFile //, AutoCloseable
@@ -68,7 +69,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 			if(lock == null)
 			{
 				// (29.11.2019 TM)EXCP: proper exception
-				throw new RuntimeException("File seems to be already locked: " + file);
+				throw new StorageException("File seems to be already locked: " + file);
 			}
 			channel.position(channel.size());
 		}
@@ -76,8 +77,8 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		{
 			XIO.unchecked.close(channel, e);
 			
-			// (28.06.2014)EXCP: proper exception
-			throw new RuntimeException("Cannot obtain lock for file " + file, e);
+			// (28.06.2014 TM)EXCP: proper exception
+			throw new StorageException("Cannot obtain lock for file " + file, e);
 		}
 
 		return lock;
@@ -209,7 +210,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 			if(this.hasUsers())
 			{
 				// (29.11.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new StorageException(
 					this.getClass().getCanonicalName() + " still has registered users and cannot be closed: " + this
 				);
 			}
@@ -328,7 +329,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 			}
 			
 			// (29.11.2019 TM)EXCP: proper exception
-			throw new RuntimeException(StorageFileUser.class.getSimpleName() + " not found " + fileUser);
+			throw new StorageException(StorageFileUser.class.getSimpleName() + " not found " + fileUser);
 		}
 				
 		@Override

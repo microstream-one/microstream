@@ -1,8 +1,8 @@
 package one.microstream.chars;
 
 
-public interface StringTableBuilder<M>
+public interface StringTableBuilder<D>
 {
-	public StringTable build(M medium);
+	public StringTable build(D data);
 	
 }

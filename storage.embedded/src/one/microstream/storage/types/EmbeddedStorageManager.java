@@ -13,6 +13,7 @@ import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceManager;
+import one.microstream.persistence.types.PersistenceRootReference;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceRootsView;
@@ -38,54 +39,54 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	@Override
 	public boolean shutdown();
 	
+	/**
+	 * @return the persistent object graph's root object.
+	 */
 	public Object root();
 	
 	public Object setRoot(Object newRoot);
 	
+	/**
+	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
+	 * It is advised to use {@link #root()} and {@link #setRoot(Object)} instead.
+	 * 
+	 * @deprecated
+	 * 
+	 * @return a mutable {@link Reference} to the root object.
+	 */
+	@Deprecated
 	public Reference<Object> defaultRoot();
-	
-	public Object customRoot();
+
+	/**
+	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
+	 * It is advised to use {@link #root()} instead, for which this method is an alias.
+	 * 
+	 * @deprecated
+	 * 
+	 * @return the root object.
+	 */
+	@Deprecated
+	public default Object customRoot()
+	{
+		return this.root();
+	}
 	
 	public PersistenceRootsView viewRoots();
 	
-	public default long storeRoot()
-	{
-		// if a default root is present, there cannot be a custom root, so store the default root
-		final Reference<Object> defaultRoot = this.defaultRoot();
-		if(defaultRoot != null)
-		{
-			final Storer storer = this.createStorer();
-			final long defaultRootObjectId = storer.store(defaultRoot);
-			
-			final Object root = defaultRoot.get();
-			if(root != null)
-			{
-				storer.store(root);
-			}
-			
-			storer.commit();
-			
-			return defaultRootObjectId;
-		}
-
-		// if a custom root is present, store that
-		final Object customRoot = this.customRoot();
-		if(customRoot != null)
-		{
-			return this.store(customRoot);
-		}
-
-		return Persistence.nullId();
-	}
+	public long storeRoot();
 	
+	/**
+	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
+	 * It is advised to use {@link #storeRoot()} instead, for which this method is an alias.
+	 * 
+	 * @deprecated
+	 * 
+	 * @return stores the root object and returns its objectId.
+	 */
+	@Deprecated
 	public default long storeDefaultRoot()
 	{
-		final Reference<Object> root = this.defaultRoot();
-
-		return root == null
-			? Persistence.nullId()
-			: this.store(root)
-		;
+		return this.storeRoot();
 	}
 
 	
@@ -155,58 +156,39 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public final Object root()
 		{
-			final Object customRoot = this.customRoot();
-			if(customRoot != null)
-			{
-				return customRoot;
-			}
-			
-			final Reference<Object> defaultRoot = this.defaultRoot();
-			if(defaultRoot != null)
-			{
-				return defaultRoot.get();
-			}
-			
-			return null;
+			return this.rootReference().get();
 		}
 		
 		@Override
 		public final Object setRoot(final Object newRoot)
 		{
-			final Object customRoot = this.customRoot();
-			if(customRoot != null)
-			{
-				if(customRoot == newRoot)
-				{
-					// no-op, graciously abort
-					return customRoot;
-				}
-				
-				// (25.06.2019 TM)EXCP: proper exception
-				throw new StorageException("Cannot replace an explicitely defined root instance.");
-			}
+			this.rootReference().setRoot(newRoot);
 			
-			final Reference<Object> defaultRoot = this.defaultRoot();
-			if(defaultRoot != null)
-			{
-				defaultRoot.set(newRoot);
-				return newRoot;
-			}
-
-			// (25.06.2019 TM)EXCP: proper exception
-			throw new StorageException("No default root (reference holder) present to reference the passed root.");
+			return newRoot;
+		}
+		
+		final PersistenceRootReference rootReference()
+		{
+			return this.rootsProvider.provideRoots().rootReference();
 		}
 		
 		@Override
-		public final Reference<Object> defaultRoot()
+		public long storeRoot()
 		{
-			return this.rootsProvider.provideRoots().defaultRoot();
-		}
-		
-		@Override
-		public final Object customRoot()
-		{
-			return this.rootsProvider.provideRoots().customRoot();
+			final Storer storer = this.createStorer();
+			
+			final PersistenceRootReference rootReference = this.rootReference();
+			storer.store(rootReference);
+			
+			final Object root = rootReference.get();
+			final long rootObjectId = root != null
+				? storer.store(root)
+				: Persistence.nullId()
+			;
+				
+			storer.commit();
+			
+			return rootObjectId;
 		}
 		
 		@Override
@@ -332,7 +314,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			if(statistics.liveDataLength() != 0)
 			{
 				// (14.09.2015 TM)EXCP: proper exception
-				throw new RuntimeException("No roots found for existing data.");
+				throw new StorageException("No roots found for existing data.");
 			}
 
 			return this.rootsProvider.provideRoots();
@@ -528,6 +510,15 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		public final void importFiles(final XGettingEnum<Path> importFiles)
 		{
 			this.singletonConnection().importFiles(importFiles);
+		}
+		
+
+		
+		@Deprecated
+		@Override
+		public final Reference<Object> defaultRoot()
+		{
+			return this.rootReference();
 		}
 
 	}

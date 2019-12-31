@@ -7,6 +7,7 @@ import java.nio.channels.SeekableByteChannel;
 
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.storage.exceptions.StorageException;
 
 
 public interface StorageDataFileItemIterator
@@ -186,11 +187,11 @@ public interface StorageDataFileItemIterator
 
 			if(currentFilePosition < 0 || currentFilePosition > actualFileLength)
 			{
-				throw new IllegalArgumentException(); // (10.06.2014)EXCP: proper exception
+				throw new IllegalArgumentException(); // (10.06.2014 TM)EXCP: proper exception
 			}
 			if(boundPosition < 0 || boundPosition > actualFileLength)
 			{
-				throw new IllegalArgumentException(); // (10.06.2014)EXCP: proper exception
+				throw new IllegalArgumentException(); // (10.06.2014 TM)EXCP: proper exception
 			}
 
 			      long nextEntityLength = 0;
@@ -233,7 +234,7 @@ public interface StorageDataFileItemIterator
 			catch(final Exception e)
 			{
 				// (04.12.2014 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new StorageException(
 					"currentFilePosition = " + currentFilePosition + ". nextEntityLength = " + nextEntityLength, e
 				);
 			}
@@ -271,7 +272,8 @@ public interface StorageDataFileItemIterator
 				if(itemLength == 0)
 				{
 					// entity length may never be 0 or the iteration will hang forever
-					throw new RuntimeException("Zero length data item."); // (29.08.2014)EXCP: proper exception
+					// (29.08.2014 TM)EXCP: proper exception
+					throw new StorageException("Zero length data item.");
 				}
 
 //				DEBUGStorage.println("processing entity at " + (fileChannel.position() + address - bufferBound) + " / " + fileChannel.size());
@@ -313,7 +315,8 @@ public interface StorageDataFileItemIterator
 			}
 			catch(final IOException e)
 			{
-				throw new RuntimeException(e); // (02.10.2014 TM)EXCP: proper exception
+				// (02.10.2014 TM)EXCP: proper exception
+				throw new StorageException(e);
 			}
 		}
 

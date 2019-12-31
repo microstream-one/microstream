@@ -5,6 +5,7 @@ import static one.microstream.X.mayNull;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.persistence.exceptions.PersistenceException;
 
 
 public interface PersistenceTypeLineage
@@ -111,7 +112,7 @@ public interface PersistenceTypeLineage
 			}
 			
 			// (12.10.2017 TM)EXCP: proper exception
-			throw new RuntimeException("Invalid type definition for type lineage " + this.typeName());
+			throw new PersistenceException("Invalid type definition for type lineage " + this.typeName());
 		}
 		
 		private boolean isValid(final PersistenceTypeDefinition typeDefinition)
@@ -185,7 +186,7 @@ public interface PersistenceTypeLineage
 				
 				// conflicting call/usage (runtime types and thus definitions are assumed to be immutable for now)
 				// (26.09.2017 TM)EXCP: proper exception
-				throw new RuntimeException("Runtime definition already initialized");
+				throw new PersistenceException("Runtime definition already initialized");
 			}
 			
 			if(this.isValid(runtimeDefinition))
@@ -193,7 +194,7 @@ public interface PersistenceTypeLineage
 				return true;
 			}
 			
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Invalid runtime definition for " + this.typeName() + " with type id: " + runtimeDefinition.typeId()
 			);
 		}

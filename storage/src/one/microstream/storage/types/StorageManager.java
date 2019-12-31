@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.Unpersistable;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import one.microstream.storage.exceptions.StorageExceptionNotRunning;
 
@@ -15,7 +16,7 @@ public interface StorageManager extends StorageController
 
 	public StorageTypeDictionary typeDictionary();
 
-	// (20.05.2013)TODO: StorageManager#operationController() - not sure this belongs here
+	// (20.05.2013 TM)TODO: StorageManager#operationController() - not sure this belongs here
 	public StorageOperationController operationController();
 	
 	public default StorageChannelCountProvider channelCountProvider()
@@ -508,7 +509,7 @@ public interface StorageManager extends StorageController
 			{
 				if(this.isRunning())
 				{
-					throw new RuntimeException("already starting"); // (05.07.2014)EXCP: proper exception
+					throw new StorageException("already starting"); // (05.07.2014 TM)EXCP: proper exception
 				}
 				
 				this.isStartingUp = true;
@@ -522,7 +523,7 @@ public interface StorageManager extends StorageController
 				catch(final InterruptedException e)
 				{
 					this.operationController.deactivate();
-					throw new RuntimeException(e); // (15.06.2013)EXCP: proper exception
+					throw new StorageException(e); // (15.06.2013 TM)EXCP: proper exception
 				}
 				catch(final Throwable t)
 				{
@@ -556,6 +557,21 @@ public interface StorageManager extends StorageController
 				}
 				catch(final InterruptedException e)
 				{
+					/* (09.12.2019 TM)FIXME: swallows interruption for the outside context.
+					 * Once again: How to handle these things?
+					 * Pass them through all API layers as checked exceptions? Doesn't feel right.
+					 * Wrap them in a runtime exception? Would make things even worse in thise
+					 * particular case ...
+					 * 
+					 * Or does it really make sense to have an interruptible shutdown in the first place?
+					 * What if some parts already shut down?
+					 * Really do a partial restart instead of just a complete shutdown and a restart?
+					 * And can the active threads really be interrupted from the outside so an interruption would
+					 * have any meaning to an outside caller?
+					 * So many questions ...
+					 * 
+					 * For now, it's a false ... ^^.
+					 */
 					// interruption while waiting for shutdown means don't shut down
 					return false;
 				}

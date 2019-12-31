@@ -134,7 +134,7 @@ public final class HashMapIdObject<E> implements Sized, OptimizableCollection, C
 		}
 	}
 
-	// (31.03.2012)XXX: !!! copy optimized hash-add() to all hash~ implementations
+	// (31.03.2012 TM)XXX: !!! copy optimized hash-add() to all hash~ implementations
 	public final boolean add(final long id, final E object)
 	{
 		final int index;

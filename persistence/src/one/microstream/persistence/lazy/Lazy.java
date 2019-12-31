@@ -1,6 +1,7 @@
 package one.microstream.persistence.lazy;
 
 import one.microstream.chars.XChars;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectRetriever;
 import one.microstream.reference.LazyReferencing;
@@ -263,8 +264,8 @@ public interface Lazy<T> extends LazyReferencing<T>
 		{
 			if(this.objectId != Persistence.nullId() && this.objectId != objectId)
 			{
-				// (22.10.2014)TODO: proper exception
-				throw new RuntimeException("ObjectId already set: " + this.objectId);
+				// (22.10.2014 TM)TODO: proper exception
+				throw new PersistenceException("ObjectId already set: " + this.objectId);
 			}
 		}
 
@@ -300,7 +301,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 //				}
 	//
 //				// (03.09.2019 TM)EXCP: proper exception
-//				throw new RuntimeException(
+//				throw new PersistenceException(
 //					"Lazy reference is already linked to another "
 //					+ PersistenceObjectRetriever.class.getSimpleName()
 //				);
@@ -322,7 +323,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 			if(!this.isStored())
 			{
 				// (03.09.2019 TM)EXCP: proper exception
-				throw new RuntimeException("Cannot clear an unstored lazy reference.");
+				throw new PersistenceException("Cannot clear an unstored lazy reference.");
 			}
 			
 //			XDebug.debugln("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);

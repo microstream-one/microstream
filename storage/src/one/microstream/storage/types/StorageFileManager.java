@@ -235,45 +235,6 @@ public interface StorageFileManager
 			return this.headFile == dataFile;
 		}
 
-		// (14.02.2019 TM)NOTE: removed because of conflict with backupping, but maybe it will be required for testing.
-//		final void truncateFiles()
-//		{
-//			try
-//			{
-//				if(this.headFile != null)
-//				{
-//					this.writer.flush(this.headFile);
-//					final StorageDataFile.Default currentFile = this.headFile;
-//					for(StorageDataFile.Default file = currentFile.next; file != currentFile; file = file.next)
-//					{
-//						file.terminate(this.writer);
-//					}
-//					currentFile.terminate(this.writer);
-//					this.headFile = null;
-//				}
-//
-//				if(this.fileTransactions != null)
-//				{
-//					this.writer.flush(this.fileTransactions);
-//				}
-//				else
-//				{
-//					this.setTransactionsFile(this.createTransactionsFile());
-//				}
-//
-//				this.writer.truncate(this.fileTransactions, 0);
-//
-//				// note: flush is done above on a per-case basis
-//				this.writer.registerChannelTruncation(this.channelIndex());
-//				this.addFirstFile();
-//				this.resetFileCleanupCursor();
-//			}
-//			catch(final IOException e)
-//			{
-//				throw new RuntimeException(e); // (26.11.2014 TM)EXCP: proper exception
-//			}
-//		}
-
 		private void addFirstFile()
 		{
 			try
@@ -473,8 +434,8 @@ public interface StorageFileManager
 			 */
 			if(file.length() != 0)
 			{
-				// (29.05.2014)EXCP: proper exception
-				throw new RuntimeException("New storage file is not empty: " + file);
+				// (29.05.2014 TM)EXCP: proper exception
+				throw new StorageException("New storage file is not empty: " + file);
 			}
 
 			// create and register StorageFile instance with an attached channel
@@ -664,8 +625,8 @@ public interface StorageFileManager
 		{
 			if(lastReadCount < 0)
 			{
-				// (30.06.2013)EXCP: proper exception
-				throw new RuntimeException(this.channelIndex() + " failed to read data at " + filePosition);
+				// (30.06.2013 TM)EXCP: proper exception
+				throw new StorageException(this.channelIndex() + " failed to read data at " + filePosition);
 			}
 			throw new one.microstream.meta.NotImplementedYetError(
 				"filePosition = " + filePosition + ", lastReadCount = " + lastReadCount
@@ -682,8 +643,8 @@ public interface StorageFileManager
 		{
 			if(this.headFile != null)
 			{
-				// (21.04.2013)EXCP: proper exception
-				throw new RuntimeException(this.channelIndex() + " already initialized");
+				// (21.04.2013 TM)EXCP: proper exception
+				throw new StorageException(this.channelIndex() + " already initialized");
 			}
 
 			final StorageTransactionsFileAnalysis         transactionsFile = this.readTransactionsFile();
@@ -725,7 +686,7 @@ public interface StorageFileManager
 			catch(final IOException e)
 			{
 				StorageFile.close(file, e);
-				throw new RuntimeException(e); // (29.08.2014)EXCP: proper exception
+				throw new StorageException(e); // (29.08.2014 TM)EXCP: proper exception
 			}
 		}
 
@@ -737,7 +698,7 @@ public interface StorageFileManager
 			if(tFileAnalysis == null || tFileAnalysis.transactionsFileEntries().isEmpty())
 			{
 				// no transaction file (content) present. Abort and derive later.
-				// (06.09.2014)TODO: configurable MissingTransactionsFileHandler callback
+				// (06.09.2014 TM)TODO: configurable MissingTransactionsFileHandler callback
 				return unregisteredEmptyLastFileNumber;
 			}
 
@@ -761,9 +722,9 @@ public interface StorageFileManager
 					}
 
 					// if the transactions file is present, it must be consistent (i.e. account for all files)
-					throw new RuntimeException(
+					throw new StorageException(
 						this.channelIndex() + " could not find transactions entry for file " + file.number()
-					); // (06.09.2014)EXCP: proper exception
+					); // (06.09.2014 TM)EXCP: proper exception
 				}
 
 				/* (18.06.2015 TM)TODO: handle files registered as deleted but not deleted yet
@@ -784,7 +745,7 @@ public interface StorageFileManager
 
 				// inconsistent file length compared to transactions file, throw exception
 				// (11.09.2014 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new StorageException(
 					this.channelIndex() + " Length " + actualFileLength + " of file "
 					+ file.number() + " is inconsinstent with the transactions entry's length of " + entryFile.length()
 				);
@@ -798,8 +759,8 @@ public interface StorageFileManager
 					continue;
 				}
 
-				// (06.09.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (06.09.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					"Non-deleted data file not found: channel " + this.channelIndex()
 					+ ", file " + remainingFileEntry.fileNumber()
 				);
@@ -977,8 +938,8 @@ public interface StorageFileManager
 			else
 			{
 				// should never happen because of all the validations before
-				// (10.06.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (10.06.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					"Inconsistent last timestamps in last file of channel " + this.channelIndex()
 				);
 			}
@@ -1326,7 +1287,7 @@ public interface StorageFileManager
 				 *  Instead must signal the storage managr (one way or another) to shutdown so that no other
 				 *  thread continues working and ruins something.
 				 */
-				throw new RuntimeException(this.channelIndex() + " has inconsistent pending deletes: count = " + this.pendingFileDeletes + ", wants to delete " + file); // (31.10.2014 TM)EXCP: proper exception
+				throw new StorageException(this.channelIndex() + " has inconsistent pending deletes: count = " + this.pendingFileDeletes + ", wants to delete " + file); // (31.10.2014 TM)EXCP: proper exception
 			}
 			this.pendingFileDeletes--;
 			
@@ -1540,7 +1501,7 @@ public interface StorageFileManager
 			final long oldTotalLength = this.headFile.totalLength();
 			      long loopFileLength = oldTotalLength;
 
-			// (05.01.2015)TODO: batch copying must ensure that entity position limit of 2 GB is not exceeded
+			// (05.01.2015 TM)TODO: batch copying must ensure that entity position limit of 2 GB is not exceeded
 			for(final StorageChannelImportBatch batch : this.importHelper.importBatches)
 			{
 				// register each entity in the batch (possibly just one)
@@ -1609,7 +1570,7 @@ public interface StorageFileManager
 
 			if(!exceptions.isEmpty())
 			{
-				throw new RuntimeException(exceptions.first()); // (25.07.2014 TM)EXCP: proper exception
+				throw new StorageException(exceptions.first()); // (25.07.2014 TM)EXCP: proper exception
 			}
 		}
 		

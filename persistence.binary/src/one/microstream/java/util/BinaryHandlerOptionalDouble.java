@@ -5,7 +5,7 @@ import java.util.OptionalDouble;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCustomValueFixedLength<OptionalDouble>
@@ -57,39 +57,68 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static double instanceState(final OptionalDouble instance)
+	{
+		// or ELSE!!!
+		return instance.orElse(0.0);
+	}
+	
+	private static double binaryState(final Binary data)
+	{
+		return data.read_double(BINARY_OFFSET_VALUE);
+	}
 
 	@Override
 	public void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final OptionalDouble          instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-		bytes.store_boolean(
+		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
+		data.store_boolean(
 			BINARY_OFFSET_IS_PRESENT,
 			instance.isPresent()
 		);
 
-		bytes.store_double(
+		data.store_double(
 			BINARY_OFFSET_VALUE,
-			instance.orElse(0.0)
+			instanceState(instance)
 		);
 	}
 
 	@Override
-	public OptionalDouble create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public OptionalDouble create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		final boolean isPresent = bytes.read_boolean(BINARY_OFFSET_IS_PRESENT);
+		final boolean isPresent = data.read_boolean(BINARY_OFFSET_IS_PRESENT);
 		
 		// luckily, an uninitialized instance (all-zeroes, meaning isPresent == false) is all that is required.
 		return isPresent
 			? OptionalDouble.of(
-				bytes.read_double(BINARY_OFFSET_VALUE)
+				data.read_double(BINARY_OFFSET_VALUE)
 			)
 			: XMemory.instantiateBlank(OptionalDouble.class)
 		;
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final OptionalDouble         instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final double instanceState = instanceState(instance);
+		final double binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 	
 }

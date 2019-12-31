@@ -9,12 +9,12 @@ import java.lang.reflect.Field;
  * It may not use any custom persistent state or logic like e.g. {@link PersistenceTypeHandlerCustom}.
  *
  * @author Thomas Muenz
- * @param <M>
+ * @param <D>
  * @param <T>
  * 
  * @see PersistenceTypeHandlerCustom
  */
-public interface PersistenceTypeHandlerGeneric<M, T> extends PersistenceTypeHandler<M, T>
+public interface PersistenceTypeHandlerGeneric<D, T> extends PersistenceTypeHandler<D, T>
 {
 	// typing interface only (so far)
 }

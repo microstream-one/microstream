@@ -4,7 +4,7 @@ import java.io.File;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVariableLength<File>
@@ -39,17 +39,37 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVar
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
-	@Override
-	public void store(final Binary bytes, final File instance, final long objectId, final PersistenceStoreHandler handler)
+	
+	private static String instanceState(final File instance)
 	{
-		bytes.storeStringValue(this.typeId(), objectId, instance.getPath());
+		return instance.getPath();
+	}
+	
+	private static String binaryState(final Binary data)
+	{
+		return data.buildString();
 	}
 
 	@Override
-	public File create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public void store(final Binary data, final File instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		return new File(bytes.buildString());
+		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
+	}
+
+	@Override
+	public File create(final Binary data, final PersistenceLoadHandler handler)
+	{
+		return new File(binaryState(data));
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final File                   instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		compareSimpleState(instance, instanceState(instance), binaryState(data));
 	}
 
 }

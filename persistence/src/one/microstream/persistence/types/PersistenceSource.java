@@ -3,7 +3,7 @@ package one.microstream.persistence.types;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 
-public interface PersistenceSource<M>
+public interface PersistenceSource<D>
 {
 	/**
 	 * A general, unspecific read, e.g. to initially read data in general from the attached data source.
@@ -18,9 +18,9 @@ public interface PersistenceSource<M>
 	 * @return data segments containing general data if applicable, otherwise {@code null}.
 	 * @throws PersistenceExceptionTransfer
 	 */
-	public XGettingCollection<? extends M> read() throws PersistenceExceptionTransfer;
+	public XGettingCollection<? extends D> read() throws PersistenceExceptionTransfer;
 
-	public XGettingCollection<? extends M> readByObjectIds(PersistenceIdSet[] oids) throws PersistenceExceptionTransfer;
+	public XGettingCollection<? extends D> readByObjectIds(PersistenceIdSet[] oids) throws PersistenceExceptionTransfer;
 	
 	/**
 	 * Prepare to read from this source. E.g. open a defined file.

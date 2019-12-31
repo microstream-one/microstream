@@ -10,11 +10,12 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryLegacyTypeHandler;
 import one.microstream.persistence.binary.types.BinaryReferenceTraverser;
 import one.microstream.persistence.binary.types.BinaryValueSetter;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
@@ -59,7 +60,7 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 		if(translatorsWithTargetOffsets.containsSearched(isNullEntry))
 		{
 			// (02.09.2019 TM)EXCP: proper exception
-			throw new RuntimeException("Value translator mapping contains an invalid null-entry.");
+			throw new PersistenceException("Value translator mapping contains an invalid null-entry.");
 		}
 	}
 	
@@ -208,10 +209,10 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	}
 	
 	@Override
-	public int getPersistedEnumOrdinal(final Binary medium)
+	public int getPersistedEnumOrdinal(final Binary data)
 	{
 		// Must pass through all default methods to be a correct wrapper.
-		return this.typeHandler.getPersistedEnumOrdinal(medium);
+		return this.typeHandler.getPersistedEnumOrdinal(data);
 	}
 	
 	
@@ -248,7 +249,7 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	// persisted-form-related methods, so the old type definition (or derivatives of it) has be used //
 
 	@Override
-	public final void iterateLoadableReferences(final Binary rawData, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary rawData, final PersistenceReferenceLoader iterator)
 	{
 		rawData.iterateReferences(this.referenceTraversers, iterator);
 	}
@@ -256,18 +257,18 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	// end of persisted-form-related methods //
 	
 	@Override
-	public final T create(final Binary rawData, final PersistenceObjectIdResolver idResolver)
+	public final T create(final Binary rawData, final PersistenceLoadHandler handler)
 	{
 		// the method splitting might help jitting out the not occuring case.
 		return this.listener == null
-			? this.internalCreate(rawData, idResolver)
-			: this.internalCreateListening(rawData, idResolver)
+			? this.internalCreate(rawData, handler)
+			: this.internalCreateListening(rawData, handler)
 		;
 	}
 	
-	private final T internalCreateListening(final Binary rawData, final PersistenceObjectIdResolver idResolver)
+	private final T internalCreateListening(final Binary rawData, final PersistenceLoadHandler handler)
 	{
-		final T instance = this.internalCreate(rawData, idResolver);
+		final T instance = this.internalCreate(rawData, handler);
 		this.listener.registerLegacyTypeHandlingCreation(
 			rawData.getBuildItemObjectId(),
 			instance,
@@ -278,6 +279,6 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 		return instance;
 	}
 	
-	protected abstract T internalCreate(Binary rawData, PersistenceObjectIdResolver idResolver);
+	protected abstract T internalCreate(Binary rawData, PersistenceLoadHandler handler);
 	
 }

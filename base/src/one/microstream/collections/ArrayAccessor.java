@@ -1005,7 +1005,7 @@ public final class ArrayAccessor<E> extends AbstractSimpleArrayCollection<E> imp
 		{
 			return true;
 		}
-		// (09.04.2012)FIXME: what's List supposed to do here? (check all other occurances as well)
+		// (09.04.2012 TM)FIXME: what's List supposed to do here? (check all other occurances as well)
 		if(o == null || !(o instanceof List<?>))
 		{
 			return false;

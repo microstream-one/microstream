@@ -6,7 +6,7 @@ import java.util.Map;
 
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.reflect.XReflect;
 
 
@@ -67,12 +67,12 @@ public class BinaryHandlerGenericMap<T extends Map<?, ?>> extends AbstractBinary
 
 	@Override
 	public T create(
-		final Binary                      bytes     ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data   ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		return this.instantiator.instantiateMap(
-			getElementCount(bytes)
+			getElementCount(data)
 		);
 	}
 	

@@ -15,6 +15,11 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 	public long ensureObjectId(Object object, PersistenceAcceptor newObjectIdCallback);
 
 	public void consolidate();
+
+	// (25.12.2019 TM)FIXME: priv#94: remove if not required
+//	public boolean registerConstant(long objectId, Object constant);
+//
+//	public <T, S extends Supplier<T>> T execute(S logic);
 	
 
 	@Override
@@ -94,6 +99,24 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				);
 			}
 		}
+		
+		// (25.12.2019 TM)FIXME: priv#94: remove if not required
+//		@Override
+//		public boolean registerConstant(final long objectId, final Object constant)
+//		{
+//			synchronized(this.objectRegistry)
+//			{
+//				return this.objectRegistry.registerConstant(objectId, constant);
+//			}
+//		}
+//		@Override
+//		public <T, S extends Supplier<T>> T execute(final S logic)
+//		{
+//			synchronized(this.objectRegistry)
+//			{
+//				return logic.get();
+//			}
+//		}
 
 		@Override
 		public void consolidate()

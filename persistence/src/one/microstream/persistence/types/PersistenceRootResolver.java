@@ -11,31 +11,34 @@ import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.collections.types.XMap;
 import one.microstream.collections.types.XTable;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reference.Reference;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
 
 public interface PersistenceRootResolver
 {
-	public String defaultRootIdentifier();
+	public String rootIdentifier();
 	
-	public Reference<Object> defaultRoot();
-	
-	public String customRootIdentifier();
-	
-	public PersistenceRootEntry customRootEntry();
+	public PersistenceRootReference root();
 	
 	public PersistenceRootEntry resolveRootInstance(String identifier);
 	
 	public XGettingTable<String, PersistenceRootEntry> definedEntries();
 	
-	public default XGettingTable<String, PersistenceRootEntry> resolveRootEntries(
-		final XGettingEnum<String> identifiers
+	public default PersistenceRootEntry rootEntry()
+	{
+		return this.definedEntries().get(this.rootIdentifier());
+	}
+	
+	public default void resolveRootEntries(
+		final XMap<String, PersistenceRootEntry> resolvedEntriesAcceptor,
+		final XGettingEnum<String>               identifiers
 	)
 	{
-		final EqHashTable<String, PersistenceRootEntry> resolvedRoots         = EqHashTable.New();
-		final EqHashEnum<String>                        unresolvedIdentifiers = EqHashEnum.New();
+		final EqHashEnum<String> unresolvedIdentifiers = EqHashEnum.New();
 		
 		synchronized(this)
 		{
@@ -44,9 +47,9 @@ public interface PersistenceRootResolver
 				final PersistenceRootEntry resolvedRootEntry = this.resolveRootInstance(identifier);
 				if(resolvedRootEntry != null)
 				{
-					resolvedRoots.add(identifier, resolvedRootEntry);
+					resolvedEntriesAcceptor.add(identifier, resolvedRootEntry);
 				}
-				else
+				else if(!resolvedEntriesAcceptor.keys().contains(identifier))
 				{
 					unresolvedIdentifiers.add(identifier);
 				}
@@ -55,13 +58,11 @@ public interface PersistenceRootResolver
 			if(!unresolvedIdentifiers.isEmpty())
 			{
 				// (19.04.2018 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"The following root identifiers cannot be resolved: " + unresolvedIdentifiers
 				);
 			}
 		}
-		
-		return resolvedRoots;
 	}
 	
 	public default XGettingTable<String, Object> resolveDefinedRootInstances()
@@ -77,9 +78,16 @@ public interface PersistenceRootResolver
 		
 		for(final PersistenceRootEntry entry : entries.values())
 		{
+			if(entry == null)
+			{
+				// null-entries can (only) happen via automatic refactoring of old root types (custom/default).
+				continue;
+			}
+			
 			// may be null if explicitely removed
-			final Object rootInstance = entry.instance();
-			resolvedRoots.add(entry.identifier(), rootInstance);
+			final String rootIdentifier = entry.identifier();
+			final Object rootInstance   = entry.instance()  ;
+			resolvedRoots.add(rootIdentifier, rootInstance);
 		}
 		
 		return resolvedRoots;
@@ -191,9 +199,8 @@ public interface PersistenceRootResolver
 		// instance fields //
 		////////////////////
 		
-		private final String                                                defaultRootIdentifier      ;
-		private final Reference<Object>                                     defaultRoot                ;
-		private final String                                                customRootIdentifier       ;
+		private final String                                                rootIdentifier             ;
+		private final PersistenceRootReference                              rootReference              ;
 		private final EqConstHashTable<String, PersistenceRootEntry>        definedRootEntries         ;
 		private final Reference<? extends PersistenceTypeHandlerManager<?>> referenceTypeHandlerManager;
 		
@@ -206,17 +213,15 @@ public interface PersistenceRootResolver
 		/////////////////
 
 		Default(
-			final String                                                defaultRootIdentifier      ,
-			final Reference<Object>                                     defaultRoot                ,
-			final String                                                customRootIdentifier       ,
+			final String                                                rootIdentifier             ,
+			final PersistenceRootReference                              rootReference              ,
 			final EqConstHashTable<String, PersistenceRootEntry>        definedRootEntries         ,
 			final Reference<? extends PersistenceTypeHandlerManager<?>> referenceTypeHandlerManager
 		)
 		{
 			super();
-			this.defaultRootIdentifier       = defaultRootIdentifier      ;
-			this.customRootIdentifier        = customRootIdentifier       ;
-			this.defaultRoot                 = defaultRoot                ;
+			this.rootIdentifier              = rootIdentifier             ;
+			this.rootReference               = rootReference              ;
 			this.definedRootEntries          = definedRootEntries         ;
 			this.referenceTypeHandlerManager = referenceTypeHandlerManager;
 		}
@@ -227,6 +232,24 @@ public interface PersistenceRootResolver
 		// methods //
 		////////////
 		
+		@Override
+		public final String rootIdentifier()
+		{
+			return this.rootIdentifier;
+		}
+		
+		@Override
+		public final PersistenceRootReference root()
+		{
+			return this.rootReference;
+		}
+
+		@Override
+		public final XGettingTable<String, PersistenceRootEntry> definedEntries()
+		{
+			return this.definedRootEntries;
+		}
+		
 		private PersistenceTypeHandlerManager<?> typeHandlerManager()
 		{
 			if(this.cachedTypeHandlerManager == null)
@@ -236,7 +259,7 @@ public interface PersistenceRootResolver
 			
 			return this.cachedTypeHandlerManager;
 		}
-								
+		
 		@Override
 		public final PersistenceRootEntry resolveRootInstance(final String identifier)
 		{
@@ -267,7 +290,7 @@ public interface PersistenceRootResolver
 			if(enumTypeHandler == null)
 			{
 				// (13.08.2019 TM)EXCP: proper exception
-				throw new RuntimeException("Unknown TypeId: " + enumTypeId);
+				throw new PersistenceException("Unknown TypeId: " + enumTypeId);
 			}
 			
 			// Checks for enum type internally. May be null for discarded (i.e. legacy) enums.
@@ -276,37 +299,6 @@ public interface PersistenceRootResolver
 			return PersistenceRootEntry.New(identifier, () ->
 				enumConstants // debuggability line break, do not remove!
 			);
-		}
-
-		@Override
-		public String defaultRootIdentifier()
-		{
-			return this.defaultRootIdentifier;
-		}
-		
-		@Override
-		public Reference<Object> defaultRoot()
-		{
-			return this.defaultRoot;
-		}
-		
-		@Override
-		public String customRootIdentifier()
-		{
-			return this.customRootIdentifier;
-		}
-		
-		@Override
-		public PersistenceRootEntry customRootEntry()
-		{
-			return this.definedEntries().get(this.customRootIdentifier);
-		}
-		
-
-		@Override
-		public XGettingTable<String, PersistenceRootEntry> definedEntries()
-		{
-			return this.definedRootEntries;
 		}
 		
 	}
@@ -353,13 +345,25 @@ public interface PersistenceRootResolver
 		////////////
 		
 		@Override
-		public XGettingTable<String, PersistenceRootEntry> definedEntries()
+		public final String rootIdentifier()
+		{
+			return this.actualRootResolver.rootIdentifier();
+		}
+		
+		@Override
+		public final PersistenceRootReference root()
+		{
+			return this.actualRootResolver.root();
+		}
+		
+		@Override
+		public final XGettingTable<String, PersistenceRootEntry> definedEntries()
 		{
 			return this.actualRootResolver.definedEntries();
 		}
 
 		@Override
-		public PersistenceRootEntry resolveRootInstance(final String identifier)
+		public final PersistenceRootEntry resolveRootInstance(final String identifier)
 		{
 			/*
 			 * Mapping lookups take precedence over the direct resolving attempt.
@@ -404,36 +408,12 @@ public interface PersistenceRootResolver
 			if(mappedEntry == null)
 			{
 				// (19.04.2018 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Refactoring mapping target identifier cannot be resolved: " + targetIdentifier
 				);
 			}
 			
 			return mappedEntry;
-		}
-		
-		@Override
-		public String defaultRootIdentifier()
-		{
-			return this.actualRootResolver.defaultRootIdentifier();
-		}
-
-		@Override
-		public Reference<Object> defaultRoot()
-		{
-			return this.actualRootResolver.defaultRoot();
-		}
-
-		@Override
-		public String customRootIdentifier()
-		{
-			return this.actualRootResolver.customRootIdentifier();
-		}
-
-		@Override
-		public PersistenceRootEntry customRootEntry()
-		{
-			return this.actualRootResolver.customRootEntry();
 		}
 				
 	}
