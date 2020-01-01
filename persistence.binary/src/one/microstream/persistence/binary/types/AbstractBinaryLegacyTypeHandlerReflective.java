@@ -4,6 +4,7 @@ import one.microstream.exceptions.TypeCastException;
 import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
@@ -11,6 +12,13 @@ import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 public abstract class AbstractBinaryLegacyTypeHandlerReflective<T>
 extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 {
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+	
+	private final BinaryReferenceTraverser[] oldBinaryLayoutReferenceTraversers;
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
@@ -25,6 +33,13 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	)
 	{
 		super(typeDefinition, typeHandler, valueTranslators, targetOffsets, listener, switchByteOrder);
+
+		/* (01.01.2020 TM)NOTE: Bugfix:
+		 * Moved from AbstractBinaryLegacyTypeHandlerTranslating here as a recent fix was only correct for ~Rerouting
+		 * but incorrect for ~Reflective LegacyHandler. The latter needs the old version before the fix.
+		 */
+		// reference traversers mut be derived from the old type definition that fits the persisted layout.
+		this.oldBinaryLayoutReferenceTraversers = deriveReferenceTraversers(typeDefinition, switchByteOrder);
 	}
 	
 	
@@ -38,6 +53,12 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	{
 		// cast safety guranteed by constructor typing
 		return (PersistenceTypeHandlerReflective<Binary, T>)super.typeHandler();
+	}
+	
+	@Override
+	public final void iterateLoadableReferences(final Binary rawData, final PersistenceReferenceLoader iterator)
+	{
+		rawData.iterateReferences(this.oldBinaryLayoutReferenceTraversers, iterator);
 	}
 	
 	@Override

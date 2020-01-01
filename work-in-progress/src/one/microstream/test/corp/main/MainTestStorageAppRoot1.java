@@ -38,6 +38,7 @@ public class MainTestStorageAppRoot1
 		{
 			// subsequent executions enter here (database reading)
 
+			STORAGE.storeRoot();
 			Test.printInitializationTime(STORAGE);
 			Test.printOperationModeTime(STORAGE);
 			Test.print("Model data loaded.");
@@ -59,6 +60,8 @@ public class MainTestStorageAppRoot1
 class AppRoot
 {
 	Value value;
+//	int   changed;
+	String anotherReference;
 	
 	AppRoot set(final Value value)
 	{
