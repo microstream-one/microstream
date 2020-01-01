@@ -15,7 +15,6 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersist
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
 import one.microstream.persistence.types.PersistenceLoadHandler;
-import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
@@ -86,11 +85,10 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	// instance fields //
 	////////////////////
 
-	private final PersistenceTypeHandler<Binary, T>             typeHandler        ;
-	private final BinaryValueSetter[]                           valueTranslators   ;
-	private final long[]                                        targetOffsets      ;
-	private final BinaryReferenceTraverser[]                    referenceTraversers;
-	private final PersistenceLegacyTypeHandlingListener<Binary> listener           ;
+	private final PersistenceTypeHandler<Binary, T>             typeHandler     ;
+	private final BinaryValueSetter[]                           valueTranslators;
+	private final long[]                                        targetOffsets   ;
+	private final PersistenceLegacyTypeHandlingListener<Binary> listener        ;
 
 	
 	
@@ -99,26 +97,19 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	/////////////////
 	
 	protected AbstractBinaryLegacyTypeHandlerTranslating(
-		final PersistenceTypeDefinition                     typeDefinition  ,
-		final PersistenceTypeHandler<Binary, T>             typeHandler     ,
-		final BinaryValueSetter[]                           valueTranslators,
-		final long[]                                        targetOffsets   ,
-		final PersistenceLegacyTypeHandlingListener<Binary> listener        ,
+		final PersistenceTypeDefinition                     typeDefinition     ,
+		final PersistenceTypeHandler<Binary, T>             typeHandler        ,
+		final BinaryValueSetter[]                           valueTranslators   ,
+		final long[]                                        targetOffsets      ,
+		final PersistenceLegacyTypeHandlingListener<Binary> listener           ,
 		final boolean                                       switchByteOrder
 	)
 	{
 		super(typeDefinition);
-		this.typeHandler      = typeHandler     ;
-		this.valueTranslators = valueTranslators;
-		this.targetOffsets    = targetOffsets   ;
-		this.listener         = listener        ;
-		
-
-		// (12.11.2019 TM)NOTE: must be derived from the NEW type definition since create relayouts the load data.
-		this.referenceTraversers = deriveReferenceTraversers(typeHandler, switchByteOrder);
-		
-		// reference traversers mut be derived from the old type definition that fits the persisted form.
-//		this.referenceTraversers = deriveReferenceTraversers(typeDefinition, switchByteOrder);
+		this.typeHandler         = typeHandler        ;
+		this.valueTranslators    = valueTranslators   ;
+		this.targetOffsets       = targetOffsets      ;
+		this.listener            = listener           ;
 	}
 	
 	
@@ -245,16 +236,6 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	// end of runtime instance-related methods //
 	
 	
-	
-	// persisted-form-related methods, so the old type definition (or derivatives of it) has be used //
-
-	@Override
-	public final void iterateLoadableReferences(final Binary rawData, final PersistenceReferenceLoader iterator)
-	{
-		rawData.iterateReferences(this.referenceTraversers, iterator);
-	}
-
-	// end of persisted-form-related methods //
 	
 	@Override
 	public final T create(final Binary rawData, final PersistenceLoadHandler handler)
