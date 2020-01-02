@@ -481,7 +481,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			 * E.g.: setting customizing logic
 			 */
 			this.connectionFoundation.setStorageManagerSupplier(() ->
-				this.createStorageManager()
+				this.createStorageSystem()
 			);
 			
 			return this.$();
@@ -558,7 +558,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			thm.initialize();
 			
 			// the registered supplier callback leads back to this class' createStorageManager method
-			final StorageManager stm = ecf.getStorageManager();
+			final StorageSystem stm = ecf.getStorageManager();
 			
 			initializeTypeDictionary(stm, ecf);
 
@@ -570,7 +570,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		}
 		
 		private static void initializeTypeDictionary(
-			final StorageManager                         stm,
+			final StorageSystem                         stm,
 			final EmbeddedStorageConnectionFoundation<?> ecf
 		)
 		{

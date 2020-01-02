@@ -10,7 +10,7 @@ import one.microstream.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import one.microstream.storage.exceptions.StorageExceptionNotRunning;
 
 // (21.03.2016 TM)TODO: what is the difference between ~Manager and ~Controller here? Merge into Controller or comment.
-public interface StorageManager extends StorageController
+public interface StorageSystem extends StorageController
 {
 	public StorageRequestAcceptor createRequestAcceptor();
 
@@ -27,7 +27,7 @@ public interface StorageManager extends StorageController
 	public StorageConfiguration configuration();
 
 	@Override
-	public StorageManager start();
+	public StorageSystem start();
 	
 	public StorageIdAnalysis initializationIdAnalysis();
 	
@@ -38,7 +38,7 @@ public interface StorageManager extends StorageController
 		
 
 
-	public final class Default implements StorageManager, Unpersistable, StorageKillable
+	public final class Default implements StorageSystem, Unpersistable, StorageKillable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -503,7 +503,7 @@ public interface StorageManager extends StorageController
 		}
 
 		@Override
-		public final StorageManager.Default start()
+		public final StorageSystem.Default start()
 		{
 			synchronized(this.stateLock)
 			{
