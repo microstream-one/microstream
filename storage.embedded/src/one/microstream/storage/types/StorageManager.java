@@ -26,6 +26,10 @@ public interface StorageManager extends StorageController, StorageConnection
 	
 	public Object setRoot(Object newRoot);
 	
+	public long storeRoot();
+	
+	public PersistenceRootsView viewRoots();
+	
 	/**
 	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
 	 * It is advised to use {@link #root()} and {@link #setRoot(Object)} instead.
@@ -50,10 +54,6 @@ public interface StorageManager extends StorageController, StorageConnection
 	{
 		return this.root();
 	}
-	
-	public PersistenceRootsView viewRoots();
-	
-	public long storeRoot();
 	
 	/**
 	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
