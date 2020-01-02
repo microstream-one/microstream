@@ -476,11 +476,11 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		{
 			this.connectionFoundation = connectionFoundation;
 
-			/* Tricky: this instance must be set as a callback StorageManager supplier in case
-			 * the getStorageManager method is called before createEmbeddedStorageManager.
+			/* Tricky: this instance must be set as a callback StorageSystem supplier in case
+			 * the getStorageSystem method is called before createEmbeddedStorageSystem.
 			 * E.g.: setting customizing logic
 			 */
-			this.connectionFoundation.setStorageManagerSupplier(() ->
+			this.connectionFoundation.setStorageSystemSupplier(() ->
 				this.createStorageSystem()
 			);
 			
@@ -557,8 +557,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			final PersistenceTypeHandlerManager<?> thm = ecf.getTypeHandlerManager();
 			thm.initialize();
 			
-			// the registered supplier callback leads back to this class' createStorageManager method
-			final StorageSystem stm = ecf.getStorageManager();
+			// the registered supplier callback leads back to this class' createStorageSystem method
+			final StorageSystem stm = ecf.getStorageSystem();
 			
 			initializeTypeDictionary(stm, ecf);
 

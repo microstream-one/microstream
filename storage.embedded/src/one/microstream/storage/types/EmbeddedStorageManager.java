@@ -28,66 +28,6 @@ public interface EmbeddedStorageManager extends StorageManager
 	@Override
 	public EmbeddedStorageManager start();
 
-	@Override
-	public boolean shutdown();
-	
-	/**
-	 * @return the persistent object graph's root object.
-	 */
-	@Override
-	public Object root();
-	
-	@Override
-	public Object setRoot(Object newRoot);
-	
-	/**
-	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
-	 * It is advised to use {@link #root()} and {@link #setRoot(Object)} instead.
-	 * 
-	 * @deprecated
-	 * 
-	 * @return a mutable {@link Reference} to the root object.
-	 */
-	@Override
-	@Deprecated
-	public Reference<Object> defaultRoot();
-
-	/**
-	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
-	 * It is advised to use {@link #root()} instead, for which this method is an alias.
-	 * 
-	 * @deprecated
-	 * 
-	 * @return the root object.
-	 */
-	@Override
-	@Deprecated
-	public default Object customRoot()
-	{
-		return this.root();
-	}
-	
-	@Override
-	public PersistenceRootsView viewRoots();
-	
-	@Override
-	public long storeRoot();
-	
-	/**
-	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
-	 * It is advised to use {@link #storeRoot()} instead, for which this method is an alias.
-	 * 
-	 * @deprecated
-	 * 
-	 * @return stores the root object and returns its objectId.
-	 */
-	@Override
-	@Deprecated
-	public default long storeDefaultRoot()
-	{
-		return this.storeRoot();
-	}
-
 	
 	
 	public static EmbeddedStorageManager.Default New(
@@ -111,7 +51,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		////////////////////
 
 		private final StorageConfiguration                   configuration       ;
-		private final StorageSystem                         storageManager      ;
+		private final StorageSystem                          storageSystem       ;
 		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
 		private final PersistenceRootsProvider<?>            rootsProvider       ;
 		
@@ -131,7 +71,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		{
 			super();
 			this.configuration        = configuration                           ;
-			this.storageManager       = connectionFoundation.getStorageManager(); // to ensure consistency
+			this.storageSystem        = connectionFoundation.getStorageSystem(); // to ensure consistency
 			this.connectionFoundation = connectionFoundation                    ;
 			this.rootsProvider        = rootsProvider                           ;
 		}
@@ -211,7 +151,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		@Override
 		public final EmbeddedStorageManager.Default start()
 		{
-			this.storageManager.start();
+			this.storageSystem.start();
 			
 			try
 			{
@@ -222,13 +162,13 @@ public interface EmbeddedStorageManager extends StorageManager
 			{
 				try
 				{
-					if(this.storageManager instanceof StorageKillable)
+					if(this.storageSystem instanceof StorageKillable)
 					{
-						((StorageKillable)this.storageManager).killStorage(t);
+						((StorageKillable)this.storageSystem).killStorage(t);
 					}
 					else
 					{
-						this.storageManager.shutdown();
+						this.storageSystem.shutdown();
 					}
 				}
 				catch(final Throwable t1)
@@ -296,7 +236,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		private void ensureRequiredTypeHandlers()
 		{
 			// make sure a functional type handler is present for every occuring type id or throw an exception.
-			final StorageIdAnalysis  idAnalysis      = this.storageManager.initializationIdAnalysis();
+			final StorageIdAnalysis  idAnalysis      = this.storageSystem.initializationIdAnalysis();
 			final XGettingEnum<Long> occuringTypeIds = idAnalysis.occuringTypeIds();
 			this.connectionFoundation.getTypeHandlerManager().ensureTypeHandlersByTypeIds(occuringTypeIds);
 		}
@@ -347,43 +287,43 @@ public interface EmbeddedStorageManager extends StorageManager
 		@Override
 		public final boolean shutdown()
 		{
-			return this.storageManager.shutdown();
+			return this.storageSystem.shutdown();
 		}
 
 		@Override
 		public final boolean isAcceptingTasks()
 		{
-			return this.storageManager.isAcceptingTasks();
+			return this.storageSystem.isAcceptingTasks();
 		}
 
 		@Override
 		public final boolean isRunning()
 		{
-			return this.storageManager.isRunning();
+			return this.storageSystem.isRunning();
 		}
 		
 		@Override
 		public final boolean isActive()
 		{
-			return this.storageManager.isActive();
+			return this.storageSystem.isActive();
 		}
 
 		@Override
 		public final boolean isStartingUp()
 		{
-			return this.storageManager.isStartingUp();
+			return this.storageSystem.isStartingUp();
 		}
 
 		@Override
 		public final boolean isShuttingDown()
 		{
-			return this.storageManager.isShuttingDown();
+			return this.storageSystem.isShuttingDown();
 		}
 
 		@Override
 		public final void checkAcceptingTasks()
 		{
-			this.storageManager.checkAcceptingTasks();
+			this.storageSystem.checkAcceptingTasks();
 		}
 
 		@Override
@@ -395,7 +335,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		@Override
 		public final StorageTypeDictionary typeDictionary()
 		{
-			return this.storageManager.typeDictionary();
+			return this.storageSystem.typeDictionary();
 		}
 
 		@Override
@@ -407,13 +347,13 @@ public interface EmbeddedStorageManager extends StorageManager
 		@Override
 		public final long initializationTime()
 		{
-			return this.storageManager.initializationTime();
+			return this.storageSystem.initializationTime();
 		}
 		
 		@Override
 		public final long operationModeTime()
 		{
-			return this.storageManager.operationModeTime();
+			return this.storageSystem.operationModeTime();
 		}
 
 		@Override
