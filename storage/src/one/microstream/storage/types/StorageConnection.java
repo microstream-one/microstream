@@ -9,7 +9,6 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceStoring;
-import one.microstream.persistence.types.SelfStoring;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 
@@ -136,12 +135,6 @@ public interface StorageConnection extends PersistenceStoring
 	public default void storeAll(final Iterable<?> instances)
 	{
 		this.persistenceManager().storeAll(instances);
-	}
-	
-	@Override
-	public default void storeSelfStoring(final SelfStoring storing)
-	{
-		storing.storeBy(this.createStorer()).commit();
 	}
 	
 	public default Storer createLazyStorer()
