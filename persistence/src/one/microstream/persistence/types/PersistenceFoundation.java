@@ -2310,21 +2310,19 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 			final PersistenceTypeHandlerManager<D> typeHandlerManager = this.getTypeHandlerManager();
 			typeHandlerManager.initialize(); // initialize type handlers (i.e. import/validate type dictionary)
 
-			final PersistenceManager<D> newPersistenceManager =
-				new PersistenceManager.Default<>(
-					this.getObjectRegistry(),
-					this.getObjectManager(),
-					typeHandlerManager,
-					this.getContextDispatcher(),
-					this.getStorerCreator(),
-					this.getBuilderCreator(),
-					this.getRegistererCreator(),
-					this.getPersistenceTarget(),
-					this.getPersistenceSource(),
-					this.getBufferSizeProvider(),
-					this.getTargetByteOrder()
-				)
-			;
+			final PersistenceManager<D> newPersistenceManager = PersistenceManager.New(
+				this.getObjectRegistry(),
+				this.getObjectManager(),
+				typeHandlerManager,
+				this.getContextDispatcher(),
+				this.getStorerCreator(),
+				this.getBuilderCreator(),
+				this.getRegistererCreator(),
+				this.getPersistenceTarget(),
+				this.getPersistenceSource(),
+				this.getBufferSizeProvider(),
+				this.getTargetByteOrder()
+			);
 			return newPersistenceManager;
 		}
 

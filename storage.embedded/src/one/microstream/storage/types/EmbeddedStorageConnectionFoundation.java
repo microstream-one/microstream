@@ -13,13 +13,13 @@ public interface EmbeddedStorageConnectionFoundation<F extends EmbeddedStorageCo
 extends BinaryPersistenceFoundation<F>
 {
 	// intentionally no "get" prefix since this is a pure pseudo-property getter and not an action.
-	public Supplier<? extends StorageManager> storageManagerSupplier();
+	public Supplier<? extends StorageSystem> storageManagerSupplier();
 	
-	public StorageManager getStorageManager();
+	public StorageSystem getStorageManager();
 
-	public F setStorageManager(StorageManager storageManager);
+	public F setStorageManager(StorageSystem storageManager);
 	
-	public F setStorageManagerSupplier(Supplier<? extends StorageManager> storageManagerSupplier);
+	public F setStorageManagerSupplier(Supplier<? extends StorageSystem> storageManagerSupplier);
 	
 	public StorageConnection createStorageConnection();
 
@@ -38,8 +38,8 @@ extends BinaryPersistenceFoundation<F>
 		// instance fields //
 		////////////////////
 
-		private StorageManager                     storageManager           ;
-		private Supplier<? extends StorageManager> storageManagerSupplier   ;
+		private StorageSystem                     storageManager           ;
+		private Supplier<? extends StorageSystem> storageManagerSupplier   ;
 		private transient StorageRequestAcceptor   connectionRequestAcceptor;
 		
 		
@@ -60,13 +60,13 @@ extends BinaryPersistenceFoundation<F>
 		////////////
 
 		@Override
-		public Supplier<? extends StorageManager> storageManagerSupplier()
+		public Supplier<? extends StorageSystem> storageManagerSupplier()
 		{
 			return this.storageManagerSupplier;
 		}
 		
 		@Override
-		public StorageManager getStorageManager()
+		public StorageSystem getStorageManager()
 		{
 			if(this.storageManager == null)
 			{
@@ -83,7 +83,7 @@ extends BinaryPersistenceFoundation<F>
 
 		@Override
 		public F setStorageManager(
-			final StorageManager storageManager
+			final StorageSystem storageManager
 		)
 		{
 			this.storageManager = storageManager;
@@ -91,7 +91,7 @@ extends BinaryPersistenceFoundation<F>
 		}
 		
 		@Override
-		public F setStorageManagerSupplier(final Supplier<? extends StorageManager> storageManagerSupplier)
+		public F setStorageManagerSupplier(final Supplier<? extends StorageSystem> storageManagerSupplier)
 		{
 			this.storageManagerSupplier = storageManagerSupplier;
 			return this.$();
@@ -103,19 +103,19 @@ extends BinaryPersistenceFoundation<F>
 		// methods //
 		////////////
 		
-		protected final void internalSetStorageManager(final StorageManager storageManager)
+		protected final void internalSetStorageManager(final StorageSystem storageManager)
 		{
 			this.storageManager = storageManager;
 		}
 
-		protected StorageManager ensureStorageManager()
+		protected StorageSystem ensureStorageManager()
 		{
 			if(this.storageManagerSupplier != null)
 			{
 				return notNull(this.storageManagerSupplier.get());
 			}
 			
-			throw new MissingFoundationPartException(StorageManager.class);
+			throw new MissingFoundationPartException(StorageSystem.class);
 		}
 
 		@Override

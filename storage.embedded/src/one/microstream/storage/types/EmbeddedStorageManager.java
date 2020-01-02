@@ -23,16 +23,8 @@ import one.microstream.reference.Reference;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.KeyValue;
 
-public interface EmbeddedStorageManager extends StorageController, StorageConnection
+public interface EmbeddedStorageManager extends StorageManager
 {
-	public StorageTypeDictionary typeDictionary();
-
-	public StorageConnection createConnection();
-
-	public StorageConfiguration configuration();
-
-	public void initialize();
-
 	@Override
 	public EmbeddedStorageManager start();
 
@@ -42,8 +34,10 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	/**
 	 * @return the persistent object graph's root object.
 	 */
+	@Override
 	public Object root();
 	
+	@Override
 	public Object setRoot(Object newRoot);
 	
 	/**
@@ -54,6 +48,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	 * 
 	 * @return a mutable {@link Reference} to the root object.
 	 */
+	@Override
 	@Deprecated
 	public Reference<Object> defaultRoot();
 
@@ -65,14 +60,17 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	 * 
 	 * @return the root object.
 	 */
+	@Override
 	@Deprecated
 	public default Object customRoot()
 	{
 		return this.root();
 	}
 	
+	@Override
 	public PersistenceRootsView viewRoots();
 	
+	@Override
 	public long storeRoot();
 	
 	/**
@@ -83,6 +81,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 	 * 
 	 * @return stores the root object and returns its objectId.
 	 */
+	@Override
 	@Deprecated
 	public default long storeDefaultRoot()
 	{
@@ -112,7 +111,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		////////////////////
 
 		private final StorageConfiguration                   configuration       ;
-		private final StorageManager                         storageManager      ;
+		private final StorageSystem                         storageManager      ;
 		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
 		private final PersistenceRootsProvider<?>            rootsProvider       ;
 		
