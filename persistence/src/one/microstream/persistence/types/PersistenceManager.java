@@ -36,12 +36,6 @@ ByteOrderTargeting<PersistenceManager<D>>
 	{
 		this.updateMetadata(typeDictionary, 0, 0);
 	}
-
-	@Override
-	public default void storeSelfStoring(final SelfStoring storing)
-	{
-		storing.storeBy(this.createStorer()).commit();
-	}
 	
 	public PersistenceObjectRegistry objectRegistry();
 	

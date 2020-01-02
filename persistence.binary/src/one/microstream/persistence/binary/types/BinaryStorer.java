@@ -15,7 +15,6 @@ import one.microstream.persistence.types.PersistenceStorer;
 import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
-import one.microstream.persistence.types.SelfStoring;
 import one.microstream.reference._intReference;
 import one.microstream.util.BufferSizeProviderIncremental;
 
@@ -342,13 +341,6 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			{
 				this.storeGraph(instance);
 			}
-		}
-		
-		@Override
-		public void storeSelfStoring(final SelfStoring storing)
-		{
-			this.ensureInitialized();
-			storing.storeBy(this);
 		}
 
 		@Override
