@@ -5,10 +5,12 @@ public interface PersistenceLoadHandler extends PersistenceObjectLookup
 	@Override
 	public Object lookupObject(long objectId);
 	
-	/* (28.12.2019 TM)TODO: priv#199: change to something more central like EmbeddedStorageManager.
-	 * Tricky on the persistence level ...
-	 */
-	public PersistenceObjectRetriever getObjectRetriever();
+	public default PersistenceObjectRetriever getObjectRetriever()
+	{
+		return this.getPersister();
+	}
+	
+	public Persister getPersister();
 	
 	public void validateType(Object object, long objectId);
 	

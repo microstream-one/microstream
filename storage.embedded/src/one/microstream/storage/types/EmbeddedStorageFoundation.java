@@ -566,7 +566,12 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			this.initializeEmbeddedStorageRootTypeIdProvider(this.getRootTypeIdProvider(), thm);
 				
 			// everything bundled together in the actual manager instance
-			return EmbeddedStorageManager.New(stm.configuration(), ecf, prp);
+			final EmbeddedStorageManager esm = EmbeddedStorageManager.New(stm.configuration(), ecf, prp);
+			
+			// esm reference must be fed back to persistence layer as the "top level" Persister to be used.
+			ecf.setPersister(esm);
+			
+			return esm;
 		}
 		
 		private static void initializeTypeDictionary(

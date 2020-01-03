@@ -15,16 +15,16 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerCon
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceLoader;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
-import one.microstream.persistence.types.PersistenceObjectRetriever;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceSource;
 import one.microstream.persistence.types.PersistenceSourceSupplier;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerLookup;
+import one.microstream.persistence.types.Persister;
 import one.microstream.reference._intReference;
 
-public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoadHandler
+public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 {
 	public interface Creator extends PersistenceLoader.Creator<Binary>
 	{
@@ -32,13 +32,15 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		public BinaryLoader createLoader(
 			final PersistenceTypeHandlerLookup<Binary> typeLookup,
 			final PersistenceObjectRegistry            registry  ,
-			      PersistenceSourceSupplier<Binary>    source
+			final Persister                            persister ,
+			final PersistenceSourceSupplier<Binary>    source
 		);
 	}
 
 	public static BinaryLoader.Default New(
 		final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
 		final PersistenceObjectRegistry            registry       ,
+		final Persister                            persister      ,
 		final PersistenceSourceSupplier<Binary>    sourceSupplier ,
 		final LoadItemsChain                       loadItems      ,
 		final boolean                              switchByteOrder
@@ -47,6 +49,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		return new BinaryLoader.Default(
 			notNull(typeLookup),
 			notNull(registry),
+			notNull(persister),
 			notNull(sourceSupplier),
 			notNull(loadItems),
 			switchByteOrder
@@ -70,6 +73,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		// may be a relay lookup that provides special handlers providing logic
 		private final PersistenceTypeHandlerLookup<Binary> typeHandlerLookup;
 		private final PersistenceObjectRegistry            registry         ;
+		private final Persister                            persister        ;
 		private final PersistenceSourceSupplier<Binary>    sourceSupplier   ;
 		private final LoadItemsChain                       loadItems        ;
 		private final boolean                              switchByteOrder  ;
@@ -100,6 +104,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		Default(
 			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
 			final PersistenceObjectRegistry            registry       ,
+			final Persister                            persister      ,
 			final PersistenceSourceSupplier<Binary>    sourceSupplier ,
 			final LoadItemsChain                       loadItems      ,
 			final boolean                              switchByteOrder
@@ -108,6 +113,7 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 			super();
 			this.typeHandlerLookup = typeLookup     ;
 			this.registry          = registry       ;
+			this.persister         = persister      ;
 			this.sourceSupplier    = sourceSupplier ;
 			this.loadItems         = loadItems      ;
 			this.switchByteOrder   = switchByteOrder;
@@ -879,9 +885,9 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		}
 
 		@Override
-		public PersistenceObjectRetriever getObjectRetriever()
+		public final Persister getPersister()
 		{
-			return this.sourceSupplier;
+			return this.persister;
 		}
 		
 	}
@@ -918,12 +924,14 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		public BinaryLoader createLoader(
 			final PersistenceTypeHandlerLookup<Binary> typeLookup,
 			final PersistenceObjectRegistry            registry  ,
+			final Persister                            persister ,
 			final PersistenceSourceSupplier<Binary>    source
 		)
 		{
 			return new BinaryLoader.Default(
 				typeLookup,
 				registry,
+				persister,
 				source,
 				new LoadItemsChain.Simple(),
 				this.switchByteOrder
@@ -969,12 +977,14 @@ public interface BinaryLoader extends PersistenceLoader<Binary>, PersistenceLoad
 		public BinaryLoader createLoader(
 			final PersistenceTypeHandlerLookup<Binary> typeLookup    ,
 			final PersistenceObjectRegistry            registry      ,
+			final Persister                            persister     ,
 			final PersistenceSourceSupplier<Binary>    sourceSupplier
 		)
 		{
 			return new BinaryLoader.Default(
 				typeLookup,
 				registry,
+				persister,
 				sourceSupplier,
 				new LoadItemsChain.ChannelHashing(this.channelCountProvider.get()),
 				this.switchByteOrder

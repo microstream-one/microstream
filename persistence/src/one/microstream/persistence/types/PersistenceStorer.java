@@ -2,37 +2,37 @@ package one.microstream.persistence.types;
 
 import one.microstream.util.BufferSizeProviderIncremental;
 
-public interface PersistenceStorer<D> extends Storer
+public interface PersistenceStorer extends Storer
 {
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PersistenceStorer<D> initialize();
+	public PersistenceStorer initialize();
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PersistenceStorer<D> initialize(long initialCapacity);
+	public PersistenceStorer initialize(long initialCapacity);
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PersistenceStorer<D> reinitialize();
+	public PersistenceStorer reinitialize();
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PersistenceStorer<D> reinitialize(long initialCapacity);
+	public PersistenceStorer reinitialize(long initialCapacity);
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PersistenceStorer<D> ensureCapacity(long desiredCapacity);
+	public PersistenceStorer ensureCapacity(long desiredCapacity);
 
 	public interface Creator<D>
 	{
@@ -48,7 +48,7 @@ public interface PersistenceStorer<D> extends Storer
 		 * @param target
 		 * @param bufferSizeProvider
 		 */
-		public PersistenceStorer<D> createLazyStorer(
+		public PersistenceStorer createLazyStorer(
 			PersistenceTypeHandlerManager<D> typeManager       ,
 			PersistenceObjectManager         objectManager     ,
 			PersistenceObjectRetriever       objectRetriever   ,
@@ -66,7 +66,7 @@ public interface PersistenceStorer<D> extends Storer
 		 * @param target
 		 * @param bufferSizeProvider
 		 */
-		public default PersistenceStorer<D> createStorer(
+		public default PersistenceStorer createStorer(
 			final PersistenceTypeHandlerManager<D> typeManager       ,
 			final PersistenceObjectManager         objectManager     ,
 			final PersistenceObjectRetriever       objectRetriever   ,
@@ -93,7 +93,7 @@ public interface PersistenceStorer<D> extends Storer
 		 * @param target
 		 * @param bufferSizeProvider
 		 */
-		public PersistenceStorer<D> createEagerStorer(
+		public PersistenceStorer createEagerStorer(
 			PersistenceTypeHandlerManager<D> typeManager       ,
 			PersistenceObjectManager         objectManager     ,
 			PersistenceObjectRetriever       objectRetriever   ,
