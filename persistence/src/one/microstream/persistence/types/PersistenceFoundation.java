@@ -65,6 +65,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 	public PersistenceRegisterer.Creator getRegistererCreator();
 
 	public PersistenceLoader.Creator<D> getBuilderCreator();
+	
+	public Persister getPersister();
 
 	public PersistenceTarget<D> getPersistenceTarget();
 
@@ -220,6 +222,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 	public F setRegistererCreator(PersistenceRegisterer.Creator registererCreator);
 
 	public F setBuilderCreator(PersistenceLoader.Creator<D> builderCreator);
+
+	public F setPersister(Persister persister);
 
 	public F setPersistenceTarget(PersistenceTarget<D> target);
 
@@ -406,6 +410,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceStorer.Creator<D>                   storerCreator                   ;
 		private PersistenceRegisterer.Creator                  registererCreator               ;
 		private PersistenceLoader.Creator<D>                   builderCreator                  ;
+		private Persister                                      persister                       ;
 		private PersistenceTarget<D>                           target                          ;
 		private PersistenceSource<D>                           source                          ;
 		private PersistenceFieldLengthResolver                 fieldFixedLengthResolver        ;
@@ -706,6 +711,14 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 			}
 			
 			return this.builderCreator;
+		}
+		
+
+		@Override
+		public Persister getPersister()
+		{
+			// persister may be null, then the persistenceManager itself is the persister.
+			return this.persister;
 		}
 
 		@Override
@@ -1430,6 +1443,13 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		)
 		{
 			this.builderCreator = builderCreator;
+			return this.$();
+		}
+		
+		@Override
+		public F setPersister(final Persister persister)
+		{
+			this.persister = persister;
 			return this.$();
 		}
 
@@ -2178,7 +2198,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		{
 			throw new MissingFoundationPartException(PersistenceLoader.Creator.class);
 		}
-
+		
 		protected PersistenceTarget<D> ensurePersistenceTarget()
 		{
 			throw new MissingFoundationPartException(PersistenceTarget.class);
@@ -2318,6 +2338,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 				this.getStorerCreator(),
 				this.getBuilderCreator(),
 				this.getRegistererCreator(),
+				this.getPersister(),
 				this.getPersistenceTarget(),
 				this.getPersistenceSource(),
 				this.getBufferSizeProvider(),

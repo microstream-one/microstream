@@ -19,7 +19,7 @@ import one.microstream.reference._intReference;
 import one.microstream.util.BufferSizeProviderIncremental;
 
 
-public interface BinaryStorer extends PersistenceStorer<Binary>
+public interface BinaryStorer extends PersistenceStorer
 {
 	@Override
 	public BinaryStorer initialize();
@@ -28,13 +28,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	public BinaryStorer initialize(long initialCapacity);
 
 	@Override
-	public PersistenceStorer<Binary> reinitialize();
+	public PersistenceStorer reinitialize();
 
 	@Override
-	public PersistenceStorer<Binary> reinitialize(long initialCapacity);
+	public PersistenceStorer reinitialize(long initialCapacity);
 
 	@Override
-	public PersistenceStorer<Binary> ensureCapacity(long desiredCapacity);
+	public PersistenceStorer ensureCapacity(long desiredCapacity);
 
 	@Override
 	public long currentCapacity();
@@ -225,7 +225,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public PersistenceStorer<Binary> reinitialize()
+		public PersistenceStorer reinitialize()
 		{
 			this.clear();
 			this.internalInitialize();
@@ -233,7 +233,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public PersistenceStorer<Binary> reinitialize(final long initialCapacity)
+		public PersistenceStorer reinitialize(final long initialCapacity)
 		{
 			this.clear();
 			this.internalInitialize(XHashing.padHashLength(initialCapacity));
@@ -281,7 +281,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public PersistenceStorer<Binary> ensureCapacity(final long desiredCapacity)
+		public PersistenceStorer ensureCapacity(final long desiredCapacity)
 		{
 			if(this.currentCapacity() >= desiredCapacity)
 			{

@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceManager;
-import one.microstream.persistence.types.PersistenceStoring;
+import one.microstream.persistence.types.Persister;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 
@@ -19,7 +19,7 @@ import one.microstream.persistence.types.Unpersistable;
  *
  * @author TM
  */
-public interface StorageConnection extends PersistenceStoring
+public interface StorageConnection extends Persister
 {
 	/* (11.05.2014 TM)TODO: Proper InterruptedException handling
 	 *  just returning, especially returning null (see below) seems quite dangerous.
@@ -137,19 +137,28 @@ public interface StorageConnection extends PersistenceStoring
 		this.persistenceManager().storeAll(instances);
 	}
 	
+	@Override
 	public default Storer createLazyStorer()
 	{
 		return this.persistenceManager().createLazyStorer();
 	}
 
+	@Override
 	public default Storer createStorer()
 	{
 		return this.persistenceManager().createStorer();
 	}
 	
+	@Override
 	public default Storer createEagerStorer()
 	{
 		return this.persistenceManager().createEagerStorer();
+	}
+	
+	@Override
+	public default Object getObject(final long objectId)
+	{
+		return this.persistenceManager().getObject(objectId);
 	}
 
 

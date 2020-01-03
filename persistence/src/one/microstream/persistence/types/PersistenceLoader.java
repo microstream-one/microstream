@@ -1,6 +1,6 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceLoader<D> extends PersistenceRetrieving
+public interface PersistenceLoader extends PersistenceRetrieving
 {
 	public PersistenceRoots loadRoots();
 
@@ -10,9 +10,10 @@ public interface PersistenceLoader<D> extends PersistenceRetrieving
 
 	public interface Creator<D>
 	{
-		public PersistenceLoader<D> createLoader(
+		public PersistenceLoader createLoader(
 			PersistenceTypeHandlerLookup<D> typeLookup,
 			PersistenceObjectRegistry       registry  ,
+			Persister                       persister ,
 			PersistenceSourceSupplier<D>    source
 		);
 	}
