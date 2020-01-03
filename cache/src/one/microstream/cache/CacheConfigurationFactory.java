@@ -13,14 +13,23 @@ import one.microstream.storage.types.EmbeddedStorageManager;
 
 public final class CacheConfigurationFactory
 {
-	public static <K, V> MutableConfiguration<K, V>
-		createCacheConfiguration(final String cacheName, final EmbeddedStorageManager storageManager)
+	public static <K, V> MutableConfiguration<K, V> createCacheConfiguration(
+		final String cacheName,
+		final EmbeddedStorageManager storageManager
+	)
 	{
-		return createCacheConfiguration(CachingProvider.defaultURI(), cacheName, storageManager);
+		return createCacheConfiguration(
+			CachingProvider.defaultURI(),
+			cacheName,
+			storageManager
+		);
 	}
 	
-	public static <K, V> MutableConfiguration<K, V>
-		createCacheConfiguration(final URI uri, final String cacheName, final EmbeddedStorageManager storageManager)
+	public static <K, V> MutableConfiguration<K, V> createCacheConfiguration(
+		final URI uri,
+		final String cacheName,
+		final EmbeddedStorageManager storageManager
+	)
 	{
 		notNull(uri);
 		notEmpty(cacheName);
@@ -29,13 +38,11 @@ public final class CacheConfigurationFactory
 		final String                     cacheKey   = uri.toString() + "::" + cacheName;
 		final CacheStore<K, V>           cacheStore = CacheStore.New(cacheKey, storageManager);
 		
-		final MutableConfiguration<K, V> config     = new MutableConfiguration<>();
-		config.setCacheLoaderFactory(() -> cacheStore);
-		config.setCacheWriterFactory(() -> cacheStore);
-		config.setReadThrough(true);
-		config.setWriteThrough(true);
-		
-		return config;
+		return new MutableConfiguration<K, V>()
+			.setCacheLoaderFactory(() -> cacheStore)
+			.setCacheWriterFactory(() -> cacheStore)
+			.setReadThrough(true)
+			.setWriteThrough(true);
 	}
 	
 	private CacheConfigurationFactory()

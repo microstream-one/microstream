@@ -1,22 +1,15 @@
 
 package one.microstream.cache;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 import one.microstream.X;
 import one.microstream.collections.types.XGettingCollection;
-import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.binary.types.BinaryPersistenceFoundation;
-import one.microstream.persistence.binary.types.ChunksWrapper;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.PersistenceContextDispatcher;
 import one.microstream.persistence.types.PersistenceIdSet;
@@ -31,9 +24,9 @@ import one.microstream.util.traversing.ObjectGraphTraverser;
 
 public interface Serializer extends Closeable
 {
-	public byte[] write(Object object);
+	public Binary write(Object object);
 	
-	public Object read(byte[] data);
+	public Object read(Binary data);
 	
 	@Override
 	public void close();
@@ -49,7 +42,10 @@ public interface Serializer extends Closeable
 		
 		static synchronized Serializer get(final ClassLoader classLoader)
 		{
-			return cache.computeIfAbsent(classLoader, cl -> new Serializer.Default());
+			return cache.computeIfAbsent(
+				classLoader,
+				cl -> new Serializer.Default()
+			);
 		}
 		
 		private Static()
@@ -60,10 +56,10 @@ public interface Serializer extends Closeable
 	
 	public static class Default implements Serializer
 	{
-		private SerializerPersistenceSource persistenceSource;
-		private SerializerPersistenceTarget persistenceTarget;
-		private PersistenceManager<Binary>  persistenceManager;
-		private ObjectGraphTraverser        typeHandlerEnsurer;
+		private PersistenceManager<Binary> persistenceManager;
+		private ObjectGraphTraverser       typeHandlerEnsurer;
+		private Binary                     input;
+		private Binary                     output;
 		
 		Default()
 		{
@@ -71,20 +67,19 @@ public interface Serializer extends Closeable
 		}
 		
 		@Override
-		public synchronized byte[] write(final Object object)
+		public synchronized Binary write(final Object object)
 		{
 			this.lazyInit();
 			this.typeHandlerEnsurer.traverse(object);
-			this.persistenceTarget.reset();
 			this.persistenceManager.store(object);
-			return this.persistenceTarget.getBytes();
+			return this.output;
 		}
 		
 		@Override
-		public synchronized Object read(final byte[] data)
+		public synchronized Object read(final Binary data)
 		{
 			this.lazyInit();
-			this.persistenceSource.setData(data);
+			this.input = data;
 			return this.persistenceManager.get();
 		}
 		
@@ -96,10 +91,8 @@ public interface Serializer extends Closeable
 				this.persistenceManager.objectRegistry().truncateAll();
 				this.persistenceManager.close();
 				this.persistenceManager = null;
-				
-				this.persistenceSource  = null;
-				this.persistenceTarget  = null;
-				
+				this.input              = null;
+				this.output             = null;
 				this.typeHandlerEnsurer = null;
 			}
 		}
@@ -108,17 +101,21 @@ public interface Serializer extends Closeable
 		{
 			if(this.persistenceManager == null)
 			{
-				this.persistenceSource = new SerializerPersistenceSource();
-				this.persistenceTarget = new SerializerPersistenceTarget();
+				final PersistenceSourceBinary   source = ()   -> X.Constant(this.input);
+				final PersistenceTarget<Binary> target = data -> this.output = data;
 				
 				final BinaryPersistenceFoundation<?> foundation = BinaryPersistence.Foundation()
-					.setPersistenceSource(this.persistenceSource)
-					.setPersistenceTarget(this.persistenceTarget)
-					.setContextDispatcher(PersistenceContextDispatcher.LocalObjectRegistration());
+					.setPersistenceSource(source)
+					.setPersistenceTarget(target)
+					.setContextDispatcher(
+						PersistenceContextDispatcher.LocalObjectRegistration()
+					);
 				
 				foundation.setTypeDictionaryManager(
 					PersistenceTypeDictionaryManager.Transient(
-						foundation.getTypeDictionaryCreator()));
+						foundation.getTypeDictionaryCreator()
+					)
+				);
 				
 				final PersistenceTypeHandlerManager<Binary> typeHandlerManager = foundation.getTypeHandlerManager();
 				typeHandlerManager.initialize();
@@ -143,78 +140,14 @@ public interface Serializer extends Closeable
 			}
 		}
 		
-		static class SerializerPersistenceSource implements PersistenceSource<Binary>
+		
+		static interface PersistenceSourceBinary extends PersistenceSource<Binary>
 		{
-			private byte[] data;
-			
-			SerializerPersistenceSource()
-			{
-				super();
-			}
-			
-			public void setData(final byte[] data)
-			{
-				this.data = data;
-			}
-			
 			@Override
-			public XGettingCollection<? extends Binary> read() throws PersistenceExceptionTransfer
-			{
-				final ByteBuffer buffer = XMemory.allocateDirectNative(this.data.length);
-				buffer.put(this.data);
-				buffer.flip();
-				return X.<Binary>Constant(ChunksWrapper.New(buffer));
-			}
-			
-			@Override
-			public XGettingCollection<? extends Binary> readByObjectIds(final PersistenceIdSet[] oids)
+			default XGettingCollection<? extends Binary> readByObjectIds(final PersistenceIdSet[] oids)
 				throws PersistenceExceptionTransfer
 			{
-				return X.empty();
-			}
-		}
-		
-		static class SerializerPersistenceTarget implements PersistenceTarget<Binary>
-		{
-			private final ByteArrayOutputStream byteArrayOutputStream;
-			
-			SerializerPersistenceTarget()
-			{
-				super();
-				
-				this.byteArrayOutputStream = new ByteArrayOutputStream();
-			}
-			
-			public void reset()
-			{
-				this.byteArrayOutputStream.reset();
-			}
-			
-			@Override
-			public void write(final Binary data) throws PersistenceExceptionTransfer
-			{
-				try
-				{
-					final WritableByteChannel channel = Channels.newChannel(this.byteArrayOutputStream);
-					
-					final ByteBuffer[]        buffers = data.buffers();
-					for(final ByteBuffer buffer : buffers)
-					{
-						while(buffer.hasRemaining())
-						{
-							channel.write(buffer);
-						}
-					}
-				}
-				catch(final IOException e)
-				{
-					throw new PersistenceExceptionTransfer(e);
-				}
-			}
-			
-			public byte[] getBytes()
-			{
-				return this.byteArrayOutputStream.toByteArray();
+				return null;
 			}
 		}
 		

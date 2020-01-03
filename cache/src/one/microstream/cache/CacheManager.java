@@ -34,9 +34,15 @@ public interface CacheManager extends javax.cache.CacheManager
 		final CachingProvider cachingProvider,
 		final URI uri,
 		final ClassLoader classLoader,
-		final Properties properties)
+		final Properties properties
+	)
 	{
-		return new Default(cachingProvider, uri, classLoader, properties);
+		return new Default(
+			cachingProvider,
+			uri,
+			classLoader,
+			properties
+		);
 	}
 	
 	public static class Default implements CacheManager
@@ -118,8 +124,10 @@ public interface CacheManager extends javax.cache.CacheManager
 
 		// cache reader typing differs from cache writer typing (?)
 		@SuppressWarnings("unchecked")
-		private <K, V, C extends Configuration<K, V>> Cache<K, V>
-			createCacheInternal(final String cacheName, final C config)
+		private <K, V, C extends Configuration<K, V>> Cache<K, V> createCacheInternal(
+			final String cacheName,
+			final C config
+		)
 		{
 			final CacheConfiguration<K, V> configuration   = CacheConfiguration.New(config);
 			
@@ -149,8 +157,15 @@ public interface CacheManager extends javax.cache.CacheManager
 			
 			final Factory<ExpiryPolicy> expiryPolicyFactory = coalesce(
 				configuration.getExpiryPolicyFactory(),
-				CacheConfiguration.DefaultExpiryPolicyFactory());
+				CacheConfiguration.DefaultExpiryPolicyFactory()
+			);
 			final ExpiryPolicy expiryPolicy = expiryPolicyFactory.create();
+			
+			final Factory<EvictionPolicy> evictionPolicyFactory = coalesce(
+				configuration.getEvictionPolicyFactory(),
+				CacheConfiguration.DefaultEvictionPolicyFactory()
+			);
+			final EvictionPolicy evictionPolicy = evictionPolicyFactory.create();
 			
 			return Cache.New(
 				cacheName,
@@ -159,7 +174,9 @@ public interface CacheManager extends javax.cache.CacheManager
 				objectConverter,
 				cacheLoader,
 				cacheWriter,
-				expiryPolicy);
+				expiryPolicy,
+				evictionPolicy
+			);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -168,9 +185,11 @@ public interface CacheManager extends javax.cache.CacheManager
 		{
 			this.ensureOpen();
 			
+			notNull(cacheName);
+			
 			synchronized(this.caches)
 			{
-				return (Cache<K, V>)this.caches.get(notNull(cacheName));
+				return (Cache<K, V>)this.caches.get(cacheName);
 			}
 		}
 		
@@ -248,9 +267,12 @@ public interface CacheManager extends javax.cache.CacheManager
 		{
 			this.ensureOpen();
 			
+			notNull(cacheName);
+			
 			synchronized(this.caches)
 			{
-				this.caches.get(notNull(cacheName)).setManagementEnabled(enabled);
+				this.caches.get(cacheName)
+					.setManagementEnabled(enabled);
 			}
 		}
 		
@@ -259,9 +281,12 @@ public interface CacheManager extends javax.cache.CacheManager
 		{
 			this.ensureOpen();
 			
+			notNull(cacheName);
+			
 			synchronized(this.caches)
 			{
-				this.caches.get(notNull(cacheName)).setStatisticsEnabled(enabled);
+				this.caches.get(cacheName)
+					.setStatisticsEnabled(enabled);
 			}
 		}
 		
@@ -276,7 +301,10 @@ public interface CacheManager extends javax.cache.CacheManager
 			
 			this.isClosed = true;
 			
-			this.cachingProvider.remove(this.getURI(), this.getClassLoader());
+			this.cachingProvider.remove(
+				this.getURI(),
+				this.getClassLoader()
+			);
 			
 			try
 			{

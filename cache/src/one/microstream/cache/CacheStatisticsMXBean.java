@@ -75,12 +75,10 @@ public interface CacheStatisticsMXBean extends javax.cache.management.CacheStati
 		@Override
 		public float getCacheHitPercentage()
 		{
-			final Long hits = this.getCacheHits();
-			if(hits == 0)
-			{
-				return 0;
-			}
-			return (float)hits / this.getCacheGets() * 100.0f;
+			final long hits = this.getCacheHits();
+			return hits == 0
+				? 0
+				: (float)hits / this.getCacheGets() * 100.0f;
 		}
 		
 		@Override
@@ -92,12 +90,10 @@ public interface CacheStatisticsMXBean extends javax.cache.management.CacheStati
 		@Override
 		public float getCacheMissPercentage()
 		{
-			final Long misses = this.getCacheMisses();
-			if(misses == 0)
-			{
-				return 0;
-			}
-			return (float)misses / this.getCacheGets() * 100.0f;
+			final long misses = this.getCacheMisses();
+			return misses == 0
+				? 0
+				: (float)misses / this.getCacheGets() * 100.0f;
 		}
 		
 		@Override
@@ -127,31 +123,31 @@ public interface CacheStatisticsMXBean extends javax.cache.management.CacheStati
 		@Override
 		public float getAverageGetTime()
 		{
-			if(this.cacheGetTimeTakenNanos.longValue() == 0 || this.getCacheGets() == 0)
-			{
-				return 0;
-			}
-			return (this.cacheGetTimeTakenNanos.longValue() / this.getCacheGets()) / NANOSECONDS_IN_A_MICROSECOND;
+			final long cacheGetTimeTakenNanos = this.cacheGetTimeTakenNanos.longValue();
+			final long cacheGets              = this.getCacheGets();
+			return cacheGetTimeTakenNanos == 0 || cacheGets == 0
+				? 0
+				: (cacheGetTimeTakenNanos / cacheGets) / NANOSECONDS_IN_A_MICROSECOND;
 		}
 		
 		@Override
 		public float getAveragePutTime()
 		{
-			if(this.cachePutTimeTakenNanos.longValue() == 0 || this.getCacheGets() == 0)
-			{
-				return 0;
-			}
-			return (this.cachePutTimeTakenNanos.longValue() / this.getCacheGets()) / NANOSECONDS_IN_A_MICROSECOND;
+			final long cachePutTimeTakenNanos = this.cachePutTimeTakenNanos.longValue();
+			final long cacheGets              = this.getCacheGets();
+			return cachePutTimeTakenNanos == 0 || cacheGets == 0
+				? 0
+				: (cachePutTimeTakenNanos / cacheGets) / NANOSECONDS_IN_A_MICROSECOND;
 		}
 		
 		@Override
 		public float getAverageRemoveTime()
 		{
-			if(this.cacheRemoveTimeTakenNanos.longValue() == 0 || this.getCacheGets() == 0)
-			{
-				return 0;
-			}
-			return (this.cacheRemoveTimeTakenNanos.longValue() / this.getCacheGets()) / NANOSECONDS_IN_A_MICROSECOND;
+			final long cacheRemoveTimeTakenNanos = this.cacheRemoveTimeTakenNanos.longValue();
+			final long cacheGets                 = this.getCacheGets();
+			return cacheRemoveTimeTakenNanos == 0 || cacheGets == 0
+				? 0
+				: (cacheRemoveTimeTakenNanos / cacheGets) / NANOSECONDS_IN_A_MICROSECOND;
 		}
 		
 		@Override
@@ -199,7 +195,7 @@ public interface CacheStatisticsMXBean extends javax.cache.management.CacheStati
 			}
 			else
 			{
-				// counter full. Just reset.
+				// Counter full. Just reset.
 				this.clear();
 				this.cacheGetTimeTakenNanos.set(duration);
 			}

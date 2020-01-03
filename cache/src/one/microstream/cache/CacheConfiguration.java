@@ -18,6 +18,9 @@ import javax.cache.integration.CacheWriter;
 
 public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 {
+	public Factory<EvictionPolicy> getEvictionPolicyFactory();
+	
+	
 	public static <K, V> Builder<K, V> Builder(final Class<K> keyType, final Class<V> valueType)
 	{
 		return new Builder.Default<>(keyType, valueType);
@@ -32,6 +35,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		public Builder<K, V> cacheWriterFactory(Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory);
 		
 		public Builder<K, V> expiryPolicyFactory(Factory<ExpiryPolicy> expiryPolicyFactory);
+		
+		public Builder<K, V> evictionPolicyFactory(Factory<EvictionPolicy> evictionPolicyFactory);
 		
 		public Builder<K, V> readThrough();
 		
@@ -55,6 +60,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			private Factory<CacheLoader<K, V>>                     cacheLoaderFactory;
 			private Factory<CacheWriter<? super K, ? super V>>     cacheWriterFactory;
 			private Factory<ExpiryPolicy>                          expiryPolicyFactory;
+			private Factory<EvictionPolicy>                        evictionPolicyFactory;
 			private boolean                                        isReadThrough;
 			private boolean                                        isWriteThrough;
 			private boolean                                        isStoreByValue;
@@ -95,6 +101,13 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			public Builder<K, V> expiryPolicyFactory(final Factory<ExpiryPolicy> expiryPolicyFactory)
 			{
 				this.expiryPolicyFactory = expiryPolicyFactory;
+				return this;
+			}
+			
+			@Override
+			public Builder<K, V> evictionPolicyFactory(final Factory<EvictionPolicy> evictionPolicyFactory)
+			{
+				this.evictionPolicyFactory = evictionPolicyFactory;
 				return this;
 			}
 			
@@ -145,13 +158,26 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			{
 				final Factory<ExpiryPolicy> expiryPolicyFactory = coalesce(
 					this.expiryPolicyFactory,
-					DefaultExpiryPolicyFactory());
+					DefaultExpiryPolicyFactory()
+				);
 				
-				return new CacheConfiguration.Default<>(this.keyType, this.valueType, this.listenerConfigurations,
+				final Factory<EvictionPolicy> evictionPolicyFactory = coalesce(
+					this.evictionPolicyFactory,
+					DefaultEvictionPolicyFactory()
+				);
+				
+				return new CacheConfiguration.Default<>(this.keyType,
+					this.valueType,
+					this.listenerConfigurations,
 					this.cacheLoaderFactory,
-					this.cacheWriterFactory, expiryPolicyFactory, this.isReadThrough, this.isWriteThrough,
+					this.cacheWriterFactory,
+					expiryPolicyFactory,
+					evictionPolicyFactory,
+					this.isReadThrough,
+					this.isWriteThrough,
 					this.isStoreByValue,
-					this.isStatisticsEnabled, this.isManagementEnabled);
+					this.isStatisticsEnabled,
+					this.isManagementEnabled);
 			}
 			
 		}
@@ -161,6 +187,11 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	public static Factory<ExpiryPolicy> DefaultExpiryPolicyFactory()
 	{
 		return EternalExpiryPolicy.factoryOf();
+	}
+	
+	public static Factory<EvictionPolicy> DefaultEvictionPolicyFactory()
+	{
+		return () -> null;
 	}
 	
 	public static <K, V> CacheConfiguration<K, V> New(final Configuration<K, V> other)
@@ -179,7 +210,12 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			
 			final Factory<ExpiryPolicy> expiryPolicyFactory = coalesce(
 				complete.getExpiryPolicyFactory(),
-				DefaultExpiryPolicyFactory());
+				DefaultExpiryPolicyFactory()
+			);
+			
+			final Factory<EvictionPolicy> evictionPolicyFactory = other instanceof CacheConfiguration
+				? ((CacheConfiguration<?, ?>)other).getEvictionPolicyFactory()
+				: DefaultEvictionPolicyFactory();
 			
 			return new Default<>(
 				complete.getKeyType(),
@@ -188,11 +224,13 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				complete.getCacheLoaderFactory(),
 				complete.getCacheWriterFactory(),
 				expiryPolicyFactory,
+				evictionPolicyFactory,
 				complete.isReadThrough(),
 				complete.isWriteThrough(),
 				complete.isStoreByValue(),
 				complete.isStatisticsEnabled(),
-				complete.isManagementEnabled());
+				complete.isManagementEnabled()
+			);
 		}
 		
 		return new Default<>(
@@ -202,6 +240,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			null,
 			null,
 			DefaultExpiryPolicyFactory(),
+			DefaultEvictionPolicyFactory(),
 			false,
 			false,
 			other.isStoreByValue(),
@@ -217,6 +256,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		private final Factory<CacheLoader<K, V>>                     cacheLoaderFactory;
 		private final Factory<CacheWriter<? super K, ? super V>>     cacheWriterFactory;
 		private final Factory<ExpiryPolicy>                          expiryPolicyFactory;
+		private final Factory<EvictionPolicy>                        evictionPolicyFactory;
 		private final boolean                                        isReadThrough;
 		private final boolean                                        isWriteThrough;
 		private final boolean                                        isStoreByValue;
@@ -224,17 +264,18 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		private final boolean                                        isManagementEnabled;
 		
 		Default(
-			final Class<K> keyType,
-			final Class<V> valueType,
+			final Class<K>                                       keyType,
+			final Class<V>                                       valueType,
 			final HashSet<CacheEntryListenerConfiguration<K, V>> listenerConfigurations,
-			final Factory<CacheLoader<K, V>> cacheLoaderFactory,
-			final Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory,
-			final Factory<ExpiryPolicy> expiryPolicyFactory,
-			final boolean isReadThrough,
-			final boolean isWriteThrough,
-			final boolean isStoreByValue,
-			final boolean isStatisticsEnabled,
-			final boolean isManagementEnabled)
+			final Factory<CacheLoader<K, V>>                     cacheLoaderFactory,
+			final Factory<CacheWriter<? super K, ? super V>>     cacheWriterFactory,
+			final Factory<ExpiryPolicy>                          expiryPolicyFactory,
+			final Factory<EvictionPolicy>                        evictionPolicyFactory,
+			final boolean                                        isReadThrough,
+			final boolean                                        isWriteThrough,
+			final boolean                                        isStoreByValue,
+			final boolean                                        isStatisticsEnabled,
+			final boolean                                        isManagementEnabled)
 		{
 			super();
 			
@@ -244,6 +285,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			this.cacheLoaderFactory     = cacheLoaderFactory;
 			this.cacheWriterFactory     = cacheWriterFactory;
 			this.expiryPolicyFactory    = expiryPolicyFactory;
+			this.evictionPolicyFactory  = evictionPolicyFactory;
 			this.isReadThrough          = isReadThrough;
 			this.isWriteThrough         = isWriteThrough;
 			this.isStatisticsEnabled    = isStatisticsEnabled;
@@ -288,6 +330,12 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		}
 		
 		@Override
+		public Factory<EvictionPolicy> getEvictionPolicyFactory()
+		{
+			return this.evictionPolicyFactory;
+		}
+		
+		@Override
 		public boolean isReadThrough()
 		{
 			return this.isReadThrough;
@@ -322,18 +370,17 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		{
 			final int prime  = 31;
 			int       result = 1;
-			result = prime * result + ((this.cacheLoaderFactory == null) ? 0 : this.cacheLoaderFactory.hashCode());
-			result = prime * result + ((this.cacheWriterFactory == null) ? 0 : this.cacheWriterFactory.hashCode());
-			result = prime * result + ((this.expiryPolicyFactory == null) ? 0 : this.expiryPolicyFactory.hashCode());
+			result = prime * result + (this.cacheLoaderFactory == null ? 0 : this.cacheLoaderFactory.hashCode());
+			result = prime * result + (this.cacheWriterFactory == null ? 0 : this.cacheWriterFactory.hashCode());
+			result = prime * result + (this.expiryPolicyFactory == null ? 0 : this.expiryPolicyFactory.hashCode());
 			result = prime * result + (this.isManagementEnabled ? 1231 : 1237);
 			result = prime * result + (this.isReadThrough ? 1231 : 1237);
 			result = prime * result + (this.isStatisticsEnabled ? 1231 : 1237);
 			result = prime * result + (this.isStoreByValue ? 1231 : 1237);
 			result = prime * result + (this.isWriteThrough ? 1231 : 1237);
-			result = prime * result + ((this.keyType == null) ? 0 : this.keyType.hashCode());
-			result =
-				prime * result + ((this.listenerConfigurations == null) ? 0 : this.listenerConfigurations.hashCode());
-			result = prime * result + ((this.valueType == null) ? 0 : this.valueType.hashCode());
+			result = prime * result + (this.keyType == null ? 0 : this.keyType.hashCode());
+			result = prime * result + (this.listenerConfigurations == null ? 0 : this.listenerConfigurations.hashCode());
+			result = prime * result + (this.valueType == null ? 0 : this.valueType.hashCode());
 			return result;
 		}
 		

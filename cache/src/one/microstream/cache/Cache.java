@@ -36,7 +36,6 @@ import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
 
 import one.microstream.collections.BulkList;
-import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XList;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.typing.KeyValue;
@@ -71,15 +70,26 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	}
 	
 	public static <K, V> Cache<K, V> New(
-		final String name,
-		final CacheManager manager,
+		final String                   name,
+		final CacheManager             manager,
 		final CacheConfiguration<K, V> configuration,
-		final ObjectConverter objectConverter,
-		final CacheLoader<K, V> cacheLoader,
-		final CacheWriter<K, V> cacheWriter,
-		final ExpiryPolicy expiryPolicy)
+		final ObjectConverter          objectConverter,
+		final CacheLoader<K, V>        cacheLoader,
+		final CacheWriter<K, V>        cacheWriter,
+		final ExpiryPolicy             expiryPolicy,
+		final EvictionPolicy           evictionPolicy
+	)
 	{
-		return new Default<>(name, manager, configuration, objectConverter, cacheLoader, cacheWriter, expiryPolicy);
+		return new Default<>(
+			name,
+			manager,
+			configuration,
+			objectConverter,
+			cacheLoader,
+			cacheWriter,
+			expiryPolicy,
+			evictionPolicy
+		);
 	}
 	
 	public static class Default<K, V> implements Cache<K, V>
@@ -91,8 +101,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private final CacheLoader<K, V>                           cacheLoader;
 		private final CacheWriter<K, V>                           cacheWriter;
 		private final ExpiryPolicy                                expiryPolicy;
+		private final EvictionPolicy                              evictionPolicy;
+		private final CacheTable                                  cacheTable;
 		private final XList<CacheEntryListenerRegistration<K, V>> listenerRegistrations;
-		private final EqHashTable<Object, CachedValue>            hashTable;
 		private final ExecutorService                             executorService;
 		private final CacheMXBean                                 cacheMXBean;
 		private final CacheStatisticsMXBean                       cacheStatisticsMXBean;
@@ -100,13 +111,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private volatile boolean                                  isClosed;
 		
 		Default(
-			final String name,
-			final CacheManager manager,
+			final String                   name,
+			final CacheManager             manager,
 			final CacheConfiguration<K, V> configuration,
-			final ObjectConverter objectConverter,
-			final CacheLoader<K, V> cacheLoader,
-			final CacheWriter<K, V> cacheWriter,
-			final ExpiryPolicy expiryPolicy)
+			final ObjectConverter          objectConverter,
+			final CacheLoader<K, V>        cacheLoader,
+			final CacheWriter<K, V>        cacheWriter,
+			final ExpiryPolicy             expiryPolicy,
+			final EvictionPolicy           evictionPolicy
+		)
 		{
 			super();
 			
@@ -117,9 +130,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.cacheLoader           = cacheLoader;
 			this.cacheWriter           = cacheWriter;
 			this.expiryPolicy          = expiryPolicy;
-			
+			this.evictionPolicy        = evictionPolicy;
+
+			this.cacheTable            = CacheTable.New();
 			this.listenerRegistrations = BulkList.New();
-			this.hashTable             = EqHashTable.New();
 			this.executorService       = Executors.newFixedThreadPool(1);
 			this.cacheMXBean           = new CacheMXBean.Default(this.configuration);
 			this.cacheStatisticsMXBean = new CacheStatisticsMXBean.Default(this::size);
@@ -173,7 +187,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			synchronized(this.listenerRegistrations)
 			{
-				this.listenerRegistrations.add(CacheEntryListenerRegistration.New(cacheEntryListenerConfiguration));
+				this.listenerRegistrations.add(
+					CacheEntryListenerRegistration.New(cacheEntryListenerConfiguration)
+				);
 			}
 		}
 		
@@ -186,7 +202,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			synchronized(this.listenerRegistrations)
 			{
 				this.listenerRegistrations.removeBy(
-					reg -> cacheEntryListenerConfiguration.equals(reg.getConfiguration()));
+					reg -> cacheEntryListenerConfiguration.equals(reg.getConfiguration())
+				);
 			}
 		}
 		
@@ -226,15 +243,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				throw new CacheException(e);
 			}
 			
-			this.hashTable.clear();
+			this.cacheTable.clear();
 		}
 		
 		@Override
 		public long size()
 		{
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				return this.hashTable.size();
+				return this.cacheTable.size();
 			}
 		}
 		
@@ -286,12 +303,12 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			this.validateKey(key);
 			
-			final Object internalKey = this.objectConverter.toInternal(key);
+			final Object internalKey = this.objectConverter.internalize(key);
 			final long   now         = System.currentTimeMillis();
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				final CachedValue cachedValue = this.cacheTable.get(internalKey);
 				return cachedValue != null && !cachedValue.isExpiredAt(now);
 			}
 		}
@@ -385,45 +402,60 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
 			int                              putCount            = 0;
 			final long                       now                 = System.currentTimeMillis();
-			final Object                     internalKey         = this.objectConverter.toInternal(key);
-			final Object                     internalValue       = this.objectConverter.toInternal(value);
+			final Object                     internalKey         = this.objectConverter.internalize(key);
+			final Object                     internalValue       = this.objectConverter.internalize(value);
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				CachedValue   cachedValue = this.hashTable.get(internalKey);
+				CachedValue   cachedValue = this.cacheTable.get(internalKey);
 				final boolean isExpired   = cachedValue != null && cachedValue.isExpiredAt(now);
 				
 				if(isExpired)
 				{
-					final V expiredValue = this.objectConverter.fromInternal(cachedValue.value());
-					this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+					this.processExpiries(
+						key,
+						internalKey,
+						eventDispatcher,
+						this.objectConverter.externalize(cachedValue.value())
+					);
 				}
 				
 				final CacheEntry<K, V> entry = CacheEntry.New(key, value);
 				
 				if(cachedValue == null || isExpired)
 				{
-					final long expiryTime = this.expiryForCreation().getAdjustedTime(now);
-					cachedValue = CachedValue.New(internalValue, now, expiryTime);
+					cachedValue = CachedValue.New(
+						internalValue,
+						now,
+						this.expiryForCreation().getAdjustedTime(now)
+					);
 					
 					if(cachedValue.isExpiredAt(now))
 					{
-						this.processExpiries(key, internalKey, eventDispatcher,
-							this.objectConverter.fromInternal(cachedValue.value()));
+						this.processExpiries(
+							key,
+							internalKey,
+							eventDispatcher,
+							this.objectConverter.externalize(cachedValue.value())
+						);
 					}
 					else
 					{
-						this.hashTable.put(internalKey, cachedValue);
+						this.putValue(
+							key,
+							value,
+							internalKey,
+							cachedValue,
+							eventDispatcher,
+							isStatisticsEnabled
+						);
 						this.writeCacheEntry(entry);
 						putCount++;
-						
-						eventDispatcher.addEvent(CacheEntryCreatedListener.class,
-							new CacheEvent<>(this, EventType.CREATED, key, value));
 					}
 				}
 				else
 				{
-					final V oldValue = this.objectConverter.fromInternal(cachedValue.value(now));
+					final V oldValue = this.objectConverter.externalize(cachedValue.value(now));
 					
 					this.updateExpiryForUpdate(cachedValue, now);
 					
@@ -431,8 +463,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					this.writeCacheEntry(entry);
 					putCount++;
 					
-					eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
-						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue));
+					eventDispatcher.addEvent(
+						CacheEntryUpdatedListener.class,
+						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
+					);
 				}
 				
 				eventDispatcher.dispatch(this.listenerRegistrations);
@@ -461,18 +495,22 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
 			int                              putCount            = 0;
 			final long                       now                 = System.currentTimeMillis();
-			final Object                     internalKey         = this.objectConverter.toInternal(key);
-			final Object                     internalValue       = this.objectConverter.toInternal(value);
+			final Object                     internalKey         = this.objectConverter.internalize(key);
+			final Object                     internalValue       = this.objectConverter.internalize(value);
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				CachedValue   cachedValue = this.hashTable.get(internalKey);
+				CachedValue   cachedValue = this.cacheTable.get(internalKey);
 				final boolean isExpired   = cachedValue != null && cachedValue.isExpiredAt(now);
 				
 				if(isExpired)
 				{
-					final V expiredValue = this.objectConverter.fromInternal(cachedValue.value());
-					this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+					this.processExpiries(
+						key,
+						internalKey,
+						eventDispatcher,
+						this.objectConverter.externalize(cachedValue.value())
+					);
 				}
 				
 				final CacheEntry<K, V> entry = CacheEntry.New(key, value);
@@ -481,27 +519,38 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				{
 					result = null;
 					
-					final long expiryTime = this.expiryForCreation().getAdjustedTime(now);
-					cachedValue = CachedValue.New(internalValue, now, expiryTime);
+					cachedValue = CachedValue.New(
+						internalValue,
+						now,
+						this.expiryForCreation().getAdjustedTime(now)
+					);
 					
 					if(cachedValue.isExpiredAt(now))
 					{
-						this.processExpiries(key, internalKey, eventDispatcher,
-							this.objectConverter.fromInternal(cachedValue.value()));
+						this.processExpiries(
+							key,
+							internalKey,
+							eventDispatcher,
+							this.objectConverter.externalize(cachedValue.value())
+						);
 					}
 					else
 					{
-						this.hashTable.put(internalKey, cachedValue);
+						this.putValue(
+							key,
+							value,
+							internalKey,
+							cachedValue,
+							eventDispatcher,
+							isStatisticsEnabled
+						);
 						this.writeCacheEntry(entry);
 						putCount++;
-						
-						eventDispatcher.addEvent(CacheEntryCreatedListener.class,
-							new CacheEvent<>(this, EventType.CREATED, key, value));
 					}
 				}
 				else
 				{
-					final V oldValue = result = this.objectConverter.fromInternal(cachedValue.value(now));
+					final V oldValue = result = this.objectConverter.externalize(cachedValue.value(now));
 					
 					this.updateExpiryForUpdate(cachedValue, now);
 					
@@ -509,8 +558,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					this.writeCacheEntry(entry);
 					putCount++;
 					
-					eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
-						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue));
+					eventDispatcher.addEvent(
+						CacheEntryUpdatedListener.class,
+						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
+					);
 				}
 				
 				eventDispatcher.dispatch(this.listenerRegistrations);
@@ -574,7 +625,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
 			CacheWriterException             exception           = null;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
 				final boolean                                           isWriteThrough =
 					this.cacheWriter != null && useWriteThrough;
@@ -618,36 +669,51 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				for(final K key : keysToPut)
 				{
 					final V       value         = map.get(key);
-					final Object  internalKey   = this.objectConverter.toInternal(key);
-					final Object  internalValue = this.objectConverter.toInternal(value);
-					CachedValue   cachedValue   = this.hashTable.get(internalKey);
+					final Object  internalKey   = this.objectConverter.internalize(key);
+					final Object  internalValue = this.objectConverter.internalize(value);
+					CachedValue   cachedValue   = this.cacheTable.get(internalKey);
 					
 					final boolean isExpired     = cachedValue != null && cachedValue.isExpiredAt(now);
 					if(cachedValue == null || isExpired)
 					{
 						if(isExpired)
 						{
-							final V expiredValue = this.objectConverter.fromInternal(cachedValue.value());
-							this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+							this.processExpiries(
+								key,
+								internalKey,
+								eventDispatcher,
+								this.objectConverter.externalize(cachedValue.value())
+							);
 						}
 						
-						final long expiryTime = this.expiryForCreation().getAdjustedTime(now);
-						cachedValue = CachedValue.New(internalValue, now, expiryTime);
+						cachedValue = CachedValue.New(
+							internalValue,
+							now,
+							this.expiryForCreation().getAdjustedTime(now)
+						);
 						if(cachedValue.isExpiredAt(now))
 						{
-							this.processExpiries(key, internalKey, eventDispatcher, value);
+							this.processExpiries(
+								key,
+								internalKey,
+								eventDispatcher,
+								value
+							);
 						}
 						else
 						{
-							this.hashTable.put(internalKey, cachedValue);
-							
-							eventDispatcher.addEvent(CacheEntryCreatedListener.class,
-								new CacheEvent<>(this, EventType.CREATED, key, value));
+							this.putValue(
+								key,
+								value,
+								internalKey,
+								cachedValue,
+								eventDispatcher,
+								isStatisticsEnabled
+							);
 							
 							/*
 							 * This method called from loadAll when useWriteThrough is false. Do not count loads as puts
 							 * per statistics table in specification.
-							 * 
 							 */
 							if(useWriteThrough)
 							{
@@ -657,7 +723,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					}
 					else if(replaceExistingValues)
 					{
-						final V oldValue = this.objectConverter.fromInternal(cachedValue.value());
+						final V oldValue = this.objectConverter.externalize(cachedValue.value());
 						
 						this.updateExpiryForUpdate(cachedValue, now);
 						
@@ -671,8 +737,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 							putCount++;
 						}
 						
-						eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
-							new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue));
+						eventDispatcher.addEvent(
+							CacheEntryUpdatedListener.class,
+							new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
+						);
 					}
 				}
 			}
@@ -705,31 +773,43 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			final long                       now                 = System.currentTimeMillis();
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
-			final Object                     internalKey         = this.objectConverter.toInternal(key);
-			final Object                     internalValue       = this.objectConverter.toInternal(value);
+			final Object                     internalKey         = this.objectConverter.internalize(key);
+			final Object                     internalValue       = this.objectConverter.internalize(value);
 			boolean                          result;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				CachedValue   cachedValue = this.hashTable.get(internalKey);
+				CachedValue   cachedValue = this.cacheTable.get(internalKey);
 				
 				final boolean isExpired   = cachedValue != null && cachedValue.isExpiredAt(now);
-				if(cachedValue == null || cachedValue.isExpiredAt(now))
+				if(cachedValue == null || isExpired)
 				{
 					final CacheEntry<K, V> entry = CacheEntry.New(key, value);
 					this.writeCacheEntry(entry);
 					
 					if(isExpired)
 					{
-						final V expiredValue = this.objectConverter.fromInternal(cachedValue.value());
-						this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+						this.processExpiries(
+							key,
+							internalKey,
+							eventDispatcher,
+							this.objectConverter.externalize(cachedValue.value())
+						);
 					}
 					
-					final long expiryTime = this.expiryForCreation().getAdjustedTime(now);
-					cachedValue = CachedValue.New(internalValue, now, expiryTime);
+					cachedValue = CachedValue.New(
+						internalValue,
+						now,
+						this.expiryForCreation().getAdjustedTime(now)
+					);
 					if(cachedValue.isExpiredAt(now))
 					{
-						this.processExpiries(key, internalKey, eventDispatcher, value);
+						this.processExpiries(
+							key,
+							internalKey,
+							eventDispatcher,
+							value
+						);
 						
 						// no expiry event for created entry that expires before put in cache.
 						// do not put entry in cache.
@@ -737,11 +817,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					}
 					else
 					{
-						this.hashTable.put(internalKey, cachedValue);
+						this.putValue(
+							key,
+							value,
+							internalKey,
+							cachedValue,
+							eventDispatcher,
+							isStatisticsEnabled
+						);
 						result = true;
-						
-						eventDispatcher.addEvent(CacheEntryCreatedListener.class,
-							new CacheEvent<>(this, EventType.CREATED, key, value));
 					}
 				}
 				else
@@ -783,15 +867,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			final long                       now                 = System.currentTimeMillis();
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
-			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			final Object                     internalKey         = this.objectConverter.internalize(key);
 			boolean                          result;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
 				this.deleteCacheEntry(key);
 				
-				final CachedValue cachedValue = this.hashTable.get(internalKey);
-				if(cachedValue == null)
+				final CachedValue cachedValue;
+				if((cachedValue = this.cacheTable.get(internalKey)) == null)
 				{
 					return false;
 				}
@@ -802,11 +886,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 				else
 				{
-					this.hashTable.removeFor(internalKey);
-					final V value = this.objectConverter.fromInternal(cachedValue.value());
+					this.cacheTable.remove(internalKey);
+					final V value = this.objectConverter.externalize(cachedValue.value());
 					
-					eventDispatcher.addEvent(CacheEntryRemovedListener.class,
-						new CacheEvent<>(this, EventType.REMOVED, key, value, value));
+					eventDispatcher.addEvent(
+						CacheEntryRemovedListener.class,
+						new CacheEvent<>(this, EventType.REMOVED, key, value, value)
+					);
 					
 					result = true;
 				}
@@ -837,13 +923,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			final long                       now                 = System.currentTimeMillis();
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
-			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			final Object                     internalKey         = this.objectConverter.internalize(key);
 			boolean                          hit                 = false;
 			boolean                          result;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				final CachedValue cachedValue = this.cacheTable.get(internalKey);
 				if(cachedValue == null || cachedValue.isExpiredAt(now))
 				{
 					result = false;
@@ -853,16 +939,18 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					hit = true;
 					
 					final Object internalValue    = cachedValue.value();
-					final Object oldInternalValue = this.objectConverter.toInternal(oldValue);
+					final Object oldInternalValue = this.objectConverter.internalize(oldValue);
 					
 					if(internalValue.equals(oldInternalValue))
 					{
 						this.deleteCacheEntry(key);
 						
-						this.hashTable.removeFor(internalKey);
+						this.cacheTable.remove(internalKey);
 						
-						eventDispatcher.addEvent(CacheEntryRemovedListener.class,
-							new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue));
+						eventDispatcher.addEvent(
+							CacheEntryRemovedListener.class,
+							new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue)
+						);
 						
 						result = true;
 					}
@@ -913,25 +1001,27 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			final long                       now                 = System.currentTimeMillis();
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
-			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			final Object                     internalKey         = this.objectConverter.internalize(key);
 			V                                result;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
 				this.deleteCacheEntry(key);
 				
-				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				final CachedValue cachedValue = this.cacheTable.get(internalKey);
 				if(cachedValue == null || cachedValue.isExpiredAt(now))
 				{
 					result = null;
 				}
 				else
 				{
-					this.hashTable.removeFor(internalKey);
-					result = this.objectConverter.fromInternal(cachedValue.value(now));
+					this.cacheTable.remove(internalKey);
+					result = this.objectConverter.externalize(cachedValue.value(now));
 					
-					eventDispatcher.addEvent(CacheEntryRemovedListener.class,
-						new CacheEvent<>(this, EventType.REMOVED, key, result, result));
+					eventDispatcher.addEvent(
+						CacheEntryRemovedListener.class,
+						new CacheEvent<>(this, EventType.REMOVED, key, result, result)
+					);
 				}
 			}
 			
@@ -972,13 +1062,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			final long                       now                 = System.currentTimeMillis();
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
-			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			final Object                     internalKey         = this.objectConverter.internalize(key);
 			long                             hitCount            = 0;
 			boolean                          result;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				final CachedValue cachedValue = this.cacheTable.get(internalKey);
 				if(cachedValue == null || cachedValue.isExpiredAt(now))
 				{
 					result = false;
@@ -987,7 +1077,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				{
 					hitCount++;
 					
-					final Object oldInternalValue = this.objectConverter.toInternal(oldValue);
+					final Object oldInternalValue = this.objectConverter.internalize(oldValue);
 					
 					if(cachedValue.value().equals(oldInternalValue))
 					{
@@ -996,11 +1086,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						
 						this.updateExpiryForUpdate(cachedValue, now);
 						
-						final Object newInternalValue = this.objectConverter.toInternal(newValue);
-						cachedValue.value(newInternalValue, now);
+						cachedValue.value(
+							this.objectConverter.internalize(newValue),
+							now
+						);
 						
-						eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
-							new CacheEvent<>(this, EventType.UPDATED, key, newValue, oldValue));
+						eventDispatcher.addEvent(
+							CacheEntryUpdatedListener.class,
+							new CacheEvent<>(this, EventType.UPDATED, key, newValue, oldValue)
+						);
 						
 						result = true;
 					}
@@ -1051,30 +1145,32 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			final long                       now                 = System.currentTimeMillis();
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
-			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			final Object                     internalKey         = this.objectConverter.internalize(key);
 			boolean                          result;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				final CachedValue cachedValue = this.cacheTable.get(internalKey);
 				if(cachedValue == null || cachedValue.isExpiredAt(now))
 				{
 					result = false;
 				}
 				else
 				{
-					final V                oldValue = this.objectConverter.fromInternal(cachedValue.value());
+					final V                oldValue = this.objectConverter.externalize(cachedValue.value());
 					
 					final CacheEntry<K, V> entry    = CacheEntry.New(key, value);
 					this.writeCacheEntry(entry);
 					
 					this.updateExpiryForUpdate(cachedValue, now);
 					
-					final Object newInternalValue = this.objectConverter.toInternal(value);
+					final Object newInternalValue = this.objectConverter.internalize(value);
 					cachedValue.value(newInternalValue, now);
 					
-					eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
-						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue));
+					eventDispatcher.addEvent(
+						CacheEntryUpdatedListener.class,
+						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
+					);
 					
 					result = true;
 				}
@@ -1115,30 +1211,34 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			final long                       now                 = System.currentTimeMillis();
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
-			final Object                     internalKey         = this.objectConverter.toInternal(key);
+			final Object                     internalKey         = this.objectConverter.internalize(key);
 			V                                result;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				final CachedValue cachedValue = this.cacheTable.get(internalKey);
 				if(cachedValue == null || cachedValue.isExpiredAt(now))
 				{
 					result = null;
 				}
 				else
 				{
-					final V                oldValue = this.objectConverter.fromInternal(cachedValue.value());
+					final V                oldValue = this.objectConverter.externalize(cachedValue.value());
 					
 					final CacheEntry<K, V> entry    = CacheEntry.New(key, value);
 					this.writeCacheEntry(entry);
 					
 					this.updateExpiryForUpdate(cachedValue, now);
 					
-					final Object newInternalValue = this.objectConverter.toInternal(value);
-					cachedValue.value(newInternalValue, now);
+					cachedValue.value(
+						this.objectConverter.internalize(value),
+						now
+					);
 					
-					eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
-						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue));
+					eventDispatcher.addEvent(
+						CacheEntryUpdatedListener.class,
+						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
+					);
 					
 					result = oldValue;
 				}
@@ -1180,7 +1280,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			cacheWriterKeys.addAll(keys);
 			CacheException exception = null;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
 				if(this.cacheWriter != null)
 				{
@@ -1204,22 +1304,29 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						// only delete those keys that the writer deleted. per CacheWriter spec.
 						if(!cacheWriterKeys.contains(key))
 						{
-							final Object      internalKey = this.objectConverter.toInternal(key);
-							final CachedValue cachedValue = this.hashTable.removeFor(internalKey);
+							final Object      internalKey = this.objectConverter.internalize(key);
+							final CachedValue cachedValue = this.cacheTable.remove(internalKey);
 							if(cachedValue != null)
 							{
 								deletedKeys.add(key);
 								
-								final V value = this.objectConverter.fromInternal(cachedValue.value());
+								final V value = this.objectConverter.externalize(cachedValue.value());
 								
 								if(cachedValue.isExpiredAt(now))
 								{
-									this.processExpiries(key, internalKey, eventDispatcher, value);
+									this.processExpiries(
+										key,
+										internalKey,
+										eventDispatcher,
+										value
+									);
 								}
 								else
 								{
-									eventDispatcher.addEvent(CacheEntryRemovedListener.class,
-										new CacheEvent<>(this, EventType.REMOVED, key, value, value));
+									eventDispatcher.addEvent(
+										CacheEntryRemovedListener.class,
+										new CacheEvent<>(this, EventType.REMOVED, key, value, value)
+									);
 								}
 							}
 						}
@@ -1230,22 +1337,29 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					for(final K key : keys)
 					{
 						// only delete those keys that the writer deleted. per CacheWriter spec.
-						final Object      internalKey = this.objectConverter.toInternal(key);
-						final CachedValue cachedValue = this.hashTable.removeFor(internalKey);
+						final Object      internalKey = this.objectConverter.internalize(key);
+						final CachedValue cachedValue = this.cacheTable.remove(internalKey);
 						if(cachedValue != null)
 						{
 							deletedKeys.add(key);
 							
-							final V value = this.objectConverter.fromInternal(cachedValue.value());
+							final V value = this.objectConverter.externalize(cachedValue.value());
 							
 							if(cachedValue.isExpiredAt(now))
 							{
-								this.processExpiries(key, internalKey, eventDispatcher, value);
+								this.processExpiries(
+									key,
+									internalKey,
+									eventDispatcher,
+									value
+								);
 							}
 							else
 							{
-								eventDispatcher.addEvent(CacheEntryRemovedListener.class,
-									new CacheEvent<>(this, EventType.REMOVED, key, value, value));
+								eventDispatcher.addEvent(
+									CacheEntryRemovedListener.class,
+									new CacheEvent<>(this, EventType.REMOVED, key, value, value)
+								);
 							}
 						}
 					}
@@ -1276,10 +1390,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
 			CacheException                   exception           = null;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
 				final HashSet<K> keys = new HashSet<>();
-				this.hashTable.keys().forEach(key -> keys.add(this.objectConverter.fromInternal(key)));
+				this.cacheTable.keys().forEach(key -> keys.add(this.objectConverter.externalize(key)));
 				final HashSet<K> keysToDelete = new HashSet<>(keys);
 				
 				if(this.cacheWriter != null && keysToDelete.size() > 0)
@@ -1303,19 +1417,25 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				{
 					if(!keysToDelete.contains(key))
 					{
-						final Object      internalKey = this.objectConverter.toInternal(key);
-						final CachedValue cachedValue = this.hashTable.removeFor(internalKey);
-						
-						final V           value       = this.objectConverter.fromInternal(cachedValue.value());
+						final Object      internalKey = this.objectConverter.internalize(key);
+						final CachedValue cachedValue = this.cacheTable.remove(internalKey);
+						final V           value       = this.objectConverter.externalize(cachedValue.value());
 						
 						if(cachedValue.isExpiredAt(now))
 						{
-							this.processExpiries(key, internalKey, eventDispatcher, value);
+							this.processExpiries(
+								key,
+								internalKey,
+								eventDispatcher,
+								value
+							);
 						}
 						else
 						{
-							eventDispatcher.addEvent(CacheEntryRemovedListener.class,
-								new CacheEvent<>(this, EventType.REMOVED, key, value, value));
+							eventDispatcher.addEvent(
+								CacheEntryRemovedListener.class,
+								new CacheEvent<>(this, EventType.REMOVED, key, value, value)
+							);
 							removed++;
 						}
 					}
@@ -1340,9 +1460,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		{
 			this.ensureOpen();
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				this.hashTable.clear();
+				this.cacheTable.clear();
 			}
 		}
 		
@@ -1351,7 +1471,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		{
 			this.ensureOpen();
 			
-			return new EntryIterator(this.hashTable.iterator());
+			return new EntryIterator(this.cacheTable.iterator());
 		}
 		
 		@Override
@@ -1435,18 +1555,22 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			final long                       now             = System.currentTimeMillis();
 			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			final Object                     internalKey     = this.objectConverter.toInternal(key);
+			final Object                     internalKey     = this.objectConverter.internalize(key);
 			T                                result          = null;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				final CachedValue cachedValue = this.hashTable.get(internalKey);
+				final CachedValue cachedValue = this.cacheTable.get(internalKey);
 				final boolean     isExpired   = cachedValue != null && cachedValue.isExpiredAt(now);
 				
 				if(isExpired)
 				{
-					final V expiredValue = this.objectConverter.fromInternal(cachedValue.value());
-					this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+					this.processExpiries(
+						key,
+						internalKey,
+						eventDispatcher,
+						this.objectConverter.externalize(cachedValue.value())
+					);
 				}
 				
 				if(isStatisticsEnabled)
@@ -1466,7 +1590,12 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 				
 				final MutableCacheEntry<K, V> entry = MutableCacheEntry.New(
-					this.objectConverter, key, cachedValue, now, this.cacheLoader);
+					this.objectConverter,
+					key,
+					cachedValue,
+					now,
+					this.cacheLoader
+				);
 				try
 				{
 					result = entryProcessor.process(entry, arguments);
@@ -1480,8 +1609,16 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					throw new EntryProcessorException(e);
 				}
 				
-				this.finishInvocation(key, internalKey, cachedValue, entry, start, now, eventDispatcher,
-					isStatisticsEnabled);
+				this.finishInvocation(
+					key,
+					internalKey,
+					cachedValue,
+					entry,
+					start,
+					now,
+					eventDispatcher,
+					isStatisticsEnabled
+				);
 			}
 			
 			eventDispatcher.dispatch(this.listenerRegistrations);
@@ -1503,31 +1640,51 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			switch(entry.getOperation())
 			{
 				case ACCESS:
-				{
+
 					this.updateExpiryForAccess(cachedValue, now);
-				}
+
 					break;
 				
 				case CREATE:
 				case LOAD:
-				{
-					this.finishInvocationCreateLoad(key, internalKey, entry, start, now, eventDispatcher,
-						isStatisticsEnabled);
-				}
+
+					this.finishInvocationCreateLoad(
+						key,
+						internalKey,
+						entry,
+						start,
+						now,
+						eventDispatcher,
+						isStatisticsEnabled
+					);
+
 					break;
 				
 				case UPDATE:
-				{
-					this.finishInvocationUpdate(key, entry, cachedValue, start, now, eventDispatcher,
-						isStatisticsEnabled);
-				}
+
+					this.finishInvocationUpdate(
+						key,
+						entry,
+						cachedValue,
+						start,
+						now,
+						eventDispatcher,
+						isStatisticsEnabled
+					);
+
 					break;
 				
 				case REMOVE:
-				{
-					this.finishInvocationRemove(key, internalKey, cachedValue, start, eventDispatcher,
-						isStatisticsEnabled);
-				}
+
+					this.finishInvocationRemove(
+						key,
+						internalKey,
+						cachedValue,
+						start,
+						eventDispatcher,
+						isStatisticsEnabled
+					);
+
 					break;
 			}
 		}
@@ -1542,28 +1699,39 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final boolean isStatisticsEnabled)
 		{
 			CachedValue            cachedValue;
-			final CacheEntry<K, V> e = CacheEntry.New(key, entry.getValue());
+			final CacheEntry<K, V> e          = CacheEntry.New(key, entry.getValue());
 			
 			if(entry.getOperation() == MutableCacheEntry.Operation.CREATE)
 			{
 				this.writeCacheEntry(e);
 			}
 			
-			final long expiryTime = this.expiryForCreation().getAdjustedTime(now);
-			cachedValue =
-				CachedValue.New(this.objectConverter.toInternal(entry.getValue()), now, expiryTime);
+			cachedValue = CachedValue.New(
+				this.objectConverter.internalize(entry.getValue()),
+				now,
+				this.expiryForCreation().getAdjustedTime(now)
+			);
 			
 			if(cachedValue.isExpiredAt(now))
 			{
-				final V previousValue = this.objectConverter.fromInternal(cachedValue.value());
-				this.processExpiries(key, internalKey, eventDispatcher, previousValue);
+				final V previousValue = this.objectConverter.externalize(cachedValue.value());
+				this.processExpiries(
+					key,
+					internalKey,
+					eventDispatcher,
+					previousValue
+				);
 			}
 			else
 			{
-				this.hashTable.put(internalKey, cachedValue);
-				
-				eventDispatcher.addEvent(CacheEntryCreatedListener.class,
-					new CacheEvent<>(this, EventType.CREATED, key, entry.getValue()));
+				this.putValue(
+					key,
+					entry.getValue(),
+					internalKey,
+					cachedValue,
+					eventDispatcher,
+					isStatisticsEnabled
+				);
 				
 				// do not count LOAD as a put for cache statistics.
 				if(isStatisticsEnabled && entry.getOperation() == MutableCacheEntry.Operation.CREATE)
@@ -1583,17 +1751,22 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CacheEventDispatcher<K, V> eventDispatcher,
 			final boolean isStatisticsEnabled)
 		{
-			final V                oldValue = this.objectConverter.fromInternal(cachedValue.value());
+			final V                oldValue = this.objectConverter.externalize(cachedValue.value());
 			
 			final CacheEntry<K, V> e        = CacheEntry.New(key, entry.getValue());
 			this.writeCacheEntry(e);
 			
 			this.updateExpiryForUpdate(cachedValue, now);
 			
-			cachedValue.value(this.objectConverter.toInternal(entry.getValue()), now);
+			cachedValue.value(
+				this.objectConverter.internalize(entry.getValue()),
+				now
+			);
 			
-			eventDispatcher.addEvent(CacheEntryUpdatedListener.class,
-				new CacheEvent<>(this, EventType.UPDATED, key, entry.getValue(), oldValue));
+			eventDispatcher.addEvent(
+				CacheEntryUpdatedListener.class,
+				new CacheEvent<>(this, EventType.UPDATED, key, entry.getValue(), oldValue)
+			);
 			
 			if(isStatisticsEnabled)
 			{
@@ -1614,11 +1787,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			final V oldValue = cachedValue == null
 				? null
-				: this.objectConverter.fromInternal(cachedValue.value());
-			this.hashTable.removeFor(internalKey);
+				: this.objectConverter.externalize(cachedValue.value());
+			this.cacheTable.remove(internalKey);
 			
-			eventDispatcher.addEvent(CacheEntryRemovedListener.class,
-				new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue));
+			eventDispatcher.addEvent(
+				CacheEntryRemovedListener.class,
+				new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue)
+			);
 			
 			if(isStatisticsEnabled)
 			{
@@ -1677,24 +1852,24 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				: 0;
 			
 			final long    now                 = System.currentTimeMillis();
-			final Object  internalKey         = this.objectConverter.toInternal(key);
-			CachedValue   cachedValue         = null;
+			final Object  internalKey         = this.objectConverter.internalize(key);
 			V             value               = null;
 			
-			synchronized(this.hashTable)
+			synchronized(this.cacheTable)
 			{
-				cachedValue = this.hashTable.get(internalKey);
-				
-				final boolean isExpired = cachedValue != null && cachedValue.isExpiredAt(now);
+				CachedValue   cachedValue = this.cacheTable.get(internalKey);
+				final boolean isExpired   = cachedValue != null && cachedValue.isExpiredAt(now);
 				
 				if(cachedValue == null || isExpired)
 				{
 					if(isExpired)
 					{
-						final V expiredValue = isExpired
-							? this.objectConverter.fromInternal(cachedValue.value())
-							: null;
-						this.processExpiries(key, internalKey, eventDispatcher, expiredValue);
+						this.processExpiries(
+							key,
+							internalKey,
+							eventDispatcher,
+							this.objectConverter.externalize(cachedValue.value())
+						);
 					}
 					
 					if(isStatisticsEnabled)
@@ -1706,9 +1881,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					
 					if(value != null)
 					{
-						final long   expiryTime    = this.expiryForCreation().getAdjustedTime(now);
-						final Object internalValue = this.objectConverter.toInternal(value);
-						cachedValue = CachedValue.New(internalValue, now, expiryTime);
+						cachedValue = CachedValue.New(
+							this.objectConverter.internalize(value),
+							now,
+							this.expiryForCreation().getAdjustedTime(now)
+						);
 						
 						if(cachedValue.isExpiredAt(now))
 						{
@@ -1716,16 +1893,20 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						}
 						else
 						{
-							this.hashTable.put(internalKey, cachedValue);
-							
-							eventDispatcher.addEvent(CacheEntryCreatedListener.class,
-								new CacheEvent<>(this, EventType.CREATED, key, value));
+							this.putValue(
+								key,
+								value,
+								internalKey,
+								cachedValue,
+								eventDispatcher,
+								isStatisticsEnabled
+							);
 						}
 					}
 				}
 				else
 				{
-					value = this.objectConverter.fromInternal(cachedValue.value(now));
+					value = this.objectConverter.externalize(cachedValue.value(now));
 					this.updateExpiryForAccess(cachedValue, now);
 					
 					if(isStatisticsEnabled)
@@ -1741,6 +1922,49 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 			
 			return value;
+		}
+		
+		private void putValue(
+			final K                          key,
+			final V                          value,
+			final Object                     internalKey,
+			final CachedValue                cachedValue,
+			final CacheEventDispatcher<K, V> eventDispatcher,
+			final boolean                    isStatisticsEnabled
+		)
+		{
+			final boolean newEntry = this.cacheTable.put(internalKey, cachedValue);
+			
+			eventDispatcher.addEvent(
+				CacheEntryCreatedListener.class,
+				new CacheEvent<>(this, EventType.CREATED, key, value)
+			);
+			
+			if(newEntry)
+			{
+				KeyValue<Object, CachedValue> entryToEvict;
+				if(this.evictionPolicy != null
+					&& (entryToEvict = this.evictionPolicy.pickEntryToEvict(this.cacheTable)) != null
+					&& !entryToEvict.key().equals(internalKey))
+				{
+					this.cacheTable.remove(entryToEvict.key());
+					
+					final K evictedKey   = this.objectConverter.externalize(entryToEvict.key());
+					final V evictedValue = this.objectConverter.externalize(entryToEvict.value().value());
+					
+					this.deleteCacheEntry(evictedKey);
+					
+					eventDispatcher.addEvent(
+						CacheEntryRemovedListener.class,
+						new CacheEvent<>(this, EventType.REMOVED, evictedKey, evictedValue, evictedValue)
+					);
+					
+					if(isStatisticsEnabled)
+					{
+						this.cacheStatisticsMXBean.increaseCacheEvictions(1);
+					}
+				}
+			}
 		}
 		
 		private void updateExpiryForAccess(final CachedValue cachedValue, final long now)
@@ -1781,10 +2005,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CacheEventDispatcher<K, V> dispatcher,
 			final V expiredValue)
 		{
-			this.hashTable.removeFor(internalKey);
+			this.cacheTable.remove(internalKey);
 			dispatcher.addEvent(
 				CacheEntryExpiredListener.class,
-				new CacheEvent<>(this, EventType.EXPIRED, key, expiredValue, expiredValue));
+				new CacheEvent<>(this, EventType.EXPIRED, key, expiredValue, expiredValue)
+			);
 		}
 		
 		private Duration expiryForCreation()
@@ -1812,23 +2037,23 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		private V loadCacheEntry(final K key, final V value)
 		{
-			if(this.cacheLoader != null)
+			if(this.cacheLoader == null)
 			{
-				try
-				{
-					return this.cacheLoader.load(key);
-				}
-				catch(final CacheWriterException e)
-				{
-					throw e;
-				}
-				catch(final Exception e)
-				{
-					throw new CacheWriterException(e);
-				}
+				return value;
 			}
-			
-			return value;
+
+			try
+			{
+				return this.cacheLoader.load(key);
+			}
+			catch(final CacheWriterException e)
+			{
+				throw e;
+			}
+			catch(final Exception e)
+			{
+				throw new CacheWriterException(e);
+			}
 		}
 		
 		private void writeCacheEntry(final CacheEntry<K, V> entry)
@@ -1906,19 +2131,19 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				final long start = this.isStatisticsEnabled
 					? System.nanoTime()
 					: 0;
+					
+				final ObjectConverter objectConverter = Cache.Default.this.objectConverter;
+					
 				while(this.nextEntry == null && this.iterator.hasNext())
 				{
 					final KeyValue<Object, CachedValue> entry       = this.iterator.next();
 					final CachedValue                   cachedValue = entry.value();
-					
-					final K                             key         =
-						Cache.Default.this.objectConverter.fromInternal(entry.key());
+					final K                             key         = objectConverter.externalize(entry.key());
 					try
 					{
 						if(!cachedValue.isExpiredAt(this.now))
 						{
-							final V value =
-								Cache.Default.this.objectConverter.fromInternal(cachedValue.value(this.now));
+							final V value  = objectConverter.externalize(cachedValue.value(this.now));
 							this.nextEntry = CacheEntry.New(key, value);
 							
 							try
@@ -1997,9 +2222,12 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					
 					// raise "remove" event
 					final CacheEventDispatcher<K, V> dispatcher = CacheEventDispatcher.New();
-					dispatcher.addEvent(CacheEntryRemovedListener.class,
+					dispatcher.addEvent(
+						CacheEntryRemovedListener.class,
 						new CacheEvent<>(Cache.Default.this, EventType.REMOVED, this.lastEntry.getKey(),
-							this.lastEntry.getValue(), this.lastEntry.getValue()));
+							this.lastEntry.getValue(), this.lastEntry.getValue()
+						)
+					);
 					dispatcher.dispatch(Cache.Default.this.listenerRegistrations);
 				}
 				finally

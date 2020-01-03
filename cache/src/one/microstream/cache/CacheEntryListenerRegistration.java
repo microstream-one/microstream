@@ -80,10 +80,10 @@ public interface CacheEntryListenerRegistration<K, V>
 		{
 			final int prime  = 31;
 			int       result = 1;
-			result = prime * result + ((this.filter == null) ? 0 : this.filter.hashCode());
+			result = prime * result + (this.filter == null ? 0 : this.filter.hashCode());
 			result = prime * result + (this.oldValueRequired ? 1231 : 1237);
 			result = prime * result + (this.synchronous ? 1231 : 1237);
-			result = prime * result + ((this.listener == null) ? 0 : this.listener.hashCode());
+			result = prime * result + (this.listener == null ? 0 : this.listener.hashCode());
 			return result;
 		}
 		
