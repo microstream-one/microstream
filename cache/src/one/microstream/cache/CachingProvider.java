@@ -52,18 +52,31 @@ public class CachingProvider implements javax.cache.spi.CachingProvider
 	@Override
 	public CacheManager getCacheManager()
 	{
-		return this.getCacheManager(this.getDefaultURI(), this.getDefaultClassLoader());
+		return this.getCacheManager(
+			this.getDefaultURI(),
+			this.getDefaultClassLoader()
+		);
 	}
 	
 	@Override
-	public CacheManager getCacheManager(final URI uri, final ClassLoader classLoader)
+	public CacheManager getCacheManager(
+		final URI uri,
+		final ClassLoader classLoader
+	)
 	{
-		return this.getCacheManager(uri, classLoader, this.getDefaultProperties());
+		return this.getCacheManager(
+			uri,
+			classLoader,
+			this.getDefaultProperties()
+		);
 	}
 	
 	@Override
-	public synchronized CacheManager
-		getCacheManager(final URI uri, final ClassLoader classLoader, final Properties properties)
+	public synchronized CacheManager getCacheManager(
+		final URI uri,
+		final ClassLoader classLoader,
+		final Properties properties
+	)
 	{
 		final URI         managerURI         = uri == null
 			? this.getDefaultURI()
@@ -79,7 +92,8 @@ public class CachingProvider implements javax.cache.spi.CachingProvider
 		
 		return this.cacheManagers.computeIfAbsent(managerClassLoader, cl -> new HashMap<>())
 			.computeIfAbsent(managerURI,
-				key -> CacheManager.New(this, managerURI, managerClassLoader, managerProperties));
+				key -> CacheManager.New(this, managerURI, managerClassLoader, managerProperties)
+			);
 	}
 	
 	@Override
@@ -99,10 +113,11 @@ public class CachingProvider implements javax.cache.spi.CachingProvider
 			? this.getDefaultClassLoader()
 			: classLoader;
 		
-		final HashMap<URI, CacheManager> cacheManagersByURI = this.cacheManagers.remove(managerClassLoader);
-		if(cacheManagersByURI != null)
+		final HashMap<URI, CacheManager> cacheManagersByURI;
+		if((cacheManagersByURI = this.cacheManagers.remove(managerClassLoader)) != null)
 		{
-			cacheManagersByURI.values().forEach(CacheManager::close);
+			cacheManagersByURI.values()
+				.forEach(CacheManager::close);
 		}
 	}
 	
@@ -117,11 +132,11 @@ public class CachingProvider implements javax.cache.spi.CachingProvider
 			? this.getDefaultClassLoader()
 			: classLoader;
 		
-		final HashMap<URI, CacheManager> cacheManagersByURI = this.cacheManagers.get(managerClassLoader);
-		if(cacheManagersByURI != null)
+		final HashMap<URI, CacheManager> cacheManagersByURI;
+		if((cacheManagersByURI = this.cacheManagers.get(managerClassLoader)) != null)
 		{
-			final CacheManager cacheManager = cacheManagersByURI.remove(managerURI);
-			if(cacheManager != null)
+			final CacheManager cacheManager;
+			if((cacheManager = cacheManagersByURI.remove(managerURI)) != null)
 			{
 				cacheManager.close();
 				
@@ -135,11 +150,10 @@ public class CachingProvider implements javax.cache.spi.CachingProvider
 	
 	synchronized void remove(final URI uri, final ClassLoader classLoader)
 	{
-		final HashMap<URI, CacheManager> cacheManagersByURI = this.cacheManagers.get(classLoader);
-		if(cacheManagersByURI != null)
+		final HashMap<URI, CacheManager> cacheManagersByURI;
+		if((cacheManagersByURI = this.cacheManagers.get(classLoader)) != null)
 		{
-			final CacheManager cacheManager = cacheManagersByURI.remove(uri);
-			if(cacheManager != null && cacheManagersByURI.size() == 0)
+			if(cacheManagersByURI.remove(uri) != null && cacheManagersByURI.size() == 0)
 			{
 				this.cacheManagers.remove(classLoader);
 			}
@@ -152,6 +166,7 @@ public class CachingProvider implements javax.cache.spi.CachingProvider
 		switch(optionalFeature)
 		{
 			case STORE_BY_REFERENCE:
+				
 				return true;
 		}
 		

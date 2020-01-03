@@ -3,9 +3,10 @@ package one.microstream.cache;
 
 public interface ObjectConverter
 {
-	public <T> Object toInternal(T value);
+	public <T> Object internalize(T value);
 	
-	public <T> T fromInternal(Object internal);
+	public <T> T externalize(Object internal);
+	
 	
 	public static ObjectConverter ByReference()
 	{
@@ -17,6 +18,7 @@ public interface ObjectConverter
 		return new ByValue(serializer);
 	}
 	
+	
 	public static class ByReference implements ObjectConverter
 	{
 		ByReference()
@@ -25,14 +27,14 @@ public interface ObjectConverter
 		}
 		
 		@Override
-		public <T> Object toInternal(final T value)
+		public <T> Object internalize(final T value)
 		{
 			return value;
 		}
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T> T fromInternal(final Object internal)
+		public <T> T externalize(final Object internal)
 		{
 			return (T)internal;
 		}
@@ -51,18 +53,21 @@ public interface ObjectConverter
 		}
 		
 		@Override
-		public <T> Object toInternal(final T value)
+		public <T> Object internalize(final T value)
 		{
-			final byte[] data = this.serializer.write(value);
-			return SerializedObject.New(value.hashCode(), data);
+			return SerializedObject.New(
+				value.hashCode(),
+				this.serializer.write(value)
+			);
 		}
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T> T fromInternal(final Object internal)
+		public <T> T externalize(final Object internal)
 		{
-			final byte[] data = ((SerializedObject)internal).serializedData();
-			return (T)this.serializer.read(data);
+			return (T)this.serializer.read(
+				((SerializedObject)internal).serializedData()
+			);
 		}
 		
 	}

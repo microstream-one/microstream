@@ -33,9 +33,16 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 		final K key,
 		final CachedValue cachedValue,
 		final long now,
-		final CacheLoader<K, V> cacheLoader)
+		final CacheLoader<K, V> cacheLoader
+	)
 	{
-		return new Default<>(converter, key, cachedValue, now, cacheLoader);
+		return new Default<>(
+			converter,
+			key,
+			cachedValue,
+			now,
+			cacheLoader
+		);
 	}
 	
 	public static class Default<K, V> implements MutableCacheEntry<K, V>
@@ -53,7 +60,8 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 			final K key,
 			final CachedValue cachedValue,
 			final long now,
-			final CacheLoader<K, V> cacheLoader)
+			final CacheLoader<K, V> cacheLoader
+		)
 		{
 			this.converter   = converter;
 			this.key         = key;
@@ -81,8 +89,10 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 				}
 				else if(this.value == null)
 				{
-					final Object internalValue = this.cachedValue.value(this.now);
-					this.value = internalValue == null ? null : this.converter.fromInternal(internalValue);
+					final Object internalValue;
+					this.value = (internalValue = this.cachedValue.value(this.now)) == null
+						? null
+						: this.converter.externalize(internalValue);
 				}
 			}
 			
@@ -101,8 +111,7 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 				{
 					try
 					{
-						this.value = this.cacheLoader.load(this.key);
-						if(this.value != null)
+						if((this.value = this.cacheLoader.load(this.key)) != null)
 						{
 							this.operation = Operation.LOAD;
 						}
@@ -126,9 +135,11 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 		@Override
 		public boolean exists()
 		{
-			return this.value != null ||
-				(this.operation == Operation.NONE && this.cachedValue != null
-					&& !this.cachedValue.isExpiredAt(this.now));
+			return this.value != null
+			   || (   this.operation == Operation.NONE
+			       && this.cachedValue != null
+				   && !this.cachedValue.isExpiredAt(this.now)
+				  );
 		}
 		
 		@Override

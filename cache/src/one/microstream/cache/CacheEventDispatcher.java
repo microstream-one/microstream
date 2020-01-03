@@ -30,7 +30,8 @@ public interface CacheEventDispatcher<K, V>
 	@SuppressWarnings("rawtypes")
 	public void addEvent(
 		final Class<? extends CacheEntryListener> listenerClass,
-		final CacheEvent<K, V> event);
+		final CacheEvent<K, V>                    event
+	);
 	
 	public void dispatch(Iterable<CacheEntryListenerRegistration<K, V>> registrations);
 	
@@ -55,7 +56,8 @@ public interface CacheEventDispatcher<K, V>
 		@Override
 		public synchronized void addEvent(
 			final Class<? extends CacheEntryListener> listenerClass,
-			final CacheEvent<K, V> event)
+			final CacheEvent<K, V>                    event
+		)
 		{
 			notNull(listenerClass);
 			notNull(event);
@@ -77,22 +79,23 @@ public interface CacheEventDispatcher<K, V>
 		
 		@SuppressWarnings("unchecked")
 		private <L extends CacheEntryListener<? super K, ? super V>> void dispatch(
-			final Iterable<CacheEntryListenerRegistration<K, V>> registrations,
-			final Class<L> type,
-			final BiConsumer<L, Iterable<CacheEntryEvent<? extends K, ? extends V>>> logic)
+			final Iterable<CacheEntryListenerRegistration<K, V>>                     registrations,
+			final Class<L>                                                           type,
+			final BiConsumer<L, Iterable<CacheEntryEvent<? extends K, ? extends V>>> logic
+		)
 		{
 			final XList<CacheEvent<K, V>> events = this.eventMap.get(type);
 			if(events != null)
 			{
 				for(final CacheEntryListenerRegistration<K, V> registration : registrations)
 				{
-					final CacheEntryListener<? super K, ? super V> listener =
-						registration.getCacheEntryListener();
+					final CacheEntryListener<? super K, ? super V> listener = registration.getCacheEntryListener();
 					if(type.isInstance(listener))
 					{
-						final Iterable<CacheEntryEvent<? extends K, ? extends V>> selectedEvents =
-							this.selectEvents(registration, events);
-						logic.accept(type.cast(listener), selectedEvents);
+						logic.accept(
+							type.cast(listener),
+							this.selectEvents(registration, events)
+						);
 					}
 				}
 			}
@@ -101,7 +104,8 @@ public interface CacheEventDispatcher<K, V>
 		@SuppressWarnings("rawtypes")
 		private Iterable selectEvents(
 			final CacheEntryListenerRegistration<K, V> registration,
-			final XList<CacheEvent<K, V>> events)
+			final XList<CacheEvent<K, V>>              events
+		)
 		{
 			CqlSelection<CacheEvent<K, V>>                    selection = CQL.from(events);
 			final CacheEntryEventFilter<? super K, ? super V> filter    = registration.getCacheEntryFilter();
@@ -117,7 +121,8 @@ public interface CacheEventDispatcher<K, V>
 		
 		private CacheEvent<K, V> cloneEvent(
 			final CacheEntryListenerRegistration<K, V> registration,
-			final CacheEvent<K, V> event)
+			final CacheEvent<K, V>                     event
+		)
 		{
 			if(registration.isOldValueRequired())
 			{
@@ -126,22 +131,26 @@ public interface CacheEventDispatcher<K, V>
 					event.getEventType(),
 					event.getKey(),
 					event.getValue(),
-					event.getOldValue());
+					event.getOldValue()
+				);
 			}
-			else if(event.getEventType() == EventType.REMOVED || event.getEventType() == EventType.EXPIRED)
+			
+			if(event.getEventType() == EventType.REMOVED || event.getEventType() == EventType.EXPIRED)
 			{
 				return new CacheEvent<>(
 					event.getCache(),
 					event.getEventType(),
 					event.getKey(),
-					null);
+					null
+				);
 			}
 			
 			return new CacheEvent<>(
 				event.getCache(),
 				event.getEventType(),
 				event.getKey(),
-				event.getValue());
+				event.getValue()
+			);
 		}
 		
 	}

@@ -1444,6 +1444,26 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	{
 		return EqHashTable.this.chain.min(comparator);
 	}
+	
+	public final KeyValue<K, V> rangeMax(final long offset, final long length, final Comparator<? super KeyValue<K, V>> comparator)
+	{
+		return EqHashTable.this.chain.rngMax(offset, length, comparator);
+	}
+	
+	public final KeyValue<K, V> rangeMin(final long offset, final long length, final Comparator<? super KeyValue<K, V>> comparator)
+	{
+		return EqHashTable.this.chain.rngMin(offset, length, comparator);
+	}
+	
+	public final long rangeMaxIndex(final long offset, final long length, final Comparator<? super KeyValue<K, V>> comparator)
+	{
+		return EqHashTable.this.chain.rngMaxIndex(offset, length, comparator);
+	}
+	
+	public final long rangeMinIndex(final long offset, final long length, final Comparator<? super KeyValue<K, V>> comparator)
+	{
+		return EqHashTable.this.chain.rngMinIndex(offset, length, comparator);
+	}
 
 //	/**
 //	 * As per definition of a set, this method always returns true.<br>

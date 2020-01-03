@@ -17,9 +17,17 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 		final Cache<K, V> source,
 		final EventType eventType,
 		final K key,
-		final V value)
+		final V value
+	)
 	{
-		this(source, eventType, key, value, null, false);
+		this(
+			source,
+			eventType,
+			key,
+			value,
+			null,
+			false
+		);
 	}
 	
 	CacheEvent(
@@ -27,9 +35,17 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 		final EventType eventType,
 		final K key,
 		final V value,
-		final V oldValue)
+		final V oldValue
+	)
 	{
-		this(source, eventType, key, value, oldValue, true);
+		this(
+			source,
+			eventType,
+			key,
+			value,
+			oldValue,
+			true
+		);
 	}
 	
 	CacheEvent(
@@ -38,7 +54,8 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 		final K key,
 		final V value,
 		final V oldValue,
-		final boolean oldValueAvailable)
+		final boolean oldValueAvailable
+	)
 	{
 		super(source, eventType);
 		
