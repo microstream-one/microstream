@@ -4,6 +4,7 @@ import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
+import one.microstream.time.XTime;
 
 
 public class MainTestStorageAppRoot2
@@ -23,7 +24,7 @@ public class MainTestStorageAppRoot2
 		{
 			// first execution enters here (database creation)
 			Test.print("Model data required.");
-			STORAGE.setRoot(new AppRoot().set(new Value(5)));
+			STORAGE.setRoot(new AppRoot<>().set(XTime.now()));
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
