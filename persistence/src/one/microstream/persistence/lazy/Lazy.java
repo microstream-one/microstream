@@ -283,30 +283,8 @@ public interface Lazy<T> extends LazyReferencing<T>
 			 */
 			if(this.loader != null)
 			{
-				/* (03.09.2019 TM)FIXME: Lazy Reference loader link
-				 * The current naive approach means holding on to a certain connection's persistence manager forever,
-				 * which is a bad thing.
-				 * However, the logic below of throwing an exception is even worse since it would crash the thread
-				 * on every newly created connection used to load a lazy reference.
-				 * The proper solution would be to link a more general, central, long-living instance, like the
-				 * EmbeddedStorageManager ("the database" instance) itself.
-				 * However: maybe EmbeddedStorageManager should be referenced only weakly.
-				 */
 				return;
-				
-				// (03.09.2019 TM)NOTE: not possible since every connection instance gets a new persistence manager instance
-//				if(this.loader == loader)
-//				{
-//					return;
-//				}
-	//
-//				// (03.09.2019 TM)EXCP: proper exception
-//				throw new PersistenceException(
-//					"Lazy reference is already linked to another "
-//					+ PersistenceObjectRetriever.class.getSimpleName()
-//				);
 			}
-			
 			this.loader = loader;
 		}
 

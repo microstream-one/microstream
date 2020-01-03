@@ -147,6 +147,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 
 	public PersistenceFieldEvaluator getFieldEvaluatorPersistable();
 	
+	public PersistenceFieldEvaluator getFieldEvaluatorPersister();
+	
 	public PersistenceFieldEvaluator getFieldEvaluatorEnum();
 	
 	public PersistenceFieldEvaluator getFieldEvaluatorCollection();
@@ -415,6 +417,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceSource<D>                           source                          ;
 		private PersistenceFieldLengthResolver                 fieldFixedLengthResolver        ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorPersistable       ;
+		private PersistenceFieldEvaluator                      fieldEvaluatorPersister         ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorEnum              ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorCollection        ;
 		private PersistenceEagerStoringFieldEvaluator          eagerStoringFieldEvaluator      ;
@@ -1018,6 +1021,17 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 			}
 			
 			return this.fieldEvaluatorPersistable;
+		}
+		
+		@Override
+		public PersistenceFieldEvaluator getFieldEvaluatorPersister()
+		{
+			if(this.fieldEvaluatorPersister == null)
+			{
+				this.fieldEvaluatorPersister = this.dispatch(this.ensureFieldEvaluatorPersister());
+			}
+			
+			return this.fieldEvaluatorPersister;
 		}
 
 		@Override
@@ -2020,6 +2034,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 			return new PersistenceTypeAnalyzer.Default(
 				this.getTypeEvaluatorPersistable() ,
 				this.getFieldEvaluatorPersistable(),
+				this.getFieldEvaluatorPersister()  ,
 				this.getFieldEvaluatorEnum()       ,
 				this.getFieldEvaluatorCollection()
 			);
@@ -2078,6 +2093,11 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		protected PersistenceFieldEvaluator ensureFieldEvaluatorPersistable()
+		{
+			return Persistence.defaultFieldEvaluatorPersistable();
+		}
+
+		protected PersistenceFieldEvaluator ensureFieldEvaluatorPersister()
 		{
 			return Persistence.defaultFieldEvaluatorPersistable();
 		}

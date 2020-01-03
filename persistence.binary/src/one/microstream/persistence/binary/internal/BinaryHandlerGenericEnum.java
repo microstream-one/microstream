@@ -141,7 +141,8 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 	public static <T extends Enum<T>> BinaryHandlerGenericEnum<T> New(
 		final Class<T>                              type                      ,
 		final String                                typeName                  ,
-		final XGettingEnum<Field>                   allFields                 ,
+		final XGettingEnum<Field>                   persistableFields         ,
+		final XGettingEnum<Field>                   persisterFields           ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
 		final boolean                               switchByteOrder
@@ -150,7 +151,8 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		return new BinaryHandlerGenericEnum<>(
 			type                      ,
 			typeName                  ,
-			allFields                 ,
+			persistableFields         ,
+			persisterFields           ,
 			lengthResolver            ,
 			eagerStoringFieldEvaluator,
 			switchByteOrder
@@ -182,12 +184,13 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		final Class<T>                              type                      ,
 		final String                                typeName                  ,
 		final XGettingEnum<Field>                   persistableFields         ,
+		final XGettingEnum<Field>                   persisterFields           ,
 		final PersistenceFieldLengthResolver        lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
 		final boolean                               switchByteOrder
 	)
 	{
-		super(type, typeName, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
+		super(type, typeName, persistableFields, persisterFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
 				
 		// these are instance members in persistent order. Not to be mixed up with members in declared order
 		this.allMembers = this.deriveAllMembers(this.instanceMembers());

@@ -222,21 +222,23 @@ public interface PersistenceTypeHandlerCreator<D>
 		protected <T> PersistenceTypeHandler<D, T> deriveTypeHandlerEntity(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
+			final HashEnum<Field> persisterFields   = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
-			this.typeAnalyzer.collectPersistableFieldsEntity(type, persistableFields, problematicFields);
+			this.typeAnalyzer.collectPersistableFieldsEntity(type, persistableFields, persisterFields, problematicFields);
 			checkNoProblematicFields(type, problematicFields);
 
-			return this.createTypeHandlerGeneric(type, persistableFields);
+			return this.createTypeHandlerGeneric(type, persistableFields, persisterFields);
 		}
 		
 		protected <T> PersistenceTypeHandler<D, T> deriveTypeHandlerEnum(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
+			final HashEnum<Field> persisterFields   = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
-			this.typeAnalyzer.collectPersistableFieldsEnum(type, persistableFields, problematicFields);
+			this.typeAnalyzer.collectPersistableFieldsEnum(type, persistableFields, persisterFields, problematicFields);
 			checkNoProblematicFields(type, problematicFields);
 
-			return this.createTypeHandlerEnum(type, persistableFields);
+			return this.createTypeHandlerEnum(type, persistableFields, persisterFields);
 		}
 		
 		protected abstract <T> PersistenceTypeHandler<D, T> deriveTypeHandlerGenericPath(Class<T> type);
@@ -244,15 +246,16 @@ public interface PersistenceTypeHandlerCreator<D>
 		protected <T> PersistenceTypeHandler<D, T> deriveTypeHandlerJavaUtilCollection(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
+			final HashEnum<Field> persisterFields   = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
-			this.typeAnalyzer.collectPersistableFieldsCollection(type, persistableFields, problematicFields);
+			this.typeAnalyzer.collectPersistableFieldsCollection(type, persistableFields, persisterFields, problematicFields);
 			
 			if(!problematicFields.isEmpty())
 			{
 				this.createTypeHandlerGenericJavaUtilCollection(type);
 			}
 
-			return this.createTypeHandlerGeneric(type, persistableFields);
+			return this.createTypeHandlerGeneric(type, persistableFields, persisterFields);
 		}
 
 		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerAbstractType(
@@ -265,7 +268,8 @@ public interface PersistenceTypeHandlerCreator<D>
 		
 		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerEnum(
 			Class<T>            type             ,
-			XGettingEnum<Field> persistableFields
+			XGettingEnum<Field> persistableFields,
+			XGettingEnum<Field> persisterFields
 		);
 		
 		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerArray(
@@ -274,7 +278,8 @@ public interface PersistenceTypeHandlerCreator<D>
 		
 		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerGeneric(
 			Class<T>            type             ,
-			XGettingEnum<Field> persistableFields
+			XGettingEnum<Field> persistableFields,
+			XGettingEnum<Field> persisterFields
 		);
 		
 		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerGenericStateless(

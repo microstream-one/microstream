@@ -137,7 +137,8 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		@Override
 		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGeneric(
 			final Class<T>            type             ,
-			final XGettingEnum<Field> persistableFields
+			final XGettingEnum<Field> persistableFields,
+			final XGettingEnum<Field> persisterFields
 		)
 		{
 			/* (16.07.2019 TM)TODO: priv#122 ensure type handler for persistable field type?
@@ -204,6 +205,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				type,
 				this.deriveTypeName(type),
 				persistableFields,
+				persisterFields,
 				this.lengthResolver(),
 				this.eagerStoringFieldEvaluator(),
 				this.instantiatorProvider.provideTypeInstantiator(type),
@@ -282,22 +284,25 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		@Override
 		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerEnum(
 			final Class<T>            type             ,
-			final XGettingEnum<Field> persistableFields
+			final XGettingEnum<Field> persistableFields,
+			final XGettingEnum<Field> persisterFields
 		)
 		{
-			return this.createEnumHandler(type, persistableFields);
+			return this.createEnumHandler(type, persistableFields, persisterFields);
 		}
 
 		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering
 		final <T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
-			final Class<?>            type             ,
-			final XGettingEnum<Field> persistableFields
+			final Class<T>            type             ,
+			final XGettingEnum<Field> persistableFields,
+			final XGettingEnum<Field> persisterFields
 		)
 		{
 			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerGenericEnum.New(
 				(Class<E>)type                   ,
 				this.deriveTypeName(type)        ,
 				persistableFields                ,
+				persisterFields                  ,
 				this.lengthResolver()            ,
 				this.eagerStoringFieldEvaluator(),
 				this.switchByteOrder

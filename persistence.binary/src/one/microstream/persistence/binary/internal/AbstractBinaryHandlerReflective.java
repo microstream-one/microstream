@@ -29,6 +29,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
+import one.microstream.persistence.types.Persister;
 import one.microstream.reflect.XReflect;
 import one.microstream.util.UtilStackTrace;
 
@@ -221,6 +222,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		primitiveFields
 	;
 	
+	private final Field[] persisterFields;
+	
 	private final boolean switchByteOrder;
 	
 	/* (28.10.2019 TM)TODO: encapsulate / abstract BinaryValue~ handling types.
@@ -242,6 +245,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final Class<T>                              type             ,
 		final String                                typeName         ,
 		final XGettingEnum<Field>                   persistableFields,
+		final XGettingEnum<Field>                   persisterFields  ,
 		final PersistenceFieldLengthResolver        lengthResolver   ,
 		final PersistenceEagerStoringFieldEvaluator eagerEvaluator   ,
 		final boolean                               switchByteOrder
@@ -295,6 +299,11 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		this.declOrderFields = unbox(instMembersInDeclOrdr, EqHashEnum.New()).immure();
 		this.referenceFields = unbox(this.referenceMembers, EqHashEnum.New()).immure();
 		this.primitiveFields = unbox(this.primitiveMembers, EqHashEnum.New()).immure();
+		
+		this.persisterFields = persisterFields == null || persisterFields.isEmpty()
+			? null
+			: persisterFields.toArray(Field.class)
+		;
 	}
 	
 	
@@ -514,6 +523,26 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		}
 
 		data.updateFixedSize(instance, this.setters, this.settingMemoryOffsets, handler);
+		
+		this.setPersister(instance, handler);
+	}
+	
+	private void setPersister(final T instance, final PersistenceLoadHandler handler)
+	{
+		if(this.persisterFields == null)
+		{
+			return;
+		}
+		
+		final Persister persister = handler.getPersister();
+		for(final Field field : this.persisterFields)
+		{
+			final Object existingPersister = XReflect.getFieldValue(field, instance);
+			if(existingPersister == null)
+			{
+				XReflect.setFieldValue(field, instance, persister);
+			}
+		}
 	}
 
 	@Override

@@ -17,6 +17,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 		final Class<T>                               type                      ,
 		final String                                 typeName                  ,
 		final XGettingEnum<Field>                    persistableFields         ,
+		final XGettingEnum<Field>                    persisterFields           ,
 		final PersistenceFieldLengthResolver         lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator  eagerStoringFieldEvaluator,
 		final PersistenceTypeInstantiator<Binary, T> instantiator              ,
@@ -27,6 +28,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 			type                      ,
 			typeName                  ,
 			persistableFields         ,
+			persisterFields           ,
 			lengthResolver            ,
 			eagerStoringFieldEvaluator,
 			instantiator              ,
@@ -49,16 +51,17 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	/////////////////
 
 	protected BinaryHandlerGenericType(
-		final Class<T>                              type                      ,
-		final String                                typeName                  ,
-		final XGettingEnum<Field>                   persistableFields         ,
-		final PersistenceFieldLengthResolver        lengthResolver            ,
-		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final Class<T>                               type                      ,
+		final String                                 typeName                  ,
+		final XGettingEnum<Field>                    persistableFields         ,
+		final XGettingEnum<Field>                    persisterFields           ,
+		final PersistenceFieldLengthResolver         lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator  eagerStoringFieldEvaluator,
 		final PersistenceTypeInstantiator<Binary, T> instantiator              ,
 		final boolean                                switchByteOrder
 	)
 	{
-		super(type, typeName, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
+		super(type, typeName, persistableFields, persisterFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
 		this.instantiator = notNull(instantiator);
 	}
 

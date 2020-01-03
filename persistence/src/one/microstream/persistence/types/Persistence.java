@@ -652,6 +652,20 @@ public class Persistence
 		;
 	}
 	
+	public static final PersistenceFieldEvaluator defaultFieldEvaluatorPersister()
+	{
+		// the type check is hardcoded to be unremovable. The evaluator only enablee the feature and covers customizing.
+		return (entityType, field) ->
+			true
+		;
+	}
+	
+	public static final boolean isPersisterField(final Field field)
+	{
+		// the field's type must be Persister or "lower" / more specific, e.g. StorageManager.
+		return Persister.class.isAssignableFrom(field.getType());
+	}
+	
 	public static boolean isHandleableEnumField(final Class<?> enumClass, final Field field)
 	{
 		// actually, even the crazy sh*t enum sub types with persistent state should be safely handleable.
