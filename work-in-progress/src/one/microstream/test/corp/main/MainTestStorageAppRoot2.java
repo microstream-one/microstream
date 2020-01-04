@@ -37,7 +37,6 @@ public class MainTestStorageAppRoot2
 		else
 		{
 			// subsequent executions enter here (database reading)
-
 			Test.printInitializationTime(STORAGE);
 			Test.printOperationModeTime(STORAGE);
 			Test.print("Model data loaded.");

@@ -288,6 +288,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 	public F setFieldFixedLengthResolver(PersistenceFieldLengthResolver fieldFixedLengthResolver);
 
 	public F setFieldEvaluatorPersistable(PersistenceFieldEvaluator fieldEvaluator);
+	
+	public F setFieldEvaluatorPersister(PersistenceFieldEvaluator fieldEvaluator);
 
 	public F setFieldEvaluatorEnum(PersistenceFieldEvaluator fieldEvaluator);
 	
@@ -1664,6 +1666,15 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		}
 
 		@Override
+		public F setFieldEvaluatorPersister(
+			final PersistenceFieldEvaluator fieldEvaluator
+		)
+		{
+			this.fieldEvaluatorPersister = fieldEvaluator;
+			return this.$();
+		}
+
+		@Override
 		public F setFieldEvaluatorEnum(
 			final PersistenceFieldEvaluator fieldEvaluator
 		)
@@ -2099,7 +2110,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 
 		protected PersistenceFieldEvaluator ensureFieldEvaluatorPersister()
 		{
-			return Persistence.defaultFieldEvaluatorPersistable();
+			return Persistence.defaultFieldEvaluatorPersister();
 		}
 
 		protected PersistenceFieldEvaluator ensureFieldEvaluatorEnum()

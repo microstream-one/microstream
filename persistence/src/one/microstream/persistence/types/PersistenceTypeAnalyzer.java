@@ -89,6 +89,7 @@ public interface PersistenceTypeAnalyzer
 					{
 						if(Persistence.isPersisterField(field) && isPersisterField.applies(entityType, field))
 						{
+							XReflect.setAccessible(field);
 							persisterFields.prepend(field);
 						}
 					}
