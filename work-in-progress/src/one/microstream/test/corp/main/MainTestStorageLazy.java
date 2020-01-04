@@ -41,8 +41,6 @@ public class MainTestStorageLazy
 		else
 		{
 			// subsequent executions enter here (database reading)
-
-			STORAGE.storeRoot();
 			Test.printInitializationTime(STORAGE);
 			Test.printOperationModeTime(STORAGE);
 			Test.print("Model data loaded.");

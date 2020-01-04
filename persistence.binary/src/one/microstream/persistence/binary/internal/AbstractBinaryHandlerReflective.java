@@ -535,8 +535,15 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		}
 		
 		final Persister persister = handler.getPersister();
+		
 		for(final Field field : this.persisterFields)
 		{
+			// field type must be compatible with the specific persister's class.
+			if(!field.getType().isAssignableFrom(persister.getClass()))
+			{
+				continue;
+			}
+			
 			final Object existingPersister = XReflect.getFieldValue(field, instance);
 			if(existingPersister == null)
 			{
