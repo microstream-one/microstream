@@ -1,5 +1,7 @@
 package one.microstream.persistence.binary.internal;
 
+import static one.microstream.X.notNull;
+
 import java.lang.reflect.Field;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -31,6 +33,24 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGen
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGenericVariableLength;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
+import one.microstream.reflect.Getter;
+import one.microstream.reflect.Getter_boolean;
+import one.microstream.reflect.Getter_byte;
+import one.microstream.reflect.Getter_char;
+import one.microstream.reflect.Getter_double;
+import one.microstream.reflect.Getter_float;
+import one.microstream.reflect.Getter_int;
+import one.microstream.reflect.Getter_long;
+import one.microstream.reflect.Getter_short;
+import one.microstream.reflect.Setter;
+import one.microstream.reflect.Setter_boolean;
+import one.microstream.reflect.Setter_byte;
+import one.microstream.reflect.Setter_char;
+import one.microstream.reflect.Setter_double;
+import one.microstream.reflect.Setter_float;
+import one.microstream.reflect.Setter_int;
+import one.microstream.reflect.Setter_long;
+import one.microstream.reflect.Setter_short;
 import one.microstream.reflect.XReflect;
 
 
@@ -150,64 +170,123 @@ extends BinaryTypeHandler.Abstract<T>
 			)
 		);
 	}
+		
+
 	
-	/* (04.04.2019 TM)TODO: priv#88 BinaryField value-get/set-support
-	 * To get rid of explicit offsets altogether, BinaryField could provide
-	 * 9 methods to store the 8 primitives and the reference case.
-	 * That would require 2 subclasses of BinaryField.
-	 * The primitive implementation could convert to and from every primitive type and throw an exception for the reference case.
-	 * The reference case implementation accordingly.
-	 */
-	
-	protected static final BinaryField Field(
-		final Class<?> type
+	protected static final <T> BinaryField<T> Field(
+		final Getter_byte<T> getter,
+		final Setter_byte<T> setter
 	)
 	{
-		return BinaryField.New(type);
+		return new BinaryField.Default_byte<>(notNull(getter), notNull(setter));
 	}
-	
-	protected static final BinaryField Field(
-		final Class<?> type,
-		final String   name
+		
+	protected static final <T> BinaryField<T> Field(
+		final Getter_boolean<T> getter,
+		final Setter_boolean<T> setter
 	)
 	{
-		return BinaryField.New(type, name);
+		return new BinaryField.Default_boolean<>(notNull(getter), notNull(setter));
 	}
-	
-	protected static final BinaryField FieldComplex(
-		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
+		
+	protected static final <T> BinaryField<T> Field(
+		final Getter_short<T> getter,
+		final Setter_short<T> setter
 	)
 	{
-		return BinaryField.Complex(nestedFields);
+		return new BinaryField.Default_short<>(notNull(getter), notNull(setter));
 	}
-	
-	protected static final BinaryField FieldComplex(
-		final String                                         name        ,
-		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
+		
+	protected static final <T> BinaryField<T> Field(
+		final Getter_char<T> getter,
+		final Setter_char<T> setter
 	)
 	{
-		return BinaryField.Complex(name, nestedFields);
+		return new BinaryField.Default_char<>(notNull(getter), notNull(setter));
+	}
+		
+	protected static final <T> BinaryField<T> Field(
+		final Getter_int<T> getter,
+		final Setter_int<T> setter
+	)
+	{
+		return new BinaryField.Default_int<>(notNull(getter), notNull(setter));
+	}
+		
+	protected static final <T> BinaryField<T> Field(
+		final Getter_float<T> getter,
+		final Setter_float<T> setter
+	)
+	{
+		return new BinaryField.Default_float<>(notNull(getter), notNull(setter));
+	}
+		
+	protected static final <T> BinaryField<T> Field(
+		final Getter_long<T> getter,
+		final Setter_long<T> setter
+	)
+	{
+		return new BinaryField.Default_long<>(notNull(getter), notNull(setter));
+	}
+		
+	protected static final <T> BinaryField<T> Field(
+		final Getter_double<T> getter,
+		final Setter_double<T> setter
+	)
+	{
+		return new BinaryField.Default_double<>(notNull(getter), notNull(setter));
+	}
+		
+	protected static final <T, R> BinaryField<T> Field(
+		final Getter<T, R> getter,
+		final Setter<T, R> setter
+	)
+	{
+		return new BinaryField.DefaultReference(notNull(getter), notNull(setter));
 	}
 	
-	protected static final BinaryField FieldBytes()
-	{
-		return BinaryField.Bytes();
-	}
+//	protected static final BinaryField Field(
+//		final Class<?> type,
+//		final String   name
+//	)
+//	{
+//		return BinaryField.New(type, name);
+//	}
 	
-	protected static final BinaryField FieldBytes(final String name)
-	{
-		return BinaryField.Bytes(name);
-	}
-	
-	protected static final BinaryField FieldChars()
-	{
-		return BinaryField.Chars();
-	}
-	
-	protected static final BinaryField FieldChars(final String name)
-	{
-		return BinaryField.Chars(name);
-	}
+//	protected static final BinaryField FieldComplex(
+//		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
+//	)
+//	{
+//		return BinaryField.Complex(nestedFields);
+//	}
+//
+//	protected static final BinaryField FieldComplex(
+//		final String                                         name        ,
+//		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
+//	)
+//	{
+//		return BinaryField.Complex(name, nestedFields);
+//	}
+//
+//	protected static final BinaryField FieldBytes()
+//	{
+//		return BinaryField.Bytes();
+//	}
+//
+//	protected static final BinaryField FieldBytes(final String name)
+//	{
+//		return BinaryField.Bytes(name);
+//	}
+//
+//	protected static final BinaryField FieldChars()
+//	{
+//		return BinaryField.Chars();
+//	}
+//
+//	protected static final BinaryField FieldChars(final String name)
+//	{
+//		return BinaryField.Chars(name);
+//	}
 	
 	protected static final Field getInstanceFieldOfType(
 		final Class<?> declaringType,
@@ -226,10 +305,12 @@ extends BinaryTypeHandler.Abstract<T>
 	// instance fields //
 	////////////////////
 
-	private final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members;
+	private XImmutableEnum<? extends PersistenceTypeDefinitionMember> members;
+	
 	private final long binaryLengthMinimum;
 	private final long binaryLengthMaximum;
 	
+	// (06.01.2020 TM)FIXME: priv#88: why is this needed?
 	private Class<?> initializationInvokingClass;
 
 
@@ -237,6 +318,11 @@ extends BinaryTypeHandler.Abstract<T>
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
+	
+	protected AbstractBinaryHandlerCustom(final Class<T> type)
+	{
+		this(type, null);
+	}
 
 	protected AbstractBinaryHandlerCustom(
 		final Class<T>                                                    type   ,
@@ -253,8 +339,6 @@ extends BinaryTypeHandler.Abstract<T>
 	)
 	{
 		super(type, typeName);
-		
-		// (18.04.2019 TM)FIXME: priv#88: replace by on-demand member-initialization
 		this.members = validateAndImmure(members);
 		this.binaryLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, members);
 		this.binaryLengthMaximum = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, members);
@@ -280,9 +364,27 @@ extends BinaryTypeHandler.Abstract<T>
 	}
 	
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers()
+	public synchronized XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers()
 	{
+		if(this.members == null)
+		{
+			this.initializeInstanceMembers();
+		}
+		
 		return this.members;
+	}
+	
+	protected void initializeInstanceMembers()
+	{
+		if(this.members != null)
+		{
+			// already initialized, e.g. via constructor
+			return;
+		}
+		
+		// (06.01.2020 TM)FIXME: priv#88: search for BinaryFields in class hiararchy
+		this.initializeBinaryFieldsExplicitely(this.getClass());
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 	
 	@Override

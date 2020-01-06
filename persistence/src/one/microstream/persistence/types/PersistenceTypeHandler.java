@@ -196,6 +196,12 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition
 			final XGettingSequence<D> members
 		)
 		{
+			if(members == null)
+			{
+				// members may be null to allow delayed on-demand BinaryField initialization.
+				return null;
+			}
+			
 			// note that this is descriptionMember-identity, meaning #identifier
 			final EqHashEnum<D> validatedMembers = EqHashEnum.New(
 				PersistenceTypeDescriptionMember.identityHashEqualator()
