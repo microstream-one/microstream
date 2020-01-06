@@ -1,8 +1,7 @@
-package one.microstream.test.corp.main;
+package one.microstream.test.basic;
 
 import java.util.Date;
 
-import one.microstream.persistence.lazy.Lazy;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
@@ -10,7 +9,7 @@ import one.microstream.test.corp.logic.TestImportExport;
 import one.microstream.time.XTime;
 
 
-public class MainTestStorageLazy
+public class MainTestStorageAppRoot1
 {
 	static
 	{
@@ -18,7 +17,7 @@ public class MainTestStorageLazy
 	}
 	
 	// Option 1: Explicit application root provided at startup (specific typing)
-	static final AppRoot<Lazy<Date>> APP_ROOT = new AppRoot<>();
+	static final AppRoot<Date> APP_ROOT = new AppRoot<>();
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start(APP_ROOT);
 
 	public static void main(final String[] args)
@@ -28,7 +27,7 @@ public class MainTestStorageLazy
 		{
 			// first execution enters here (database creation)
 			Test.print("Model data required.");
-			APP_ROOT.set(Lazy.Reference(XTime.now()));
+			APP_ROOT.set(XTime.now());
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
@@ -44,7 +43,7 @@ public class MainTestStorageLazy
 			Test.printInitializationTime(STORAGE);
 			Test.printOperationModeTime(STORAGE);
 			Test.print("Model data loaded.");
-			Test.print("Root instance: " + Lazy.get(APP_ROOT.value));
+			Test.print("Root instance: " + APP_ROOT);
 			
 			Test.print("Exporting data ...");
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
