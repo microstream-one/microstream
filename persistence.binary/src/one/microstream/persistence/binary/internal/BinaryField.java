@@ -51,6 +51,8 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	
 	public void storeValue(T instance, Binary data, PersistenceStoreHandler handler);
 	
+	public boolean canRead();
+	
 	
 	// (06.01.2020 TM)FIXME: priv#88: remove if really not needed
 //	public default void store_byte(final Binary data, final byte value)
@@ -463,6 +465,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
+		public final boolean canRead()
+		{
+			return this.getter != null;
+		}
+		
+		@Override
 		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
 			final byte value = data.read_byte(this.offset());
@@ -524,6 +532,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final boolean canRead()
+		{
+			return this.getter != null;
+		}
 		
 		@Override
 		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
@@ -589,6 +603,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
+		public final boolean canRead()
+		{
+			return this.getter != null;
+		}
+		
+		@Override
 		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
 			final short value = data.read_short(this.offset());
@@ -650,6 +670,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final boolean canRead()
+		{
+			return this.getter != null;
+		}
 		
 		@Override
 		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
@@ -715,6 +741,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
+		public final boolean canRead()
+		{
+			return this.getter != null;
+		}
+		
+		@Override
 		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
 			final int value = data.read_int(this.offset());
@@ -776,6 +808,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final boolean canRead()
+		{
+			return this.getter != null;
+		}
 		
 		@Override
 		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
@@ -841,6 +879,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
+		public final boolean canRead()
+		{
+			return this.getter != null;
+		}
+		
+		@Override
 		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
 			final long value = data.read_long(this.offset());
@@ -902,6 +946,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final boolean canRead()
+		{
+			return this.getter != null;
+		}
 		
 		@Override
 		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
@@ -969,6 +1019,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final boolean canRead()
+		{
+			return this.getter != null;
+		}
 		
 		@Override
 		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
