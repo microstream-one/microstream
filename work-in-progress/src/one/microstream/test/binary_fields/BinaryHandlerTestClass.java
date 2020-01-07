@@ -8,7 +8,7 @@ public class BinaryHandlerTestClass extends AbstractBinaryHandlerTestBaseClass<T
 {
 	private final BinaryField<TestLeafClass>
 		leafValue_int1   = Field_int(e -> e.leafValue_int, (e, v) -> e.leafValue_int = v),
-		leafValue_int2   = Field(TestLeafClass::leafValue_int, TestLeafClass::setLeafValue_int)
+		leafValue_int2   = Field_int(TestLeafClass::leafValue_int, TestLeafClass::setLeafValue_int)
 //		leafValue_float = Field(float.class),
 //		leafReference   = Field(String.class)
 	;

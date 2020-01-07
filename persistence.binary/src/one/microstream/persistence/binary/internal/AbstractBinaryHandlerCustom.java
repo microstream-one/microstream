@@ -1,5 +1,6 @@
 package one.microstream.persistence.binary.internal;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
@@ -173,36 +174,48 @@ extends BinaryTypeHandler.Abstract<T>
 		
 
 	
-	protected static final <T> BinaryField<T> Field(
+	protected static final <T> BinaryField<T> Field_byte(
 		final Getter_byte<T> getter,
 		final Setter_byte<T> setter
 	)
 	{
-		return new BinaryField.Default_byte<>(notNull(getter), notNull(setter));
+		return new BinaryField.Default_byte<>(
+			mayNull(getter),
+			notNull(setter)
+		);
 	}
 		
-	protected static final <T> BinaryField<T> Field(
+	protected static final <T> BinaryField<T> Field_boolean(
 		final Getter_boolean<T> getter,
 		final Setter_boolean<T> setter
 	)
 	{
-		return new BinaryField.Default_boolean<>(notNull(getter), notNull(setter));
+		return new BinaryField.Default_boolean<>(
+			mayNull(getter),
+			notNull(setter)
+		);
 	}
 		
-	protected static final <T> BinaryField<T> Field(
+	protected static final <T> BinaryField<T> Field_short(
 		final Getter_short<T> getter,
 		final Setter_short<T> setter
 	)
 	{
-		return new BinaryField.Default_short<>(notNull(getter), notNull(setter));
+		return new BinaryField.Default_short<>(
+			mayNull(getter),
+			notNull(setter)
+		);
 	}
 		
-	protected static final <T> BinaryField<T> Field(
+	protected static final <T> BinaryField<T> Field_char(
 		final Getter_char<T> getter,
 		final Setter_char<T> setter
 	)
 	{
-		return new BinaryField.Default_char<>(notNull(getter), notNull(setter));
+		return new BinaryField.Default_char<>(
+			mayNull(getter),
+			notNull(setter)
+		);
 	}
 		
 	protected static final <T> BinaryField<T> Field_int(
@@ -210,39 +223,56 @@ extends BinaryTypeHandler.Abstract<T>
 		final Setter_int<T> setter
 	)
 	{
-		return new BinaryField.Default_int<>(notNull(getter), notNull(setter));
+		return new BinaryField.Default_int<>(
+			mayNull(getter),
+			notNull(setter)
+		);
 	}
 		
-	protected static final <T> BinaryField<T> Field(
+	protected static final <T> BinaryField<T> Field_float(
 		final Getter_float<T> getter,
 		final Setter_float<T> setter
 	)
 	{
-		return new BinaryField.Default_float<>(notNull(getter), notNull(setter));
+		return new BinaryField.Default_float<>(
+			mayNull(getter),
+			notNull(setter)
+		);
 	}
 		
-	protected static final <T> BinaryField<T> Field(
+	protected static final <T> BinaryField<T> Field_long(
 		final Getter_long<T> getter,
 		final Setter_long<T> setter
 	)
 	{
-		return new BinaryField.Default_long<>(notNull(getter), notNull(setter));
+		return new BinaryField.Default_long<>(
+			mayNull(getter),
+			notNull(setter)
+		);
 	}
 		
-	protected static final <T> BinaryField<T> Field(
+	protected static final <T> BinaryField<T> Field_double(
 		final Getter_double<T> getter,
 		final Setter_double<T> setter
 	)
 	{
-		return new BinaryField.Default_double<>(notNull(getter), notNull(setter));
+		return new BinaryField.Default_double<>(
+			mayNull(getter),
+			notNull(setter)
+		);
 	}
 		
 	protected static final <T, R> BinaryField<T> Field(
-		final Getter<T, R> getter,
+		final Class<R>     referenceType,
+		final Getter<T, R> getter       ,
 		final Setter<T, R> setter
 	)
 	{
-		return new BinaryField.DefaultReference(notNull(getter), notNull(setter));
+		return new BinaryField.DefaultReference<>(
+			notNull(referenceType),
+			mayNull(getter),
+			notNull(setter)
+		);
 	}
 	
 //	protected static final BinaryField Field(
