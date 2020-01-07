@@ -18,7 +18,7 @@ import javax.cache.integration.CacheWriter;
 
 public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 {
-	public Factory<EvictionPolicy> getEvictionPolicyFactory();
+	public Factory<EvictionManager<K, V>> getEvictionManagerFactory();
 	
 	
 	public static <K, V> Builder<K, V> Builder(final Class<K> keyType, final Class<V> valueType)
@@ -36,7 +36,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		
 		public Builder<K, V> expiryPolicyFactory(Factory<ExpiryPolicy> expiryPolicyFactory);
 		
-		public Builder<K, V> evictionPolicyFactory(Factory<EvictionPolicy> evictionPolicyFactory);
+		public Builder<K, V> evictionManagerFactory(Factory<EvictionManager<K, V>> evictionManagerFactory);
 		
 		public Builder<K, V> readThrough();
 		
@@ -60,7 +60,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			private Factory<CacheLoader<K, V>>                     cacheLoaderFactory;
 			private Factory<CacheWriter<? super K, ? super V>>     cacheWriterFactory;
 			private Factory<ExpiryPolicy>                          expiryPolicyFactory;
-			private Factory<EvictionPolicy>                        evictionPolicyFactory;
+			private Factory<EvictionManager<K, V>>                 evictionManagerFactory;
 			private boolean                                        isReadThrough;
 			private boolean                                        isWriteThrough;
 			private boolean                                        isStoreByValue;
@@ -105,9 +105,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			}
 			
 			@Override
-			public Builder<K, V> evictionPolicyFactory(final Factory<EvictionPolicy> evictionPolicyFactory)
+			public Builder<K, V> evictionManagerFactory(final Factory<EvictionManager<K, V>> evictionManagerFactory)
 			{
-				this.evictionPolicyFactory = evictionPolicyFactory;
+				this.evictionManagerFactory = evictionManagerFactory;
 				return this;
 			}
 			
@@ -161,9 +161,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 					DefaultExpiryPolicyFactory()
 				);
 				
-				final Factory<EvictionPolicy> evictionPolicyFactory = coalesce(
-					this.evictionPolicyFactory,
-					DefaultEvictionPolicyFactory()
+				final Factory<EvictionManager<K, V>> evictionManagerFactory = coalesce(
+					this.evictionManagerFactory,
+					DefaultEvictionManagerFactory()
 				);
 				
 				return new CacheConfiguration.Default<>(this.keyType,
@@ -172,7 +172,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 					this.cacheLoaderFactory,
 					this.cacheWriterFactory,
 					expiryPolicyFactory,
-					evictionPolicyFactory,
+					evictionManagerFactory,
 					this.isReadThrough,
 					this.isWriteThrough,
 					this.isStoreByValue,
@@ -189,7 +189,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		return EternalExpiryPolicy.factoryOf();
 	}
 	
-	public static Factory<EvictionPolicy> DefaultEvictionPolicyFactory()
+	public static <K, V> Factory<EvictionManager<K, V>> DefaultEvictionManagerFactory()
 	{
 		return () -> null;
 	}
@@ -213,9 +213,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				DefaultExpiryPolicyFactory()
 			);
 			
-			final Factory<EvictionPolicy> evictionPolicyFactory = other instanceof CacheConfiguration
-				? ((CacheConfiguration<?, ?>)other).getEvictionPolicyFactory()
-				: DefaultEvictionPolicyFactory();
+			final Factory<EvictionManager<K, V>> evictionManagerFactory = other instanceof CacheConfiguration
+				? ((CacheConfiguration<K, V>)other).getEvictionManagerFactory()
+				: DefaultEvictionManagerFactory();
 			
 			return new Default<>(
 				complete.getKeyType(),
@@ -224,7 +224,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				complete.getCacheLoaderFactory(),
 				complete.getCacheWriterFactory(),
 				expiryPolicyFactory,
-				evictionPolicyFactory,
+				evictionManagerFactory,
 				complete.isReadThrough(),
 				complete.isWriteThrough(),
 				complete.isStoreByValue(),
@@ -240,7 +240,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			null,
 			null,
 			DefaultExpiryPolicyFactory(),
-			DefaultEvictionPolicyFactory(),
+			DefaultEvictionManagerFactory(),
 			false,
 			false,
 			other.isStoreByValue(),
@@ -256,7 +256,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		private final Factory<CacheLoader<K, V>>                     cacheLoaderFactory;
 		private final Factory<CacheWriter<? super K, ? super V>>     cacheWriterFactory;
 		private final Factory<ExpiryPolicy>                          expiryPolicyFactory;
-		private final Factory<EvictionPolicy>                        evictionPolicyFactory;
+		private final Factory<EvictionManager<K, V>>                 evictionManagerFactory;
 		private final boolean                                        isReadThrough;
 		private final boolean                                        isWriteThrough;
 		private final boolean                                        isStoreByValue;
@@ -270,7 +270,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			final Factory<CacheLoader<K, V>>                     cacheLoaderFactory,
 			final Factory<CacheWriter<? super K, ? super V>>     cacheWriterFactory,
 			final Factory<ExpiryPolicy>                          expiryPolicyFactory,
-			final Factory<EvictionPolicy>                        evictionPolicyFactory,
+			final Factory<EvictionManager<K, V>>                 evictionManagerFactory,
 			final boolean                                        isReadThrough,
 			final boolean                                        isWriteThrough,
 			final boolean                                        isStoreByValue,
@@ -285,7 +285,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			this.cacheLoaderFactory     = cacheLoaderFactory;
 			this.cacheWriterFactory     = cacheWriterFactory;
 			this.expiryPolicyFactory    = expiryPolicyFactory;
-			this.evictionPolicyFactory  = evictionPolicyFactory;
+			this.evictionManagerFactory = evictionManagerFactory;
 			this.isReadThrough          = isReadThrough;
 			this.isWriteThrough         = isWriteThrough;
 			this.isStatisticsEnabled    = isStatisticsEnabled;
@@ -330,9 +330,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		}
 		
 		@Override
-		public Factory<EvictionPolicy> getEvictionPolicyFactory()
+		public Factory<EvictionManager<K, V>> getEvictionManagerFactory()
 		{
-			return this.evictionPolicyFactory;
+			return this.evictionManagerFactory;
 		}
 		
 		@Override

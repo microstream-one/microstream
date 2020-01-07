@@ -159,13 +159,17 @@ public interface CacheManager extends javax.cache.CacheManager
 				configuration.getExpiryPolicyFactory(),
 				CacheConfiguration.DefaultExpiryPolicyFactory()
 			);
-			final ExpiryPolicy expiryPolicy = expiryPolicyFactory.create();
+			final ExpiryPolicy expiryPolicy = expiryPolicyFactory != null
+				? expiryPolicyFactory.create()
+				: null;
 			
-			final Factory<EvictionPolicy> evictionPolicyFactory = coalesce(
-				configuration.getEvictionPolicyFactory(),
-				CacheConfiguration.DefaultEvictionPolicyFactory()
+			final Factory<EvictionManager<K, V>> evictionManagerFactory = coalesce(
+				configuration.getEvictionManagerFactory(),
+				CacheConfiguration.DefaultEvictionManagerFactory()
 			);
-			final EvictionPolicy evictionPolicy = evictionPolicyFactory.create();
+			final EvictionManager<K, V> evictionManager = evictionManagerFactory != null
+				? evictionManagerFactory.create()
+				: null;
 			
 			return Cache.New(
 				cacheName,
@@ -175,7 +179,7 @@ public interface CacheManager extends javax.cache.CacheManager
 				cacheLoader,
 				cacheWriter,
 				expiryPolicy,
-				evictionPolicy
+				evictionManager
 			);
 		}
 		

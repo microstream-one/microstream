@@ -62,6 +62,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	public void setManagementEnabled(boolean enabled);
 	
 	public void setStatisticsEnabled(boolean enabled);
+		
+	public void evict(Iterable<KeyValue<Object, CachedValue>> entriesToEvict);
 	
 	@Override
 	public default <T> T unwrap(final Class<T> clazz)
@@ -77,7 +79,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		final CacheLoader<K, V>        cacheLoader,
 		final CacheWriter<K, V>        cacheWriter,
 		final ExpiryPolicy             expiryPolicy,
-		final EvictionPolicy           evictionPolicy
+		final EvictionManager<K, V>    evictionManager
 	)
 	{
 		return new Default<>(
@@ -88,7 +90,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			cacheLoader,
 			cacheWriter,
 			expiryPolicy,
-			evictionPolicy
+			evictionManager
 		);
 	}
 	
@@ -101,7 +103,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private final CacheLoader<K, V>                           cacheLoader;
 		private final CacheWriter<K, V>                           cacheWriter;
 		private final ExpiryPolicy                                expiryPolicy;
-		private final EvictionPolicy                              evictionPolicy;
+		private final EvictionManager<K, V>                       evictionManager;
 		private final CacheTable                                  cacheTable;
 		private final XList<CacheEntryListenerRegistration<K, V>> listenerRegistrations;
 		private final ExecutorService                             executorService;
@@ -118,7 +120,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CacheLoader<K, V>        cacheLoader,
 			final CacheWriter<K, V>        cacheWriter,
 			final ExpiryPolicy             expiryPolicy,
-			final EvictionPolicy           evictionPolicy
+			final EvictionManager<K, V>    evictionManager
 		)
 		{
 			super();
@@ -130,7 +132,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.cacheLoader           = cacheLoader;
 			this.cacheWriter           = cacheWriter;
 			this.expiryPolicy          = expiryPolicy;
-			this.evictionPolicy        = evictionPolicy;
+			this.evictionManager       = evictionManager;
 
 			this.cacheTable            = CacheTable.New();
 			this.listenerRegistrations = BulkList.New();
@@ -147,6 +149,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			if(configuration.isStatisticsEnabled())
 			{
 				this.setStatisticsEnabled(true);
+			}
+			
+			if(evictionManager != null)
+			{
+				evictionManager.install(this, this.cacheTable);
 			}
 		}
 		
@@ -222,6 +229,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 			
 			this.isClosed = true;
+			
+			if(this.evictionManager != null)
+			{
+				this.evictionManager.uninstall(this, this.cacheTable);
+			}
 			
 			this.manager.removeCache(this.name);
 			
@@ -446,8 +458,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 							value,
 							internalKey,
 							cachedValue,
-							eventDispatcher,
-							isStatisticsEnabled
+							eventDispatcher
 						);
 						this.writeCacheEntry(entry);
 						putCount++;
@@ -468,9 +479,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
 					);
 				}
-				
-				eventDispatcher.dispatch(this.listenerRegistrations);
 			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
 			
 			if(isStatisticsEnabled && putCount > 0)
 			{
@@ -541,8 +552,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 							value,
 							internalKey,
 							cachedValue,
-							eventDispatcher,
-							isStatisticsEnabled
+							eventDispatcher
 						);
 						this.writeCacheEntry(entry);
 						putCount++;
@@ -563,9 +573,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
 					);
 				}
-				
-				eventDispatcher.dispatch(this.listenerRegistrations);
 			}
+			
+			eventDispatcher.dispatch(this.listenerRegistrations);
 			
 			if(isStatisticsEnabled)
 			{
@@ -707,8 +717,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 								value,
 								internalKey,
 								cachedValue,
-								eventDispatcher,
-								isStatisticsEnabled
+								eventDispatcher
 							);
 							
 							/*
@@ -822,8 +831,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 							value,
 							internalKey,
 							cachedValue,
-							eventDispatcher,
-							isStatisticsEnabled
+							eventDispatcher
 						);
 						result = true;
 					}
@@ -1729,8 +1737,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					entry.getValue(),
 					internalKey,
 					cachedValue,
-					eventDispatcher,
-					isStatisticsEnabled
+					eventDispatcher
 				);
 				
 				// do not count LOAD as a put for cache statistics.
@@ -1898,8 +1905,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 								value,
 								internalKey,
 								cachedValue,
-								eventDispatcher,
-								isStatisticsEnabled
+								eventDispatcher
 							);
 						}
 					}
@@ -1929,23 +1935,27 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final V                          value,
 			final Object                     internalKey,
 			final CachedValue                cachedValue,
-			final CacheEventDispatcher<K, V> eventDispatcher,
-			final boolean                    isStatisticsEnabled
+			final CacheEventDispatcher<K, V> eventDispatcher
 		)
 		{
-			final boolean newEntry = this.cacheTable.put(internalKey, cachedValue);
+			this.cacheTable.put(internalKey, cachedValue);
 			
 			eventDispatcher.addEvent(
 				CacheEntryCreatedListener.class,
 				new CacheEvent<>(this, EventType.CREATED, key, value)
 			);
+		}
+		
+		
+		@Override
+		public void evict(final Iterable<KeyValue<Object, CachedValue>> entriesToEvict)
+		{
+			long evictionCount = 0;
+			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
 			
-			if(newEntry)
+			synchronized(this.cacheTable)
 			{
-				KeyValue<Object, CachedValue> entryToEvict;
-				if(this.evictionPolicy != null
-					&& (entryToEvict = this.evictionPolicy.pickEntryToEvict(this.cacheTable)) != null
-					&& !entryToEvict.key().equals(internalKey))
+				for(final KeyValue<Object, CachedValue> entryToEvict : entriesToEvict)
 				{
 					this.cacheTable.remove(entryToEvict.key());
 					
@@ -1959,11 +1969,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						new CacheEvent<>(this, EventType.REMOVED, evictedKey, evictedValue, evictedValue)
 					);
 					
-					if(isStatisticsEnabled)
-					{
-						this.cacheStatisticsMXBean.increaseCacheEvictions(1);
-					}
+					evictionCount++;
 				}
+			}
+			
+			if(this.isStatisticsEnabled && evictionCount > 0)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+				
+				this.cacheStatisticsMXBean.increaseCacheEvictions(evictionCount);
 			}
 		}
 		
