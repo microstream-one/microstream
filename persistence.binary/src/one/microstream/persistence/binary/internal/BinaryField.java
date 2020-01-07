@@ -1,13 +1,32 @@
 package one.microstream.persistence.binary.internal;
 
-import static one.microstream.X.notNull;
-
 import one.microstream.math.XMath;
+import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceException;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberCreator;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberAppender;
+import one.microstream.reflect.Getter;
+import one.microstream.reflect.Getter_boolean;
+import one.microstream.reflect.Getter_byte;
+import one.microstream.reflect.Getter_char;
+import one.microstream.reflect.Getter_double;
+import one.microstream.reflect.Getter_float;
+import one.microstream.reflect.Getter_int;
+import one.microstream.reflect.Getter_long;
+import one.microstream.reflect.Getter_short;
+import one.microstream.reflect.Setter;
+import one.microstream.reflect.Setter_boolean;
+import one.microstream.reflect.Setter_byte;
+import one.microstream.reflect.Setter_char;
+import one.microstream.reflect.Setter_double;
+import one.microstream.reflect.Setter_float;
+import one.microstream.reflect.Setter_int;
+import one.microstream.reflect.Setter_long;
+import one.microstream.reflect.Setter_short;
 
 public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGeneric
 {
@@ -27,6 +46,10 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	
 	@Override
 	public BinaryField<T> copyForName(String qualifier, String name);
+	
+	public void readValue(T instance, Binary data, PersistenceLoadHandler handler);
+	
+	public void storeValue(T instance, Binary data, PersistenceStoreHandler handler);
 	
 	
 	// (06.01.2020 TM)FIXME: priv#88: remove if really not needed
@@ -156,44 +179,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 			return -1;
 		}
 	}
-	
-	
-	public static BinaryField New(
-		final Class<?> type
-	)
-	{
-		return New(type, Defaults.defaultUninitializedName());
-	}
-	
-	public static BinaryField New(
-		final Class<?> type,
-		final String   name
-	)
-	{
-		final long offset = Defaults.defaultUninitializedOffset();
-		final PersistenceTypeDefinitionMemberFieldGeneric field =
-			AbstractBinaryHandlerCustom.CustomField(type, notNull(name))
-		;
 		
-		return type == byte.class   ? new Default_byte(field, offset)
-			: type == boolean.class ? new Default_boolean(field, offset)
-			: type == short.class   ? new Default_short(field, offset)
-			: type == char.class    ? new Default_char(field, offset)
-			: type == int.class     ? new Default_int(field, offset)
-			: type == float.class   ? new Default_float(field, offset)
-			: type == long.class    ? new Default_long(field, offset)
-			: type == double.class  ? new Default_double(field, offset)
-			: type == Object.class  ? new DefaultReference(field, offset)
-			: unhandledFieldType(type)
-		;
-	}
-	
-	public static BinaryField unhandledFieldType(final Class<?> type)
-	{
-		// (06.01.2020 TM)EXCP: proper exception
-		throw new PersistenceException("Unsupported " + BinaryField.class.getSimpleName() + " type: " + type);
-	}
-	
 //	public static BinaryField Complex(
 //		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
 //	)
@@ -247,6 +233,15 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		static final String NAME_UNINITIALIZED = "[Uninitialized " + BinaryField.class.getSimpleName() + "]";
 		
 		
+		static PersistenceTypeDefinitionMemberFieldGeneric defineField(final Class<?> type)
+		{
+			final PersistenceTypeDefinitionMemberFieldGeneric field =
+				AbstractBinaryHandlerCustom.CustomField(type, Defaults.defaultUninitializedName())
+			;
+			
+			return field;
+		}
+		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -261,7 +256,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// constructors //
 		/////////////////
 		
-		Abstract(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
+		protected Abstract(final Class<?> type)
+		{
+			this(defineField(type), Defaults.defaultUninitializedOffset());
+		}
+		
+		protected Abstract(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
 		{
 			super();
 			this.actual = actual;
@@ -422,285 +422,575 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		
 	}
 	
-	public final class Default_byte<T> extends Abstract<T>
+	public final class Default_byte<T> extends BinaryField.Abstract<T>
 	{
-
-		Default_byte(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Getter_byte<T> getter;
+		private final Setter_byte<T> setter;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default_byte(final Getter_byte<T> getter, final Setter_byte<T> setter)
+		{
+			super(byte.class);
+			this.getter = getter;
+			this.setter = setter;
+		}
+		
+		Default_byte(
+			final PersistenceTypeDefinitionMemberFieldGeneric actual,
+			final long                                        offset,
+			final Getter_byte<T>                              getter,
+			final Setter_byte<T>                              setter
+		)
 		{
 			super(actual, offset);
+			this.getter = getter;
+			this.setter = setter;
 		}
-
-		// (06.01.2020 TM)FIXME: priv#88: remove in all implementations below if really not needed
-//		@Override
-//		public final byte read_byte(final Binary data)
-//		{
-//			return data.read_byte(this.offset());
-//		}
-//
-//		@Override
-//		public final void store_byte(final Binary data, final byte value)
-//		{
-//			data.store_byte(this.offset(), value);
-//		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final byte value = data.read_byte(this.offset());
+			this.setter.set_byte(instance, value);
+		}
+		
+		@Override
+		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		{
+			final byte value = this.getter.get_byte(instance);
+			data.store_byte(this.offset(), value);
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return new Default_byte<>(
-				this.actual().copyForName(qualifier, name),
-				this.offset()
-			);
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_byte<>(memberCopy, this.offset(), this.getter, this.setter);
 		}
 		
 	}
-	
-	public final class Default_boolean<T> extends Abstract<T>
+		
+	public final class Default_boolean<T> extends BinaryField.Abstract<T>
 	{
-
-		Default_boolean(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Getter_boolean<T> getter;
+		private final Setter_boolean<T> setter;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default_boolean(final Getter_boolean<T> getter, final Setter_boolean<T> setter)
 		{
-			super(actual, offset);
+			super(boolean.class);
+			this.getter = getter;
+			this.setter = setter;
 		}
 		
-//		@Override
-//		public final boolean read_boolean(final Binary data)
-//		{
-//			return data.read_boolean(this.offset());
-//		}
-//
-//		@Override
-//		public final void store_boolean(final Binary data, final boolean value)
-//		{
-//			data.store_boolean(this.offset(), value);
-//		}
+		Default_boolean(
+			final PersistenceTypeDefinitionMemberFieldGeneric actual,
+			final long                                        offset,
+			final Getter_boolean<T>                           getter,
+			final Setter_boolean<T>                           setter
+		)
+		{
+			super(actual, offset);
+			this.getter = getter;
+			this.setter = setter;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final boolean value = data.read_boolean(this.offset());
+			this.setter.set_boolean(instance, value);
+		}
+		
+		@Override
+		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		{
+			final boolean value = this.getter.get_boolean(instance);
+			data.store_boolean(this.offset(), value);
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return new Default_boolean<>(
-				this.actual().copyForName(qualifier, name),
-				this.offset()
-			);
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_boolean<>(memberCopy, this.offset(), this.getter, this.setter);
 		}
 		
 	}
 	
-	public final class Default_short<T> extends Abstract<T>
+	public final class Default_short<T> extends BinaryField.Abstract<T>
 	{
-
-		Default_short(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Getter_short<T> getter;
+		private final Setter_short<T> setter;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default_short(final Getter_short<T> getter, final Setter_short<T> setter)
 		{
-			super(actual, offset);
+			super(short.class);
+			this.getter = getter;
+			this.setter = setter;
 		}
 		
-//		@Override
-//		public final short read_short(final Binary data)
-//		{
-//			return data.read_short(this.offset());
-//		}
-//
-//		@Override
-//		public final void store_short(final Binary data, final short value)
-//		{
-//			data.store_short(this.offset(), value);
-//		}
+		Default_short(
+			final PersistenceTypeDefinitionMemberFieldGeneric actual,
+			final long                                        offset,
+			final Getter_short<T>                             getter,
+			final Setter_short<T>                             setter
+		)
+		{
+			super(actual, offset);
+			this.getter = getter;
+			this.setter = setter;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final short value = data.read_short(this.offset());
+			this.setter.set_short(instance, value);
+		}
+		
+		@Override
+		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		{
+			final short value = this.getter.get_short(instance);
+			data.store_short(this.offset(), value);
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return new Default_short<>(
-				this.actual().copyForName(qualifier, name),
-				this.offset()
-			);
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_short<>(memberCopy, this.offset(), this.getter, this.setter);
 		}
 		
 	}
 	
-	public final class Default_char<T> extends Abstract<T>
+	public final class Default_char<T> extends BinaryField.Abstract<T>
 	{
-
-		Default_char(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Getter_char<T> getter;
+		private final Setter_char<T> setter;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default_char(final Getter_char<T> getter, final Setter_char<T> setter)
 		{
-			super(actual, offset);
+			super(char.class);
+			this.getter = getter;
+			this.setter = setter;
 		}
 		
-//		@Override
-//		public final char read_char(final Binary data)
-//		{
-//			return data.read_char(this.offset());
-//		}
-//
-//		@Override
-//		public final void store_char(final Binary data, final char value)
-//		{
-//			data.store_char(this.offset(), value);
-//		}
+		Default_char(
+			final PersistenceTypeDefinitionMemberFieldGeneric actual,
+			final long                                        offset,
+			final Getter_char<T>                              getter,
+			final Setter_char<T>                              setter
+		)
+		{
+			super(actual, offset);
+			this.getter = getter;
+			this.setter = setter;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final char value = data.read_char(this.offset());
+			this.setter.set_char(instance, value);
+		}
+		
+		@Override
+		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		{
+			final char value = this.getter.get_char(instance);
+			data.store_char(this.offset(), value);
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return new Default_char<>(
-				this.actual().copyForName(qualifier, name),
-				this.offset()
-			);
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_char<>(memberCopy, this.offset(), this.getter, this.setter);
 		}
 		
 	}
 	
-	public final class Default_int<T> extends Abstract<T>
+	public final class Default_int<T> extends BinaryField.Abstract<T>
 	{
-
-		Default_int(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Getter_int<T> getter;
+		private final Setter_int<T> setter;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default_int(final Getter_int<T> getter, final Setter_int<T> setter)
 		{
-			super(actual, offset);
+			super(int.class);
+			this.getter = getter;
+			this.setter = setter;
 		}
 		
-//		@Override
-//		public final int read_int(final Binary data)
-//		{
-//			return data.read_int(this.offset());
-//		}
-//
-//		@Override
-//		public final void store_int(final Binary data, final int value)
-//		{
-//			data.store_int(this.offset(), value);
-//		}
+		Default_int(
+			final PersistenceTypeDefinitionMemberFieldGeneric actual,
+			final long                                        offset,
+			final Getter_int<T>                               getter,
+			final Setter_int<T>                               setter
+		)
+		{
+			super(actual, offset);
+			this.getter = getter;
+			this.setter = setter;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final int value = data.read_int(this.offset());
+			this.setter.set_int(instance, value);
+		}
+		
+		@Override
+		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		{
+			final int value = this.getter.get_int(instance);
+			data.store_int(this.offset(), value);
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return new Default_int<>(
-				this.actual().copyForName(qualifier, name),
-				this.offset()
-			);
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_int<>(memberCopy, this.offset(), this.getter, this.setter);
 		}
 		
 	}
 	
-	public final class Default_float<T> extends Abstract<T>
+	public final class Default_float<T> extends BinaryField.Abstract<T>
 	{
-
-		Default_float(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Getter_float<T> getter;
+		private final Setter_float<T> setter;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default_float(final Getter_float<T> getter, final Setter_float<T> setter)
 		{
-			super(actual, offset);
+			super(float.class);
+			this.getter = getter;
+			this.setter = setter;
 		}
 		
-//		@Override
-//		public final float read_float(final Binary data)
-//		{
-//			return data.read_float(this.offset());
-//		}
-//
-//		@Override
-//		public final void store_float(final Binary data, final float value)
-//		{
-//			data.store_float(this.offset(), value);
-//		}
+		Default_float(
+			final PersistenceTypeDefinitionMemberFieldGeneric actual,
+			final long                                        offset,
+			final Getter_float<T>                             getter,
+			final Setter_float<T>                             setter
+		)
+		{
+			super(actual, offset);
+			this.getter = getter;
+			this.setter = setter;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final float value = data.read_float(this.offset());
+			this.setter.set_float(instance, value);
+		}
+		
+		@Override
+		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		{
+			final float value = this.getter.get_float(instance);
+			data.store_float(this.offset(), value);
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return new Default_float<>(
-				this.actual().copyForName(qualifier, name),
-				this.offset()
-			);
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_float<>(memberCopy, this.offset(), this.getter, this.setter);
 		}
 		
 	}
 	
-	public final class Default_long<T> extends Abstract<T>
+	public final class Default_long<T> extends BinaryField.Abstract<T>
 	{
-
-		Default_long(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Getter_long<T> getter;
+		private final Setter_long<T> setter;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default_long(final Getter_long<T> getter, final Setter_long<T> setter)
 		{
-			super(actual, offset);
+			super(long.class);
+			this.getter = getter;
+			this.setter = setter;
 		}
 		
-//		@Override
-//		public final long read_long(final Binary data)
-//		{
-//			return data.read_long(this.offset());
-//		}
-//
-//		@Override
-//		public final void store_long(final Binary data, final long value)
-//		{
-//			data.store_long(this.offset(), value);
-//		}
+		Default_long(
+			final PersistenceTypeDefinitionMemberFieldGeneric actual,
+			final long                                        offset,
+			final Getter_long<T>                              getter,
+			final Setter_long<T>                              setter
+		)
+		{
+			super(actual, offset);
+			this.getter = getter;
+			this.setter = setter;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final long value = data.read_long(this.offset());
+			this.setter.set_long(instance, value);
+		}
+		
+		@Override
+		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		{
+			final long value = this.getter.get_long(instance);
+			data.store_long(this.offset(), value);
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return new Default_long<>(
-				this.actual().copyForName(qualifier, name),
-				this.offset()
-			);
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_long<>(memberCopy, this.offset(), this.getter, this.setter);
 		}
 		
 	}
 	
-	public final class Default_double<T> extends Abstract<T>
+	public final class Default_double<T> extends BinaryField.Abstract<T>
 	{
-
-		Default_double(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Getter_double<T> getter;
+		private final Setter_double<T> setter;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default_double(final Getter_double<T> getter, final Setter_double<T> setter)
 		{
-			super(actual, offset);
+			super(double.class);
+			this.getter = getter;
+			this.setter = setter;
 		}
 		
-//		@Override
-//		public final double read_double(final Binary data)
-//		{
-//			return data.read_double(this.offset());
-//		}
-//
-//		@Override
-//		public final void store_double(final Binary data, final double value)
-//		{
-//			data.store_double(this.offset(), value);
-//		}
+		Default_double(
+			final PersistenceTypeDefinitionMemberFieldGeneric actual,
+			final long                                        offset,
+			final Getter_double<T>                            getter,
+			final Setter_double<T>                            setter
+		)
+		{
+			super(actual, offset);
+			this.getter = getter;
+			this.setter = setter;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final double value = data.read_double(this.offset());
+			this.setter.set_double(instance, value);
+		}
+		
+		@Override
+		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		{
+			final double value = this.getter.get_double(instance);
+			data.store_double(this.offset(), value);
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return new Default_double<>(
-				this.actual().copyForName(qualifier, name),
-				this.offset()
-			);
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_double<>(memberCopy, this.offset(), this.getter, this.setter);
 		}
 		
 	}
 	
-	public final class DefaultReference extends Abstract
+	public final class DefaultReference<T, R> extends BinaryField.Abstract<T>
 	{
-
-		DefaultReference(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final Class<R>     type  ;
+		private final Getter<T, R> getter;
+		private final Setter<T, R> setter;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		DefaultReference(final Class<R> referenceType, final Getter<T, R> getter, final Setter<T, R> setter)
 		{
-			super(actual, offset);
+			super(referenceType);
+			this.type   = referenceType;
+			this.getter = getter;
+			this.setter = setter;
 		}
 		
-//		@Override
-//		public Object readReference(final Binary data, final PersistenceLoadHandler handler)
-//		{
-//			final long objectId = data.read_long(this.offset());
-//
-//			return handler.lookupObject(objectId);
-//		}
-//
-//		@Override
-//		public void storeReference(final Binary data, final Object instance, final PersistenceStoreHandler handler)
-//		{
-//			final long objectId = handler.apply(instance);
-//			data.store_long(this.offset(), objectId);
-//		}
+		DefaultReference(
+			final Class<R>                                    type  ,
+			final PersistenceTypeDefinitionMemberFieldGeneric actual,
+			final long                                        offset,
+			final Getter<T, R>                                getter,
+			final Setter<T, R>                                setter
+		)
+		{
+			super(actual, offset);
+			this.type   = type  ;
+			this.getter = getter;
+			this.setter = setter;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 		
 		@Override
-		public final BinaryField copyForName(final String qualifier, final String name)
+		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
-			return new DefaultReference(
-				this.actual().copyForName(qualifier, name),
-				this.offset()
-			);
+			final long objectId  = data.read_long(this.offset());
+			final R    reference = this.type.cast(handler.lookupObject(objectId));
+			this.setter.set(instance, reference);
+		}
+		
+		@Override
+		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		{
+			final Object reference = this.getter.get_(instance);
+			final long   objectId  = handler.apply(reference);
+			data.store_long(this.offset(), objectId);
+		}
+		
+		@Override
+		public final BinaryField<T> copyForName(final String qualifier, final String name)
+		{
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new DefaultReference<>(this.type, memberCopy, this.offset(), this.getter, this.setter);
 		}
 		
 	}
