@@ -3,16 +3,16 @@ package one.microstream.test.binary_fields;
 import one.microstream.persistence.binary.internal.BinaryField;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
-import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public class BinaryHandlerTestClass extends AbstractBinaryHandlerTestBaseClass<TestLeafClass>
 {
 	private final BinaryField<TestLeafClass>
-		leafValue_int1   = Field(e -> e.leafValue_int, (e, v) -> e.leafValue_int = v),
+		leafValue_int1   = Field_int(e -> e.leafValue_int, (e, v) -> e.leafValue_int = v),
 		leafValue_int2   = Field(TestLeafClass::leafValue_int, TestLeafClass::setLeafValue_int)
 //		leafValue_float = Field(float.class),
 //		leafReference   = Field(String.class)
 	;
+	
 	
 	protected BinaryHandlerTestClass()
 	{
@@ -20,17 +20,9 @@ public class BinaryHandlerTestClass extends AbstractBinaryHandlerTestBaseClass<T
 	}
 	
 	@Override
-	public void store(final Binary data, final TestLeafClass instance, final long objectId, final PersistenceStoreHandler handler)
-	{
-		super.store(data, instance, objectId, handler);
-		this.leafValue_int  .store_long    (data, instance.leafValue_int  );
-		this.leafValue_float.store_double  (data, instance.leafValue_float);
-		this.leafReference  .storeReference(data, instance.leafReference, handler);
-	}
-	
-	@Override
 	public TestLeafClass create(final Binary data, final PersistenceLoadHandler handler)
 	{
+		// (07.01.2020 TM)FIXME: priv#88: make generic, but PersistenceTypeInstantiator<Binary, T> is overkill ...
 		return new TestLeafClass();
 	}
 }

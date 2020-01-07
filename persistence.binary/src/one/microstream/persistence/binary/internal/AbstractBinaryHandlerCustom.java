@@ -205,7 +205,7 @@ extends BinaryTypeHandler.Abstract<T>
 		return new BinaryField.Default_char<>(notNull(getter), notNull(setter));
 	}
 		
-	protected static final <T> BinaryField<T> Field(
+	protected static final <T> BinaryField<T> Field_int(
 		final Getter_int<T> getter,
 		final Setter_int<T> setter
 	)
