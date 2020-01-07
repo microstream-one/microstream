@@ -13,7 +13,7 @@ import one.microstream.typing.KeyValue;
 @FunctionalInterface
 public interface EvictionPolicy
 {
-	public KeyValue<Object, CachedValue> pickEntryToEvict(CacheTable cacheTable);
+	public Iterable<KeyValue<Object, CachedValue>> pickEntriesToEvict(CacheTable cacheTable);
 	
 	
 	public static Predicate<CacheTable> MaxCacheSizePredicate(final long maxCacheSize)
@@ -95,7 +95,7 @@ public interface EvictionPolicy
 		}
 		
 		@Override
-		public KeyValue<Object, CachedValue> pickEntryToEvict(final CacheTable cacheTable)
+		public Iterable<KeyValue<Object, CachedValue>> pickEntriesToEvict(final CacheTable cacheTable)
 		{
 			if(this.evictionNecessity != null && !this.evictionNecessity.test(cacheTable))
 			{
@@ -107,7 +107,7 @@ public interface EvictionPolicy
 				final KeyValue<Object, CachedValue> entryToEvict = this.sample(cacheTable);
 				if(entryToEvict != null && this.evictionPermission.test(entryToEvict))
 				{
-					return entryToEvict;
+					return X.Constant(entryToEvict);
 				}
 			}
 			
@@ -158,10 +158,10 @@ public interface EvictionPolicy
 		}
 		
 		@Override
-		public KeyValue<Object, CachedValue> pickEntryToEvict(final CacheTable cacheTable)
+		public Iterable<KeyValue<Object, CachedValue>> pickEntriesToEvict(final CacheTable cacheTable)
 		{
 			return this.evictionNecessity == null || this.evictionNecessity.test(cacheTable)
-				? cacheTable.search(this.evictionPermission)
+				? X.Constant(cacheTable.search(this.evictionPermission))
 				: null;
 		}
 		
