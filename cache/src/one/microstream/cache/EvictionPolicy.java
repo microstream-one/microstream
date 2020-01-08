@@ -8,6 +8,9 @@ import java.util.Random;
 import java.util.function.Predicate;
 
 import one.microstream.X;
+import one.microstream.collections.EqHashEnum;
+import one.microstream.collections.types.XEnum;
+import one.microstream.reference._intReference;
 import one.microstream.typing.KeyValue;
 
 @FunctionalInterface
@@ -31,63 +34,139 @@ public interface EvictionPolicy
 		return (kv1, kv2) -> Long.compare(kv1.value().accessCount(), kv2.value().accessCount());
 	}
 	
+	public static int DefaultElementCount()
+	{
+		return 4;
+	}
+	
 	public static EvictionPolicy LeastRecentlyUsed(final long maxCacheSize)
 	{
-		return LeastRecentlyUsed(MaxCacheSizePredicate(maxCacheSize), null);
+		return LeastRecentlyUsed(
+			DefaultElementCount(),
+			maxCacheSize
+		);
 	}
 	
 	public static EvictionPolicy LeastRecentlyUsed(
+		final int  elementCount,
+		final long maxCacheSize
+	)
+	{
+		return LeastRecentlyUsed(
+			() -> elementCount,
+			MaxCacheSizePredicate(maxCacheSize),
+			null
+		);
+	}
+	
+	public static EvictionPolicy LeastRecentlyUsed(
+		final _intReference                             elementCount,
 		final Predicate<CacheTable>                     evictionNecessity,
 		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
 	)
 	{
-		return Sampling(evictionNecessity, evictionPermission, LeastRecentlyUsedComparator());
+		return Sampling(
+			elementCount,
+			evictionNecessity,
+			evictionPermission,
+			LeastRecentlyUsedComparator()
+		);
 	}
 	
 	public static EvictionPolicy LeastFrequentlyUsed(final long maxCacheSize)
 	{
-		return LeastFrequentlyUsed(MaxCacheSizePredicate(maxCacheSize), null);
+		return LeastFrequentlyUsed(
+			DefaultElementCount(),
+			maxCacheSize
+		);
 	}
 	
 	public static EvictionPolicy LeastFrequentlyUsed(
+		final int  elementCount,
+		final long maxCacheSize
+	)
+	{
+		return LeastFrequentlyUsed(
+			() -> elementCount,
+			MaxCacheSizePredicate(maxCacheSize),
+			null
+		);
+	}
+	
+	public static EvictionPolicy LeastFrequentlyUsed(
+		final _intReference                             elementCount,
 		final Predicate<CacheTable>                     evictionNecessity,
 		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
 	)
 	{
-		return Sampling(evictionNecessity, evictionPermission, LeastFrequentlyUsedComparator());
-	}
-	
-	public static EvictionPolicy FirstInFirstOut(final long maxCacheSize)
-	{
-		return FirstInFirstOut(MaxCacheSizePredicate(maxCacheSize), null);
+		return Sampling(
+			elementCount,
+			evictionNecessity,
+			evictionPermission,
+			LeastFrequentlyUsedComparator()
+		);
 	}
 	
 	public static EvictionPolicy FirstInFirstOut(
+		final int  elementCount,
+		final long maxCacheSize
+	)
+	{
+		return FirstInFirstOut(
+			() -> elementCount,
+			MaxCacheSizePredicate(maxCacheSize),
+			null
+		);
+	}
+	
+	public static EvictionPolicy FirstInFirstOut(
+		final _intReference                             elementCount,
 		final Predicate<CacheTable>                     evictionNecessity,
 		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
 	)
 	{
-		return Searching(evictionNecessity, evictionPermission);
+		return Searching(
+			elementCount,
+			evictionNecessity,
+			evictionPermission
+		);
 	}
 	
 	public static EvictionPolicy Sampling(
+		final _intReference                             elementCount,
 		final Predicate<CacheTable>                     evictionNecessity,
 		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission,
 		final Comparator<KeyValue<Object, CachedValue>> comparator
 	)
 	{
-		return new Sampling(evictionNecessity, evictionPermission, comparator);
+		return new Sampling(
+			elementCount,
+			evictionNecessity,
+			evictionPermission,
+			comparator
+		);
 	}
 	
 	public static EvictionPolicy Searching(
+		final _intReference                             elementCount,
 		final Predicate<CacheTable>                     evictionNecessity,
 		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
 	)
 	{
-		return new Searching(evictionNecessity, evictionPermission);
+		return new Searching(
+			elementCount,
+			evictionNecessity,
+			evictionPermission
+		);
 	}
 		
 	
+
+	/*
+	 * Eviction by sampling.
+	 * Pick sample range of bigger caches and sort instead of whole cache.
+	 * Extensive tests show deviation <~1% and massive performace gain.
+	 */
 	public static class Sampling implements EvictionPolicy
 	{
 		final static int    MAX_SAMPLE_COUNT   =     10    ;
@@ -96,12 +175,14 @@ public interface EvictionPolicy
 		final static int    MAX_SAMPLE_SIZE    =    100    ;
 		final static double SAMPLE_SIZE_FACTOR =      0.002;
 		
+		private final _intReference                             elementCount;
 		private final Predicate<CacheTable>                     evictionNecessity;
 		private final Predicate<KeyValue<Object, CachedValue>>  evictionPermission;
 		private final Comparator<KeyValue<Object, CachedValue>> comparator;
 		private final Random                                    random;
 				
 		Sampling(
+			final _intReference                             elementCount,
 			final Predicate<CacheTable>                     evictionNecessity,
 			final Predicate<KeyValue<Object, CachedValue>>  evictionPermission,
 			final Comparator<KeyValue<Object, CachedValue>> comparator
@@ -109,6 +190,7 @@ public interface EvictionPolicy
 		{
 			super();
 			
+			this.elementCount       = notNull(elementCount);
 			this.evictionNecessity  = evictionNecessity;
 			this.evictionPermission = evictionPermission != null
 				? evictionPermission
@@ -125,23 +207,47 @@ public interface EvictionPolicy
 				return null;
 			}
 			
-			for(int i = 0; i < MAX_SAMPLE_COUNT; i++)
+			final int elementCount = this.elementCount.get();
+			if(elementCount <= 0)
 			{
-				final KeyValue<Object, CachedValue> entryToEvict = this.sample(cacheTable);
-				if(entryToEvict != null && this.evictionPermission.test(entryToEvict))
+				throw new RuntimeException("Illegal element count for eviction: " + elementCount + " <= 0");
+			}
+			
+
+			if(elementCount == 1)
+			{
+				for(int sample = 0; sample < MAX_SAMPLE_COUNT; sample++)
 				{
-					return X.Constant(entryToEvict);
+					final KeyValue<Object, CachedValue> entryToEvict = this.sample(cacheTable);
+					if(entryToEvict != null && this.evictionPermission.test(entryToEvict))
+					{
+						return X.Constant(entryToEvict);
+					}
+				}
+			}
+			else
+			{
+				for(int sample = 0; sample < MAX_SAMPLE_COUNT; sample++)
+				{
+					final XEnum<KeyValue<Object, CachedValue>> entriesToEvict = EqHashEnum.NewCustom(elementCount);
+					for(int i = 0; i < elementCount; i++)
+					{
+						final KeyValue<Object, CachedValue> entryToEvict = this.sample(cacheTable);
+						if(entryToEvict != null && this.evictionPermission.test(entryToEvict))
+						{
+							entriesToEvict.add(entryToEvict);
+						}
+					}
+					if(!entriesToEvict.isEmpty())
+					{
+						return entriesToEvict;
+					}
 				}
 			}
 			
 			return null;
 		}
 		
-		/*
-		 * Eviction by sampling.
-		 * Pick sample range of bigger caches and sort instead of whole cache.
-		 * Extensive tests show deviation <~1% and massive performace gain.
-		 */
 		private KeyValue<Object, CachedValue> sample(final CacheTable cacheTable)
 		{
 			final int cacheSize = X.checkArrayRange(cacheTable.size());
@@ -156,8 +262,12 @@ public interface EvictionPolicy
 				: optSampleSize > MAX_SAMPLE_SIZE
 					? MAX_SAMPLE_SIZE
 					: optSampleSize;
-			final int offset = this.random.nextInt(cacheSize - sampleSize - 1);
-			return cacheTable.rangeMin(offset, sampleSize, this.comparator);
+			final int offset        = this.random.nextInt(cacheSize - sampleSize - 1);
+			return cacheTable.rangeMin(
+				offset,
+				sampleSize,
+				this.comparator
+			);
 		}
 		
 	}
@@ -165,16 +275,19 @@ public interface EvictionPolicy
 	
 	public static class Searching implements EvictionPolicy
 	{
+		private final _intReference                             elementCount;
 		private final Predicate<CacheTable>                     evictionNecessity;
 		private final Predicate<KeyValue<Object, CachedValue>>  evictionPermission;
 				
 		Searching(
+			final _intReference                             elementCount,
 			final Predicate<CacheTable>                     evictionNecessity,
 			final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
 		)
 		{
 			super();
 			
+			this.elementCount       = notNull(elementCount);
 			this.evictionNecessity  = evictionNecessity;
 			this.evictionPermission = evictionPermission != null
 				? evictionPermission
@@ -184,9 +297,30 @@ public interface EvictionPolicy
 		@Override
 		public Iterable<KeyValue<Object, CachedValue>> pickEntriesToEvict(final CacheTable cacheTable)
 		{
-			return this.evictionNecessity == null || this.evictionNecessity.test(cacheTable)
-				? X.Constant(cacheTable.search(this.evictionPermission))
-				: null;
+			if(this.evictionNecessity != null && !this.evictionNecessity.test(cacheTable))
+			{
+				return null;
+			}
+			
+			final int elementCount = this.elementCount.get();
+			if(elementCount <= 0)
+			{
+				throw new RuntimeException("Illegal element count for eviction: " + elementCount + " <= 0");
+			}
+			
+			final XEnum<KeyValue<Object, CachedValue>> entriesToEvict = EqHashEnum.NewCustom(elementCount);
+			cacheTable.iterate(kv -> {
+				if(this.evictionPermission.test(kv))
+				{
+					entriesToEvict.add(kv);
+					if(entriesToEvict.size() >= elementCount)
+					{
+						throw X.BREAK();
+					}
+				}
+			});
+			
+			return entriesToEvict;
 		}
 		
 	}
