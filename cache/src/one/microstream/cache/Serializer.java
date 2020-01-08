@@ -2,8 +2,10 @@
 package one.microstream.cache;
 
 import java.io.Closeable;
+import java.lang.reflect.Field;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.collections.types.XGettingCollection;
@@ -18,7 +20,6 @@ import one.microstream.persistence.types.PersistenceSource;
 import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeDictionaryManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
-import one.microstream.reflect.XReflect;
 import one.microstream.util.traversing.ObjectGraphTraverser;
 
 
@@ -33,18 +34,23 @@ public interface Serializer extends Closeable
 	
 	public static Serializer get(final ClassLoader classLoader)
 	{
-		return Static.get(classLoader);
+		return Static.get(classLoader, CacheConfiguration.DefaultSerializerFieldPredicate());
+	}
+	
+	public static Serializer get(final ClassLoader classLoader, final Predicate<? super Field> fieldPredicate)
+	{
+		return Static.get(classLoader, fieldPredicate);
 	}
 	
 	public static class Static
 	{
 		private final static WeakHashMap<ClassLoader, Serializer> cache = new WeakHashMap<>();
-		
-		static synchronized Serializer get(final ClassLoader classLoader)
+				
+		static synchronized Serializer get(final ClassLoader classLoader, final Predicate<? super Field> fieldPredicate)
 		{
 			return cache.computeIfAbsent(
 				classLoader,
-				cl -> new Serializer.Default()
+				cl -> new Serializer.Default(fieldPredicate)
 			);
 		}
 		
@@ -56,14 +62,17 @@ public interface Serializer extends Closeable
 	
 	public static class Default implements Serializer
 	{
-		private PersistenceManager<Binary> persistenceManager;
-		private ObjectGraphTraverser       typeHandlerEnsurer;
-		private Binary                     input;
-		private Binary                     output;
+		private final Predicate<? super Field> fieldPredicate;
+		private PersistenceManager<Binary>     persistenceManager;
+		private ObjectGraphTraverser           typeHandlerEnsurer;
+		private Binary                         input;
+		private Binary                         output;
 		
-		Default()
+		Default(final Predicate<? super Field> fieldPredicate)
 		{
 			super();
+			
+			this.fieldPredicate = fieldPredicate;
 		}
 		
 		@Override
@@ -130,7 +139,7 @@ public interface Serializer extends Closeable
 				};
 				this.typeHandlerEnsurer = ObjectGraphTraverser.Builder()
 					.modeFull()
-					.fieldPredicate(XReflect::isNotTransient)
+					.fieldPredicate(this.fieldPredicate)
 					.acceptorLogic(objectAcceptor)
 					.buildObjectGraphTraverser();
 			}
