@@ -40,7 +40,8 @@ import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInv
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
-import one.microstream.persistence.lazy.Lazy;
+import one.microstream.reference.Swizzling;
+import one.microstream.reference.lazy.Lazy;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.Composition;
 import one.microstream.typing.KeyValue;
@@ -224,7 +225,7 @@ public class Persistence
 
 	public static final long nullId()
 	{
-		return 0L;
+		return Swizzling.nullId();
 	}
 	
 	public static final long notFoundId()
