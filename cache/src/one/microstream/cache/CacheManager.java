@@ -132,7 +132,12 @@ public interface CacheManager extends javax.cache.CacheManager
 			final CacheConfiguration<K, V> configuration   = CacheConfiguration.New(config);
 			
 			final ObjectConverter          objectConverter = configuration.isStoreByValue()
-				? ObjectConverter.ByValue(Serializer.get(Thread.currentThread().getContextClassLoader()))
+				? ObjectConverter.ByValue(
+					Serializer.get(
+						Thread.currentThread().getContextClassLoader(),
+						configuration.getSerializerFieldPredicate()
+					)
+				)
 				: ObjectConverter.ByReference();
 			
 			CacheLoader<K, V> cacheLoader = null;
