@@ -3,6 +3,7 @@ package one.microstream.viewer;
 import java.lang.reflect.Array;
 import java.util.List;
 
+import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.persistence.binary.types.ViewerMemberProvider;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
@@ -152,10 +153,14 @@ public abstract class ViewerObjectMemberDescription implements ViewerMemberProvi
 	@Override
 	public List<ViewerObjectMemberDescription> getMembers(final int offset, final int count)
 	{
-		final int end = offset + count;
-
-		final List<ViewerObjectMemberDescription> allMembers = this.getMembers();
-		return allMembers.subList(offset, end > allMembers.size() ? allMembers.size() : end);
-
+		try
+		{
+			final List<ViewerObjectMemberDescription> allMembers = this.getMembers();
+			return allMembers.subList(offset, Math.min(offset + count, allMembers.size()));
+		}
+		catch(final IndexOutOfBoundsException | IllegalArgumentException e)
+		{
+			throw new ViewerException("no member for offset " + offset + " count " + count);
+		}
 	}
 }

@@ -1,7 +1,9 @@
 package one.microstream.viewer;
 
+import java.util.Arrays;
 import java.util.List;
 
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.ViewerMemberProvider;
 import one.microstream.persistence.binary.types.ViewerObjectDescription;
 import one.microstream.storage.types.EmbeddedStorageManager;
@@ -60,17 +62,25 @@ public class StorageRestAdapter<T> extends EmbeddedStorageRestAdapter
 		return null;
 	}
 
-	public T getObject(final long objectId, final int maxElements, final int[] childIndices)
+	public T getObject(final long objectId, final int[] childIndices, final int maxElements, final int startMember)
 	{
+		XDebug.println("oid: " + objectId +
+				" count: " + maxElements +
+				" start: " + startMember +
+				" path:  " + Arrays.toString(childIndices)
+				);
+
 		ViewerMemberProvider object = super.getStorageObject(objectId);
 
-		for(int i = 0; i < childIndices.length - 1; i++)
+		if(childIndices != null && childIndices.length > 0)
 		{
-			object = object.getMember(childIndices[i]);
+			for(int i = 0; i < childIndices.length; i++)
+			{
+				object = object.getMember(childIndices[i]);
+			}
 		}
 
-		final int childIndex = childIndices[childIndices.length -1];
-		final List<ViewerObjectMemberDescription> members = object.getMembers(childIndex , maxElements);
+		final List<ViewerObjectMemberDescription> members = object.getMembers(startMember , maxElements);
 
 		final List<MemberDescription> preprocessed = this.preprocessor.processMemberList(members);
 		return this.converter.convertMemberList(preprocessed);

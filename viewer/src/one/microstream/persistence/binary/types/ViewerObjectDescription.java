@@ -126,9 +126,9 @@ public class ViewerObjectDescription implements ViewerMemberProvider
 		try
 		{
 			final List<ViewerObjectMemberDescription> allMembers = this.getMembers();
-			return allMembers.subList(offset, offset+count);
+			return allMembers.subList(offset, Math.min(offset + count, allMembers.size()));
 		}
-		catch(final IndexOutOfBoundsException e)
+		catch(final IndexOutOfBoundsException | IllegalArgumentException e)
 		{
 			throw new ViewerException("no member for offset " + offset + " count " + count);
 		}
