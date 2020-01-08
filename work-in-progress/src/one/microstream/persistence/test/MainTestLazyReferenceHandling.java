@@ -2,9 +2,9 @@ package one.microstream.persistence.test;
 
 import one.microstream.X;
 import one.microstream.collections.types.XList;
+import one.microstream.reference.Lazy;
+import one.microstream.reference.LazyReferenceManager;
 import one.microstream.reference.ObjectSwizzling;
-import one.microstream.reference.lazy.Lazy;
-import one.microstream.reference.lazy.LazyReferenceManager;
 
 public class MainTestLazyReferenceHandling
 {
