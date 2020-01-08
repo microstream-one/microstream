@@ -5,6 +5,13 @@ import java.util.function.BiConsumer;
 
 public interface PersistenceRootsView
 {
+	
+	public static String rootIdentifier()
+	{
+		// just a convenience relaying method.
+		return Persistence.rootIdentifier();
+	}
+	
 	// (16.12.2019 TM)NOTE: no deprecated methods in non-convenience API (while still in early versions ...)
 	
 //	@Deprecated
@@ -37,7 +44,6 @@ public interface PersistenceRootsView
 //	}
 	
 	public PersistenceRootReferencing rootReference();
-	
 		
 	public <C extends BiConsumer<String, Object>> C iterateEntries(C iterator);
 }
