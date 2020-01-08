@@ -1,9 +1,13 @@
 package one.microstream.reference;
 
 import static one.microstream.X.coalesce;
+import static one.microstream.X.notNull;
 
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+import one.microstream.memory.MemoryStatistics;
 
 public interface LazyReferenceManager
 {
@@ -75,26 +79,78 @@ public interface LazyReferenceManager
 	}
 
 
-	public interface Checker extends Consumer<Lazy<?>>
+	public interface Checker
 	{
 		public default void beginCheckCycle()
 		{
 			// no-op by default
 		}
 
-		@Override
-		public void accept(Lazy<?> lazyReference);
+		/**
+		 * 
+		 * @param lazyReference the lazy reference to check against
+		 * @return if additional checks should be prevented
+		 */
+		public boolean check(Lazy<?> lazyReference);
 
 		public default void endCheckCycle()
 		{
 			// no-op by default
 		}
+		
+		public default Checker combine(final Checker following)
+		{
+			return new Compound(this, following);
+		}
+		
+		
+		static class Compound implements Checker
+		{
+			private final Checker first;
+			private final Checker second;
+			
+			Compound(final Checker first, final Checker second)
+			{
+				super();
+			
+				this.first  = notNull(first);
+				this.second = notNull(second);
+			}
+			
+			@Override
+			public void beginCheckCycle()
+			{
+				this.first.beginCheckCycle();
+				this.second.beginCheckCycle();
+			}
 
+			@Override
+			public boolean check(final Lazy<?> lazyReference)
+			{
+				return this.first.check(lazyReference)
+					? true
+					: this.second.check(lazyReference);
+			}
+			
+			@Override
+			public void endCheckCycle()
+			{
+				this.first.endCheckCycle();
+				this.second.endCheckCycle();
+			}
+			
+		}
+		
 	}
 
 	public static LazyReferenceManager New(final long millisecondTimeout)
 	{
-		return New(Lazy.Checker(millisecondTimeout));
+		return New(Lazy.CheckerTimeout(millisecondTimeout));
+	}
+	
+	public static LazyReferenceManager New(final Predicate<MemoryStatistics> memoryBoundClearPredicate)
+	{
+		return New(Lazy.CheckerMemory(memoryBoundClearPredicate));
 	}
 
 	public static LazyReferenceManager New(final Checker checker)
@@ -127,9 +183,10 @@ public interface LazyReferenceManager
 	public final class Clearer implements Checker
 	{
 		@Override
-		public void accept(final Lazy<?> lazyReference)
+		public boolean check(final Lazy<?> lazyReference)
 		{
 			lazyReference.clear();
+			return true;
 		}
 	}
 
@@ -239,7 +296,7 @@ public interface LazyReferenceManager
 				if(ref != null)
 				{
 					// leave checking logic completely to checker (also for lock atomicity reasons)
-					checker.accept(ref);
+					checker.check(ref);
 				}
 				else if(e != currentTail)
 				{
