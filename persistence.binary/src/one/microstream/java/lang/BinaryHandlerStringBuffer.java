@@ -2,7 +2,7 @@ package one.microstream.java.lang;
 
 import one.microstream.chars.XChars;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -36,29 +36,29 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final StringBuffer            instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		this.storeData(bytes, XChars.toCharArray(instance), instance.capacity(), objectId, handler);
+		this.storeData(data, XChars.toCharArray(instance), instance.capacity(), objectId, handler);
 	}
 
 	@Override
-	public final StringBuffer create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final StringBuffer create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return new StringBuffer(this.readCapacity(bytes));
+		return new StringBuffer(this.readCapacity(data));
 	}
 
 	@Override
-	public void update(final Binary bytes, final StringBuffer instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary data, final StringBuffer instance, final PersistenceLoadHandler handler)
 	{
 		// because implementing a clear() would have been too hard for the JDK Pros.
 		instance.delete(0, instance.length());
 		
-		instance.ensureCapacity(this.readCapacity(bytes));
-		instance.append(this.readChars(bytes));
+		instance.ensureCapacity(this.readCapacity(data));
+		instance.append(this.readChars(data));
 	}
 
 }

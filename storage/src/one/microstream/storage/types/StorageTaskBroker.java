@@ -464,7 +464,7 @@ public interface StorageTaskBroker
 	public interface Creator
 	{
 		public StorageTaskBroker createTaskBroker(
-			StorageManager            storageManager,
+			StorageSystem             storageSystem,
 			StorageRequestTaskCreator taskCreator
 		);
 
@@ -479,16 +479,16 @@ public interface StorageTaskBroker
 			
 			@Override
 			public StorageTaskBroker createTaskBroker(
-				final StorageManager            storageManager,
+				final StorageSystem             storageSystem,
 				final StorageRequestTaskCreator taskCreator
 			)
 			{
 				return new StorageTaskBroker.Default(
 					taskCreator,
-					storageManager.operationController(),
-					storageManager.configuration().dataFileEvaluator(),
-					storageManager.objectIdRangeEvaluator(),
-					storageManager.channelCountProvider().get()
+					storageSystem.operationController(),
+					storageSystem.configuration().dataFileEvaluator(),
+					storageSystem.objectIdRangeEvaluator(),
+					storageSystem.channelCountProvider().get()
 				);
 			}
 

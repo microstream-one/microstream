@@ -8,17 +8,18 @@ import java.nio.file.Path;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.LambdaTypeRecognizer;
 
-public interface PersistenceTypeHandlerCreator<M>
+public interface PersistenceTypeHandlerCreator<D>
 {
-	public <T> PersistenceTypeHandler<M, T> createTypeHandler(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
+	public <T> PersistenceTypeHandler<D, T> createTypeHandler(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
 
 	
 	
-	public abstract class Abstract<M> implements PersistenceTypeHandlerCreator<M>
+	public abstract class Abstract<D> implements PersistenceTypeHandlerCreator<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -74,13 +75,13 @@ public interface PersistenceTypeHandlerCreator<M>
 		}
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> createTypeHandler(final Class<T> type)
+		public <T> PersistenceTypeHandler<D, T> createTypeHandler(final Class<T> type)
 		{
 			// should never happen or more precisely: should only happen for unhandled primitive types
 			if(type.isPrimitive())
 			{
 				// (29.04.2017 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Primitive types must be handled by default (dummy) handler implementations."
 				);
 			}
@@ -89,7 +90,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			if(type == Class.class)
 			{
 				// (18.09.2018 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Persisting Class instances requires a special-tailored "
 					+ PersistenceTypeHandler.class.getSimpleName()
 					+ " and cannot be done in a generic way."
@@ -100,7 +101,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			if(XReflect.isProxyClass(type))
 			{
 				// (20.08.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Proxy classes (subclasses of " + Proxy.class.getName() + ") are not supported."
 				);
 			}
@@ -111,8 +112,8 @@ public interface PersistenceTypeHandlerCreator<M>
 				// array special cases
 				if(type.getComponentType().isPrimitive())
 				{
-					// (01.04.2013)EXCP: proper exception
-					throw new RuntimeException(
+					// (01.04.2013 TM)EXCP: proper exception
+					throw new PersistenceException(
 						"Persisting primitive component type arrays requires a special-tailored "
 						+ PersistenceTypeHandler.class.getSimpleName()
 						+ " and cannot be done in a generic way."
@@ -153,7 +154,7 @@ public interface PersistenceTypeHandlerCreator<M>
 			if(this.lambdaTypeRecognizer.isLambdaType(type))
 			{
 				// (17.04.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Lambdas are not supported as they cannot be resolved during loading"
 					+ " due to insufficient reflection mechanisms provided by Java."
 				);
@@ -211,76 +212,81 @@ public interface PersistenceTypeHandlerCreator<M>
 			}
 			
 			// (23.07.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Type \"" + type.getName() +
 				"\" not persistable due to problematic fields "
 				+ problematicFields.toString()
 			);
 		}
 		
-		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerEntity(final Class<T> type)
+		protected <T> PersistenceTypeHandler<D, T> deriveTypeHandlerEntity(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
+			final HashEnum<Field> persisterFields   = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
-			this.typeAnalyzer.collectPersistableFieldsEntity(type, persistableFields, problematicFields);
+			this.typeAnalyzer.collectPersistableFieldsEntity(type, persistableFields, persisterFields, problematicFields);
 			checkNoProblematicFields(type, problematicFields);
 
-			return this.createTypeHandlerGeneric(type, persistableFields);
+			return this.createTypeHandlerGeneric(type, persistableFields, persisterFields);
 		}
 		
-		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerEnum(final Class<T> type)
+		protected <T> PersistenceTypeHandler<D, T> deriveTypeHandlerEnum(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
+			final HashEnum<Field> persisterFields   = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
-			this.typeAnalyzer.collectPersistableFieldsEnum(type, persistableFields, problematicFields);
+			this.typeAnalyzer.collectPersistableFieldsEnum(type, persistableFields, persisterFields, problematicFields);
 			checkNoProblematicFields(type, problematicFields);
 
-			return this.createTypeHandlerEnum(type, persistableFields);
+			return this.createTypeHandlerEnum(type, persistableFields, persisterFields);
 		}
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> deriveTypeHandlerGenericPath(Class<T> type);
+		protected abstract <T> PersistenceTypeHandler<D, T> deriveTypeHandlerGenericPath(Class<T> type);
 		
-		protected <T> PersistenceTypeHandler<M, T> deriveTypeHandlerJavaUtilCollection(final Class<T> type)
+		protected <T> PersistenceTypeHandler<D, T> deriveTypeHandlerJavaUtilCollection(final Class<T> type)
 		{
 			final HashEnum<Field> persistableFields = HashEnum.New();
+			final HashEnum<Field> persisterFields   = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
-			this.typeAnalyzer.collectPersistableFieldsCollection(type, persistableFields, problematicFields);
+			this.typeAnalyzer.collectPersistableFieldsCollection(type, persistableFields, persisterFields, problematicFields);
 			
 			if(!problematicFields.isEmpty())
 			{
 				this.createTypeHandlerGenericJavaUtilCollection(type);
 			}
 
-			return this.createTypeHandlerGeneric(type, persistableFields);
+			return this.createTypeHandlerGeneric(type, persistableFields, persisterFields);
 		}
 
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerAbstractType(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerAbstractType(
 			Class<T> type
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerUnpersistable(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerUnpersistable(
 			Class<T> type
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerEnum(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerEnum(
 			Class<T>            type             ,
-			XGettingEnum<Field> persistableFields
+			XGettingEnum<Field> persistableFields,
+			XGettingEnum<Field> persisterFields
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerArray(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerArray(
 			Class<T> type
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGeneric(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerGeneric(
 			Class<T>            type             ,
-			XGettingEnum<Field> persistableFields
+			XGettingEnum<Field> persistableFields,
+			XGettingEnum<Field> persisterFields
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGenericStateless(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerGenericStateless(
 			Class<T> type
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<M, T> createTypeHandlerGenericJavaUtilCollection(
+		protected abstract <T> PersistenceTypeHandler<D, T> createTypeHandlerGenericJavaUtilCollection(
 			Class<T> type
 		);
 		

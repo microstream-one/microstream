@@ -1,0 +1,550 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 Root-Handling Wiedermal\par
+(Ticket #J117)\par
+2019-12-10\par
+\par
+\par
+Da es f\'fcr ziemlich jeden eine intellektuell un\'fcberwindbare Komplexit\'e4t zu sein scheint, dass zwei widerspr\'fcchliche Anforderungen/Strategien f\'fcr eine Root-Instanz auch zwei unterschiedliche Strategien braucht, ist wieder mal das Thema, ob man das Root-Handling NOCH weiter vereinfachen kann.\par
+\par
+\b Ziel:\b0\par
+\line CustomRoot und DefaultRoot sollten \'fcber den gleichen identifier ("root") registriert werden, damit es da bei Exceptions keine Verwirrung gibt.\par
+Und sie sollten nach au\'dfen, API-m\'e4\'dfig (getRoot, setRoot, storeRoot) gleich wirken, so dass die lustigen Leuts eigentlich gar nicht merken, dass es eine unterschiedliche Behandlung gibt, wenn man eine Root Instanz schon in der Initialisierung mitgibt oder erst sp\'e4ter setzt bzw. gettet und castet.\par
+Es w\'e4re auch nicht schlecht, eine Root-Instanz nachtr\'e4glich neu setzen zu k\'f6nnen. Wahrscheinlich l\'e4uft das darauf raus, dass die PersistenceRoots Instanz nochmal gespeichert werden muss.\par
+Wenn das eh schon n\'f6tig wird, k\'f6nnte man die auch gleich ver\'e4ndern und abspeichern, um DefaultRoots zu setzen. Hm ...\par
+\par
+Erst mal der aktuelle Stand:\par
+\par
+\b Definition:\b0\par
+\par
+\ul CustomRoot:\ulnone\par
+Eine Instanz von einem bestimmten Typ, die man der Storage f\'fcr die Initialisierung \'fcbergibt. Typischerweise \'fcber .start(root). Die wird beim initialen Laden automatisch aus den Daten der Datenbank ver\'e4ndert/aktualisiert, so dass die selbstdefinierte Instanz wie auf "magische" Weise die Root-Instanz des persistenten Entitygraphen wird. Und zwar mit spezifischer Typisierung, ohne den EmbeddedStorageManager mit convenience-m\'e4\'dfig nervigen Generics aufblasen zu m\'fcssen.\par
+Das ist schon mal technisch und anwendungsdesignm\'e4\'dfig die perfekte L\'f6sung. Alles andere ist nur noch Convenience-Ged\'f6ns f\'fcr ultra-kurze Hello-World-Beispiele und einf\'e4ltige Leute.\par
+\par
+\ul DefaultRoot:\ulnone\par
+Eine programmatisch erzeugte Reference, die bei Fehlen eines CustomRoot als Root-Instanz registriert wird und erst mal auf null zeigt. Die fachliche Root-Instanz kann dann nach der Storage Initialisierung durch setRoot() gesetzt und dann durch storeRoot() gespeichert werden. Beim n\'e4chsten Laden wird die Reference Instanz mit nicht-null Referenz geladen und man hat ebenfalls die Root-Instanz des persistenten Entitygraphen. Der Unterschied zum CustomRoot ist aber: Man muss sich den geladenen fachlichen Root mit getRoot() holen und mangels Typisierung casten. Casten ist immer doof (potenzielle Fehlerquelle), also ist das die schlechtere L\'f6sung. Ein sinnlos hoher Preis daf\'fcr, dass man f\'fcr Hello-World-Beispiele einfach nur ".start()" schreiben braucht und sich vorher keine Root-Instanz designen und instanzieren muss, aber mei.\par
+\par
+\b Registrierung:\b0\par
+\par
+Ein CustomRoot wird registriert unter dem Identifier "root". Denn das ist der Normalfall.\par
+Ein DefaultRoot wird registriert unter dem Identifier "defaultRoot". Das ist der Sonderfall.\par
+\par
+Ich hab jetzt tats\'e4chlich die Frage, warum man \'fcberhaupt zwei verschiedene Identifier braucht.\par
+Es k\'f6nnte ja unter demselben Identifier ein anderer root instanceSupplier registriert werden und wenn die Klassen nicht passen, muss es sowieso eine Exception geben.\par
+War der Grund einfach nur, um auszuschlie\'dfen, dass jemand mal eine Singleton Instanz als CustomRoot registriert, dann auf defaultRoot umstellt und die Instanz dann nicht implizit als DefaultRoot anstatt als CustomRoot verwendet wird?\par
+Das k\'f6nnte man auch sauberer l\'f6sen: einen expliziten "DefaultRoot" Typ, der ansonsten ohne Fallunterscheidung verwendet wird und beim Updateversuch gibts dann eine Type-Exception, wie in jedem anderen Fall bei unpassendem Typ auch.\par
+Man hat halt dann einen ansonsten sinnlosen Eintrag f\'fcr "DefaultRoot" im TypeDictionary. Aber eigentlich ist das dann eh schon egal.\par
+\par
+\par
+\b Abw\'e4rtskompatibili\'e4t\b0\par
+\par
+Abw\'e4rtskompatibili\'e4t f\'fcr DefaultRoots wird noch ein Problem, wenn sich da jetzt wieder was \'e4ndert.\par
+Das m\'fcsste eine Logik sein, die einen DefaultRoot nach altem Konzept sneaky implizit im neuen Konzept abspeichert. Dann l\'e4sst man das ein paar Versionen lang und dann kann man den Support-Code f\'fcr das alte Konzept rauswerfen.\par
+\par
+\par
+\par
+Hm.\par
+Eigentlich sollte der Ansatz, die PersistenceRoots halt dann leider doch neu zu speichern, die eierlegende Wollmilchsau-L\'f6sung sein:\par
+Der CustomRoot wird unter "root" dort direkt verlinkt und persistiert. Beim Laden wird die \'fcbergebene Instanz bef\'fcllt.\par
+DefaultRoot Zwischen-Referenz-Instanz gibts nicht mehr, daf\'fcr wird die dynamisch gesetzte root-Instanz genauso in den PersistenceRoots gesetzt, wie der CustomRoot. Beim Laden wird eine neue Instanz erzeugt. Das ist keine Inkonsistenz, denn es gibt ja keine \'fcbergebene Root-Instanz, die nicht geupdatet werden w\'fcrde. Sondern nix is definiert. Graph wird geladen. Root Instanz wird dynamisch erzeugt. \'dcber getRoot() kann man sie sich holen.\par
+Man k\'f6nnte damit sogar aus einer zuvor dynamisch gesetzten  DefaultRoot Instanz beim Laden eine CustomRoot Instanz machen  - bzw, falsch formuliert: Wenn man eine Instanz mit passendem Typ als CustomRoot \'fcbergibt, dann w\'fcrde die korrekt bef\'fcllt/aktualisiert werden, auch wenn der Datensatz zuvor als DefaultRoot gespeichert worden ist.\par
+Das w\'e4re ziemlich cool.\par
+\par
+Und jetzt noch ein weiter gedacht, jetzt muss ich ZJ leider Credits geben:\line Man k\'f6nnte ja standardm\'e4\'dfig von den PersistenceRoots aus eine Zwischen-Referenz-Instanz auf den fachlichen Root f\'fcr BEIDE F\'e4lle machen. Dann m\'fcsste man die PersistenceRoots \'fcberhaupt nicht neu speichern, sondern nur das Zwischending.\par
+Knifflig ist aber, dass diese Zwischen-Referenz-Instanz dann einen extra TypeHandler oder zumindest extra Handling Logik br\'e4uchte, die nach einem root-Supplier sucht und bei Erfolg dessen Instanz verwendet.\par
+\par
+Da muss ich mal rumprobieren ...\par
+\par
+Das mit der Zwischenreferenz wird aber nicht so einfach, weil nur direkte Root-Eintr\'e4ge per Supplier-Logik aufgel\'f6st werden. Wenn man dort zu einem Runtime-Ding aufl\'f6st, zeigt das einfach auf eine Referenz oder halt nicht.\par
+Ne Moment. Unfug. \'dcber den Supplier wird eine bestimmte OID zu einer bestimmten Instanz aufgel\'f6st.\par
+Wenn dann f\'fcr diese OID Daten geladen werden, wird die zuvor aufgel\'f6st Instanz geupdatet.\par
+Das geht nat\'fcrlich auch mit einer Zwischen-Referenz-Instanz. Genauso l\'e4uft es ja aktuell bei dem DefaultRoot singleton.\par
+Ach ne, aber das Problem ist eine Referenz sp\'e4ter:\par
+Die explizit vorgegebene CustomRoot Instanz wird dann aber nicht mehr f\'fcr eine bestimmte OID registriert, sondern die w\'fcrde dann einfach durch eine geladene und dynamisch instanzierte Instanz ersetzt.\par
+Eben genau wie bei dem DefaultRoot Singleton.\par
+\par
+Gut, man k\'f6nnte es so l\'f6sen, wie momentan alle Root-Instanzen gel\'f6st werden:\par
+Sinnlos eine Instanz erzeugen, aber f\'fcr die ID dann eine andere Instanz registrieren, n\'e4mlich die explizit vorgegebene.\par
+\par
+Der Handler k\'f6nnte in seinem create() die oid der Referenz aus den binary daten raussuchen und f\'fcr diese oid seine explizte customRoot Instanz registrieren (falls vorhanden).\par
+Hm. Das gleiche k\'f6nnte eigentlich der BinaryHandlerPersistenceRootsDefault auch machen ... Muss ich gleich mal als TODO reinschreiben.\par
+\par
+Der BinaryHandlerPersistenceRootReferenceDefault k\'f6nnte dann die Instanz gleich direkt kennen. W\'e4re ja effektiv ein Singleton f\'fcr eine EmbeddedStorageManager Instanz.\par
+Sichergestellt w\'e4re das dadurch, dass er zusammen mit dem BinaryHandlerPersistenceRootsDefault an der gleichen Stelle erzeugt und dann intern registriert werden w\'fcrde.\par
+\par
+Das wirft aber wieder mal die Frage nach Initialisierungsreihenfolge auf usw. Also kann man PersistenceRootsProvider#provideRoots \'fcberhaupt an dieser Stelle (PersistenceRootsProvider#registerRootsTypeHandlerCreator) schon aufrufen?\par
+\par
+Recherche:\par
+PersistenceRootsProvider#registerRootsTypeHandlerCreator\par
+in PersistenceFoundation#ensureTypeHandlerManager\par
+\par
+PersistenceRootsProvider#provideRoots\par
+in PersistenceTypeHandlerManager#internalInitialize\par
+also NACH dem ersten\par
+Und dort ist eh schon diese verz\'f6gert initialisierte refTypeHandlerManager drin. Also sollte klappen.\par
+\par
+Aber eigentlich kann mir das eh egal sein. Ich steck die Referenz auf die RootReference einfach in den PersistenceRootResolverProvider direkt rein. So wie dort auch jetzt schon alle m\'f6glichen root identifier drin h\'e4ngen.\par
+Das passt schon.\par
+\par
+\par
+\par
+Homeoffice:\par
+Branches auschecken usw. funktioniert alles auf Anhieb.\par
+In Eclipse ist dank Maven wie \'fcblich alles erst mal rot. Also Maven -> update machen.\par
+L\'e4sst alle Probleme verschwinden bis auf:\par
+Missing artifact one.microstream:persistence.binary.jdk8:jar:02.01.01-MS-GA-SNAPSHOT\par
+\par
+Install und projekte cleanen usw. bringt nix.\par
+Ach, ich hab das Projekt dazu tats\'e4chlich nicht angelegt.\par
+Naja. Ist eigentlich egal, fix ich irgendwann mal. Der Rest passt ja. Probleme mit ge\'e4nderten Metadaten-Dateien im Sourcetree erzeugt es auch nicht, also wurscht.\par
+Ah: kurz mal "import project" versucht und ging sogar reibungslos.\par
+Passt.\par
+\par
+Ok. Dann gehts jetzt mal los damit, den PersistenceRootResolverProvider umzubauen.\par
+Hui, da fliegen tonnenweise Methoden raus f\'fcr die zweispurige alte L\'f6sung ...\par
+\par
+Hm. Jetzt hab ich die Variante mit dem CustomRootSupplier registrieren rausgeworfen, weil die PersistenceRootReference gleich der Supplier ist.\par
+Aber was ist mit dem Fall, dass die Anwendung aus Initialisierungsreihenfolgegr\'fcnde die Rootinstanz erst sp\'e4ter liefern kann...?\par
+Dar\'fcber muss ich mal nachdenken ...\par
+\par
+Also da bau ich doch wieder die Supplier Variante ein.\par
+\par
+\par
+\par
+2019-12-12\par
+\par
+So. Nach 6 Stunden nur Management-Stuff komm ich jetzt, daheim, sogar zum programmieren!\par
+\par
+Die aktuelle Kniffligkeit ist:\par
+Wo und wie konkret soll die PersistenceRootReference Instanz \'fcberall durchgeschleift werden?\par
+Und darf die optional sein, damit der BinaryHandler Roots Instanzen laden kann, die die neue Instanz noch nicht haben, obwohl sie eigentlich mandatory sein muss...?\par
+Schwierig...\par
+\par
+Hm, oder ist es so:\par
+Die bei der Initialisierung generierte Instanz wird immer zwangsweise reingesetzt, weil die ja auch geupdatet wird.\par
+Und die alten Roots Instanzen, die so ein Ding noch nicht haben k\'f6nnen dann den check machen, ob ihr geladenes Root Ding dasselbe ist oder was anderes.\par
+Irgendwie so m\'fcsste es gehen ...\par
+\par
+\par
+\par
+2019-12-14\par
+\par
+Jetzt hab ich mal Ruhe, um an dem Thema weiterzumachen ...\par
+\par
+H\'e4? Wieso ist jetzt das JDK8 Projekt wieder ein Maven Fehler? Das ging doch neulich ...\par
+Oh Mann x_x.\par
+Und wieder Maven Update und wieder passt es danach. Ich hoff, ich muss jetzt nicht jedes mal ein Maven Update machen, um ohne falsche Fehlermeldung arbeiten zu k\'f6nnen ...\par
+\par
+Mal den BinaryHandler fertig implementieren, damit der nervige Compilerfehler verschwindet.\par
+\par
+Ah. Problem:\par
+Wenn PersistenceRootReference intern eine supplier Logik hat, kann das potenziell (sogar wahrscheinlich) eine Lambda und das ist nicht persistierbar.\par
+Hm. Aber muss es eigentlich gar nicht. Der Supplier ist ja nur ein Hilfsmittel daf\'fcr, falls Anwendungslogik die Root Instanz erst sp\'e4ter oder indirekt liefern kann oder will.\par
+Sobald es mal in den store geht, ist die Instanz auf jeden Fall da und nur die muss abgespeichert werden. Also ohne Supplier.\par
+Und Laden ist nat\'fcrlich trivial: Instanz laden und in der PersistenceRootReference  Instanz mit einem "() -> " wrappen. Fertig.\par
+\par
+Wobei aber trotzdem die Frage ist: Macht es denn wirklich Sinn, dass man in Form des Suppliers eine Indirektion registrieren kann?\par
+Bei einer simplen Variante wie .start() sicher nicht, weil wenn die Root Instanz w\'e4hrend der Ausf\'fchrung der start Methode verf\'fcgbar ist, dann ist sie das davor auch schon (also ablaufreihenfolgenm\'e4\'dfig. Zeitlich darf es keine Rolle spielen, dann kann man auch gleich mit dem Aufruf der ganzen start Methode warten). Also sinnlos.\par
+Gut, wo es schon Sinn machen kann ist:\par
+Man konfiguriert sich die Foundation komplett zusammen, aber ruft bei der die create~Manager bzw. start Methode noch nicht auf, weil die Root Instanz noch nicht verf\'fcgbar ist.\par
+Erst, wenn der Supplier auch ein brauchbares Ergebnis liefern kann (ablaufm\'e4\'dfig gemeint. NICHT zeitlich.), wird die .start() der fertig konfigurierten Foundation aufgerufen.\par
+Daf\'fcr machts Sinnn.\par
+Serialisierungsm\'e4\'dfig machts keinen Unterschied, weil eh nur die Instanz direkt gespeichert wird.\par
+Also lass ich es so.\par
+\par
+\par
+2019-12-15\par
+\par
+Bissl weitermachen, damit mal die Compilerfehler raus kommen.\par
+\par
+Hm. Also sollte BinaryHandler#create gleich die Instanz registrieren? Dann m\'fcsste PersistenceObjectIdResolver erweitert werden bzw. f\'fcr #create durch was erweitertes ersetzt werden ... . Vielleicht w\'e4re eine allgemeine Erweiterung aber besser. Irgendwann braucht man das vielleicht auch mal in #update.\par
+Dann muss der BinaryLoader aber den ObjectManager kennen, damit der nicht einfach direkt in die Registry reinregistriert, ohne entsprechende Pr\'fcflogik durch den Manager.\par
+Oh, achso: Das ist ja gar nicht das typische "Manager is a Registry" Pattern. Weil die ObjectRegistry fr\'fcher ja der Spezailfall war. Der ObjectManager hat gar keine vorgeschaltete Logik.\par
+Dann kann es auch die Registry bleiben ...\par
+\par
+Das Problem an der Registrierei ist halt:\par
+Wenn sich die Rootinstanz typm\'e4\'dfig ge\'e4ndert hat, wird eine "falsche" (eher neue) Instanz f\'fcr die bestehende und immer noch g\'fcltige OID registriert und erst im BinaryHandler gibts dann eine ClassCastException, die wieder keiner checkt.\par
+Wenn man nicht registriert, wird beim Laden eine \'fcberfl\'fcssige Instanz aus der Datenbank erzeugt, f\'fcr die bestehende OID registriert und dann kann man die eigentliche Instanz daf\'fcr nicht mehr registrieren. Das w\'e4re dann sogar ein Bug.\par
+Also geht eigentlich nur Variante #1...\par
+\par
+\par
+BinaryHandlerPersistenceRootReferenceDefault#create ist eigentlich ganz simpel. Implementiert und ausf\'fchrlichen Kommentar dazugeschrieben.\par
+\par
+BinaryHandlerPersistenceRootReferenceDefault#update ...\par
+Ist eigentlich ein No-Op.\par
+Ne, nur dann, wenn es schon eine definierte Instanz gibt.\par
+... Oder m\'fcsste die dann validiert werden mit der geladenen?\par
+Ne Moment: Gibt's \'fcberhaupt eine geladene? Ne, weil #create ja die definierte Instanz f\'fcr die objectId registriert hat ...\par
+Jetzt bin ich verwirrt ... o_O.\par
+\par
+Erst mal anders rum:\par
+Wenn keine root Instanz gesetzt ist, dann die aus der Datenbank geladene und instanzierte setzen.\par
+Kommentar dazu.\par
+return.\par
+\par
+Jetzt der knifflige Fall.\par
+Mal \'fcberlegen.\par
+Gut w\'e4r, wenn die BinaryHandlerPersistenceRootReferenceDefault#update gleich die Typvalidierung machen k\'f6nnte.\par
+Mal schauen, ob man das zum BinaryLoader zur\'fcck-delegieren kann. Die Entries haben ja die objectId und den Handler. Das m\'fcsste gehen.\par
+...\par
+\par
+\par
+2019-12-16\par
+\par
+Validierung bauen.\par
+Wieder mal lustiger Sonderfall: Was ist, wenn kein Eintrag f\'fcr die OID gefunden wird?\par
+M\'fcsste aber valide sein, z.B. bei leerer Datenbank oder bei tats\'e4chlich absichtlich gel\'f6schtem Root, z.B. f\'fcr "Truncatation".\par
+\par
+PersistenceRoots refactoren:\par
+Die ganzen alten Methoden kommen raus. Das kann man sich nun \'fcber den RootsResolver direkt geben lassen.\par
+\par
+HM, aber als deprecated variante m\'fcssen sie trotzdem noch bleiben.\par
+Aber dann nur als default Methode in PersistenceRootsView.\par
+\par
+Wenn PersistenceRootReference nun noch Reference implementieren w\'fcrde, br\'e4uchte keine der alten Methoden eine UnsupportedOperationException werden.\par
+Bzw. das macht wohl sowieso Sinn.\par
+\par
+Hm. Bzw. es muss f\'fcr die ~View Ebene ja dann noch eine read-only Typisierungsebene geben.\par
+Das mach ich mal.\par
+\par
+Hm, aber Moment: In PersistenceRootsView brauch ich keine deprecated Methoden lassen. Das ist nicht convenience API. Ich lass das nur im EmbeddedStorageManager.\par
+So umbauen.\par
+\par
+\par
+2019-12-17\par
+\par
+Jetzt noch die TODOs abarbeiten und dann sollte das Ding bereit zum testen sein.\par
+Danach muss dann noch abw\'e4rtskompatibilit\'e4tsstuff rein, aber das sollte nicht viel sein.\par
+\par
+Deprecation JavaDoc schreiben mit Hinweisen auf Ersatz.\par
+\par
+Hm. Die Typisierung bei dem Handler wird ein Problem ...\par
+\par
+\par
+2019-12-18\par
+\par
+L\'f6sung ... nat\'fcrlich: Ein PersistenceRootReferenceProvider.\par
+\par
+\'c4h, Mist, das infiziert den ganzen, eigentlich Medium-losen RootResolving Code mit <M>.\par
+Da muss ich nochmal dr\'fcber nachdenken ...\par
+\par
+\par
+2019-12-19\par
+\par
+Naja. So schlimm ist das nicht.\par
+Der PersistenceRootsProvider ist eh schon auf das Medium typisiert.\par
+Da w\'e4r eine Typisierung des PersistenceRootResolverProvider jetzt auch kein Drama mehr.\par
+Bzw. mit einem kleinen Trick kann das vermieden werden:\par
+Der PersistenceRootReferenceProvider wird zweimal \'fcbergeben:\par
+Einmal an den untypisierten PersistenceRootResolverProvider, aber nur, um die RootReference zu liefern.\par
+Und einmal an den eh schon typisierte PersistenceRootsProvider, damit der den Handler registrieren kann.\par
+Perfekte L\'f6sung. So mach ichs.\par
+\par
+\par
+Hm, wobei: Wenn man 2 Referenzen hat, k\'f6nnte theoretisch zweimal was unterschiedliches gesetzt werden und der TypeHandler passt nicht mehr zur Instanz oder sowas.\par
+Bei einer einzelnen Referenz kann sowas halt nicht passieren.\par
+Evtl. w\'e4r es das doch wert, den PersistenceRootResolverProvider zu typisieren ... Mal schauen.\par
+\par
+Ah: Der PersistenceRootResolverProvider hat eh schon einen Medium-bezogenen Teil mit <?>. Dann w\'e4r es gleich das Sauberste, den mitzutypisieren.\par
+\par
+Haha:\par
+Jetzt w\'fcrde das eigentlich alles super passen. Nur die Convenience-Methoden in ~Persistence passen jetzt nicht mehr.\par
+Der PersistenceRootResolverProvider braucht nun zwingend einen RootReferenceProvider. Und der braucht eine Binary Implementierung, die es im Persistence Projekt nicht gibt.\par
+Das verkompliziert bzw. eigentlich ruiniert den Convenience-Charakter...\par
+\par
+Jetzt wei\'df ich, wie ich es mach:\par
+Das RootReferenceProvider Zeug kommt in den BinaryPersistenceRootsProvider rein. Das ist eh schon Binary Ebene. Beim PersistenceRootResolverProvider wird dann nur noch registriert.\par
+Sehr sch\'f6n ...\par
+\par
+Jo. So muss das funktionieren. Jetzt leider abendessen.\par
+\par
+\par
+2019-12-20\par
+\'c4nderung implementiert. Compilerfehler sind alle weg. Jetzt testen.\par
+Ach, ne, Moment. Erst noch nach TODOs suchen.\par
+#update im Handler ist ja noch gar nicht fertig. Gut, dass ich TODOs setz...\par
+\par
+So, jetzt testen.\par
+Keine Exception. Aber der sieht beim Laden den Root nicht. Debuggen ...\par
+Bleibt nicht mal im Roots BinaryHandler stehen ... kann nicht sein.\par
+Ach lol. Ewig rumdebuggt. Grund: Es wird nix gespeichert. Darum wird auch nix geladen. Checker.\par
+Also beim Speichern debuggen ...\par
+\par
+Aha. Die RootReference wird mit OID 0 gespeichert ...\par
+Ah. Die root instance is null. Ich denk da wird irgendwo noch die eigentliche root Instance anstatt die neue rootReference Instance abgefragt ...\par
+\par
+Na endlich gefunden: Die neue Methode PersistenceRootResolverProvider#setRootReference wird zu sp\'e4t aufgerufen. Da muss ich mal noch an der Aufrufreihenfolge und den Abh\'e4ngigkeiten feilen ...\par
+\par
+Ahja:\par
+Entweder kommt die RootReference Instanz zu sp\'e4t (damit sie als non-null einmalig registriert und dann ihr Eintrag in der entries HashTable nie mehr ver\'e4ndert wird ... wobei dann die neue setter methode sinnlos w\'e4re...)\par
+ODER\par
+Die Setter Methode muss auch den entries HashTable Eintrag aktualisieren. Wobei dabei immer noch die Aufrufreihenfolge kniffig w\'e4re ...\par
+\par
+Mal schauen, ob Variante #1 geht...\par
+\par
+Ahja: Geht teilweise. Man kann eine Variante machen, wo die rootReference gleich bei der Instanzierung \'fcbergeben wird, aber dann fehlt die ja eben bei den Convenience Methoden (siehe oben).\par
+Zwei Varianten mitf\'fchren w\'e4r bl\'f6d. Dann doch lieber die Logik konsolidiert auf Variante #2.\par
+Wobei das Problem ein bisschen komplexer ist:\par
+In PersistenceFoundation#ensureRootResolverProvider passiert ohnehin schon so viel, dass es nix mehr mit Convenience zu tun hat, das manuell nachbilden - und ohne Sourcecode "raten" - zu m\'fcssen.\par
+\par
+Es gibt auch kein aktuelles Beispiel mehr zu den Persistence.RootResolver~ Methoden mehr. F\'fcr das RefactoringMapping hab ich eine extra L\'f6sung gemacht. Der Rest sind die Interna, die man extern nicht so ohne weiteres nachbilden kann.\par
+Wozu dann also noch diese Methoden?\par
+Und wenn die rausfliegen, dann kann man auch gleich wieder die RootReference direkt bei der Instanzierung \'fcbergeben ...\par
+Hm...\par
+\par
+Umbauen.\par
+\par
+So, jetzt w\'e4r das gefixt. RootReference ist non-null.\par
+Aber der Root-Eintrag in der Roots Instanz ist immer noch null.\par
+Weil die RootReference Instanz ja ein Supplier ist und solang die auf null zeigt, wird zu root null resolvet.\par
+Das k\'f6nnte man zwar so lassen und die RootReference dann nur zur Laufzeit dazwischenklemmen, aber das w\'fcrde den urspr\'fcnglichen Sinn der Reference killen: N\'e4mlich eine Referenz zu haben, so dass man bei storeRoot nur diese eine Referenz speichern muss anstatt die gesamte Roots Instanz. Wenn ich das jetzt hier weglasse, kann ich gleich die ganze RootReference l\'f6schen ...\par
+Also darf die selber kein Supplier sein, sondern muss f\'fcr sich genommen schon die Root Instanz (auf technischer Ebene gesehen) sein.\par
+\par
+Umbauen.\par
+So. Nicht-null.\par
+Mal schauen, ob es jetzt schon geht ...\par
+\par
+Jo. Damit wird jetzt immerhin schon mal was konsistentes gespeichert.\par
+\par
+Ladetest: Ah, sieht die root noch nicht. Naja, muss ich dann auch noch debuggen und fixen.\par
+\par
+\par
+\par
+2019-12-21\par
+\par
+Laden debuggen.\par
+\par
+Ach lol. Da stand nach dem shutdown noch ein delete all files. Nat\'fcrlich findet der Neustart dann keine Daten. Ich Checker.\par
+Also dynamischer Root passt.\par
+Jetzt noch statische Variante testen.\par
+\par
+AppRoot-Instanz wird nicht geupdatet. Hmpfl...\par
+Seltsam. Die Daten f\'fcr AppRoot gibts, aber dessen Referenz wird nicht mehr requiret.\par
+Bei der Recherche danach Auff\'e4lligkeit in BinaryLoader#isUnrequiredReference gefunden. Muss ich mir mal anschauen ...\par
+\par
+\par
+2019-12-22\par
+\par
+Jetzt mal debuggen, warum das nicht gefunden wird ...\par
+Achso. Erst mal BinaryLoader#isUnrequiredReference untersuchen.\par
+Dabei BinaryLoadItem optimieren ...\par
+\par
+Testen.\par
+JVM Crash.\par
+Debuggen.\par
+Ach. Die getter Methoden f\'fcr oid, tid, length gibt's doppelt. War mir nie aufgefallen.\par
+Konsolidieren.\par
+Testen.\par
+Passt.\par
+\par
+Jetzt wei\'df ich auch, warum das ignoriert wird:\par
+Die #create im RootReference Handler registriert die eigentliche Root-Instanz vorab global.\par
+Die BinaryLoader#isUnrequiredReference registriert global bereits bekannte Instanzen als Skip-Item.\par
+Skip-Items werden ... \'fcberraschenderweise ... geskippt.\par
+Darum wird die Root nicht geupdatet.\par
+Die L\'f6sung sollte sein:\par
+Registrieren lokal UND global.\par
+\par
+\par
+2019-12-23\par
+\par
+Mann mann. Nach einigem Rumbasteln mit viel zu kompliziertem Code und trotzdem keinem erfolgreichen Ergebnis muss ich jetzt erst nochmal zusammenschreiben, wie der Ladealgorithmus genau funktioniert.\par
+Und dann schau ich, wo man was registrieren bzw. \'e4ndern muss.\par
+\par
+1.) Schleife aus:\par
+- OIDs sammeln als LoadItems\par
+- An Storage schicken\par
+- Ergebnis iterieren und BinaryLoadItems daraus bauen. Dabei existingInstance aus Registry oder #create Aufruf.\par
+- BinaryLoadItems iteren und dabei Referenzen in Binary Daten OIDs sammeln\par
+  Dabei f\'fcr jede oid #isUnrequiredReference:\par
+\tab wenn schon BinaryLoadItem daf\'fcr vorhanden, abbruch (nicht sammeln).\par
+\tab wenn globale instanz vorhanden, als skip item registrieren und abbruch (nicht sammeln).\par
+    ansonsten oid sammeln\par
+(Jeder LoadItem Entry wird ge-channel-hasht und jeder Cycle cleart die LoadItems)\par
+\par
+2.) BinaryLoadItems linear durchlaufen:\par
+- effective instance feststellen (inzwischen existierende globale Instanz oder createdInstance)\par
+- effective instance updaten mit handler#update\par
+\par
+3.) BinaryLoadItems nochmal linear durchlaufen:\par
+- effective instance fertigstellen mit handler#complete\par
+(nur n\'f6tig f\'fcr d\'e4mlich kaputt designte JDK Hash collections)\par
+\par
+\par
+Problem f\'fcr root Instanz ist:\par
+Es soll einerseits im #create f\'fcr RootReference die Root Instanz schon global registriert werden.\par
+Andererseits soll sie aber nicht als skip item als schon global existierende Instanz registriert werden.\par
+\par
+Das ist ein Widerspruch.\par
+\par
+Es kann auch nicht einfach ein BinaryLoadItem erzeugt werden, weil das dann nicht die daten aus der Datenbank enth\'e4lt.\par
+BinaryLoadItems m\'fcssen aus den geladenen Daten erzeugt werden, ansonsten k\'f6nnen es nur skip items sein.\par
+\par
+\par
+Das Konzept hat grunds\'e4tzlich verschiedene Probleme:\par
+- Es werden Instanzen erzeugt, die sp\'e4ter aber gar nicht verwendet werden.\par
+- Existierende Instanzen f\'fchren zu skip-items, auch wenn es eigentlich Konstanten/Enums/Root sind, die geupdatet werden sollen.\par
+\par
+Wobei es bei root Instanzen seltsamerweise funktioniert.\par
+Ich glaub, weil die nicht global registriert werden.\par
+Daf\'fcr werden f\'fcr sie sinnlos lokale Instanzen erzeugt.\par
+\par
+Es fehlt eine Fallunterscheidung, dass bestimmte Instanzen zwar schon global vorhanden sein sollen (d.h. keine lokale Instanz f\'fcr sie erstellen), aber trotzdem ihre Daten geladen werden sollen.\par
+\par
+Also quasi ein requireReferenceLazy (bisher) und requireReferenceEager (neu f\'fcr Konstanten-Sonderf\'e4lle wie z.B. Root).\par
+\par
+So bau ich das mal ein.\par
+\par
+Testen ...\par
+Sieht gut aus.\par
+Testklassen besser bauen:\par
+#1 f\'fcr statischen root.\par
+#2 f\'fcr dynamischen root.\par
+\par
+Funktioniert beides.\par
+\par
+Und Idee: Root Identifier umbenennen von "root" zu "ROOT". Damit sind beide veraltete F\'e4lle ganz leicht erkennbar.\par
+Testen. Passt. Nat\'fcrlich. War ja nur ein anderer String.\par
+\par
+Jetzt ist noch interessant:\par
+Datenbank mit einer Variante anlegen und dann mit der anderen starten. Das muss jetzt gehen ...\par
+\par
+Test #2 nach #1: funktioniert.\par
+Btw: Test mit falschem Typ: Gibt TypeCastException wie erwartet.\par
+Test #1 nach #2: funktioniert.\par
+\par
+So. Jetzt will ich noch wissen, wieso die AppRoot Instanz zwei LoadItems hat. Spielt zwar f\'fcr das Funktionieren offensichtlich keine Rolle, aber das darf eigentlich gar nicht m\'f6glich sein und deutet auf ein Problem hin...\par
+\par
+A, deswegen:\par
+- #create wird zuerst aufgerufen (wie erwartet) und ruft seinerseits #requireReferenceEager auf (auch wie erwartet).\par
+- Aber es wird dabei kein build Item angelegt.\par
+- Dann kommt der #iterateLoadableReferences Aufruf und darin wird der \'fcbliche #requireReferenceLazy Aufruf gemacht.\par
+- Das erzeugt den skip Eintrag (zuerst)\par
+- Danach kommen die geladenen Daten von der Datenbank durch den requireEager und sorgen f\'fcr das korrekte BuildItem.\par
+\par
+Hmhm.\par
+Eigentlich m\'fcsste als L\'f6sung reichen, in #iterateLoadableReferences  auch die eager Variante aufzurufen.\par
+Testen.\par
+Funktioniert!\par
+\par
+Vorsichtshalber nochmal beide Varianten komplett testen, nicht dass was kaputt gegangen ist.\par
+Passt!\par
+\par
+\par
+Plan f\'fcr Abw\'e4rtskompatibilit\'e4t:\par
+\par
+Pr\'fcfung auf "root" und "defaultRoot" an passender Stelle als Sonderfall einbauen, durch "ROOT" mit RootReference Instanz ersetzen und dann sicherstellen, dass neu abgespeichert wird.\par
+Damit "upgradet" die erste Initialisierung mit der neuen Version die Root automatisch. Nach ein paar Versionen kann man den Code dann rausl\'f6schen.\par
+\par
+Muss nat\'fcrlich in BinaryHandlerPersistenceRootsDefault#update sein.\par
+rootResolver#resolveRootEntries k\'f6nnte eine spezielle Implementierung von PersistenceRootEntry zur\'fcckgeben, die in rootResolver#resolveRootInstances dann den ge\'e4nderten Eintrag erzeugt.\par
+\par
+Evtl. beide adden, um sicherzugehen, dass vom alten Root die referenzierte Instanz da ist.\par
+Dann in #complete referenzen umh\'e4ngen und alten Eintrag removen.\par
+\par
+CustomRoot m\'fcsste simpler werden, weil in diesem Fall die "Roots" Instanz die Root-Instanz direkt referenziert.l\par
+\par
+\par
+2019-12-27\par
+\par
+Ich hab seit dem 23. so viel daran gearbeitet (und an bissl Code Refactoring), dass mir das wahrscheinlich niemand glauben w\'fcrde, also hab ich es nicht als Arbeitszeit geloggt.\par
+Aber jetzt mach ich mal wieder mit Arbeitszeit weiter und schreib gleich mal die Erkenntnisse und Konzepte der vier abzudeckenden F\'e4lle auf:\par
+\par
+1.) Root == null & customRoot exists\par
+In BinaryHandlerPersistenceRootsDefault#update einfach die customRoot Instanz als Root setzen. Tada.\par
+\par
+2.) Root == null & defaultRoot exists\par
+In BinaryHandlerPersistenceRootsDefault#update einfach die defaultRoot Instanz als supplier in Root setzen. Hrhr.\par
+\par
+3.) Root != null & customRoot exists\par
+Die Root Instanz muss f\'fcr die customRoot OID registriert werden, um f\'fcr das Laden verkn\'fcpft zu werden\par
+Und zwar in der Lade-/Creation Phase, also in BinaryHandlerPersistenceRootsDefault#create, damit die Verkn\'fcpfung steht, bevor der Handler f\'fcr die Root Instanz aufgerufen wird.\par
+\par
+4.) Root != null & defaultRoot exists\par
+Das hier ist der kniffligste Fall. Die Root Instanz muss f\'fcr die OID der von der defaultRoot Instanz referenzierte Root Instanz registriert werden. Also um eine Ecke mehr.\par
+Das Problem daran:\par
+Es reicht, die OID aus dem Binary Datensatz der defaultRoot (Singleton Instanz) auszulesen.\par
+ABER:\par
+Im BinaryHandlerPersistenceRootsDefault#create Aufruf w\'e4hrend der Lade-/Creation Phase sind die Daten noch nicht da.\par
+W\'e4hrend der Update Phase gibt es schon eine Instanz, die von BinaryHandlerSingleton#create erzeugt worden ist.\par
+Allerdings, hier ist die Hoffnung:\par
+- Die Lade-/Creation Phase registriert nicht bei der global Registry\par
+- In der Update Phase wird nochmal gepr\'fcft, ob es zwischenzeitlich eine global registrierte Instanz gibt. Das ist die Gelegenheit, die Verkn\'fcpfung unterzubringen!\par
+- W\'e4hrend der Update Phase kann man sich den Binary Datensatz f\'fcr die defaultRoot vom LoadHandler holen, auslesen und dann die Instanz registrieren.\par
+Das einzige Problem daran: Das klappt nur unter der Annahme, dass das BinaryHandler#update f\'fcr die Roots vor dem BinaryHandler#update f\'fcr den Singleton aufgerufen wird. Aber da die Roots die allererste Instanz ever ist (die system Root-Root-Root-Instanz), sollte diese Annahme immer (100%) zutreffen.\par
+\par
+1-3 hab ich schon gel\'f6st.\par
+#4 Muss ich noch anschauen ...\par
+\par
+Zwischendrin endlich mal #199 erstellen.\par
+\par
+Mist. PersistenceLoadHandler ist nicht auf das Medium typisiert, d.h. es kann nicht "Binary" zur\'fcckgeben.\par
+Besonders \'e4rgerlich ist: normalerweise muss es das auch gar nicht. Nur f\'fcr den einen deprecated Root Refactoring Fall w\'e4r es n\'f6tig.\par
+So ein Mist..\par
+\par
+Simple L\'f6sung:\par
+In PersistenceLoadHandler einfach die folgenden zwei Methoden:\par
+@Deprecated\par
+public void registerCustomRootRefactoring(Object rootInstance, long customRootObjectId);\tab\par
+@Deprecated\par
+public void registerDefaultRootRefactoring(Object rootInstance, long defaultRootObjectId);\par
+\par
+Entsprechend umbauen.\par
+\par
+Dann noch einen BinaryHandlerSingleton.\par
+\par
+Damit w\'e4r alles fertig zum testen.\par
+\par
+Paar NPEs gefixt durch die nun vorkommenden null-RootEntries.\par
+Und ansonsten siehts gut aus. L\'e4uft durch.\par
+\par
+Sp\'e4ter muss ich mal alle 8 F\'e4lle (4 normal, 4 f\'fcr abw\'e4rtskompatibilit\'e4t) durchtesten, dann w\'e4r das ganze fertig.\par
+\par
+\par
+2019-12-31\par
+\par
+Endlich mal TypeHandler Parameter Benamungen bissl aufr\'e4umen.\par
+\par
+\par
+TODO:\par
+- Die 8 F\'e4lle f\'fcr Root Instanzen testen.\par
+- priv#194 tags abarbeiten\par
+- Test f\'fcr BigDecimal root (#155)\par
+\par
+\par
+\par
+Testen:\par
+\par
+Refactoring #3: root != null & customRoot exists\par
+1. Lauf: l\'e4dt und refactort korrekt. Speichert Roots neu ab.\par
+2. Lauf: l\'e4dt normal, ohne Refactoring.\par
+\par
+Refactoring #1: root == null & customRoot exists\par
+1. Lauf: l\'e4dt und refactort korrekt. Speichert Roots neu ab.\par
+2. Lauf: l\'e4dt normal, ohne Refactoring.\par
+\par
+Root Refactoring case #4: root != null & defaultRoot exists\par
+1. Lauf: l\'e4dt und refactort korrekt. Speichert Roots neu ab.\par
+2. Lauf: l\'e4dt normal, ohne Refactoring.\par
+\par
+Root Refactoring case #2: root == null & defaultRoot exists\par
+1. Lauf: l\'e4dt und refactort korrekt. Speichert Roots neu ab.\par
+2. Lauf: l\'e4dt normal, ohne Refactoring.\par
+\par
+\par
+Nochmal schnell die "normalen" 4 F\'e4lle testen:\par
+1. expliziten Root speichern und laden\par
+2. expliziten Root speichern und als impliziten laden\par
+3. impliziten Root speichern und laden\par
+4. impliziten Root speichern und als expliziten laden\par
+\par
+\par
+Passt.\par
+Dann test ich gleich noch die neue Validierung f\'fcr Value Types.\par
+\par
+Ah, interessanter Fall:\par
+Wenn man BigDecimal 456 durch 0 ersetzt, wie in #155 geschrieben, dann ist die Exception nicht von der State Validierung, sondern weil eine bisher nicht-konstanten-Instanz (oid 1~28) assoziiert werden soll mit der OID f\'fcr die Konstanten-Instanz f\'fcr BigDecimal 0. (1~14).\par
+\par
+Auf jeden Fall mal die MainTest Klasse "sch\'f6n" machen, kommentieren und Issues updaten.\par
+\fs22\par
+}
+ 

@@ -7,6 +7,7 @@ import one.microstream.persistence.binary.types.BinaryReferenceTraverser;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
+import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 {
@@ -211,8 +212,8 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 		{
 			if(length < this.minimumEntityLength)
 			{
-				// (07.05.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (07.05.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					"Invalid entity length for objectId " + objectId
 					+ " of type " + this.toRuntimeTypeIdentifier()
 					+ " : " + length + " < " + this.minimumEntityLength
@@ -220,8 +221,8 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			}
 			if(length > this.maximumEntityLength)
 			{
-				// (07.05.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (07.05.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					"Invalid entity length for objectId " + objectId
 					+ " of type " + this.toRuntimeTypeIdentifier()
 					+ " : " + length + " > " + this.maximumEntityLength

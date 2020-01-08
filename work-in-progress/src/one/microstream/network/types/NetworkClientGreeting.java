@@ -50,7 +50,7 @@ public interface NetworkClientGreeting
 			final int protocolIndex = greeting.indexOf(TAG_PROTOCOL);
 			if(protocolIndex < 0)
 			{
-				throw new IllegalArgumentException(); // (30.10.2012)EXCP: proper exception
+				throw new IllegalArgumentException(); // (30.10.2012 TM)EXCP: proper exception
 			}
 			final String protocolPart = greeting.substring(protocolIndex + CHARS_PROTOCOL.length - 1);
 			final String[] standardParts = greeting.substring(0, protocolIndex).split("[\\:\\n*]");

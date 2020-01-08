@@ -8,8 +8,7 @@ import java.util.function.Predicate;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceManager;
-import one.microstream.persistence.types.PersistenceStoring;
-import one.microstream.persistence.types.SelfStoring;
+import one.microstream.persistence.types.Persister;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 
@@ -20,16 +19,16 @@ import one.microstream.persistence.types.Unpersistable;
  *
  * @author TM
  */
-public interface StorageConnection extends PersistenceStoring
+public interface StorageConnection extends Persister
 {
-	/* (11.05.2014)TODO: Proper InterruptedException handling
+	/* (11.05.2014 TM)TODO: Proper InterruptedException handling
 	 *  just returning, especially returning null (see below) seems quite dangerous.
 	 *  Research how to handle such cases properly.
 	 *  Difficult: what to return if the thread has been aborted? Throw an exception?
 	 *  Maybe set the thread's interrupted flag (seen once in an article)
 	 */
 
-	// (03.12.2014)TODO: method to query the transactions files content because channels have a lock on it
+	// (03.12.2014 TM)TODO: method to query the transactions files content because channels have a lock on it
 
 	// currently only for type parameter fixation
 
@@ -109,7 +108,7 @@ public interface StorageConnection extends PersistenceStoring
 
 	public void importFiles(XGettingEnum<Path> importFiles);
 
-	/* (13.07.2015)TODO: load by type somehow
+	/* (13.07.2015 TM)TODO: load by type somehow
 	 * Query by typeId already implemented. Question is how to best provide it to the user.
 	 * As a result HashTable or Sequence?
 	 * By class or by type id or both?
@@ -139,24 +138,27 @@ public interface StorageConnection extends PersistenceStoring
 	}
 	
 	@Override
-	public default void storeSelfStoring(final SelfStoring storing)
-	{
-		storing.storeBy(this.createStorer()).commit();
-	}
-	
 	public default Storer createLazyStorer()
 	{
 		return this.persistenceManager().createLazyStorer();
 	}
 
+	@Override
 	public default Storer createStorer()
 	{
 		return this.persistenceManager().createStorer();
 	}
 	
+	@Override
 	public default Storer createEagerStorer()
 	{
 		return this.persistenceManager().createEagerStorer();
+	}
+	
+	@Override
+	public default Object getObject(final long objectId)
+	{
+		return this.persistenceManager().getObject(objectId);
 	}
 
 

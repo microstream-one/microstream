@@ -7,15 +7,15 @@ import java.util.function.Consumer;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 
-public class PersistenceLegacyTypeHandlerWrapper<M, T> extends PersistenceLegacyTypeHandler.Abstract<M, T>
+public class PersistenceLegacyTypeHandlerWrapper<D, T> extends PersistenceLegacyTypeHandler.Abstract<D, T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static <M, T> PersistenceLegacyTypeHandler<M, T> New(
+	public static <D, T> PersistenceLegacyTypeHandler<D, T> New(
 		final PersistenceTypeDefinition    legacyTypeDefinition,
-		final PersistenceTypeHandler<M, T> currentTypeHandler
+		final PersistenceTypeHandler<D, T> currentTypeHandler
 	)
 	{
 		return new PersistenceLegacyTypeHandlerWrapper<>(
@@ -30,7 +30,7 @@ public class PersistenceLegacyTypeHandlerWrapper<M, T> extends PersistenceLegacy
 	// instance fields //
 	////////////////////
 	
-	private final PersistenceTypeHandler<M, T> typeHandler;
+	private final PersistenceTypeHandler<D, T> typeHandler;
 	
 	
 	
@@ -40,7 +40,7 @@ public class PersistenceLegacyTypeHandlerWrapper<M, T> extends PersistenceLegacy
 
 	PersistenceLegacyTypeHandlerWrapper(
 		final PersistenceTypeDefinition    typeDefinition,
-		final PersistenceTypeHandler<M, T> typeHandler
+		final PersistenceTypeHandler<D, T> typeHandler
 	)
 	{
 		super(typeDefinition);
@@ -66,28 +66,28 @@ public class PersistenceLegacyTypeHandlerWrapper<M, T> extends PersistenceLegacy
 	}
 
 	@Override
-	public void iterateLoadableReferences(final M medium, final PersistenceObjectIdAcceptor iterator)
+	public void iterateLoadableReferences(final D data, final PersistenceReferenceLoader iterator)
 	{
 		// current type handler perfectly fits the old types structure, so it can be used here.
-		this.typeHandler.iterateLoadableReferences(medium, iterator);
+		this.typeHandler.iterateLoadableReferences(data, iterator);
 	}
 
 	@Override
-	public T create(final M medium, final PersistenceObjectIdResolver idResolver)
+	public T create(final D data, final PersistenceLoadHandler handler)
 	{
-		return this.typeHandler.create(medium, idResolver);
+		return this.typeHandler.create(data, handler);
 	}
 
 	@Override
-	public void update(final M medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final D data, final T instance, final PersistenceLoadHandler handler)
 	{
-		this.typeHandler.update(medium, instance, idResolver);
+		this.typeHandler.updateState(data, instance, handler);
 	}
 
 	@Override
-	public void complete(final M medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void complete(final D data, final T instance, final PersistenceLoadHandler handler)
 	{
-		this.typeHandler.complete(medium, instance, idResolver);
+		this.typeHandler.complete(data, instance, handler);
 	}
 	
 	@Override
@@ -169,10 +169,10 @@ public class PersistenceLegacyTypeHandlerWrapper<M, T> extends PersistenceLegacy
 	}
 	
 	@Override
-	public int getPersistedEnumOrdinal(final M medium)
+	public int getPersistedEnumOrdinal(final D data)
 	{
 		// Must pass through all default methods to be a correct wrapper.
-		return this.typeHandler.getPersistedEnumOrdinal(medium);
+		return this.typeHandler.getPersistedEnumOrdinal(data);
 	}
 	
 }

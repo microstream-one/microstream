@@ -12,6 +12,7 @@ import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
@@ -19,28 +20,28 @@ import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
 
 
-public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager, PersistenceTypeHandlerRegistry<M>
+public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager, PersistenceTypeHandlerRegistry<D>
 {
 	@Override
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(T instance);
+	public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(T instance);
 
 	@Override
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(Class<T> type);
+	public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(Class<T> type);
 
 	@Override
-	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long typeId);
+	public PersistenceTypeHandler<D, ?> lookupTypeHandler(long typeId);
 
-	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(T instance);
+	public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(T instance);
 
-	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type);
+	public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(Class<T> type);
 	
-	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(PersistenceTypeDefinition typeDefinition);
+	public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(PersistenceTypeDefinition typeDefinition);
 	
 	public void ensureTypeHandlers(XGettingEnum<PersistenceTypeDefinition> typeDefinitions);
 
 	public void ensureTypeHandlersByTypeIds(XGettingEnum<Long> typeIds);
 
-	public PersistenceTypeHandlerManager<M> initialize();
+	public PersistenceTypeHandlerManager<D> initialize();
 
 	public void update(PersistenceTypeDictionary typeDictionary, long highestTypeId);
 
@@ -57,11 +58,11 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 	@Override
 	public Class<?> ensureType(long typeId);
 	
-	public void validateTypeHandler(PersistenceTypeHandler<M, ?> typeHandler);
+	public void validateTypeHandler(PersistenceTypeHandler<D, ?> typeHandler);
 	
-	public default void validateTypeHandlers(final Iterable<? extends PersistenceTypeHandler<M, ?>> typeHandlers)
+	public default void validateTypeHandlers(final Iterable<? extends PersistenceTypeHandler<D, ?>> typeHandlers)
 	{
-		for(final PersistenceTypeHandler<M, ?> typeHandler : typeHandlers)
+		for(final PersistenceTypeHandler<D, ?> typeHandler : typeHandlers)
 		{
 			this.validateTypeHandler(typeHandler);
 		}
@@ -97,15 +98,15 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		catch(final Exception e)
 		{
 			// (20.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Enum constants collection failed for type handler " + typeHandler.toRuntimeTypeIdentifier()
 			);
 		}
 	}
 	
-	public static <M> void registerEnumContantRoots(
-		final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers,
-		final PersistenceTypeHandler<M, ?>                      typeHandler
+	public static <D> void registerEnumContantRoots(
+		final HashTable<Class<?>, PersistenceTypeHandler<D, ?>> pendingEnumConstantRootStoringHandlers,
+		final PersistenceTypeHandler<D, ?>                      typeHandler
 	)
 	{
 		/*
@@ -124,17 +125,17 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		);
 	}
 
-	public static <M> PersistenceTypeHandlerManager.Default<M> New(
-		final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry          ,
-		final PersistenceTypeHandlerProvider<M>           typeHandlerProvider          ,
+	public static <D> PersistenceTypeHandlerManager.Default<D> New(
+		final PersistenceTypeHandlerRegistry<D>           typeHandlerRegistry          ,
+		final PersistenceTypeHandlerProvider<D>           typeHandlerProvider          ,
 		final PersistenceTypeDictionaryManager            typeDictionaryManager        ,
-		final PersistenceTypeMismatchValidator<M>         typeMismatchValidator        ,
-		final PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ,
-		final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator,
-		final PersistenceRootsProvider<M>                 rootsProvider
+		final PersistenceTypeMismatchValidator<D>         typeMismatchValidator        ,
+		final PersistenceLegacyTypeMapper<D>              legacyTypeMapper             ,
+		final PersistenceUnreachableTypeHandlerCreator<D> unreachableTypeHandlerCreator,
+		final PersistenceRootsProvider<D>                 rootsProvider
 	)
 	{
-		final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers = HashTable.New();
+		final HashTable<Class<?>, PersistenceTypeHandler<D, ?>> pendingEnumConstantRootStoringHandlers = HashTable.New();
 		
 		// must initially register all enum type handlers to keep the internal state consistent.
 		typeHandlerProvider.iterateTypeHandlers(th ->
@@ -162,21 +163,21 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		);
 	}
 
-	public final class Default<M> implements PersistenceTypeHandlerManager<M>
+	public final class Default<D> implements PersistenceTypeHandlerManager<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		        final PersistenceTypeHandlerRegistry<M>           typeHandlerRegistry          ;
-		private final PersistenceTypeHandlerProvider<M>           typeHandlerProvider          ;
+		        final PersistenceTypeHandlerRegistry<D>           typeHandlerRegistry          ;
+		private final PersistenceTypeHandlerProvider<D>           typeHandlerProvider          ;
 		private final PersistenceTypeDictionaryManager            typeDictionaryManager        ;
-		private final PersistenceTypeMismatchValidator<M>         typeMismatchValidator        ;
-		private final PersistenceLegacyTypeMapper<M>              legacyTypeMapper             ;
-		private final PersistenceUnreachableTypeHandlerCreator<M> unreachableTypeHandlerCreator;
-		private final PersistenceRootsProvider<M>                 rootsProvider                ;
+		private final PersistenceTypeMismatchValidator<D>         typeMismatchValidator        ;
+		private final PersistenceLegacyTypeMapper<D>              legacyTypeMapper             ;
+		private final PersistenceUnreachableTypeHandlerCreator<D> unreachableTypeHandlerCreator;
+		private final PersistenceRootsProvider<D>                 rootsProvider                ;
 		
-		private final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers;
+		private final HashTable<Class<?>, PersistenceTypeHandler<D, ?>> pendingEnumConstantRootStoringHandlers;
 		private transient PersistenceRoots pendingStoreRoot;
 		
 		private boolean initialized;
@@ -188,14 +189,14 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		/////////////////
 
 		Default(
-			final PersistenceTypeHandlerRegistry<M>                 typeHandlerRegistry                   ,
-			final PersistenceTypeHandlerProvider<M>                 typeHandlerProvider                   ,
+			final PersistenceTypeHandlerRegistry<D>                 typeHandlerRegistry                   ,
+			final PersistenceTypeHandlerProvider<D>                 typeHandlerProvider                   ,
 			final PersistenceTypeDictionaryManager                  typeDictionaryManager                 ,
-			final PersistenceTypeMismatchValidator<M>               typeMismatchValidator                 ,
-			final PersistenceLegacyTypeMapper<M>                    legacyTypeMapper                      ,
-			final PersistenceUnreachableTypeHandlerCreator<M>       unreachableTypeHandlerCreator         ,
-			final PersistenceRootsProvider<M>                       rootsProvider                         ,
-			final HashTable<Class<?>, PersistenceTypeHandler<M, ?>> pendingEnumConstantRootStoringHandlers
+			final PersistenceTypeMismatchValidator<D>               typeMismatchValidator                 ,
+			final PersistenceLegacyTypeMapper<D>                    legacyTypeMapper                      ,
+			final PersistenceUnreachableTypeHandlerCreator<D>       unreachableTypeHandlerCreator         ,
+			final PersistenceRootsProvider<D>                       rootsProvider                         ,
+			final HashTable<Class<?>, PersistenceTypeHandler<D, ?>> pendingEnumConstantRootStoringHandlers
 		)
 		{
 			super();
@@ -216,7 +217,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		// methods //
 		////////////
 				
-		private <T> void recursiveEnsureTypeHandlers(final PersistenceTypeHandler<M, T> typeHandler)
+		private <T> void recursiveEnsureTypeHandlers(final PersistenceTypeHandler<D, T> typeHandler)
 		{
 			/* (25.07.2019 TM)TODO: priv#122: potential problems with recursively ensured type handlers for field types
 			 * See considerations in BinaryTypeHandlerCreator#createTypeHandlerGeneric
@@ -251,7 +252,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			});
 		}
 		
-		private void validateTypeHandlerTypeId(final PersistenceTypeHandler<M, ?> typeHandler)
+		private void validateTypeHandlerTypeId(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
 			if(typeHandler.typeId() != Persistence.nullId())
 			{
@@ -265,7 +266,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 		
 		@Override
-		public final void validateTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
+		public final void validateTypeHandler(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
 			this.validateTypeHandlerTypeId(typeHandler);
 			
@@ -319,11 +320,11 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final T instance)
+		public final <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final T instance)
 		{
 			// standard implementation does not consider actual objects, only their types
 			
-			final PersistenceTypeHandler<M, T> typeHandler = this.ensureTypeHandler(
+			final PersistenceTypeHandler<D, T> typeHandler = this.ensureTypeHandler(
 				XReflect.getClass(instance)
 			);
 			typeHandler.guaranteeSpecificInstanceViablity();
@@ -338,10 +339,10 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
+		public final <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final Class<T> type)
 		{
 //			XDebug.debugln("ensureTypeHandler(" + type + ")");
-			final PersistenceTypeHandler<M, T> handler; // quick read-only check for already registered type
+			final PersistenceTypeHandler<D, T> handler; // quick read-only check for already registered type
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) != null)
 			{
 				return handler;
@@ -360,12 +361,12 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			}
 			
 			// (10.10.2018 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Missing runtime type for required type handler for type: " + typeDefinition.runtimeTypeName()
 			);
 		}
 		
-		private <T> PersistenceTypeHandler<M, T> checkForUnreachableType(final PersistenceTypeDefinition typeDef)
+		private <T> PersistenceTypeHandler<D, T> checkForUnreachableType(final PersistenceTypeDefinition typeDef)
 		{
 			if(typeDef.runtimeTypeName() != null)
 			{
@@ -375,15 +376,15 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			synchronized(this.typeHandlerRegistry)
 			{
 				// must check for an already existing type handler before creating a new one
-				final PersistenceTypeHandler<M, ?> alreadyRegisteredTypeHandler = this.lookupTypeHandler(typeDef.typeId());
+				final PersistenceTypeHandler<D, ?> alreadyRegisteredTypeHandler = this.lookupTypeHandler(typeDef.typeId());
 				if(alreadyRegisteredTypeHandler != null)
 				{
 					@SuppressWarnings("unchecked")
-					final PersistenceTypeHandler<M, T> casted = (PersistenceTypeHandler<M, T>)alreadyRegisteredTypeHandler;
+					final PersistenceTypeHandler<D, T> casted = (PersistenceTypeHandler<D, T>)alreadyRegisteredTypeHandler;
 					return casted;
 				}
 				
-				final PersistenceUnreachableTypeHandler<M, T> newHandler =
+				final PersistenceUnreachableTypeHandler<D, T> newHandler =
 					this.unreachableTypeHandlerCreator.createUnreachableTypeHandler(typeDef)
 				;
 				this.registerLegacyTypeHandler(newHandler);
@@ -394,7 +395,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 		
 		@Override
-		public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final PersistenceTypeDefinition typeDefinition)
+		public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final PersistenceTypeDefinition typeDefinition)
 		{
 			/*
 			 * This method must make sure that the passed typeDefinition gets a functional type handler,
@@ -404,7 +405,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			 * or maybe even a type that has been deleted in the design without replacement that should not have been.
 			 */
 						
-			final PersistenceTypeHandler<M, T> unreachableHandler = this.checkForUnreachableType(typeDefinition);
+			final PersistenceTypeHandler<D, T> unreachableHandler = this.checkForUnreachableType(typeDefinition);
 			if(unreachableHandler != null)
 			{
 				return unreachableHandler;
@@ -412,7 +413,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			
 			// for all types not explicitly marked as unreachable, the runtime type is essential.
 			final Class<T>                     runtimeType        = this.validateExistingType(typeDefinition);
-			final PersistenceTypeHandler<M, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
+			final PersistenceTypeHandler<D, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
 			
 			// check if the type definition is up to date or if a legacy type handler is needed
 			if(runtimeTypeHandler.typeId() == typeDefinition.typeId())
@@ -427,12 +428,12 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			return this.ensureLegacyTypeHandler(typeDefinition, runtimeTypeHandler);
 		}
 		
-		private <T> PersistenceLegacyTypeHandler<M, T> ensureLegacyTypeHandler(
+		private <T> PersistenceLegacyTypeHandler<D, T> ensureLegacyTypeHandler(
 			final PersistenceTypeDefinition    legacyTypeDefinition,
-			final PersistenceTypeHandler<M, T> currentTypeHandler
+			final PersistenceTypeHandler<D, T> currentTypeHandler
 		)
 		{
-			final PersistenceLegacyTypeHandler<M, T> legacyTypeHandler = this.legacyTypeMapper.ensureLegacyTypeHandler(
+			final PersistenceLegacyTypeHandler<D, T> legacyTypeHandler = this.legacyTypeMapper.ensureLegacyTypeHandler(
 				legacyTypeDefinition,
 				currentTypeHandler
 			);
@@ -462,19 +463,19 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final Class<T> type)
+		public final <T> PersistenceTypeHandler<D, T> lookupTypeHandler(final Class<T> type)
 		{
 			return this.typeHandlerRegistry.lookupTypeHandler(type);
 		}
 
 		@Override
-		public final PersistenceTypeHandler<M, ?> lookupTypeHandler(final long typeId)
+		public final PersistenceTypeHandler<D, ?> lookupTypeHandler(final long typeId)
 		{
 			return this.typeHandlerRegistry.lookupTypeHandler(typeId);
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<M, T> lookupTypeHandler(final T instance)
+		public final <T> PersistenceTypeHandler<D, T> lookupTypeHandler(final T instance)
 		{
 			// standard implementation does not consider actual objects
 			return this.typeHandlerRegistry.lookupTypeHandler(XReflect.getClass(instance));
@@ -512,7 +513,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			return this.typeHandlerRegistry.registerTypes(types);
 		}
 		
-		private <T> PersistenceTypeHandler<M, T> internalEnsureTypeHandler(final Class<T> type)
+		private <T> PersistenceTypeHandler<D, T> internalEnsureTypeHandler(final Class<T> type)
 		{
 			/*
 			 * Note on super classes and the hiararchy of implemented interface:
@@ -533,7 +534,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 					this.ensureTypeHandler(XReflect.getDeclaredEnumClass(type));
 				}
 				
-				PersistenceTypeHandler<M, T> typeHandler;
+				PersistenceTypeHandler<D, T> typeHandler;
 				if((typeHandler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
 				{
 					// (27.11.2019 TM)TODO: priv#187 concrete -> abstract type mapping here?
@@ -549,14 +550,14 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final boolean registerTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
+		public final boolean registerTypeHandler(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
 			this.validateTypeHandler(typeHandler);
 
 			return this.unvalidatedRegisterTypeHandler(typeHandler);
 		}
 		
-		private final boolean unvalidatedRegisterTypeHandler(final PersistenceTypeHandler<M, ?> typeHandler)
+		private final boolean unvalidatedRegisterTypeHandler(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
 			if(this.typeHandlerRegistry.registerTypeHandler(typeHandler))
 			{
@@ -569,13 +570,13 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 					
 		private void initialRegisterTypeHandlers(
-			final XGettingCollection<PersistenceTypeHandler<M, ?>> initializedTypeHandlers
+			final XGettingCollection<PersistenceTypeHandler<D, ?>> initializedTypeHandlers
 		)
 		{
 			// no validation required during initialization.
 			
 			// First, pure registration without recursive type analysis calls to maintain the type handler order
-			for(final PersistenceTypeHandler<M, ?> typeHandler : initializedTypeHandlers)
+			for(final PersistenceTypeHandler<D, ?> typeHandler : initializedTypeHandlers)
 			{
 				this.unvalidatedRegisterTypeHandler(typeHandler);
 			}
@@ -583,13 +584,13 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			// AFTERWARDS additional management logic like resursive ensuring and enum root registration
 			
 			// constant roots for enum types must be collected
-			for(final PersistenceTypeHandler<M, ?> typeHandler : initializedTypeHandlers)
+			for(final PersistenceTypeHandler<D, ?> typeHandler : initializedTypeHandlers)
 			{
 				this.registerEnumContantRoots(typeHandler);
 			}
 			
 			// recursive registration: initialized handlers themselves plus all handlers required for their field types
-			for(final PersistenceTypeHandler<M, ?> typeHandler : initializedTypeHandlers)
+			for(final PersistenceTypeHandler<D, ?> typeHandler : initializedTypeHandlers)
 			{
 				this.recursiveEnsureTypeHandlers(typeHandler);
 			}
@@ -600,13 +601,13 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 //			this.typeDictionaryManager.registerRuntimeTypeDefinitions(initializedTypeHandlers);
 //
 //			// register all type handlers at the registry
-//			for(final PersistenceTypeHandler<M, ?> typeHandler : initializedTypeHandlers)
+//			for(final PersistenceTypeHandler<D, ?> typeHandler : initializedTypeHandlers)
 //			{
 //				this.typeHandlerRegistry.registerTypeHandler(typeHandler);
 //			}
 //
 //			// recursive registration: initialized handlers themselves plus all handlers required for their field types
-//			for(final PersistenceTypeHandler<M, ?> typeHandler : initializedTypeHandlers)
+//			for(final PersistenceTypeHandler<D, ?> typeHandler : initializedTypeHandlers)
 //			{
 //				this.recursiveEnsureTypeHandlers(typeHandler);
 //			}
@@ -637,7 +638,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				final EqHashTable<String, Object> modifiedRootEntries = EqHashTable.New(existingRoots.entries());
 				boolean modified = false;
 				
-				for(final PersistenceTypeHandler<M, ?> typeHandler : this.pendingEnumConstantRootStoringHandlers.values())
+				for(final PersistenceTypeHandler<D, ?> typeHandler : this.pendingEnumConstantRootStoringHandlers.values())
 				{
 					final String enumRootIdentifier = this.deriveEnumRootIdentifier(typeHandler);
 					final Object enumRootEntry      = modifiedRootEntries.get(enumRootIdentifier);
@@ -651,7 +652,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 					if(enumRootEntries == null)
 					{
 						// (29.08.2019 TM)EXCP: proper exception
-						throw new RuntimeException("Discarded enum constants cannot be registered as roots.");
+						throw new PersistenceException("Discarded enum constants cannot be registered as roots.");
 					}
 					
 					modifiedRootEntries.add(enumRootIdentifier, enumRootEntries);
@@ -669,13 +670,13 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		
 		private void validateEnumInstances(
 			final Object                       existingEntry,
-			final PersistenceTypeHandler<M, ?> typeHandler
+			final PersistenceTypeHandler<D, ?> typeHandler
 		)
 		{
 			if(!(existingEntry instanceof Object[]))
 			{
 				// (08.08.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Invalid root instance of type " + existingEntry.getClass().getName()
 					+ " for enum type entry " + this.deriveEnumRootIdentifier(typeHandler)
 					+ " of type " + typeHandler.type().getName()
@@ -686,7 +687,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			if(!XArrays.equals((Object[])existingEntry, typeHandler.type().getEnumConstants()))
 			{
 				// (08.08.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Root entry already exists with inconsistent enum constants"
 					+ " for enum type entry " + this.deriveEnumRootIdentifier(typeHandler)
 					+ " of type " + typeHandler.type().getName()
@@ -718,7 +719,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			this.pendingStoreRoot = null;
 		}
 				
-		private void registerEnumContantRoots(final PersistenceTypeHandler<M, ?> typeHandler)
+		private void registerEnumContantRoots(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
 			synchronized(this.typeHandlerRegistry)
 			{
@@ -731,7 +732,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 				
 		@Override
-		public final boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<M, ?> legacyTypeHandler)
+		public final boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<D, ?> legacyTypeHandler)
 		{
 			this.validateTypeHandlerTypeId(legacyTypeHandler);
 			return this.typeHandlerRegistry.registerLegacyTypeHandler(legacyTypeHandler);
@@ -784,7 +785,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 
 		@Override
-		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(
+		public <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateTypeHandlers(
 			final C iterator
 		)
 		{
@@ -793,7 +794,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 		
 		@Override
-		public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(
+		public <C extends Consumer<? super PersistenceLegacyTypeHandler<D, ?>>> C iterateLegacyTypeHandlers(
 			final C iterator
 		)
 		{
@@ -802,7 +803,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final synchronized PersistenceTypeHandlerManager<M> initialize()
+		public final synchronized PersistenceTypeHandlerManager<D> initialize()
 		{
 			if(this.initialized)
 			{
@@ -818,8 +819,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		{
 			final PersistenceTypeDictionary typeDictionary = this.typeDictionaryManager.provideTypeDictionary();
 			
-			final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers = HashEnum.New();
-			final HashEnum<PersistenceTypeHandler<M, ?>> typeRegisteredTypeHandlers = HashEnum.New();
+			final HashEnum<PersistenceTypeHandler<D, ?>> newTypeHandlers = HashEnum.New();
+			final HashEnum<PersistenceTypeHandler<D, ?>> typeRegisteredTypeHandlers = HashEnum.New();
 			
 			// either fill/initialize an empty type dictionary or initalize from a non-empty dictionary.
 			if(typeDictionary.isEmpty())
@@ -860,8 +861,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 		
 		private void typeRegisterInitializedTypeHandlers(
-			final XGettingEnum<PersistenceTypeHandler<M, ?>> typeUnregisteredInitializedTypeHandlers,
-			final XAddingEnum<PersistenceTypeHandler<M, ?>>  typeRegisteredInitializedTypeHandlers
+			final XGettingEnum<PersistenceTypeHandler<D, ?>> typeUnregisteredInitializedTypeHandlers,
+			final XAddingEnum<PersistenceTypeHandler<D, ?>>  typeRegisteredInitializedTypeHandlers
 		)
 		{
 			// register the matched Type<->TypeId mappings
@@ -870,23 +871,23 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 		
 		
-		private void initializeBlank(final HashEnum<PersistenceTypeHandler<M, ?>> newTypeHandlers)
+		private void initializeBlank(final HashEnum<PersistenceTypeHandler<D, ?>> newTypeHandlers)
 		{
 			this.typeHandlerProvider.iterateTypeHandlers(newTypeHandlers);
 		}
 		
 		private void initializeFromDictionary(
 			final PersistenceTypeDictionary                 typeDictionary            ,
-			final HashEnum<PersistenceTypeHandler<M, ?>>    newTypeHandlers           ,
-			final XAddingEnum<PersistenceTypeHandler<M, ?>> typeRegisteredTypeHandlers
+			final HashEnum<PersistenceTypeHandler<D, ?>>    newTypeHandlers           ,
+			final XAddingEnum<PersistenceTypeHandler<D, ?>> typeRegisteredTypeHandlers
 		)
 		{
-			final HashEnum<PersistenceTypeHandler<M, ?>> initializedMatchingTypeHandlers = HashEnum.New();
+			final HashEnum<PersistenceTypeHandler<D, ?>> initializedMatchingTypeHandlers = HashEnum.New();
 			final HashEnum<PersistenceTypeLineage> runtimeTypeLineages = HashEnum.New();
 			
 			this.filterRuntimeTypeLineages(typeDictionary, runtimeTypeLineages);
 			
-			final HashTable<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> matches = HashTable.New();
+			final HashTable<PersistenceTypeDefinition, PersistenceTypeHandler<D, ?>> matches = HashTable.New();
 
 			// derive a type handler for every runtime type lineage and try to match an existing type definition
 			for(final PersistenceTypeLineage typeLineage : runtimeTypeLineages)
@@ -901,10 +902,10 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			this.internalUpdateCurrentHighestTypeId(typeDictionary);
 			
 			// initialize all matches to the associated TypeId
-			for(final KeyValue<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> match : matches)
+			for(final KeyValue<PersistenceTypeDefinition, PersistenceTypeHandler<D, ?>> match : matches)
 			{
 				final long typeId = match.key().typeId();
-				final PersistenceTypeHandler<M, ?> ith = match.value().initialize(typeId);
+				final PersistenceTypeHandler<D, ?> ith = match.value().initialize(typeId);
 				initializedMatchingTypeHandlers.add(ith);
 			}
 			
@@ -916,17 +917,17 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		}
 				
 		private void initializeNewTypeHandlers(
-			final XGettingCollection<PersistenceTypeHandler<M, ?>> newTypeHandlers,
-			final HashEnum<PersistenceTypeHandler<M, ?>>           typeRegisteredTypeHandlers
+			final XGettingCollection<PersistenceTypeHandler<D, ?>> newTypeHandlers,
+			final HashEnum<PersistenceTypeHandler<D, ?>>           typeRegisteredTypeHandlers
 		)
 		{
-			final HashEnum<PersistenceTypeHandler<M, ?>> initializedNewTypeHandlers = HashEnum.New();
+			final HashEnum<PersistenceTypeHandler<D, ?>> initializedNewTypeHandlers = HashEnum.New();
 			
 			// assign new TypeIds to all misfits (TypeIds of matching type handlers must already be registered!)
-			for(final PersistenceTypeHandler<M, ?> newTypeHandler : newTypeHandlers)
+			for(final PersistenceTypeHandler<D, ?> newTypeHandler : newTypeHandlers)
 			{
 				// native handlers (e.g. see in class BinaryPersistence) already have their TypeId, even if "new".
-				final PersistenceTypeHandler<M, ?> ith = this.ensureInitializedTypeHandler(newTypeHandler);
+				final PersistenceTypeHandler<D, ?> ith = this.ensureInitializedTypeHandler(newTypeHandler);
 				initializedNewTypeHandlers.add(ith);
 			}
 
@@ -934,8 +935,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			this.typeRegisterInitializedTypeHandlers(initializedNewTypeHandlers, typeRegisteredTypeHandlers);
 		}
 		
-		private PersistenceTypeHandler<M, ?> ensureInitializedTypeHandler(
-			final PersistenceTypeHandler<M, ?> typeHandler
+		private PersistenceTypeHandler<D, ?> ensureInitializedTypeHandler(
+			final PersistenceTypeHandler<D, ?> typeHandler
 		)
 		{
 			if(typeHandler.typeId() != 0)
@@ -964,8 +965,8 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 		
 		private <T> void deriveRuntimeTypeHandler(
 			final PersistenceTypeLineage                                             typeLineage            ,
-			final HashTable<PersistenceTypeDefinition, PersistenceTypeHandler<M, ?>> matchedTypeHandlers    ,
-			final HashEnum<PersistenceTypeHandler<M, ?>>                             unmatchableTypeHandlers
+			final HashTable<PersistenceTypeDefinition, PersistenceTypeHandler<D, ?>> matchedTypeHandlers    ,
+			final HashEnum<PersistenceTypeHandler<D, ?>>                             unmatchableTypeHandlers
 		)
 		{
 			final Class<?> runtimeType = typeLineage.type();
@@ -980,7 +981,7 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 				return;
 			}
 			
-			final PersistenceTypeHandler<M, ?> handler = this.advanceEnsureTypeHandler(runtimeType);
+			final PersistenceTypeHandler<D, ?> handler = this.advanceEnsureTypeHandler(runtimeType);
 						
 			for(final PersistenceTypeDefinition typeDefinition : typeLineage.entries().values())
 			{
@@ -1002,9 +1003,9 @@ public interface PersistenceTypeHandlerManager<M> extends PersistenceTypeManager
 			unmatchableTypeHandlers.add(handler);
 		}
 		
-		private <T> PersistenceTypeHandler<M, T> advanceEnsureTypeHandler(final Class<T> type)
+		private <T> PersistenceTypeHandler<D, T> advanceEnsureTypeHandler(final Class<T> type)
 		{
-			PersistenceTypeHandler<M, T> handler;
+			PersistenceTypeHandler<D, T> handler;
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
 			{
 				handler = this.typeHandlerProvider.ensureTypeHandler(type);

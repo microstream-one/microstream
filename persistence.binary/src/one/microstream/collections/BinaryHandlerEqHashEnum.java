@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 
@@ -49,18 +49,18 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		return (Class)EqHashEnum.class;
 	}
 
-	private static int getBuildItemElementCount(final Binary bytes)
+	private static int getBuildItemElementCount(final Binary data)
 	{
-		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(data.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
 
-	private static float getBuildItemHashDensity(final Binary bytes)
+	private static float getBuildItemHashDensity(final Binary data)
 	{
-		return bytes.read_float(BINARY_OFFSET_HASH_DENSITY);
+		return data.read_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 
 	public static final void staticStore(
-		final Binary              bytes    ,
+		final Binary              data     ,
 		final EqHashEnum<?>       instance ,
 		final long                typeId   ,
 		final long                objectId ,
@@ -68,7 +68,7 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeIterableAsList(
+		data.storeIterableAsList(
 			typeId                ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -78,30 +78,30 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		);
 
 		// persist hashEqualator and set the resulting oid at its binary place (first header value)
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_EQUALATOR,
 			persister.apply(instance.hashEqualator)
 		);
 
 		// store hash density as second header value
-		bytes.store_float(
+		data.store_float(
 			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}
 
-	public static final EqHashEnum<?> staticCreate(final Binary bytes)
+	public static final EqHashEnum<?> staticCreate(final Binary data)
 	{
 		return EqHashEnum.NewCustom(
-			getBuildItemElementCount(bytes),
-			getBuildItemHashDensity(bytes)
+			getBuildItemElementCount(data),
+			getBuildItemHashDensity(data)
 		);
 	}
 
 	public static final void staticUpdate(
-		final Binary                      bytes     ,
-		final EqHashEnum<?>               instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data    ,
+		final EqHashEnum<?>          instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// must clear to ensure consistency
@@ -111,32 +111,32 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 		final EqHashEnum<Object> casted = (EqHashEnum<Object>)instance;
 
 		// length must be checked for consistency reasons
-		instance.ensureCapacity(getBuildItemElementCount(bytes));
+		instance.ensureCapacity(getBuildItemElementCount(data));
 
 		// set equalator instance (must be done on memory-level due to final modifier. Little hacky, but okay)
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_EQUALATOR))
 		);
 
 		// collect elements AFTER hashEqualator has been set because it is used in it
-		instance.size = bytes.collectListObjectReferences(
+		instance.size = data.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
-			idResolver               ,
+			handler               ,
 			casted::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
 
-	public static final void staticComplete(final Binary medium, final EqHashEnum<?> instance)
+	public static final void staticComplete(final Binary data, final EqHashEnum<?> instance)
 	{
 		// rehash all previously unhashed collected elements
 		instance.rehash();
 	}
 
 	public static final void staticIterateInstanceReferences(
-		final EqHashEnum<?>   instance,
+		final EqHashEnum<?>       instance,
 		final PersistenceFunction iterator
 	)
 	{
@@ -145,12 +145,12 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	}
 
 	public static final void staticIteratePersistedReferences(
-		final Binary                      bytes   ,
-		final PersistenceObjectIdAcceptor iterator
+		final Binary                     data    ,
+		final PersistenceReferenceLoader iterator
 	)
 	{
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_EQUALATOR));
-		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_EQUALATOR));
+		data.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 	public static final XGettingSequence<? extends PersistenceTypeDefinitionMemberFieldGeneric> Fields()
@@ -189,31 +189,31 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final EqHashEnum<?>           instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		staticStore(bytes, instance, this.typeId(), objectId, handler);
+		staticStore(data, instance, this.typeId(), objectId, handler);
 	}
 
 	@Override
-	public final EqHashEnum<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final EqHashEnum<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return staticCreate(bytes);
+		return staticCreate(data);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final EqHashEnum<?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void updateState(final Binary data, final EqHashEnum<?> instance, final PersistenceLoadHandler handler)
 	{
-		staticUpdate(bytes, instance, idResolver);
+		staticUpdate(data, instance, handler);
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqHashEnum<?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void complete(final Binary data, final EqHashEnum<?> instance, final PersistenceLoadHandler handler)
 	{
-		staticComplete(medium, instance);
+		staticComplete(data, instance);
 	}
 
 	@Override
@@ -223,9 +223,9 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		staticIteratePersistedReferences(bytes, iterator);
+		staticIteratePersistedReferences(data, iterator);
 	}
 
 }

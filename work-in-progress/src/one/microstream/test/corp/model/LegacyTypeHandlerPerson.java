@@ -3,8 +3,8 @@ package one.microstream.test.corp.model;
 import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryLegacyTypeHandler;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 
 public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCustom<Person>
 {
@@ -51,14 +51,14 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 	////////////
 
 	@Override
-	public Person create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public Person create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		// required instances may not be available, yet, at creation time. Thus create dummy and fill in #update.
 		return new Person();
 	}
 	
 	@Override
-	public void update(final Binary bytes, final Person instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary data, final Person instance, final PersistenceLoadHandler handler)
 	{
 		/*
 		 * data updating logic for unchanged type. Custom legacy mapping would be done here. E.g. transform
@@ -66,11 +66,11 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 		 * instance.setNote(new Note(note));
 		 */
 		
-		final String  contactId =  (String)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_contactId));
-		final Address address   = (Address)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_address  ));
-		final String  note      =  (String)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_note     ));
-		final String  firstname =  (String)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_firstname));
-		final String  lastname  =  (String)idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_lastname ));
+		final String  contactId =  (String)handler.lookupObject(data.read_long(BINARY_OFFSET_contactId));
+		final Address address   = (Address)handler.lookupObject(data.read_long(BINARY_OFFSET_address  ));
+		final String  note      =  (String)handler.lookupObject(data.read_long(BINARY_OFFSET_note     ));
+		final String  firstname =  (String)handler.lookupObject(data.read_long(BINARY_OFFSET_firstname));
+		final String  lastname  =  (String)handler.lookupObject(data.read_long(BINARY_OFFSET_lastname ));
 
 		instance.internalSetContactId(contactId);
 		instance.setAddress          (address)  ;
@@ -81,16 +81,16 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 
 	@Override
 	public final void iterateLoadableReferences(
-		final Binary                      bytes   ,
-		final PersistenceObjectIdAcceptor iterator
+		final Binary                     data    ,
+		final PersistenceReferenceLoader iterator
 	)
 	{
 		// clumsy offset code redundancy to be replaced by BinaryField w.i.p concept ...
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_contactId));
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_address  ));
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_note     ));
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_firstname));
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_lastname ));
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_contactId));
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_address  ));
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_note     ));
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_firstname));
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_lastname ));
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import one.microstream.test.corp.model.ClientCorporation;
 
 public class MainTestRoot
 {
-	static final Singleton<ClientCorporation> ROOT = new Singleton<>(null);
+	static final Singleton<ClientCorporation> ROOT = Singleton.New(null);
 	
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start(ROOT);

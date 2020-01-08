@@ -28,7 +28,7 @@ public interface Reference<T> extends Referencing<T>
 
 	public static <T> Reference<T> New(final T object)
 	{
-		return new Singleton<>(object);
+		return Singleton.New(object);
 	}
 
 }

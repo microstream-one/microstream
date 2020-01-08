@@ -244,7 +244,7 @@ public interface StringTable
 			final long columnCountMismatchIndex = rows.scan(new ColumnCountValidator(columnCount));
 			if(columnCountMismatchIndex >= 0)
 			{
-				// (01.07.2013)EXCP: proper exception
+				// (01.07.2013 TM)EXCP: proper exception
 				throw new IllegalArgumentException(
 					"Invalid column count in row " + columnCountMismatchIndex
 					+ " (" + columnCount + " required, " + rows.at(columnCountMismatchIndex).length + " available)"

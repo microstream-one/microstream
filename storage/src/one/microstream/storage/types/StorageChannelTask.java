@@ -1,5 +1,7 @@
 package one.microstream.storage.types;
 
+import one.microstream.storage.exceptions.StorageException;
+
 public interface StorageChannelTask extends StorageTask
 {
 	public void incrementCompletionProgress();
@@ -52,13 +54,15 @@ public interface StorageChannelTask extends StorageTask
 			{
 				return;
 			}
-			// (30.05.2013)FIX-ME: check why this is never reached when task fails
-			// (15.06.2013)NOTE: should be fixed by double check in waitOnCompletion()
+			// (30.05.2013 TM)FIXME: check why this is never reached when task fails?
+			// (15.06.2013 TM)NOTE: should be fixed by double check in waitOnCompletion()
+			// (09.12.2019 TM)NOTE: still needs to be investigated.
 			for(int i = 0; i < this.problems.length; i++)
 			{
 				if(this.problems[i] != null)
 				{
-					throw new RuntimeException("Problem in channel " + i, this.problems[i]); // (09.09.2014 TM)EXCP: proper exception
+					// (09.09.2014 TM)EXCP: proper exception
+					throw new StorageException("Problem in channel " + i, this.problems[i]);
 				}
 			}
 		}

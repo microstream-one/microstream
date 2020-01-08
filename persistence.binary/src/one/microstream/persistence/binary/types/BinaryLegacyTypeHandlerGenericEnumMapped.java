@@ -6,7 +6,7 @@ import static one.microstream.X.notNull;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
@@ -73,16 +73,16 @@ extends BinaryLegacyTypeHandlerGenericEnum<T>
 	////////////
 		
 	@Override
-	protected T internalCreate(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	protected T internalCreate(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return PersistenceLegacyTypeHandler.resolveEnumConstant(this, bytes, this.ordinalMapping);
+		return PersistenceLegacyTypeHandler.resolveEnumConstant(this, data, this.ordinalMapping);
 	}
 	
 	@Override
-	public void update(final Binary rawData, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
 	{
 		// debug hook
-		super.update(rawData, instance, idResolver);
+		super.updateState(rawData, instance, handler);
 	}
 	
 }

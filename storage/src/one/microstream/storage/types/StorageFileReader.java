@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+import one.microstream.storage.exceptions.StorageException;
+
 public interface StorageFileReader
 {
 	public default long readStorage(
@@ -35,7 +37,7 @@ public interface StorageFileReader
 		}
 		catch(final IOException e)
 		{
-			throw new RuntimeException(e); // (10.12.2014 TM)EXCP: proper exception
+			throw new StorageException(e); // (10.12.2014 TM)EXCP: proper exception
 		}
 	}
 

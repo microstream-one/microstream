@@ -19,7 +19,7 @@ import one.microstream.equality.Equalator;
 import one.microstream.functional.IndexedAcceptor;
 import one.microstream.typing.KeyValue;
 
-// (17.09.2013)FIXME: EmptyTable: implement all FIX-ME
+// (17.09.2013 TM)FIXME: EmptyTable: implement all FIX-ME
 public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 {
 	///////////////////////////////////////////////////////////////////////////

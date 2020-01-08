@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -47,24 +47,44 @@ public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVar
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static String instanceState(final Path instance)
+	{
+		return instance.toUri().toString();
+	}
+	
+	private static String binaryState(final Binary data)
+	{
+		return data.buildString();
+	}
 
 	@Override
 	public void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final Path                    instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// uri starts with a schema specification that basically defines the type/implementation of the path.
-		bytes.storeStringValue(this.typeId(), objectId, instance.toUri().toString());
+		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
-	public Path create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public Path create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		// the URI schema is responsible to trigger the correct resolving and produce an instance of the right type.
-		return Paths.get(URI.create(bytes.buildString()));
+		return Paths.get(URI.create(binaryState(data)));
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Path                   instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		compareSimpleState(instance, instanceState(instance), binaryState(data));
 	}
 
 }

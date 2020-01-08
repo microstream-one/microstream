@@ -120,37 +120,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * @see #start()
 	 * @see #start(Object)
 	 */
-	public default EmbeddedStorageManager createEmbeddedStorageManager(final Object explicitRoot)
-	{
-		return this.createEmbeddedStorageManager(explicitRoot == null
-			? null
-			: PersistenceRootResolver.wrapCustomRoot(explicitRoot)
-		);
-	}
-	
-	/**
-	 * Creates and returns a new {@link EmbeddedStorageManager} instance by using the current state of all registered
-	 * logic part instances and by on-demand creating missing ones via a default logic.
-	 * <p>
-	 * If the passed {@literal rootSupplier} is {@literal null}, a default root instance will be created, see
-	 * {@link EmbeddedStorageManager#defaultRoot()}. Otherwise, it will be used to resolve the root instance to be used
-	 * during {@link #start()}. This indirection is necessary if the actual root instance is not yet available at
-	 * the time the {@link EmbeddedStorageManager} is created, but will be at the time {@link #start()} is called.
-	 * <p>
-	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
-	 * 
-	 * @param rootSupplier an indirection logic to later supply the instance to be used
-	 *        as the persistent entity graph's root instance.
-	 * 
-	 * @return a new {@link EmbeddedStorageManager} instance.
-	 * 
-	 * @see #createEmbeddedStorageManager()
-	 * @see #createEmbeddedStorageManager(Object)
-	 * @see #start()
-	 * @see #start(Object)
-	 */
-	public EmbeddedStorageManager createEmbeddedStorageManager(Supplier<?> rootSupplier);
-	
+	public EmbeddedStorageManager createEmbeddedStorageManager(Object explicitRoot);
+		
 	/**
 	 * Convenience method to create, start and return an {@link EmbeddedStorageManager} instance using a default
 	 * root instance.
@@ -366,7 +337,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public F setRoot(final Object root)
 		{
-			this.getConnectionFoundation().getRootResolverProvider().registerCustomRoot(root);
+			this.getConnectionFoundation().getRootResolverProvider().registerRoot(root);
 			
 			return this.$();
 		}
@@ -374,7 +345,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public F setRootSupplier(final Supplier<?> rootSupplier)
 		{
-			this.getConnectionFoundation().getRootResolverProvider().registerCustomRootSupplier(rootSupplier);
+			this.getConnectionFoundation().getRootResolverProvider().registerRootSupplier(rootSupplier);
 			
 			return this.$();
 		}
@@ -422,7 +393,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			return this.getConnectionFoundation().getRootResolverProvider();
 		}
 
-		/* (02.03.2014)TODO: Storage Configuration more dynamic
+		/* (02.03.2014 TM)TODO: Storage Configuration more dynamic
 		 *  The configuration must be provided in the creation process, not set idependantly.
 		 *  Example: cache evaluator might have to know all the channel caches.
 		 *  To avoid initializer loops (configuration must exist for the channels to be created),
@@ -505,12 +476,12 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		{
 			this.connectionFoundation = connectionFoundation;
 
-			/* Tricky: this instance must be set as a callback StorageManager supplier in case
-			 * the getStorageManager method is called before createEmbeddedStorageManager.
+			/* Tricky: this instance must be set as a callback StorageSystem supplier in case
+			 * the getStorageSystem method is called before createEmbeddedStorageSystem.
 			 * E.g.: setting customizing logic
 			 */
-			this.connectionFoundation.setStorageManagerSupplier(() ->
-				this.createStorageManager()
+			this.connectionFoundation.setStorageSystemSupplier(() ->
+				this.createStorageSystem()
 			);
 			
 			return this.$();
@@ -569,14 +540,14 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		}
 						
 		@Override
-		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Supplier<?> rootSupplier)
+		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object root)
 		{
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
 			
 			// explicit root must be registered at the rootResolverProvider.
-			if(rootSupplier != null)
+			if(root != null)
 			{
-				ecf.getRootResolverProvider().registerCustomRootSupplier(rootSupplier);
+				ecf.getRootResolverProvider().registerRoot(root);
 			}
 			
 			// must be created BEFORE the type handler manager is initilized to register its custom type handler
@@ -586,8 +557,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			final PersistenceTypeHandlerManager<?> thm = ecf.getTypeHandlerManager();
 			thm.initialize();
 			
-			// the registered supplier callback leads back to this class' createStorageManager method
-			final StorageManager stm = ecf.getStorageManager();
+			// the registered supplier callback leads back to this class' createStorageSystem method
+			final StorageSystem stm = ecf.getStorageSystem();
 			
 			initializeTypeDictionary(stm, ecf);
 
@@ -595,11 +566,16 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			this.initializeEmbeddedStorageRootTypeIdProvider(this.getRootTypeIdProvider(), thm);
 				
 			// everything bundled together in the actual manager instance
-			return EmbeddedStorageManager.New(stm.configuration(), ecf, prp);
+			final EmbeddedStorageManager esm = EmbeddedStorageManager.New(stm.configuration(), ecf, prp);
+			
+			// esm reference must be fed back to persistence layer as the "top level" Persister to be used.
+			ecf.setPersister(esm);
+			
+			return esm;
 		}
 		
 		private static void initializeTypeDictionary(
-			final StorageManager                         stm,
+			final StorageSystem                         stm,
 			final EmbeddedStorageConnectionFoundation<?> ecf
 		)
 		{

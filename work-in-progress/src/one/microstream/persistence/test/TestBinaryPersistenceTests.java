@@ -12,10 +12,10 @@ import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
-import one.microstream.persistence.types.PersistenceStorer;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeDictionaryManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerRegistry;
+import one.microstream.persistence.types.Storer;
 
 public class TestBinaryPersistenceTests extends TestComponentProvider
 {
@@ -60,30 +60,30 @@ public class TestBinaryPersistenceTests extends TestComponentProvider
 
 	static void testPersisterDirect(final PersistenceManager<Binary> persistenceManager)
 	{
-		final PersistenceStorer<Binary> persister = persistenceManager.createStorer();
+		final Storer storer = persistenceManager.createStorer();
 
-//		persister.persist(array(TestBinaryObjects.indices, TestBinaryObjects.objects));
+//		storer.persist(array(TestBinaryObjects.indices, TestBinaryObjects.objects));
 
-//		persister.persist(TestBinaryObjects.createTestPersons());
-//		persister.persist(Integer.MAX_VALUE);
-//		persister.persist(stupidArrayList(1,2,3,4));
-//		persister.persist("Hallo");
-//		persister.persist(new Bytie(1, 2, 3, 4));
-//		persister.persist(new B());
-//		persister.persist(new boolean[]{true, true, true, false, false, false, true, true, true});
-//		persister.persist(new boolean[0]);
-//		persister.persist(new int[]{0x55667788, 0x11223344, 0x11223344});
-//		persister.persist(new Object[]{new Object(), new Object()});
-//		persister.persist(new Object());
-//		persister.persist(new Object());
+//		storer.store(TestBinaryObjects.createTestPersons());
+//		storer.store(Integer.MAX_VALUE);
+//		storer.store(stupidArrayList(1,2,3,4));
+//		storer.store("Hallo");
+//		storer.store(new Bytie(1, 2, 3, 4));
+//		storer.store(new B());
+//		storer.store(new boolean[]{true, true, true, false, false, false, true, true, true});
+//		storer.store(new boolean[0]);
+//		storer.store(new int[]{0x55667788, 0x11223344, 0x11223344});
+//		storer.store(new Object[]{new Object(), new Object()});
+//		storer.store(new Object());
+//		storer.store(new Object());
 
 //		final Object o1 = new Object();
 //		final Object o2 = new Object();
-//		persister.persist(o1);
-//		persister.persist(new Object[]{o1, o2, o2});
-//		persister.persist(new Object());
+//		storer.store(o1);
+//		storer.store(new Object[]{o1, o2, o2});
+//		storer.store(new Object());
 
-		persister.commit();
+		storer.commit();
 	}
 
 
