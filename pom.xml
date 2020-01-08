@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>02.00.01-MS-GA-SNAPSHOT</version>
+	<version>02.01.01-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -83,8 +81,8 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:ssh://git@bitbucket.org:microstreamone/microstream.git</connection>
-		<developerConnection>scm:git:ssh//git@bitbucket.org:microstreamone/microstream.git</developerConnection>
+		<connection>scm:git:git@bitbucket.org:microstreamone/microstream.git</connection>
+		<developerConnection>scm:git:git@bitbucket.org:microstreamone/microstream.git</developerConnection>
 		<url>https://bitbucket.org/microstreamone/microstream.git</url>
 		<tag>HEAD</tag>
 	</scm>
@@ -291,7 +289,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -304,7 +302,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>

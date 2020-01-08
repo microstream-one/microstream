@@ -243,7 +243,7 @@ public interface NetworkConnectionManager extends Suspendable
 			this.listenerController.interrupt(); // call first in case of security exception
 			this.listenerController = null;
 			this.listeners.process(Deactivateable::deactivate);
-			// (02.10.2012)XXX: wait for shutdown before return? join over all threads?
+			// (02.10.2012 TM)XXX: wait for shutdown before return? join over all threads?
 			this.active = false;
 			return true;
 		}

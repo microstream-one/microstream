@@ -3,10 +3,10 @@ package one.microstream.persistence.types;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.reflect.XReflect;
 
-public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandler<M, T>
+public interface PersistenceLegacyTypeHandler<D, T> extends PersistenceTypeHandler<D, T>
 {
 	@Override
-	public default PersistenceLegacyTypeHandler<M, T> initialize(final long typeId)
+	public default PersistenceLegacyTypeHandler<D, T> initialize(final long typeId)
 	{
 		if(typeId == this.typeId())
 		{
@@ -23,7 +23,12 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	}
 
 	@Override
-	public default void store(final M medium, final T instance, final long objectId, final PersistenceStoreHandler handler)
+	public default void store(
+		final D                       data    ,
+		final T                       instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
 	{
 		// (13.09.2018 TM)EXCP: proper exception
 		throw new UnsupportedOperationException(
@@ -41,13 +46,13 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	}
 	
 	
-	public static <T, M> T resolveEnumConstant(
-		final PersistenceLegacyTypeHandler<M, T> typeHandler,
-		final M                                  medium     ,
+	public static <T, D> T resolveEnumConstant(
+		final PersistenceLegacyTypeHandler<D, T> typeHandler,
+		final D                                  data       ,
 		final Integer[]                          ordinalMap
 	)
 	{
-		final int     persistedEnumOrdinal = typeHandler.getPersistedEnumOrdinal(medium);
+		final int     persistedEnumOrdinal = typeHandler.getPersistedEnumOrdinal(data);
 		final Integer mappedOrdinal        = ordinalMap[persistedEnumOrdinal];
 		if(mappedOrdinal == null)
 		{
@@ -60,7 +65,7 @@ public interface PersistenceLegacyTypeHandler<M, T> extends PersistenceTypeHandl
 	
 	
 	
-	public abstract class Abstract<M, T> implements PersistenceLegacyTypeHandler<M, T>
+	public abstract class Abstract<D, T> implements PersistenceLegacyTypeHandler<D, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

@@ -1,6 +1,7 @@
 package one.microstream.storage.types;
 
 import one.microstream.math.XMath;
+import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageobjectIdMarkQueue
 {
@@ -250,7 +251,7 @@ public interface StorageobjectIdMarkQueue
 				if(this.lowIndex + amount > this.highIndex)
 				{
 					// (07.07.2016 TM)EXCP: proper exception
-					throw new RuntimeException("Inconsistent OidMarkQueue low index advance");
+					throw new StorageException("Inconsistent OidMarkQueue low index advance");
 				}
 
 				// report whether this segment is fully processed.

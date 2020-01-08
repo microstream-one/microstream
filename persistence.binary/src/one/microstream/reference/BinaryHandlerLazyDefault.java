@@ -1,10 +1,11 @@
-package one.microstream.persistence.lazy;
+package one.microstream.reference;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
+import one.microstream.reference.Lazy;
 
 
 public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<Lazy.Default<?>>
@@ -42,7 +43,7 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final Lazy.Default<?>         instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
@@ -83,12 +84,12 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 		instance.link(referenceOid, handler.getObjectRetriever());
 
 		// lazy reference instance must be stored in any case
-		bytes.storeEntityHeader(Binary.referenceBinaryLength(1), this.typeId(), objectId);
-		bytes.store_long(referenceOid);
+		data.storeEntityHeader(Binary.referenceBinaryLength(1), this.typeId(), objectId);
+		data.store_long(referenceOid);
 	}
 
 	@Override
-	public final Lazy.Default<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final Lazy.Default<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		/* (27.04.2016 TM)NOTE: registering a Lazy instance with a reference manager
 		 * without having the object supplier set yet might cause an inconsistency if the
@@ -96,30 +97,30 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 		 * ON the other hand: the lazy reference instance is not yet completed and whatever
 		 * logic iterates over the LRM's entries shouldn't rely on anything.
 		 */
-		final long objectId = bytes.read_long(0);
+		final long objectId = data.read_long(0);
 		
 		return Lazy.register(new Lazy.Default<>(null, objectId, null));
 	}
 
 	@Override
-	public final void update(
-		final Binary                      bytes     ,
-		final Lazy.Default<?>             instance  ,
-		final PersistenceObjectIdResolver idResolver
+	public final void updateState(
+		final Binary                 data    ,
+		final Lazy.Default<?>        instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		/* intentionally no subject lookup here as premature strong referencing
 		 * might defeat the purpose of memory freeing lazy referencing if no
 		 * other strong reference to the subject is present at the moment.
 		 */
-		instance.setLoader(idResolver.getObjectRetriever());
+		instance.setLoader(handler.getObjectRetriever());
 	}
 
 	@Override
 	public final void complete(
-		final Binary                      medium    ,
-		final Lazy.Default<?>             instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data    ,
+		final Lazy.Default<?>        instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
@@ -151,8 +152,8 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 
 	@Override
 	public final void iterateLoadableReferences(
-		final Binary                      offset  ,
-		final PersistenceObjectIdAcceptor iterator
+		final Binary                     offset  ,
+		final PersistenceReferenceLoader iterator
 	)
 	{
 		// the lazy reference is not naturally loadable, but special-handled by this handler

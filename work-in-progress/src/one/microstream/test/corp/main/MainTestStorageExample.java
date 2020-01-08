@@ -1,10 +1,7 @@
 package one.microstream.test.corp.main;
 
-import one.microstream.io.XIO;
-import one.microstream.meta.XDebug;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
-import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
@@ -13,8 +10,7 @@ public class MainTestStorageExample
 {
 	static
 	{
-//		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
-//		XMemory.setMemoryAccessor(MemoryAccessorGeneric.New(JdkInternals.InstantiatorBlank()));
+//		Test.clearDefaultStorageDirectory();
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
@@ -28,7 +24,7 @@ public class MainTestStorageExample
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			STORAGE.setRoot(Test.generateModelData(10000));
+			STORAGE.setRoot(Test.generateModelData(100));
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
@@ -50,21 +46,8 @@ public class MainTestStorageExample
 		
 		STORAGE.shutdown();
 		
-//		while(STORAGE.isActive())
-//		{
-//			XThreads.sleep(10);
-//		}
-//		System.err.println(STORAGE.isActive());
-//
-//		STORAGE = null;
-//		System.gc();
-		
-//		XThreads.sleep(500);
-		
-		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
-		
 		// no shutdown required, the storage concept is inherently crash-safe
 		System.exit(0);
 	}
-	
+		
 }

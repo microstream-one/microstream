@@ -5,8 +5,9 @@ import one.microstream.collections.ConstHashEnum;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.Persistence;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
 import one.microstream.reflect.XReflect;
@@ -85,18 +86,18 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 		return this.allMembers;
 	}
 	
-	protected abstract int getOrdinal(Binary bytes);
+	protected abstract int getOrdinal(Binary data);
 	
-	protected abstract String getName(Binary bytes, PersistenceObjectIdResolver idResolver);
+	protected abstract String getName(Binary data, PersistenceLoadHandler handler);
 	
 	@Override
-	public T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		// copied from BinaryHandlerEnum#create
 		
 		// Class detour required for AIC-like special subclass enums constants.
-		final Object[] jvmEnumConstants = XReflect.getDeclaredEnumClass(this.type()).getEnumConstants();
-		final int persistentOrdinal     = this.getOrdinal(bytes);
+		final Object[] jvmEnumConstants  = XReflect.getDeclaredEnumClass(this.type()).getEnumConstants();
+		final int      persistentOrdinal = this.getOrdinal(data);
 		
 		/*
 		 * Can't validate here since the name String instance might not have been created, yet. See #update.
@@ -119,26 +120,26 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 	}
 	
 	protected void validate(
-		final Binary                      bytes     ,
-		final T                           instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data    ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// validate ordinal, just in case.
-		final int persistentOrdinal = this.getOrdinal(bytes);
+		final int persistentOrdinal = this.getOrdinal(data);
 		if(persistentOrdinal != instance.ordinal())
 		{
 			// (01.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Inconcistency for " + instance.getDeclaringClass().getName() + "." + instance.name()
 			);
 		}
 		
-		final String persistentName = this.getName(bytes, idResolver);
+		final String persistentName = this.getName(data, handler);
 		if(!instance.name().equals(persistentName))
 		{
 			// (09.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Enum constant inconsistency:"
 				+ " in type " + this.type().getName()
 				+ " persisted instance with ordinal " + persistentOrdinal + ", name \"" + persistentName + "\""
@@ -149,13 +150,10 @@ public abstract class AbstractBinaryHandlerCustomEnum<T extends Enum<T>> extends
 	}
 		
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// must thoroughly validate the linked jvm-generated(!) instance before modifying its state!
-		this.validate(bytes, instance, idResolver);
-		
-		// super class logic is currently no-op, but is called here for future consistency.
-		super.update(bytes, instance, idResolver);
+		this.validate(data, instance, handler);
 	}
 	
 }

@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import one.microstream.io.FileException;
 import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.PersistenceTarget;
 
@@ -58,19 +59,9 @@ public class BinaryFileTarget implements PersistenceTarget<Binary>
 		}
 		catch(final IOException e)
 		{
-			// (01.10.2014)EXCP: proper exception
-			throw new RuntimeException(e);
+			// (01.10.2014 TM)EXCP: proper exception
+			throw new PersistenceException(e);
 		}
-		
-		// (12.07.2019 TM)NOTE: naive old code from 2012 or so. Replaced by centralized newer and reliable code above.
-//		try(final FileChannel fch = this.createChannel(this.file))
-//		{
-//			fch.write(chunk.buffers());
-//		}
-//		catch(final IOException e)
-//		{
-//			throw new PersistenceExceptionTransfer(e);
-//		}
 	}
 
 }

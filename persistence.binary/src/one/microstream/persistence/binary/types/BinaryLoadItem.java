@@ -27,6 +27,12 @@ public class BinaryLoadItem extends Binary
 		super();
 		this.address = entityContentAddress;
 	}
+	
+	BinaryLoadItem(final long objectId, final Object existingInstance)
+	{
+		this(-objectId);
+		this.existingInstance = existingInstance;
+	}
 
 
 
@@ -45,7 +51,6 @@ public class BinaryLoadItem extends Binary
 		/*
 		 * since all proper build items are validated to have a non-null handler,
 		 * a null handler can be safely used to indicate skip items, i.e. no data.
-		 * 
 		 */
 		return this.handler != null;
 	}
@@ -62,11 +67,17 @@ public class BinaryLoadItem extends Binary
 		final PersistenceObjectIdAcceptor acceptor
 	)
 	{
+		if(!this.isProper())
+		{
+			throw new Error("Improper items cannot iterate references.");
+		}
+		
 		long a = this.address;
 		for(int i = 0; i < traversers.length; i++)
 		{
 			a = traversers[i].apply(a, acceptor);
 		}
+		
 		return a;
 	}
 	
@@ -87,9 +98,9 @@ public class BinaryLoadItem extends Binary
 	@Override
 	public String toString()
 	{
-		return "LoadItem OID=" + this.getBuildItemObjectId()
+		return "LoadItem OID=" + (this.isDummyItem() ? " [Dummy]" : Long.toString(this.getBuildItemObjectId()))
 			+ (this.handler == null
-				? "[no handler]"
+				? " [no handler]"
 				: ", Type=" + this.handler.typeId() + " " + this.handler.typeName())
 		;
 	}

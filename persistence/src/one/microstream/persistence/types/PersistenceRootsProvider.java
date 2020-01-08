@@ -1,6 +1,6 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceRootsProvider<M>
+public interface PersistenceRootsProvider<D>
 {
 	public PersistenceRoots provideRoots();
 	
@@ -16,7 +16,7 @@ public interface PersistenceRootsProvider<M>
 	 * @param objectRegistry
 	 */
 	public void registerRootsTypeHandlerCreator(
-		PersistenceCustomTypeHandlerRegistry<M> typeHandlerRegistry,
+		PersistenceCustomTypeHandlerRegistry<D> typeHandlerRegistry,
 		PersistenceObjectRegistry               objectRegistry
 	);
 

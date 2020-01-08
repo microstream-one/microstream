@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.io.XIO;
-import one.microstream.persistence.lazy.Lazy;
+import one.microstream.reference.Lazy;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;

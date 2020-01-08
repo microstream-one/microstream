@@ -1,5 +1,7 @@
 package one.microstream.persistence.types;
 
+import one.microstream.reference.ObjectSwizzling;
+
 public interface PersistenceStoreHandler extends PersistenceFunction
 {
 	/**
@@ -15,6 +17,6 @@ public interface PersistenceStoreHandler extends PersistenceFunction
 	 */
 	public <T> long applyEager(T instance);
 	
-	public PersistenceObjectRetriever getObjectRetriever();
+	public ObjectSwizzling getObjectRetriever();
 	
 }

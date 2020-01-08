@@ -20,8 +20,9 @@ import one.microstream.exceptions.NoSuchFieldRuntimeException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.binary.types.BinaryTypeHandler;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
@@ -297,7 +298,7 @@ extends BinaryTypeHandler.Abstract<T>
 	}
 
 	@Override
-	public abstract void store(Binary bytes, T instance, long objectId, PersistenceStoreHandler handler);
+	public abstract void store(Binary data, T instance, long objectId, PersistenceStoreHandler handler);
 
 	@Override
 	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
@@ -306,19 +307,10 @@ extends BinaryTypeHandler.Abstract<T>
 	}
 
 	@Override
-	public abstract T create(Binary bytes, PersistenceObjectIdResolver idResolver);
+	public abstract T create(Binary data, PersistenceLoadHandler handler);
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
-	{
-		/* No-op update logic by default. This is useful for all immutable value types (String, Integer, etc.).
-		 * Value types never get updated. The value is only set once at instance creation time.
-		 * Subsequently provided (potentially different) values are ignored intentionally.
-		 */
-	}
-
-	@Override
-	public void complete(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void complete(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}
@@ -341,7 +333,7 @@ extends BinaryTypeHandler.Abstract<T>
 			}
 			
 			// (04.04.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				XChars.systemString(this)
 				+ " already initialized by an invokation from class "
 				+ this.initializationInvokingClass.getName()
@@ -367,7 +359,7 @@ extends BinaryTypeHandler.Abstract<T>
 			if(!binaryFieldsInOrder.add(name, field))
 			{
 				// (04.04.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					BinaryField.class.getSimpleName() + " with the name \"" + name + "\" is already registered."
 				);
 			}
@@ -422,7 +414,7 @@ extends BinaryTypeHandler.Abstract<T>
 			catch(final Exception e)
 			{
 				// (17.04.2019 TM)EXCP: proper exception
-				throw new RuntimeException(e);
+				throw new PersistenceException(e);
 			}
 		}
 	}
@@ -482,7 +474,7 @@ extends BinaryTypeHandler.Abstract<T>
 			if(binaryField != lastBinaryField)
 			{
 				// (18.04.2019 TM)EXCP: proper exception
-				throw new RuntimeException("Non-last binary field with variable length: " + binaryField.name());
+				throw new PersistenceException("Non-last binary field with variable length: " + binaryField.name());
 			}
 		}
 	}

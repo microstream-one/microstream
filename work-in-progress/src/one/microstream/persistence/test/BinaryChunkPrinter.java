@@ -83,10 +83,10 @@ public final class BinaryChunkPrinter implements Consumer<Binary>, BinaryEntityD
 		this.appendBinary(e);
 	}
 
-	public final VarString appendBinary(final Binary bytes)
+	public final VarString appendBinary(final Binary data)
 	{
 		this.printHeader();
-		this.printEntities(bytes);
+		this.printEntities(data);
 		this.printFooter();
 		
 		return this.vc;
@@ -100,9 +100,9 @@ public final class BinaryChunkPrinter implements Consumer<Binary>, BinaryEntityD
 		this.printSeperator();
 	}
 	
-	private void printEntities(final Binary bytes)
+	private void printEntities(final Binary data)
 	{
-		bytes.iterateEntityData(this);
+		data.iterateEntityData(this);
 	}
 	
 	@Override

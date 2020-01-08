@@ -43,7 +43,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 
 		private Thread sessionController;
 
-		private volatile boolean active; // (29.10.2012)XXX: use multi-state pattern like in Server?
+		private volatile boolean active; // (29.10.2012 TM)XXX: use multi-state pattern like in Server?
 
 		private final Consumer<S> synchTimeoutChecker = this::synchCheckTimeout;
 
@@ -153,7 +153,7 @@ public interface NetworkSessionManager<S extends NetworkSession<?>> extends Susp
 			}
 			this.active = false;
 			this.messageManager.deactivate();
-			// (30.09.2012)FIXME: deactivate
+			// (30.09.2012 TM)FIXME: deactivate
 			this.sessionController.interrupt();
 			this.sessionController = null;
 			return true;

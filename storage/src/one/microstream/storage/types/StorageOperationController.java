@@ -33,12 +33,12 @@ public interface StorageOperationController
 
 	
 	public static StorageOperationController New(
-		final StorageManager              storageManager      ,
+		final StorageSystem               storageSystem       ,
 		final StorageChannelCountProvider channelCountProvider
 	)
 	{
 		return new StorageOperationController.Default(
-			new WeakReference<>(storageManager),
+			new WeakReference<>(storageSystem),
 			channelCountProvider
 		);
 	}
@@ -49,11 +49,12 @@ public interface StorageOperationController
 		// instance fields //
 		////////////////////
 
-		private final WeakReference<StorageManager> storageManagerReference;
-		private final StorageChannelCountProvider   channelCountProvider   ;
-		private final BulkList<Throwable>           disruptions      = BulkList.New();
+		private final WeakReference<StorageSystem> storageSystemReference;
+		private final StorageChannelCountProvider  channelCountProvider  ;
 		
-		private boolean hasDisruptions   ;
+		private final BulkList<Throwable> disruptions = BulkList.New();
+		
+		private boolean hasDisruptions;
 		private boolean channelProcessingEnabled;
 
 
@@ -63,13 +64,13 @@ public interface StorageOperationController
 		/////////////////
 
 		Default(
-			final WeakReference<StorageManager> storageManagerReference,
-			final StorageChannelCountProvider   channelCountProvider
+			final WeakReference<StorageSystem> storageSystemReference,
+			final StorageChannelCountProvider  channelCountProvider
 		)
 		{
 			super();
-			this.storageManagerReference = storageManagerReference;
-			this.channelCountProvider    = channelCountProvider   ;
+			this.storageSystemReference = storageSystemReference;
+			this.channelCountProvider   = channelCountProvider  ;
 		}
 
 		
@@ -119,7 +120,7 @@ public interface StorageOperationController
 			}
 			
 			// if the database managing instance is no longer reachable (used), there is no point in continue processing
-			if(this.storageManagerReference.get() == null)
+			if(this.storageSystemReference.get() == null)
 			{
 //				XDebug.println(Thread.currentThread().getName() + " found nulled reference.");
 				this.deactivate();
@@ -162,7 +163,7 @@ public interface StorageOperationController
 	{
 		public StorageOperationController createOperationController(
 			StorageChannelCountProvider channelCountProvider,
-			StorageManager              storageManager
+			StorageSystem               storageSystem
 		);
 		
 		public final class Default implements StorageOperationController.Creator
@@ -185,13 +186,10 @@ public interface StorageOperationController
 			@Override
 			public final StorageOperationController createOperationController(
 				final StorageChannelCountProvider channelCountProvider,
-				final StorageManager              storageManager
+				final StorageSystem               storageSystem
 			)
 			{
-				return StorageOperationController.New(
-					storageManager      ,
-					channelCountProvider
-				);
+				return StorageOperationController.New(storageSystem, channelCountProvider);
 			}
 			
 		}

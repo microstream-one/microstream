@@ -275,7 +275,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 			this.listenerController.interrupt(); // call first in case of security exception
 			this.listenerController = null;
 			this.listeners.process(Deactivateable::deactivate);
-			// (02.10.2012)XXX: wait for shutdown before return? join over all threads?
+			// (02.10.2012 TM)XXX: wait for shutdown before return? join over all threads?
 			this.active = false;
 			return true;
 		}
@@ -316,7 +316,7 @@ public interface NetworkMessageManager<S extends NetworkSession<?>> extends Susp
 			final ListenerThread thread = this.sessionMap.get(session);
 			if(thread == null)
 			{
-				throw new IllegalArgumentException(); // (29.10.2012)EXCP: proper exception
+				throw new IllegalArgumentException(); // (29.10.2012 TM)EXCP: proper exception
 			}
 			// ignore if session was actually removed or got removed before already (e.g. due to IoException)
 			thread.logic.removeSession(session);

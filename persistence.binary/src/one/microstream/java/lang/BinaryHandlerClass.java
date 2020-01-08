@@ -4,10 +4,9 @@ import static one.microstream.X.notNull;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
-import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.reference.Referencing;
 
@@ -60,27 +59,37 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private long instanceState(final Class<?> instance)
+	{
+		return this.typeHandlerManager.get().ensureTypeHandler(instance).typeId();
+	}
+	
+	private static long binaryState(final Binary data)
+	{
+		return data.read_long(0);
+	}
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final Class<?>                instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		final PersistenceTypeHandler<?, ?> typeHandler = this.typeHandlerManager.get().ensureTypeHandler(instance);
-		bytes.storeLong(
+		final long classTypeId = this.instanceState(instance);
+		data.storeLong(
 			this.typeId(),
 			objectId,
-			typeHandler.typeId()
+			classTypeId
 		);
 	}
 
 	@Override
-	public final Class<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final Class<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		final long typeId = bytes.read_long(0);
+		final long typeId = binaryState(data);
 		
 		final PersistenceTypeDefinition typeDefinition = this.typeHandlerManager.get()
 			.typeDictionary()
@@ -91,6 +100,24 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 		final Class<?> resolvedInstance = typeDefinition.type();
 		
 		return resolvedInstance;
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Class<?>               instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final long instanceState = this.instanceState(instance);
+		final long binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

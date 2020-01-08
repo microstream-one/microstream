@@ -1,16 +1,13 @@
-package one.microstream.persistence.lazy;
+package one.microstream.reference;
 
 import static one.microstream.X.coalesce;
 
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
-import one.microstream.reference.LazyReferencing;
-import one.microstream.reference._longReference;
-
 public interface LazyReferenceManager
 {
-	public void register(LazyReferencing<?> lazyReference);
+	public void register(Lazy<?> lazyReference);
 
 	public void cleanUp(long nanoTimeBudget);
 
@@ -25,7 +22,7 @@ public interface LazyReferenceManager
 
 	public LazyReferenceManager stop();
 
-	public <P extends Consumer<? super LazyReferencing<?>>> P iterate(P procedure);
+	public <P extends Consumer<? super Lazy<?>>> P iterate(P procedure);
 
 
 
@@ -78,7 +75,7 @@ public interface LazyReferenceManager
 	}
 
 
-	public interface Checker extends Consumer<LazyReferencing<?>>
+	public interface Checker extends Consumer<Lazy<?>>
 	{
 		public default void beginCheckCycle()
 		{
@@ -86,7 +83,7 @@ public interface LazyReferenceManager
 		}
 
 		@Override
-		public void accept(LazyReferencing<?> lazyReference);
+		public void accept(Lazy<?> lazyReference);
 
 		public default void endCheckCycle()
 		{
@@ -130,17 +127,9 @@ public interface LazyReferenceManager
 	public final class Clearer implements Checker
 	{
 		@Override
-		public void accept(final LazyReferencing<?> lazyReference)
+		public void accept(final Lazy<?> lazyReference)
 		{
-			if(!(lazyReference instanceof Lazy))
-			{
-				return;
-			}
-			final Lazy<?> lazy = (Lazy<?>)lazyReference;
-			if(lazy.isStored())
-			{
-				lazy.clear();
-			}
+			lazyReference.clear();
 		}
 	}
 
@@ -244,7 +233,7 @@ public interface LazyReferenceManager
 			do // do at least one check, no matter what
 			{
 				// keep strong reference to avoid intermediate garbage collection
-				final LazyReferencing<?> ref = e.get();
+				final Lazy<?> ref = e.get();
 
 				// check for orphan entry
 				if(ref != null)
@@ -302,7 +291,7 @@ public interface LazyReferenceManager
 		////////////
 
 		@Override
-		public synchronized void register(final LazyReferencing<?> lazyReference)
+		public synchronized void register(final Lazy<?> lazyReference)
 		{
 //			XDebug.debugln(this + " registering " + lazyReference.peek());
 			// uniqueness of references is guaranteed by calling this method only exactely once per reference instance
@@ -346,11 +335,11 @@ public interface LazyReferenceManager
 		}
 
 		@Override
-		public synchronized <P extends Consumer<? super LazyReferencing<?>>> P iterate(final P procedure)
+		public synchronized <P extends Consumer<? super Lazy<?>>> P iterate(final P procedure)
 		{
 			for(Entry e = this.head; (e = e.nextLazyManagerEntry) != null;)
 			{
-				final LazyReferencing<?> ref = e.get();
+				final Lazy<?> ref = e.get();
 				if(ref != null)
 				{
 					procedure.accept(ref);
@@ -364,11 +353,11 @@ public interface LazyReferenceManager
 		{
 			// lazy reference for automatic thread termination
 			private final WeakReference<LazyReferenceManager.Default> parent               ;
-			private final _longReference                              checkIntervalProvider;
+			private final _longReference                                     checkIntervalProvider;
 
 			LazyReferenceCleanupThread(
 				final WeakReference<LazyReferenceManager.Default> parent,
-				final _longReference                              checkIntervalProvider
+				final _longReference                      checkIntervalProvider
 			)
 			{
 				super(LazyReferenceManager.class.getSimpleName() + '@' + System.identityHashCode(parent));
@@ -421,11 +410,11 @@ public interface LazyReferenceManager
 		}
 
 
-		static final class Entry extends WeakReference<LazyReferencing<?>>
+		static final class Entry extends WeakReference<Lazy<?>>
 		{
 			Entry nextLazyManagerEntry; // explicit naming to avoid ambiguity with WeakReference's field
 
-			public Entry(final LazyReferencing<?> referent)
+			public Entry(final Lazy<?> referent)
 			{
 				super(referent);
 			}
@@ -443,7 +432,7 @@ public interface LazyReferenceManager
 		}
 
 		@Override
-		public final void register(final LazyReferencing<?> lazyReference)
+		public final void register(final Lazy<?> lazyReference)
 		{
 			// no-op dummy
 		}
@@ -473,7 +462,7 @@ public interface LazyReferenceManager
 		}
 
 		@Override
-		public <P extends Consumer<? super LazyReferencing<?>>> P iterate(final P procedure)
+		public <P extends Consumer<? super Lazy<?>>> P iterate(final P procedure)
 		{
 			return procedure;
 		}
