@@ -5,7 +5,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
-import one.microstream.reference.lazy.Lazy;
+import one.microstream.reference.Lazy;
 
 
 public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<Lazy.Default<?>>

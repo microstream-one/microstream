@@ -40,8 +40,8 @@ import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInv
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import one.microstream.reference.Lazy;
 import one.microstream.reference.Swizzling;
-import one.microstream.reference.lazy.Lazy;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.Composition;
 import one.microstream.typing.KeyValue;
