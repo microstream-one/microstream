@@ -21,6 +21,15 @@ public interface EvictionPolicy
 		return cache -> cache.size() >= maxCacheSize;
 	}
 	
+	public static Comparator<KeyValue<Object, CachedValue>> LeastRecentlyUsedComparator()
+	{
+		return (kv1, kv2) -> Long.compare(kv1.value().accessTime(), kv2.value().accessTime());
+	}
+	
+	public static Comparator<KeyValue<Object, CachedValue>> LeastFrequentlyUsedComparator()
+	{
+		return (kv1, kv2) -> Long.compare(kv1.value().accessCount(), kv2.value().accessCount());
+	}
 	
 	public static EvictionPolicy LeastRecentlyUsed(final long maxCacheSize)
 	{
@@ -32,9 +41,7 @@ public interface EvictionPolicy
 		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
 	)
 	{
-		final Comparator<KeyValue<Object, CachedValue>> comparator =
-			(kv1, kv2) -> Long.compare(kv1.value().accessTime(), kv2.value().accessTime());
-		return new Sampling(evictionNecessity, evictionPermission, comparator);
+		return Sampling(evictionNecessity, evictionPermission, LeastRecentlyUsedComparator());
 	}
 	
 	public static EvictionPolicy LeastFrequentlyUsed(final long maxCacheSize)
@@ -47,9 +54,7 @@ public interface EvictionPolicy
 		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
 	)
 	{
-		final Comparator<KeyValue<Object, CachedValue>> comparator =
-			(kv1, kv2) -> Long.compare(kv1.value().accessCount(), kv2.value().accessCount());
-		return new Sampling(evictionNecessity, evictionPermission, comparator);
+		return Sampling(evictionNecessity, evictionPermission, LeastFrequentlyUsedComparator());
 	}
 	
 	public static EvictionPolicy FirstInFirstOut(final long maxCacheSize)
@@ -58,6 +63,23 @@ public interface EvictionPolicy
 	}
 	
 	public static EvictionPolicy FirstInFirstOut(
+		final Predicate<CacheTable>                     evictionNecessity,
+		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
+	)
+	{
+		return Searching(evictionNecessity, evictionPermission);
+	}
+	
+	public static EvictionPolicy Sampling(
+		final Predicate<CacheTable>                     evictionNecessity,
+		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission,
+		final Comparator<KeyValue<Object, CachedValue>> comparator
+	)
+	{
+		return new Sampling(evictionNecessity, evictionPermission, comparator);
+	}
+	
+	public static EvictionPolicy Searching(
 		final Predicate<CacheTable>                     evictionNecessity,
 		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
 	)
@@ -82,7 +104,8 @@ public interface EvictionPolicy
 		Sampling(
 			final Predicate<CacheTable>                     evictionNecessity,
 			final Predicate<KeyValue<Object, CachedValue>>  evictionPermission,
-			final Comparator<KeyValue<Object, CachedValue>> comparator)
+			final Comparator<KeyValue<Object, CachedValue>> comparator
+		)
 		{
 			super();
 			
@@ -147,7 +170,8 @@ public interface EvictionPolicy
 				
 		Searching(
 			final Predicate<CacheTable>                     evictionNecessity,
-			final Predicate<KeyValue<Object, CachedValue>>  evictionPermission)
+			final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
+		)
 		{
 			super();
 			
