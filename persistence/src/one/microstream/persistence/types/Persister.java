@@ -1,6 +1,8 @@
 package one.microstream.persistence.types;
 
-public interface Persister extends PersistenceObjectRetriever, PersistenceStoring
+import one.microstream.reference.ObjectSwizzling;
+
+public interface Persister extends ObjectSwizzling, PersistenceStoring
 {
 	@Override
 	public Object getObject(long objectId);

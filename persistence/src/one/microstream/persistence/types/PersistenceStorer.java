@@ -1,5 +1,6 @@
 package one.microstream.persistence.types;
 
+import one.microstream.reference.ObjectSwizzling;
 import one.microstream.util.BufferSizeProviderIncremental;
 
 public interface PersistenceStorer extends Storer
@@ -51,7 +52,7 @@ public interface PersistenceStorer extends Storer
 		public PersistenceStorer createLazyStorer(
 			PersistenceTypeHandlerManager<D> typeManager       ,
 			PersistenceObjectManager         objectManager     ,
-			PersistenceObjectRetriever       objectRetriever   ,
+			ObjectSwizzling       objectRetriever   ,
 			PersistenceTarget<D>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
 		);
@@ -69,7 +70,7 @@ public interface PersistenceStorer extends Storer
 		public default PersistenceStorer createStorer(
 			final PersistenceTypeHandlerManager<D> typeManager       ,
 			final PersistenceObjectManager         objectManager     ,
-			final PersistenceObjectRetriever       objectRetriever   ,
+			final ObjectSwizzling       objectRetriever   ,
 			final PersistenceTarget<D>             target            ,
 			final BufferSizeProviderIncremental    bufferSizeProvider
 		)
@@ -96,7 +97,7 @@ public interface PersistenceStorer extends Storer
 		public PersistenceStorer createEagerStorer(
 			PersistenceTypeHandlerManager<D> typeManager       ,
 			PersistenceObjectManager         objectManager     ,
-			PersistenceObjectRetriever       objectRetriever   ,
+			ObjectSwizzling       objectRetriever   ,
 			PersistenceTarget<D>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
 		);

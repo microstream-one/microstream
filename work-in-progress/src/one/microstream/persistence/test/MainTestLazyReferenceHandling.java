@@ -2,13 +2,13 @@ package one.microstream.persistence.test;
 
 import one.microstream.X;
 import one.microstream.collections.types.XList;
-import one.microstream.persistence.lazy.Lazy;
-import one.microstream.persistence.lazy.LazyReferenceManager;
-import one.microstream.persistence.types.PersistenceObjectRetriever;
+import one.microstream.reference.ObjectSwizzling;
+import one.microstream.reference.lazy.Lazy;
+import one.microstream.reference.lazy.LazyReferenceManager;
 
 public class MainTestLazyReferenceHandling
 {
-	static final PersistenceObjectRetriever DUMMY_LOADER = o -> null;
+	static final ObjectSwizzling DUMMY_LOADER = o -> null;
 
 
 	public static void main(final String[] args) throws Exception
