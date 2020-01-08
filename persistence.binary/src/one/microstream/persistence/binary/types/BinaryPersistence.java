@@ -92,8 +92,8 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeIdLookup;
+import one.microstream.reference.BinaryHandlerLazyDefault;
 import one.microstream.reference.Referencing;
-import one.microstream.reference.lazy.BinaryHandlerLazyDefault;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BinaryHandlerSubstituterDefault;
 
