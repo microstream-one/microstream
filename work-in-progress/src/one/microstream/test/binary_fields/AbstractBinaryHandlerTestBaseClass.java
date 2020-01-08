@@ -14,9 +14,9 @@ public abstract class AbstractBinaryHandlerTestBaseClass<T extends TestBaseClass
 	////////////////////
 
 	private final BinaryField<TestBaseClass>
-		baseValue_long   = Field(e -> (int)e.baseValue_long, (e, v) -> e.baseValue_long = v),
-		baseValue_double = Field(double.class),
-		baseReference    = Field(String.class)
+		baseValue_long   = Field_long(e -> e.baseValue_long, (e, v) -> e.baseValue_long = v),
+		baseValue_double = Field_double(e -> e.baseValue_double, (e, v) -> e.baseValue_double = v),
+		baseReference    = Field(String.class, e -> e.baseReference, (e, v) -> e.baseReference = v)
 	//	cmplx   = FieldBytes(),
 //		cmplx   = FieldComplex(
 //			Field(String.class, "key"),
