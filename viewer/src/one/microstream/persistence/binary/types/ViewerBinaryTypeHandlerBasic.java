@@ -1,6 +1,6 @@
 package one.microstream.persistence.binary.types;
 
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
 public class ViewerBinaryTypeHandlerBasic<T> extends ViewerBinaryTypeHandlerWrapperAbstract<T>
@@ -20,19 +20,19 @@ public class ViewerBinaryTypeHandlerBasic<T> extends ViewerBinaryTypeHandlerWrap
 	////////////
 
 	@Override
-	public ViewerObjectDescription create(final Binary medium, final PersistenceObjectIdResolver idResolver)
+	public ViewerObjectDescription create(final Binary medium, final PersistenceLoadHandler handler)
 	{
-		final ViewerObjectDescription objectDescription = this.genericHandler.create(medium, idResolver);
-		objectDescription.setPrimitiveInstance(this.nativeHandler.create(medium, idResolver));
+		final ViewerObjectDescription objectDescription = this.genericHandler.create(medium, handler);
+		objectDescription.setPrimitiveInstance(this.nativeHandler.create(medium, handler));
 
 		return objectDescription;
 	}
 
 	@SuppressWarnings("unchecked") // safe by logic
 	@Override
-	public void update(final Binary medium, final Object instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary medium, final Object instance, final PersistenceLoadHandler handler)
 	{
-		this.nativeHandler.update(medium, (T)((ViewerObjectDescription)instance).getPrimitiveInstance(), idResolver);
+		this.nativeHandler.updateState(medium, (T)((ViewerObjectDescription)instance).getPrimitiveInstance(), handler);
 	}
 
 }

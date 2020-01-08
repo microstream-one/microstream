@@ -86,9 +86,9 @@ public class StorageRestAdapter<T> extends EmbeddedStorageRestAdapter
 		return this.converter.convertMemberList(preprocessed);
 	}
 
-	public T getRoot()
+	public T getUserRoot()
 	{
-		final ViewerRootDescription root = super.getUserRoot();
+		final ViewerRootDescription root = super.getRoot();
 		return this.converter.convert(this.preprocessor.process(root));
 	}
 

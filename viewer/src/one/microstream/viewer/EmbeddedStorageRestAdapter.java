@@ -6,6 +6,7 @@ import java.util.List;
 import one.microstream.persistence.binary.types.ViewerBinaryPersistenceManager;
 import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.persistence.binary.types.ViewerObjectDescription;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceRootsView;
 import one.microstream.storage.exceptions.StorageException;
@@ -91,6 +92,30 @@ public class EmbeddedStorageRestAdapter
 	}
 
 	/**
+	 * Get the current root name and object id
+	 *
+	 * If no default root is registered the returned ViewerRootDescription
+	 * will have a "null" string as name and objectId 0.
+	 *
+	 * @return ViewerRootDescription
+	 */
+	public ViewerRootDescription getRoot()
+	{
+		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
+		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
+
+		final Object defaultRoot = roots.rootReference().get();
+		if(defaultRoot != null)
+		{
+			//return new ViewerRootDescription(roots.rootIdentifier(), registry.lookupObjectId(defaultRoot));
+			return new ViewerRootDescription(Persistence.rootIdentifier(), registry.lookupObjectId(defaultRoot));
+		}
+
+		//return new ViewerRootDescription(roots.rootIdentifier(), 0);
+		return new ViewerRootDescription(Persistence.rootIdentifier(), 0);
+	}
+
+	/**
 	 * Get the current default root name and object id
 	 *
 	 * If no default root is registered the returned ViewerRootDescription
@@ -98,19 +123,19 @@ public class EmbeddedStorageRestAdapter
 	 *
 	 * @return ViewerRootDescription
 	 */
-	public ViewerRootDescription getDefaultRoot()
-	{
-		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
-		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
-
-		final Object defaultRoot = roots.defaultRoot();
-		if(defaultRoot != null)
-		{
-			return new ViewerRootDescription(roots.defaultRootIdentifier(), registry.lookupObjectId(defaultRoot));
-		}
-
-		return new ViewerRootDescription(roots.defaultRootIdentifier(), 0);
-	}
+//	public ViewerRootDescription getDefaultRoot()
+//	{
+//		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
+//		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
+//
+//		final Object defaultRoot = roots.defaultRoot();
+//		if(defaultRoot != null)
+//		{
+//			return new ViewerRootDescription(roots.defaultRootIdentifier(), registry.lookupObjectId(defaultRoot));
+//		}
+//
+//		return new ViewerRootDescription(roots.defaultRootIdentifier(), 0);
+//	}
 
 	/**
 	 * Get the current custom root name and object id
@@ -120,19 +145,20 @@ public class EmbeddedStorageRestAdapter
 	 *
 	 * @return ViewerRootDescription
 	 */
-	public ViewerRootDescription getCustomRoot()
-	{
-		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
-		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
+//	public ViewerRootDescription getCustomRoot()
+//	{
+//		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
+//		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
+//
+//		final Object customRoot = roots.customRoot();
+//		if(customRoot != null)
+//		{
+//			return new ViewerRootDescription(roots.customRootIdentifier(), registry.lookupObjectId(customRoot));
+//		}
+//
+//		return new ViewerRootDescription(roots.customRootIdentifier(), 0);
+//	}
 
-		final Object customRoot = roots.customRoot();
-		if(customRoot != null)
-		{
-			return new ViewerRootDescription(roots.customRootIdentifier(), registry.lookupObjectId(customRoot));
-		}
-
-		return new ViewerRootDescription(roots.customRootIdentifier(), 0);
-	}
 
 	/**
 	 * Get the current (either Custom or Default) root name and object id
@@ -142,48 +168,48 @@ public class EmbeddedStorageRestAdapter
 	 *
 	 * @return ViewerRootDescription
 	 */
-	public ViewerRootDescription getUserRoot()
-	{
-		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
-		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
-
-		final Object customRoot = roots.customRoot();
-		if(customRoot != null)
-		{
-			return new ViewerRootDescription(roots.customRootIdentifier(), registry.lookupObjectId(customRoot));
-		}
-
-		final Object defaultRoot = roots.defaultRoot();
-		if(defaultRoot != null)
-		{
-			return new ViewerRootDescription(roots.defaultRootIdentifier(), registry.lookupObjectId(defaultRoot));
-		}
-
-
-		return new ViewerRootDescription(roots.customRootIdentifier(), 0);
-	}
+//	public ViewerRootDescription getUserRoot()
+//	{
+//		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
+//		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
+//
+//		final Object customRoot = roots.customRoot();
+//		if(customRoot != null)
+//		{
+//			return new ViewerRootDescription(roots.customRootIdentifier(), registry.lookupObjectId(customRoot));
+//		}
+//
+//		final Object defaultRoot = roots.defaultRoot();
+//		if(defaultRoot != null)
+//		{
+//			return new ViewerRootDescription(roots.defaultRootIdentifier(), registry.lookupObjectId(defaultRoot));
+//		}
+//
+//
+//		return new ViewerRootDescription(roots.customRootIdentifier(), 0);
+//	}
 
 	/**
 	 * get the ObjectId of the current root object
 	 *
 	 * @return > 0 if ObjectId has been found, otherwise 0
 	 */
-	public long getRootId()
-	{
-		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
-		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
-
-		Object rootObject = roots.defaultRoot();
-		if(rootObject == null)
-		{
-			rootObject = roots.customRoot();
-		}
-
-		if(rootObject != null)
-		{
-			return registry.lookupObjectId(rootObject);
-		}
-
-		return 0;
-	}
+//	public long getRootId()
+//	{
+//		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
+//		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
+//
+//		Object rootObject = roots.defaultRoot();
+//		if(rootObject == null)
+//		{
+//			rootObject = roots.customRoot();
+//		}
+//
+//		if(rootObject != null)
+//		{
+//			return registry.lookupObjectId(rootObject);
+//		}
+//
+//		return 0;
+//	}
 }
