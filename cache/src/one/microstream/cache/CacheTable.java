@@ -3,6 +3,7 @@ package one.microstream.cache;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import one.microstream.collections.EqHashTable;
@@ -21,6 +22,8 @@ public interface CacheTable
 	
 	public Iterator<KeyValue<Object, CachedValue>> iterator();
 	
+	public void iterate(Consumer<KeyValue<Object, CachedValue>> procedure);
+	
 	public KeyValue<Object, CachedValue> search(Predicate<? super KeyValue<Object, CachedValue>> predicate);
 	
 	public long size();
@@ -31,6 +34,7 @@ public interface CacheTable
 	
 	public KeyValue<Object, CachedValue> rangeMin(long offset, long length, Comparator<? super KeyValue<Object, CachedValue>> comparator);
 	
+		
 	
 	public static CacheTable New()
 	{
@@ -77,6 +81,12 @@ public interface CacheTable
 		{
 			return this.table.iterator();
 		}
+		
+		@Override
+		public void iterate(final Consumer<KeyValue<Object, CachedValue>> procedure)
+		{
+			this.table.iterate(procedure);
+		}
 
 		@Override
 		public KeyValue<Object, CachedValue> search(final Predicate<? super KeyValue<Object, CachedValue>> predicate)
@@ -101,7 +111,7 @@ public interface CacheTable
 		{
 			return this.table.min(comparator);
 		}
-		
+				
 		@Override
 		public KeyValue<Object, CachedValue> rangeMin(
 			final long offset,
