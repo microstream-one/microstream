@@ -1,4 +1,4 @@
-package one.microstream.reference.lazy;
+package one.microstream.reference;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
