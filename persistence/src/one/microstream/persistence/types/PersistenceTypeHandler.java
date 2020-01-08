@@ -342,8 +342,8 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition
 			
 			this.typeId = typeId;
 			
-			// (07.05.2019 TM)FIXME: priv#88: reactivate upon resume.
-//			this.internalInitialize();
+			// (08.01.2020 TM)FIXME: priv#88: should this really remain here or be moved to on-demand member initialization?
+			this.internalInitialize();
 			
 			// by default, implementations are assumed to be (effectively) immutable and thus can return themselves.
 			return this;
