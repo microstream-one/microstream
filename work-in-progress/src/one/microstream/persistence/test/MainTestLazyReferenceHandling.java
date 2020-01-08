@@ -2,6 +2,8 @@ package one.microstream.persistence.test;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XList;
+import one.microstream.math.XMath;
+import one.microstream.meta.XDebug;
 import one.microstream.reference.Lazy;
 import one.microstream.reference.LazyReferenceManager;
 import one.microstream.reference.ObjectSwizzling;
@@ -15,13 +17,10 @@ public class MainTestLazyReferenceHandling
 	public static void main(final String[] args) throws Exception
 	{
 		test(LazyReferenceManager.New(
-//			Lazy.Checker(
-//				20_000,
-//				memoryStats -> memoryStats.quota() < 0.5
-//			),
-			new LazyReferenceManager.Clearer(),
-			() -> 2500,
-			() -> 2_500_000
+			
+			Lazy.CheckerMemory(0.5).combine(
+				Lazy.CheckerTimeout(20_000)
+			)
 		));
 
 		strings = createList(10_000);
@@ -30,14 +29,14 @@ public class MainTestLazyReferenceHandling
 //		LazyReferenceManager.get().clear();
 //		}).start();
 		
-//		while(true)
-//		{
-//			Thread.sleep(XMath.random(300));
-//			final int count = XMath.random(1000);
-//			strings.addAll(createList(count));
-//			XDebug.println("Added " + count);
-//			System.gc();
-//		}
+		while(true)
+		{
+			Thread.sleep(XMath.random(300));
+			final int count = XMath.random(5000);
+			strings.addAll(createList(count));
+			XDebug.println("Added " + count);
+			System.gc();
+		}
 	}
 	
 	static XList<Lazy<String>> createList(final long size)
