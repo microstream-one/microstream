@@ -1,5 +1,7 @@
 package one.microstream.collections;
 
+import static one.microstream.X.mayNull;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -37,7 +39,20 @@ import one.microstream.util.iterables.TrivialIterator;
 public class Singleton<E> implements XReference<E>
 {
 	// (05.07.2011 TM)TODO: what about removing, adding, [0;1]-sized singleton?
+	
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	///////////////////
+	
+	public static <E> Singleton<E> New(final E element)
+	{
+		return new Singleton<>(
+			mayNull(element)
+		);
+	}
+	
 
+	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
@@ -50,7 +65,7 @@ public class Singleton<E> implements XReference<E>
 	// constructors //
 	/////////////////
 
-	public Singleton(final E element)
+	protected Singleton(final E element)
 	{
 		super();
 		this.element = element;

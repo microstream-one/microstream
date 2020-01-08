@@ -102,7 +102,7 @@ public interface NetworkConnectionHandler
 		@Override
 		public void handleConnection(final SocketChannel newConnection)
 		{
-			/* (29.09.2012)XXX: what about counting enqueued connections to throttle down heavy load?
+			/* (29.09.2012 TM)XXX: what about counting enqueued connections to throttle down heavy load?
 			 * Or is there a more elegant way like some kind of adaptive sleep time or so?
 			 */
 			this.threadManager.accept(newConnection);

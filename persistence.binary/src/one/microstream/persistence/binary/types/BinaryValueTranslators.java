@@ -2,9 +2,10 @@ package one.microstream.persistence.binary.types;
 
 import one.microstream.X;
 import one.microstream.memory.XMemory;
-import one.microstream.persistence.lazy.Lazy;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.exceptions.PersistenceException;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
+import one.microstream.reference.lazy.Lazy;
 import one.microstream.typing.TypeMapping;
 
 public final class BinaryValueTranslators
@@ -38,7 +39,7 @@ public final class BinaryValueTranslators
 	)
 	{
 		// (18.09.2018 TM)EXCP: proper exception
-		throw new RuntimeException(
+		throw new PersistenceException(
 			"Cannot convert between primitive and reference values: "
 			+ sourceType + " <-> " + targetType+ "."
 		);
@@ -267,80 +268,80 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long skip_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		return sourceAddress + XMemory.byteSize_byte();
 	}
 	
 	public static long skip_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		return sourceAddress + XMemory.byteSize_boolean();
 	}
 	
 	public static long skip_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		return sourceAddress + XMemory.byteSize_short();
 	}
 	
 	public static long skip_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		return sourceAddress + XMemory.byteSize_char();
 	}
 	
 	public static long skip_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		return sourceAddress + XMemory.byteSize_int();
 	}
 	
 	public static long skip_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		return sourceAddress + Float.BYTES;
 	}
 	
 	public static long skip_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		return sourceAddress + XMemory.byteSize_long();
 	}
 	
 	public static long skip_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		return sourceAddress + XMemory.byteSize_double();
@@ -349,10 +350,10 @@ public final class BinaryValueTranslators
 	
 	
 	public static long copy_byteTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, XMemory.get_byte(sourceAddress));
@@ -360,10 +361,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_byteTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_byte(sourceAddress));
@@ -371,10 +372,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_byteTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, XMemory.get_byte(sourceAddress));
@@ -382,10 +383,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_byteTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, (char)XMemory.get_byte(sourceAddress));
@@ -393,10 +394,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_byteTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, XMemory.get_byte(sourceAddress));
@@ -404,10 +405,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_byteTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_float(target, targetOffset, XMemory.get_byte(sourceAddress));
@@ -415,10 +416,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_byteTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, XMemory.get_byte(sourceAddress));
@@ -426,10 +427,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_byteTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_double(target, targetOffset, XMemory.get_byte(sourceAddress));
@@ -439,10 +440,10 @@ public final class BinaryValueTranslators
 
 
 	public static long copy_booleanTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)to_int(XMemory.get_boolean(sourceAddress)));
@@ -450,21 +451,21 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_booleanTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, XMemory.get_boolean(sourceAddress));
 		return sourceAddress + XMemory.byteSize_boolean();
 	}
-
+	
 	public static long copy_booleanTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, (short)to_int(XMemory.get_boolean(sourceAddress)));
@@ -472,10 +473,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_booleanTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, (char)to_int(XMemory.get_boolean(sourceAddress)));
@@ -483,10 +484,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_booleanTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, to_int(XMemory.get_boolean(sourceAddress)));
@@ -494,10 +495,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_booleanTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_float(target, targetOffset, to_int(XMemory.get_boolean(sourceAddress)));
@@ -505,10 +506,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_booleanTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, to_int(XMemory.get_boolean(sourceAddress)));
@@ -516,10 +517,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_booleanTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_double(target, targetOffset, to_int(XMemory.get_boolean(sourceAddress)));
@@ -529,10 +530,10 @@ public final class BinaryValueTranslators
 
 
 	public static long copy_shortTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_short(sourceAddress));
@@ -540,10 +541,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_shortTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_short(sourceAddress));
@@ -551,10 +552,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_shortTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, XMemory.get_short(sourceAddress));
@@ -562,10 +563,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_shortTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, (char)XMemory.get_short(sourceAddress));
@@ -573,10 +574,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_shortTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, XMemory.get_short(sourceAddress));
@@ -584,10 +585,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_shortTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_float(target, targetOffset, XMemory.get_short(sourceAddress));
@@ -595,10 +596,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_shortTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, XMemory.get_short(sourceAddress));
@@ -606,10 +607,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_shortTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_double(target, targetOffset, XMemory.get_short(sourceAddress));
@@ -619,10 +620,10 @@ public final class BinaryValueTranslators
 
 
 	public static long copy_charTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_char(sourceAddress));
@@ -630,10 +631,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_charTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_char(sourceAddress));
@@ -641,10 +642,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_charTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, (short)XMemory.get_char(sourceAddress));
@@ -652,10 +653,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_charTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, XMemory.get_char(sourceAddress));
@@ -663,10 +664,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_charTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, XMemory.get_char(sourceAddress));
@@ -674,10 +675,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_charTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_float(target, targetOffset, XMemory.get_char(sourceAddress));
@@ -685,10 +686,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_charTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, XMemory.get_char(sourceAddress));
@@ -696,10 +697,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_charTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_double(target, targetOffset, XMemory.get_char(sourceAddress));
@@ -709,10 +710,10 @@ public final class BinaryValueTranslators
 
 
 	public static long copy_intTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_int(sourceAddress));
@@ -720,10 +721,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_intTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_int(sourceAddress));
@@ -731,10 +732,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_intTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, (short)XMemory.get_int(sourceAddress));
@@ -742,10 +743,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_intTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, (char)XMemory.get_int(sourceAddress));
@@ -753,10 +754,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_intTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, XMemory.get_int(sourceAddress));
@@ -764,10 +765,10 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long copy_intTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_float(target, targetOffset, XMemory.get_int(sourceAddress));
@@ -775,10 +776,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_intTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, XMemory.get_int(sourceAddress));
@@ -786,10 +787,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_intTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_double(target, targetOffset, XMemory.get_int(sourceAddress));
@@ -799,10 +800,10 @@ public final class BinaryValueTranslators
 
 
 	public static long copy_floatTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_float(sourceAddress));
@@ -810,10 +811,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_floatTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_float(sourceAddress));
@@ -821,10 +822,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_floatTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, (short)XMemory.get_float(sourceAddress));
@@ -832,10 +833,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_floatTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, (char)XMemory.get_float(sourceAddress));
@@ -843,10 +844,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_floatTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, (int)XMemory.get_float(sourceAddress));
@@ -854,10 +855,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_floatTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_float(target, targetOffset, XMemory.get_float(sourceAddress));
@@ -865,10 +866,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_floatTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, (long)XMemory.get_float(sourceAddress));
@@ -876,10 +877,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_floatTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_double(target, targetOffset, XMemory.get_float(sourceAddress));
@@ -889,10 +890,10 @@ public final class BinaryValueTranslators
 
 
 	public static long copy_longTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_long(sourceAddress));
@@ -900,10 +901,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_longTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_long(sourceAddress));
@@ -911,10 +912,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_longTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, (short)XMemory.get_long(sourceAddress));
@@ -922,10 +923,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_longTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, (char)XMemory.get_long(sourceAddress));
@@ -933,10 +934,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_longTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, (int)XMemory.get_long(sourceAddress));
@@ -944,10 +945,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_longTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_float(target, targetOffset, XMemory.get_long(sourceAddress));
@@ -955,10 +956,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_longTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, XMemory.get_long(sourceAddress));
@@ -966,10 +967,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_longTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_double(target, targetOffset, XMemory.get_long(sourceAddress));
@@ -979,10 +980,10 @@ public final class BinaryValueTranslators
 
 
 	public static long copy_doubleTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)XMemory.get_double(sourceAddress));
@@ -990,10 +991,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_doubleTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != XMemory.get_double(sourceAddress));
@@ -1001,10 +1002,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_doubleTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, (short)XMemory.get_double(sourceAddress));
@@ -1012,10 +1013,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_doubleTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, (char)XMemory.get_double(sourceAddress));
@@ -1023,10 +1024,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_doubleTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, (int)XMemory.get_double(sourceAddress));
@@ -1034,10 +1035,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_doubleTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_float(target, targetOffset, (float)XMemory.get_double(sourceAddress));
@@ -1045,10 +1046,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_doubleTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, (long)XMemory.get_double(sourceAddress));
@@ -1056,10 +1057,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long copy_doubleTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_double(target, targetOffset, XMemory.get_double(sourceAddress));
@@ -1067,10 +1068,10 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long copy_byteAsByte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.setObject(target, targetOffset, Byte.valueOf(XMemory.get_byte(sourceAddress)));
@@ -1078,10 +1079,10 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long copy_booleanAsBoolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.setObject(target, targetOffset, Boolean.valueOf(XMemory.get_boolean(sourceAddress)));
@@ -1089,10 +1090,10 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long copy_shortAsShort(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.setObject(target, targetOffset, Short.valueOf(XMemory.get_short(sourceAddress)));
@@ -1100,10 +1101,10 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long copy_charAsCharacter(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.setObject(target, targetOffset, Character.valueOf(XMemory.get_char(sourceAddress)));
@@ -1111,10 +1112,10 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long copy_intAsInteger(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.setObject(target, targetOffset, Integer.valueOf(XMemory.get_int(sourceAddress)));
@@ -1122,10 +1123,10 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long copy_floatAsFloat(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.setObject(target, targetOffset, Float.valueOf(XMemory.get_float(sourceAddress)));
@@ -1133,10 +1134,10 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long copy_longAsLong(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.setObject(target, targetOffset, Long.valueOf(XMemory.get_long(sourceAddress)));
@@ -1144,10 +1145,10 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long copy_doubleAsDouble(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.setObject(target, targetOffset, Double.valueOf(XMemory.get_double(sourceAddress)));
@@ -1155,98 +1156,98 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long copyByteTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		XMemory.set_byte(target, targetOffset, X.unbox((Byte)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		XMemory.set_byte(target, targetOffset, X.unbox((Byte)handler.lookupObject(XMemory.get_long(sourceAddress))));
 		return sourceAddress + Binary.objectIdByteLength();
 	}
 	
 	public static long copyBooleanTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		XMemory.set_boolean(target, targetOffset, X.unbox((Boolean)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		XMemory.set_boolean(target, targetOffset, X.unbox((Boolean)handler.lookupObject(XMemory.get_long(sourceAddress))));
 		return sourceAddress + Binary.objectIdByteLength();
 	}
 	
 	public static long copyShortTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		XMemory.set_short(target, targetOffset, X.unbox((Short)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		XMemory.set_short(target, targetOffset, X.unbox((Short)handler.lookupObject(XMemory.get_long(sourceAddress))));
 		return sourceAddress + Binary.objectIdByteLength();
 	}
 	
 	public static long copyCharacterTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		XMemory.set_char(target, targetOffset, X.unbox((Character)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		XMemory.set_char(target, targetOffset, X.unbox((Character)handler.lookupObject(XMemory.get_long(sourceAddress))));
 		return sourceAddress + Binary.objectIdByteLength();
 	}
 	
 	public static long copyIntegerTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		XMemory.set_int(target, targetOffset, X.unbox((Integer)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		XMemory.set_int(target, targetOffset, X.unbox((Integer)handler.lookupObject(XMemory.get_long(sourceAddress))));
 		return sourceAddress + Binary.objectIdByteLength();
 	}
 	
 	public static long copyFloatTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		XMemory.set_float(target, targetOffset, X.unbox((Float)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		XMemory.set_float(target, targetOffset, X.unbox((Float)handler.lookupObject(XMemory.get_long(sourceAddress))));
 		return sourceAddress + Binary.objectIdByteLength();
 	}
 	
 	public static long copyLongTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		XMemory.set_long(target, targetOffset, X.unbox((Long)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		XMemory.set_long(target, targetOffset, X.unbox((Long)handler.lookupObject(XMemory.get_long(sourceAddress))));
 		return sourceAddress + Binary.objectIdByteLength();
 	}
 	
 	public static long copyDoubleTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
-		XMemory.set_double(target, targetOffset, X.unbox((Double)idResolver.lookupObject(XMemory.get_long(sourceAddress))));
+		XMemory.set_double(target, targetOffset, X.unbox((Double)handler.lookupObject(XMemory.get_long(sourceAddress))));
 		return sourceAddress + Binary.objectIdByteLength();
 	}
 	
 	public static long removeLazyReference(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		/* (07.08.2019 TM)FIXME: priv#126: remove lazy Reference
@@ -1259,8 +1260,8 @@ public final class BinaryValueTranslators
 		 * for this use case.
 		 * Such a mechanism does not exist, yet and is not easy to implement.
 		 */
-//		final Lazy<?> lazyReference = (Lazy<?>)idResolver.lookupObject(XMemory.get_long(sourceAddress));
-//		final Object potentiallyNotThereYet = idResolver.lookupObject(lazyReference.objectId());
+//		final Lazy<?> lazyReference = (Lazy<?>)handler.lookupObject(XMemory.get_long(sourceAddress));
+//		final Object potentiallyNotThereYet = handler.lookupObject(lazyReference.objectId());
 //		final Object notCallableAtThisPoint = Lazy.get(lazyReference);
 //		XMemory.setObject(target, targetOffset, ???);
 		
@@ -1270,14 +1271,14 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long wrapWithLazyReference(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		final long objectId = XMemory.get_long(sourceAddress);
-		final Lazy<?> wrappingLazyReference = Lazy.New(objectId, idResolver.getObjectRetriever());
+		final Lazy<?> wrappingLazyReference = Lazy.New(objectId, handler.getObjectRetriever());
 		XMemory.setObject(target, targetOffset, wrappingLazyReference);
 		
 		return sourceAddress + Binary.objectIdByteLength();
@@ -1410,10 +1411,10 @@ public final class BinaryValueTranslators
 	}
 	
 	public static long switchingCopy_byteTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, Short.reverseBytes(XMemory.get_byte(sourceAddress)));
@@ -1421,10 +1422,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_byteTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, Character.reverseBytes((char)XMemory.get_byte(sourceAddress)));
@@ -1432,10 +1433,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_byteTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(XMemory.get_byte(sourceAddress)));
@@ -1443,10 +1444,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_byteTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(XMemory.get_byte(sourceAddress))));
@@ -1454,10 +1455,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_byteTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(XMemory.get_byte(sourceAddress)));
@@ -1465,10 +1466,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_byteTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(XMemory.get_byte(sourceAddress))));
@@ -1478,10 +1479,10 @@ public final class BinaryValueTranslators
 
 	
 	public static long switchingCopy_booleanTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, Short.reverseBytes((short)to_int(XMemory.get_boolean(sourceAddress))));
@@ -1489,10 +1490,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_booleanTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, Character.reverseBytes((char)to_int(XMemory.get_boolean(sourceAddress))));
@@ -1500,10 +1501,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_booleanTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(to_int(XMemory.get_boolean(sourceAddress))));
@@ -1511,10 +1512,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_booleanTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(to_int(XMemory.get_boolean(sourceAddress)))));
@@ -1522,10 +1523,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_booleanTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(to_int(XMemory.get_boolean(sourceAddress))));
@@ -1533,10 +1534,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_booleanTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(to_int(XMemory.get_boolean(sourceAddress)))));
@@ -1546,10 +1547,10 @@ public final class BinaryValueTranslators
 
 
 	public static long switchingCopy_shortTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)Short.reverseBytes(XMemory.get_short(sourceAddress)));
@@ -1557,10 +1558,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_shortTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != Short.reverseBytes(XMemory.get_short(sourceAddress)));
@@ -1568,10 +1569,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_shortTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, Character.reverseBytes((char)Short.reverseBytes(XMemory.get_short(sourceAddress))));
@@ -1579,10 +1580,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_shortTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Short.reverseBytes(XMemory.get_short(sourceAddress))));
@@ -1590,10 +1591,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_shortTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(Short.reverseBytes(XMemory.get_short(sourceAddress)))));
@@ -1601,10 +1602,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_shortTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(Short.reverseBytes(XMemory.get_short(sourceAddress))));
@@ -1612,10 +1613,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_shortTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(Short.reverseBytes(XMemory.get_short(sourceAddress)))));
@@ -1625,10 +1626,10 @@ public final class BinaryValueTranslators
 
 
 	public static long switchingCopy_charTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)Character.reverseBytes(XMemory.get_char(sourceAddress)));
@@ -1636,10 +1637,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_charTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != Character.reverseBytes(XMemory.get_char(sourceAddress)));
@@ -1647,10 +1648,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_charTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, Short.reverseBytes((short)Character.reverseBytes(XMemory.get_char(sourceAddress))));
@@ -1658,10 +1659,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_charTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Character.reverseBytes(XMemory.get_char(sourceAddress))));
@@ -1669,10 +1670,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_charTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(Character.reverseBytes(XMemory.get_char(sourceAddress)))));
@@ -1680,10 +1681,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_charTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(Character.reverseBytes(XMemory.get_char(sourceAddress))));
@@ -1691,10 +1692,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_charTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(Character.reverseBytes(XMemory.get_char(sourceAddress)))));
@@ -1704,10 +1705,10 @@ public final class BinaryValueTranslators
 
 
 	public static long switchingCopy_intTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)Integer.reverseBytes(XMemory.get_int(sourceAddress)));
@@ -1715,10 +1716,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_intTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != Integer.reverseBytes(XMemory.get_int(sourceAddress)));
@@ -1726,10 +1727,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_intTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, Short.reverseBytes((short)Integer.reverseBytes(XMemory.get_int(sourceAddress))));
@@ -1737,10 +1738,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_intTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, Character.reverseBytes((char)Integer.reverseBytes(XMemory.get_int(sourceAddress))));
@@ -1748,10 +1749,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_intTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(Integer.reverseBytes(XMemory.get_int(sourceAddress)))));
@@ -1759,10 +1760,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_intTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(Integer.reverseBytes(XMemory.get_int(sourceAddress))));
@@ -1770,10 +1771,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_intTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(Integer.reverseBytes(XMemory.get_int(sourceAddress)))));
@@ -1783,10 +1784,10 @@ public final class BinaryValueTranslators
 
 
 	public static long switchingCopy_floatTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)Float.intBitsToFloat(Integer.reverseBytes(XMemory.get_int(sourceAddress))));
@@ -1794,10 +1795,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_floatTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != Float.intBitsToFloat(Integer.reverseBytes(XMemory.get_int(sourceAddress))));
@@ -1805,10 +1806,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_floatTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, Short.reverseBytes((short)Float.intBitsToFloat(Integer.reverseBytes(XMemory.get_int(sourceAddress)))));
@@ -1816,10 +1817,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_floatTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, Character.reverseBytes((char)Float.intBitsToFloat(Integer.reverseBytes(XMemory.get_int(sourceAddress)))));
@@ -1827,10 +1828,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_floatTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes((int)Float.intBitsToFloat(Integer.reverseBytes(XMemory.get_int(sourceAddress)))));
@@ -1838,10 +1839,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_floatTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes((long)Float.intBitsToFloat(Integer.reverseBytes(XMemory.get_int(sourceAddress)))));
@@ -1849,10 +1850,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_floatTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(Float.intBitsToFloat(Integer.reverseBytes(XMemory.get_int(sourceAddress))))));
@@ -1862,10 +1863,10 @@ public final class BinaryValueTranslators
 
 
 	public static long switchingCopy_longTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)Long.reverseBytes(XMemory.get_long(sourceAddress)));
@@ -1873,10 +1874,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_longTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != Long.reverseBytes(XMemory.get_long(sourceAddress)));
@@ -1884,10 +1885,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_longTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, Short.reverseBytes((short)Long.reverseBytes(XMemory.get_long(sourceAddress))));
@@ -1895,10 +1896,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_longTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, Character.reverseBytes((char)Long.reverseBytes(XMemory.get_long(sourceAddress))));
@@ -1906,10 +1907,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_longTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes((int)Long.reverseBytes(XMemory.get_long(sourceAddress))));
@@ -1917,10 +1918,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_longTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits(Long.reverseBytes(XMemory.get_long(sourceAddress)))));
@@ -1928,10 +1929,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_longTo_double(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes(Double.doubleToRawLongBits(Long.reverseBytes(XMemory.get_long(sourceAddress)))));
@@ -1941,10 +1942,10 @@ public final class BinaryValueTranslators
 
 
 	public static long switchingCopy_doubleTo_byte(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_byte(target, targetOffset, (byte)Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress))));
@@ -1952,10 +1953,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_doubleTo_boolean(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_boolean(target, targetOffset, 0 != Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress))));
@@ -1963,10 +1964,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_doubleTo_short(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_short(target, targetOffset, Short.reverseBytes((short)Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress)))));
@@ -1974,10 +1975,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_doubleTo_char(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_char(target, targetOffset, Character.reverseBytes((char)Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress)))));
@@ -1985,10 +1986,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_doubleTo_int(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes((int)Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress)))));
@@ -1996,10 +1997,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_doubleTo_float(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_int(target, targetOffset, Integer.reverseBytes(Float.floatToRawIntBits((float)Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress))))));
@@ -2007,10 +2008,10 @@ public final class BinaryValueTranslators
 	}
 
 	public static long switchingCopy_doubleTo_long(
-		final long                        sourceAddress,
-		final Object                      target       ,
-		final long                        targetOffset ,
-		final PersistenceObjectIdResolver idResolver
+		final long                   sourceAddress,
+		final Object                 target       ,
+		final long                   targetOffset ,
+		final PersistenceLoadHandler handler
 	)
 	{
 		XMemory.set_long(target, targetOffset, Long.reverseBytes((long)Double.longBitsToDouble(Long.reverseBytes(XMemory.get_long(sourceAddress)))));

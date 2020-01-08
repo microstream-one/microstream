@@ -75,7 +75,7 @@ implements Aggregator<PersistenceTypeDescriptionMember, PersistenceTypeDescripti
 	@Override
 	public final void accept(final PersistenceTypeDescriptionMember member)
 	{
-		// (21.03.2013)XXX: type dictionary member field measurement uses awkward instanceoffing
+		// (21.03.2013 TM)XXX: type dictionary member field measurement uses awkward instanceoffing
 		if(member instanceof PersistenceTypeDescriptionMemberFieldReflective)
 		{
 			this.measureFieldStrings((PersistenceTypeDescriptionMemberFieldReflective)member);

@@ -9,6 +9,7 @@ import one.microstream.chars.XChars;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.math.XMath;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResult;
 import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -17,21 +18,21 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.util.similarity.MultiMatch;
 import one.microstream.util.similarity.Similarity;
 
-public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyTypeMappingResultor<M>
+public class InquiringLegacyTypeMappingResultor<D> implements PersistenceLegacyTypeMappingResultor<D>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static <M> InquiringLegacyTypeMappingResultor<M> New(
-		final PersistenceLegacyTypeMappingResultor<M> delegate
+	public static <D> InquiringLegacyTypeMappingResultor<D> New(
+		final PersistenceLegacyTypeMappingResultor<D> delegate
 	)
 	{
 		return New(delegate, 1.0);
 	}
 		
-	public static <M> InquiringLegacyTypeMappingResultor<M> New(
-		final PersistenceLegacyTypeMappingResultor<M> delegate,
+	public static <D> InquiringLegacyTypeMappingResultor<D> New(
+		final PersistenceLegacyTypeMappingResultor<D> delegate,
 		final double                minimumSimilarityThreshold
 	)
 	{
@@ -52,7 +53,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	// instance fields //
 	////////////////////
 	
-	private final PersistenceLegacyTypeMappingResultor<M> delegate;
+	private final PersistenceLegacyTypeMappingResultor<D> delegate;
 	private final double                inquirySimilarityThreshold;
 	
 	
@@ -62,7 +63,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	/////////////////
 	
 	InquiringLegacyTypeMappingResultor(
-		final PersistenceLegacyTypeMappingResultor<M> delegate,
+		final PersistenceLegacyTypeMappingResultor<D> delegate,
 		final double                inquirySimilarityThreshold
 	)
 	{
@@ -78,7 +79,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	////////////
 	
 	private boolean inquiryRequired(
-		final PersistenceLegacyTypeMappingResult<M, ?>                                      result          ,
+		final PersistenceLegacyTypeMappingResult<D, ?>                                      result          ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings
 	)
 	{
@@ -101,15 +102,15 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	}
 
 	@Override
-	public <T> PersistenceLegacyTypeMappingResult<M, T> createMappingResult(
+	public <T> PersistenceLegacyTypeMappingResult<D, T> createMappingResult(
 		final PersistenceTypeDefinition                                                     legacyTypeDefinition,
-		final PersistenceTypeHandler<M, T>                                                  currentTypeHandler  ,
+		final PersistenceTypeHandler<D, T>                                                  currentTypeHandler  ,
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings    ,
 		final XGettingSet<PersistenceTypeDefinitionMember>                                  explicitNewMembers  ,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers
 	)
 	{
-		final PersistenceLegacyTypeMappingResult<M, T> result = this.delegate.createMappingResult(
+		final PersistenceLegacyTypeMappingResult<D, T> result = this.delegate.createMappingResult(
 			legacyTypeDefinition,
 			currentTypeHandler  ,
 			explicitMappings    ,
@@ -137,7 +138,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		}
 		
 		// (10.10.2018 TM)EXCP: proper exception
-		throw new RuntimeException(
+		throw new PersistenceException(
 			"User-aborted legacy type mapping for type " + legacyTypeDefinition.toTypeIdentifier()
 		);
 	}
@@ -145,7 +146,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	protected boolean inquireApproval(
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers  ,
-		final PersistenceLegacyTypeMappingResult<M, ?>                                      result
+		final PersistenceLegacyTypeMappingResult<D, ?>                                      result
 	)
 	{
 		System.out.println(this.buildInquiry(explicitMappings, matchedMembers, result));
@@ -165,7 +166,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 	protected String buildInquiry(
 		final XGettingMap<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> explicitMappings,
 		final MultiMatch<PersistenceTypeDefinitionMember>                                   matchedMembers  ,
-		final PersistenceLegacyTypeMappingResult<M, ?>                                      result
+		final PersistenceLegacyTypeMappingResult<D, ?>                                      result
 	)
 	{
 		// intentionally no instance field to not permanently occupy memory by an initializer part.
@@ -181,7 +182,7 @@ public class InquiringLegacyTypeMappingResultor<M> implements PersistenceLegacyT
 		
 	protected VarString assembleInquiryEnd(
 		final VarString                                vs    ,
-		final PersistenceLegacyTypeMappingResult<M, ?> result
+		final PersistenceLegacyTypeMappingResult<D, ?> result
 	)
 	{
 		vs

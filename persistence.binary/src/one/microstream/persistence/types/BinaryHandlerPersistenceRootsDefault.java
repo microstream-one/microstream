@@ -2,10 +2,12 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.reference.Referencing;
 import one.microstream.typing.KeyValue;
 
 
@@ -36,10 +38,10 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	private final PersistenceRootResolverProvider rootResolverProvider;
 
 	/**
-	 * The handler instance directly known the global registry might suprise at first and seem like a shortcut hack.
+	 * The handler instance directly knowing the global registry might suprise at first and seem like a shortcut hack.
 	 * However, when taking a closer look at the task of this handler: (globally) resolving global root instances,
 	 * it becomes clear that a direct access for registering resolved global instances at the global registry is
-	 * indeed part of this handler's task
+	 * indeed part of this handler's task.
 	 */
 	final PersistenceObjectRegistry globalRegistry;
 
@@ -77,40 +79,47 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 
 	@Override
 	public final void store(
-		final Binary                   bytes   ,
+		final Binary                   data    ,
 		final PersistenceRoots.Default instance,
 		final long                     objectId,
 		final PersistenceStoreHandler  handler
 	)
 	{
-		bytes.storeRoots(this.typeId(), objectId, instance.entries(), handler);
+		data.storeRoots(this.typeId(), objectId, instance.entries(), handler);
 	}
 
 	@Override
-	public final PersistenceRoots.Default create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final PersistenceRoots.Default create(final Binary data, final PersistenceLoadHandler handler)
 	{
+		// The identifier -> objectId root id mapping is created (and validated) from the loaded data.
+		final EqHashTable<String, Long> rootIdMapping = data.buildRootMapping(EqHashTable.New());
+		
+		/* (10.12.2019 TM)TODO: PersistenceRoots constants instance oid association
+		 * This method could collect all oids per identifer in the binary data and associate all
+		 * linkable constants instances with their oid at the objectRegistry very easily and elegantly, here.
+		 * Then there wouldn't be unnecessarily created instances that get discarded later on in update().
+		 */
 		return PersistenceRoots.Default.New(
-			this.rootResolverProvider.provideRootResolver()
+			this.rootResolverProvider.provideRootResolver(),
+			rootIdMapping
 		);
 	}
-
+	
 	@Override
-	public final void update(
-		final Binary                      bytes   ,
-		final PersistenceRoots.Default    instance,
-		final PersistenceObjectIdResolver handler
+	public final void updateState(
+		final Binary                   data    ,
+		final PersistenceRoots.Default instance,
+		final PersistenceLoadHandler   handler
 	)
 	{
-		// The once provided and then set root resolver is used right away in here.
-		final PersistenceRootResolver rootResolver = instance.rootResolver;
+		final PersistenceRootResolver   rootResolver  = instance.rootResolver ;
+		final EqHashTable<String, Long> rootIdMapping = instance.rootIdMapping;
 		
-		// The identifier -> objectId root id mapping is created (and validated) from the loaded data.
-		final XGettingTable<String, Long> rootIdMapping = bytes.buildRootMapping(EqHashTable.New());
+		final EqHashTable<String, PersistenceRootEntry> resolvedRootEntries = EqHashTable.New();
+		this.ensureRefactoredOldRoots(rootIdMapping, resolvedRootEntries, handler);
 
 		// Root identifiers are resolved to root entries (with potentially mapped (= different) identifiers internally)
-		final XGettingTable<String, PersistenceRootEntry> resolvedRootEntries = rootResolver.resolveRootEntries(
-			rootIdMapping.keys()
-		);
+		rootResolver.resolveRootEntries(resolvedRootEntries, rootIdMapping.keys());
 		
 		// The entries are resolved to a mapping of current (= potentially mapped) identifiers to root instances.
 		final XGettingTable<String, Object> resolvedRoots = rootResolver.resolveRootInstances(resolvedRootEntries);
@@ -120,6 +129,107 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		
 		// The resolved instances need to be registered for their objectIds. Properly mapped to consider removed ones.
 		this.registerInstancesPerObjectId(resolvedRootEntries, rootIdMapping);
+	}
+	
+	/**
+	 * @deprecated this method is as deprecated as the old root concept's identifier it uses.
+	 * See {@link Persistence#customRootIdentifier()} and {@link Persistence#defaultRootIdentifier()}.
+	 */
+	@Deprecated
+	private boolean ensureRefactoredOldRoots(
+		final EqHashTable<String, Long>                 rootIdMapping,
+		final EqHashTable<String, PersistenceRootEntry> resolvedRoots,
+		final PersistenceLoadHandler                    handler
+	)
+	{
+		final Long customRootOid  = rootIdMapping.get(Persistence.customRootIdentifier());
+		final Long defaultRootOid = rootIdMapping.get(Persistence.defaultRootIdentifier());
+		
+		// quick check to abort for the non-refactoring (= normal) cases.
+		if(customRootOid == null && defaultRootOid == null)
+		{
+			return false;
+		}
+		
+		/*
+		 * Reaching here means some refactoring has to be done. There are 4 cases to be covered.
+		 * This is intentionally one big messy method to limit the deprecated conversion logic
+		 * to one single method.
+		 */
+
+		final Object root = this.rootResolverProvider.rootReference().get();
+		if(root == null)
+		{
+			// root refactoring case #1: root == null & customRoot exists
+			if(customRootOid != null)
+			{
+				final Object customRoot = handler.lookupObject(customRootOid);
+				if(customRoot == null)
+				{
+					throw new Error(
+						"Root instance missing for identifier \"" + Persistence.customRootIdentifier() + "\""
+					);
+				}
+				
+				this.rootResolverProvider.rootReference().set(customRoot);
+				resolvedRoots.add(Persistence.customRootIdentifier(), null);
+				
+				return true;
+			}
+
+			// root refactoring case #2: root == null & defaultRoot exists
+			if(defaultRootOid != null)
+			{
+				final Object defaultRoot = handler.lookupObject(defaultRootOid);
+				if(defaultRoot == null)
+				{
+					throw new Error(
+						"Root instance missing for identifier \"" + Persistence.defaultRootIdentifier() + "\""
+					);
+				}
+				if(!(defaultRoot instanceof Referencing<?>))
+				{
+					throw new Error(
+						"Inconsistently typed default root instance: " + XChars.systemString(defaultRoot)
+					);
+				}
+				
+				final Referencing<?> casted = (Referencing<?>)defaultRoot;
+				
+				// safe as storing a root reference only stores the actual instance's objectId, not the supplier.
+				this.rootResolverProvider.rootReference().setRootSupplier(() ->
+					casted.get()
+				);
+				resolvedRoots.add(Persistence.defaultRootIdentifier(), null);
+				
+				return true;
+			}
+		}
+		else
+		{
+			// root instance is not null, so it has to be associated with the existing objectIds
+
+			// root refactoring case #3: root != null & customRoot exists
+			if(customRootOid != null)
+			{
+				handler.registerCustomRootRefactoring(root, customRootOid);
+				resolvedRoots.add(Persistence.customRootIdentifier(), null);
+				
+				return true;
+			}
+
+			// root refactoring case #4: root != null & defaultRoot exists
+			if(defaultRootOid != null)
+			{
+				handler.registerDefaultRootRefactoring(root, defaultRootOid);
+				resolvedRoots.add(Persistence.defaultRootIdentifier(), null);
+				
+				return true;
+			}
+		}
+		
+		// no refactoring case found
+		return false;
 	}
 
 	private void registerInstancesPerObjectId(
@@ -134,6 +244,12 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 		{
 			for(final KeyValue<String, PersistenceRootEntry> rootEntry : resolvedRootEntries)
 			{
+				if(rootEntry.value() == null)
+				{
+					// null-entries can (only) happen via automatic refactoring of old root types (custom/default).
+					continue;
+				}
+				
 				final Object rootInstance = rootEntry.value().instance();
 				
 				// instances can be null when either explicitly registered to be null in the refactoring or legacy enum
@@ -147,6 +263,17 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 				}
 			}
 		}
+	}
+	
+	@Override
+	public final void complete(
+		final Binary                   data    ,
+		final PersistenceRoots.Default instance,
+		final PersistenceLoadHandler   handler
+	)
+	{
+		// temporary id mapping is no longer required
+		instance.rootIdMapping = null;
 	}
 		
 	@Override
@@ -169,10 +296,10 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
 		// the nice thing about this layout is: the references can be accessed directly as if it was a simple list
-		bytes.iterateListElementReferences(0, iterator);
+		data.iterateListElementReferences(0, iterator);
 	}
 
 	@Override

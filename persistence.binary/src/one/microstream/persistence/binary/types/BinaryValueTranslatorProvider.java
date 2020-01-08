@@ -6,6 +6,7 @@ import static one.microstream.X.notNull;
 import one.microstream.collections.XUtilsCollection;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
@@ -138,7 +139,7 @@ public interface BinaryValueTranslatorProvider
 			if(memberType == null || !memberType.isPrimitive())
 			{
 				// (27.09.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Unhandled type \"" + toTypedIdentifier(member) + ".");
+				throw new PersistenceException("Unhandled type \"" + toTypedIdentifier(member) + ".");
 			}
 		}
 		
@@ -174,7 +175,7 @@ public interface BinaryValueTranslatorProvider
 		)
 		{
 			// (27.09.2018 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Unhandled primitive type \"" + toTypedIdentifier(sourceMember) + "."
 			);
 		}
@@ -211,7 +212,7 @@ public interface BinaryValueTranslatorProvider
 			}
 			
 			// (27.09.2018 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Incompatible types: " + sourceType.getName() + " -> " + targetType.getName()
 			);
 		}
@@ -240,7 +241,7 @@ public interface BinaryValueTranslatorProvider
 			}
 			
 			// (27.09.2018 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Non-reference type \"" + toTypedIdentifier(member) + "\" cannot be handled generically."
 			);
 		}
@@ -253,7 +254,7 @@ public interface BinaryValueTranslatorProvider
 			}
 			
 			// (27.09.2018 TM)EXCP: proper exception
-			throw new RuntimeException("Unhandled primitive type: \"" + type.getName() + ".");
+			throw new PersistenceException("Unhandled primitive type: \"" + type.getName() + ".");
 		}
 		
 		private static String toTypedIdentifier(final PersistenceTypeDescriptionMember member)

@@ -13,6 +13,7 @@ import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceManager;
+import one.microstream.persistence.types.PersistenceRootReference;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceRootsView;
@@ -22,71 +23,10 @@ import one.microstream.reference.Reference;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.KeyValue;
 
-public interface EmbeddedStorageManager extends StorageController, StorageConnection
+public interface EmbeddedStorageManager extends StorageManager
 {
-	public StorageTypeDictionary typeDictionary();
-
-	public StorageConnection createConnection();
-
-	public StorageConfiguration configuration();
-
-	public void initialize();
-
 	@Override
 	public EmbeddedStorageManager start();
-
-	@Override
-	public boolean shutdown();
-	
-	public Object root();
-	
-	public Object setRoot(Object newRoot);
-	
-	public Reference<Object> defaultRoot();
-	
-	public Object customRoot();
-	
-	public PersistenceRootsView viewRoots();
-	
-	public default long storeRoot()
-	{
-		// if a default root is present, there cannot be a custom root, so store the default root
-		final Reference<Object> defaultRoot = this.defaultRoot();
-		if(defaultRoot != null)
-		{
-			final Storer storer = this.createStorer();
-			final long defaultRootObjectId = storer.store(defaultRoot);
-			
-			final Object root = defaultRoot.get();
-			if(root != null)
-			{
-				storer.store(root);
-			}
-			
-			storer.commit();
-			
-			return defaultRootObjectId;
-		}
-
-		// if a custom root is present, store that
-		final Object customRoot = this.customRoot();
-		if(customRoot != null)
-		{
-			return this.store(customRoot);
-		}
-
-		return Persistence.nullId();
-	}
-	
-	public default long storeDefaultRoot()
-	{
-		final Reference<Object> root = this.defaultRoot();
-
-		return root == null
-			? Persistence.nullId()
-			: this.store(root)
-		;
-	}
 
 	
 	
@@ -111,7 +51,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		////////////////////
 
 		private final StorageConfiguration                   configuration       ;
-		private final StorageManager                         storageManager      ;
+		private final StorageSystem                          storageSystem       ;
 		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
 		private final PersistenceRootsProvider<?>            rootsProvider       ;
 		
@@ -131,7 +71,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		{
 			super();
 			this.configuration        = configuration                           ;
-			this.storageManager       = connectionFoundation.getStorageManager(); // to ensure consistency
+			this.storageSystem        = connectionFoundation.getStorageSystem(); // to ensure consistency
 			this.connectionFoundation = connectionFoundation                    ;
 			this.rootsProvider        = rootsProvider                           ;
 		}
@@ -155,58 +95,39 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public final Object root()
 		{
-			final Object customRoot = this.customRoot();
-			if(customRoot != null)
-			{
-				return customRoot;
-			}
-			
-			final Reference<Object> defaultRoot = this.defaultRoot();
-			if(defaultRoot != null)
-			{
-				return defaultRoot.get();
-			}
-			
-			return null;
+			return this.rootReference().get();
 		}
 		
 		@Override
 		public final Object setRoot(final Object newRoot)
 		{
-			final Object customRoot = this.customRoot();
-			if(customRoot != null)
-			{
-				if(customRoot == newRoot)
-				{
-					// no-op, graciously abort
-					return customRoot;
-				}
-				
-				// (25.06.2019 TM)EXCP: proper exception
-				throw new StorageException("Cannot replace an explicitely defined root instance.");
-			}
+			this.rootReference().setRoot(newRoot);
 			
-			final Reference<Object> defaultRoot = this.defaultRoot();
-			if(defaultRoot != null)
-			{
-				defaultRoot.set(newRoot);
-				return newRoot;
-			}
-
-			// (25.06.2019 TM)EXCP: proper exception
-			throw new StorageException("No default root (reference holder) present to reference the passed root.");
+			return newRoot;
+		}
+		
+		final PersistenceRootReference rootReference()
+		{
+			return this.rootsProvider.provideRoots().rootReference();
 		}
 		
 		@Override
-		public final Reference<Object> defaultRoot()
+		public long storeRoot()
 		{
-			return this.rootsProvider.provideRoots().defaultRoot();
-		}
-		
-		@Override
-		public final Object customRoot()
-		{
-			return this.rootsProvider.provideRoots().customRoot();
+			final Storer storer = this.createStorer();
+			
+			final PersistenceRootReference rootReference = this.rootReference();
+			storer.store(rootReference);
+			
+			final Object root = rootReference.get();
+			final long rootObjectId = root != null
+				? storer.store(root)
+				: Persistence.nullId()
+			;
+				
+			storer.commit();
+			
+			return rootObjectId;
 		}
 		
 		@Override
@@ -230,7 +151,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public final EmbeddedStorageManager.Default start()
 		{
-			this.storageManager.start();
+			this.storageSystem.start();
 			
 			try
 			{
@@ -241,13 +162,13 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			{
 				try
 				{
-					if(this.storageManager instanceof StorageKillable)
+					if(this.storageSystem instanceof StorageKillable)
 					{
-						((StorageKillable)this.storageManager).killStorage(t);
+						((StorageKillable)this.storageSystem).killStorage(t);
 					}
 					else
 					{
-						this.storageManager.shutdown();
+						this.storageSystem.shutdown();
 					}
 				}
 				catch(final Throwable t1)
@@ -315,7 +236,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		private void ensureRequiredTypeHandlers()
 		{
 			// make sure a functional type handler is present for every occuring type id or throw an exception.
-			final StorageIdAnalysis  idAnalysis      = this.storageManager.initializationIdAnalysis();
+			final StorageIdAnalysis  idAnalysis      = this.storageSystem.initializationIdAnalysis();
 			final XGettingEnum<Long> occuringTypeIds = idAnalysis.occuringTypeIds();
 			this.connectionFoundation.getTypeHandlerManager().ensureTypeHandlersByTypeIds(occuringTypeIds);
 		}
@@ -332,7 +253,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 			if(statistics.liveDataLength() != 0)
 			{
 				// (14.09.2015 TM)EXCP: proper exception
-				throw new RuntimeException("No roots found for existing data.");
+				throw new StorageException("No roots found for existing data.");
 			}
 
 			return this.rootsProvider.provideRoots();
@@ -366,43 +287,43 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public final boolean shutdown()
 		{
-			return this.storageManager.shutdown();
+			return this.storageSystem.shutdown();
 		}
 
 		@Override
 		public final boolean isAcceptingTasks()
 		{
-			return this.storageManager.isAcceptingTasks();
+			return this.storageSystem.isAcceptingTasks();
 		}
 
 		@Override
 		public final boolean isRunning()
 		{
-			return this.storageManager.isRunning();
+			return this.storageSystem.isRunning();
 		}
 		
 		@Override
 		public final boolean isActive()
 		{
-			return this.storageManager.isActive();
+			return this.storageSystem.isActive();
 		}
 
 		@Override
 		public final boolean isStartingUp()
 		{
-			return this.storageManager.isStartingUp();
+			return this.storageSystem.isStartingUp();
 		}
 
 		@Override
 		public final boolean isShuttingDown()
 		{
-			return this.storageManager.isShuttingDown();
+			return this.storageSystem.isShuttingDown();
 		}
 
 		@Override
 		public final void checkAcceptingTasks()
 		{
-			this.storageManager.checkAcceptingTasks();
+			this.storageSystem.checkAcceptingTasks();
 		}
 
 		@Override
@@ -414,7 +335,7 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public final StorageTypeDictionary typeDictionary()
 		{
-			return this.storageManager.typeDictionary();
+			return this.storageSystem.typeDictionary();
 		}
 
 		@Override
@@ -426,13 +347,13 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		@Override
 		public final long initializationTime()
 		{
-			return this.storageManager.initializationTime();
+			return this.storageSystem.initializationTime();
 		}
 		
 		@Override
 		public final long operationModeTime()
 		{
-			return this.storageManager.operationModeTime();
+			return this.storageSystem.operationModeTime();
 		}
 
 		@Override
@@ -528,6 +449,15 @@ public interface EmbeddedStorageManager extends StorageController, StorageConnec
 		public final void importFiles(final XGettingEnum<Path> importFiles)
 		{
 			this.singletonConnection().importFiles(importFiles);
+		}
+		
+
+		
+		@Deprecated
+		@Override
+		public final Reference<Object> defaultRoot()
+		{
+			return this.rootReference();
 		}
 
 	}

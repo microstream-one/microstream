@@ -10,8 +10,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -110,7 +110,7 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	
 
 	@Override
-	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final Hashtable<?, ?> create(final Binary bytes, final PersistenceLoadHandler idResolver)
 	{
 		return new Hashtable<>(
 			getElementCount(bytes) / 2,
@@ -119,7 +119,7 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	}
 
 	@Override
-	public final void update(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void updateState(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler idResolver)
 	{
 		instance.clear();
 		final Object[] elementsHelper = new Object[getElementCount(bytes)];
@@ -128,7 +128,7 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	}
 
 	@Override
-	public void complete(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceObjectIdResolver idResolver)
+	public void complete(final Binary bytes, final Hashtable<?, ?> instance, final PersistenceLoadHandler idResolver)
 	{
 		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
 	}
@@ -140,7 +140,7 @@ public final class BinaryHandlerHashtableFlattened extends AbstractBinaryHandler
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary bytes, final PersistenceReferenceLoader iterator)
 	{
 		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}

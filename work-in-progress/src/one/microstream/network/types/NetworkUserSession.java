@@ -5,7 +5,7 @@ import static one.microstream.X.notNull;
 import java.nio.channels.SocketChannel;
 
 
-public interface NetworkUserSession<U, M> extends NetworkSession<M>
+public interface NetworkUserSession<U, D> extends NetworkSession<D>
 {
 	public U user();
 
@@ -13,7 +13,7 @@ public interface NetworkUserSession<U, M> extends NetworkSession<M>
 
 
 
-	public interface Creator<U, M, S extends NetworkUserSession<U, M>>
+	public interface Creator<U, D, S extends NetworkUserSession<U, D>>
 	{
 		public S createUserSession(NetworkUserSessionManager<U, S> sessionManager, U user, SocketChannel connection);
 	}
@@ -21,8 +21,8 @@ public interface NetworkUserSession<U, M> extends NetworkSession<M>
 
 
 
-	public abstract class Abstract<U, M, SELF extends NetworkUserSession<U, M>>
-	extends NetworkSession.Abstract<M> implements NetworkUserSession<U, M>
+	public abstract class Abstract<U, D, SELF extends NetworkUserSession<U, D>>
+	extends NetworkSession.Abstract<D> implements NetworkUserSession<U, D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

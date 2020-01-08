@@ -9,8 +9,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -53,14 +53,14 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 		return (Class)EqConstHashTable.class;
 	}
 
-	private static int getBuildItemElementCount(final Binary bytes)
+	private static int getBuildItemElementCount(final Binary data)
 	{
-		return X.checkArrayRange(bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(data.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS));
 	}
 
-	private static float getBuildItemHashDensity(final Binary bytes)
+	private static float getBuildItemHashDensity(final Binary data)
 	{
-		return bytes.read_float(BINARY_OFFSET_HASH_DENSITY);
+		return data.read_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 	
 	public static BinaryHandlerEqConstHashTable New()
@@ -97,14 +97,14 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final EqConstHashTable<?, ?>  instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeKeyValuesAsEntries(
+		data.storeKeyValuesAsEntries(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -112,44 +112,47 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 			instance.size()       ,
 			handler
 		);
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.hashEqualator)
 		);
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_KEYS,
 			handler.apply(instance.keys)
 		);
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_VALUES,
 			handler.apply(instance.values)
 		);
-		bytes.store_float(
+		data.store_float(
 			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}
 
 	@Override
-	public final EqConstHashTable<?, ?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final EqConstHashTable<?, ?> create(
+		final Binary                 data   ,
+		final PersistenceLoadHandler handler
+	)
 	{
 		return EqConstHashTable.NewCustom(
-			getBuildItemElementCount(bytes),
-			getBuildItemHashDensity(bytes)
+			getBuildItemElementCount(data),
+			getBuildItemHashDensity(data)
 		);
 	}
 
 	@Override
-	public final void update(
-		final Binary                      bytes     ,
-		final EqConstHashTable<?, ?>      instance  ,
-		final PersistenceObjectIdResolver idResolver
+	public final void updateState(
+		final Binary                 data    ,
+		final EqConstHashTable<?, ?> instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// validate to the best of possibilities (or should an immutable instance be updatedable from outside?)
 		if(instance.size != 0)
 		{
-			throw new IllegalStateException(); // (28.10.2013)EXCP: proper exception
+			throw new IllegalStateException(); // (28.10.2013 TM)EXCP: proper exception
 		}
 		
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
@@ -159,36 +162,43 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQUALATOR),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_EQUALATOR))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_KEYS),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_KEYS))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_KEYS))
 		);
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_VALUES),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_VALUES))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_VALUES))
 		);
-		instance.size = bytes.collectKeyValueReferences(
+		instance.size = data.collectKeyValueReferences(
 			BINARY_OFFSET_ELEMENTS,
-			getBuildItemElementCount(bytes),
-			idResolver,
+			getBuildItemElementCount(data),
+			handler,
 			casted::internalCollectUnhashed
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
 	}
 
 	@Override
-	public final void complete(final Binary medium, final EqConstHashTable<?, ?> instance, final PersistenceObjectIdResolver idResolver)
+	public final void complete(
+		final Binary                 data    ,
+		final EqConstHashTable<?, ?> instance,
+		final PersistenceLoadHandler handler
+	)
 	{
 		// rehash all previously unhashed collected elements
 		instance.internalRehash();
 	}
 
 	@Override
-	public final void iterateInstanceReferences(final EqConstHashTable<?, ?> instance, final PersistenceFunction iterator)
+	public final void iterateInstanceReferences(
+		final EqConstHashTable<?, ?> instance,
+		final PersistenceFunction    iterator
+	)
 	{
 		iterator.apply(instance.hashEqualator);
 		iterator.apply(instance.keys);
@@ -197,12 +207,12 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_EQUALATOR));
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_KEYS));
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_VALUES));
-		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_EQUALATOR));
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_KEYS));
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_VALUES));
+		data.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 }

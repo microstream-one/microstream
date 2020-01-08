@@ -49,7 +49,7 @@ public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProv
 		{
 			if(this.cachedRootTypeId == null)
 			{
-				// (20.05.2013)EXCP: proper exception
+				// (20.05.2013 TM)EXCP: proper exception
 				throw new IllegalStateException("not initialized");
 			}
 			return this.cachedRootTypeId;

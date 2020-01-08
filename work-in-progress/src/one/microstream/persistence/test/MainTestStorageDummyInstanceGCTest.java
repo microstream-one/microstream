@@ -5,8 +5,8 @@ import java.util.Date;
 
 import one.microstream.concurrency.XThreads;
 import one.microstream.meta.XDebug;
-import one.microstream.persistence.lazy.Lazy;
 import one.microstream.persistence.types.Storer;
+import one.microstream.reference.lazy.Lazy;
 import one.microstream.storage.types.StorageConnection;
 
 

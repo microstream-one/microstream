@@ -15,7 +15,7 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistenc
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 
-public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
+public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition
 {
 	@Override
 	public Class<T> type();
@@ -31,28 +31,35 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
 	public void iterateInstanceReferences(T instance, PersistenceFunction iterator);
 
-	public void iterateLoadableReferences(M medium, PersistenceObjectIdAcceptor iterator);
+	public void iterateLoadableReferences(D data, PersistenceReferenceLoader iterator);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
-	public void store(M medium, T instance, long objectId, PersistenceStoreHandler handler);
+	public void store(D data, T instance, long objectId, PersistenceStoreHandler handler);
 
-	public T create(M medium, PersistenceObjectIdResolver idResolver);
+	public T create(D data, PersistenceLoadHandler handler);
+	
+	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for loading
+	public default void initializeState(final D data, final T instance, final PersistenceLoadHandler handler)
+	{
+		// for non-value-types, initialize is the same as update. Value-types
+		this.updateState(data, instance, handler);
+	}
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for loading
-	public void update(M medium, T instance, PersistenceObjectIdResolver idResolver);
+	public void updateState(D data, T instance, PersistenceLoadHandler handler);
 
 	/**
 	 * Completes an initially built instance after all loaded instances have been built.
 	 * E.g. can be used to cause a hash collection to hash all its initially collected entries after their
 	 * instances have been built.
 	 *
-	 * @param medium
+	 * @param data
 	 * @param instance
 	 * @param handler
 	 */
-	public void complete(M medium, T instance, PersistenceObjectIdResolver idResolver);
+	public void complete(D data, T instance, PersistenceLoadHandler handler);
 
-	/* (06.10.2012)XXX: PersistenceDomainTypeHandler<M,T> ?
+	/* (06.10.2012 TM)XXX: PersistenceDomainTypeHandler<D,T> ?
 	 * to bind a generic TypeHandler to a specific registry inside a Domain
 	 * specific registry could replace the oidResolver parameter.
 	 * But only in an additional overloaded method.
@@ -60,7 +67,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	 * Maybe solve by a PersistenceDomain-specific Builder? Wouldn't even have to have a new interface, just a class
 	 */
 	
-	public PersistenceTypeHandler<M, T> initialize(long typeId);
+	public PersistenceTypeHandler<D, T> initialize(long typeId);
 	
 	/**
 	 * Iterates the types of persistent members (e.g. non-transient {@link Field}s).
@@ -150,7 +157,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		throw new UnsupportedOperationException();
 	}
 	
-	public default int getPersistedEnumOrdinal(final M medium)
+	public default int getPersistedEnumOrdinal(final D data)
 	{
 		// (14.08.2019 TM)EXCP: proper exception
 		throw new UnsupportedOperationException();
@@ -179,18 +186,18 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 	}
 	
 	
-	public abstract class Abstract<M, T> implements PersistenceTypeHandler<M, T>
+	public abstract class Abstract<D, T> implements PersistenceTypeHandler<D, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
 		///////////////////
 
-		public static <M extends PersistenceTypeDefinitionMember> XImmutableEnum<M> validateAndImmure(
-			final XGettingSequence<M> members
+		public static <D extends PersistenceTypeDefinitionMember> XImmutableEnum<D> validateAndImmure(
+			final XGettingSequence<D> members
 		)
 		{
 			// note that this is descriptionMember-identity, meaning #identifier
-			final EqHashEnum<M> validatedMembers = EqHashEnum.New(
+			final EqHashEnum<D> validatedMembers = EqHashEnum.New(
 				PersistenceTypeDescriptionMember.identityHashEqualator()
 			);
 			validatedMembers.addAll(members);
@@ -241,7 +248,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		private final String typeName;
 		
 		// effectively final / immutable: gets only initialized once later on and is never mutated again. initially 0.
-		private long           typeId = Persistence.nullId();
+		private long typeId = Persistence.nullId();
 
 
 		
@@ -306,7 +313,7 @@ public interface PersistenceTypeHandler<M, T> extends PersistenceTypeDefinition
 		}
 		
 		@Override
-		public synchronized PersistenceTypeHandler<M, T> initialize(final long typeId)
+		public synchronized PersistenceTypeHandler<D, T> initialize(final long typeId)
 		{
 			/* note:
 			 * Type handlers can have hardcoded typeIds, e.g. for native types like primitive arrays.

@@ -67,7 +67,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				if(mappedTypeName == null)
 				{
 					// (27.01.2014 TM)EXCP: proper exception
-					throw new RuntimeException("Unmapped type: " + columnType.typeName());
+					throw new StorageException("Unmapped type: " + columnType.typeName());
 				}
 				return mappedTypeName;
 			}
@@ -256,7 +256,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 			final CsvConfiguration csvConfig = configuration.csvConfiguration();
 
-			// (26.01.2014)EXCP: proper exceptions
+			// (26.01.2014 TM)EXCP: proper exceptions
 			if(csvConfig.isControlCharacter(configuration.literalListStarter()))
 			{
 				throw new IllegalArgumentException("Conflicting list character: " + configuration.literalListStarter());
@@ -372,8 +372,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 			final ValueWriter valueWriter = this.valueWriterMap.get(field.typeName());
 			if(valueWriter == null)
 			{
-				// (14.01.2014)EXCP: proper exception
-				throw new RuntimeException("Unrecognized type: " + field.typeName());
+				// (14.01.2014 TM)EXCP: proper exception
+				throw new StorageException("Unrecognized type: " + field.typeName());
 			}
 			return valueWriter;
 		}
@@ -452,8 +452,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 			{
 				if((this.typeDescription = this.typeDictionary.lookupTypeById(typeId)) == null)
 				{
-					// (12.01.2014)EXCP: proper exception
-					throw new RuntimeException("Unknown TypeId: " + typeId);
+					// (12.01.2014 TM)EXCP: proper exception
+					throw new StorageException("Unknown TypeId: " + typeId);
 				}
 				this.typeId = typeId;
 				this.valueWriters = this.createValueWriters(this.typeDescription.instanceMembers());
@@ -462,8 +462,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 			else if(typeId != this.typeId)
 			{
-				// (12.01.2014)EXCP: proper exception
-				throw new RuntimeException("Inconsistent TypeId: " + typeId + " != " + this.typeId);
+				// (12.01.2014 TM)EXCP: proper exception
+				throw new StorageException("Inconsistent TypeId: " + typeId + " != " + this.typeId);
 			}
 		}
 
@@ -562,7 +562,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				catch(final WriteException e)
 				{
 					suppressed = e;
-					throw new RuntimeException(e.ioException);
+					// (09.12.2019 TM)EXCP: proper exception
+					throw new StorageException(e.ioException);
 				}
 				finally
 				{
@@ -572,8 +573,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 			catch(final IOException e)
 			{
 				// well, what to do if closing fails...
-				// (12.01.2014)EXCP: proper exception
-				throw new RuntimeException(e);
+				// (12.01.2014 TM)EXCP: proper exception
+				throw new StorageException(e);
 			}
 			finally
 			{

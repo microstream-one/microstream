@@ -1,22 +1,22 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceUnreachableTypeHandlerCreator<M>
+public interface PersistenceUnreachableTypeHandlerCreator<D>
 {
-	public <T> PersistenceUnreachableTypeHandler<M, T> createUnreachableTypeHandler(
+	public <T> PersistenceUnreachableTypeHandler<D, T> createUnreachableTypeHandler(
 		PersistenceTypeDefinition typeDefinition
 	);
 	
 	
 	
-	public static <M> PersistenceUnreachableTypeHandlerCreator<M> New()
+	public static <D> PersistenceUnreachableTypeHandlerCreator<D> New()
 	{
 		return new PersistenceUnreachableTypeHandlerCreator.Default<>();
 	}
 	
-	public final class Default<M> implements PersistenceUnreachableTypeHandlerCreator<M>
+	public final class Default<D> implements PersistenceUnreachableTypeHandlerCreator<D>
 	{
 		@Override
-		public <T> PersistenceUnreachableTypeHandler<M, T> createUnreachableTypeHandler(
+		public <T> PersistenceUnreachableTypeHandler<D, T> createUnreachableTypeHandler(
 			final PersistenceTypeDefinition typeDefinition
 		)
 		{
