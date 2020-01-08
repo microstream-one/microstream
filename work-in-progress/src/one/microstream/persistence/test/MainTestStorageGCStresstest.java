@@ -4,7 +4,7 @@ import one.microstream.chars.XChars;
 import one.microstream.concurrency.XThreads;
 import one.microstream.math.XMath;
 import one.microstream.meta.XDebug;
-import one.microstream.reference.lazy.Lazy;
+import one.microstream.reference.Lazy;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageDataFileEvaluator;

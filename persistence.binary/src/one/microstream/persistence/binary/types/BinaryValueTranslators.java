@@ -5,7 +5,7 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
-import one.microstream.reference.lazy.Lazy;
+import one.microstream.reference.Lazy;
 import one.microstream.typing.TypeMapping;
 
 public final class BinaryValueTranslators

@@ -14,7 +14,7 @@ import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
-import one.microstream.reference.lazy.Lazy;
+import one.microstream.reference.Lazy;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageDataFileEvaluator;
 import one.microstream.storage.types.StorageRawFileStatistics;

@@ -1,9 +1,6 @@
-package one.microstream.reference.lazy;
+package one.microstream.reference;
 
 import one.microstream.chars.XChars;
-import one.microstream.reference.ObjectSwizzling;
-import one.microstream.reference.Referencing;
-import one.microstream.reference.Swizzling;
 
 
 /**
