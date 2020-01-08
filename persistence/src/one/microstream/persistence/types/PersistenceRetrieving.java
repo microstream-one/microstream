@@ -2,7 +2,9 @@ package one.microstream.persistence.types;
 
 import java.util.function.Consumer;
 
-public interface PersistenceRetrieving extends PersistenceObjectRetriever
+import one.microstream.reference.ObjectSwizzling;
+
+public interface PersistenceRetrieving extends ObjectSwizzling
 {
 	/* Note on naming:
 	 * The main use case on the application (business logic) level is to "get" instances.

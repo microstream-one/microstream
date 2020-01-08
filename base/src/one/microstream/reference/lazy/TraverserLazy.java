@@ -1,4 +1,4 @@
-package one.microstream.persistence.lazy;
+package one.microstream.reference.lazy;
 
 import one.microstream.util.traversing.AbstractTraversalSkipSignal;
 import one.microstream.util.traversing.MutationListener;

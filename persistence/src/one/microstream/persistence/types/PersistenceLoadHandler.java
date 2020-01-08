@@ -1,11 +1,13 @@
 package one.microstream.persistence.types;
 
+import one.microstream.reference.ObjectSwizzling;
+
 public interface PersistenceLoadHandler extends PersistenceObjectLookup
 {
 	@Override
 	public Object lookupObject(long objectId);
 	
-	public default PersistenceObjectRetriever getObjectRetriever()
+	public default ObjectSwizzling getObjectRetriever()
 	{
 		return this.getPersister();
 	}

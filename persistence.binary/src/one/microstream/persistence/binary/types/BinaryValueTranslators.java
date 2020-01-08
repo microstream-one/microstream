@@ -3,9 +3,9 @@ package one.microstream.persistence.binary.types;
 import one.microstream.X;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.exceptions.PersistenceException;
-import one.microstream.persistence.lazy.Lazy;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
+import one.microstream.reference.lazy.Lazy;
 import one.microstream.typing.TypeMapping;
 
 public final class BinaryValueTranslators
