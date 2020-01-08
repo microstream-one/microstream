@@ -23,7 +23,7 @@ public class RouteUserRoot extends RouteBase
 	@Override
 	public String handle(final Request request, final Response response)
 	{
-		final String jsonString = this.getStorageRestAdapter().getRoot();
+		final String jsonString = this.getStorageRestAdapter().getUserRoot();
 
 		response.type("application/json");
 		return jsonString;

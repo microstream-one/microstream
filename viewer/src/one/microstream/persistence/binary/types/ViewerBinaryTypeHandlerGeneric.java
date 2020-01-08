@@ -4,8 +4,8 @@ import java.util.function.Consumer;
 
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
@@ -115,7 +115,7 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 	}
 
 	@Override
-	public void iterateLoadableReferences(final Binary medium, final PersistenceObjectIdAcceptor iterator)
+	public void iterateLoadableReferences(final Binary medium, final PersistenceReferenceLoader iterator)
 	{
 		//do nothing
 	}
@@ -127,7 +127,7 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 	}
 
 	@Override
-	public ViewerObjectDescription create(final Binary medium, final PersistenceObjectIdResolver idResolver)
+	public ViewerObjectDescription create(final Binary medium, final PersistenceLoadHandler handler)
 	{
 		final ViewerObjectDescription objectDescription = new ViewerObjectDescription();
 		objectDescription.setObjectId(medium.getBuildItemObjectId());
@@ -138,13 +138,13 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 	}
 
 	@Override
-	public void update(final Binary medium, final ViewerObjectDescription instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary medium, final ViewerObjectDescription instance, final PersistenceLoadHandler handler)
 	{
 		//do nothing
 	}
 
 	@Override
-	public void complete(final Binary medium, final ViewerObjectDescription instance, final PersistenceObjectIdResolver idResolver)
+	public void complete(final Binary medium, final ViewerObjectDescription instance, final PersistenceLoadHandler handler)
 	{
 		//do nothing
 	}

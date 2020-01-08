@@ -2,7 +2,7 @@ package one.microstream.persistence.binary.types;
 
 import java.lang.reflect.Array;
 
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
 public class ViewerBinaryTypeHandlerNativeArray<T> extends ViewerBinaryTypeHandlerWrapperAbstract<T>
@@ -21,14 +21,14 @@ public class ViewerBinaryTypeHandlerNativeArray<T> extends ViewerBinaryTypeHandl
 	////////////
 
 	@Override
-	public ViewerMemberProvider create(final Binary medium, final PersistenceObjectIdResolver idResolver)
+	public ViewerMemberProvider create(final Binary medium, final PersistenceLoadHandler handler)
 	{
 		final ViewerObjectDescription objectDescription = new ViewerObjectDescription();
 		objectDescription.setObjectId(medium.getBuildItemObjectId());
 		objectDescription.setPersistenceTypeDefinition(this.nativeHandler);
 
-		final T value = this.nativeHandler.create(medium, idResolver);
-		this.nativeHandler.update(medium, value, idResolver);
+		final T value = this.nativeHandler.create(medium, handler);
+		this.nativeHandler.updateState(medium, value, handler);
 
 		final int l = Array.getLength(value);
 		final Object objArray[] = new Object[l];

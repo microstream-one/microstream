@@ -121,31 +121,31 @@ public class ViewerBinaryPersistenceManager implements PersistenceManager<Binary
 	}
 
 	@Override
-	public PersistenceLoader<Binary> createLoader()
+	public PersistenceLoader createLoader()
 	{
 		return this.persistenceManager.createLoader();
 	}
 
 	@Override
-	public PersistenceStorer<Binary> createLazyStorer()
+	public PersistenceStorer createLazyStorer()
 	{
 		return this.persistenceManager.createLazyStorer();
 	}
 
 	@Override
-	public PersistenceStorer<Binary> createStorer()
+	public PersistenceStorer createStorer()
 	{
 		return this.persistenceManager.createStorer();
 	}
 
 	@Override
-	public PersistenceStorer<Binary> createEagerStorer()
+	public PersistenceStorer createEagerStorer()
 	{
 		return this.persistenceManager.createEagerStorer();
 	}
 
 	@Override
-	public PersistenceStorer<Binary> createStorer(final Creator<Binary> storerCreator)
+	public PersistenceStorer createStorer(final Creator<Binary> storerCreator)
 	{
 		return this.persistenceManager.createStorer(storerCreator);
 	}
@@ -217,7 +217,7 @@ public class ViewerBinaryPersistenceManager implements PersistenceManager<Binary
 		return this.loaderCreator.createLoader(
 				this.contextDispatcher.dispatchTypeHandlerLookup(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectRegistry(this.objectRegistry),
-				this);
+				this, this.persistenceManager);
 	}
 
 	public Object getStorageConstant(final long objectId)
