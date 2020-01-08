@@ -1,11 +1,9 @@
-package one.microstream.reference.lazy;
+package one.microstream.reference;
 
 import static one.microstream.X.coalesce;
 
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
-
-import one.microstream.reference._longReference;
 
 public interface LazyReferenceManager
 {
