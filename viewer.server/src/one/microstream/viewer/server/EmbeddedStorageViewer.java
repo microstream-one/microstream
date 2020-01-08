@@ -50,20 +50,25 @@ public class EmbeddedStorageViewer
 	public EmbeddedStorageViewer start()
 	{
 		this.sparkService.staticFiles.location("resources/");
-		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/root",  					new RouteUserRoot(this.embeddedStorageRestAdapter)));
-		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/roots",  					new RouteRoots(this.embeddedStorageRestAdapter)));
-		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/object/:oid",  			new RouteObject(this.embeddedStorageRestAdapter)));
-		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/object/:oid/:count/*", 	new RouteObjectMember(this.embeddedStorageRestAdapter)));
+		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/root",							new RouteUserRoot(this.embeddedStorageRestAdapter)));
+		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/roots",							new RouteRoots(this.embeddedStorageRestAdapter)));
+		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/object/:oid",						new RouteObject(this.embeddedStorageRestAdapter)));
+		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/members/:oid/:count",				new RouteObjectMember(this.embeddedStorageRestAdapter)));
+		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/members/:oid/:count/:start",		new RouteObjectMember(this.embeddedStorageRestAdapter)));
+		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/microstream/members/:oid/:count/:start/*",	new RouteObjectMember(this.embeddedStorageRestAdapter)));
+
 		this.sparkService.exception(InvalidRouteParameters.class, (e, request, response) ->
 			{
 				response.status(404);
 				response.body(e.getMessage());
 			} );
+
 		this.sparkService.exception(ViewerException.class, (e, request, response) ->
-		{
-			response.status(404);
-			response.body(e.getMessage());
-		} );
+			{
+				response.status(404);
+				response.body(e.getMessage());
+			} );
+
 		this.sparkService.init();
 		this.sparkService.awaitInitialization();
 

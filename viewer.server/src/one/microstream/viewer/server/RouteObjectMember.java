@@ -1,5 +1,8 @@
 package one.microstream.viewer.server;
 
+import java.util.Arrays;
+
+import one.microstream.meta.XDebug;
 import one.microstream.viewer.StorageRestAdapter;
 import spark.Request;
 import spark.Response;
@@ -24,37 +27,53 @@ public class RouteObjectMember extends RouteBase
 	{
 		final long objectId = this.validateObjectId(request);
 		final int requestedElementsCount = this.validateElementCount(request);
-		final int[] memberIndices = this.validateMemberIndices(request);
+		final int[] memberPath = this.validateMemberPath(request);
+		final int startMemberIndex = this.validateStartMemberIndex(request);
 
+		XDebug.println("oid: " + objectId +
+			" count: " + requestedElementsCount +
+			" start: " + startMemberIndex +
+			" path:  " + Arrays.toString(memberPath)
+			);
 
 		final String jsonString = this.getStorageRestAdapter().getObject(
 			objectId,
+			memberPath,
 			requestedElementsCount,
-			memberIndices);
+			startMemberIndex);
 
 		response.type("application/json");
 		return jsonString;
 	}
 
-	private int[] validateMemberIndices(final Request request)
+	/**
+	 *
+	 * @param request
+	 * @return array of member indices, may be null
+	 */
+	private int[] validateMemberPath(final Request request)
 	{
-		try
+		if(request.splat().length > 0)
 		{
-			final String[] splats = request.splat()[0].split("/");
-
-			final int[] indices = new int[splats.length];
-			for(int i = 0; i < splats.length; i++)
+			try
 			{
-				indices[i] = Integer.parseInt(splats[i]);
+				final String[] splats = request.splat()[0].split("/");
+				final int[] indices = new int[splats.length];
+
+				for(int i = 0; i < splats.length; i++)
+				{
+					indices[i] = Integer.parseInt(splats[i]);
+				}
+
+				return indices;
 			}
-
-			return indices;
-		}
-		catch(final NumberFormatException | ArrayIndexOutOfBoundsException e )
-		{
-			throw new InvalidRouteParameters("invalid member indices");
+			catch(final NumberFormatException | ArrayIndexOutOfBoundsException e )
+			{
+				throw new InvalidRouteParameters("invalid member indices");
+			}
 		}
 
+		return null;
 	}
 
 	private int validateElementCount(final Request request)
@@ -66,6 +85,23 @@ public class RouteObjectMember extends RouteBase
 		catch(final NumberFormatException e )
 		{
 			throw new InvalidRouteParameters("requested element count invalid");
+		}
+	}
+
+	private int validateStartMemberIndex(final Request request)
+	{
+		if(request.params(":start") == null)
+		{
+			return 0;
+		}
+
+		try
+		{
+			return Integer.parseInt(request.params(":start"));
+		}
+		catch(final NumberFormatException e )
+		{
+			throw new InvalidRouteParameters("requested member start index invalid");
 		}
 	}
 }
