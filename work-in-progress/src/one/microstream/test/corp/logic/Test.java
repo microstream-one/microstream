@@ -20,7 +20,9 @@ import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XTable;
 import one.microstream.io.XIO;
 import one.microstream.math.XMath;
+import one.microstream.meta.XDebug;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis;
 import one.microstream.test.corp.model.Address;
 import one.microstream.test.corp.model.BusinessYear;
@@ -206,6 +208,16 @@ public class Test
 			array[i] = "value"+i;
 		}
 		return array;
+	}
+	
+	public static void clearDefaultStorageDirectory()
+	{
+		clearDefaultStorageDirectory(true);
+	}
+	
+	public static void clearDefaultStorageDirectory(final boolean output)
+	{
+		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), output);
 	}
 
 	public static ClientCorporation generateModelData(final int entityAmount)

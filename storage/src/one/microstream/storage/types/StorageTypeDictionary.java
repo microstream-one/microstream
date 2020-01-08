@@ -163,7 +163,7 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 						continue;
 					}
 					
-					throw new RuntimeException(
+					throw new StorageException(
 						"Invalid type description: " + typeDesc.toTypeIdentifier()
 					);
 				}
@@ -194,8 +194,8 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 				final StorageEntityTypeHandler typeHandler = this.lookupTypeHandler(typeId);
 				if(typeHandler == null)
 				{
-					// (05.05.2014)EXCP: proper exception
-					throw new RuntimeException(
+					// (05.05.2014 TM)EXCP: proper exception
+					throw new StorageException(
 						"Unknown type id " + typeId + " of entity with oid " + objectId + " and length " + length
 					);
 				}
@@ -236,8 +236,8 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 			// as a storage type dictionary is a registration callback itself, this method is only valid for this
 			if(observer != this)
 			{
-				// (06.12.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (06.12.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					"Inconsistent " + PersistenceTypeDefinitionRegistrationObserver.class.getSimpleName()
 				);
 			}
@@ -265,8 +265,8 @@ public interface StorageTypeDictionary extends PersistenceTypeDictionary, Persis
 						return this;
 					}
 					
-					// (06.12.2014)EXCP: proper exception
-					throw new RuntimeException("Type dictionary already initialized.");
+					// (06.12.2014 TM)EXCP: proper exception
+					throw new StorageException("Type dictionary already initialized.");
 				}
 				
 				for(final PersistenceTypeDefinition td : typeDictionary.allTypeDefinitions().values())

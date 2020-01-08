@@ -1,13 +1,6 @@
-package one.microstream.persistence.lazy;
-
-import java.util.function.Predicate;
+package one.microstream.reference;
 
 import one.microstream.chars.XChars;
-import one.microstream.memory.MemoryStatistics;
-import one.microstream.memory.MemoryStatisticsProvider;
-import one.microstream.persistence.types.Persistence;
-import one.microstream.persistence.types.PersistenceObjectRetriever;
-import one.microstream.reference.LazyReferencing;
 
 
 /**
@@ -15,10 +8,11 @@ import one.microstream.reference.LazyReferencing;
  * <p>
  * Note that the shortened name has been chosen intentionally to optimize readability in class design.
  * <p>
- * Also note that a type like this is strongly required to implement lazy loading behavior in an architectural
- * clean and proper way. I.e. the design has to define that a certain reference is meant be capable of lazy-loading.
+ * Also note that a type like this is strongly required in order to implement lazy loading behavior in an application
+ * in an architecturally clean and proper way. I.e. the application's data model design has to define that a certain
+ * reference is meant to be capable of lazy-loading.
  * If such a definition is not done, a loading logic is strictly required to always load the encountered reference,
- * as it is defined by the normal reference.
+ * as it is defined by the "normal" way of how references work.
  * Any "tricks" of whatever framework to "sneak in" lazy loading behavior where it hasn't actually been defined
  * are nothing more than dirty hacks and mess up if not destroy the program's consistency of state
  * (e.g. antipatterns like secretly replacing a well-defined collection instance with a framework-proprietary
@@ -31,8 +25,21 @@ import one.microstream.reference.LazyReferencing;
  * @author Thomas Muenz
  * @param <T>
  */
-public interface Lazy<T> extends LazyReferencing<T>
+public interface Lazy<T> extends Referencing<T>
 {
+	/**
+	 * Returns the referenced object, loading it if required.
+	 * @return the lazily loaded referenced object.
+	 */
+	@Override
+	public T get();
+
+	/**
+	 * Returns the local reference without loading the referenced object if it is not present.
+	 * @return the currently present reference.
+	 */
+	public T peek();
+	
 	public T clear();
 
 	public boolean isStored();
@@ -102,32 +109,19 @@ public interface Lazy<T> extends LazyReferencing<T>
 		return register(new Lazy.Default<>(null, objectId, null));
 	}
 
-	public static <T> Lazy<T> New(final long objectId, final PersistenceObjectRetriever loader)
+	public static <T> Lazy<T> New(final long objectId, final ObjectSwizzling loader)
 	{
 		return register(new Lazy.Default<>(null, objectId, loader));
 	}
 
-	public static <T> Lazy<T> New(final T subject, final long objectId, final PersistenceObjectRetriever loader)
+	public static <T> Lazy<T> New(final T subject, final long objectId, final ObjectSwizzling loader)
 	{
 		return register(new Lazy.Default<>(subject, objectId, loader));
 	}
 
 	public static LazyReferenceManager.Checker Checker(final long millisecondTimeout)
 	{
-		return new Default.Checker(millisecondTimeout, null);
-	}
-
-	public static LazyReferenceManager.Checker Checker(
-		final long                        millisecondTimeout       ,
-		final Predicate<MemoryStatistics> memoryBoundClearPredicate
-	)
-	{
-		return new Default.Checker(millisecondTimeout, memoryBoundClearPredicate);
-	}
-
-	public static LazyReferenceManager.Checker Checker(final Predicate<MemoryStatistics> memoryBoundClearPredicate)
-	{
-		return new Default.Checker(-1, memoryBoundClearPredicate);
+		return new Default.Checker(millisecondTimeout);
 	}
 
 	public static <T, L extends Lazy<T>> L register(final L lazyReference)
@@ -166,7 +160,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		/**
 		 * The cached object id of the not loaded actual instance to later load it lazily.
 		 * Although this value never changes logically during the lifetime of an instance,
-		 * it might be delayed initialized. See {@link #link(long, PersistenceObjectRetriever)} and its use site(s).
+		 * it might be delayed initialized. See {@link #link(long, ObjectSwizzling)} and its use site(s).
 		 */
 		// CHECKSTYLE.OFF: VisibilityModifier CheckStyle false positive for same package in another project
 		transient long objectId;
@@ -178,7 +172,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		 * in the first place but did not to do its work later lazyely. Apart from this idea,
 		 * there is no "hard" contract on what the loader instance should specifically be.
 		 */
-		private transient PersistenceObjectRetriever loader;
+		private transient ObjectSwizzling loader;
 
 
 
@@ -193,7 +187,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		 */
 		Default(final T subject)
 		{
-			this(subject, Persistence.nullId(), null);
+			this(subject, Swizzling.nullId(), null);
 		}
 
 		/**
@@ -204,7 +198,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		 * @param objectId the subject's object id under which it can be reconstructed by the provided loader
 		 * @param loader the loader used to reconstruct the actual instance originally referenced
 		 */
-		Default(final T subject, final long objectId, final PersistenceObjectRetriever loader)
+		Default(final T subject, final long objectId, final ObjectSwizzling loader)
 		{
 			super();
 			this.subject  = subject ;
@@ -233,7 +227,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		public final synchronized boolean isStored()
 		{
 			// checking objectId rather than loader as loader might be initially non-null in a future enhancement
-			return this.objectId != Persistence.nullId();
+			return this.objectId != Swizzling.nullId();
 		}
 		
 		@Override
@@ -278,14 +272,14 @@ public interface Lazy<T> extends LazyReferencing<T>
 
 		private void validateObjectIdToBeSet(final long objectId)
 		{
-			if(this.objectId != Persistence.nullId() && this.objectId != objectId)
+			if(this.objectId != Swizzling.nullId() && this.objectId != objectId)
 			{
-				// (22.10.2014)TODO: proper exception
+				// (22.10.2014 TM)TODO: proper exception
 				throw new RuntimeException("ObjectId already set: " + this.objectId);
 			}
 		}
 
-		final synchronized void setLoader(final PersistenceObjectRetriever loader)
+		final synchronized void setLoader(final ObjectSwizzling loader)
 		{
 			/*
 			 * This method might be called when storing or building to/from different sources
@@ -299,34 +293,12 @@ public interface Lazy<T> extends LazyReferencing<T>
 			 */
 			if(this.loader != null)
 			{
-				/* (03.09.2019 TM)FIXME: Lazy Reference loader link
-				 * The current naive approach means holding on to a certain connection's persistence manager forever,
-				 * which is a bad thing.
-				 * However, the logic below of throwing an exception is even worse since it would crash the thread
-				 * on every newly created connection used to load a lazy reference.
-				 * The proper solution would be to link a more general, central, long-living instance, like the
-				 * EmbeddedStorageManager ("the database" instance) itself.
-				 * However: maybe EmbeddedStorageManager should be referenced only weakly.
-				 */
 				return;
-				
-				// (03.09.2019 TM)NOTE: not possible since every connection instance gets a new persistence manager instance
-//				if(this.loader == loader)
-//				{
-//					return;
-//				}
-	//
-//				// (03.09.2019 TM)EXCP: proper exception
-//				throw new RuntimeException(
-//					"Lazy reference is already linked to another "
-//					+ PersistenceObjectRetriever.class.getSimpleName()
-//				);
 			}
-			
 			this.loader = loader;
 		}
 
-		final synchronized void link(final long objectId, final PersistenceObjectRetriever loader)
+		final synchronized void link(final long objectId, final ObjectSwizzling loader)
 		{
 			this.validateObjectIdToBeSet(objectId);
 			this.setLoader(loader);
@@ -342,32 +314,11 @@ public interface Lazy<T> extends LazyReferencing<T>
 				throw new RuntimeException("Cannot clear an unstored lazy reference.");
 			}
 			
-			this.internalClearUnchecked();
-		}
-
-		private void internalClearUnchecked()
-		{
-//			XDebug.println("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);
+//			XDebug.debugln("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);
 			this.subject = null;
 			this.touch();
 		}
 
-		final synchronized void clearConditional(final long millisecondThreshold, final boolean clearMemoryBound)
-		{
-//			XDebug.println("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold
-//				+ ", clearMemoryBound = " + clearMemoryBound);
-
-			/* Memory bound and time check implicitely covers already cleared reference.
-			 * May of course not clear unstored references.
-			 */
-			if((!clearMemoryBound && this.lastTouched >= millisecondThreshold) || !this.isStored())
-			{
-				return;
-			}
-
-//			XDebug.println("clearing " + this.objectId + ": " + XChars.systemString(this.subject));
-			this.internalClearUnchecked();
-		}
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -385,7 +336,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		@Override
 		public final synchronized T get()
 		{
-			if(this.subject == null && this.objectId != Persistence.nullId())
+			if(this.subject == null && this.objectId != Swizzling.nullId())
 			{
 				this.load();
 			}
@@ -407,6 +358,20 @@ public interface Lazy<T> extends LazyReferencing<T>
 			this.subject = (T)this.loader.getObject(this.objectId);
 		}
 
+		final synchronized void clearIfTimedout(final long millisecondThreshold)
+		{
+//			XDebug.debugln("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold);
+
+			// time check implicitely covers already cleared reference. May of course not clear unstored references.
+			if(this.lastTouched >= millisecondThreshold || !this.isStored())
+			{
+				return;
+			}
+
+//			XDebug.debugln("timeout-clearing " + this.objectId + ": " + XChars.systemString(this.subject));
+			this.internalClear();
+		}
+
 		@Override
 		public String toString()
 		{
@@ -424,25 +389,19 @@ public interface Lazy<T> extends LazyReferencing<T>
 			// instance fields //
 			////////////////////
 			
-			private final long                        millisecondTimeout       ;
-			private       long                        millisecondThreshold     ;
+			private final long millisecondTimeout  ;
+			private       long millisecondThreshold;
 
-			private final Predicate<MemoryStatistics> memoryBoundClearPredicate;
-			private       boolean                     clearMemoryBound         ;
 			
 			
 			///////////////////////////////////////////////////////////////////////////
 			// constructors //
 			/////////////////
 
-			Checker(
-				final long                        millisecondTimeout       ,
-				final Predicate<MemoryStatistics> memoryBoundClearPredicate
-			)
+			Checker(final long millisecondTimeout)
 			{
 				super();
-				this.millisecondTimeout        = millisecondTimeout       ;
-				this.memoryBoundClearPredicate = memoryBoundClearPredicate;
+				this.millisecondTimeout = millisecondTimeout;
 			}
 			
 			
@@ -454,30 +413,17 @@ public interface Lazy<T> extends LazyReferencing<T>
 			@Override
 			public void beginCheckCycle()
 			{
-				this.millisecondThreshold = this.millisecondTimeout > 0
-					? System.currentTimeMillis() - this.millisecondTimeout
-					: -1;
-				
-				this.clearMemoryBound = this.memoryBoundClearPredicate != null
-					? this.memoryBoundClearPredicate.test(MemoryStatisticsProvider.get().heapMemoryUsage())
-					: false;
-					
-//				XDebug.println("Begin check cycle: millisecondThreshold = " + this.millisecondThreshold
-//					+ ", clearMemoryBound = " + this.clearMemoryBound
-//					+ ", quota = " + MemoryStatisticsProvider.get().heapMemoryUsage().quota());
+				this.millisecondThreshold = System.currentTimeMillis() - this.millisecondTimeout;
 			}
 
 			@Override
-			public void accept(final LazyReferencing<?> lazyReference)
+			public void accept(final Lazy<?> lazyReference)
 			{
 				if(!(lazyReference instanceof Lazy.Default<?>))
 				{
 					return;
 				}
-				((Lazy.Default<?>)lazyReference).clearConditional(
-					this.millisecondThreshold,
-					this.clearMemoryBound
-				);
+				((Lazy.Default<?>)lazyReference).clearIfTimedout(this.millisecondThreshold);
 			}
 
 		}

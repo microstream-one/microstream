@@ -11,6 +11,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.io.XIO;
 import one.microstream.persistence.internal.UtilPersistenceIo;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionBackupCopying;
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmptyBackup;
@@ -375,7 +376,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				}
 
 				// (02.10.2014 TM)EXCP: proper exception
-				throw new RuntimeException("Could not delete file " + backupTransactionFile);
+				throw new StorageException("Could not delete file " + backupTransactionFile);
 			}
 			
 			final String movedTargetFileName = this.createDeletionFileName(backupTransactionFile);
@@ -548,7 +549,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			
 			if(closer.hasDisruptions())
 			{
-				throw new RuntimeException(closer.toMultiCauseException());
+				// (09.12.2019 TM)EXCP: proper exception
+				throw new StorageException(closer.toMultiCauseException());
 			}
 		}
 		

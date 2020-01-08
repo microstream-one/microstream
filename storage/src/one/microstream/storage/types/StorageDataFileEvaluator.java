@@ -190,7 +190,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	{
 		if(fileMaximumSize <= fileMinimumSize)
 		{
-			// (24.06.2014)EXCP: proper exception
+			// (24.06.2014 TM)EXCP: proper exception
 			throw new IllegalArgumentException(
 				"Nonsensical size limits: min file size = " + fileMinimumSize + ", max file size = " + fileMaximumSize
 			);

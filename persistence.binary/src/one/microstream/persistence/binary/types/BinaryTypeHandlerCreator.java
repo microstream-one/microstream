@@ -22,6 +22,7 @@ import one.microstream.persistence.binary.internal.BinaryHandlerGenericEnum;
 import one.microstream.persistence.binary.internal.BinaryHandlerGenericType;
 import one.microstream.persistence.binary.internal.BinaryHandlerStateless;
 import one.microstream.persistence.binary.internal.BinaryHandlerUnpersistable;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
@@ -136,7 +137,8 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		@Override
 		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGeneric(
 			final Class<T>            type             ,
-			final XGettingEnum<Field> persistableFields
+			final XGettingEnum<Field> persistableFields,
+			final XGettingEnum<Field> persisterFields
 		)
 		{
 			/* (16.07.2019 TM)TODO: priv#122 ensure type handler for persistable field type?
@@ -203,6 +205,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				type,
 				this.deriveTypeName(type),
 				persistableFields,
+				persisterFields,
 				this.lengthResolver(),
 				this.eagerStoringFieldEvaluator(),
 				this.instantiatorProvider.provideTypeInstantiator(type),
@@ -270,7 +273,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			// this is as far as generic type analysis gets. Surrender.
 			
 			// (16.07.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Collection type cannot be handled generically and requires a custom "
 				+ PersistenceTypeHandler.class.getName() + " to be registered: "
 				+ type,
@@ -281,22 +284,25 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		@Override
 		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerEnum(
 			final Class<T>            type             ,
-			final XGettingEnum<Field> persistableFields
+			final XGettingEnum<Field> persistableFields,
+			final XGettingEnum<Field> persisterFields
 		)
 		{
-			return this.createEnumHandler(type, persistableFields);
+			return this.createEnumHandler(type, persistableFields, persisterFields);
 		}
 
 		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering
 		final <T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
-			final Class<?>            type             ,
-			final XGettingEnum<Field> persistableFields
+			final Class<T>            type             ,
+			final XGettingEnum<Field> persistableFields,
+			final XGettingEnum<Field> persisterFields
 		)
 		{
 			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerGenericEnum.New(
 				(Class<E>)type                   ,
 				this.deriveTypeName(type)        ,
 				persistableFields                ,
+				persisterFields                  ,
 				this.lengthResolver()            ,
 				this.eagerStoringFieldEvaluator(),
 				this.switchByteOrder

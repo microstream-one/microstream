@@ -298,7 +298,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		if(this.size >= Integer.MAX_VALUE)
 		{
-			// (26.10.2013)XXX: replace all noobish IndexOutOfBoundsException throughout all projects
+			// (26.10.2013 TM)XXX: replace all noobish IndexOutOfBoundsException throughout all projects
 //			throw new IndexOutOfBoundsException();
 			throw new ArrayCapacityException();
 		}

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomValueVariableLength<BigDecimal>
@@ -39,18 +39,43 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
-	@Override
-	public void store(final Binary bytes, final BigDecimal instance, final long objectId, final PersistenceStoreHandler handler)
+	
+	private static String instanceState(final BigDecimal instance)
 	{
-		// there's a char[] constructor but no char[] utility method, so there's no other option than this
-		bytes.storeStringValue(this.typeId(), objectId, instance.toString());
+		return instance.toString();
+	}
+	
+	private static String binaryState(final Binary data)
+	{
+		return data.buildString();
 	}
 
 	@Override
-	public BigDecimal create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public void store(
+		final Binary                  data    ,
+		final BigDecimal              instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
 	{
-		return new BigDecimal(bytes.build_chars());
+		// there's a char[] constructor but no char[] utility method, so there's no other option than this
+		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
+	}
+
+	@Override
+	public BigDecimal create(final Binary data, final PersistenceLoadHandler handler)
+	{
+		return new BigDecimal(binaryState(data));
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final BigDecimal             instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		compareSimpleState(instance, instanceState(instance), binaryState(data));
 	}
 
 }

@@ -231,7 +231,8 @@ public interface StorageDataFile<I extends StorageEntityCacheItem<I>> extends St
 			}
 			catch(final IOException e)
 			{
-				throw new RuntimeException(e); // (23.10.2014 TM)EXCP: proper exception
+				// (23.10.2014 TM)EXCP: proper exception
+				throw new StorageException(e);
 			}
 		}
 

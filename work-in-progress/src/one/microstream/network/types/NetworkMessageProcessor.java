@@ -11,7 +11,7 @@ import one.microstream.functional.ParallelProcedure;
  * because a message processor thread only handles one message at a time. If it dies, a new one will be created.
  * No buggy side effects like with a dying message listener are possible (for the generic context).
  */
-/* (02.12.2012)FIXME: MessageProcessor disposal
+/* (02.12.2012 TM)FIXME: MessageProcessor disposal
  * Message processor can easily die, but must be disposed by its provider
  * Or leave it as an implementation detail relation between provider and processor?
  */

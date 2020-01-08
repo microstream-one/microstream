@@ -52,7 +52,7 @@ public final class MemoryCharConversionIntegersUTF8
 
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 
-	// (19.10.2014)NOTE: all numerical digits are single byte characters in UTF-8
+	// (19.10.2014 TM)NOTE: all numerical digits are single byte characters in UTF-8
 	private static final transient int
 		MAX_CHAR_COUNT_int   = CHARS_MIN_VALUE_int  .length,
 		MAX_CHAR_COUNT_long  = CHARS_MIN_VALUE_long .length,

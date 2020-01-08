@@ -53,7 +53,7 @@ public abstract class Resource<O>
 	@SafeVarargs
 	public static final <T> Resource<T> New(final Resource<T>... children)
 	{
-		return new Node<>(children); // (30.06.2013)XXX: maybe defensive copy here
+		return new Node<>(children); // (30.06.2013 TM)XXX: maybe defensive copy here
 	}
 
 	public static final <T> Resource<T> Shared(final Resource<T> lock)

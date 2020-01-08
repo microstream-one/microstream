@@ -6,6 +6,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.memory.XMemory;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
@@ -951,8 +952,8 @@ public interface BinaryReferenceTraverser
 			{
 				if(!(member instanceof PersistenceTypeDescriptionMemberFieldGenericVariableLength))
 				{
-					// (20.12.2014)EXCP: proper exception
-					throw new RuntimeException(
+					// (20.12.2014 TM)EXCP: proper exception
+					throw new PersistenceException(
 						"Unhandled " + PersistenceTypeDescriptionMember.class.getSimpleName() + " type: " + member
 					);
 				}
@@ -970,8 +971,8 @@ public interface BinaryReferenceTraverser
 				}
 				else if(member.hasReferences())
 				{
-					// (20.12.2014)EXCP: proper exception
-					throw new RuntimeException(
+					// (20.12.2014 TM)EXCP: proper exception
+					throw new PersistenceException(
 						"Invalid referential " + PersistenceTypeDescriptionMember.class.getSimpleName() + ": " + member
 					);
 				}

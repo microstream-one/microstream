@@ -729,7 +729,7 @@ public final class XIO
 		}
 		catch(final IOException e)
 		{
-			// (28.10.2014)TODO: proper exception
+			// (28.10.2014 TM)TODO: proper exception
 			throw new IORuntimeException(e);
 		}
 	}
@@ -851,7 +851,7 @@ public final class XIO
 		
 		if(newTotalLength != oldLength + writeCount)
 		{
-			 // (01.10.2014)EXCP: proper exception
+			 // (01.10.2014 TM)EXCP: proper exception
 			throw new IOException(
 				"Inconsistent post-write file length:"
 				+ " New total length " + newTotalLength +
