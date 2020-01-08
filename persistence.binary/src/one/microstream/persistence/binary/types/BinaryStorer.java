@@ -9,12 +9,12 @@ import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceObjectManager;
-import one.microstream.persistence.types.PersistenceObjectRetriever;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceStorer;
 import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
+import one.microstream.reference.ObjectSwizzling;
 import one.microstream.reference._intReference;
 import one.microstream.util.BufferSizeProviderIncremental;
 
@@ -73,7 +73,7 @@ public interface BinaryStorer extends PersistenceStorer
 
 		private final boolean                               switchByteOrder;
 		private final PersistenceObjectManager              objectManager  ;
-		private final PersistenceObjectRetriever            objectRetriever;
+		private final ObjectSwizzling            objectRetriever;
 		private final PersistenceTypeHandlerManager<Binary> typeManager    ;
 		private final PersistenceTarget<Binary>             target         ;
 		
@@ -104,7 +104,7 @@ public interface BinaryStorer extends PersistenceStorer
 
 		protected Default(
 			final PersistenceObjectManager              objectManager     ,
-			final PersistenceObjectRetriever            objectRetriever   ,
+			final ObjectSwizzling            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -201,7 +201,7 @@ public interface BinaryStorer extends PersistenceStorer
 		}
 
 		@Override
-		public final PersistenceObjectRetriever getObjectRetriever()
+		public final ObjectSwizzling getObjectRetriever()
 		{
 			return this.objectRetriever;
 		}
@@ -564,7 +564,7 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		Eager(
 			final PersistenceObjectManager              objectManager     ,
-			final PersistenceObjectRetriever            objectRetriever   ,
+			final ObjectSwizzling            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -638,7 +638,7 @@ public interface BinaryStorer extends PersistenceStorer
 		public BinaryStorer createLazyStorer(
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceObjectManager              objectManager     ,
-			PersistenceObjectRetriever            objectRetriever   ,
+			ObjectSwizzling            objectRetriever   ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
 		);
@@ -647,7 +647,7 @@ public interface BinaryStorer extends PersistenceStorer
 		public default BinaryStorer createStorer(
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceObjectManager              objectManager     ,
-			final PersistenceObjectRetriever            objectRetriever   ,
+			final ObjectSwizzling            objectRetriever   ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider
 		)
@@ -659,7 +659,7 @@ public interface BinaryStorer extends PersistenceStorer
 		public BinaryStorer createEagerStorer(
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceObjectManager              objectManager     ,
-			PersistenceObjectRetriever            objectRetriever   ,
+			ObjectSwizzling            objectRetriever   ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
 		);
@@ -724,7 +724,7 @@ public interface BinaryStorer extends PersistenceStorer
 			public final BinaryStorer createLazyStorer(
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceObjectManager              objectManager     ,
-				final PersistenceObjectRetriever            objectRetriever   ,
+				final ObjectSwizzling            objectRetriever   ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)
@@ -743,7 +743,7 @@ public interface BinaryStorer extends PersistenceStorer
 			public BinaryStorer createEagerStorer(
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceObjectManager              objectManager     ,
-				final PersistenceObjectRetriever            objectRetriever   ,
+				final ObjectSwizzling            objectRetriever   ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)

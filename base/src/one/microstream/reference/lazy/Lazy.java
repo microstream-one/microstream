@@ -1,10 +1,9 @@
-package one.microstream.persistence.lazy;
+package one.microstream.reference.lazy;
 
 import one.microstream.chars.XChars;
-import one.microstream.persistence.exceptions.PersistenceException;
-import one.microstream.persistence.types.Persistence;
-import one.microstream.persistence.types.PersistenceObjectRetriever;
-import one.microstream.reference.LazyReferencing;
+import one.microstream.reference.ObjectSwizzling;
+import one.microstream.reference.Referencing;
+import one.microstream.reference.Swizzling;
 
 
 /**
@@ -12,10 +11,11 @@ import one.microstream.reference.LazyReferencing;
  * <p>
  * Note that the shortened name has been chosen intentionally to optimize readability in class design.
  * <p>
- * Also note that a type like this is strongly required to implement lazy loading behavior in an architectural
- * clean and proper way. I.e. the design has to define that a certain reference is meant be capable of lazy-loading.
+ * Also note that a type like this is strongly required in order to implement lazy loading behavior in an application
+ * in an architecturally clean and proper way. I.e. the application's data model design has to define that a certain
+ * reference is meant to be capable of lazy-loading.
  * If such a definition is not done, a loading logic is strictly required to always load the encountered reference,
- * as it is defined by the normal reference.
+ * as it is defined by the "normal" way of how references work.
  * Any "tricks" of whatever framework to "sneak in" lazy loading behavior where it hasn't actually been defined
  * are nothing more than dirty hacks and mess up if not destroy the program's consistency of state
  * (e.g. antipatterns like secretly replacing a well-defined collection instance with a framework-proprietary
@@ -28,8 +28,21 @@ import one.microstream.reference.LazyReferencing;
  * @author Thomas Muenz
  * @param <T>
  */
-public interface Lazy<T> extends LazyReferencing<T>
+public interface Lazy<T> extends Referencing<T>
 {
+	/**
+	 * Returns the referenced object, loading it if required.
+	 * @return the lazily loaded referenced object.
+	 */
+	@Override
+	public T get();
+
+	/**
+	 * Returns the local reference without loading the referenced object if it is not present.
+	 * @return the currently present reference.
+	 */
+	public T peek();
+	
 	public T clear();
 
 	public boolean isStored();
@@ -99,12 +112,12 @@ public interface Lazy<T> extends LazyReferencing<T>
 		return register(new Lazy.Default<>(null, objectId, null));
 	}
 
-	public static <T> Lazy<T> New(final long objectId, final PersistenceObjectRetriever loader)
+	public static <T> Lazy<T> New(final long objectId, final ObjectSwizzling loader)
 	{
 		return register(new Lazy.Default<>(null, objectId, loader));
 	}
 
-	public static <T> Lazy<T> New(final T subject, final long objectId, final PersistenceObjectRetriever loader)
+	public static <T> Lazy<T> New(final T subject, final long objectId, final ObjectSwizzling loader)
 	{
 		return register(new Lazy.Default<>(subject, objectId, loader));
 	}
@@ -150,7 +163,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		/**
 		 * The cached object id of the not loaded actual instance to later load it lazily.
 		 * Although this value never changes logically during the lifetime of an instance,
-		 * it might be delayed initialized. See {@link #link(long, PersistenceObjectRetriever)} and its use site(s).
+		 * it might be delayed initialized. See {@link #link(long, ObjectSwizzling)} and its use site(s).
 		 */
 		// CHECKSTYLE.OFF: VisibilityModifier CheckStyle false positive for same package in another project
 		transient long objectId;
@@ -162,7 +175,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		 * in the first place but did not to do its work later lazyely. Apart from this idea,
 		 * there is no "hard" contract on what the loader instance should specifically be.
 		 */
-		private transient PersistenceObjectRetriever loader;
+		private transient ObjectSwizzling loader;
 
 
 
@@ -177,7 +190,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		 */
 		Default(final T subject)
 		{
-			this(subject, Persistence.nullId(), null);
+			this(subject, Swizzling.nullId(), null);
 		}
 
 		/**
@@ -188,7 +201,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		 * @param objectId the subject's object id under which it can be reconstructed by the provided loader
 		 * @param loader the loader used to reconstruct the actual instance originally referenced
 		 */
-		Default(final T subject, final long objectId, final PersistenceObjectRetriever loader)
+		Default(final T subject, final long objectId, final ObjectSwizzling loader)
 		{
 			super();
 			this.subject  = subject ;
@@ -217,7 +230,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		public final synchronized boolean isStored()
 		{
 			// checking objectId rather than loader as loader might be initially non-null in a future enhancement
-			return this.objectId != Persistence.nullId();
+			return this.objectId != Swizzling.nullId();
 		}
 		
 		@Override
@@ -262,14 +275,14 @@ public interface Lazy<T> extends LazyReferencing<T>
 
 		private void validateObjectIdToBeSet(final long objectId)
 		{
-			if(this.objectId != Persistence.nullId() && this.objectId != objectId)
+			if(this.objectId != Swizzling.nullId() && this.objectId != objectId)
 			{
 				// (22.10.2014 TM)TODO: proper exception
-				throw new PersistenceException("ObjectId already set: " + this.objectId);
+				throw new RuntimeException("ObjectId already set: " + this.objectId);
 			}
 		}
 
-		final synchronized void setLoader(final PersistenceObjectRetriever loader)
+		final synchronized void setLoader(final ObjectSwizzling loader)
 		{
 			/*
 			 * This method might be called when storing or building to/from different sources
@@ -288,7 +301,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 			this.loader = loader;
 		}
 
-		final synchronized void link(final long objectId, final PersistenceObjectRetriever loader)
+		final synchronized void link(final long objectId, final ObjectSwizzling loader)
 		{
 			this.validateObjectIdToBeSet(objectId);
 			this.setLoader(loader);
@@ -301,7 +314,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 			if(!this.isStored())
 			{
 				// (03.09.2019 TM)EXCP: proper exception
-				throw new PersistenceException("Cannot clear an unstored lazy reference.");
+				throw new RuntimeException("Cannot clear an unstored lazy reference.");
 			}
 			
 //			XDebug.debugln("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);
@@ -326,7 +339,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 		@Override
 		public final synchronized T get()
 		{
-			if(this.subject == null && this.objectId != Persistence.nullId())
+			if(this.subject == null && this.objectId != Swizzling.nullId())
 			{
 				this.load();
 			}
@@ -407,7 +420,7 @@ public interface Lazy<T> extends LazyReferencing<T>
 			}
 
 			@Override
-			public void accept(final LazyReferencing<?> lazyReference)
+			public void accept(final Lazy<?> lazyReference)
 			{
 				if(!(lazyReference instanceof Lazy.Default<?>))
 				{

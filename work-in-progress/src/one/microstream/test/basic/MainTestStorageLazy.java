@@ -2,7 +2,7 @@ package one.microstream.test.basic;
 
 import java.util.Date;
 
-import one.microstream.persistence.lazy.Lazy;
+import one.microstream.reference.lazy.Lazy;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;

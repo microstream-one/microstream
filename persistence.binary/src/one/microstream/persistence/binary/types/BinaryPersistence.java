@@ -83,7 +83,6 @@ import one.microstream.persistence.binary.internal.BinaryHandlerSingletonStatele
 import one.microstream.persistence.binary.internal.BinaryHandlerStatelessConstant;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import one.microstream.persistence.lazy.BinaryHandlerLazyDefault;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -94,6 +93,7 @@ import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeIdLookup;
 import one.microstream.reference.Referencing;
+import one.microstream.reference.lazy.BinaryHandlerLazyDefault;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BinaryHandlerSubstituterDefault;
 
