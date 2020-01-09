@@ -13,6 +13,7 @@ import one.microstream.exceptions.NoSuchFieldRuntimeException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.binary.types.BinaryTypeHandler;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
@@ -224,21 +225,20 @@ extends BinaryTypeHandler.Abstract<T>
 	{
 		if(this.members == null)
 		{
-			this.initializeInstanceMembers();
+			this.members = this.initializeInstanceMembers();
 		}
 		
 		return this.members;
 	}
 	
-	protected void initializeInstanceMembers()
+	protected XImmutableEnum<? extends PersistenceTypeDefinitionMember> initializeInstanceMembers()
 	{
-		if(this.members != null)
-		{
-			// already initialized, e.g. via constructor
-			return;
-		}
-		
-		// (06.01.2020 TM)FIXME: priv#88: call some initialization, simply throwing an exception at this level
+		// (09.01.2020 TM)EXCP: proper exception
+		throw new PersistenceException(
+			"type definition members may not be null for non-"
+			+ AbstractBinaryHandlerCustom2.class.getSimpleName()
+			+ "-implmenentations"
+		);
 	}
 	
 	@Override
