@@ -14,6 +14,7 @@ import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XAddingCollection;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -156,6 +157,9 @@ extends AbstractBinaryHandlerCustom<T>
 	
 	// (06.01.2020 TM)FIXME: priv#88: why is this needed?
 	private Class<?> initializationInvokingClass;
+	
+	// must be deferred-initialized since all fields have to be collected in a generic way
+	private XGettingTable<String, BinaryField.Initializable<?>> binaryFields;
 
 
 
@@ -192,11 +196,11 @@ extends AbstractBinaryHandlerCustom<T>
 	////////////
 		
 	@Override
-	protected void initializeInstanceMembers()
+	protected XImmutableEnum<? extends PersistenceTypeDefinitionMember> initializeInstanceMembers()
 	{
-		// (06.01.2020 TM)FIXME: priv#88: search for BinaryFields in class hiararchy
 		this.initializeBinaryFieldsExplicitely(this.getClass());
-		throw new one.microstream.meta.NotImplementedYetError();
+		
+		return validateAndImmure(this.binaryFields.values());
 	}
 	
 	@Override
@@ -257,11 +261,11 @@ extends AbstractBinaryHandlerCustom<T>
 
 	protected final synchronized void initializeBinaryFields()
 	{
-		final HashTable<Class<?>, XGettingSequence<BinaryField.Initializable>> binaryFieldsPerClass = HashTable.New();
+		final HashTable<Class<?>, XGettingSequence<BinaryField.Initializable<?>>> binaryFieldsPerClass = HashTable.New();
 		
 		this.collectBinaryFields(binaryFieldsPerClass);
 
-		final EqHashTable<String, BinaryField.Initializable> binaryFieldsInOrder = EqHashTable.New();
+		final EqHashTable<String, BinaryField.Initializable<?>> binaryFieldsInOrder = EqHashTable.New();
 		this.defineBinaryFieldOrder(binaryFieldsPerClass, (name, field) ->
 		{
 			/* (17.04.2019 TM)FIXME: priv#88: name must be unique.
@@ -278,10 +282,12 @@ extends AbstractBinaryHandlerCustom<T>
 		
 		this.initializeBinaryFieldOffsets(binaryFieldsInOrder);
 		// (18.04.2019 TM)FIXME: priv#88: assign to members field here or somewhere appropriate.
+		
+		this.binaryFields = binaryFieldsInOrder;
 	}
 	
 	private void collectBinaryFields(
-		final HashTable<Class<?>, XGettingSequence<BinaryField.Initializable>> binaryFieldsPerClass
+		final HashTable<Class<?>, XGettingSequence<BinaryField.Initializable<?>>> binaryFieldsPerClass
 	)
 	{
 		for(Class<?> c = this.getClass(); c != AbstractBinaryHandlerCustom2.class; c = c.getSuperclass())
@@ -290,7 +296,7 @@ extends AbstractBinaryHandlerCustom<T>
 			 * This construction is necessary to maintain the collection order even if a class
 			 * overrides the collecting logic
 			 */
-			final BulkList<BinaryField.Initializable> binaryFieldsOfClass = BulkList.New();
+			final BulkList<BinaryField.Initializable<?>> binaryFieldsOfClass = BulkList.New();
 			this.collectDeclaredBinaryFields(c, binaryFieldsOfClass);
 
 			// already existing entries (added by an extending class in an override of this method) are allowed
@@ -299,8 +305,8 @@ extends AbstractBinaryHandlerCustom<T>
 	}
 
 	protected void collectDeclaredBinaryFields(
-		final Class<?>                                     clazz ,
-		final XAddingCollection<BinaryField.Initializable> target
+		final Class<?>                                        clazz ,
+		final XAddingCollection<BinaryField.Initializable<?>> target
 	)
 	{
 		for(final Field field : clazz.getDeclaredFields())
@@ -312,13 +318,13 @@ extends AbstractBinaryHandlerCustom<T>
 			try
 			{
 				field.setAccessible(true);
-				final BinaryField binaryField = (BinaryField)field.get(this);
+				final BinaryField<?> binaryField = (BinaryField<?>)field.get(this);
 				if(!(binaryField instanceof BinaryField.Initializable))
 				{
 					continue;
 				}
 				
-				final BinaryField.Initializable initializable = (BinaryField.Initializable)binaryField;
+				final BinaryField.Initializable<?> initializable = (BinaryField.Initializable<?>)binaryField;
 				initializable.initializeName(field.getName());
 				target.add(initializable);
 			}
@@ -331,8 +337,8 @@ extends AbstractBinaryHandlerCustom<T>
 	}
 
 	protected void defineBinaryFieldOrder(
-		final XGettingTable<Class<?>, XGettingSequence<BinaryField.Initializable>> binaryFieldsPerClass,
-		final BiConsumer<String, BinaryField.Initializable>                        collector
+		final XGettingTable<Class<?>, XGettingSequence<BinaryField.Initializable<?>>> binaryFieldsPerClass,
+		final BiConsumer<String, BinaryField.Initializable<?>>                        collector
 	)
 	{
 		/*
@@ -340,21 +346,21 @@ extends AbstractBinaryHandlerCustom<T>
 		 * - order binaryFields from most to least specific class ("upwards")
 		 * - order binaryFields per class in declaration order
 		 */
-		for(final XGettingSequence<BinaryField.Initializable> binaryFieldsOfClass : binaryFieldsPerClass.values())
+		for(final XGettingSequence<BinaryField.Initializable<?>> binaryFieldsOfClass : binaryFieldsPerClass.values())
 		{
-			for(final BinaryField.Initializable binaryField : binaryFieldsOfClass)
+			for(final BinaryField.Initializable<?> binaryField : binaryFieldsOfClass)
 			{
 				collector.accept(binaryField.name(), binaryField);
 			}
 		}
 	}
 	
-	private void initializeBinaryFieldOffsets(final XGettingTable<String, BinaryField.Initializable> binaryFields)
+	private void initializeBinaryFieldOffsets(final XGettingTable<String, BinaryField.Initializable<?>> binaryFields)
 	{
 		validateVariableLengthLayout(binaryFields);
 		
 		long offset = 0;
-		for(final BinaryField.Initializable binaryField : binaryFields.values())
+		for(final BinaryField.Initializable<?> binaryField : binaryFields.values())
 		{
 			binaryField.initializeOffset(offset);
 			offset += binaryField.persistentMinimumLength();
@@ -367,7 +373,9 @@ extends AbstractBinaryHandlerCustom<T>
 	 * 
 	 * @param binaryFields
 	 */
-	private static void validateVariableLengthLayout(final XGettingTable<String, ? extends BinaryField> binaryFields)
+	private static void validateVariableLengthLayout(
+		final XGettingTable<String, ? extends BinaryField<?>> binaryFields
+	)
 	{
 		if(binaryFields.size() <= 1)
 		{
@@ -375,8 +383,8 @@ extends AbstractBinaryHandlerCustom<T>
 			return;
 		}
 		
-		final BinaryField lastBinaryField = binaryFields.values().peek();
-		for(final BinaryField binaryField : binaryFields.values())
+		final BinaryField<?> lastBinaryField = binaryFields.values().peek();
+		for(final BinaryField<?> binaryField : binaryFields.values())
 		{
 			if(!binaryField.isVariableLength())
 			{
