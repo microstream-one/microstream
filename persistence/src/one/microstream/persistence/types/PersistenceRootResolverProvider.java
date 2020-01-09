@@ -27,7 +27,19 @@ public interface PersistenceRootResolverProvider
 		return rootReference != null && rootReference.get() != null;
 	}
 
-	public PersistenceRootResolverProvider registerRoot(Object root);
+	/**
+	 * To avoid confusion, this method has been renamed to {@link #setRoot(Object)}.
+	 * The old variant will be removed in a future release.
+	 * 
+	 * @deprecated
+	 */
+	@Deprecated
+	public default PersistenceRootResolverProvider registerRoot(final Object root)
+	{
+		return this.setRoot(root);
+	}
+
+	public PersistenceRootResolverProvider setRoot(Object root);
 	
 	public default PersistenceRootResolverProvider registerRoot(
 		final String identifier,
@@ -192,7 +204,7 @@ public interface PersistenceRootResolverProvider
 		}
 		
 		@Override
-		public final synchronized PersistenceRootResolverProvider registerRoot(final Object root)
+		public final synchronized PersistenceRootResolverProvider setRoot(final Object root)
 		{
 			// no need to reregister, see #initializeRootEntries
 			this.rootReference().setRoot(root);
