@@ -337,7 +337,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public F setRoot(final Object root)
 		{
-			this.getConnectionFoundation().getRootResolverProvider().registerRoot(root);
+			this.getConnectionFoundation().getRootResolverProvider().setRoot(root);
 			
 			return this.$();
 		}
@@ -547,7 +547,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			// explicit root must be registered at the rootResolverProvider.
 			if(root != null)
 			{
-				ecf.getRootResolverProvider().registerRoot(root);
+				ecf.getRootResolverProvider().setRoot(root);
 			}
 			
 			// must be created BEFORE the type handler manager is initilized to register its custom type handler
