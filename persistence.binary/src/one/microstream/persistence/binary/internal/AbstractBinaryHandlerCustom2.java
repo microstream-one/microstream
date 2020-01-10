@@ -19,6 +19,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.reflect.Getter;
@@ -160,6 +161,10 @@ extends AbstractBinaryHandlerCustom<T>
 	
 	// must be deferred-initialized since all fields have to be collected in a generic way
 	private XGettingTable<String, BinaryField.Initializable<?>> binaryFields;
+	private boolean hasPersistedReferences;
+	private boolean hasVaryingPersistedLengthInstances;
+	
+	// (10.01.2020 TM)FIXME: priv#88: keep an array of reference fields and primitive fields and use them in #iterate... and #create
 
 
 
@@ -194,6 +199,32 @@ extends AbstractBinaryHandlerCustom<T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private void ensureInitializedFields()
+	{
+		if(this.binaryFields != null)
+		{
+			return;
+		}
+		
+		this.initializeInstanceMembers();
+	}
+
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		this.ensureInitializedFields();
+		
+		return this.hasPersistedReferences;
+	}
+
+	@Override
+	public final boolean hasVaryingPersistedLengthInstances()
+	{
+		this.ensureInitializedFields();
+		
+		return this.hasVaryingPersistedLengthInstances;
+	}
 		
 	@Override
 	protected XImmutableEnum<? extends PersistenceTypeDefinitionMember> initializeInstanceMembers()
@@ -280,7 +311,7 @@ extends AbstractBinaryHandlerCustom<T>
 			}
 		});
 		
-		this.initializeBinaryFieldOffsets(binaryFieldsInOrder);
+		this.initializeBinaryFields(binaryFieldsInOrder);
 		// (18.04.2019 TM)FIXME: priv#88: assign to members field here or somewhere appropriate.
 		
 		this.binaryFields = binaryFieldsInOrder;
@@ -355,17 +386,39 @@ extends AbstractBinaryHandlerCustom<T>
 		}
 	}
 	
-	private void initializeBinaryFieldOffsets(final XGettingTable<String, BinaryField.Initializable<?>> binaryFields)
+	private void initializeBinaryFields(final XGettingTable<String, BinaryField.Initializable<?>> binaryFields)
 	{
 		validateVariableLengthLayout(binaryFields);
+
+		boolean hasPersistedReferences = false;
+		boolean hasVaryingPersistedLengthInstances = false;
 		
 		long offset = 0;
 		for(final BinaryField.Initializable<?> binaryField : binaryFields.values())
 		{
 			binaryField.initializeOffset(offset);
 			offset += binaryField.persistentMinimumLength();
+			
+			/*
+			 * must use "hasReferences" instead of "isReference" as a variable list field
+			 * is not a reference, but can contain references.
+			 */
+			if(!hasPersistedReferences && binaryField.hasReferences())
+			{
+				hasPersistedReferences = true;
+			}
 		}
-		// note: a trailing variable length field sets the offset to an invalid state, but that is never read.
+		/* note:
+		 * A variable length field sets the local offset variable to end up in an invalid state, but that is never read.
+		 */
+		
+		// #validateVariableLengthLayout already ensured that only the last field can have variable length
+		hasVaryingPersistedLengthInstances = !binaryFields.values().isEmpty()
+			&& binaryFields.values().peek().isVariableLength()
+		;
+		
+		this.hasPersistedReferences = hasPersistedReferences;
+		this.hasVaryingPersistedLengthInstances = hasVaryingPersistedLengthInstances;
 	}
 	
 	/**
@@ -402,6 +455,27 @@ extends AbstractBinaryHandlerCustom<T>
 	protected void internalInitialize()
 	{
 		this.initializeBinaryFieldsExplicitely(this.getClass());
+	}
+
+	@Override
+	public boolean hasInstanceReferences()
+	{
+		// FIXME PersistenceTypeHandler<Binary,T>#hasInstanceReferences()
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+
+	@Override
+	public void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
+	{
+		// FIXME PersistenceTypeHandler<Binary,T>#iterateLoadableReferences()
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+
+	@Override
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
+	{
+		// FIXME PersistenceTypeHandler<Binary,T>#updateState()
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 }
