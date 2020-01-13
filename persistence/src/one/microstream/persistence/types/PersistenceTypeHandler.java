@@ -25,7 +25,17 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition
 	
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers();
-		
+	
+	
+	/* (14.01.2020 TM)FIXME: priv#88: remove instance-reference-related methods?
+	 * #hasInstanceReferences ist never really used.
+	 * #iterateInstanceReferences only by debugging and the registerer, but that is, in turn, not really used itself.
+	 * Not removing them makes them impossible to implement for "Custom2" handlers in a generic way,
+	 * forcing to annoy the handler implementing developer with manual code. All to satisfy code that is never really
+	 * used.
+	 * HM...
+	 */
+	
 	public boolean hasInstanceReferences();
 	
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
