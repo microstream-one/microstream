@@ -164,7 +164,9 @@ extends AbstractBinaryHandlerCustom<T>
 	private boolean hasPersistedReferences;
 	private boolean hasVaryingPersistedLengthInstances;
 	
-	// (10.01.2020 TM)FIXME: priv#88: keep an array of reference fields and primitive fields and use them in #iterate... and #create
+	private BinaryField<?>[] primitiveFields;
+	private BinaryField<?>[] referenceFields;
+	
 
 
 
@@ -237,7 +239,7 @@ extends AbstractBinaryHandlerCustom<T>
 	@Override
 	public void store(final Binary data, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		// (08.01.2020 TM)FIXME: priv#88: store
+		// (08.01.2020 TM)FIXME: priv#88: store via storefields
 		throw new RuntimeException();
 	}
 
@@ -251,8 +253,22 @@ extends AbstractBinaryHandlerCustom<T>
 	@Override
 	public T create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		// (08.01.2020 TM)FIXME: priv#88: create
+		// (08.01.2020 TM)FIXME: priv#88: create: instantiate and fill via primitive fields
 		throw new RuntimeException();
+	}
+	
+	@Override
+	public void initializeState(final Binary data, final T instance, final PersistenceLoadHandler handler)
+	{
+		// (13.01.2020 TM)FIXME: priv#88: initializeState
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+
+	@Override
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
+	{
+		// (13.01.2020 TM)FIXME: priv#88: updateState
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	@Override
@@ -393,6 +409,9 @@ extends AbstractBinaryHandlerCustom<T>
 		boolean hasPersistedReferences = false;
 		boolean hasVaryingPersistedLengthInstances = false;
 		
+		final BulkList<BinaryField<?>> primitiveFields = BulkList.New();
+		final BulkList<BinaryField<?>> referenceFields = BulkList.New();
+		
 		long offset = 0;
 		for(final BinaryField.Initializable<?> binaryField : binaryFields.values())
 		{
@@ -407,6 +426,15 @@ extends AbstractBinaryHandlerCustom<T>
 			{
 				hasPersistedReferences = true;
 			}
+			
+			if(binaryField.isPrimitive())
+			{
+				primitiveFields.add(binaryField);
+			}
+			else if(binaryField.hasReferences())
+			{
+				referenceFields.add(binaryField);
+			}
 		}
 		/* note:
 		 * A variable length field sets the local offset variable to end up in an invalid state, but that is never read.
@@ -419,6 +447,17 @@ extends AbstractBinaryHandlerCustom<T>
 		
 		this.hasPersistedReferences = hasPersistedReferences;
 		this.hasVaryingPersistedLengthInstances = hasVaryingPersistedLengthInstances;
+		
+		this.primitiveFields = primitiveFields.toArray(binaryFieldClass());
+		this.referenceFields = referenceFields.toArray(binaryFieldClass());
+	}
+	
+	
+	@SuppressWarnings({"unchecked",  "rawtypes"})
+	private static Class<BinaryField<?>> binaryFieldClass()
+	{
+		// no idea how to get ".class" to work otherwise
+		return (Class)BinaryField.class;
 	}
 	
 	/**
@@ -468,13 +507,6 @@ extends AbstractBinaryHandlerCustom<T>
 	public void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
 		// FIXME PersistenceTypeHandler<Binary,T>#iterateLoadableReferences()
-		throw new one.microstream.meta.NotImplementedYetError();
-	}
-
-	@Override
-	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
-	{
-		// FIXME PersistenceTypeHandler<Binary,T>#updateState()
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
