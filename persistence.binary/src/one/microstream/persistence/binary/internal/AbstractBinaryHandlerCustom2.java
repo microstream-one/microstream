@@ -164,7 +164,7 @@ extends AbstractBinaryHandlerCustom<T>
 	private boolean hasPersistedReferences;
 	private boolean hasVaryingPersistedLengthInstances;
 	
-	private BinaryField<?>[] primitiveFields;
+	private BinaryField<?>[] nonReferenceFields;
 	private BinaryField<?>[] referenceFields;
 	
 
@@ -405,12 +405,10 @@ extends AbstractBinaryHandlerCustom<T>
 	private void initializeBinaryFields(final XGettingTable<String, BinaryField.Initializable<?>> binaryFields)
 	{
 		validateVariableLengthLayout(binaryFields);
-
-		boolean hasPersistedReferences = false;
-		boolean hasVaryingPersistedLengthInstances = false;
-		
-		final BulkList<BinaryField<?>> primitiveFields = BulkList.New();
+		final BulkList<BinaryField<?>> nonReferenceFields = BulkList.New();
 		final BulkList<BinaryField<?>> referenceFields = BulkList.New();
+		
+		// (14.01.2020 TM)FIXME: priv#88: hasInstanceReferences. See task in PersistenceTypeHandler.
 		
 		long offset = 0;
 		for(final BinaryField.Initializable<?> binaryField : binaryFields.values())
@@ -422,18 +420,13 @@ extends AbstractBinaryHandlerCustom<T>
 			 * must use "hasReferences" instead of "isReference" as a variable list field
 			 * is not a reference, but can contain references.
 			 */
-			if(!hasPersistedReferences && binaryField.hasReferences())
-			{
-				hasPersistedReferences = true;
-			}
-			
-			if(binaryField.isPrimitive())
-			{
-				primitiveFields.add(binaryField);
-			}
-			else if(binaryField.hasReferences())
+			if(binaryField.hasReferences())
 			{
 				referenceFields.add(binaryField);
+			}
+			else
+			{
+				nonReferenceFields.add(binaryField);
 			}
 		}
 		/* note:
@@ -441,15 +434,13 @@ extends AbstractBinaryHandlerCustom<T>
 		 */
 		
 		// #validateVariableLengthLayout already ensured that only the last field can have variable length
-		hasVaryingPersistedLengthInstances = !binaryFields.values().isEmpty()
+		this.hasVaryingPersistedLengthInstances = !binaryFields.values().isEmpty()
 			&& binaryFields.values().peek().isVariableLength()
 		;
 		
-		this.hasPersistedReferences = hasPersistedReferences;
-		this.hasVaryingPersistedLengthInstances = hasVaryingPersistedLengthInstances;
-		
-		this.primitiveFields = primitiveFields.toArray(binaryFieldClass());
-		this.referenceFields = referenceFields.toArray(binaryFieldClass());
+		this.nonReferenceFields     = nonReferenceFields.toArray(binaryFieldClass());
+		this.referenceFields        = referenceFields.toArray(binaryFieldClass());
+		this.hasPersistedReferences = this.referenceFields.length != 0;
 	}
 	
 	
