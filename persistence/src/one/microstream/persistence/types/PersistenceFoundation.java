@@ -1,10 +1,14 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.KeyValue;
+
 import java.nio.ByteOrder;
 
 import one.microstream.X;
+import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XEnum;
+import one.microstream.collections.types.XGettingTable;
 import one.microstream.collections.types.XMap;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
@@ -140,6 +144,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 	public PersistenceTypeEvaluator getTypeEvaluatorPersistable();
 
 	public PersistenceFieldLengthResolver getFieldFixedLengthResolver();
+	
+	public XGettingTable<String, String> getTypeNameMapping();
 	
 	public PersistenceEagerStoringFieldEvaluator getReferenceFieldEagerEvaluator();
 
@@ -287,6 +293,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 
 	public F setFieldFixedLengthResolver(PersistenceFieldLengthResolver fieldFixedLengthResolver);
 
+	public F setTypeNameMapping(XGettingTable<String, String> typeNameMapping);
+
 	public F setFieldEvaluatorPersistable(PersistenceFieldEvaluator fieldEvaluator);
 	
 	public F setFieldEvaluatorPersister(PersistenceFieldEvaluator fieldEvaluator);
@@ -418,6 +426,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceTarget<D>                           target                          ;
 		private PersistenceSource<D>                           source                          ;
 		private PersistenceFieldLengthResolver                 fieldFixedLengthResolver        ;
+		private XGettingTable<String, String>                  typeNameMapping                 ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorPersistable       ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorPersister         ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorEnum              ;
@@ -1001,6 +1010,17 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 			}
 			
 			return this.fieldFixedLengthResolver;
+		}
+
+		@Override
+		public XGettingTable<String, String> getTypeNameMapping()
+		{
+			if(this.typeNameMapping == null)
+			{
+				this.typeNameMapping = this.dispatch(this.ensureTypeNameMapping());
+			}
+			
+			return this.typeNameMapping;
 		}
 
 		@Override
@@ -1655,6 +1675,13 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 			this.fieldFixedLengthResolver = fieldFixedLengthResolver;
 			return this.$();
 		}
+		
+		@Override
+		public F setTypeNameMapping(final XGettingTable<String, String> typeNameMapping)
+		{
+			this.typeNameMapping = typeNameMapping;
+			return this.$();
+		}
 
 		@Override
 		public F setFieldEvaluatorPersistable(
@@ -2026,7 +2053,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		{
 			final PersistenceTypeDictionaryParser newTypeDictionaryParser =
 				PersistenceTypeDictionaryParser.New(
-					this.getFieldFixedLengthResolver()
+					this.getFieldFixedLengthResolver(),
+					this.getTypeNameMapping()
 				)
 			;
 			return newTypeDictionaryParser;
@@ -2271,6 +2299,14 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceFieldLengthResolver ensureFieldFixedLengthResolver()
 		{
 			throw new MissingFoundationPartException(PersistenceFieldLengthResolver.class);
+		}
+		
+		protected XGettingTable<String, String> ensureTypeNameMapping()
+		{
+			return EqHashTable.New(
+				KeyValue("one.microstream.persistence.lazy.Lazy"        , "one.microstream.reference.Lazy$Default"),
+				KeyValue("one.microstream.persistence.lazy.Lazy$Default", "one.microstream.reference.Lazy$Default")
+			).immure();
 		}
 		
 		protected PersistenceRootResolverProvider ensureRootResolverProvider()
