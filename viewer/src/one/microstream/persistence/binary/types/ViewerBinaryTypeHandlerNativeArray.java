@@ -30,13 +30,15 @@ public class ViewerBinaryTypeHandlerNativeArray<T> extends ViewerBinaryTypeHandl
 		final T value = this.nativeHandler.create(medium, handler);
 		this.nativeHandler.updateState(medium, value, handler);
 
-		final int l = Array.getLength(value);
-		final Object objArray[] = new Object[l];
-		for(int i = 0; i < l; i++)
+		final int length = Array.getLength(value);
+		final Object objArray[] = new Object[length];
+		for(int i = 0; i < length; i++)
 		{
 			objArray[i] = Array.get(value, i);
 		}
+
 		objectDescription.setValues(new Object[] {objArray});
+		objectDescription.setLength(length);
 
 		return objectDescription;
 	}

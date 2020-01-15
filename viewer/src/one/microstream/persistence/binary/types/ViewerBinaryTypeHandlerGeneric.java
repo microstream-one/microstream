@@ -132,7 +132,8 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 		final ViewerObjectDescription objectDescription = new ViewerObjectDescription();
 		objectDescription.setObjectId(medium.getBuildItemObjectId());
 		objectDescription.setPersistenceTypeDefinition(this.persitenceTypeDefinition);
-		objectDescription.setValues(ValueReader.readObjectValues(medium, this.readers, null));
+
+		ValueReader.readObjectValues(medium, this.readers, null, objectDescription);
 
 		return	objectDescription;
 	}

@@ -3,9 +3,7 @@ package one.microstream.viewer.dataobjects;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 
 
 /**
@@ -21,13 +19,15 @@ public class JSONConverter implements ObjectDescriptionConverter<String>
 	{
 		super();
 
-		final RuntimeTypeAdapterFactory<MemberValue> runtimeTypeAdapterFactory
-		= RuntimeTypeAdapterFactory
-		.of(MemberValue.class)
-		.registerSubtype(MemberValue.class)
-		.registerSubtype(ReferenceValue.class);
+//		final RuntimeTypeAdapterFactory<MemberValue> runtimeTypeAdapterFactory
+//		= RuntimeTypeAdapterFactory
+//		.of(MemberValue.class)
+//		.registerSubtype(MemberValue.class)
+//		.registerSubtype(ReferenceValue.class);
 
-		this.gson = new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
+//		this.gson = new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
+
+		this.gson = new Gson();
 	}
 
 	@Override
