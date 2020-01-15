@@ -26,19 +26,26 @@ public class RouteObject2 implements Route
 	@Override
 	public String handle(final Request request, final Response response)
 	{
-		final long dataOffset = this.getLongParamter(request, "dataOffset");
-		final long dataLength = this.getLongParamter(request, "dataLength");
-		final long referenceOffset = this.getLongParamter(request, "referenceOffset");
-		final long referenceLength = this.getLongParamter(request, "referenceLength");
+		final long dataOffset = this.getLongParameter(request, "dataOffset", 0);
+		final long dataLength = this.getLongParameter(request, "dataLength", Long.MAX_VALUE);
+		final long referenceOffset = this.getLongParameter(request, "referenceOffset", 0);
+		final long referenceLength = this.getLongParameter(request, "referenceLength", Long.MAX_VALUE);
+		final boolean resolveReverences = this.getBooleanParameter(request, "references", false);
 
 		final long objectId = this.validateObjectId(request);
-		final String jsonString = this.storageRestAdapter.getObject(objectId, dataOffset , dataLength, referenceOffset, referenceLength);
+		final String jsonString = this.storageRestAdapter.getObject(
+			objectId,
+			dataOffset,
+			dataLength,
+			resolveReverences,
+			referenceOffset,
+			referenceLength);
 
 		response.type("application/json");
 		return jsonString;
 	}
 
-	protected long validateObjectId(final Request request)
+	private long validateObjectId(final Request request)
 	{
 		try
 		{
@@ -50,13 +57,25 @@ public class RouteObject2 implements Route
 		}
 	}
 
-	protected long getLongParamter(final Request request, final String name)
+	private boolean getBooleanParameter(final Request request, final String name, final boolean defaultValue)
+	{
+		final String param = request.queryParams(name);
+		if(param == null)
+		{
+			return defaultValue;
+		}
+
+		return param.toLowerCase().contentEquals("true");
+
+	}
+
+	private long getLongParameter(final Request request, final String name, final long defaultValue)
 	{
 		final String param = request.queryParams(name);
 
 		if(param == null)
 		{
-			return -1;
+			return defaultValue;
 		}
 
 		try

@@ -40,11 +40,15 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 		final long objectId,
 		final long dataOffset,
 		final long dataLength,
+		final boolean resolveReferences,
 		final long referenceOffset,
 		final long referenceLength)
 	{
 		final ViewerObjectDescription description = super.getStorageObject(objectId);
-		description.resolveReferences(referenceOffset, referenceLength, this);
+		if(resolveReferences)
+		{
+			description.resolveReferences(referenceOffset, referenceLength, this);
+		}
 		return this.converter.convert(description, dataOffset, dataLength);
 	}
 
