@@ -91,22 +91,24 @@ public class StorageViewDataConverter
 
 
 		final ViewerObjectDescription refs[] = description.getReferences();
-		final List<SimpleObjectDescription> refList = new ArrayList<>(refs.length);
-
-		for (final ViewerObjectDescription desc : refs)
+		if(refs != null)
 		{
-			if(desc != null)
+			final List<SimpleObjectDescription> refList = new ArrayList<>(refs.length);
+
+			for (final ViewerObjectDescription desc : refs)
 			{
-				refList.add(this.toSimple(desc));
+				if(desc != null)
+				{
+					refList.add(this.toSimple(desc, dataOffset, dataLength));
+				}
+				else
+				{
+					refList.add(null);
+				}
 			}
-			else
-			{
-				refList.add(null);
-			}
+
+			objDesc.setReferences(refList.toArray(new SimpleObjectDescription[0]));
 		}
-
-		objDesc.setReferences(refList.toArray(new SimpleObjectDescription[0]));
-
 		return objDesc;
 	}
 
