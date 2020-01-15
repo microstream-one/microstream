@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
+import one.microstream.viewer.EmbeddedStorageRestAdapter;
 import one.microstream.viewer.ViewerObjectMemberDescription;
 
 /**
@@ -24,6 +26,8 @@ public class ViewerObjectDescription implements ViewerMemberProvider
 	private Object primitiveInstance;
 	private PersistenceTypeDefinition persistenceTypeDefinition;
 	private ViewerObjectMemberDescription parent;
+	private long length;
+	private ViewerObjectDescription[] references;
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -62,6 +66,26 @@ public class ViewerObjectDescription implements ViewerMemberProvider
 	public void setValues(final Object[] values)
 	{
 		this.values = values;
+	}
+
+	public long getLength()
+	{
+		return this.length;
+	}
+
+	public void setLength(final long variableSize)
+	{
+		this.length = variableSize;
+	}
+
+	public ViewerObjectDescription[] getReferences()
+	{
+		return this.references;
+	}
+
+	public void setReferences(final ViewerObjectDescription[] references)
+	{
+		this.references = references;
 	}
 
 	/**
@@ -156,5 +180,32 @@ public class ViewerObjectDescription implements ViewerMemberProvider
 		{
 			throw new ViewerException("no member for index " + index);
 		}
+	}
+
+	public void resolveReferences(final long referenceOffset, final long referenceLength, final EmbeddedStorageRestAdapter storageRestAdapter)
+	{
+		//TODO: HAGR implement offset and length params
+
+		final List<ViewerObjectDescription> resolvedRefernces = new ArrayList<>();
+
+		for(int i = 0; i < this.values.length; i++)
+		{
+			if(this.values[i] instanceof ViewerObjectReferenceWrapper)
+			{
+				final long oid = ((ViewerObjectReferenceWrapper) this.values[i]).getObjectId();
+				if(oid > 0)
+				{
+					resolvedRefernces.add(storageRestAdapter.getStorageObject(oid));
+				}
+				else
+				{
+					resolvedRefernces.add(null);
+				}
+			}
+		}
+
+		this.references = resolvedRefernces.toArray(new ViewerObjectDescription[0]);
+
+		XDebug.println("");
 	}
 }

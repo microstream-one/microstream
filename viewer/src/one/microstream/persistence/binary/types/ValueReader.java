@@ -16,6 +16,11 @@ public interface ValueReader
 	public Object readValue(Binary binary, long offset);
 	public long getBinarySize(final Binary binary, final long offset);
 
+	public default long getVariableLength(final Binary binary, final long offset)
+	{
+		return -1;
+	}
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -127,20 +132,27 @@ public interface ValueReader
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
-	public static Object[] readObjectValues(
+	public static void readObjectValues(
 			final Binary        binary      ,
 			final ValueReader[] valueReaders,
-			final long[]        valueOffsets)
+			final long[]        valueOffsets,
+			final ViewerObjectDescription  objectDescription)
 	{
 		final Object[] objectValues = new Object[valueReaders.length];
 
+		long variableLength = -1;
 		long offset = 0;
 		for(int i = 0; i < objectValues.length; i++)
 		{
 			objectValues[i] = valueReaders[i].readValue(binary, offset);
 			final long size = valueReaders[i].getBinarySize(binary, offset);
+			variableLength = valueReaders[i].getVariableLength(binary, offset);
 			offset += size;
 		}
-		return objectValues;
+
+		objectDescription.setLength( variableLength > -1 ? variableLength : objectValues.length);
+
+
+		objectDescription.setValues(objectValues);
 	}
 }
