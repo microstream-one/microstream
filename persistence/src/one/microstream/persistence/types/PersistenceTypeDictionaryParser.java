@@ -5,7 +5,6 @@ import static one.microstream.X.notNull;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.collections.types.XGettingTable;
 import one.microstream.math.XMath;
 import one.microstream.persistence.exceptions.PersistenceExceptionParser;
 import one.microstream.persistence.exceptions.PersistenceExceptionParserIncompleteInput;
@@ -30,26 +29,26 @@ public interface PersistenceTypeDictionaryParser
 
 	public static PersistenceTypeDictionaryParser.Default New(
 		final PersistenceFieldLengthResolver fieldLengthResolver,
-		final XGettingTable<String, String>  typeNameMapping
+		final PersistenceTypeNameMapper      typeNameMapper
 	)
 	{
 		return New(
 			fieldLengthResolver,
 			Substituter.New(),
-			typeNameMapping
+			typeNameMapper
 		);
 	}
 	
 	public static PersistenceTypeDictionaryParser.Default New(
 		final PersistenceFieldLengthResolver fieldLengthResolver,
 		final Substituter<String>            stringSubstitutor  ,
-		final XGettingTable<String, String>  typeNameMapping
+		final PersistenceTypeNameMapper      typeNameMapper
 	)
 	{
 		return new PersistenceTypeDictionaryParser.Default(
 			notNull(fieldLengthResolver),
 			notNull(stringSubstitutor),
-			notNull(typeNameMapping)
+			notNull(typeNameMapper)
 		);
 	}
 
@@ -159,14 +158,14 @@ public interface PersistenceTypeDictionaryParser
 			final int                                      iBound           ,
 			final PersistenceFieldLengthResolver           lengthResolver   ,
 			final Substituter<String>                      stringSubstitutor,
-			final XGettingTable<String, String>            typeNameMapping  ,
+			final PersistenceTypeNameMapper                typeNameMapper   ,
 			final BulkList<PersistenceTypeDictionaryEntry> entries
 		)
 		{
 			int i = iStart;
 			while(i < iBound)
 			{
-				final TypeEntry typeEntry = new TypeEntry(lengthResolver, stringSubstitutor, typeNameMapping);
+				final TypeEntry typeEntry = new TypeEntry(lengthResolver, stringSubstitutor, typeNameMapper);
 				i = parseType(input, i, iBound, typeEntry);
 				entries.add(typeEntry);
 				
@@ -679,7 +678,7 @@ public interface PersistenceTypeDictionaryParser
 
 		final PersistenceFieldLengthResolver fieldLengthResolver;
 		final Substituter<String>            stringSubstitutor  ;
-		final XGettingTable<String, String>  typeNameMapping    ;
+		final PersistenceTypeNameMapper      typeNameMapper     ;
 
 
 
@@ -690,13 +689,13 @@ public interface PersistenceTypeDictionaryParser
 		Default(
 			final PersistenceFieldLengthResolver fieldLengthResolver,
 			final Substituter<String>            stringSubstitutor  ,
-			final XGettingTable<String, String>  typeNameMapping
+			final PersistenceTypeNameMapper      typeNameMapper
 		)
 		{
 			super();
 			this.fieldLengthResolver = fieldLengthResolver;
 			this.stringSubstitutor   = stringSubstitutor  ;
-			this.typeNameMapping     = typeNameMapping    ;
+			this.typeNameMapper      = typeNameMapper     ;
 		}
 
 
@@ -722,7 +721,7 @@ public interface PersistenceTypeDictionaryParser
 			try
 			{
 				final char[] input = XChars.readChars(inputString);
-				parseTypes(input, 0, input.length, this.fieldLengthResolver, this.stringSubstitutor, this.typeNameMapping, entries);
+				parseTypes(input, 0, input.length, this.fieldLengthResolver, this.stringSubstitutor, this.typeNameMapper, entries);
 			}
 			catch(final ArrayIndexOutOfBoundsException e)
 			{
@@ -758,7 +757,7 @@ public interface PersistenceTypeDictionaryParser
 
 		final PersistenceFieldLengthResolver fieldLengthResolver;
 		final Substituter<String>            stringSubstitutor  ;
-		final XGettingTable<String, String>  typeNameMapping    ;
+		final PersistenceTypeNameMapper      typeNameMapper     ;
 
 		
 		
@@ -769,13 +768,13 @@ public interface PersistenceTypeDictionaryParser
 		TypeEntry(
 			final PersistenceFieldLengthResolver fieldLengthResolver,
 			final Substituter<String>            stringSubstitutor  ,
-			final XGettingTable<String, String>  typeNameMapping
+			final PersistenceTypeNameMapper      typeNameMapper
 		)
 		{
 			super();
 			this.fieldLengthResolver = fieldLengthResolver;
 			this.stringSubstitutor   = stringSubstitutor  ;
-			this.typeNameMapping     = typeNameMapping    ;
+			this.typeNameMapper      = typeNameMapper     ;
 		}
 		
 		
@@ -785,8 +784,20 @@ public interface PersistenceTypeDictionaryParser
 		////////////
 				
 		@Override
-		public String typeName()
+		public synchronized String typeName()
 		{
+			if(this.typeName == null)
+			{
+				final String mappedTypeName = this.instanceMembers.isEmpty()
+					? this.typeNameMapper.mapInterfaceName(this.originalTypeName)
+					: this.typeNameMapper.mapClassName(this.originalTypeName)
+				;
+				this.typeName = mappedTypeName == null
+					? this.originalTypeName
+					: this.stringSubstitutor.substitute(mappedTypeName)
+				;
+			}
+			
 			return this.typeName;
 		}
 		
@@ -819,13 +830,8 @@ public interface PersistenceTypeDictionaryParser
 		
 		void setTypeName(final String typeName)
 		{
+			// typeName gets initialized on demand to ensure the members are set
 			this.originalTypeName = this.stringSubstitutor.substitute(typeName);
-			
-			final String mappedTypeName = this.typeNameMapping.get(this.originalTypeName);
-			this.typeName = mappedTypeName == null
-				? this.originalTypeName
-				: this.stringSubstitutor.substitute(mappedTypeName)
-			;
 		}
 				
 		void setTid(final long tid)
@@ -835,7 +841,7 @@ public interface PersistenceTypeDictionaryParser
 		
 		final TypeMemberBuilder createTypeMemberBuilder()
 		{
-			return new TypeMemberBuilder(this.fieldLengthResolver, this.stringSubstitutor, this.typeNameMapping);
+			return new TypeMemberBuilder(this.fieldLengthResolver, this.stringSubstitutor, this.typeNameMapper);
 		}
 
 	}
@@ -848,14 +854,13 @@ public interface PersistenceTypeDictionaryParser
 		// instance fields //
 		////////////////////
 
-		boolean                                                      isVariableLength, isComplex;
-		private String                                               qualifier, typeName, fieldName;
 		final BulkList<PersistenceTypeDescriptionMemberFieldGeneric> nestedMembers = new BulkList<>();
 		final PersistenceFieldLengthResolver                         lengthResolver;
 		final Substituter<String>                                    stringSubstitutor;
+		final PersistenceTypeNameMapper                              typeNameMapper;
 		
-		// (15.01.2020 TM)FIXME: priv#203: use typeNameMapping in member builder, too!
-		final XGettingTable<String, String>                          typeNameMapping;
+		boolean isVariableLength, isComplex;
+		String qualifier, originalTypeName, typeName, fieldName;
 
 		
 
@@ -866,13 +871,13 @@ public interface PersistenceTypeDictionaryParser
 		public AbstractMemberBuilder(
 			final PersistenceFieldLengthResolver lengthResolver   ,
 			final Substituter<String>            stringSubstitutor,
-			final XGettingTable<String, String>  typeNameMapping
+			final PersistenceTypeNameMapper      typeNameMapper
 		)
 		{
 			super();
 			this.lengthResolver    = lengthResolver   ;
 			this.stringSubstitutor = stringSubstitutor;
-			this.typeNameMapping   = typeNameMapping  ;
+			this.typeNameMapper    = typeNameMapper   ;
 		}
 
 
@@ -888,7 +893,7 @@ public interface PersistenceTypeDictionaryParser
 		
 		final void setTypeName(final String typeName)
 		{
-			this.typeName = this.stringSubstitutor.substitute(typeName);
+			this.originalTypeName = this.stringSubstitutor.substitute(typeName);
 		}
 		
 		final void setFieldName(final String fieldName)
@@ -901,8 +906,27 @@ public interface PersistenceTypeDictionaryParser
 			return this.qualifier;
 		}
 		
-		final String typeName()
+		final synchronized String typeName()
 		{
+			if(this.typeName == null)
+			{
+				/* (15.01.2020 TM)NOTE:
+				 * Only #mapInterfaceName, because it applies to the name of the initial interface-less class as well.
+				 * In this context, it's more about the "top level type": either the interface or the interface-less class
+				 * itself. The type that developers use in their entity design.
+				 * No on uses Lazy$Default at those points. Most don't know it even exists and those who do know
+				 * also know that it is not a good idea to use a concrete class for architectural tasks.
+				 * So it should be perfectly safe to use this simplified lookup here.
+				 * And if not, the type dictionary can still be fixed manually. This is just a convenience function,
+				 * nothing critical.
+				 */
+				final String mappedTypeName = this.typeNameMapper.mapInterfaceName(this.originalTypeName);
+				this.typeName = mappedTypeName == null
+					? this.originalTypeName
+					: this.stringSubstitutor.substitute(mappedTypeName)
+				;
+			}
+			
 			return this.typeName;
 		}
 		
@@ -916,6 +940,7 @@ public interface PersistenceTypeDictionaryParser
 			this.qualifier        = null ;
 			this.isVariableLength = false;
 			this.isComplex        = false;
+			this.originalTypeName = null ;
 			this.typeName         = null ;
 			this.fieldName        = null ;
 			this.nestedMembers.clear();
@@ -924,38 +949,43 @@ public interface PersistenceTypeDictionaryParser
 		
 		final NestedMemberBuilder createNestedMemberBuilder()
 		{
-			return new NestedMemberBuilder(this.lengthResolver, this.stringSubstitutor, this.typeNameMapping);
+			return new NestedMemberBuilder(this.lengthResolver, this.stringSubstitutor, this.typeNameMapper);
 		}
 		
 		final PersistenceTypeDescriptionMemberFieldGeneric buildGenericFieldMember()
 		{
+			final PersistenceFieldLengthResolver lengthResolver = this.lengthResolver;
+			
+			final String typeName  = this.typeName();
+			final String fieldName = this.fieldName();
+			
 			if(this.isVariableLength)
 			{
 				return this.isComplex
 					? PersistenceTypeDescriptionMemberFieldGenericComplex.New(
 						this.qualifier,
-						this.fieldName,
+						fieldName,
 						this.nestedMembers,
-						this.lengthResolver.resolveComplexMemberMinimumLength(this.fieldName, this.typeName, this.nestedMembers),
-						this.lengthResolver.resolveComplexMemberMaximumLength(this.fieldName, this.typeName, this.nestedMembers)
+						lengthResolver.resolveComplexMemberMinimumLength(fieldName, typeName, this.nestedMembers),
+						lengthResolver.resolveComplexMemberMaximumLength(fieldName, typeName, this.nestedMembers)
 					)
 					: PersistenceTypeDescriptionMemberFieldGenericVariableLength.New(
-						this.typeName,
+						typeName,
 						this.qualifier,
-						this.fieldName,
-						this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.fieldName, this.typeName),
-						this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.fieldName, this.typeName)
+						fieldName,
+						lengthResolver.resolveMinimumLengthFromDictionary(null, fieldName, typeName),
+						lengthResolver.resolveMaximumLengthFromDictionary(null, fieldName, typeName)
 					)
 				;
 			}
 
 			return PersistenceTypeDescriptionMemberFieldGenericSimple.New(
-				this.typeName,
+				typeName,
 				this.qualifier,
-				this.fieldName,
-				!XReflect.isPrimitiveTypeName(this.typeName),
-				this.lengthResolver.resolveMinimumLengthFromDictionary(null, this.fieldName, this.typeName),
-				this.lengthResolver.resolveMaximumLengthFromDictionary(null, this.fieldName, this.typeName)
+				fieldName,
+				!XReflect.isPrimitiveTypeName(typeName),
+				lengthResolver.resolveMinimumLengthFromDictionary(null, fieldName, typeName),
+				lengthResolver.resolveMaximumLengthFromDictionary(null, fieldName, typeName)
 			);
 		}
 
@@ -987,10 +1017,10 @@ public interface PersistenceTypeDictionaryParser
 		public TypeMemberBuilder(
 			final PersistenceFieldLengthResolver lengthResolver   ,
 			final Substituter<String>            stringSubstitutor,
-			final XGettingTable<String, String>  typeNameMapping
+			final PersistenceTypeNameMapper      typeNameMapper
 		)
 		{
-			super(lengthResolver, stringSubstitutor, typeNameMapping);
+			super(lengthResolver, stringSubstitutor, typeNameMapper);
 		}
 
 
@@ -1143,10 +1173,10 @@ public interface PersistenceTypeDictionaryParser
 		public NestedMemberBuilder(
 			final PersistenceFieldLengthResolver lengthResolver   ,
 			final Substituter<String>            stringSubstitutor,
-			final XGettingTable<String, String>  typeNameMapping
+			final PersistenceTypeNameMapper      typeNameMapper
 		)
 		{
-			super(lengthResolver, stringSubstitutor, typeNameMapping);
+			super(lengthResolver, stringSubstitutor, typeNameMapper);
 		}
 
 		
