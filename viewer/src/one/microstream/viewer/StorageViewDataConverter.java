@@ -31,65 +31,45 @@ public class StorageViewDataConverter
 		return this.gson.toJson(this.toSimple(description));
 	}
 
-	public String convert(final ViewerObjectDescription description, final long dataOffset, final long dataLength)
+	private String toSimple(final ViewerObjectDescription description)
 	{
-		return this.gson.toJson(this.toSimple(description, dataOffset, dataLength));
+		return this.gson.toJson(this.simplify(description, 0, Long.MAX_VALUE));
 	}
 
-	private SimpleObjectDescription toSimple(final ViewerObjectDescription description, final long dataOffset, final long dataLength)
+	public String convert(final ViewerObjectDescription description, final long dataOffset, final long dataLength)
 	{
-		final SimpleObjectDescription objDesc = new SimpleObjectDescription();
+		return this.gson.toJson(this.simplify(description, dataOffset, dataLength));
+	}
 
+	private void setObjectHeader(final ViewerObjectDescription description, final SimpleObjectDescription objDesc)
+	{
 		objDesc.setObjectId(Long.toString(description.getObjectId()));
 		objDesc.setTypeId(Long.toString(description.getPersistenceTypeDefinition().typeId()));
 		objDesc.setLength(Long.toString(description.getLength()));
+	}
 
-		if(description.hasPrimitiveObjectInstance())
-		{
-			final String stringValue = description.getPrimitiveInstance().toString();
+	private void setPrimitiveValue(
+		final ViewerObjectDescription description,
+		final SimpleObjectDescription objDesc,
+		final long dataOffset,
+		final long dataLength)
+	{
+		final String stringValue = description.getPrimitiveInstance().toString();
 
-			//TODO: HAGR better bounds check and exceptions
-			final int endIndex = (int) Math.min(dataOffset + dataLength, stringValue.length());
-			final int beginIndex = (int) dataOffset;
+		//TODO: HAGR better bounds check and exceptions
+		final int endIndex = (int) Math.min(dataOffset + dataLength, stringValue.length());
+		final int beginIndex = (int) dataOffset;
 
+		final String subString = stringValue.substring(beginIndex, endIndex);
 
-			final String subString = stringValue.substring(beginIndex, endIndex);
+		objDesc.setData(new String[] { subString } );
+	}
 
-			objDesc.setData(new String[] { subString } );
-		}
-		else
-		{
-			final int startIndex = (int) dataOffset;
-			final int realLength = Math.max(Math.min(description.getValues().length - startIndex,  (int) dataLength), 0);
-			final int endIndex = startIndex + realLength;
-
-			final Object[] data = new Object[realLength];
-			int counter = 0;
-
-			for(int i = startIndex; i < endIndex; i++)
-			{
-				final Object obj = description.getValues()[i];
-
-				if(obj instanceof ViewerObjectReferenceWrapper)
-				{
-					data[counter] = Long.toString(((ViewerObjectReferenceWrapper) obj).getObjectId());
-				}
-				else if(obj.getClass().isArray())
-				{
-					data[counter] = this.objArray((Object[]) obj);
-				}
-				else
-				{
-					data[counter] = obj.toString();
-				}
-
-				counter++;
-			}
-
-			objDesc.setData(data);
-		}
-
-
+	private void setReferences(
+		final ViewerObjectDescription description,
+		final SimpleObjectDescription objDesc,
+		final long dataOffset, final long dataLength)
+	{
 		final ViewerObjectDescription refs[] = description.getReferences();
 		if(refs != null)
 		{
@@ -99,7 +79,7 @@ public class StorageViewDataConverter
 			{
 				if(desc != null)
 				{
-					refList.add(this.toSimple(desc, dataOffset, dataLength));
+					refList.add(this.simplify(desc, dataOffset, dataLength));
 				}
 				else
 				{
@@ -109,71 +89,119 @@ public class StorageViewDataConverter
 
 			objDesc.setReferences(refList.toArray(new SimpleObjectDescription[0]));
 		}
-		return objDesc;
 	}
 
-	private SimpleObjectDescription toSimple( final ViewerObjectDescription description )
+	private SimpleObjectDescription simplify(final ViewerObjectDescription description, final long dataOffset, final long dataLength)
 	{
 		final SimpleObjectDescription objDesc = new SimpleObjectDescription();
 
-		objDesc.setObjectId(Long.toString(description.getObjectId()));
-		objDesc.setTypeId(Long.toString(description.getPersistenceTypeDefinition().typeId()));
-		objDesc.setLength(Long.toString(description.getLength()));
+		this.setObjectHeader(description, objDesc);
 
 		if(description.hasPrimitiveObjectInstance())
 		{
-			objDesc.setData(new String[] {description.getPrimitiveInstance().toString()});
+			this.setPrimitiveValue(description, objDesc, dataOffset, dataLength);
 		}
 		else
 		{
-			final Object[] data = new Object[description.getValues().length];
-
-			for(int i = 0; i < description.getValues().length; i++)
-			{
-				final Object obj = description.getValues()[i];
-
-				if(obj instanceof ViewerObjectReferenceWrapper)
-				{
-					data[i] = Long.toString(((ViewerObjectReferenceWrapper) obj).getObjectId());
-				}
-				else if(obj.getClass().isArray())
-				{
-					data[i] = this.objArray((Object[]) obj);
-				}
-				else
-				{
-					data[i] = obj.toString();
-				}
-			}
-
-			objDesc.setData(data);
+			objDesc.setData( this.simplifyObjectArray(description.getValues(), dataOffset, dataLength));
 		}
 
+		this.setReferences(description, objDesc, dataOffset, dataLength);
 		return objDesc;
 	}
 
-	private Object[] objArray(final Object[] obj)
-	{
-		final Object[] dataArray = new Object[obj.length];
 
-		for(int i = 0; i < obj.length; i++)
+	private Object[] simplifyObjectArray(final Object[] obj, final long dataOffset, final long dataLength)
+	{
+		final int startIndex = (int) dataOffset;
+		final int realLength = (int) Math.max(Math.min(obj.length - startIndex, dataLength), 0);
+		final int endIndex = startIndex + realLength;
+
+		final Object[] dataArray = new Object[realLength];
+		int counter = 0;
+
+		for(int i = startIndex; i < endIndex; i++)
 		{
 			if(obj[i] instanceof ViewerObjectReferenceWrapper)
 			{
-				dataArray[i] = Long.toString(((ViewerObjectReferenceWrapper) obj[i]).getObjectId());
+				dataArray[counter] = Long.toString(((ViewerObjectReferenceWrapper) obj[i]).getObjectId());
 			}
 			else if(obj[i].getClass().isArray())
 			{
-				dataArray[i] = this.objArray((Object[]) obj[i]);
+				dataArray[counter] = this.simplifyObjectArray((Object[]) obj[i], dataOffset, dataLength);
 			}
 			else
 			{
-				dataArray[i] = obj[i].toString();
+				dataArray[counter] = obj[i].toString();
 			}
+
+			counter++;
 		}
 
 		return dataArray;
 	}
+
+
+//	private SimpleObjectDescription toSimple( final ViewerObjectDescription description )
+//	{
+//		final SimpleObjectDescription objDesc = new SimpleObjectDescription();
+//
+//		this.setObjectHeader(description, objDesc);
+//
+//		if(description.hasPrimitiveObjectInstance())
+//		{
+//			objDesc.setData(new String[] {description.getPrimitiveInstance().toString()});
+//		}
+//		else
+//		{
+//			final Object[] data = new Object[description.getValues().length];
+//
+//			for(int i = 0; i < description.getValues().length; i++)
+//			{
+//				final Object obj = description.getValues()[i];
+//
+//				if(obj instanceof ViewerObjectReferenceWrapper)
+//				{
+//					data[i] = Long.toString(((ViewerObjectReferenceWrapper) obj).getObjectId());
+//				}
+//				else if(obj.getClass().isArray())
+//				{
+//					data[i] = this.objArray((Object[]) obj);
+//				}
+//				else
+//				{
+//					data[i] = obj.toString();
+//				}
+//			}
+//
+//			objDesc.setData(data);
+//		}
+//
+//		return objDesc;
+//	}
+//
+//	private Object[] objArray(final Object[] obj)
+//	{
+//		final Object[] dataArray = new Object[obj.length];
+//
+//		for(int i = 0; i < obj.length; i++)
+//		{
+//			if(obj[i] instanceof ViewerObjectReferenceWrapper)
+//			{
+//				dataArray[i] = Long.toString(((ViewerObjectReferenceWrapper) obj[i]).getObjectId());
+//			}
+//			else if(obj[i].getClass().isArray())
+//			{
+//				dataArray[i] = this.objArray((Object[]) obj[i]);
+//			}
+//			else
+//			{
+//				dataArray[i] = obj[i].toString();
+//			}
+//		}
+//
+//		return dataArray;
+//	}
 
 
 }
