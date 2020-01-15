@@ -184,27 +184,31 @@ public class ViewerObjectDescription implements ViewerMemberProvider
 
 	public void resolveReferences(final long referenceOffset, final long referenceLength, final EmbeddedStorageRestAdapter storageRestAdapter)
 	{
-		//TODO: HAGR implement offset and length params
+		int referenceIndex = 0;
+		int referenceCount = 0;
 
-		final List<ViewerObjectDescription> resolvedRefernces = new ArrayList<>();
+		final List<ViewerObjectDescription> resolvedReferences = new ArrayList<>();
 
 		for(int i = 0; i < this.values.length; i++)
 		{
 			if(this.values[i] instanceof ViewerObjectReferenceWrapper)
 			{
+				if(referenceIndex++ < referenceOffset) continue;
+				if(referenceCount++ >= referenceLength) break;
+
 				final long oid = ((ViewerObjectReferenceWrapper) this.values[i]).getObjectId();
 				if(oid > 0)
 				{
-					resolvedRefernces.add(storageRestAdapter.getStorageObject(oid));
+					resolvedReferences.add(storageRestAdapter.getStorageObject(oid));
 				}
 				else
 				{
-					resolvedRefernces.add(null);
+					resolvedReferences.add(null);
 				}
 			}
 		}
 
-		this.references = resolvedRefernces.toArray(new ViewerObjectDescription[0]);
+		this.references = resolvedReferences.toArray(new ViewerObjectDescription[0]);
 
 		XDebug.println("");
 	}
