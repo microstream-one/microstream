@@ -1,13 +1,13 @@
 package one.microstream.test.binary_fields;
 
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom2;
 import one.microstream.persistence.binary.internal.BinaryField;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public abstract class AbstractBinaryHandlerTestBaseClass<T extends TestBaseClass> extends AbstractBinaryHandlerCustom<T>
+public abstract class AbstractBinaryHandlerTestBaseClass<T extends TestBaseClass> extends AbstractBinaryHandlerCustom2<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -59,20 +59,6 @@ public abstract class AbstractBinaryHandlerTestBaseClass<T extends TestBaseClass
 	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// FIXME PersistenceTypeHandler<Binary,T>#updateState()
-		throw new one.microstream.meta.NotImplementedYetError();
-	}
-
-	@Override
-	public boolean hasPersistedReferences()
-	{
-		// FIXME PersistenceTypeDefinition#hasPersistedReferences()
-		throw new one.microstream.meta.NotImplementedYetError();
-	}
-
-	@Override
-	public boolean hasVaryingPersistedLengthInstances()
-	{
-		// FIXME PersistenceTypeDefinition#hasVaryingPersistedLengthInstances()
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 

@@ -143,5 +143,34 @@ Hei\'dft: Wahrscheinlich w\'e4re die beste L\'f6sung, die Methode einfach zu l\'
 Achja: es gibt aber auch noch #iterateInstanceReferences. Und die wird ... zwar 4 mal aufgerufen, aber 1 davon ist debug stuff. 2 sind nur wrapper. Und das letzte ist ... der registerer, der wiederum selbst eigentlich irrelevant ist.\par
 HMMM...\par
 Alles raus?\par
+\par
+\par
+2020-01-15\par
+\par
+Wieder hier weitermachen.\par
+Paar Compilerfehler schnell wegmachen.\par
+\par
+Achja: Die Frage "Alles raus?"\par
+Also das einzige, was mich noch z\'f6gern l\'e4sst, ist: Was ist, wenn man doch mal dieses Registering braucht?\par
+Hm. Eigentlich k\'f6nnte man das \'fcber die instanceMembers l\'f6sen.\par
+Wobei das Problem hier wieder das gleiche ist: Wenn man an die instanceReference rankommen soll, kann es nicht ein einziger Getter sein, sondern dann m\'fcssen es zwei sein:\par
+1.) Wert aus der Instanz holen\par
+und\par
+2.) Geholten Wert in persistente Form bringen.\par
+Das verkompliziert aber die Definition eines BinaryFields und macht manche Konvertierungslogik schwierig bis unm\'f6glich, die mit einem einzelnen, monolithischen Getter ein Kinderspiel w\'e4re.\par
+Also bleibt letztendlich so oder so, wie man es dreht: Wenn BinaryFields einfach machbar sein soll, kann es kein iterateInstanceReferences geben.\par
+\par
+Oder Moment mal: Z\'e4hlen eigentlich nur die Instanz-Referenzen, die auch als Referenzen persistiert werden?\par
+Sagen wir, eine Instanz zeigt auf einen String. Dieser String wird aber nie als Referenz auf eine echte String Instanz gespeichert, sondern als nested char sequence. "Z\'e4hlt" der String dann \'fcberhaupt als zu iterierende Instanz in einem Graph?\par
+Die Natur dieses Strings ist ja, dass es eine internenes "unshared" reference ist.\par
+Hm...\par
+War das einfach ein Denkfehler von mir?\par
+Dann also dich einfach alle reference members iterieren und fertig aus?\par
+Hm. Ich glaube ja.\par
+\par
+Das w\'fcrde dann aber trotzdem hei\'dfen, dass die Methode #hasInstanceReferences \'fcberfl\'fcssig ist, wenn es #hasPersistedReferences schon gibt.\par
+Es z\'e4hlen ja quasi nur die "persisted" (= "peristence-relevanten") Referenzen.\par
+\par
+Jetzt hab ich nur rum\'fcberlegt und nix programmiert, aber wichtige \'dcberlegungen. Muss ich morgen nochmal anschauen und dann refactoren.\par
 }
  
