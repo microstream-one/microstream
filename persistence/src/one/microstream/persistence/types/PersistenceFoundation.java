@@ -141,6 +141,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 
 	public PersistenceFieldLengthResolver getFieldFixedLengthResolver();
 	
+	public PersistenceTypeNameMapper getTypeNameMapper();
+	
 	public PersistenceEagerStoringFieldEvaluator getReferenceFieldEagerEvaluator();
 
 	public BufferSizeProviderIncremental getBufferSizeProvider();
@@ -287,6 +289,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 
 	public F setFieldFixedLengthResolver(PersistenceFieldLengthResolver fieldFixedLengthResolver);
 
+	public F setTypeNameMapper(PersistenceTypeNameMapper typeNameMapper);
+
 	public F setFieldEvaluatorPersistable(PersistenceFieldEvaluator fieldEvaluator);
 	
 	public F setFieldEvaluatorPersister(PersistenceFieldEvaluator fieldEvaluator);
@@ -418,6 +422,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		private PersistenceTarget<D>                           target                          ;
 		private PersistenceSource<D>                           source                          ;
 		private PersistenceFieldLengthResolver                 fieldFixedLengthResolver        ;
+		private PersistenceTypeNameMapper                      typeNameMapper                  ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorPersistable       ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorPersister         ;
 		private PersistenceFieldEvaluator                      fieldEvaluatorEnum              ;
@@ -1001,6 +1006,17 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 			}
 			
 			return this.fieldFixedLengthResolver;
+		}
+
+		@Override
+		public PersistenceTypeNameMapper getTypeNameMapper()
+		{
+			if(this.typeNameMapper == null)
+			{
+				this.typeNameMapper = this.dispatch(this.ensureTypeNameMapper());
+			}
+			
+			return this.typeNameMapper;
 		}
 
 		@Override
@@ -1655,6 +1671,13 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 			this.fieldFixedLengthResolver = fieldFixedLengthResolver;
 			return this.$();
 		}
+		
+		@Override
+		public F setTypeNameMapper(final PersistenceTypeNameMapper typeNameMapper)
+		{
+			this.typeNameMapper = typeNameMapper;
+			return this.$();
+		}
 
 		@Override
 		public F setFieldEvaluatorPersistable(
@@ -2026,7 +2049,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		{
 			final PersistenceTypeDictionaryParser newTypeDictionaryParser =
 				PersistenceTypeDictionaryParser.New(
-					this.getFieldFixedLengthResolver()
+					this.getFieldFixedLengthResolver(),
+					this.getTypeNameMapper()
 				)
 			;
 			return newTypeDictionaryParser;
@@ -2271,6 +2295,11 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceFieldLengthResolver ensureFieldFixedLengthResolver()
 		{
 			throw new MissingFoundationPartException(PersistenceFieldLengthResolver.class);
+		}
+		
+		protected PersistenceTypeNameMapper ensureTypeNameMapper()
+		{
+			return PersistenceTypeNameMapper.New();
 		}
 		
 		protected PersistenceRootResolverProvider ensureRootResolverProvider()
