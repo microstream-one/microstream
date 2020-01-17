@@ -42,13 +42,6 @@ public abstract class AbstractBinaryHandlerTestBaseClass<T extends TestBaseClass
 	////////////
 
 	@Override
-	public boolean hasInstanceReferences()
-	{
-		// FIXME PersistenceTypeHandler<Binary,T>#hasInstanceReferences()
-		throw new one.microstream.meta.NotImplementedYetError();
-	}
-
-	@Override
 	public void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
 		// FIXME PersistenceTypeHandler<Binary,T>#iterateLoadableReferences()

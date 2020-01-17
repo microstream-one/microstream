@@ -158,7 +158,7 @@ Wobei das Problem hier wieder das gleiche ist: Wenn man an die instanceReference
 und\par
 2.) Geholten Wert in persistente Form bringen.\par
 Das verkompliziert aber die Definition eines BinaryFields und macht manche Konvertierungslogik schwierig bis unm\'f6glich, die mit einem einzelnen, monolithischen Getter ein Kinderspiel w\'e4re.\par
-Also bleibt letztendlich so oder so, wie man es dreht: Wenn BinaryFields einfach machbar sein soll, kann es kein iterateInstanceReferences geben.\par
+Also bleibt letztendlich so oder so, wie man es dreht: Wenn BinaryFields einfach machbar sein soll, kann es kein #iterateInstanceReferences geben.\par
 \par
 Oder Moment mal: Z\'e4hlen eigentlich nur die Instanz-Referenzen, die auch als Referenzen persistiert werden?\par
 Sagen wir, eine Instanz zeigt auf einen String. Dieser String wird aber nie als Referenz auf eine echte String Instanz gespeichert, sondern als nested char sequence. "Z\'e4hlt" der String dann \'fcberhaupt als zu iterierende Instanz in einem Graph?\par
@@ -172,5 +172,15 @@ Das w\'fcrde dann aber trotzdem hei\'dfen, dass die Methode #hasInstanceReferenc
 Es z\'e4hlen ja quasi nur die "persisted" (= "peristence-relevanten") Referenzen.\par
 \par
 Jetzt hab ich nur rum\'fcberlegt und nix programmiert, aber wichtige \'dcberlegungen. Muss ich morgen nochmal anschauen und dann refactoren.\par
+\par
+\par
+2020-01-16\par
+(eigentlich schon 2020-01-17 nach Mitternacht)\par
+\par
+Also dann l\'f6sch ich jetzt die #hasInstanceReferences weg und bau die iterate Methode auf persistierte Referenzen um.\par
+Immerhin gehts bei einem PersistenceHandler ja schon irgendwie um genau die und nicht um alle Referenzen im allgemeinen, die irgendwo in einer Instanz rumflacken.\par
+Und #iterateInstanceReferences  auch gleich implementieren.\par
+\par
+\par
 }
  

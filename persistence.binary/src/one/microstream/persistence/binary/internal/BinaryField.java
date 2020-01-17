@@ -3,6 +3,7 @@ package one.microstream.persistence.binary.internal;
 import one.microstream.math.XMath;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceException;
+import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
@@ -52,6 +53,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	public void storeValue(T instance, Binary data, PersistenceStoreHandler handler);
 	
 	public boolean canRead();
+	
+	public default <F extends PersistenceFunction> F iterateReferences(final Object instance, final F iterator)
+	{
+		// no-op in default implementation
+		return iterator;
+	}
 	
 	
 	// (06.01.2020 TM)FIXME: priv#88: remove if really not needed
@@ -1037,7 +1044,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		@Override
 		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
 		{
-			final Object reference = this.getter.get_(instance);
+			final Object reference = this.getter.get(instance);
 			final long   objectId  = handler.apply(reference);
 			data.store_long(this.offset(), objectId);
 		}
@@ -1047,6 +1054,16 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		{
 			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
 			return new DefaultReference<>(this.type, memberCopy, this.offset(), this.getter, this.setter);
+		}
+		
+		@Override
+		public final <F extends PersistenceFunction> F iterateReferences(final Object instance, final F iterator)
+		{
+			@SuppressWarnings("unchecked") // due to typing conflict with primitives
+			final Object reference = this.getter.get((T)instance);
+			iterator.apply(reference);
+			
+			return iterator;
 		}
 		
 	}
