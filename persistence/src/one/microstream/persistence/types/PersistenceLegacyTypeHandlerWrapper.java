@@ -54,12 +54,6 @@ public class PersistenceLegacyTypeHandlerWrapper<D, T> extends PersistenceLegacy
 	////////////
 
 	@Override
-	public boolean hasInstanceReferences()
-	{
-		return this.typeHandler.hasInstanceReferences();
-	}
-
-	@Override
 	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
 		this.typeHandler.iterateInstanceReferences(instance, iterator);

@@ -202,6 +202,12 @@ extends AbstractBinaryHandlerCustom<T>
 	// methods //
 	////////////
 	
+	@Override
+	protected void internalInitialize()
+	{
+		this.initializeBinaryFieldsExplicitely(this.getClass());
+	}
+	
 	private void ensureInitializedFields()
 	{
 		if(this.binaryFields != null)
@@ -240,13 +246,6 @@ extends AbstractBinaryHandlerCustom<T>
 	public void store(final Binary data, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
 		// (08.01.2020 TM)FIXME: priv#88: store via storefields
-		throw new RuntimeException();
-	}
-
-	@Override
-	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
-	{
-		// (08.01.2020 TM)FIXME: priv#88: iterateInstanceReferences
 		throw new RuntimeException();
 	}
 
@@ -480,18 +479,14 @@ extends AbstractBinaryHandlerCustom<T>
 			}
 		}
 	}
-	
-	@Override
-	protected void internalInitialize()
-	{
-		this.initializeBinaryFieldsExplicitely(this.getClass());
-	}
 
 	@Override
-	public boolean hasInstanceReferences()
+	public final void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
-		// FIXME PersistenceTypeHandler<Binary,T>#hasInstanceReferences()
-		throw new one.microstream.meta.NotImplementedYetError();
+		for(final BinaryField<?> referenceField : this.referenceFields)
+		{
+			referenceField.iterateReferences(instance, iterator);
+		}
 	}
 
 	@Override

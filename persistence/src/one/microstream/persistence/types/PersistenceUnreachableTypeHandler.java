@@ -23,12 +23,6 @@ import java.util.function.Consumer;
 public interface PersistenceUnreachableTypeHandler<D, T> extends PersistenceLegacyTypeHandler<D, T>
 {
 	@Override
-	public default boolean hasInstanceReferences()
-	{
-		return false;
-	}
-
-	@Override
 	public default void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
 		// no-op: for all intents and purposes, an unreachable instance's references need not and must not be iterated.

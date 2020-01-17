@@ -39,12 +39,6 @@ public abstract class AbstractBinaryHandlerStateless<T> extends AbstractBinaryHa
 	{
 		// no-op
 	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
-	}
 	
 	@Override
 	public final boolean hasPersistedReferences()

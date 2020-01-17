@@ -62,19 +62,19 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters //
+	// methods //
 	////////////
 
 	public final Class<A> getArrayType()
 	{
 		return this.arrayType;
 	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		return true;
+	}
 
 	@Override
 	public final void store(
@@ -124,18 +124,6 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
 		data.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return true;
-	}
-	
-	@Override
-	public final boolean hasPersistedReferences()
-	{
-		return true;
 	}
 
 }
