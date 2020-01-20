@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 MS-130\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 MS-130\par
 \par
 2019-04-17 \par
 \par
@@ -182,5 +183,26 @@ Immerhin gehts bei einem PersistenceHandler ja schon irgendwie um genau die und 
 Und #iterateInstanceReferences  auch gleich implementieren.\par
 \par
 \par
+2020-01-20\par
+\par
+Nach FirmentrennungsUmzug, Release und anderem Ged\'f6ns mal wieder weitermachen.\par
+Wo war ich da eigentlich ...?\par
+\par
+\par
+storeFields einf\'fcgen als performanceoptimierte Komplettliste mit korrekter Reihenfolge neben ref- und nonref-feldern.\par
+Optimierung f\'fcr mitverwendete Arrays im reinen ref- oder nonref-Fall.\par
+\par
+initializationInvokingClass auskommentieren. Ich glaub, das braucht man nicht.\par
+\par
+Zwischendrin mal schnell Entwurf f\'fcr #store Implementierung einbauen.\par
+\par
+final PersistenceTypeInstantiator<Binary, T> instantiator \'fcbernehmen aus ~GenericType Implementierung.\par
+\par
+Hm. BinaryField Typisierung umstellen von <?> auf <T>. Dann werden an ein paar Stellen unsch\'f6ne suppressexceptions n\'f6tig.\par
+Dabei aufgefallen: Ich k\'f6nnte bzw. muss ja mit field.getGenerticType() pr\'fcfen, ob das Field die passende Generics Typisierung hat. Auf der Reflection Ebene gibts die Informationen ja immerhin...\par
+\par
+Da passen die Initialisierungsmethoden noch nicht zusammen. Das sind verschiedene Konzepte, die mal zu einem konsolidiert werden m\'fcssen.\par
+\par
+Okay, wird schon langsam. Noch bissl konsolidieren, dann mit den generischen Mitteln die Instanz-handling-Methode implementieren, dann ist es fertig zum testen.\par
 }
  

@@ -7,7 +7,8 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public abstract class AbstractBinaryHandlerTestBaseClass<T extends TestBaseClass> extends AbstractBinaryHandlerCustom2<T>
+public abstract class AbstractBinaryHandlerTestBaseClass<T extends TestBaseClass>
+extends AbstractBinaryHandlerCustom2<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
