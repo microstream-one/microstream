@@ -66,4 +66,11 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 		final ViewerRootDescription root = super.getRoot();
 		return this.converter.convert(root);
 	}
+
+	@Override
+	public String getTypeDictionary()
+	{
+		final String typeDictionary = super.getTypeDictionary();
+		return typeDictionary;
+	}
 }
