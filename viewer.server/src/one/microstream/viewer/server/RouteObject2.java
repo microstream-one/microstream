@@ -53,7 +53,7 @@ public class RouteObject2 implements Route
 		}
 		catch(final NumberFormatException e )
 		{
-			throw new InvalidRouteParameters("Object Id invalid");
+			throw new InvalidRouteParameters("ObjectId invalid");
 		}
 	}
 
@@ -84,7 +84,7 @@ public class RouteObject2 implements Route
 		}
 		catch(final NumberFormatException e)
 		{
-			throw new InvalidRouteParameters("invalid parameter" + name);
+			throw new InvalidRouteParameters("invalid url parameter " + name);
 		}
 	}
 

@@ -18,7 +18,7 @@ public class StorageViewDataConverter
 	public StorageViewDataConverter()
 	{
 		super();
-		this.gson = new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING ).create();
+		this.gson = new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING ).serializeNulls().create();
 	}
 
 	public String convert(final ViewerRootDescription root)
@@ -56,11 +56,14 @@ public class StorageViewDataConverter
 	{
 		final String stringValue = description.getPrimitiveInstance().toString();
 
-		//TODO: HAGR better bounds check and exceptions
-		final int endIndex = (int) Math.min(dataOffset + dataLength, stringValue.length());
-		final int beginIndex = (int) dataOffset;
+		final int startIndex = (int) Math.min(dataOffset, stringValue.length());
+		try {
+			Math.addExact(startIndex, dataLength);}
+		catch(final ArithmeticException e){ return;}
 
-		final String subString = stringValue.substring(beginIndex, endIndex);
+		final int endIndex = (int) Math.min(startIndex + dataLength, stringValue.length());
+
+		final String subString = stringValue.substring(startIndex, endIndex);
 
 		objDesc.setData(new String[] { subString } );
 	}
@@ -68,7 +71,8 @@ public class StorageViewDataConverter
 	private void setReferences(
 		final ViewerObjectDescription description,
 		final SimpleObjectDescription objDesc,
-		final long dataOffset, final long dataLength)
+		final long dataOffset,
+		final long dataLength)
 	{
 		final ViewerObjectDescription refs[] = description.getReferences();
 		if(refs != null)

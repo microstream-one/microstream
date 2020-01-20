@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import one.microstream.collections.types.XGettingEnum;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.viewer.EmbeddedStorageRestAdapter;
@@ -209,7 +208,5 @@ public class ViewerObjectDescription implements ViewerMemberProvider
 		}
 
 		this.references = resolvedReferences.toArray(new ViewerObjectDescription[0]);
-
-		XDebug.println("");
 	}
 }

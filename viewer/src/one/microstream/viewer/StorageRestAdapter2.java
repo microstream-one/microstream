@@ -1,5 +1,6 @@
 package one.microstream.viewer;
 
+import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.persistence.binary.types.ViewerObjectDescription;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
@@ -24,17 +25,17 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 	// methods //
 	////////////
 
-	public String getObject(final long objectId)
-	{
-		final ViewerObjectDescription description = super.getStorageObject(objectId);
-		return this.converter.convert(description);
-	}
-
-	public String getObject(final long objectId, final long dataOffset, final long dataLength)
-	{
-		final ViewerObjectDescription description = super.getStorageObject(objectId);
-		return this.converter.convert(description, dataOffset, dataLength);
-	}
+//	public String getObject(final long objectId)
+//	{
+//		final ViewerObjectDescription description = super.getStorageObject(objectId);
+//		return this.converter.convert(description);
+//	}
+//
+//	public String getObject(final long objectId, final long dataOffset, final long dataLength)
+//	{
+//		final ViewerObjectDescription description = super.getStorageObject(objectId);
+//		return this.converter.convert(description, dataOffset, dataLength);
+//	}
 
 	public String getObject(
 		final long objectId,
@@ -44,6 +45,14 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 		final long referenceOffset,
 		final long referenceLength)
 	{
+
+		//TODO(HAGR): LIMITS
+		if(dataOffset < 0) throw new ViewerException("invalid parameter dataOffset");
+		if(dataLength < 1) throw new ViewerException("invalid parameter dataLength");
+		if(referenceOffset < 0) throw new ViewerException("invalid parameter referenceOffset");
+		if(referenceLength < 1) throw new ViewerException("invalid parameter referenceLength");
+
+
 		final ViewerObjectDescription description = super.getStorageObject(objectId);
 		if(resolveReferences)
 		{
