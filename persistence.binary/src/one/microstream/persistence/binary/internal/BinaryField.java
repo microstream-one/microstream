@@ -5,6 +5,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberCreator;
@@ -54,10 +55,22 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	
 	public boolean canRead();
 	
-	public default <F extends PersistenceFunction> F iterateReferences(final Object instance, final F iterator)
+	public default <F extends PersistenceFunction> F iterateReferences(
+		final Object instance,
+		final F iterator
+	)
 	{
 		// no-op in default implementation
 		return iterator;
+	}
+	
+	public default <L extends PersistenceReferenceLoader> L iterateLoadableReferences(
+		final Binary data,
+		final L loader
+	)
+	{
+		// no-op in default implementation
+		return loader;
 	}
 	
 	
@@ -1057,13 +1070,28 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final <F extends PersistenceFunction> F iterateReferences(final Object instance, final F iterator)
+		public final <F extends PersistenceFunction> F iterateReferences(
+			final Object instance,
+			final F      iterator
+		)
 		{
 			@SuppressWarnings("unchecked") // due to typing conflict with primitives
 			final Object reference = this.getter.get((T)instance);
 			iterator.apply(reference);
 			
 			return iterator;
+		}
+		
+		@Override
+		public final <L extends PersistenceReferenceLoader> L iterateLoadableReferences(
+			final Binary data  ,
+			final L      loader
+		)
+		{
+			final long objectId = data.read_long(this.offset());
+			loader.acceptObjectId(objectId);
+
+			return loader;
 		}
 		
 	}
