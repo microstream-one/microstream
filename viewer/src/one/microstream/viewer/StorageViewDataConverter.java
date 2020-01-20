@@ -48,6 +48,26 @@ public class StorageViewDataConverter
 		objDesc.setLength(Long.toString(description.getLength()));
 	}
 
+	private String limitsPrimitiveType(final String data, final long dataOffset, final long dataLength)
+	{
+		int offset = 0;
+		int length = 0;
+
+		//dataOffset may not exceed object length
+		if(dataOffset > data.length()) offset = data.length();
+		else offset = (int) dataOffset;
+
+		//dataLength may not exceed object length
+		if(dataLength > data.length()) length = data.length();
+		else length = (int) dataLength;
+
+		//length + offset may not exceed object length
+		long end = offset + length;
+		if(end  > data.length()) end = data.length();
+
+		return data.substring(offset, (int) end);
+	}
+
 	private void setPrimitiveValue(
 		final ViewerObjectDescription description,
 		final SimpleObjectDescription objDesc,
@@ -55,16 +75,7 @@ public class StorageViewDataConverter
 		final long dataLength)
 	{
 		final String stringValue = description.getPrimitiveInstance().toString();
-
-		final int startIndex = (int) Math.min(dataOffset, stringValue.length());
-		try {
-			Math.addExact(startIndex, dataLength);}
-		catch(final ArithmeticException e){ return;}
-
-		final int endIndex = (int) Math.min(startIndex + dataLength, stringValue.length());
-
-		final String subString = stringValue.substring(startIndex, endIndex);
-
+		final String subString = this.limitsPrimitiveType(stringValue, dataOffset, dataLength);
 		objDesc.setData(new String[] { subString } );
 	}
 
