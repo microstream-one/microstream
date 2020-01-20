@@ -8,6 +8,7 @@ import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.persistence.binary.types.ViewerObjectDescription;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceRootsView;
+import one.microstream.persistence.types.PersistenceTypeDictionaryAssembler;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
@@ -110,5 +111,11 @@ public class EmbeddedStorageRestAdapter
 		}
 
 		return new ViewerRootDescription(PersistenceRootsView.rootIdentifier(), 0);
+	}
+
+	public String getTypeDictionary()
+	{
+		final PersistenceTypeDictionaryAssembler assembler = PersistenceTypeDictionaryAssembler.New();
+		return assembler.assemble(this.embeddedStorageManager.typeDictionary());
 	}
 }
