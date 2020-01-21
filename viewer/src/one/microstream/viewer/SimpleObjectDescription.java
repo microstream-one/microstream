@@ -1,4 +1,4 @@
-package one.microstream.viewer.dto;
+package one.microstream.viewer;
 
 public class SimpleObjectDescription
 {
