@@ -30,4 +30,16 @@ public class StorageViewDataConverterProvider
 		return this.converter.get(format);
 	}
 
+	/**
+	 * register new data converter
+	 *
+	 * @param converter
+	 * @param format
+	 * @return true if successful registered, otherwise false
+	 */
+	public boolean register(final StorageViewDataConverter converter, final String format)
+	{
+		return this.converter.add(format, converter);
+	}
+
 }
