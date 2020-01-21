@@ -1,5 +1,6 @@
 package one.microstream.persistence.binary.internal;
 
+import one.microstream.chars.XChars;
 import one.microstream.math.XMath;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceException;
@@ -32,13 +33,13 @@ import one.microstream.reflect.Setter_short;
 
 public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGeneric
 {
-	// (17.04.2019 TM)FIXME: priv#88: must have a connection to or even itself be a PersistenceTypeDefinitionMember.
-	
 	@Override
 	public Class<?> type();
 	
 	@Override
 	public String name();
+	
+//	public long binaryOffset();
 
 	@Override
 	public default BinaryField<T> copyForName(final String name)
@@ -48,16 +49,18 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	
 	@Override
 	public BinaryField<T> copyForName(String qualifier, String name);
+
+	public void storeFromInstance(T instance, Binary data, PersistenceStoreHandler handler);
 	
-	public void readValue(T instance, Binary data, PersistenceLoadHandler handler);
+	public void setToInstance(T instance, Binary data, PersistenceLoadHandler handler);
 	
-	public void storeValue(T instance, Binary data, PersistenceStoreHandler handler);
+	public void validateState(T instance, Binary data, PersistenceLoadHandler handler);
 	
-	public boolean canRead();
+	public boolean canSet();
 	
 	public default <F extends PersistenceFunction> F iterateReferences(
 		final Object instance,
-		final F iterator
+		final F      iterator
 	)
 	{
 		// no-op in default implementation
@@ -65,8 +68,8 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	}
 	
 	public default <L extends PersistenceReferenceLoader> L iterateLoadableReferences(
-		final Binary data,
-		final L loader
+		final Binary data  ,
+		final L      loader
 	)
 	{
 		// no-op in default implementation
@@ -119,53 +122,53 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 //	{
 //		throw new UnsupportedOperationException();
 //	}
-//
-//
-//
-//	public default byte read_byte(final Binary data)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default boolean read_boolean(final Binary data)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default short read_short(final Binary data)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default char read_char(final Binary data)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default int read_int(final Binary data)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default float read_float(final Binary data)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default long read_long(final Binary data)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default double read_double(final Binary data)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default Object readReference(final Binary data, final PersistenceLoadHandler handler)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
+
+	
+	
+	public default byte read_byte(final Binary data)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public default boolean read_boolean(final Binary data)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public default short read_short(final Binary data)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public default char read_char(final Binary data)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public default int read_int(final Binary data)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public default float read_float(final Binary data)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public default long read_long(final Binary data)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public default double read_double(final Binary data)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public default Object readReference(final Binary data, final PersistenceLoadHandler handler)
+	{
+		throw new UnsupportedOperationException();
+	}
 
 	
 	
@@ -312,8 +315,8 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 			
 			return this.offset = XMath.notNegative(offset);
 		}
-		
-		protected final long offset()
+
+		public final long binaryOffset()
 		{
 			return this.offset;
 		}
@@ -442,6 +445,17 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 			return this.actual.createDefinitionMember(creator);
 		}
 		
+		protected void throwValidationException(final String instanceValue, final String persistedValue)
+		{
+			// (21.01.2020 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Invalid value change for field " + this.identifier()
+				+ ": instance value " + instanceValue
+				+ " != persisted value " + persistedValue
+				+ "."
+			);
+		}
+		
 	}
 	
 	public final class Default_byte<T> extends BinaryField.Abstract<T>
@@ -485,30 +499,53 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
-		public final boolean canRead()
+		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return this.getter != null;
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_byte<>(memberCopy, this.binaryOffset(), this.getter, this.setter);
 		}
 		
 		@Override
-		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
 		{
-			final byte value = data.read_byte(this.offset());
+			final byte value = this.getter.get_byte(instance);
+			data.store_byte(this.binaryOffset(), value);
+		}
+		
+		@Override
+		public final byte read_byte(final Binary data)
+		{
+			return data.read_byte(this.binaryOffset());
+		}
+		
+		@Override
+		public final boolean canSet()
+		{
+			return this.setter != null;
+		}
+		
+		@Override
+		public final void setToInstance(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final byte value = this.read_byte(data);
 			this.setter.set_byte(instance, value);
 		}
 		
 		@Override
-		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
-			final byte value = this.getter.get_byte(instance);
-			data.store_byte(this.offset(), value);
-		}
-		
-		@Override
-		public final BinaryField<T> copyForName(final String qualifier, final String name)
-		{
-			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
-			return new Default_byte<>(memberCopy, this.offset(), this.getter, this.setter);
+			final byte instanceValue  = this.getter.get_byte(instance);
+			final byte persistedValue = this.read_byte(data);
+			
+			if(persistedValue == instanceValue)
+			{
+				return;
+			}
+			
+			this.throwValidationException(
+				String.valueOf(instanceValue),
+				String.valueOf(persistedValue)
+			);
 		}
 		
 	}
@@ -554,30 +591,53 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
-		public final boolean canRead()
+		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return this.getter != null;
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_boolean<>(memberCopy, this.binaryOffset(), this.getter, this.setter);
 		}
 		
 		@Override
-		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
 		{
-			final boolean value = data.read_boolean(this.offset());
+			final boolean value = this.getter.get_boolean(instance);
+			data.store_boolean(this.binaryOffset(), value);
+		}
+		
+		@Override
+		public final boolean read_boolean(final Binary data)
+		{
+			return data.read_boolean(this.binaryOffset());
+		}
+		
+		@Override
+		public final boolean canSet()
+		{
+			return this.setter != null;
+		}
+		
+		@Override
+		public final void setToInstance(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final boolean value = this.read_boolean(data);
 			this.setter.set_boolean(instance, value);
 		}
 		
 		@Override
-		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
-			final boolean value = this.getter.get_boolean(instance);
-			data.store_boolean(this.offset(), value);
-		}
-		
-		@Override
-		public final BinaryField<T> copyForName(final String qualifier, final String name)
-		{
-			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
-			return new Default_boolean<>(memberCopy, this.offset(), this.getter, this.setter);
+			final boolean instanceValue  = this.getter.get_boolean(instance);
+			final boolean persistedValue = this.read_boolean(data);
+			
+			if(persistedValue == instanceValue)
+			{
+				return;
+			}
+			
+			this.throwValidationException(
+				String.valueOf(instanceValue),
+				String.valueOf(persistedValue)
+			);
 		}
 		
 	}
@@ -623,30 +683,53 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
-		public final boolean canRead()
+		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return this.getter != null;
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_short<>(memberCopy, this.binaryOffset(), this.getter, this.setter);
 		}
 		
 		@Override
-		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
 		{
-			final short value = data.read_short(this.offset());
+			final short value = this.getter.get_short(instance);
+			data.store_short(this.binaryOffset(), value);
+		}
+
+		@Override
+		public final short read_short(final Binary data)
+		{
+			return data.read_short(this.binaryOffset());
+		}
+		
+		@Override
+		public final boolean canSet()
+		{
+			return this.setter != null;
+		}
+		
+		@Override
+		public final void setToInstance(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final short value = this.read_short(data);
 			this.setter.set_short(instance, value);
 		}
 		
 		@Override
-		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
-			final short value = this.getter.get_short(instance);
-			data.store_short(this.offset(), value);
-		}
-		
-		@Override
-		public final BinaryField<T> copyForName(final String qualifier, final String name)
-		{
-			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
-			return new Default_short<>(memberCopy, this.offset(), this.getter, this.setter);
+			final short instanceValue  = this.getter.get_short(instance);
+			final short persistedValue = this.read_short(data);
+			
+			if(persistedValue == instanceValue)
+			{
+				return;
+			}
+			
+			this.throwValidationException(
+				String.valueOf(instanceValue),
+				String.valueOf(persistedValue)
+			);
 		}
 		
 	}
@@ -692,30 +775,53 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
-		public final boolean canRead()
+		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return this.getter != null;
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_char<>(memberCopy, this.binaryOffset(), this.getter, this.setter);
 		}
 		
 		@Override
-		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
 		{
-			final char value = data.read_char(this.offset());
+			final char value = this.getter.get_char(instance);
+			data.store_char(this.binaryOffset(), value);
+		}
+		
+		@Override
+		public final char read_char(final Binary data)
+		{
+			return data.read_char(this.binaryOffset());
+		}
+		
+		@Override
+		public final boolean canSet()
+		{
+			return this.setter != null;
+		}
+		
+		@Override
+		public final void setToInstance(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final char value = this.read_char(data);
 			this.setter.set_char(instance, value);
 		}
 		
 		@Override
-		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
-			final char value = this.getter.get_char(instance);
-			data.store_char(this.offset(), value);
-		}
-		
-		@Override
-		public final BinaryField<T> copyForName(final String qualifier, final String name)
-		{
-			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
-			return new Default_char<>(memberCopy, this.offset(), this.getter, this.setter);
+			final char instanceValue  = this.getter.get_char(instance);
+			final char persistedValue = this.read_char(data);
+			
+			if(persistedValue == instanceValue)
+			{
+				return;
+			}
+			
+			this.throwValidationException(
+				String.valueOf(instanceValue),
+				String.valueOf(persistedValue)
+			);
 		}
 		
 	}
@@ -761,30 +867,53 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
-		public final boolean canRead()
+		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return this.getter != null;
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_int<>(memberCopy, this.binaryOffset(), this.getter, this.setter);
 		}
 		
 		@Override
-		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
 		{
-			final int value = data.read_int(this.offset());
+			final int value = this.getter.get_int(instance);
+			data.store_int(this.binaryOffset(), value);
+		}
+		
+		@Override
+		public final int read_int(final Binary data)
+		{
+			return data.read_int(this.binaryOffset());
+		}
+		
+		@Override
+		public final boolean canSet()
+		{
+			return this.setter != null;
+		}
+		
+		@Override
+		public final void setToInstance(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final int value = this.read_int(data);
 			this.setter.set_int(instance, value);
 		}
 		
 		@Override
-		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
-			final int value = this.getter.get_int(instance);
-			data.store_int(this.offset(), value);
-		}
-		
-		@Override
-		public final BinaryField<T> copyForName(final String qualifier, final String name)
-		{
-			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
-			return new Default_int<>(memberCopy, this.offset(), this.getter, this.setter);
+			final int instanceValue  = this.getter.get_int(instance);
+			final int persistedValue = this.read_int(data);
+			
+			if(persistedValue == instanceValue)
+			{
+				return;
+			}
+			
+			this.throwValidationException(
+				String.valueOf(instanceValue),
+				String.valueOf(persistedValue)
+			);
 		}
 		
 	}
@@ -830,30 +959,53 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
-		public final boolean canRead()
+		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return this.getter != null;
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_float<>(memberCopy, this.binaryOffset(), this.getter, this.setter);
 		}
 		
 		@Override
-		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
 		{
-			final float value = data.read_float(this.offset());
+			final float value = this.getter.get_float(instance);
+			data.store_float(this.binaryOffset(), value);
+		}
+		
+		@Override
+		public final float read_float(final Binary data)
+		{
+			return data.read_float(this.binaryOffset());
+		}
+		
+		@Override
+		public final boolean canSet()
+		{
+			return this.setter != null;
+		}
+		
+		@Override
+		public final void setToInstance(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final float value = this.read_float(data);
 			this.setter.set_float(instance, value);
 		}
 		
 		@Override
-		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
-			final float value = this.getter.get_float(instance);
-			data.store_float(this.offset(), value);
-		}
-		
-		@Override
-		public final BinaryField<T> copyForName(final String qualifier, final String name)
-		{
-			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
-			return new Default_float<>(memberCopy, this.offset(), this.getter, this.setter);
+			final float instanceValue  = this.getter.get_float(instance);
+			final float persistedValue = this.read_float(data);
+			
+			if(persistedValue == instanceValue)
+			{
+				return;
+			}
+			
+			this.throwValidationException(
+				String.valueOf(instanceValue),
+				String.valueOf(persistedValue)
+			);
 		}
 		
 	}
@@ -899,30 +1051,53 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
-		public final boolean canRead()
+		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return this.getter != null;
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_long<>(memberCopy, this.binaryOffset(), this.getter, this.setter);
 		}
 		
 		@Override
-		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
 		{
-			final long value = data.read_long(this.offset());
+			final long value = this.getter.get_long(instance);
+			data.store_long(this.binaryOffset(), value);
+		}
+		
+		@Override
+		public final long read_long(final Binary data)
+		{
+			return data.read_long(this.binaryOffset());
+		}
+		
+		@Override
+		public final boolean canSet()
+		{
+			return this.setter != null;
+		}
+		
+		@Override
+		public final void setToInstance(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final long value = this.read_long(data);
 			this.setter.set_long(instance, value);
 		}
 		
 		@Override
-		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
-			final long value = this.getter.get_long(instance);
-			data.store_long(this.offset(), value);
-		}
-		
-		@Override
-		public final BinaryField<T> copyForName(final String qualifier, final String name)
-		{
-			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
-			return new Default_long<>(memberCopy, this.offset(), this.getter, this.setter);
+			final long instanceValue  = this.getter.get_long(instance);
+			final long persistedValue = this.read_long(data);
+			
+			if(persistedValue == instanceValue)
+			{
+				return;
+			}
+			
+			this.throwValidationException(
+				String.valueOf(instanceValue),
+				String.valueOf(persistedValue)
+			);
 		}
 		
 	}
@@ -968,30 +1143,53 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
-		public final boolean canRead()
+		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
-			return this.getter != null;
+			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
+			return new Default_double<>(memberCopy, this.binaryOffset(), this.getter, this.setter);
 		}
 		
 		@Override
-		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
 		{
-			final double value = data.read_double(this.offset());
+			final double value = this.getter.get_double(instance);
+			data.store_double(this.binaryOffset(), value);
+		}
+		
+		@Override
+		public final double read_double(final Binary data)
+		{
+			return data.read_double(this.binaryOffset());
+		}
+		
+		@Override
+		public final boolean canSet()
+		{
+			return this.setter != null;
+		}
+		
+		@Override
+		public final void setToInstance(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final double value = this.read_double(data);
 			this.setter.set_double(instance, value);
 		}
 		
 		@Override
-		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
 		{
-			final double value = this.getter.get_double(instance);
-			data.store_double(this.offset(), value);
-		}
-		
-		@Override
-		public final BinaryField<T> copyForName(final String qualifier, final String name)
-		{
-			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
-			return new Default_double<>(memberCopy, this.offset(), this.getter, this.setter);
+			final double instanceValue  = this.getter.get_double(instance);
+			final double persistedValue = this.read_double(data);
+			
+			if(persistedValue == instanceValue)
+			{
+				return;
+			}
+			
+			this.throwValidationException(
+				String.valueOf(instanceValue),
+				String.valueOf(persistedValue)
+			);
 		}
 		
 	}
@@ -1041,32 +1239,40 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
-		public final boolean canRead()
-		{
-			return this.getter != null;
-		}
-		
-		@Override
-		public final void readValue(final T instance, final Binary data, final PersistenceLoadHandler handler)
-		{
-			final long objectId  = data.read_long(this.offset());
-			final R    reference = this.type.cast(handler.lookupObject(objectId));
-			this.setter.set(instance, reference);
-		}
-		
-		@Override
-		public final void storeValue(final T instance, final Binary data, final PersistenceStoreHandler handler)
-		{
-			final Object reference = this.getter.get(instance);
-			final long   objectId  = handler.apply(reference);
-			data.store_long(this.offset(), objectId);
-		}
-		
-		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
 			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
-			return new DefaultReference<>(this.type, memberCopy, this.offset(), this.getter, this.setter);
+			return new DefaultReference<>(this.type, memberCopy, this.binaryOffset(), this.getter, this.setter);
+		}
+		
+		@Override
+		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		{
+			final Object reference = this.getter.get(instance);
+			final long   objectId  = handler.apply(reference);
+			data.store_long(this.binaryOffset(), objectId);
+		}
+		
+		@Override
+		public final R readReference(final Binary data, final PersistenceLoadHandler handler)
+		{
+			final long objectId  = data.read_long(this.binaryOffset());
+			final R    reference = this.type.cast(handler.lookupObject(objectId));
+			
+			return reference;
+		}
+		
+		@Override
+		public final boolean canSet()
+		{
+			return this.setter != null;
+		}
+		
+		@Override
+		public final void setToInstance(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final R reference = this.readReference(data, handler);
+			this.setter.set(instance, reference);
 		}
 		
 		@Override
@@ -1076,7 +1282,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		)
 		{
 			@SuppressWarnings("unchecked") // due to typing conflict with primitives
-			final Object reference = this.getter.get((T)instance);
+			final R reference = this.getter.get((T)instance);
 			iterator.apply(reference);
 			
 			return iterator;
@@ -1088,10 +1294,27 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 			final L      loader
 		)
 		{
-			final long objectId = data.read_long(this.offset());
+			final long objectId = data.read_long(this.binaryOffset());
 			loader.acceptObjectId(objectId);
 
 			return loader;
+		}
+		
+		@Override
+		public final void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
+		{
+			final R instanceValue  = this.getter.get(instance);
+			final R persistedValue = this.readReference(data, handler);
+			
+			if(persistedValue == instanceValue)
+			{
+				return;
+			}
+			
+			this.throwValidationException(
+				XChars.systemString(instanceValue),
+				XChars.systemString(persistedValue)
+			);
 		}
 		
 	}
