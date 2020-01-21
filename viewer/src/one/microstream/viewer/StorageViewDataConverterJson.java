@@ -35,7 +35,7 @@ public class StorageViewDataConverterJson implements StorageViewDataConverter
 	}
 
 	@Override
-	public String convert(final SimpleObjectDescription preprocessed)
+	public String convert(final ViewerObjectDescription preprocessed)
 	{
 		return this.gson.toJson(preprocessed);
 	}

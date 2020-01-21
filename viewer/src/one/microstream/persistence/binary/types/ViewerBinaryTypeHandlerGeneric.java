@@ -11,7 +11,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
-public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Binary, ViewerObjectDescription>
+public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Binary, ObjectDescription>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -84,7 +84,7 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 	}
 
 	@Override
-	public Class<ViewerObjectDescription> type()
+	public Class<ObjectDescription> type()
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -108,7 +108,7 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 	}
 
 	@Override
-	public void iterateInstanceReferences(final ViewerObjectDescription instance, final PersistenceFunction iterator)
+	public void iterateInstanceReferences(final ObjectDescription instance, final PersistenceFunction iterator)
 	{
 		throw new UnsupportedOperationException();
 
@@ -121,15 +121,15 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 	}
 
 	@Override
-	public void store(final Binary medium, final ViewerObjectDescription instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(final Binary medium, final ObjectDescription instance, final long objectId, final PersistenceStoreHandler handler)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public ViewerObjectDescription create(final Binary medium, final PersistenceLoadHandler handler)
+	public ObjectDescription create(final Binary medium, final PersistenceLoadHandler handler)
 	{
-		final ViewerObjectDescription objectDescription = new ViewerObjectDescription();
+		final ObjectDescription objectDescription = new ObjectDescription();
 		objectDescription.setObjectId(medium.getBuildItemObjectId());
 		objectDescription.setPersistenceTypeDefinition(this.persitenceTypeDefinition);
 
@@ -139,19 +139,19 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 	}
 
 	@Override
-	public void updateState(final Binary medium, final ViewerObjectDescription instance, final PersistenceLoadHandler handler)
+	public void updateState(final Binary medium, final ObjectDescription instance, final PersistenceLoadHandler handler)
 	{
 		//do nothing
 	}
 
 	@Override
-	public void complete(final Binary medium, final ViewerObjectDescription instance, final PersistenceLoadHandler handler)
+	public void complete(final Binary medium, final ObjectDescription instance, final PersistenceLoadHandler handler)
 	{
 		//do nothing
 	}
 
 	@Override
-	public PersistenceTypeHandler<Binary, ViewerObjectDescription> initialize(final long typeId)
+	public PersistenceTypeHandler<Binary, ObjectDescription> initialize(final long typeId)
 	{
 		throw new UnsupportedOperationException();
 	}

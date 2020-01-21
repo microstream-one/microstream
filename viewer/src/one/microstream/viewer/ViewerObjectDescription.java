@@ -1,14 +1,14 @@
 package one.microstream.viewer;
 
-public class SimpleObjectDescription
+public class ViewerObjectDescription
 {
 	private String objectId;
 	private String typeId;
 	private String length;
 	private Object[] data;
-	private SimpleObjectDescription[] references;
+	private ViewerObjectDescription[] references;
 
-	public SimpleObjectDescription()
+	public ViewerObjectDescription()
 	{
 		// TODO Auto-generated constructor stub
 	}
@@ -45,11 +45,11 @@ public class SimpleObjectDescription
 		this.data = data;
 	}
 
-	public SimpleObjectDescription[] getReferences() {
+	public ViewerObjectDescription[] getReferences() {
 		return references;
 	}
 
-	public void setReferences(SimpleObjectDescription[] references) {
+	public void setReferences(ViewerObjectDescription[] references) {
 		this.references = references;
 	}
 

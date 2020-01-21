@@ -5,7 +5,7 @@ import java.util.List;
 
 import one.microstream.persistence.binary.types.ViewerBinaryPersistenceManager;
 import one.microstream.persistence.binary.types.ViewerException;
-import one.microstream.persistence.binary.types.ViewerObjectDescription;
+import one.microstream.persistence.binary.types.ObjectDescription;
 import one.microstream.persistence.types.Persistence.IdType;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceRootsView;
@@ -43,7 +43,7 @@ public class EmbeddedStorageRestAdapter
 	 * @param objectId
 	 * @return ViewerObjectDescription
 	 */
-	public ViewerObjectDescription getStorageObject(final long objectId)
+	public ObjectDescription getStorageObject(final long objectId)
 	{
 
 		final IdType idType = IdType.determineFromValue(objectId);
@@ -75,7 +75,7 @@ public class EmbeddedStorageRestAdapter
 	 * @param objectId
 	 * @return the constants value as object
 	 */
-	public ViewerObjectDescription getConstant(final long objectId)
+	public ObjectDescription getConstant(final long objectId)
 	{
 		return this.viewerPersistenceManager.getStorageConstant(objectId);
 	}
