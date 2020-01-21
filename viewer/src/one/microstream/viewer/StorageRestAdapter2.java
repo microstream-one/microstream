@@ -35,7 +35,6 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 		final long referenceLength)
 	{
 
-		//TODO(HAGR): LIMITS
 		if(dataOffset < 0) throw new ViewerException("invalid parameter dataOffset");
 		if(dataLength < 1) throw new ViewerException("invalid parameter dataLength");
 		if(referenceOffset < 0) throw new ViewerException("invalid parameter referenceOffset");
