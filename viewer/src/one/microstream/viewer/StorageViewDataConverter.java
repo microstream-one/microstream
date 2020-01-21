@@ -9,7 +9,6 @@ import com.google.gson.LongSerializationPolicy;
 
 import one.microstream.persistence.binary.types.ViewerObjectDescription;
 import one.microstream.persistence.binary.types.ViewerObjectReferenceWrapper;
-import one.microstream.viewer.dto.SimpleObjectDescription;
 
 public class StorageViewDataConverter
 {
@@ -155,68 +154,4 @@ public class StorageViewDataConverter
 
 		return dataArray;
 	}
-
-
-//	private SimpleObjectDescription toSimple( final ViewerObjectDescription description )
-//	{
-//		final SimpleObjectDescription objDesc = new SimpleObjectDescription();
-//
-//		this.setObjectHeader(description, objDesc);
-//
-//		if(description.hasPrimitiveObjectInstance())
-//		{
-//			objDesc.setData(new String[] {description.getPrimitiveInstance().toString()});
-//		}
-//		else
-//		{
-//			final Object[] data = new Object[description.getValues().length];
-//
-//			for(int i = 0; i < description.getValues().length; i++)
-//			{
-//				final Object obj = description.getValues()[i];
-//
-//				if(obj instanceof ViewerObjectReferenceWrapper)
-//				{
-//					data[i] = Long.toString(((ViewerObjectReferenceWrapper) obj).getObjectId());
-//				}
-//				else if(obj.getClass().isArray())
-//				{
-//					data[i] = this.objArray((Object[]) obj);
-//				}
-//				else
-//				{
-//					data[i] = obj.toString();
-//				}
-//			}
-//
-//			objDesc.setData(data);
-//		}
-//
-//		return objDesc;
-//	}
-//
-//	private Object[] objArray(final Object[] obj)
-//	{
-//		final Object[] dataArray = new Object[obj.length];
-//
-//		for(int i = 0; i < obj.length; i++)
-//		{
-//			if(obj[i] instanceof ViewerObjectReferenceWrapper)
-//			{
-//				dataArray[i] = Long.toString(((ViewerObjectReferenceWrapper) obj[i]).getObjectId());
-//			}
-//			else if(obj[i].getClass().isArray())
-//			{
-//				dataArray[i] = this.objArray((Object[]) obj[i]);
-//			}
-//			else
-//			{
-//				dataArray[i] = obj[i].toString();
-//			}
-//		}
-//
-//		return dataArray;
-//	}
-
-
 }
