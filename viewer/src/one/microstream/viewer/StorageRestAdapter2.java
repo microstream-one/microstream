@@ -10,7 +10,7 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 	// instance fields //
 	////////////////////
 
-	private final StorageViewDataConverter converter;
+	private final StorageViewDataConverterProvider converterProvider;
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -19,14 +19,14 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 	public StorageRestAdapter2(final EmbeddedStorageManager storage)
 	{
 		super(storage);
-		this.converter = new StorageViewDataConverter();
+		this.converterProvider = new StorageViewDataConverterProvider();
 	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
 
-	public String getObject(
+	public SimpleObjectDescription getObject(
 		final long objectId,
 		final long dataOffset,
 		final long dataLength,
@@ -47,19 +47,22 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 			description.resolveReferences(referenceOffset, referenceLength, this);
 		}
 
-		final SimpleObjectDescription preprocessed = description.postProcess(dataOffset, dataLength);
-		return this.converter.convert(preprocessed);
+		return description.postProcess(dataOffset, dataLength);
 	}
 
-	public String getUserRoot()
+	public ViewerRootDescription getUserRoot()
 	{
-		final ViewerRootDescription root = super.getRoot();
-		return this.converter.convert(root);
+		return super.getRoot();
 	}
 
 	@Override
 	public String getTypeDictionary()
 	{
-		return super.getTypeDictionary();		 
+		return super.getTypeDictionary();
+	}
+
+	public StorageViewDataConverter getConverter(final String format)
+	{
+		return this.converterProvider.get(format);
 	}
 }

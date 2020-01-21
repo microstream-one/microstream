@@ -1,5 +1,6 @@
 package one.microstream.viewer.server;
 
+import one.microstream.viewer.SimpleObjectDescription;
 import one.microstream.viewer.StorageRestAdapter2;
 import spark.Request;
 import spark.Response;
@@ -33,7 +34,7 @@ public class RouteObject2 implements Route
 		final boolean resolveReverences = this.getBooleanParameter(request, "references", false);
 
 		final long objectId = this.validateObjectId(request);
-		final String jsonString = this.storageRestAdapter.getObject(
+		final SimpleObjectDescription storageObject = this.storageRestAdapter.getObject(
 			objectId,
 			dataOffset,
 			dataLength,
@@ -42,7 +43,8 @@ public class RouteObject2 implements Route
 			referenceLength);
 
 		response.type("application/json");
-		return jsonString;
+
+		return this.storageRestAdapter.getConverter("application/json").convert(storageObject);
 	}
 
 	private long validateObjectId(final Request request)
