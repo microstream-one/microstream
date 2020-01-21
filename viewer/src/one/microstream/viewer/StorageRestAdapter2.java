@@ -1,7 +1,7 @@
 package one.microstream.viewer;
 
 import one.microstream.persistence.binary.types.ViewerException;
-import one.microstream.persistence.binary.types.ViewerObjectDescription;
+import one.microstream.persistence.binary.types.ObjectDescription;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
@@ -26,7 +26,7 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 	// methods //
 	////////////
 
-	public SimpleObjectDescription getObject(
+	public ViewerObjectDescription getObject(
 		final long objectId,
 		final long dataOffset,
 		final long dataLength,
@@ -41,7 +41,7 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 		if(referenceLength < 1) throw new ViewerException("invalid parameter referenceLength");
 
 
-		final ViewerObjectDescription description = super.getStorageObject(objectId);
+		final ObjectDescription description = super.getStorageObject(objectId);
 		if(resolveReferences)
 		{
 			description.resolveReferences(referenceOffset, referenceLength, this);

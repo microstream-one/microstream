@@ -3,5 +3,5 @@ package one.microstream.viewer;
 public interface StorageViewDataConverter
 {
 	String convert(ViewerRootDescription root);
-	String convert(SimpleObjectDescription preprocessed);
+	String convert(ViewerObjectDescription preprocessed);
 }

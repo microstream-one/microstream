@@ -64,7 +64,7 @@ public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerMan
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private PersistenceTypeHandler<Binary, ViewerObjectDescription> deriveTypeHandler(final long typeId)
+	private PersistenceTypeHandler<Binary, ObjectDescription> deriveTypeHandler(final long typeId)
 	{
 		final PersistenceTypeDefinition persistenceTypeDef = this.typeDictionary.lookupTypeById(typeId);
 		final PersistenceTypeHandler<Binary, ?> nativeHandler = this.nativeHandlers.search(t->t.typeId() == typeId );

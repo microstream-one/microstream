@@ -20,9 +20,9 @@ public class ViewerBinaryTypeHandlerBasic<T> extends ViewerBinaryTypeHandlerWrap
 	////////////
 
 	@Override
-	public ViewerObjectDescription create(final Binary medium, final PersistenceLoadHandler handler)
+	public ObjectDescription create(final Binary medium, final PersistenceLoadHandler handler)
 	{
-		final ViewerObjectDescription objectDescription = this.genericHandler.create(medium, handler);
+		final ObjectDescription objectDescription = this.genericHandler.create(medium, handler);
 		objectDescription.setPrimitiveInstance(this.nativeHandler.create(medium, handler));
 
 		return objectDescription;
@@ -32,7 +32,7 @@ public class ViewerBinaryTypeHandlerBasic<T> extends ViewerBinaryTypeHandlerWrap
 	@Override
 	public void updateState(final Binary medium, final Object instance, final PersistenceLoadHandler handler)
 	{
-		this.nativeHandler.updateState(medium, (T)((ViewerObjectDescription)instance).getPrimitiveInstance(), handler);
+		this.nativeHandler.updateState(medium, (T)((ObjectDescription)instance).getPrimitiveInstance(), handler);
 	}
 
 }
