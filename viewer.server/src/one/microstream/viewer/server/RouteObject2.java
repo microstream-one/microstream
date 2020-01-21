@@ -65,7 +65,14 @@ public class RouteObject2 implements Route
 			return defaultValue;
 		}
 
-		return param.toLowerCase().contentEquals("true");
+		if(param.toLowerCase().contentEquals("true"))
+		{
+			return true;
+		}
+		else
+		{
+			throw new InvalidRouteParameters("invalid url parameter " + name);
+		}
 
 	}
 
