@@ -21,7 +21,7 @@ public class ViewerBinaryTypeHandlerNativeArray<T> extends ViewerBinaryTypeHandl
 	////////////
 
 	@Override
-	public ViewerMemberProvider create(final Binary medium, final PersistenceLoadHandler handler)
+	public ViewerObjectDescription create(final Binary medium, final PersistenceLoadHandler handler)
 	{
 		final ViewerObjectDescription objectDescription = new ViewerObjectDescription();
 		objectDescription.setObjectId(medium.getBuildItemObjectId());
