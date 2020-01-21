@@ -16,6 +16,7 @@ import one.microstream.persistence.types.PersistenceSource;
 import one.microstream.persistence.types.PersistenceStorer;
 import one.microstream.persistence.types.PersistenceStorer.Creator;
 import one.microstream.persistence.types.PersistenceTarget;
+import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 
 public class ViewerBinaryPersistenceManager implements PersistenceManager<Binary>
@@ -220,9 +221,18 @@ public class ViewerBinaryPersistenceManager implements PersistenceManager<Binary
 				this, this.persistenceManager);
 	}
 
-	public Object getStorageConstant(final long objectId)
+	public ViewerObjectDescription getStorageConstant(final long objectId)
 	{
-		 final Object oid = this.constantRegistry.lookupObject(objectId);
-		 return oid;
+		 final Object object = this.constantRegistry.lookupObject(objectId);
+		 final PersistenceTypeDefinition type = this.typeDictionary().lookupTypeByName(object.getClass().getTypeName());
+
+		 final ViewerObjectDescription objectDescription = new ViewerObjectDescription();
+
+		 objectDescription.setPersistenceTypeDefinition(type);
+		 objectDescription.setObjectId(objectId);
+		 objectDescription.setValues(new Object[] {object});
+		 objectDescription.setLength(1);
+
+		 return objectDescription;
 	}
 }
