@@ -83,7 +83,7 @@ DevLog nachtragen.\par
 Und \'dcberlegung vom Weg zum Auto:\par
 Das mit dem Custom Instantiator wird gar nicht so einfach. Wenn der direkt einige BinaryFields nutzen soll, muss man entweder den offset doch wieder manuell verwenden k\'f6nnen, oder es m\'fcssen doch wieder die tausend verschiedenen getter (aber immerhin ohne Setter) f\'fcr verschiedene Typen ins interface, die dann im falschen Fall nur mit runtime-check eine exception werfen.\par
 Und wie bringt man die generische Logik dazu, diese Felder dann in #initializeState nicht nochmal zu verwenden? Hm, evtl. indem der Getter null ist. Das w\'fcrde gehen.\par
-#canRad einbauen.\par
+#canRead einbauen.\par
 \par
 Und bl\'f6d ist halt, dass es jetzt doch "Field_int" usw. anstatt nur \'fcberladen "Field" hei\'dfen muss, weil die Nachsicht des Compilers zwischen den primitives Mehrdeutigen erzeugt, wo eigentlich gar keine sind. Doof.\par
 Aber mei, Convenience-m\'e4\'dfig ist es gar nicht so schlecht, den Primitive Type nochmal explizit dort zu haben.\par
@@ -204,5 +204,55 @@ Dabei aufgefallen: Ich k\'f6nnte bzw. muss ja mit field.getGenerticType() pr\'fc
 Da passen die Initialisierungsmethoden noch nicht zusammen. Das sind verschiedene Konzepte, die mal zu einem konsolidiert werden m\'fcssen.\par
 \par
 Okay, wird schon langsam. Noch bissl konsolidieren, dann mit den generischen Mitteln die Instanz-handling-Methode implementieren, dann ist es fertig zum testen.\par
+\par
+\par
+2020-01-21\par
+\par
+Mir ist eingefallen:\par
+Falls man Wert eines BinaryFields direkt braucht, z.B. um sie an einen Konstruktor zu \'fcbergeben oder um davon was abzuleiten (z.B. eine Collection Instanz aus der persistierten Capacity), dann brauchen die BinaryFields ja doch Getter f\'fcr den Wert.\par
+Und das hei\'dft: 8 primitives + 1 Reference.\par
+Also muss ich doch solche redundanten Varianten machen. Aber immerhin nur 9 default methods mit jeweils UnsupportOperationException und dann nur je Implementierung eine Override Methode davon.\par
+\par
+Aufgefallen:\par
+Wieso getter == null f\'fcr den #canRead Fall?\par
+Aus der Instanz lesen muss man einen Wert doch immer k\'f6nnen. Aber in die Instanz setzen nicht (unbedingt), falls es ein reiner Initialisierungwert sein soll.\par
+Also m\'fcsste doch eher der Setter null sein. Denn DER wird ja nur f\'fcr schon bestehende Instanz verwendet.\par
+Und das #canRead m\'fcsste dementsprechend eher #canSet hei\'dfen.\par
+\par
+Die field Arrays m\'fcssen dementsprechend umgebaut werden.\par
+\par
+Damit endlich mal die ganzen state handling methoden implementieren.\par
+\par
+Hm: Sollte #update nicht validieren, falls es kein einziges canSet Feld gibt?\par
+Damit k\'f6nnte man sich ganz einfach durch das weglassen der Setter einen value type definieren, der sogar voll generisch von der Handler Logik validiert werden w\'fcrde, konsistent zu den anderen value Type Handlern...\par
+Das mach ich mal, das ist cool!\par
+\par
+So, fertig. War ja nicht viel Code.\par
+\par
+Jetzt mal das Initialisierungschaos konsolidieren ...\par
+\par
+Also es gibt:\par
+\par
+1.) #internalInitialize\par
+Das wird aufgerufen vom allgemeinen PersistenceTypeHandler#initialize, wo eigentlich nur die TypeId gesetzt wird.\par
+\par
+2.) #initializeInstanceMembers\par
+Das wird im "AbstractBinaryHandlerCustom" (Superklasse f\'fcr "tailored" Handlers mit noch altem Namen) on-demand im #instanceMembers aufgerufen.\par
+Das w\'fcrde eigentlich schon vollkommen reichen.\par
+\par
+ALLERDINGS ist es so, dass es in AbstractBinaryHandlerCustom2 weitere Methoden gibt und die haben auch on-demand Initialisierungsbedarf, aber f\'fcr die binaryFields collection, nicht f\'fcr die Members.\par
+Eine triviale L\'f6sung w\'e4re nat\'fcrlich, darin einmal this.instanceMembers() aufzurufen, um die Initialisierung zu garantieren.\par
+Das ist aber hacky. Ohne Kommentar w\'fcrde das keiner verstehen und den Aufruf wegl\'f6schen. Das ist eigentlich ein klares Indiz f\'fcr schlechten Code.\par
+Andererseits sollen alle internen Referenzen auf this.members nur in einer Methode stehen und nicht \'fcber 2 verteilt werden, etwa eine "#ensureInitializedMembers".\par
+Hm. Oder ist das nicht der sehr viel kleinere "Preis", falls es denn \'fcberhaupt einer ist? Also gut, dann mach ich das so ...\par
+\par
+ODER ... w\'e4re es nicht doch geschickter, den Vererbungshook in initialize() zu verwenden?\par
+Aber das Problem daran ist, dass das evtl. zu sp\'e4t aufgerufen wird. Ohne die on-demand initialisierung w\'e4ren so "~Custom2" TypeHandler bis zur Initialisierung in einem inkonsistenten Zustand. Das ist nat\'fcrlich ganz schlecht.\par
+Also ne, Variante #1 ist nicht gut. Mach ich raus.\par
+\par
+Sch\'f6n. Dann ist das auch gel\'f6st.\par
+Ich muss dann mal noch nach offenen TODOs suchen.\par
+Achja und eine Convenience Methode bauen, die aus dem n\'f6tigsten Minimum an Vorgaben so eine Handler Klasse generisch erzeugt.\par
+Dann kann ich testen.\par
 }
  

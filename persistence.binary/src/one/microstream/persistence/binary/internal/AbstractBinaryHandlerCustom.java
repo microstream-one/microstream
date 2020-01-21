@@ -223,12 +223,18 @@ extends BinaryTypeHandler.Abstract<T>
 	@Override
 	public synchronized XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers()
 	{
-		if(this.members == null)
-		{
-			this.members = this.initializeInstanceMembers();
-		}
+		this.ensureInitializeInstanceMembers();
 		
 		return this.members;
+	}
+	
+	protected final void ensureInitializeInstanceMembers()
+	{
+		if(this.members != null)
+		{
+			return;
+		}
+		this.members = this.initializeInstanceMembers();
 	}
 	
 	protected XImmutableEnum<? extends PersistenceTypeDefinitionMember> initializeInstanceMembers()
@@ -276,12 +282,6 @@ extends BinaryTypeHandler.Abstract<T>
 	{
 		// native handling logic should normally not have any member types that have to be iterated here
 		return logic;
-	}
-	
-	@Override
-	protected void internalInitialize()
-	{
-		// no-op
 	}
 
 }

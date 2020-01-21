@@ -8,7 +8,6 @@ import java.lang.reflect.Type;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import one.microstream.X;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashTable;
@@ -166,12 +165,17 @@ extends AbstractBinaryHandlerCustom<T>
 	
 	// must be deferred-initialized since all fields have to be collected in a generic way
 	private XGettingTable<String, BinaryField.Initializable<T>> binaryFields;
+	
+	// having no setting members effectively means the type is an immutable value type
+	private boolean hasSettingMembers;
+	
 	private boolean hasPersistedReferences;
 	private boolean hasVaryingPersistedLengthInstances;
 
-	private BinaryField<T>[] storeFields       ;
-	private BinaryField<T>[] nonReferenceFields;
-	private BinaryField<T>[] referenceFields   ;
+	private BinaryField<T>[] storingFields      ;
+	private BinaryField<T>[] allReferenceFields ;
+	private BinaryField<T>[] settingRefrncFields;
+	private BinaryField<T>[] settingNonRefFields;
 	
 
 
@@ -239,7 +243,7 @@ extends AbstractBinaryHandlerCustom<T>
 	@Override
 	public final boolean hasPersistedReferences()
 	{
-		this.ensureInitializedFields();
+		this.ensureInitializeInstanceMembers();
 		
 		return this.hasPersistedReferences;
 	}
@@ -247,7 +251,7 @@ extends AbstractBinaryHandlerCustom<T>
 	@Override
 	public final boolean hasVaryingPersistedLengthInstances()
 	{
-		this.ensureInitializedFields();
+		this.ensureInitializeInstanceMembers();
 		
 		return this.hasVaryingPersistedLengthInstances;
 	}
@@ -255,29 +259,10 @@ extends AbstractBinaryHandlerCustom<T>
 	@Override
 	protected XImmutableEnum<? extends PersistenceTypeDefinitionMember> initializeInstanceMembers()
 	{
-		this.initializeBinaryFields();
-//		this.initializeBinaryFieldsExplicitely(this.getClass());
+		// super class's on-demand logic guarantees that this method is only called once for every instance.
+		final XGettingSequence<BinaryField.Initializable<T>> binaryFields = this.initializeBinaryFields();
 		
-		return validateAndImmure(this.binaryFields.values());
-	}
-	
-	@Override
-	protected void internalInitialize()
-	{
-		// (20.01.2020 TM)FIXME: priv#88: why gets this called here and why not with ensureInitializedFields?
-		this.initializeBinaryFields();
-//		this.initializeBinaryFieldsExplicitely(this.getClass());
-	}
-	
-	private void ensureInitializedFields()
-	{
-		if(this.binaryFields != null)
-		{
-			return;
-		}
-		
-		// (20.01.2020 TM)FIXME: priv#88: cleanup / fix collection type
-		this.binaryFields = this.initializeInstanceMembers();
+		return validateAndImmure(binaryFields);
 	}
 	
 	private long calculcateContentLength(final T instance)
@@ -293,32 +278,77 @@ extends AbstractBinaryHandlerCustom<T>
 
 		data.storeEntityHeader(contentLength, this.typeId(), objectId);
 
-		// (20.01.2020 TM)FIXME: priv#88: move to Binary. Add offset arithmetic!
-		for(final BinaryField<T> referenceField : this.referenceFields)
+		for(final BinaryField<T> storingField : this.storingFields)
 		{
-			referenceField.storeValue(instance, data, handler);
+			storingField.storeFromInstance(instance, data, handler);
 		}
+	}
+	
+	
+	protected T instantiate(final Binary data)
+	{
+		// if this method is not overwritten by the subclass, then instantiator must be non-null.
+		return this.instantiator.instantiate(data);
 	}
 
 	@Override
 	public T create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		// (08.01.2020 TM)FIXME: priv#88: create: instantiate and fill via primitive fields
-		throw new RuntimeException();
+		final T instance = this.instantiate(data);
+		
+		// reference values will get set later on in initializeState, when instances are guaranteed to be available
+		this.setNonReferenceValues(instance, data, handler);
+		
+		return instance;
+	}
+	
+	private void setNonReferenceValues(final T instance, final Binary data, final PersistenceLoadHandler handler)
+	{
+		for(final BinaryField<T> settingNonRefField : this.settingNonRefFields)
+		{
+			settingNonRefField.setToInstance(instance, data, handler);
+		}
+	}
+	
+	
+	
+	private void setReferenceValues(final T instance, final Binary data, final PersistenceLoadHandler handler)
+	{
+		for(final BinaryField<T> settingRefrncField : this.settingRefrncFields)
+		{
+			settingRefrncField.setToInstance(instance, data, handler);
+		}
+	}
+	
+	private void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
+	{
+		for(final BinaryField<T> settingNonRefField : this.storingFields)
+		{
+			settingNonRefField.setToInstance(instance, data, handler);
+		}
 	}
 	
 	@Override
 	public void initializeState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
-		// (13.01.2020 TM)FIXME: priv#88: initializeState
-		throw new one.microstream.meta.NotImplementedYetError();
+		// non-reference values were already set in #create
+		this.setReferenceValues(instance, data, handler);
 	}
 
 	@Override
 	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
-		// (13.01.2020 TM)FIXME: priv#88: updateState
-		throw new one.microstream.meta.NotImplementedYetError();
+		if(this.hasSettingMembers)
+		{
+			// update has to set both types of values
+			this.setNonReferenceValues(instance, data, handler);
+			this.setReferenceValues(instance, data, handler);
+		}
+		else
+		{
+			// immutable value types are validated, instead of updated. See native handlers (String etc.)
+			this.validateState(instance, data, handler);
+		}
 	}
 
 	@Override
@@ -330,7 +360,11 @@ extends AbstractBinaryHandlerCustom<T>
 	@Override
 	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
 	{
-		// native handling logic should normally not have any member types that have to be iterated here
+		for(final BinaryField<T> storingField : this.storingFields)
+		{
+			logic.accept(storingField.type());
+		}
+		
 		return logic;
 	}
 
@@ -356,7 +390,7 @@ extends AbstractBinaryHandlerCustom<T>
 //		this.initializationInvokingClass = invokingClass;
 //	}
 
-	protected final synchronized void initializeBinaryFields()
+	protected final synchronized XGettingSequence<BinaryField.Initializable<T>> initializeBinaryFields()
 	{
 		final HashTable<Class<?>, XGettingSequence<BinaryField.Initializable<T>>> binaryFieldsPerClass = HashTable.New();
 		
@@ -381,6 +415,8 @@ extends AbstractBinaryHandlerCustom<T>
 		// (18.04.2019 TM)FIXME: priv#88: assign to members field here or somewhere appropriate.
 		
 		this.binaryFields = binaryFieldsInOrder;
+		
+		return this.binaryFields.values();
 	}
 	
 	private void collectBinaryFields(
@@ -470,9 +506,12 @@ extends AbstractBinaryHandlerCustom<T>
 	private void initializeBinaryFields(final XGettingTable<String, BinaryField.Initializable<T>> binaryFields)
 	{
 		validateVariableLengthLayout(binaryFields);
-		final BulkList<BinaryField<T>> storeFields        = BulkList.New();
-		final BulkList<BinaryField<T>> nonReferenceFields = BulkList.New();
-		final BulkList<BinaryField<T>> referenceFields    = BulkList.New();
+		final BulkList<BinaryField<T>> storingFields       = BulkList.New();
+		final BulkList<BinaryField<T>> allReferenceFields  = BulkList.New();
+		final BulkList<BinaryField<T>> settingNonRefFields = BulkList.New();
+		final BulkList<BinaryField<T>> settingRefrncFields = BulkList.New();
+		
+		boolean hasSettingMembers = false;
 		
 		// (14.01.2020 TM)FIXME: priv#88: hasInstanceReferences. See task in PersistenceTypeHandler.
 		
@@ -482,7 +521,19 @@ extends AbstractBinaryHandlerCustom<T>
 			binaryField.initializeOffset(offset);
 			offset += binaryField.persistentMinimumLength();
 
-			storeFields.add(binaryField);
+			storingFields.add(binaryField);
+			
+			if(binaryField.hasReferences())
+			{
+				allReferenceFields.add(binaryField);
+			}
+			
+			if(!binaryField.canSet())
+			{
+				continue;
+			}
+			
+			hasSettingMembers = true;
 			
 			/*
 			 * must use "hasReferences" instead of "isReference" as a variable list field
@@ -490,11 +541,11 @@ extends AbstractBinaryHandlerCustom<T>
 			 */
 			if(binaryField.hasReferences())
 			{
-				referenceFields.add(binaryField);
+				settingRefrncFields.add(binaryField);
 			}
 			else
 			{
-				nonReferenceFields.add(binaryField);
+				settingNonRefFields.add(binaryField);
 			}
 		}
 		/* note:
@@ -505,26 +556,14 @@ extends AbstractBinaryHandlerCustom<T>
 		this.hasVaryingPersistedLengthInstances = !binaryFields.values().isEmpty()
 			&& binaryFields.values().peek().isVariableLength()
 		;
-
-		this.storeFields = storeFields.toArray(this.binaryFieldClass());
-		if(this.hasPersistedReferences = !referenceFields.isEmpty())
-		{
-			if(!nonReferenceFields.isEmpty())
-			{
-				this.referenceFields = referenceFields.toArray(this.binaryFieldClass());
-				this.nonReferenceFields = nonReferenceFields.toArray(this.binaryFieldClass());
-			}
-			else
-			{
-				this.referenceFields = this.storeFields;
-				this.nonReferenceFields = X.Array(this.binaryFieldClass(), 0);
-			}
-		}
-		else
-		{
-			this.nonReferenceFields = this.storeFields;
-			this.nonReferenceFields = X.Array(this.binaryFieldClass(), 0);
-		}
+		
+		this.hasPersistedReferences = !allReferenceFields.isEmpty();
+		this.hasSettingMembers      = hasSettingMembers;
+		
+		this.storingFields       = storingFields      .toArray(this.binaryFieldClass());
+		this.allReferenceFields  = allReferenceFields .toArray(this.binaryFieldClass());
+		this.settingRefrncFields = settingRefrncFields.toArray(this.binaryFieldClass());
+		this.settingNonRefFields = settingNonRefFields.toArray(this.binaryFieldClass());
 	}
 	
 	
@@ -568,7 +607,7 @@ extends AbstractBinaryHandlerCustom<T>
 	@Override
 	public final void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
-		for(final BinaryField<?> referenceField : this.referenceFields)
+		for(final BinaryField<?> referenceField : this.allReferenceFields)
 		{
 			referenceField.iterateReferences(instance, iterator);
 		}
@@ -577,7 +616,7 @@ extends AbstractBinaryHandlerCustom<T>
 	@Override
 	public void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader loader)
 	{
-		for(final BinaryField<?> referenceField : this.referenceFields)
+		for(final BinaryField<?> referenceField : this.allReferenceFields)
 		{
 			referenceField.iterateLoadableReferences(data, loader);
 		}
