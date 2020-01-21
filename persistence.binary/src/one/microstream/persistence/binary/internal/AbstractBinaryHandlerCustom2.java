@@ -9,6 +9,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import one.microstream.collections.BulkList;
+import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XAddingCollection;
@@ -151,20 +152,53 @@ extends AbstractBinaryHandlerCustom<T>
 		);
 	}
 	
+	protected static <T> EqConstHashTable<String, ? extends BinaryField<T>> mapBinaryFields(
+		final XGettingSequence<? extends BinaryField<T>> binaryFields
+	)
+	{
+		if(binaryFields == null)
+		{
+			// may be null for deferred on-demand initialization via reflection
+			return null;
+		}
+		
+		final EqHashTable<String, BinaryField<T>> mappedBinaryFields = EqHashTable.New();
+		
+		for(final BinaryField<T> binaryField : binaryFields)
+		{
+			final String identifier = binaryField.identifier();
+			if(identifier == null)
+			{
+				// (21.01.2020 TM)EXCP: proper exception
+				throw new PersistenceException(
+					"Unnamed " + BinaryField.class.getSimpleName() + " of type " + binaryField.type()
+				);
+			}
+			
+			if(!mappedBinaryFields.add(identifier, binaryField))
+			{
+				// (21.01.2020 TM)EXCP: proper exception
+				throw new PersistenceException(
+					"Duplicate " + BinaryField.class.getSimpleName() + " \"" + binaryField.type() + "\""
+				);
+			}
+		}
+		
+		return mappedBinaryFields.immure();
+	}
+	
 	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
-	
-	// (06.01.2020 TM)FIXME: priv#88: remove #initializeBinaryFieldsExplicitely if this is really not needed
-//	private Class<?> initializationInvokingClass;
 
 	private final PersistenceTypeInstantiator<Binary, T> instantiator;
 	
 	// must be deferred-initialized since all fields have to be collected in a generic way
-	private XGettingTable<String, BinaryField.Initializable<T>> binaryFields;
+	private EqConstHashTable<String, ? extends BinaryField<T>> binaryFields;
+	// (21.01.2020 TM)FIXME: priv#88: must have an optional constructor or setter to set this field for generic construction
 	
 	// having no setting members effectively means the type is an immutable value type
 	private boolean hasSettingMembers;
@@ -186,24 +220,24 @@ extends AbstractBinaryHandlerCustom<T>
 	
 	protected AbstractBinaryHandlerCustom2(final Class<T> type)
 	{
-		this(type, (XGettingSequence<? extends PersistenceTypeDefinitionMember>)null);
+		this(type, (XGettingSequence<? extends BinaryField<T>>)null);
 	}
 
 	protected AbstractBinaryHandlerCustom2(
-		final Class<T>                                                    type   ,
-		final XGettingSequence<? extends PersistenceTypeDefinitionMember> members
+		final Class<T>                                   type        ,
+		final XGettingSequence<? extends BinaryField<T>> binaryFields
 	)
 	{
-		this(type, deriveTypeName(type), null, members);
+		this(type, deriveTypeName(type), null, binaryFields);
 	}
 	
 	protected AbstractBinaryHandlerCustom2(
-		final Class<T>                                                    type    ,
-		final String                                                      typeName,
-		final XGettingSequence<? extends PersistenceTypeDefinitionMember> members
+		final Class<T>                                   type        ,
+		final String                                     typeName    ,
+		final XGettingSequence<? extends BinaryField<T>> binaryFields
 	)
 	{
-		this(type, typeName, null, members);
+		this(type, typeName, null, binaryFields);
 	}
 	
 	protected AbstractBinaryHandlerCustom2(
@@ -215,23 +249,24 @@ extends AbstractBinaryHandlerCustom<T>
 	}
 
 	protected AbstractBinaryHandlerCustom2(
-		final Class<T>                                                    type        ,
-		final PersistenceTypeInstantiator<Binary, T>                      instantiator,
-		final XGettingSequence<? extends PersistenceTypeDefinitionMember> members
+		final Class<T>                                   type        ,
+		final PersistenceTypeInstantiator<Binary, T>     instantiator,
+		final XGettingSequence<? extends BinaryField<T>> binaryFields
 	)
 	{
-		this(type, deriveTypeName(type), members);
+		this(type, deriveTypeName(type), binaryFields);
 	}
 	
 	protected AbstractBinaryHandlerCustom2(
-		final Class<T>                                                    type        ,
-		final String                                                      typeName    ,
-		final PersistenceTypeInstantiator<Binary, T>                      instantiator,
-		final XGettingSequence<? extends PersistenceTypeDefinitionMember> members
+		final Class<T>                                   type        ,
+		final String                                     typeName    ,
+		final PersistenceTypeInstantiator<Binary, T>     instantiator,
+		final XGettingSequence<? extends BinaryField<T>> binaryFields
 	)
 	{
-		super(type, typeName, members);
+		super(type, typeName, binaryFields);
 		this.instantiator = mayNull(instantiator);
+		this.binaryFields = mapBinaryFields(binaryFields);
 	}
 	
 	
@@ -239,6 +274,24 @@ extends AbstractBinaryHandlerCustom<T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	// (21.01.2020 TM)FIXME: priv#88: remove if not needed
+//	public void setBinaryFields(final XGettingTable<String, BinaryField.Initializable<T>> binaryFields)
+//	{
+//		if(this.binaryFields != null)
+//		{
+//			if(this.binaryFields == binaryFields)
+//			{
+//				// no-op, abort.
+//				return;
+//			}
+//
+//			// (21.01.2020 TM)EXCP: proper exception
+//			throw new PersistenceException(BinaryField.class.getSimpleName()+"s have already been assigned.");
+//		}
+//
+//		this.binaryFields = binaryFields;
+//	}
 
 	@Override
 	public final boolean hasPersistedReferences()
@@ -260,7 +313,7 @@ extends AbstractBinaryHandlerCustom<T>
 	protected XImmutableEnum<? extends PersistenceTypeDefinitionMember> initializeInstanceMembers()
 	{
 		// super class's on-demand logic guarantees that this method is only called once for every instance.
-		final XGettingSequence<BinaryField.Initializable<T>> binaryFields = this.initializeBinaryFields();
+		final XGettingSequence<? extends BinaryField<T>> binaryFields = this.initializeBinaryFields();
 		
 		return validateAndImmure(binaryFields);
 	}
@@ -390,7 +443,7 @@ extends AbstractBinaryHandlerCustom<T>
 //		this.initializationInvokingClass = invokingClass;
 //	}
 
-	protected final synchronized XGettingSequence<BinaryField.Initializable<T>> initializeBinaryFields()
+	protected final synchronized XGettingSequence<? extends BinaryField<T>> initializeBinaryFields()
 	{
 		final HashTable<Class<?>, XGettingSequence<BinaryField.Initializable<T>>> binaryFieldsPerClass = HashTable.New();
 		
@@ -414,7 +467,7 @@ extends AbstractBinaryHandlerCustom<T>
 		this.initializeBinaryFields(binaryFieldsInOrder);
 		// (18.04.2019 TM)FIXME: priv#88: assign to members field here or somewhere appropriate.
 		
-		this.binaryFields = binaryFieldsInOrder;
+		this.binaryFields = binaryFieldsInOrder.immure();
 		
 		return this.binaryFields.values();
 	}
@@ -443,7 +496,7 @@ extends AbstractBinaryHandlerCustom<T>
 		
 		if(genericType == this.type())
 		{
-			
+			// (21.01.2020 TM)FIXME: priv#88: finish implementation
 		}
 	}
 
