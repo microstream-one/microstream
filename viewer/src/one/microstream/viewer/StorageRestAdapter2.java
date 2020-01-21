@@ -15,6 +15,7 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
+
 	public StorageRestAdapter2(final EmbeddedStorageManager storage)
 	{
 		super(storage);
@@ -24,18 +25,6 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
-//	public String getObject(final long objectId)
-//	{
-//		final ViewerObjectDescription description = super.getStorageObject(objectId);
-//		return this.converter.convert(description);
-//	}
-//
-//	public String getObject(final long objectId, final long dataOffset, final long dataLength)
-//	{
-//		final ViewerObjectDescription description = super.getStorageObject(objectId);
-//		return this.converter.convert(description, dataOffset, dataLength);
-//	}
 
 	public String getObject(
 		final long objectId,
