@@ -72,7 +72,7 @@
 	<distributionManagement>
 		<repository>
 			<id>microstream-repo</id>
-			<url>https://repo.microstream.one/repository/maven-releases/</url>
+			<url>https://repo.microstream.one/repository/maven-prereleases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>microstream-repo</id>
