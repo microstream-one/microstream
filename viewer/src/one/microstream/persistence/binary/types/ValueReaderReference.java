@@ -18,7 +18,7 @@ public class ValueReaderReference implements ValueReader
 	@Override
 	public Object readValue(final Binary binary, final long address)
 	{
-		return new ViewerObjectReferenceWrapper(ViewerBinaryPrimitivesReader.readReference(binary, address));
+		return new ObjectReferenceWrapper(ViewerBinaryPrimitivesReader.readReference(binary, address));
 	}
 
 	@Override

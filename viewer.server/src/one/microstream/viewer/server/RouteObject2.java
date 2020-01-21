@@ -1,6 +1,6 @@
 package one.microstream.viewer.server;
 
-import one.microstream.viewer.SimpleObjectDescription;
+import one.microstream.viewer.ViewerObjectDescription;
 import one.microstream.viewer.StorageRestAdapter2;
 import spark.Request;
 import spark.Response;
@@ -34,7 +34,7 @@ public class RouteObject2 implements Route
 		final boolean resolveReverences = this.getBooleanParameter(request, "references", false);
 
 		final long objectId = this.validateObjectId(request);
-		final SimpleObjectDescription storageObject = this.storageRestAdapter.getObject(
+		final ViewerObjectDescription storageObject = this.storageRestAdapter.getObject(
 			objectId,
 			dataOffset,
 			dataLength,
