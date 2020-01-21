@@ -448,7 +448,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		protected void throwValidationException(final String instanceValue, final String persistedValue)
 		{
 			// (21.01.2020 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Invalid value change for field " + this.identifier()
 				+ ": instance value " + instanceValue
 				+ " != persisted value " + persistedValue

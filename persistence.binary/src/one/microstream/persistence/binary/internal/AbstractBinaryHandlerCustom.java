@@ -164,11 +164,7 @@ extends BinaryTypeHandler.Abstract<T>
 
 	private XImmutableEnum<? extends PersistenceTypeDefinitionMember> members;
 	
-	private final long binaryLengthMinimum;
-	private final long binaryLengthMaximum;
-	
-	// (06.01.2020 TM)FIXME: priv#88: why is this needed?
-	private Class<?> initializationInvokingClass;
+	private final long binaryLengthMinimum, binaryLengthMaximum;
 
 
 
