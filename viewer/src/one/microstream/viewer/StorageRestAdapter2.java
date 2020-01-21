@@ -46,7 +46,9 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 		{
 			description.resolveReferences(referenceOffset, referenceLength, this);
 		}
-		return this.converter.convert(description, dataOffset, dataLength);
+
+		final SimpleObjectDescription preprocessed = description.postProcess(dataOffset, dataLength);
+		return this.converter.convert(preprocessed);
 	}
 
 	public String getUserRoot()
@@ -58,7 +60,6 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 	@Override
 	public String getTypeDictionary()
 	{
-		final String typeDictionary = super.getTypeDictionary();
-		return typeDictionary;
+		return super.getTypeDictionary();		 
 	}
 }
