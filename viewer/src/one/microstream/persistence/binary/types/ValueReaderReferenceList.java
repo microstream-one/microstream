@@ -26,7 +26,7 @@ public class ValueReaderReferenceList extends ValueReaderVariableLength
 		final Object references[] = new Object[elementCount];
 		for(int i = 0; i < elementCount; i++)
 		{
-			references[i] = new ViewerObjectReferenceWrapper(ViewerBinaryPrimitivesReader.readReference(binary, listOffset));
+			references[i] = new ObjectReferenceWrapper(ViewerBinaryPrimitivesReader.readReference(binary, listOffset));
 			listOffset += Binary.objectIdByteLength();
 		}
 

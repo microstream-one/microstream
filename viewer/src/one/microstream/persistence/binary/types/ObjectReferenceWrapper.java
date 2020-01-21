@@ -2,7 +2,7 @@ package one.microstream.persistence.binary.types;
 
 import one.microstream.persistence.types.Persistence;
 
-public class ViewerObjectReferenceWrapper
+public class ObjectReferenceWrapper
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -15,7 +15,7 @@ public class ViewerObjectReferenceWrapper
 	// constructors //
 	/////////////////
 
-	public ViewerObjectReferenceWrapper(final long objectId)
+	public ObjectReferenceWrapper(final long objectId)
 	{
 		super();
 		this.setObjectId(objectId);

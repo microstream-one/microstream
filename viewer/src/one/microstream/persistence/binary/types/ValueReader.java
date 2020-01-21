@@ -136,7 +136,7 @@ public interface ValueReader
 			final Binary        binary      ,
 			final ValueReader[] valueReaders,
 			final long[]        valueOffsets,
-			final ViewerObjectDescription  objectDescription)
+			final ObjectDescription  objectDescription)
 	{
 		final Object[] objectValues = new Object[valueReaders.length];
 

@@ -5,14 +5,14 @@ import java.util.List;
 
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.viewer.EmbeddedStorageRestAdapter;
-import one.microstream.viewer.SimpleObjectDescription;
+import one.microstream.viewer.ViewerObjectDescription;
 
 /**
  * This class encapsulates the type definition and all field values retrieved
  * for an object received from the ViewerPersistenceManager.
  *
  */
-public class ViewerObjectDescription
+public class ObjectDescription
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -23,13 +23,13 @@ public class ViewerObjectDescription
 	private Object primitiveInstance;
 	private PersistenceTypeDefinition persistenceTypeDefinition;
 	private long length;
-	private ViewerObjectDescription[] references;
+	private ObjectDescription[] references;
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public ViewerObjectDescription()
+	public ObjectDescription()
 	{
 		super();
 	}
@@ -74,12 +74,12 @@ public class ViewerObjectDescription
 		this.length = variableSize;
 	}
 
-	public ViewerObjectDescription[] getReferences()
+	public ObjectDescription[] getReferences()
 	{
 		return this.references;
 	}
 
-	public void setReferences(final ViewerObjectDescription[] references)
+	public void setReferences(final ObjectDescription[] references)
 	{
 		this.references = references;
 	}
@@ -124,16 +124,16 @@ public class ViewerObjectDescription
 		int referenceIndex = 0;
 		int referenceCount = 0;
 
-		final List<ViewerObjectDescription> resolvedReferences = new ArrayList<>();
+		final List<ObjectDescription> resolvedReferences = new ArrayList<>();
 
 		for(int i = 0; i < this.values.length; i++)
 		{
-			if(this.values[i] instanceof ViewerObjectReferenceWrapper)
+			if(this.values[i] instanceof ObjectReferenceWrapper)
 			{
 				if(referenceIndex++ < referenceOffset) continue;
 				if(referenceCount++ >= referenceLength) break;
 
-				final long oid = ((ViewerObjectReferenceWrapper) this.values[i]).getObjectId();
+				final long oid = ((ObjectReferenceWrapper) this.values[i]).getObjectId();
 				if(oid > 0)
 				{
 					resolvedReferences.add(storageRestAdapter.getStorageObject(oid));
@@ -145,17 +145,17 @@ public class ViewerObjectDescription
 			}
 		}
 
-		this.references = resolvedReferences.toArray(new ViewerObjectDescription[0]);
+		this.references = resolvedReferences.toArray(new ObjectDescription[0]);
 	}
 
-	public SimpleObjectDescription postProcess(final long dataOffset, final long dataLength)
+	public ViewerObjectDescription postProcess(final long dataOffset, final long dataLength)
 	{
 		return this.postProcess(this, dataOffset, dataLength);
 	}
 
-	private SimpleObjectDescription postProcess(final ViewerObjectDescription description, final long dataOffset, final long dataLength)
+	private ViewerObjectDescription postProcess(final ObjectDescription description, final long dataOffset, final long dataLength)
 	{
-		final SimpleObjectDescription objDesc = new SimpleObjectDescription();
+		final ViewerObjectDescription objDesc = new ViewerObjectDescription();
 
 		this.setObjectHeader(description, objDesc);
 
@@ -172,7 +172,7 @@ public class ViewerObjectDescription
 		return objDesc;
 	}
 
-	private void setObjectHeader(final ViewerObjectDescription description, final SimpleObjectDescription objDesc)
+	private void setObjectHeader(final ObjectDescription description, final ViewerObjectDescription objDesc)
 	{
 		objDesc.setObjectId(Long.toString(description.getObjectId()));
 		objDesc.setTypeId(Long.toString(description.getPersistenceTypeDefinition().typeId()));
@@ -180,8 +180,8 @@ public class ViewerObjectDescription
 	}
 
 	private void setPrimitiveValue(
-		final ViewerObjectDescription description,
-		final SimpleObjectDescription objDesc,
+		final ObjectDescription description,
+		final ViewerObjectDescription objDesc,
 		final long dataOffset,
 		final long dataLength)
 	{
@@ -211,17 +211,17 @@ public class ViewerObjectDescription
 	}
 
 	private void setReferences(
-		final ViewerObjectDescription description,
-		final SimpleObjectDescription objDesc,
+		final ObjectDescription description,
+		final ViewerObjectDescription objDesc,
 		final long dataOffset,
 		final long dataLength)
 	{
-		final ViewerObjectDescription refs[] = description.getReferences();
+		final ObjectDescription refs[] = description.getReferences();
 		if(refs != null)
 		{
-			final List<SimpleObjectDescription> refList = new ArrayList<>(refs.length);
+			final List<ViewerObjectDescription> refList = new ArrayList<>(refs.length);
 
-			for (final ViewerObjectDescription desc : refs)
+			for (final ObjectDescription desc : refs)
 			{
 				if(desc != null)
 				{
@@ -233,7 +233,7 @@ public class ViewerObjectDescription
 				}
 			}
 
-			objDesc.setReferences(refList.toArray(new SimpleObjectDescription[0]));
+			objDesc.setReferences(refList.toArray(new ViewerObjectDescription[0]));
 		}
 	}
 
@@ -248,9 +248,9 @@ public class ViewerObjectDescription
 
 		for(int i = startIndex; i < endIndex; i++)
 		{
-			if(obj[i] instanceof ViewerObjectReferenceWrapper)
+			if(obj[i] instanceof ObjectReferenceWrapper)
 			{
-				dataArray[counter] = Long.toString(((ViewerObjectReferenceWrapper) obj[i]).getObjectId());
+				dataArray[counter] = Long.toString(((ObjectReferenceWrapper) obj[i]).getObjectId());
 			}
 			else if(obj[i].getClass().isArray())
 			{

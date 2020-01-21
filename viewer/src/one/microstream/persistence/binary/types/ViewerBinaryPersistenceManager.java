@@ -206,9 +206,9 @@ public class ViewerBinaryPersistenceManager implements PersistenceManager<Binary
 		return this.persistenceManager.getTargetByteOrder();
 	}
 
-	public ViewerObjectDescription getStorageObject(final long objectId)
+	public ObjectDescription getStorageObject(final long objectId)
 	{
-		return  (ViewerObjectDescription) this.createViewerLoader().getObject(objectId);
+		return  (ObjectDescription) this.createViewerLoader().getObject(objectId);
 	}
 
 	private PersistenceRetrieving createViewerLoader()
@@ -221,12 +221,12 @@ public class ViewerBinaryPersistenceManager implements PersistenceManager<Binary
 				this, this.persistenceManager);
 	}
 
-	public ViewerObjectDescription getStorageConstant(final long objectId)
+	public ObjectDescription getStorageConstant(final long objectId)
 	{
 		 final Object object = this.constantRegistry.lookupObject(objectId);
 		 final PersistenceTypeDefinition type = this.typeDictionary().lookupTypeByName(object.getClass().getTypeName());
 
-		 final ViewerObjectDescription objectDescription = new ViewerObjectDescription();
+		 final ObjectDescription objectDescription = new ObjectDescription();
 
 		 objectDescription.setPersistenceTypeDefinition(type);
 		 objectDescription.setObjectId(objectId);
