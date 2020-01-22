@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 MS-130\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 MS-130\par
 \par
 2019-04-17 \par
 \par
@@ -263,5 +264,44 @@ Ach, erst mal die WiP Handler Beispiele aufr\'e4umen. Endlich mal.\par
 \par
 Es muss noch eine M\'f6glichkeit geben, die BinaryFields direkt zu setzen. Das sind dann quasi gleich die Members f\'fcr die Superklasse.\par
 Aber dann muss daraus noch die Map per Namen hergeleitet werden. Mit Validierung, dass der Name nicht null ist, weil ja keine Initialisierung per Reflection mehr m\'f6glich ist.\par
+\par
+\par
+2020-01-22\par
+\par
+TODOs durchschauen und paar ausmisten.\par
+\par
+Ein neues machen f\'fcr unique identifier anstatt nur name.\par
+Bzw. das mach ich jetzt gleich: das initialize Zeug muss qualifier und name handeln. Qualifier ist dann der full qualified class name des handlers. Ist bissl komisch, aber ist so.\par
+Mal schauen, ob das sp\'e4ter beim TypeDictionary einlesen und LTM Probleme machen wird ...\par
+Aber erst mal einbauen.\par
+\par
+Jetzt den GenericType check noch implementieren.\par
+\par
+Hmpf. Da muss ich eine kleine Testklasse zum erforschen bauen.\par
+\par
+Ist nat\'fcrlich alles wieder ein bisschen kompliziert:\par
+Field#getGenericType gibt FAST immer ParameterizedType zur\'fcck. AUSSER der Typparameter wurde weggelassen, dann wird schwachsinnigerweise einfach der prim\'e4re Typ zur\'fcckgegeben.\par
+JDK Idiotie live und in Farbe.\par
+Also entsprechende Logik bauen.\par
+\par
+Au\'dferdem brauch ich noch eine XReflect#isActualClass(Class<?>), weil sie auch da wieder mal zu schwachsinnig bl\'f6d waren, eine gescheite Methode in Class reinzubauen.\par
+\par
+Jetzt noch #calculcateContentLength implementieren. Das w\'e4re dann das letzte TODO abgesehen von den Aufr\'e4um-Markern.\par
+\par
+Hm. Eigentlich muss es ja reichen, den offset des letzten felds minus den offset des ersten felds zu rechnen plus die bin\'e4rl\'e4nge des letzten felds.\par
+Das berechne ich gleich beim analysieren und speicher den Wert im Handler.\par
+Plus Sonderfall f\'fcr trailing variable length field.\par
+\par
+Dabei aufgefallen:\par
+Eigentlich ist es nicht richtig, einfach nur zu validieren, ob wenn \'fcberhaupt, nur das letzte Feld ein variable length feld ist.\par
+Denn was ist, wenn es zwar das letzte ist, aber dann leitet eine Klasse ab?\par
+Der entsprechende Handler daf\'fcr leitet auch ab, f\'fcgt nur fixed length felder hinzu, aber das variable length Feld ist nicht mehr das letzte.\par
+Und eigentlich spielt die exakte Deklarationsreihenfolge f\'fcr einen konkreten Typ ja keine Rolle. Der bekommt ja seine eigene, komplette TypeDescription.\par
+Ist ja nicht so, dass die polymorpherweise alle Subtypen das gleiche Feldlayout haben m\'fcssen.\par
+Besser w\'e4re:\par
+Die Validierung stellt sicher, dass es h\'f6chstens ein variable length Feld gibt und DAS wird dann ans Ende der Collection geschoben.\par
+Das mach ich jetzt gleich mit, weil wenn nicht, gibt es in der Zukunft garantiert mal einen Supportfall daf\'fcr und dann dauert es l\'e4nger, als wenn ich jetzt schnell noch eine stunde oder so investier...\par
+\par
+Achja, eine BinaryField#calculateBinaryLength brauch ich auch noch. Implementieren. F\'fcr jeden der 9 Basistypen als Methode mit konstantem Wert.\par
 }
  

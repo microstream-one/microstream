@@ -775,6 +775,7 @@ public abstract class Binary implements Chunk
 	 * 
 	 * @param listOffset the binary offset at which the binary list (actually: its header) starts
 	 * @param reader the reader logic to be used by the iteration.
+	 * 
 	 * @return the element count that has been iterated.
 	 */
 	public final long iterateListStructureElements(
@@ -782,8 +783,14 @@ public abstract class Binary implements Chunk
 		final BinaryElementReader reader
 	)
 	{
+		final long listElementCount = this.getBinaryListElementCountUnvalidating(listOffset);
+		if(listElementCount == 0)
+		{
+			// required to prevent divide-by-0 error.
+			return 0;
+		}
+		
 		final long listTotalByteLength = this.getBinaryListTotalByteLength(listOffset);
-		final long listElementCount    = this.getBinaryListElementCountUnvalidating(listOffset);
 		final long listContentLength   = toBinaryListContentByteLength(listTotalByteLength);
 		final long bytesPerElement     = listContentLength / listElementCount;
 		if(bytesPerElement * listElementCount != listContentLength)
