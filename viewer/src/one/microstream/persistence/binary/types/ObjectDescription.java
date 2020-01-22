@@ -192,22 +192,11 @@ public class ObjectDescription
 
 	private String limitsPrimitiveType(final String data, final long dataOffset, final long dataLength)
 	{
-		int offset = 0;
-		int length = 0;
+		final int startIndex = (int) Math.min(dataOffset, data.length());
+		final int realLength = (int) Math.max(Math.min(data.length() - startIndex, dataLength), 0);
+		final int endIndex = startIndex + realLength;
 
-		//dataOffset may not exceed object length
-		if(dataOffset > data.length()) offset = data.length();
-		else offset = (int) dataOffset;
-
-		//dataLength may not exceed object length
-		if(dataLength > data.length()) length = data.length();
-		else length = (int) dataLength;
-
-		//length + offset may not exceed object length
-		long end = offset + length;
-		if(end  > data.length()) end = data.length();
-
-		return data.substring(offset, (int) end);
+		return data.substring(startIndex, endIndex);
 	}
 
 	private void setReferences(
