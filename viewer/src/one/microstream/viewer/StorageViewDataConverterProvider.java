@@ -17,7 +17,9 @@ public class StorageViewDataConverterProvider
 
 	public StorageViewDataConverterProvider()
 	{
-		this.converter.add("application/json", new StorageViewDataConverterJson());
+		final StorageViewDataConverterJson jsonConverter = new StorageViewDataConverterJson();
+		this.converter.add("application/json", jsonConverter);
+		this.converter.add("json", jsonConverter);
 	}
 
 
