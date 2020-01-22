@@ -6,6 +6,8 @@ import com.google.gson.LongSerializationPolicy;
 
 public class StorageViewDataConverterJson implements StorageViewDataConverter
 {
+	private static final String HTML_RESPONCE_CONTENT_TYPE = "application/json";
+
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
@@ -38,6 +40,13 @@ public class StorageViewDataConverterJson implements StorageViewDataConverter
 	public String convert(final ViewerObjectDescription preprocessed)
 	{
 		return this.gson.toJson(preprocessed);
+	}
+
+
+	@Override
+	public String getHtmlResponseContentType()
+	{
+		return HTML_RESPONCE_CONTENT_TYPE;
 	}
 }
 

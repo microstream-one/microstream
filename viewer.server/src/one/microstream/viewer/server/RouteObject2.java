@@ -1,7 +1,8 @@
 package one.microstream.viewer.server;
 
-import one.microstream.viewer.ViewerObjectDescription;
 import one.microstream.viewer.StorageRestAdapter2;
+import one.microstream.viewer.StorageViewDataConverter;
+import one.microstream.viewer.ViewerObjectDescription;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -32,6 +33,7 @@ public class RouteObject2 implements Route
 		final long referenceOffset = this.getLongParameter(request, "referenceOffset", 0);
 		final long referenceLength = this.getLongParameter(request, "referenceLength", Long.MAX_VALUE);
 		final boolean resolveReverences = this.getBooleanParameter(request, "references", false);
+		final String requestFormat = this.getStringParameter(request, "format");
 
 		final long objectId = this.validateObjectId(request);
 		final ViewerObjectDescription storageObject = this.storageRestAdapter.getObject(
@@ -42,9 +44,33 @@ public class RouteObject2 implements Route
 			referenceOffset,
 			referenceLength);
 
-		response.type("application/json");
+		if(requestFormat != null)
+		{
+			final StorageViewDataConverter converter = this.storageRestAdapter.getConverter(requestFormat);
+			if(converter != null)
+			{
+				final String responseContentType = converter.getHtmlResponseContentType();
 
+				if(responseContentType != null)
+				{
+					response.type(responseContentType);
+				}
+
+				return converter.convert(storageObject);
+			}
+			else
+			{
+				throw new InvalidRouteParameters("format invalid");
+			}
+		}
+
+		response.type("application/json");
 		return this.storageRestAdapter.getConverter("application/json").convert(storageObject);
+	}
+
+	private String getStringParameter(final Request request, final String name)
+	{
+		return request.queryParams(name);
 	}
 
 	private long validateObjectId(final Request request)
