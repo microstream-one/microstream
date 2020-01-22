@@ -4,7 +4,7 @@ import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.persistence.binary.types.ObjectDescription;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
-public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
+public class StorageRestAdapter extends EmbeddedStorageRestAdapter
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -16,7 +16,7 @@ public class StorageRestAdapter2 extends EmbeddedStorageRestAdapter
 	// constructors //
 	/////////////////
 
-	public StorageRestAdapter2(final EmbeddedStorageManager storage)
+	public StorageRestAdapter(final EmbeddedStorageManager storage)
 	{
 		super(storage);
 		this.converterProvider = new StorageViewDataConverterProvider();

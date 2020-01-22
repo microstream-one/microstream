@@ -1,6 +1,6 @@
 package one.microstream.viewer.server;
 
-import one.microstream.viewer.StorageRestAdapter2;
+import one.microstream.viewer.StorageRestAdapter;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -11,13 +11,13 @@ public class RouteTypeDictionary implements Route {
 	// instance fields //
 	////////////////////
 
-	private final StorageRestAdapter2 storageRestAdapter;
+	private final StorageRestAdapter storageRestAdapter;
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public RouteTypeDictionary(final StorageRestAdapter2 embeddedStorageRestAdapter)
+	public RouteTypeDictionary(final StorageRestAdapter embeddedStorageRestAdapter)
 	{
 		this.storageRestAdapter = embeddedStorageRestAdapter;
 	}

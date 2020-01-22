@@ -1,18 +1,18 @@
 package one.microstream.viewer.server;
 
-import one.microstream.viewer.StorageRestAdapter2;
+import one.microstream.viewer.StorageRestAdapter;
 import one.microstream.viewer.ViewerObjectDescription;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class RouteObject2 extends AbstractRoute implements Route
+public class RouteGetObject extends AbstractRoute implements Route
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public RouteObject2(final StorageRestAdapter2 embeddedStorageRestAdapter)
+	public RouteGetObject(final StorageRestAdapter embeddedStorageRestAdapter)
 	{
 		super(embeddedStorageRestAdapter);
 	}
