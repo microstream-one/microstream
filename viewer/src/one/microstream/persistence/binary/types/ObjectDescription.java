@@ -239,7 +239,7 @@ public class ObjectDescription
 
 	private Object[] simplifyObjectArray(final Object[] obj, final long dataOffset, final long dataLength)
 	{
-		final int startIndex = (int) dataOffset;
+		final int startIndex = (int) Math.min(dataOffset, obj.length);
 		final int realLength = (int) Math.max(Math.min(obj.length - startIndex, dataLength), 0);
 		final int endIndex = startIndex + realLength;
 
