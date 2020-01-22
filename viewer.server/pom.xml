@@ -3,7 +3,7 @@
   <parent>
     <groupId>one.microstream</groupId>
     <artifactId>microstream</artifactId>
-    <version>02.01.01-MS-GA-SNAPSHOT</version>
+    <version>02.02.01-MS-GA-SNAPSHOT</version>
   </parent>
   <artifactId>viewer.server</artifactId>
   
@@ -11,7 +11,7 @@
   		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>viewer</artifactId>
-			<version>02.01.01-MS-GA-SNAPSHOT</version>
+			<version>02.02.01-MS-GA-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
