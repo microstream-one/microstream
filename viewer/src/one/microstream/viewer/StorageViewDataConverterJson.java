@@ -31,15 +31,9 @@ public class StorageViewDataConverterJson implements StorageViewDataConverter
 	////////////
 
 	@Override
-	public String convert(final ViewerRootDescription root)
+	public String convert(final Object object)
 	{
-		return this.gson.toJson(root);
-	}
-
-	@Override
-	public String convert(final ViewerObjectDescription preprocessed)
-	{
-		return this.gson.toJson(preprocessed);
+		return this.gson.toJson(object);
 	}
 
 
