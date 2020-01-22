@@ -6,22 +6,15 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class RouteUserRoot2 implements Route
+public class RouteUserRoot2 extends AbstractRoute implements Route
 {
-	///////////////////////////////////////////////////////////////////////////
-	// instance fields //
-	////////////////////
-
-	private final StorageRestAdapter2 storageRestAdapter;
-
-
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
 	public RouteUserRoot2(final StorageRestAdapter2 embeddedStorageRestAdapter)
 	{
-		this.storageRestAdapter = embeddedStorageRestAdapter;
+		super(embeddedStorageRestAdapter);
 	}
 
 
@@ -32,11 +25,10 @@ public class RouteUserRoot2 implements Route
 	@Override
 	public String handle(final Request request, final Response response)
 	{
+		final String requestedFormat = this.getStringParameter(request, "format");
 		final ViewerRootDescription rootDescription = this.storageRestAdapter.getUserRoot();
 
-		response.type("application/json");
-
-		return this.storageRestAdapter.getConverter("application/json").convert(rootDescription);
+		return this.toRequestedFormat(rootDescription, requestedFormat, response);
 	}
 
 }
