@@ -2,12 +2,12 @@ package one.microstream.viewer.server;
 
 import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.storage.types.EmbeddedStorageManager;
-import one.microstream.viewer.StorageRestAdapter2;
+import one.microstream.viewer.StorageRestAdapter;
 import spark.RouteImpl;
 import spark.Service;
 import spark.route.HttpMethod;
 
-public class EmbeddedStorageViewer2
+public class StorageViewer
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants  //
@@ -20,7 +20,7 @@ public class EmbeddedStorageViewer2
 	////////////////////
 
 	private final Service sparkService;
-	private final StorageRestAdapter2 embeddedStorageRestAdapter;
+	private final StorageRestAdapter embeddedStorageRestAdapter;
 	private final String storageName;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ public class EmbeddedStorageViewer2
 	/*
 	 * Construct with default spark service instance
 	 */
-	public EmbeddedStorageViewer2(final EmbeddedStorageManager storage)
+	public StorageViewer(final EmbeddedStorageManager storage)
 	{
 		this(storage, Service.ignite(), DEFAULT_STORAGE_NAME);
 	}
@@ -38,7 +38,7 @@ public class EmbeddedStorageViewer2
 	/*
 	 * Construct with custom spark Service instance
 	 */
-	public EmbeddedStorageViewer2(final EmbeddedStorageManager storage, final Service sparkService)
+	public StorageViewer(final EmbeddedStorageManager storage, final Service sparkService)
 	{
 		this(storage, sparkService, DEFAULT_STORAGE_NAME);
 	}
@@ -46,7 +46,7 @@ public class EmbeddedStorageViewer2
 	/*
 	 * Construct with custom storageName and default spark service
 	 */
-	public EmbeddedStorageViewer2(final EmbeddedStorageManager storage, final String storageName)
+	public StorageViewer(final EmbeddedStorageManager storage, final String storageName)
 	{
 		this(storage, Service.ignite(), storageName);
 	}
@@ -54,12 +54,12 @@ public class EmbeddedStorageViewer2
 	/*
 	 * Construct with custom spark service instance and storage name
 	 */
-	public EmbeddedStorageViewer2(final EmbeddedStorageManager storage, final Service sparkService, final String storageName)
+	public StorageViewer(final EmbeddedStorageManager storage, final Service sparkService, final String storageName)
 	{
 		super();
 		this.storageName = storageName;
 		this.sparkService = sparkService;
-		this.embeddedStorageRestAdapter = new StorageRestAdapter2(storage);
+		this.embeddedStorageRestAdapter = new StorageRestAdapter(storage);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -69,13 +69,13 @@ public class EmbeddedStorageViewer2
 	/*
 	 * Start the spark service if not already done
 	 */
-	public EmbeddedStorageViewer2 start()
+	public StorageViewer start()
 	{
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/object/:oid",
-			new RouteObject2(this.embeddedStorageRestAdapter)));
+			new RouteGetObject(this.embeddedStorageRestAdapter)));
 
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/root",
-			new RouteUserRoot2(this.embeddedStorageRestAdapter)));
+			new RouteGetRoot(this.embeddedStorageRestAdapter)));
 
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/dictionary",
 			new RouteTypeDictionary(this.embeddedStorageRestAdapter)));

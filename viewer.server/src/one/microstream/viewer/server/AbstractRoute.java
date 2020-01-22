@@ -1,6 +1,6 @@
 package one.microstream.viewer.server;
 
-import one.microstream.viewer.StorageRestAdapter2;
+import one.microstream.viewer.StorageRestAdapter;
 import one.microstream.viewer.StorageViewDataConverter;
 import spark.Request;
 import spark.Response;
@@ -11,14 +11,14 @@ public class AbstractRoute
 	// instance fields //
 	////////////////////
 
-	protected final StorageRestAdapter2 storageRestAdapter;
+	protected final StorageRestAdapter storageRestAdapter;
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public AbstractRoute(final StorageRestAdapter2 embeddedStorageRestAdapter)
+	public AbstractRoute(final StorageRestAdapter embeddedStorageRestAdapter)
 	{
 		super();
 		this.storageRestAdapter = embeddedStorageRestAdapter;
