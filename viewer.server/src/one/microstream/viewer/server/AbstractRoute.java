@@ -46,7 +46,7 @@ public class AbstractRoute
 			}
 			else
 			{
-				throw new InvalidRouteParameters("format invalid");
+				throw new InvalidRouteParametersException("format invalid");
 			}
 		}
 
@@ -61,7 +61,7 @@ public class AbstractRoute
 		}
 		catch(final NumberFormatException e )
 		{
-			throw new InvalidRouteParameters("ObjectId invalid");
+			throw new InvalidRouteParametersException("ObjectId invalid");
 		}
 	}
 
@@ -78,7 +78,7 @@ public class AbstractRoute
 		}
 		else
 		{
-			throw new InvalidRouteParameters("invalid url parameter " + name);
+			throw new InvalidRouteParametersException("invalid url parameter " + name);
 		}
 
 	}
@@ -97,7 +97,7 @@ public class AbstractRoute
 		}
 		catch(final NumberFormatException e)
 		{
-			throw new InvalidRouteParameters("invalid url parameter " + name);
+			throw new InvalidRouteParametersException("invalid url parameter " + name);
 		}
 	}
 
