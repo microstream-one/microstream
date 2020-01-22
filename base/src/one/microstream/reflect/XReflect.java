@@ -212,6 +212,23 @@ public final class XReflect
 		return false;
 	}
 	
+	/*
+	 * Welcome to a method checking if a "Class" is a class. Because they couldn't manage to
+	 * name the type generally representing types "Type" but named it "Class" instead, so that in Java Reflection,
+	 * classes are "Class", interfaces are "Class" and primitives are "Class", too.
+	 * Geniuses.
+	 * Might wanna understand what a type is before designing a type system, but that may just be my arrogance.
+	 */
+	public static final boolean isActualClass(final Class<?> type)
+	{
+		return !type.isInterface()
+			&& !type.isPrimitive()
+			&& !type.isAnnotation()
+			&& !type.isArray()
+			&& !type.isSynthetic()
+		;
+	}
+	
 	/**
 	 * Utility method fixing the WRONGLY implemented {@link Class#isEnum()}.
 	 * <p>

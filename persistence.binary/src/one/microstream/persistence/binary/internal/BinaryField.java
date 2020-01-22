@@ -44,7 +44,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	@Override
 	public default BinaryField<T> copyForName(final String name)
 	{
-		return this.copyForName(null, name);
+		return this.copyForName(this.qualifier(), name);
 	}
 	
 	@Override
@@ -75,6 +75,8 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// no-op in default implementation
 		return loader;
 	}
+	
+	public long calculateBinaryLength(T instance);
 	
 	
 	// (06.01.2020 TM)FIXME: priv#88: remove if really not needed
@@ -177,9 +179,9 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	{
 		public long initializeOffset(long offset);
 		
-		public String initializeName(String name);
+		public String initializeIdentifier(String qualifier, String name);
 		
-		public default String initializeNameOptional(final String name)
+		public default String initializeIdentifierOptional(final String qualifier, final String name)
 		{
 			final String currentName = this.name();
 			if(currentName != null)
@@ -187,7 +189,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 				return currentName;
 			}
 			
-			return this.initializeName(name);
+			return this.initializeIdentifier(qualifier, name);
 		}
 	}
 	
@@ -260,6 +262,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		
 		static PersistenceTypeDefinitionMemberFieldGeneric defineField(final Class<?> type)
 		{
+			// note: field name may not be null, hence the "uninitialized" dummy.
 			final PersistenceTypeDefinitionMemberFieldGeneric field =
 				AbstractBinaryHandlerCustom.CustomField(type, Defaults.defaultUninitializedName())
 			;
@@ -268,13 +271,14 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
 		private PersistenceTypeDefinitionMemberFieldGeneric actual;
 		private long offset;
-		
+				
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -327,7 +331,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final String initializeName(final String name)
+		public final String initializeIdentifier(final String qualifier, final String name)
 		{
 			final String currentName = this.actual.name();
 			if(!currentName.equals(Defaults.defaultUninitializedName()))
@@ -354,7 +358,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 
 		@Override
-		public String typeName()
+		public final String typeName()
 		{
 			return this.actual.typeName();
 		}
@@ -378,67 +382,67 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 
 		@Override
-		public void assembleTypeDescription(final PersistenceTypeDescriptionMemberAppender assembler)
+		public final void assembleTypeDescription(final PersistenceTypeDescriptionMemberAppender assembler)
 		{
 			this.actual.assembleTypeDescription(assembler);
 		}
 
 		@Override
-		public boolean isReference()
+		public final boolean isReference()
 		{
 			return this.actual.isReference();
 		}
 
 		@Override
-		public boolean isPrimitive()
+		public final boolean isPrimitive()
 		{
 			return this.actual.isPrimitive();
 		}
 
 		@Override
-		public boolean isPrimitiveDefinition()
+		public final boolean isPrimitiveDefinition()
 		{
 			return this.actual.isPrimitiveDefinition();
 		}
 		
 		@Override
-		public boolean isEnumConstant()
+		public final boolean isEnumConstant()
 		{
 			return this.actual.isEnumConstant();
 		}
 
 		@Override
-		public boolean hasReferences()
+		public final boolean hasReferences()
 		{
 			return this.actual.hasReferences();
 		}
 
 		@Override
-		public long persistentMinimumLength()
+		public final long persistentMinimumLength()
 		{
 			return this.actual.persistentMinimumLength();
 		}
 
 		@Override
-		public long persistentMaximumLength()
+		public final long persistentMaximumLength()
 		{
 			return this.actual.persistentMaximumLength();
 		}
 
 		@Override
-		public boolean isValidPersistentLength(final long persistentLength)
+		public final boolean isValidPersistentLength(final long persistentLength)
 		{
 			return this.actual.isValidPersistentLength(persistentLength);
 		}
 
 		@Override
-		public void validatePersistentLength(final long persistentLength)
+		public final void validatePersistentLength(final long persistentLength)
 		{
 			this.actual.validatePersistentLength(persistentLength);
 		}
 
 		@Override
-		public PersistenceTypeDefinitionMember createDefinitionMember(
+		public final PersistenceTypeDefinitionMember createDefinitionMember(
 			final PersistenceTypeDefinitionMemberCreator creator
 		)
 		{
@@ -497,6 +501,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final long calculateBinaryLength(final T instance)
+		{
+			return Byte.BYTES;
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
@@ -591,6 +601,13 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
+		public final long calculateBinaryLength(final T instance)
+		{
+			// because it was unaccomplishable hard for them to implement Boolean#BYTES
+			return Byte.BYTES;
+		}
+		
+		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
 			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
@@ -681,6 +698,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final long calculateBinaryLength(final T instance)
+		{
+			return Short.BYTES;
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
@@ -775,6 +798,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
+		public final long calculateBinaryLength(final T instance)
+		{
+			return Character.BYTES;
+		}
+		
+		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
 			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
@@ -865,6 +894,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final long calculateBinaryLength(final T instance)
+		{
+			return Integer.BYTES;
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
@@ -959,6 +994,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
+		public final long calculateBinaryLength(final T instance)
+		{
+			return Float.BYTES;
+		}
+		
+		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
 			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
@@ -1051,6 +1092,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		////////////
 		
 		@Override
+		public final long calculateBinaryLength(final T instance)
+		{
+			return Long.BYTES;
+		}
+		
+		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
 		{
 			final PersistenceTypeDefinitionMemberFieldGeneric memberCopy = this.actual().copyForName(qualifier, name);
@@ -1141,6 +1188,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final long calculateBinaryLength(final T instance)
+		{
+			return Double.BYTES;
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)
@@ -1237,6 +1290,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final long calculateBinaryLength(final T instance)
+		{
+			return Binary.objectIdByteLength();
+		}
 		
 		@Override
 		public final BinaryField<T> copyForName(final String qualifier, final String name)

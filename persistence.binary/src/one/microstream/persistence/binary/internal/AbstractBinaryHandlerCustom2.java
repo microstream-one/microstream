@@ -4,6 +4,7 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -42,6 +43,7 @@ import one.microstream.reflect.Setter_float;
 import one.microstream.reflect.Setter_int;
 import one.microstream.reflect.Setter_long;
 import one.microstream.reflect.Setter_short;
+import one.microstream.reflect.XReflect;
 
 
 public abstract class AbstractBinaryHandlerCustom2<T>
@@ -152,6 +154,8 @@ extends AbstractBinaryHandlerCustom<T>
 		);
 	}
 	
+	// (22.01.2020 TM)TODO: priv#88: support variable length fields
+	
 	protected static <T> EqConstHashTable<String, ? extends BinaryField<T>> mapBinaryFields(
 		final XGettingSequence<? extends BinaryField<T>> binaryFields
 	)
@@ -198,18 +202,21 @@ extends AbstractBinaryHandlerCustom<T>
 	
 	// must be deferred-initialized since all fields have to be collected in a generic way
 	private EqConstHashTable<String, ? extends BinaryField<T>> binaryFields;
-	// (21.01.2020 TM)FIXME: priv#88: must have an optional constructor or setter to set this field for generic construction
 	
 	// having no setting members effectively means the type is an immutable value type
 	private boolean hasSettingMembers;
-	
 	private boolean hasPersistedReferences;
-	private boolean hasVaryingPersistedLengthInstances;
 
 	private BinaryField<T>[] storingFields      ;
 	private BinaryField<T>[] allReferenceFields ;
 	private BinaryField<T>[] settingRefrncFields;
 	private BinaryField<T>[] settingNonRefFields;
+	
+	// may be null if no such field is present
+	private BinaryField<T> trailingVariableLengthField;
+	
+	// all but trailing variable length field, if present.
+	private int fixedLengthBinaryContent;
 	
 
 
@@ -274,24 +281,6 @@ extends AbstractBinaryHandlerCustom<T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
-	// (21.01.2020 TM)FIXME: priv#88: remove if not needed
-//	public void setBinaryFields(final XGettingTable<String, BinaryField.Initializable<T>> binaryFields)
-//	{
-//		if(this.binaryFields != null)
-//		{
-//			if(this.binaryFields == binaryFields)
-//			{
-//				// no-op, abort.
-//				return;
-//			}
-//
-//			// (21.01.2020 TM)EXCP: proper exception
-//			throw new PersistenceException(BinaryField.class.getSimpleName()+"s have already been assigned.");
-//		}
-//
-//		this.binaryFields = binaryFields;
-//	}
 
 	@Override
 	public final boolean hasPersistedReferences()
@@ -306,7 +295,7 @@ extends AbstractBinaryHandlerCustom<T>
 	{
 		this.ensureInitializeInstanceMembers();
 		
-		return this.hasVaryingPersistedLengthInstances;
+		return this.trailingVariableLengthField != null;
 	}
 		
 	@Override
@@ -320,8 +309,12 @@ extends AbstractBinaryHandlerCustom<T>
 	
 	private long calculcateContentLength(final T instance)
 	{
-		// (20.01.2020 TM)FIXME: priv#88: AbstractBinaryHandlerCustom2#calculcateContentLength()
-		throw new one.microstream.meta.NotImplementedYetError();
+		if(this.trailingVariableLengthField != null)
+		{
+			return this.fixedLengthBinaryContent + this.trailingVariableLengthField.calculateBinaryLength(instance);
+		}
+		
+		return this.fixedLengthBinaryContent;
 	}
 	
 	@Override
@@ -450,22 +443,19 @@ extends AbstractBinaryHandlerCustom<T>
 		this.collectBinaryFields(binaryFieldsPerClass);
 
 		final EqHashTable<String, BinaryField.Initializable<T>> binaryFieldsInOrder = EqHashTable.New();
-		this.defineBinaryFieldOrder(binaryFieldsPerClass, (name, field) ->
+		this.defineBinaryFieldOrder(binaryFieldsPerClass, (identifier, field) ->
 		{
-			/* (17.04.2019 TM)FIXME: priv#88: name must be unique.
-			 * Also see about PersistenceTypeDefinitionMember in BinaryField.
-			 */
-			if(!binaryFieldsInOrder.add(name, field))
+			if(!binaryFieldsInOrder.add(identifier, field))
 			{
 				// (04.04.2019 TM)EXCP: proper exception
 				throw new PersistenceException(
-					BinaryField.class.getSimpleName() + " with the name \"" + name + "\" is already registered."
+					BinaryField.class.getSimpleName()
+					+ " with the unique identifier \"" + identifier + "\" is already registered."
 				);
 			}
 		});
 		
 		this.initializeBinaryFields(binaryFieldsInOrder);
-		// (18.04.2019 TM)FIXME: priv#88: assign to members field here or somewhere appropriate.
 		
 		this.binaryFields = binaryFieldsInOrder.immure();
 		
@@ -478,26 +468,50 @@ extends AbstractBinaryHandlerCustom<T>
 	{
 		for(Class<?> c = this.getClass(); c != AbstractBinaryHandlerCustom2.class; c = c.getSuperclass())
 		{
-			/*
-			 * This construction is necessary to maintain the collection order even if a class
-			 * overrides the collecting logic
-			 */
+			// This construction is necessary to maintain the order even if a class overrides the collecting logic.
 			final BulkList<BinaryField.Initializable<T>> binaryFieldsOfClass = BulkList.New();
 			this.collectDeclaredBinaryFields(c, binaryFieldsOfClass);
 
-			// already existing entries (added by an extending class in an override of this method) are allowed
+			// Already existing entries (added by an extending class in an override of this method) are allowed.
 			binaryFieldsPerClass.add(c, binaryFieldsOfClass);
 		}
 	}
 	
 	protected void validateBinaryFieldGenericType(final Field binaryFieldField)
 	{
+		// the cast is safe for BinaryField<T> since it is parameterized.
 		final Type genericType = binaryFieldField.getGenericType();
-		
-		if(genericType == this.type())
+		if(!(genericType instanceof ParameterizedType))
 		{
-			// (21.01.2020 TM)FIXME: priv#88: finish implementation
+			// omitted type parameter causes #getGenericType to return the primary type instead (which is idiotic).
+			return;
 		}
+		
+		final ParameterizedType parameterizedType = (ParameterizedType)genericType;
+		
+		// hardcoded array index is safe for BinaryField<T> since it has exactely one type parameter.
+		final Type typeParameter = parameterizedType.getActualTypeArguments()[0];
+		
+		if(!(typeParameter instanceof Class))
+		{
+			// complex type parameters (WildCard etc.) are not analyzed (for now).
+			return;
+		}
+		
+		final Class<?> typeParameterClass = (Class<?>)typeParameter;
+		if(XReflect.isActualClass(typeParameterClass) && typeParameterClass.isAssignableFrom(this.type()))
+		{
+			// same or field-layout-wise compatible class
+			return;
+		}
+
+		// (22.01.2020 TM)EXCP: proper exception
+		throw new PersistenceException(
+			BinaryField.class.getSimpleName()
+			+ " type parameter \"" + typeParameterClass + "\""
+			+ " of field \"" + binaryFieldField + "\""
+			+ " is not compatible with this type handler's handled type \"" + this.type() + "\""
+		);
 	}
 
 	protected void collectDeclaredBinaryFields(
@@ -515,8 +529,6 @@ extends AbstractBinaryHandlerCustom<T>
 			{
 				field.setAccessible(true);
 				
-				// (20.01.2020 TM)FIXME: priv#88: test if field's getGenericType() is correct
-				
 				@SuppressWarnings("unchecked")
 				final BinaryField<?> binaryField = (BinaryField<T>)field.get(this);
 				if(!(binaryField instanceof BinaryField.Initializable))
@@ -524,9 +536,13 @@ extends AbstractBinaryHandlerCustom<T>
 					continue;
 				}
 				
+				this.validateBinaryFieldGenericType(field);
+				
 				@SuppressWarnings("unchecked")
 				final BinaryField.Initializable<T> initializable = (BinaryField.Initializable<T>)binaryField;
-				initializable.initializeName(field.getName());
+				
+				// the whole identifier must be initialized to ensure uniqueness.
+				initializable.initializeIdentifierOptional(clazz.getName(), field.getName());
 				target.add(initializable);
 			}
 			catch(final Exception e)
@@ -551,7 +567,7 @@ extends AbstractBinaryHandlerCustom<T>
 		{
 			for(final BinaryField.Initializable<T> binaryField : binaryFieldsOfClass)
 			{
-				collector.accept(binaryField.name(), binaryField);
+				collector.accept(binaryField.identifier(), binaryField);
 			}
 		}
 	}
@@ -564,10 +580,15 @@ extends AbstractBinaryHandlerCustom<T>
 		final BulkList<BinaryField<T>> settingNonRefFields = BulkList.New();
 		final BulkList<BinaryField<T>> settingRefrncFields = BulkList.New();
 		
+		// (22.01.2020 TM)FIXME: priv#88: validate for single variable length field, move to end, check for it here.
+		final BinaryField<T> trailingVariableLengthField;
+		// #validateVariableLengthLayout already ensured that only the last field can have variable length
+		this.hasVaryingPersistedLengthInstances = !binaryFields.values().isEmpty()
+			&& binaryFields.values().peek().isVariableLength()
+		;
+		
 		boolean hasSettingMembers = false;
-		
-		// (14.01.2020 TM)FIXME: priv#88: hasInstanceReferences. See task in PersistenceTypeHandler.
-		
+				
 		long offset = 0;
 		for(final BinaryField.Initializable<T> binaryField : binaryFields.values())
 		{
@@ -602,23 +623,18 @@ extends AbstractBinaryHandlerCustom<T>
 			}
 		}
 		/* note:
-		 * A variable length field sets the local offset variable to end up in an invalid state, but that is never read.
+		 * A variable length field sets the local offset variable to an invalid state, but that is never read.
 		 */
-		
-		// #validateVariableLengthLayout already ensured that only the last field can have variable length
-		this.hasVaryingPersistedLengthInstances = !binaryFields.values().isEmpty()
-			&& binaryFields.values().peek().isVariableLength()
-		;
-		
-		this.hasPersistedReferences = !allReferenceFields.isEmpty();
-		this.hasSettingMembers      = hasSettingMembers;
+
+		this.trailingVariableLengthField = trailingVariableLengthField;
+		this.hasPersistedReferences      = !allReferenceFields.isEmpty();
+		this.hasSettingMembers           = hasSettingMembers;
 		
 		this.storingFields       = storingFields      .toArray(this.binaryFieldClass());
 		this.allReferenceFields  = allReferenceFields .toArray(this.binaryFieldClass());
 		this.settingRefrncFields = settingRefrncFields.toArray(this.binaryFieldClass());
 		this.settingNonRefFields = settingNonRefFields.toArray(this.binaryFieldClass());
 	}
-	
 	
 	@SuppressWarnings({"unchecked",  "rawtypes"})
 	private Class<BinaryField<T>> binaryFieldClass()
