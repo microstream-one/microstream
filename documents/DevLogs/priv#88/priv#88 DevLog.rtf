@@ -310,5 +310,22 @@ Achja, eine BinaryField#calculateBinaryLength brauch ich auch noch. Implementier
 Ups, bissl zu sp\'e4t dran. Das sollte eigentlich noch vor Mitternacht sein ...\par
 \par
 Also jetzt die Variable Length Analyse verbessern.\par
+\par
+Und dann die fixedContentLength Berechnung noch einbauen.\par
+Fertig.\par
+\par
+Damit w\'e4ren es nur noch 2 TODOs:\par
+Variable length Felder unterst\'fctzen (das fehlt n\'e4mlich erst mal noch) und die store~ Methoden wegmachen, falls sie nicht gebraucht werden.\par
+Hm. Mal durchdenken: Macht es Sinn, die zu unterst\'fctzen?\par
+Wann will/muss man f\'fcr eine Instanz einen Wert persistieren, den man nicht \'fcber einen Getter mit beliebiger Transformationslogik aus der Instanz holen kann?\par
+Da f\'e4llt mir eigentlich nur eine komplexe Logik \'fcber mehrere Felder ein (z.B. Array zusammensammeln oder so), die man erst ausf\'fchren und dann Ergebnisse daraus nachgelagert als ein oder mehrere Werte persistieren will.\par
+Hm. Aber was liefert der (immer pflichtm\'e4\'dfig vorhandene) Getter dann f\'fcr so ein Feld zur\'fcck? Einen Dummywert, der nachtr\'e4glich \'fcberschrieben wird?\par
+Aber z.B. validateState benutzt den Getter ja auch ...\par
+Das wird dann schon wieder alles recht haarig...\par
+Und eigentlich sollte es so eine Felder\'fcbergreifende Logik gar nicht geben. Ein variable Length Feld, das relativ viel Logik treiben muss, bis der Wert gesetzt ist, ist okay. Aber warum sollte diese Logik dann noch ein anderes Feld setzen m\'fcssen?\par
+So Sachen wie Capacity einer Collection zus\'e4tzlich zu der Size sollten trivial feststellbar sein, daf\'fcr braucht man keine \'fcbergreifende komplexe Logik...\par
+Also ich l\'f6sch die store~ stubs jetzt mal raus. Falls man sie doch wieder braucht, sind sie ja generisch in ein paar Minuten wieder gebaut.\par
+\par
+So. Dann brauch ich morgen ("heute") noch so eine Util-Methode, um einen Handler generisch zu definineren, dann ist das Zeug fertig zum testen.\par
 }
  
