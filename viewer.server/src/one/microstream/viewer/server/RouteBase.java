@@ -5,7 +5,7 @@ import one.microstream.viewer.StorageViewDataConverter;
 import spark.Request;
 import spark.Response;
 
-public class AbstractRoute
+public class RouteBase
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -18,7 +18,7 @@ public class AbstractRoute
 	// constructors //
 	/////////////////
 
-	public AbstractRoute(final StorageRestAdapter embeddedStorageRestAdapter)
+	public RouteBase(final StorageRestAdapter embeddedStorageRestAdapter)
 	{
 		super();
 		this.storageRestAdapter = embeddedStorageRestAdapter;

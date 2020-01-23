@@ -6,7 +6,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class RouteGetRoot extends AbstractRoute implements Route
+public class RouteGetRoot extends RouteBase implements Route
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
