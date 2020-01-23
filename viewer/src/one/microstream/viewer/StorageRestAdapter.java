@@ -1,10 +1,14 @@
 package one.microstream.viewer;
 
-import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.persistence.binary.types.ObjectDescription;
+import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 public class StorageRestAdapter extends EmbeddedStorageRestAdapter
+	implements StorageRestAdapterConverter,
+	StorageRestAdapterTypeDictionary,
+	StorageRestAdapterObject,
+	StorageRestAdapterRoot
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -26,6 +30,7 @@ public class StorageRestAdapter extends EmbeddedStorageRestAdapter
 	// methods //
 	////////////
 
+	@Override
 	public ViewerObjectDescription getObject(
 		final long objectId,
 		final long dataOffset,
@@ -50,6 +55,7 @@ public class StorageRestAdapter extends EmbeddedStorageRestAdapter
 		return description.postProcess(dataOffset, dataLength);
 	}
 
+	@Override
 	public ViewerRootDescription getUserRoot()
 	{
 		return super.getRoot();
@@ -61,6 +67,7 @@ public class StorageRestAdapter extends EmbeddedStorageRestAdapter
 		return super.getTypeDictionary();
 	}
 
+	@Override
 	public StorageViewDataConverter getConverter(final String format)
 	{
 		return this.converterProvider.get(format);

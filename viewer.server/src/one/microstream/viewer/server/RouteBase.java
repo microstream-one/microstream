@@ -1,27 +1,27 @@
 package one.microstream.viewer.server;
 
-import one.microstream.viewer.StorageRestAdapter;
+import one.microstream.viewer.StorageRestAdapterConverter;
 import one.microstream.viewer.StorageViewDataConverter;
 import spark.Request;
 import spark.Response;
 
-public class RouteBase
+public class RouteBase<T extends StorageRestAdapterConverter>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 
-	protected final StorageRestAdapter storageRestAdapter;
+	protected final T storageRestAdapter;
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public RouteBase(final StorageRestAdapter embeddedStorageRestAdapter)
+	public RouteBase(final T storageRestAdapter)
 	{
 		super();
-		this.storageRestAdapter = embeddedStorageRestAdapter;
+		this.storageRestAdapter = storageRestAdapter;
 	}
 
 

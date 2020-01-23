@@ -1,6 +1,6 @@
 package one.microstream.viewer.server;
 
-import one.microstream.viewer.StorageRestAdapter;
+import one.microstream.viewer.StorageRestAdapterTypeDictionary;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -11,13 +11,13 @@ public class RouteTypeDictionary implements Route {
 	// instance fields //
 	////////////////////
 
-	private final StorageRestAdapter storageRestAdapter;
+	private final StorageRestAdapterTypeDictionary storageRestAdapter;
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public RouteTypeDictionary(final StorageRestAdapter storageRestAdapter)
+	public RouteTypeDictionary(final StorageRestAdapterTypeDictionary storageRestAdapter)
 	{
 		this.storageRestAdapter = storageRestAdapter;
 	}
