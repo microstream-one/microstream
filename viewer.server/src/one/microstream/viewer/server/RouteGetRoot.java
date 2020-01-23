@@ -12,9 +12,9 @@ public class RouteGetRoot extends RouteBase implements Route
 	// constructors //
 	/////////////////
 
-	public RouteGetRoot(final StorageRestAdapter embeddedStorageRestAdapter)
+	public RouteGetRoot(final StorageRestAdapter storageRestAdapter)
 	{
-		super(embeddedStorageRestAdapter);
+		super(storageRestAdapter);
 	}
 
 
