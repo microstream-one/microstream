@@ -8,6 +8,12 @@ import one.microstream.reflect.XReflect;
 
 public interface BinaryTypeHandler<T> extends PersistenceTypeHandler<Binary, T>
 {
+	@Override
+	public default Class<Binary> dataType()
+	{
+		return Binary.class;
+	}
+	
 	public abstract class Abstract<T>
 	extends PersistenceTypeHandler.Abstract<Binary, T>
 	implements BinaryTypeHandler<T>

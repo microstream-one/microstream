@@ -15,8 +15,11 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistenc
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 
-public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition
+public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition, PersistenceDataTypeHolder<D>
 {
+	@Override
+	public Class<D> dataType();
+	
 	@Override
 	public Class<T> type();
 	

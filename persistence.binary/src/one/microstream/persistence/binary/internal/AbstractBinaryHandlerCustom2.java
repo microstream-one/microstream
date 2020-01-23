@@ -49,6 +49,7 @@ import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
 
 
+// (23.01.2020 TM)FIXME: priv#88: rename "Custom2"
 public abstract class AbstractBinaryHandlerCustom2<T>
 extends AbstractBinaryHandlerCustom<T>
 {
@@ -56,15 +57,25 @@ extends AbstractBinaryHandlerCustom<T>
 	// static methods //
 	///////////////////
 	
+	protected static final <T> BinaryField<T> Field_byte(final Getter_byte<T> getter)
+	{
+		return Field_byte(getter, null);
+	}
+	
 	protected static final <T> BinaryField<T> Field_byte(
 		final Getter_byte<T> getter,
 		final Setter_byte<T> setter
 	)
 	{
 		return new BinaryField.Default_byte<>(
-			mayNull(getter),
-			notNull(setter)
+			notNull(getter),
+			mayNull(setter)
 		);
+	}
+	
+	protected static final <T> BinaryField<T> Field_boolean(final Getter_boolean<T> getter)
+	{
+		return Field_boolean(getter, null);
 	}
 		
 	protected static final <T> BinaryField<T> Field_boolean(
@@ -73,9 +84,14 @@ extends AbstractBinaryHandlerCustom<T>
 	)
 	{
 		return new BinaryField.Default_boolean<>(
-			mayNull(getter),
-			notNull(setter)
+			notNull(getter),
+			mayNull(setter)
 		);
+	}
+	
+	protected static final <T> BinaryField<T> Field_short(final Getter_short<T> getter)
+	{
+		return Field_short(getter, null);
 	}
 		
 	protected static final <T> BinaryField<T> Field_short(
@@ -84,9 +100,14 @@ extends AbstractBinaryHandlerCustom<T>
 	)
 	{
 		return new BinaryField.Default_short<>(
-			mayNull(getter),
-			notNull(setter)
+			notNull(getter),
+			mayNull(setter)
 		);
+	}
+	
+	protected static final <T> BinaryField<T> Field_char(final Getter_char<T> getter)
+	{
+		return Field_char(getter, null);
 	}
 		
 	protected static final <T> BinaryField<T> Field_char(
@@ -95,9 +116,14 @@ extends AbstractBinaryHandlerCustom<T>
 	)
 	{
 		return new BinaryField.Default_char<>(
-			mayNull(getter),
-			notNull(setter)
+			notNull(getter),
+			mayNull(setter)
 		);
+	}
+	
+	protected static final <T> BinaryField<T> Field_int(final Getter_int<T> getter)
+	{
+		return Field_int(getter, null);
 	}
 		
 	protected static final <T> BinaryField<T> Field_int(
@@ -106,9 +132,14 @@ extends AbstractBinaryHandlerCustom<T>
 	)
 	{
 		return new BinaryField.Default_int<>(
-			mayNull(getter),
-			notNull(setter)
+			notNull(getter),
+			mayNull(setter)
 		);
+	}
+	
+	protected static final <T> BinaryField<T> Field_float(final Getter_float<T> getter)
+	{
+		return Field_float(getter, null);
 	}
 		
 	protected static final <T> BinaryField<T> Field_float(
@@ -117,9 +148,14 @@ extends AbstractBinaryHandlerCustom<T>
 	)
 	{
 		return new BinaryField.Default_float<>(
-			mayNull(getter),
-			notNull(setter)
+			notNull(getter),
+			mayNull(setter)
 		);
+	}
+	
+	protected static final <T> BinaryField<T> Field_long(final Getter_long<T> getter)
+	{
+		return Field_long(getter, null);
 	}
 		
 	protected static final <T> BinaryField<T> Field_long(
@@ -128,9 +164,14 @@ extends AbstractBinaryHandlerCustom<T>
 	)
 	{
 		return new BinaryField.Default_long<>(
-			mayNull(getter),
-			notNull(setter)
+			notNull(getter),
+			mayNull(setter)
 		);
+	}
+	
+	protected static final <T> BinaryField<T> Field_double(final Getter_double<T> getter)
+	{
+		return Field_double(getter, null);
 	}
 		
 	protected static final <T> BinaryField<T> Field_double(
@@ -139,9 +180,14 @@ extends AbstractBinaryHandlerCustom<T>
 	)
 	{
 		return new BinaryField.Default_double<>(
-			mayNull(getter),
-			notNull(setter)
+			notNull(getter),
+			mayNull(setter)
 		);
+	}
+	
+	protected static final <T, R> BinaryField<T> Field(final Class<R> referenceType, final Getter<T, R> getter)
+	{
+		return Field(referenceType, getter, null);
 	}
 		
 	protected static final <T, R> BinaryField<T> Field(
@@ -152,8 +198,8 @@ extends AbstractBinaryHandlerCustom<T>
 	{
 		return new BinaryField.DefaultReference<>(
 			notNull(referenceType),
-			mayNull(getter),
-			notNull(setter)
+			notNull(getter),
+			mayNull(setter)
 		);
 	}
 	
@@ -523,6 +569,9 @@ extends AbstractBinaryHandlerCustom<T>
 			// Already existing entries (added by an extending class in an override of this method) are allowed.
 			binaryFieldsPerClass.add(c, binaryFieldsOfClass);
 		}
+		
+		// collection the fields "upwards" requires to reverse the collected class hierarchy in the end.
+		binaryFieldsPerClass.reverse();
 	}
 	
 	protected void validateBinaryFieldGenericType(final Field binaryFieldField)

@@ -52,6 +52,12 @@ public class PersistenceLegacyTypeHandlerWrapper<D, T> extends PersistenceLegacy
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	@Override
+	public Class<D> dataType()
+	{
+		return this.typeHandler.dataType();
+	}
 
 	@Override
 	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
