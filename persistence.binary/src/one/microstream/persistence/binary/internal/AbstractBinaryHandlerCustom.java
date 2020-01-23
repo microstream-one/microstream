@@ -164,7 +164,7 @@ extends BinaryTypeHandler.Abstract<T>
 
 	private XImmutableEnum<? extends PersistenceTypeDefinitionMember> members;
 	
-	private final long binaryLengthMinimum, binaryLengthMaximum;
+	private long binaryLengthMinimum, binaryLengthMaximum;
 
 
 
@@ -193,8 +193,7 @@ extends BinaryTypeHandler.Abstract<T>
 	{
 		super(type, typeName);
 		this.members = validateAndImmure(members);
-		this.binaryLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, members);
-		this.binaryLengthMaximum = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, members);
+		this.calculcateBinaryLengths();
 	}
 	
 	
@@ -202,6 +201,18 @@ extends BinaryTypeHandler.Abstract<T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	protected void calculcateBinaryLengths()
+	{
+		if(this.members == null)
+		{
+			// members may be null to allow delayed on-demand BinaryField initialization.
+			return;
+		}
+		
+		this.binaryLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, this.members);
+		this.binaryLengthMaximum = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, this.members);
+	}
 	
 	@Override
 	public boolean isPrimitiveType()
@@ -231,6 +242,7 @@ extends BinaryTypeHandler.Abstract<T>
 			return;
 		}
 		this.members = this.initializeInstanceMembers();
+		this.calculcateBinaryLengths();
 	}
 	
 	protected XImmutableEnum<? extends PersistenceTypeDefinitionMember> initializeInstanceMembers()

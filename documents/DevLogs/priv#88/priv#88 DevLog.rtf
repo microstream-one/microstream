@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 MS-130\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 MS-130\par
 \par
 2019-04-17 \par
 \par
@@ -327,5 +328,88 @@ So Sachen wie Capacity einer Collection zus\'e4tzlich zu der Size sollten trivia
 Also ich l\'f6sch die store~ stubs jetzt mal raus. Falls man sie doch wieder braucht, sind sie ja generisch in ein paar Minuten wieder gebaut.\par
 \par
 So. Dann brauch ich morgen ("heute") noch so eine Util-Methode, um einen Handler generisch zu definineren, dann ist das Zeug fertig zum testen.\par
+\par
+\par
+09:00 \par
+\par
+Ich test jetzt erst mal eine explizite Handler Klasse mit Reflection Analyse der Felder. Das war ja immerhin der Hauptteil der Implementierung.\par
+Generisches Zusammendefinieren kommt dann sp\'e4ter.\par
+\par
+Testklassen designen:\par
+- abstract basisklasse\par
+- intermediate konkrete Klasse\par
+- leaf konkrete Klasse\par
+\par
+- mit unsettable creation-felder in jeder ebene\par
+- alle primitives\par
+- Objektreferenz\par
+- Objekte, die aber als primitives gespeichert und wieder daraus hergeleitet werden (Sinn von custom handlern, sonst br\'e4uchte man ja gleich keine)\par
+\par
+Dabei aufgefallen:\par
+Es fehlt noch eine Varianet der Convenience "Field...(" Definitionsmethoden ohne Setter.\par
+Nachr\'fcsten.\par
+Und DABEI aufgefallen:\par
+Die mayNull und notNull checks sind noch verdreht, als ich in meiner Umnachtung noch dachte, der Getter k\'f6nne null sein.\par
+Fixen.\par
+\par
+Und aufgefallen:\line Es gibt noch immer kein m\'f6glichst einfachen Weg, einfach nur einen TypeHandler zu registrieren. Das execute Ding ist gut, wenn man den ArrayLengthController braucht, aber f\'fcr "normale" Handler geht das noch einfacher.\par
+Einbauen.\par
+\par
+Testen testen.\par
+NPE beim minimum length berechnen.\par
+Achja, weil jetzt ja members nicht mehr garantiert non-null ist.\par
+Entsprechend umbauen und in on-demand Initialisierung mit rein.\par
+Testen.\par
+Passt.\par
+\par
+N\'e4chster Fehler:\par
+BinaryField with the unique identifier "[Uninitialized BinaryField]" is already registered.\par
+Hm, warum dieses ...?\par
+\par
+Achja, jaja, weil die uninitialized Pr\'fcfung auf null testet anstatt auf den Dummynamen.\par
+Fixen.\par
+Testen.\par
+\par
+Oh, es l\'e4uft durch!\par
+Mal den CSV Export anschauen.\par
+Hm. Der BinaryHandler wurde nicht ber\'fccksichtigt. Seltsam.\par
+\par
+Ach! Naja gut, wenn ich den f\'fcr eine gar nicht verwendete Klasse nehm, dann kann der eigentlich n\'f6tige nat\'fcrlich nicht gefunden werden. M\'f6p.\par
+\par
+Richtiger Handler, aber wieder NPEs. Aber die kommen von meiner Testklassen Getterlogik, nicht vom Framework Code.\par
+Fixen.\par
+Testen.\par
+\par
+L\'e4uft durch, aber im Export sind die meisten Werte bullshit.\par
+Hm, die Reihenfolge der Felder ist auch seltsam durcheinander. Das muss der Grund sein.\par
+Und seltsam: Im TypeDictionary ist sie zwar auch anders (nur Deklarationsreihenfolge falsch gesammelt), aber der Export h\'e4lt sich nicht an diese dort definierte Reihenfolge. Das ist ja wirr.\par
+\par
+Also erst mal die Deklarationsreihenfolge fixen, dann nochmal laufen lassen und schauen, warum der Export was anderes treibt.\par
+\par
+Simpler Fix: nach dem Hiararchien abklappern die HashTable reversen, fertig.\par
+Ich hatte das genau so konzipiert und dann das reverse vergessen. Haha. Aber mei, daf\'fcr gibts Tests.\par
+\par
+Wieder zum CSV Export:\par
+Der einzige Unterschied ist, dass der die Reference Felder eigenm\'e4chtig nach vorne sortiert anstatt die TypeDictionary Reihenfolge zu verwenden. Das ist ja seltsam.\par
+\par
+Der Binary Export machts noch richtig.\par
+Der CSV Converter ... aha. Der macht sich seine eigene Reihenfolge. Das ist ja ulkig... Und das ist bisher nie aufgefallen o_0.\par
+Da mach ich jetzt ein Issue auf, um das zu dokumentieren.\par
+\par
+priv#211 erstellen, fixen, testen. Columns auch noch. Testen. Passt. Issue updaten und schlie\'dfen.\par
+\par
+Damit sieht die CSV Datei f\'fcr die BinaryField Testklasse korrekt aus.\par
+\par
+Jetzt Laden testen.\par
+Hm... ne, Moment. Erst mal priv#212 erstellen und gleich umsetzen.\par
+Das wird super!\par
+\par
+Fertig. Testen. Passt.\par
+priv#212 updaten.\par
+\par
+So. dann w\'e4r jetzt noch offen:\par
+- Laden testen\par
+- "Custom2" Name \'e4ndern\par
+- Generisch definierter Custom2 Handler. Besonders interessant in Kombination mit PersistenceTypeHandlerProviding :-D.\par
 }
  

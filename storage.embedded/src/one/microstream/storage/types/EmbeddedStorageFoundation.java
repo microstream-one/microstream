@@ -12,6 +12,7 @@ import one.microstream.persistence.types.PersistenceRootResolver;
 import one.microstream.persistence.types.PersistenceRootResolverProvider;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
+import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
 import one.microstream.persistence.types.PersistenceTypeManager;
@@ -274,6 +275,11 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * @return {@literal this} to allow method chaining.
 	 */
 	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration);
+	
+	public F registerTypeHandler(PersistenceTypeHandler<Binary, ?> typeHandler);
+	
+	public F registerTypeHandlers(Iterable<? extends PersistenceTypeHandler<Binary, ?>> typeHandlers);
+	
 	
 	
 	
@@ -538,7 +544,21 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			this.getConnectionFoundation().executeTypeHandlerRegistration(typeHandlerRegistration);
 			return this.$();
 		}
-						
+		
+		@Override
+		public F registerTypeHandler(final PersistenceTypeHandler<Binary, ?> typeHandler)
+		{
+			this.getConnectionFoundation().registerCustomTypeHandler(typeHandler);
+			return this.$();
+		}
+		
+		@Override
+		public F registerTypeHandlers(final Iterable<? extends PersistenceTypeHandler<Binary, ?>> typeHandlers)
+		{
+			this.getConnectionFoundation().registerCustomTypeHandlers(typeHandlers);
+			return this.$();
+		}
+								
 		@Override
 		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object root)
 		{

@@ -6,6 +6,7 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
@@ -555,22 +556,22 @@ public final class XReflect
 		return logic;
 	}
 
-	public static final boolean isFinal(final Field field)
+	public static final boolean isFinal(final Member field)
 	{
 		return Modifier.isFinal(field.getModifiers());
 	}
 
-	public static final boolean isStatic(final Field field)
+	public static final boolean isStatic(final Member field)
 	{
 		return Modifier.isStatic(field.getModifiers());
 	}
 	
-	public static final boolean isSynthetic(final Field field)
+	public static final boolean isSynthetic(final Member field)
 	{
 		return Modifier.isSynchronized(field.getModifiers());
 	}
 
-	public static final boolean isStaticFinal(final Field field)
+	public static final boolean isStaticFinal(final Member field)
 	{
 		return isStatic(field) && isFinal(field);
 	}
@@ -595,22 +596,22 @@ public final class XReflect
 		return !Modifier.isTransient(field.getModifiers());
 	}
 
-	public static final boolean isPrivate(final Field field)
+	public static final boolean isPrivate(final Member field)
 	{
 		return Modifier.isPrivate(field.getModifiers());
 	}
 
-	public static final boolean isProtected(final Field field)
+	public static final boolean isProtected(final Member field)
 	{
 		return Modifier.isProtected(field.getModifiers());
 	}
 
-	public static final boolean isPublic(final Field field)
+	public static final boolean isPublic(final Member field)
 	{
 		return Modifier.isPublic(field.getModifiers());
 	}
 
-	public static final boolean isDefaultVisible(final Field field)
+	public static final boolean isDefaultVisible(final Member field)
 	{
 		final int modifiers = field.getModifiers();
 		return !(Modifier.isPrivate(modifiers) || Modifier.isProtected(modifiers) || Modifier.isPublic(modifiers));

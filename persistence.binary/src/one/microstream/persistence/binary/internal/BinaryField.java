@@ -134,7 +134,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		public default String initializeIdentifierOptional(final String qualifier, final String name)
 		{
 			final String currentName = this.name();
-			if(currentName != null)
+			if(!Defaults.defaultUninitializedName().equals(currentName))
 			{
 				return currentName;
 			}

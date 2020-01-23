@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import one.microstream.persistence.types.PersistenceDataTypeHolder;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerEnsurer;
@@ -13,18 +14,22 @@ import one.microstream.persistence.types.PersistenceTypeHandlerProvider;
 import one.microstream.persistence.types.PersistenceTypeLink;
 import one.microstream.persistence.types.PersistenceTypeManager;
 
-public final class PersistenceTypeHandlerProviderCreating<D> implements PersistenceTypeHandlerProvider<D>
+public final class PersistenceTypeHandlerProviderCreating<D>
+extends PersistenceDataTypeHolder.Default<D>
+implements PersistenceTypeHandlerProvider<D>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
 	public static <D> PersistenceTypeHandlerProviderCreating<D> New(
+		final Class<D>                         dataType          ,
 		final PersistenceTypeManager           typeManager       ,
 		final PersistenceTypeHandlerEnsurer<D> typeHandlerEnsurer
 	)
 	{
 		return new PersistenceTypeHandlerProviderCreating<>(
+			notNull(dataType)          ,
 			notNull(typeManager)       ,
 			notNull(typeHandlerEnsurer)
 		);
@@ -46,11 +51,12 @@ public final class PersistenceTypeHandlerProviderCreating<D> implements Persiste
 	/////////////////
 
 	PersistenceTypeHandlerProviderCreating(
+		final Class<D>                         dataType          ,
 		final PersistenceTypeManager           typeManager       ,
 		final PersistenceTypeHandlerEnsurer<D> typeHandlerEnsurer
 	)
 	{
-		super();
+		super(dataType);
 		this.typeManager        = typeManager       ;
 		this.typeHandlerEnsurer = typeHandlerEnsurer;
 	}
