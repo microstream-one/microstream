@@ -38,8 +38,6 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	
 	@Override
 	public String name();
-	
-//	public long binaryOffset();
 
 	@Override
 	public default BinaryField<T> copyForName(final String name)
@@ -78,55 +76,8 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	
 	public long calculateBinaryLength(T instance);
 	
-	
-	// (06.01.2020 TM)FIXME: priv#88: remove if really not needed
-//	public default void store_byte(final Binary data, final byte value)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default void store_boolean(final Binary data, final boolean value)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default void store_short(final Binary data, final short value)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default void store_char(final Binary data, final char value)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default void store_int(final Binary data, final int value)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default void store_float(final Binary data, final float value)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default void store_long(final Binary data, final long value)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default void store_double(final Binary data, final double value)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	public default void storeReference(final Binary data, final Object instance, final PersistenceStoreHandler handler)
-//	{
-//		throw new UnsupportedOperationException();
-//	}
-
-	
-	
+//	public long binaryOffset();
+		
 	public default byte read_byte(final Binary data)
 	{
 		throw new UnsupportedOperationException();
@@ -171,7 +122,6 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	{
 		throw new UnsupportedOperationException();
 	}
-
 	
 	
 	
@@ -194,6 +144,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	}
 	
 	
+	
 	public interface Defaults
 	{
 		public static String defaultUninitializedName()
@@ -207,49 +158,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 	}
 		
-//	public static BinaryField Complex(
-//		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
-//	)
-//	{
-//		return Complex(Defaults.defaultUninitializedName(), nestedFields);
-//	}
-//
-//	public static BinaryField Complex(
-//		final String                                         name        ,
-//		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
-//	)
-//	{
-//		return new BinaryField.Abstract(
-//			AbstractBinaryHandlerCustom.Complex(notNull(name), nestedFields),
-//			Defaults.defaultUninitializedOffset()
-//		);
-//	}
-//
-//	public static BinaryField Bytes()
-//	{
-//		return Chars(Defaults.defaultUninitializedName());
-//	}
-//
-//	public static BinaryField Bytes(final String name)
-//	{
-//		return new BinaryField.Abstract(
-//			AbstractBinaryHandlerCustom.bytes(name),
-//			Defaults.defaultUninitializedOffset()
-//		);
-//	}
-//
-//	public static BinaryField Chars()
-//	{
-//		return Chars(Defaults.defaultUninitializedName());
-//	}
-//
-//	public static BinaryField Chars(final String name)
-//	{
-//		return new BinaryField.Abstract(
-//			AbstractBinaryHandlerCustom.chars(name),
-//			Defaults.defaultUninitializedOffset()
-//		);
-//	}
+	
 	
 	public abstract class Abstract<T> implements BinaryField.Initializable<T>
 	{

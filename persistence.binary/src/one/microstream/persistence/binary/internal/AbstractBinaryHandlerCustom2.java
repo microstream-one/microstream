@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
@@ -17,6 +18,7 @@ import one.microstream.collections.types.XAddingCollection;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.collections.types.XImmutableEnum;
+import one.microstream.collections.types.XTable;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -44,6 +46,7 @@ import one.microstream.reflect.Setter_int;
 import one.microstream.reflect.Setter_long;
 import one.microstream.reflect.Setter_short;
 import one.microstream.reflect.XReflect;
+import one.microstream.typing.KeyValue;
 
 
 public abstract class AbstractBinaryHandlerCustom2<T>
@@ -155,6 +158,51 @@ extends AbstractBinaryHandlerCustom<T>
 	}
 	
 	// (22.01.2020 TM)TODO: priv#88: support variable length fields
+	
+
+//	public static BinaryField Complex(
+//		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
+//	)
+//	{
+//		return Complex(Defaults.defaultUninitializedName(), nestedFields);
+//	}
+//
+//	public static BinaryField Complex(
+//		final String                                         name        ,
+//		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
+//	)
+//	{
+//		return new BinaryField.Abstract(
+//			AbstractBinaryHandlerCustom.Complex(notNull(name), nestedFields),
+//			Defaults.defaultUninitializedOffset()
+//		);
+//	}
+//
+//	public static BinaryField Bytes()
+//	{
+//		return Chars(Defaults.defaultUninitializedName());
+//	}
+//
+//	public static BinaryField Bytes(final String name)
+//	{
+//		return new BinaryField.Abstract(
+//			AbstractBinaryHandlerCustom.bytes(name),
+//			Defaults.defaultUninitializedOffset()
+//		);
+//	}
+//
+//	public static BinaryField Chars()
+//	{
+//		return Chars(Defaults.defaultUninitializedName());
+//	}
+//
+//	public static BinaryField Chars(final String name)
+//	{
+//		return new BinaryField.Abstract(
+//			AbstractBinaryHandlerCustom.chars(name),
+//			Defaults.defaultUninitializedOffset()
+//		);
+//	}
 	
 	protected static <T> EqConstHashTable<String, ? extends BinaryField<T>> mapBinaryFields(
 		final XGettingSequence<? extends BinaryField<T>> binaryFields
@@ -572,29 +620,18 @@ extends AbstractBinaryHandlerCustom<T>
 		}
 	}
 	
-	private void initializeBinaryFields(final XGettingTable<String, BinaryField.Initializable<T>> binaryFields)
+	private void initializeBinaryFields(final XTable<String, BinaryField.Initializable<T>> binaryFields)
 	{
-		validateVariableLengthLayout(binaryFields);
+		final BinaryField<T>           varLengthField      = checkVariableLengthLayout(binaryFields);
 		final BulkList<BinaryField<T>> storingFields       = BulkList.New();
 		final BulkList<BinaryField<T>> allReferenceFields  = BulkList.New();
 		final BulkList<BinaryField<T>> settingNonRefFields = BulkList.New();
 		final BulkList<BinaryField<T>> settingRefrncFields = BulkList.New();
-		
-		// (22.01.2020 TM)FIXME: priv#88: validate for single variable length field, move to end, check for it here.
-		final BinaryField<T> trailingVariableLengthField;
-		// #validateVariableLengthLayout already ensured that only the last field can have variable length
-		this.hasVaryingPersistedLengthInstances = !binaryFields.values().isEmpty()
-			&& binaryFields.values().peek().isVariableLength()
-		;
-		
-		boolean hasSettingMembers = false;
-				
-		long offset = 0;
+						
+		int offset = 0;
 		for(final BinaryField.Initializable<T> binaryField : binaryFields.values())
 		{
 			binaryField.initializeOffset(offset);
-			offset += binaryField.persistentMinimumLength();
-
 			storingFields.add(binaryField);
 			
 			if(binaryField.hasReferences())
@@ -602,12 +639,16 @@ extends AbstractBinaryHandlerCustom<T>
 				allReferenceFields.add(binaryField);
 			}
 			
+			// variable length field must be excluded as offset is co-used as the fixed content length
+			if(binaryField != varLengthField)
+			{
+				offset += binaryField.persistentMinimumLength();
+			}
+			
 			if(!binaryField.canSet())
 			{
 				continue;
 			}
-			
-			hasSettingMembers = true;
 			
 			/*
 			 * must use "hasReferences" instead of "isReference" as a variable list field
@@ -622,18 +663,16 @@ extends AbstractBinaryHandlerCustom<T>
 				settingNonRefFields.add(binaryField);
 			}
 		}
-		/* note:
-		 * A variable length field sets the local offset variable to an invalid state, but that is never read.
-		 */
-
-		this.trailingVariableLengthField = trailingVariableLengthField;
-		this.hasPersistedReferences      = !allReferenceFields.isEmpty();
-		this.hasSettingMembers           = hasSettingMembers;
 		
 		this.storingFields       = storingFields      .toArray(this.binaryFieldClass());
 		this.allReferenceFields  = allReferenceFields .toArray(this.binaryFieldClass());
 		this.settingRefrncFields = settingRefrncFields.toArray(this.binaryFieldClass());
 		this.settingNonRefFields = settingNonRefFields.toArray(this.binaryFieldClass());
+
+		this.trailingVariableLengthField = varLengthField;
+		this.hasPersistedReferences      = !allReferenceFields.isEmpty();
+		this.hasSettingMembers           = !settingRefrncFields.isEmpty() || !settingNonRefFields.isEmpty();
+		this.fixedLengthBinaryContent    = offset;
 	}
 	
 	@SuppressWarnings({"unchecked",  "rawtypes"})
@@ -648,29 +687,45 @@ extends AbstractBinaryHandlerCustom<T>
 	 * 
 	 * @param binaryFields
 	 */
-	private static void validateVariableLengthLayout(
-		final XGettingTable<String, ? extends BinaryField<?>> binaryFields
+	private static <F extends BinaryField<?>> F checkVariableLengthLayout(
+		final XTable<String, F> binaryFields
 	)
 	{
-		if(binaryFields.size() <= 1)
+		if(binaryFields.isEmpty())
 		{
-			// no fields or a single field is implicitely valid.
-			return;
+			// empty fields is implicitely valid and, of course, yields null.
+			return null;
 		}
 		
-		final BinaryField<?> lastBinaryField = binaryFields.values().peek();
-		for(final BinaryField<?> binaryField : binaryFields.values())
+		KeyValue<String, F> varLengthEntry = null;
+		for(final KeyValue<String, F> e : binaryFields)
 		{
-			if(!binaryField.isVariableLength())
+			if(e.value().isVariableLength())
 			{
-				continue;
-			}
-			if(binaryField != lastBinaryField)
-			{
+				if(varLengthEntry == null)
+				{
+					varLengthEntry = e;
+					continue;
+				}
+
 				// (18.04.2019 TM)EXCP: proper exception
-				throw new PersistenceException("Non-last binary field with variable length: " + binaryField.name());
+				throw new PersistenceException(
+					"Multiple variable length fields detected: "
+					+ XChars.systemString(varLengthEntry.value()) + ": " + varLengthEntry.value().identifier()
+					+ ", " + XChars.systemString(e.value()) + ": " + e.value().identifier()
+				);
 			}
 		}
+		
+		if(varLengthEntry == null)
+		{
+			// no variable length field
+			return null;
+		}
+		
+		binaryFields.put(varLengthEntry);
+		
+		return varLengthEntry.value();
 	}
 
 	@Override
