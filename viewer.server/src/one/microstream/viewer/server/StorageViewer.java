@@ -20,7 +20,7 @@ public class StorageViewer
 	////////////////////
 
 	private final Service sparkService;
-	private final StorageRestAdapter embeddedStorageRestAdapter;
+	private final StorageRestAdapter storageRestAdapter;
 	private final String storageName;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ public class StorageViewer
 		super();
 		this.storageName = storageName;
 		this.sparkService = sparkService;
-		this.embeddedStorageRestAdapter = new StorageRestAdapter(storage);
+		this.storageRestAdapter = new StorageRestAdapter(storage);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -72,13 +72,13 @@ public class StorageViewer
 	public StorageViewer start()
 	{
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/object/:oid",
-			new RouteGetObject(this.embeddedStorageRestAdapter)));
+			new RouteGetObject(this.storageRestAdapter)));
 
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/root",
-			new RouteGetRoot(this.embeddedStorageRestAdapter)));
+			new RouteGetRoot(this.storageRestAdapter)));
 
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/dictionary",
-			new RouteTypeDictionary(this.embeddedStorageRestAdapter)));
+			new RouteTypeDictionary(this.storageRestAdapter)));
 
 		this.sparkService.exception(InvalidRouteParametersException.class, (e, request, response) ->
 			{
