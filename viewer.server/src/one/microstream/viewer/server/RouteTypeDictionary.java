@@ -17,9 +17,9 @@ public class RouteTypeDictionary implements Route {
 	// constructors //
 	/////////////////
 
-	public RouteTypeDictionary(final StorageRestAdapter embeddedStorageRestAdapter)
+	public RouteTypeDictionary(final StorageRestAdapter storageRestAdapter)
 	{
-		this.storageRestAdapter = embeddedStorageRestAdapter;
+		this.storageRestAdapter = storageRestAdapter;
 	}
 
 
