@@ -15,8 +15,11 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistenc
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 
-public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition
+public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition, PersistenceDataTypeHolder<D>
 {
+	@Override
+	public Class<D> dataType();
+	
 	@Override
 	public Class<T> type();
 	
@@ -26,8 +29,6 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers();
 		
-	public boolean hasInstanceReferences();
-	
 	// implementing this method in a per-instance handler to be a no-op makes the instance effectively shallow
 	public void iterateInstanceReferences(T instance, PersistenceFunction iterator);
 
@@ -196,6 +197,12 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition
 			final XGettingSequence<D> members
 		)
 		{
+			if(members == null)
+			{
+				// members may be null to allow delayed on-demand BinaryField initialization.
+				return null;
+			}
+			
 			// note that this is descriptionMember-identity, meaning #identifier
 			final EqHashEnum<D> validatedMembers = EqHashEnum.New(
 				PersistenceTypeDescriptionMember.identityHashEqualator()
@@ -336,8 +343,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition
 			
 			this.typeId = typeId;
 			
-			// (07.05.2019 TM)FIXME: priv#88: reactivate upon resume.
-//			this.internalInitialize();
+			this.internalInitialize();
 			
 			// by default, implementations are assumed to be (effectively) immutable and thus can return themselves.
 			return this;

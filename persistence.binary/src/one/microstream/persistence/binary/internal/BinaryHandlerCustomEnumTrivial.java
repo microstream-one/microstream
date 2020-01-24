@@ -77,21 +77,6 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 	}
 
 	@Override
-	public boolean hasInstanceReferences()
-	{
-		return true;
-	}
-
-	@Override
-	public void iterateLoadableReferences(
-		final Binary                     data    ,
-		final PersistenceReferenceLoader iterator
-	)
-	{
-		iterator.acceptObjectId(getNameObjectId(data));
-	}
-
-	@Override
 	public boolean hasPersistedReferences()
 	{
 		return true;
@@ -115,6 +100,15 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 		
 		data.store_long(BINARY_OFFSET_NAME   , handler.apply(instance.name()));
 		data.store_long(BINARY_OFFSET_ORDINAL, instance.ordinal()            );
+	}
+
+	@Override
+	public void iterateLoadableReferences(
+		final Binary                     data    ,
+		final PersistenceReferenceLoader iterator
+	)
+	{
+		iterator.acceptObjectId(getNameObjectId(data));
 	}
 	
 }

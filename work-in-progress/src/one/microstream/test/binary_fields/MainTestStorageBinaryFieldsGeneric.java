@@ -1,8 +1,8 @@
-package one.microstream.test.corp.main;
+package one.microstream.test.binary_fields;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
-import one.microstream.reference.Lazy;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
@@ -10,25 +10,20 @@ import one.microstream.test.corp.logic.TestImportExport;
 import one.microstream.time.XTime;
 
 
-public class MainTestStorageLazy
+public class MainTestStorageBinaryFieldsGeneric
 {
-	static
-	{
-//		Test.clearDefaultStorageDirectory();
-	}
+	static final List<Employee> APP_ROOT = new ArrayList<>();
 	
-	// Option 1: Explicit application root provided at startup (specific typing)
-	static final AppRoot<Lazy<Date>> APP_ROOT = new AppRoot<>();
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start(APP_ROOT);
 
 	public static void main(final String[] args)
 	{
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
-		if(APP_ROOT.value == null)
+		if(APP_ROOT.isEmpty())
 		{
 			// first execution enters here (database creation)
 			Test.print("Model data required.");
-			APP_ROOT.set(Lazy.Reference(XTime.now()));
+			initializeData(APP_ROOT, 10);
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
@@ -44,17 +39,26 @@ public class MainTestStorageLazy
 			Test.printInitializationTime(STORAGE);
 			Test.printOperationModeTime(STORAGE);
 			Test.print("Model data loaded.");
-			Test.print("Root instance: " + Lazy.get(APP_ROOT.value));
+			Test.print("Root instance: " + APP_ROOT);
 			
 			Test.print("Exporting data ...");
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
 			Test.print("Data export completed.");
 		}
-		
-		STORAGE.shutdown();
-		
-		// no shutdown required, the storage concept is inherently crash-safe
+
 		System.exit(0);
+	}
+	
+	static void initializeData(final List<Employee> root, final int count)
+	{
+		for(int i = 1; i <= count; i++)
+		{
+			root.add(new Employee(
+				String.valueOf(i),
+				30_000.00 + i * 1_000.00,
+				XTime.date(1980, 1 + i / 28, 1 + i % 28))
+			);
+		}
 	}
 	
 }

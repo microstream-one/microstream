@@ -94,13 +94,6 @@ public class LegacyTypeHandlerPerson extends BinaryLegacyTypeHandler.AbstractCus
 	}
 
 	@Override
-	public boolean hasInstanceReferences()
-	{
-		// runtime instances have references to other entities
-		return true;
-	}
-
-	@Override
 	public boolean hasPersistedReferences()
 	{
 		// persisted data records have references to other persisted data records

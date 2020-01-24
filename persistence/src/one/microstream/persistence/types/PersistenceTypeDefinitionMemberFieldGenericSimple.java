@@ -8,7 +8,10 @@ public interface PersistenceTypeDefinitionMemberFieldGenericSimple
 extends PersistenceTypeDefinitionMemberFieldGeneric, PersistenceTypeDescriptionMemberFieldGenericSimple
 {
 	@Override
-	public PersistenceTypeDefinitionMemberFieldGenericSimple copyForName(String name);
+	public default PersistenceTypeDefinitionMemberFieldGenericSimple copyForName(final String name)
+	{
+		return this.copyForName(this.qualifier(), name);
+	}
 	
 	@Override
 	public PersistenceTypeDefinitionMemberFieldGenericSimple copyForName(String qualifier, String name);
@@ -96,12 +99,6 @@ extends PersistenceTypeDefinitionMemberFieldGeneric, PersistenceTypeDescriptionM
 				this.persistentMinimumLength(),
 				this.persistentMaximumLength()
 			);
-		}
-		
-		@Override
-		public PersistenceTypeDefinitionMemberFieldGenericSimple copyForName(final String name)
-		{
-			return this.copyForName(null, name);
 		}
 
 	}

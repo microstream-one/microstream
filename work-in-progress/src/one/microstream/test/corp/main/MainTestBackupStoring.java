@@ -68,9 +68,9 @@ public class MainTestBackupStoring
 	{
 //		printTransactionsFiles();
 		final Object[] array = createArray(100);
-		STORAGE.defaultRoot().set(array);
+		STORAGE.setRoot(array);
 		Test.print("STORAGE: storing ...");
-		STORAGE.storeDefaultRoot();
+		STORAGE.storeRoot();
 		
 		for(int i = 0; i < 10; i++)
 		{

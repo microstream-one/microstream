@@ -1,11 +1,11 @@
 package one.microstream.test.corp.main;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import one.microstream.X;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.old.OldCollections;
+import one.microstream.io.XIO;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeRegistry;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -24,7 +24,7 @@ public class MainTestCustomTypeIdMapping
 			registerCustomTypeIdMappings(f);
 		})
 		.setRefactoringMappingProvider(
-			Persistence.RefactoringMapping(new File("Refactorings.csv"))
+			Persistence.RefactoringMapping(XIO.Path("Refactorings.csv"))
 		)
 //		.onConnectionFoundation(f ->
 //		{
@@ -50,18 +50,18 @@ public class MainTestCustomTypeIdMapping
 
 	public static void main(final String[] args)
 	{
-		if(STORAGE.defaultRoot().get() == null)
+		if(STORAGE.root() == null)
 		{
 			Test.print("TEST: graph required." );
-			STORAGE.defaultRoot().set(generateGraph());
+			STORAGE.setRoot(generateGraph());
 			Test.print("STORAGE: storing ...");
-			STORAGE.storeDefaultRoot();
+			STORAGE.storeRoot();
 			Test.print("STORAGE: storing completed.");
 		}
 		else
 		{
 			Test.print("TEST: graph loaded." );
-			Test.print(STORAGE.defaultRoot().get());
+			Test.print(STORAGE.root());
 			Test.print("TEST: done." );
 		}
 		

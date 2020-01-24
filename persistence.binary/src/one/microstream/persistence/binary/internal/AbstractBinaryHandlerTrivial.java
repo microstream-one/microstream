@@ -96,12 +96,6 @@ public abstract class AbstractBinaryHandlerTrivial<T> extends BinaryTypeHandler.
 	}
 	
 	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
-	}
-	
-	@Override
 	public final boolean hasVaryingPersistedLengthInstances()
 	{
 		return false;

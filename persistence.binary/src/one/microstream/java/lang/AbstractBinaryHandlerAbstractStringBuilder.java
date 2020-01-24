@@ -70,12 +70,6 @@ extends AbstractBinaryHandlerCustom<B>
 	{
 		return data.build_chars(OFFSET_CHARS);
 	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
-	}
 	
 	@Override
 	public final boolean hasPersistedReferences()

@@ -1,19 +1,12 @@
 package one.microstream.persistence.binary.internal;
 
 import java.lang.reflect.Field;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import one.microstream.X;
-import one.microstream.chars.XChars;
-import one.microstream.collections.BulkList;
-import one.microstream.collections.EqHashTable;
-import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
-import one.microstream.collections.types.XAddingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.collections.types.XGettingTable;
 import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.collections.types.XImmutableSequence;
 import one.microstream.exceptions.NoSuchFieldRuntimeException;
@@ -150,64 +143,7 @@ extends BinaryTypeHandler.Abstract<T>
 			)
 		);
 	}
-	
-	/* (04.04.2019 TM)TODO: priv#88 BinaryField value-get/set-support
-	 * To get rid of explicit offsets altogether, BinaryField could provide
-	 * 9 methods to store the 8 primitives and the reference case.
-	 * That would require 2 subclasses of BinaryField.
-	 * The primitive implementation could convert to and from every primitive type and throw an exception for the reference case.
-	 * The reference case implementation accordingly.
-	 */
-	
-	protected static final BinaryField Field(
-		final Class<?> type
-	)
-	{
-		return BinaryField.New(type);
-	}
-	
-	protected static final BinaryField Field(
-		final Class<?> type,
-		final String   name
-	)
-	{
-		return BinaryField.New(type, name);
-	}
-	
-	protected static final BinaryField FieldComplex(
-		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
-	)
-	{
-		return BinaryField.Complex(nestedFields);
-	}
-	
-	protected static final BinaryField FieldComplex(
-		final String                                         name        ,
-		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
-	)
-	{
-		return BinaryField.Complex(name, nestedFields);
-	}
-	
-	protected static final BinaryField FieldBytes()
-	{
-		return BinaryField.Bytes();
-	}
-	
-	protected static final BinaryField FieldBytes(final String name)
-	{
-		return BinaryField.Bytes(name);
-	}
-	
-	protected static final BinaryField FieldChars()
-	{
-		return BinaryField.Chars();
-	}
-	
-	protected static final BinaryField FieldChars(final String name)
-	{
-		return BinaryField.Chars(name);
-	}
+		
 	
 	protected static final Field getInstanceFieldOfType(
 		final Class<?> declaringType,
@@ -226,17 +162,20 @@ extends BinaryTypeHandler.Abstract<T>
 	// instance fields //
 	////////////////////
 
-	private final XImmutableEnum<? extends PersistenceTypeDefinitionMember> members;
-	private final long binaryLengthMinimum;
-	private final long binaryLengthMaximum;
+	private XImmutableEnum<? extends PersistenceTypeDefinitionMember> members;
 	
-	private Class<?> initializationInvokingClass;
+	private long binaryLengthMinimum, binaryLengthMaximum;
 
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
+	
+	protected AbstractBinaryHandlerCustom(final Class<T> type)
+	{
+		this(type, null);
+	}
 
 	protected AbstractBinaryHandlerCustom(
 		final Class<T>                                                    type   ,
@@ -253,11 +192,8 @@ extends BinaryTypeHandler.Abstract<T>
 	)
 	{
 		super(type, typeName);
-		
-		// (18.04.2019 TM)FIXME: priv#88: replace by on-demand member-initialization
 		this.members = validateAndImmure(members);
-		this.binaryLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, members);
-		this.binaryLengthMaximum = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, members);
+		this.calculcateBinaryLengths();
 	}
 	
 	
@@ -265,6 +201,18 @@ extends BinaryTypeHandler.Abstract<T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	protected void calculcateBinaryLengths()
+	{
+		if(this.members == null)
+		{
+			// members may be null to allow delayed on-demand BinaryField initialization.
+			return;
+		}
+		
+		this.binaryLengthMinimum = PersistenceTypeDescriptionMember.calculatePersistentMinimumLength(0, this.members);
+		this.binaryLengthMaximum = PersistenceTypeDescriptionMember.calculatePersistentMaximumLength(0, this.members);
+	}
 	
 	@Override
 	public boolean isPrimitiveType()
@@ -280,9 +228,31 @@ extends BinaryTypeHandler.Abstract<T>
 	}
 	
 	@Override
-	public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers()
+	public synchronized XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers()
 	{
+		this.ensureInitializeInstanceMembers();
+		
 		return this.members;
+	}
+	
+	protected final void ensureInitializeInstanceMembers()
+	{
+		if(this.members != null)
+		{
+			return;
+		}
+		this.members = this.initializeInstanceMembers();
+		this.calculcateBinaryLengths();
+	}
+	
+	protected XImmutableEnum<? extends PersistenceTypeDefinitionMember> initializeInstanceMembers()
+	{
+		// (09.01.2020 TM)EXCP: proper exception
+		throw new PersistenceException(
+			"type definition members may not be null for non-"
+			+ CustomBinaryHandler.class.getSimpleName()
+			+ "-implmenentations"
+		);
 	}
 	
 	@Override
@@ -320,169 +290,6 @@ extends BinaryTypeHandler.Abstract<T>
 	{
 		// native handling logic should normally not have any member types that have to be iterated here
 		return logic;
-	}
-
-	protected final synchronized void initializeBinaryFieldsExplicitely(final Class<?> invokingClass)
-	{
-		if(this.initializationInvokingClass != null)
-		{
-			if(this.initializationInvokingClass == invokingClass)
-			{
-				// consistent no-op, abort.
-				return;
-			}
-			
-			// (04.04.2019 TM)EXCP: proper exception
-			throw new PersistenceException(
-				XChars.systemString(this)
-				+ " already initialized by an invokation from class "
-				+ this.initializationInvokingClass.getName()
-			);
-		}
-		
-		this.initializeBinaryFields();
-		this.initializationInvokingClass = invokingClass;
-	}
-	
-	protected final synchronized void initializeBinaryFields()
-	{
-		final HashTable<Class<?>, XGettingSequence<BinaryField.Initializable>> binaryFieldsPerClass = HashTable.New();
-		
-		this.collectBinaryFields(binaryFieldsPerClass);
-
-		final EqHashTable<String, BinaryField.Initializable> binaryFieldsInOrder = EqHashTable.New();
-		this.defineBinaryFieldOrder(binaryFieldsPerClass, (name, field) ->
-		{
-			/* (17.04.2019 TM)FIXME: priv#88: name must be unique.
-			 * Also see about PersistenceTypeDefinitionMember in BinaryField.
-			 */
-			if(!binaryFieldsInOrder.add(name, field))
-			{
-				// (04.04.2019 TM)EXCP: proper exception
-				throw new PersistenceException(
-					BinaryField.class.getSimpleName() + " with the name \"" + name + "\" is already registered."
-				);
-			}
-		});
-		
-		this.initializeBinaryFieldOffsets(binaryFieldsInOrder);
-		// (18.04.2019 TM)FIXME: priv#88: assign to members field here or somewhere appropriate.
-	}
-	
-	private void collectBinaryFields(
-		final HashTable<Class<?>, XGettingSequence<BinaryField.Initializable>> binaryFieldsPerClass
-	)
-	{
-		for(Class<?> c = this.getClass(); c != AbstractBinaryHandlerCustom.class; c = c.getSuperclass())
-		{
-			/*
-			 * This construction is necessary to maintain the collection order even if a class
-			 * overrides the collecting logic
-			 */
-			final BulkList<BinaryField.Initializable> binaryFieldsOfClass = BulkList.New();
-			this.collectDeclaredBinaryFields(c, binaryFieldsOfClass);
-
-			// already existing entries (added by an extending class in an override of this method) are allowed
-			binaryFieldsPerClass.add(c, binaryFieldsOfClass);
-		}
-	}
-	
-	protected void collectDeclaredBinaryFields(
-		final Class<?>                                     clazz ,
-		final XAddingCollection<BinaryField.Initializable> target
-	)
-	{
-		for(final Field field : clazz.getDeclaredFields())
-		{
-			if(!BinaryField.class.isAssignableFrom(field.getType()))
-			{
-				continue;
-			}
-			try
-			{
-				field.setAccessible(true);
-				final BinaryField binaryField = (BinaryField)field.get(this);
-				if(!(binaryField instanceof BinaryField.Initializable))
-				{
-					continue;
-				}
-				
-				final BinaryField.Initializable initializable = (BinaryField.Initializable)binaryField;
-				initializable.initializeName(field.getName());
-				target.add(initializable);
-			}
-			catch(final Exception e)
-			{
-				// (17.04.2019 TM)EXCP: proper exception
-				throw new PersistenceException(e);
-			}
-		}
-	}
-	
-	protected void defineBinaryFieldOrder(
-		final XGettingTable<Class<?>, XGettingSequence<BinaryField.Initializable>> binaryFieldsPerClass,
-		final BiConsumer<String, BinaryField.Initializable>                        collector
-	)
-	{
-		/*
-		 * With the class hiararchy collection order guaranteed above, this loop does:
-		 * - order binaryFields from most to least specific class ("upwards")
-		 * - order binaryFields per class in declaration order
-		 */
-		for(final XGettingSequence<BinaryField.Initializable> binaryFieldsOfClass : binaryFieldsPerClass.values())
-		{
-			for(final BinaryField.Initializable binaryField : binaryFieldsOfClass)
-			{
-				collector.accept(binaryField.name(), binaryField);
-			}
-		}
-	}
-	
-	private void initializeBinaryFieldOffsets(final XGettingTable<String, BinaryField.Initializable> binaryFields)
-	{
-		validateVariableLengthLayout(binaryFields);
-		
-		long offset = 0;
-		for(final BinaryField.Initializable binaryField : binaryFields.values())
-		{
-			binaryField.initializeOffset(offset);
-			offset += binaryField.persistentMinimumLength();
-		}
-		// note: a trailing variable length field sets the offset to an invalid state, but that is never read.
-	}
-	
-	/**
-	 * Only the last field may have variable length, otherweise simple offsets can't be used.
-	 * 
-	 * @param binaryFields
-	 */
-	private static void validateVariableLengthLayout(final XGettingTable<String, ? extends BinaryField> binaryFields)
-	{
-		if(binaryFields.size() <= 1)
-		{
-			// no fields or a single field is implicitely valid.
-			return;
-		}
-		
-		final BinaryField lastBinaryField = binaryFields.values().peek();
-		for(final BinaryField binaryField : binaryFields.values())
-		{
-			if(!binaryField.isVariableLength())
-			{
-				continue;
-			}
-			if(binaryField != lastBinaryField)
-			{
-				// (18.04.2019 TM)EXCP: proper exception
-				throw new PersistenceException("Non-last binary field with variable length: " + binaryField.name());
-			}
-		}
-	}
-	
-	@Override
-	protected void internalInitialize()
-	{
-		this.initializeBinaryFieldsExplicitely(this.getClass());
 	}
 
 }

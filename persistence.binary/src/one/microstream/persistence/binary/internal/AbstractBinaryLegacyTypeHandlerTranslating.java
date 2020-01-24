@@ -214,12 +214,6 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	{
 		return this.typeHandler.type();
 	}
-	
-	@Override
-	public boolean hasInstanceReferences()
-	{
-		return this.typeHandler.hasInstanceReferences();
-	}
 
 	@Override
 	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
