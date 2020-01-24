@@ -1,8 +1,6 @@
 package one.microstream.test.binary_fields;
 
-import one.microstream.persistence.types.PersistenceTypeHandlerProviding;
-
-public class BFTestLeaf extends BFTestInter implements PersistenceTypeHandlerProviding
+public class BFTestLeaf extends BFTestInter
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //

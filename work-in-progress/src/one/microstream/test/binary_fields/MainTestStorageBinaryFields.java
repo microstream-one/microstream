@@ -13,7 +13,7 @@ public class MainTestStorageBinaryFields
 {
 	static
 	{
-		Test.clearDefaultStorageDirectory();
+//		Test.clearDefaultStorageDirectory();
 	}
 	
 	static final BFTestLeaf APP_ROOT = new BFTestLeaf(Byte.MAX_VALUE, Short.MAX_VALUE, Integer.MAX_VALUE);

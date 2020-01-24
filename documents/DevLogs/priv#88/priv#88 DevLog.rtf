@@ -1,6 +1,5 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
-\pard\sl276\slmult1\f0\fs28\lang7 MS-130\par
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 MS-130\par
 \par
 2019-04-17 \par
 \par
@@ -411,5 +410,39 @@ So. dann w\'e4r jetzt noch offen:\par
 - Laden testen\par
 - "Custom2" Name \'e4ndern\par
 - Generisch definierter Custom2 Handler. Besonders interessant in Kombination mit PersistenceTypeHandlerProviding :-D.\par
+\par
+\par
+\par
+2020-01-24\par
+\par
+Schon wieder zu sp\'e4t f\'fcr gestern ...\par
+\par
+Also jetzt Ladetest.\par
+Aach, stop: Mir ist auf dem Heimweg was eingefallen:\par
+Das PersistenceTypeHandlerProviding ist v\'f6llig \'fcberfl\'fcssig.\par
+Man kann einfach jede neue Klasse nach so einer Methode durchchecken. Fertig aus. Die paar Mikrosekunden sind noch drin und es macht die Verwendung nochmal erheblich einfacher.\par
+\par
+So, rausgeworfen und getestet. Funktioniert nat\'fcrlich genauso.\par
+Vielleicht gleich noch so ein Predicate mit rein bauen, auch wenn das momentan immer null ist.\par
+\par
+Aber jetzt: Ladetest.\par
+Draufgedr\'fcckt. Debugger sagt: passt alles. \'d6h, fertig.\par
+\par
+Dann bau ich jetzt eine Utilmethode f\'fcr eine generische Definition eines "Custom2" Handlers. Und ich wei\'df immer noch nicht, wie ich das Ding nennen soll ...\par
+Vor allem haben ja alle m\'f6glichen API Methoden schon den namen "CustomHandler" drin f\'fcr die bisherigen "native" Dinger. Hmpfl...\par
+\par
+Hm. Problem 1: In welche Klasse kommt die Methode rein? In "BinaryPersistence"? Das ist zwar eine zentrale, allgemeine Klasse, aber das checkt kein normaler Entwickler, weil die Klasse conveniencem\'e4\'dfig nicht vorkommt.\par
+Vielleicht m\'fcsste es eine extra Klasse werden mit einem sprechenderen Namen.\par
+\par
+Problem 2: Die Field~ Methoden in AbstractBinaryHandlerCustom2 sind dann nat\'fcrlich nicht mehr sichtbar bzw. w\'e4ren als public auch nicht bequem verwendbar. Jedes mal "AbstractBinaryHandlerCustom2" davor hinschreiben ist Schei\'dfe.\par
+Vielleicht direkt in BinaryField rein und dann nur noch als "_int" usw. Methoden? Aber wie nennt sich dann die Methode f\'fcr Referenzen? "Reference"?\par
+Oder ich nehm f\'fcr Problem #1 auch BinaryField. Wieso nicht ...? K\'fcrzer wirds net.\par
+Es sei denn, ich w\'fcrde alles in Binary reinklatschen. Sch\'f6n kurz und zentral, aber hat technisch dort drin nix verloren und bl\'e4ht die Klasse auf. Hm...\par
+\par
+Problem 3: Es muss dann f\'fcr jeden BinaryField Pseudo-Constructor nochmal eine Variante mit String name vorn dran geben.\par
+Hm, oder, eigentlich k\'f6nnte man das recht h\'fcbsch trennen: die f\'fcr reflective Initialization sind ohne name in AbstractBinaryHandlerCustom2. Die f\'fcr explizite Definition sind dann in der anderen Klasse und sind mit Name. Das w\'e4r nicht schlecht.\par
+\par
+So. Umgebaut und konsolidiert auf benambare BinaryFields in Binary.\par
+Morgen muss da noch die Utilmethode zum Handler definieren rein. Dann ist das generische Definieren auch fertig.\par
 }
  

@@ -1,8 +1,8 @@
-package one.microstream.persistence.binary.internal;
+package one.microstream.persistence.binary.types;
 
 import one.microstream.chars.XChars;
 import one.microstream.math.XMath;
-import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -168,12 +168,11 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		
 		static final String NAME_UNINITIALIZED = "[Uninitialized " + BinaryField.class.getSimpleName() + "]";
 		
-		
-		static PersistenceTypeDefinitionMemberFieldGeneric defineField(final Class<?> type)
+		static PersistenceTypeDefinitionMemberFieldGeneric defineField(final Class<?> type, final String name)
 		{
 			// note: field name may not be null, hence the "uninitialized" dummy.
 			final PersistenceTypeDefinitionMemberFieldGeneric field =
-				AbstractBinaryHandlerCustom.CustomField(type, Defaults.defaultUninitializedName())
+				AbstractBinaryHandlerCustom.CustomField(type, name)
 			;
 			
 			return field;
@@ -196,7 +195,12 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		
 		protected Abstract(final Class<?> type)
 		{
-			this(defineField(type), Defaults.defaultUninitializedOffset());
+			this(type, Defaults.defaultUninitializedName());
+		}
+		
+		protected Abstract(final Class<?> type, final String name)
+		{
+			this(defineField(type, name), Defaults.defaultUninitializedOffset());
 		}
 		
 		protected Abstract(final PersistenceTypeDefinitionMemberFieldGeneric actual, final long offset)
@@ -386,9 +390,9 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// constructors //
 		/////////////////
 		
-		Default_byte(final Getter_byte<T> getter, final Setter_byte<T> setter)
+		Default_byte(final String name, final Getter_byte<T> getter, final Setter_byte<T> setter)
 		{
-			super(byte.class);
+			super(byte.class, name);
 			this.getter = getter;
 			this.setter = setter;
 		}
@@ -484,9 +488,9 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// constructors //
 		/////////////////
 		
-		Default_boolean(final Getter_boolean<T> getter, final Setter_boolean<T> setter)
+		Default_boolean(final String name, final Getter_boolean<T> getter, final Setter_boolean<T> setter)
 		{
-			super(boolean.class);
+			super(boolean.class, name);
 			this.getter = getter;
 			this.setter = setter;
 		}
@@ -583,9 +587,9 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// constructors //
 		/////////////////
 		
-		Default_short(final Getter_short<T> getter, final Setter_short<T> setter)
+		Default_short(final String name, final Getter_short<T> getter, final Setter_short<T> setter)
 		{
-			super(short.class);
+			super(short.class, name);
 			this.getter = getter;
 			this.setter = setter;
 		}
@@ -681,9 +685,9 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// constructors //
 		/////////////////
 		
-		Default_char(final Getter_char<T> getter, final Setter_char<T> setter)
+		Default_char(final String name, final Getter_char<T> getter, final Setter_char<T> setter)
 		{
-			super(char.class);
+			super(char.class, name);
 			this.getter = getter;
 			this.setter = setter;
 		}
@@ -779,9 +783,9 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// constructors //
 		/////////////////
 		
-		Default_int(final Getter_int<T> getter, final Setter_int<T> setter)
+		Default_int(final String name, final Getter_int<T> getter, final Setter_int<T> setter)
 		{
-			super(int.class);
+			super(int.class, name);
 			this.getter = getter;
 			this.setter = setter;
 		}
@@ -877,9 +881,9 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// constructors //
 		/////////////////
 		
-		Default_float(final Getter_float<T> getter, final Setter_float<T> setter)
+		Default_float(final String name, final Getter_float<T> getter, final Setter_float<T> setter)
 		{
-			super(float.class);
+			super(float.class, name);
 			this.getter = getter;
 			this.setter = setter;
 		}
@@ -975,9 +979,9 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// constructors //
 		/////////////////
 		
-		Default_long(final Getter_long<T> getter, final Setter_long<T> setter)
+		Default_long(final String name, final Getter_long<T> getter, final Setter_long<T> setter)
 		{
-			super(long.class);
+			super(long.class, name);
 			this.getter = getter;
 			this.setter = setter;
 		}
@@ -1073,9 +1077,9 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// constructors //
 		/////////////////
 		
-		Default_double(final Getter_double<T> getter, final Setter_double<T> setter)
+		Default_double(final String name, final Getter_double<T> getter, final Setter_double<T> setter)
 		{
-			super(double.class);
+			super(double.class, name);
 			this.getter = getter;
 			this.setter = setter;
 		}
@@ -1172,9 +1176,14 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		// constructors //
 		/////////////////
 		
-		DefaultReference(final Class<R> referenceType, final Getter<T, R> getter, final Setter<T, R> setter)
+		DefaultReference(
+			final Class<R>     referenceType,
+			final String       name         ,
+			final Getter<T, R> getter       ,
+			final Setter<T, R> setter
+		)
 		{
-			super(referenceType);
+			super(referenceType, name);
 			this.type   = referenceType;
 			this.getter = getter;
 			this.setter = setter;
