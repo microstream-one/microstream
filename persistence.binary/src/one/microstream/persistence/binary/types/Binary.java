@@ -1,5 +1,6 @@
 package one.microstream.persistence.binary.types;
 
+import static one.microstream.X.ConstList;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
@@ -20,12 +21,14 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidListElements;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
+import one.microstream.persistence.binary.internal.CustomBinaryHandler;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
+import one.microstream.persistence.types.PersistenceTypeInstantiator;
 import one.microstream.reflect.Getter;
 import one.microstream.reflect.Getter_boolean;
 import one.microstream.reflect.Getter_byte;
@@ -2674,6 +2677,33 @@ public abstract class Binary implements Chunk
 			notNull(name),
 			notNull(getter),
 			mayNull(setter)
+		);
+	}
+	
+	@SafeVarargs
+	public static <T> BinaryTypeHandler<T> TypeHandler(
+		final Class<T>                  entityType  ,
+		final BinaryField<? super T>... binaryFields
+	)
+	{
+		return TypeHandler(
+			entityType,
+			PersistenceTypeInstantiator.New(entityType),
+			binaryFields
+		);
+	}
+	
+	@SafeVarargs
+	public static <T> BinaryTypeHandler<T> TypeHandler(
+		final Class<T>                               entityType  ,
+		final PersistenceTypeInstantiator<Binary, T> instantiator,
+		final BinaryField<? super T>...              binaryFields
+	)
+	{
+		return CustomBinaryHandler.New(
+			entityType,
+			instantiator,
+			ConstList(binaryFields)
 		);
 	}
 	

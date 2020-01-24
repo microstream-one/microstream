@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 MS-130\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 MS-130\par
 \par
 2019-04-17 \par
 \par
@@ -444,5 +445,37 @@ Hm, oder, eigentlich k\'f6nnte man das recht h\'fcbsch trennen: die f\'fcr refle
 \par
 So. Umgebaut und konsolidiert auf benambare BinaryFields in Binary.\par
 Morgen muss da noch die Utilmethode zum Handler definieren rein. Dann ist das generische Definieren auch fertig.\par
+\par
+\par
+09:20\par
+\par
+Weiter gehts.\par
+\par
+Ganz simple und geniale Idee f\'fcr den "BinaryHandlerCustom2":\par
+Einfach "CustomBinaryHandler".\par
+Weil der andere hei\'dft ja "AbstractBinaryHandlerCustom" und sollte so gut wie unsichtbar sein.\par
+Dann w\'e4r das schon mal erledigt.\par
+\par
+Jetzt noch Binary#TypeHandler Methoden bauen.\par
+Mit Default Instantiator Logik.\par
+\par
+Beispiel zum testen bauen ...\par
+Mal \'fcberlegen... was ist ein sehr simples, aber trotzdem nachvollziehbar sinnvolles Beispiel?\line Idee: Ein simples Entity, das 3 Value Type Object Werte hat, die man eigentlich genauso gut als Primitive speichern kann.\par
+TypeHandler magic Methode daf\'fcr bauen.\par
+MainKlasse mit Initialisierung.\par
+Testen ...\par
+Exception. Ah. Hm. Die generische Variante wird durch die Initialisierungslogik noch nicht abgedeckt. Das ist nat\'fcrlich richtig.\par
+Nachr\'fcsten ...\par
+\par
+Testen. Passt.\par
+\par
+Aufgefallen:\line Eigentlich muss es BinaryField<? super T> hei\'dfen, weil ja ein in einer Superklasse schon definiertes BinaryField f\'fcr eine Subklasse auch anwendbar sein muss.\par
+W\'e4re bl\'f6d, wenn man da Code redundant warten m\'fcsste, nur weil in der API ein "? super" fehlt.\par
+Umbauen, zieht sich nat\'fcrlich quer durch den ganzen CustomTypeHandler.\par
+Fertig.\par
+Sollte durch Type Erasure keinen Unterschied machen, aber einfach nochmal testen.\par
+\par
+Okay.\par
+Jetzt w\'e4r alles fix und fertig bis auf Support von variable length fields.\par
 }
  
