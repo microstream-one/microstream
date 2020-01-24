@@ -18,12 +18,22 @@ public interface MemoryStatisticsProvider
 		return Static.get();
 	}
 	
-	
+		
 	public final class Static
 	{
-		public final static long DEFAULT_UPDATE_INTERVAL = 1000;
+		///////////////////////////////////////////////////////////////////////////
+		// constants //
+		//////////////
 		
-		static MemoryStatisticsProvider globalMemoryStatisticsProvider = New(DEFAULT_UPDATE_INTERVAL);
+		/* (24.01.2020 TM)NOTE:
+		 * No public constant field ... and actually, no constant field at all, because why occupy memory twice?
+		 */
+		public static final long defaultUpdateInterval()
+		{
+			return 1000;
+		}
+		
+		static MemoryStatisticsProvider globalMemoryStatisticsProvider = MemoryStatisticsProvider.New(defaultUpdateInterval());
 		
 		static synchronized MemoryStatisticsProvider set(final MemoryStatisticsProvider memoryStatisticsProvider)
 		{
@@ -36,6 +46,7 @@ public interface MemoryStatisticsProvider
 		{
 			return globalMemoryStatisticsProvider;
 		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -56,14 +67,18 @@ public interface MemoryStatisticsProvider
 	}
 	
 	
+	
 	public static MemoryStatisticsProvider New(final long updateInterval)
 	{
-		return new Default(updateInterval);
+		return new MemoryStatisticsProvider.Default(updateInterval);
 	}
-	
 	
 	public static class Default implements MemoryStatisticsProvider
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		private final long             updateInterval                            ;
 
 		private final Object           heapMemoryLock              = new Object();
@@ -74,12 +89,24 @@ public interface MemoryStatisticsProvider
 		private       MemoryStatistics nonHeapMemoryUsage                        ;
 		private       long             nonHeapMemoryUsageTimestamp               ;
 		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
 		Default(final long updateInterval)
 		{
 			super();
 			
 			this.updateInterval = updateInterval;
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 		
 		@Override
 		public MemoryStatistics heapMemoryUsage()
@@ -88,9 +115,7 @@ public interface MemoryStatisticsProvider
 			
 			synchronized(this.heapMemoryLock)
 			{
-				if(this.heapMemoryUsage == null
-				|| now - this.updateInterval >= this.heapMemoryUsageTimestamp
-				)
+				if(this.heapMemoryUsage == null || now - this.updateInterval >= this.heapMemoryUsageTimestamp)
 				{
 					this.heapMemoryUsageTimestamp = now                               ;
 					this.heapMemoryUsage          = MemoryStatistics.HeapMemoryUsage();
@@ -107,9 +132,7 @@ public interface MemoryStatisticsProvider
 			
 			synchronized(this.nonHeapMemoryLock)
 			{
-				if(this.nonHeapMemoryUsage == null
-				|| now - this.updateInterval >= this.nonHeapMemoryUsageTimestamp
-				)
+				if(this.nonHeapMemoryUsage == null || now - this.updateInterval >= this.nonHeapMemoryUsageTimestamp)
 				{
 					this.nonHeapMemoryUsageTimestamp = now                               ;
 					this.nonHeapMemoryUsage          = MemoryStatistics.HeapMemoryUsage();

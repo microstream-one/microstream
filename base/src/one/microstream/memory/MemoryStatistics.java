@@ -22,6 +22,7 @@ public interface MemoryStatistics
 	public double quota();
 	
 	
+	
 	public static MemoryStatistics HeapMemoryUsage()
 	{
 		return New(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
@@ -34,19 +35,13 @@ public interface MemoryStatistics
 	
 	public static MemoryStatistics New(final MemoryUsage usage)
 	{
-		final long   max       = usage.getMax()                 ;
-		final long   used      = usage.getUsed()                ;
-		final long   available = max - used                     ;
-		final double quota     = (double)available / (double)max;
-		return new Default(
-			max      ,
-			used     ,
-			available,
-			quota
-		);
+		final long max       = usage.getMax() ;
+		final long used      = usage.getUsed();
+		final long available = max - used     ;
+		
+		return new Default(max, used, available, (double)available / (double)max);
 	}
-	
-	
+		
 	public static class Default implements MemoryStatistics
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -57,6 +52,7 @@ public interface MemoryStatistics
 		private final long   used     ;
 		private final long   available;
 		private final double quota    ;
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -77,6 +73,8 @@ public interface MemoryStatistics
 			this.available = available;
 			this.quota     = quota    ;
 		}
+		
+		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
