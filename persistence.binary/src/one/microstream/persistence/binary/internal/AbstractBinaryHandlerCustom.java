@@ -250,7 +250,7 @@ extends BinaryTypeHandler.Abstract<T>
 		// (09.01.2020 TM)EXCP: proper exception
 		throw new PersistenceException(
 			"type definition members may not be null for non-"
-			+ AbstractBinaryHandlerCustom2.class.getSimpleName()
+			+ CustomBinaryHandler.class.getSimpleName()
 			+ "-implmenentations"
 		);
 	}

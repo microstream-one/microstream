@@ -9,6 +9,11 @@ public interface PersistenceTypeInstantiator<D, T>
 	
 	
 	
+	public static <T, D> PersistenceTypeInstantiator<D, T> New(final Class<T> type)
+	{
+		return New(type, PersistenceInstantiator.New());
+	}
+	
 	public static <T, D> PersistenceTypeInstantiator<D, T> New(
 		final Class<T>                   type                 ,
 		final PersistenceInstantiator<D> universalInstantiator

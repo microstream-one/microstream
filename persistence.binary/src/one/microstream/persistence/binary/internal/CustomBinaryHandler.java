@@ -1,6 +1,7 @@
 package one.microstream.persistence.binary.internal;
 
 import static one.microstream.X.mayNull;
+import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -49,9 +50,7 @@ import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
 
 
-// (23.01.2020 TM)FIXME: priv#88: rename "Custom2"
-public abstract class AbstractBinaryHandlerCustom2<T>
-extends AbstractBinaryHandlerCustom<T>
+public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -222,8 +221,8 @@ extends AbstractBinaryHandlerCustom<T>
 //		);
 //	}
 	
-	protected static <T> EqConstHashTable<String, ? extends BinaryField<T>> mapBinaryFields(
-		final XGettingSequence<? extends BinaryField<T>> binaryFields
+	protected EqConstHashTable<String, ? extends BinaryField<? super T>> initializeDefinedFields(
+		final XGettingSequence<? extends BinaryField<? super T>> binaryFields
 	)
 	{
 		if(binaryFields == null)
@@ -232,10 +231,19 @@ extends AbstractBinaryHandlerCustom<T>
 			return null;
 		}
 		
-		final EqHashTable<String, BinaryField<T>> mappedBinaryFields = EqHashTable.New();
+		final EqHashTable<String, BinaryField.Initializable<? super T>> mappedBinaryFields = EqHashTable.New();
 		
-		for(final BinaryField<T> binaryField : binaryFields)
+		for(final BinaryField<? super T> binaryField : binaryFields)
 		{
+			if(!(binaryField instanceof BinaryField.Initializable<?>))
+			{
+				// (24.01.2020 TM)EXCP: proper exception
+				throw new PersistenceException(
+					BinaryField.class.getSimpleName() + "\"" + binaryField.name() + "\" is not "
+					+ BinaryField.Initializable.class.getSimpleName() + "."
+				);
+			}
+			
 			final String identifier = binaryField.identifier();
 			if(identifier == null)
 			{
@@ -245,7 +253,7 @@ extends AbstractBinaryHandlerCustom<T>
 				);
 			}
 			
-			if(!mappedBinaryFields.add(identifier, binaryField))
+			if(!mappedBinaryFields.add(identifier, (BinaryField.Initializable<? super T>)binaryField))
 			{
 				// (21.01.2020 TM)EXCP: proper exception
 				throw new PersistenceException(
@@ -253,10 +261,26 @@ extends AbstractBinaryHandlerCustom<T>
 				);
 			}
 		}
+				
+		this.initializeBinaryFields(mappedBinaryFields);
 		
 		return mappedBinaryFields.immure();
 	}
 	
+	
+	
+	public static <T> CustomBinaryHandler<T> New(
+		final Class<T>                                   type        ,
+		final PersistenceTypeInstantiator<Binary, T>     instantiator,
+		final XGettingSequence<? extends BinaryField<? super T>> binaryFields
+	)
+	{
+		return new CustomBinaryHandler<>(
+			notNull(type),
+			notNull(instantiator),
+			notNull(binaryFields)
+		);
+	}
 	
 	
 	
@@ -267,53 +291,52 @@ extends AbstractBinaryHandlerCustom<T>
 	private final PersistenceTypeInstantiator<Binary, T> instantiator;
 	
 	// must be deferred-initialized since all fields have to be collected in a generic way
-	private EqConstHashTable<String, ? extends BinaryField<T>> binaryFields;
+	private EqConstHashTable<String, ? extends BinaryField<? super T>> binaryFields;
 	
 	// having no setting members effectively means the type is an immutable value type
 	private boolean hasSettingMembers;
 	private boolean hasPersistedReferences;
 
-	private BinaryField<T>[] storingFields      ;
-	private BinaryField<T>[] allReferenceFields ;
-	private BinaryField<T>[] settingRefrncFields;
-	private BinaryField<T>[] settingNonRefFields;
+	private BinaryField<? super T>[] storingFields      ;
+	private BinaryField<? super T>[] allReferenceFields ;
+	private BinaryField<? super T>[] settingRefrncFields;
+	private BinaryField<? super T>[] settingNonRefFields;
 	
 	// may be null if no such field is present
-	private BinaryField<T> trailingVariableLengthField;
+	private BinaryField<? super T> trailingVariableLengthField;
 	
 	// all but trailing variable length field, if present.
 	private int fixedLengthBinaryContent;
 	
-
-
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 	
-	protected AbstractBinaryHandlerCustom2(final Class<T> type)
+	protected CustomBinaryHandler(final Class<T> type)
 	{
-		this(type, (XGettingSequence<? extends BinaryField<T>>)null);
+		this(type, (XGettingSequence<? extends BinaryField<? super T>>)null);
 	}
 
-	protected AbstractBinaryHandlerCustom2(
-		final Class<T>                                   type        ,
-		final XGettingSequence<? extends BinaryField<T>> binaryFields
+	protected CustomBinaryHandler(
+		final Class<T>                                           type        ,
+		final XGettingSequence<? extends BinaryField<? super T>> binaryFields
 	)
 	{
 		this(type, deriveTypeName(type), null, binaryFields);
 	}
 	
-	protected AbstractBinaryHandlerCustom2(
-		final Class<T>                                   type        ,
-		final String                                     typeName    ,
-		final XGettingSequence<? extends BinaryField<T>> binaryFields
+	protected CustomBinaryHandler(
+		final Class<T>                                           type        ,
+		final String                                             typeName    ,
+		final XGettingSequence<? extends BinaryField<? super T>> binaryFields
 	)
 	{
 		this(type, typeName, null, binaryFields);
 	}
 	
-	protected AbstractBinaryHandlerCustom2(
+	protected CustomBinaryHandler(
 		final Class<T>                               type        ,
 		final PersistenceTypeInstantiator<Binary, T> instantiator
 	)
@@ -321,25 +344,25 @@ extends AbstractBinaryHandlerCustom<T>
 		this(type, instantiator, null);
 	}
 
-	protected AbstractBinaryHandlerCustom2(
-		final Class<T>                                   type        ,
-		final PersistenceTypeInstantiator<Binary, T>     instantiator,
-		final XGettingSequence<? extends BinaryField<T>> binaryFields
+	protected CustomBinaryHandler(
+		final Class<T>                                           type        ,
+		final PersistenceTypeInstantiator<Binary, T>             instantiator,
+		final XGettingSequence<? extends BinaryField<? super T>> binaryFields
 	)
 	{
-		this(type, deriveTypeName(type), binaryFields);
+		this(type, deriveTypeName(type), instantiator, binaryFields);
 	}
 	
-	protected AbstractBinaryHandlerCustom2(
-		final Class<T>                                   type        ,
-		final String                                     typeName    ,
-		final PersistenceTypeInstantiator<Binary, T>     instantiator,
-		final XGettingSequence<? extends BinaryField<T>> binaryFields
+	protected CustomBinaryHandler(
+		final Class<T>                                           type        ,
+		final String                                             typeName    ,
+		final PersistenceTypeInstantiator<Binary, T>             instantiator,
+		final XGettingSequence<? extends BinaryField<? super T>> binaryFields
 	)
 	{
 		super(type, typeName, binaryFields);
 		this.instantiator = mayNull(instantiator);
-		this.binaryFields = mapBinaryFields(binaryFields);
+		this.binaryFields = this.initializeDefinedFields(binaryFields);
 	}
 	
 	
@@ -368,7 +391,7 @@ extends AbstractBinaryHandlerCustom<T>
 	protected XImmutableEnum<? extends PersistenceTypeDefinitionMember> initializeInstanceMembers()
 	{
 		// super class's on-demand logic guarantees that this method is only called once for every instance.
-		final XGettingSequence<? extends BinaryField<T>> binaryFields = this.initializeBinaryFields();
+		final XGettingSequence<? extends BinaryField<? super T>> binaryFields = this.reflectiveInitializeBinaryFields();
 		
 		return validateAndImmure(binaryFields);
 	}
@@ -390,12 +413,11 @@ extends AbstractBinaryHandlerCustom<T>
 
 		data.storeEntityHeader(contentLength, this.typeId(), objectId);
 
-		for(final BinaryField<T> storingField : this.storingFields)
+		for(final BinaryField<? super T> storingField : this.storingFields)
 		{
 			storingField.storeFromInstance(instance, data, handler);
 		}
 	}
-	
 	
 	protected T instantiate(final Binary data)
 	{
@@ -416,17 +438,15 @@ extends AbstractBinaryHandlerCustom<T>
 	
 	private void setNonReferenceValues(final T instance, final Binary data, final PersistenceLoadHandler handler)
 	{
-		for(final BinaryField<T> settingNonRefField : this.settingNonRefFields)
+		for(final BinaryField<? super T> settingNonRefField : this.settingNonRefFields)
 		{
 			settingNonRefField.setToInstance(instance, data, handler);
 		}
 	}
 	
-	
-	
 	private void setReferenceValues(final T instance, final Binary data, final PersistenceLoadHandler handler)
 	{
-		for(final BinaryField<T> settingRefrncField : this.settingRefrncFields)
+		for(final BinaryField<? super T> settingRefrncField : this.settingRefrncFields)
 		{
 			settingRefrncField.setToInstance(instance, data, handler);
 		}
@@ -434,7 +454,7 @@ extends AbstractBinaryHandlerCustom<T>
 	
 	private void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
 	{
-		for(final BinaryField<T> settingNonRefField : this.storingFields)
+		for(final BinaryField<? super T> settingNonRefField : this.storingFields)
 		{
 			settingNonRefField.setToInstance(instance, data, handler);
 		}
@@ -472,43 +492,21 @@ extends AbstractBinaryHandlerCustom<T>
 	@Override
 	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
 	{
-		for(final BinaryField<T> storingField : this.storingFields)
+		for(final BinaryField<? super T> storingField : this.storingFields)
 		{
 			logic.accept(storingField.type());
 		}
 		
 		return logic;
 	}
-
-//	protected final synchronized void initializeBinaryFieldsExplicitely(final Class<?> invokingClass)
-//	{
-//		if(this.initializationInvokingClass != null)
-//		{
-//			if(this.initializationInvokingClass == invokingClass)
-//			{
-//				// consistent no-op, abort.
-//				return;
-//			}
-//
-//			// (04.04.2019 TM)EXCP: proper exception
-//			throw new PersistenceException(
-//				XChars.systemString(this)
-//				+ " already initialized by an invokation from class "
-//				+ this.initializationInvokingClass.getName()
-//			);
-//		}
-//
-//		this.initializeBinaryFields();
-//		this.initializationInvokingClass = invokingClass;
-//	}
-
-	protected final synchronized XGettingSequence<? extends BinaryField<T>> initializeBinaryFields()
+	
+	protected final synchronized XGettingSequence<? extends BinaryField<? super T>> reflectiveInitializeBinaryFields()
 	{
 		final HashTable<Class<?>, XGettingSequence<BinaryField.Initializable<T>>> binaryFieldsPerClass = HashTable.New();
 		
 		this.collectBinaryFields(binaryFieldsPerClass);
 
-		final EqHashTable<String, BinaryField.Initializable<T>> binaryFieldsInOrder = EqHashTable.New();
+		final EqHashTable<String, BinaryField.Initializable<? super T>> binaryFieldsInOrder = EqHashTable.New();
 		this.defineBinaryFieldOrder(binaryFieldsPerClass, (identifier, field) ->
 		{
 			if(!binaryFieldsInOrder.add(identifier, field))
@@ -532,7 +530,7 @@ extends AbstractBinaryHandlerCustom<T>
 		final HashTable<Class<?>, XGettingSequence<BinaryField.Initializable<T>>> binaryFieldsPerClass
 	)
 	{
-		for(Class<?> c = this.getClass(); c != AbstractBinaryHandlerCustom2.class; c = c.getSuperclass())
+		for(Class<?> c = this.getClass(); c != CustomBinaryHandler.class; c = c.getSuperclass())
 		{
 			// This construction is necessary to maintain the order even if a class overrides the collecting logic.
 			final BulkList<BinaryField.Initializable<T>> binaryFieldsOfClass = BulkList.New();
@@ -641,16 +639,18 @@ extends AbstractBinaryHandlerCustom<T>
 		}
 	}
 	
-	private void initializeBinaryFields(final XTable<String, BinaryField.Initializable<T>> binaryFields)
+	private void initializeBinaryFields(
+		final EqHashTable<String, BinaryField.Initializable<? super T>> binaryFields
+	)
 	{
-		final BinaryField<T>           varLengthField      = checkVariableLengthLayout(binaryFields);
-		final BulkList<BinaryField<T>> storingFields       = BulkList.New();
-		final BulkList<BinaryField<T>> allReferenceFields  = BulkList.New();
-		final BulkList<BinaryField<T>> settingNonRefFields = BulkList.New();
-		final BulkList<BinaryField<T>> settingRefrncFields = BulkList.New();
+		final BinaryField<? super T>   varLengthField      = checkVariableLengthLayout(binaryFields);
+		final BulkList<BinaryField<? super T>> storingFields       = BulkList.New();
+		final BulkList<BinaryField<? super T>> allReferenceFields  = BulkList.New();
+		final BulkList<BinaryField<? super T>> settingNonRefFields = BulkList.New();
+		final BulkList<BinaryField<? super T>> settingRefrncFields = BulkList.New();
 						
 		int offset = 0;
-		for(final BinaryField.Initializable<T> binaryField : binaryFields.values())
+		for(final BinaryField.Initializable<? super T> binaryField : binaryFields.values())
 		{
 			binaryField.initializeOffset(offset);
 			storingFields.add(binaryField);
@@ -697,7 +697,7 @@ extends AbstractBinaryHandlerCustom<T>
 	}
 	
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private Class<BinaryField<T>> binaryFieldClass()
+	private Class<BinaryField<? super T>> binaryFieldClass()
 	{
 		// no idea how to get ".class" to work otherwise
 		return (Class)BinaryField.class;
