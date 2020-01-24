@@ -70,21 +70,18 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 		public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final Class<T> type)
 			throws PersistenceExceptionTypeNotPersistable
 		{
-			if(PersistenceTypeHandlerProviding.class.isAssignableFrom(type))
+			final PersistenceTypeHandler<D, T> providedHandler;
+			try
 			{
-				final PersistenceTypeHandler<D, T> providedHandler;
-				try
-				{
-					providedHandler = PersistenceTypeHandlerProviding.searchProvidedTypeHandler(this.dataType(), type);
-				}
-				catch(final ReflectiveOperationException e)
-				{
-					throw new PersistenceException(e);
-				}
-				if(providedHandler != null)
-				{
-					return providedHandler;
-				}
+				providedHandler = Persistence.searchProvidedTypeHandler(this.dataType(), type, null);
+			}
+			catch(final ReflectiveOperationException e)
+			{
+				throw new PersistenceException(e);
+			}
+			if(providedHandler != null)
+			{
+				return providedHandler;
 			}
 			
 			// lookup predefined handler first to cover primitives and to give custom handlers precedence

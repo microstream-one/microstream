@@ -1,7 +1,6 @@
 package one.microstream.persistence.binary.internal;
 
 import static one.microstream.X.mayNull;
-import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -20,6 +19,7 @@ import one.microstream.collections.types.XGettingTable;
 import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.collections.types.XTable;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.types.BinaryField;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
@@ -67,10 +67,7 @@ extends AbstractBinaryHandlerCustom<T>
 		final Setter_byte<T> setter
 	)
 	{
-		return new BinaryField.Default_byte<>(
-			notNull(getter),
-			mayNull(setter)
-		);
+		return Binary.Field_byte(BinaryField.Defaults.defaultUninitializedName(), getter, setter);
 	}
 	
 	protected static final <T> BinaryField<T> Field_boolean(final Getter_boolean<T> getter)
@@ -83,10 +80,7 @@ extends AbstractBinaryHandlerCustom<T>
 		final Setter_boolean<T> setter
 	)
 	{
-		return new BinaryField.Default_boolean<>(
-			notNull(getter),
-			mayNull(setter)
-		);
+		return Binary.Field_boolean(BinaryField.Defaults.defaultUninitializedName(), getter, setter);
 	}
 	
 	protected static final <T> BinaryField<T> Field_short(final Getter_short<T> getter)
@@ -99,10 +93,7 @@ extends AbstractBinaryHandlerCustom<T>
 		final Setter_short<T> setter
 	)
 	{
-		return new BinaryField.Default_short<>(
-			notNull(getter),
-			mayNull(setter)
-		);
+		return Binary.Field_short(BinaryField.Defaults.defaultUninitializedName(), getter, setter);
 	}
 	
 	protected static final <T> BinaryField<T> Field_char(final Getter_char<T> getter)
@@ -115,10 +106,7 @@ extends AbstractBinaryHandlerCustom<T>
 		final Setter_char<T> setter
 	)
 	{
-		return new BinaryField.Default_char<>(
-			notNull(getter),
-			mayNull(setter)
-		);
+		return Binary.Field_char(BinaryField.Defaults.defaultUninitializedName(), getter, setter);
 	}
 	
 	protected static final <T> BinaryField<T> Field_int(final Getter_int<T> getter)
@@ -131,10 +119,7 @@ extends AbstractBinaryHandlerCustom<T>
 		final Setter_int<T> setter
 	)
 	{
-		return new BinaryField.Default_int<>(
-			notNull(getter),
-			mayNull(setter)
-		);
+		return Binary.Field_int(BinaryField.Defaults.defaultUninitializedName(), getter, setter);
 	}
 	
 	protected static final <T> BinaryField<T> Field_float(final Getter_float<T> getter)
@@ -147,10 +132,7 @@ extends AbstractBinaryHandlerCustom<T>
 		final Setter_float<T> setter
 	)
 	{
-		return new BinaryField.Default_float<>(
-			notNull(getter),
-			mayNull(setter)
-		);
+		return Binary.Field_float(BinaryField.Defaults.defaultUninitializedName(), getter, setter);
 	}
 	
 	protected static final <T> BinaryField<T> Field_long(final Getter_long<T> getter)
@@ -163,10 +145,7 @@ extends AbstractBinaryHandlerCustom<T>
 		final Setter_long<T> setter
 	)
 	{
-		return new BinaryField.Default_long<>(
-			notNull(getter),
-			mayNull(setter)
-		);
+		return Binary.Field_long(BinaryField.Defaults.defaultUninitializedName(), getter, setter);
 	}
 	
 	protected static final <T> BinaryField<T> Field_double(final Getter_double<T> getter)
@@ -179,10 +158,7 @@ extends AbstractBinaryHandlerCustom<T>
 		final Setter_double<T> setter
 	)
 	{
-		return new BinaryField.Default_double<>(
-			notNull(getter),
-			mayNull(setter)
-		);
+		return Binary.Field_double(BinaryField.Defaults.defaultUninitializedName(), getter, setter);
 	}
 	
 	protected static final <T, R> BinaryField<T> Field(final Class<R> referenceType, final Getter<T, R> getter)
@@ -196,11 +172,7 @@ extends AbstractBinaryHandlerCustom<T>
 		final Setter<T, R> setter
 	)
 	{
-		return new BinaryField.DefaultReference<>(
-			notNull(referenceType),
-			notNull(getter),
-			mayNull(setter)
-		);
+		return Binary.Field(referenceType, BinaryField.Defaults.defaultUninitializedName(), getter, setter);
 	}
 	
 	// (22.01.2020 TM)TODO: priv#88: support variable length fields

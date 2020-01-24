@@ -1,6 +1,6 @@
 package one.microstream.test.binary_fields;
 
-import one.microstream.persistence.binary.internal.BinaryField;
+import one.microstream.persistence.binary.types.BinaryField;
 
 
 public abstract class AbstractBinaryHandlerBFTestInter<T extends BFTestInter>

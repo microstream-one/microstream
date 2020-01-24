@@ -1,7 +1,7 @@
 package one.microstream.test.binary_fields;
 
-import one.microstream.persistence.binary.internal.BinaryField;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.types.BinaryField;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 
 public class BinaryHandlerBFTestLeaf extends AbstractBinaryHandlerBFTestInter<BFTestLeaf>
