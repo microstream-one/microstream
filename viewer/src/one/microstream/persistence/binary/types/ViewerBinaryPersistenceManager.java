@@ -3,7 +3,7 @@ package one.microstream.persistence.binary.types;
 import java.nio.ByteOrder;
 import java.util.function.Consumer;
 
-import one.microstream.persistence.binary.types.BinaryLoader.CreatorSimple;
+import one.microstream.persistence.binary.types.BinaryLoader.CreatorChannelHashing;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceContextDispatcher;
@@ -18,6 +18,7 @@ import one.microstream.persistence.types.PersistenceStorer.Creator;
 import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
+import one.microstream.storage.types.EmbeddedStorageManager;
 
 public class ViewerBinaryPersistenceManager implements PersistenceManager<Binary>
 {
@@ -36,19 +37,22 @@ public class ViewerBinaryPersistenceManager implements PersistenceManager<Binary
 	// constructors //
 	/////////////////
 
-	public ViewerBinaryPersistenceManager(final PersistenceManager<Binary> persistenceManager)
+	public ViewerBinaryPersistenceManager(final EmbeddedStorageManager storage)
 	{
 		super();
 
-		this.persistenceManager = persistenceManager;
+		this.persistenceManager = storage.persistenceManager();
 		this.objectRegistry = new ViewerObjectRegistryDisabled();
 		this.constantRegistry = PersistenceObjectRegistry.New();
 		Persistence.registerJavaConstants(this.constantRegistry);
 
-		this.loaderCreator = new CreatorSimple(persistenceManager.isByteOrderMismatch());
+		this.loaderCreator = new CreatorChannelHashing(
+			storage.configuration().channelCountProvider(),
+			this.persistenceManager.isByteOrderMismatch());
+
 		this.contextDispatcher = PersistenceContextDispatcher.PassThrough();
 
-		this.typeHandlerManager = new ViewerBinaryTypeHandlerManager(persistenceManager);
+		this.typeHandlerManager = new ViewerBinaryTypeHandlerManager(this.persistenceManager);
 	}
 
 	///////////////////////////////////////////////////////////////////////////

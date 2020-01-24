@@ -3,15 +3,16 @@ package one.microstream.viewer;
 import java.util.ArrayList;
 import java.util.List;
 
+import one.microstream.persistence.binary.types.ObjectDescription;
 import one.microstream.persistence.binary.types.ViewerBinaryPersistenceManager;
 import one.microstream.persistence.binary.types.ViewerException;
-import one.microstream.persistence.binary.types.ObjectDescription;
 import one.microstream.persistence.types.Persistence.IdType;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceRootsView;
 import one.microstream.persistence.types.PersistenceTypeDictionaryAssembler;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageRawFileStatistics;
 
 public class EmbeddedStorageRestAdapter
 {
@@ -28,7 +29,7 @@ public class EmbeddedStorageRestAdapter
 
 	public EmbeddedStorageRestAdapter(final EmbeddedStorageManager storage)
 	{
-		this.viewerPersistenceManager = new ViewerBinaryPersistenceManager(storage.persistenceManager());
+		this.viewerPersistenceManager = new ViewerBinaryPersistenceManager(storage);
 		this.embeddedStorageManager = storage;
 	}
 
@@ -126,5 +127,10 @@ public class EmbeddedStorageRestAdapter
 	{
 		final PersistenceTypeDictionaryAssembler assembler = PersistenceTypeDictionaryAssembler.New();
 		return assembler.assemble(this.embeddedStorageManager.typeDictionary());
+	}
+
+	public StorageRawFileStatistics getFileStatistics()
+	{
+		return this.embeddedStorageManager.createStorageStatistics();
 	}
 }
