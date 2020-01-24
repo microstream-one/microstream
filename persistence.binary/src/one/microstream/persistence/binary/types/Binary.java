@@ -1,5 +1,9 @@
 package one.microstream.persistence.binary.types;
 
+import static one.microstream.X.ConstList;
+import static one.microstream.X.mayNull;
+import static one.microstream.X.notNull;
+
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Map;
@@ -17,12 +21,32 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidListElements;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
+import one.microstream.persistence.binary.internal.CustomBinaryHandler;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
+import one.microstream.persistence.types.PersistenceTypeInstantiator;
+import one.microstream.reflect.Getter;
+import one.microstream.reflect.Getter_boolean;
+import one.microstream.reflect.Getter_byte;
+import one.microstream.reflect.Getter_char;
+import one.microstream.reflect.Getter_double;
+import one.microstream.reflect.Getter_float;
+import one.microstream.reflect.Getter_int;
+import one.microstream.reflect.Getter_long;
+import one.microstream.reflect.Getter_short;
+import one.microstream.reflect.Setter;
+import one.microstream.reflect.Setter_boolean;
+import one.microstream.reflect.Setter_byte;
+import one.microstream.reflect.Setter_char;
+import one.microstream.reflect.Setter_double;
+import one.microstream.reflect.Setter_float;
+import one.microstream.reflect.Setter_int;
+import one.microstream.reflect.Setter_long;
+import one.microstream.reflect.Setter_short;
 import one.microstream.typing.KeyValue;
 
 // CHECKSTYLE.OFF: AbstractClassName: this is kind of a hacky solution to improve readability on the use site
@@ -775,6 +799,7 @@ public abstract class Binary implements Chunk
 	 * 
 	 * @param listOffset the binary offset at which the binary list (actually: its header) starts
 	 * @param reader the reader logic to be used by the iteration.
+	 * 
 	 * @return the element count that has been iterated.
 	 */
 	public final long iterateListStructureElements(
@@ -782,8 +807,14 @@ public abstract class Binary implements Chunk
 		final BinaryElementReader reader
 	)
 	{
+		final long listElementCount = this.getBinaryListElementCountUnvalidating(listOffset);
+		if(listElementCount == 0)
+		{
+			// required to prevent divide-by-0 error.
+			return 0;
+		}
+		
 		final long listTotalByteLength = this.getBinaryListTotalByteLength(listOffset);
-		final long listElementCount    = this.getBinaryListElementCountUnvalidating(listOffset);
 		final long listContentLength   = toBinaryListContentByteLength(listTotalByteLength);
 		final long bytesPerElement     = listContentLength / listElementCount;
 		if(bytesPerElement * listElementCount != listContentLength)
@@ -2449,6 +2480,231 @@ public abstract class Binary implements Chunk
 			this.next   = next  ;
 		}
 		
+	}
+
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Binary Fields //
+	//////////////////
+	
+	public static final <T> BinaryField<T> Field_byte(
+		final String         name  ,
+		final Getter_byte<T> getter
+	)
+	{
+		return Field_byte(name, getter, null);
+	}
+	
+	public static final <T> BinaryField<T> Field_byte(
+		final String         name  ,
+		final Getter_byte<T> getter,
+		final Setter_byte<T> setter
+	)
+	{
+		return new BinaryField.Default_byte<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_boolean(
+		final String            name  ,
+		final Getter_boolean<T> getter
+	)
+	{
+		return Field_boolean(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_boolean(
+		final String            name  ,
+		final Getter_boolean<T> getter,
+		final Setter_boolean<T> setter
+	)
+	{
+		return new BinaryField.Default_boolean<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_short(
+		final String          name  ,
+		final Getter_short<T> getter
+	)
+	{
+		return Field_short(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_short(
+		final String          name  ,
+		final Getter_short<T> getter,
+		final Setter_short<T> setter
+	)
+	{
+		return new BinaryField.Default_short<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_char(
+		final String         name  ,
+		final Getter_char<T> getter
+	)
+	{
+		return Field_char(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_char(
+		final String         name  ,
+		final Getter_char<T> getter,
+		final Setter_char<T> setter
+	)
+	{
+		return new BinaryField.Default_char<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_int(
+		final String        name  ,
+		final Getter_int<T> getter
+	)
+	{
+		return Field_int(name, getter, null);
+	}
+	
+	public static final <T> BinaryField<T> Field_int(
+		final String        name  ,
+		final Getter_int<T> getter,
+		final Setter_int<T> setter
+	)
+	{
+		return new BinaryField.Default_int<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_float(
+		final String          name  ,
+		final Getter_float<T> getter
+	)
+	{
+		return Field_float(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_float(
+		final String          name  ,
+		final Getter_float<T> getter,
+		final Setter_float<T> setter
+	)
+	{
+		return new BinaryField.Default_float<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_long(
+		final String         name  ,
+		final Getter_long<T> getter
+	)
+	{
+		return Field_long(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_long(
+		final String         name  ,
+		final Getter_long<T> getter,
+		final Setter_long<T> setter
+	)
+	{
+		return new BinaryField.Default_long<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_double(
+		final String           name  ,
+		final Getter_double<T> getter
+	)
+	{
+		return Field_double(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_double(
+		final String           name  ,
+		final Getter_double<T> getter,
+		final Setter_double<T> setter
+	)
+	{
+		return new BinaryField.Default_double<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T, R> BinaryField<T> Field(
+		final Class<R>     referenceType,
+		final String       name         ,
+		final Getter<T, R> getter
+	)
+	{
+		return Field(referenceType, name, getter, null);
+	}
+		
+	public static final <T, R> BinaryField<T> Field(
+		final Class<R>     referenceType,
+		final String       name         ,
+		final Getter<T, R> getter       ,
+		final Setter<T, R> setter
+	)
+	{
+		return new BinaryField.DefaultReference<>(
+			notNull(referenceType),
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	@SafeVarargs
+	public static <T> BinaryTypeHandler<T> TypeHandler(
+		final Class<T>                  entityType  ,
+		final BinaryField<? super T>... binaryFields
+	)
+	{
+		return TypeHandler(
+			entityType,
+			PersistenceTypeInstantiator.New(entityType),
+			binaryFields
+		);
+	}
+	
+	@SafeVarargs
+	public static <T> BinaryTypeHandler<T> TypeHandler(
+		final Class<T>                               entityType  ,
+		final PersistenceTypeInstantiator<Binary, T> instantiator,
+		final BinaryField<? super T>...              binaryFields
+	)
+	{
+		return CustomBinaryHandler.New(
+			entityType,
+			instantiator,
+			ConstList(binaryFields)
+		);
 	}
 	
 }

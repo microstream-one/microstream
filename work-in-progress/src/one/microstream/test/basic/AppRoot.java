@@ -1,4 +1,4 @@
-package one.microstream.test.corp.main;
+package one.microstream.test.basic;
 
 class AppRoot<T>
 {

@@ -49,8 +49,26 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	// methods //
+	////////////
+	
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		return true;
+	}
+	
+	@Override
+	public final boolean hasPersistedVariableLength()
+	{
+		return true;
+	}
+
+	@Override
+	public final boolean hasVaryingPersistedLengthInstances()
+	{
+		return true;
+	}
 
 	@Override
 	public final void store(
@@ -109,30 +127,6 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	)
 	{
 		BinaryHandlerEqHashEnum.staticIteratePersistedReferences(data, iterator);
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return true;
-	}
-	
-	@Override
-	public final boolean hasPersistedReferences()
-	{
-		return true;
-	}
-	
-	@Override
-	public final boolean hasPersistedVariableLength()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean hasVaryingPersistedLengthInstances()
-	{
-		return true;
 	}
 
 }

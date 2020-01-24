@@ -23,11 +23,11 @@ import java.util.function.Consumer;
 public interface PersistenceUnreachableTypeHandler<D, T> extends PersistenceLegacyTypeHandler<D, T>
 {
 	@Override
-	public default boolean hasInstanceReferences()
+	public default Class<D> dataType()
 	{
-		return false;
+		return null;
 	}
-
+	
 	@Override
 	public default void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
