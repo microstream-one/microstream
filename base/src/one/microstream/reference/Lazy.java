@@ -2,6 +2,8 @@ package one.microstream.reference;
 
 import static one.microstream.X.notNull;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.function.Predicate;
 
 import one.microstream.chars.XChars;
@@ -398,6 +400,65 @@ public interface Lazy<T> extends Referencing<T>
 			;
 		}
 
+		
+		public static final class Checker implements LazyReferenceManager.Checker
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private final long millisecondTimeout  ;
+			private       long millisecondThreshold;
+			private       long memoryAvailable     ;
+			private       long memoryUsed          ;
+
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+
+			Checker(final long millisecondTimeout)
+			{
+				super();
+				this.millisecondTimeout = millisecondTimeout;
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+
+			@Override
+			public final void beginCheckCycle()
+			{
+				this.millisecondThreshold = System.currentTimeMillis() - this.millisecondTimeout;
+				
+				// querying a MemoryUsage instance takes about 500 ns to query. Should be negligible.
+				final MemoryUsage memoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+				this.memoryAvailable = Math.min(memoryUsage.getCommitted(), memoryUsage.getMax());
+				this.memoryUsed      = memoryUsage.getUsed();
+			}
+
+			@Override
+			public final boolean check(final Lazy<?> lazyReference)
+			{
+				if(!(lazyReference instanceof Lazy.Default<?>))
+				{
+					return false;
+				}
+
+				if(((Lazy.Default<?>)lazyReference).clearIfTimedout(this.millisecondThreshold))
+				{
+					return true;
+				}
+				
+				// (28.01.2020 TM)FIXME: priv#89: age-memory-combining check
+				throw new one.microstream.meta.NotImplementedYetError();
+			}
+
+		}
 
 
 		public static final class CheckerTimeout implements LazyReferenceManager.Checker
