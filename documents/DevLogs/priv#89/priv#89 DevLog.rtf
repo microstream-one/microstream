@@ -1,6 +1,5 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
-\pard\sl276\slmult1\f0\fs28\lang7 priv#89\par
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 priv#89\par
 \par
 2020-01-27\par
 \par
@@ -218,6 +217,20 @@ Und Wertevalidierung\par
 Und was ist, wenn beide null sind?\par
 \par
 Puh, alles mal als Tasks reinschreiben, damit ich das nicht vergess.\par
+\par
+23:00\par
+\par
+Weitermachen.\par
+Mir ist noch ein TODO eingefallen:\par
+Beim StorageManager Starten auch gleich den LazyReferenceManager setzen.\par
+Denn:\par
+Nicht per Default einen eigenen Thread erzeugen ist schon richtig, aber beim StorageManager werden eh auch Threads erzeugt und ohne LazyReferenceManager funktioniert fr\'fcher oder sp\'e4ter die Storage nicht richtig.\par
+Also ist dort der perfekte Punkt, wo der LRM Thread gestartet werden kann ... und auch MUSS.\par
+\par
+Und DANN kann ich dabei auch gleich priv#207 mit umsetzen.\par
+Das sind jeweils alles nur ein paar Zeilen Code.\par
+Also los gehts...\par
+\par
 \par
 }
  
