@@ -6,13 +6,18 @@ public class ViewerRootDescription
 	// instance fields //
 	////////////////////
 
-	private final String name;
-	private final long objectId;
+	private String name;
+	private long objectId;
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
+
+	public ViewerRootDescription()
+	{
+		super();
+	}
 
 	public ViewerRootDescription(final String name, final long objectId)
 	{
@@ -36,4 +41,16 @@ public class ViewerRootDescription
 	{
 		return this.objectId;
 	}
+
+
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+
+	public void setObjectId(final long objectId) {
+		this.objectId = objectId;
+	}
+
+
 }
