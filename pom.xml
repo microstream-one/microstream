@@ -315,6 +315,22 @@
 
 	<profiles>
 		<profile>
+			<id>all</id>
+			<modules>
+				<module>base</module>
+				<module>communication</module>
+				<module>communication.binary</module>
+				<module>persistence</module>
+				<module>persistence.binary</module>
+				<module>persistence.binary.jdk8</module>
+				<module>storage</module>
+				<module>storage.embedded</module>
+				<module>storage.embedded.configuration</module>
+				<module>work-in-progress</module>
+				<module>all</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>deploy</id>
 			<build>
 				<plugins>
