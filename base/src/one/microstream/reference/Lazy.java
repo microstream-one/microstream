@@ -1,14 +1,6 @@
 package one.microstream.reference;
 
-import static one.microstream.X.notNull;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
-import java.util.function.Predicate;
-
 import one.microstream.chars.XChars;
-import one.microstream.memory.MemoryStatistics;
-import one.microstream.memory.MemoryStatisticsProvider;
 
 
 /**
@@ -44,6 +36,8 @@ public interface Lazy<T> extends Referencing<T>
 
 	/**
 	 * Returns the local reference without loading the referenced object if it is not present.
+	 * The value returned by {@link #lastTouched()} will not be changed by calling this method.
+	 * 
 	 * @return the currently present reference.
 	 */
 	public T peek();
@@ -53,6 +47,16 @@ public interface Lazy<T> extends Referencing<T>
 	public boolean isStored();
 
 	public boolean isLoaded();
+	
+	/**
+	 * Returns the timestamp (corresponding to {@link System#currentTimeMillis()}) when this instance has last been
+	 * "touched", meaning having its reference modified or queried.
+	 * 
+	 * @return the time this instance has last been significantly used.
+	 */
+	public long lastTouched();
+	
+	public boolean clear(Lazy.ClearingEvaluator clearingEvaluator);
 	
 	
 
@@ -127,25 +131,18 @@ public interface Lazy<T> extends Referencing<T>
 		return register(new Lazy.Default<>(subject, objectId, loader));
 	}
 
-	public static LazyReferenceManager.Checker CheckerTimeout(final long millisecondTimeout)
-	{
-		return new Default.CheckerTimeout(millisecondTimeout);
-	}
-	
-	public static LazyReferenceManager.Checker CheckerMemory(final double minQuota)
-	{
-		return new Default.CheckerMemory(stats -> stats.quota() < minQuota);
-	}
-	
-	public static LazyReferenceManager.Checker CheckerMemory(final Predicate<MemoryStatistics> memoryBoundClearPredicate)
-	{
-		return new Default.CheckerMemory(memoryBoundClearPredicate);
-	}
+	// (28.01.2020 TM)FIXME: priv#89: Checker pseudo constructors
+	// (28.01.2020 TM)FIXME: priv#89: grace time
 
 	public static <T, L extends Lazy<T>> L register(final L lazyReference)
 	{
 		LazyReferenceManager.get().register(lazyReference);
 		return lazyReference;
+	}
+	
+	public interface ClearingEvaluator
+	{
+		public boolean clear(Lazy<?> lazyReference, long lastTouched);
 	}
 	
 	public final class Default<T> implements Lazy<T>
@@ -236,6 +233,7 @@ public interface Lazy<T> extends Referencing<T>
 			return this.objectId;
 		}
 		
+		@Override
 		public final long lastTouched()
 		{
 			return this.lastTouched;
@@ -278,6 +276,20 @@ public interface Lazy<T> extends Referencing<T>
 			final T subject = this.subject;
 			this.internalClear();
 			return subject;
+		}
+		
+		@Override
+		public final synchronized boolean clear(final ClearingEvaluator clearingEvaluator)
+		{
+			// unstored references may never even considered to be cleared
+			if(this.isStored() && clearingEvaluator.clear(this, this.lastTouched))
+			{
+				this.internalClear();
+				return true;
+			}
+
+			// otherwise, no clearing
+			return false;
 		}
 
 		private void touch()
@@ -399,164 +411,7 @@ public interface Lazy<T> extends Referencing<T>
 				: this.objectId + " " + XChars.systemString(this.subject)
 			;
 		}
-
 		
-		public static final class Checker implements LazyReferenceManager.Checker
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields //
-			////////////////////
-			
-			private final long millisecondTimeout  ;
-			private       long millisecondThreshold;
-			private       long memoryAvailable     ;
-			private       long memoryUsed          ;
-
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-
-			Checker(final long millisecondTimeout)
-			{
-				super();
-				this.millisecondTimeout = millisecondTimeout;
-			}
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-
-			@Override
-			public final void beginCheckCycle()
-			{
-				this.millisecondThreshold = System.currentTimeMillis() - this.millisecondTimeout;
-				
-				// querying a MemoryUsage instance takes about 500 ns to query. Should be negligible.
-				final MemoryUsage memoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-				this.memoryAvailable = Math.min(memoryUsage.getCommitted(), memoryUsage.getMax());
-				this.memoryUsed      = memoryUsage.getUsed();
-			}
-
-			@Override
-			public final boolean check(final Lazy<?> lazyReference)
-			{
-				if(!(lazyReference instanceof Lazy.Default<?>))
-				{
-					return false;
-				}
-
-				if(((Lazy.Default<?>)lazyReference).clearIfTimedout(this.millisecondThreshold))
-				{
-					return true;
-				}
-				
-				// (28.01.2020 TM)FIXME: priv#89: age-memory-combining check
-				throw new one.microstream.meta.NotImplementedYetError();
-			}
-
-		}
-
-
-		public static final class CheckerTimeout implements LazyReferenceManager.Checker
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields //
-			////////////////////
-			
-			private final long millisecondTimeout  ;
-			private       long millisecondThreshold;
-
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-
-			CheckerTimeout(final long millisecondTimeout)
-			{
-				super();
-				this.millisecondTimeout = millisecondTimeout;
-			}
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-
-			@Override
-			public void beginCheckCycle()
-			{
-				this.millisecondThreshold = System.currentTimeMillis() - this.millisecondTimeout;
-			}
-
-			@Override
-			public boolean check(final Lazy<?> lazyReference)
-			{
-				if(!(lazyReference instanceof Lazy.Default<?>))
-				{
-					return false;
-				}
-				return ((Lazy.Default<?>)lazyReference).clearIfTimedout(this.millisecondThreshold);
-			}
-
-		}
-
-
-
-		public static final class CheckerMemory implements LazyReferenceManager.Checker
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields //
-			////////////////////
-			
-			private final Predicate<MemoryStatistics> memoryBoundClearPredicate;
-			private       boolean                     clear                    ;
-
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-
-			CheckerMemory(final Predicate<MemoryStatistics> memoryBoundClearPredicate)
-			{
-				super();
-				this.memoryBoundClearPredicate = notNull(memoryBoundClearPredicate);
-			}
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-
-			@Override
-			public void beginCheckCycle()
-			{
-				this.clear = this.memoryBoundClearPredicate.test(
-					MemoryStatisticsProvider.get().heapMemoryUsage()
-				);
-//				XDebug.print("Memory quota: " + MemoryStatisticsProvider.get().heapMemoryUsage().quota());
-			}
-
-			@Override
-			public boolean check(final Lazy<?> lazyReference)
-			{
-				if(!this.clear || !lazyReference.isStored())
-				{
-					return false;
-				}
-				lazyReference.clear();
-				return true;
-			}
-
-		}
-
 	}
 
 }
