@@ -9,6 +9,7 @@ import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import one.microstream.X;
 import one.microstream.memory.MemoryStatistics;
 
 public interface LazyReferenceManager
@@ -31,6 +32,8 @@ public interface LazyReferenceManager
 	public <P extends Consumer<? super Lazy<?>>> P iterate(P procedure);
 
 
+	// (28.01.2020 TM)FIXME: priv#89: start LRM with EmbeddedStorageManager
+	// (28.01.2020 TM)FIXME: priv#89 / priv#207: connect LRM life cycle with ERM life cycle.
 
 	public static LazyReferenceManager set(final LazyReferenceManager referenceManager)
 	{
@@ -145,6 +148,11 @@ public interface LazyReferenceManager
 	{
 		public default void beginCheckCycle()
 		{
+			this.beginCheckCycle(null);
+		}
+		
+		public default void beginCheckCycle(final Check check)
+		{
 			// no-op by default
 		}
 
@@ -239,7 +247,14 @@ public interface LazyReferenceManager
 			 */
 			private final double memoryQuota;
 			
+			private final Check check;
+			
 			// cycle working variables //
+			
+
+			private Check cycleCheck;
+			
+			private MemoryUsage cycleMemoryUsage;
 			
 			/**
 			 * The {@link System#currentTimeMillis()}-compliant timestamp value below which a reference
@@ -264,9 +279,10 @@ public interface LazyReferenceManager
 			// constructors //
 			/////////////////
 
-			Default(final long timeoutMs, final double memoryQuota)
+			Default(final Check check, final long timeoutMs, final double memoryQuota)
 			{
 				super();
+				this.check       = check      ;
 				this.timeoutMs   = timeoutMs  ;
 				this.memoryQuota = memoryQuota;
 			}
@@ -289,18 +305,20 @@ public interface LazyReferenceManager
 			}
 
 			@Override
-			public final void beginCheckCycle()
+			public final void beginCheckCycle(final Check check)
 			{
 				// a timeout of 0 deactivates timeout checking.
 				this.timeoutThresholdMs = this.isTimeoutEnabled()
 					? System.currentTimeMillis() - this.timeoutMs
 					: 0L
 				;
+
+				this.cycleCheck = X.coalesce(this.check, check);
 				
 				// querying a MemoryUsage instance takes about 500 ns to query. Should be negligible.
-				final MemoryUsage memoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-				this.memoryThreshold = this.calculateMemoryThreshold(memoryUsage);
-				this.memoryUsed      = memoryUsage.getUsed();
+				this.cycleMemoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+				this.memoryThreshold = this.calculateMemoryThreshold(this.cycleMemoryUsage);
+				this.memoryUsed      = this.cycleMemoryUsage.getUsed();
 				
 				// derived values for fast integer arithmetic for every check
 				this.memoryThresholdSh10 = shift10(this.memoryThreshold);
@@ -312,10 +330,36 @@ public interface LazyReferenceManager
 				// max might return -1 and is also capped by committed memory, so both must be considered.
 				return (long)(Math.min(memoryUsage.getCommitted(), memoryUsage.getMax()) * this.memoryQuota);
 			}
+
+			@Override
+			public final boolean check(final Lazy<?> lazyReference)
+			{
+				return lazyReference.clear(this);
+			}
+			
+			private long calculateAge(final long lastTouched)
+			{
+				return lastTouched - this.timeoutThresholdMs;
+			}
 			
 			@Override
 			public final boolean clear(final Lazy<?> lazyReference, final long lastTouched)
 			{
+				if(this.cycleCheck != null)
+				{
+					final Boolean checkResult = this.cycleCheck.test(
+						this.cycleMemoryUsage,
+						this.calculateAge(lastTouched),
+						this.timeoutMs
+					);
+					if(checkResult != null)
+					{
+						return checkResult.booleanValue();
+					}
+					
+					// cycleCheck was indecisive and lets the default logic decide.
+				}
+				
 				// if timeout is disabled, only memory counts
 				if(!this.isTimeoutEnabled())
 				{
@@ -332,14 +376,8 @@ public interface LazyReferenceManager
 				// (28.01.2020 TM)FIXME: priv#89: check for deactivated memory check
 				
 				// not timed out, so a more sophisticated check combining age and memory is required
-				final long age = lastTouched - this.timeoutThresholdMs;
+				final long age = this.calculateAge(lastTouched);
 				return this.checkbyMemoryWithAgePenalty(shift10(age) / this.timeoutMs);
-			}
-
-			@Override
-			public final boolean check(final Lazy<?> lazyReference)
-			{
-				return lazyReference.clear(this);
 			}
 			
 			private boolean checkByMemory()
@@ -359,6 +397,12 @@ public interface LazyReferenceManager
 		
 	}
 
+	
+	public interface Check
+	{
+		public Boolean test(MemoryUsage memoryUsage, long millisecondAge, long millisecondTimeout);
+	}
+	
 	public static LazyReferenceManager New(final long millisecondTimeout)
 	{
 		return New(Lazy.CheckerTimeout(millisecondTimeout));
