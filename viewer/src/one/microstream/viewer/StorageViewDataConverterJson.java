@@ -12,7 +12,7 @@ public class StorageViewDataConverterJson implements StorageViewDataConverter
 	// instance fields //
 	////////////////////
 
-	Gson gson;
+	private final Gson gson;
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -30,12 +30,16 @@ public class StorageViewDataConverterJson implements StorageViewDataConverter
 	// methods //
 	////////////
 
+	public Gson getGson()
+	{
+		return this.gson;
+	}
+
 	@Override
 	public String convert(final Object object)
 	{
 		return this.gson.toJson(object);
 	}
-
 
 	@Override
 	public String getHtmlResponseContentType()
