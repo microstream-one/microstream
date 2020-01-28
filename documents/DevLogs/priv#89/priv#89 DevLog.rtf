@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 priv#89\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 priv#89\par
 \par
 2020-01-27\par
 \par
@@ -153,6 +154,70 @@ Also nix f\'fcr ungut und die MemoryStatistics und ~Provider Typen sind bestimmt
 \par
 Ups, auf einmal ist es schon nach 24 Uhr. Vor lauter Abw\'e4gen und testen...\par
 Aber die Basis der Implementierung mach ich jetzt noch. Und ich schreib einen erkl\'e4renden Kommentar dazu, warum ich das mach. Sowas ist halt schon immer nicht schlecht ... ^^.\par
+\par
+\par
+2020-01-28\par
+\par
+Weitermachen.\par
+Erst mal was bauen, dass man den Timeout deaktivieren kann. Wert 0 sollte einfach und unproblematisch sein.\par
+Extra check daf\'fcr einbauen.\par
+\par
+Dann regt mich die Casterei irgendwie doch auf.\line Was ist denn, wenn es mal eine andere Implementierung ist? Dann wird die Lazy reference einfach gar nicht gecleart? Das w\'e4r schon d\'e4mlich. Genauer gesagt: Ein Bug.\par
+Und das alles nur, weil ich kein "long lastTouched()" ins interface machen will? Obwohl eigentlich JEDE Implementierung einer Lazy Reference so einen Mechanismus braucht.\par
+Und selbst wenn nicht, kann man dort immer noch max long oder so zur\'fcckgeben.\par
+Also rein ins Interface.\par
+Dann f\'e4llt der bl\'f6de Cast weg.\par
+\par
+Hm.\par
+So einfach ist es aber nicht:\par
+Es gibt ja auch noch concurrency.\par
+Ein synchronized(lazyReference) drum rum bauen geht schon wieder von der Annahme aus, dass man auf die Instanz selbst lockt und nicht auf eine interne Locking Instanz.\par
+Das ist schlecht. Stimmt zwar f\'fcr die Default implementierung, aber muss nicht f\'fcr alle Implementierungen stimmen.\par
+Sowas muss man besser, sauberer l\'f6sen.\par
+\par
+Und kann man auch:\par
+Eine bedingte clear-methode bauen, der ein pr\'fcfer callback (der Checker selbst) \'fcbergeben wird, der dann wiederum lastTouched \'fcbergeben bekommt.\par
+Vorteil:\par
+Die Lazy Implementierung kann dann EINMALIG den Lock aufbauen (und bis zur Entscheidung durchgehend halten!) und darin dann die Pr\'fcflogik aufrufen.\par
+So muss das laufen. Alles andere ist Mist. H\'e4tt ich gleich fr\'fcher so machen sollen.\par
+\par
+Soweit fertig. Jetzt muss ich mir aber erst mal eine Testklasse bauen f\'fcr ein paar Rechenbeispiele, um die Formel an sich zu checken.\par
+\par
+Da ist eine Zehnerstell zu viel in der Multiplikation. Wieso ist da viel, wenn es immer der gleiche Faktor 1024 ist???\par
+\par
+Achja: Man sollte f\'fcr eine prozentuale Berechnung vielleicht Age / Timeout machen und nicht Timeout / Age.\par
+Division und so. Schwierig und so.\par
+\par
+Gefixt. Testen.\par
+Jup, passt.\par
+\par
+Jetzt noch \'fcberlegen, ob es einen long \'fcberlauf geben kann bei gro\'dfen memory gr\'f6\'dfen und dem *1024 faktor:\par
+\par
+MX 9.223.372.036.854.775.808\par
+GB 1.024.000.000.000\par
+TB 1.024.000.000.000.000\par
+PB 1.024.000.000.000.000.000\par
+\par
+Also bis ~8 PetaByte (8000 TB) ist alles safe.\par
+Aktuell ist das h\'f6chste 24 TB, was sich so googeln l\'e4sst.\par
+Das steigt nat\'fcrlich, aber von 8000 ist das trotzdem alles noch weit weg.\par
+\par
+Jetzt l\'f6sch ich die anderen beiden naiven Implementierungen mal.\par
+Ah, aber eins hab ich bisher vergessen: So eine vorgebbare "quota", wie viel memory frei bleiben soll.\par
+\par
+Einbauen.\par
+\par
+Und jetzt mal den Checker als Default in sein Interface verschieben.\par
+\par
+Achja: Gracetime hab ich noch nicht.\par
+\par
+Und: Evtl. w\'e4re es nicht schlecht, so eine custom predicate variante wie FH gemacht hat, zu lassen. Bzw. einzubauen.\par
+\par
+Und Wertevalidierung\par
+\par
+Und was ist, wenn beide null sind?\par
+\par
+Puh, alles mal als Tasks reinschreiben, damit ich das nicht vergess.\par
 \par
 }
  
