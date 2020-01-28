@@ -26,7 +26,7 @@ public class RouteGetObject extends RouteBase<StorageRestAdapterObject> implemen
 	public String handle(final Request request, final Response response)
 	{
 		final long dataOffset = this.getLongParameter(request, "dataOffset", 0);
-		final long dataLength = this.getLongParameter(request, "dataLength", Long.MAX_VALUE);
+        final long dataLength = this.getLongParameter(request, "dataLength", this.storageRestAdapter.getDefaultDataLength());
 		final long referenceOffset = this.getLongParameter(request, "referenceOffset", 0);
 		final long referenceLength = this.getLongParameter(request, "referenceLength", Long.MAX_VALUE);
 		final boolean resolveReverences = this.getBooleanParameter(request, "references", false);

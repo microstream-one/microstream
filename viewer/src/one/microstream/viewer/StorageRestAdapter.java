@@ -15,6 +15,7 @@ public class StorageRestAdapter extends EmbeddedStorageRestAdapter
 	////////////////////
 
 	private final StorageViewDataConverterProvider converterProvider;
+	private long defaultDataLength = Long.MAX_VALUE;
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -72,4 +73,16 @@ public class StorageRestAdapter extends EmbeddedStorageRestAdapter
 	{
 		return this.converterProvider.get(format);
 	}
+
+    @Override
+    public long getDefaultDataLength()
+    {
+        return this.defaultDataLength;
+    }
+
+    @Override
+    public void setDefaultDataLength(final long defaultDataLength)
+    {
+        this.defaultDataLength = defaultDataLength;
+    }
 }

@@ -107,4 +107,12 @@ public class StorageViewer
 		this.sparkService.awaitStop();
 	}
 
+	/*
+	 * Set the default length of returned data
+	 */
+	public void setDefaultDataLength(final long defaultDataLength)
+	{
+        this.storageRestAdapter.setDefaultDataLength(defaultDataLength);
+	}
+
 }
