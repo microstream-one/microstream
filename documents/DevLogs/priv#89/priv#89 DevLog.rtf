@@ -279,5 +279,13 @@ Man k\'f6nnte als M\'f6glichkeit, den GC anwendungsseitig konfiguriert vom Check
 Alle X Aufrufe mal die Speicherbelegung checken (wird ja \'fcbergeben) und wenn's nicht passt, DANN mal den GC aufrufen. Aber eben anwendugsgesteuert, nicht generisch immer bei jeder Anwendung.\par
 So mach ich das. Das ist gut.\par
 Muss ich dann nur entsprechend dokumentieren, damit zuk\'fcnftig beim Lesen des Codes die Hintergrund\'fcberlegungen klar werden.\par
+\par
+Pseudo-Konstruktor Varianten aktualisieren.\par
+\par
+LazyReferenceManager erweitern um #cleanUp(Lazy.Checker) Variante, damit man explizit einen Durchlauf mit anderer Logik machen kann.\par
+\par
+Dabei auch gleich das FIXME bzgl. zur\'fcckbleibenden Lazy References updaten: Das lag an dem der verdrehten Threshold Pr\'fcfung.\par
+Hm, wobei, eigentlich ... m\'fcsst ich das jetzt erst mal in einem alten Commit recherchieren und wenn es wirklich so ist, dann kann ich das FIXME gleich l\'f6schen.\par
+\par
 }
  
