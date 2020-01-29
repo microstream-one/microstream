@@ -17,10 +17,7 @@ public class MainTestLazyReferenceHandling
 	public static void main(final String[] args) throws Exception
 	{
 		test(LazyReferenceManager.New(
-			
-			Lazy.CheckerMemory(0.5).combine(
-				Lazy.CheckerTimeout(20_000)
-			)
+			LazyReferenceManager.Checker(20_000, 0.5)
 		));
 
 		strings = createList(10_000);

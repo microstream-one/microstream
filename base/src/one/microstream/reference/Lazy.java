@@ -142,7 +142,7 @@ public interface Lazy<T> extends Referencing<T>
 	
 	public interface ClearingEvaluator
 	{
-		public boolean clear(Lazy<?> lazyReference, long lastTouched);
+		public boolean clear(Lazy<?> lazyReference);
 	}
 	
 	public final class Default<T> implements Lazy<T>
@@ -282,7 +282,7 @@ public interface Lazy<T> extends Referencing<T>
 		public final synchronized boolean clear(final ClearingEvaluator clearingEvaluator)
 		{
 			// unstored references may never even considered to be cleared
-			if(this.isStored() && clearingEvaluator.clear(this, this.lastTouched))
+			if(this.isStored() && clearingEvaluator.clear(this))
 			{
 				this.internalClear();
 				return true;
