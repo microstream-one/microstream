@@ -16,10 +16,10 @@ public class MainTestLazyReferenceHandling
 
 	public static void main(final String[] args) throws Exception
 	{
-		test(LazyReferenceManager.New(
-			LazyReferenceManager.Checker(20_000, 0.5)
-		));
+		test(LazyReferenceManager.New(Lazy.Checker(20_000, 0.5)));
 
+		LazyReferenceManager.get().cleanUp(0);
+		
 		strings = createList(10_000);
 			
 //		new Thread(()->{
