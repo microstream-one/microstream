@@ -136,9 +136,6 @@ public interface Lazy<T> extends Referencing<T>
 		return register(new Lazy.Default<>(subject, objectId, loader));
 	}
 
-	// (28.01.2020 TM)FIXME: priv#89: Checker pseudo constructors
-	// (28.01.2020 TM)FIXME: priv#89: grace time
-
 	public static <T, L extends Lazy<T>> L register(final L lazyReference)
 	{
 		LazyReferenceManager.get().register(lazyReference);
@@ -428,10 +425,6 @@ public interface Lazy<T> extends Referencing<T>
 	{
 		public Boolean test(Lazy<?> lazyReference, MemoryUsage memoryUsage, long millisecondTimeout);
 	}
-	
-	
-	// (28.01.2020 TM)FIXME: priv#89: custom predicate (touched & MemoryUsage)
-	
 
 	
 	public static Lazy.Checker Checker()
@@ -649,7 +642,7 @@ public interface Lazy<T> extends Referencing<T>
 			 */
 			private long cycleMemoryLimit;
 			private long cycleMemoryUsed;
-			private long cycleMemoryBasedClearCount;
+			private long cycleClearCount;
 			
 			// derive working variables for fast integer arithmetic //
 			
@@ -704,7 +697,7 @@ public interface Lazy<T> extends Referencing<T>
 
 				// querying a MemoryUsage instance takes about 500 ns to query, so it is only done occasionally.
 				this.updateMemoryUsage();
-				this.cycleMemoryBasedClearCount = 0;
+				this.cycleClearCount = 0;
 			}
 			
 			private void updateMemoryUsage()
@@ -718,25 +711,37 @@ public interface Lazy<T> extends Referencing<T>
 				this.sh10MemoryUsed  = shift10(this.cycleMemoryUsed);
 			}
 			
-			private void registerMemoryBasedClearing()
+			private void registerClearing()
 			{
-				// (29.01.2020 TM)FIXME: priv#89: write rationale (performance + GC call via custom check)
 				/*
 				 * Rationale for this logic:
+				 * After every clearing of a lazy reference, there is a chance that a JVM GC run will
+				 * dramatically free up occupied memory. So the MemoryUsage instance would have to be updated.
+				 * However, querying such an instance takes a considerable amount of time, so doint it on
+				 * every clear would be a performance overkill.
+				 * To ease that overhead, it is only queried every certain number of clears.
+				 * Every 100th (modulo 100) would be an apropriate strategy. However, modulo 128 can be
+				 * performed much, much faster by a bit operation. Hence the "% 127L" below.
 				 * 
-				 * 
+				 * Also:
+				 * Updating the current memory usage has hardly any effect if the JVM GC did not run in the mean time.
+				 * But calling the JVM GC explicitely and repeatedly in a generic framework logic is a very bad idea.
+				 * However, there is at least the chance that the GC will be executed in between.
+				 * It will definitely, eventually.
+				 * And an explicit call can still be done by passing an appropriate custom check function that always
+				 * returns null but calls the JVM GC every 1000th or so call.
 				 */
-				if((++this.cycleMemoryBasedClearCount & 127L) == 0)
+				if((++this.cycleClearCount & 127L) == 0)
 				{
 					this.updateMemoryUsage();
 				}
 			}
 			
-			private boolean memoryBasedClear(final boolean decision)
+			private boolean clear(final boolean decision)
 			{
 				if(decision)
 				{
-					this.registerMemoryBasedClearing();
+					this.registerClearing();
 					return true;
 				}
 				
@@ -771,7 +776,7 @@ public interface Lazy<T> extends Referencing<T>
 				final Boolean check;
 				if(this.customCheck != null && (check = this.performCustomCheck(lazyReference)) != null)
 				{
-					return check.booleanValue();
+					return this.clear(check.booleanValue());
 				}
 				// custom check is not present or was indecisive and defers to the generic logic.
 				
@@ -783,6 +788,7 @@ public interface Lazy<T> extends Referencing<T>
 				}
 				if(lastTouched < this.cycleTimeoutThresholdMs)
 				{
+					this.registerClearing();
 					return true;
 				}
 				
@@ -806,7 +812,7 @@ public interface Lazy<T> extends Referencing<T>
 					this.sh10MemoryUsed + this.cycleMemoryUsed * sh10Weight >= this.sh10MemoryLimit
 				;
 				
-				return this.memoryBasedClear(clearingDecision);
+				return this.clear(clearingDecision);
 			}
 
 		}

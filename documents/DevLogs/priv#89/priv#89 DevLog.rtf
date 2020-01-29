@@ -287,5 +287,20 @@ LazyReferenceManager erweitern um #cleanUp(Lazy.Checker) Variante, damit man exp
 Dabei auch gleich das FIXME bzgl. zur\'fcckbleibenden Lazy References updaten: Das lag an dem der verdrehten Threshold Pr\'fcfung.\par
 Hm, wobei, eigentlich ... m\'fcsst ich das jetzt erst mal in einem alten Commit recherchieren und wenn es wirklich so ist, dann kann ich das FIXME gleich l\'f6schen.\par
 \par
+Recherchiert:\line Ne, das stimmte damals schon.\par
+Dann hab ich nur durch das Rumkopieren von Code w\'e4hrend dem anf\'e4nglichen Refactoring den falschen Eindruck bekommen.\par
+Hm. Dann ist nat\'fcrlich die Frage: Warum cleart der die Lazy References nicht?\par
+Wobei inzwischen nat\'fcrlich der Check f\'fcr isStored dazugekommen ist. Ungestorte LRs d\'fcrfen auf keinen Fall gecleart werden.\par
+Muss man mal genauer testen ...\par
+\par
+Und jetzt f\'e4llt mir noch auf:\par
+Eigentlich muss die MemoryUsage alle X clears von EGAL welcher Art gemacht werden.\par
+Ansonsten k\'f6nnte es ja sein, dass hunderte LRs timeouten, es ist l\'e4ngst wieder genug Platz im Memory, aber die Logik schmei\'dft stur erst mal 128 LRs nach Memory raus, bevor sie nachsieht.\par
+Also Logik umbauen und umbenennen.\par
+\par
+Tasks durchschauen und l\'f6schen/arbarbeiten.\par
+\par
+Damit fehlt jetz nur noch die Verbindung mit dem ESM life cycle.\par
+Und Tests, nat\'fcrlich.\par
 }
  
