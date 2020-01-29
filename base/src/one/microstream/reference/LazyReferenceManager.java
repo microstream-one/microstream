@@ -207,16 +207,8 @@ public interface LazyReferenceManager
 			/* (22.06.2016 TM)FIXME: full clear does not clear fully
 			 * productive use of the full clear call clears only like 6 of 300 references on a regular basis.
 			 * Sometimes all, but most of the time not.
-			 * Even though the application is single threaded as far as lazy reference creation is concerned (simple "main test" class execution)
-			 * 
-			 * (29.01.2020 TM)NOTE:
-			 * The reason for this MIGHT have been that the timeout threshold value was used incorrectly.
-			 * Instead of clearing timed out references and saving the other, the timed out ones were safed and
-			 * the others were cleared.
-			 * Thus, once a reference was timed out, it was safe for eternity and never got cleared.
-			 * 
-			 * If this problem never shows up again with the current enhancement (factor in memory usage, including
-			 * a fix for the wrong check), then this comment can be deleted.
+			 * Even though the application is single threaded as far as lazy reference creation is concerned
+			 * (simple "main test" class execution)
 			 */
 			
 			final long timeBudgetBound = this.calculateNanoTimeBudgetBound(nanoTimeBudget);
