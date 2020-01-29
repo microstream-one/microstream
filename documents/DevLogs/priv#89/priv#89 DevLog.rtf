@@ -310,5 +310,33 @@ LRM interface braucht eine "isDummy()" Methode, um automatisiert pr\'fcfen zu k\
 Hm, oder ich mach das mit "instanceof Dummy", denn es gibt als initialen Dummy ja nur genau diese eine Framework-seitige Implementierung. Das reicht eigentlich.\par
 \par
 Und es sollte f\'fcr Convenience eine statische cleanup() und cleanup(Checker) Methode geben, um ganz einfach ohne kontext mit einem Einzeiler alle lazy references iterieren und ggf. clearen zu k\'f6nnen.\par
+Haha, da st\'f6rt wieder mal die D\'e4mlichkeit der compilers, dass eine static Methode nicht die gleiche Signatur wie eine instance Methode haben darf. Obwohl die Signatur ja f\'fcr den Compiler eigentlich sehr wohl unterschiedlich ist, weil bei der static Methode das subject (this) fehlt. Darum D\'e4mlichkeit.\par
+Eigentlich w\'fcrden solche static methoden nur ein ".get()" dazwischen ersparen. Da ist die Frage, ob sie \'fcberhaupt Sinn machen. Ich lass es mal weg.\par
+\par
+Also dann mach ich jetzt mal das automatische Setzen mit dem Starten des ESM.\par
+\par
+Okay, also jetzt hab ich eingebaut:\par
+- Automatisches Setzen eines "richtigen" LRM, falls noch kein richtiger gesetzt ist.\par
+- LRM Statische Methode, um erkennen zu k\'f6nnen, ob ein "richtiger" LRM (nicht der interne Dummy) gesetzt ist.\par
+- Starten des aktuellen LRM, falls er noch nicht l\'e4uft.\par
+- Rollback des LRM im Fall eines Fehlers beim Start des ESM, inklusive Merken der vorherigen Zust\'e4nde (war gesetzt und lief schon)\par
+\par
+Und Life-Cycle-Abh\'e4ngigkeit:\par
+- _booleanReference implementiert inklusive Standardimplementierungen f\'fcr Default, True, False\par
+- "_booleanReference parentRunningState" im LRM und entsprechende Erweiterung von running Logik und Konstruktoren.\par
+\par
+priv#207 updaten.\par
+\par
+priv#89 TODOs entfernen.\par
+\par
+So. Dann h\'e4tt ich jetzt alles rund um den LRM fertig implementiert.\par
+Nur testen muss ich es noch.\par
+- Kombinierte Checkerlogik\par
+- Checker nur mit Memory (gigantisches Timeout)\par
+- Checker nur mit Timeout\par
+- LRM Start mit ESM Start\par
+- LRM Ende mit ESM Ende\par
+\par
+Das wird dann was f\'fcr Morgen.\par
 }
  
