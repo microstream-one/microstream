@@ -1,16 +1,12 @@
 package one.microstream.reference;
 
 import static one.microstream.X.coalesce;
-import static one.microstream.X.notNull;
+import static one.microstream.X.mayNull;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-
-import one.microstream.X;
-import one.microstream.memory.MemoryStatistics;
 
 public interface LazyReferenceManager
 {
@@ -85,7 +81,7 @@ public interface LazyReferenceManager
 	
 	public static boolean isValidTimeout(final long millisecondTimeout)
 	{
-		return millisecondTimeout >= 0;
+		return millisecondTimeout > 0;
 	}
 	
 	public static boolean isValidMemoryQuota(final double memoryQuota)
@@ -101,7 +97,7 @@ public interface LazyReferenceManager
 		}
 		
 		// (28.01.2020 TM)EXCP: proper exception
-		throw new RuntimeException("Timeout must be greater than or equal 0.");
+		throw new RuntimeException("Timeout must be greater than 0.");
 	}
 	
 	public static double validateMemoryQuota(final double memoryQuota)
@@ -115,43 +111,74 @@ public interface LazyReferenceManager
 		throw new RuntimeException("Memory quora must be in the range [0.0; 1.0].");
 	}
 
+	// (28.01.2020 TM)FIXME: priv#89: custom predicate (touched & MemoryUsage)
+	
 	public static LazyReferenceManager.Checker Checker(
 		final long   millisecondTimeout,
-		final double memoryQuota
+		final double memoryQuota,
+		final Check  customCheck
 	)
 	{
-		// (28.01.2020 TM)FIXME: priv#89: what it both are zero? invalid?
+		// note: at least timeout is validated to always be a usable value. The other two can be null/0.
 		return new Checker.Default(
+			mayNull(customCheck),
 			validateTimeout(millisecondTimeout),
 			validateMemoryQuota(memoryQuota)
 		);
 	}
 	
-	public static LazyReferenceManager.Checker CheckerTimeout(final long millisecondTimeout)
+	public static LazyReferenceManager.Checker Checker(
+		final long millisecondTimeout
+	)
 	{
-		return Checker(millisecondTimeout, 0.0);
+		return Checker(millisecondTimeout, Checker.Defaults.defaultMemoryQuota(), null);
 	}
 	
-	public static LazyReferenceManager.Checker CheckerMemory(final double memoryQuota)
+	public static LazyReferenceManager.Checker CheckerTimeout(
+		final long millisecondTimeout
+	)
 	{
-		return Checker(0, memoryQuota);
+		return Checker(millisecondTimeout, 0.0, null);
 	}
 	
-	// (28.01.2020 TM)FIXME: priv#89: custom predicate (touched & MemoryUsage)
-	public static LazyReferenceManager.Checker CheckerMemory(final Predicate<MemoryStatistics> memoryBoundClearPredicate)
+	public static LazyReferenceManager.Checker CheckerMemory(
+		final double memoryQuota
+	)
 	{
-		return new Checker.Default(memoryBoundClearPredicate);
+		// kind of dumb, but well ...
+		return Checker(Long.MAX_VALUE, memoryQuota, null);
 	}
+	
+	public static LazyReferenceManager.Checker Checker(
+		final long   millisecondTimeout,
+		final double memoryQuota
+	)
+	{
+		return Checker(millisecondTimeout, memoryQuota, null);
+	}
+	
+	public static LazyReferenceManager.Checker Checker(
+		final Check customCheck
+	)
+	{
+		return Checker(
+			Checker.Defaults.defaultTimeout(),
+			Checker.Defaults.defaultMemoryQuota(),
+			customCheck
+		);
+	}
+	
+	public static LazyReferenceManager.Checker Checker()
+	{
+		return Checker(null);
+	}
+		
+
 	
 
 	public interface Checker
 	{
 		public default void beginCheckCycle()
-		{
-			this.beginCheckCycle(null);
-		}
-		
-		public default void beginCheckCycle(final Check check)
 		{
 			// no-op by default
 		}
@@ -168,49 +195,22 @@ public interface LazyReferenceManager
 			// no-op by default
 		}
 		
-		public default Checker combine(final Checker following)
+		
+		public interface Defaults
 		{
-			return new Compound(this, following);
+			public static long defaultTimeout()
+			{
+				// about 15 minutes
+				return 1_000_000;
+			}
+			
+			public static double defaultMemoryQuota()
+			{
+				// all avaiable memory is used
+				return 1.0;
+			}
 		}
-		
-		
-		class Compound implements Checker
-		{
-			private final Checker first;
-			private final Checker second;
-			
-			Compound(final Checker first, final Checker second)
-			{
-				super();
-			
-				this.first  = notNull(first);
-				this.second = notNull(second);
-			}
-			
-			@Override
-			public void beginCheckCycle()
-			{
-				this.first.beginCheckCycle();
-				this.second.beginCheckCycle();
-			}
-
-			@Override
-			public boolean check(final Lazy<?> lazyReference)
-			{
-				return this.first.check(lazyReference)
-					? true
-					: this.second.check(lazyReference);
-			}
-			
-			@Override
-			public void endCheckCycle()
-			{
-				this.first.endCheckCycle();
-				this.second.endCheckCycle();
-			}
-			
-		}
-		
+				
 		/**
 		 * This implementation uses two dimensions to evaluate if a lazy reference will be cleared:<br>
 		 * - time: a ref's "age" in terms of {@link Lazy#lastTouched()} compared to {@link System#currentTimeMillis()}<br>
@@ -226,10 +226,34 @@ public interface LazyReferenceManager
 		public final class Default implements LazyReferenceManager.Checker, Lazy.ClearingEvaluator
 		{
 			///////////////////////////////////////////////////////////////////////////
+			// constants //
+			//////////////
+			
+			public static double memoryQuotaNoCheck()
+			{
+				return 0.0;
+			}
+			
+			public static long graceTimeMinimum()
+			{
+				return 1000;
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
 			// configuration values (final) //
+
+			
+			/**
+			 * An optional custom checking logic that overrides the generic logic.<br>
+			 * May be <code>null</code>.<br>
+			 * If it returns <code>null</code>, the generic logic is used.
+			 */
+			private final Check customCheck;
 			
 			/**
 			 * The timeout in milliseconds after which a reference is cleared regardless of memory consumption.<br>
@@ -237,6 +261,8 @@ public interface LazyReferenceManager
 			 * Negative values are invalid and must be checked before the constructor is called.
 			 */
 			private final long timeoutMs;
+			
+			private final long graceTimeMs;
 			
 			/**
 			 * The quota of total available memory (= min(committed, max)) the check has to comply with.<br>
@@ -247,12 +273,7 @@ public interface LazyReferenceManager
 			 */
 			private final double memoryQuota;
 			
-			private final Check check;
-			
 			// cycle working variables //
-			
-
-			private Check cycleCheck;
 			
 			private MemoryUsage cycleMemoryUsage;
 			
@@ -260,18 +281,22 @@ public interface LazyReferenceManager
 			 * The {@link System#currentTimeMillis()}-compliant timestamp value below which a reference
 			 * is considered to be timed out and will be cleared regardless of memory consumption.
 			 */
-			private long timeoutThresholdMs;
+			private long cycleTimeoutThresholdMs;
+			
+			private long cycleGraceTimeThresholdMs;
 			
 			/**
 			 * The maximum number of bytes that may be used before
 			 */
-			private long memoryThreshold;
-			private long memoryUsed;
+			private long cycleMemoryLimit;
+			private long cycleMemoryUsed;
+			private boolean cycleMemoryExceeded;
+			private long cycleMemoryBasedClearCount;
 			
 			// derive working variables for fast integer arithmetic //
 			
-			private long memoryThresholdSh10;
-			private long memoryUsedSh10;
+			private long sh10MemoryLimit;
+			private long sh10MemoryUsed;
 
 			
 			
@@ -279,12 +304,13 @@ public interface LazyReferenceManager
 			// constructors //
 			/////////////////
 
-			Default(final Check check, final long timeoutMs, final double memoryQuota)
+			Default(final Check customCheck, final long timeoutMs, final double memoryQuota)
 			{
 				super();
-				this.check       = check      ;
+				this.customCheck = customCheck;
 				this.timeoutMs   = timeoutMs  ;
 				this.memoryQuota = memoryQuota;
+				this.graceTimeMs = deriveGraceTime(timeoutMs);
 			}
 			
 			
@@ -293,40 +319,74 @@ public interface LazyReferenceManager
 			// methods //
 			////////////
 			
+			private static long deriveGraceTime(final long timeoutMs)
+			{
+				return Math.min(graceTimeMinimum(), timeoutMs / 2);
+			}
+			
 			private static long shift10(final long value)
 			{
 				// equals *1024, which is roughly *1000, but significantly faster and the precise factor doesn't matter.
 				return value << 10;
 			}
 			
-			private boolean isTimeoutEnabled()
+			private boolean isMemoryCheckEnabled()
 			{
-				return this.timeoutMs > 0L;
+				return this.memoryQuota != memoryQuotaNoCheck();
 			}
 
 			@Override
-			public final void beginCheckCycle(final Check check)
+			public final void beginCheckCycle()
 			{
-				// a timeout of 0 deactivates timeout checking.
-				this.timeoutThresholdMs = this.isTimeoutEnabled()
-					? System.currentTimeMillis() - this.timeoutMs
-					: 0L
-				;
+				// timeout is guaranteed to be > 0.
+				this.cycleTimeoutThresholdMs = System.currentTimeMillis() - this.timeoutMs;
+				
+				// to query system time only exactely once.
+				this.cycleGraceTimeThresholdMs = this.cycleTimeoutThresholdMs + this.timeoutMs - this.graceTimeMs;
 
-				this.cycleCheck = X.coalesce(this.check, check);
-				
-				// querying a MemoryUsage instance takes about 500 ns to query. Should be negligible.
-				this.cycleMemoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-				this.memoryThreshold = this.calculateMemoryThreshold(this.cycleMemoryUsage);
-				this.memoryUsed      = this.cycleMemoryUsage.getUsed();
-				
-				// derived values for fast integer arithmetic for every check
-				this.memoryThresholdSh10 = shift10(this.memoryThreshold);
-				this.memoryUsedSh10      = shift10(this.memoryUsed);
+				// querying a MemoryUsage instance takes about 500 ns to query, so it is only done occasionally.
+				this.updateMemoryUsage();
+				this.cycleMemoryBasedClearCount = 0;
 			}
 			
-			private long calculateMemoryThreshold(final MemoryUsage memoryUsage)
+			private void updateMemoryUsage()
 			{
+				this.cycleMemoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+				this.cycleMemoryLimit = this.calculateMemoryLimit(this.cycleMemoryUsage);
+				this.cycleMemoryUsed  = this.cycleMemoryUsage.getUsed();
+				this.cycleMemoryExceeded = this.isMemoryCheckEnabled() && this.cycleMemoryUsed >= this.cycleMemoryLimit;
+				
+				// derived values for fast integer arithmetic for every check
+				this.sh10MemoryLimit = shift10(this.cycleMemoryLimit);
+				this.sh10MemoryUsed  = shift10(this.cycleMemoryUsed);
+			}
+			
+			private void registerMemoryBasedClearing()
+			{
+				if((++this.cycleMemoryBasedClearCount & 127L) == 0)
+				{
+					this.updateMemoryUsage();
+				}
+			}
+			
+			private boolean memoryBasedClear(final boolean decision)
+			{
+				if(decision)
+				{
+					this.registerMemoryBasedClearing();
+					return true;
+				}
+				
+				return false;
+			}
+			
+			private long calculateMemoryLimit(final MemoryUsage memoryUsage)
+			{
+				if(!this.isMemoryCheckEnabled())
+				{
+					return Long.MAX_VALUE;
+				}
+				
 				// max might return -1 and is also capped by committed memory, so both must be considered.
 				return (long)(Math.min(memoryUsage.getCommitted(), memoryUsage.getMax()) * this.memoryQuota);
 			}
@@ -336,60 +396,54 @@ public interface LazyReferenceManager
 			{
 				return lazyReference.clear(this);
 			}
-			
-			private long calculateAge(final long lastTouched)
+						
+			private Boolean performCustomCheck(final Lazy<?> lazyReference)
 			{
-				return lastTouched - this.timeoutThresholdMs;
+				return this.customCheck.test(lazyReference, this.cycleMemoryUsage, this.timeoutMs);
 			}
 			
 			@Override
-			public final boolean clear(final Lazy<?> lazyReference, final long lastTouched)
+			public final boolean clear(final Lazy<?> lazyReference)
 			{
-				if(this.cycleCheck != null)
+				final Boolean check;
+				if(this.customCheck != null && (check = this.performCustomCheck(lazyReference)) != null)
 				{
-					final Boolean checkResult = this.cycleCheck.test(
-						this.cycleMemoryUsage,
-						this.calculateAge(lastTouched),
-						this.timeoutMs
-					);
-					if(checkResult != null)
-					{
-						return checkResult.booleanValue();
-					}
-					
-					// cycleCheck was indecisive and lets the default logic decide.
+					return check.booleanValue();
 				}
+				// custom check is not present or was indecisive and defers to the generic logic.
 				
-				// if timeout is disabled, only memory counts
-				if(!this.isTimeoutEnabled())
+				// simple time-based checks: never clear inside grace time, always clear beyond timeout.
+				final long lastTouched = lazyReference.lastTouched();
+				if(lastTouched >= this.cycleGraceTimeThresholdMs)
 				{
-					return this.checkByMemory();
+					return false;
 				}
-				
-				// timeout is enabled, so the touched timestamp must be checked againt the clearing threshold.
-				if(lastTouched < this.timeoutThresholdMs)
+				if(lastTouched < this.cycleTimeoutThresholdMs)
 				{
 					return true;
 				}
 				
-				// (28.01.2020 TM)FIXME: priv#89: grace time
-				// (28.01.2020 TM)FIXME: priv#89: check for deactivated memory check
+				// no simple case, so a more sophisticated check combining age and memory is required
+				return this.checkByMemoryWithAgePenalty(lastTouched);
+			}
+						
+			private boolean checkByMemoryWithAgePenalty(final long lastTouched)
+			{
+				// if memory check is disabled, return right away
+				if(!this.isMemoryCheckEnabled())
+				{
+					return false;
+				}
 				
-				// not timed out, so a more sophisticated check combining age and memory is required
-				final long age = this.calculateAge(lastTouched);
-				return this.checkbyMemoryWithAgePenalty(shift10(age) / this.timeoutMs);
-			}
-			
-			private boolean checkByMemory()
-			{
-				// equivalent to "this.checkbyMemoryWithAgePenalty(0L)", no age penalty.
-				return this.memoryUsedSh10 >= this.memoryThresholdSh10;
-			}
-			
-			private boolean checkbyMemoryWithAgePenalty(final long weightSh10)
-			{
-				// "memoryUsed * weightSh10" is a kind of "age penalty" towards the actually used memory
-				return this.memoryUsedSh10 + this.memoryUsed * weightSh10 >= this.memoryThresholdSh10;
+				final long age = lastTouched - this.cycleTimeoutThresholdMs;
+				final long sh10Weight = shift10(age) / this.timeoutMs;
+
+				// used memory times weightSh10 is a kind of "age penalty" towards the actually used memory
+				final boolean clearingDecision =
+					this.sh10MemoryUsed + this.cycleMemoryUsed * sh10Weight >= this.sh10MemoryLimit
+				;
+				
+				return this.memoryBasedClear(clearingDecision);
 			}
 
 		}
@@ -400,18 +454,25 @@ public interface LazyReferenceManager
 	
 	public interface Check
 	{
-		public Boolean test(MemoryUsage memoryUsage, long millisecondAge, long millisecondTimeout);
+		public Boolean test(Lazy<?> lazyReference, MemoryUsage memoryUsage, long millisecondTimeout);
 	}
 	
 	public static LazyReferenceManager New(final long millisecondTimeout)
 	{
-		return New(Lazy.CheckerTimeout(millisecondTimeout));
+		return New(Checker(millisecondTimeout));
 	}
 	
-	public static LazyReferenceManager New(final Predicate<MemoryStatistics> memoryBoundClearPredicate)
+	public static LazyReferenceManager New()
 	{
-		return New(Lazy.CheckerMemory(memoryBoundClearPredicate));
+		return New(Checker());
 	}
+	
+	public static LazyReferenceManager New(final Check customCheck)
+	{
+		return New(Checker(customCheck));
+	}
+	
+	// (29.01.2020 TM)FIXME: priv#89: more convenience methods
 
 	public static LazyReferenceManager New(final Checker checker)
 	{
