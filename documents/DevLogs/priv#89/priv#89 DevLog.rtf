@@ -1,6 +1,5 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
-\pard\sl276\slmult1\f0\fs28\lang7 priv#89\par
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 priv#89\par
 \par
 2020-01-27\par
 \par
@@ -302,5 +301,14 @@ Tasks durchschauen und l\'f6schen/arbarbeiten.\par
 \par
 Damit fehlt jetz nur noch die Verbindung mit dem ESM life cycle.\par
 Und Tests, nat\'fcrlich.\par
+\par
+\par
+22:30\par
+\par
+Paar kleine Ideen vom Heimweg umsetzen:\par
+LRM interface braucht eine "isDummy()" Methode, um automatisiert pr\'fcfen zu k\'f6nnen, ob die aktuelle singleton Instanz der Dummy ist, der problemlos ersetzt werden kann.\par
+Hm, oder ich mach das mit "instanceof Dummy", denn es gibt als initialen Dummy ja nur genau diese eine Framework-seitige Implementierung. Das reicht eigentlich.\par
+\par
+Und es sollte f\'fcr Convenience eine statische cleanup() und cleanup(Checker) Methode geben, um ganz einfach ohne kontext mit einem Einzeiler alle lazy references iterieren und ggf. clearen zu k\'f6nnen.\par
 }
  
