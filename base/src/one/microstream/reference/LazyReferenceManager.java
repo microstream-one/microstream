@@ -31,16 +31,21 @@ public interface LazyReferenceManager
 	public LazyReferenceManager start();
 
 	public LazyReferenceManager stop();
+	
+	public boolean isRunning();
 
 	public <P extends Consumer<? super Lazy<?>>> P iterate(P procedure);
 
-
-	// (28.01.2020 TM)FIXME: priv#89: start LRM with EmbeddedStorageManager
-	// (28.01.2020 TM)FIXME: priv#89 / priv#207: connect LRM life cycle with ERM life cycle.
+	
 
 	public static LazyReferenceManager set(final LazyReferenceManager referenceManager)
 	{
 		return Static.set(referenceManager);
+	}
+	
+	public static boolean isSet()
+	{
+		return Static.isSet();
 	}
 
 	public static LazyReferenceManager get()
@@ -60,6 +65,11 @@ public interface LazyReferenceManager
 			final LazyReferenceManager old = globalReferenceManager;
 			globalReferenceManager = coalesce(referenceManager, DUMMY);
 			return old;
+		}
+		
+		static synchronized boolean isSet()
+		{
+			return globalReferenceManager != DUMMY;
 		}
 
 		static synchronized LazyReferenceManager get()
@@ -85,8 +95,18 @@ public interface LazyReferenceManager
 		}
 
 	}
-	
 
+	public final class Clearer implements Checker
+	{
+		@Override
+		public boolean check(final Lazy<?> lazyReference)
+		{
+			lazyReference.clear();
+			return true;
+		}
+	}
+
+	
 	
 	public static LazyReferenceManager New()
 	{
@@ -116,8 +136,8 @@ public interface LazyReferenceManager
 	{
 		return New(
 			checker,
-			_longReference.Constant(milliTimeCheckInterval),
-			_longReference.Constant(nanoTimeBudget)
+			_longReference.New(milliTimeCheckInterval),
+			_longReference.New(nanoTimeBudget)
 		);
 	}
 
@@ -127,19 +147,28 @@ public interface LazyReferenceManager
 		final _longReference nanoTimeBudgetProvider
 	)
 	{
-		return new Default(checker, milliTimeCheckIntervalProvider, nanoTimeBudgetProvider);
+		return New(_booleanReference.True(), checker, milliTimeCheckIntervalProvider, nanoTimeBudgetProvider);
 	}
-
-	public final class Clearer implements Checker
+	
+	public static LazyReferenceManager New(final _booleanReference parentRunningState)
 	{
-		@Override
-		public boolean check(final Lazy<?> lazyReference)
-		{
-			lazyReference.clear();
-			return true;
-		}
+		return New(
+			parentRunningState,
+			Lazy.Checker(),
+			_longReference.New(Default.DEFAULT_CHECK_INTERVAL_MS),
+			_longReference.New(Default.DEFAULT_TIME_BUDGET_NS)
+		);
 	}
-
+	
+	public static LazyReferenceManager New(
+		final _booleanReference parentRunningState            ,
+		final Checker           checker                       ,
+		final _longReference    milliTimeCheckIntervalProvider,
+		final _longReference    nanoTimeBudgetProvider
+	)
+	{
+		return new Default(parentRunningState, checker, milliTimeCheckIntervalProvider, nanoTimeBudgetProvider);
+	}
 
 	public final class Default implements LazyReferenceManager
 	{
@@ -159,6 +188,7 @@ public interface LazyReferenceManager
 		// instance fields //
 		////////////////////
 
+		private final _booleanReference parentRunningState            ;
 		private final    Checker        checker                       ;
 		private final    _longReference millitimeCheckIntervalProvider;
 		private final    _longReference nanoTimeBudgetProvider        ;
@@ -174,12 +204,14 @@ public interface LazyReferenceManager
 		/////////////////
 
 		Default(
-			final Checker        checker               ,
-			final _longReference checkIntervalProvider ,
-			final _longReference nanoTimeBudgetProvider
+			final _booleanReference parentRunningState    ,
+			final Checker           checker               ,
+			final _longReference    checkIntervalProvider ,
+			final _longReference    nanoTimeBudgetProvider
 		)
 		{
 			super();
+			this.parentRunningState             = parentRunningState    ;
 			this.checker                        = checker               ;
 			this.millitimeCheckIntervalProvider = checkIntervalProvider ;
 			this.nanoTimeBudgetProvider         = nanoTimeBudgetProvider;
@@ -331,16 +363,23 @@ public interface LazyReferenceManager
 		{
 			this.internalCleanUp(nanoTimeBudget, checker);
 		}
+		
+		@Override
+		public final synchronized boolean isRunning()
+		{
+			return this.running && this.parentRunningState.get();
+		}
 
 		@Override
 		public synchronized LazyReferenceManager start()
 		{
 			// check for already running condition to avoid starting more than more thread
-			if(!this.running)
+			if(this.parentRunningState.get() && !this.running)
 			{
 				this.running = true;
 				new LazyReferenceCleanupThread(new WeakReference<>(this), this.millitimeCheckIntervalProvider).start();
 			}
+			
 			return this;
 		}
 
@@ -370,11 +409,11 @@ public interface LazyReferenceManager
 		{
 			// lazy reference for automatic thread termination
 			private final WeakReference<LazyReferenceManager.Default> parent               ;
-			private final _longReference                                     checkIntervalProvider;
+			private final _longReference                              checkIntervalProvider;
 
 			LazyReferenceCleanupThread(
 				final WeakReference<LazyReferenceManager.Default> parent,
-				final _longReference                      checkIntervalProvider
+				final _longReference checkIntervalProvider
 			)
 			{
 				super(LazyReferenceManager.class.getSimpleName() + '@' + System.identityHashCode(parent));
@@ -393,7 +432,7 @@ public interface LazyReferenceManager
 					try
 					{
 						// check for running state. Must be the first action in case of swallowed exception
-						if(!parent.running)
+						if(!parent.isRunning())
 						{
 							break;
 						}
@@ -401,10 +440,10 @@ public interface LazyReferenceManager
 						// perform check
 						parent.cleanUpBudgeted();
 
-						// very nasty: must clear the reference from the stack in order for the weak reference to work
+						// very nasty: must clear the reference from the stack in order for the WeakReference to work
 						parent = null;
 
-						// extra nasty: must sleep with nulled reference for WR to work, not before.
+						// extra nasty: must sleep with nulled reference for WeakReference to work, not before.
 						try
 						{
 							Thread.sleep(this.checkIntervalProvider.get());
@@ -416,8 +455,9 @@ public interface LazyReferenceManager
 					}
 					catch(final Exception e)
 					{
-						/* thread may not die on any exception, just continue looping as long as parent exists
-						 * and running is true
+						/*
+						 * Thread may not die on any exception, just continue looping
+						 * as long as parent exists and running is true
 						 */
 					}
 				}
@@ -470,6 +510,12 @@ public interface LazyReferenceManager
 		public final void cleanUp(final long nanoTimeBudget, final Checker checker)
 		{
 			// no-op dummy
+		}
+		
+		@Override
+		public final boolean isRunning()
+		{
+			return false;
 		}
 
 		@Override

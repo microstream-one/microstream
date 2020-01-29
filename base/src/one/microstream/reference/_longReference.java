@@ -1,17 +1,18 @@
 package one.microstream.reference;
 
+@FunctionalInterface
 public interface _longReference
 {
 	public long get();
 
 
 
-	public static Constant Constant(final long value)
+	public static _longReference New(final long value)
 	{
-		return new Constant(value);
+		return new Default(value);
 	}
 
-	public final class Constant implements _longReference
+	public final class Default implements _longReference
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -25,7 +26,7 @@ public interface _longReference
 		// constructors //
 		/////////////////
 
-		Constant(final long value)
+		Default(final long value)
 		{
 			super();
 			this.value = value;
