@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 priv#89\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 priv#89\par
 \par
 2020-01-27\par
 \par
@@ -240,5 +241,43 @@ Mal so einbauen.\par
 \par
 Hm, oder ist das redundant zu dem Checker interface? Das ist ja immerhin schon das modular Ding f\'fcr den LRM...\par
 Dar\'fcber muss ich mal nachdenken ...\par
+\par
+\par
+2020-01-29\par
+\par
+Also das CustomCheck Ding als optionale Konfiguration ist okay, aber nochmal modular beim Aufruf braucht man es nicht machen. Da kann man gleich einen eigenen Checker \'fcbergeben. z.B. einen, der einfach nur so eine Logik wrappt.\par
+Also wieder rausmachen.\par
+\par
+Au\'dferdem Benamungen verbessern.\par
+\par
+Hm. Problem:\par
+Nachdem ein entity rausgeworfen worden ist, m\'fcsste eigentlich eine neue MemoryUsage Instanz geholt werden.\par
+Ansonsten w\'fcrde ja ein einmal erreichtes Limit hei\'dfen, dass im aktuellen checking cycle ALLE Referenzen gecleart werden, was nat\'fcrlich bl\'f6dsinn w\'e4re.\par
+Wobei eine geclearte Lazy Reference erst mal f\'fcr den Speicher gar keine \'c4nderung. Erst wenn der JVM GC danach gelaufen ist und die geclearte LR wirklich zu einer nennenswerten Freigabe von Memory gef\'fchrt hat, w\'fcrde ein relevant anderes Ergebnis rauskommen.\par
+Das hei\'dft dann aber auch, dass JEDER Checker mit deaktivierter Timeout Logik eigentlich eine "alles oder nichts" clearing Logik hat.\par
+\par
+Hei\'dft das, dass es nie einen deaktivierten Timeout geben darf?\par
+Naja gut: Immerhin die gracetime w\'fcrde einen unterschied machen: Alle "jungen" bleiben, alle \'e4lteren werden gecleart.\par
+\par
+Oder man k\'f6nnte nat\'fcrlich pragmatisch sagen:\line Naja, es wird ja erst mal nur die lazy reference rausgeworfen. Falls sie kurz darauf wieder gebraucht wird, steht sie ja wahrscheinlich eh noch in der ObjectRegistry drin und wieder einfach wieder gesetzt.\par
+Aber die Frage ist ja, was ist, wenn man sich einfch mal ALLE Lazy Reference cleart und dann kommt ein GC run... Dann is alles weg.\par
+\par
+Also timeout zwangsweise gr\'f6\'dfer ?\par
+Das w\'fcrde auch den Fall abdecken, dass nicht beide Konfigurationswerte gleichzeitig 0 sein d\'fcrfen.\par
+\par
+Wobei man das "totale" Verhalten auch mit einem Timeout > 0 hinkriegt:\par
+Max long nehmen, dann ist das "memory penalty" f\'fcr ALLE Lazy References immer 0, d.h. es z\'e4hlt wieder nur f\'fcr alle gleicherma\'dfen "used >= limit".\par
+\par
+Ein "k\'fcnstliches" clearing limit einbauen ist vielleicht ein bisschen bl\'f6d:\par
+So alle 100 geclearte entities oder so ein neues MemoryUsage holen. Ohne GC wird sich dann gar nichts ge\'e4ndert haben.\par
+Und hardgecodet den GC aufrufen k\'f6nnte fatal, das auf keinen Fall.\par
+\par
+Naja gut, aber besser als nix:\par
+Alle 100 geclearte Entities MemoryUsage neu holen gibt einem immerhin die CHANCE, zwischenzeitlich einen GC run gehabt zu haben und dann mitzubekommen, dass inzwischen schon wieder genug Speicher vorhanden ist.\par
+\par
+Man k\'f6nnte als M\'f6glichkeit, den GC anwendungsseitig konfiguriert vom Checker aufrufen zu lassen, diese custom Check Funktion verwenden.\par
+Alle X Aufrufe mal die Speicherbelegung checken (wird ja \'fcbergeben) und wenn's nicht passt, DANN mal den GC aufrufen. Aber eben anwendugsgesteuert, nicht generisch immer bei jeder Anwendung.\par
+So mach ich das. Das ist gut.\par
+Muss ich dann nur entsprechend dokumentieren, damit zuk\'fcnftig beim Lesen des Codes die Hintergrund\'fcberlegungen klar werden.\par
 }
  
