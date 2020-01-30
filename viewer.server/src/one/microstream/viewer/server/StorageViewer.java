@@ -1,8 +1,8 @@
 package one.microstream.viewer.server;
 
-import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.viewer.StorageRestAdapter;
+import one.microstream.viewer.ViewerException;
 import spark.RouteImpl;
 import spark.Service;
 import spark.route.HttpMethod;

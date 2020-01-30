@@ -1,7 +1,5 @@
 package one.microstream.viewer;
 
-import one.microstream.persistence.binary.types.ObjectDescription;
-import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 public class StorageRestAdapter extends EmbeddedStorageRestAdapter

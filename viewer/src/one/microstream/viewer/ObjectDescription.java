@@ -1,10 +1,9 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import one.microstream.persistence.types.PersistenceTypeDefinition;
-import one.microstream.viewer.EmbeddedStorageRestAdapter;
 
 /**
  * This class encapsulates the type definition and all field values retrieved

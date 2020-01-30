@@ -1,6 +1,7 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
 import one.microstream.collections.types.XGettingSequence;
+import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGenericComplex;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;

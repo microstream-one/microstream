@@ -1,5 +1,7 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 
 public class ValueReaderPrimitiveByteList extends ValueReaderVariableLength

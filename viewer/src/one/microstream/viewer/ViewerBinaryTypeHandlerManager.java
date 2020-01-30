@@ -1,4 +1,4 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
 import java.util.function.Consumer;
 
@@ -6,6 +6,8 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceManager;
