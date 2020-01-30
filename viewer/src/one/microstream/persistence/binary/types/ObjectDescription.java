@@ -17,7 +17,7 @@ public class ObjectDescription
 	// instance fields //
 	////////////////////
 
-	private long ObjectId;
+	private long objectId;
 	private Object[] values;
 	private Object primitiveInstance;
 	private PersistenceTypeDefinition persistenceTypeDefinition;
@@ -45,12 +45,12 @@ public class ObjectDescription
 	 */
 	public long getObjectId()
 	{
-		return this.ObjectId;
+		return this.objectId;
 	}
 
 	public void setObjectId(final long objectId)
 	{
-		this.ObjectId = objectId;
+		this.objectId = objectId;
 	}
 
 	public Object[] getValues()
