@@ -3,7 +3,7 @@ package one.microstream.storage.types;
 import one.microstream.math.XMath;
 import one.microstream.storage.exceptions.StorageException;
 
-public interface StorageobjectIdMarkQueue
+public interface StorageObjectIdMarkQueue
 {
 	public void enqueue(long objectId);
 
@@ -23,16 +23,16 @@ public interface StorageobjectIdMarkQueue
 
 	public interface Creator
 	{
-		public StorageobjectIdMarkQueue createOidMarkQueue(int segmentLength);
+		public StorageObjectIdMarkQueue createOidMarkQueue(int segmentLength);
 
 
 
-		public final class Default implements StorageobjectIdMarkQueue.Creator
+		public final class Default implements StorageObjectIdMarkQueue.Creator
 		{
 			@Override
-			public StorageobjectIdMarkQueue createOidMarkQueue(final int segmentLength)
+			public StorageObjectIdMarkQueue createOidMarkQueue(final int segmentLength)
 			{
-				return new StorageobjectIdMarkQueue.Default(segmentLength);
+				return new StorageObjectIdMarkQueue.Default(segmentLength);
 			}
 
 		}
@@ -40,7 +40,7 @@ public interface StorageobjectIdMarkQueue
 	}
 
 
-	final class Default implements StorageobjectIdMarkQueue
+	final class Default implements StorageObjectIdMarkQueue
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

@@ -67,7 +67,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private final StorageTypeDictionary              typeDictionary    ;
 		private final StorageEntityMarkMonitor           markMonitor       ;
 		private final StorageReferenceMarker             referenceMarker   ;
-		private final StorageobjectIdMarkQueue           oidMarkQueue      ;
+		private final StorageObjectIdMarkQueue           oidMarkQueue      ;
 		private final long[]                             markingOidBuffer  ;
 		private final StorageGCZombieOidHandler          zombieOidHandler  ;
 		private final StorageRootOidSelector             rootOidSelector   ;
@@ -114,7 +114,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageGCZombieOidHandler   zombieOidHandler   ,
 			final StorageRootOidSelector      rootOidSelector    ,
 			final long                        rootTypeId         ,
-			final StorageobjectIdMarkQueue    oidMarkQueue       ,
+			final StorageObjectIdMarkQueue    oidMarkQueue       ,
 			final StorageEventLogger          eventLogger        ,
 			final int                         markingBufferLength,
 			final long                        markingWaitTimeMs
@@ -862,7 +862,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			final long                     evalTime        = System.currentTimeMillis();
 			final StorageReferenceMarker   referenceMarker = this.referenceMarker      ;
-			final StorageobjectIdMarkQueue oidMarkQueue    = this.oidMarkQueue         ;
+			final StorageObjectIdMarkQueue oidMarkQueue    = this.oidMarkQueue         ;
 			final long[]                   oidsBuffer      = this.markingOidBuffer     ;
 
 			// total amount of oids to mark in the current batch. Range: [0; oids.length]
