@@ -101,12 +101,6 @@ public abstract class ViewerBinaryTypeHandlerWrapperAbstract<T> implements Persi
 	}
 
 	@Override
-	public boolean hasInstanceReferences()
-	{
-		return this.nativeHandler.hasInstanceReferences();
-	}
-
-	@Override
 	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
 	{
 		return this.nativeHandler.iterateMemberTypes(logic);
@@ -146,6 +140,12 @@ public abstract class ViewerBinaryTypeHandlerWrapperAbstract<T> implements Persi
 	public PersistenceTypeHandler<Binary, Object> initialize(final long typeId)
 	{
 		return this;
+	}
+
+	@Override
+	public Class<Binary> dataType()
+	{
+		throw new UnsupportedOperationException();
 	}
 
 }

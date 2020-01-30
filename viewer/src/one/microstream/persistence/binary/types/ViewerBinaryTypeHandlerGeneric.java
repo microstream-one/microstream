@@ -102,12 +102,6 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 	}
 
 	@Override
-	public boolean hasInstanceReferences()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public void iterateInstanceReferences(final ObjectDescription instance, final PersistenceFunction iterator)
 	{
 		throw new UnsupportedOperationException();
@@ -158,6 +152,12 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 
 	@Override
 	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Class<Binary> dataType()
 	{
 		throw new UnsupportedOperationException();
 	}
