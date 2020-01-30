@@ -23,7 +23,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	public void resetCompletion();
 
-	public void advanceMarking(StorageobjectIdMarkQueue objectIdMarkQueue, int amount);
+	public void advanceMarking(StorageObjectIdMarkQueue objectIdMarkQueue, int amount);
 
 	public void clearPendingStoreUpdate(StorageEntityCache<?> channel);
 
@@ -43,7 +43,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	public StorageReferenceMarker provideReferenceMarker(StorageEntityCache<?> channel);
 
-	public void enqueue(StorageobjectIdMarkQueue objectIdMarkQueue, long objectId);
+	public void enqueue(StorageObjectIdMarkQueue objectIdMarkQueue, long objectId);
 
 //	public String DEBUG_state();
 
@@ -52,7 +52,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 	public interface Creator
 	{
 		public StorageEntityMarkMonitor createEntityMarkMonitor(
-			StorageobjectIdMarkQueue[] oidMarkQueues,
+			StorageObjectIdMarkQueue[] oidMarkQueues,
 			StorageEventLogger         eventLogger
 		);
 
@@ -62,7 +62,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		{
 			@Override
 			public StorageEntityMarkMonitor createEntityMarkMonitor(
-				final StorageobjectIdMarkQueue[] objectIdMarkQueues,
+				final StorageObjectIdMarkQueue[] objectIdMarkQueues,
 				final StorageEventLogger         eventLogger
 			)
 			{
@@ -80,7 +80,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		// instance fields //
 		////////////////////
 
-		private final StorageobjectIdMarkQueue[] oidMarkQueues;
+		private final StorageObjectIdMarkQueue[] oidMarkQueues;
 		private final StorageEventLogger         eventLogger  ;
 		
 		private final int       channelCount           ;
@@ -127,7 +127,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		// constructors //
 		/////////////////
 
-		Default(final StorageobjectIdMarkQueue[] oidMarkQueues, final StorageEventLogger eventLogger)
+		Default(final StorageObjectIdMarkQueue[] oidMarkQueues, final StorageEventLogger eventLogger)
 		{
 			super();
 			this.oidMarkQueues       = oidMarkQueues                 ;
@@ -151,7 +151,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		}
 
 		@Override
-		public final synchronized void advanceMarking(final StorageobjectIdMarkQueue oidMarkQueue, final int amount)
+		public final synchronized void advanceMarking(final StorageObjectIdMarkQueue oidMarkQueue, final int amount)
 		{
 //			DEBUGStorage.println(System.identityHashCode(oidMarkQueue) + " >-  " + this.pendingMarksCount + " " + oidMarkQueue.size());
 
@@ -396,7 +396,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		}
 
 		@Override
-		public final void enqueue(final StorageobjectIdMarkQueue objectIdMarkQueue, final long objectId)
+		public final void enqueue(final StorageObjectIdMarkQueue objectIdMarkQueue, final long objectId)
 		{
 			this.incrementPendingMarksCount();
 			// no need to keep the lock longer than necessary or nested with the queue lock.
@@ -430,7 +430,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				this.pendingMarksCount += totalSize;
 			}
 
-			final StorageobjectIdMarkQueue[] oidMarkQueues = this.oidMarkQueues;
+			final StorageObjectIdMarkQueue[] oidMarkQueues = this.oidMarkQueues;
 
 			// lock for every queue is only acquired once and all oids are enqueued efficiently
 			for(int i = 0; i < oidsPerChannel.length; i++)

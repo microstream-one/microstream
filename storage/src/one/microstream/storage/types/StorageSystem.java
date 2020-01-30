@@ -67,7 +67,7 @@ public interface StorageSystem extends StorageController
 		private final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ;
 		private final StorageGCZombieOidHandler            zombieOidHandler              ;
 		private final StorageRootOidSelector.Provider      rootOidSelectorProvider       ;
-		private final StorageobjectIdMarkQueue.Creator     oidMarkQueueCreator           ;
+		private final StorageObjectIdMarkQueue.Creator     oidMarkQueueCreator           ;
 		private final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ;
 		private final StorageDataFileValidator.Creator     backupDataFileValidatorCreator;
 		private final StorageBackupSetup                   backupSetup                   ;
@@ -120,7 +120,7 @@ public interface StorageSystem extends StorageController
 			final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ,
 			final StorageGCZombieOidHandler            zombieOidHandler              ,
 			final StorageRootOidSelector.Provider      rootOidSelectorProvider       ,
-			final StorageobjectIdMarkQueue.Creator     oidMarkQueueCreator           ,
+			final StorageObjectIdMarkQueue.Creator     oidMarkQueueCreator           ,
 			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ,
 			final boolean                              switchByteOrder               ,
 			final StorageLockFileSetup                 lockFileSetup                 ,
