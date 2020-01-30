@@ -6,13 +6,13 @@ import java.util.List;
 import one.microstream.persistence.binary.types.ObjectDescription;
 import one.microstream.persistence.binary.types.ObjectReferenceWrapper;
 
-public class ObjectDescriptionCreator
+public class ViewerObjectDescriptionCreator
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	private ObjectDescriptionCreator()
+	private ViewerObjectDescriptionCreator()
 	{
 		super();
 	}
@@ -33,7 +33,7 @@ public class ObjectDescriptionCreator
 	{
 		final ViewerObjectDescription objDesc = new ViewerObjectDescription();
 
-		ObjectDescriptionCreator.setObjectHeader(description, objDesc);
+		ViewerObjectDescriptionCreator.setObjectHeader(description, objDesc);
 
 		if(description.hasPrimitiveObjectInstance())
 		{
@@ -44,7 +44,7 @@ public class ObjectDescriptionCreator
 			objDesc.setData(simplifyObjectArray(description.getValues(), dataOffset, dataLength));
 		}
 
-		ObjectDescriptionCreator.setReferences(description, objDesc, dataOffset, dataLength);
+		ViewerObjectDescriptionCreator.setReferences(description, objDesc, dataOffset, dataLength);
 		return objDesc;
 	}
 
