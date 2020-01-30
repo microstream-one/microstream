@@ -2,5 +2,5 @@ package one.microstream.viewer;
 
 public interface StorageRestAdapterConverter
 {
-	StorageViewDataConverter getConverter(String format);
+	public StorageViewDataConverter getConverter(String format);
 }

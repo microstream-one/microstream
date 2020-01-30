@@ -24,7 +24,7 @@ public interface ValueReader
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
-	////////////
+	///////////////////
 
 	public static ValueReader[] deriveValueReaders(final PersistenceTypeDefinition td)
 	{
@@ -73,7 +73,7 @@ public interface ValueReader
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
-	static ValueReader deriveVariableLengthValueReader(final PersistenceTypeDefinitionMember member)
+	public static ValueReader deriveVariableLengthValueReader(final PersistenceTypeDefinitionMember member)
 	{
 
 		if(member.typeName().contentEquals(Symbols.typeChars()))
@@ -95,7 +95,7 @@ public interface ValueReader
 
 	}
 
-	static ValueReader deriveComplexVariableLengthValueReader(final PersistenceTypeDefinitionMember member)
+	public static ValueReader deriveComplexVariableLengthValueReader(final PersistenceTypeDefinitionMember member)
 	{
 		final PersistenceTypeDescriptionMemberFieldGenericComplex memberComplex = (PersistenceTypeDescriptionMemberFieldGenericComplex) member;
 		final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members = memberComplex.members();

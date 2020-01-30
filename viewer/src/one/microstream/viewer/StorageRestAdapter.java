@@ -5,8 +5,7 @@ import one.microstream.persistence.binary.types.ViewerException;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 public class StorageRestAdapter extends EmbeddedStorageRestAdapter
-	implements StorageRestAdapterConverter,
-	StorageRestAdapterTypeDictionary,
+	implements StorageRestAdapterTypeDictionary,
 	StorageRestAdapterObject,
 	StorageRestAdapterRoot
 {

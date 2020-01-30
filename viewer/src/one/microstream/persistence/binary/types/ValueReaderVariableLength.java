@@ -26,6 +26,7 @@ public abstract class ValueReaderVariableLength implements ValueReader
 		return binary.getBinaryListTotalByteLength(offset);
 	}
 
+	@Override
 	public long getVariableLength(final Binary binary, final long offset)
 	{
 		return binary.getBinaryListElementCountUnvalidating(offset);

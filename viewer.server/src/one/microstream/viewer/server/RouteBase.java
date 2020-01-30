@@ -29,7 +29,8 @@ public class RouteBase<T extends StorageRestAdapterConverter>
 	// methods //
 	////////////
 
-	public String toRequestedFormat(final Object object, final String requestedFormat, final Response response) {
+	public String toRequestedFormat(final Object object, final String requestedFormat, final Response response)
+	{
 		if(requestedFormat != null)
 		{
 			final StorageViewDataConverter converter = this.storageRestAdapter.getConverter(requestedFormat);
@@ -44,17 +45,15 @@ public class RouteBase<T extends StorageRestAdapterConverter>
 
 				return converter.convert(object);
 			}
-			else
-			{
-				throw new InvalidRouteParametersException("format invalid");
-			}
+			throw new InvalidRouteParametersException("format invalid");
 		}
 
 		response.type("application/json");
 		return this.storageRestAdapter.getConverter("application/json").convert(object);
 	}
 
-	protected long validateObjectId(final Request request) {
+	protected long validateObjectId(final Request request)
+	{
 		try
 		{
 			return Long.parseLong(request.params(":oid"));
@@ -65,7 +64,8 @@ public class RouteBase<T extends StorageRestAdapterConverter>
 		}
 	}
 
-	protected boolean getBooleanParameter(final Request request, final String name, final boolean defaultValue) {
+	protected boolean getBooleanParameter(final Request request, final String name, final boolean defaultValue)
+	{
 		final String param = request.queryParams(name);
 		if(param == null)
 		{
@@ -76,14 +76,12 @@ public class RouteBase<T extends StorageRestAdapterConverter>
 		{
 			return true;
 		}
-		else
-		{
-			throw new InvalidRouteParametersException("invalid url parameter " + name);
-		}
+		throw new InvalidRouteParametersException("invalid url parameter " + name);
 
 	}
 
-	protected long getLongParameter(final Request request, final String name, final long defaultValue) {
+	protected long getLongParameter(final Request request, final String name, final long defaultValue)
+	{
 		final String param = request.queryParams(name);
 
 		if(param == null)
