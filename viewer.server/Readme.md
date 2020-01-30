@@ -5,14 +5,14 @@
 - [Usage](#2-usage)
 - [Example](#3-example)
 - [Routes](#4-available-routes)
-  - [typeDictionary](#41-typedictionary)
-  - [object](#42-object)
-  - [root](#43-root)
+  - [typeDictionary](#4-1-typedictionary)
+  - [object](#4-2-object)
+  - [root](#4-3-root)
 - [Configuration](#5-configuration)
-  - [Server](#51-server)
-    - [URL](#511-url-root)
-    - [port](#512-port)
-  - [Logging](#52-logging)
+  - [Server](#5-1-server)
+    - [URL](#5-1-1-url-root)
+    - [port](#5-1-2-port)
+  - [Logging](#5-2-logging)
 
 ## 1. Setup:
 
@@ -48,7 +48,7 @@ final StorageViewer service = new StorageViewer(storage);
 service.start();
 ```
 
-### 2.3.    Stoping the viewer server
+### 2.3    Stoping the viewer server
 ```
 service.shutdown();
 ```
@@ -76,14 +76,14 @@ public class MainTestStorageViewer
 
 ##  4.	Available Routes
 
-### 4.1. TypeDictionary
+### 4.1 TypeDictionary
 /[InstanceName]/ dictionary
 Get the typeDictionary as String
 ```
 http://localhost:4567/microstream/dictionary"
 ```
 
-### 4.2. Object
+### 4.2 Object
 /[InstanceName]/object/:oid
 Get an objects description and values by the object’s storage id
 
@@ -127,7 +127,7 @@ http://localhost:4567/microstream/root
 ```
 
 ## 5. Configuration
-### 5.1 Server
+### 5.1. Server
 The Storage viewer uses the Spark micro framework from http://sparkjava.com/ as server.
 
 To provide a custom configured server just create an Spark.service and initilize the StorageViewer with this Spark.service
