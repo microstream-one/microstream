@@ -53,7 +53,7 @@ public class StorageRestAdapter extends EmbeddedStorageRestAdapter
 			description.resolveReferences(referenceOffset, referenceLength, this);
 		}
 
-		return ObjectDescriptionConverter.convert(description, dataOffset, dataLength);
+		return ObjectDescriptionCreator.create(description, dataOffset, dataLength);
 	}
 
 	@Override

@@ -6,17 +6,34 @@ import java.util.List;
 import one.microstream.persistence.binary.types.ObjectDescription;
 import one.microstream.persistence.binary.types.ObjectReferenceWrapper;
 
-public class ObjectDescriptionConverter
+public class ObjectDescriptionCreator
 {
-	/*
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+
+	private ObjectDescriptionCreator()
+	{
+		super();
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// static methods //
+	////////////
+
+	/**
 	 * Convert the ObjectDescription to the simpler ViewerObjectDescription
 	 *
+	 * @param description
+	 * @param dataOffset
+	 * @param dataLength
+	 * @return
 	 */
-	public static ViewerObjectDescription convert(final ObjectDescription description, final long dataOffset, final long dataLength)
+	public static ViewerObjectDescription create(final ObjectDescription description, final long dataOffset, final long dataLength)
 	{
 		final ViewerObjectDescription objDesc = new ViewerObjectDescription();
 
-		ObjectDescriptionConverter.setObjectHeader(description, objDesc);
+		ObjectDescriptionCreator.setObjectHeader(description, objDesc);
 
 		if(description.hasPrimitiveObjectInstance())
 		{
@@ -27,9 +44,13 @@ public class ObjectDescriptionConverter
 			objDesc.setData(simplifyObjectArray(description.getValues(), dataOffset, dataLength));
 		}
 
-		ObjectDescriptionConverter.setReferences(description, objDesc, dataOffset, dataLength);
+		ObjectDescriptionCreator.setReferences(description, objDesc, dataOffset, dataLength);
 		return objDesc;
 	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// private static methods //
+	///////////////////////////
 
 	private static void setPrimitiveValue(
 		final ObjectDescription description,
@@ -73,7 +94,7 @@ public class ObjectDescriptionConverter
 			{
 				if(desc != null)
 				{
-					refList.add(convert(desc, dataOffset, dataLength));
+					refList.add(create(desc, dataOffset, dataLength));
 				}
 				else
 				{
