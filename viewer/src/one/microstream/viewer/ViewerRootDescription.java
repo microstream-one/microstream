@@ -37,18 +37,18 @@ public class ViewerRootDescription
 		return this.name;
 	}
 
+	public void setName(final String name)
+	{
+		this.name = name;
+	}
+
 	public long getObjectId()
 	{
 		return this.objectId;
 	}
 
-
-	public void setName(final String name) {
-		this.name = name;
-	}
-
-
-	public void setObjectId(final long objectId) {
+	public void setObjectId(final long objectId)
+	{
 		this.objectId = objectId;
 	}
 

@@ -8,6 +8,10 @@ import one.microstream.persistence.binary.types.ObjectReferenceWrapper;
 
 public class ObjectDescriptionConverter
 {
+	/*
+	 * Convert the ObjectDescription to the simpler ViewerObjectDescription
+	 *
+	 */
 	public static ViewerObjectDescription convert(final ObjectDescription description, final long dataOffset, final long dataLength)
 	{
 		final ViewerObjectDescription objDesc = new ViewerObjectDescription();
