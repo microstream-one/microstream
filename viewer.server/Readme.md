@@ -8,6 +8,7 @@
   - [typeDictionary](#4-1-typedictionary)
   - [object](#4-2-object)
   - [root](#4-3-root)
+  - [filesStatistics](#4-4-filesstatistics)
 - [Configuration](#5-configuration)
   - [Server](#5-1-server)
     - [URL](#5-1-1-url-root)
@@ -124,6 +125,13 @@ requires “references=true”
 Get Name and object ID of the current storage root element
 ```
 http://localhost:4567/microstream/root
+```
+
+### 4.4. FilesStatistics
+/[InstanceName]/maintenance/filesStatistics
+Get some statistics about the used storage files
+```
+http://localhost:4567/microstream/maintenance/filesStatistics
 ```
 
 ## 5. Configuration

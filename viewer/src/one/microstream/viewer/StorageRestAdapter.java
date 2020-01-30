@@ -7,7 +7,8 @@ import one.microstream.storage.types.EmbeddedStorageManager;
 public class StorageRestAdapter extends EmbeddedStorageRestAdapter
 	implements StorageRestAdapterTypeDictionary,
 	StorageRestAdapterObject,
-	StorageRestAdapterRoot
+	StorageRestAdapterRoot,
+	StorageRestAdapterStorageInfo
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -84,4 +85,10 @@ public class StorageRestAdapter extends EmbeddedStorageRestAdapter
     {
         this.defaultDataLength = defaultDataLength;
     }
+
+	@Override
+	public ViewerStorageFileStatistics getStorageFilesStatistics()
+	{
+		return ViewerStorageFileStatistics.New(this.getFileStatistics());
+	}
 }
