@@ -1,5 +1,7 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.notNull;
+
 import java.nio.ByteOrder;
 
 import one.microstream.X;
@@ -30,7 +32,7 @@ import one.microstream.util.InstanceDispatcher;
  * @param <D>
  */
 public interface PersistenceFoundation<D, F extends PersistenceFoundation<D, ?>>
-extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
+extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, PersistenceDataTypeHolder<D>
 {
 	// the pseudo-self-type F is to avoid having to override every setter in every sub class (it was really tedious)
 	
@@ -388,9 +390,11 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 
 
 
-	public static <D> PersistenceFoundation<D, ?> New()
+	public static <D> PersistenceFoundation<D, ?> New(final Class<D> dataType)
 	{
-		return new PersistenceFoundation.Default<>();
+		return new PersistenceFoundation.Default<>(
+			notNull(dataType)
+		);
 	}
 	
 	public class Default<D, F extends PersistenceFoundation.Default<D, ?>>
@@ -400,6 +404,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+		
+		private final Class<D> dataType;
 
 		// required to resolve a TypeHandlerManager dependancy loop. Must be created anew to a
 		private final Reference<PersistenceTypeHandlerManager<D>> referenceTypeHandlerManager = X.Reference(null);
@@ -484,9 +490,10 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		// constructors //
 		/////////////////
 		
-		protected Default()
+		protected Default(final Class<D> dataType)
 		{
 			super();
+			this.dataType = dataType;
 		}
 		
 		
@@ -502,9 +509,15 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		}
 		
 		@Override
+		public Class<D> dataType()
+		{
+			return this.dataType;
+		}
+		
+		@Override
 		public PersistenceFoundation.Default<D, F> Clone()
 		{
-			return new PersistenceFoundation.Default<>();
+			return new PersistenceFoundation.Default<>(this.dataType);
 		}
 
 		
@@ -1997,6 +2010,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceTypeHandlerProvider<D> ensureTypeHandlerProvider()
 		{
 			return PersistenceTypeHandlerProviderCreating.New(
+				this.dataType(),
 				this.getTypeManager(),
 				this.getTypeHandlerEnsurer()
 			);
@@ -2083,6 +2097,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>
 		protected PersistenceTypeHandlerEnsurer<D> ensureTypeHandlerEnsurer()
 		{
 			return PersistenceTypeHandlerEnsurer.New(
+				this.dataType(),
 				this.getCustomTypeHandlerRegistry(),
 				this.getTypeHandlerCreator()
 			);

@@ -19,6 +19,7 @@ import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceRootsView;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
+import one.microstream.reference.LazyReferenceManager;
 import one.microstream.reference.Reference;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.KeyValue;
@@ -147,14 +148,59 @@ public interface EmbeddedStorageManager extends StorageManager
 		{
 			return this.singletonConnection().createStorer();
 		}
+		
+		private boolean ensureProperLazyReferenceManager()
+		{
+			if(LazyReferenceManager.isSet())
+			{
+				return false;
+			}
+
+			LazyReferenceManager.set(
+				LazyReferenceManager.New(() ->
+					this.isRunning() // debuggability line. Do not fold.
+				)
+			);
+			return true;
+		}
+		
+		private static void ensureActiveLazyReferenceManager(final boolean lazyReferenceManagerIsRunning)
+		{
+			if(lazyReferenceManagerIsRunning)
+			{
+				return;
+			}
+			
+			LazyReferenceManager.get().start();
+		}
+		
+		private static void rollbackLazyReferenceManager(
+			final boolean replacedReferenceManager      ,
+			final boolean lazyReferenceManagerWasRunning
+		)
+		{
+			if(!lazyReferenceManagerWasRunning)
+			{
+				LazyReferenceManager.get().stop();
+			}
+			if(replacedReferenceManager)
+			{
+				// revert to internal dummy instance
+				LazyReferenceManager.set(null);
+			}
+		}
 
 		@Override
 		public final EmbeddedStorageManager.Default start()
 		{
+			final boolean replacedReferenceManager      = ensureProperLazyReferenceManager();
+			final boolean lazyReferenceManagerIsRunning = LazyReferenceManager.get().isRunning();
+			
 			this.storageSystem.start();
 			
 			try
 			{
+				ensureActiveLazyReferenceManager(lazyReferenceManagerIsRunning);
 				this.ensureRequiredTypeHandlers();
 				this.initialize();
 			}
@@ -162,6 +208,8 @@ public interface EmbeddedStorageManager extends StorageManager
 			{
 				try
 				{
+					rollbackLazyReferenceManager(replacedReferenceManager, lazyReferenceManagerIsRunning);
+					
 					if(this.storageSystem instanceof StorageKillable)
 					{
 						((StorageKillable)this.storageSystem).killStorage(t);

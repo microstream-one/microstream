@@ -271,10 +271,8 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			 * OR the registration process must be shifted to behind complete or at least to behind update.
 			 * 
 			 * Ah yes. The point below did already handle that.
-			 */
-			
-			/* (03.09.2019 TM)TODO: priv#141: loading race conditions?
-			 * (Addon to the point above)
+			 * 
+			 * Addon to the point above
 			 * Albeit: what about globally registering an instance before it is completely built?
 			 * Couldn't that cause race conditions and inconcistencies?
 			 * And if not: Why not determine (select or created&register) the instance right away when creating

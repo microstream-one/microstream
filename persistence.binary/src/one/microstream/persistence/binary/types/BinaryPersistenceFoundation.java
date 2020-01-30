@@ -84,7 +84,7 @@ extends PersistenceFoundation<Binary, F>
 		
 		protected Default()
 		{
-			super();
+			super(Binary.class);
 		}
 		
 		

@@ -10,7 +10,13 @@ public interface PersistenceTypeDefinitionMemberFieldGenericComplex
 extends PersistenceTypeDefinitionMemberFieldGenericVariableLength, PersistenceTypeDescriptionMemberFieldGenericComplex
 {
 	@Override
-	public PersistenceTypeDefinitionMemberFieldGenericComplex copyForName(String name);
+	public default PersistenceTypeDefinitionMemberFieldGenericComplex copyForName(final String name)
+	{
+		return this.copyForName(this.qualifier(), name);
+	}
+	
+	@Override
+	public PersistenceTypeDefinitionMemberFieldGenericComplex copyForName(String qualifier, String name);
 	
 	
 	
@@ -104,12 +110,6 @@ extends PersistenceTypeDefinitionMemberFieldGenericVariableLength, PersistenceTy
 				this.persistentMinimumLength(),
 				this.persistentMaximumLength()
 			);
-		}
-		
-		@Override
-		public PersistenceTypeDefinitionMemberFieldGenericComplex copyForName(final String name)
-		{
-			return this.copyForName(null, name);
 		}
 
 	}

@@ -1,0 +1,342 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 priv#89\par
+\par
+2020-01-27\par
+\par
+Jetzt mal \'fcberlegen zu einer geschickten Formel f\'fcr die Kombination von Memory Check und Timeout check.\par
+\par
+Wenn age > timeout\par
+Auf jeden Fall clearen\par
+ansonsten:\par
+Irgendwie m\'fcsste age ein Faktor werden, der den Wert f\'fcr bisher belegten Memory "verschlechtert".\par
+Dadurch w\'fcrden mit zunehmend knappem Memory \'e4ltere Eintr\'e4ge schneller gecleart werden als j\'fcngere.\par
+\par
+Hm.\par
+Bei einzelnen Eintr\'e4ge mit bekannter Gr\'f6\'dfe (auf der Ebenes des StorageEntityCache) war das relativ einfach.\par
+Bei nur einem Memory-Gesamtwert wird das ein bisschen kniffliger.\par
+\par
+Mal weiter\'fcberlegen:\par
+Es sollte auf jeden Fall eine "Grace time" gelten, also eine gewisse Anfangszeit, in der ein Eintrag \'fcberhaupt nicht verschlechtert wird.\par
+Sonst hat man so unsch\'f6ne Effekte, dass Entities st\'e4ndig "faltternd" rausgeworfen und wieder reingeholt werden, obwohl es weiter hinten evtl. \'e4ltere g\'e4be, die man viel unproblematischer raushauen k\'f6nnte.\par
+\par
+\par
+Gar nicht so einfach. Die beiden haben ja keine vergleichbare Einheit, bzw. man kann sie auch kaum normalisieren, d.h. jede Form von Addition scheidet schon mal aus.\par
+Muss eine Multiplikation sein, am besten irgendwie von einem normalisierten, abstrakten Wert ...\par
+\par
+Ne, das wird alles zu irre.\par
+Es muss eigentlich was ganz simples reichen.\par
+\par
+Hm. Vielleicht so: \par
+Standardfaktor ist 1.0.\par
+Also Bewertungswert = BelegterSpeicher * 1.0.\par
+\par
+Dann wird berechnet, wie viel die age vom Timeout schon erreicht hat.\par
+Also Timeout halb erreicht = Faktor 0.5.\par
+Dieser "AgeFactor" wird zum BaseFactor addiert.\par
+\par
+Also z.B. Bewertungswert = BelegterSpeicher * 1.5.\par
+\par
+Hei\'dft: Mit zunehmend knappen Speicher fliegen \'e4ltere Entities schneller raus als junge.\par
+\par
+Rechenbeispiele:\par
+\par
+Beispiel 1: Alles easy (10% Belegung)\par
+\par
+1000 MB MAX Memory.\par
+0100 MB Belegt.\par
+\par
+Standardm\'e4\'dfig hei\'dft das: sind noch 90% frei, also kein Stress.\par
+\par
+Bei einem Entity, das halb den Timeout erreicht hat, w\'e4re es\par
+1000 MB MAX Memory.\par
+0150 MB Belegt.\par
+\par
+Hei\'dft nat\'fcrlich immer noch "kein Stress". Und das ist ja auch richtig so. Wenn noch 90% frei sind, soll die Zeit-Faktorisierung "die Klappe halten", also keine Auswirkung haben.\par
+Selbst kurz vor dem Timeout w\'e4re es f\'fcr ein Entity nur\par
+1000 MB MAX Memory.\par
+0199 MB Belegt.\par
+\par
+Also passt.\par
+\par
+\par
+Beispiel 2: Allm\'e4hlich ... (55% Belegung)\par
+\par
+1000 MB MAX Memory.\par
+0550 MB Belegt.\par
+\par
+Bei einem Entity, das halb den Timeout erreicht hat, w\'e4re es\par
+1000 MB MAX Memory.\par
+0825 MB Belegt.\par
+\par
+Kann noch bleiben, aber wird langsam eng.\par
+\par
+Bei einem Entity, das halb den Timeout bald erreicht (90%), w\'e4re es\par
+1000 MB MAX Memory.\par
+1045 MB Belegt.\par
+\par
+Aha!\par
+-> Rauswerfen\par
+\par
+Und auch das ist gut so:\par
+Wenn der Speicher so allm\'e4hlich \'fcber 50% belegt ist, dann werden alte Entities ein klein wenig schneller rausgeworfen, als sie es eigentlich w\'fcrden.\par
+Nicht dramatisch. Z.B. ein 80% altes Entity darf immer noch bleiben (990 < 1000), aber es wird schon brenzlig.\par
+\par
+\par
+Beispiel 3: It's getting hot in here (80% Belegung)\par
+\par
+1000 MB MAX Memory.\par
+0800 MB Belegt.\par
+\par
+Memorym\'e4\'dfig bricht langsam Panik aus, darum kickt die Formel alles raus, was nicht gerade "jung" ist.\par
+Ein Entity mit 20% Alter darf noch bleiben (960 < 1000), aber dar\'fcber geht das gemetzel los.\par
+26% Alter: raus. Und alles dar\'fcber erst recht.\par
+\par
+\par
+Wichtig ist:\par
+Man darf sich das nicht so vorstellen, dass ein Entity mit Alter 26% tragischerweise rausgekickt wird und das dahinter mit 60% Alter sitz daneben und freut sich.\par
+Sondern das ist ja ein dynamischer Prozess.\par
+Die Entities werden immer wieder von vorne nach hinten durchgescannt.\par
+Mit jedem Durchlauf steigen Speicherbelegung und Alter der Entries an.\par
+D.h. bevor irgendwas gekickt wird, werden das junge UND das alte Entity wahrscheinlich mehrfach gescannt. Vielleicht hunderte Male.\par
+Dabei fliegt unter Garantie zuerst das \'e4ltere raus und danach, im n\'e4chsten Durchgang, erst das j\'fcngere, wenn es denn dann noch unbedingt sein muss.\par
+\par
+\par
+Also das sollte eine sehr gute Formel sein, auch wenn sie sehr simpel ist.\par
+\par
+Durch die Konfiguration des Timeouts hat man auch mehr Gestaltungsm\'f6glichkeiten, als der einzelne Wert es zun\'e4chst vermuten l\'e4sst:\par
+Das Prozentuale Alter bleibt immer gleich, d.h. bei einem langen Timeout baut sich auch der "AgeFactor" nicht so schnell auf. D.h. die Formel ist grunds\'e4tzlich nicht so "nerv\'f6s", wenn der Speicher voller wird.\par
+Bei einem kurzen Timeout wird auch die Formel mit zunehmend vollem Speicher zunehmen "h\'e4rter". "Was, schon zwei Minuten alt? Raus mit dir, zu alter Sack, wir sind eh zu viele."\par
+\par
+\par
+Jetzt ist nur noch die Frage nach dieser Grace Time.\par
+Prozentual oder absolut?\par
+Oder beides?\par
+\par
+Wichtig ist auf jeden Fall: der Base Faktor bleibt trotzdem 1.0, d.h. wenn der Speicher voll ist (genauer der vorgegebene Wert erreicht), wird trotzdem rausgeworfen, auch wenn vielleicht ALLE Datens\'e4tze noch in der Grace Time sind. Es ist nicht so, dass die Gracetime ein "heilige" Status der Clear-Unverwundbarkeit ist. Sondern es wird einfach nur das Alter nicht ber\'fccksichtigt, so lange es noch sehr klein ist, damit erst die etwas \'e4lteren rausgeworfen werden.\par
+\par
+Vielleicht ist wirklich beides nicht schlecht.\par
+Ein absoluter Wert, weil ja auch der Timeout absolut ist.\par
+Und ein relativer, weil mit dem gerechnet wird.\par
+\par
+Hm, aber ist das nicht redundant? Man kann das eine ja aus dem anderen und dem Timeout herleiten.\par
+Vielleicht als Convenience M\'f6glichkeit beides in der API anbieten, aber als tats\'e4chlicher Wert muss 1 reichen.\par
+\par
+\par
+23:15\par
+\par
+Jetzt mal implementieren.\par
+Ich wei\'df nicht, wie relevant es wirklich ist (Stichwort "Premature optimization"), aber ich schau mal, dass m\'f6glichst keine / wenig floating point operationen verwendet werden. Mal schauen.\par
+\par
+Hm ... also ... ich will ja die Arbeit von FH nicht herabssetzen, aber ... wenn es im Checker eh schon eine #beginCycle Methode gibt, mit der Logik nur einmal pro Cycle anstatt einmal pro Eintrag aufgerufen wird, kann man das "ManagementFactory.getMemoryMXBean().getHeapMemoryUsage()" dann nicht einfach dort drin direkt aufrufen? Dann w\'fcrde das zweifache wrappen in zwei verschiedenen Typen mit zus\'e4tzlich zu konfigurierendem Update Interval einfach entfallen.\par
+Es stehen leider im Code von FH so gut wie keine erkl\'e4renden Kommentare, wieso er das macht. Nur ganz oben steht "MemoryMXBean is [...] considerably faster Runtime#*memory".\par
+Aber ist es so langsam, dass man es nicht einmal pro cycle aufrufen kann?\par
+Muss ich testen ...\par
+\par
+Ergebnis:\par
+1000 Aufrufe (jeweils in einem \'e4u\'dferen loop f\'fcr jitting) von ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() brauchen ... 500 Mikrosekunden.\par
+Hei\'dft ein Aufruf braucht statistisch 500 Nanosekunden.\par
+\par
+Das ist f\'fcr einen einzelnen long nat\'fcrlich eine Menge Holz.\par
+Im Vergleich dazu: Einfach nur den System.currentTimeMillis() 1000 mal aufaddieren dauert 12 Mikrosekunden. Oder 12 ns pro Aufruf.\par
+\par
+Aber wenn man das mal im Kontext sieht:\par
+Einmal pro Cycle, d.h. einmal pro tausende, vielleicht Millionen Eintr\'e4ge, werden diese 500 ns n\'f6tig.\par
+\'c4h...\par
+Wuascht.\par
+\par
+Achja und die beiden Werte (used und committed) abrufen dauert dann nat\'fcrlich nicht das doppelte, sondern genauso lang. Denn das teuere ist die Erstellung der MemoryUsage Instanz.\par
+Aus der dann 2 Werte statt nur 1 rausziehen dauert im Vergleich ... 0 l\'e4nger. Also pro usage Zugriff einmalig 500 ns, egal, was man dann mit den Ergebnissen treibt.\par
+\par
+Falls die Anspr\'fcche mal so super speziell werden sollten, dass sowas st\'f6rt, dann schreibt man sich mit ~20 Zeilen Code einen eigenen Checker, der direkt selber ein Update Interval checkt.\par
+\par
+Also nix f\'fcr ungut und die MemoryStatistics und ~Provider Typen sind bestimmt nach wie vor n\'fctzlich. Aber ich hau das raus und hol den Wert einfach direkt.\par
+\par
+Ups, auf einmal ist es schon nach 24 Uhr. Vor lauter Abw\'e4gen und testen...\par
+Aber die Basis der Implementierung mach ich jetzt noch. Und ich schreib einen erkl\'e4renden Kommentar dazu, warum ich das mach. Sowas ist halt schon immer nicht schlecht ... ^^.\par
+\par
+\par
+2020-01-28\par
+\par
+Weitermachen.\par
+Erst mal was bauen, dass man den Timeout deaktivieren kann. Wert 0 sollte einfach und unproblematisch sein.\par
+Extra check daf\'fcr einbauen.\par
+\par
+Dann regt mich die Casterei irgendwie doch auf.\line Was ist denn, wenn es mal eine andere Implementierung ist? Dann wird die Lazy reference einfach gar nicht gecleart? Das w\'e4r schon d\'e4mlich. Genauer gesagt: Ein Bug.\par
+Und das alles nur, weil ich kein "long lastTouched()" ins interface machen will? Obwohl eigentlich JEDE Implementierung einer Lazy Reference so einen Mechanismus braucht.\par
+Und selbst wenn nicht, kann man dort immer noch max long oder so zur\'fcckgeben.\par
+Also rein ins Interface.\par
+Dann f\'e4llt der bl\'f6de Cast weg.\par
+\par
+Hm.\par
+So einfach ist es aber nicht:\par
+Es gibt ja auch noch concurrency.\par
+Ein synchronized(lazyReference) drum rum bauen geht schon wieder von der Annahme aus, dass man auf die Instanz selbst lockt und nicht auf eine interne Locking Instanz.\par
+Das ist schlecht. Stimmt zwar f\'fcr die Default implementierung, aber muss nicht f\'fcr alle Implementierungen stimmen.\par
+Sowas muss man besser, sauberer l\'f6sen.\par
+\par
+Und kann man auch:\par
+Eine bedingte clear-methode bauen, der ein pr\'fcfer callback (der Checker selbst) \'fcbergeben wird, der dann wiederum lastTouched \'fcbergeben bekommt.\par
+Vorteil:\par
+Die Lazy Implementierung kann dann EINMALIG den Lock aufbauen (und bis zur Entscheidung durchgehend halten!) und darin dann die Pr\'fcflogik aufrufen.\par
+So muss das laufen. Alles andere ist Mist. H\'e4tt ich gleich fr\'fcher so machen sollen.\par
+\par
+Soweit fertig. Jetzt muss ich mir aber erst mal eine Testklasse bauen f\'fcr ein paar Rechenbeispiele, um die Formel an sich zu checken.\par
+\par
+Da ist eine Zehnerstell zu viel in der Multiplikation. Wieso ist da viel, wenn es immer der gleiche Faktor 1024 ist???\par
+\par
+Achja: Man sollte f\'fcr eine prozentuale Berechnung vielleicht Age / Timeout machen und nicht Timeout / Age.\par
+Division und so. Schwierig und so.\par
+\par
+Gefixt. Testen.\par
+Jup, passt.\par
+\par
+Jetzt noch \'fcberlegen, ob es einen long \'fcberlauf geben kann bei gro\'dfen memory gr\'f6\'dfen und dem *1024 faktor:\par
+\par
+MX 9.223.372.036.854.775.808\par
+GB 1.024.000.000.000\par
+TB 1.024.000.000.000.000\par
+PB 1.024.000.000.000.000.000\par
+\par
+Also bis ~8 PetaByte (8000 TB) ist alles safe.\par
+Aktuell ist das h\'f6chste 24 TB, was sich so googeln l\'e4sst.\par
+Das steigt nat\'fcrlich, aber von 8000 ist das trotzdem alles noch weit weg.\par
+\par
+Jetzt l\'f6sch ich die anderen beiden naiven Implementierungen mal.\par
+Ah, aber eins hab ich bisher vergessen: So eine vorgebbare "quota", wie viel memory frei bleiben soll.\par
+\par
+Einbauen.\par
+\par
+Und jetzt mal den Checker als Default in sein Interface verschieben.\par
+\par
+Achja: Gracetime hab ich noch nicht.\par
+\par
+Und: Evtl. w\'e4re es nicht schlecht, so eine custom predicate variante wie FH gemacht hat, zu lassen. Bzw. einzubauen.\par
+\par
+Und Wertevalidierung\par
+\par
+Und was ist, wenn beide null sind?\par
+\par
+Puh, alles mal als Tasks reinschreiben, damit ich das nicht vergess.\par
+\par
+23:00\par
+\par
+Weitermachen.\par
+Mir ist noch ein TODO eingefallen:\par
+Beim StorageManager Starten auch gleich den LazyReferenceManager setzen.\par
+Denn:\par
+Nicht per Default einen eigenen Thread erzeugen ist schon richtig, aber beim StorageManager werden eh auch Threads erzeugt und ohne LazyReferenceManager funktioniert fr\'fcher oder sp\'e4ter die Storage nicht richtig.\par
+Also ist dort der perfekte Punkt, wo der LRM Thread gestartet werden kann ... und auch MUSS.\par
+\par
+Und DANN kann ich dabei auch gleich priv#207 mit umsetzen.\par
+Das sind jeweils alles nur ein paar Zeilen Code.\par
+Also los gehts...\par
+\par
+Ach ja und noch ein TODO:\par
+Der Checker hat einen optionalen Check.\par
+Die beginCycle Methode muss selber nochmal einen optionalen Check haben, der \'fcber den intrinsischen priorisiert wird.\par
+Damit kann man den ReferenceManager check explizit aufrufen mit einem expliziten Check.\par
+\par
+Mal so einbauen.\par
+\par
+Hm, oder ist das redundant zu dem Checker interface? Das ist ja immerhin schon das modular Ding f\'fcr den LRM...\par
+Dar\'fcber muss ich mal nachdenken ...\par
+\par
+\par
+2020-01-29\par
+\par
+Also das CustomCheck Ding als optionale Konfiguration ist okay, aber nochmal modular beim Aufruf braucht man es nicht machen. Da kann man gleich einen eigenen Checker \'fcbergeben. z.B. einen, der einfach nur so eine Logik wrappt.\par
+Also wieder rausmachen.\par
+\par
+Au\'dferdem Benamungen verbessern.\par
+\par
+Hm. Problem:\par
+Nachdem ein entity rausgeworfen worden ist, m\'fcsste eigentlich eine neue MemoryUsage Instanz geholt werden.\par
+Ansonsten w\'fcrde ja ein einmal erreichtes Limit hei\'dfen, dass im aktuellen checking cycle ALLE Referenzen gecleart werden, was nat\'fcrlich bl\'f6dsinn w\'e4re.\par
+Wobei eine geclearte Lazy Reference erst mal f\'fcr den Speicher gar keine \'c4nderung. Erst wenn der JVM GC danach gelaufen ist und die geclearte LR wirklich zu einer nennenswerten Freigabe von Memory gef\'fchrt hat, w\'fcrde ein relevant anderes Ergebnis rauskommen.\par
+Das hei\'dft dann aber auch, dass JEDER Checker mit deaktivierter Timeout Logik eigentlich eine "alles oder nichts" clearing Logik hat.\par
+\par
+Hei\'dft das, dass es nie einen deaktivierten Timeout geben darf?\par
+Naja gut: Immerhin die gracetime w\'fcrde einen unterschied machen: Alle "jungen" bleiben, alle \'e4lteren werden gecleart.\par
+\par
+Oder man k\'f6nnte nat\'fcrlich pragmatisch sagen:\line Naja, es wird ja erst mal nur die lazy reference rausgeworfen. Falls sie kurz darauf wieder gebraucht wird, steht sie ja wahrscheinlich eh noch in der ObjectRegistry drin und wieder einfach wieder gesetzt.\par
+Aber die Frage ist ja, was ist, wenn man sich einfch mal ALLE Lazy Reference cleart und dann kommt ein GC run... Dann is alles weg.\par
+\par
+Also timeout zwangsweise gr\'f6\'dfer ?\par
+Das w\'fcrde auch den Fall abdecken, dass nicht beide Konfigurationswerte gleichzeitig 0 sein d\'fcrfen.\par
+\par
+Wobei man das "totale" Verhalten auch mit einem Timeout > 0 hinkriegt:\par
+Max long nehmen, dann ist das "memory penalty" f\'fcr ALLE Lazy References immer 0, d.h. es z\'e4hlt wieder nur f\'fcr alle gleicherma\'dfen "used >= limit".\par
+\par
+Ein "k\'fcnstliches" clearing limit einbauen ist vielleicht ein bisschen bl\'f6d:\par
+So alle 100 geclearte entities oder so ein neues MemoryUsage holen. Ohne GC wird sich dann gar nichts ge\'e4ndert haben.\par
+Und hardgecodet den GC aufrufen k\'f6nnte fatal, das auf keinen Fall.\par
+\par
+Naja gut, aber besser als nix:\par
+Alle 100 geclearte Entities MemoryUsage neu holen gibt einem immerhin die CHANCE, zwischenzeitlich einen GC run gehabt zu haben und dann mitzubekommen, dass inzwischen schon wieder genug Speicher vorhanden ist.\par
+\par
+Man k\'f6nnte als M\'f6glichkeit, den GC anwendungsseitig konfiguriert vom Checker aufrufen zu lassen, diese custom Check Funktion verwenden.\par
+Alle X Aufrufe mal die Speicherbelegung checken (wird ja \'fcbergeben) und wenn's nicht passt, DANN mal den GC aufrufen. Aber eben anwendugsgesteuert, nicht generisch immer bei jeder Anwendung.\par
+So mach ich das. Das ist gut.\par
+Muss ich dann nur entsprechend dokumentieren, damit zuk\'fcnftig beim Lesen des Codes die Hintergrund\'fcberlegungen klar werden.\par
+\par
+Pseudo-Konstruktor Varianten aktualisieren.\par
+\par
+LazyReferenceManager erweitern um #cleanUp(Lazy.Checker) Variante, damit man explizit einen Durchlauf mit anderer Logik machen kann.\par
+\par
+Dabei auch gleich das FIXME bzgl. zur\'fcckbleibenden Lazy References updaten: Das lag an dem der verdrehten Threshold Pr\'fcfung.\par
+Hm, wobei, eigentlich ... m\'fcsst ich das jetzt erst mal in einem alten Commit recherchieren und wenn es wirklich so ist, dann kann ich das FIXME gleich l\'f6schen.\par
+\par
+Recherchiert:\line Ne, das stimmte damals schon.\par
+Dann hab ich nur durch das Rumkopieren von Code w\'e4hrend dem anf\'e4nglichen Refactoring den falschen Eindruck bekommen.\par
+Hm. Dann ist nat\'fcrlich die Frage: Warum cleart der die Lazy References nicht?\par
+Wobei inzwischen nat\'fcrlich der Check f\'fcr isStored dazugekommen ist. Ungestorte LRs d\'fcrfen auf keinen Fall gecleart werden.\par
+Muss man mal genauer testen ...\par
+\par
+Und jetzt f\'e4llt mir noch auf:\par
+Eigentlich muss die MemoryUsage alle X clears von EGAL welcher Art gemacht werden.\par
+Ansonsten k\'f6nnte es ja sein, dass hunderte LRs timeouten, es ist l\'e4ngst wieder genug Platz im Memory, aber die Logik schmei\'dft stur erst mal 128 LRs nach Memory raus, bevor sie nachsieht.\par
+Also Logik umbauen und umbenennen.\par
+\par
+Tasks durchschauen und l\'f6schen/arbarbeiten.\par
+\par
+Damit fehlt jetz nur noch die Verbindung mit dem ESM life cycle.\par
+Und Tests, nat\'fcrlich.\par
+\par
+\par
+22:30\par
+\par
+Paar kleine Ideen vom Heimweg umsetzen:\par
+LRM interface braucht eine "isDummy()" Methode, um automatisiert pr\'fcfen zu k\'f6nnen, ob die aktuelle singleton Instanz der Dummy ist, der problemlos ersetzt werden kann.\par
+Hm, oder ich mach das mit "instanceof Dummy", denn es gibt als initialen Dummy ja nur genau diese eine Framework-seitige Implementierung. Das reicht eigentlich.\par
+\par
+Und es sollte f\'fcr Convenience eine statische cleanup() und cleanup(Checker) Methode geben, um ganz einfach ohne kontext mit einem Einzeiler alle lazy references iterieren und ggf. clearen zu k\'f6nnen.\par
+Haha, da st\'f6rt wieder mal die D\'e4mlichkeit der compilers, dass eine static Methode nicht die gleiche Signatur wie eine instance Methode haben darf. Obwohl die Signatur ja f\'fcr den Compiler eigentlich sehr wohl unterschiedlich ist, weil bei der static Methode das subject (this) fehlt. Darum D\'e4mlichkeit.\par
+Eigentlich w\'fcrden solche static methoden nur ein ".get()" dazwischen ersparen. Da ist die Frage, ob sie \'fcberhaupt Sinn machen. Ich lass es mal weg.\par
+\par
+Also dann mach ich jetzt mal das automatische Setzen mit dem Starten des ESM.\par
+\par
+Okay, also jetzt hab ich eingebaut:\par
+- Automatisches Setzen eines "richtigen" LRM, falls noch kein richtiger gesetzt ist.\par
+- LRM Statische Methode, um erkennen zu k\'f6nnen, ob ein "richtiger" LRM (nicht der interne Dummy) gesetzt ist.\par
+- Starten des aktuellen LRM, falls er noch nicht l\'e4uft.\par
+- Rollback des LRM im Fall eines Fehlers beim Start des ESM, inklusive Merken der vorherigen Zust\'e4nde (war gesetzt und lief schon)\par
+\par
+Und Life-Cycle-Abh\'e4ngigkeit:\par
+- _booleanReference implementiert inklusive Standardimplementierungen f\'fcr Default, True, False\par
+- "_booleanReference parentRunningState" im LRM und entsprechende Erweiterung von running Logik und Konstruktoren.\par
+\par
+priv#207 updaten.\par
+\par
+priv#89 TODOs entfernen.\par
+\par
+So. Dann h\'e4tt ich jetzt alles rund um den LRM fertig implementiert.\par
+Nur testen muss ich es noch.\par
+- Kombinierte Checkerlogik\par
+- Checker nur mit Memory (gigantisches Timeout)\par
+- Checker nur mit Timeout\par
+- LRM Start mit ESM Start\par
+- LRM Ende mit ESM Ende\par
+\par
+Das wird dann was f\'fcr Morgen.\par
+}
+ 

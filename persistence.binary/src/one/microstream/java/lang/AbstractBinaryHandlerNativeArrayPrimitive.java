@@ -37,12 +37,6 @@ public abstract class AbstractBinaryHandlerNativeArrayPrimitive<A> extends Abstr
 	{
 		// no references to iterate in arrays with primitive component type
 	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
-	}
 	
 	@Override
 	public final boolean hasPersistedReferences()

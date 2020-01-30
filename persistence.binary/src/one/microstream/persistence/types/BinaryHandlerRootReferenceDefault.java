@@ -47,6 +47,24 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 	// methods //
 	////////////
 
+	@Override
+	public final boolean hasVaryingPersistedLengthInstances()
+	{
+		return false;
+	}
+
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		return true;
+	}
+
+	@Override
+	public final boolean hasPersistedVariableLength()
+	{
+		return false;
+	}
+
 	static long getRootObjectId(final Binary data)
 	{
 		return data.read_long(0);
@@ -158,12 +176,6 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 	}
 
 	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return true;
-	}
-
-	@Override
 	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
 		// trivial single-reference
@@ -171,24 +183,6 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 		
 		// must require reference eagerly here as the call in #create did not create a build item.
 		iterator.requireReferenceEager(rootObjectId);
-	}
-
-	@Override
-	public final boolean hasVaryingPersistedLengthInstances()
-	{
-		return false;
-	}
-
-	@Override
-	public final boolean hasPersistedReferences()
-	{
-		return true;
-	}
-
-	@Override
-	public final boolean hasPersistedVariableLength()
-	{
-		return false;
 	}
 			
 }

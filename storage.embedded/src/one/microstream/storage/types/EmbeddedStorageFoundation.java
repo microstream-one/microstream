@@ -12,6 +12,7 @@ import one.microstream.persistence.types.PersistenceRootResolver;
 import one.microstream.persistence.types.PersistenceRootResolverProvider;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
+import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
 import one.microstream.persistence.types.PersistenceTypeManager;
@@ -275,6 +276,11 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 */
 	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration);
 	
+	public F registerTypeHandler(PersistenceTypeHandler<Binary, ?> typeHandler);
+	
+	public F registerTypeHandlers(Iterable<? extends PersistenceTypeHandler<Binary, ?>> typeHandlers);
+	
+	
 	
 	
 	/**
@@ -337,7 +343,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public F setRoot(final Object root)
 		{
-			this.getConnectionFoundation().getRootResolverProvider().registerRoot(root);
+			this.getConnectionFoundation().getRootResolverProvider().setRoot(root);
 			
 			return this.$();
 		}
@@ -538,7 +544,21 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			this.getConnectionFoundation().executeTypeHandlerRegistration(typeHandlerRegistration);
 			return this.$();
 		}
-						
+		
+		@Override
+		public F registerTypeHandler(final PersistenceTypeHandler<Binary, ?> typeHandler)
+		{
+			this.getConnectionFoundation().registerCustomTypeHandler(typeHandler);
+			return this.$();
+		}
+		
+		@Override
+		public F registerTypeHandlers(final Iterable<? extends PersistenceTypeHandler<Binary, ?>> typeHandlers)
+		{
+			this.getConnectionFoundation().registerCustomTypeHandlers(typeHandlers);
+			return this.$();
+		}
+								
 		@Override
 		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object root)
 		{
@@ -547,7 +567,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			// explicit root must be registered at the rootResolverProvider.
 			if(root != null)
 			{
-				ecf.getRootResolverProvider().registerRoot(root);
+				ecf.getRootResolverProvider().setRoot(root);
 			}
 			
 			// must be created BEFORE the type handler manager is initilized to register its custom type handler

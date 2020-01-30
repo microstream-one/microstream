@@ -209,7 +209,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private final ValueWriter                             valueWriterRef  = this.createValueWriterReference();
 
 		private       long                                    typeId          =   -1;
-		private       PersistenceTypeDefinition           typeDescription;
+		private       PersistenceTypeDefinition               typeDescription;
 		private       ValueWriter[]                           valueWriters   ;
 		private       FileChannel                             fileChannel    ;
 
@@ -316,39 +316,18 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private ValueWriter[] createValueWriters(final XGettingSequence<? extends PersistenceTypeDescriptionMember> members)
 		{
-//			final LimitList<ValueWriter> simpleValueWriters = new LimitList<>(XTypes.to_int(members.size()));
-//			final LimitList<ValueWriter> otherValueWriters  = new LimitList<>(XTypes.to_int(members.size()));
+			final ValueWriter[] valueWriters = new ValueWriter[XTypes.to_int(members.size())];
+			int i = 0;
 
-			final int memberCount = XTypes.to_int(members.size());
-
-			final ValueWriter[] simpleValueWriters = new ValueWriter[memberCount];
-			final ValueWriter[] otherValueWriters = new ValueWriter[memberCount];
-
-			int s = 0;
-			int o = 0;
-
-			// must reproduce the simple reference ordering logic
-			for(final PersistenceTypeDescriptionMember field : members)
+			// members are in persistent order, so their order must be heeded exactely
+			for(final PersistenceTypeDescriptionMember member : members)
 			{
-				if(field.isReference())
-				{
-//					simpleValueWriters.add(this.valueWriterRef);
-					simpleValueWriters[s++] = this.valueWriterRef;
-				}
-				else
-				{
-//					otherValueWriters.add(this.deriveOtherValueWriter(field));
-					otherValueWriters[o++] = this.deriveOtherValueWriter(field);
-				}
+				valueWriters[i++] = member.isReference()
+					? this.valueWriterRef
+					: this.deriveOtherValueWriter(member)
+				;
 			}
 
-			// compile value writers in order (referencs are always arranged to come first for more memory-efficient GC)
-			final ValueWriter[] valueWriters = new ValueWriter[memberCount];
-			System.arraycopy(simpleValueWriters, 0, valueWriters, 0, s);
-			System.arraycopy(otherValueWriters , 0, valueWriters, s, o);
-
-//			simpleValueWriters.copyTo(valueWriters, 0);
-//			otherValueWriters.copyTo(valueWriters, XTypes.to_int(simpleValueWriters.size()));
 			return valueWriters;
 		}
 
@@ -482,30 +461,16 @@ public interface StorageDataConverterTypeBinaryToCsv
 			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members =
 				this.typeDescription.instanceMembers()
 			;
-			final LimitList<String> refColumnNames = new LimitList<>(XTypes.to_int(members.size()));
-			final LimitList<String> prmColumnNames = new LimitList<>(XTypes.to_int(members.size()));
-			final LimitList<String> refColumnTypes = new LimitList<>(XTypes.to_int(members.size()));
-			final LimitList<String> prmColumnTypes = new LimitList<>(XTypes.to_int(members.size()));
+			final LimitList<String> columnNames = new LimitList<>(XTypes.to_int(members.size()));
+			final LimitList<String> columnTypes = new LimitList<>(XTypes.to_int(members.size()));
 
 			// write column names (including oid column with custom name)
 			for(final PersistenceTypeDescriptionMember column : members)
 			{
-				if(column.isReference())
-				{
-					refColumnNames.add(column.name());
-					refColumnTypes.add(this.typeNameMapper.mapTypeName(column));
-				}
-				else
-				{
-					prmColumnNames.add(column.name());
-					prmColumnTypes.add(this.typeNameMapper.mapTypeName(column));
-				}
+				columnNames.add(column.name());
+				columnTypes.add(this.typeNameMapper.mapTypeName(column));
 			}
-			for(final String columnName : refColumnNames)
-			{
-				vs.add(columnName).add(valueSeparator);
-			}
-			for(final String columnName : prmColumnNames)
+			for(final String columnName : columnNames)
 			{
 				vs.add(columnName).add(valueSeparator);
 			}
@@ -516,11 +481,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			.add(this.csvConfiguration.headerStarter())
 			.add(this.oidColumnType).add(valueSeparator);
 
-			for(final String columnType : refColumnTypes)
-			{
-				vs.add(columnType).add(valueSeparator);
-			}
-			for(final String columnType : prmColumnTypes)
+			for(final String columnType : columnTypes)
 			{
 				vs.add(columnType).add(valueSeparator);
 			}

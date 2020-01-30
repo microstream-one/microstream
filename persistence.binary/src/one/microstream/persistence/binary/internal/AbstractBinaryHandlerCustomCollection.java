@@ -24,12 +24,6 @@ extends AbstractBinaryHandlerCustom<T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return true;
-	}
 	
 	@Override
 	public final boolean hasPersistedReferences()

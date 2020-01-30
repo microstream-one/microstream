@@ -911,20 +911,24 @@ public interface PersistenceTypeDictionaryParser
 			if(this.typeName == null)
 			{
 				/* (15.01.2020 TM)NOTE:
-				 * Only #mapInterfaceName, because it applies to the name of the initial interface-less class as well.
-				 * In this context, it's more about the "top level type": either the interface or the interface-less class
-				 * itself. The type that developers use in their entity design.
-				 * No on uses Lazy$Default at those points. Most don't know it even exists and those who do know
-				 * also know that it is not a good idea to use a concrete class for architectural tasks.
-				 * So it should be perfectly safe to use this simplified lookup here.
+				 * Precedence for #mapInterfaceName, because in this context, it's more about the "top level type":
+				 * The type that developers use in their entity design.
+				 * Usually / primarily an interface. Only if that does not apply, then class name mapping might apply.
+				 * So it should be perfectly safe to use this lookup strategy here.
 				 * And if not, the type dictionary can still be fixed manually. This is just a convenience function,
 				 * nothing critical.
 				 */
-				final String mappedTypeName = this.typeNameMapper.mapInterfaceName(this.originalTypeName);
-				this.typeName = mappedTypeName == null
-					? this.originalTypeName
-					: this.stringSubstitutor.substitute(mappedTypeName)
-				;
+				String mappedTypeName = this.typeNameMapper.mapInterfaceName(this.originalTypeName);
+				if(mappedTypeName == null)
+				{
+					mappedTypeName = this.typeNameMapper.mapClassName(this.originalTypeName);
+				}
+				if(mappedTypeName == null)
+				{
+					mappedTypeName = this.originalTypeName;
+				}
+				
+				this.typeName = this.stringSubstitutor.substitute(mappedTypeName);
 			}
 			
 			return this.typeName;

@@ -450,12 +450,6 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	{
 		return this.membersInDeclaredOrder;
 	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return !this.referenceMembers.isEmpty();
-	}
 	
 	@Override
 	public final boolean hasPersistedReferences()

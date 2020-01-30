@@ -14,18 +14,8 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 	//////////////
 
 	private static final long LENGTH_TIMESTAMP = Long.BYTES;
-
-	// (07.05.2019 TM)XXX: priv#88 work-in-progress test code. Complete feature and remove.
-//	private final BinaryField
-//		prim1   = Field(int.class),
-//		string1 = Field(String.class),
-//		string2 = Field(String.class),
-////		cmplx   = FieldBytes(),
-//		cmplx   = FieldComplex(
-//			Field(String.class, "key"),
-//			Field(String.class, "value")
-//		)
-//	;
+	
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -36,6 +26,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 		return new BinaryHandlerDate();
 	}
 
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -49,13 +40,6 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 				CustomField(long.class, "timestamp")
 			)
 		);
-
-		// (07.05.2019 TM)XXX: priv#88 work-in-progress test code. Complete feature and remove.
-//		this.initializeBinaryFields();
-//		System.out.println(this.prim1.name() + "   = " + this.prim1.offset());
-//		System.out.println(this.string1.name() + " = " + this.string1.offset());
-//		System.out.println(this.string2.name() + " = " + this.string2.offset());
-//		System.out.println(this.cmplx.name() + "   = " + this.cmplx.offset());
 	}
 
 

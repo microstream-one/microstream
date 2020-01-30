@@ -52,11 +52,11 @@ public class PersistenceLegacyTypeHandlerWrapper<D, T> extends PersistenceLegacy
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
+	
 	@Override
-	public boolean hasInstanceReferences()
+	public Class<D> dataType()
 	{
-		return this.typeHandler.hasInstanceReferences();
+		return this.typeHandler.dataType();
 	}
 
 	@Override
