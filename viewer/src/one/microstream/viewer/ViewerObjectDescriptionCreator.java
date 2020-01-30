@@ -19,7 +19,7 @@ public class ViewerObjectDescriptionCreator
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
-	////////////
+	///////////////////
 
 	/**
 	 * Convert the ObjectDescription to the simpler ViewerObjectDescription
@@ -27,7 +27,7 @@ public class ViewerObjectDescriptionCreator
 	 * @param description
 	 * @param dataOffset
 	 * @param dataLength
-	 * @return
+	 * @return ViewerObjectDescription
 	 */
 	public static ViewerObjectDescription create(final ObjectDescription description, final long dataOffset, final long dataLength)
 	{

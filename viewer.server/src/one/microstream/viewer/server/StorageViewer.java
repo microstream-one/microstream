@@ -80,6 +80,9 @@ public class StorageViewer
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/dictionary",
 			new RouteTypeDictionary(this.storageRestAdapter)));
 
+        this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/maintenance/filesStatistics",
+            new RouteStorageFilesStatistics(this.storageRestAdapter)));
+
 		this.sparkService.exception(InvalidRouteParametersException.class, (e, request, response) ->
 			{
 				response.status(404);

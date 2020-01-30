@@ -86,7 +86,7 @@ public class ObjectDescription
 	/**
 	 * Get the assigned primitive value instance or null if it is not available
 	 *
-	 * @return
+	 * @return Object
 	 */
 	public Object getPrimitiveInstance()
 	{
