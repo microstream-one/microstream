@@ -5,6 +5,7 @@ import static one.microstream.X.coalesce;
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
+import one.microstream.meta.XDebug;
 import one.microstream.reference.Lazy.Check;
 import one.microstream.reference.Lazy.Checker;
 
@@ -376,6 +377,9 @@ public interface LazyReferenceManager
 			// check for already running condition to avoid starting more than more thread
 			if(this.parentRunningState.get() && !this.running)
 			{
+				// (30.01.2020 TM)FIXME: /!\ debug priv#207
+				XDebug.println("Starting " + LazyReferenceManager.class.getSimpleName());
+				
 				this.running = true;
 				new LazyReferenceCleanupThread(new WeakReference<>(this), this.millitimeCheckIntervalProvider).start();
 			}
@@ -434,6 +438,8 @@ public interface LazyReferenceManager
 						// check for running state. Must be the first action in case of swallowed exception
 						if(!parent.isRunning())
 						{
+							// (30.01.2020 TM)FIXME: /!\ debug priv#207
+							XDebug.println("Stopping " + LazyReferenceManager.class.getSimpleName());
 							break;
 						}
 
@@ -461,8 +467,9 @@ public interface LazyReferenceManager
 						 */
 					}
 				}
+				
 				// either parent has been garbage collected or stopped, so terminate.
-//				XDebug.debugln(Thread.currentThread().getName() + " terminating.");
+				XDebug.println(Thread.currentThread().getName() + " terminating.");
 			}
 		}
 

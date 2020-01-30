@@ -6,6 +6,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 
 import one.microstream.chars.XChars;
+import one.microstream.meta.XDebug;
 
 
 /**
@@ -341,7 +342,8 @@ public interface Lazy<T> extends Referencing<T>
 				throw new RuntimeException("Cannot clear an unstored lazy reference.");
 			}
 			
-//			XDebug.println("Clearing " + Lazy.class.getSimpleName() + " " + this.subject);
+			// (31.01.2020 TM)FIXME: /!\ DEBUG priv#89:
+			XDebug.println("Clearing " + Lazy.class.getSimpleName() + " " + XChars.systemString(this.subject));
 			this.subject = null;
 			this.touch();
 		}

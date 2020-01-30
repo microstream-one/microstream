@@ -344,5 +344,62 @@ Das wird dann was f\'fcr Morgen.\par
 \par
 Jetzt testen.\par
 Erst mal das ganz einfache: priv#207: automatisch starten und stoppen.\par
+\par
+Ach, gleich mal einen Fehler gefunden vor dem eigentlichen test:\par
+Wenn der LRM davon abh\'e4ngt, ob der ESM l\'e4uft, dann sollte der LRM halt schon NACH dem ESM gestartet werden, sonst wird er gar nicht starten.\par
+Und das ist erst der Fall nach abgeschlossenem initialize, nicht schon nach dem start().\par
+\par
+Laufen lassen.\par
+LRM startet automatisch.\par
+LRM stoppt mit der Storage.\par
+Passt.\par
+\par
+Jetzt die neue Checker Implementierung testen.\par
+\par
+Daf\'fcr brauch ich erst mal eine passende Testklasse.\par
+Das ist gar nicht so trivial...\par
+\par
+Es muss viel speicher belegen, aber mit m\'f6glichst wenig Instanzen, damit man nicht ewig durch loops durchgehen muss.\par
+Also eine List mit Lazy-gewrappten gro\'dfen Arrays.\par
+Wenn aber die den Speicher vollmachen sollen, so dass die \'e4lteren gecleart werden, damit die neuen Platz haben, dann kann man das Ding nicht einfach am Anfang komplett bef\'fcllen und abspeichern.\par
+D.h. schon die Initialisierung muss Lazy references wieder clearen.\par
+Und das hei\'dft, dass neu instanzierte Elemente einzeln abgespeichert werden m\'fcssen, damit sie gecleart werden k\'f6nnen, damit Platz f\'fcr die n\'e4chsten zu initialisierenden Elemente ist.\par
+Und nat\'fcrlich muss die JVM Memory-Begrenzung vor dem Start zu der gew\'e4hlten Gr\'f6\'dfe passen.\par
+\par
+Erst mal testen, wie viel meine Werte an Heap belegen.\par
+\par
+Irgendwas h\'e4ngt da...\par
+Achso, lol, der export ist noch drin und 100 MB an long[] konvertieren dauert ein bisschen.\par
+Das muss ich dann rausmachen.\par
+Okay fertig, passt alles.\par
+\par
+VisualVM starten.\par
+500 MB Heap belegt. Seltsam.\par
+Die Arrays sind doch nur ca. 100 MB gro\'df..\par
+GC aufrufen ...\par
+Aha, runter auf 200 MB.\par
+Aber trotzdem: Woher kommt der Bedarf?\par
+\par
+Mal untersuchen, Minibeispiel bauen.\par
+1 Array mit 1000 bytes. Also winzig.\par
+Wieder 200 MB Belegung\par
+GC aufrufen, Heap dump.\par
+\'c4h... der ganze heap sind nach einem GC nur 4 MB. Das passt zur Erwartung. Die JVM an sich braucht ungef\'e4hr 3 plus Metadaten Overheadgrusch von Microstream, nochmal ca. 1 MB. 4 MB. passt.\par
+Aber der Heap springt kurz nach dem GC bzw. Heap dump wieder auf ~200 MB.\par
+Warum?\par
+Per Heap Dump kann ich es nicht testen, weil der ja wieder nur 4 MB ist.\par
+Das muss das Monitoring Zeug von Eclipse und der VisualVM sein, die in der VM selbst irgendwelchen tempor\'e4ren Overhead erzeugen oder sowas.\par
+Kurz nach dem Heap dump sinds 150 MB. Dann 200 MB. Dann irgendwann 250 MB.\par
+Aber alles nur tempor\'e4rer Grusch, weil ein GC killt das wieder auf 4 MB runter.\par
+Das muss Zeug von den eingest\'f6pselten Tools sein.\par
+\par
+Okay also das hei\'dft f\'fcr den Test:\par
+Der Memory muss ~250 MB mehr bekommen, als rechnerisch f\'fcr den Test notwendig ist.\par
+Hm, moment mal, oder muss er wirklich?\par
+Das ist ja tempor\'e4rer Grusch. Der wird dann schon vom GC aufger\'e4umt, wenn der speicher knapp wird.\par
+Evtl. ist das sogar ein gutes "Druckmittel", um den Memory voll zu kriegen.\par
+\par
+Aber jetzt hab ich daran so lang rumgebaut und getestet, den eigentlichen Aufr\'e4um-Test muss ich morgen in der Arbeit machen.\par
+Vorbereitet ist alles.\par
 }
  

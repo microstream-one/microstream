@@ -200,9 +200,11 @@ public interface EmbeddedStorageManager extends StorageManager
 			
 			try
 			{
-				ensureActiveLazyReferenceManager(lazyReferenceManagerIsRunning);
 				this.ensureRequiredTypeHandlers();
 				this.initialize();
+				
+				// this depends on completed initialization
+				ensureActiveLazyReferenceManager(lazyReferenceManagerIsRunning);
 			}
 			catch(final Throwable t)
 			{
