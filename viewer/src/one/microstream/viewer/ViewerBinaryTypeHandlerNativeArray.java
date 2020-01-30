@@ -1,7 +1,8 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
 import java.lang.reflect.Array;
 
+import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 

@@ -1,8 +1,10 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
 import java.nio.ByteOrder;
 import java.util.function.Consumer;
 
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.types.BinaryLoader;
 import one.microstream.persistence.binary.types.BinaryLoader.CreatorChannelHashing;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceAcceptor;

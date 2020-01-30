@@ -1,6 +1,8 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
 import java.lang.reflect.Type;
+
+import one.microstream.persistence.binary.types.Binary;
 
 public class ViewerBinaryPrimitivesReader
 {

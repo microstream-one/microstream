@@ -1,4 +1,4 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
 import one.microstream.persistence.types.Persistence;
 

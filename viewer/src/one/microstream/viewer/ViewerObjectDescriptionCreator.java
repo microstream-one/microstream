@@ -3,9 +3,6 @@ package one.microstream.viewer;
 import java.util.ArrayList;
 import java.util.List;
 
-import one.microstream.persistence.binary.types.ObjectDescription;
-import one.microstream.persistence.binary.types.ObjectReferenceWrapper;
-
 public class ViewerObjectDescriptionCreator
 {
 	///////////////////////////////////////////////////////////////////////////

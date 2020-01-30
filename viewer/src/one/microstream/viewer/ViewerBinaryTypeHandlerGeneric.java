@@ -1,8 +1,9 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
 import java.util.function.Consumer;
 
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;

@@ -1,14 +1,16 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 
-public class ValueReaderReferenceList extends ValueReaderVariableLength
+public class ValueReaderPrimitiveCharList extends ValueReaderVariableLength
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public ValueReaderReferenceList(final PersistenceTypeDefinitionMember typeDefinition)
+	public ValueReaderPrimitiveCharList(final PersistenceTypeDefinitionMember typeDefinition)
 	{
 		super(typeDefinition);
 	}
@@ -23,20 +25,14 @@ public class ValueReaderReferenceList extends ValueReaderVariableLength
 		long listOffset = Binary.toBinaryListElementsOffset(offset);
 		final int elementCount = (int) binary.getBinaryListElementCountUnvalidating(offset);
 
-		final Object references[] = new Object[elementCount];
+		final Object[] values = new Object[elementCount];
 		for(int i = 0; i < elementCount; i++)
 		{
-			references[i] = new ObjectReferenceWrapper(ViewerBinaryPrimitivesReader.readReference(binary, listOffset));
-			listOffset += Binary.objectIdByteLength();
+			values[i] = binary.read_char(listOffset);
+			listOffset += BinaryPersistence.resolveFieldBinaryLength(char.class);
 		}
 
-		return references;
-	}
+		return values;
 
-	@Override
-	public long getBinarySize(final Binary binary, final long offset)
-	{
-		return binary.getBinaryListTotalByteLength(offset);
 	}
-
 }

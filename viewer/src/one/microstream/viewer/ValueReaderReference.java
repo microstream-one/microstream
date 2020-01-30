@@ -1,4 +1,6 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
+
+import one.microstream.persistence.binary.types.Binary;
 
 public class ValueReaderReference implements ValueReader
 {

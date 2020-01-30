@@ -1,4 +1,4 @@
-package one.microstream.persistence.binary.types;
+package one.microstream.viewer;
 
 @SuppressWarnings("serial")
 public class ViewerException extends RuntimeException
