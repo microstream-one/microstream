@@ -8,7 +8,13 @@ public interface PersistenceTypeDefinitionMemberFieldGenericVariableLength
 extends PersistenceTypeDefinitionMemberFieldGeneric, PersistenceTypeDescriptionMemberFieldGenericVariableLength
 {
 	@Override
-	public PersistenceTypeDefinitionMemberFieldGenericVariableLength copyForName(String name);
+	public default PersistenceTypeDefinitionMemberFieldGenericVariableLength copyForName(final String name)
+	{
+		return this.copyForName(this.qualifier(), name);
+	}
+	
+	@Override
+	public PersistenceTypeDefinitionMemberFieldGenericVariableLength copyForName(String qualifier, String name);
 	
 	
 
@@ -155,12 +161,6 @@ extends PersistenceTypeDefinitionMemberFieldGeneric, PersistenceTypeDescriptionM
 				this.persistentMinimumLength(),
 				this.persistentMaximumLength()
 			);
-		}
-		
-		@Override
-		public PersistenceTypeDefinitionMemberFieldGenericVariableLength copyForName(final String name)
-		{
-			return this.copyForName(null, name);
 		}
 
 	}

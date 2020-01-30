@@ -7,7 +7,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 
-public interface BinaryLegacyTypeHandler<T> extends PersistenceLegacyTypeHandler<Binary, T>
+public interface BinaryLegacyTypeHandler<T> extends PersistenceLegacyTypeHandler<Binary, T>, BinaryTypeHandler<T>
 {
 	@Override
 	public default BinaryLegacyTypeHandler<T> initialize(final long typeId)

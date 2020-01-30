@@ -6,6 +6,7 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
@@ -210,6 +211,23 @@ public final class XReflect
 		}
 		
 		return false;
+	}
+	
+	/*
+	 * Welcome to a method checking if a "Class" is a class. Because they couldn't manage to
+	 * name the type generally representing types "Type" but named it "Class" instead, so that in Java Reflection,
+	 * classes are "Class", interfaces are "Class" and primitives are "Class", too.
+	 * Geniuses.
+	 * Might wanna understand what a type is before designing a type system, but that may just be my arrogance.
+	 */
+	public static final boolean isActualClass(final Class<?> type)
+	{
+		return !type.isInterface()
+			&& !type.isPrimitive()
+			&& !type.isAnnotation()
+			&& !type.isArray()
+			&& !type.isSynthetic()
+		;
 	}
 	
 	/**
@@ -538,22 +556,22 @@ public final class XReflect
 		return logic;
 	}
 
-	public static final boolean isFinal(final Field field)
+	public static final boolean isFinal(final Member field)
 	{
 		return Modifier.isFinal(field.getModifiers());
 	}
 
-	public static final boolean isStatic(final Field field)
+	public static final boolean isStatic(final Member field)
 	{
 		return Modifier.isStatic(field.getModifiers());
 	}
 	
-	public static final boolean isSynthetic(final Field field)
+	public static final boolean isSynthetic(final Member field)
 	{
 		return Modifier.isSynchronized(field.getModifiers());
 	}
 
-	public static final boolean isStaticFinal(final Field field)
+	public static final boolean isStaticFinal(final Member field)
 	{
 		return isStatic(field) && isFinal(field);
 	}
@@ -578,22 +596,22 @@ public final class XReflect
 		return !Modifier.isTransient(field.getModifiers());
 	}
 
-	public static final boolean isPrivate(final Field field)
+	public static final boolean isPrivate(final Member field)
 	{
 		return Modifier.isPrivate(field.getModifiers());
 	}
 
-	public static final boolean isProtected(final Field field)
+	public static final boolean isProtected(final Member field)
 	{
 		return Modifier.isProtected(field.getModifiers());
 	}
 
-	public static final boolean isPublic(final Field field)
+	public static final boolean isPublic(final Member field)
 	{
 		return Modifier.isPublic(field.getModifiers());
 	}
 
-	public static final boolean isDefaultVisible(final Field field)
+	public static final boolean isDefaultVisible(final Member field)
 	{
 		final int modifiers = field.getModifiers();
 		return !(Modifier.isPrivate(modifiers) || Modifier.isProtected(modifiers) || Modifier.isPublic(modifiers));

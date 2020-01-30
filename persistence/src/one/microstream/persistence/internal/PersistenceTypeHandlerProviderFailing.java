@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import one.microstream.persistence.types.PersistenceDataTypeHolder;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerProvider;
@@ -20,7 +21,9 @@ import one.microstream.persistence.types.PersistenceTypeLink;
  *
  * @param <D>
  */
-public class PersistenceTypeHandlerProviderFailing<D> implements PersistenceTypeHandlerProvider<D>
+public class PersistenceTypeHandlerProviderFailing<D>
+extends PersistenceDataTypeHolder.Default<D>
+implements PersistenceTypeHandlerProvider<D>
 {
 	@Override
 	public <T> PersistenceTypeHandler<D, T> provideTypeHandler(final Class<T> type)
@@ -155,6 +158,12 @@ public class PersistenceTypeHandlerProviderFailing<D> implements PersistenceType
 		 * rather this implementation actually does not support that operation.
 		 */
 		throw new UnsupportedOperationException();
+	}
+	
+
+	PersistenceTypeHandlerProviderFailing(final Class<D> dataType)
+	{
+		super(dataType);
 	}
 
 }

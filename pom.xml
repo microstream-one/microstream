@@ -74,7 +74,7 @@
 	<distributionManagement>
 		<repository>
 			<id>microstream-repo</id>
-			<url>https://repo.microstream.one/repository/maven-prerelease/</url>
+			<url>https://repo.microstream.one/repository/maven-release/</url>
 		</repository>
 		<snapshotRepository>
 			<id>microstream-repo</id>
@@ -137,10 +137,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 			</plugin>
-			<plugin>
+<!-- 			<plugin>
 				<groupId>one.microstream</groupId>
 				<artifactId>sourcestub-maven-plugin</artifactId>
-			</plugin>
+			</plugin> -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
@@ -169,7 +169,7 @@
 						</archive>
 					</configuration>
 				</plugin>
-				<plugin>
+<!-- 				<plugin>
 					<groupId>one.microstream</groupId>
 					<artifactId>sourcestub-maven-plugin</artifactId>
 					<version>2.1.1</version>
@@ -189,7 +189,7 @@
 							</configuration>
 						</execution>
 					</executions>
-				</plugin>
+				</plugin> -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
@@ -316,6 +316,22 @@
 	</build>
 
 	<profiles>
+		<profile>
+			<id>all</id>
+			<modules>
+				<module>base</module>
+				<module>communication</module>
+				<module>communication.binary</module>
+				<module>persistence</module>
+				<module>persistence.binary</module>
+				<module>persistence.binary.jdk8</module>
+				<module>storage</module>
+				<module>storage.embedded</module>
+				<module>storage.embedded.configuration</module>
+				<module>work-in-progress</module>
+				<module>all</module>
+			</modules>
+		</profile>
 		<profile>
 			<id>deploy</id>
 			<build>

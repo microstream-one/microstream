@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.net.Socket;
@@ -21,6 +22,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.chars.StringTable;
@@ -1102,6 +1104,80 @@ public class Persistence
 		throw new PersistenceException("Orphan sub enum type: " + type.getName());
 	}
 
+	
+	/**
+	 * Searches the methods of the passed entityType for a static method with arbitrary name and visibility,
+	 * no arguments and {@link PersistenceTypeHandler} or a sub type of it as its return type.<p>
+	 * Which method to select is also determined by testing the returned {@link PersistenceTypeHandler} instance
+	 * if it has the correct {@link PersistenceTypeHandler#dataType()} for the used persistence context
+	 * and the correct {@link PersistenceTypeHandler#type()} for the given entity class.
+	 * <p>
+	 * This mechanism is a convenience shortcut alternative to
+	 * {@link PersistenceFoundation#registerCustomTypeHandler(PersistenceTypeHandler)}.
+	 * 
+	 * @param <D>
+	 * @param <T>
+	 * @param dataType
+	 * @param entityType
+	 * @return
+	 * @throws ReflectiveOperationException
+	 */
+	public static <D, T> PersistenceTypeHandler<D, T> searchProvidedTypeHandler(
+		final Class<D>                  dataType  ,
+		final Class<T>                  entityType,
+		final Predicate<? super Method> selector
+	)
+		throws ReflectiveOperationException
+	{
+		// ONLY declared methods of the specific type, not of super classes, since every class needs a specific handler
+		for(final Method m : entityType.getDeclaredMethods())
+		{
+			// only static methods are admissible.
+			if(!XReflect.isStatic(m))
+			{
+				continue;
+			}
+
+			// only parameter-less methods are admissible.
+			if(m.getParameterCount() != 0)
+			{
+				continue;
+			}
+
+			// only methods returning an instance of PersistenceTypeHandler are admissible.
+			if(!PersistenceTypeHandler.class.isAssignableFrom(m.getReturnType()))
+			{
+				continue;
+			}
+			
+			m.setAccessible(true);
+			final PersistenceTypeHandler<?, ?> providedTypeHandler = (PersistenceTypeHandler<?, ?>)m.invoke(null);
+			
+			// context checks
+			if(providedTypeHandler.dataType() != dataType)
+			{
+				continue;
+			}
+			if(providedTypeHandler.type() != entityType)
+			{
+				continue;
+			}
+			
+			// hook for custom selector logic, e.g. filtering for a certain annotation or name.
+			if(selector != null && !selector.test(m))
+			{
+				continue;
+			}
+
+			@SuppressWarnings("unchecked")
+			final PersistenceTypeHandler<D, T> applicableTypeHandler = (PersistenceTypeHandler<D, T>)providedTypeHandler;
+			
+			return applicableTypeHandler;
+		}
+		
+		return null;
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
