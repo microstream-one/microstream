@@ -26,9 +26,27 @@
 </dependency>
 ```
 
+Additionally the following dependencies have to be included: 
+
+```
+<dependency>
+    <groupId>com.sparkjava</groupId>
+    <artifactId>spark-core</artifactId>
+    <version>2.8.0</version>
+    <scope>provided</scope>
+</dependency>
+
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.8.6</version>
+    <scope>provided</scope>
+</dependency>
+```
+
 ### Required Java imports
 ``` 
-one.microstream.storage.restservice.StorageViewer
+one.microstream.storage.restservice.StorageRestService
 ```
 
 ## 2. Usage
@@ -40,12 +58,12 @@ EmbeddedStorageManager storage =  EmbeddedStorage
 				.start();
 ```
 ### 2.2.	Starting the viewer server: 
-- Create a StorageViewer instance with a running EmbeddedStorageManager
+- Create a StorageRestService instance with a running EmbeddedStorageManager
 - Start the server
 By default  the server will listen on port 4567
 
 ```
-final StorageViewer service = new StorageViewer(storage);
+final StorageRestService service = new StorageRestService(storage);
 service.start();
 ```
 
@@ -57,7 +75,7 @@ the EmbeddedStorageManager will not be stopped.
 
 ##	3.	Example
 ```
-public class MainTestStorageViewer
+public class MainTestStorageRestService
 {
      public static void main(final String[] args)
      {
@@ -68,7 +86,7 @@ public class MainTestStorageViewer
               storage.storeRoot();
          }
          
-         final StorageViewer service = new StorageViewer(storage);
+         final StorageRestService service = new StorageRestService(storage);
          service.start();
      }         
 }
@@ -138,26 +156,26 @@ http://localhost:4567/microstream/maintenance/filesStatistics
 ### 5.1. Server
 The Storage viewer uses the Spark micro framework from http://sparkjava.com/ as server.
 
-To provide a custom configured server just create an Spark.service and initilize the StorageViewer with this Spark.service
+To provide a custom configured server just create an Spark.service and initilize the StorageRestService with this Spark.service
 
 ```
 final Service service = Service.ignite().port(port);
-final StorageViewer viewer = new StorageViewer(storage, service).start();
+final StorageRestService viewer = new StorageRestService(storage, service).start();
 ```
 
 #### 5.1.1 Url Root
 To set an other url root then 'microstream' use the constructor:
 
 ```
-StorageViewer(final EmbeddedStorageManager storage, final String storageName)	
+StorageRestService(final EmbeddedStorageManager storage, final String storageName)	
 ```
 
 #### 5.1.2 Port
-To set an other port then the default port 4567 it is required to provide a custom confgured Spark Server session to the StorageViewer constructor:
+To set an other port then the default port 4567 it is required to provide a custom confgured Spark Server session to the StorageRestService constructor:
 
 ```
 final Service service = Service.ignite().port(port);
-final StorageViewer viewer = new StorageViewer(storage, service, "myText").start();
+final StorageRestService viewer = new StorageRestService(storage, service, "myText").start();
 ```
 
 ### 5.2 Logging
