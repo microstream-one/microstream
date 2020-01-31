@@ -1,4 +1,4 @@
-package one.microstream.storage.restadapter;
+package one.microstream.storage.restservice;
 
 import java.lang.reflect.Type;
 import java.util.Date;
@@ -10,6 +10,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.LongSerializationPolicy;
+
+import one.microstream.storage.restadapter.StorageViewDataConverter;
 
 public class StorageViewDataConverterJson implements StorageViewDataConverter
 {

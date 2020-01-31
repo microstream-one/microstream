@@ -1,13 +1,14 @@
 package one.microstream.storage.restservice;
 
 import one.microstream.storage.restadapter.StorageRestAdapter;
+import one.microstream.storage.restadapter.StorageViewDataConverter;
 import one.microstream.storage.restadapter.ViewerException;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import spark.RouteImpl;
 import spark.Service;
 import spark.route.HttpMethod;
 
-public class StorageViewer
+public class StorageRestService
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants  //
@@ -30,7 +31,7 @@ public class StorageViewer
 	/*
 	 * Construct with default spark service instance
 	 */
-	public StorageViewer(final EmbeddedStorageManager storage)
+	public StorageRestService(final EmbeddedStorageManager storage)
 	{
 		this(storage, Service.ignite(), DEFAULT_STORAGE_NAME);
 	}
@@ -38,7 +39,7 @@ public class StorageViewer
 	/*
 	 * Construct with custom spark Service instance
 	 */
-	public StorageViewer(final EmbeddedStorageManager storage, final Service sparkService)
+	public StorageRestService(final EmbeddedStorageManager storage, final Service sparkService)
 	{
 		this(storage, sparkService, DEFAULT_STORAGE_NAME);
 	}
@@ -46,7 +47,7 @@ public class StorageViewer
 	/*
 	 * Construct with custom storageName and default spark service
 	 */
-	public StorageViewer(final EmbeddedStorageManager storage, final String storageName)
+	public StorageRestService(final EmbeddedStorageManager storage, final String storageName)
 	{
 		this(storage, Service.ignite(), storageName);
 	}
@@ -54,12 +55,16 @@ public class StorageViewer
 	/*
 	 * Construct with custom spark service instance and storage name
 	 */
-	public StorageViewer(final EmbeddedStorageManager storage, final Service sparkService, final String storageName)
+	public StorageRestService(final EmbeddedStorageManager storage, final Service sparkService, final String storageName)
 	{
 		super();
 		this.storageName = storageName;
 		this.sparkService = sparkService;
-		this.storageRestAdapter = new StorageRestAdapter(storage);
+		this.storageRestAdapter = new StorageRestAdapter.Default(storage);
+
+		final StorageViewDataConverter jsonConverter = new StorageViewDataConverterJson();
+		this.storageRestAdapter.register(jsonConverter, "application/json");
+		this.storageRestAdapter.register(jsonConverter, "json");
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -69,7 +74,7 @@ public class StorageViewer
 	/*
 	 * Start the spark service if not already done
 	 */
-	public StorageViewer start()
+	public StorageRestService start()
 	{
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/object/:oid",
 			new RouteGetObject(this.storageRestAdapter)));
