@@ -37,8 +37,8 @@
 		<module>storage</module>
 		<module>storage.embedded</module>
 		<module>storage.embedded.configuration</module>
-		<module>viewer</module>		
-		<module>viewer.server</module>
+		<module>storage.restadapter</module>		
+		<module>storage.restservice</module>
 	</modules>
 
 	<repositories>
