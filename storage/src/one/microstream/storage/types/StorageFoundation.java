@@ -1010,7 +1010,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		protected StorageEntityMarkMonitor.Creator ensureEntityMarkMonitorCreator()
 		{
-			return new StorageEntityMarkMonitor.Creator.Default();
+			return StorageEntityMarkMonitor.Creator();
 		}
 
 		protected StorageDataFileValidator.Creator ensureDataFileValidatorCreator()
