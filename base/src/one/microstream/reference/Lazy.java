@@ -5,6 +5,7 @@ import static one.microstream.X.mayNull;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 
+import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.meta.XDebug;
 
@@ -700,6 +701,9 @@ public interface Lazy<T> extends Referencing<T>
 				// querying a MemoryUsage instance takes about 500 ns to query, so it is only done occasionally.
 				this.updateMemoryUsage();
 				this.cycleClearCount = 0;
+				
+				// (03.02.2020 TM)FIXME: /!\ DEBUG priv#89
+				this.DEBUG_printCycleState();
 			}
 			
 			private void updateMemoryUsage()
@@ -711,6 +715,18 @@ public interface Lazy<T> extends Referencing<T>
 				// derived values for fast integer arithmetic for every check
 				this.sh10MemoryLimit = shift10(this.cycleMemoryLimit);
 				this.sh10MemoryUsed  = shift10(this.cycleMemoryUsed);
+			}
+			
+			public void DEBUG_printCycleState()
+			{
+				final java.text.DecimalFormat format = new java.text.DecimalFormat("00,000,000,000");
+				final VarString vs = VarString.New()
+					.lf().add("Timeout          = " + this.timeoutMs                       + " ms"   )
+					.lf().add("GraceTime        = " + this.graceTimeMs                     + " ms"   )
+					.lf().add("cycleMemoryLimit = " + format.format(this.cycleMemoryLimit) + " bytes")
+					.lf().add("cycleMemoryUsed  = " + format.format(this.cycleMemoryUsed ) + " bytes")
+				;
+				XDebug.println(vs.toString());
 			}
 			
 			private void registerClearing()
@@ -813,6 +829,12 @@ public interface Lazy<T> extends Referencing<T>
 				final boolean clearingDecision =
 					this.sh10MemoryUsed + this.cycleMemoryUsed * sh10Weight >= this.sh10MemoryLimit
 				;
+					
+				// (03.02.2020 TM)FIXME: /!\ DEBUG priv#89
+				if(clearingDecision)
+				{
+					XDebug.println("Clearing by age penalty: age = " + age + ", weight = " + (sh10Weight >>> 10));
+				}
 				
 				return this.clear(clearingDecision);
 			}
