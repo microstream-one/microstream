@@ -185,7 +185,7 @@ public interface StorageObjectIdMarkQueue
 
 		static final class Segment
 		{
-			private final long[]  objectIds     ;
+			private final long[]  objectIds;
 			private final int     length   ;
 
 			private       int     lowIndex ;
@@ -241,7 +241,15 @@ public interface StorageObjectIdMarkQueue
 				System.arraycopy(this.objectIds, this.lowIndex, buffer, 0, copyLength);
 
 //				debugln("get next " + copyLength);
-
+				
+				/* (02.02.2020 TM)NOTE:
+				 * lowIndex is not advanced here, but at a later point by another method with the actual amount
+				 * of processed objectIds in the buffer.
+				 * Both methods (this and the actual advancing) re called in #incrementalMark.
+				 * But it is not clear if really all cases are covered correctly (e.g. aborting return).
+				 * So maybe this has something to do with the remaining GC bug.
+				 */
+				
 				return copyLength;
 			}
 
