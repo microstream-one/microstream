@@ -4,6 +4,7 @@ import static one.microstream.X.mayNull;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
+import java.util.Date;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
@@ -631,6 +632,8 @@ public interface Lazy<T> extends Referencing<T>
 			// cycle working variables //
 			
 			private MemoryUsage cycleMemoryUsage;
+
+			private long cycleStartMs;
 			
 			/**
 			 * The {@link System#currentTimeMillis()}-compliant timestamp value below which a reference
@@ -692,11 +695,11 @@ public interface Lazy<T> extends Referencing<T>
 			@Override
 			public final void beginCheckCycle()
 			{
-				// timeout is guaranteed to be > 0.
-				this.cycleTimeoutThresholdMs = System.currentTimeMillis() - this.timeoutMs;
+				this.cycleStartMs = System.currentTimeMillis();
 				
-				// to query system time only exactely once.
-				this.cycleGraceTimeThresholdMs = this.cycleTimeoutThresholdMs + this.timeoutMs - this.graceTimeMs;
+				// timeout is guaranteed to be > 0.
+				this.cycleTimeoutThresholdMs   = this.cycleStartMs - this.timeoutMs;
+				this.cycleGraceTimeThresholdMs = this.cycleStartMs - this.graceTimeMs;
 
 				// querying a MemoryUsage instance takes about 500 ns to query, so it is only done occasionally.
 				this.updateMemoryUsage();
@@ -723,6 +726,8 @@ public interface Lazy<T> extends Referencing<T>
 				final VarString vs = VarString.New()
 					.lf().add("Timeout          = " + this.timeoutMs                       + " ms"   )
 					.lf().add("GraceTime        = " + this.graceTimeMs                     + " ms"   )
+					.lf().add("memory maximum   = " + format.format(this.cycleMemoryUsage.getMax()) + " bytes")
+					.lf().add("memory committed = " + format.format(this.cycleMemoryUsage.getCommitted()) + " bytes")
 					.lf().add("cycleMemoryLimit = " + format.format(this.cycleMemoryLimit) + " bytes")
 					.lf().add("cycleMemoryUsed  = " + format.format(this.cycleMemoryUsed ) + " bytes")
 				;
@@ -822,7 +827,7 @@ public interface Lazy<T> extends Referencing<T>
 					return false;
 				}
 				
-				final long age = lastTouched - this.cycleTimeoutThresholdMs;
+				final long age = lastTouched - this.cycleStartMs;
 				final long sh10Weight = shift10(age) / this.timeoutMs;
 
 				// used memory times weightSh10 is a kind of "age penalty" towards the actually used memory
@@ -833,7 +838,20 @@ public interface Lazy<T> extends Referencing<T>
 				// (03.02.2020 TM)FIXME: /!\ DEBUG priv#89
 				if(clearingDecision)
 				{
-					XDebug.println("Clearing by age penalty: age = " + age + ", weight = " + (sh10Weight >>> 10));
+					final java.text.DecimalFormat format = new java.text.DecimalFormat("00,000,000,000");
+					final VarString vs = VarString.New("Clearing by age penalty")
+						.lf().add("cycleTOThreshld = ").add(new Date(this.cycleTimeoutThresholdMs))
+						.lf().add("cycleStart      = ").add(new Date(this.cycleStartMs))
+						.lf().add("lastTouched     = ").add(new Date(lastTouched))
+						.lf().add("cycleMemoryUsed = ").add(format.format(this.cycleMemoryUsed))
+						.lf().add("sh10MemoryUsed  = ").add(format.format(this.sh10MemoryUsed))
+						.lf().add("age             = ").add(age).add(" (").add(100.0d * age / this.timeoutMs).add("%)")
+						.lf().add("weight          = ").add(sh10Weight)
+						.lf().add("penalty         = ").add(format.format(this.cycleMemoryUsed * sh10Weight))
+						.lf().add("sh10TotalMemory = ").add(format.format(this.sh10MemoryUsed + this.cycleMemoryUsed * sh10Weight))
+						.lf().add("sh10MemoryLimit = ").add(format.format(this.sh10MemoryLimit))
+					;
+					XDebug.println(vs.toString());
 				}
 				
 				return this.clear(clearingDecision);
