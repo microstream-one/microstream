@@ -12,18 +12,21 @@ public class MainTestLazyReferenceManagement
 {
 	static
 	{
-//		Test.clearDefaultStorageDirectory();
+		Test.clearDefaultStorageDirectory();
+		
 		LazyReferenceManager.set(LazyReferenceManager.New(
 			Lazy.Checker(
 				Lazy.Checker.Defaults.defaultTimeout(),
 				Lazy.Checker.Defaults.defaultMemoryQuota()
-			)
+			),
+			10_000,
+			1_000_000
 		));
 	}
 	
 	//!\\ values must fit the configured JVM memory limit!
-	static final int ROOT_SIZE         = 1;
-	static final int ELEMENT_BYTE_SIZE = 1<<10;
+	static final int ROOT_SIZE         = 100;
+	static final int ELEMENT_BYTE_SIZE = 1<<20;
 	static final int ELEMENT_LENGTH    = ELEMENT_BYTE_SIZE / Long.BYTES;
 	
 	static final XList<Lazy<long[]>>    APP_ROOT = BulkList.New();
@@ -64,6 +67,8 @@ public class MainTestLazyReferenceManagement
 	{
 		for(int i = 0; i < ROOT_SIZE; i++)
 		{
+			LazyReferenceManager.get().cleanUp();
+			
 			APP_ROOT.add(Lazy.Reference(createElement(i)));
 			Test.print("Storing " + i + " ...");
 			STORAGE.storeRoot();

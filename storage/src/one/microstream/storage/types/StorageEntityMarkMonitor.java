@@ -4,7 +4,6 @@ import java.util.function.Supplier;
 
 import one.microstream.chars.VarString;
 import one.microstream.math.XMath;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.storage.exceptions.StorageException;
@@ -486,9 +485,6 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		@Override
 		public final StorageReferenceMarker provideReferenceMarker(final StorageEntityCache<?> channel)
 		{
-			// (02.02.2020 TM)FIXME: /!\ DEBUG priv#214
-			XDebug.println("Creating StorageReferenceMarker for channel " + channel.channelIndex());
-			
 			return new CachingReferenceMarker(this, this.channelCount, this.referenceCacheLength);
 		}
 
