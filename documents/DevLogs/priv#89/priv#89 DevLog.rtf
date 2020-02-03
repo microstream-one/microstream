@@ -410,5 +410,26 @@ Noch bissl genauer Testen. Mit Debugausgaben usw.\par
 23:00\par
 \par
 Weitermachen. Ausgaben verbessern.\par
+\par
+Seltsam: Wieso schaltet der auf memory limit 85 MB zur\'fcck, wenn das Maximum 100 MB ist und auch die VisualVM weiterhin 100 MB anzeigt?\par
+\par
+Also da stimmt einiges noch nicht:\par
+Clearing by age penalty: age = 989039, weight = 0\par
+Danach ist entity count aber immer noch 34.\par
+\par
+Und warum kommt ein entity nach ~1 Minute auf knapp 1 Million Millisekunden Alter? Das sind doch knapp 17 Minuten ...\par
+\par
+Ah!\par
+Ich bei der Berechnung des Alters cycleStart und timeout threshold verwechselt.\par
+Fixen.\par
+Toll. Mit kleinerem Timeout, um nicht wirklich 16 Minuten warten zu m\'fcssen, tritt das clearen durch time-memory penalty nun nat\'fcrlich gar nicht mehr auf.\par
+\par
+Und es ist immer noch die Frage, warum memory max von 100 auf 93 einbricht und committed von 100 auf 85.\par
+Meine Formel, einfach immer das Minimum von beidem zu nehmen, ist anscheinend auch nicht richtig. Wobei es laut MemoryUsage JavaDoc durchaus richtig sein m\'fcsste:\par
+Vorsichtshalber nur so viel als vorhanden annehmen, wie zugesichert ist, auch wenn das weniger als das Maximum ist.\par
+Aber wieso macht der weniger maximum als vorgegeben? Was soll der Wert dann \'fcberhaupt?\par
+\par
+Wenigstens hab ich gefunden, warum der entity count (eigentlich lazy reference count, hab ich falsch geschrieben) immer gleich bleibt:\line Ich muss ja auf geclearte Lazy Reference pr\'fcfen, sonst z\'e4hl ich nur die Anzahl der registrierten Lazy References.\par
+Also eigentlich will ich ja den "loaded count". Wobei das gar nicht so einfach ist, weil man streng genommen auch zwischen schon gestorten, also \'fcberhaupt clearbaren und noch nicht gestorten, noch nicht clearbaren unterscheiden muss.\par
 }
  

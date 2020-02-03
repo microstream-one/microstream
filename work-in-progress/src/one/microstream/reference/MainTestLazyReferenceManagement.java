@@ -1,5 +1,7 @@
 package one.microstream.reference;
 
+import java.util.Date;
+
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XList;
 import one.microstream.math.XMath;
@@ -16,7 +18,7 @@ public class MainTestLazyReferenceManagement
 		
 		LazyReferenceManager.set(LazyReferenceManager.New(
 			Lazy.Checker(
-				Lazy.Checker.Defaults.defaultTimeout(),
+				Lazy.Checker.Defaults.defaultTimeout() / 10,
 				Lazy.Checker.Defaults.defaultMemoryQuota()
 			),
 			10_000,
@@ -34,6 +36,7 @@ public class MainTestLazyReferenceManagement
 
 	public static void main(final String[] args)
 	{
+		System.out.println("Start at " + new Date());
 		if(APP_ROOT.isEmpty())
 		{
 			// first execution enters here (database creation)
