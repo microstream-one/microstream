@@ -90,7 +90,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				 * will be that is communicatated between channels. 100 should be fine. Numbers up to 1000 are
 				 * coneivable. Everything beyong that should be moreless overkill or even crazy.
 				 */
-				return 20_000;
+				return 100;
 			}
 		}
 
