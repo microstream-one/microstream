@@ -6,6 +6,10 @@ import java.util.function.Predicate;
 import one.microstream.storage.restadapter.StorageRestAdapter;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
+/**
+ * Service loader for StorageRestServices
+ *
+ */
 public class RestServiceResolver
 {
 	///////////////////////////////////////////////////////////////////////////
