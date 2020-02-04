@@ -35,7 +35,7 @@ import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGe
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.XTypes;
-import one.microstream.util.csv.CsvConfiguration;
+import one.microstream.util.xcsv.XCsvConfiguration;
 
 
 public interface StorageDataConverterTypeBinaryToCsv
@@ -170,7 +170,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		// caching fields for performance reasons (skipping repeated pointer indirection)
 		private final String                                  oidColumnName         ;
 		private final String                                  oidColumnType         ;
-		private final CsvConfiguration                        csvConfiguration      ;
+		private final XCsvConfiguration                        csvConfiguration      ;
 		private final byte                                    literalDelimiter      ;
 		private final byte                                    valueSeparator        ;
 		private final byte                                    recordSeparator       ;
@@ -254,7 +254,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			super();
 
-			final CsvConfiguration csvConfig = configuration.csvConfiguration();
+			final XCsvConfiguration csvConfig = configuration.csvConfiguration();
 
 			// (26.01.2014 TM)EXCP: proper exceptions
 			if(csvConfig.isControlCharacter(configuration.literalListStarter()))

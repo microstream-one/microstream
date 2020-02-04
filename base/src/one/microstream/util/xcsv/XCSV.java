@@ -1,4 +1,4 @@
-package one.microstream.util.csv;
+package one.microstream.util.xcsv;
 
 import java.util.function.Consumer;
 
@@ -6,7 +6,20 @@ import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XIterable;
 
-public final class CSV
+/**
+ * An extended CSV format ("XCSV") with the following traits:
+ * <ul>
+ * <li>Allows an arbitrary separator value (interpreting "CSV" as "character separated values" instead of
+ * "comma separated values"), with a TAB ascii character as the default separator since that character
+ * has been designed exactely for that purpose and is superior to any other character for that task.</li>
+ * <li>Optionally contains a header line defining all control characters</li>
+ * <li>Contains an optional second header line defining/hinting the data type of the column</li>
+ * <li>Allows single line and multi line comments</li>
+ * <li>Allows multiple tables of different structure ("segments") in one file</li>
+ * </ul>
+ * In short: this is the ultimate textual data format for tabular data regarding efficiency and readability.
+ */
+public final class XCSV
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -30,7 +43,7 @@ public final class CSV
 	static final int              DEFAULT_SKIP_LINE_COUNT_POST_HEADER = 0   ;
 	static final int              DEFAULT_TRAILING_LINE_COUNT         = 0   ;
 	static final EscapeHandler    DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
-	static final CsvConfiguration DEFAULT_CONFIG = new CsvConfiguration.Builder.Default().createConfiguration();
+	static final XCsvConfiguration DEFAULT_CONFIG = new XCsvConfiguration.Builder.Default().createConfiguration();
 
 
 
@@ -38,24 +51,24 @@ public final class CSV
 	// static methods //
 	///////////////////
 
-	public static final CsvConfiguration configurationDefault()
+	public static final XCsvConfiguration configurationDefault()
 	{
 		return DEFAULT_CONFIG;
 	}
 
-	public static final CsvConfiguration.Builder configurationBuilder()
+	public static final XCsvConfiguration.Builder configurationBuilder()
 	{
-		return new CsvConfiguration.Builder.Default();
+		return new XCsvConfiguration.Builder.Default();
 	}
 
-	public static final CsvAssembler.Builder<VarString> rowAssemblerBuilder()
+	public static final XCsvAssembler.Builder<VarString> rowAssemblerBuilder()
 	{
-		return CsvAssembler.Builder.Default.New();
+		return XCsvAssembler.Builder.Default.New();
 	}
 
 	public static final <T> void assembleRow(
-		final CsvAssembler           assembler   ,
-		final CsvRowAssembler<T>     rowAssembler,
+		final XCsvAssembler           assembler   ,
+		final XCsvRowAssembler<T>     rowAssembler,
 		final XIterable<? extends T> row
 	)
 	{
@@ -71,8 +84,8 @@ public final class CSV
 	}
 
 	public static final <T> void assembleRows(
-		final CsvAssembler           assembler   ,
-		final CsvRowAssembler<T>     rowAssembler,
+		final XCsvAssembler           assembler   ,
+		final XCsvRowAssembler<T>     rowAssembler,
 		final XIterable<? extends T> rows
 	)
 	{
@@ -99,7 +112,7 @@ public final class CSV
 	 * 
 	 * @throws UnsupportedOperationException
 	 */
-	private CSV()
+	private XCSV()
 	{
 		// static only
 		throw new UnsupportedOperationException();

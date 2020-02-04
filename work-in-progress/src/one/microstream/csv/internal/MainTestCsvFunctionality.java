@@ -8,8 +8,8 @@ import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
 import one.microstream.io.XIO;
 import one.microstream.typing.KeyValue;
-import one.microstream.util.csv.CsvContent;
-import one.microstream.util.csv.CsvContentBuilderCharArray;
+import one.microstream.util.xcsv.XCsvContent;
+import one.microstream.util.xcsv.XCsvContentBuilderCharArray;
 
 public class MainTestCsvFunctionality
 {
@@ -24,7 +24,7 @@ public class MainTestCsvFunctionality
 //		.createConfiguration()
 //	;
 
-	static final CsvContentBuilderCharArray BUILDER = CsvContentBuilderCharArray.New();
+	static final XCsvContentBuilderCharArray BUILDER = XCsvContentBuilderCharArray.New();
 
 	static final Path     DIR   = XIO.Path("D:/xcsv/");
 	static final String[] FILES = {
@@ -61,7 +61,7 @@ public class MainTestCsvFunctionality
 		for(int i = 1; i --> 0;)
 		{
 			final long tStart = System.nanoTime();
-			final CsvContent tables = BUILDER.build(XIO.getFileName(xcsv), _charArrayRange.New(input));
+			final XCsvContent tables = BUILDER.build(XIO.getFileName(xcsv), _charArrayRange.New(input));
 			final long tStop = System.nanoTime();
 			System.out.println("Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 

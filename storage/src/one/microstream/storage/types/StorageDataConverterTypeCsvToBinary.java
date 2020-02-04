@@ -8,7 +8,7 @@ import java.nio.channels.FileChannel;
 import java.util.Iterator;
 
 import one.microstream.X;
-import one.microstream.chars.CsvParserCharArray;
+import one.microstream.chars.XCsvParserCharArray;
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
@@ -28,10 +28,10 @@ import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGe
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.exceptions.StorageException;
-import one.microstream.util.csv.CsvConfiguration;
-import one.microstream.util.csv.CsvRecordParserCharArray;
-import one.microstream.util.csv.CsvRowCollector;
-import one.microstream.util.csv.CsvSegmentsParser;
+import one.microstream.util.xcsv.XCsvConfiguration;
+import one.microstream.util.xcsv.XCsvRecordParserCharArray;
+import one.microstream.util.xcsv.XCsvRowCollector;
+import one.microstream.util.xcsv.XCsvSegmentsParser;
 
 public interface StorageDataConverterTypeCsvToBinary<S>
 {
@@ -78,11 +78,11 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 	public final class Default
 	implements
 	StorageDataConverterTypeCsvToBinary<StorageFile>,
-	CsvSegmentsParser.Provider<_charArrayRange>,
-	CsvSegmentsParser<_charArrayRange>,
-	CsvRecordParserCharArray.Provider,
-	CsvRowCollector,
-	CsvRecordParserCharArray
+	XCsvSegmentsParser.Provider<_charArrayRange>,
+	XCsvSegmentsParser<_charArrayRange>,
+	XCsvRecordParserCharArray.Provider,
+	XCsvRowCollector,
+	XCsvRecordParserCharArray
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -147,7 +147,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		long currentBufferAddress ;
 		
 		// might be replaced by file-inherent config
-		CsvConfiguration actualCsvConfiguation;
+		XCsvConfiguration actualCsvConfiguation;
 
 
 
@@ -1089,7 +1089,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				)
 			).toCharArray();
 						
-			final CsvParserCharArray parser = CsvParserCharArray.New();
+			final XCsvParserCharArray parser = XCsvParserCharArray.New();
 			parser.parseCsvData(this.configuration.csvConfiguration(), _charArrayRange.New(input), this, this);
 		}
 				
@@ -1762,9 +1762,9 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		}
 
 		@Override
-		public CsvSegmentsParser<_charArrayRange> provideSegmentsParser(
-			final CsvConfiguration config       ,
-			final CsvRowCollector  rowAggregator
+		public XCsvSegmentsParser<_charArrayRange> provideSegmentsParser(
+			final XCsvConfiguration config       ,
+			final XCsvRowCollector  rowAggregator
 		)
 		{
 			this.actualCsvConfiguation = config;
@@ -1774,7 +1774,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		@Override
 		public void parseSegments(final _charArrayRange input)
 		{
-			CsvParserCharArray.parseSegments(
+			XCsvParserCharArray.parseSegments(
 				input.array(),
 				input.start(),
 				input.bound(),
@@ -1786,7 +1786,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		}
 
 		@Override
-		public CsvRecordParserCharArray provideRecordParser()
+		public XCsvRecordParserCharArray provideRecordParser()
 		{
 			return this;
 		}
@@ -1801,7 +1801,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final char                escaper        ,
 			final char                recordSeparator,
 			final char                terminator     ,
-			final CsvConfiguration    config         ,
+			final XCsvConfiguration    config         ,
 			final VarString           literalBuilder ,
 			final EscapeHandler       escapeHandler  ,
 			final _charRangeProcedure valueCollector

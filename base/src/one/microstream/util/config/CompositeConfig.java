@@ -7,7 +7,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import one.microstream.chars.CsvParserCharArray;
+import one.microstream.chars.XCsvParserCharArray;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
@@ -20,9 +20,9 @@ import one.microstream.functional.Aggregator;
 import one.microstream.io.XIO;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.Substituter;
-import one.microstream.util.csv.CsvAssembler;
-import one.microstream.util.csv.CsvConfiguration;
-import one.microstream.util.csv.CsvParser;
+import one.microstream.util.xcsv.XCsvAssembler;
+import one.microstream.util.xcsv.XCsvConfiguration;
+import one.microstream.util.xcsv.XCsvParser;
 
 
 public class CompositeConfig
@@ -58,7 +58,7 @@ public class CompositeConfig
 
 	ConfigEntryAggregator importConfigs(
 		final String                     tag       ,
-		final CsvParser<_charArrayRange> parser    ,
+		final XCsvParser<_charArrayRange> parser    ,
 		final ConfigEntryAggregator      aggregator,
 		final boolean                    mandatory
 	)
@@ -115,7 +115,7 @@ public class CompositeConfig
 	private final String                         rootIdentifier ;
 	private final String                         qualifier      ;
 	private final String                         filesuffix     ;
-	private final CsvConfiguration               csvConfig      ;
+	private final XCsvConfiguration               csvConfig      ;
 	private final File                           configDirectory;
 	private final Substituter<String>            stringCache    ;
 	private final EqHashTable<String, SubConfig> subConfigs      = EqHashTable.New();
@@ -136,7 +136,7 @@ public class CompositeConfig
 		final String                      rootIdentifier    ,
 		final String                      qualifier         ,
 		final String                      filesuffix        ,
-		final CsvConfiguration            csvConfig         ,
+		final XCsvConfiguration            csvConfig         ,
 		final File                        configDirectory   ,
 		final Substituter<String>         stringCache       ,
 		final XGettingMap<String, String> customVariables   ,
@@ -160,7 +160,7 @@ public class CompositeConfig
 		final String                      rootIdentifier    ,
 		final String                      qualifier         ,
 		final String                      filesuffix        ,
-		final CsvConfiguration            csvConfig         ,
+		final XCsvConfiguration            csvConfig         ,
 		final File                        configDirectory   ,
 		final Substituter<String>         stringCache       ,
 		final XGettingMap<String, String> customVariables
@@ -182,7 +182,7 @@ public class CompositeConfig
 
 	private RootConfig createRootConfig()
 	{
-		final CsvParser<_charArrayRange> parser = CsvParserCharArray.New();
+		final XCsvParser<_charArrayRange> parser = XCsvParserCharArray.New();
 		final ConfigEntryAggregator aggregator = ConfigEntryAggregator.New(this.stringCache);
 		final RootConfig defaultConfig = new RootConfig(
 			this.rootIdentifier    ,
@@ -199,7 +199,7 @@ public class CompositeConfig
 
 	private SubConfig createSubConfig(final String identifier)
 	{
-		final CsvParser<_charArrayRange> parser = CsvParserCharArray.New();
+		final XCsvParser<_charArrayRange> parser = XCsvParserCharArray.New();
 		final ConfigEntryAggregator aggregator = ConfigEntryAggregator.New(this.stringCache);
 		final SubConfig config = new SubConfig(
 			this.defaultConfig(),
@@ -285,7 +285,7 @@ public class CompositeConfig
 	{
 		final File         file           = this.buildFile(identifier, config)      ;
 		final VarString    vs             = VarString.New()                         ;
-		final CsvAssembler assembler      = CsvAssembler.Default.New(this.csvConfig, vs, "\t", " ", "\r", "");
+		final XCsvAssembler assembler      = XCsvAssembler.Default.New(this.csvConfig, vs, "\t", " ", "\r", "");
 
 		config.table.iterate(new Consumer<KeyValue<String, String>>()
 		{

@@ -1,4 +1,4 @@
-package one.microstream.util.csv;
+package one.microstream.util.xcsv;
 
 import one.microstream.X;
 import one.microstream.chars.StringTable;
@@ -9,24 +9,24 @@ import one.microstream.typing.KeyValue;
 import one.microstream.typing.XTypes;
 
 
-public interface CsvContent
+public interface XCsvContent
 {
 	public String name();
 
 	public XGettingSequence<? extends KeyValue<String, StringTable>> segments();
 
-	public CsvConfiguration configuration();
+	public XCsvConfiguration configuration();
 	
 	
 	
 	public interface Builder<D>
 	{
-		public CsvContent build(String name, D data);
+		public XCsvContent build(String name, D data);
 	}
 
 
 
-	public final class Default implements CsvContent
+	public final class Default implements XCsvContent
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
@@ -35,7 +35,7 @@ public interface CsvContent
 		public static final Default New(
 			final String                                                    name         ,
 			final XGettingSequence<? extends KeyValue<String, StringTable>> segments     ,
-			final CsvConfiguration                                          configuration
+			final XCsvConfiguration                                          configuration
 		)
 		{
 			return new Default(name, segments, configuration);
@@ -44,7 +44,7 @@ public interface CsvContent
 		public static final Default NewTranslated(
 			final String                                  name         ,
 			final XGettingSequence<? extends StringTable> segments     ,
-			final CsvConfiguration                        configuration
+			final XCsvConfiguration                        configuration
 		)
 		{
 			final LimitList<KeyValue<String, StringTable>> translated = new LimitList<>(XTypes.to_int(segments.size()));
@@ -63,7 +63,7 @@ public interface CsvContent
 
 		final String                                                      name         ;
 		final XImmutableSequence<? extends KeyValue<String, StringTable>> segments     ;
-		final CsvConfiguration                                            configuration;
+		final XCsvConfiguration                                            configuration;
 
 
 
@@ -74,7 +74,7 @@ public interface CsvContent
 		private Default(
 			final String                                                    name         ,
 			final XGettingSequence<? extends KeyValue<String, StringTable>> segments     ,
-			final CsvConfiguration                                          configuration
+			final XCsvConfiguration                                          configuration
 		)
 		{
 			super();
@@ -102,7 +102,7 @@ public interface CsvContent
 		}
 
 		@Override
-		public final CsvConfiguration configuration()
+		public final XCsvConfiguration configuration()
 		{
 			return this.configuration;
 		}

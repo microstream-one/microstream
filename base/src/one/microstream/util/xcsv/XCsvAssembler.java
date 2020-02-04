@@ -1,4 +1,4 @@
-package one.microstream.util.csv;
+package one.microstream.util.xcsv;
 
 import static one.microstream.X.notNull;
 
@@ -6,7 +6,7 @@ import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.functional._charProcedure;
 
-public interface CsvAssembler
+public interface XCsvAssembler
 {
 	public void addRowValueNull();
 
@@ -38,14 +38,14 @@ public interface CsvAssembler
 
 
 
-	public final class Default implements CsvAssembler
+	public final class Default implements XCsvAssembler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
 		///////////////////
 
-		public static final CsvAssembler.Default New(
-			final CsvConfiguration csvConfig            ,
+		public static final XCsvAssembler.Default New(
+			final XCsvConfiguration csvConfig            ,
 			final VarString        vs                   ,
 			final String           valueSeparatorPrefix ,
 			final String           valueSeparatorSuffix ,
@@ -54,27 +54,27 @@ public interface CsvAssembler
 		)
 		{
 
-			return new CsvAssembler.Default(
+			return new XCsvAssembler.Default(
 				notNull(vs),
 				csvConfig.literalDelimiter(),
 				csvConfig.valueSeparator(valueSeparatorPrefix, valueSeparatorSuffix).toCharArray(),
 				csvConfig.recordSeparator(recordSeparatorPrefix, recordSeparatorSuffix).toCharArray(),
-				CsvVarStringLiteralEscapingAssembler.New(csvConfig, vs)
+				XCsvVarStringLiteralEscapingAssembler.New(csvConfig, vs)
 			);
 		}
 
-		public static final CsvAssembler.Default New(final CsvConfiguration csvConfig, final VarString vs)
+		public static final XCsvAssembler.Default New(final XCsvConfiguration csvConfig, final VarString vs)
 		{
-			return new CsvAssembler.Default(
+			return new XCsvAssembler.Default(
 				notNull(vs),
 				csvConfig.literalDelimiter(),
 				new char[]{csvConfig.valueSeparator()},
 				new char[]{csvConfig.recordSeparator()} ,
-				CsvVarStringLiteralEscapingAssembler.New(csvConfig, vs)
+				XCsvVarStringLiteralEscapingAssembler.New(csvConfig, vs)
 			);
 		}
 
-		public static final CsvAssembler.Default New(final CsvConfiguration csvConfig)
+		public static final XCsvAssembler.Default New(final XCsvConfiguration csvConfig)
 		{
 			return New(csvConfig, VarString.New());
 		}
@@ -253,7 +253,7 @@ public interface CsvAssembler
 
 	public interface Builder<O>
 	{
-		public CsvConfiguration configuration  ();
+		public XCsvConfiguration configuration  ();
 
 		public String valueSeperatorPrefix();
 
@@ -263,7 +263,7 @@ public interface CsvAssembler
 
 		public String recordSeperatorSuffix();
 
-		public Builder<O> setConfiguration(CsvConfiguration configuration);
+		public Builder<O> setConfiguration(XCsvConfiguration configuration);
 
 		public Builder<O> setValueSeperatorPrefix(String separatorPrefix);
 
@@ -273,7 +273,7 @@ public interface CsvAssembler
 
 		public Builder<O> setRecordSeperatorSuffix(String separatorSuffix);
 
-		public CsvAssembler buildRowAssembler(O outputMedium);
+		public XCsvAssembler buildRowAssembler(O outputMedium);
 
 
 
@@ -285,7 +285,7 @@ public interface CsvAssembler
 
 			public static final Default New()
 			{
-				return new Default(CSV.configurationDefault(), "", "", "", "");
+				return new Default(XCSV.configurationDefault(), "", "", "", "");
 			}
 
 
@@ -294,7 +294,7 @@ public interface CsvAssembler
 			// instance fields //
 			////////////////////
 
-			private CsvConfiguration configuration        ;
+			private XCsvConfiguration configuration        ;
 			private String           valueSeparatorPrefix ;
 			private String           valueSeparatorSuffix ;
 			private String           recordSeparatorPrefix;
@@ -307,7 +307,7 @@ public interface CsvAssembler
 			/////////////////
 
 			Default(
-				final CsvConfiguration configuration        ,
+				final XCsvConfiguration configuration        ,
 				final String           valueSeparatorPrefix ,
 				final String           valueSeparatorSuffix ,
 				final String           recordSeparatorPrefix,
@@ -329,7 +329,7 @@ public interface CsvAssembler
 			////////////
 
 			@Override
-			public final CsvConfiguration configuration()
+			public final XCsvConfiguration configuration()
 			{
 				return this.configuration;
 			}
@@ -365,7 +365,7 @@ public interface CsvAssembler
 			////////////
 
 			@Override
-			public final Builder<VarString> setConfiguration(final CsvConfiguration configuration)
+			public final Builder<VarString> setConfiguration(final XCsvConfiguration configuration)
 			{
 				this.configuration = notNull(configuration);
 				return this;
@@ -407,9 +407,9 @@ public interface CsvAssembler
 			/////////////////////
 
 			@Override
-			public CsvAssembler buildRowAssembler(final VarString vs)
+			public XCsvAssembler buildRowAssembler(final VarString vs)
 			{
-				return CsvAssembler.Default.New(
+				return XCsvAssembler.Default.New(
 					this.configuration,
 					vs,
 					this.valueSeparatorPrefix,
