@@ -26,7 +26,6 @@ public interface StorageRestAdapter
 
 		public Default(final EmbeddedStorageManager storage)
 		{
-			//super(storage);
 			super();
 			this.embeddedStorageRestAdapter = new EmbeddedStorageRestAdapter(storage);
 			this.converterProvider = new StorageViewDataConverterProvider.Default();
