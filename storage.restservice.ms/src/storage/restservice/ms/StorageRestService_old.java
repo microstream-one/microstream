@@ -7,7 +7,7 @@ import spark.RouteImpl;
 import spark.Service;
 import spark.route.HttpMethod;
 
-public class StorageRestService
+public class StorageRestService_old
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants  //
@@ -30,7 +30,7 @@ public class StorageRestService
 	/*
 	 * Construct with default spark service instance
 	 */
-	public StorageRestService(final EmbeddedStorageManager storage)
+	public StorageRestService_old(final EmbeddedStorageManager storage)
 	{
 		this(storage, Service.ignite(), DEFAULT_STORAGE_NAME);
 	}
@@ -38,7 +38,7 @@ public class StorageRestService
 	/*
 	 * Construct with custom spark Service instance
 	 */
-	public StorageRestService(final EmbeddedStorageManager storage, final Service sparkService)
+	public StorageRestService_old(final EmbeddedStorageManager storage, final Service sparkService)
 	{
 		this(storage, sparkService, DEFAULT_STORAGE_NAME);
 	}
@@ -46,7 +46,7 @@ public class StorageRestService
 	/*
 	 * Construct with custom storageName and default spark service
 	 */
-	public StorageRestService(final EmbeddedStorageManager storage, final String storageName)
+	public StorageRestService_old(final EmbeddedStorageManager storage, final String storageName)
 	{
 		this(storage, Service.ignite(), storageName);
 	}
@@ -54,7 +54,7 @@ public class StorageRestService
 	/*
 	 * Construct with custom spark service instance and storage name
 	 */
-	public StorageRestService(final EmbeddedStorageManager storage, final Service sparkService, final String storageName)
+	public StorageRestService_old(final EmbeddedStorageManager storage, final Service sparkService, final String storageName)
 	{
 		super();
 		this.storageName = storageName;
@@ -73,7 +73,7 @@ public class StorageRestService
 	/*
 	 * Start the spark service if not already done
 	 */
-	public StorageRestService start()
+	public StorageRestService_old start()
 	{
 		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/object/:oid",
 			new RouteGetObject(this.storageRestAdapter)));
