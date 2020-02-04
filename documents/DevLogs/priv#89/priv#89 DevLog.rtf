@@ -1,5 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 priv#89\par
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 priv#89\par
 \par
 2020-01-27\par
 \par
@@ -431,5 +432,66 @@ Aber wieso macht der weniger maximum als vorgegeben? Was soll der Wert dann \'fc
 \par
 Wenigstens hab ich gefunden, warum der entity count (eigentlich lazy reference count, hab ich falsch geschrieben) immer gleich bleibt:\line Ich muss ja auf geclearte Lazy Reference pr\'fcfen, sonst z\'e4hl ich nur die Anzahl der registrierten Lazy References.\par
 Also eigentlich will ich ja den "loaded count". Wobei das gar nicht so einfach ist, weil man streng genommen auch zwischen schon gestorten, also \'fcberhaupt clearbaren und noch nicht gestorten, noch nicht clearbaren unterscheiden muss.\par
+\par
+\par
+2020-02-04\par
+\par
+Jetzt endlich mal das Testen abschlie\'dfen.\par
+Schauen, warum jetzt nicht mehr per age penalty gecleart wird.\par
+Ach, ich hab age negativ berechnet. Umdrehen. Testen.\par
+Passt.\par
+\par
+Jetzt eigentlich geplanter Test:\par
+Alle erzeugen und storen braucht mehr memory, als verf\'fcgbar ist.\par
+Danach zuf\'e4llig einzelne laden und schauen, wie sich der LRM verh\'e4lt.\par
+\par
+Oh Mann, das ist gar nicht so einfach, da ordentliche Ausgaben zu bauen. Alle m\'f6glichen F\'e4lle abdecken, um zu schauen, ob er da ungewollt reinl\'e4uft.\par
+\par
+Ach, nach ewigen rumprobieren:\par
+Der cleart scheinbar nichts, weil er durch viele null-entries durch muss und durch die ganzen Ausgaben das nanotime budget nicht reicht.\par
+Wenn ich das h\'f6her dreh, checkt er haufenweise references in einem cycle.\par
+\par
+Jetzt sieht das soweit ganz gut aus.\par
+Aber der committed memory ist immer noch seltsam.\par
+Und warum zeigt VisualVM 200 MB maximum memory an, wenn ich -Xmx100M einstell?\par
+\par
+Irgendwie fehlt noch was, dass am Ende eines Cycles ein check gemacht wird, ob lazy references geclearet worden sind und ob der memory fast voll ist, so dass ein GC Aufruf gemacht werden sollte.\par
+Das kann man dann customizen, falls der GC aufruf st\'f6rt.\par
+\par
+Mal sehen, was man daf\'fcr alles braucht.\par
+cycleMemorUsage\par
+cycleClearCount gibts eh schon.\par
+memoryQuota noch. Wobei das eigentlich ein implementationDetail ist.\par
+\par
+Einbauen. Ausprobieren. Sieht ganz gut aus.\par
+Das Lambda bau ich zu einer Klasse um und setz die als Default.\par
+\par
+Mal teste ohne die ganzen ausgaben und daf\'fcr mit LRM alle sekunde anstatt alle 10 Sekunden.\par
+\par
+Hm. Ich glaub, der explizite GC-Aufruf ist gar nicht n\'f6tig. Die JVM ruft den GC schnell genug von selber auf.\par
+Ich glaub das Problem neulich mal eher, dass der LRM nur alle 10 Sekunden lief und darum zwischendrin nicht genug lazy refs gecleart wurden, um sie via GC freigeben zu k\'f6nnen.\par
+\par
+Dann mach ich die Defaultimplementierung f\'fcr den CycleEvaluator wieder raus. Aber der Mechanismus an sich ist trotzdem gut.\par
+\par
+Jo. Sieht gut aus. Heap geht immer sch\'f6n rauf und runter. Je nachdem, wie  schnell ich per knopfdruck arrays nachlad.\par
+Und je voller der Memory wird, umso schneller werden die lazy refs gecleart. Passt.\par
+\par
+Hm, aber wenn ich extrem schnell drauf dr\'fcck, pumpt er sich nat\'fcrlich voll und macht eine Heap Exception.\par
+\par
+Vielleicht wird die GraceTime ein Problem bei sehr schnell laufenden und ladenden Algorithmen. Der pumpt innerhalb von 1 Sekunde den heap voll, darf aber nix clearen, Ende.\par
+Wobei ja der Heap typischerweise nicht 100 MB gro\'df sein sollte, so wie hier in meinem Test, sondern mehrere GB bis TB. Und sowas in 1 Sekunde vollpumpen ist schon ... sportlich.\par
+\par
+Also passt erst mal.\par
+\par
+Jetzt noch genauere Recherche zu committed vs max memory.\par
+Na super! Googeln danach bringt stackoverflow threads, wo als einzige Antwort die JavaDoc gequotet wird.\par
+Gut, eigentlich steht da ja auch wirklich alles drin:\par
+Committed ist der garantierte Speicher.\par
+Max ist der maximale, FALLS unterst\'fctzt und FALLS das OS jenseits des committed nochmal was rausr\'fcckt.\par
+D.h. eigentlich muss man trotz allem den committed als cap verwenden und den max nur ber\'fccksichtigen, falls der committed gro\'df genug ist.\par
+Ne, nicht als cap, weil der max ja -1 sein kann. Eigentlich NUR den committed.\par
+\'c4ndern.\par
+\par
+Okay. Damit w\'e4re das fertig.\par
 }
  

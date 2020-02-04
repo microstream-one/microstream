@@ -21,12 +21,12 @@ public class MainTestLazyReferenceManagement
 				Lazy.Checker.Defaults.defaultTimeout() / 10,
 				Lazy.Checker.Defaults.defaultMemoryQuota()
 			),
-			10_000,
+			1_000,
 			1_000_000
 		));
 	}
 	
-	//!\\ values must fit the configured JVM memory limit!
+	//!\\ values must fit the configured JVM memory limit! E.g. -Xmx100M
 	static final int ROOT_SIZE         = 100;
 	static final int ELEMENT_BYTE_SIZE = 1<<20;
 	static final int ELEMENT_LENGTH    = ELEMENT_BYTE_SIZE / Long.BYTES;
@@ -71,6 +71,11 @@ public class MainTestLazyReferenceManagement
 		for(int i = 0; i < ROOT_SIZE; i++)
 		{
 			LazyReferenceManager.get().cleanUp();
+			if(i % 10 == 0)
+			{
+				System.out.println(i);
+				System.gc();
+			}
 			
 			APP_ROOT.add(Lazy.Reference(createElement(i)));
 			Test.print("Storing " + i + " ...");
@@ -93,7 +98,7 @@ public class MainTestLazyReferenceManagement
 	
 	static void test()
 	{
-		for(int r = 0; r < 100; r++)
+		for(int r = 0; r < 1000; r++)
 		{
 			final int i = XMath.random(ROOT_SIZE);
 			final long[] element = APP_ROOT.at(i).get();

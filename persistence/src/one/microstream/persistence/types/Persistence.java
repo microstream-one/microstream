@@ -647,17 +647,20 @@ public class Persistence
 			isPersistable(type)
 		;
 	}
+	
+	public static final boolean isPersistableField(final Class<?> entityType, final Field field)
+	{
+		return !XReflect.isTransient(field);
+	}
 
 	public static final PersistenceFieldEvaluator defaultFieldEvaluatorPersistable()
 	{
-		return (entityType, field) ->
-			!XReflect.isTransient(field)
-		;
+		return Persistence::isPersistableField;
 	}
 	
 	public static final PersistenceFieldEvaluator defaultFieldEvaluatorPersister()
 	{
-		// the type check is hardcoded to be unremovable. The evaluator only enablee the feature and covers customizing.
+		// the type check is hardcoded to be unremovable. The evaluator only enables the feature and covers customizing.
 		return (entityType, field) ->
 			true
 		;
