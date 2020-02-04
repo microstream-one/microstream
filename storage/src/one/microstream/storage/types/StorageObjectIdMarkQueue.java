@@ -3,7 +3,7 @@ package one.microstream.storage.types;
 import one.microstream.math.XMath;
 import one.microstream.storage.exceptions.StorageException;
 
-public interface StorageobjectIdMarkQueue
+public interface StorageObjectIdMarkQueue
 {
 	public void enqueue(long objectId);
 
@@ -23,16 +23,16 @@ public interface StorageobjectIdMarkQueue
 
 	public interface Creator
 	{
-		public StorageobjectIdMarkQueue createOidMarkQueue(int segmentLength);
+		public StorageObjectIdMarkQueue createOidMarkQueue(int segmentLength);
 
 
 
-		public final class Default implements StorageobjectIdMarkQueue.Creator
+		public final class Default implements StorageObjectIdMarkQueue.Creator
 		{
 			@Override
-			public StorageobjectIdMarkQueue createOidMarkQueue(final int segmentLength)
+			public StorageObjectIdMarkQueue createOidMarkQueue(final int segmentLength)
 			{
-				return new StorageobjectIdMarkQueue.Default(segmentLength);
+				return new StorageObjectIdMarkQueue.Default(segmentLength);
 			}
 
 		}
@@ -40,7 +40,7 @@ public interface StorageobjectIdMarkQueue
 	}
 
 
-	final class Default implements StorageobjectIdMarkQueue
+	final class Default implements StorageObjectIdMarkQueue
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -185,7 +185,7 @@ public interface StorageobjectIdMarkQueue
 
 		static final class Segment
 		{
-			private final long[]  objectIds     ;
+			private final long[]  objectIds;
 			private final int     length   ;
 
 			private       int     lowIndex ;
@@ -241,7 +241,15 @@ public interface StorageobjectIdMarkQueue
 				System.arraycopy(this.objectIds, this.lowIndex, buffer, 0, copyLength);
 
 //				debugln("get next " + copyLength);
-
+				
+				/* (02.02.2020 TM)NOTE:
+				 * lowIndex is not advanced here, but at a later point by another method with the actual amount
+				 * of processed objectIds in the buffer.
+				 * Both methods (this and the actual advancing) re called in #incrementalMark.
+				 * But it is not clear if really all cases are covered correctly (e.g. aborting return).
+				 * So maybe this has something to do with the remaining GC bug.
+				 */
+				
 				return copyLength;
 			}
 

@@ -5,6 +5,8 @@ import static one.microstream.X.coalesce;
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
+import one.microstream.chars.VarString;
+import one.microstream.meta.XDebug;
 import one.microstream.reference.Lazy.Check;
 import one.microstream.reference.Lazy.Checker;
 
@@ -233,6 +235,30 @@ public interface LazyReferenceManager
 				: Long.MAX_VALUE
 			;
 		}
+		
+		public void DEBUG_printState(final String label)
+		{
+			final int count = this.iterate(new Consumer<Lazy<?>>()
+			{
+				int count;
+
+				@Override
+				public void accept(final Lazy<?> t)
+				{
+					if(t.peek() != null)
+					{
+						this.count++;
+					}
+				}
+			}).count;
+			
+			// (03.02.2020 TM)FIXME: /!\ DEBUG priv#89
+			final VarString vs = VarString.New()
+				.lf().add(label)
+				.lf().add("Entity count = " + count)
+			;
+			XDebug.println(vs.toString());
+		}
 
 		final void internalCleanUp(final long nanoTimeBudget, final Checker checker)
 		{
@@ -279,6 +305,8 @@ public interface LazyReferenceManager
 			{
 				return;
 			}
+			
+			this.DEBUG_printState("Before cycle:");
 
 			checker.beginCheckCycle();
 
@@ -321,6 +349,7 @@ public interface LazyReferenceManager
 			// remember last checked entry for next cleanup run. Cursor field is strictly only used by one thread.
 			this.cursor = last;
 
+			this.DEBUG_printState("After cycle:");
 			checker.endCheckCycle();
 		}
 
@@ -461,8 +490,9 @@ public interface LazyReferenceManager
 						 */
 					}
 				}
+				
 				// either parent has been garbage collected or stopped, so terminate.
-//				XDebug.debugln(Thread.currentThread().getName() + " terminating.");
+				XDebug.println(Thread.currentThread().getName() + " terminating.");
 			}
 		}
 
