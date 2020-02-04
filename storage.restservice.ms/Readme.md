@@ -21,26 +21,8 @@
 ```
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>storage.restservice</artifactId>
+	<artifactId>storage.restservice.ms</artifactId>
 	<version>${microstream.version}</version>
-</dependency>
-```
-
-Additionally the following dependencies have to be included: 
-
-```
-<dependency>
-    <groupId>com.sparkjava</groupId>
-    <artifactId>spark-core</artifactId>
-    <version>2.8.0</version>
-    <scope>provided</scope>
-</dependency>
-
-<dependency>
-    <groupId>com.google.code.gson</groupId>
-    <artifactId>gson</artifactId>
-    <version>2.8.6</version>
-    <scope>provided</scope>
 </dependency>
 ```
 
@@ -58,18 +40,18 @@ EmbeddedStorageManager storage =  EmbeddedStorage
 				.start();
 ```
 ### 2.2.	Starting the viewer server: 
-- Create a StorageRestService instance with a running EmbeddedStorageManager
+- Create a StorageRestService instance using the RestServiceResolver
 - Start the server
 By default  the server will listen on port 4567
 
 ```
-final StorageRestService service = new StorageRestService(storage);
+final StorageRestService service = RestServiceResolver.getType(storage, StorageRestServiceDefault.class);
 service.start();
 ```
 
 ### 2.3    Stoping the viewer server
 ```
-service.shutdown();
+service.stop();
 ```
 the EmbeddedStorageManager will not be stopped.
 
@@ -86,7 +68,7 @@ public class MainTestStorageRestService
               storage.storeRoot();
          }
          
-         final StorageRestService service = new StorageRestService(storage);
+         final StorageRestService service = RestServiceResolver.getType(storage, StorageRestServiceDefault.class);
          service.start();
      }         
 }
@@ -160,14 +142,19 @@ To provide a custom configured server just create an Spark.service and initilize
 
 ```
 final Service service = Service.ignite().port(port);
-final StorageRestService viewer = new StorageRestService(storage, service).start();
+final StorageRestServiceDefault service = RestServiceResolver.getType(storage, StorageRestServiceDefault.class);
+service.setSparkService(sparkService);
+service.start();
 ```
 
 #### 5.1.1 Url Root
 To set an other url root then 'microstream' use the constructor:
 
 ```
-StorageRestService(final EmbeddedStorageManager storage, final String storageName)	
+final StorageRestServiceDefault service = RestServiceResolver.getType(storage, StorageRestServiceDefault.class);
+service.setInstanceName(storageName);
+service.start();
+	
 ```
 
 #### 5.1.2 Port
@@ -175,7 +162,10 @@ To set an other port then the default port 4567 it is required to provide a cust
 
 ```
 final Service service = Service.ignite().port(port);
-final StorageRestService viewer = new StorageRestService(storage, service, "myText").start();
+final StorageRestServiceDefault service = RestServiceResolver.getType(storage, StorageRestServiceDefault.class);
+service.setSparkService(sparkService);
+service.start();
+
 ```
 
 ### 5.2 Logging
