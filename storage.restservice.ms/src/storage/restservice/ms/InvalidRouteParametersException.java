@@ -1,4 +1,4 @@
-package one.microstream.storage.restservice;
+package storage.restservice.ms;
 
 @SuppressWarnings("serial")
 public class InvalidRouteParametersException extends RuntimeException

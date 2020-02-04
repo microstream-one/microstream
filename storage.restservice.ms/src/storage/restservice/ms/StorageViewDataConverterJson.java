@@ -1,4 +1,4 @@
-package one.microstream.storage.restservice;
+package storage.restservice.ms;
 
 import java.lang.reflect.Type;
 import java.util.Date;
@@ -16,6 +16,7 @@ import one.microstream.storage.restadapter.StorageViewDataConverter;
 public class StorageViewDataConverterJson implements StorageViewDataConverter
 {
 	private static final String HTML_RESPONCE_CONTENT_TYPE = "application/json";
+	public static final String[] FORMAT_STRINGS = {HTML_RESPONCE_CONTENT_TYPE, "json"};
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -69,6 +70,13 @@ public class StorageViewDataConverterJson implements StorageViewDataConverter
 	public String getHtmlResponseContentType()
 	{
 		return HTML_RESPONCE_CONTENT_TYPE;
+	}
+
+
+	@Override
+	public String[] getFormatStrings()
+	{
+		return FORMAT_STRINGS;
 	}
 }
 

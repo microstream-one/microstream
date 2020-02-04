@@ -1,4 +1,4 @@
-package one.microstream.storage.restservice;
+package storage.restservice.ms;
 
 import one.microstream.storage.restadapter.StorageRestAdapterRoot;
 import one.microstream.storage.restadapter.ViewerRootDescription;

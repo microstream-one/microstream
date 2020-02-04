@@ -1,7 +1,6 @@
-package one.microstream.storage.restservice;
+package storage.restservice.ms;
 
 import one.microstream.storage.restadapter.StorageRestAdapter;
-import one.microstream.storage.restadapter.StorageViewDataConverter;
 import one.microstream.storage.restadapter.ViewerException;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import spark.RouteImpl;
@@ -62,9 +61,9 @@ public class StorageRestService
 		this.sparkService = sparkService;
 		this.storageRestAdapter = new StorageRestAdapter.Default(storage);
 
-		final StorageViewDataConverter jsonConverter = new StorageViewDataConverterJson();
-		this.storageRestAdapter.register(jsonConverter, "application/json");
-		this.storageRestAdapter.register(jsonConverter, "json");
+//		final StorageViewDataConverter jsonConverter = new StorageViewDataConverterJson();
+//		this.storageRestAdapter.register(jsonConverter, "application/json");
+//		this.storageRestAdapter.register(jsonConverter, "json");
 	}
 
 	///////////////////////////////////////////////////////////////////////////
