@@ -10,15 +10,14 @@ public interface StorageRestAdapter
 		StorageViewDataConverterProvider
 {
 
-	public class Default
-		extends EmbeddedStorageRestAdapter
-		implements StorageRestAdapter
+	public class Default implements StorageRestAdapter
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
 		private final StorageViewDataConverterProvider converterProvider;
+		private final EmbeddedStorageRestAdapter embeddedStorageRestAdapter;
 		private long defaultDataLength = Long.MAX_VALUE;
 
 		///////////////////////////////////////////////////////////////////////////
@@ -27,7 +26,9 @@ public interface StorageRestAdapter
 
 		public Default(final EmbeddedStorageManager storage)
 		{
-			super(storage);
+			//super(storage);
+			super();
+			this.embeddedStorageRestAdapter = new EmbeddedStorageRestAdapter(storage);
 			this.converterProvider = new StorageViewDataConverterProvider.Default();
 		}
 
@@ -51,10 +52,10 @@ public interface StorageRestAdapter
 			if(referenceLength < 1) throw new ViewerException("invalid parameter referenceLength");
 
 
-			final ObjectDescription description = super.getStorageObject(objectId);
+			final ObjectDescription description = this.embeddedStorageRestAdapter.getStorageObject(objectId);
 			if(resolveReferences)
 			{
-				description.resolveReferences(referenceOffset, referenceLength, this);
+				description.resolveReferences(referenceOffset, referenceLength, this.embeddedStorageRestAdapter);
 			}
 
 			return ViewerObjectDescriptionCreator.create(description, dataOffset, dataLength);
@@ -63,13 +64,13 @@ public interface StorageRestAdapter
 		@Override
 		public ViewerRootDescription getUserRoot()
 		{
-			return super.getRoot();
+			return this.embeddedStorageRestAdapter.getRoot();
 		}
 
 		@Override
 		public String getTypeDictionary()
 		{
-			return super.getTypeDictionary();
+			return this.embeddedStorageRestAdapter.getTypeDictionary();
 		}
 
 
@@ -88,7 +89,7 @@ public interface StorageRestAdapter
 		@Override
 		public ViewerStorageFileStatistics getStorageFilesStatistics()
 		{
-			return ViewerStorageFileStatistics.New(this.getFileStatistics());
+			return ViewerStorageFileStatistics.New(this.embeddedStorageRestAdapter.getFileStatistics());
 		}
 
 		@Override

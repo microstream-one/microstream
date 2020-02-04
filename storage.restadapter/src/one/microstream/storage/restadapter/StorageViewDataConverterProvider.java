@@ -1,5 +1,7 @@
 package one.microstream.storage.restadapter;
 
+import java.util.ServiceLoader;
+
 import one.microstream.collections.EqHashTable;
 
 public interface StorageViewDataConverterProvider
@@ -37,6 +39,16 @@ public interface StorageViewDataConverterProvider
 		public Default()
 		{
 			super();
+
+			final ServiceLoader<StorageViewDataConverter> serviceLoader = ServiceLoader.load(StorageViewDataConverter.class);
+
+			for (final StorageViewDataConverter converter : serviceLoader)
+			{
+				for (final String  format : converter.getFormatStrings())
+				{
+					this.register(converter, format);
+				}
+			}
 		}
 
 
@@ -63,5 +75,4 @@ public interface StorageViewDataConverterProvider
 			return this.converters.add(format, converter);
 		}
 	}
-
 }
