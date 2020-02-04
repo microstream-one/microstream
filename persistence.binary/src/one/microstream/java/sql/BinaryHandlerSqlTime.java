@@ -1,21 +1,27 @@
-package one.microstream.java.util;
+package one.microstream.java.sql;
 
-import java.util.Date;
+import java.sql.Date;
 
+import one.microstream.java.util.BinaryHandlerDate;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFixedLength<Date>
+/**
+ * Blunt copy of {@link BinaryHandlerDate} for the as good as superfluous type {@link java.sql.Time}.
+ * 
+ * @author TM
+ */
+public final class BinaryHandlerSqlTime extends AbstractBinaryHandlerCustomValueFixedLength<Date>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static BinaryHandlerDate New()
+	public static BinaryHandlerSqlTime New()
 	{
-		return new BinaryHandlerDate();
+		return new BinaryHandlerSqlTime();
 	}
 
 	
@@ -24,7 +30,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 	// constructors //
 	/////////////////
 
-	BinaryHandlerDate()
+	BinaryHandlerSqlTime()
 	{
 		super(
 			Date.class,
