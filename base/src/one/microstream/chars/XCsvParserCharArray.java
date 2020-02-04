@@ -5,12 +5,12 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XReference;
 import one.microstream.functional._charRangeProcedure;
 import one.microstream.typing.Stateless;
-import one.microstream.util.csv.CSV;
-import one.microstream.util.csv.CsvConfiguration;
-import one.microstream.util.csv.CsvParser;
-import one.microstream.util.csv.CsvRecordParserCharArray;
-import one.microstream.util.csv.CsvRowCollector;
-import one.microstream.util.csv.CsvSegmentsParser;
+import one.microstream.util.xcsv.XCSV;
+import one.microstream.util.xcsv.XCsvConfiguration;
+import one.microstream.util.xcsv.XCsvParser;
+import one.microstream.util.xcsv.XCsvRecordParserCharArray;
+import one.microstream.util.xcsv.XCsvRowCollector;
+import one.microstream.util.xcsv.XCsvSegmentsParser;
 
 
 /**
@@ -18,7 +18,7 @@ import one.microstream.util.csv.CsvSegmentsParser;
  *
  * @author Thomas Muenz
  */
-public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Stateless
+public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, Stateless
 {
 	/* Note on implementation:
 	 * This implementation might seem a bit too procedural and cumbersome.
@@ -238,7 +238,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final char                escaper        ,
 		final char                recordSeparator,
 		final char                terminator     ,
-		final CsvConfiguration    config         ,
+		final XCsvConfiguration    config         ,
 		final VarString           literalBuilder ,
 		final EscapeHandler       escapeHandler  ,
 		final _charRangeProcedure valueCollector
@@ -250,7 +250,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			if(i == iBound || input[i] == recordSeparator || input[i] == terminator)
 			{
 				// input-trailing missing value special case
-				if(CsvRecordParserCharArray.Static.isTrailingSeparator(input, iStart, i, valueSeparator))
+				if(XCsvRecordParserCharArray.Static.isTrailingSeparator(input, iStart, i, valueSeparator))
 				{
 					// interpret as null
 					valueCollector.accept(null, 0, 0);
@@ -287,7 +287,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final int                   iBound             ,
 		final char                  recordSeparator    ,
 		final char                  terminator         ,
-		final CsvConfiguration      config             ,
+		final XCsvConfiguration      config             ,
 		final VarString             literalBuilder     ,
 		final ColumnHeaderCollector columnNameCollector
 	)
@@ -380,12 +380,12 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 	}
 
 	private static void updateConfig(
-		final XReference<CsvConfiguration> config      ,
+		final XReference<XCsvConfiguration> config      ,
 		final int                          symbolIndex,
 		final String[]                     symbols
 	)
 	{
-		final CsvConfiguration.Builder builder = new CsvConfiguration.Builder.Default().copyFrom(config.get());
+		final XCsvConfiguration.Builder builder = new XCsvConfiguration.Builder.Default().copyFrom(config.get());
 
 		// check for full meta characters set
 		if(symbolIndex >= META_INDEX_COMPLETE_FULL)
@@ -458,7 +458,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final char[]                       input ,
 		final int                          iStart,
 		final int                          iBound,
-		final XReference<CsvConfiguration> config
+		final XReference<XCsvConfiguration> config
 	)
 	{
 		if(iStart == iBound)
@@ -517,7 +517,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final int              iStart        ,
 		final int              iBound        ,
 		final VarString        literalBuilder,
-		final CsvConfiguration config
+		final XCsvConfiguration config
 	)
 	{
 		// Redundant parsing here. However only once per file, so it's acceptable
@@ -529,7 +529,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final int              iStart        ,
 		final int              iBound        ,
 		final VarString        literalBuilder,
-		final CsvConfiguration config
+		final XCsvConfiguration config
 	)
 	{
 		if(iStart >= iBound)
@@ -543,7 +543,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		 */
 		if(input[iStart] == config.segmentStarter())
 		{
-			return CsvRecordParserCharArray.Static.skipSkippable(
+			return XCsvRecordParserCharArray.Static.skipSkippable(
 				input, iStart + 1, iBound, config.commentSignal(), config
 			);
 		}
@@ -558,9 +558,9 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 				config.escaper()         ,
 				literalBuilder           ,
 				config.escapeHandler()   ,
-				CsvParserCharArray::noOp
+				XCsvParserCharArray::noOp
 			);
-			i = CsvRecordParserCharArray.Static.skipSkippable(input, i, iBound, config.commentSignal(), config);
+			i = XCsvRecordParserCharArray.Static.skipSkippable(input, i, iBound, config.commentSignal(), config);
 			if(input[i] != config.segmentStarter())
 			{
 				literalBuilder.clear();
@@ -575,7 +575,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 				i++;
 			}
 			final int simpleLiteralEnd = i;
-			i = CsvRecordParserCharArray.Static.skipSkippable(input, i, iBound, config.commentSignal(), config);
+			i = XCsvRecordParserCharArray.Static.skipSkippable(input, i, iBound, config.commentSignal(), config);
 
 			if(i == iBound)
 			{
@@ -589,7 +589,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			}
 		}
 		return input[i] == config.segmentStarter()
-			? CsvRecordParserCharArray.Static.skipSkippable(input, i + 1, iBound, config.commentSignal(), config)
+			? XCsvRecordParserCharArray.Static.skipSkippable(input, i + 1, iBound, config.commentSignal(), config)
 			: iStart
 		;
 	}
@@ -599,9 +599,9 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final int                               iStart              ,
 		final int                               iBound              ,
 		final VarString                         literalBuilder      ,
-		final CsvConfiguration                  config              ,
-		final CsvRowCollector                   rowAggregator       ,
-		final CsvRecordParserCharArray.Provider recordParserProvider
+		final XCsvConfiguration                  config              ,
+		final XCsvRowCollector                   rowAggregator       ,
+		final XCsvRecordParserCharArray.Provider recordParserProvider
 	)
 	{
 		if(isSegmentStart(input, iStart, iBound, literalBuilder, config))
@@ -619,9 +619,9 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final int                               iStart              ,
 		final int                               iBound              ,
 		final VarString                         literalBuilder      ,
-		final CsvConfiguration                  config              ,
-		final CsvRowCollector                   rowAggregator       ,
-		final CsvRecordParserCharArray.Provider recordParserProvider
+		final XCsvConfiguration                  config              ,
+		final XCsvRowCollector                   rowAggregator       ,
+		final XCsvRecordParserCharArray.Provider recordParserProvider
 	)
 	{
 		final ColumnHeaderCollector columnNames       = new ColumnHeaderCollector(new BulkList<>());
@@ -664,7 +664,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			{
 				throw new RuntimeException("unclosed segment at index " + i); // (17.11.2014 TM)EXCP: proper exception
 			}
-			i = CsvRecordParserCharArray.Static.skipSkippable(input, i + 1, iBound, config.commentSignal(), config);
+			i = XCsvRecordParserCharArray.Static.skipSkippable(input, i + 1, iBound, config.commentSignal(), config);
 		}
 	}
 
@@ -673,9 +673,9 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final int                               iStart              ,
 		final int                               iBound              ,
 		final VarString                         literalBuilder      ,
-		final CsvConfiguration                  config              ,
-		final CsvRowCollector                   rowAggregator       ,
-		final CsvRecordParserCharArray.Provider recordParserProvider
+		final XCsvConfiguration                  config              ,
+		final XCsvRowCollector                   rowAggregator       ,
+		final XCsvRecordParserCharArray.Provider recordParserProvider
 	)
 	{
 		parseSegment(
@@ -706,7 +706,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final VarString             literalBuilder,
 		final ColumnHeaderCollector columnNames   ,
 		final ColumnHeaderCollector columnTypes   ,
-		final CsvConfiguration      config
+		final XCsvConfiguration      config
 	)
 	{
 		int i = iStart;
@@ -732,7 +732,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		}
 
 		// skip any comments
-		i = CsvRecordParserCharArray.Static.skipDataComments(
+		i = XCsvRecordParserCharArray.Static.skipDataComments(
 			input, i, iBound, terminator, valueSeparator, recordSeparator, commentSignal, config
 		);
 
@@ -758,14 +758,14 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 				i++;
 			}
 			// skip header terminator and any following comments
-			i = CsvRecordParserCharArray.Static.skipDataComments(
+			i = XCsvRecordParserCharArray.Static.skipDataComments(
 				input, i, iBound, terminator, valueSeparator, recordSeparator, commentSignal, config
 			);
 		}
 
 		// note that line skipping cares only for pure line separators, no delimited symbols or such
 		i = skipLines(input, i, iBound, config.recordSeparator(), config.postColumnHeaderSkipLineCount());
-		i = CsvRecordParserCharArray.Static.skipDataComments(
+		i = XCsvRecordParserCharArray.Static.skipDataComments(
 			input, i, iBound, terminator, valueSeparator, recordSeparator, commentSignal, config
 		);
 
@@ -783,13 +783,13 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		final char                              escaper             ,
 		final EscapeHandler                     escapeHandler       ,
 		final char                              terminator          ,
-		final CsvRowCollector                   rowCollector        ,
+		final XCsvRowCollector                   rowCollector        ,
 		final VarString                         literalBuilder      ,
 		final String                            segmentName         ,
 		final ColumnHeaderCollector             columnNames         ,
 		final ColumnHeaderCollector             columnTypes         ,
-		final CsvConfiguration                  config              ,
-		final CsvRecordParserCharArray.Provider recordParserProvider
+		final XCsvConfiguration                  config              ,
+		final XCsvRecordParserCharArray.Provider recordParserProvider
 	)
 	{
 		if(iStart == iBound)
@@ -806,7 +806,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		rowCollector.beginTable(segmentName, columnNames.values, columnTypes.values);
 
 		// get record parser not before here as the table header might influence/configure the parser
-		final CsvRecordParserCharArray recordParser = recordParserProvider.provideRecordParser();
+		final XCsvRecordParserCharArray recordParser = recordParserProvider.provideRecordParser();
 
 		// parse rows until end of file
 		while(i < iBound)
@@ -833,7 +833,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			}
 			if(input[i] == recordSeparator)
 			{
-				i = CsvRecordParserCharArray.Static.skipDataComments(
+				i = XCsvRecordParserCharArray.Static.skipDataComments(
 					input          ,
 					i + 1          ,
 					iBound         ,
@@ -850,9 +850,9 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		return i;
 	}
 
-	public static final CsvParserCharArray New()
+	public static final XCsvParserCharArray New()
 	{
-		return new CsvParserCharArray();
+		return new XCsvParserCharArray();
 	}
 
 
@@ -861,15 +861,15 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 	// constructors //
 	/////////////////
 
-	private CsvParserCharArray()
+	private XCsvParserCharArray()
 	{
 		super();
 	}
 
 
-	static CsvSegmentsParser<_charArrayRange> provideSegmentsParser(
-		final CsvConfiguration config,
-		final CsvRowCollector  rowAggregator
+	static XCsvSegmentsParser<_charArrayRange> provideSegmentsParser(
+		final XCsvConfiguration config,
+		final XCsvRowCollector  rowAggregator
 	)
 	{
 		// crazy sh*t indirection nesting
@@ -880,7 +880,7 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 			VarString.New(),
 			config,
 			rowAggregator,
-			() -> CsvParserCharArray::parseRecord
+			() -> XCsvParserCharArray::parseRecord
 		);
 	}
 
@@ -891,21 +891,21 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 	/////////////////////
 
 	@Override
-	public CsvConfiguration parseCsvData(
-		final CsvConfiguration                            config        ,
+	public XCsvConfiguration parseCsvData(
+		final XCsvConfiguration                            config        ,
 		final _charArrayRange                             input         ,
-		final CsvSegmentsParser.Provider<_charArrayRange> parserProvider,
-		final CsvRowCollector                             rowAggregator
+		final XCsvSegmentsParser.Provider<_charArrayRange> parserProvider,
+		final XCsvRowCollector                             rowAggregator
 	)
 	{
 		// defaulting logic
-		CsvConfiguration cfg = config != null
+		XCsvConfiguration cfg = config != null
 			? config
-			: CSV.configurationDefault()
+			: XCSV.configurationDefault()
 		;
-		final CsvSegmentsParser.Provider<_charArrayRange> pp = parserProvider != null
+		final XCsvSegmentsParser.Provider<_charArrayRange> pp = parserProvider != null
 			? parserProvider
-			: CsvParserCharArray::provideSegmentsParser
+			: XCsvParserCharArray::provideSegmentsParser
 		;
 
 		final int    startIndex = input.start();
@@ -924,18 +924,18 @@ public final class CsvParserCharArray implements CsvParser<_charArrayRange>, Sta
 		int i = skipLines(data, startIndex, boundIndex, cfg.recordSeparator(), cfg.skipLineCount());
 
 		// skip all skippable (whitespaces and comments by passed/default config) at the beginning.
-		i = CsvRecordParserCharArray.Static.skipSkippable(data, i, boundIndex, cfg.commentSignal(), config);
+		i = XCsvRecordParserCharArray.Static.skipSkippable(data, i, boundIndex, cfg.commentSignal(), config);
 
 		// check meta characters and replace config if necessary
-		final XReference<CsvConfiguration> refConfig = X.Reference(config);
+		final XReference<XCsvConfiguration> refConfig = X.Reference(config);
 		i = checkMetaCharacters(data, i, boundIndex, refConfig);
 		cfg = refConfig.get();
 
 		// skip all skippable (whitespaces and comments by effective config) until the first non-skippable.
-		i = CsvRecordParserCharArray.Static.skipSkippable(data, i, boundIndex, cfg.commentSignal(), cfg);
+		i = XCsvRecordParserCharArray.Static.skipSkippable(data, i, boundIndex, cfg.commentSignal(), cfg);
 
 		// there is no problem in IT that cannot be solved with one more level of indirection :-D.
-		final CsvSegmentsParser<_charArrayRange> parser = pp.provideSegmentsParser(cfg, rowAggregator);
+		final XCsvSegmentsParser<_charArrayRange> parser = pp.provideSegmentsParser(cfg, rowAggregator);
 
 		// finally to the actual parsing after all the initialization has been done.
 		parser.parseSegments(_charArrayRange.New(data, i, boundIndex));

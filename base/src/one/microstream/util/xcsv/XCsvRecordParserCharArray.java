@@ -1,11 +1,11 @@
-package one.microstream.util.csv;
+package one.microstream.util.xcsv;
 
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.functional._charRangeProcedure;
 
-public interface CsvRecordParserCharArray
+public interface XCsvRecordParserCharArray
 {
 	/* (01.10.2014 TM)TODO: CsvRecordParserCharArray architecture improvement
 	 * Test if stack-allocated CsvRecordParserCharArray instances have comparable performance
@@ -21,7 +21,7 @@ public interface CsvRecordParserCharArray
 		char                escaper        ,
 		char                recordSeparator,
 		char                terminator     ,
-		CsvConfiguration    config         ,
+		XCsvConfiguration    config         ,
 		VarString           literalBuilder ,
 		EscapeHandler       escapeHandler  ,
 		_charRangeProcedure valueCollector
@@ -58,7 +58,7 @@ public interface CsvRecordParserCharArray
 			final int              iStart        ,
 			final int              iBound        ,
 			final char             commentStarter,
-			final CsvConfiguration config
+			final XCsvConfiguration config
 		)
 		{
 			final int lastCharIndex = iBound - 1;
@@ -107,7 +107,7 @@ public interface CsvRecordParserCharArray
 			final char             valueSeparator ,
 			final char             recordSeparator,
 			final char             commentSignal  ,
-			final CsvConfiguration config
+			final XCsvConfiguration config
 		)
 		{
 			int i = iStart;
@@ -253,7 +253,7 @@ public interface CsvRecordParserCharArray
 
 	public interface Provider
 	{
-		public CsvRecordParserCharArray provideRecordParser();
+		public XCsvRecordParserCharArray provideRecordParser();
 	}
 
 }

@@ -1,4 +1,4 @@
-package one.microstream.util.csv;
+package one.microstream.util.xcsv;
 
 import static one.microstream.X.notNull;
 
@@ -7,7 +7,7 @@ import one.microstream.chars.VarString;
 import one.microstream.typing.Immutable;
 import one.microstream.util.InstanceDispatcher;
 
-public interface CsvConfiguration
+public interface XCsvConfiguration
 {
 	public char valueSeparator();
 
@@ -69,9 +69,22 @@ public interface CsvConfiguration
 		return this.commentFullTerminator().toCharArray();
 	}
 
+	
+	public static XCsvConfiguration New()
+	{
+		return new XCsvConfiguration.Builder.Default().createConfiguration();
+	}
+	
+	public static XCsvConfiguration New(final char valueSeparator)
+	{
+		return new XCsvConfiguration.Builder.Default()
+			.setValueSeparator(valueSeparator)
+			.createConfiguration()
+		;
+	}
 
 
-	public final class Default implements CsvConfiguration, Immutable
+	public final class Default implements XCsvConfiguration, Immutable
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -490,9 +503,9 @@ public interface CsvConfiguration
 
 		public Builder setEscapeHandler(EscapeHandler escapeHandler);
 
-		public Builder copyFrom(CsvConfiguration configuration);
+		public Builder copyFrom(XCsvConfiguration configuration);
 
-		public CsvConfiguration createConfiguration();
+		public XCsvConfiguration createConfiguration();
 
 
 
@@ -502,23 +515,23 @@ public interface CsvConfiguration
 			// instance fields //
 			////////////////////
 
-			private char          lineSeparator           = CSV.DEFAULT_LINE_SEPERATOR             ;
-			private char          terminator              = CSV.DEFAULT_TERMINATOR                 ;
-			private char          valueSeparator          = CSV.DEFAULT_SEPERATOR                  ;
-			private char          valueDelimiter          = CSV.DEFAULT_DELIMITER                  ;
-			private char          valueEscaper            = CSV.DEFAULT_ESCAPER                    ;
-			private char          segmentStarter          = CSV.DEFAULT_SEGMENT_STARTER            ;
-			private char          segmentTerminator       = CSV.DEFAULT_SEGMENT_TERMINATOR         ;
-			private char          headerStarter           = CSV.DEFAULT_HEADER_STARTER             ;
-			private char          headerTerminator        = CSV.DEFAULT_HEADER_TERMINATOR          ;
-			private char          commentSignal           = CSV.DEFAULT_COMMENT_SIGNAL             ;
-			private char          commentSimpleStarter    = CSV.DEFAULT_COMMENT_SIMPLE_STARTER     ;
-			private char          commentFullStarter      = CSV.DEFAULT_COMMENT_FULL_STARTER       ;
-			private String        commentFullTerminator   = CSV.DEFAULT_COMMENT_FULL_TERMINATOR    ;
-			private int           skipLineCount           = CSV.DEFAULT_SKIP_LINE_COUNT            ;
-			private int           skipLineCountPostHeader = CSV.DEFAULT_SKIP_LINE_COUNT_POST_HEADER;
-			private int           trailingLineCount       = CSV.DEFAULT_TRAILING_LINE_COUNT        ;
-			private EscapeHandler escapeHandler           = CSV.DEFAULT_ESCAPE_HANDLER             ;
+			private char          lineSeparator           = XCSV.DEFAULT_LINE_SEPERATOR             ;
+			private char          terminator              = XCSV.DEFAULT_TERMINATOR                 ;
+			private char          valueSeparator          = XCSV.DEFAULT_SEPERATOR                  ;
+			private char          valueDelimiter          = XCSV.DEFAULT_DELIMITER                  ;
+			private char          valueEscaper            = XCSV.DEFAULT_ESCAPER                    ;
+			private char          segmentStarter          = XCSV.DEFAULT_SEGMENT_STARTER            ;
+			private char          segmentTerminator       = XCSV.DEFAULT_SEGMENT_TERMINATOR         ;
+			private char          headerStarter           = XCSV.DEFAULT_HEADER_STARTER             ;
+			private char          headerTerminator        = XCSV.DEFAULT_HEADER_TERMINATOR          ;
+			private char          commentSignal           = XCSV.DEFAULT_COMMENT_SIGNAL             ;
+			private char          commentSimpleStarter    = XCSV.DEFAULT_COMMENT_SIMPLE_STARTER     ;
+			private char          commentFullStarter      = XCSV.DEFAULT_COMMENT_FULL_STARTER       ;
+			private String        commentFullTerminator   = XCSV.DEFAULT_COMMENT_FULL_TERMINATOR    ;
+			private int           skipLineCount           = XCSV.DEFAULT_SKIP_LINE_COUNT            ;
+			private int           skipLineCountPostHeader = XCSV.DEFAULT_SKIP_LINE_COUNT_POST_HEADER;
+			private int           trailingLineCount       = XCSV.DEFAULT_TRAILING_LINE_COUNT        ;
+			private EscapeHandler escapeHandler           = XCSV.DEFAULT_ESCAPE_HANDLER             ;
 
 
 
@@ -845,7 +858,7 @@ public interface CsvConfiguration
 			}
 
 			@Override
-			public Builder copyFrom(final CsvConfiguration configuration)
+			public Builder copyFrom(final XCsvConfiguration configuration)
 			{
 				this
 				.setRecordSeparator              (configuration.recordSeparator()              )
@@ -870,12 +883,12 @@ public interface CsvConfiguration
 			}
 
 			@Override
-			public CsvConfiguration createConfiguration()
+			public XCsvConfiguration createConfiguration()
 			{
 				/* (01.07.2013 TM)FIXME: CsvConfiguration: meta symbol consistency validation
 				 * i.e. delimiter not same as separator, etc.
 				 */
-				return new CsvConfiguration.Default(
+				return new XCsvConfiguration.Default(
 					this.getLineSeparator(),
 					this.getTerminator(),
 					this.getValueSeparator(),

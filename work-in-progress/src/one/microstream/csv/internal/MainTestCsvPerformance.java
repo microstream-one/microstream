@@ -4,8 +4,8 @@ import one.microstream.chars.StringTable;
 import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
 import one.microstream.io.XIO;
-import one.microstream.util.csv.CsvContent;
-import one.microstream.util.csv.CsvContentBuilderCharArray;
+import one.microstream.util.xcsv.XCsvContent;
+import one.microstream.util.xcsv.XCsvContentBuilderCharArray;
 
 
 public class MainTestCsvPerformance
@@ -72,8 +72,8 @@ public class MainTestCsvPerformance
 			XChars.defaultJvmCharset()
 		).toCharArray();
 
-		final CsvContentBuilderCharArray builder = CsvContentBuilderCharArray.New();
-		final CsvContent                 parsed  = builder.build("data", _charArrayRange.New(input));
+		final XCsvContentBuilderCharArray builder = XCsvContentBuilderCharArray.New();
+		final XCsvContent                 parsed  = builder.build("data", _charArrayRange.New(input));
 		final StringTable                table   = parsed.segments().first().value();
 
 		System.out.println("Parsed row count = "+table.rows().size());

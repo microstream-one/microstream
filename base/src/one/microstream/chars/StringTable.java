@@ -16,10 +16,10 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.collections.types.XImmutableList;
 import one.microstream.typing.XTypes;
-import one.microstream.util.csv.CSV;
-import one.microstream.util.csv.CsvConfiguration;
-import one.microstream.util.csv.CsvContent;
-import one.microstream.util.csv.CsvContentBuilderCharArray;
+import one.microstream.util.xcsv.XCSV;
+import one.microstream.util.xcsv.XCsvConfiguration;
+import one.microstream.util.xcsv.XCsvContent;
+import one.microstream.util.xcsv.XCsvContentBuilderCharArray;
 
 public interface StringTable
 {
@@ -69,7 +69,17 @@ public interface StringTable
 			return parse(rawData, null);
 		}
 		
-		public static StringTable parse(final String rawData, final CsvConfiguration csvConfiguration)
+		public static StringTable parse(final String rawData, final char valueSeparator)
+		{
+			return parse(rawData, XCsvConfiguration.New(valueSeparator));
+		}
+		
+		public static StringTable parse(final _charArrayRange rawData, final char valueSeparator)
+		{
+			return parse(rawData, XCsvConfiguration.New(valueSeparator));
+		}
+		
+		public static StringTable parse(final String rawData, final XCsvConfiguration csvConfiguration)
 		{
 			/*
 			 * can't copy around data all the time just because the JDK guys don't know how to write proper APIs
@@ -79,13 +89,14 @@ public interface StringTable
 			return parse(_charArrayRange.New(XChars.readChars(rawData)), csvConfiguration);
 		}
 		
-		public static StringTable parse(final _charArrayRange rawData, final CsvConfiguration csvConfiguration)
+		public static StringTable parse(final _charArrayRange rawData, final XCsvConfiguration csvConfiguration)
 		{
-			final CsvContentBuilderCharArray parser = CsvContentBuilderCharArray.New(
+			// (04.02.2020 TM)FIXME: priv#204: ensure value separator scanning on demand
+			final XCsvContentBuilderCharArray parser = XCsvContentBuilderCharArray.New(
 				ensureCsvConfiguration(csvConfiguration)
 			);
 			
-			final CsvContent  content = parser.build(null, rawData);
+			final XCsvContent  content = parser.build(null, rawData);
 			final StringTable data    = content.segments().first().value();
 
 			return data;
@@ -146,10 +157,10 @@ public interface StringTable
 		}
 		
 		// (08.05.2017 TM)NOTE: centralized method to guarantee parser and assembler behave consistently
-		private static CsvConfiguration ensureCsvConfiguration(final CsvConfiguration csvConfiguration)
+		private static XCsvConfiguration ensureCsvConfiguration(final XCsvConfiguration csvConfiguration)
 		{
 			return csvConfiguration == null
-				? CSV.configurationDefault()
+				? XCSV.configurationDefault()
 				: csvConfiguration
 			;
 		}
@@ -157,7 +168,7 @@ public interface StringTable
 		public static final VarString assembleString(
 			final VarString        vs              ,
 			final StringTable      st              ,
-			final CsvConfiguration csvConfiguration
+			final XCsvConfiguration csvConfiguration
 		)
 		{
 			if(st.columnNames().isEmpty())
@@ -169,7 +180,7 @@ public interface StringTable
 //				return vs.add("[empty table]");
 			}
 			
-			final CsvConfiguration effConfig       = ensureCsvConfiguration(csvConfiguration);
+			final XCsvConfiguration effConfig       = ensureCsvConfiguration(csvConfiguration);
 			final char             valueSeparator  = effConfig.valueSeparator();
 			final char             recordSeparator = effConfig.recordSeparator();
 

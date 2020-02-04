@@ -1022,6 +1022,8 @@ public class Persistence
 		final String fileContent = XIO.unchecked(() ->
 			XIO.readString(file)
 		);
+		
+		// (05.02.2020 TM)FIXME: priv#204: derive value separator from file suffix (but by centralized code!)
 		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
 		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());
 		

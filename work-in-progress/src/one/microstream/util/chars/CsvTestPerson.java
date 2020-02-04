@@ -6,9 +6,9 @@ import java.util.Date;
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.time.XTime;
-import one.microstream.util.csv.CSV;
-import one.microstream.util.csv.CsvAssembler;
-import one.microstream.util.csv.CsvRowAssembler;
+import one.microstream.util.xcsv.XCSV;
+import one.microstream.util.xcsv.XCsvAssembler;
+import one.microstream.util.xcsv.XCsvRowAssembler;
 
 class CsvTestPerson
 {
@@ -38,7 +38,7 @@ class CsvTestPerson
 		this.profile     = profile    ;
 	}
 
-	public static final void toCsvRow(final CsvTestPerson person, final CsvAssembler rowAssembler)
+	public static final void toCsvRow(final CsvTestPerson person, final XCsvAssembler rowAssembler)
 	{
 		rowAssembler.addRowValueDelimited(person.firstName);
 		rowAssembler.addRowValueDelimited(person.lastName);
@@ -63,15 +63,15 @@ class CsvTestPerson
 	public static void main(final String[] args)
 	{
 		final VarString vs = VarString.New();
-		final CsvAssembler csvAssembler = CSV.rowAssemblerBuilder()
+		final XCsvAssembler csvAssembler = XCSV.rowAssemblerBuilder()
 			.setValueSeperatorPrefix("\t")
 			.setValueSeperatorSuffix(" ")
 			.buildRowAssembler(vs)
 		;
-		CSV.assembleRow(csvAssembler, CsvRowAssembler::addNonNullDelimited,
+		XCSV.assembleRow(csvAssembler, XCsvRowAssembler::addNonNullDelimited,
 			X.List("First Name", "Last Name", "Date Of Birth", "Weight", "Height", "Profile")
 		);
-		CSV.assembleRows(csvAssembler, CsvTestPerson::toCsvRow,
+		XCSV.assembleRows(csvAssembler, CsvTestPerson::toCsvRow,
 			X.List(
 				new CsvTestPerson("Simon", "Simple", XTime.now(), 75.5, 182.8, null),
 				new CsvTestPerson("Sophie", "Sophisticated Very", XTime.now(), 59.6, 169.9, "text with newlines\n & \"stuff\"")
