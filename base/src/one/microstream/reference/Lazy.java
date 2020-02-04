@@ -4,7 +4,6 @@ import static one.microstream.X.mayNull;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
-import java.util.Date;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
@@ -281,8 +280,8 @@ public interface Lazy<T> extends Referencing<T>
 		@Override
 		public final synchronized boolean clear(final ClearingEvaluator clearingEvaluator)
 		{
-			// unstored references may never even considered to be cleared
-			if(this.isStored() && clearingEvaluator.clear(this))
+			// must be stored and not already cleared to even consider asking the evaluator
+			if(this.isStored() && this.subject != null && clearingEvaluator.needsClearing(this))
 			{
 				this.internalClear();
 				return true;
@@ -344,8 +343,6 @@ public interface Lazy<T> extends Referencing<T>
 				throw new RuntimeException("Cannot clear an unstored lazy reference.");
 			}
 			
-			// (31.01.2020 TM)FIXME: /!\ DEBUG priv#89:
-			XDebug.println("Clearing " + Lazy.class.getSimpleName() + " " + XChars.systemString(this.subject));
 			this.subject = null;
 			this.touch();
 		}
@@ -421,7 +418,7 @@ public interface Lazy<T> extends Referencing<T>
 	@FunctionalInterface
 	public interface ClearingEvaluator
 	{
-		public boolean clear(Lazy<?> lazyReference);
+		public boolean needsClearing(Lazy<?> lazyReference);
 	}
 	
 	@FunctionalInterface
@@ -455,7 +452,7 @@ public interface Lazy<T> extends Referencing<T>
 		final double memoryQuota
 	)
 	{
-		return Checker(millisecondTimeout, memoryQuota, null);
+		return Checker(millisecondTimeout, memoryQuota, null, null);
 	}
 	
 	public static Lazy.Checker Checker(
@@ -465,21 +462,24 @@ public interface Lazy<T> extends Referencing<T>
 		return Checker(
 			Checker.Defaults.defaultTimeout(),
 			Checker.Defaults.defaultMemoryQuota(),
-			customCheck
+			customCheck,
+			null
 		);
 	}
 	
 	public static Lazy.Checker Checker(
-		final long   millisecondTimeout,
-		final double memoryQuota,
-		final Check  customCheck
+		final long                                millisecondTimeout,
+		final double                              memoryQuota       ,
+		final Check                               customCheck       ,
+		final LazyReferenceManager.CycleEvaluator cycleEvaluator
 	)
 	{
 		// note: at least timeout is validated to always be a usable value. The other two can be null/0.
 		return new Checker.Default(
-			mayNull(customCheck),
 			Checker.validateTimeout(millisecondTimeout),
-			Checker.validateMemoryQuota(memoryQuota)
+			Checker.validateMemoryQuota(memoryQuota),
+			mayNull(customCheck),
+			mayNull(cycleEvaluator)
 		);
 	}
 	
@@ -487,7 +487,7 @@ public interface Lazy<T> extends Referencing<T>
 		final long millisecondTimeout
 	)
 	{
-		return Checker(millisecondTimeout, 0.0, null);
+		return Checker(millisecondTimeout, 0.0);
 	}
 	
 	public static Lazy.Checker CheckerMemory(
@@ -495,7 +495,7 @@ public interface Lazy<T> extends Referencing<T>
 	)
 	{
 		// kind of dumb, but well ...
-		return Checker(Long.MAX_VALUE, memoryQuota, null);
+		return Checker(Long.MAX_VALUE, memoryQuota);
 	}
 	
 	public interface Checker
@@ -611,6 +611,8 @@ public interface Lazy<T> extends Referencing<T>
 			 */
 			private final Check customCheck;
 			
+			private final LazyReferenceManager.CycleEvaluator cycleEvaluator;
+			
 			/**
 			 * The timeout in milliseconds after which a reference is cleared regardless of memory consumption.<br>
 			 * May be 0 to be deactivated.<br>
@@ -661,12 +663,19 @@ public interface Lazy<T> extends Referencing<T>
 			// constructors //
 			/////////////////
 
-			Default(final Check customCheck, final long timeoutMs, final double memoryQuota)
+			Default(
+				final long                                timeoutMs     ,
+				final double                              memoryQuota   ,
+				final Check                               customCheck   ,
+				final LazyReferenceManager.CycleEvaluator cycleEvaluator
+			)
 			{
 				super();
-				this.customCheck = customCheck;
-				this.timeoutMs   = timeoutMs  ;
-				this.memoryQuota = memoryQuota;
+				this.timeoutMs      = timeoutMs     ;
+				this.memoryQuota    = memoryQuota   ;
+				this.customCheck    = customCheck   ;
+				this.cycleEvaluator = cycleEvaluator;
+				
 				this.graceTimeMs = deriveGraceTime(timeoutMs);
 			}
 			
@@ -704,9 +713,17 @@ public interface Lazy<T> extends Referencing<T>
 				// querying a MemoryUsage instance takes about 500 ns to query, so it is only done occasionally.
 				this.updateMemoryUsage();
 				this.cycleClearCount = 0;
-				
-				// (03.02.2020 TM)FIXME: /!\ DEBUG priv#89
-				this.DEBUG_printCycleState();
+
+//				this.DEBUG_printCycleState();
+			}
+			
+			@Override
+			public void endCheckCycle()
+			{
+				if(this.cycleEvaluator != null)
+				{
+					this.cycleEvaluator.evaluateCycle(this.cycleMemoryUsage, this.cycleClearCount, this.memoryQuota);
+				}
 			}
 			
 			private void updateMemoryUsage()
@@ -720,7 +737,7 @@ public interface Lazy<T> extends Referencing<T>
 				this.sh10MemoryUsed  = shift10(this.cycleMemoryUsed);
 			}
 			
-			public void DEBUG_printCycleState()
+			final void DEBUG_printCycleState()
 			{
 				final java.text.DecimalFormat format = new java.text.DecimalFormat("00,000,000,000");
 				final VarString vs = VarString.New()
@@ -778,8 +795,8 @@ public interface Lazy<T> extends Referencing<T>
 					return Long.MAX_VALUE;
 				}
 				
-				// max might return -1 and is also capped by committed memory, so both must be considered.
-				return (long)(Math.min(memoryUsage.getCommitted(), memoryUsage.getMax()) * this.memoryQuota);
+				// committed heap is guaranteed. Max might be unsupported or not providable by the OS.
+				return (long)(memoryUsage.getCommitted() * this.memoryQuota);
 			}
 
 			@Override
@@ -794,7 +811,7 @@ public interface Lazy<T> extends Referencing<T>
 			}
 			
 			@Override
-			public final boolean clear(final Lazy<?> lazyReference)
+			public final boolean needsClearing(final Lazy<?> lazyReference)
 			{
 				final Boolean check;
 				if(this.customCheck != null && (check = this.performCustomCheck(lazyReference)) != null)
@@ -811,15 +828,16 @@ public interface Lazy<T> extends Referencing<T>
 				}
 				if(lastTouched < this.cycleTimeoutThresholdMs)
 				{
+//					XDebug.println("Timeout-clearing lazy " + XChars.systemString(lazyReference.peek()));
 					this.registerClearing();
 					return true;
 				}
 				
 				// no simple case, so a more sophisticated check combining age and memory is required
-				return this.checkByMemoryWithAgePenalty(lastTouched);
+				return this.checkByMemoryWithAgePenalty(lastTouched/*, lazyReference*/);
 			}
 						
-			private boolean checkByMemoryWithAgePenalty(final long lastTouched)
+			private boolean checkByMemoryWithAgePenalty(final long lastTouched/*, final Lazy<?> lazyReference*/)
 			{
 				// if memory check is disabled, return right away
 				if(!this.isMemoryCheckEnabled())
@@ -827,7 +845,7 @@ public interface Lazy<T> extends Referencing<T>
 					return false;
 				}
 				
-				final long age = lastTouched - this.cycleStartMs;
+				final long age = this.cycleStartMs - lastTouched;
 				final long sh10Weight = shift10(age) / this.timeoutMs;
 
 				// used memory times weightSh10 is a kind of "age penalty" towards the actually used memory
@@ -835,26 +853,28 @@ public interface Lazy<T> extends Referencing<T>
 					this.sh10MemoryUsed + this.cycleMemoryUsed * sh10Weight >= this.sh10MemoryLimit
 				;
 					
-				// (03.02.2020 TM)FIXME: /!\ DEBUG priv#89
-				if(clearingDecision)
-				{
-					final java.text.DecimalFormat format = new java.text.DecimalFormat("00,000,000,000");
-					final VarString vs = VarString.New("Clearing by age penalty")
-						.lf().add("cycleTOThreshld = ").add(new Date(this.cycleTimeoutThresholdMs))
-						.lf().add("cycleStart      = ").add(new Date(this.cycleStartMs))
-						.lf().add("lastTouched     = ").add(new Date(lastTouched))
-						.lf().add("cycleMemoryUsed = ").add(format.format(this.cycleMemoryUsed))
-						.lf().add("sh10MemoryUsed  = ").add(format.format(this.sh10MemoryUsed))
-						.lf().add("age             = ").add(age).add(" (").add(100.0d * age / this.timeoutMs).add("%)")
-						.lf().add("weight          = ").add(sh10Weight)
-						.lf().add("penalty         = ").add(format.format(this.cycleMemoryUsed * sh10Weight))
-						.lf().add("sh10TotalMemory = ").add(format.format(this.sh10MemoryUsed + this.cycleMemoryUsed * sh10Weight))
-						.lf().add("sh10MemoryLimit = ").add(format.format(this.sh10MemoryLimit))
-					;
-					XDebug.println(vs.toString());
-				}
+//				this.DEBUG_printAgePenaltyInfo(lazyReference, age, sh10Weight, clearingDecision ? "CLEARED:" : "Is kept:");
 				
 				return this.clear(clearingDecision);
+			}
+			
+			final void DEBUG_printAgePenaltyInfo(
+				final Lazy<?> lazyReference,
+				final long    age          ,
+				final long    sh10Weight   ,
+				final String  label
+			)
+			{
+				final java.text.DecimalFormat format = new java.text.DecimalFormat("000,000,000,000");
+				final VarString vs = VarString.New()
+					.add(label)
+					.add(" age = ").add(age)
+					.add(" (").padLeft(Integer.toString((int)(100.0d * age / this.timeoutMs)), 2, ' ').add("%)")
+					.add(": ").add(format.format(this.sh10MemoryUsed + this.cycleMemoryUsed * sh10Weight))
+					.add(" <> ").add(format.format(this.sh10MemoryLimit))
+					.add("  ").add(XChars.systemString(lazyReference.peek()))
+				;
+				XDebug.println(vs.toString());
 			}
 
 		}

@@ -2,10 +2,10 @@ package one.microstream.reference;
 
 import static one.microstream.X.coalesce;
 
+import java.lang.management.MemoryUsage;
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
-import one.microstream.chars.VarString;
 import one.microstream.meta.XDebug;
 import one.microstream.reference.Lazy.Check;
 import one.microstream.reference.Lazy.Checker;
@@ -236,7 +236,7 @@ public interface LazyReferenceManager
 			;
 		}
 		
-		public void DEBUG_printState(final String label)
+		public void DEBUG_printLoadCount(final String label)
 		{
 			final int count = this.iterate(new Consumer<Lazy<?>>()
 			{
@@ -252,12 +252,7 @@ public interface LazyReferenceManager
 				}
 			}).count;
 			
-			// (03.02.2020 TM)FIXME: /!\ DEBUG priv#89
-			final VarString vs = VarString.New()
-				.lf().add(label)
-				.lf().add("Entity count = " + count)
-			;
-			XDebug.println(vs.toString());
+			XDebug.println('\n' + label + " Lazy loaded count = " + count);
 		}
 
 		final void internalCleanUp(final long nanoTimeBudget, final Checker checker)
@@ -305,9 +300,8 @@ public interface LazyReferenceManager
 			{
 				return;
 			}
-			
-			this.DEBUG_printState("Before cycle:");
 
+//			this.DEBUG_printLoadCount("Before cycle:");
 			checker.beginCheckCycle();
 
 			cleanUp:
@@ -349,7 +343,7 @@ public interface LazyReferenceManager
 			// remember last checked entry for next cleanup run. Cursor field is strictly only used by one thread.
 			this.cursor = last;
 
-			this.DEBUG_printState("After cycle:");
+//			this.DEBUG_printLoadCount("After cycle:");
 			checker.endCheckCycle();
 		}
 
@@ -566,6 +560,15 @@ public interface LazyReferenceManager
 			return procedure;
 		}
 
+	}
+
+	
+	
+	@FunctionalInterface
+	public interface CycleEvaluator
+	{
+		public void evaluateCycle(MemoryUsage memoryUsage, long cycleClearCount, double memoryQuota);
+				
 	}
 
 }
