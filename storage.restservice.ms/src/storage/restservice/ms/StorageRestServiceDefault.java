@@ -2,12 +2,12 @@ package storage.restservice.ms;
 
 import one.microstream.storage.restadapter.StorageRestAdapter;
 import one.microstream.storage.restadapter.ViewerException;
-import one.microstream.storage.restservice.StorageRestServer;
+import one.microstream.storage.restservice.StorageRestService;
 import spark.RouteImpl;
 import spark.Service;
 import spark.route.HttpMethod;
 
-public class StorageRestServiceDefault implements StorageRestServer
+public class StorageRestServiceDefault implements StorageRestService
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -75,7 +75,7 @@ public class StorageRestServiceDefault implements StorageRestServer
 	}
 
 	@Override
-	public StorageRestServer getInstance(final StorageRestAdapter restAdapter)
+	public StorageRestService getInstance(final StorageRestAdapter restAdapter)
 	{
 		this.storageRestAdapter = restAdapter;
 		return this;
