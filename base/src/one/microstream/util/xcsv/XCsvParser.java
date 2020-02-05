@@ -5,15 +5,15 @@ public interface XCsvParser<I>
 {
 	public XCsvConfiguration parseCsvData(
 		XCsvConfiguration              config                ,
-		I                             input                 ,
+		I                              input                 ,
 		XCsvSegmentsParser.Provider<I> segmentsParserProvider,
 		XCsvRowCollector               rowAggregator
 	);
 
 	public default XCsvConfiguration parseCsvData(
-		final XCsvConfiguration              config                ,
-		final I                             input                 ,
-		final XCsvRowCollector               rowAggregator
+		final XCsvConfiguration config       ,
+		final I                 input        ,
+		final XCsvRowCollector  rowAggregator
 	)
 	{
 		return this.parseCsvData(config, input, null, rowAggregator);
