@@ -755,6 +755,7 @@ public interface XCsvConfiguration
 			@Override
 			public Builder.Default setValueSeparator(final char valueSeparator)
 			{
+				XCSV.validateValueSeparator(valueSeparator);
 				this.internalSetValueSeparator(valueSeparator);
 				return this;
 			}

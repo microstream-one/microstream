@@ -1,9 +1,11 @@
 package one.microstream.util.xcsv;
 
-import java.util.function.Consumer;
+import java.util.Arrays;
 
+import one.microstream.X;
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.collections.types.XIterable;
 
 /**
@@ -44,59 +46,78 @@ public final class XCSV
 	static final int              DEFAULT_TRAILING_LINE_COUNT         = 0   ;
 	static final EscapeHandler    DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
 	static final XCsvConfiguration DEFAULT_CONFIG = new XCsvConfiguration.Builder.Default().createConfiguration();
+	
+	static final char[] VALID_VALUE_SEPARATORS = X.chars('\t', ';', ',', '|', '-', '~', '#', ':');
 
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
+	
+	// intentionally "get" since this is not a trivial accessor but performs considerable logic
+	public char[] getValidValueSeparators()
+	{
+		return VALID_VALUE_SEPARATORS.clone();
+	}
 
 	public static final XCsvConfiguration configurationDefault()
 	{
 		return DEFAULT_CONFIG;
 	}
 
-	public static final XCsvConfiguration.Builder configurationBuilder()
+	public static final XCsvConfiguration.Builder ConfigurationBuilder()
 	{
 		return new XCsvConfiguration.Builder.Default();
 	}
 
-	public static final XCsvAssembler.Builder<VarString> rowAssemblerBuilder()
+	public static final XCsvAssembler.Builder<VarString> AssemblerBuilder()
 	{
 		return XCsvAssembler.Builder.Default.New();
 	}
+	
+	public static boolean isValidValueSeparator(final char c)
+	{
+		return XChars.contains(VALID_VALUE_SEPARATORS, c);
+	}
+	
+	public static char validateValueSeparator(final char c)
+	{
+		if(isValidValueSeparator(c))
+		{
+			return c;
+		}
+		
+		// (05.02.2020 TM)EXCP: proper exceptions
+		throw new RuntimeException(
+			"Invalid " + XCSV.class.getSimpleName()
+			+ " value separator '" + c + "'. Valid separators are "
+			+ Arrays.toString(VALID_VALUE_SEPARATORS)
+		);
+	}
 
 	public static final <T> void assembleRow(
-		final XCsvAssembler           assembler   ,
-		final XCsvRowAssembler<T>     rowAssembler,
+		final XCsvAssembler          assembler   ,
+		final XCsvRowAssembler<T>    rowAssembler,
 		final XIterable<? extends T> row
 	)
 	{
-		row.iterate(new Consumer<T>()
-		{
-			@Override
-			public void accept(final T entity)
-			{
-				rowAssembler.accept(entity, assembler);
-			}
-		});
+		row.iterate(e ->
+			rowAssembler.accept(e, assembler)
+		);
 		assembler.completeRow();
 	}
 
 	public static final <T> void assembleRows(
-		final XCsvAssembler           assembler   ,
-		final XCsvRowAssembler<T>     rowAssembler,
+		final XCsvAssembler          assembler   ,
+		final XCsvRowAssembler<T>    rowAssembler,
 		final XIterable<? extends T> rows
 	)
 	{
-		rows.iterate(new Consumer<T>()
+		rows.iterate(e ->
 		{
-			@Override
-			public void accept(final T entity)
-			{
-				rowAssembler.accept(entity, assembler);
-				assembler.completeRow();
-			}
+			rowAssembler.accept(e, assembler);
+			assembler.completeRow();
 		});
 		assembler.completeRows();
 	}
@@ -117,5 +138,6 @@ public final class XCSV
 		// static only
 		throw new UnsupportedOperationException();
 	}
+	
 }
 
