@@ -47,7 +47,7 @@ public final class XCSV
 	static final EscapeHandler    DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
 	static final XCsvConfiguration DEFAULT_CONFIG = new XCsvConfiguration.Builder.Default().createConfiguration();
 	
-	static final char[] VALID_VALUE_SEPARATORS = X.chars('\t', ';', ',', '|', '-', '~', '#', ':');
+	static final char[] VALID_VALUE_SEPARATORS = X.chars('\t', ';', ',', '|', '-', '~', '#', '.', ':', '*');
 
 
 
@@ -56,7 +56,7 @@ public final class XCSV
 	///////////////////
 	
 	// intentionally "get" since this is not a trivial accessor but performs considerable logic
-	public char[] getValidValueSeparators()
+	public static final char[] getValidValueSeparators()
 	{
 		return VALID_VALUE_SEPARATORS.clone();
 	}

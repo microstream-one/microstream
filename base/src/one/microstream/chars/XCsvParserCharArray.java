@@ -380,12 +380,13 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	}
 
 	private static void updateConfig(
-		final XReference<XCsvConfiguration> config      ,
-		final int                          symbolIndex,
-		final String[]                     symbols
+		final XReference<XCsvConfiguration> refConfig  ,
+		final int                           symbolIndex,
+		final String[]                      symbols
 	)
 	{
-		final XCsvConfiguration.Builder builder = new XCsvConfiguration.Builder.Default().copyFrom(config.get());
+		final XCsvConfiguration effectiveConfig = ensureConfiguration(refConfig.get());
+		final XCsvConfiguration.Builder builder = new XCsvConfiguration.Builder.Default().copyFrom(effectiveConfig);
 
 		// check for full meta characters set
 		if(symbolIndex >= META_INDEX_COMPLETE_FULL)
@@ -416,7 +417,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		.setRecordSeparator (symbols[META_INDEX_RECORD_SEPARATOR ].charAt(0))
 		;
 
-		config.set(builder.createConfiguration());
+		refConfig.set(builder.createConfiguration());
 	}
 
 	private static boolean isValidSymbols(final String[] metaChars)
@@ -453,12 +454,22 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		// uniqueness constraint satisfied
 		return true;
 	}
+	
+	private static EscapeHandler ensureEscapeHandler(final XCsvConfiguration xcsvConfiguration)
+	{
+		return ensureConfiguration(xcsvConfiguration).escapeHandler();
+	}
+	
+	private static XCsvConfiguration ensureConfiguration(final XCsvConfiguration xcsvConfiguration)
+	{
+		return X.coalesce(xcsvConfiguration, XCSV.configurationDefault());
+	}
 
 	private static int checkMetaCharacters(
-		final char[]                       input ,
-		final int                          iStart,
-		final int                          iBound,
-		final XReference<XCsvConfiguration> config
+		final char[]                        input    ,
+		final int                           iStart   ,
+		final int                           iBound   ,
+		final XReference<XCsvConfiguration> refConfig
 	)
 	{
 		if(iStart == iBound)
@@ -473,6 +484,12 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		{
 			return i;
 		}
+		
+		// valid value separators are reused as valid meta separators. Anything else just makes no sense.
+		if(!XCSV.isValidValueSeparator(assumedMetaSeparator))
+		{
+			return iStart;
+		}
 
 		// keep assumed escape character
 		final char assumedEscaper = input[i];
@@ -482,7 +499,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		}
 
 		int j = ++i, c = 0;
-		final EscapeHandler escapeHandler = config.get().escapeHandler();
+		final EscapeHandler escapeHandler = ensureEscapeHandler(refConfig.get());
 		final String[] metaChars = new String[META_COUNT];
 
 		while(c < META_INDEX_FULL_COMMENT_TERMINATOR)
@@ -508,15 +525,16 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 			throw new RuntimeException("Inconsistent meta characters: " + String.valueOf(input, iStart, i - iStart));
 		}
 
-		updateConfig(config, c, metaChars);
+		updateConfig(refConfig, c, metaChars);
+		
 		return i;
 	}
 
 	static final boolean isSegmentStart(
-		final char[]           input         ,
-		final int              iStart        ,
-		final int              iBound        ,
-		final VarString        literalBuilder,
+		final char[]            input         ,
+		final int               iStart        ,
+		final int               iBound        ,
+		final VarString         literalBuilder,
 		final XCsvConfiguration config
 	)
 	{
@@ -893,16 +911,14 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	@Override
 	public XCsvConfiguration parseCsvData(
 		final XCsvConfiguration                            config        ,
-		final _charArrayRange                             input         ,
+		final _charArrayRange                              input         ,
 		final XCsvSegmentsParser.Provider<_charArrayRange> parserProvider,
 		final XCsvRowCollector                             rowAggregator
 	)
 	{
-		// defaulting logic
-		XCsvConfiguration cfg = config != null
-			? config
-			: XCSV.configurationDefault()
-		;
+		// preliminary configuration
+		XCsvConfiguration cfg = ensureConfiguration(config);
+		
 		final XCsvSegmentsParser.Provider<_charArrayRange> pp = parserProvider != null
 			? parserProvider
 			: XCsvParserCharArray::provideSegmentsParser
@@ -929,7 +945,8 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		// check meta characters and replace config if necessary
 		final XReference<XCsvConfiguration> refConfig = X.Reference(config);
 		i = checkMetaCharacters(data, i, boundIndex, refConfig);
-		cfg = refConfig.get();
+				
+		cfg = ensureEffectiveConfiguration(data, i, boundIndex, refConfig.get());
 
 		// skip all skippable (whitespaces and comments by effective config) until the first non-skippable.
 		i = XCsvRecordParserCharArray.Static.skipSkippable(data, i, boundIndex, cfg.commentSignal(), cfg);
@@ -941,6 +958,92 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		parser.parseSegments(_charArrayRange.New(data, i, boundIndex));
 
 		return cfg;
+	}
+	
+	static XCsvConfiguration ensureEffectiveConfiguration(
+		final char[]            input     ,
+		final int               startIndex,
+		final int               boundIndex,
+		final XCsvConfiguration config
+	)
+	{
+		if(config != null)
+		{
+			return config;
+		}
+		
+		final class Counter
+		{
+			char character;
+			long totalCount, maxCountPerLines, minCountPerLines;
+			
+			Counter(
+				final char character       ,
+				final long totalCount      ,
+				final long maxCountPerLines,
+				final long minCountPerLines
+			)
+			{
+				super();
+				this.character        = character       ;
+				this.totalCount       = totalCount      ;
+				this.maxCountPerLines = maxCountPerLines;
+				this.minCountPerLines = minCountPerLines;
+			}
+		}
+		
+		// \n character and honestly: everything else is just idiocy. Including a certain OS that defiantly uses \r.
+		final char recordSeparator = XCSV.configurationDefault().recordSeparator();
+		
+		final char[] validSeparators = XCSV.getValidValueSeparators();
+		final Counter[] counters = new Counter[validSeparators.length];
+		
+		long totalLines = 0;
+		
+		for(int ci = 0; ci < validSeparators.length; ci++)
+		{
+			final char c = validSeparators[ci];
+			
+			long charTotalCount = 0;
+			long charMaxCountPerLines = 0;
+			long charMinCountPerLines = Long.MAX_VALUE;
+			
+			// (05.02.2020 TM)FIXME: priv#204: VERY useful for evaluation
+			final long maxBreakingLines = 0;
+			final long minBreakingLines = 0;
+			final long emptyLines       = 0;
+			
+			for(int i = startIndex; i < boundIndex; i++)
+			{
+				long currentCount = 0;
+				if(input[i] == recordSeparator)
+				{
+					if(currentCount >= charMaxCountPerLines)
+					{
+						charMaxCountPerLines = currentCount;
+					}
+					if(currentCount < charMinCountPerLines)
+					{
+						charMinCountPerLines = currentCount;
+					}
+					charTotalCount += currentCount;
+					currentCount = 0;
+					totalLines++;
+				}
+				else if(input[i] == c)
+				{
+					currentCount++;
+				}
+			}
+			
+			counters[ci] = new Counter(c, charTotalCount, charMaxCountPerLines, charMinCountPerLines);
+		}
+		
+		// correct line counting overkill
+		totalLines /= validSeparators.length;
+		
+		// (05.02.2020 TM)FIXME: priv#204: evaluate counters and guess separator
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 

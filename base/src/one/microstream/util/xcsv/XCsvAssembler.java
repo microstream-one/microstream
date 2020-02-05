@@ -45,38 +45,41 @@ public interface XCsvAssembler
 		///////////////////
 
 		public static final XCsvAssembler.Default New(
-			final XCsvConfiguration csvConfig            ,
-			final VarString        vs                   ,
-			final String           valueSeparatorPrefix ,
-			final String           valueSeparatorSuffix ,
-			final String           recordSeparatorPrefix,
-			final String           recordSeparatorSuffix
+			final XCsvConfiguration xcsvConfig           ,
+			final VarString         vs                   ,
+			final String            valueSeparatorPrefix ,
+			final String            valueSeparatorSuffix ,
+			final String            recordSeparatorPrefix,
+			final String            recordSeparatorSuffix
 		)
 		{
 
 			return new XCsvAssembler.Default(
 				notNull(vs),
-				csvConfig.literalDelimiter(),
-				csvConfig.valueSeparator(valueSeparatorPrefix, valueSeparatorSuffix).toCharArray(),
-				csvConfig.recordSeparator(recordSeparatorPrefix, recordSeparatorSuffix).toCharArray(),
-				XCsvVarStringLiteralEscapingAssembler.New(csvConfig, vs)
+				xcsvConfig.literalDelimiter(),
+				xcsvConfig.valueSeparator(valueSeparatorPrefix, valueSeparatorSuffix).toCharArray(),
+				xcsvConfig.recordSeparator(recordSeparatorPrefix, recordSeparatorSuffix).toCharArray(),
+				XCsvVarStringLiteralEscapingAssembler.New(xcsvConfig, vs)
 			);
 		}
 
-		public static final XCsvAssembler.Default New(final XCsvConfiguration csvConfig, final VarString vs)
+		public static final XCsvAssembler.Default New(
+			final XCsvConfiguration xcsvConfig,
+			final VarString         vs
+		)
 		{
 			return new XCsvAssembler.Default(
 				notNull(vs),
-				csvConfig.literalDelimiter(),
-				new char[]{csvConfig.valueSeparator()},
-				new char[]{csvConfig.recordSeparator()} ,
-				XCsvVarStringLiteralEscapingAssembler.New(csvConfig, vs)
+				xcsvConfig.literalDelimiter(),
+				new char[]{xcsvConfig.valueSeparator()},
+				new char[]{xcsvConfig.recordSeparator()} ,
+				XCsvVarStringLiteralEscapingAssembler.New(xcsvConfig, vs)
 			);
 		}
 
-		public static final XCsvAssembler.Default New(final XCsvConfiguration csvConfig)
+		public static final XCsvAssembler.Default New(final XCsvConfiguration xcsvConfig)
 		{
-			return New(csvConfig, VarString.New());
+			return New(xcsvConfig, VarString.New());
 		}
 
 
