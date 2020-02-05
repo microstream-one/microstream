@@ -148,22 +148,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		{
 			return this.singletonConnection().createStorer();
 		}
-		
-		private boolean ensureProperLazyReferenceManager()
-		{
-			if(LazyReferenceManager.isSet())
-			{
-				return false;
-			}
-
-			LazyReferenceManager.set(
-				LazyReferenceManager.New(() ->
-					this.isRunning() // debuggability line. Do not fold.
-				)
-			);
-			return true;
-		}
-		
+				
 		private static void ensureActiveLazyReferenceManager(final boolean lazyReferenceManagerIsRunning)
 		{
 			if(lazyReferenceManagerIsRunning)
@@ -175,7 +160,6 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 		
 		private static void rollbackLazyReferenceManager(
-			final boolean replacedReferenceManager      ,
 			final boolean lazyReferenceManagerWasRunning
 		)
 		{
@@ -183,17 +167,11 @@ public interface EmbeddedStorageManager extends StorageManager
 			{
 				LazyReferenceManager.get().stop();
 			}
-			if(replacedReferenceManager)
-			{
-				// revert to internal dummy instance
-				LazyReferenceManager.set(null);
-			}
 		}
 
 		@Override
 		public final EmbeddedStorageManager.Default start()
 		{
-			final boolean replacedReferenceManager      = ensureProperLazyReferenceManager();
 			final boolean lazyReferenceManagerIsRunning = LazyReferenceManager.get().isRunning();
 			
 			this.storageSystem.start();
@@ -210,7 +188,7 @@ public interface EmbeddedStorageManager extends StorageManager
 			{
 				try
 				{
-					rollbackLazyReferenceManager(replacedReferenceManager, lazyReferenceManagerIsRunning);
+					rollbackLazyReferenceManager(lazyReferenceManagerIsRunning);
 					
 					if(this.storageSystem instanceof StorageKillable)
 					{
