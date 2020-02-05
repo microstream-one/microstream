@@ -498,6 +498,7 @@ public interface Lazy<T> extends Referencing<T>
 		return Checker(Long.MAX_VALUE, memoryQuota);
 	}
 	
+	@FunctionalInterface
 	public interface Checker
 	{
 		public default void beginCheckCycle()
@@ -522,7 +523,7 @@ public interface Lazy<T> extends Referencing<T>
 		{
 			public static long defaultTimeout()
 			{
-				// about 15 minutes
+				// 1_000_000 ms are about 15 minutes.
 				return 1_000_000;
 			}
 			
@@ -531,6 +532,7 @@ public interface Lazy<T> extends Referencing<T>
 				// all avaiable memory is used
 				return 1.0;
 			}
+			
 		}
 		
 		public static boolean isValidTimeout(final long millisecondTimeout)
