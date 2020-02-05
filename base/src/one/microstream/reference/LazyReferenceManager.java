@@ -1,7 +1,5 @@
 package one.microstream.reference;
 
-import static one.microstream.X.coalesce;
-
 import java.lang.management.MemoryUsage;
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
@@ -13,6 +11,8 @@ import one.microstream.reference.Lazy.Checker;
 public interface LazyReferenceManager
 {
 	public void register(Lazy<?> lazyReference);
+	
+	public LazyReferenceManager registerAll(LazyReferenceManager other);
 
 	public void cleanUp(long nanoTimeBudget);
 
@@ -44,11 +44,6 @@ public interface LazyReferenceManager
 	{
 		return Static.set(referenceManager);
 	}
-	
-	public static boolean isSet()
-	{
-		return Static.isSet();
-	}
 
 	public static LazyReferenceManager get()
 	{
@@ -58,20 +53,15 @@ public interface LazyReferenceManager
 
 	public final class Static
 	{
-		static final LazyReferenceManager DUMMY = new LazyReferenceManager.Dummy();
-
-		static LazyReferenceManager globalReferenceManager = DUMMY;
+		static LazyReferenceManager globalReferenceManager = LazyReferenceManager.New();
 
 		static synchronized LazyReferenceManager set(final LazyReferenceManager referenceManager)
 		{
 			final LazyReferenceManager old = globalReferenceManager;
-			globalReferenceManager = coalesce(referenceManager, DUMMY);
+			referenceManager.registerAll(old);
+			globalReferenceManager = referenceManager;
+			
 			return old;
-		}
-		
-		static synchronized boolean isSet()
-		{
-			return globalReferenceManager != DUMMY;
 		}
 
 		static synchronized LazyReferenceManager get()
@@ -368,6 +358,25 @@ public interface LazyReferenceManager
 			// uniqueness of references is guaranteed by calling this method only exactely once per reference instance
 			this.tail = this.tail.nextLazyManagerEntry = new Entry(lazyReference);
 		}
+		
+
+		@Override
+		public synchronized LazyReferenceManager registerAll(final LazyReferenceManager other)
+		{
+			if(other == this)
+			{
+				throw new IllegalArgumentException(
+					"Other " + LazyReferenceManager.class.getSimpleName() + " may not be this."
+				);
+			}
+			
+			other.iterate(lr ->
+			{
+				this.register(lr);
+			});
+			
+			return this;
+		}
 
 		@Override
 		public void clear()
@@ -500,64 +509,6 @@ public interface LazyReferenceManager
 				super(referent);
 			}
 
-		}
-
-	}
-
-
-	public final class Dummy implements LazyReferenceManager
-	{
-		Dummy()
-		{
-			super();
-		}
-
-		@Override
-		public final void register(final Lazy<?> lazyReference)
-		{
-			// no-op dummy
-		}
-
-		@Override
-		public final void clear()
-		{
-			// no-op dummy
-		}
-
-		@Override
-		public final void cleanUp(final long nanoTimeBudget)
-		{
-			// no-op dummy
-		}
-		
-		@Override
-		public final void cleanUp(final long nanoTimeBudget, final Checker checker)
-		{
-			// no-op dummy
-		}
-		
-		@Override
-		public final boolean isRunning()
-		{
-			return false;
-		}
-
-		@Override
-		public final Dummy start()
-		{
-			return this;
-		}
-
-		@Override
-		public final Dummy stop()
-		{
-			return this;
-		}
-
-		@Override
-		public <P extends Consumer<? super Lazy<?>>> P iterate(final P procedure)
-		{
-			return procedure;
 		}
 
 	}
