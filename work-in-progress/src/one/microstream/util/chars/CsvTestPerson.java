@@ -63,7 +63,7 @@ class CsvTestPerson
 	public static void main(final String[] args)
 	{
 		final VarString vs = VarString.New();
-		final XCsvAssembler csvAssembler = XCSV.rowAssemblerBuilder()
+		final XCsvAssembler csvAssembler = XCSV.AssemblerBuilder()
 			.setValueSeperatorPrefix("\t")
 			.setValueSeperatorSuffix(" ")
 			.buildRowAssembler(vs)
