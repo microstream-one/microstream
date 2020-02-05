@@ -975,13 +975,15 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		final class Counter
 		{
 			char character;
-			long totalCount, maxCountPerLines, minCountPerLines;
+			long totalCount, maxCountPerLines, minCountPerLines, lineCountChange, emptyLines;
 			
 			Counter(
 				final char character       ,
 				final long totalCount      ,
 				final long maxCountPerLines,
-				final long minCountPerLines
+				final long minCountPerLines,
+				final long lineCountChange ,
+				final long emptyLines
 			)
 			{
 				super();
@@ -989,6 +991,8 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 				this.totalCount       = totalCount      ;
 				this.maxCountPerLines = maxCountPerLines;
 				this.minCountPerLines = minCountPerLines;
+				this.lineCountChange  = lineCountChange ;
+				this.emptyLines       = emptyLines      ;
 			}
 		}
 		
@@ -999,19 +1003,18 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		final Counter[] counters = new Counter[validSeparators.length];
 		
 		long totalLines = 0;
+		boolean countLines = true;
 		
 		for(int ci = 0; ci < validSeparators.length; ci++)
 		{
 			final char c = validSeparators[ci];
 			
-			long charTotalCount = 0;
+			long charTotalCount       = 0;
+			final long lastLineCount        = 0;
+			long lineCountChange      = 0;
+			long emptyLines           = 0;
 			long charMaxCountPerLines = 0;
 			long charMinCountPerLines = Long.MAX_VALUE;
-			
-			// (05.02.2020 TM)FIXME: priv#204: VERY useful for evaluation
-			final long maxBreakingLines = 0;
-			final long minBreakingLines = 0;
-			final long emptyLines       = 0;
 			
 			for(int i = startIndex; i < boundIndex; i++)
 			{
@@ -1027,8 +1030,16 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 						charMinCountPerLines = currentCount;
 					}
 					charTotalCount += currentCount;
+					if(currentCount == 0)
+					{
+						emptyLines++;
+					}
 					currentCount = 0;
-					totalLines++;
+					lineCountChange += Math.abs(lastLineCount - currentCount);
+					if(countLines)
+					{
+						totalLines++;
+					}
 				}
 				else if(input[i] == c)
 				{
@@ -1036,7 +1047,17 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 				}
 			}
 			
-			counters[ci] = new Counter(c, charTotalCount, charMaxCountPerLines, charMinCountPerLines);
+			// count total lines only once
+			countLines = false;
+			
+			counters[ci] = new Counter(
+				c,
+				charTotalCount,
+				charMaxCountPerLines,
+				charMinCountPerLines,
+				lineCountChange,
+				emptyLines
+			);
 		}
 		
 		// correct line counting overkill

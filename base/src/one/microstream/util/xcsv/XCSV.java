@@ -47,7 +47,14 @@ public final class XCSV
 	static final EscapeHandler    DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
 	static final XCsvConfiguration DEFAULT_CONFIG = new XCsvConfiguration.Builder.Default().createConfiguration();
 	
-	static final char[] VALID_VALUE_SEPARATORS = X.chars('\t', ';', ',', '|', '-', '~', '#', '.', ':', '*');
+	static final char[]   VALID_VALUE_SEPARATORS
+		= X.chars ('\t', ';', ',', '|', '~', ':', '#', '*', '-', '.')
+	;
+	
+	// ';' is weighted higher than the more reasonable '\t' because it is the standardized
+	static final double[] VALID_VALUE_SEPARATOR_GUESSING_WEIGHTS
+		= X.doubles(1.3, 1.2, 1.1, 1.0, 1.0, 1.0, 0.9, 0.8, 0.8, 0.8)
+	;
 
 
 
