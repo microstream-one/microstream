@@ -227,14 +227,9 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		}
 
 		// copy tiny array in any case to a) have no trailing nulls and b) to keep actual array hidden
-		final ByteBuffer[] buffers;
-		System.arraycopy(
-			this.buffers,
-			0,
-			buffers = new ByteBuffer[this.currentBuffersIndex + 1],
-			0,
-			buffers.length
-		);
+		final ByteBuffer[] buffers = new ByteBuffer[this.currentBuffersIndex + 1];
+		System.arraycopy(this.buffers, 0, buffers, 0, buffers.length);
+		
 		return buffers;
 	}
 
@@ -244,12 +239,14 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		{
 			return this; // already completed
 		}
+		
 		this.updateCurrentBufferPosition();
 		this.currentBuffer             = null;
-		this.currentBufferStartAddress = 0L;
-		this.currentAddress            = 0L;
-		this.address     = 0L;
-		this.currentBound              = 0L;
+		this.currentBufferStartAddress =   0L;
+		this.currentAddress            =   0L;
+		this.address                   =   0L;
+		this.currentBound              =   0L;
+		
 		return this;
 	}
 	

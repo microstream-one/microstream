@@ -184,8 +184,8 @@ public interface PersistenceTypeDescriptionMember
 
 	/**
 	 * Determines if this field contains references. Either because it is a reference itself,
-	 * see {@link #isReference()},
-	 * or because it is a complex type that contains one or more nested members that have references.
+	 * see {@link #isReference()}, or because it is a complex type that contains one or more
+	 * nested members that have references.
 	 *
 	 */
 	public boolean hasReferences();

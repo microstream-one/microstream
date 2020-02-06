@@ -1,6 +1,6 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceChannel<M> extends PersistenceTarget<M>, PersistenceSource<M>
+public interface PersistenceChannel<D> extends PersistenceTarget<D>, PersistenceSource<D>
 {
 	// just a typing interface so far.
 	

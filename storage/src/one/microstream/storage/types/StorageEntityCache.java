@@ -17,7 +17,6 @@ import one.microstream.persistence.binary.types.ChunksBuffer;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageException;
-import one.microstream.typing.XTypes;
 
 
 public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
@@ -67,7 +66,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		private final StorageTypeDictionary              typeDictionary    ;
 		private final StorageEntityMarkMonitor           markMonitor       ;
 		private final StorageReferenceMarker             referenceMarker   ;
-		private final StorageobjectIdMarkQueue           oidMarkQueue      ;
+		private final StorageObjectIdMarkQueue           oidMarkQueue      ;
 		private final long[]                             markingOidBuffer  ;
 		private final StorageGCZombieOidHandler          zombieOidHandler  ;
 		private final StorageRootOidSelector             rootOidSelector   ;
@@ -114,7 +113,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageGCZombieOidHandler   zombieOidHandler   ,
 			final StorageRootOidSelector      rootOidSelector    ,
 			final long                        rootTypeId         ,
-			final StorageobjectIdMarkQueue    oidMarkQueue       ,
+			final StorageObjectIdMarkQueue    oidMarkQueue       ,
 			final StorageEventLogger          eventLogger        ,
 			final int                         markingBufferLength,
 			final long                        markingWaitTimeMs
@@ -165,7 +164,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			if(this.fileManager != null && this.fileManager != fileManager)
 			{
-				throw new RuntimeException();
+				// (09.12.2019 TM)EXCP: proper exception
+				throw new StorageException("File manager already initialized.");
 			}
 			this.fileManager = fileManager;
 		}
@@ -361,7 +361,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		static final int hashNormalized(final long value, final int bitShiftCount, final int modulo)
 		{
-			// (09.08.2015)NOTE: included channel hash mod bit shifting to properly distribute in hash table
+			// (09.08.2015 TM)NOTE: included channel hash mod bit shifting to properly distribute in hash table
 			return (int)(value >>> bitShiftCount & modulo);
 		}
 
@@ -494,8 +494,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// validate channel for object Id
 			if(this.oidChannelIndex(objectId) != this.channelIndex)
 			{
-				// (05.05.2014)EXCP: proper exception
-				throw new RuntimeException("Invalid objectId " + objectId + " for hash channel " + this.channelIndex);
+				// (05.05.2014 TM)EXCP: proper exception
+				throw new StorageException("Invalid objectId " + objectId + " for hash channel " + this.channelIndex);
 			}
 		}
 		
@@ -555,7 +555,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				if((type = entry.typeInFile.type).typeId != typeId)
 				{
 					// (29.07.2014 TM)EXCP: proper exception
-					throw new RuntimeException(
+					throw new StorageException(
 						"Object Id already assigned to an entity of another type. "
 						+ "Existing: " + objcId + ", type " + type.typeId + ". "
 						+ "Subject: " + objcId + ", type " + typeId + "."
@@ -861,7 +861,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			final long                     evalTime        = System.currentTimeMillis();
 			final StorageReferenceMarker   referenceMarker = this.referenceMarker      ;
-			final StorageobjectIdMarkQueue oidMarkQueue    = this.oidMarkQueue         ;
+			final StorageObjectIdMarkQueue oidMarkQueue    = this.oidMarkQueue         ;
 			final long[]                   oidsBuffer      = this.markingOidBuffer     ;
 
 			// total amount of oids to mark in the current batch. Range: [0; oids.length]
@@ -972,6 +972,39 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.markMonitor.completeSweep(this, this.rootOidSelector, channelRootOid);
 		}
 
+		private static final long MAX_INT_BOUND = 1L + Integer.MAX_VALUE;
+		
+		final static int validateStoragePosition(
+			final StorageEntity.Default entity       ,
+			final long                  storageOffset
+		)
+		{
+			if(storageOffset < MAX_INT_BOUND)
+			{
+				return (int)storageOffset;
+			}
+			
+			/* (06.02.2020 TM)EXCP: fix storage position limitation
+			 * This has, of course, to be removed/fixed.
+			 * The solution is to spread a single store's buffers over multiple files if needed.
+			 * However, this is not trivial to do:
+			 * A single store must be split into multiple stores,
+			 * each store must get its own transactions entry OR a kind of store continuation entry, etc.
+			 * 
+			 * This effort is not worth it with the transition of the much more advanced storage management 2.0
+			 * concept in mind. There, store chunks will be spread over multiple store files anyway and
+			 * archive files will be split according to oid range and entity length automatically.
+			 * 
+			 * For now, this is simply a technical limitation and one more good reason to implement the
+			 * improved storage concept sooner rather than later.
+			 */
+			throw new StorageException(
+				"Storage position for entity " + entity.objectId()
+				+ " exceeds the technical int value limit of " + Integer.MAX_VALUE + "."
+				+ " This happens when a single store grows too big."
+				+ " This limitation will be removed in a future version."
+			);
+		}
 
 		final void internalPutEntities(
 			final ByteBuffer              chunk               ,
@@ -993,7 +1026,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				this.markEntityForChangedData(entity);
 				entity.updateStorageInformation(
 					X.checkArrayRange(Binary.getEntityLengthRawValue(adr)),
-					XTypes.to_int(storageBackset + adr)
+					validateStoragePosition(entity, storageBackset + adr)
 				);
 				file.appendEntry(entity);
 			}
@@ -1375,7 +1408,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 			catch(final Exception e)
 			{
-				throw new RuntimeException("Exception in channel #" + this.channelIndex(), e);
+				// (09.12.2019 TM)EXCP: proper exception
+				throw new StorageException("Exception in channel #" + this.channelIndex(), e);
 			}
 		}
 

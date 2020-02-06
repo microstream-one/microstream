@@ -133,16 +133,6 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				throw new IORuntimeException(e);
 			}
 			
-			// (25.11.2019 TM)NOTE: old before priv#157
-//			final File[] files = storageDirectory.listFiles();
-//			if(files != null)
-//			{
-//				for(final File file : files)
-//				{
-//					internalCollectFile(collector, channelIndex, file, fileBaseName, suffix);
-//				}
-//			}
-
 			return collector;
 		}
 

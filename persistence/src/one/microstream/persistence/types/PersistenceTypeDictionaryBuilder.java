@@ -9,6 +9,7 @@ import one.microstream.collections.XSort;
 import one.microstream.collections.types.XAddingSequence;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.persistence.exceptions.PersistenceException;
 
 
 @FunctionalInterface
@@ -32,7 +33,7 @@ public interface PersistenceTypeDictionaryBuilder
 				if(!uniqueTypeIdEntries.add(e.typeId(), e))
 				{
 					// (12.10.2017 TM)EXCP: proper exception
-					throw new RuntimeException("TypeId conflict for " + e.typeId() + " " + e.typeName());
+					throw new PersistenceException("TypeId conflict for " + e.typeId() + " " + e.typeName());
 				}
 			}
 			XSort.valueSort(uniqueTypeIdEntries.keys(), Long::compare);
@@ -123,7 +124,7 @@ public interface PersistenceTypeDictionaryBuilder
 			if(!allMembers.add(definitionMember))
 			{
 				// (08.10.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Duplicate type member entry: " + member.identifier());
+				throw new PersistenceException("Duplicate type member entry: " + member.identifier());
 			}
 			if(definitionMember.isInstanceMember())
 			{

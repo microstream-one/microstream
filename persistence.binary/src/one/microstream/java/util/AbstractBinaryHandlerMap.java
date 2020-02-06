@@ -9,8 +9,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -29,9 +29,9 @@ extends AbstractBinaryHandlerCustomCollection<T>
 	// static methods //
 	///////////////////
 	
-	public static final long getElementCount(final Binary bytes)
+	public static final long getElementCount(final Binary data)
 	{
-		return bytes.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS);
+		return data.getListElementCountKeyValue(BINARY_OFFSET_ELEMENTS);
 	}
 	
 	
@@ -56,14 +56,14 @@ extends AbstractBinaryHandlerCustomCollection<T>
 
 	@Override
 	public void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final T                       instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeMapEntrySet(
+		data.storeMapEntrySet(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -73,33 +73,33 @@ extends AbstractBinaryHandlerCustomCollection<T>
 	}
 
 	@Override
-	public void update(
-		final Binary                      bytes     ,
-		final T                           instance  ,
-		final PersistenceObjectIdResolver idResolver
+	public void updateState(
+		final Binary                 data    ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		instance.clear();
-		final int elementCount = X.checkArrayRange(getElementCount(bytes));
+		final int elementCount = X.checkArrayRange(getElementCount(data));
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
-		bytes.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, idResolver, collector);
-		bytes.registerHelper(instance, collector.yield());
+		data.collectKeyValueReferences(BINARY_OFFSET_ELEMENTS, elementCount, handler, collector);
+		data.registerHelper(instance, collector.yield());
 	}
 
 	@Override
 	public void complete(
-		final Binary                      bytes     ,
-		final T                           instance  ,
-		final PersistenceObjectIdResolver idResolver
+		final Binary                 data    ,
+		final T                      instance,
+		final PersistenceLoadHandler handler
 	)
 	{
-		OldCollections.populateMapFromHelperArray(instance, bytes.getHelper(instance));
+		OldCollections.populateMapFromHelperArray(instance, data.getHelper(instance));
 	}
 	
 	@Override
 	public void iterateInstanceReferences(
-		final T                       instance,
-		final PersistenceFunction     iterator
+		final T                   instance,
+		final PersistenceFunction iterator
 	)
 	{
 		Persistence.iterateReferencesMap(iterator, instance);
@@ -107,11 +107,11 @@ extends AbstractBinaryHandlerCustomCollection<T>
 
 	@Override
 	public void iterateLoadableReferences(
-		final Binary                      bytes   ,
-		final PersistenceObjectIdAcceptor iterator
+		final Binary                     data  ,
+		final PersistenceReferenceLoader loader
 	)
 	{
-		bytes.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		data.iterateKeyValueEntriesReferences(BINARY_OFFSET_ELEMENTS, loader);
 	}
 		
 }

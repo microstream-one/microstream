@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
 
 import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
@@ -2238,7 +2240,7 @@ public final class XChars
 	{
 		validateRange(input, offset, length);
 
-		// (12.10.2014)TODO: implement efficient float parser
+		// (12.10.2014 TM)TODO: implement efficient float parser
 		return Float.parseFloat(String.valueOf(input, offset, length));
 	}
 
@@ -2246,7 +2248,7 @@ public final class XChars
 	{
 		validateRange(input, offset, length);
 
-		// (12.10.2014)TODO: implement efficient double parser
+		// (12.10.2014 TM)TODO: implement efficient double parser
 		return Double.parseDouble(String.valueOf(input, offset, length));
 	}
 
@@ -2659,6 +2661,48 @@ public final class XChars
 	public static char randomReadable_char()
 	{
 		return (char) (33 + XMath.random(94));
+	}
+	
+	
+	static final class CodePointCounter implements IntConsumer
+	{
+		int codePoint;
+		int count;
+
+		CodePointCounter(final int codePoint)
+		{
+			super();
+			this.codePoint = codePoint;
+		}
+
+		@Override
+		public void accept(final int value)
+		{
+			if(value == this.codePoint)
+			{
+				this.count++;
+			}
+		}
+		
+		public final int yield()
+		{
+			return this.count;
+		}
+		
+	}
+	
+	public static int countCharacter(final String data, final char c)
+	{
+		return countCodePoint(data, c);
+	}
+	
+	public static int countCodePoint(final String data, final int codePoint)
+	{
+		final CodePointCounter counter = new CodePointCounter(codePoint);
+		final IntStream codePoints = data.codePoints();
+		codePoints.forEach(counter);
+		
+		return counter.yield();
 	}
 		
 

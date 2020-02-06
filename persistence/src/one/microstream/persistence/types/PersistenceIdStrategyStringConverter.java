@@ -12,6 +12,7 @@ import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XImmutableMap;
 import one.microstream.collections.types.XReference;
 import one.microstream.exceptions.ParsingException;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.typing.KeyValue;
 
 public interface PersistenceIdStrategyStringConverter extends ObjectStringConverter<PersistenceIdStrategy>
@@ -414,7 +415,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 			}
 			
 			// (06.11.2018 TM)EXCP: proper exception
-			throw new RuntimeException("IdStrategy type label \"" + label + "\" not found at index " + i + ".");
+			throw new PersistenceException("IdStrategy type label \"" + label + "\" not found at index " + i + ".");
 		}
 		
 		private PersistenceTypeIdStrategy.Parser<?> lookupTypeIdStrategyParser(final String content)
@@ -428,7 +429,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 			}
 			
 			// (05.11.2018 TM)EXCP: proper exception
-			throw new RuntimeException("Unknown TypeIdStrategy: \"" + content + "\".");
+			throw new PersistenceException("Unknown TypeIdStrategy: \"" + content + "\".");
 		}
 		
 		private PersistenceObjectIdStrategy.Parser<?> lookupObjectIdStrategyParser(final String content)
@@ -442,7 +443,7 @@ public interface PersistenceIdStrategyStringConverter extends ObjectStringConver
 			}
 			
 			// (05.11.2018 TM)EXCP: proper exception
-			throw new RuntimeException("Unknown ObjectIdStrategy: \"" + content + "\".");
+			throw new PersistenceException("Unknown ObjectIdStrategy: \"" + content + "\".");
 		}
 				
 	}

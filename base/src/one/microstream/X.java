@@ -755,7 +755,7 @@ public final class X
 
 	public static <E> Singleton<E> Singleton(final E element)
 	{
-		return new Singleton<>(element);
+		return Singleton.New(element);
 	}
 
 	public static <E> Constant<E> Constant(final E element)
@@ -808,7 +808,7 @@ public final class X
 
 	public static <T> XReference<T> Reference(final T object)
 	{
-		return new Singleton<>(object);
+		return Singleton.New(object);
 	}
 	
 	

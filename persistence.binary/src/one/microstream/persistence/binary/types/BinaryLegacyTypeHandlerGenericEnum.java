@@ -6,7 +6,7 @@ import static one.microstream.X.notNull;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.binary.internal.BinaryHandlerGenericEnum;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.reflect.XReflect;
@@ -73,22 +73,22 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 	
 	// note on initializing methods: exluding the java.lang.Enum fields must already be excluded in valueTranslators
 	
-	public int getOrdinal(final Binary bytes)
+	public int getOrdinal(final Binary data)
 	{
-		return bytes.read_int(this.binaryOffsetOrdinal);
+		return data.read_int(this.binaryOffsetOrdinal);
 	}
 	
 	@Override
-	protected T internalCreate(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	protected T internalCreate(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getOrdinal(bytes));
+		return XReflect.resolveEnumConstantInstanceTyped(this.type(), this.getOrdinal(data));
 	}
 	
 	@Override
-	public void update(final Binary rawData, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
 	{
 		// debug hook
-		super.update(rawData, instance, idResolver);
+		super.updateState(rawData, instance, handler);
 	}
 	
 }

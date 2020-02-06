@@ -74,7 +74,7 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 
 	public Object optionalRegisterObject(long objectId, Object object);
 	
-	public boolean registerConstant(final long objectId, final Object constant);
+	public boolean registerConstant(long objectId, Object constant);
 
 	/**
 	 * Consolidate internal data structures, e.g. by removing orphan entries and empty hash chains.

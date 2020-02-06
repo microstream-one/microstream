@@ -1,7 +1,7 @@
 package one.microstream.java.lang;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerNativeArray_int extends AbstractBinaryHandlerNativeArrayPrimitive<int[]>
@@ -33,21 +33,21 @@ public final class BinaryHandlerNativeArray_int extends AbstractBinaryHandlerNat
 	////////////
 
 	@Override
-	public void store(final Binary bytes, final int[] array, final long objectId, final PersistenceStoreHandler handler)
+	public void store(final Binary data, final int[] array, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.store_ints(this.typeId(), objectId, array);
+		data.store_ints(this.typeId(), objectId, array);
 	}
 
 	@Override
-	public int[] create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public int[] create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return bytes.create_ints();
+		return data.create_ints();
 	}
 
 	@Override
-	public void update(final Binary bytes, final int[] instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary data, final int[] instance, final PersistenceLoadHandler handler)
 	{
-		bytes.update_ints(instance);
+		data.update_ints(instance);
 	}
 
 }

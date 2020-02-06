@@ -4,15 +4,15 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersist
 
 
 
-public interface PersistenceTypeHandlerProvider<M> extends PersistenceTypeManager, PersistenceTypeHandlerEnsurer<M>
+public interface PersistenceTypeHandlerProvider<D> extends PersistenceTypeManager, PersistenceTypeHandlerEnsurer<D>
 {
-	public <T> PersistenceTypeHandler<M, T> provideTypeHandler(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
+	public <T> PersistenceTypeHandler<D, T> provideTypeHandler(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
 
-//	public PersistenceTypeHandler<M, ?> provideTypeHandler(long typeId);
+//	public PersistenceTypeHandler<D, ?> provideTypeHandler(long typeId);
 	
 	// must be able to act as a pure TypeHandlerEnsurer as well because of type refactoring type mismatch checks.
 	@Override
-	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type)
+	public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable;
 
 }

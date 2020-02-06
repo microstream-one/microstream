@@ -27,6 +27,7 @@ import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.util.csv.CsvConfiguration;
 import one.microstream.util.csv.CsvRecordParserCharArray;
 import one.microstream.util.csv.CsvRowCollector;
@@ -305,8 +306,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				return i;
 			}
 
-			// (12.10.2014)EXCP: proper exception
-			throw new RuntimeException("Invalid boolean literal: " + String.valueOf(data, offset, literalLength));
+			// (12.10.2014 TM)EXCP: proper exception
+			throw new StorageException("Invalid boolean literal: " + String.valueOf(data, offset, literalLength));
 		}
 
 		final int parse_short(
@@ -354,7 +355,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			if(data[offset] != this.literalDelimiter)
 			{
 				// (14.10.2014 TM)EXCP: proper exception
-				throw new RuntimeException("Invalid character literal at " + offset);
+				throw new StorageException("Invalid character literal at " + offset);
 			}
 
 			// check for special case (escaped character)
@@ -363,7 +364,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				if(data[offset + ESCAPED_CHAR_SKIP_LENGTH] != this.literalDelimiter)
 				{
 					// (14.10.2014 TM)EXCP: proper exception
-					throw new RuntimeException("Unclosed character literal at " + (offset + ESCAPED_CHAR_SKIP_LENGTH));
+					throw new StorageException("Unclosed character literal at " + (offset + ESCAPED_CHAR_SKIP_LENGTH));
 				}
 				this.write_char(this.escapeHandler.unescape(data[offset + SIMPLE_CHAR_SKIP_LENGTH]));
 				return offset + DELIMITED_ESCAPED_CHAR_LENGTH;
@@ -373,7 +374,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			if(data[offset + SIMPLE_CHAR_SKIP_LENGTH] != this.literalDelimiter)
 			{
 				// (14.10.2014 TM)EXCP: proper exception
-				throw new RuntimeException("Unclosed character literal at " + (offset + SIMPLE_CHAR_SKIP_LENGTH));
+				throw new StorageException("Unclosed character literal at " + (offset + SIMPLE_CHAR_SKIP_LENGTH));
 			}
 			
 			this.write_char(data[offset + 1]);
@@ -391,7 +392,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			)
 			{
 				// (14.10.2014 TM)EXCP: proper exception
-				throw new RuntimeException("Invalid character literal at " + offset);
+				throw new StorageException("Invalid character literal at " + offset);
 			}
 
 			// simply write the character value
@@ -498,7 +499,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			if(data[offset] != this.literalDelimiter)
 			{
 				// (11.11.2014 TM)EXCP: proper Exception
-				throw new RuntimeException("Missing literal delimiter " + this.listStarter + " at offset " + offset);
+				throw new StorageException("Missing literal delimiter " + this.listStarter + " at offset " + offset);
 			}
 
 			final long          currentFileOffset = this.writeListHeader();
@@ -514,7 +515,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				if(++i >= bound)
 				{
 					// (11.11.2014 TM)EXCP: proper Exception
-					throw new RuntimeException("incomplete trailing characters at offset " + bound);
+					throw new StorageException("incomplete trailing characters at offset " + bound);
 				}
 				if(data[i] == literalDelimiter)
 				{
@@ -525,7 +526,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 					if(i == lastCharIndex)
 					{
 						// (11.11.2014 TM)EXCP: proper Exception
-						throw new RuntimeException("incomplete characters literal at offset " + bound);
+						throw new StorageException("incomplete characters literal at offset " + bound);
 					}
 					this.write_char(escapeHandler.unescape(data[++i]));
 				}
@@ -568,7 +569,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				}
 				if(i >= lastCharIndex || data[i + 1] == separator || data[i + 1] == terminator || data[i + 1] <= ' ')
 				{
-					throw new RuntimeException("Incomplete hexadecimal string at offset " + i);
+					// (09.12.2019 TM)EXCP: proper exception
+					throw new StorageException("Incomplete hexadecimal string at offset " + i);
 				}
 				this.write_byte((byte)((toValue(data[i]) << BIT_SHIFT_HEX_HIGH_BYTE) + toValue(data[i + 1])));
 				i += 2;
@@ -600,8 +602,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 			
 			// everything else is an error
-			// (12.11.2014)EXCP: proper exception
-			throw new RuntimeException("Invalid hexadeximal character: " + hexDigit);
+			// (12.11.2014 TM)EXCP: proper exception
+			throw new StorageException("Invalid hexadeximal character: " + hexDigit);
 		}
 
 		final int parseArray_byte(
@@ -650,7 +652,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final char   terminator
 		)
 		{
-			// (16.11.2014)TODO: storage csv to bin conversion: maybe single-char boolean array implementation
+			// (16.11.2014 TM)TODO: storage csv to bin conversion: maybe single-char boolean array implementation
 
 			// initial consistency validation
 			validateListStart(data, offset, this.listStarter);
@@ -690,7 +692,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				else
 				{
 					// (12.11.2014 TM)EXCP: proper exception
-					throw new RuntimeException("Invalid boolean literal at offset " + elementStart);
+					throw new StorageException("Invalid boolean literal at offset " + elementStart);
 				}
 				elementCount++;
 
@@ -904,7 +906,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			if(data[offset] != listStarter)
 			{
 				// (11.11.2014 TM)EXCP: proper Exception
-				throw new RuntimeException("Missing list starter character " + listStarter + " at offset " + offset);
+				throw new StorageException("Missing list starter character " + listStarter + " at offset " + offset);
 			}
 		}
 
@@ -969,12 +971,12 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				if(data[i] > ' ')
 				{
 					// (11.11.2014 TM)EXCP: proper Exception
-					throw new RuntimeException("incomplete missing separator at offset " + i);
+					throw new StorageException("incomplete missing separator at offset " + i);
 				}
 				if(++i >= bound)
 				{
 					// (11.11.2014 TM)EXCP: proper Exception
-					throw new RuntimeException("incomplete trailing list at offset " + bound);
+					throw new StorageException("incomplete trailing list at offset " + bound);
 				}
 			}
 		}
@@ -993,7 +995,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				if(data[i] > ' ')
 				{
 					// (11.11.2014 TM)EXCP: proper Exception
-					throw new RuntimeException("missing value separator at offset " + i);
+					throw new StorageException("missing value separator at offset " + i);
 				}
 				i++;
 			}
@@ -1015,7 +1017,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				if(data[i] == separator)
 				{
 					// (11.11.2014 TM)EXCP: proper Exception
-					throw new RuntimeException("missing list element at offset " + i);
+					throw new StorageException("missing list element at offset " + i);
 				}
 				if(data[i] > ' ')
 				{
@@ -1024,7 +1026,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				if(++i >= bound)
 				{
 					// (11.11.2014 TM)EXCP: proper Exception
-					throw new RuntimeException("incomplete trailing list at offset " + bound);
+					throw new StorageException("incomplete trailing list at offset " + bound);
 				}
 			}
 			return i;
@@ -1044,7 +1046,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				if(++i >= bound)
 				{
 					// (11.11.2014 TM)EXCP: proper Exception
-					throw new RuntimeException("Incomplete trailing list at offset " + bound);
+					throw new StorageException("Incomplete trailing list at offset " + bound);
 				}
 			}
 			return i;
@@ -1061,7 +1063,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			catch(final IOException e)
 			{
 				// (07.10.2014 TM)EXCP: proper exception
-				throw new RuntimeException(e);
+				throw new StorageException(e);
 			}
 		}
 
@@ -1138,7 +1140,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			if(members.size() != dataColumntypes.size())
 			{
 				// (02.10.2014 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new StorageException(
 					"Count mismatch between data column count (" + dataColumntypes.size() + ") and field count ("
 					+ members.size() + ") of type " + this.currentType.typeName()
 				);
@@ -1155,7 +1157,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 					if(!referenceTypeName.equals(columnTypeName))
 					{
 						// (02.10.2014 TM)EXCP: proper exception
-						throw new RuntimeException(
+						throw new StorageException(
 							"CSV reference column type mismatch: " + columnTypeName + " != " + member.typeName()
 						);
 					}
@@ -1166,7 +1168,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 					if(!fieldTypeName.equals(member.typeName()))
 					{
 						// (02.10.2014 TM)EXCP: proper exception
-						throw new RuntimeException(
+						throw new StorageException(
 							"CSV non-reference column type mismatch: " + fieldTypeName + " != " + member.typeName()
 						);
 					}
@@ -1220,8 +1222,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 			if(!(member instanceof PersistenceTypeDescriptionMemberFieldGenericComplex))
 			{
-				// (15.11.2014)EXCP: proper exception
-				throw new RuntimeException("Unhandled non-complex persistence field type: " + typeName);
+				// (15.11.2014 TM)EXCP: proper exception
+				throw new StorageException("Unhandled non-complex persistence field type: " + typeName);
 			}
 
 			final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members =
@@ -1294,8 +1296,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				if(i >= bound)
 				{
-					// (15.11.2014)EXCP: proper exception
-					throw new RuntimeException("Incomplete complex list at offset " + bound);
+					// (15.11.2014 TM)EXCP: proper exception
+					throw new StorageException("Incomplete complex list at offset " + bound);
 				}
 				if(data[i] == listTerminator)
 				{
@@ -1320,8 +1322,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				{
 					if(i >= bound)
 					{
-						// (15.11.2014)EXCP: proper exception
-						throw new RuntimeException("Incomplete complex list at offset " + bound);
+						// (15.11.2014 TM)EXCP: proper exception
+						throw new StorageException("Incomplete complex list at offset " + bound);
 					}
 					else if(data[i] <= ' ')
 					{
@@ -1380,8 +1382,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			{
 				if(i >= bound)
 				{
-					// (15.11.2014)EXCP: proper exception
-					throw new RuntimeException("Incomplete complex list at offset " + bound);
+					// (15.11.2014 TM)EXCP: proper exception
+					throw new StorageException("Incomplete complex list at offset " + bound);
 				}
 				if(data[i] == listTerminator)
 				{
@@ -1399,7 +1401,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				if(data[i] != listStarter)
 				{
 					// (11.11.2014 TM)EXCP: proper Exception
-					throw new RuntimeException("Missing list starter character " + listStarter + " at offset " + i);
+					throw new StorageException("Missing list starter character " + listStarter + " at offset " + i);
 				}
 
 				// skip found list starter
@@ -1410,18 +1412,18 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				{
 					if(i >= bound)
 					{
-						// (15.11.2014)EXCP: proper exception
-						throw new RuntimeException("Incomplete complex list at offset " + bound);
+						// (15.11.2014 TM)EXCP: proper exception
+						throw new StorageException("Incomplete complex list at offset " + bound);
 					}
 					else if(data[i] == listTerminator)
 					{
-						// (15.11.2014)EXCP: proper exception
-						throw new RuntimeException("Incomplete complex list at offset " + i);
+						// (15.11.2014 TM)EXCP: proper exception
+						throw new StorageException("Incomplete complex list at offset " + i);
 					}
 					else if(data[i] == listStarter)
 					{
 						// (11.11.2014 TM)EXCP: proper Exception
-						throw new RuntimeException("Missing complex list element at offset " + i);
+						throw new StorageException("Missing complex list element at offset " + i);
 					}
 					else if(data[i] <= ' ')
 					{
@@ -1443,8 +1445,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				{
 					if(i >= bound)
 					{
-						// (15.11.2014)EXCP: proper exception
-						throw new RuntimeException("Incomplete complex list at offset " + bound);
+						// (15.11.2014 TM)EXCP: proper exception
+						throw new StorageException("Incomplete complex list at offset " + bound);
 					}
 					else if(data[i] <= ' ')
 					{
@@ -1722,14 +1724,15 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			;
 			if((this.currentType = this.typeDictionary.lookupTypeByName(typeName)) == null)
 			{
-				throw new RuntimeException("Type not found: " + typeName); // (01.10.2014 TM)EXCP: proper exception
+				// (01.10.2014 TM)EXCP: proper exception
+				throw new StorageException("Type not found: " + typeName);
 			}
 
 			final String firstColumnName = columnNames.first();
 			if(!this.configuration.objectIdColumnName().equals(firstColumnName))
 			{
 				// (01.10.2014 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new StorageException(
 					"First column (" + firstColumnName + ") is not " + this.configuration.objectIdColumnName()
 				);
 			}
@@ -1817,7 +1820,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				if(i == iBound)
 				{
 					// (16.10.2014 TM)EXCP: proper exception
-					throw new RuntimeException("Incomplete record at index " + i);
+					throw new StorageException("Incomplete record at index " + i);
 				}
 				else if(input[i] == valueSeparator || input[i] == recordSeparator || input[i] == terminator)
 				{
@@ -1826,7 +1829,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 					 * and everything else are just primitives anyway.
 					 */
 					// (16.10.2014 TM)EXCP: proper exception
-					throw new RuntimeException("Missing value at index " + i);
+					throw new StorageException("Missing value at index " + i);
 				}
 				else if(input[i] <= ' ')
 				{
@@ -1841,7 +1844,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 						if(h < handlerCount - 1)
 						{
 							// (16.10.2014 TM)EXCP: proper exception
-							throw new RuntimeException("Missing record value at index " + i);
+							throw new StorageException("Missing record value at index " + i);
 						}
 						break;
 					}

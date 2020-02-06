@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Consumer;
 
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 
 /**
@@ -12,33 +13,35 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersist
  * 
  * @author TM
  */
-public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandlerIterable<M>
+public interface PersistenceTypeHandlerEnsurer<D>
+extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 {
-	public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(Class<T> type)
+	public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable;
 	
 	
-	public static <M> PersistenceTypeHandlerEnsurer.Default<M> New(
-		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry,
-		final PersistenceTypeHandlerCreator<M>        typeHandlerCreator
+	
+	public static <D> PersistenceTypeHandlerEnsurer.Default<D> New(
+		final Class<D>                                dataType                 ,
+		final PersistenceCustomTypeHandlerRegistry<D> customTypeHandlerRegistry,
+		final PersistenceTypeHandlerCreator<D>        typeHandlerCreator
 	)
 	{
 		return new PersistenceTypeHandlerEnsurer.Default<>(
+			notNull(dataType),
 			notNull(customTypeHandlerRegistry),
 			notNull(typeHandlerCreator)
 		);
 	}
-	
-	
 
-	public class Default<M> implements PersistenceTypeHandlerEnsurer<M>
+	public class Default<D> extends PersistenceDataTypeHolder.Default<D> implements PersistenceTypeHandlerEnsurer<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry;
-		final PersistenceTypeHandlerCreator<M>        typeHandlerCreator       ;
+		final PersistenceCustomTypeHandlerRegistry<D> customTypeHandlerRegistry;
+		final PersistenceTypeHandlerCreator<D>        typeHandlerCreator       ;
 
 
 
@@ -47,11 +50,12 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 		/////////////////
 
 		Default(
-			final PersistenceCustomTypeHandlerRegistry<M> customTypeHandlerRegistry,
-			final PersistenceTypeHandlerCreator<M>        typeHandlerCreator
+			final Class<D>                                dataType                 ,
+			final PersistenceCustomTypeHandlerRegistry<D> customTypeHandlerRegistry,
+			final PersistenceTypeHandlerCreator<D>        typeHandlerCreator
 		)
 		{
-			super();
+			super(dataType);
 			this.customTypeHandlerRegistry = customTypeHandlerRegistry;
 			this.typeHandlerCreator        = typeHandlerCreator       ;
 		}
@@ -63,11 +67,25 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 		/////////////////////
 
 		@Override
-		public <T> PersistenceTypeHandler<M, T> ensureTypeHandler(final Class<T> type)
+		public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final Class<T> type)
 			throws PersistenceExceptionTypeNotPersistable
 		{
+			final PersistenceTypeHandler<D, T> providedHandler;
+			try
+			{
+				providedHandler = Persistence.searchProvidedTypeHandler(this.dataType(), type, null);
+			}
+			catch(final ReflectiveOperationException e)
+			{
+				throw new PersistenceException(e);
+			}
+			if(providedHandler != null)
+			{
+				return providedHandler;
+			}
+			
 			// lookup predefined handler first to cover primitives and to give custom handlers precedence
-			final PersistenceTypeHandler<M, T> customHandler = this.customTypeHandlerRegistry.lookupTypeHandler(type);
+			final PersistenceTypeHandler<D, T> customHandler = this.customTypeHandlerRegistry.lookupTypeHandler(type);
 			if(customHandler != null)
 			{
 				return customHandler;
@@ -77,13 +95,13 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 		}
 		
 		@Override
-		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateTypeHandlers(final C iterator)
+		public <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateTypeHandlers(final C iterator)
 		{
 			return this.customTypeHandlerRegistry.iterateTypeHandlers(iterator);
 		}
 		
 		@Override
-		public <C extends Consumer<? super PersistenceLegacyTypeHandler<M, ?>>> C iterateLegacyTypeHandlers(
+		public <C extends Consumer<? super PersistenceLegacyTypeHandler<D, ?>>> C iterateLegacyTypeHandlers(
 			final C iterator
 		)
 		{
@@ -91,7 +109,7 @@ public interface PersistenceTypeHandlerEnsurer<M> extends PersistenceTypeHandler
 		}
 		
 		@Override
-		public <C extends Consumer<? super PersistenceTypeHandler<M, ?>>> C iterateAllTypeHandlers(final C iterator)
+		public <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateAllTypeHandlers(final C iterator)
 		{
 			return this.customTypeHandlerRegistry.iterateAllTypeHandlers(iterator);
 		}

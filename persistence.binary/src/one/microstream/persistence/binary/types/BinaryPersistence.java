@@ -19,6 +19,7 @@ import one.microstream.collections.BinaryHandlerFixedList;
 import one.microstream.collections.BinaryHandlerHashEnum;
 import one.microstream.collections.BinaryHandlerHashTable;
 import one.microstream.collections.BinaryHandlerLimitList;
+import one.microstream.collections.BinaryHandlerSingleton;
 import one.microstream.collections.ConstList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingSequence;
@@ -49,6 +50,9 @@ import one.microstream.java.lang.BinaryHandlerStringBuilder;
 import one.microstream.java.lang.BinaryHandlerVoid;
 import one.microstream.java.math.BinaryHandlerBigDecimal;
 import one.microstream.java.math.BinaryHandlerBigInteger;
+import one.microstream.java.sql.BinaryHandlerSqlDate;
+import one.microstream.java.sql.BinaryHandlerSqlTime;
+import one.microstream.java.sql.BinaryHandlerSqlTimestamp;
 import one.microstream.java.util.BinaryHandlerArrayDeque;
 import one.microstream.java.util.BinaryHandlerArrayList;
 import one.microstream.java.util.BinaryHandlerCopyOnWriteArrayList;
@@ -80,8 +84,8 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.binary.internal.BinaryHandlerSingletonStatelessEnum;
 import one.microstream.persistence.binary.internal.BinaryHandlerStatelessConstant;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import one.microstream.persistence.lazy.BinaryHandlerLazyDefault;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceFunction;
@@ -91,6 +95,7 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeIdLookup;
+import one.microstream.reference.BinaryHandlerLazyDefault;
 import one.microstream.reference.Referencing;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BinaryHandlerSubstituterDefault;
@@ -149,7 +154,7 @@ public final class BinaryPersistence extends Persistence
 		if(nativeTypeId == 0)
 		{
 			// (07.11.2018 TM)EXCP: proper exception
-			throw new RuntimeException("No native TypeId found for type " + typeHandler.type());
+			throw new PersistenceException("No native TypeId found for type " + typeHandler.type());
 		}
 		
 		typeHandler.initialize(nativeTypeId);
@@ -202,6 +207,11 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerFile.New()      ,
 			BinaryHandlerDate.New()      ,
 			BinaryHandlerLocale.New()    ,
+
+			// non-sensical handlers required for confused developers
+			BinaryHandlerSqlDate.New()     ,
+			BinaryHandlerSqlTime.New()     ,
+			BinaryHandlerSqlTimestamp.New(),
 			
 			BinaryHandlerOptionalInt.New(),
 			BinaryHandlerOptionalLong.New(),
@@ -321,6 +331,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerConstHashTable.New()      ,
 			BinaryHandlerEqHashTable.New()         ,
 			BinaryHandlerEqConstHashTable.New()    ,
+			BinaryHandlerSingleton.New()           ,
 
 			BinaryHandlerSubstituterDefault.New()
 			/* (29.10.2013 TM)TODO: more MicroStream default custom handlers

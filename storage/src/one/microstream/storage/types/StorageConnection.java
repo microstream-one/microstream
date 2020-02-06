@@ -8,8 +8,7 @@ import java.util.function.Predicate;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceManager;
-import one.microstream.persistence.types.PersistenceStoring;
-import one.microstream.persistence.types.SelfStoring;
+import one.microstream.persistence.types.Persister;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 
@@ -20,16 +19,16 @@ import one.microstream.persistence.types.Unpersistable;
  *
  * @author TM
  */
-public interface StorageConnection extends PersistenceStoring
+public interface StorageConnection extends Persister
 {
-	/* (11.05.2014)TODO: Proper InterruptedException handling
+	/* (11.05.2014 TM)TODO: Proper InterruptedException handling
 	 *  just returning, especially returning null (see below) seems quite dangerous.
 	 *  Research how to handle such cases properly.
 	 *  Difficult: what to return if the thread has been aborted? Throw an exception?
 	 *  Maybe set the thread's interrupted flag (seen once in an article)
 	 */
 
-	// (03.12.2014)TODO: method to query the transactions files content because channels have a lock on it
+	// (03.12.2014 TM)TODO: method to query the transactions files content because channels have a lock on it
 
 	// currently only for type parameter fixation
 
@@ -46,20 +45,34 @@ public interface StorageConnection extends PersistenceStoring
 
 	public default void issueFullFileCheck()
 	{
-		this.issueFullFileCheck(null); // providing no explicit evaluator means to use the internal one
+		this.issueFileCheck(Long.MAX_VALUE);
 	}
 
-	public default void issueFullFileCheck(final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
-	{
-		 this.issueFileCheck(Long.MAX_VALUE, fileDissolvingEvaluator);
-	}
+	public boolean issueFileCheck(long nanoTimeBudgetBound);
+	
+	/* (06.02.2020 TM)NOTE: As shown by HG, allowing one-time custom evaluators can cause conflicts.
+	 * E.g. infinite loops:
+	 * - Default evaluator allows 8 MB files
+	 * - Custom evaluator allows only 4 MB files
+	 * - So the call splits an 8 MB file
+	 * - The new file is filled up to 8 MB based on the default evaluator
+	 * - Then it is evaluated by the custom evaluator and split again
+	 * - This repeats forever
+	 * 
+	 * On a more general note:
+	 * In contrary to cache management, it hardly makes sense to interrupt the default logic,
+	 * mess around with all the storage files once and then fall back to the default logic,
+	 * undoing all changes according to its own strategy.
+	 * 
+	 * In any case, this method hardly makes sense.
+	 */
 
-	public default boolean issueFileCheck(final long nanoTimeBudgetBound)
-	{
-		return this.issueFileCheck(nanoTimeBudgetBound, null);
-	}
+//	public default void issueFullFileCheck(final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
+//	{
+//		 this.issueFileCheck(Long.MAX_VALUE, fileDissolvingEvaluator);
+//	}
 
-	public boolean issueFileCheck(long nanoTimeBudgetBound, StorageDataFileDissolvingEvaluator fileDissolvingEvaluator);
+//	public boolean issueFileCheck(long nanoTimeBudgetBound, StorageDataFileDissolvingEvaluator fileDissolvingEvaluator);
 
 	public default void issueFullCacheCheck()
 	{
@@ -109,7 +122,7 @@ public interface StorageConnection extends PersistenceStoring
 
 	public void importFiles(XGettingEnum<Path> importFiles);
 
-	/* (13.07.2015)TODO: load by type somehow
+	/* (13.07.2015 TM)TODO: load by type somehow
 	 * Query by typeId already implemented. Question is how to best provide it to the user.
 	 * As a result HashTable or Sequence?
 	 * By class or by type id or both?
@@ -139,24 +152,27 @@ public interface StorageConnection extends PersistenceStoring
 	}
 	
 	@Override
-	public default void storeSelfStoring(final SelfStoring storing)
-	{
-		storing.storeBy(this.createStorer()).commit();
-	}
-	
 	public default Storer createLazyStorer()
 	{
 		return this.persistenceManager().createLazyStorer();
 	}
 
+	@Override
 	public default Storer createStorer()
 	{
 		return this.persistenceManager().createStorer();
 	}
 	
+	@Override
 	public default Storer createEagerStorer()
 	{
 		return this.persistenceManager().createEagerStorer();
+	}
+	
+	@Override
+	public default Object getObject(final long objectId)
+	{
+		return this.persistenceManager().getObject(objectId);
 	}
 
 
@@ -336,15 +352,12 @@ public interface StorageConnection extends PersistenceStoring
 		}
 
 		@Override
-		public final boolean issueFileCheck(
-			final long                               nanoTimeBudgetBound,
-			final StorageDataFileDissolvingEvaluator fileDissolver
-		)
+		public final boolean issueFileCheck(final long nanoTimeBudgetBound)
 		{
 			try
 			{
 				// a time budget <= 0 will effectively be a cheap query for the completion state.
-				return this.connectionRequestAcceptor.issueFileCheck(nanoTimeBudgetBound, fileDissolver);
+				return this.connectionRequestAcceptor.issueFileCheck(nanoTimeBudgetBound);
 			}
 			catch(final InterruptedException e)
 			{

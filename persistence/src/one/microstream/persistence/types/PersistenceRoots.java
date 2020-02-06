@@ -1,5 +1,6 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.util.function.BiConsumer;
@@ -7,24 +8,14 @@ import java.util.function.BiConsumer;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.reference.Reference;
 import one.microstream.util.cql.CQL;
 
 
 public interface PersistenceRoots extends PersistenceRootsView
 {
 	@Override
-	public String defaultRootIdentifier();
+	public PersistenceRootReference rootReference();
 	
-	@Override
-	public Reference<Object> defaultRoot();
-	                                       
-	@Override
-	public String customRootIdentifier();
-	
-	@Override
-	public Object customRoot();
-
 	public XGettingTable<String, Object> entries();
 	
 	public boolean hasChanged();
@@ -47,7 +38,7 @@ public interface PersistenceRoots extends PersistenceRootsView
 	
 	public static PersistenceRoots New(final PersistenceRootResolver rootResolver)
 	{
-		return PersistenceRoots.Default.New(rootResolver);
+		return PersistenceRoots.Default.New(rootResolver, null);
 	}
 
 	public final class Default implements PersistenceRoots
@@ -56,15 +47,15 @@ public interface PersistenceRoots extends PersistenceRootsView
 		// static methods //
 		///////////////////
 		
-		public static PersistenceRoots.Default New(final PersistenceRootResolver rootResolver)
+		public static PersistenceRoots.Default New(
+			final PersistenceRootResolver   rootResolver ,
+			final EqHashTable<String, Long> rootIdMapping
+		)
 		{
-			// theoretically, it is correct to have no explicit root but only implicit ones via constants.
 			return new PersistenceRoots.Default(
-				notNull(rootResolver)               ,
-				rootResolver.defaultRootIdentifier(),
-				rootResolver.defaultRoot()          ,
-				rootResolver.customRootIdentifier() ,
-				null                                ,
+				notNull(rootResolver) ,
+				mayNull(rootIdMapping),
+				null                  ,
 				false
 			);
 		}
@@ -76,16 +67,14 @@ public interface PersistenceRoots extends PersistenceRootsView
 		////////////////////
 		
 		/*
-		 * The transient actually doesn't matter at all since a custom TypeHandler is used.
-		 * Its only pupose here is to indicate that the fields are not directly persisted.
+		 * The transient keyword actually doesn't matter at all since a custom TypeHandler is used.
+		 * Its only purpose here is to indicate that the fields are not directly persisted.
 		 */
 
-		final transient PersistenceRootResolver          rootResolver         ;
-		final transient String                           defaultRootIdentifier;
-		final transient Reference<Object>                defaultRoot          ;
-		final transient String                           customRootIdentifier ;
-		      transient EqConstHashTable<String, Object> resolvedEntries      ;
-		      transient boolean                          hasChanged           ;
+		final transient PersistenceRootResolver          rootResolver   ;
+	          transient EqHashTable<String, Long>        rootIdMapping  ;
+		      transient EqConstHashTable<String, Object> resolvedEntries;
+		      transient boolean                          hasChanged     ;
 		
 		
 		
@@ -94,21 +83,17 @@ public interface PersistenceRoots extends PersistenceRootsView
 		/////////////////
 		
 		Default(
-			final PersistenceRootResolver          rootResolver         ,
-			final String                           defaultRootIdentifier,
-			final Reference<Object>                defaultRoot          ,
-			final String                           customRootIdentifier ,
-			final EqConstHashTable<String, Object> resolvedEntries      ,
+			final PersistenceRootResolver          rootResolver   ,
+			final EqHashTable<String, Long>        rootIdMapping  ,
+			final EqConstHashTable<String, Object> resolvedEntries,
 			final boolean                          hasChanged
 		)
 		{
 			super();
-			this.rootResolver          = rootResolver         ;
-			this.defaultRootIdentifier = defaultRootIdentifier;
-			this.defaultRoot           = defaultRoot          ;
-			this.customRootIdentifier  = customRootIdentifier ;
-			this.resolvedEntries       = resolvedEntries      ;
-			this.hasChanged            = hasChanged           ;
+			this.rootResolver    = rootResolver   ;
+			this.rootIdMapping   = rootIdMapping  ;
+			this.resolvedEntries = resolvedEntries;
+			this.hasChanged      = hasChanged     ;
 		}
 
 		
@@ -116,35 +101,17 @@ public interface PersistenceRoots extends PersistenceRootsView
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		@Override
-		public final String defaultRootIdentifier()
-		{
-			return this.defaultRootIdentifier;
-		}
-
-		@Override
-		public final Reference<Object> defaultRoot()
-		{
-			return this.defaultRoot;
-		}
-
-		@Override
-		public final String customRootIdentifier()
-		{
-			return this.customRootIdentifier;
-		}
-
-		@Override
-		public final Object customRoot()
-		{
-			return this.entries().get(this.customRootIdentifier);
-		}
 		
 		@Override
 		public final synchronized boolean hasChanged()
 		{
 			return this.hasChanged;
+		}
+		
+		@Override
+		public final synchronized PersistenceRootReference rootReference()
+		{
+			return this.rootResolver.root();
 		}
 
 		@Override

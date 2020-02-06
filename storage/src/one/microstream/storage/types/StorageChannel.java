@@ -43,13 +43,13 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 
 	public boolean issuedGarbageCollection(long nanoTimeBudgetBound);
 
-	public boolean issuedFileCheck(long nanoTimeBudgetBound, StorageDataFileDissolvingEvaluator fileDissolver);
+	public boolean issuedFileCheck(long nanoTimeBudgetBound);
 
 	public boolean issuedCacheCheck(long nanoTimeBudgetBound, StorageEntityCacheEvaluator entityEvaluator);
 
 	public void exportData(StorageIoHandler fileHandler);
 
-	// (19.07.2014)TODO: refactor storage typing to avoid classes in public API
+	// (19.07.2014 TM)TODO: refactor storage typing to avoid classes in public API
 	public StorageEntityCache.Default prepareImportData();
 
 	public void importData(StorageChannelImportSourceFile importFile);
@@ -481,12 +481,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		}
 
 		@Override
-		public boolean issuedFileCheck(
-			final long                               nanoTimeBudgetBound,
-			final StorageDataFileDissolvingEvaluator fileDissolver
-		)
+		public boolean issuedFileCheck(final long nanoTimeBudgetBound)
 		{
-			return this.fileManager.issuedFileCleanupCheck(nanoTimeBudgetBound, fileDissolver);
+			return this.fileManager.issuedFileCleanupCheck(nanoTimeBudgetBound);
 		}
 
 		@Override
@@ -633,8 +630,8 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		@Override
 		public final void clear()
 		{
-			this.closeAllResources();
 			this.entityCache.clearState();
+			this.closeAllResources();
 		}
 
 		@Override
@@ -655,7 +652,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 
 	public final class EntityCollectorByOid implements _longProcedure
 	{
-		// (01.06.2013)TODO: clean up / consolidate all internal implementations
+		// (01.06.2013 TM)TODO: clean up / consolidate all internal implementations
 
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
