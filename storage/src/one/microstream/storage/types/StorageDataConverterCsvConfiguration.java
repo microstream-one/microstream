@@ -8,6 +8,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.csv.CSV;
 import one.microstream.util.csv.CsvConfiguration;
@@ -80,7 +81,8 @@ public interface StorageDataConverterCsvConfiguration
 		}
 		if(csvTypeNameToTypeNameMapping.size() != typeNameToCsvTypeNameMapping.size())
 		{
-			throw new RuntimeException("ambiguous csv type mapping entries"); // (25.09.2014 TM)EXCP: proper exception
+			// (25.09.2014 TM)EXCP: proper exception
+			throw new StorageException("Ambiguous csv type mapping entries.");
 		}
 
 		// add special case entry after ambiguity validation to avoid false positive

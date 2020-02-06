@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -39,17 +39,17 @@ public final class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivia
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final T                       instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeStateless(this.typeId(), objectId);
+		data.storeStateless(this.typeId(), objectId);
 	}
 
 	@Override
-	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return XMemory.instantiateBlank(this.type());
 	}

@@ -2,7 +2,7 @@ package one.microstream.java.lang;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerShort extends AbstractBinaryHandlerCustomValueFixedLength<Short>
@@ -32,17 +32,45 @@ public final class BinaryHandlerShort extends AbstractBinaryHandlerCustomValueFi
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
-	@Override
-	public void store(final Binary bytes, final Short instance, final long objectId, final PersistenceStoreHandler handler)
+	
+	private static short instanceState(final Short instance)
 	{
-		bytes.storeShort(this.typeId(), objectId, instance.shortValue());
+		return instance.shortValue();
+	}
+	
+	private static short binaryState(final Binary data)
+	{
+		return data.read_short(0);
 	}
 
 	@Override
-	public Short create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public void store(final Binary data, final Short instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		return bytes.buildShort();
+		data.storeShort(this.typeId(), objectId, instance.shortValue());
+	}
+
+	@Override
+	public Short create(final Binary data, final PersistenceLoadHandler handler)
+	{
+		return data.buildShort();
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Short                  instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final short instanceState = instanceState(instance);
+		final short binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

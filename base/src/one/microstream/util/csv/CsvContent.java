@@ -19,9 +19,9 @@ public interface CsvContent
 	
 	
 	
-	public interface Builder<M>
+	public interface Builder<D>
 	{
-		public CsvContent build(String name, M medium);
+		public CsvContent build(String name, D data);
 	}
 
 

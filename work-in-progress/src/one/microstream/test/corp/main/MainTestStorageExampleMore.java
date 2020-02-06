@@ -18,14 +18,14 @@ public class MainTestStorageExampleMore
 	// root of the application's data model graph
 	static final Reference<ClientCorporation> ROOT          = Reference.New(null)       ;
 	static final Path                         DIRECTORY     = XIO.Path("C:/StorageTest");
-	static final int                          CHANNEl_COUNT = 4                         ;
+	static final int                          CHANNEL_COUNT = 4                         ;
 
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation(
 			Storage.ConfigurationBuilder()
 			.setStorageFileProvider   (Storage.FileProvider(DIRECTORY)            )     // location for the database files
-			.setChannelCountProvider  (Storage.ChannelCountProvider(CHANNEl_COUNT))     // storage channel/thread count (default 1)
+			.setChannelCountProvider  (Storage.ChannelCountProvider(CHANNEL_COUNT))     // storage channel/thread count (default 1)
 			.setHousekeepingController(Storage.HousekeepingController(100, 10_000_000)) // time configuration for housekeeping, caching, etc.
 			.setEntityCacheEvaluator  (Storage.EntityCacheEvaluator(10_000))            // evalutator for removing entities from the cache
 		)

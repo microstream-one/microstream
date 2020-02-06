@@ -17,6 +17,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
+import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageTransactionsFileAnalysis
 {
@@ -272,11 +273,11 @@ public interface StorageTransactionsFileAnalysis
 
 			if(currentFilePosition < 0 || currentFilePosition > actualFileLength)
 			{
-				throw new IllegalArgumentException(); // (10.06.2014)EXCP: proper exception
+				throw new IllegalArgumentException(); // (10.06.2014 TM)EXCP: proper exception
 			}
 			if(boundPosition < 0 || boundPosition > actualFileLength)
 			{
-				throw new IllegalArgumentException(); // (10.06.2014)EXCP: proper exception
+				throw new IllegalArgumentException(); // (10.06.2014 TM)EXCP: proper exception
 			}
 
 			fileChannel.position(startPosition);
@@ -345,7 +346,7 @@ public interface StorageTransactionsFileAnalysis
 				if(entryLength == 0)
 				{
 					// entity length may never be 0 or the iteration will hang forever
-					throw new RuntimeException("Zero length transaction entry."); // (29.08.2014)EXCP: proper exception
+					throw new StorageException("Zero length transaction entry."); // (29.08.2014 TM)EXCP: proper exception
 				}
 
 //				DEBUGStorage.println(
@@ -397,7 +398,7 @@ public interface StorageTransactionsFileAnalysis
 			catch(final IOException e)
 			{
 				suppressed = e;
-				throw new RuntimeException(e); // (12.09.2014 TM)EXCP: proper exception
+				throw new StorageException(e); // (12.09.2014 TM)EXCP: proper exception
 			}
 			finally
 			{
@@ -509,8 +510,8 @@ public interface StorageTransactionsFileAnalysis
 				case Logic.TYPE_FILE_DELETION  : return this.assembleEntryFileDeletion  (address, availableEntryLength);
 				default:
 				{
-					// (02.09.2014)EXCP: proper exception
-					throw new RuntimeException("Unknown transactions entry type: " + Logic.getEntryType(address));
+					// (02.09.2014 TM)EXCP: proper exception
+					throw new StorageException("Unknown transactions entry type: " + Logic.getEntryType(address));
 				}
 			}
 		}
@@ -711,8 +712,8 @@ public interface StorageTransactionsFileAnalysis
 				case Logic.TYPE_FILE_DELETION  : return this.handleEntryFileDeletion  (address, availableItemLength);
 				default:
 				{
-					// (02.09.2014)EXCP: proper exception
-					throw new RuntimeException("Unknown transactions entry type: " + Logic.getEntryType(address));
+					// (02.09.2014 TM)EXCP: proper exception
+					throw new StorageException("Unknown transactions entry type: " + Logic.getEntryType(address));
 				}
 			}
 		}
@@ -727,8 +728,8 @@ public interface StorageTransactionsFileAnalysis
 			final long number = Logic.getFileNumber(address);
 			if(number <= this.currentFileNumber)
 			{
-				// (02.09.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (02.09.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					this.hashIndex + " Inconsistent file number order of new file: "
 					+ number + " <= " + this.currentFileNumber
 				);
@@ -737,8 +738,8 @@ public interface StorageTransactionsFileAnalysis
 			final long fileLength = Logic.getFileLength(address);
 			if(fileLength < 0)
 			{
-				// (02.09.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (02.09.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					this.hashIndex + " Inconsistent file length of new file " + number + ": " + fileLength
 				);
 			}
@@ -781,8 +782,8 @@ public interface StorageTransactionsFileAnalysis
 			final long fileLength = Logic.getFileLength(address);
 			if(fileLength < this.currentStoreLength)
 			{
-				// (02.09.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (02.09.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					this.hashIndex + " Inconsistent file length of file " + this.currentFileNumber + ": "
 					+ fileLength + " < " + this.currentStoreLength
 				);
@@ -791,8 +792,8 @@ public interface StorageTransactionsFileAnalysis
 			final long timestamp = Logic.getEntryTimestamp(address);
 			if(timestamp <= this.currentStoreTimestamp)
 			{
-				// (02.09.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (02.09.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					this.hashIndex + " Inconsistent timestamp of file " + this.currentFileNumber + ": "
 					+ timestamp + " <= " + this.currentStoreTimestamp
 				);
@@ -815,8 +816,8 @@ public interface StorageTransactionsFileAnalysis
 			final long fileLength = Logic.getFileLength(address);
 			if(fileLength < this.currentStoreLength)
 			{
-				// (02.09.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (02.09.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					this.hashIndex + " Inconsistent file length of file " + this.currentFileNumber + ": "
 					+ fileLength + " < " + this.currentStoreLength
 				);
@@ -843,8 +844,8 @@ public interface StorageTransactionsFileAnalysis
 			final long fileNumber = Logic.getFileNumber(address);
 			if(fileNumber != this.currentFileNumber)
 			{
-				// (02.09.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (02.09.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					this.hashIndex + " Invalid truncation file number: "
 					+ fileNumber + " (file " + this.currentFileNumber + ")"
 				);
@@ -861,8 +862,8 @@ public interface StorageTransactionsFileAnalysis
 			final long newLength = Logic.getFileLength(address);
 			if(newLength < 0 || newLength > this.currentStoreLength)
 			{
-				// (02.09.2014)EXCP: proper exception
-				throw new RuntimeException(
+				// (02.09.2014 TM)EXCP: proper exception
+				throw new StorageException(
 					"Inconsistent new length in trunction entry: " + newLength + " vs. "
 					+ this.currentStoreLength + " (file " + this.currentFileNumber + ")"
 				);
@@ -885,7 +886,7 @@ public interface StorageTransactionsFileAnalysis
 			if(file == null)
 			{
 				// (03.09.2014 TM)EXCP: proper exception
-				throw new RuntimeException(this.hashIndex + " No file found in entries with number " + number);
+				throw new StorageException(this.hashIndex + " No file found in entries with number " + number);
 			}
 			file.isDeleted = true;
 

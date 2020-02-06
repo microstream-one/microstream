@@ -3,8 +3,10 @@ package one.microstream.storage.types;
 import java.util.function.Supplier;
 
 import one.microstream.chars.VarString;
+import one.microstream.math.XMath;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.storage.exceptions.StorageException;
 
 
 /**
@@ -22,7 +24,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	public void resetCompletion();
 
-	public void advanceMarking(StorageobjectIdMarkQueue objectIdMarkQueue, int amount);
+	public void advanceMarking(StorageObjectIdMarkQueue objectIdMarkQueue, int amount);
 
 	public void clearPendingStoreUpdate(StorageEntityCache<?> channel);
 
@@ -42,30 +44,94 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	public StorageReferenceMarker provideReferenceMarker(StorageEntityCache<?> channel);
 
-	public void enqueue(StorageobjectIdMarkQueue objectIdMarkQueue, long objectId);
+	public void enqueue(StorageObjectIdMarkQueue objectIdMarkQueue, long objectId);
 
 //	public String DEBUG_state();
 
 
+	public static StorageEntityMarkMonitor.Creator Creator()
+	{
+		return Creator(StorageEntityMarkMonitor.Creator.Defaults.defaultReferenceCacheLength());
+	}
+	
+	public static StorageEntityMarkMonitor.Creator Creator(final int referenceCacheLength)
+	{
+		return new StorageEntityMarkMonitor.Creator.Default(
+			XMath.positive(referenceCacheLength)
+		);
+	}
 
 	public interface Creator
 	{
 		public StorageEntityMarkMonitor createEntityMarkMonitor(
-			StorageobjectIdMarkQueue[] oidMarkQueues,
+			StorageObjectIdMarkQueue[] oidMarkQueues,
 			StorageEventLogger         eventLogger
 		);
+		
+		
+		
+		public interface Defaults
+		{
+			public static int defaultReferenceCacheLength()
+			{
+				/*
+				 * Since every channel allocates a reference cache array for every other channel,
+				 * the total amount of reference caches is channelCount^2.
+				 * This means that the reference cache length should not be to big, otherwise the
+				 * occupied memory increases dramatically with the number of channel.
+				 * E.g:
+				 * Length 10_000:
+				 * 32 channel occupy 32*32*10_000*8 = 80 MB just for reference caches
+				 * 64 channel occupy 64*64*10_000*8 = 300 MB just for reference caches
+				 * 
+				 * Since this is just a cache to prevent inter-thread-communication for single objectIds,
+				 * it doesn't have to be very big in the first place. It just defines how big the batch
+				 * will be that is communicatated between channels. 100 should be fine. Numbers up to 1000 are
+				 * coneivable. Everything beyong that should be moreless overkill or even crazy.
+				 */
+				return 100;
+			}
+		}
 
 
 
 		public final class Default implements StorageEntityMarkMonitor.Creator
 		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private final int referenceCacheLength;
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Default(final int referenceCacheLength)
+			{
+				super();
+				this.referenceCacheLength = referenceCacheLength;
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
 			@Override
 			public StorageEntityMarkMonitor createEntityMarkMonitor(
-				final StorageobjectIdMarkQueue[] objectIdMarkQueues,
+				final StorageObjectIdMarkQueue[] objectIdMarkQueues,
 				final StorageEventLogger         eventLogger
 			)
 			{
-				return new StorageEntityMarkMonitor.Default(objectIdMarkQueues.clone(), eventLogger);
+				return new StorageEntityMarkMonitor.Default(
+					objectIdMarkQueues.clone(),
+					eventLogger,
+					this.referenceCacheLength
+				);
 			}
 
 		}
@@ -79,7 +145,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		// instance fields //
 		////////////////////
 
-		private final StorageobjectIdMarkQueue[] oidMarkQueues;
+		private final StorageObjectIdMarkQueue[] oidMarkQueues;
 		private final StorageEventLogger         eventLogger  ;
 		
 		private final int       channelCount           ;
@@ -92,6 +158,8 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		private       int       sweepingChannelCount   ;
                                 
 		private final long[]    channelRootOids        ;
+		
+		private final int       referenceCacheLength   ;
 
 		private long sweepGeneration     ;
 		private long lastSweepStart      ;
@@ -126,16 +194,21 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		// constructors //
 		/////////////////
 
-		Default(final StorageobjectIdMarkQueue[] oidMarkQueues, final StorageEventLogger eventLogger)
+		Default(
+			final StorageObjectIdMarkQueue[] oidMarkQueues       ,
+			final StorageEventLogger         eventLogger         ,
+			final int                        referenceCacheLength
+		)
 		{
 			super();
-			this.oidMarkQueues       = oidMarkQueues                 ;
-			this.eventLogger         = eventLogger                   ;
-			this.channelCount        = oidMarkQueues.length          ;
-			this.channelHash         = this.channelCount - 1         ;
-			this.pendingStoreUpdates = new boolean[this.channelCount];
-			this.needsSweep          = new boolean[this.channelCount];
-			this.channelRootOids     = new long   [this.channelCount];
+			this.oidMarkQueues        = oidMarkQueues                 ;
+			this.eventLogger          = eventLogger                   ;
+			this.referenceCacheLength = referenceCacheLength          ;
+			this.channelCount         = oidMarkQueues.length          ;
+			this.channelHash          = this.channelCount - 1         ;
+			this.pendingStoreUpdates  = new boolean[this.channelCount];
+			this.needsSweep           = new boolean[this.channelCount];
+			this.channelRootOids      = new long   [this.channelCount];
 		}
 
 		private synchronized void incrementPendingMarksCount()
@@ -150,14 +223,14 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		}
 
 		@Override
-		public final synchronized void advanceMarking(final StorageobjectIdMarkQueue oidMarkQueue, final int amount)
+		public final synchronized void advanceMarking(final StorageObjectIdMarkQueue oidMarkQueue, final int amount)
 		{
 //			DEBUGStorage.println(System.identityHashCode(oidMarkQueue) + " >-  " + this.pendingMarksCount + " " + oidMarkQueue.size());
 
 			if(this.pendingMarksCount < amount)
 			{
 				// (07.07.2016 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new StorageException(
 					"pending marks count (" + this.pendingMarksCount +
 					") is smaller than the number to be advanced (" + amount + ")."
 				);
@@ -332,7 +405,8 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			{
 				if(this.oidMarkQueues[i].hasElements())
 				{
-					throw new RuntimeException(); // (01.08.2016 TM)EXCP: proper exception
+					// (01.08.2016 TM)EXCP: proper exception
+					throw new StorageException("ObjectId mark queue for channel " + i + " still has elements.");
 				}
 				this.oidMarkQueues[i].reset();
 			}
@@ -394,7 +468,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		}
 
 		@Override
-		public final void enqueue(final StorageobjectIdMarkQueue objectIdMarkQueue, final long objectId)
+		public final void enqueue(final StorageObjectIdMarkQueue objectIdMarkQueue, final long objectId)
 		{
 			this.incrementPendingMarksCount();
 			// no need to keep the lock longer than necessary or nested with the queue lock.
@@ -411,8 +485,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		@Override
 		public final StorageReferenceMarker provideReferenceMarker(final StorageEntityCache<?> channel)
 		{
-			// (14.07.2016 TM)TODO: make marking configuration dynamic
-			return new CachingReferenceMarker(this, this.channelCount, 10000);
+			return new CachingReferenceMarker(this, this.channelCount, this.referenceCacheLength);
 		}
 
 		final void enqueueBulk(final long[][] oidsPerChannel, final int[] sizes)
@@ -428,7 +501,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				this.pendingMarksCount += totalSize;
 			}
 
-			final StorageobjectIdMarkQueue[] oidMarkQueues = this.oidMarkQueues;
+			final StorageObjectIdMarkQueue[] oidMarkQueues = this.oidMarkQueues;
 
 			// lock for every queue is only acquired once and all oids are enqueued efficiently
 			for(int i = 0; i < oidsPerChannel.length; i++)

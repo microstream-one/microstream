@@ -22,13 +22,14 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistenc
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldReflective;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
+import one.microstream.persistence.types.Persister;
 import one.microstream.reflect.XReflect;
 import one.microstream.util.UtilStackTrace;
 
@@ -40,18 +41,18 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	// static methods //
 	///////////////////
 	
-	protected static <M extends PersistenceTypeDefinitionMember> EqHashEnum<M> MemberEnum()
+	protected static <D extends PersistenceTypeDefinitionMember> EqHashEnum<D> MemberEnum()
 	{
 		return EqHashEnum.New(
 			PersistenceTypeDescriptionMember.identityHashEqualator()
 		);
 	}
 	
-	protected static <M extends PersistenceTypeDefinitionMember> EqHashEnum<M> MemberEnum(
-		final XGettingCollection<M> initialMembers
+	protected static <D extends PersistenceTypeDefinitionMember> EqHashEnum<D> MemberEnum(
+		final XGettingCollection<D> initialMembers
 	)
 	{
-		return AbstractBinaryHandlerReflective.<M>MemberEnum().addAll(initialMembers);
+		return AbstractBinaryHandlerReflective.<D>MemberEnum().addAll(initialMembers);
 	}
 	
 	protected static EqHashEnum<PersistenceTypeDefinitionMemberFieldReflective> deriveMembers(
@@ -221,6 +222,8 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		primitiveFields
 	;
 	
+	private final Field[] persisterFields;
+	
 	private final boolean switchByteOrder;
 	
 	/* (28.10.2019 TM)TODO: encapsulate / abstract BinaryValue~ handling types.
@@ -242,6 +245,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		final Class<T>                              type             ,
 		final String                                typeName         ,
 		final XGettingEnum<Field>                   persistableFields,
+		final XGettingEnum<Field>                   persisterFields  ,
 		final PersistenceFieldLengthResolver        lengthResolver   ,
 		final PersistenceEagerStoringFieldEvaluator eagerEvaluator   ,
 		final boolean                               switchByteOrder
@@ -295,6 +299,11 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		this.declOrderFields = unbox(instMembersInDeclOrdr, EqHashEnum.New()).immure();
 		this.referenceFields = unbox(this.referenceMembers, EqHashEnum.New()).immure();
 		this.primitiveFields = unbox(this.primitiveMembers, EqHashEnum.New()).immure();
+		
+		this.persisterFields = persisterFields == null || persisterFields.isEmpty()
+			? null
+			: persisterFields.toArray(Field.class)
+		;
 	}
 	
 	
@@ -441,12 +450,6 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	{
 		return this.membersInDeclaredOrder;
 	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return !this.referenceMembers.isEmpty();
-	}
 	
 	@Override
 	public final boolean hasPersistedReferences()
@@ -484,9 +487,9 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	///////////////////////////
 
 	@Override
-	public void store(final Binary bytes, final T instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(final Binary data, final T instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		bytes.storeFixedSize(
+		data.storeFixedSize(
 			handler                  ,
 			this.binaryContentLength ,
 			this.typeId()            ,
@@ -498,10 +501,10 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public abstract T create(final Binary bytes, PersistenceObjectIdResolver idResolver);
+	public abstract T create(final Binary data, PersistenceLoadHandler handler);
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		/*
 		 * Explicit type check to avoid memory getting overwritten with bytes not fitting to the actual type.
@@ -513,11 +516,38 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 			throw new TypeCastException(this.type(), instance);
 		}
 
-		bytes.updateFixedSize(instance, this.setters, this.settingMemoryOffsets, idResolver);
+		data.updateFixedSize(instance, this.setters, this.settingMemoryOffsets, handler);
+		
+		this.setPersister(instance, handler);
+	}
+	
+	private void setPersister(final T instance, final PersistenceLoadHandler handler)
+	{
+		if(this.persisterFields == null)
+		{
+			return;
+		}
+		
+		final Persister persister = handler.getPersister();
+		
+		for(final Field field : this.persisterFields)
+		{
+			// field type must be compatible with the specific persister's class.
+			if(!field.getType().isAssignableFrom(persister.getClass()))
+			{
+				continue;
+			}
+			
+			final Object existingPersister = XReflect.getFieldValue(field, instance);
+			if(existingPersister == null)
+			{
+				XReflect.setFieldValue(field, instance, persister);
+			}
+		}
 	}
 
 	@Override
-	public final void complete(final Binary medium, final T instance, final PersistenceObjectIdResolver idResolver)
+	public final void complete(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// no-op for normal implementation (see non-reference-hashing collections for other examples)
 	}
@@ -529,10 +559,10 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	}
 
 	@Override
-	public void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
 		// "bytes" points to the entity content address, the offsets are relative to the content address.
-		bytes.iterateReferenceRange(
+		data.iterateReferenceRange(
 			this.refBinaryOffsetStart,
 			this.refBinaryOffsetBound,
 			iterator

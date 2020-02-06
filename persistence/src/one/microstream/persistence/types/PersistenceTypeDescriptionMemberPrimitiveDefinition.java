@@ -5,6 +5,8 @@ import static one.microstream.math.XMath.positive;
 
 import java.util.Objects;
 
+import one.microstream.persistence.exceptions.PersistenceException;
+
 public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends PersistenceTypeDescriptionMember
 {
 	public String primitiveDefinition();
@@ -188,8 +190,8 @@ public interface PersistenceTypeDescriptionMemberPrimitiveDefinition extends Per
 			{
 				return;
 			}
-			// (02.05.2014)EXCP: proper exception
-			throw new RuntimeException(
+			// (02.05.2014 TM)EXCP: proper exception
+			throw new PersistenceException(
 				"Invalid persistent length: " + persistentLength
 				+ " != " + this.persistentLength + "."
 			);

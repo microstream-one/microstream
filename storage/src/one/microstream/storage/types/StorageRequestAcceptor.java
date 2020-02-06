@@ -52,8 +52,7 @@ public interface StorageRequestAcceptor
 
 	public boolean issueGarbageCollection(long nanoTimeBudgetBound) throws InterruptedException;
 
-	public boolean issueFileCheck(long nanoTimeBudgetBound, StorageDataFileDissolvingEvaluator fileDissolver)
-		throws InterruptedException;
+	public boolean issueFileCheck(long nanoTimeBudgetBound) throws InterruptedException;
 
 	public boolean issueCacheCheck(long nanoTimeBudgetBound, StorageEntityCacheEvaluator entityEvaluator)
 		throws InterruptedException;
@@ -199,13 +198,10 @@ public interface StorageRequestAcceptor
 		}
 
 		@Override
-		public boolean issueFileCheck(
-			final long                               nanoTimeBudgetBound,
-			final StorageDataFileDissolvingEvaluator fileDissolver
-		)
+		public boolean issueFileCheck(final long nanoTimeBudgetBound)
 			throws InterruptedException
 		{
-			return waitOnTask(this.taskBroker.issueFileCheck(nanoTimeBudgetBound, fileDissolver)).result();
+			return waitOnTask(this.taskBroker.issueFileCheck(nanoTimeBudgetBound)).result();
 		}
 
 		@Override

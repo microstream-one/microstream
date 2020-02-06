@@ -117,7 +117,7 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 				this.iterateSessions();
 				try
 				{
-					// (03.11.2012)XXX: NetworkMessageListener: maybe make sleep time dynamic
+					// (03.11.2012 TM)XXX: NetworkMessageListener: maybe make sleep time dynamic
 					Thread.sleep(THREAD_SLEEP_TIME_MS);
 				}
 				catch(final InterruptedException e)
@@ -128,7 +128,7 @@ public interface NetworkMessageListener<S extends NetworkSession<?>> extends Run
 						this.deactivate();
 					}
 					// otherwise? throw an illegalsomething exception? or just continue working?
-					// (03.11.2012)XXX: NetworkMessageListener: handle improper interruption
+					// (03.11.2012 TM)XXX: NetworkMessageListener: handle improper interruption
 				}
 			}
 		}

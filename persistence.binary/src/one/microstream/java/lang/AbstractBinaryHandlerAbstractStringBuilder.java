@@ -3,7 +3,7 @@ package one.microstream.java.lang;
 import one.microstream.X;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public abstract class AbstractBinaryHandlerAbstractStringBuilder<B/*extends AbstractStringBuilder*/>
@@ -44,8 +44,8 @@ extends AbstractBinaryHandlerCustom<B>
 	/////////////////////
 	
 	protected final void storeData(
-		final Binary                  bytes   ,
-		final char[]                  data    ,
+		final Binary                  data    ,
+		final char[]                  chars   ,
 		final int                     capacity,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
@@ -53,28 +53,22 @@ extends AbstractBinaryHandlerCustom<B>
 	{
 		// capacity + list header + list data
 		final long contentLength = Binary.toBinaryListTotalByteLength(
-			LENGTH_CAPACITY + (long)data.length * Character.BYTES
+			LENGTH_CAPACITY + (long)chars.length * Character.BYTES
 		);
 		
-		bytes.storeEntityHeader(contentLength, this.typeId(), objectId);
-		bytes.store_long(OFFSET_CAPACITY, capacity);
-		bytes.storeCharsAsList(OFFSET_CHARS, data, 0, data.length);
+		data.storeEntityHeader(contentLength, this.typeId(), objectId);
+		data.store_long(OFFSET_CAPACITY, capacity);
+		data.storeCharsAsList(OFFSET_CHARS, chars, 0, chars.length);
 	}
 	
-	protected final int readCapacity(final Binary bytes)
+	protected final int readCapacity(final Binary data)
 	{
-		return X.checkArrayRange(bytes.read_long(OFFSET_CAPACITY));
+		return X.checkArrayRange(data.read_long(OFFSET_CAPACITY));
 	}
 	
-	protected final char[] readChars(final Binary bytes)
+	protected final char[] readChars(final Binary data)
 	{
-		return bytes.build_chars(OFFSET_CHARS);
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return false;
+		return data.build_chars(OFFSET_CHARS);
 	}
 	
 	@Override
@@ -97,8 +91,8 @@ extends AbstractBinaryHandlerCustom<B>
 	
 	@Override
 	public final void iterateLoadableReferences(
-		final Binary                      medium  ,
-		final PersistenceObjectIdAcceptor iterator
+		final Binary                     data    ,
+		final PersistenceReferenceLoader iterator
 	)
 	{
 		// references to be loaded

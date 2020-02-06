@@ -152,7 +152,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		@Override
 		public final FileChannel get()
 		{
-			/* (25.01.2014)TODO: Storage ByType export append mode: is append mode (default) really a good idea?
+			/* (25.01.2014 TM)TODO: Storage ByType export append mode: is append mode (default) really a good idea?
 			 * makes for example export/import cycles to the same files not repeatable.
 			 * Maybe the file provider should make such decisions
 			 */

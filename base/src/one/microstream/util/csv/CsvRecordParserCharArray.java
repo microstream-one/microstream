@@ -212,7 +212,7 @@ public interface CsvRecordParserCharArray
 				i++;
 			}
 
-			// (22.11.2014)EXCP: proper exception
+			// (22.11.2014 TM)EXCP: proper exception
 			throw new RuntimeException("Incomplete trailing full comment at index " + i);
 		}
 

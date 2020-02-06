@@ -1918,7 +1918,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		{
 			return true;
 		}
-		// (09.04.2012)FIXME: what's List supposed to do here?
+		// (09.04.2012 TM)FIXME: what's List supposed to do here?
 		if(o == null || !(o instanceof List<?>))
 		{
 			return false;

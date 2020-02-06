@@ -5,11 +5,12 @@ import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
 
-import one.microstream.memory.XMemory;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryLegacyTypeHandlerTranslating;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlingListener;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
@@ -38,6 +39,13 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		);
 	}
 	
+
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+	
+	private final BinaryReferenceTraverser[] newBinaryLayoutReferenceTraversers;
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -54,6 +62,13 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	)
 	{
 		super(typeDefinition, typeHandler, valueTranslators, targetOffsets, listener, switchByteOrder);
+
+		/* (01.01.2020 TM)NOTE: Bugfix:
+		 * Moved from AbstractBinaryLegacyTypeHandlerTranslating here as this is only correct for ~Rerouting
+		 * but incorrect for ~Reflective LegacyHandler
+		 */
+		// (12.11.2019 TM)NOTE: must be derived from the NEW type definition since #create relayouts the load data.
+		this.newBinaryLayoutReferenceTraversers = deriveReferenceTraversers(typeHandler, switchByteOrder);
 	}
 	
 	
@@ -61,9 +76,15 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	@Override
+	public final void iterateLoadableReferences(final Binary rawData, final PersistenceReferenceLoader iterator)
+	{
+		rawData.iterateReferences(this.newBinaryLayoutReferenceTraversers, iterator);
+	}
 
 	@Override
-	protected T internalCreate(final Binary rawData, final PersistenceObjectIdResolver idResolver)
+	protected T internalCreate(final Binary rawData, final PersistenceLoadHandler handler)
 	{
 		final long entityContentLength = this.typeHandler().membersPersistedLengthMaximum();
 		
@@ -91,23 +112,23 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		rawData.registerHelper(directByteBuffer, directByteBuffer);
 
 		// the current type handler can now create a new instance with correctly rearranged raw values
-		final T instance = this.typeHandler().create(rawData, idResolver);
+		final T instance = this.typeHandler().create(rawData, handler);
 		
 		return instance;
 	}
 
 	@Override
-	public final void update(final Binary rawData, final T instance, final PersistenceObjectIdResolver idResolver)
+	public final void updateState(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
 	{
 		// rawData is rerouted to the newly allocated memory (handled by a DirectByteBuffer) with rearranged values.
-		this.typeHandler().update(rawData, instance, idResolver);
+		this.typeHandler().updateState(rawData, instance, handler);
 	}
 
 	@Override
-	public final void complete(final Binary rawData, final T instance, final PersistenceObjectIdResolver idResolver)
+	public final void complete(final Binary rawData, final T instance, final PersistenceLoadHandler handler)
 	{
 		// rawData is rerouted to the newly allocated memory (handled by a DirectByteBuffer) with rearranged values.
-		this.typeHandler().complete(rawData, instance, idResolver);
+		this.typeHandler().complete(rawData, instance, handler);
 	}
 	
 }

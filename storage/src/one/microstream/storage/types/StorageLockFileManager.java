@@ -11,6 +11,7 @@ import one.microstream.chars.XChars;
 import one.microstream.collections.XArrays;
 import one.microstream.concurrency.XThreads;
 import one.microstream.memory.XMemory;
+import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageLockFileManager extends Runnable
 {
@@ -186,7 +187,7 @@ public interface StorageLockFileManager extends Runnable
 			}
 			
 			// (12.04.2019 TM)EXCP: proper exception
-			throw new RuntimeException(StorageLockFileManager.class.getSimpleName() + " not initialized.");
+			throw new StorageException(StorageLockFileManager.class.getSimpleName() + " not initialized.");
 		}
 		
 		private ByteBuffer ensureReadingBuffer(final int fileLength)
@@ -279,7 +280,7 @@ public interface StorageLockFileManager extends Runnable
 			}
 			
 			// (10.04.2019 TM)EXCP: proper exception
-			throw new RuntimeException("No separator found in lock file string.");
+			throw new StorageException("No separator found in lock file string.");
 		}
 		
 		static final class LockFileData
@@ -315,7 +316,7 @@ public interface StorageLockFileManager extends Runnable
 				if(derivedInterval <= 0)
 				{
 					// (10.04.2019 TM)EXCP: proper exception
-					throw new RuntimeException(
+					throw new StorageException(
 						"Invalid lockfile timestamps: lastWriteTime = " + lastWriteTime
 						+ ", expirationTime = " + expirationTime
 					);
@@ -400,7 +401,7 @@ public interface StorageLockFileManager extends Runnable
 			// not owned, not expired and still active, meaning really still in use, so exception
 
 			// (10.04.2019 TM)EXCP: proper exception
-			throw new RuntimeException("Storage already in use by: " + existingFiledata.identifier);
+			throw new StorageException("Storage already in use by: " + existingFiledata.identifier);
 		}
 		
 		private void checkForModifiedLockFile()
@@ -417,7 +418,7 @@ public interface StorageLockFileManager extends Runnable
 			}
 
 			// (11.04.2019 TM)EXCP: proper exception
-			throw new RuntimeException("Concurrent lock file modification detected.");
+			throw new StorageException("Concurrent lock file modification detected.");
 		}
 		
 		private void writeLockFileData()

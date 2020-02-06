@@ -4,9 +4,9 @@ import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.memory.XMemory;
 
 
-public interface PersistenceInstantiator<M>
+public interface PersistenceInstantiator<D>
 {
-	public <T> T instantiate(Class<T> type, M medium) throws InstantiationRuntimeException;
+	public <T> T instantiate(Class<T> type, D data) throws InstantiationRuntimeException;
 		
 
 
@@ -17,12 +17,12 @@ public interface PersistenceInstantiator<M>
 	
 	
 	
-	public static <M> PersistenceInstantiator<M> New()
+	public static <D> PersistenceInstantiator<D> New()
 	{
 		return new PersistenceInstantiator.Default<>();
 	}
 	
-	public final class Default<M> implements PersistenceInstantiator<M>, PersistenceTypeInstantiatorProvider<M>
+	public final class Default<D> implements PersistenceInstantiator<D>, PersistenceTypeInstantiatorProvider<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -40,14 +40,14 @@ public interface PersistenceInstantiator<M>
 		////////////
 
 		@Override
-		public <T> T instantiate(final Class<T> type, final M medium)
+		public <T> T instantiate(final Class<T> type, final D data)
 			throws InstantiationRuntimeException
 		{
 			return PersistenceInstantiator.instantiateBlank(type);
 		}
 		
 		@Override
-		public <T> PersistenceTypeInstantiator<M, T> provideTypeInstantiator(final Class<T> type)
+		public <T> PersistenceTypeInstantiator<D, T> provideTypeInstantiator(final Class<T> type)
 		{
 			return PersistenceTypeInstantiator.New(type, this);
 		}

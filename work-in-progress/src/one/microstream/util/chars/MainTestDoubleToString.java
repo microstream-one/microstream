@@ -146,7 +146,7 @@ public class MainTestDoubleToString
 		test(152273.12);
 		test(20500.91);
 
-		// (26.08.2013)TODO: double to string errors
+		// (26.08.2013 TM)TODO: double to string errors
 		test(67333.49);
 		test( 4209.02);
 		test( 9011.79);

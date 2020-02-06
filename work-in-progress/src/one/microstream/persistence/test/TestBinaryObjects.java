@@ -16,7 +16,7 @@ public class TestBinaryObjects
 		indices = sequence(orig_objects.length - 1);
 		objects = orig_objects;
 
-		// (07.04.2012)XXX: shuffling
+		// (07.04.2012 TM)XXX: shuffling
 //		orderByIndices(
 //			orig_objects = defineObjects(),
 //			indices = shuffle(sequence(orig_objects.length - 1)),

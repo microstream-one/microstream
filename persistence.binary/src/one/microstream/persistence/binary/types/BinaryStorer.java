@@ -9,18 +9,17 @@ import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceObjectManager;
-import one.microstream.persistence.types.PersistenceObjectRetriever;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceStorer;
 import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
-import one.microstream.persistence.types.SelfStoring;
+import one.microstream.reference.ObjectSwizzling;
 import one.microstream.reference._intReference;
 import one.microstream.util.BufferSizeProviderIncremental;
 
 
-public interface BinaryStorer extends PersistenceStorer<Binary>
+public interface BinaryStorer extends PersistenceStorer
 {
 	@Override
 	public BinaryStorer initialize();
@@ -29,13 +28,13 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 	public BinaryStorer initialize(long initialCapacity);
 
 	@Override
-	public PersistenceStorer<Binary> reinitialize();
+	public PersistenceStorer reinitialize();
 
 	@Override
-	public PersistenceStorer<Binary> reinitialize(long initialCapacity);
+	public PersistenceStorer reinitialize(long initialCapacity);
 
 	@Override
-	public PersistenceStorer<Binary> ensureCapacity(long desiredCapacity);
+	public PersistenceStorer ensureCapacity(long desiredCapacity);
 
 	@Override
 	public long currentCapacity();
@@ -74,7 +73,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 		private final boolean                               switchByteOrder;
 		private final PersistenceObjectManager              objectManager  ;
-		private final PersistenceObjectRetriever            objectRetriever;
+		private final ObjectSwizzling            objectRetriever;
 		private final PersistenceTypeHandlerManager<Binary> typeManager    ;
 		private final PersistenceTarget<Binary>             target         ;
 		
@@ -105,7 +104,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 
 		protected Default(
 			final PersistenceObjectManager              objectManager     ,
-			final PersistenceObjectRetriever            objectRetriever   ,
+			final ObjectSwizzling            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -202,7 +201,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public final PersistenceObjectRetriever getObjectRetriever()
+		public final ObjectSwizzling getObjectRetriever()
 		{
 			return this.objectRetriever;
 		}
@@ -226,7 +225,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public PersistenceStorer<Binary> reinitialize()
+		public PersistenceStorer reinitialize()
 		{
 			this.clear();
 			this.internalInitialize();
@@ -234,7 +233,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public PersistenceStorer<Binary> reinitialize(final long initialCapacity)
+		public PersistenceStorer reinitialize(final long initialCapacity)
 		{
 			this.clear();
 			this.internalInitialize(XHashing.padHashLength(initialCapacity));
@@ -282,7 +281,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		}
 
 		@Override
-		public PersistenceStorer<Binary> ensureCapacity(final long desiredCapacity)
+		public PersistenceStorer ensureCapacity(final long desiredCapacity)
 		{
 			if(this.currentCapacity() >= desiredCapacity)
 			{
@@ -343,13 +342,6 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 				this.storeGraph(instance);
 			}
 		}
-		
-		@Override
-		public void storeSelfStoring(final SelfStoring storing)
-		{
-			this.ensureInitialized();
-			storing.storeBy(this);
-		}
 
 		@Override
 		public final Object commit()
@@ -407,10 +399,8 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			}
 
 			// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
-			return -1;
+			return Persistence.notFoundId();
 		}
-
-		
 
 		public final void rebuildStoreItems()
 		{
@@ -574,7 +564,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		
 		Eager(
 			final PersistenceObjectManager              objectManager     ,
-			final PersistenceObjectRetriever            objectRetriever   ,
+			final ObjectSwizzling            objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -648,7 +638,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		public BinaryStorer createLazyStorer(
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceObjectManager              objectManager     ,
-			PersistenceObjectRetriever            objectRetriever   ,
+			ObjectSwizzling            objectRetriever   ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
 		);
@@ -657,7 +647,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		public default BinaryStorer createStorer(
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceObjectManager              objectManager     ,
-			final PersistenceObjectRetriever            objectRetriever   ,
+			final ObjectSwizzling            objectRetriever   ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider
 		)
@@ -669,7 +659,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 		public BinaryStorer createEagerStorer(
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceObjectManager              objectManager     ,
-			PersistenceObjectRetriever            objectRetriever   ,
+			ObjectSwizzling            objectRetriever   ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
 		);
@@ -734,7 +724,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			public final BinaryStorer createLazyStorer(
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceObjectManager              objectManager     ,
-				final PersistenceObjectRetriever            objectRetriever   ,
+				final ObjectSwizzling            objectRetriever   ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)
@@ -753,7 +743,7 @@ public interface BinaryStorer extends PersistenceStorer<Binary>
 			public BinaryStorer createEagerStorer(
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceObjectManager              objectManager     ,
-				final PersistenceObjectRetriever            objectRetriever   ,
+				final ObjectSwizzling            objectRetriever   ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)

@@ -8,8 +8,8 @@ import one.microstream.X;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.reflect.XReflect;
 
@@ -62,29 +62,29 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// getters //
+	// methods //
 	////////////
 
 	public final Class<A> getArrayType()
 	{
 		return this.arrayType;
 	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
+	
+	@Override
+	public final boolean hasPersistedReferences()
+	{
+		return true;
+	}
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final A                       instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeReferences(
+		data.storeReferences(
 			this.typeId()              ,
 			objectId                   ,
 			0                          ,
@@ -96,22 +96,22 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	}
 
 	@Override
-	public final A create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final A create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		final long rawElementCount = bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS);
+		final long rawElementCount = data.getListElementCountReferences(BINARY_OFFSET_ELEMENTS);
 		return this.arrayType.cast(
 			Array.newInstance(this.componentType, X.checkArrayRange(rawElementCount))
 		);
 	}
 
 	@Override
-	public final void update(final Binary bytes, final A instance, final PersistenceObjectIdResolver idResolver)
+	public final void updateState(final Binary data, final A instance, final PersistenceLoadHandler handler)
 	{
 		final Object[] arrayInstance = (Object[])instance;
 		
 		// better check length consistency here. No clear required.
-		bytes.validateArrayLength(arrayInstance, BINARY_OFFSET_ELEMENTS);
-		bytes.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, idResolver, arrayInstance);
+		data.validateArrayLength(arrayInstance, BINARY_OFFSET_ELEMENTS);
+		data.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, arrayInstance);
 	}
 	
 	@Override
@@ -121,21 +121,9 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return true;
-	}
-	
-	@Override
-	public final boolean hasPersistedReferences()
-	{
-		return true;
+		data.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 }

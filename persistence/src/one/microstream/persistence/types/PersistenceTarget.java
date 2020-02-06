@@ -2,9 +2,9 @@ package one.microstream.persistence.types;
 
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 
-public interface PersistenceTarget<M>
+public interface PersistenceTarget<D>
 {
-	public void write(M data) throws PersistenceExceptionTransfer;
+	public void write(D data) throws PersistenceExceptionTransfer;
 	
 	/**
 	 * Prepare to write to this target. E.g. open a defined file.

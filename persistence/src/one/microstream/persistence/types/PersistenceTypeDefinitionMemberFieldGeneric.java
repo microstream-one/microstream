@@ -7,7 +7,7 @@ extends PersistenceTypeDefinitionMemberField, PersistenceTypeDescriptionMemberFi
 {
 	public default PersistenceTypeDefinitionMemberFieldGeneric copyForName(final String name)
 	{
-		return this.copyForName(null, name);
+		return this.copyForName(this.qualifier(), name);
 	}
 	
 	public PersistenceTypeDefinitionMemberFieldGeneric copyForName(String qualifier, String name);

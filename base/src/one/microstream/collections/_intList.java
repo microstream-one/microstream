@@ -490,7 +490,7 @@ public final class _intList implements _intCollecting, Composition
 		return new _intList(this);
 	}
 
-	// (30.03.2012)TODO _intConsList
+	// (30.03.2012 TM)TODO _intConsList
 //	public ConstList immure()
 //	{
 //		return new ConstList(this);
@@ -668,7 +668,7 @@ public final class _intList implements _intCollecting, Composition
 	// setting methods //
 	////////////////////
 
-	// (30.03.2012)TODO _intViewList
+	// (30.03.2012 TM)TODO _intViewList
 //	public ListView view()
 //	{
 //		return new ListView(this);
@@ -1506,7 +1506,7 @@ public final class _intList implements _intCollecting, Composition
 		return this;
 	}
 
-	// (30.03.2012)TODO _intSubList
+	// (30.03.2012 TM)TODO _intSubList
 //	public SubList range(final int fromIndex, final int toIndex)
 //	{
 //		// range check is done in constructor
