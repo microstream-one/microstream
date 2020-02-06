@@ -15,9 +15,8 @@ public interface StorageRequestTaskFileCheck extends StorageRequestTask
 		// instance fields //
 		////////////////////
 
-		final StorageDataFileDissolvingEvaluator fileDissolver      ;
-		final long                               nanoTimeBudgetBound;
-		      boolean                            completed          ;
+		final long    nanoTimeBudgetBound;
+		      boolean completed          ;
 
 
 
@@ -28,12 +27,10 @@ public interface StorageRequestTaskFileCheck extends StorageRequestTask
 		Default(
 			final long                               timestamp          ,
 			final int                                channelCount       ,
-			final long                               nanoTimeBudgetBound,
-			final StorageDataFileDissolvingEvaluator fileDissolver
+			final long                               nanoTimeBudgetBound
 		)
 		{
 			super(timestamp, channelCount);
-			this.fileDissolver       = fileDissolver      ; // may be null
 			this.nanoTimeBudgetBound = nanoTimeBudgetBound;
 		}
 
@@ -46,7 +43,7 @@ public interface StorageRequestTaskFileCheck extends StorageRequestTask
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)
 		{
-			this.completed = channel.issuedFileCheck(this.nanoTimeBudgetBound, this.fileDissolver);
+			this.completed = channel.issuedFileCheck(this.nanoTimeBudgetBound);
 			return null;
 		}
 
