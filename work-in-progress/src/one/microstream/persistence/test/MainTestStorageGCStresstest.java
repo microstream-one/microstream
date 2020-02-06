@@ -84,7 +84,7 @@ public class MainTestStorageGCStresstest extends TestStorage
 
 		XDebug.println("file check");
 		connection.issueFullFileCheck(
-			Storage.DataFileEvaluator(100, 10_000, 0.99999)
+//			Storage.DataFileEvaluator(100, 10_000, 0.99999)
 		);
 		XDebug.println("Done cleanup");
 	}

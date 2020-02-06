@@ -1,7 +1,6 @@
 package one.microstream.storage.types;
 
 
-import static one.microstream.X.coalesce;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.notNegative;
@@ -67,7 +66,7 @@ public interface StorageFileManager
 
 	public boolean incrementalFileCleanupCheck(long nanoTimeBudgetBound);
 
-	public boolean issuedFileCleanupCheck(long nanoTimeBudgetBound, StorageDataFileDissolvingEvaluator fileDissolver);
+	public boolean issuedFileCleanupCheck(long nanoTimeBudgetBound);
 
 	public void exportData(StorageIoHandler fileHandler);
 
@@ -1239,10 +1238,7 @@ public interface StorageFileManager
 		}
 
 		@Override
-		public final boolean issuedFileCleanupCheck(
-			final long                               nanoTimeBudgetBound,
-			final StorageDataFileDissolvingEvaluator fileDissolver
-		)
+		public final boolean issuedFileCleanupCheck(final long nanoTimeBudgetBound)
 		{
 //			DEBUGStorage.println(this.channelIndex + " processing issued file cleanup check, time bound = "
 //				+ nanoTimeBudgetBound
@@ -1266,10 +1262,7 @@ public interface StorageFileManager
 			this.resetFileCleanupCursor();
 			try
 			{
-				return this.internalCheckForCleanup(
-					nanoTimeBudgetBound,
-					coalesce(fileDissolver, this.dataFileEvaluator)
-				);
+				return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 			}
 			finally
 			{
