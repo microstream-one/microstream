@@ -39,7 +39,7 @@
 		<module>storage.embedded.configuration</module>
 		<module>storage.restadapter</module>		
 		<module>storage.restservice</module>
-		<module>storage.restservice.ms</module>		
+		<module>storage.restservice.sparkjava</module>		
 	</modules>
 
 	<repositories>

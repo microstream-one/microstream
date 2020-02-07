@@ -1,4 +1,4 @@
-# Storage Viewer HowTo:
+sparkjava# Storage Viewer HowTo:
 
 # Content
 - [Setup](#1-setup)
@@ -21,7 +21,7 @@
 ```
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>storage.restservice.ms</artifactId>
+	<artifactId>storage.restservice.sparkjava</artifactId>
 	<version>${microstream.version}</version>
 </dependency>
 ```

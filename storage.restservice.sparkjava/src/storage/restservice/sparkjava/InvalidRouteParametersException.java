@@ -1,4 +1,4 @@
-package storage.restservice.ms;
+package storage.restservice.sparkjava;
 
 @SuppressWarnings("serial")
 public class InvalidRouteParametersException extends RuntimeException
