@@ -14,11 +14,10 @@ public class MainTestStorageExample
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
-//	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
+	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 
 	public static void main(final String[] args)
 	{
-		final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 		
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
 		if(STORAGE.root() == null)

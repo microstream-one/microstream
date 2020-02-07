@@ -173,8 +173,9 @@ public interface LazyReferenceManager
 		private          Entry          tail   = this.head            ;
 		private          Entry          cursor = this.head            ; // current "last" entry for checking
 
-        private boolean         running       ;
-		private ControllerChain headController;
+        private boolean         running        ;
+		private ControllerEntry headController ;
+		private long            controllerCount;
 
 		
 		
@@ -194,15 +195,12 @@ public interface LazyReferenceManager
 			this.nanoTimeBudgetProvider         = nanoTimeBudgetProvider;
 		}
 		
-		
-
 		private synchronized boolean mayRun()
 		{
 			if(this.headController == null)
 			{
-				// (06.02.2020 TM)FIXME: priv#219: if there was a controller, but its gone now, this true is wrong.
-				// if no extern controller is present, the LRM controls itself on its own, hence true.
-				return true;
+				// if no external controller is or was present, the LRM controls itself on its own.
+				return this.controllerCount == 0;
 			}
 			
 			// check for orphaned head controller and consolidate to next non-orphaned one (or null!)
@@ -222,11 +220,11 @@ public interface LazyReferenceManager
 		}
 		
 		// NOT threadsafe! Must be secured by accessing outer LRM methods
-		static final class ControllerChain extends WeakReference<LazyReferenceManager.Controller>
+		static final class ControllerEntry extends WeakReference<LazyReferenceManager.Controller>
 		{
-			ControllerChain next;
+			ControllerEntry next;
 			
-			ControllerChain(final LazyReferenceManager.Controller controller)
+			ControllerEntry(final LazyReferenceManager.Controller controller)
 			{
 				super(controller);
 			}
@@ -236,7 +234,7 @@ public interface LazyReferenceManager
 				return this.next != null && this.next.isEnabled(this);
 			}
 
-			final boolean isEnabled(final ControllerChain last)
+			final boolean isEnabled(final ControllerEntry last)
 			{
 				final LazyReferenceManager.Controller controller;
 				if((controller = this.get()) == null)
@@ -261,9 +259,9 @@ public interface LazyReferenceManager
 				return this.next != null && this.next.isEnabled(this);
 			}
 			
-			static final ControllerChain consolidate(final ControllerChain root)
+			static final ControllerEntry consolidate(final ControllerEntry root)
 			{
-				ControllerChain current = root;
+				ControllerEntry current = root;
 				while(current != null && current.get() == null)
 				{
 					current = current.next;
@@ -276,12 +274,12 @@ public interface LazyReferenceManager
 				return current;
 			}
 			
-			final ControllerChain consolidateSelf()
+			final ControllerEntry consolidateSelf()
 			{
 				return consolidate(this);
 			}
 			
-			final ControllerChain consolidateTail()
+			final ControllerEntry consolidateTail()
 			{
 				this.next = consolidate(this.next);
 				
@@ -522,12 +520,13 @@ public interface LazyReferenceManager
 			// either set as head instance or scroll to the end and add as tail instance.
 			if(this.headController == null)
 			{
-				this.headController = new ControllerChain(controller);
+				this.headController = new ControllerEntry(controller);
+				this.controllerCount++;
 				
 				return this;
 			}
 			
-			ControllerChain current = this.headController;
+			ControllerEntry current = this.headController;
 			while(current.next != null)
 			{
 				// no need for orphan removal logic here as the checking logic already does that on every check
@@ -537,7 +536,8 @@ public interface LazyReferenceManager
 				}
 				current = current.next;
 			}
-			current.next = new ControllerChain(controller);
+			current.next = new ControllerEntry(controller);
+			this.controllerCount++;
 			
 			return this;
 		}
@@ -552,6 +552,7 @@ public interface LazyReferenceManager
 			{
 				// adding logic ensures there can be at the most one entry, so one match suffices to end the loop.
 				this.headController = this.headController.next;
+				this.controllerCount--;
 				return true;
 			}
 			
@@ -562,14 +563,15 @@ public interface LazyReferenceManager
 			}
 			
 			// normal case loop starting with a non-null, non-matching head entry
-			ControllerChain last = this.headController;
-			for(ControllerChain e; (e = last.next) != null; last = e)
+			ControllerEntry last = this.headController;
+			for(ControllerEntry e; (e = last.next) != null; last = e)
 			{
 				// no need for orphan removal logic here as the checking logic already does that on every check
 				if(e.get() == controller)
 				{
 					// remove chain element by replacing the reference to it by that to its next.
 					last.next = e.next;
+					this.controllerCount--;
 					
 					// adding logic ensures there can be at the most one entry, so one match suffices to end the loop.
 					return true;
@@ -585,7 +587,7 @@ public interface LazyReferenceManager
 			final P iterator
 		)
 		{
-			for(ControllerChain acc = this.headController; acc != null; acc = acc.next)
+			for(ControllerEntry acc = this.headController; acc != null; acc = acc.next)
 			{
 				final LazyReferenceManager.Controller ac;
 				if((ac = acc.get()) != null)
@@ -669,7 +671,7 @@ public interface LazyReferenceManager
 				}
 				
 				// either parent has been garbage collected or stopped, so terminate.
-				XDebug.println(Thread.currentThread().getName() + " terminating.");
+//				XDebug.println(Thread.currentThread().getName() + " terminating.");
 			}
 		}
 
