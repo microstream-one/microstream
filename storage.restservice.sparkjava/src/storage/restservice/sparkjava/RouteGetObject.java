@@ -1,4 +1,4 @@
-package storage.restservice.ms;
+package storage.restservice.sparkjava;
 
 import one.microstream.storage.restadapter.StorageRestAdapterObject;
 import one.microstream.storage.restadapter.ViewerObjectDescription;

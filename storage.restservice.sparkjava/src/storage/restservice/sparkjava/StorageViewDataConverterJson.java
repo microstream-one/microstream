@@ -1,4 +1,4 @@
-package storage.restservice.ms;
+package storage.restservice.sparkjava;
 
 import java.lang.reflect.Type;
 import java.util.Date;
