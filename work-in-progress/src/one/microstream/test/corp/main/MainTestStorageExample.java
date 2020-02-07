@@ -10,7 +10,7 @@ public class MainTestStorageExample
 {
 	static
 	{
-//		Test.clearDefaultStorageDirectory();
+		Test.clearDefaultStorageDirectory();
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
@@ -18,6 +18,7 @@ public class MainTestStorageExample
 
 	public static void main(final String[] args)
 	{
+		
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
 		if(STORAGE.root() == null)
 		{
@@ -47,7 +48,7 @@ public class MainTestStorageExample
 		STORAGE.shutdown();
 		
 		// no shutdown required, the storage concept is inherently crash-safe
-		System.exit(0);
+//		System.exit(0);
 	}
 		
 }

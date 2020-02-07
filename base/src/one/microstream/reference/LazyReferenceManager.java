@@ -34,9 +34,15 @@ public interface LazyReferenceManager
 
 	public LazyReferenceManager stop();
 	
+	public LazyReferenceManager addController(LazyReferenceManager.Controller controller);
+	
+	public boolean removeController(LazyReferenceManager.Controller controller);
+	
 	public boolean isRunning();
 
-	public <P extends Consumer<? super Lazy<?>>> P iterate(P procedure);
+	public <P extends Consumer<? super Lazy<?>>> P iterate(P iterator);
+
+	public <P extends Consumer<? super LazyReferenceManager.Controller>> P iterateControllers(P iterator);
 
 	
 
@@ -132,34 +138,14 @@ public interface LazyReferenceManager
 			_longReference.New(nanoTimeBudget)
 		);
 	}
-
-	public static LazyReferenceManager New(
-		final Checker        checker                       ,
-		final _longReference milliTimeCheckIntervalProvider,
-		final _longReference nanoTimeBudgetProvider
-	)
-	{
-		return New(_booleanReference.True(), checker, milliTimeCheckIntervalProvider, nanoTimeBudgetProvider);
-	}
-	
-	public static LazyReferenceManager New(final _booleanReference parentRunningState)
-	{
-		return New(
-			parentRunningState,
-			Lazy.Checker(),
-			_longReference.New(Default.DEFAULT_CHECK_INTERVAL_MS),
-			_longReference.New(Default.DEFAULT_TIME_BUDGET_NS)
-		);
-	}
 	
 	public static LazyReferenceManager New(
-		final _booleanReference parentRunningState            ,
 		final Checker           checker                       ,
 		final _longReference    milliTimeCheckIntervalProvider,
 		final _longReference    nanoTimeBudgetProvider
 	)
 	{
-		return new Default(parentRunningState, checker, milliTimeCheckIntervalProvider, nanoTimeBudgetProvider);
+		return new Default(checker, milliTimeCheckIntervalProvider, nanoTimeBudgetProvider);
 	}
 
 	public final class Default implements LazyReferenceManager
@@ -168,7 +154,7 @@ public interface LazyReferenceManager
 		// constants //
 		//////////////
 
-		private static final Clearer CLEARER                   = new Clearer();
+		private static final Clearer CLEARER = new Clearer();
 
 		// defaults mean to check every second with a budget of 1 MS (0.1% thread activity)
 		        static final long    DEFAULT_CHECK_INTERVAL_MS = 1_000        ;
@@ -180,35 +166,127 @@ public interface LazyReferenceManager
 		// instance fields //
 		////////////////////
 
-		private final _booleanReference parentRunningState            ;
 		private final    Checker        checker                       ;
 		private final    _longReference millitimeCheckIntervalProvider;
 		private final    _longReference nanoTimeBudgetProvider        ;
 		private final    Entry          head   = new Entry(null)      ;
 		private          Entry          tail   = this.head            ;
 		private          Entry          cursor = this.head            ; // current "last" entry for checking
-		        volatile boolean        running                       ;
 
+        private boolean         running        ;
+		private ControllerEntry headController ;
+		private long            controllerCount;
 
-
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
 		Default(
-			final _booleanReference parentRunningState    ,
-			final Checker           checker               ,
-			final _longReference    checkIntervalProvider ,
-			final _longReference    nanoTimeBudgetProvider
+			final Checker        checker               ,
+			final _longReference checkIntervalProvider ,
+			final _longReference nanoTimeBudgetProvider
 		)
 		{
 			super();
-			this.parentRunningState             = parentRunningState    ;
 			this.checker                        = checker               ;
 			this.millitimeCheckIntervalProvider = checkIntervalProvider ;
 			this.nanoTimeBudgetProvider         = nanoTimeBudgetProvider;
 		}
+		
+		private synchronized boolean mayRun()
+		{
+			if(this.headController == null)
+			{
+				// if no external controller is or was present, the LRM controls itself on its own.
+				return this.controllerCount == 0;
+			}
+			
+			// check for orphaned head controller and consolidate to next non-orphaned one (or null!)
+			final LazyReferenceManager.Controller ac;
+			if((ac = this.headController.get()) == null)
+			{
+				this.headController = this.headController.consolidateSelf();
+				
+				// mus call recursively in case null is returned or GC cleared a weak reference in the mean time.
+				return this.mayRun();
+			}
+			
+			return ac.mayRun()
+				? true
+				: this.headController.checkChain()
+			;
+		}
+		
+		// NOT threadsafe! Must be secured by accessing outer LRM methods
+		static final class ControllerEntry extends WeakReference<LazyReferenceManager.Controller>
+		{
+			ControllerEntry next;
+			
+			ControllerEntry(final LazyReferenceManager.Controller controller)
+			{
+				super(controller);
+			}
+			
+			final boolean checkChain()
+			{
+				return this.next != null && this.next.isEnabled(this);
+			}
 
+			final boolean isEnabled(final ControllerEntry last)
+			{
+				final LazyReferenceManager.Controller controller;
+				if((controller = this.get()) == null)
+				{
+					// if this chain entry is an orphan AND the last one, the default value is returned
+					if((last.next = this.next) == null)
+					{
+						return false;
+					}
+					
+					// if it is not the last one, the next entry is asked/checked
+					return this.next.isEnabled(last);
+				}
+				
+				// if at least one existing controllers returns true, then true it is.
+				if(controller.mayRun())
+				{
+					return true;
+				}
+
+				// check next controller if present. Otherwise, this controler's false counts
+				return this.next != null && this.next.isEnabled(this);
+			}
+			
+			static final ControllerEntry consolidate(final ControllerEntry root)
+			{
+				ControllerEntry current = root;
+				while(current != null && current.get() == null)
+				{
+					current = current.next;
+				}
+				if(current != null)
+				{
+					current.consolidateTail();
+				}
+				
+				return current;
+			}
+			
+			final ControllerEntry consolidateSelf()
+			{
+				return consolidate(this);
+			}
+			
+			final ControllerEntry consolidateTail()
+			{
+				this.next = consolidate(this.next);
+				
+				return this;
+			}
+			
+		}
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -247,11 +325,15 @@ public interface LazyReferenceManager
 
 		final void internalCleanUp(final long nanoTimeBudget, final Checker checker)
 		{
-			/* (22.06.2016 TM)FIXME: full clear does not clear fully
+			/* (22.06.2016 TM)NOTE: full clear does not clear fully
 			 * productive use of the full clear call clears only like 6 of 300 references on a regular basis.
 			 * Sometimes all, but most of the time not.
 			 * Even though the application is single threaded as far as lazy reference creation is concerned
 			 * (simple "main test" class execution)
+			 * 
+			 * (06.02.2020 TM)NOTE: since then, the LRM has been massively overhauled.
+			 * However, the basic logic of entry iteration and the "Clearer" checker remained unchanged.
+			 * So the age old note might still be relevant.
 			 */
 			
 			final long timeBudgetBound = this.calculateNanoTimeBudgetBound(nanoTimeBudget);
@@ -371,9 +453,12 @@ public interface LazyReferenceManager
 			}
 			
 			other.iterate(lr ->
-			{
-				this.register(lr);
-			});
+				this.register(lr)
+			);
+			
+			other.iterateControllers(ac ->
+				this.addController(ac)
+			);
 			
 			return this;
 		}
@@ -399,14 +484,14 @@ public interface LazyReferenceManager
 		@Override
 		public final synchronized boolean isRunning()
 		{
-			return this.running && this.parentRunningState.get();
+			return this.running && this.mayRun();
 		}
 
 		@Override
 		public synchronized LazyReferenceManager start()
 		{
 			// check for already running condition to avoid starting more than more thread
-			if(this.parentRunningState.get() && !this.running)
+			if(!this.running && this.mayRun())
 			{
 				this.running = true;
 				new LazyReferenceCleanupThread(new WeakReference<>(this), this.millitimeCheckIntervalProvider).start();
@@ -421,19 +506,110 @@ public interface LazyReferenceManager
 			this.running = false;
 			return this;
 		}
+		
+		@Override
+		public final synchronized LazyReferenceManager addController(
+			final LazyReferenceManager.Controller controller
+		)
+		{
+			if(controller == null)
+			{
+				return this;
+			}
+			
+			// either set as head instance or scroll to the end and add as tail instance.
+			if(this.headController == null)
+			{
+				this.headController = new ControllerEntry(controller);
+				this.controllerCount++;
+				
+				return this;
+			}
+			
+			ControllerEntry current = this.headController;
+			while(current.next != null)
+			{
+				// no need for orphan removal logic here as the checking logic already does that on every check
+				if(current.get() == controller)
+				{
+					return this;
+				}
+				current = current.next;
+			}
+			current.next = new ControllerEntry(controller);
+			this.controllerCount++;
+			
+			return this;
+		}
 
 		@Override
-		public synchronized <P extends Consumer<? super Lazy<?>>> P iterate(final P procedure)
+		public final synchronized boolean removeController(
+			final LazyReferenceManager.Controller controller
+		)
+		{
+			// head entry special case
+			if(this.headController != null && this.headController.get() == controller)
+			{
+				// adding logic ensures there can be at the most one entry, so one match suffices to end the loop.
+				this.headController = this.headController.next;
+				this.controllerCount--;
+				return true;
+			}
+			
+			if(this.headController == null)
+			{
+				// no (more) controllers present, hence passed controller not found.
+				return false;
+			}
+			
+			// normal case loop starting with a non-null, non-matching head entry
+			ControllerEntry last = this.headController;
+			for(ControllerEntry e; (e = last.next) != null; last = e)
+			{
+				// no need for orphan removal logic here as the checking logic already does that on every check
+				if(e.get() == controller)
+				{
+					// remove chain element by replacing the reference to it by that to its next.
+					last.next = e.next;
+					this.controllerCount--;
+					
+					// adding logic ensures there can be at the most one entry, so one match suffices to end the loop.
+					return true;
+				}
+			}
+			
+			// passed controller not found
+			return false;
+		}
+		
+		@Override
+		public <P extends Consumer<? super LazyReferenceManager.Controller>> P iterateControllers(
+			final P iterator
+		)
+		{
+			for(ControllerEntry acc = this.headController; acc != null; acc = acc.next)
+			{
+				final LazyReferenceManager.Controller ac;
+				if((ac = acc.get()) != null)
+				{
+					iterator.accept(ac);
+				}
+			}
+			return iterator;
+		}
+
+		@Override
+		public synchronized <P extends Consumer<? super Lazy<?>>> P iterate(final P iterator)
 		{
 			for(Entry e = this.head; (e = e.nextLazyManagerEntry) != null;)
 			{
 				final Lazy<?> ref = e.get();
 				if(ref != null)
 				{
-					procedure.accept(ref);
+					iterator.accept(ref);
 				}
 			}
-			return procedure;
+			return iterator;
 		}
 
 
@@ -495,7 +671,7 @@ public interface LazyReferenceManager
 				}
 				
 				// either parent has been garbage collected or stopped, so terminate.
-				XDebug.println(Thread.currentThread().getName() + " terminating.");
+//				XDebug.println(Thread.currentThread().getName() + " terminating.");
 			}
 		}
 
@@ -513,6 +689,12 @@ public interface LazyReferenceManager
 
 	}
 
+	
+	@FunctionalInterface
+	public interface Controller
+	{
+		public boolean mayRun();
+	}
 	
 	
 	@FunctionalInterface

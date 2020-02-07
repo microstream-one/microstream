@@ -532,7 +532,7 @@ public final class Storage
 	/**
 	 * Consolidates the storage system represented by the passed {@link StorageConnection} by calling<br>
 	 * {@link StorageConnection#issueFullGarbageCollection()}<br>
-	 * {@link StorageConnection#issueFullFileCheck(StorageDataFileDissolvingEvaluator)}<br>
+	 * {@link StorageConnection#issueFullFileCheck()}<br>
 	 * {@link StorageConnection#issueFullCacheCheck(StorageEntityCacheEvaluator)}<br>
 	 * in that order.
 	 * <p>
@@ -541,17 +541,14 @@ public final class Storage
 	 * until the next store.
 	 *
 	 * @param storageConnection The connection to the storage that shall be consolidated.
-	 * @param fileDissolver     The function evaluating whether to dissolve a file.<br>
-	 *                          May be {@literal null} to indicate the use of the live configuration as a default.
 	 * @param entityEvaluator   The function evaluating whether to clear an entity from the cache.<br>
 	 *                          May be {@literal null} to indicate the use of the live configuration as a default.
 	 * 
 	 * @return the passed storageConnection instance.
 	 */
 	public static final <C extends StorageConnection> C consolidate(
-		final C                                  storageConnection,
-		final StorageDataFileDissolvingEvaluator fileDissolver    ,
-		final StorageEntityCacheEvaluator        entityEvaluator
+		final C                           storageConnection,
+		final StorageEntityCacheEvaluator entityEvaluator
 	)
 	{
 		/* calls must be done in that order to achieve highest (normal) effectivity:
@@ -560,58 +557,24 @@ public final class Storage
 		 * - clean the entity cache.
 		 */
 		storageConnection.issueFullGarbageCollection();
-		storageConnection.issueFullFileCheck(fileDissolver);
+		storageConnection.issueFullFileCheck();
 		storageConnection.issueFullCacheCheck(entityEvaluator);
 		return storageConnection;
 	}
 
 	/**
-	 * Calls {@link Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)}
+	 * Calls {@link Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator)}
 	 * with {@literal null} as additional parameters (causing live configuration to be used instead).
 	 *
-	 * @param storageConnection {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator):}
+	 * @param storageConnection {@linkDoc Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator):}
 	 * 
-	 * @return {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)@return}
+	 * @return {@linkDoc Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator)@return}
 	 */
 	public static final <C extends StorageConnection> C consolidate(final C storageConnection)
 	{
-		return consolidate(storageConnection, null, null);
+		return consolidate(storageConnection, null);
 	}
-	
-	/**
-	 * Calls {@link Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)}
-	 * with {@literal null} as additional parameters (causing live configuration to be used instead).
-	 *
-	 * @param storageConnection {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator):}
-	 * @param fileDissolver     {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator):}
-	 * 
-	 * @return {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)@return}
-	 */
-	public static final <C extends StorageConnection> C consolidate(
-		final C                                  storageConnection,
-		final StorageDataFileDissolvingEvaluator fileDissolver
-	)
-	{
-		return consolidate(storageConnection, fileDissolver, null);
-	}
-	
-	/**
-	 * Calls {@link Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)}
-	 * with {@literal null} as additional parameters (causing live configuration to be used instead).
-	 *
-	 * @param storageConnection {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator):}
-	 * @param entityEvaluator   {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator):}
-	 * 
-	 * @return {@linkDoc Storage#consolidate(StorageConnection, StorageDataFileDissolvingEvaluator, StorageEntityCacheEvaluator)@return}
-	 */
-	public static final <C extends StorageConnection> C consolidate(
-		final C                           storageConnection,
-		final StorageEntityCacheEvaluator entityEvaluator
-	)
-	{
-		return consolidate(storageConnection, null, entityEvaluator);
-	}
-
+		
 	
 
 	///////////////////////////////////////////////////////////////////////////

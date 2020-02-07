@@ -43,7 +43,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 
 	public boolean issuedGarbageCollection(long nanoTimeBudgetBound);
 
-	public boolean issuedFileCheck(long nanoTimeBudgetBound, StorageDataFileDissolvingEvaluator fileDissolver);
+	public boolean issuedFileCheck(long nanoTimeBudgetBound);
 
 	public boolean issuedCacheCheck(long nanoTimeBudgetBound, StorageEntityCacheEvaluator entityEvaluator);
 
@@ -481,12 +481,9 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		}
 
 		@Override
-		public boolean issuedFileCheck(
-			final long                               nanoTimeBudgetBound,
-			final StorageDataFileDissolvingEvaluator fileDissolver
-		)
+		public boolean issuedFileCheck(final long nanoTimeBudgetBound)
 		{
-			return this.fileManager.issuedFileCleanupCheck(nanoTimeBudgetBound, fileDissolver);
+			return this.fileManager.issuedFileCleanupCheck(nanoTimeBudgetBound);
 		}
 
 		@Override

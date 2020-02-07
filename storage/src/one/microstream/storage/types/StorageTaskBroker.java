@@ -66,10 +66,7 @@ public interface StorageTaskBroker
 	public StorageRequestTaskGarbageCollection issueGarbageCollection(long nanoTimeBudgetBound)
 		throws InterruptedException;
 
-	public StorageRequestTaskFileCheck issueFileCheck(
-		long                               nanoTimeBudgetBound,
-		StorageDataFileDissolvingEvaluator fileDissolver
-	)
+	public StorageRequestTaskFileCheck issueFileCheck(long nanoTimeBudgetBound	)
 		throws InterruptedException;
 
 	public StorageRequestTaskCacheCheck issueCacheCheck(
@@ -248,15 +245,13 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageRequestTaskFileCheck issueFileCheck(
-			final long                               nanoTimeBudgetBound,
-			final StorageDataFileDissolvingEvaluator fileDissolver
+			final long nanoTimeBudgetBound
 		)
 			throws InterruptedException
 		{
 			final StorageRequestTaskFileCheck task = this.taskCreator.createFullFileCheckTask(
 				this.channelCount,
-				nanoTimeBudgetBound,
-				fileDissolver
+				nanoTimeBudgetBound
 			);
 			this.enqueueTaskAndNotifyAll(task);
 			return task;
