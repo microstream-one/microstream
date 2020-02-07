@@ -45,7 +45,7 @@ public interface EmbeddedStorageManager extends StorageManager
 	}
 
 
-	public final class Default implements EmbeddedStorageManager, Unpersistable
+	public final class Default implements EmbeddedStorageManager, Unpersistable, LazyReferenceManager.Controller
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -148,31 +148,44 @@ public interface EmbeddedStorageManager extends StorageManager
 		{
 			return this.singletonConnection().createStorer();
 		}
-				
-		private static void ensureActiveLazyReferenceManager(final boolean lazyReferenceManagerIsRunning)
+		
+		@Override
+		public boolean mayRun()
 		{
+			return this.isRunning();
+		}
+				
+		private void ensureActiveLazyReferenceManager(
+			final LazyReferenceManager lazyReferenceManager         ,
+			final boolean              lazyReferenceManagerIsRunning
+		)
+		{
+			lazyReferenceManager.addController(this);
 			if(lazyReferenceManagerIsRunning)
 			{
 				return;
 			}
 			
-			LazyReferenceManager.get().start();
+			lazyReferenceManager.start();
 		}
 		
-		private static void rollbackLazyReferenceManager(
-			final boolean lazyReferenceManagerWasRunning
+		private void rollbackLazyReferenceManager(
+			final LazyReferenceManager lazyReferenceManager,
+			final boolean    lazyReferenceManagerWasRunning
 		)
 		{
+			lazyReferenceManager.removeController(this);
 			if(!lazyReferenceManagerWasRunning)
 			{
-				LazyReferenceManager.get().stop();
+				lazyReferenceManager.stop();
 			}
 		}
 
 		@Override
 		public final EmbeddedStorageManager.Default start()
 		{
-			final boolean lazyReferenceManagerIsRunning = LazyReferenceManager.get().isRunning();
+			final LazyReferenceManager lazyReferenceManager = LazyReferenceManager.get();
+			final boolean lazyReferenceManagerIsRunning = lazyReferenceManager.isRunning();
 			
 			this.storageSystem.start();
 			
@@ -182,13 +195,13 @@ public interface EmbeddedStorageManager extends StorageManager
 				this.initialize();
 				
 				// this depends on completed initialization
-				ensureActiveLazyReferenceManager(lazyReferenceManagerIsRunning);
+				this.ensureActiveLazyReferenceManager(lazyReferenceManager, lazyReferenceManagerIsRunning);
 			}
 			catch(final Throwable t)
 			{
 				try
 				{
-					rollbackLazyReferenceManager(lazyReferenceManagerIsRunning);
+					this.rollbackLazyReferenceManager(lazyReferenceManager, lazyReferenceManagerIsRunning);
 					
 					if(this.storageSystem instanceof StorageKillable)
 					{
@@ -403,23 +416,9 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 
 		@Override
-		public final void issueFullFileCheck(final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
-		{
-			this.singletonConnection().issueFullFileCheck(fileDissolvingEvaluator);
-		}
-
-		@Override
 		public final boolean issueFileCheck(final long nanoTimeBudgetBound)
 		{
 			return this.singletonConnection().issueFileCheck(nanoTimeBudgetBound);
-		}
-
-		@Override
-		public final boolean issueFileCheck(
-			final long nanoTimeBudgetBound,
-			final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
-		{
-			return this.singletonConnection().issueFileCheck(nanoTimeBudgetBound, fileDissolvingEvaluator);
 		}
 
 		@Override

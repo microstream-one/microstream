@@ -45,20 +45,34 @@ public interface StorageConnection extends Persister
 
 	public default void issueFullFileCheck()
 	{
-		this.issueFullFileCheck(null); // providing no explicit evaluator means to use the internal one
+		this.issueFileCheck(Long.MAX_VALUE);
 	}
 
-	public default void issueFullFileCheck(final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
-	{
-		 this.issueFileCheck(Long.MAX_VALUE, fileDissolvingEvaluator);
-	}
+	public boolean issueFileCheck(long nanoTimeBudgetBound);
+	
+	/* (06.02.2020 TM)NOTE: As shown by HG, allowing one-time custom evaluators can cause conflicts.
+	 * E.g. infinite loops:
+	 * - Default evaluator allows 8 MB files
+	 * - Custom evaluator allows only 4 MB files
+	 * - So the call splits an 8 MB file
+	 * - The new file is filled up to 8 MB based on the default evaluator
+	 * - Then it is evaluated by the custom evaluator and split again
+	 * - This repeats forever
+	 * 
+	 * On a more general note:
+	 * In contrary to cache management, it hardly makes sense to interrupt the default logic,
+	 * mess around with all the storage files once and then fall back to the default logic,
+	 * undoing all changes according to its own strategy.
+	 * 
+	 * In any case, this method hardly makes sense.
+	 */
 
-	public default boolean issueFileCheck(final long nanoTimeBudgetBound)
-	{
-		return this.issueFileCheck(nanoTimeBudgetBound, null);
-	}
+//	public default void issueFullFileCheck(final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
+//	{
+//		 this.issueFileCheck(Long.MAX_VALUE, fileDissolvingEvaluator);
+//	}
 
-	public boolean issueFileCheck(long nanoTimeBudgetBound, StorageDataFileDissolvingEvaluator fileDissolvingEvaluator);
+//	public boolean issueFileCheck(long nanoTimeBudgetBound, StorageDataFileDissolvingEvaluator fileDissolvingEvaluator);
 
 	public default void issueFullCacheCheck()
 	{
@@ -338,15 +352,12 @@ public interface StorageConnection extends Persister
 		}
 
 		@Override
-		public final boolean issueFileCheck(
-			final long                               nanoTimeBudgetBound,
-			final StorageDataFileDissolvingEvaluator fileDissolver
-		)
+		public final boolean issueFileCheck(final long nanoTimeBudgetBound)
 		{
 			try
 			{
 				// a time budget <= 0 will effectively be a cheap query for the completion state.
-				return this.connectionRequestAcceptor.issueFileCheck(nanoTimeBudgetBound, fileDissolver);
+				return this.connectionRequestAcceptor.issueFileCheck(nanoTimeBudgetBound);
 			}
 			catch(final InterruptedException e)
 			{

@@ -17,7 +17,6 @@ import one.microstream.persistence.binary.types.ChunksBuffer;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageException;
-import one.microstream.typing.XTypes;
 
 
 public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
@@ -973,6 +972,39 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.markMonitor.completeSweep(this, this.rootOidSelector, channelRootOid);
 		}
 
+		private static final long MAX_INT_BOUND = 1L + Integer.MAX_VALUE;
+		
+		final static int validateStoragePosition(
+			final StorageEntity.Default entity       ,
+			final long                  storageOffset
+		)
+		{
+			if(storageOffset < MAX_INT_BOUND)
+			{
+				return (int)storageOffset;
+			}
+			
+			/* (06.02.2020 TM)EXCP: fix storage position limitation
+			 * This has, of course, to be removed/fixed.
+			 * The solution is to spread a single store's buffers over multiple files if needed.
+			 * However, this is not trivial to do:
+			 * A single store must be split into multiple stores,
+			 * each store must get its own transactions entry OR a kind of store continuation entry, etc.
+			 * 
+			 * This effort is not worth it with the transition of the much more advanced storage management 2.0
+			 * concept in mind. There, store chunks will be spread over multiple store files anyway and
+			 * archive files will be split according to oid range and entity length automatically.
+			 * 
+			 * For now, this is simply a technical limitation and one more good reason to implement the
+			 * improved storage concept sooner rather than later.
+			 */
+			throw new StorageException(
+				"Storage position for entity " + entity.objectId()
+				+ " exceeds the technical int value limit of " + Integer.MAX_VALUE + "."
+				+ " This happens when a single store grows too big."
+				+ " This limitation will be removed in a future version."
+			);
+		}
 
 		final void internalPutEntities(
 			final ByteBuffer              chunk               ,
@@ -994,7 +1026,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				this.markEntityForChangedData(entity);
 				entity.updateStorageInformation(
 					X.checkArrayRange(Binary.getEntityLengthRawValue(adr)),
-					XTypes.to_int(storageBackset + adr)
+					validateStoragePosition(entity, storageBackset + adr)
 				);
 				file.appendEntry(entity);
 			}
