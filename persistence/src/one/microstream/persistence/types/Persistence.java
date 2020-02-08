@@ -47,6 +47,7 @@ import one.microstream.reference.Swizzling;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.Composition;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.xcsv.XCSV;
 
 
 public class Persistence
@@ -1023,8 +1024,11 @@ public class Persistence
 			XIO.readString(file)
 		);
 		
-		// (05.02.2020 TM)FIXME: priv#204: derive value separator from file suffix (but by centralized code!)
-		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
+		final String        fileSuffix = XIO.getFileSuffix(file);
+		final String        normalized = fileSuffix == null ? null : fileSuffix.trim().toLowerCase();
+		final XCSV.DataType dataType   = XCSV.DataType.fromIdentifier(normalized);
+		
+		final StringTable                        stringTable = StringTable.Static.parse(fileContent, dataType);
 		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());
 		
 		stringTable.mapTo(

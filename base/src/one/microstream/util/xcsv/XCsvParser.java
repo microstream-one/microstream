@@ -4,19 +4,40 @@ package one.microstream.util.xcsv;
 public interface XCsvParser<I>
 {
 	public XCsvConfiguration parseCsvData(
+		XCSV.DataType                  dataType              ,
 		XCsvConfiguration              config                ,
 		I                              input                 ,
 		XCsvSegmentsParser.Provider<I> segmentsParserProvider,
 		XCsvRowCollector               rowAggregator
 	);
-
+	
+	public default XCsvConfiguration parseCsvData(
+		final XCsvConfiguration              config                ,
+		final I                              input                 ,
+		final XCsvSegmentsParser.Provider<I> segmentsParserProvider,
+		final XCsvRowCollector               rowAggregator
+	)
+	{
+		return this.parseCsvData(null, config, input, segmentsParserProvider, rowAggregator);
+	}
+	
 	public default XCsvConfiguration parseCsvData(
 		final XCsvConfiguration config       ,
 		final I                 input        ,
 		final XCsvRowCollector  rowAggregator
 	)
 	{
-		return this.parseCsvData(config, input, null, rowAggregator);
+		return this.parseCsvData(null, config, input, null, rowAggregator);
+	}
+
+	public default XCsvConfiguration parseCsvData(
+		final XCSV.DataType     dataType     ,
+		final XCsvConfiguration config       ,
+		final I                 input        ,
+		final XCsvRowCollector  rowAggregator
+	)
+	{
+		return this.parseCsvData(dataType, config, input, null, rowAggregator);
 	}
 
 

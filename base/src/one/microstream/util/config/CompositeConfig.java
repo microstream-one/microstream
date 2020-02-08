@@ -7,9 +7,9 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import one.microstream.chars.XCsvParserCharArray;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.chars.XCsvParserCharArray;
 import one.microstream.chars._charArrayRange;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
@@ -64,7 +64,7 @@ public class CompositeConfig
 	)
 	{
 		final String fileStart  = this.qualifier + '_' + tag + '_';
-		final String dotSuffix = '.' + this.filesuffix;
+		final String dotSuffix = XIO.fileSuffixSeparator() + this.filesuffix;
 
 		final File[] configFiles = this.configDirectory.listFiles(new FilenameFilter()
 		{
@@ -115,7 +115,7 @@ public class CompositeConfig
 	private final String                         rootIdentifier ;
 	private final String                         qualifier      ;
 	private final String                         filesuffix     ;
-	private final XCsvConfiguration               csvConfig      ;
+	private final XCsvConfiguration              csvConfig      ;
 	private final File                           configDirectory;
 	private final Substituter<String>            stringCache    ;
 	private final EqHashTable<String, SubConfig> subConfigs      = EqHashTable.New();
@@ -249,7 +249,7 @@ public class CompositeConfig
 		final XGettingEnum<File> writtenFiles = this.subConfigs.values().iterate(exporter).yield();
 
 		final String fileStart  = this.qualifier + '_';
-		final String dotSuffix = '.' + this.filesuffix;
+		final String dotSuffix = XIO.fileSuffixSeparator() + this.filesuffix;
 		final File[] filesToDelete = this.configDirectory.listFiles(file ->
 		{
 			final String filename = file.getName();
@@ -276,7 +276,8 @@ public class CompositeConfig
 	final File buildFile(final String identifier, final ConfigFile config)
 	{
 		return new File(
-			this.configDirectory, this.qualifier + '_' + identifier + '_' + config.name + '.' + this.filesuffix
+			this.configDirectory,
+			XIO.addFileSuffix(this.qualifier + '_' + identifier + '_' + config.name, this.filesuffix)
 		);
 	}
 
