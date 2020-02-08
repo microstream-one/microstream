@@ -61,42 +61,65 @@ public interface StringTable
 	{
 		public static StringTable parse(final String rawData)
 		{
-			return parse(rawData, null);
+			return parse(rawData, null, null);
 		}
 		
 		public static StringTable parse(final _charArrayRange rawData)
 		{
-			return parse(rawData, null);
+			return parse(rawData, null, null);
+		}
+		
+		public static StringTable parse(
+			final String        rawData ,
+			final XCSV.DataType dataType
+		)
+		{
+			return parse(rawData, null, dataType);
+		}
+		
+		public static StringTable parse(
+			final _charArrayRange rawData ,
+			final XCSV.DataType   dataType
+		)
+		{
+			return parse(rawData, null, dataType);
 		}
 		
 		public static StringTable parse(final String rawData, final char valueSeparator)
 		{
-			return parse(rawData, XCsvConfiguration.New(valueSeparator));
+			return parse(rawData, XCsvConfiguration.New(valueSeparator), null);
 		}
 		
 		public static StringTable parse(final _charArrayRange rawData, final char valueSeparator)
 		{
-			return parse(rawData, XCsvConfiguration.New(valueSeparator));
+			return parse(rawData, XCsvConfiguration.New(valueSeparator), null);
 		}
 		
-		public static StringTable parse(final String rawData, final XCsvConfiguration csvConfiguration)
+		public static StringTable parse(
+			final String            rawData         ,
+			final XCsvConfiguration csvConfiguration,
+			final XCSV.DataType     dataType
+		)
 		{
 			/*
 			 * can't copy around data all the time just because the JDK guys don't know how to write proper APIs
 			 * (e.g. give String an iterate(_charConsumer) method so that logic could be written reusable)
 			 * Or even better: make immutable arrays or optionally read-only accessible. But nooo...
 			 */
-			return parse(_charArrayRange.New(XChars.readChars(rawData)), csvConfiguration);
+			return parse(_charArrayRange.New(XChars.readChars(rawData)), csvConfiguration, dataType);
 		}
 		
-		public static StringTable parse(final _charArrayRange rawData, final XCsvConfiguration csvConfiguration)
+		public static StringTable parse(
+			final _charArrayRange   rawData         ,
+			final XCsvConfiguration csvConfiguration,
+			final XCSV.DataType     dataType
+		)
 		{
-			// (04.02.2020 TM)FIXME: priv#204: ensure value separator scanning on demand
 			final XCsvContentBuilderCharArray parser = XCsvContentBuilderCharArray.New(
-				ensureCsvConfiguration(csvConfiguration)
+				csvConfiguration, dataType
 			);
 			
-			final XCsvContent  content = parser.build(null, rawData);
+			final XCsvContent content = parser.build(null, rawData);
 			final StringTable data    = content.segments().first().value();
 
 			return data;

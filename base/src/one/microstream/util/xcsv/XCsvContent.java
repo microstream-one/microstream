@@ -19,6 +19,7 @@ public interface XCsvContent
 	
 	
 	
+	@FunctionalInterface
 	public interface Builder<D>
 	{
 		public XCsvContent build(String name, D data);

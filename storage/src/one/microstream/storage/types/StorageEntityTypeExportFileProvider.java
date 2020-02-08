@@ -37,7 +37,7 @@ public interface StorageEntityTypeExportFileProvider
 			this.fileSuffix       = fileSuffix;
 			this.cachedFileSuffix = fileSuffix == null
 				? ""
-				: '.' + fileSuffix
+				: XIO.fileSuffixSeparator() + fileSuffix
 			;
 		}
 

@@ -6,6 +6,7 @@ import one.microstream.collections.types.XReference;
 import one.microstream.functional._charRangeProcedure;
 import one.microstream.typing.Stateless;
 import one.microstream.util.xcsv.XCSV;
+import one.microstream.util.xcsv.XCSV.ValueSeparatorWeight;
 import one.microstream.util.xcsv.XCsvConfiguration;
 import one.microstream.util.xcsv.XCsvParser;
 import one.microstream.util.xcsv.XCsvRecordParserCharArray;
@@ -464,6 +465,11 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	{
 		return X.coalesce(xcsvConfiguration, XCSV.configurationDefault());
 	}
+	
+	private static XCSV.DataType ensureDataType(final XCSV.DataType dataType)
+	{
+		return X.coalesce(dataType, XCSV.DataType.XCSV);
+	}
 
 	private static int checkMetaCharacters(
 		final char[]                        input    ,
@@ -910,6 +916,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 
 	@Override
 	public XCsvConfiguration parseCsvData(
+		final XCSV.DataType                                dataType      ,
 		final XCsvConfiguration                            config        ,
 		final _charArrayRange                              input         ,
 		final XCsvSegmentsParser.Provider<_charArrayRange> parserProvider,
@@ -918,6 +925,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	{
 		// preliminary configuration
 		XCsvConfiguration cfg = ensureConfiguration(config);
+		final XCSV.DataType     dtp = ensureDataType(dataType);
 		
 		final XCsvSegmentsParser.Provider<_charArrayRange> pp = parserProvider != null
 			? parserProvider
@@ -946,7 +954,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		final XReference<XCsvConfiguration> refConfig = X.Reference(config);
 		i = checkMetaCharacters(data, i, boundIndex, refConfig);
 				
-		cfg = ensureEffectiveConfiguration(data, i, boundIndex, refConfig.get());
+		cfg = ensureEffectiveConfiguration(dtp, data, i, boundIndex, refConfig.get());
 
 		// skip all skippable (whitespaces and comments by effective config) until the first non-skippable.
 		i = XCsvRecordParserCharArray.Static.skipSkippable(data, i, boundIndex, cfg.commentSignal(), cfg);
@@ -961,6 +969,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	}
 	
 	static XCsvConfiguration ensureEffectiveConfiguration(
+		final XCSV.DataType     dataType  ,
 		final char[]            input     ,
 		final int               startIndex,
 		final int               boundIndex,
@@ -1000,14 +1009,15 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		final char recordSeparator = XCSV.configurationDefault().recordSeparator();
 		
 		final char[] validSeparators = XCSV.getValidValueSeparators();
-		final Counter[] counters = new Counter[validSeparators.length];
+		final Counter[] counters = new Counter[dataType.valueSeparatorWeights().intSize()];
 		
 		long totalLines = 0;
 		boolean countLines = true;
 		
-		for(int ci = 0; ci < validSeparators.length; ci++)
+		final int ci = 0;
+		for(final ValueSeparatorWeight vsWeight : dataType.valueSeparatorWeights().values())
 		{
-			final char c = validSeparators[ci];
+			final char c = vsWeight.valueSeparator();
 			
 			long charTotalCount       = 0;
 			final long lastLineCount        = 0;
@@ -1063,7 +1073,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		// correct line counting overkill
 		totalLines /= validSeparators.length;
 		
-		// (05.02.2020 TM)FIXME: priv#204: evaluate counters and guess separator
+		// (05.02.2020 TM)FIXME: priv#204: evaluate counters and guess separator, using weight
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 

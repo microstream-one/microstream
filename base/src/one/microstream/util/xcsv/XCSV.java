@@ -2,10 +2,12 @@ package one.microstream.util.xcsv;
 
 import java.util.Arrays;
 
-import one.microstream.X;
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.collections.EqConstHashTable;
+import one.microstream.collections.EqHashTable;
+import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XIterable;
 
 /**
@@ -27,45 +29,277 @@ public final class XCSV
 	// constants //
 	//////////////
 
-	static final char             DEFAULT_LINE_SEPERATOR              = '\n';
+	static final char          DEFAULT_LINE_SEPERATOR              = '\n';
 	// the most reasonable control character for anyone who actually understands how it really works
-	static final char             DEFAULT_SEPERATOR                   = '\t';
-	static final char             DEFAULT_DELIMITER                   = '"' ;
-	static final char             DEFAULT_ESCAPER                     = '\\';
-	static final char             DEFAULT_SEGMENT_STARTER             = '{' ;
-	static final char             DEFAULT_SEGMENT_TERMINATOR          = '}' ;
-	static final char             DEFAULT_HEADER_STARTER              = '(' ;
-	static final char             DEFAULT_HEADER_TERMINATOR           = ')' ;
-	static final char             DEFAULT_COMMENT_SIGNAL              = '/' ;
-	static final char             DEFAULT_COMMENT_SIMPLE_STARTER      = '/' ;
-	static final char             DEFAULT_COMMENT_FULL_STARTER        = '*' ;
-	static final String           DEFAULT_COMMENT_FULL_TERMINATOR     = "*/";
-	static final char             DEFAULT_TERMINATOR                  = 0   ; // null character by default
-	static final int              DEFAULT_SKIP_LINE_COUNT             = 0   ;
-	static final int              DEFAULT_SKIP_LINE_COUNT_POST_HEADER = 0   ;
-	static final int              DEFAULT_TRAILING_LINE_COUNT         = 0   ;
-	static final EscapeHandler    DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
+	static final char          DEFAULT_SEPERATOR                   = '\t';
+	static final char          DEFAULT_DELIMITER                   = '"' ;
+	static final char          DEFAULT_ESCAPER                     = '\\';
+	static final char          DEFAULT_SEGMENT_STARTER             = '{' ;
+	static final char          DEFAULT_SEGMENT_TERMINATOR          = '}' ;
+	static final char          DEFAULT_HEADER_STARTER              = '(' ;
+	static final char          DEFAULT_HEADER_TERMINATOR           = ')' ;
+	static final char          DEFAULT_COMMENT_SIGNAL              = '/' ;
+	static final char          DEFAULT_COMMENT_SIMPLE_STARTER      = '/' ;
+	static final char          DEFAULT_COMMENT_FULL_STARTER        = '*' ;
+	static final String        DEFAULT_COMMENT_FULL_TERMINATOR     = "*/";
+	static final char          DEFAULT_TERMINATOR                  = 0   ; // null character by default
+	static final int           DEFAULT_SKIP_LINE_COUNT             = 0   ;
+	static final int           DEFAULT_SKIP_LINE_COUNT_POST_HEADER = 0   ;
+	static final int           DEFAULT_TRAILING_LINE_COUNT         = 0   ;
+	static final EscapeHandler DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
 	static final XCsvConfiguration DEFAULT_CONFIG = new XCsvConfiguration.Builder.Default().createConfiguration();
+		
 	
-	static final char[]   VALID_VALUE_SEPARATORS
-		= X.chars ('\t', ';', ',', '|', '~', ':', '#', '*', '-', '.')
-	;
+	static final char[] VALID_VALUE_SEPARATORS = createValidValueSeparators();
 	
-	// ';' is weighted higher than the more reasonable '\t' because it is the standardized
-	static final double[] VALID_VALUE_SEPARATOR_GUESSING_WEIGHTS
-		= X.doubles(1.3, 1.2, 1.1, 1.0, 1.0, 1.0, 0.9, 0.8, 0.8, 0.8)
-	;
+	
+	public static ValueSeparatorWeight ValueSeparatorWeight(
+		final char   valueSeparator,
+		final double weight
+	)
+	{
+		return new ValueSeparatorWeight.Default(
+			validateValueSeparator(valueSeparator),
+			(float)weight
+		);
+	}
+	
+	public interface ValueSeparatorWeight
+	{
+		public char valueSeparator();
+		
+		public double getWeight();
+		
+		
+		
+		public static final class Default implements ValueSeparatorWeight
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private final char  valueSeparator;
+			private final float weight;
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Default(final char valueSeparator, final float weight)
+			{
+				super();
+				this.valueSeparator = valueSeparator;
+				this.weight = weight;
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
+			@Override
+			public final char valueSeparator()
+			{
+				return this.valueSeparator;
+			}
+			
+			@Override
+			public final double getWeight()
+			{
+				return this.weight;
+			}
+			
+		}
+		
+	}
 
-
+	public enum DataType
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// constants //
+		//////////////
+		
+		XCSV(
+			"xcsv",
+			map(
+				vc('\t', 1.3),
+				vc( ';', 1.2),
+				vc( ',', 1.1),
+				vc( '|', 1.0),
+				vc( '~', 0.9),
+				vc( ':', 0.9),
+				vc( '#', 0.9),
+				vc( '*', 0.8),
+				vc( '-', 0.8),
+				vc( '.', 0.8)
+			)
+		),
+		TSV(
+			"tsv",
+			map(
+				vc('\t', 1.3),
+				vc( ';', 1.2),
+				vc( ',', 1.1),
+				vc( '|', 1.0),
+				vc( '~', 0.9),
+				vc( ':', 0.9),
+				vc( '#', 0.9),
+				vc( '*', 0.8),
+				vc( '-', 0.8),
+				vc( '.', 0.8)
+			)
+		),
+		CSV(
+			"csv",
+			map(
+				vc('\t', 1.1),
+				vc( ';', 1.3),
+				vc( ',', 1.2),
+				vc( '|', 1.0),
+				vc( '~', 0.9),
+				vc( ':', 0.9),
+				vc( '#', 0.9),
+				vc( '*', 0.8),
+				vc( '-', 0.8),
+				vc( '.', 0.8)
+			)
+		);
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// static methods //
+		///////////////////
+		
+		public static DataType fromIdentifier(final String identifier)
+		{
+			if(identifier == null)
+			{
+				return null;
+			}
+			
+			return DataType.valueOf(identifier.toUpperCase());
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final String identifier;
+		private final EqConstHashTable<Character, ValueSeparatorWeight> valueSeparatorWeights;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		private DataType(
+			final String                                                 identifier           ,
+			final EqConstHashTable<Character, XCSV.ValueSeparatorWeight> valueSeparatorWeights
+		)
+		{
+			this.identifier            = identifier           ;
+			this.valueSeparatorWeights = valueSeparatorWeights;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		public final String identifier()
+		{
+			return this.identifier;
+		}
+		
+		public final EqConstHashTable<Character, ValueSeparatorWeight> valueSeparatorWeights()
+		{
+			return this.valueSeparatorWeights;
+		}
+		
+		public final boolean isValidValueSeparator(final Character c)
+		{
+			return this.valueSeparatorWeights.keys().contains(c);
+		}
+		
+		public final boolean isValidValueSeparator(final char c)
+		{
+			return this.isValidValueSeparator(Character.valueOf(c));
+		}
+		
+		public final XCSV.ValueSeparatorWeight lookupValueSeparator(final Character c)
+		{
+			return this.valueSeparatorWeights.get(c);
+		}
+		
+		public final XCSV.ValueSeparatorWeight lookupValueSeparator(final char c)
+		{
+			return this.lookupValueSeparator(Character.valueOf(c));
+		}
+		
+	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
+	final static ValueSeparatorWeight vc(final char valueSeparator, final double weight)
+	{
+		return new ValueSeparatorWeight.Default(valueSeparator, (float)weight);
+	}
+	
+	final static EqConstHashTable<Character, ValueSeparatorWeight> map(final ValueSeparatorWeight... weights)
+	{
+		final EqHashTable<Character, ValueSeparatorWeight> table = EqHashTable.New();
+		
+		for(final ValueSeparatorWeight weight : weights)
+		{
+			table.add(Character.valueOf(weight.valueSeparator()), weight);
+		}
+		
+		return table.immure();
+	}
+	
+	
+	private static char[] createValidValueSeparators()
+	{
+		final XGettingSequence<ValueSeparatorWeight> weights = XCSV.DataType.XCSV.valueSeparatorWeights().values();
+		final char[] vss = new char[weights.intSize()];
+		
+		int i = 0;
+		for(final ValueSeparatorWeight weight : weights)
+		{
+			vss[i++] = weight.valueSeparator();
+		}
+		
+		return vss;
+	}
+	
+	public static String dataTypeCsv()
+	{
+		return "csv";
+	}
+	
+	public static String dataTypeXCsv()
+	{
+		return "xcsv";
+	}
+	
+	public static String dataTypeTsv()
+	{
+		return "tsv";
+	}
+	
 	// intentionally "get" since this is not a trivial accessor but performs considerable logic
 	public static final char[] getValidValueSeparators()
 	{
-		return VALID_VALUE_SEPARATORS.clone();
+		return VALID_VALUE_SEPARATORS;
 	}
 
 	public static final XCsvConfiguration configurationDefault()

@@ -1,11 +1,12 @@
 package one.microstream.util.xcsv;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.util.function.Consumer;
 
-import one.microstream.chars.XCsvParserCharArray;
 import one.microstream.chars.StringTable;
+import one.microstream.chars.XCsvParserCharArray;
 import one.microstream.chars._charArrayRange;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XAddingEnum;
@@ -25,11 +26,29 @@ public final class XCsvContentBuilderCharArray implements XCsvContent.Builder<_c
 	{
 		return New(XCSV.configurationDefault());
 	}
+	
+	public static final XCsvContentBuilderCharArray New(
+		final XCSV.DataType dataType
+	)
+	{
+		return New(null, dataType);
+	}
 
-	public static final XCsvContentBuilderCharArray New(final XCsvConfiguration csvConfiguration)
+	public static final XCsvContentBuilderCharArray New(
+		final XCsvConfiguration csvConfiguration
+	)
+	{
+		return New(csvConfiguration, null);
+	}
+	
+	public static final XCsvContentBuilderCharArray New(
+		final XCsvConfiguration csvConfiguration,
+		final XCSV.DataType     dataType
+	)
 	{
 		return new XCsvContentBuilderCharArray(
-			csvConfiguration,
+			mayNull(dataType),
+			mayNull(csvConfiguration),
 			Substituter.<String>New(),
 			XCsvParserCharArray.New(),
 			new StringTable.Default.Creator()
@@ -42,10 +61,11 @@ public final class XCsvContentBuilderCharArray implements XCsvContent.Builder<_c
 	// instance fields //
 	////////////////////
 
+	private final XCSV.DataType               dataType     ;
 	private final XCsvConfiguration           configuration;
-	private final Substituter<String>        stringCache  ;
+	private final Substituter<String>         stringCache  ;
 	private final XCsvParser<_charArrayRange> parser       ;
-	private final StringTable.Creator        tableCreator ;
+	private final StringTable.Creator         tableCreator ;
 
 
 
@@ -54,17 +74,19 @@ public final class XCsvContentBuilderCharArray implements XCsvContent.Builder<_c
 	/////////////////
 
 	private XCsvContentBuilderCharArray(
+		final XCSV.DataType               dataType     ,
 		final XCsvConfiguration           configuration,
-		final Substituter<String>        stringCache  ,
+		final Substituter<String>         stringCache  ,
 		final XCsvParser<_charArrayRange> parser       ,
-		final StringTable.Creator        tableCreator
+		final StringTable.Creator         tableCreator
 	)
 	{
 		super();
-		this.configuration = notNull(configuration);
-		this.stringCache   = notNull(stringCache)  ;
-		this.parser        = notNull(parser)       ;
-		this.tableCreator  = notNull(tableCreator) ;
+		this.dataType      = dataType     ;
+		this.configuration = configuration;
+		this.stringCache   = stringCache  ;
+		this.parser        = parser       ;
+		this.tableCreator  = tableCreator ;
 	}
 
 
@@ -79,7 +101,12 @@ public final class XCsvContentBuilderCharArray implements XCsvContent.Builder<_c
 		final BulkList<StringTable> tables         = BulkList.New();
 		final TableCollector        tableCollector = new TableCollector(tables, this.tableCreator, this.stringCache);
 
-		final XCsvConfiguration effectiveConfig = this.parser.parseCsvData(this.configuration, data, tableCollector);
+		final XCsvConfiguration effectiveConfig = this.parser.parseCsvData(
+			this.dataType,
+			this.configuration,
+			data,
+			tableCollector
+		);
 
 		return XCsvContent.Default.NewTranslated(name, tables, effectiveConfig);
 	}

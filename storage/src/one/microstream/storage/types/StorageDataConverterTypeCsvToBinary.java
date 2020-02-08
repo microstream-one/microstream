@@ -8,10 +8,10 @@ import java.nio.channels.FileChannel;
 import java.util.Iterator;
 
 import one.microstream.X;
-import one.microstream.chars.XCsvParserCharArray;
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.chars.XCsvParserCharArray;
 import one.microstream.chars._charArrayRange;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
@@ -1707,7 +1707,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		static final String getSuffixlessFileName(final StorageFile file)
 		{
 			final String filename = file.name();
-			final int    dotIndex = filename.lastIndexOf('.');
+			final int    dotIndex = filename.lastIndexOf(XIO.fileSuffixSeparator());
 			return dotIndex < 0 ? filename : filename.substring(0, dotIndex);
 		}
 
