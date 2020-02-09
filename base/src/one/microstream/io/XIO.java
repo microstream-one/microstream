@@ -71,6 +71,27 @@ public final class XIO
 		return fileName.substring(fileSuffixSeparatorIndex + 1);
 	}
 	
+	public static String getFilePrefix(final Path file)
+	{
+		return getFileSuffix(getFileName(file));
+	}
+	
+	public static String getFilePrefix(final String fileName)
+	{
+		if(XChars.hasNoContent(fileName))
+		{
+			return null;
+		}
+		
+		final int fileSuffixSeparatorIndex = fileName.lastIndexOf(fileSuffixSeparator());
+		if(fileSuffixSeparatorIndex < 0)
+		{
+			return fileName;
+		}
+		
+		return fileName.substring(0, fileSuffixSeparatorIndex);
+	}
+	
 	
 	public static void unchecked(final IoOperation operation)
 		throws IORuntimeException
