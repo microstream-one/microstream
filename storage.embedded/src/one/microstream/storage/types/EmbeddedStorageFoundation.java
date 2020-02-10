@@ -584,6 +584,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 
 			// resolve root types to root type ids after types have been initialized
 			this.initializeEmbeddedStorageRootTypeIdProvider(this.getRootTypeIdProvider(), thm);
+			
+			// (10.02.2020 TM)FIXME: priv#222: get identifier (by default derived from file provider location)
 				
 			// everything bundled together in the actual manager instance
 			final EmbeddedStorageManager esm = EmbeddedStorageManager.New(stm.configuration(), ecf, prp);

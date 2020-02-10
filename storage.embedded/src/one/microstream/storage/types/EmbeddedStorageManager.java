@@ -32,6 +32,7 @@ public interface EmbeddedStorageManager extends StorageManager
 	
 	
 	public static EmbeddedStorageManager.Default New(
+		final Database                               database            ,
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
 		final PersistenceRootsProvider<?>            rootsProvider
@@ -51,6 +52,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		// instance fields //
 		////////////////////
 
+		private final Database                               database            ;
 		private final StorageConfiguration                   configuration       ;
 		private final StorageSystem                          storageSystem       ;
 		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
@@ -65,16 +67,18 @@ public interface EmbeddedStorageManager extends StorageManager
 		/////////////////
 
 		Default(
+			final Database                               database            ,
 			final StorageConfiguration                   configuration       ,
 			final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
 			final PersistenceRootsProvider<?>            rootsProvider
 		)
 		{
 			super();
-			this.configuration        = configuration                           ;
+			this.database             = database                               ;
+			this.configuration        = configuration                          ;
 			this.storageSystem        = connectionFoundation.getStorageSystem(); // to ensure consistency
-			this.connectionFoundation = connectionFoundation                    ;
-			this.rootsProvider        = rootsProvider                           ;
+			this.connectionFoundation = connectionFoundation                   ;
+			this.rootsProvider        = rootsProvider                          ;
 		}
 
 
