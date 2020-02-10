@@ -137,8 +137,25 @@ Der StorageManager merkt sich intern die Database Instanz, zu der er geh\'f6rt.\
 Und die wird dann in den LazyReferences als loader gesetzt.\par
 \par
 Damit w\'e4re das Problem gel\'f6st.\par
-Jetzt muss ich es nur noch einbauen.\par
+Jetzt muss ich es nur noch runterindern.\par
 \par
+Ah, Henne-Ei-Problem beim Implementieren aufgefallen:\par
+Holt sich der StorageManager seinen Identifier von der intern gehaltenen Database oder hat er unabh\'e4ngig davon bzw. "davor" einen eigenen identifier?\par
+Wenn er sich den identifier von der Database Instanz holt, kann nicht validiert werden, ob ein SM zu einer existierenden DB passt.\par
+Wenn er selber einen hat, ist das eine redundante Referenz, die logik-gesichert immer konsistent zu der in der DB Instanz sein muss.\par
+Knifflig.\par
+SM und Identifier bei der Registrierung bei Databases getrennt \'fcbergeben erlaubt Fehler (Inkonsistenz) und entkoppelt den Namen vom StorageManager.\par
 \par
+Und noch ein Henne-Ei-Problem:\par
+Der SM kann nicht als initialen Bestandteil (final Feld) eine Database kennen, wenn die erst f\'fcr eine fertig SM Instanz angelegt bzw. bestimmt und aktualisiert wird.\par
+Dem SM die DB nachtr\'e4glich setzen k\'f6nnen ist nicht gut, weil man sonst eine Inkonsistenz zu seiner vorherigen erzeugen w\'fcrde. Selbst dort austragen w\'fcrde nichts helfen, weil ja Lazy Refs von der abh\'e4ngen.\par
+Gut, aber was ich machen k\'f6nnte ist:\par
+Erst mal leere DB Instanz anlegen mit/f\'fcr dem zuk\'fcnftigen identifier des SM, dann damit StorageManager, dann DB Instanz mit dem SM updaten.\par
+Das w\'e4re sauber, hat nur einen kleinen Haken: Falls die DB nicht passt, h\'e4tte der SM trotzdem schon eine final Referenz darauf.\par
+Aber das kann ja auch validiert werden: Wenn die DB Instanz einen nicht-null SM hat, gibt es einen Fehler, bevor der SM erzeugt wird.\par
+Das l\'f6st auch das erste Problem oben.\par
+\par
+Ok, so bau ich das.\par
+\'c4h, morgen.\par
 }
  
