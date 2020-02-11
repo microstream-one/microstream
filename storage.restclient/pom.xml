@@ -5,7 +5,7 @@
     <artifactId>microstream</artifactId>
     <version>02.02.01-MS-GA-SNAPSHOT</version>
   </parent>
-  <artifactId>storage.restservice.ui</artifactId>
+  <artifactId>storage.restclient</artifactId>
   
   <dependencies>
   		<dependency>
