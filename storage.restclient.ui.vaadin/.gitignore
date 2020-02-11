@@ -2,3 +2,8 @@
 /bin/
 /.flattened-pom.xml
 /.settings
+/node_modules/
+/webpack.generated.js
+/package-lock.json
+/package.json
+/webpack.config.js
