@@ -4,9 +4,9 @@ import one.microstream.collections.EqHashTable;
 
 public interface Databases
 {
-	public Database get(String identifier);
-	
-	public Database register(StorageManager storage);
+	public Database get(String databaseName);
+		
+	public Database ensureStoragelessDatabase(String databaseName);
 	
 	
 	
@@ -19,7 +19,7 @@ public interface Databases
 	{
 		private static final Databases SINGLETON = Databases.New();
 		
-		public static Databases get()
+		static Databases get()
 		{
 			return SINGLETON;
 		}
@@ -59,25 +59,23 @@ public interface Databases
 		////////////
 
 		@Override
-		public final synchronized Database get(final String identifier)
+		public final synchronized Database get(final String databaseName)
 		{
-			return this.databases.get(identifier);
+			return this.databases.get(databaseName);
 		}
 
 		@Override
-		public final synchronized Database register(final StorageManager storage)
+		public final synchronized Database ensureStoragelessDatabase(final String databaseName)
 		{
-			final String databaseIdentifier = storage.identifier();
-			
-			Database database = this.get(databaseIdentifier);
+			Database database = this.get(databaseName);
 			if(database != null)
 			{
-				database.setStorage(storage);
+				database.guaranteeNoActiveStorage();
 			}
 			else
 			{
-				database = Database.New(storage);
-				this.databases.add(databaseIdentifier, database);
+				database = Database.New(databaseName);
+				this.databases.add(databaseName, database);
 			}
 			
 			return database;

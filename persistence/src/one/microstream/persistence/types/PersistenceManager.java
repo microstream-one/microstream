@@ -112,6 +112,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 		private final PersistenceLoader.Creator<D>     loaderCreator     ;
 		private final BufferSizeProviderIncremental    bufferSizeProvider;
 		
+		// callback linking components //
 		private final Persister persister;
 
 		// source and target //

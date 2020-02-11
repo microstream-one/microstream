@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red165\green165\blue165;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 Orphaned Lazy References after Storage Shutdown\par
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 Orphaned Lazy References after Storage Shutdown\par
 priv#222\par
 \par
 \par
@@ -157,5 +158,58 @@ Das l\'f6st auch das erste Problem oben.\par
 \par
 Ok, so bau ich das.\par
 \'c4h, morgen.\par
+\par
+\par
+2020-02-11\par
+\par
+\'dcberlegungen von zwischen den Arbeitszeiten:\par
+- Es darf nicht "StorageIdentified" hei\'dfen mit einem nichtssagenden "identifier", sondern es muss "DatabasePart" mit "databaseName" hei\'dfen.\par
+- Man muss einen inaktiven StorageManager ersetzen d\'fcrfen. Sonst h\'e4ngt "harte" Programmlogik von dem "weichen" Zustand ab, ob der GC das vorherige Ding schon collectet hat oder nicht.\par
+\par
+F\'fcr den Defaultnamen braucht der StorageFileProvider irgendwie eine "String locationIdentifier" oder sowas.\par
+Einbauen.\par
+\par
+Foundation erweitern. Inklusive JavaDoc.\par
+\par
+Achja und nat\'fcrlich die Hauptsache: Die Logik, die das Ding in die Lazy Reference reinsetzt.\par
+Ach, dabei gibt es jetzt aber einer Fallunterscheidung zwischen Lazy und zwischen dem Persister fields f\'fcllen:\par
+Bisher war das beide Male dieselbe Instanz. Jetzt ist das eine die Database und das andere bleibt der StorageManager.\line Mal schauen, wie das wird.\par
+\par
+Die \'c4nderung im LoadHandler ist trivial, aber die Referenz durch den Persistence Stack durchzuschleusen zieht sich quer durch, bis zur PersistenceFoundation.\par
+Aber macht ja nix. Ist halt nur einiges an Tipperei.\par
+\par
+Hm, aber knifflige Frage:\par
+Darf der objectRetriever genauso null sein wie der persister und dann wird als default der PersistenceManager genommen?\par
+Hm. Eigentlich schon. Weil die Storage Verwendung muss halt ihre Database richtig setzen, aber die Serialisierung Verwendung muss da dann den persistenceManager nehmen.\par
+Also doch nullable und auch getEffectiveObjectRetriever(), so wie beim Persister.\par
+\par
+Interessant im Zusammenhang mit Storern:\par
+Die brauchen ja eigentlich nur den ObjectRetriever, nicht den Persister.\par
+D.h. hier ist es keine zweite Referenz, sondern nur umstellen auf das besser passende.\par
+\par
+Wobei interessant ist: eigentlich k\'f6nnte/m\'fcsste auch schon das Storen die Persister Felder von Entities setzen, falls vorhanden.\par
+Aber beim Storer State ver\'e4ndern find ich erst mal nicht so toll, auch wenn es sich um transient Felder handelt.\par
+Aber trotzdem: Wenn man nur null-Felder setzt, kann eine Inkonsistenz reinkommen.\par
+Wenn man Felder unabh\'e4ngig vom Inhalt setzt, kann was vom Benutzer-Entwickler gesetztes einfach \'fcberschrieben werden.\par
+Beides nicht toll.\par
+\par
+Hm. Oder m\'fcsste das nicht doch dasselbe Feld sein? D.h. dass solche Persister-verkn\'fcpften Entities eigentlich die Database Instanz gesetzt bekommen, zu der sie geh\'f6ren?\par
+Hm. Dann m\'fcsste die nat\'fcrlich Persister implementieren. Aber eigentlich ... sieht das alles sinnvoll f\'fcr die aus.\par
+\par
+Das w\'fcrde auch das Problem l\'f6sen, dass solche verlinkten Entities dann wieder auf eine storage manager instanz festgenagelt w\'e4ren, auch wenn sie inaktiv ist und dass sie ein memory leak f\'fcr die storage manager w\'e4ren.\par
+Also eigentlich genau das gleiche in gr\'fcn wie bei den Lazy refs.\par
+Also doch wieder konsolidieren zu einem Fall?\par
+Dann \'e4ndert sich halt f\'fcr den User das Feature: von StorageManager zu Database. Aber wieso nicht?\par
+\par
+Also alles wieder zur\'fcckbauen auf nur Persister.\par
+Persister interface in Database.Default implementieren. Einfach nur durchreichen, geht ja schnell.\par
+\par
+So, fertig. Jetzt testen.\par
+\par
+Funktioniert auf Anhieb:\par
+Storage shutdown'en, Lazy#get wirft exception, dass die Database keinen aktiven Storage Manager hat.\par
+Mit vorher neu gestartetem Storage Manager: Keine Exception mehr, sondern geht wieder.\par
+\par
+Jetzt noch Issue updaten, dann ist das fertig.\par
 }
  
