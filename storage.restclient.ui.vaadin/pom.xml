@@ -5,12 +5,12 @@
     <artifactId>microstream</artifactId>
     <version>02.02.01-MS-GA-SNAPSHOT</version>
   </parent>
-  <artifactId>storage.restservice.ui.vaadin</artifactId>
+  <artifactId>storage.restclient.ui.vaadin</artifactId>
   
   <dependencies>
   		<dependency>
 			<groupId>one.microstream</groupId>
-			<artifactId>storage.restservice.ui</artifactId>
+			<artifactId>storage.restclient</artifactId>
 			<version>02.02.01-MS-GA-SNAPSHOT</version>
 		</dependency>				
   </dependencies>
