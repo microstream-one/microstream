@@ -3,7 +3,7 @@ package one.microstream.storage.types;
 import one.microstream.persistence.types.PersistenceRootsView;
 import one.microstream.reference.Reference;
 
-public interface StorageManager extends StorageController, StorageConnection, StorageIdentified
+public interface StorageManager extends StorageController, StorageConnection, DatabasePart
 {
 	public StorageTypeDictionary typeDictionary();
 
@@ -72,9 +72,9 @@ public interface StorageManager extends StorageController, StorageConnection, St
 	public Database database();
 	
 	@Override
-	public default String identifier()
+	public default String databaseName()
 	{
-		return this.database().identifier();
+		return this.database().databaseName();
 	}
 
 }

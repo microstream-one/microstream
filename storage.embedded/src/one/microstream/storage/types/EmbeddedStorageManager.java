@@ -39,6 +39,7 @@ public interface EmbeddedStorageManager extends StorageManager
 	)
 	{
 		return new EmbeddedStorageManager.Default(
+			notNull(database)            ,
 			notNull(configuration)       ,
 			notNull(connectionFoundation),
 			notNull(rootsProvider)
@@ -96,6 +97,12 @@ public interface EmbeddedStorageManager extends StorageManager
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final Database database()
+		{
+			return this.database;
+		}
 
 		@Override
 		public final Object root()

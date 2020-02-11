@@ -11,6 +11,7 @@ import one.microstream.collections.types.XMap;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
+import one.microstream.reference.ObjectSwizzling;
 import one.microstream.reference.Reference;
 import one.microstream.typing.LambdaTypeRecognizer;
 import one.microstream.typing.TypeMapping;
@@ -67,6 +68,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public PersistenceRegisterer.Creator getRegistererCreator();
 
 	public PersistenceLoader.Creator<D> getBuilderCreator();
+	
+//	public ObjectSwizzling getObjectRetriever();
 	
 	public Persister getPersister();
 
@@ -228,7 +231,9 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public F setRegistererCreator(PersistenceRegisterer.Creator registererCreator);
 
 	public F setBuilderCreator(PersistenceLoader.Creator<D> builderCreator);
-
+	
+//	public F setObjectRetriever(ObjectSwizzling objectRetriever);
+	
 	public F setPersister(Persister persister);
 
 	public F setPersistenceTarget(PersistenceTarget<D> target);
@@ -424,6 +429,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		private PersistenceStorer.Creator<D>                   storerCreator                   ;
 		private PersistenceRegisterer.Creator                  registererCreator               ;
 		private PersistenceLoader.Creator<D>                   builderCreator                  ;
+//		private ObjectSwizzling                                objectRetriever                 ;
 		private Persister                                      persister                       ;
 		private PersistenceTarget<D>                           target                          ;
 		private PersistenceSource<D>                           source                          ;
@@ -736,11 +742,25 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			return this.builderCreator;
 		}
 		
+//		@Override
+//		public ObjectSwizzling getObjectRetriever()
+//		{
+//			if(this.objectRetriever == null)
+//			{
+//				this.objectRetriever = this.dispatch(this.ensureObjectRetriever());
+//			}
+//
+//			return this.objectRetriever;
+//		}
 
 		@Override
 		public Persister getPersister()
 		{
-			// persister may be null, then the persistenceManager itself is the persister.
+			if(this.persister == null)
+			{
+				this.persister = this.dispatch(this.ensurePersister());
+			}
+			
 			return this.persister;
 		}
 
@@ -1490,6 +1510,13 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			this.builderCreator = builderCreator;
 			return this.$();
 		}
+
+//		@Override
+//		public F setObjectRetriever(final ObjectSwizzling objectRetriever)
+//		{
+//			this.objectRetriever = objectRetriever;
+//			return this.$();
+//		}
 		
 		@Override
 		public F setPersister(final Persister persister)
@@ -2381,6 +2408,18 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		{
 			return ByteOrder.nativeOrder();
 		}
+		
+		protected Persister ensurePersister()
+		{
+			// null by default, then the persistenceManager itself is the persister.
+			return null;
+		}
+		
+		protected ObjectSwizzling ensureObjectRetriever()
+		{
+			// null by default, then the persistenceManager itself is the persister.
+			return null;
+		}
 
 
 
@@ -2413,6 +2452,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 				this.getStorerCreator(),
 				this.getBuilderCreator(),
 				this.getRegistererCreator(),
+//				this.getObjectRetriever(),
 				this.getPersister(),
 				this.getPersistenceTarget(),
 				this.getPersistenceSource(),
