@@ -11,7 +11,7 @@ public interface XCsvConfiguration
 {
 	public char valueSeparator();
 
-	public char recordSeparator();
+	public char lineSeparator();
 
 	public char literalDelimiter();
 
@@ -49,17 +49,11 @@ public interface XCsvConfiguration
 	public String valueSeparator(String prefix, String suffix);
 
 	// for assembling purposes
-	public String recordSeparator(String prefix, String suffix);
+	public String lineSeparator(String prefix, String suffix);
 
 	public String buildControlCharactersDefinition(char separator);
 
 	public boolean isControlCharacter(char c);
-
-	public default char lineSeparator()
-	{
-		// (22.11.2014 TM)TODO: make line separator configurable
-		return '\n';
-	}
 
 	/**
 	 * Returns a potentially cached char array of {@link #commentFullTerminator()} for read-only use.
@@ -176,7 +170,7 @@ public interface XCsvConfiguration
 		}
 
 		@Override
-		public final char recordSeparator()
+		public final char lineSeparator()
 		{
 			return this.lineSeparator;
 		}
@@ -296,9 +290,9 @@ public interface XCsvConfiguration
 		}
 
 		@Override
-		public final String recordSeparator(final String prefix, final String suffix)
+		public final String lineSeparator(final String prefix, final String suffix)
 		{
-			return (prefix != null ? prefix : "") + this.recordSeparator() + (suffix != null ? suffix : "");
+			return (prefix != null ? prefix : "") + this.lineSeparator() + (suffix != null ? suffix : "");
 		}
 
 		@Override
@@ -312,7 +306,7 @@ public interface XCsvConfiguration
 			vs.add(separator).add(this.literalDelimiter());
 
 			this.addControlCharacter(vs.add(separator), escapeHandler, this.valueSeparator());
-			this.addControlCharacter(vs.add(separator), escapeHandler, this.recordSeparator());
+			this.addControlCharacter(vs.add(separator), escapeHandler, this.lineSeparator());
 
 			// choosing a character that has to be escaped for any of these would be pretty insane
 			vs
@@ -351,7 +345,7 @@ public interface XCsvConfiguration
 			return c == this.escaper()
 				|| c == this.literalDelimiter()
 				|| c == this.valueSeparator()
-				|| c == this.recordSeparator()
+				|| c == this.lineSeparator()
 				|| c == this.segmentStarter()
 				|| c == this.segmentTerminator()
 				|| c == this.headerStarter()
@@ -469,7 +463,7 @@ public interface XCsvConfiguration
 
 
 
-		public Builder setRecordSeparator(char lineSeparator);
+		public Builder setLineSeparator(char lineSeparator);
 
 		public Builder setTerminator(char terminator);
 
@@ -739,7 +733,7 @@ public interface XCsvConfiguration
 			////////////
 
 			@Override
-			public Builder.Default setRecordSeparator(final char lineSeparator)
+			public Builder.Default setLineSeparator(final char lineSeparator)
 			{
 				this.internalSetLineSeparator(lineSeparator);
 				return this;
@@ -862,7 +856,7 @@ public interface XCsvConfiguration
 			public Builder copyFrom(final XCsvConfiguration configuration)
 			{
 				this
-				.setRecordSeparator              (configuration.recordSeparator()              )
+				.setLineSeparator                (configuration.lineSeparator()                )
 				.setTerminator                   (configuration.terminator()                   )
 				.setValueSeparator               (configuration.valueSeparator()               )
 				.setLiteralDelimiter             (configuration.literalDelimiter()             )

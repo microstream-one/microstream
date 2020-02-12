@@ -1,14 +1,17 @@
 package one.microstream.util.xcsv;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import one.microstream.chars.EscapeHandler;
+import one.microstream.chars.StringTable;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XIterable;
+import one.microstream.io.XIO;
 
 /**
  * An extended CSV format ("XCSV") with the following traits:
@@ -68,11 +71,11 @@ public final class XCSV
 	{
 		public char valueSeparator();
 		
-		public double getWeight();
+		public float weight();
 		
 		
 		
-		public static final class Default implements ValueSeparatorWeight
+		public final class Default implements ValueSeparatorWeight
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -91,7 +94,7 @@ public final class XCSV
 			{
 				super();
 				this.valueSeparator = valueSeparator;
-				this.weight = weight;
+				this.weight         = weight        ;
 			}
 			
 			
@@ -107,7 +110,7 @@ public final class XCSV
 			}
 			
 			@Override
-			public final double getWeight()
+			public final float weight()
 			{
 				return this.weight;
 			}
@@ -363,6 +366,27 @@ public final class XCSV
 		assembler.completeRows();
 	}
 
+	
+	public static StringTable readFromFile(final Path file)
+	{
+		final String        fileSuffix = XIO.getFileSuffix(file);
+		final String        normalized = fileSuffix == null ? null : fileSuffix.trim().toLowerCase();
+		final XCSV.DataType dataType   = XCSV.DataType.fromIdentifier(normalized);
+		
+		return readFromFile(file, dataType);
+	}
+	
+	public static StringTable readFromFile(final Path file, final XCSV.DataType dataType)
+	{
+		// (19.04.2018 TM)EXCP: proper exception
+		final String fileContent = XIO.unchecked(() ->
+			XIO.readString(file)
+		);
+		
+		final StringTable stringTable = StringTable.Static.parse(fileContent, dataType);
+		
+		return stringTable;
+	}
 	
 
 	///////////////////////////////////////////////////////////////////////////

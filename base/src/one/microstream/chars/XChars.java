@@ -713,20 +713,21 @@ public final class XChars
 	}
 
 	public static final int count(
-		final char[] haystack,
-		final int haystackOffset,
-		final int haystackCount,
-		final char needle
+		final char[] input,
+		final int    startIndex,
+		final int    boundIndex,
+		final char   c
 	)
 	{
 		int count = 0;
-		for(int i = haystackOffset; i < haystackCount; i++)
+		for(int i = startIndex; i < boundIndex; i++)
 		{
-			if(haystack[i] == needle)
+			if(input[i] == c)
 			{
 				count++;
 			}
 		}
+		
 		return count;
 	}
 

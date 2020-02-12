@@ -203,9 +203,9 @@ public interface StringTable
 //				return vs.add("[empty table]");
 			}
 			
-			final XCsvConfiguration effConfig       = ensureCsvConfiguration(csvConfiguration);
-			final char             valueSeparator  = effConfig.valueSeparator();
-			final char             recordSeparator = effConfig.recordSeparator();
+			final XCsvConfiguration effConfig      = ensureCsvConfiguration(csvConfiguration);
+			final char              valueSeparator = effConfig.valueSeparator();
+			final char              lineSeparator  = effConfig.lineSeparator();
 
 			// assemble column names
 			assemble(vs, valueSeparator, st.columnNames());
@@ -213,7 +213,7 @@ public interface StringTable
 			// assemble column types if present
 			if(!st.columnTypes().isEmpty())
 			{
-				vs.add(recordSeparator).add('(');
+				vs.add(lineSeparator).add('(');
 				assemble(vs, valueSeparator, st.columnTypes());
 				vs.add(')');
 			}
@@ -223,7 +223,7 @@ public interface StringTable
 			{
 				for(final String[] row : st.rows())
 				{
-					assemble(vs.add(recordSeparator), valueSeparator, row);
+					assemble(vs.add(lineSeparator), valueSeparator, row);
 				}
 			}
 

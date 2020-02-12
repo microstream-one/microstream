@@ -1,4 +1,4 @@
-package one.microstream.csv.internal;
+package one.microstream.xcsv.internal;
 
 import one.microstream.chars.StringTable;
 import one.microstream.chars.XChars;
@@ -8,7 +8,7 @@ import one.microstream.util.xcsv.XCsvContent;
 import one.microstream.util.xcsv.XCsvContentBuilderCharArray;
 
 
-public class MainTestCsvPerformance
+public class MainTestXCsvPerformance
 {
 //	static final CsvConfiguration CONFIG = CSV.configurationBuilder()
 //		.createConfiguration()

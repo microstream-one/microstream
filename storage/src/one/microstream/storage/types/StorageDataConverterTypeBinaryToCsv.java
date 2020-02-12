@@ -170,10 +170,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 		// caching fields for performance reasons (skipping repeated pointer indirection)
 		private final String                                  oidColumnName         ;
 		private final String                                  oidColumnType         ;
-		private final XCsvConfiguration                        csvConfiguration      ;
+		private final XCsvConfiguration                       csvConfiguration      ;
 		private final byte                                    literalDelimiter      ;
 		private final byte                                    valueSeparator        ;
-		private final byte                                    recordSeparator       ;
+		private final byte                                    lineSeparator         ;
 		private final byte                                    escaper               ;
 		private final EscapeHandler                           escapeHandler         ;
 		private final char                                    controlCharsSeparator ;
@@ -275,7 +275,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			this.csvConfiguration        = csvConfig                                          ;
 			this.literalDelimiter        = toSingleByte(csvConfig.literalDelimiter())         ;
 			this.valueSeparator          = toSingleByte(csvConfig.valueSeparator()  )         ;
-			this.recordSeparator         = toSingleByte(csvConfig.recordSeparator() )         ;
+			this.lineSeparator         = toSingleByte(csvConfig.lineSeparator() )         ;
 			this.escaper                 = toSingleByte(csvConfig.escaper()         )         ;
 			this.escapeHandler           = csvConfig.escapeHandler()                          ;
 			this.oidColumnName           = configuration.objectIdColumnName()                 ;
@@ -406,7 +406,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			this.checkForFlush();
 
 			// write record separator not before it is required a by new record (this method call)
-			XMemory.set_byte(this.writeAddress, this.recordSeparator);
+			XMemory.set_byte(this.writeAddress, this.lineSeparator);
 			this.writeAddress = MemoryCharConversionIntegersUTF8.put_long(
 				Binary.getEntityObjectIdRawValue(entityAddress),
 				this.writeAddress + 1
@@ -474,7 +474,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			{
 				vs.add(columnName).add(valueSeparator);
 			}
-			vs.setLast((char)this.recordSeparator);
+			vs.setLast((char)this.lineSeparator);
 
 			// write column types (including oid column with custom type name)
 			vs

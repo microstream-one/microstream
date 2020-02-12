@@ -1798,9 +1798,9 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final char                valueSeparator ,
 			final char                delimiter      ,
 			final char                escaper        ,
-			final char                recordSeparator,
+			final char                lineSeparator,
 			final char                terminator     ,
-			final XCsvConfiguration    config         ,
+			final XCsvConfiguration   config         ,
 			final VarString           literalBuilder ,
 			final EscapeHandler       escapeHandler  ,
 			final _charRangeProcedure valueCollector
@@ -1821,7 +1821,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 					// (16.10.2014 TM)EXCP: proper exception
 					throw new StorageException("Incomplete record at index " + i);
 				}
-				else if(input[i] == valueSeparator || input[i] == recordSeparator || input[i] == terminator)
+				else if(input[i] == valueSeparator || input[i] == lineSeparator || input[i] == terminator)
 				{
 					// encountered the next separator while searching for a literal, interpret as error
 					/* there are no null values in storage CSV files, as NULL reference is OID literal "0"
@@ -1836,7 +1836,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				}
 				else
 				{
-					i = valueHandlers[h].handleValue(input, i, iBound, valueSeparator, recordSeparator);
+					i = valueHandlers[h].handleValue(input, i, iBound, valueSeparator, lineSeparator);
 					if(i >= iBound)
 					{
 						// check if valid end

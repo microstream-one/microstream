@@ -1,4 +1,4 @@
-package one.microstream.csv.internal;
+package one.microstream.xcsv.internal;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,7 +11,7 @@ import one.microstream.typing.KeyValue;
 import one.microstream.util.xcsv.XCsvContent;
 import one.microstream.util.xcsv.XCsvContentBuilderCharArray;
 
-public class MainTestCsvFunctionality
+public class MainTestXCsvFunctionality
 {
 //	static final CsvConfiguration CONFIG = CSV.configurationBuilder()
 ////		.setValueSeparator('\t')
