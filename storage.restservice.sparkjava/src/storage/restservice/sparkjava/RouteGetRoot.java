@@ -4,9 +4,8 @@ import one.microstream.storage.restadapter.StorageRestAdapterRoot;
 import one.microstream.storage.restadapter.ViewerRootDescription;
 import spark.Request;
 import spark.Response;
-import spark.Route;
 
-public class RouteGetRoot extends RouteBase<StorageRestAdapterRoot> implements Route
+public class RouteGetRoot extends RouteBaseConvertable<StorageRestAdapterRoot>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //

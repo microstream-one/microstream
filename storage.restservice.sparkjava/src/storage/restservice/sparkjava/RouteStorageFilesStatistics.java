@@ -3,9 +3,8 @@ package storage.restservice.sparkjava;
 import one.microstream.storage.restadapter.StorageRestAdapterStorageInfo;
 import spark.Request;
 import spark.Response;
-import spark.Route;
 
-public class RouteStorageFilesStatistics extends RouteBase<StorageRestAdapterStorageInfo> implements Route
+public class RouteStorageFilesStatistics extends RouteBaseConvertable<StorageRestAdapterStorageInfo>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //

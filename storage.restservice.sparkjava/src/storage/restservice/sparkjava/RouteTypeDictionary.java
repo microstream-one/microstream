@@ -3,23 +3,16 @@ package storage.restservice.sparkjava;
 import one.microstream.storage.restadapter.StorageRestAdapterTypeDictionary;
 import spark.Request;
 import spark.Response;
-import spark.Route;
 
-public class RouteTypeDictionary implements Route {
-
-	///////////////////////////////////////////////////////////////////////////
-	// instance fields //
-	////////////////////
-
-	private final StorageRestAdapterTypeDictionary storageRestAdapter;
-
+public class RouteTypeDictionary extends RouteBase<StorageRestAdapterTypeDictionary>
+{
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
 	public RouteTypeDictionary(final StorageRestAdapterTypeDictionary storageRestAdapter)
 	{
-		this.storageRestAdapter = storageRestAdapter;
+		super(storageRestAdapter);
 	}
 
 
