@@ -49,8 +49,8 @@ public interface XCsvAssembler
 			final VarString         vs                   ,
 			final String            valueSeparatorPrefix ,
 			final String            valueSeparatorSuffix ,
-			final String            recordSeparatorPrefix,
-			final String            recordSeparatorSuffix
+			final String            lineSeparatorPrefix,
+			final String            lineSeparatorSuffix
 		)
 		{
 
@@ -58,7 +58,7 @@ public interface XCsvAssembler
 				notNull(vs),
 				xcsvConfig.literalDelimiter(),
 				xcsvConfig.valueSeparator(valueSeparatorPrefix, valueSeparatorSuffix).toCharArray(),
-				xcsvConfig.recordSeparator(recordSeparatorPrefix, recordSeparatorSuffix).toCharArray(),
+				xcsvConfig.lineSeparator(lineSeparatorPrefix, lineSeparatorSuffix).toCharArray(),
 				XCsvVarStringLiteralEscapingAssembler.New(xcsvConfig, vs)
 			);
 		}
@@ -72,7 +72,7 @@ public interface XCsvAssembler
 				notNull(vs),
 				xcsvConfig.literalDelimiter(),
 				new char[]{xcsvConfig.valueSeparator()},
-				new char[]{xcsvConfig.recordSeparator()} ,
+				new char[]{xcsvConfig.lineSeparator()} ,
 				XCsvVarStringLiteralEscapingAssembler.New(xcsvConfig, vs)
 			);
 		}
@@ -88,11 +88,11 @@ public interface XCsvAssembler
 		// instance fields //
 		////////////////////
 
-		final VarString        vs             ;
-		final char             delimiter      ;
-		final char[]           valueSeparator ;
-		final char[]           recordSeparator;
-		final _charProcedure   assembler      ;
+		final VarString      vs            ;
+		final char           delimiter     ;
+		final char[]         valueSeparator;
+		final char[]         lineSeparator ;
+		final _charProcedure assembler     ;
 
 
 
@@ -101,19 +101,19 @@ public interface XCsvAssembler
 		/////////////////
 
 		Default(
-			final VarString        vs             ,
-			final char             delimiter      ,
-			final char[]           valueSeparator ,
-			final char[]           recordSeparator,
-			final _charProcedure   assembler
+			final VarString      vs            ,
+			final char           delimiter     ,
+			final char[]         valueSeparator,
+			final char[]         lineSeparator ,
+			final _charProcedure assembler
 		)
 		{
 			super();
-			this.vs              = vs             ;
-			this.valueSeparator  = valueSeparator ;
-			this.delimiter       = delimiter      ;
-			this.recordSeparator = recordSeparator;
-			this.assembler       = assembler      ;
+			this.vs             = vs            ;
+			this.valueSeparator = valueSeparator;
+			this.delimiter      = delimiter     ;
+			this.lineSeparator  = lineSeparator ;
+			this.assembler      = assembler     ;
 		}
 
 
@@ -236,19 +236,19 @@ public interface XCsvAssembler
 			}
 
 			// safely delete trailing separator and add record separator
-			this.vs.deleteLast(this.valueSeparator.length).add(this.recordSeparator);
+			this.vs.deleteLast(this.valueSeparator.length).add(this.lineSeparator);
 		}
 
 
 		@Override
 		public final void completeRows()
 		{
-			if(!this.vs.endsWith(this.recordSeparator))
+			if(!this.vs.endsWith(this.lineSeparator))
 			{
 				return;
 			}
 			// safely delete trailing record separator
-			this.vs.deleteLast(this.recordSeparator.length);
+			this.vs.deleteLast(this.lineSeparator.length);
 		}
 
 	}
@@ -262,19 +262,19 @@ public interface XCsvAssembler
 
 		public String valueSeperatorSuffix();
 
-		public String recordSeperatorPrefix();
+		public String lineSeparatorPrefix();
 
-		public String recordSeperatorSuffix();
+		public String lineSeparatorSuffix();
 
 		public Builder<O> setConfiguration(XCsvConfiguration configuration);
 
-		public Builder<O> setValueSeperatorPrefix(String separatorPrefix);
+		public Builder<O> setValueSeperatorPrefix(String prefix);
 
-		public Builder<O> setValueSeperatorSuffix(String separatorSuffix);
+		public Builder<O> setValueSeperatorSuffix(String suffix);
 
-		public Builder<O> setRecordSeperatorPrefix(String separatorPrefix);
+		public Builder<O> setLineSeparatorPrefix(String prefix);
 
-		public Builder<O> setRecordSeperatorSuffix(String separatorSuffix);
+		public Builder<O> setlLineSeparatorSuffix(String suffix);
 
 		public XCsvAssembler buildRowAssembler(O outputMedium);
 
@@ -297,11 +297,11 @@ public interface XCsvAssembler
 			// instance fields //
 			////////////////////
 
-			private XCsvConfiguration configuration        ;
-			private String           valueSeparatorPrefix ;
-			private String           valueSeparatorSuffix ;
-			private String           recordSeparatorPrefix;
-			private String           recordSeparatorSuffix;
+			private XCsvConfiguration configuration       ;
+			private String            valueSeparatorPrefix;
+			private String            valueSeparatorSuffix;
+			private String            lineSeparatorPrefix ;
+			private String            lineSeparatorSuffix ;
 
 
 
@@ -310,19 +310,19 @@ public interface XCsvAssembler
 			/////////////////
 
 			Default(
-				final XCsvConfiguration configuration        ,
-				final String           valueSeparatorPrefix ,
-				final String           valueSeparatorSuffix ,
-				final String           recordSeparatorPrefix,
-				final String           recordSeparatorSuffix
+				final XCsvConfiguration configuration       ,
+				final String            valueSeparatorPrefix,
+				final String            valueSeparatorSuffix,
+				final String            lineSeparatorPrefix ,
+				final String            lineSeparatorSuffix
 			)
 			{
 				super();
-				this.configuration         = notNull(configuration)        ;
-				this.valueSeparatorPrefix  = notNull(valueSeparatorPrefix );
-				this.valueSeparatorSuffix  = notNull(valueSeparatorSuffix );
-				this.recordSeparatorPrefix = notNull(recordSeparatorPrefix);
-				this.recordSeparatorSuffix = notNull(recordSeparatorSuffix);
+				this.configuration        = notNull(configuration)       ;
+				this.valueSeparatorPrefix = notNull(valueSeparatorPrefix);
+				this.valueSeparatorSuffix = notNull(valueSeparatorSuffix);
+				this.lineSeparatorPrefix  = notNull(lineSeparatorPrefix) ;
+				this.lineSeparatorSuffix  = notNull(lineSeparatorSuffix) ;
 			}
 
 
@@ -350,15 +350,15 @@ public interface XCsvAssembler
 			}
 
 			@Override
-			public final String recordSeperatorPrefix()
+			public final String lineSeparatorPrefix()
 			{
-				return this.recordSeparatorPrefix;
+				return this.lineSeparatorPrefix;
 			}
 
 			@Override
-			public final String recordSeperatorSuffix()
+			public final String lineSeparatorSuffix()
 			{
-				return this.recordSeparatorSuffix;
+				return this.lineSeparatorSuffix;
 			}
 
 
@@ -390,16 +390,16 @@ public interface XCsvAssembler
 
 
 			@Override
-			public final Builder<VarString> setRecordSeperatorPrefix(final String separatorPrefix)
+			public final Builder<VarString> setLineSeparatorPrefix(final String separatorPrefix)
 			{
-				this.recordSeparatorPrefix = notNull(separatorPrefix);
+				this.lineSeparatorPrefix = notNull(separatorPrefix);
 				return this;
 			}
 
 			@Override
-			public final Builder<VarString> setRecordSeperatorSuffix(final String separatorSuffix)
+			public final Builder<VarString> setlLineSeparatorSuffix(final String separatorSuffix)
 			{
-				this.recordSeparatorSuffix = notNull(separatorSuffix);
+				this.lineSeparatorSuffix = notNull(separatorSuffix);
 				return this;
 			}
 
@@ -417,8 +417,8 @@ public interface XCsvAssembler
 					vs,
 					this.valueSeparatorPrefix,
 					this.valueSeparatorSuffix,
-					this.recordSeparatorPrefix,
-					this.recordSeparatorSuffix
+					this.lineSeparatorPrefix,
+					this.lineSeparatorSuffix
 				);
 			}
 

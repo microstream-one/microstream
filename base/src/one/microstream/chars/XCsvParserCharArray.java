@@ -2,8 +2,11 @@ package one.microstream.chars;
 
 import one.microstream.X;
 import one.microstream.collections.BulkList;
+import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XReference;
 import one.microstream.functional._charRangeProcedure;
+import one.microstream.math.XMath;
+import one.microstream.meta.XDebug;
 import one.microstream.typing.Stateless;
 import one.microstream.util.xcsv.XCSV;
 import one.microstream.util.xcsv.XCSV.ValueSeparatorWeight;
@@ -48,7 +51,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 
 	private static final int META_INDEX_LITERAL_DELIMITER            =  0;
 	private static final int META_INDEX_VALUE_SEPARATOR              =  1;
-	private static final int META_INDEX_RECORD_SEPARATOR             =  2;
+	private static final int META_INDEX_LINE_SEPARATOR               =  2;
 	private static final int META_INDEX_SEGMENT_STARTER              =  3;
 	private static final int META_INDEX_SEGMENT_TERMINATOR           =  4;
 	private static final int META_INDEX_COLUMN_DEFINITION_STARTER    =  5;
@@ -121,11 +124,11 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	}
 
 	private static int skipValueSeparator(
-		final char[] input          ,
-		final int    iStart         ,
-		final int    iBound         ,
-		final char   valueSeparator ,
-		final char   recordSeparator,
+		final char[] input         ,
+		final int    iStart        ,
+		final int    iBound        ,
+		final char   valueSeparator,
+		final char   lineSeparator ,
 		final char   terminator
 	)
 	{
@@ -135,7 +138,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 			{
 				return i + 1; // skip value separator
 			}
-			if(XChars.isNonWhitespace(input[i]) || input[i] == recordSeparator || input[i] == terminator)
+			if(XChars.isNonWhitespace(input[i]) || input[i] == lineSeparator || input[i] == terminator)
 			{
 				return i;
 			}
@@ -144,12 +147,12 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	}
 
 	private static int parseLiteralSimple(
-		final char[]              input          ,
-		final int                 iStart         ,
-		final int                 iBound         ,
-		final char                recordSeparator,
-		final char                valueSeparator ,
-		final char                terminator     ,
+		final char[]              input         ,
+		final int                 iStart        ,
+		final int                 iBound        ,
+		final char                lineSeparator ,
+		final char                valueSeparator,
+		final char                terminator    ,
 		final _charRangeProcedure valueCollector
 	)
 	{
@@ -158,7 +161,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		// scroll to end of simple literal
 
 		// (28.11.2013 TM)NOTE: improved to recognize enclosed non-control whitespaces. Should make no problems, could it?
-		while(i < iBound && input[i] != valueSeparator && input[i] != recordSeparator && input[i] != terminator)
+		while(i < iBound && input[i] != valueSeparator && input[i] != lineSeparator && input[i] != terminator)
 		{
 			i++;
 		}
@@ -175,7 +178,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		}
 
 		// ensure that this literal's separator is skipped (accounting for white spaces, record ends, index bound)
-		return skipValueSeparator(input, i, iBound, valueSeparator, recordSeparator, terminator);
+		return skipValueSeparator(input, i, iBound, valueSeparator, lineSeparator, terminator);
 	}
 
 	private static int parseLiteralDelimited(
@@ -231,24 +234,24 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 
 	// inlineable static method with a lot of parameters for performance reasons (tested!)
 	static final int parseRecord(
-		final char[]              input          ,
-		final int                 iStart         ,
-		final int                 iBound         ,
-		final char                valueSeparator ,
-		final char                delimiter      ,
-		final char                escaper        ,
-		final char                recordSeparator,
-		final char                terminator     ,
-		final XCsvConfiguration    config         ,
-		final VarString           literalBuilder ,
-		final EscapeHandler       escapeHandler  ,
+		final char[]              input         ,
+		final int                 iStart        ,
+		final int                 iBound        ,
+		final char                valueSeparator,
+		final char                delimiter     ,
+		final char                escaper       ,
+		final char                lineSeparator ,
+		final char                terminator    ,
+		final XCsvConfiguration   config        ,
+		final VarString           literalBuilder,
+		final EscapeHandler       escapeHandler ,
 		final _charRangeProcedure valueCollector
 	)
 	{
 		int i = iStart;
 		while(true)
 		{
-			if(i == iBound || input[i] == recordSeparator || input[i] == terminator)
+			if(i == iBound || input[i] == lineSeparator || input[i] == terminator)
 			{
 				// input-trailing missing value special case
 				if(XCsvRecordParserCharArray.Static.isTrailingSeparator(input, iStart, i, valueSeparator))
@@ -272,12 +275,12 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 			{
 				// encountered an opening delimiter, parse accordingly
 				i = parseLiteralDelimited(input, i, iBound, delimiter, escaper, literalBuilder, escapeHandler, valueCollector);
-				i = skipValueSeparator(input, i, iBound, valueSeparator, recordSeparator, terminator);
+				i = skipValueSeparator(input, i, iBound, valueSeparator, lineSeparator, terminator);
 			}
 			else
 			{
 				// default case: parse encountered non-whitespace non-specials chars as simple literal
-				i = parseLiteralSimple(input, i, iBound, recordSeparator, valueSeparator, terminator, valueCollector);
+				i = parseLiteralSimple(input, i, iBound, lineSeparator, valueSeparator, terminator, valueCollector);
 			}
 		}
 	}
@@ -286,9 +289,9 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		final char[]                input              ,
 		final int                   iStart             ,
 		final int                   iBound             ,
-		final char                  recordSeparator    ,
+		final char                  lineSeparator      ,
 		final char                  terminator         ,
-		final XCsvConfiguration      config             ,
+		final XCsvConfiguration     config             ,
 		final VarString             literalBuilder     ,
 		final ColumnHeaderCollector columnNameCollector
 	)
@@ -306,7 +309,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 			config.valueSeparator()  ,
 			config.literalDelimiter(),
 			config.escaper()         ,
-			recordSeparator          ,
+			lineSeparator            ,
 			terminator               ,
 			config                   ,
 			literalBuilder           ,
@@ -415,7 +418,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		builder
 		.setLiteralDelimiter(symbols[META_INDEX_LITERAL_DELIMITER].charAt(0))
 		.setValueSeparator  (symbols[META_INDEX_VALUE_SEPARATOR  ].charAt(0))
-		.setRecordSeparator (symbols[META_INDEX_RECORD_SEPARATOR ].charAt(0))
+		.setLineSeparator   (symbols[META_INDEX_LINE_SEPARATOR ].charAt(0))
 		;
 
 		refConfig.set(builder.createConfiguration());
@@ -619,10 +622,10 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	}
 
 	public static final void parseSegments(
-		final char[]                            input               ,
-		final int                               iStart              ,
-		final int                               iBound              ,
-		final VarString                         literalBuilder      ,
+		final char[]                             input               ,
+		final int                                iStart              ,
+		final int                                iBound              ,
+		final VarString                          literalBuilder      ,
 		final XCsvConfiguration                  config              ,
 		final XCsvRowCollector                   rowAggregator       ,
 		final XCsvRecordParserCharArray.Provider recordParserProvider
@@ -639,10 +642,10 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	}
 
 	static final void parseMultipleSegments(
-		final char[]                            input               ,
-		final int                               iStart              ,
-		final int                               iBound              ,
-		final VarString                         literalBuilder      ,
+		final char[]                             input               ,
+		final int                                iStart              ,
+		final int                                iBound              ,
+		final VarString                          literalBuilder      ,
 		final XCsvConfiguration                  config              ,
 		final XCsvRowCollector                   rowAggregator       ,
 		final XCsvRecordParserCharArray.Provider recordParserProvider
@@ -651,7 +654,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		final ColumnHeaderCollector columnNames       = new ColumnHeaderCollector(new BulkList<>());
 		final ColumnHeaderCollector columnTypes       = new ColumnHeaderCollector(new BulkList<>());
 		final char                  segmentTerminator = config.segmentTerminator()                 ;
-		final char                  recordSeparator   = config.recordSeparator()                   ;
+		final char                  lineSeparator     = config.lineSeparator()                   ;
 		final char                  valueSeparator    = config.valueSeparator()                    ;
 		final char                  commentSignal     = config.commentSignal()                     ;
 		final char                  literalDelimiter  = config.literalDelimiter()                  ;
@@ -669,7 +672,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 				input                    ,
 				i1                       ,
 				iBound                   ,
-				recordSeparator          ,
+				lineSeparator          ,
 				valueSeparator           ,
 				commentSignal            ,
 				literalDelimiter         ,
@@ -693,10 +696,10 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	}
 
 	static final void parseSingletonSegment(
-		final char[]                            input               ,
-		final int                               iStart              ,
-		final int                               iBound              ,
-		final VarString                         literalBuilder      ,
+		final char[]                             input               ,
+		final int                                iStart              ,
+		final int                                iBound              ,
+		final VarString                          literalBuilder      ,
 		final XCsvConfiguration                  config              ,
 		final XCsvRowCollector                   rowAggregator       ,
 		final XCsvRecordParserCharArray.Provider recordParserProvider
@@ -706,7 +709,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 			input                                      ,
 			iStart                                     ,
 			iBound                                     ,
-			config.recordSeparator()                   ,
+			config.lineSeparator()                     ,
 			config.valueSeparator()                    ,
 			config.commentSignal()                     ,
 			config.literalDelimiter()                  ,
@@ -730,7 +733,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		final VarString             literalBuilder,
 		final ColumnHeaderCollector columnNames   ,
 		final ColumnHeaderCollector columnTypes   ,
-		final XCsvConfiguration      config
+		final XCsvConfiguration     config
 	)
 	{
 		int i = iStart;
@@ -739,25 +742,25 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		columnNames.clear();
 		columnTypes.clear();
 
-		final char terminator      = config.terminator()     ;
-		final char valueSeparator  = config.valueSeparator() ;
-		final char recordSeparator = config.recordSeparator();
-		final char commentSignal   = config.commentSignal()  ;
+		final char terminator     = config.terminator()    ;
+		final char valueSeparator = config.valueSeparator();
+		final char lineSeparator  = config.lineSeparator() ;
+		final char commentSignal  = config.commentSignal() ;
 
-		i = parseSimpleColumnLine(input, i, iBound, recordSeparator, terminator, config, literalBuilder, columnNames);
+		i = parseSimpleColumnLine(input, i, iBound, lineSeparator, terminator, config, literalBuilder, columnNames);
 
 		if(i >= iBound || input[i] == terminator)
 		{
 			return i;
 		}
-		if(input[i] == recordSeparator)
+		if(input[i] == lineSeparator)
 		{
 			i++; // skip record separator
 		}
 
 		// skip any comments
 		i = XCsvRecordParserCharArray.Static.skipDataComments(
-			input, i, iBound, terminator, valueSeparator, recordSeparator, commentSignal, config
+			input, i, iBound, terminator, valueSeparator, lineSeparator, commentSignal, config
 		);
 
 		if(i < iBound && input[i] == config.headerStarter())
@@ -783,35 +786,35 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 			}
 			// skip header terminator and any following comments
 			i = XCsvRecordParserCharArray.Static.skipDataComments(
-				input, i, iBound, terminator, valueSeparator, recordSeparator, commentSignal, config
+				input, i, iBound, terminator, valueSeparator, lineSeparator, commentSignal, config
 			);
 		}
 
 		// note that line skipping cares only for pure line separators, no delimited symbols or such
-		i = skipLines(input, i, iBound, config.recordSeparator(), config.postColumnHeaderSkipLineCount());
+		i = skipLines(input, i, iBound, config.lineSeparator(), config.postColumnHeaderSkipLineCount());
 		i = XCsvRecordParserCharArray.Static.skipDataComments(
-			input, i, iBound, terminator, valueSeparator, recordSeparator, commentSignal, config
+			input, i, iBound, terminator, valueSeparator, lineSeparator, commentSignal, config
 		);
 
 		return i;
 	}
 
 	private static int parseSegment(
-		final char[]                            input               ,
-		final int                               iStart              ,
-		final int                               iBound              ,
-		final char                              recordSeparator     ,
-		final char                              valueSeparator      ,
-		final char                              commentSignal       ,
-		final char                              literalDelimiter    ,
-		final char                              escaper             ,
-		final EscapeHandler                     escapeHandler       ,
-		final char                              terminator          ,
+		final char[]                             input               ,
+		final int                                iStart              ,
+		final int                                iBound              ,
+		final char                               lineSeparator       ,
+		final char                               valueSeparator      ,
+		final char                               commentSignal       ,
+		final char                               literalDelimiter    ,
+		final char                               escaper             ,
+		final EscapeHandler                      escapeHandler       ,
+		final char                               terminator          ,
 		final XCsvRowCollector                   rowCollector        ,
-		final VarString                         literalBuilder      ,
-		final String                            segmentName         ,
-		final ColumnHeaderCollector             columnNames         ,
-		final ColumnHeaderCollector             columnTypes         ,
+		final VarString                          literalBuilder      ,
+		final String                             segmentName         ,
+		final ColumnHeaderCollector              columnNames         ,
+		final ColumnHeaderCollector              columnTypes         ,
 		final XCsvConfiguration                  config              ,
 		final XCsvRecordParserCharArray.Provider recordParserProvider
 	)
@@ -842,7 +845,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 				valueSeparator  ,
 				literalDelimiter,
 				escaper         ,
-				recordSeparator ,
+				lineSeparator ,
 				terminator      ,
 				config          ,
 				literalBuilder  ,
@@ -855,7 +858,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 			{
 				break;
 			}
-			if(input[i] == recordSeparator)
+			if(input[i] == lineSeparator)
 			{
 				i = XCsvRecordParserCharArray.Static.skipDataComments(
 					input          ,
@@ -863,7 +866,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 					iBound         ,
 					terminator     ,
 					valueSeparator ,
-					recordSeparator,
+					lineSeparator,
 					commentSignal  ,
 					config
 				);
@@ -940,12 +943,12 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 			data         ,
 			startIndex   ,
 			input.bound(),
-			cfg.recordSeparator(),
+			cfg.lineSeparator(),
 			cfg.trailingLineCount()
 		);
 
 		// note that line skipping intentionally cares only for pure line separators, no delimited symbols or such
-		int i = skipLines(data, startIndex, boundIndex, cfg.recordSeparator(), cfg.skipLineCount());
+		int i = skipLines(data, startIndex, boundIndex, cfg.lineSeparator(), cfg.skipLineCount());
 
 		// skip all skippable (whitespaces and comments by passed/default config) at the beginning.
 		i = XCsvRecordParserCharArray.Static.skipSkippable(data, i, boundIndex, cfg.commentSignal(), config);
@@ -968,6 +971,8 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		return cfg;
 	}
 	
+	
+	
 	static XCsvConfiguration ensureEffectiveConfiguration(
 		final XCSV.DataType     dataType  ,
 		final char[]            input     ,
@@ -980,101 +985,219 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		{
 			return config;
 		}
-		
-		final class Counter
-		{
-			char character;
-			long totalCount, maxCountPerLines, minCountPerLines, lineCountChange, emptyLines;
-			
-			Counter(
-				final char character       ,
-				final long totalCount      ,
-				final long maxCountPerLines,
-				final long minCountPerLines,
-				final long lineCountChange ,
-				final long emptyLines
-			)
-			{
-				super();
-				this.character        = character       ;
-				this.totalCount       = totalCount      ;
-				this.maxCountPerLines = maxCountPerLines;
-				this.minCountPerLines = minCountPerLines;
-				this.lineCountChange  = lineCountChange ;
-				this.emptyLines       = emptyLines      ;
-			}
-		}
-		
+				
 		// \n character and honestly: everything else is just idiocy. Including a certain OS that defiantly uses \r.
-		final char recordSeparator = XCSV.configurationDefault().recordSeparator();
+		final char lineSeparator = XCSV.configurationDefault().lineSeparator();
 		
-		final char[] validSeparators = XCSV.getValidValueSeparators();
-		final Counter[] counters = new Counter[dataType.valueSeparatorWeights().intSize()];
+		final XGettingCollection<ValueSeparatorWeight> valueSeparatorWeights =
+			dataType.valueSeparatorWeights().values()
+		;
 		
-		long totalLines = 0;
-		boolean countLines = true;
+		final BulkList<Counter> counters = BulkList.New();
 		
-		final int ci = 0;
-		for(final ValueSeparatorWeight vsWeight : dataType.valueSeparatorWeights().values())
+		// note that "lines" here are really lines, not records. If there are comment lines, those are processed, too.
+		final long totalLines = countLines(input, startIndex, boundIndex, lineSeparator);
+		
+		for(final ValueSeparatorWeight vsWeight : valueSeparatorWeights)
 		{
-			final char c = vsWeight.valueSeparator();
-			
-			long charTotalCount       = 0;
-			final long lastLineCount        = 0;
-			long lineCountChange      = 0;
-			long emptyLines           = 0;
-			long charMaxCountPerLines = 0;
-			long charMinCountPerLines = Long.MAX_VALUE;
-			
-			for(int i = startIndex; i < boundIndex; i++)
-			{
-				long currentCount = 0;
-				if(input[i] == recordSeparator)
-				{
-					if(currentCount >= charMaxCountPerLines)
-					{
-						charMaxCountPerLines = currentCount;
-					}
-					if(currentCount < charMinCountPerLines)
-					{
-						charMinCountPerLines = currentCount;
-					}
-					charTotalCount += currentCount;
-					if(currentCount == 0)
-					{
-						emptyLines++;
-					}
-					currentCount = 0;
-					lineCountChange += Math.abs(lastLineCount - currentCount);
-					if(countLines)
-					{
-						totalLines++;
-					}
-				}
-				else if(input[i] == c)
-				{
-					currentCount++;
-				}
-			}
-			
-			// count total lines only once
-			countLines = false;
-			
-			counters[ci] = new Counter(
-				c,
-				charTotalCount,
-				charMaxCountPerLines,
-				charMinCountPerLines,
-				lineCountChange,
-				emptyLines
-			);
+			final Counter counter = countVsCandidate(input, startIndex, boundIndex, lineSeparator, vsWeight)
+				.calculateScore(totalLines)
+			;
+			counters.add(counter);
+		}
+		counters.sort(Counter::orderByScore);
+		
+		// (12.02.2020 TM)FIXME: priv#204: /!\ DEBUG
+		counters.iterate(c ->
+			System.out.println(XChars.escapeChar(c.character) + ": " + c.score + " (weight = " + c.weight + ")")
+		);
+		
+		final char guessedValueSeparator = counters.last().character;
+		// (12.02.2020 TM)FIXME: priv#204: /!\ DEBUG
+		XDebug.println("Guessed separator = " + guessedValueSeparator);
+		
+		return XCsvConfiguration.New(guessedValueSeparator);
+	}
+	
+	static long countLines(
+		final char[] input        ,
+		final int    startIndex   ,
+		final int    boundIndex   ,
+		final char   lineSeparator
+	)
+	{
+		if(startIndex == boundIndex)
+		{
+			// an empty input has, of course, no lines.
+			return 0;
 		}
 		
-		// correct line counting overkill
-		totalLines /= validSeparators.length;
+		/*
+		 * If there are ANY chars, the line count is at least one.
+		 * Every line separator increases that number by one.
+		 * So even just a single line separator means two (empty) lines.
+		 */
+		return 1 + XChars.count(input, startIndex, boundIndex, lineSeparator);
+	}
+	
+	static Counter countVsCandidate(
+		final char[]               input        ,
+		final int                  startIndex   ,
+		final int                  boundIndex   ,
+		final char                 lineSeparator,
+		final ValueSeparatorWeight vsWeight
+	)
+	{
+		final char valueSeparator = vsWeight.valueSeparator();
+				
+		int emptyLines         = 0;
+		int vsTotalCount       = 0;
+		int vsPrevLineCount    = 0;
+		int vsCurrLineCount    = 0;
+		int vsLineCountChange  = -1; // first line count is not a "change".
+		int vsMaxCountPerLines = 0;
+		int vsMinCountPerLines = Integer.MAX_VALUE;
 		
-		// (05.02.2020 TM)FIXME: priv#204: evaluate counters and guess separator, using weight
-		throw new one.microstream.meta.NotImplementedYetError();
+		for(int i = startIndex; i < boundIndex; i++)
+		{
+			if(input[i] == valueSeparator)
+			{
+				vsCurrLineCount++;
+			}
+			else if(input[i] == lineSeparator)
+			{
+				if(vsCurrLineCount >= vsMaxCountPerLines)
+				{
+					vsMaxCountPerLines = vsCurrLineCount;
+				}
+				
+				// minimum count and empty line are mutually exclusive.
+				if(vsCurrLineCount == 0)
+				{
+					emptyLines++;
+				}
+				else if(vsCurrLineCount < vsMinCountPerLines)
+				{
+					vsMinCountPerLines = vsCurrLineCount;
+				}
+				
+				vsTotalCount     += vsCurrLineCount;
+				vsLineCountChange = updateLineCountChange(vsLineCountChange, vsPrevLineCount, vsCurrLineCount);
+				vsPrevLineCount   = vsCurrLineCount;
+				vsCurrLineCount   = 0;
+			}
+		}
+		
+		// last line update
+		vsTotalCount     += vsCurrLineCount;
+		vsLineCountChange = updateLineCountChange(vsLineCountChange, vsPrevLineCount, vsCurrLineCount);
+		
+		return new Counter(
+			valueSeparator,
+			vsWeight.weight(),
+			vsTotalCount,
+			vsMaxCountPerLines,
+			vsMinCountPerLines,
+			vsLineCountChange,
+			emptyLines
+		);
+	}
+	
+	static final class Counter
+	{
+		// configuration values
+		final char character;
+		final float weight;
+		
+		// counting values
+		final int totalCount, maxCountPerLines, minCountPerLines, lineCountChange, emptyLines;
+		
+		// scoring values
+		double score;
+		
+		Counter(
+			final char  character       ,
+			final float weight          ,
+			final int   totalCount      ,
+			final int   maxCountPerLines,
+			final int   minCountPerLines,
+			final int   lineCountChange ,
+			final int   emptyLines
+		)
+		{
+			super();
+			this.character        = character       ;
+			this.weight           = weight          ;
+			this.totalCount       = totalCount      ;
+			this.maxCountPerLines = maxCountPerLines;
+			this.minCountPerLines = minCountPerLines;
+			this.lineCountChange  = lineCountChange ;
+			this.emptyLines       = emptyLines      ;
+		}
+		
+		final Counter calculateScore(final long totalLines)
+		{
+			// trivial abort condition: character was not found at all, hence score 0.
+			if(this.totalCount == 0)
+			{
+				this.score = 0.0;
+				return this;
+			}
+			
+			// arbitrary base value, i.e. the column count IF the current value separator is the correct one.
+			final double averageCountPerLine = (double)this.totalCount / totalLines;
+			
+			// values that should be around 0.0
+			final double emptyLineRatio       = (double)this.emptyLines / totalLines;
+			final double lineCountChangeRatio = (double)this.lineCountChange / totalLines;
+			
+			// values that should be around 1.0
+			final double maxCountDeviationRatio = this.maxCountPerLines / averageCountPerLine;
+			final double minCountDeviationRatio = averageCountPerLine / this.minCountPerLines; // never 0
+			
+			// evaluation factors, all in range ]0.0;1.0]
+			final double emptyLineFactor         = 1 / (1.0 + emptyLineRatio);
+			final double lineCountChangeFactor   = 1 / (1.0 + lineCountChangeRatio);
+			final double maxCountDeviationFactor = 1 / maxCountDeviationRatio;
+			final double minCountDeviationFactor = 1 / minCountDeviationRatio;
+			
+			final double baseScore = averageCountPerLine
+				* emptyLineFactor
+				* lineCountChangeFactor
+				* maxCountDeviationFactor
+				* minCountDeviationFactor
+			;
+			
+			// the actual score is the evaluation base score times the character's weight (bias).
+			this.score = XMath.round6(baseScore * this.weight);
+			
+			return this;
+		}
+		
+		final double score()
+		{
+			return this.score;
+		}
+		
+		
+		static final int orderByScore(final Counter c1, final Counter c2)
+		{
+			return c1.score >= c2.score ? c1.score != c2.score ? +1 : 0 : -1;
+		}
+		
+	}
+	
+	private static int updateLineCountChange(
+		final int currentLineCountChange,
+		final int vsPrevLineCount,
+		final int vsCurrLineCount
+	)
+	{
+		// first line does not count!
+		return currentLineCountChange < 0
+			? 0
+			: currentLineCountChange + Math.abs(vsPrevLineCount - vsCurrLineCount)
+		;
 	}
 
 

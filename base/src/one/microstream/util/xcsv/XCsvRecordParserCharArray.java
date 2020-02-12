@@ -13,17 +13,17 @@ public interface XCsvRecordParserCharArray
 	 */
 
 	public int parseRecord(
-		char[]              input          ,
-		int                 iStart         ,
-		int                 iBound         ,
-		char                valueSeparator ,
-		char                delimiter      ,
-		char                escaper        ,
-		char                recordSeparator,
-		char                terminator     ,
-		XCsvConfiguration    config         ,
-		VarString           literalBuilder ,
-		EscapeHandler       escapeHandler  ,
+		char[]              input         ,
+		int                 iStart        ,
+		int                 iBound        ,
+		char                valueSeparator,
+		char                delimiter     ,
+		char                escaper       ,
+		char                lineSeparator ,
+		char                terminator    ,
+		XCsvConfiguration   config        ,
+		VarString           literalBuilder,
+		EscapeHandler       escapeHandler ,
 		_charRangeProcedure valueCollector
 	);
 
@@ -100,13 +100,13 @@ public interface XCsvRecordParserCharArray
 		}
 
 		public static final int skipDataComments(
-			final char[]           input          ,
-			final int              iStart         ,
-			final int              iBound         ,
-			final char             terminator     ,
-			final char             valueSeparator ,
-			final char             recordSeparator,
-			final char             commentSignal  ,
+			final char[]            input         ,
+			final int               iStart        ,
+			final int               iBound        ,
+			final char              terminator    ,
+			final char              valueSeparator,
+			final char              lineSeparator ,
+			final char              commentSignal ,
 			final XCsvConfiguration config
 		)
 		{
@@ -116,7 +116,7 @@ public interface XCsvRecordParserCharArray
 			while(i < iBound)
 			{
 				// check control chars explicitly before skipping whitespaces as they might be whitespaces themselves
-				if(input[i] == terminator || input[i] == valueSeparator || input[i] == recordSeparator)
+				if(input[i] == terminator || input[i] == valueSeparator || input[i] == lineSeparator)
 				{
 					return i;
 				}
@@ -135,7 +135,7 @@ public interface XCsvRecordParserCharArray
 				}
 
 				// nasty special case: single trailing comment signal character at the end
-				if(++i >= iBound || input[i] == terminator || input[i] == valueSeparator || input[i] == recordSeparator)
+				if(++i >= iBound || input[i] == terminator || input[i] == valueSeparator || input[i] == lineSeparator)
 				{
 					return i - 1;
 				}
