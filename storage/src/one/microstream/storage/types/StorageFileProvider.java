@@ -30,6 +30,13 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	 * but just a PersistenceTypeDictionaryDataFileProvider
 	 */
 	
+	/**
+	 * Returns a String that uniquely identifies the storage location.
+	 * 
+	 * @return a String that uniquely identifies the storage location.
+	 */
+	public String getStorageLocationIdentifier();
+	
 	@Override
 	public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler(
 		PersistenceTypeDictionaryStorer writeListener
@@ -635,6 +642,12 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public String getStorageLocationIdentifier()
+		{
+			return XIO.Path(this.baseDirectory()).toAbsolutePath().toString();
+		}
 
 		public String baseDirectory()
 		{

@@ -1,4 +1,4 @@
-package one.microstream.persistence.binary.internal;
+
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -7,7 +7,7 @@ import java.lang.reflect.Type;
 import one.microstream.chars.XChars;
 import one.microstream.collections.types.XReference;
 
-public class _MainTestGeneticTypeStuff
+public class _MainTestGenericTypeStuff
 {
 	
 	public static void main(final String[] args)
