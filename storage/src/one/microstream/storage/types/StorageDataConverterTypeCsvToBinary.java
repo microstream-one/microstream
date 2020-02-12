@@ -1079,8 +1079,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			/* (18.09.2018 TM)TODO: unchecked exception really necessary?
 			 * Copied from StorageRequestTaskImportData#internalProcessBy:
-			 * if it is a normal problem, there should be a proper wrapping exception for it
-			 * instead of hacking the JVM.
+			 * if it is a normal problem, there should be a proper wrapping exception for it.
 			 */
 			final char[] input = XIO.unchecked(()->
 				XIO.readString(
