@@ -577,7 +577,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		private boolean isUnrequiredReferenceLazy(final long objectId)
 		{
 			// spare pointless null reference roundtrips
-			if(isUnrequiredReferenceEager(objectId))
+			if(this.isUnrequiredReferenceEager(objectId))
 			{
 				return true;
 			}
@@ -920,9 +920,9 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		@Override
 		public BinaryLoader createLoader(
-			final PersistenceTypeHandlerLookup<Binary> typeLookup,
-			final PersistenceObjectRegistry            registry  ,
-			final Persister                            persister ,
+			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
+			final PersistenceObjectRegistry            registry       ,
+			final Persister                            persister      ,
 			final PersistenceSourceSupplier<Binary>    source
 		)
 		{
@@ -973,9 +973,9 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		@Override
 		public BinaryLoader createLoader(
-			final PersistenceTypeHandlerLookup<Binary> typeLookup    ,
-			final PersistenceObjectRegistry            registry      ,
-			final Persister                            persister     ,
+			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
+			final PersistenceObjectRegistry            registry       ,
+			final Persister                            persister      ,
 			final PersistenceSourceSupplier<Binary>    sourceSupplier
 		)
 		{

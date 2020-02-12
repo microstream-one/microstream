@@ -9,6 +9,13 @@ import one.microstream.concurrency.XThreads;
 import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis;
 
+
+/**
+ * Tiny utility class that allows conversion of transaction files into a human readable form.
+ * Search internal confluence for "Transaction File Converter" for a helper .bat file and a guide.
+ * 
+ * @author TM
+ */
 public class MainUtilTransactionFileConverter
 {
 	public static void main(final String[] args)
