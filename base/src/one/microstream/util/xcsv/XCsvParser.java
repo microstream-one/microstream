@@ -4,7 +4,7 @@ package one.microstream.util.xcsv;
 public interface XCsvParser<I>
 {
 	public XCsvConfiguration parseCsvData(
-		XCsvDataType                  dataType              ,
+		XCsvDataType                   dataType              ,
 		XCsvConfiguration              config                ,
 		I                              input                 ,
 		XCsvSegmentsParser.Provider<I> segmentsParserProvider,
@@ -31,7 +31,7 @@ public interface XCsvParser<I>
 	}
 
 	public default XCsvConfiguration parseCsvData(
-		final XCsvDataType     dataType     ,
+		final XCsvDataType      dataType     ,
 		final XCsvConfiguration config       ,
 		final I                 input        ,
 		final XCsvRowCollector  rowAggregator
