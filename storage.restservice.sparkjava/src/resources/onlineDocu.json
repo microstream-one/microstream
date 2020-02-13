@@ -1,0 +1,29 @@
+{
+    "handler": {
+        "storage.restservice.sparkjava.RouteGetRoot": {
+            "get": {
+                "description": "",
+                "parameter": {},
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "objectId": {
+                                        "type": "integer",
+                                        "format": "int64"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

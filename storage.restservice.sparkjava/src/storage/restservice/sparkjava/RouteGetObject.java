@@ -42,7 +42,4 @@ public class RouteGetObject extends RouteBaseConvertable<StorageRestAdapterObjec
 
 		return this.toRequestedFormat(storageObject, requestedFormat, response);
 	}
-
-
-
 }

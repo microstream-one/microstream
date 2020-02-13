@@ -115,5 +115,4 @@ public abstract class RouteBase<T> implements Route
 			throw new InvalidRouteParametersException("invalid url parameter " + name);
 		}
 	}
-
 }
