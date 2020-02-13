@@ -7,9 +7,8 @@ import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.StringTable;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
-import one.microstream.collections.EqConstHashTable;
-import one.microstream.collections.EqHashTable;
-import one.microstream.collections.types.XGettingSequence;
+import one.microstream.chars._charArrayRange;
+import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XIterable;
 import one.microstream.io.XIO;
 
@@ -50,10 +49,9 @@ public final class XCSV
 	static final int           DEFAULT_SKIP_LINE_COUNT_POST_HEADER = 0   ;
 	static final int           DEFAULT_TRAILING_LINE_COUNT         = 0   ;
 	static final EscapeHandler DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
-	static final XCsvConfiguration DEFAULT_CONFIG = new XCsvConfiguration.Builder.Default().createConfiguration();
-		
+			
 	
-	static final char[] VALID_VALUE_SEPARATORS = createValidValueSeparators();
+	static final char[] VALID_VALUE_SEPARATORS = {'\t', ';', ',', '|', ':', '~', '#', '*', '-', '.'};
 	
 	
 	public static ValueSeparatorWeight ValueSeparatorWeight(
@@ -119,195 +117,21 @@ public final class XCSV
 		
 	}
 
-	public enum DataType
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// constants //
-		//////////////
-		
-		XCSV(
-			"xcsv",
-			map(
-				vc('\t', 1.3),
-				vc( ';', 1.2),
-				vc( ',', 1.1),
-				vc( '|', 1.0),
-				vc( '~', 0.9),
-				vc( ':', 0.9),
-				vc( '#', 0.9),
-				vc( '*', 0.8),
-				vc( '-', 0.8),
-				vc( '.', 0.8)
-			)
-		),
-		TSV(
-			"tsv",
-			map(
-				vc('\t', 1.3),
-				vc( ';', 1.2),
-				vc( ',', 1.1),
-				vc( '|', 1.0),
-				vc( '~', 0.9),
-				vc( ':', 0.9),
-				vc( '#', 0.9),
-				vc( '*', 0.8),
-				vc( '-', 0.8),
-				vc( '.', 0.8)
-			)
-		),
-		CSV(
-			"csv",
-			map(
-				vc('\t', 1.1),
-				vc( ';', 1.2), // "," ist standard, see https://en.wikipedia.org/wiki/Comma-separated_values
-				vc( ',', 1.3), // "," ist standard, see https://en.wikipedia.org/wiki/Comma-separated_values
-				vc( '|', 1.0),
-				vc( '~', 0.9),
-				vc( ':', 0.9),
-				vc( '#', 0.9),
-				vc( '*', 0.8),
-				vc( '-', 0.8),
-				vc( '.', 0.8)
-			)
-		);
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-		
-		public static DataType fromIdentifier(final String identifier)
-		{
-			if(identifier == null)
-			{
-				return null;
-			}
-			
-			return DataType.valueOf(identifier.toUpperCase());
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
-		private final String identifier;
-		private final EqConstHashTable<Character, ValueSeparatorWeight> valueSeparatorWeights;
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-		
-		private DataType(
-			final String                                                 identifier           ,
-			final EqConstHashTable<Character, XCSV.ValueSeparatorWeight> valueSeparatorWeights
-		)
-		{
-			this.identifier            = identifier           ;
-			this.valueSeparatorWeights = valueSeparatorWeights;
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
-		public final String identifier()
-		{
-			return this.identifier;
-		}
-		
-		public final EqConstHashTable<Character, ValueSeparatorWeight> valueSeparatorWeights()
-		{
-			return this.valueSeparatorWeights;
-		}
-		
-		public final boolean isValidValueSeparator(final Character c)
-		{
-			return this.valueSeparatorWeights.keys().contains(c);
-		}
-		
-		public final boolean isValidValueSeparator(final char c)
-		{
-			return this.isValidValueSeparator(Character.valueOf(c));
-		}
-		
-		public final XCSV.ValueSeparatorWeight lookupValueSeparator(final Character c)
-		{
-			return this.valueSeparatorWeights.get(c);
-		}
-		
-		public final XCSV.ValueSeparatorWeight lookupValueSeparator(final char c)
-		{
-			return this.lookupValueSeparator(Character.valueOf(c));
-		}
-		
-	}
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
-	
-	final static ValueSeparatorWeight vc(final char valueSeparator, final double weight)
-	{
-		return new ValueSeparatorWeight.Default(valueSeparator, (float)weight);
-	}
-	
-	final static EqConstHashTable<Character, ValueSeparatorWeight> map(final ValueSeparatorWeight... weights)
-	{
-		final EqHashTable<Character, ValueSeparatorWeight> table = EqHashTable.New();
-		
-		for(final ValueSeparatorWeight weight : weights)
-		{
-			table.add(Character.valueOf(weight.valueSeparator()), weight);
-		}
-		
-		return table.immure();
-	}
-	
-	
-	private static char[] createValidValueSeparators()
-	{
-		final XGettingSequence<ValueSeparatorWeight> weights = XCSV.DataType.XCSV.valueSeparatorWeights().values();
-		final char[] vss = new char[weights.intSize()];
-		
-		int i = 0;
-		for(final ValueSeparatorWeight weight : weights)
-		{
-			vss[i++] = weight.valueSeparator();
-		}
-		
-		return vss;
-	}
-	
-	public static String dataTypeCsv()
-	{
-		return "csv";
-	}
-	
-	public static String dataTypeXCsv()
-	{
-		return "xcsv";
-	}
-	
-	public static String dataTypeTsv()
-	{
-		return "tsv";
-	}
-	
+				
 	// intentionally "get" since this is not a trivial accessor but performs considerable logic
 	public static final char[] getValidValueSeparators()
 	{
-		return VALID_VALUE_SEPARATORS;
+		return VALID_VALUE_SEPARATORS.clone();
 	}
 
 	public static final XCsvConfiguration configurationDefault()
 	{
-		return DEFAULT_CONFIG;
+		return XCsvDataType.XCSV.configuration();
 	}
 
 	public static final XCsvConfiguration.Builder ConfigurationBuilder()
@@ -317,7 +141,7 @@ public final class XCSV
 
 	public static final XCsvAssembler.Builder<VarString> AssemblerBuilder()
 	{
-		return XCsvAssembler.Builder.Default.New();
+		return XCsvAssembler.Builder();
 	}
 	
 	public static boolean isValidValueSeparator(final char c)
@@ -367,23 +191,199 @@ public final class XCSV
 	}
 
 	
+	public static StringTable parse(final String rawData)
+	{
+		return parse(rawData, null, null);
+	}
+	
+	public static StringTable parse(final String rawData, final char valueSeparator)
+	{
+		return parse(rawData, XCsvConfiguration.New(valueSeparator), null);
+	}
+	
+	public static StringTable parse(final String rawData, final XCsvDataType dataType)
+	{
+		return parse(rawData, null, dataType);
+	}
+	
+	public static StringTable parse(
+		final String            rawData      ,
+		final XCsvConfiguration configuration,
+		final XCsvDataType      dataType
+	)
+	{
+		/*
+		 * can't copy around data all the time just because the JDK guys don't know how to write proper APIs
+		 * (e.g. give String an iterate(_charConsumer) method so that logic could be written reusable)
+		 * Or even better: make immutable arrays or optionally read-only accessible. But nooo...
+		 */
+		return parse(_charArrayRange.New(XChars.readChars(rawData)), configuration, dataType);
+	}
+	
+	public static String assembleString(final StringTable stringTable)
+	{
+		final VarString vs = VarString.New(calculateEstimatedCharCount(stringTable.rows().size()));
+		assembleString(vs, stringTable);
+		
+		return vs.toString();
+	}
+
+	public static StringTable parse(final _charArrayRange rawData)
+	{
+		return parse(rawData, null, null);
+	}
+		
+	public static StringTable parse(
+		final _charArrayRange rawData ,
+		final XCsvDataType   dataType
+	)
+	{
+		return parse(rawData, null, dataType);
+	}
+	
+	public static StringTable parse(final _charArrayRange rawData, final char valueSeparator)
+	{
+		return parse(rawData, XCsvConfiguration.New(valueSeparator), null);
+	}
+			
+	public static StringTable parse(
+		final _charArrayRange   rawData         ,
+		final XCsvConfiguration csvConfiguration,
+		final XCsvDataType      dataType
+	)
+	{
+		final XCsvContentBuilderCharArray parser = XCsvContentBuilderCharArray.New(
+			csvConfiguration, dataType
+		);
+		
+		final XCsvContent content = parser.build(null, rawData);
+		final StringTable data    = content.segments().first().value();
+
+		return data;
+	}
+	
+	// float because float to int conversion is automatically capped at max int.
+	public static final int estimatedCharCountPerRow()
+	{
+		return 100;
+	}
+	
+	public static final int calculateEstimatedCharCount(final long rowCount)
+	{
+		final long estimate = rowCount * estimatedCharCountPerRow();
+		
+		return estimate >= Integer.MAX_VALUE
+			? Integer.MAX_VALUE
+			: (int)estimate
+		;
+	}
+
+	public static final VarString assembleString(final VarString vs, final StringTable st)
+	{
+		return assembleString(vs, st, null);
+	}
+	
+	public static final VarString assembleString(
+		final VarString        vs              ,
+		final StringTable      st              ,
+		final XCsvConfiguration csvConfiguration
+	)
+	{
+		if(st.columnNames().isEmpty())
+		{
+			// column names are mandatory. So no columns means no data, even if there should be rows present.
+			return vs;
+			
+			// (08.05.2017 TM)NOTE: can't just return a random string because it is not recognized by the parser.
+//			return vs.add("[empty table]");
+		}
+		
+		final XCsvConfiguration effConfig      = ensureCsvConfiguration(csvConfiguration);
+		final char              valueSeparator = effConfig.valueSeparator();
+		final char              lineSeparator  = effConfig.lineSeparator();
+
+		// assemble column names
+		assemble(vs, valueSeparator, st.columnNames());
+
+		// assemble column types if present
+		if(!st.columnTypes().isEmpty())
+		{
+			vs.add(lineSeparator).add(effConfig.headerStarter());
+			assemble(vs, valueSeparator, st.columnTypes());
+			vs.add(effConfig.headerTerminator());
+		}
+
+		// assemble data rows if present
+		if(!st.rows().isEmpty())
+		{
+			for(final String[] row : st.rows())
+			{
+				assemble(vs.add(lineSeparator), valueSeparator, row);
+			}
+		}
+
+		return vs;
+	}
+	
+	private static void assemble(final VarString vs, final char separator, final String[] elements)
+	{
+		if(elements.length == 0)
+		{
+			return;
+		}
+		
+		for(final String s : elements)
+		{
+			vs.add(s).add(separator);
+		}
+		vs.deleteLast();
+	}
+	
+	private static void assemble(
+		final VarString                  vs       ,
+		final char                       separator,
+		final XGettingCollection<String> elements
+	)
+	{
+		if(elements.isEmpty())
+		{
+			return;
+		}
+		
+		for(final String s : elements)
+		{
+			vs.add(s).add(separator);
+		}
+		vs.deleteLast();
+	}
+	
+	// (08.05.2017 TM)NOTE: centralized method to guarantee parser and assembler behave consistently
+	private static XCsvConfiguration ensureCsvConfiguration(final XCsvConfiguration csvConfiguration)
+	{
+		return csvConfiguration == null
+			? XCSV.configurationDefault()
+			: csvConfiguration
+		;
+	}
+	
+	
 	public static StringTable readFromFile(final Path file)
 	{
 		final String        fileSuffix = XIO.getFileSuffix(file);
 		final String        normalized = fileSuffix == null ? null : fileSuffix.trim().toLowerCase();
-		final XCSV.DataType dataType   = XCSV.DataType.fromIdentifier(normalized);
+		final XCsvDataType dataType   = XCsvDataType.fromIdentifier(normalized);
 		
 		return readFromFile(file, dataType);
 	}
 	
-	public static StringTable readFromFile(final Path file, final XCSV.DataType dataType)
+	public static StringTable readFromFile(final Path file, final XCsvDataType dataType)
 	{
 		// (19.04.2018 TM)EXCP: proper exception
 		final String fileContent = XIO.unchecked(() ->
 			XIO.readString(file)
 		);
 		
-		final StringTable stringTable = StringTable.Static.parse(fileContent, dataType);
+		final StringTable stringTable = parse(fileContent, dataType);
 		
 		return stringTable;
 	}

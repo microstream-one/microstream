@@ -28,7 +28,7 @@ public final class XCsvContentBuilderCharArray implements XCsvContent.Builder<_c
 	}
 	
 	public static final XCsvContentBuilderCharArray New(
-		final XCSV.DataType dataType
+		final XCsvDataType dataType
 	)
 	{
 		return New(null, dataType);
@@ -43,7 +43,7 @@ public final class XCsvContentBuilderCharArray implements XCsvContent.Builder<_c
 	
 	public static final XCsvContentBuilderCharArray New(
 		final XCsvConfiguration csvConfiguration,
-		final XCSV.DataType     dataType
+		final XCsvDataType     dataType
 	)
 	{
 		return new XCsvContentBuilderCharArray(
@@ -61,7 +61,7 @@ public final class XCsvContentBuilderCharArray implements XCsvContent.Builder<_c
 	// instance fields //
 	////////////////////
 
-	private final XCSV.DataType               dataType     ;
+	private final XCsvDataType               dataType     ;
 	private final XCsvConfiguration           configuration;
 	private final Substituter<String>         stringCache  ;
 	private final XCsvParser<_charArrayRange> parser       ;
@@ -74,7 +74,7 @@ public final class XCsvContentBuilderCharArray implements XCsvContent.Builder<_c
 	/////////////////
 
 	private XCsvContentBuilderCharArray(
-		final XCSV.DataType               dataType     ,
+		final XCsvDataType               dataType     ,
 		final XCsvConfiguration           configuration,
 		final Substituter<String>         stringCache  ,
 		final XCsvParser<_charArrayRange> parser       ,
