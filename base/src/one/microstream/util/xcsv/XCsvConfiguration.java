@@ -62,7 +62,14 @@ public interface XCsvConfiguration
 	{
 		return this.commentFullTerminator().toCharArray();
 	}
+	
+	public Boolean hasColumnNamesHeader();
+	
+	public Boolean hasColumnTypesHeader();
+	
+	public Boolean hasMetaCharacterDefinitionHeader();
 
+	
 	
 	public static XCsvConfiguration New()
 	{
