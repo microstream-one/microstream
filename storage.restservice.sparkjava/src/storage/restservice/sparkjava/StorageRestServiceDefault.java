@@ -77,7 +77,7 @@ public class StorageRestServiceDefault implements StorageRestService
 
 
 		methods.put(HttpMethod.options.toString().toLowerCase(), route.getClass().getName());
-		this.sparkService.addRoute(httpMethod, RouteImpl.create(path, new RouteDocumentation(this)));
+		this.sparkService.addRoute(HttpMethod.options, RouteImpl.create(path, new RouteDocumentation(this)));
 
 	}
 
@@ -92,8 +92,8 @@ public class StorageRestServiceDefault implements StorageRestService
 		this.registerRoutes(HttpMethod.get, "/" + this.storageName,
 			new RouteAllRoutes(this));
 
-		this.registerRoutes(HttpMethod.options, "/" + this.storageName + "/*",
-			new RouteDocumentation(this));
+//		this.registerRoutes(HttpMethod.options, "/" + this.storageName + "/*",
+//			new RouteDocumentation(this));
 
 		this.registerRoutes(HttpMethod.get, "/" + this.storageName + "/root",
 			new RouteGetRoot(this.storageRestAdapter));

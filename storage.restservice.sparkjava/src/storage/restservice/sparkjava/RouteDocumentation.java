@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Hashtable;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import one.microstream.storage.restadapter.ViewerException;
@@ -24,18 +25,23 @@ public class RouteDocumentation extends RouteBase<StorageRestServiceDefault>
 	{
 		final Hashtable<String, Hashtable<String, String>> routes = this.storageRestAdapter.getRegisteredRoutes();
 		final Hashtable<String,String> methods = routes.get(request.uri());
-		final String handlerName = methods.get(request.requestMethod().toLowerCase() );
 
-		return this.getDetails(handlerName, response, request);
+		final JsonArray methodsJson = new JsonArray(methods.size());
+
+		methods.forEach((method, handler) -> {
+
+			methodsJson.add(this.returnAPI(handler, method));
+
+		});
+
+		response.type("application/json");
+		return methodsJson;
 	}
 
-	private JsonObject getDetails(final String clazz, final Response response, final Request request)
-	{
-		return this.returnOpenAPI(clazz, response, request);
-	}
 
 
-	private JsonObject returnOpenAPI(final String clazz, final Response response, final Request request)
+
+	private JsonObject returnAPI(final String handler, final String httpMethod)
 	{
 		try(final InputStream in = this.getClass().getResourceAsStream("/resources/onlineDocu.json");
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(in));)
@@ -47,16 +53,15 @@ public class RouteDocumentation extends RouteBase<StorageRestServiceDefault>
 				builder.append(read);
 			}
 
-			response.type("application/json");
-
 			final JsonObject g = new Gson().fromJson(builder.toString(), JsonObject.class);
-			final JsonObject o = g.getAsJsonObject("handler").getAsJsonObject(clazz);
+			final JsonObject o = g.getAsJsonObject("handler").getAsJsonObject(handler);
+			final JsonObject m = o.getAsJsonObject(httpMethod);
 
-			return o;
+			return m;
 		}
 		catch(final Exception e )
 		{
-			throw new ViewerException("resource not found");
+			throw new ViewerException(e.getMessage());
 		}
 	}
 }
