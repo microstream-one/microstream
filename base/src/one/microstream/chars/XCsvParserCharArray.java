@@ -923,7 +923,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 
 	@Override
 	public XCsvConfiguration parseCsvData(
-		final XCsvDataType                                dataType      ,
+		final XCsvDataType                                 dataType      ,
 		final XCsvConfiguration                            config        ,
 		final _charArrayRange                              input         ,
 		final XCsvSegmentsParser.Provider<_charArrayRange> parserProvider,
@@ -932,7 +932,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	{
 		// preliminary configuration
 		XCsvConfiguration cfg = ensureConfiguration(config);
-		final XCsvDataType     dtp = ensureDataType(dataType);
+		final XCsvDataType dtp = ensureDataType(dataType);
 		
 		final XCsvSegmentsParser.Provider<_charArrayRange> pp = parserProvider != null
 			? parserProvider
@@ -978,7 +978,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	
 	
 	static XCsvConfiguration ensureEffectiveConfiguration(
-		final XCsvDataType     dataType  ,
+		final XCsvDataType      dataType  ,
 		final char[]            input     ,
 		final int               startIndex,
 		final int               boundIndex,
