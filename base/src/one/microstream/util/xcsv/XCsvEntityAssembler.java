@@ -1,4 +1,4 @@
-package one.microstream.util.csv;
+package one.microstream.util.xcsv;
 
 import one.microstream.chars.VarString;
 import one.microstream.collections.ConstList;
@@ -7,7 +7,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XImmutableSequence;
 import one.microstream.typing.XTypes;
 
-public interface CsvEntityAssembler<T> extends CsvRowAssembler<T>
+public interface XCsvEntityAssembler<T> extends XCsvRowAssembler<T>
 {
 	public XImmutableSequence<String> columnHeader();
 
@@ -30,7 +30,7 @@ public interface CsvEntityAssembler<T> extends CsvRowAssembler<T>
 		return vs;
 	}
 
-	public abstract class Abstract<T> implements CsvEntityAssembler<T>
+	public abstract class Abstract<T> implements XCsvEntityAssembler<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //

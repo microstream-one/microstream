@@ -1,4 +1,4 @@
-package one.microstream.util.csv;
+package one.microstream.util.xcsv;
 
 import static one.microstream.X.notNull;
 
@@ -6,15 +6,15 @@ import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.VarString;
 import one.microstream.functional._charProcedure;
 
-public class CsvVarStringLiteralEscapingAssembler implements _charProcedure
+public class XCsvVarStringLiteralEscapingAssembler implements _charProcedure
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 
-	public static final CsvVarStringLiteralEscapingAssembler New(final CsvConfiguration csvConfig, final VarString vs)
+	public static final XCsvVarStringLiteralEscapingAssembler New(final XCsvConfiguration csvConfig, final VarString vs)
 	{
-		return new CsvVarStringLiteralEscapingAssembler(
+		return new XCsvVarStringLiteralEscapingAssembler(
 			notNull(vs)                            ,
 			        csvConfig.valueSeparator()     ,
 			        csvConfig.literalDelimiter()   ,
@@ -23,7 +23,7 @@ public class CsvVarStringLiteralEscapingAssembler implements _charProcedure
 		);
 	}
 
-	public static final CsvVarStringLiteralEscapingAssembler New(final CsvConfiguration csvConfig)
+	public static final XCsvVarStringLiteralEscapingAssembler New(final XCsvConfiguration csvConfig)
 	{
 		return New(csvConfig, VarString.New());
 	}
@@ -46,7 +46,7 @@ public class CsvVarStringLiteralEscapingAssembler implements _charProcedure
 	// constructors //
 	/////////////////
 
-	CsvVarStringLiteralEscapingAssembler(
+	XCsvVarStringLiteralEscapingAssembler(
 		final VarString     vs           ,
 		final char          separator    ,
 		final char          delimiter    ,

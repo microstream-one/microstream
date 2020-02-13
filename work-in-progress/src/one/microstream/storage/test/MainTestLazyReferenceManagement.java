@@ -1,10 +1,12 @@
-package one.microstream.reference;
+package one.microstream.storage.test;
 
 import java.util.Date;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XList;
 import one.microstream.math.XMath;
+import one.microstream.reference.Lazy;
+import one.microstream.reference.LazyReferenceManager;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;

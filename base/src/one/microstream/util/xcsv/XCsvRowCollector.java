@@ -1,11 +1,11 @@
-package one.microstream.util.csv;
+package one.microstream.util.xcsv;
 
 import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.functional._charRangeProcedure;
 
 
-public interface CsvRowCollector extends _charRangeProcedure
+public interface XCsvRowCollector extends _charRangeProcedure
 {
 	public void beginTable(
 		String                   tableName  ,
