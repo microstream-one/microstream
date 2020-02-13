@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 Auto-Recognize CSV Separator Character\par
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\f0\fs28\lang7 Auto-Recognize CSV Separator Character\par
 priv#204\par
 \par
 \par
@@ -178,7 +179,7 @@ Am besten gleich was fieses, n\'e4mlich "," Trennzeichen erwartet, das tats\'e4c
 \par
 Hm. Dazu erst mal recherchieren, was jetzt WIRKLICH das Standardtrennzeichen f\'fcr CSV ist. ";" oder ",".\par
 Der Name w\'fcrde immerhin "," sagen, aber man kennt es meist mit ";". Neulich hab ich aber wieder "," gesehen.\par
-Die Beispiele in {\field{\*\fldinst{HYPERLINK "https://en.wikipedia.org/wiki/Comma-separated_values"}}{\fldrslt{\ul\cf1 https://en.wikipedia.org/wiki/Comma-separated_values}}}\f0\fs28  sind auch alle mit ",".\par
+Die Beispiele in {{\field{\*\fldinst{HYPERLINK https://en.wikipedia.org/wiki/Comma-separated_values }}{\fldrslt{https://en.wikipedia.org/wiki/Comma-separated_values\ul0\cf0}}}}\f0\fs28  sind auch alle mit ",".\par
 Dann mach ich jetzt doch lieber "," als Standard f\'fcr die "csv" Endung. Hei\'dft ja immerhin "CSV" und nicht "SCSV".\par
 \par
 Also Test bauen ...\par
@@ -198,5 +199,39 @@ Noch Testdaten in die Main Klasse reinschreiben. Ist ja eh nur winzig.\par
 Debug-Code auskommentieren.\par
 \par
 Und dann w\'fcrd ich sagen: Das Issue ist abgeschlossen.\par
+\par
+\par
+13:00\par
+Jetzt weiter, mit noch paar Kleinigkeiten, die mir zwischendrin eingefallen sind:\par
+\par
+v XCSV.DataType in eigenes File schieben mit Namen XCsvDataType. Muss ja nicht immer diese Nesterei sein.\par
+v Jede XCsvDataType Instanz sollte gleich eine configuration Instanz haben. Die jetzige default Instanz ist dann einfach die der XCsv enum.\par
+v Achja und die Testdateien in die Main Klasse schreiben.\par
+Aber es war noch irgendwas ... noch irgendeine wichtige Kleinigkeit...\par
+\par
+Dabei gleich mal den XCsvConfiguration.Builder.Default Konstruktor package-private machen.\par
+v Jetzt wei\'df ichs wieder: Die Reihenfolge der valid Separators umstellen und ":" von 0.9 auf 1.0 setzen.\par
+Hm... oder ist das wirklich so gut? Immerhin haben Uhrzeiten haufenweise ":" drin... \par
+Also Reihenfolge umstellen ja, Gewichtung nein.\par
+\par
+Nochmal Test durchlaufen lassen mit allen 4 aktuellen Testdateien.\par
+Oh, Exception.\par
+Ach, wegen der ge\'e4nderten Initialisierungsreihenfolge durch die Erweiterung um die Config.\par
+Hm, ne, das liegt daran, dass die Config Instanz vor den enum Instanzen erzeugt wird.\par
+Dann mach ich das anders: Ich filter aus den definierten Weights den char mit dem h\'f6chsten weight raus und instanziert die config gleich nur intern.\par
+Ne, das wird auch nicht gehen, weil um die XCsvDataType.XCSV Instanz anlegen die Instanz schon fertig sein m\'fcsste.\par
+L\'f6sung: valid separators Liste doch nochmal extra statisch in XCSV definieren.\par
+Dann kann ich umgekehrt die Gewichtungen der enum Instanzen dagegen validieren. Auch nicht schlecht.\par
+So, jetzt passts.\par
+\par
+Ah, noch alte dataType String Methoden l\'f6schen.\par
+\par
+Ach und dann war noch die Sache, dass XCsvConfiguration auch gleich Schalter f\'fcr Headlines, Metacharacter line usw enthalten sollte.\par
+Aber das w\'e4r dann was f\'fcr #218.\par
+\par
+Aber die parse und assemble Methoden vereinfach ich noch. Das ist gut zum Testen bzw. allgemein sinnvoll.\par
+Hm. Eigentlich haben die ganzen XCsv~ Dinger in StringTable gar nix verloren. Die schieb ich alle nach XCSV r\'fcber...\par
+\par
+So, jetzt ist das sauber. Und das Issue ist fertig.\par
 }
  

@@ -8,6 +8,7 @@ import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
 import one.microstream.io.XIO;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.xcsv.XCSV;
 import one.microstream.util.xcsv.XCsvContent;
 import one.microstream.util.xcsv.XCsvContentBuilderCharArray;
 
@@ -74,7 +75,7 @@ public class MainTestXCsvFunctionality
 				}
 				else
 				{
-					System.out.println(StringTable.Static.assembleString(e.value()));
+					System.out.println(XCSV.assembleString(e.value()));
 				}
 				System.out.println("-----------");
 			}

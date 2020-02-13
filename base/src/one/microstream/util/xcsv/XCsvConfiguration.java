@@ -66,15 +66,12 @@ public interface XCsvConfiguration
 	
 	public static XCsvConfiguration New()
 	{
-		return new XCsvConfiguration.Builder.Default().createConfiguration();
+		return Builder().createConfiguration();
 	}
 	
 	public static XCsvConfiguration New(final char valueSeparator)
 	{
-		return new XCsvConfiguration.Builder.Default()
-			.setValueSeparator(valueSeparator)
-			.createConfiguration()
-		;
+		return Builder(valueSeparator).createConfiguration();
 	}
 
 
@@ -425,6 +422,17 @@ public interface XCsvConfiguration
 
 
 
+	
+	public static Builder Builder(final char valueSeparator)
+	{
+		return Builder().setValueSeparator(valueSeparator);
+	}
+	
+	public static Builder Builder()
+	{
+		return new XCsvConfiguration.Builder.Default();
+	}
+
 	public interface Builder
 	{
 		public char getLineSeparator();
@@ -526,6 +534,17 @@ public interface XCsvConfiguration
 			private int           skipLineCountPostHeader = XCSV.DEFAULT_SKIP_LINE_COUNT_POST_HEADER;
 			private int           trailingLineCount       = XCSV.DEFAULT_TRAILING_LINE_COUNT        ;
 			private EscapeHandler escapeHandler           = XCSV.DEFAULT_ESCAPE_HANDLER             ;
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			Default()
+			{
+				super();
+			}
 
 
 

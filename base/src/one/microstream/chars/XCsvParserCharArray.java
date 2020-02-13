@@ -10,6 +10,7 @@ import one.microstream.typing.Stateless;
 import one.microstream.util.xcsv.XCSV;
 import one.microstream.util.xcsv.XCSV.ValueSeparatorWeight;
 import one.microstream.util.xcsv.XCsvConfiguration;
+import one.microstream.util.xcsv.XCsvDataType;
 import one.microstream.util.xcsv.XCsvParser;
 import one.microstream.util.xcsv.XCsvRecordParserCharArray;
 import one.microstream.util.xcsv.XCsvRowCollector;
@@ -23,6 +24,10 @@ import one.microstream.util.xcsv.XCsvSegmentsParser;
  */
 public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, Stateless
 {
+	/* (13.02.2020 TM)NOTE: must be located in chars package instead of xcsv package for
+	 * performance reasons to be allowed to access package-private elements.
+	 */
+	
 	/* Note on implementation:
 	 * This implementation might seem a bit too procedural and cumbersome.
 	 * The rationale behind this implementation is that is is several times faster (x8 or more) than a comparable
@@ -389,7 +394,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	)
 	{
 		final XCsvConfiguration effectiveConfig = ensureConfiguration(refConfig.get());
-		final XCsvConfiguration.Builder builder = new XCsvConfiguration.Builder.Default().copyFrom(effectiveConfig);
+		final XCsvConfiguration.Builder builder = XCsvConfiguration.Builder().copyFrom(effectiveConfig);
 
 		// check for full meta characters set
 		if(symbolIndex >= META_INDEX_COMPLETE_FULL)
@@ -468,9 +473,9 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		return X.coalesce(xcsvConfiguration, XCSV.configurationDefault());
 	}
 	
-	private static XCSV.DataType ensureDataType(final XCSV.DataType dataType)
+	private static XCsvDataType ensureDataType(final XCsvDataType dataType)
 	{
-		return X.coalesce(dataType, XCSV.DataType.XCSV);
+		return X.coalesce(dataType, XCsvDataType.XCSV);
 	}
 
 	private static int checkMetaCharacters(
@@ -918,7 +923,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 
 	@Override
 	public XCsvConfiguration parseCsvData(
-		final XCSV.DataType                                dataType      ,
+		final XCsvDataType                                dataType      ,
 		final XCsvConfiguration                            config        ,
 		final _charArrayRange                              input         ,
 		final XCsvSegmentsParser.Provider<_charArrayRange> parserProvider,
@@ -927,7 +932,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	{
 		// preliminary configuration
 		XCsvConfiguration cfg = ensureConfiguration(config);
-		final XCSV.DataType     dtp = ensureDataType(dataType);
+		final XCsvDataType     dtp = ensureDataType(dataType);
 		
 		final XCsvSegmentsParser.Provider<_charArrayRange> pp = parserProvider != null
 			? parserProvider
@@ -973,7 +978,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	
 	
 	static XCsvConfiguration ensureEffectiveConfiguration(
-		final XCSV.DataType     dataType  ,
+		final XCsvDataType     dataType  ,
 		final char[]            input     ,
 		final int               startIndex,
 		final int               boundIndex,

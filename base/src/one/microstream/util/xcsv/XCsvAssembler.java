@@ -253,10 +253,15 @@ public interface XCsvAssembler
 
 	}
 
+	
+	public static XCsvAssembler.Builder<VarString> Builder()
+	{
+		return XCsvAssembler.Builder.Default.New();
+	}
 
 	public interface Builder<O>
 	{
-		public XCsvConfiguration configuration  ();
+		public XCsvConfiguration configuration();
 
 		public String valueSeperatorPrefix();
 
