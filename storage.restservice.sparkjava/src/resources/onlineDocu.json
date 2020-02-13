@@ -24,6 +24,97 @@
                     }
                 }
             }
+        },
+        
+        "storage.restservice.sparkjava.RouteGetObject": {
+            "get": {
+                "description": "get an object by its id",
+                "parameters": [
+                    {
+                        "name": "oid",
+                        "in": "path",
+                        "description": "object id of the requested object",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "dataOffset",
+                        "description": "TODO: data offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "dataLength",
+                        "description": "TODO",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "format",
+                        "description": "TODO",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "json"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "references",
+                        "description": "TODO",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "referenceOffset",
+                        "description": "TODO",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "referenceLength ",
+                        "description": "TODO",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/objectDescription"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
