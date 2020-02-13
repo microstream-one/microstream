@@ -206,6 +206,11 @@ public final class XCSV
 		return parse(rawData, null, dataType);
 	}
 	
+	public static StringTable parse(final String rawData, final XCsvConfiguration configuration)
+	{
+		return parse(rawData, configuration, null);
+	}
+	
 	public static StringTable parse(
 		final String            rawData      ,
 		final XCsvConfiguration configuration,
@@ -233,17 +238,22 @@ public final class XCSV
 		return parse(rawData, null, null);
 	}
 		
-	public static StringTable parse(
-		final _charArrayRange rawData ,
-		final XCsvDataType   dataType
-	)
+	public static StringTable parse(final _charArrayRange rawData, final XCsvDataType dataType)
 	{
 		return parse(rawData, null, dataType);
 	}
 	
 	public static StringTable parse(final _charArrayRange rawData, final char valueSeparator)
 	{
-		return parse(rawData, XCsvConfiguration.New(valueSeparator), null);
+		return parse(rawData, XCsvConfiguration.New(valueSeparator));
+	}
+	
+	public static StringTable parse(
+		final _charArrayRange   rawData         ,
+		final XCsvConfiguration csvConfiguration
+	)
+	{
+		return parse(rawData, csvConfiguration, null);
 	}
 			
 	public static StringTable parse(
@@ -369,8 +379,8 @@ public final class XCSV
 	
 	public static StringTable readFromFile(final Path file)
 	{
-		final String        fileSuffix = XIO.getFileSuffix(file);
-		final String        normalized = fileSuffix == null ? null : fileSuffix.trim().toLowerCase();
+		final String       fileSuffix = XIO.getFileSuffix(file);
+		final String       normalized = fileSuffix == null ? null : fileSuffix.trim().toLowerCase();
 		final XCsvDataType dataType   = XCsvDataType.fromIdentifier(normalized);
 		
 		return readFromFile(file, dataType);
@@ -384,6 +394,23 @@ public final class XCSV
 		);
 		
 		final StringTable stringTable = parse(fileContent, dataType);
+		
+		return stringTable;
+	}
+	
+	public static StringTable readFromFile(final Path file, final char valueSeparator)
+	{
+		return readFromFile(file, XCsvConfiguration.New(valueSeparator));
+	}
+	
+	public static StringTable readFromFile(final Path file, final XCsvConfiguration xcsvConfiguration)
+	{
+		// (19.04.2018 TM)EXCP: proper exception
+		final String fileContent = XIO.unchecked(() ->
+			XIO.readString(file)
+		);
+		
+		final StringTable stringTable = parse(fileContent, xcsvConfiguration);
 		
 		return stringTable;
 	}
