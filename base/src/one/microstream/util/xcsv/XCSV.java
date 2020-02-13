@@ -159,8 +159,8 @@ public final class XCSV
 			"csv",
 			map(
 				vc('\t', 1.1),
-				vc( ';', 1.3),
-				vc( ',', 1.2),
+				vc( ';', 1.2), // "," ist standard, see https://en.wikipedia.org/wiki/Comma-separated_values
+				vc( ',', 1.3), // "," ist standard, see https://en.wikipedia.org/wiki/Comma-separated_values
 				vc( '|', 1.0),
 				vc( '~', 0.9),
 				vc( ':', 0.9),

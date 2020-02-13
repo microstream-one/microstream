@@ -1,6 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
-\pard\sl276\slmult1\f0\fs28\lang7 Auto-Recognize CSV Separator Character\par
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red0\green0\blue255;}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 Auto-Recognize CSV Separator Character\par
 priv#204\par
 \par
 \par
@@ -165,5 +165,38 @@ Debugausgaben fixen und verbessern.\par
 Jo, sieht gut aus.\par
 Evtl. test ich abends noch ein paar F\'e4lle, aber der erkennt das soweit getestet einwandfrei.\par
 Fertig.\par
+\par
+\par
+2020-02-13\par
+\par
+00:20\par
+Leider schon wieder mal zu sp\'e4t dran f\'fcr den Vortag.\par
+\par
+Eine Idee zum Testen ist nat\'fcrlich noch:\par
+File-suffix-bedingt einen bias f\'fcr den einen Separator, aber tats\'e4chlich einen anderen verwenden.\par
+Am besten gleich was fieses, n\'e4mlich "," Trennzeichen erwartet, das tats\'e4chliche Trennzeichen ist ";", aber "," kommt fast genauso oft vor als Dezimaltrennzeichen.\par
+\par
+Hm. Dazu erst mal recherchieren, was jetzt WIRKLICH das Standardtrennzeichen f\'fcr CSV ist. ";" oder ",".\par
+Der Name w\'fcrde immerhin "," sagen, aber man kennt es meist mit ";". Neulich hab ich aber wieder "," gesehen.\par
+Die Beispiele in {\field{\*\fldinst{HYPERLINK "https://en.wikipedia.org/wiki/Comma-separated_values"}}{\fldrslt{\ul\cf1 https://en.wikipedia.org/wiki/Comma-separated_values}}}\f0\fs28  sind auch alle mit ",".\par
+Dann mach ich jetzt doch lieber "," als Standard f\'fcr die "csv" Endung. Hei\'dft ja immerhin "CSV" und nicht "SCSV".\par
+\par
+Also Test bauen ...\par
+\par
+Echt interessant:\par
+- Bias f\'fcr ","\par
+- Trennzeichen ist aber ";". 3x2 in header und den beiden Datenzeilen.\par
+- "," kommt als Dezimaltrenner vor. 2x3 nur in den beiden Datenzeilen.\par
+\par
+D.h. Bias spricht f\'fcr ",". Anzahl ist die gleiche. Aber trotzdem ist der Score am Ende krass unterschiedlich:\par
+"," = 0.975 (weight = 1.3)\par
+";" = 2.4 (weight = 1.2)\par
+\par
+Das macht die empty line und der line count change. Also perfekt genau wie beabsichtigt.\par
+\par
+Noch Testdaten in die Main Klasse reinschreiben. Ist ja eh nur winzig.\par
+Debug-Code auskommentieren.\par
+\par
+Und dann w\'fcrd ich sagen: Das Issue ist abgeschlossen.\par
 }
  
