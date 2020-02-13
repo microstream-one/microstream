@@ -908,7 +908,10 @@ public class Persistence
 		if(typeHandler.typeId() == Persistence.nullId())
 		{
 			// (07.08.2019 TM)EXCP: proper exception
-			throw new IllegalArgumentException("Type handler not initialized for type " + typeHandler.type());
+			throw new IllegalArgumentException(
+				"Type handler not initialized for type " + typeHandler.type()
+				+ ". This is probably caused by a missing type dictionary entry for that type."
+			);
 		}
 		
 		return XReflect.typename_enum() + " " + typeHandler.typeId();
