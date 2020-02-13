@@ -32,9 +32,9 @@ public class RouteAllRoutes extends RouteBase<StorageRestServiceDefault>
 
 			methods.forEach((method, handler) -> {
 				methodsJson.add(method.toString());
-				routesJson.add(route);
-
 			});
+
+			routesJson.add(route);
 		});
 
 		response.type("application/json");
