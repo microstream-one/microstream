@@ -6,7 +6,6 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XReference;
 import one.microstream.functional._charRangeProcedure;
 import one.microstream.math.XMath;
-import one.microstream.meta.XDebug;
 import one.microstream.typing.Stateless;
 import one.microstream.util.xcsv.XCSV;
 import one.microstream.util.xcsv.XCSV.ValueSeparatorWeight;
@@ -1007,14 +1006,13 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		}
 		counters.sort(Counter::orderByScore);
 		
-		// (12.02.2020 TM)FIXME: priv#204: /!\ DEBUG
-		counters.iterate(c ->
-			System.out.println(XChars.escapeChar(c.character) + ": " + c.score + " (weight = " + c.weight + ")")
-		);
-		
 		final char guessedValueSeparator = counters.last().character;
-		// (12.02.2020 TM)FIXME: priv#204: /!\ DEBUG
-		XDebug.println("Guessed separator = " + guessedValueSeparator);
+		
+		// debugging/testing
+//		counters.iterate(c ->
+//			System.out.println('"'+XChars.escapeChar(c.character) +'"'+" = " + c.score + " (weight = " + c.weight + ")")
+//		);
+//		XDebug.println("Guessed separator = " + guessedValueSeparator);
 		
 		return XCsvConfiguration.New(guessedValueSeparator);
 	}
