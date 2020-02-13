@@ -36,7 +36,6 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
-import one.microstream.io.XIO;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
@@ -47,6 +46,7 @@ import one.microstream.reference.Swizzling;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.Composition;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.xcsv.XCSV;
 
 
 public class Persistence
@@ -1021,12 +1021,9 @@ public class Persistence
 	
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final Path file)
 	{
-		// (19.04.2018 TM)EXCP: proper exception
-		final String fileContent = XIO.unchecked(() ->
-			XIO.readString(file)
-		);
-		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
-		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());
+		final StringTable stringTable = XCSV.readFromFile(file);
+		
+		final BulkList<KeyValue<String, String>> entries = BulkList.New(stringTable.rows().size());
 		
 		stringTable.mapTo(
 			(k, v) ->

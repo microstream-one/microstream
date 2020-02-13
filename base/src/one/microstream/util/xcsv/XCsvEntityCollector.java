@@ -1,4 +1,4 @@
-package one.microstream.util.csv;
+package one.microstream.util.xcsv;
 
 import static one.microstream.X.notNull;
 
@@ -8,13 +8,13 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XSequence;
 import one.microstream.typing.XTypes;
 
-public final class CsvEntityCollector<T> implements CsvRowCollector
+public final class XCsvEntityCollector<T> implements XCsvRowCollector
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 
-	private final CsvEntityParser.Abstract<T> parser;
+	private final XCsvEntityParser.Abstract<T> parser;
 	private final XSequence<? super T>                      rows  ;
 	private final BulkList<String>                          row   ;
 
@@ -24,8 +24,8 @@ public final class CsvEntityCollector<T> implements CsvRowCollector
 	// constructors //
 	/////////////////
 
-	public CsvEntityCollector(
-		final CsvEntityParser.Abstract<T> parser,
+	public XCsvEntityCollector(
+		final XCsvEntityParser.Abstract<T> parser,
 		final XSequence<? super T>                      rows
 	)
 	{
