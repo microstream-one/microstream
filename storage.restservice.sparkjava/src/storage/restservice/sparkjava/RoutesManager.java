@@ -45,6 +45,11 @@ public class RoutesManager
 	// methods //
 	////////////
 
+	public Hashtable<String, Hashtable<String, String>> getRegisteredRoutes()
+	{
+		return this.registeredRoutes;
+	}
+
 	public void registerRoutes(final HttpMethod httpMethod, final String path, final RouteBase<?> route)
 	{
 		Hashtable<String, String> methods = this.registeredRoutes.get(path);
@@ -58,60 +63,6 @@ public class RoutesManager
 
 		methods.put(HttpMethod.options.toString().toLowerCase(), route.getClass().getName());
 		this.sparkService.addRoute(HttpMethod.options, RouteImpl.create(path, new RouteDocumentation(this)));
-	}
-
-	private String getResourceFileContentAsString(final String path)
-	{
-		try(final InputStream in = this.getClass().getResourceAsStream(path);
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(in));)
-		{
-			final StringBuilder builder = new StringBuilder(in.available()*2);
-			String read = null;
-			while((read = reader.readLine()) != null)
-			{
-				builder.append(read);
-			}
-
-			return builder.toString();
-		}
-
-		catch(final Exception e )
-		{
-			throw new ViewerException(e.getMessage());
-		}
-	}
-
-	private void buildLiveDocumentation()
-	{
-		final String doc = this.getResourceFileContentAsString("/resources/onlineDocu.json");
-
-		final JsonObject docu = new Gson().fromJson(doc, JsonObject.class);
-		final JsonObject handlers = docu.getAsJsonObject("handler");
-
-		handlers.entrySet().forEach( handler -> {
-
-			Hashtable<String, JsonElement> handlerMethods = this.documentations.get(handler.getKey());
-			if(handlerMethods == null)
-			{
-				handlerMethods = new Hashtable<>();
-				this.documentations.put(handler.getKey(), handlerMethods);
-			}
-
-			final JsonObject methods =  handler.getValue().getAsJsonObject();
-
-			final Set<String> key = methods.keySet();
-			for (final String string : key)
-			{
-				handlerMethods.put(string, methods.get(string));
-			}
-		});
-
-
-	}
-
-	public Hashtable<String, Hashtable<String, String>> getRegisteredRoutes()
-	{
-		return this.registeredRoutes;
 	}
 
 	public Object getAllRoutes(final String host)
@@ -159,5 +110,52 @@ public class RoutesManager
 		});
 
 		return docu;
+	}
+
+	private String getResourceFileContentAsString(final String path)
+	{
+		try(final InputStream in = this.getClass().getResourceAsStream(path);
+			final BufferedReader reader = new BufferedReader(new InputStreamReader(in));)
+		{
+			final StringBuilder builder = new StringBuilder(in.available()*2);
+			String read = null;
+			while((read = reader.readLine()) != null)
+			{
+				builder.append(read);
+			}
+
+			return builder.toString();
+		}
+
+		catch(final Exception e )
+		{
+			throw new ViewerException(e.getMessage());
+		}
+	}
+
+	private void buildLiveDocumentation()
+	{
+		final String doc = this.getResourceFileContentAsString("/resources/onlineDocu.json");
+
+		final JsonObject docu = new Gson().fromJson(doc, JsonObject.class);
+		final JsonObject handlers = docu.getAsJsonObject("handler");
+
+		handlers.entrySet().forEach( handler -> {
+
+			Hashtable<String, JsonElement> handlerMethods = this.documentations.get(handler.getKey());
+			if(handlerMethods == null)
+			{
+				handlerMethods = new Hashtable<>();
+				this.documentations.put(handler.getKey(), handlerMethods);
+			}
+
+			final JsonObject methods =  handler.getValue().getAsJsonObject();
+
+			final Set<String> key = methods.keySet();
+			for (final String string : key)
+			{
+				handlerMethods.put(string, methods.get(string));
+			}
+		});
 	}
 }
