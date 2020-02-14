@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import one.microstream.meta.XDebug;
 import one.microstream.storage.restadapter.ViewerException;
 import spark.RouteImpl;
 import spark.Service;
@@ -16,14 +19,26 @@ import spark.route.HttpMethod;
 
 public class RoutesManager
 {
+	///////////////////////////////////////////////////////////////////////////
+	// instance fields //
+	////////////////////
+
 	private final Service sparkService;
 	private final Hashtable<String, Hashtable<String, String>> registeredRoutes;
+	private final Hashtable<String, Hashtable<String, JsonElement>> documentations;
+
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
 
 	public RoutesManager(final Service sparkService)
 	{
 		super();
 		this.sparkService = sparkService;
 		this.registeredRoutes = new Hashtable<>();
+		this.documentations = new Hashtable<>();
+
+		this.buildDocu();
 	}
 
 	public void registerRoutes(final HttpMethod httpMethod, final String path, final RouteBase<?> route)
@@ -40,28 +55,54 @@ public class RoutesManager
 
 		methods.put(HttpMethod.options.toString().toLowerCase(), route.getClass().getName());
 		this.sparkService.addRoute(HttpMethod.options, RouteImpl.create(path, new RouteDocumentation(this)));
+	}
+
+	private void buildDocu()
+	{
+		try(final InputStream in = this.getClass().getResourceAsStream("/resources/onlineDocu.json");
+				final BufferedReader reader = new BufferedReader(new InputStreamReader(in));)
+			{
+				final StringBuilder builder = new StringBuilder(in.available()*2);
+				String read = null;
+				while((read = reader.readLine()) != null)
+				{
+					builder.append(read);
+				}
+
+				final JsonObject docu = new Gson().fromJson(builder.toString(), JsonObject.class);
+				final JsonObject handlers = docu.getAsJsonObject("handler");
+
+				handlers.entrySet().forEach( handler -> {
+
+					Hashtable<String, JsonElement> handlerMethods = this.documentations.get(handler.getKey());
+					if(handlerMethods == null)
+					{
+						handlerMethods = new Hashtable<>();
+						this.documentations.put(handler.getKey(), handlerMethods);
+					}
+
+					final JsonObject methods =  handler.getValue().getAsJsonObject();
+
+
+					final Set<String> key = methods.keySet();
+					for (final String string : key)
+					{
+						handlerMethods.put(string, methods.get(string));
+					}
+				});
+
+				XDebug.println("");
+			}
+			catch(final Exception e )
+			{
+				throw new ViewerException(e.getMessage());
+			}
 
 	}
 
 	public Hashtable<String, Hashtable<String, String>> getRegisteredRoutes()
 	{
 		return this.registeredRoutes;
-	}
-
-	public Object getDocumentation(final String uri)
-	{
-//		//TODO: Error handling
-		final Hashtable<String,String> methods = this.registeredRoutes.get(uri);
-
-		final JsonArray methodsJson = new JsonArray(methods.size());
-
-		methods.forEach((method, handler) -> {
-
-			methodsJson.add(this.returnAPI(handler, method));
-
-		});
-
-		return methodsJson;
 	}
 
 	public Object getAllRoutes(final String host)
@@ -86,28 +127,28 @@ public class RoutesManager
 		return routesJson;
 	}
 
-	private JsonObject returnAPI(final String handler, final String httpMethod)
+	public Object getDocumentation(final String uri, final String httpMethod)
 	{
-		try(final InputStream in = this.getClass().getResourceAsStream("/resources/onlineDocu.json");
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(in));)
-		{
-			final StringBuilder builder = new StringBuilder(in.available()*2);
-			String read = null;
-			while((read = reader.readLine()) != null)
-			{
-				builder.append(read);
-			}
-
-			final JsonObject g = new Gson().fromJson(builder.toString(), JsonObject.class);
-			final JsonObject o = g.getAsJsonObject("handler").getAsJsonObject(handler);
-			final JsonObject m = o.getAsJsonObject(httpMethod);
-
-			return m;
+		try {
+			final String handler = this.registeredRoutes.get(uri).get(httpMethod);
+			return this.documentations.get(handler).get(httpMethod);
 		}
-		//TODO: throw different exceptions for io related issues and not available for handler ...
-		catch(final Exception e )
+		catch(final Exception e)
 		{
-			throw new ViewerException(e.getMessage());
+			throw new ViewerException("No documentation found");
 		}
+	}
+
+	public Object getDocumentation(final String uri)
+	{
+		final Hashtable<String, String> UriMethods = this.registeredRoutes.get(uri);
+
+		final JsonObject docu = new JsonObject();
+
+		UriMethods.forEach((a,b) -> {
+			docu.add(a, this.documentations.get(b).get(a));
+		});
+
+		return docu;
 	}
 }
