@@ -18,12 +18,7 @@ public enum XCsvDataType
 			vc( ';', 1.2),
 			vc( ',', 1.1),
 			vc( '|', 1.0),
-			vc( ':', 0.9),
-			vc( '~', 0.9),
-			vc( '#', 0.9),
-			vc( '*', 0.8),
-			vc( '-', 0.8),
-			vc( '.', 0.8)
+			vc( ':', 0.9)
 		)
 	),
 	TSV(
@@ -33,27 +28,17 @@ public enum XCsvDataType
 			vc( ';', 1.2),
 			vc( ',', 1.1),
 			vc( '|', 1.0),
-			vc( ':', 0.9),
-			vc( '~', 0.9),
-			vc( '#', 0.9),
-			vc( '*', 0.8),
-			vc( '-', 0.8),
-			vc( '.', 0.8)
+			vc( ':', 0.9)
 		)
 	),
 	CSV(
 		"csv",
 		map(
 			vc('\t', 1.1),
-			vc( ';', 1.2), // "," ist standard, see https://en.wikipedia.org/wiki/Comma-separated_values
-			vc( ',', 1.3), // "," ist standard, see https://en.wikipedia.org/wiki/Comma-separated_values
+			vc( ';', 1.2), // "," is standard, see https://en.wikipedia.org/wiki/Comma-separated_values
+			vc( ',', 1.3), // "," is standard, see https://en.wikipedia.org/wiki/Comma-separated_values
 			vc( '|', 1.0),
-			vc( ':', 0.9),
-			vc( '~', 0.9),
-			vc( '#', 0.9),
-			vc( '*', 0.8),
-			vc( '-', 0.8),
-			vc( '.', 0.8)
+			vc( ':', 0.9)
 		)
 	);
 	

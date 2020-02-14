@@ -14,7 +14,8 @@ public class MainTestXCsvSeparatorGuessing
 		"xcsv_separatorGuessing_01.xcsv",
 		"xcsv_separatorGuessing_02.xcsv",
 		"xcsv_separatorGuessing_03.xcsv",
-		"xcsv_separatorGuessing_04.csv"
+		"xcsv_separatorGuessing_04.csv" ,
+		"xcsv_separatorGuessing_05.csv"
 	};
 
 	public static void main(final String[] args) throws Throwable
@@ -29,7 +30,7 @@ public class MainTestXCsvSeparatorGuessing
 			System.out.println();
 		}
 	}
-
+	
 }
 
 /* --------- test data --------- *\
@@ -59,4 +60,8 @@ col1; col2; col3
 1,1; 1,2; 1,3
 2,1; 2,2; 2,3
 
+xcsv_separatorGuessing_05.csv
+old;current
+test.microstream.legacy.csv.data.CsvPerson;test.microstream.legacy.csv.data.CsvPerson2
+test.microstream.legacy.csv.data.CsvPerson#original;test.microstream.legacy.csv.data.CsvPerson2#copy
 \*-------------------------------*/

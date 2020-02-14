@@ -51,7 +51,8 @@ public final class XCSV
 	static final EscapeHandler DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
 			
 	
-	static final char[] VALID_VALUE_SEPARATORS = {'\t', ';', ',', '|', ':', '~', '#', '*', '-', '.'};
+	// only the common ones. Crazy special needs must be handled explicitely
+	static final char[] VALID_VALUE_SEPARATORS = {'\t', ';', ',', '|', ':'};
 	
 	
 	public static ValueSeparatorWeight ValueSeparatorWeight(
