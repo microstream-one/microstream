@@ -1464,7 +1464,7 @@ public final class XMath
 
 	public static float positive(final float value) throws NumberRangeException
 	{
-		if(value > 0)
+		if(value > 0.0f)
 		{
 			return value;
 		}

@@ -37,6 +37,62 @@ public final class XIO
 	// methods //
 	////////////
 	
+	public static char fileSuffixSeparator()
+	{
+		return '.';
+	}
+	
+	public static String addFileSuffix(final String fileName, final String fileSuffix)
+	{
+		return fileSuffix != null
+			? fileName + fileSuffixSeparator() + fileSuffix
+			: fileName
+		;
+	}
+	
+	public static String getFileSuffix(final Path file)
+	{
+		return getFileSuffix(getFileName(file));
+	}
+	
+	public static String getFileSuffix(final String fileName)
+	{
+		if(XChars.hasNoContent(fileName))
+		{
+			return null;
+		}
+		
+		final int fileSuffixSeparatorIndex = fileName.lastIndexOf(fileSuffixSeparator());
+		if(fileSuffixSeparatorIndex < 0)
+		{
+			return null;
+		}
+		
+		return fileName.substring(fileSuffixSeparatorIndex + 1);
+	}
+	
+	public static String getFilePrefix(final Path file)
+	{
+		return getFileSuffix(getFileName(file));
+	}
+	
+	public static String getFilePrefix(final String fileName)
+	{
+		if(XChars.hasNoContent(fileName))
+		{
+			return null;
+		}
+		
+		final int fileSuffixSeparatorIndex = fileName.lastIndexOf(fileSuffixSeparator());
+		if(fileSuffixSeparatorIndex < 0)
+		{
+			return fileName;
+		}
+		
+		return fileName.substring(0, fileSuffixSeparatorIndex);
+	}
+	
+	
 	public static void unchecked(final IoOperation operation)
 		throws IORuntimeException
 	{
