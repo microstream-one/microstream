@@ -9,17 +9,17 @@ public abstract class RouteBase<T> implements Route
 	// instance fields //
 	////////////////////
 
-	protected final T storageRestAdapter;
+	protected final T apiAdapter;
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public RouteBase(final T storageRestAdapter)
+	public RouteBase(final T apiAdapter)
 	{
 		super();
-		this.storageRestAdapter = storageRestAdapter;
+		this.apiAdapter = apiAdapter;
 	}
 
 	///////////////////////////////////////////////////////////////////////////

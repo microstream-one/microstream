@@ -10,9 +10,9 @@ public abstract class RouteBaseConvertable<T extends StorageRestAdapterConverter
 	// constructors //
 	/////////////////
 
-	public RouteBaseConvertable(final T storageRestAdapter)
+	public RouteBaseConvertable(final T apiAdapter)
 	{
-		super(storageRestAdapter);
+		super(apiAdapter);
 	}
 
 
@@ -24,7 +24,7 @@ public abstract class RouteBaseConvertable<T extends StorageRestAdapterConverter
 	{
 		if(requestedFormat != null)
 		{
-			final StorageViewDataConverter converter = this.storageRestAdapter.getConverter(requestedFormat);
+			final StorageViewDataConverter converter = this.apiAdapter.getConverter(requestedFormat);
 			if(converter != null)
 			{
 				final String responseContentType = converter.getHtmlResponseContentType();
@@ -40,6 +40,6 @@ public abstract class RouteBaseConvertable<T extends StorageRestAdapterConverter
 		}
 
 		response.type("application/json");
-		return this.storageRestAdapter.getConverter("application/json").convert(object);
+		return this.apiAdapter.getConverter("application/json").convert(object);
 	}
 }

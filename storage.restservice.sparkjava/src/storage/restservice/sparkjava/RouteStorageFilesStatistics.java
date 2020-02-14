@@ -10,9 +10,9 @@ public class RouteStorageFilesStatistics extends RouteBaseConvertable<StorageRes
 	// constructors //
 	/////////////////
 
-	public RouteStorageFilesStatistics(final StorageRestAdapterStorageInfo storageRestAdapter)
+	public RouteStorageFilesStatistics(final StorageRestAdapterStorageInfo apiAdapter)
 	{
-		super(storageRestAdapter);
+		super(apiAdapter);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ public class RouteStorageFilesStatistics extends RouteBaseConvertable<StorageRes
 	{
 		final String requestedFormat = this.getStringParameter(request, "format");
 
-		return this.toRequestedFormat(this.storageRestAdapter.getStorageFilesStatistics(),
+		return this.toRequestedFormat(this.apiAdapter.getStorageFilesStatistics(),
 			requestedFormat,
 			response);
 	}

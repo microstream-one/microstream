@@ -11,9 +11,9 @@ public class RouteGetRoot extends RouteBaseConvertable<StorageRestAdapterRoot>
 	// constructors //
 	/////////////////
 
-	public RouteGetRoot(final StorageRestAdapterRoot storageRestAdapter)
+	public RouteGetRoot(final StorageRestAdapterRoot apiAdapter)
 	{
-		super(storageRestAdapter);
+		super(apiAdapter);
 	}
 
 
@@ -25,7 +25,7 @@ public class RouteGetRoot extends RouteBaseConvertable<StorageRestAdapterRoot>
 	public String handle(final Request request, final Response response)
 	{
 		final String requestedFormat = this.getStringParameter(request, "format");
-		final ViewerRootDescription rootDescription = this.storageRestAdapter.getUserRoot();
+		final ViewerRootDescription rootDescription = this.apiAdapter.getUserRoot();
 
 		return this.toRequestedFormat(rootDescription, requestedFormat, response);
 	}
