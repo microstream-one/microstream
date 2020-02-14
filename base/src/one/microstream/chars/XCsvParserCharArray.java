@@ -6,6 +6,7 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XReference;
 import one.microstream.functional._charRangeProcedure;
 import one.microstream.math.XMath;
+import one.microstream.meta.XDebug;
 import one.microstream.typing.Stateless;
 import one.microstream.util.xcsv.XCSV;
 import one.microstream.util.xcsv.XCSV.ValueSeparatorWeight;
@@ -989,6 +990,11 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		{
 			return config;
 		}
+		
+		if(startIndex >= boundIndex)
+		{
+			return dataType.configuration();
+		}
 				
 		// \n character and honestly: everything else is just idiocy. Including a certain OS that defiantly uses \r.
 		final char lineSeparator = XCSV.configurationDefault().lineSeparator();
@@ -1011,13 +1017,30 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		}
 		counters.sort(Counter::orderByScore);
 		
-		final char guessedValueSeparator = counters.last().character;
+		final XCsvConfiguration guessedConfiguration = guessValueSeparator(dataType, counters);
 		
 		// debugging/testing
-//		counters.iterate(c ->
-//			System.out.println('"'+XChars.escapeChar(c.character) +'"'+" = " + c.score + " (weight = " + c.weight + ")")
-//		);
-//		XDebug.println("Guessed separator = " + guessedValueSeparator);
+		// (14.02.2020 TM)FIXME: /!\ DEBUG priv#204
+		counters.iterate(c ->
+			System.out.println('"'+XChars.escapeChar(c.character) +'"'+" = " + c.score + " (weight = " + c.weight + ")")
+		);
+		XDebug.println("Guessed separator = '" + guessedConfiguration.valueSeparator() + "'");
+		
+		return guessedConfiguration;
+	}
+	
+	private static XCsvConfiguration guessValueSeparator(
+		final XCsvDataType      dataType,
+		final BulkList<Counter> counters
+	)
+	{
+		// if no candidate has been found (e.g. single-column csv file), then the datatype's default is used
+		if(counters.isEmpty() || counters.last().score() == 0.0)
+		{
+			return dataType.configuration();
+		}
+		
+		final char guessedValueSeparator = counters.last().character;
 		
 		return XCsvConfiguration.New(guessedValueSeparator);
 	}
@@ -1061,39 +1084,45 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		int vsMaxCountPerLines = 0;
 		int vsMinCountPerLines = Integer.MAX_VALUE;
 		
-		for(int i = startIndex; i < boundIndex; i++)
+		// startindex < boundIndex must be guaranteed by calling context
+		int i = startIndex - 1;
+		while(true)
 		{
-			if(input[i] == valueSeparator)
+			if(++i < boundIndex && input[i] != lineSeparator)
 			{
-				vsCurrLineCount++;
+				if(input[i] == valueSeparator)
+				{
+					vsCurrLineCount++;
+				}
+				continue;
 			}
-			else if(input[i] == lineSeparator)
+			
+			
+			if(vsCurrLineCount >= vsMaxCountPerLines)
 			{
-				if(vsCurrLineCount >= vsMaxCountPerLines)
-				{
-					vsMaxCountPerLines = vsCurrLineCount;
-				}
-				
-				// minimum count and empty line are mutually exclusive.
-				if(vsCurrLineCount == 0)
-				{
-					emptyLines++;
-				}
-				else if(vsCurrLineCount < vsMinCountPerLines)
-				{
-					vsMinCountPerLines = vsCurrLineCount;
-				}
-				
-				vsTotalCount     += vsCurrLineCount;
-				vsLineCountChange = updateLineCountChange(vsLineCountChange, vsPrevLineCount, vsCurrLineCount);
-				vsPrevLineCount   = vsCurrLineCount;
-				vsCurrLineCount   = 0;
+				vsMaxCountPerLines = vsCurrLineCount;
+			}
+			
+			// minimum count and empty line are mutually exclusive.
+			if(vsCurrLineCount == 0)
+			{
+				emptyLines++;
+			}
+			else if(vsCurrLineCount < vsMinCountPerLines)
+			{
+				vsMinCountPerLines = vsCurrLineCount;
+			}
+			
+			vsTotalCount     += vsCurrLineCount;
+			vsLineCountChange = updateLineCountChange(vsLineCountChange, vsPrevLineCount, vsCurrLineCount);
+			vsPrevLineCount   = vsCurrLineCount;
+			vsCurrLineCount   = 0;
+			
+			if(i == boundIndex)
+			{
+				break;
 			}
 		}
-		
-		// last line update
-		vsTotalCount     += vsCurrLineCount;
-		vsLineCountChange = updateLineCountChange(vsLineCountChange, vsPrevLineCount, vsCurrLineCount);
 		
 		return new Counter(
 			valueSeparator,

@@ -233,5 +233,32 @@ Aber die parse und assemble Methoden vereinfach ich noch. Das ist gut zum Testen
 Hm. Eigentlich haben die ganzen XCsv~ Dinger in StringTable gar nix verloren. Die schieb ich alle nach XCSV r\'fcber...\par
 \par
 So, jetzt ist das sauber. Und das Issue ist fertig.\par
+\par
+\par
+2020-02-14\par
+\par
+Bugfix f\'fcr reopen von ZJ:\par
+Liegt nicht an den ".", sondern dass "#" einen Score von "Infinity" hat.\par
+Debuggen.\par
+Ach mei, klar: min und max wird nach der letzten Zeile nicht geupdatet.\par
+Darum bleibt min bei max int und darum infinity.\par
+\par
+Aber bevor ich jetzt den if-else Baum AUCH nochmal redundant unter die Schleife schreib, \'fcberleg ich lieber an einer intelligenter gesteuerten Schleife.\par
+Mit do while oder sowas...\par
+\par
+Jo, geht. War bissl fieselig, aber letztendlich ist die Logik ganz einfach. Nur ungewohnt.\par
+Jetzt noch Valid Separators ausd\'fcnnen.\par
+Eigentlich reicht es, die 5 g\'e4ngigen zu unterst\'fctzten, um false positives und \'dcberraschungen so weit wie m\'f6glich zu beschr\'e4nken. Alles andere muss explizit vorgegeben werden.\par
+\par
+Testen. Passt.\par
+Ah, noch eine Kleinigkeit aufgefallen:\line Wenn es gar keinen value separator gibt (z.B. 1 Spalte), dann r\'e4t er einfach den letzten in der Liste, das w\'e4re ":". Ist nat\'fcrlich nicht falsch weil eh irrelevant, aber trotzdem ist es... unsch\'f6n.\par
+Irgendwann gibts doch mal irgendeine Logik, f\'fcr die das relevant ist, dann w\'e4r das ein Bug.\par
+Besser ist: Wenn alle ausprobierten Zeichen einen score von 0.0 haben, dann den bevorzugten separator der DataType Default-Config nehmen.\par
+Einbauen.\par
+Testen.\par
+Passt.\par
+\par
+So jetzt aber, fertig.\par
+\par
 }
  
