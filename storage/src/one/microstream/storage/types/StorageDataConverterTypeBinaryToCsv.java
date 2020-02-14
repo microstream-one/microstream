@@ -471,14 +471,14 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 			
 			// only if true
-			vs.add(this.csvConfiguration.buildControlCharactersDefinition(this.controlCharsSeparator)).lf();
+			vs.add(this.csvConfiguration.buildControlCharactersDefinition(this.controlCharsSeparator));
 			
 			return true;
 		}
 
 		private boolean writeCsvHeaderColumnNames(final VarString vs, final boolean linePresent)
 		{
-			// column names must always be present.
+			// column names must always be present. Also, allowing 0 header lines messes up prefixed record linebreaks.
 //			if(X.isFalse(this.csvConfiguration.hasColumnNamesHeader()))
 //			{
 //				// only abort if false (CSV standard as default behavior)
@@ -505,9 +505,9 @@ public interface StorageDataConverterTypeBinaryToCsv
 		
 		private boolean writeCsvHeaderColumnTypes(final VarString vs, final boolean linePresent)
 		{
-			if(X.isNotTrue(this.csvConfiguration.hasColumnTypesHeader()))
+			if(X.isFalse(this.csvConfiguration.hasColumnTypesHeader()))
 			{
-				// false or null (CSV standard as default behavior)
+				// against CSV standard, but this is really important. But suppressible if desired.
 				return false;
 			}
 			
@@ -526,6 +526,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			{
 				vs.add(valueSeparator).add(this.typeNameMapper.mapTypeName(column));
 			}
+			vs.add(this.csvConfiguration.headerTerminator());
 			
 			return true;
 		}
