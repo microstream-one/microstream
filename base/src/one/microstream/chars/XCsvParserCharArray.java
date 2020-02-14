@@ -6,7 +6,6 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XReference;
 import one.microstream.functional._charRangeProcedure;
 import one.microstream.math.XMath;
-import one.microstream.meta.XDebug;
 import one.microstream.typing.Stateless;
 import one.microstream.util.xcsv.XCSV;
 import one.microstream.util.xcsv.XCSV.ValueSeparatorWeight;
@@ -426,7 +425,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		.setLineSeparator   (symbols[META_INDEX_LINE_SEPARATOR ].charAt(0))
 		;
 
-		refConfig.set(builder.createConfiguration());
+		refConfig.set(builder.buildConfiguration());
 	}
 
 	private static boolean isValidSymbols(final String[] metaChars)
@@ -1020,11 +1019,10 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		final XCsvConfiguration guessedConfiguration = guessValueSeparator(dataType, counters);
 		
 		// debugging/testing
-		// (14.02.2020 TM)FIXME: /!\ DEBUG priv#204
-		counters.iterate(c ->
-			System.out.println('"'+XChars.escapeChar(c.character) +'"'+" = " + c.score + " (weight = " + c.weight + ")")
-		);
-		XDebug.println("Guessed separator = '" + guessedConfiguration.valueSeparator() + "'");
+//		counters.iterate(c ->
+//			System.out.println('"'+XChars.escapeChar(c.character) +'"'+" = " + c.score + " (weight = " + c.weight + ")")
+//		);
+//		XDebug.println("Guessed separator = '" + guessedConfiguration.valueSeparator() + "'");
 		
 		return guessedConfiguration;
 	}

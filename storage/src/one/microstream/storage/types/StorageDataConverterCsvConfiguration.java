@@ -102,7 +102,7 @@ public interface StorageDataConverterCsvConfiguration
 
 
 	public static StorageDataConverterCsvConfiguration New(
-		final XCsvConfiguration            csvConfiguration            ,
+		final XCsvConfiguration           csvConfiguration            ,
 		final XGettingMap<String, String> typeNameToCsvTypeNameMapping,
 		final XGettingMap<String, String> csvTypeNameToTypeNameMapping,
 		final String                      literalBooleanTrue          ,
@@ -160,7 +160,7 @@ public interface StorageDataConverterCsvConfiguration
 		/////////////////
 
 		public Default(
-			final XCsvConfiguration            csvConfiguration            ,
+			final XCsvConfiguration           csvConfiguration            ,
 			final XGettingMap<String, String> typeNameToCsvTypeNameMapping,
 			final XGettingMap<String, String> csvTypeNameToTypeNameMapping,
 			final String                      literalBooleanTrue          ,
@@ -453,7 +453,7 @@ public interface StorageDataConverterCsvConfiguration
 			// instance fields //
 			////////////////////
 
-			XCsvConfiguration            csvConfiguration            ;
+			XCsvConfiguration           csvConfiguration            ;
 			XGettingMap<String, String> typeNameToCsvTypeNameMapping;
 			XGettingMap<String, String> csvTypeNameToTypeNameMapping;
 			String                      literalBooleanTrue          ;
