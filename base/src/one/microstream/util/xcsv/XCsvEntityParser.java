@@ -1,4 +1,4 @@
-package one.microstream.util.csv;
+package one.microstream.util.xcsv;
 
 import one.microstream.chars._charArrayRange;
 import one.microstream.collections.BulkList;
@@ -7,7 +7,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XSequence;
 import one.microstream.typing.XTypes;
 
-public interface CsvEntityParser<T>
+public interface XCsvEntityParser<T>
 {
 
 	public XGettingList<T> parse(final _charArrayRange input);
@@ -16,7 +16,7 @@ public interface CsvEntityParser<T>
 
 
 
-	public abstract class Abstract<T> implements CsvEntityParser<T>
+	public abstract class Abstract<T> implements XCsvEntityParser<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //

@@ -538,6 +538,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 				continue;
 			}
 			
+			// (11.02.2020 TM)NOTE: isn't this check a consistency danger? What if it needs to be updated?
 			final Object existingPersister = XReflect.getFieldValue(field, instance);
 			if(existingPersister == null)
 			{

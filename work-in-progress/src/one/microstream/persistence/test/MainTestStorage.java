@@ -249,7 +249,12 @@ public class MainTestStorage extends TestStorage
 	static long parseStorageFileNumber(final Path file)
 	{
 		final String filename = XIO.getFileName(file);
-		return Long.valueOf(filename.substring(filename.lastIndexOf('_')+1, filename.lastIndexOf('.')));
+		return Long.valueOf(
+			filename.substring(
+				filename.lastIndexOf('_') + 1,
+				filename.lastIndexOf(XIO.fileSuffixSeparator())
+			)
+		);
 	}
 
 

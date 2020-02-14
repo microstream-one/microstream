@@ -387,7 +387,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		private String createDeletionFileName(final StorageBackupFile backupTransactionFile)
 		{
 			final String currentName = backupTransactionFile.name();
-			final int lastDotIndex = currentName.lastIndexOf('.');
+			final int lastDotIndex = currentName.lastIndexOf(XIO.fileSuffixSeparator());
 			
 			final String namePrefix;
 			final String nameSuffix;
