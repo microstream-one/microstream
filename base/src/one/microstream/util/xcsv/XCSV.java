@@ -3,6 +3,7 @@ package one.microstream.util.xcsv;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+import one.microstream.X;
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.StringTable;
 import one.microstream.chars.VarString;
@@ -48,7 +49,11 @@ public final class XCSV
 	static final int           DEFAULT_SKIP_LINE_COUNT             = 0   ;
 	static final int           DEFAULT_SKIP_LINE_COUNT_POST_HEADER = 0   ;
 	static final int           DEFAULT_TRAILING_LINE_COUNT         = 0   ;
-	static final EscapeHandler DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
+	static final Boolean       DEFAULT_HAS_COLUMN_NAMES_HEADER     = null;
+	static final Boolean       DEFAULT_HAS_COLUMN_TYPES_HEADER     = null;
+	static final Boolean       DEFAULT_HAS_CTRLCHAR_DEF_HEADER     = null;
+	
+	static final EscapeHandler DEFAULT_ESCAPE_HANDLER = new EscapeHandler.Default();
 			
 	
 	// only the common ones. Crazy special needs must be handled explicitely
@@ -295,8 +300,8 @@ public final class XCSV
 	}
 	
 	public static final VarString assembleString(
-		final VarString        vs              ,
-		final StringTable      st              ,
+		final VarString         vs              ,
+		final StringTable       st              ,
 		final XCsvConfiguration csvConfiguration
 	)
 	{
@@ -312,12 +317,21 @@ public final class XCSV
 		final XCsvConfiguration effConfig      = ensureCsvConfiguration(csvConfiguration);
 		final char              valueSeparator = effConfig.valueSeparator();
 		final char              lineSeparator  = effConfig.lineSeparator();
-
-		// assemble column names
-		assemble(vs, valueSeparator, st.columnNames());
-
-		// assemble column types if present
-		if(!st.columnTypes().isEmpty())
+		
+		// (14.02.2020 TM)FIXME: priv#218: test StringTable header assembly
+		if(X.isTrue(effConfig.hasControlCharacterDefinitionHeader()))
+		{
+			vs.add(effConfig.buildControlCharactersDefinition(lineSeparator)).lf();
+		}
+		
+		// assemble column names if not suppressed
+		if(X.isNotFalse(csvConfiguration.hasColumnNamesHeader()))
+		{
+			assemble(vs, valueSeparator, st.columnNames());
+		}
+		
+		// assemble column types if present (and not suppressed)
+		if(X.isNotFalse(csvConfiguration.hasColumnTypesHeader()) && !st.columnTypes().isEmpty())
 		{
 			vs.add(lineSeparator).add(effConfig.headerStarter());
 			assemble(vs, valueSeparator, st.columnTypes());
