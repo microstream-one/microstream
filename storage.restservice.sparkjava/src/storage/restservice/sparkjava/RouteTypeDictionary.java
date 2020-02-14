@@ -10,9 +10,9 @@ public class RouteTypeDictionary extends RouteBase<StorageRestAdapterTypeDiction
 	// constructors //
 	/////////////////
 
-	public RouteTypeDictionary(final StorageRestAdapterTypeDictionary storageRestAdapter)
+	public RouteTypeDictionary(final StorageRestAdapterTypeDictionary apiAdapter)
 	{
-		super(storageRestAdapter);
+		super(apiAdapter);
 	}
 
 
@@ -23,7 +23,7 @@ public class RouteTypeDictionary extends RouteBase<StorageRestAdapterTypeDiction
 	@Override
 	public String handle(final Request request, final Response response)
 	{
-		final String string = this.storageRestAdapter.getTypeDictionary();
+		final String string = this.apiAdapter.getTypeDictionary();
 		response.type("application/text");
 		return string;
 	}

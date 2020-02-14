@@ -9,9 +9,9 @@ public class RouteAllRoutes extends RouteBase<RoutesManager>
 	// constructors //
 	/////////////////
 
-	public RouteAllRoutes(final RoutesManager storageRestAdapter)
+	public RouteAllRoutes(final RoutesManager apiAdapter)
 	{
-		super(storageRestAdapter);
+		super(apiAdapter);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ public class RouteAllRoutes extends RouteBase<RoutesManager>
 	public Object handle(final Request request, final Response response)
 	{
 		response.type("application/json");
-		return this.storageRestAdapter.getAllRoutes(request.host());
+		return this.apiAdapter.getAllRoutes(request.host());
 	}
 
 }

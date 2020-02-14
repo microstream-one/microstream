@@ -9,9 +9,9 @@ public class RouteDocumentation extends RouteBase<RoutesManager>
 	// constructors //
 	/////////////////
 
-	public RouteDocumentation(final RoutesManager storageRestAdapter)
+	public RouteDocumentation(final RoutesManager apiAdapter)
 	{
-		super(storageRestAdapter);
+		super(apiAdapter);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -27,8 +27,8 @@ public class RouteDocumentation extends RouteBase<RoutesManager>
 
 		if(paramMethod != null)
 		{
-			return this.storageRestAdapter.getDocumentation(request.uri(), paramMethod);
+			return this.apiAdapter.getDocumentation(request.uri(), paramMethod);
 		}
-		return this.storageRestAdapter.getDocumentation(request.uri());
+		return this.apiAdapter.getDocumentation(request.uri());
 	}
 }
