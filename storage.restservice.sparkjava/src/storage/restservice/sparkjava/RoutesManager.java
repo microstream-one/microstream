@@ -83,7 +83,6 @@ public class RoutesManager
 
 					final JsonObject methods =  handler.getValue().getAsJsonObject();
 
-
 					final Set<String> key = methods.keySet();
 					for (final String string : key)
 					{
