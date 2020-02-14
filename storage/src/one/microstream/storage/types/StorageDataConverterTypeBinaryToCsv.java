@@ -20,7 +20,6 @@ import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
-import one.microstream.collections.LimitList;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.io.FileException;
@@ -449,45 +448,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private void writeCsvHeader() throws IOException
 		{
 			final VarString vs = VarString.New();
-
-			final char valueSeparator = (char)this.valueSeparator; // tiny detour due to byte type.
-
-			// write control characters definition
-			vs
-			.add(this.csvConfiguration.buildControlCharactersDefinition(this.controlCharsSeparator)).lf()
-			.add(this.oidColumnName).add(valueSeparator)
-			;
-
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members =
-				this.typeDescription.instanceMembers()
-			;
-			final LimitList<String> columnNames = new LimitList<>(XTypes.to_int(members.size()));
-			final LimitList<String> columnTypes = new LimitList<>(XTypes.to_int(members.size()));
-
-			// write column names (including oid column with custom name)
-			for(final PersistenceTypeDescriptionMember column : members)
-			{
-				columnNames.add(column.name());
-				columnTypes.add(this.typeNameMapper.mapTypeName(column));
-			}
-			for(final String columnName : columnNames)
-			{
-				vs.add(columnName).add(valueSeparator);
-			}
-			vs.setLast((char)this.lineSeparator);
-
-			// write column types (including oid column with custom type name)
-			vs
-			.add(this.csvConfiguration.headerStarter())
-			.add(this.oidColumnType).add(valueSeparator);
-
-			for(final String columnType : columnTypes)
-			{
-				vs.add(columnType).add(valueSeparator);
-			}
-
-			// do not write a record separator here as every record will prepend one when required
-			vs.setLast(this.csvConfiguration.headerTerminator());
+			boolean linePresent;
+			linePresent = this.writeCsvHeaderControlCharacterDefinition(vs);
+			linePresent = this.writeCsvHeaderColumnNames(vs, linePresent);
+			linePresent = this.writeCsvHeaderColumnTypes(vs, linePresent);
 
 			// copy header chars to writing memory. Copying redundancy is not an issue for a tiny one-time header.
 			if(this.writeAddress + vs.length() * MemoryCharConversionUTF8.maxCharacterLength() > this.writeBound)
@@ -495,6 +459,75 @@ public interface StorageDataConverterTypeBinaryToCsv
 				this.flushWriteBuffer();
 			}
 			this.writeAddress = MemoryCharConversionUTF8.writeUTF8(this.writeAddress, vs);
+		}
+		
+		private boolean writeCsvHeaderControlCharacterDefinition(final VarString vs)
+		{
+			// write control characters definition (if explicitely desired)
+			if(X.isNotTrue(this.csvConfiguration.hasControlCharacterDefinitionHeader()))
+			{
+				// abort if false or null (CSV standard as default behavior)
+				return false;
+			}
+			
+			// only if true
+			vs.add(this.csvConfiguration.buildControlCharactersDefinition(this.controlCharsSeparator)).lf();
+			
+			return true;
+		}
+
+		private boolean writeCsvHeaderColumnNames(final VarString vs, final boolean linePresent)
+		{
+			// column names must always be present.
+//			if(X.isFalse(this.csvConfiguration.hasColumnNamesHeader()))
+//			{
+//				// only abort if false (CSV standard as default behavior)
+//				return false;
+//			}
+			
+			if(linePresent)
+			{
+				vs.add((char)this.lineSeparator);
+			}
+			
+			// true or null
+			final char valueSeparator = (char)this.valueSeparator;
+
+			// write column names (including oid column with custom name)
+			vs.add(this.oidColumnName);
+			for(final PersistenceTypeDescriptionMember column : this.typeDescription.instanceMembers())
+			{
+				vs.add(valueSeparator).add(column.name());
+			}
+			
+			return true;
+		}
+		
+		private boolean writeCsvHeaderColumnTypes(final VarString vs, final boolean linePresent)
+		{
+			if(X.isNotTrue(this.csvConfiguration.hasColumnTypesHeader()))
+			{
+				// false or null (CSV standard as default behavior)
+				return false;
+			}
+			
+			if(linePresent)
+			{
+				vs.add((char)this.lineSeparator);
+			}
+			
+			// write column types header line only if desired (Boolean is true)
+			final char valueSeparator = (char)this.valueSeparator;
+			vs
+			.add(this.csvConfiguration.headerStarter())
+			.add(this.oidColumnType)
+			;
+			for(final PersistenceTypeDescriptionMember column : this.typeDescription.instanceMembers())
+			{
+				vs.add(valueSeparator).add(this.typeNameMapper.mapTypeName(column));
+			}
+			
+			return true;
 		}
 
 

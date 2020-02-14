@@ -426,7 +426,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		.setLineSeparator   (symbols[META_INDEX_LINE_SEPARATOR ].charAt(0))
 		;
 
-		refConfig.set(builder.createConfiguration());
+		refConfig.set(builder.buildConfiguration());
 	}
 
 	private static boolean isValidSymbols(final String[] metaChars)
