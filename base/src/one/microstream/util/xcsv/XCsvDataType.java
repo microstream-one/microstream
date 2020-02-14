@@ -5,6 +5,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.math.XMath;
 import one.microstream.util.xcsv.XCSV.ValueSeparatorWeight;
 
+
 public enum XCsvDataType
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -20,6 +21,10 @@ public enum XCsvDataType
 			vc( '|', 1.0),
 			vc( ':', 0.9)
 		)
+//		XCsvConfiguration.Builder()
+//		.setHasColumnNamesHeader(Boolean.FALSE)
+//		.setHasColumnTypesHeader(Boolean.FALSE)
+//		.setHasControlCharacterDefinitionHeader(Boolean.TRUE)
 	),
 	TSV(
 		"tsv",
@@ -123,11 +128,23 @@ public enum XCsvDataType
 		final EqConstHashTable<Character, XCSV.ValueSeparatorWeight> valueSeparatorWeights
 	)
 	{
+		this(identifier, valueSeparatorWeights, XCsvConfiguration.Builder());
+	}
+	
+	private XCsvDataType(
+		final String                                                 identifier           ,
+		final EqConstHashTable<Character, XCSV.ValueSeparatorWeight> valueSeparatorWeights,
+		final XCsvConfiguration.Builder                              configurationBuilder
+	)
+	{
 		this.identifier            = identifier           ;
 		this.valueSeparatorWeights = valueSeparatorWeights;
 		
 		final char preferredValueSeparator = determinePreferredValueSeparator(valueSeparatorWeights.values());
-		this.configuration = XCsvConfiguration.New(preferredValueSeparator);
+		this.configuration = configurationBuilder
+			.setValueSeparator(preferredValueSeparator)
+			.buildConfiguration()
+		;
 	}
 	
 	

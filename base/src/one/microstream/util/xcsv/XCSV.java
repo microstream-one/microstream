@@ -3,6 +3,7 @@ package one.microstream.util.xcsv;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+import one.microstream.X;
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.StringTable;
 import one.microstream.chars.VarString;
@@ -48,7 +49,11 @@ public final class XCSV
 	static final int           DEFAULT_SKIP_LINE_COUNT             = 0   ;
 	static final int           DEFAULT_SKIP_LINE_COUNT_POST_HEADER = 0   ;
 	static final int           DEFAULT_TRAILING_LINE_COUNT         = 0   ;
-	static final EscapeHandler DEFAULT_ESCAPE_HANDLER              = new EscapeHandler.Default();
+	static final Boolean       DEFAULT_HAS_COLUMN_NAMES_HEADER     = null;
+	static final Boolean       DEFAULT_HAS_COLUMN_TYPES_HEADER     = null;
+	static final Boolean       DEFAULT_HAS_CTRLCHAR_DEF_HEADER     = null;
+	
+	static final EscapeHandler DEFAULT_ESCAPE_HANDLER = new EscapeHandler.Default();
 			
 	
 	// only the common ones. Crazy special needs must be handled explicitely
@@ -228,8 +233,13 @@ public final class XCSV
 	
 	public static String assembleString(final StringTable stringTable)
 	{
+		return assembleString(stringTable, null);
+	}
+	
+	public static String assembleString(final StringTable stringTable, final XCsvConfiguration configuration)
+	{
 		final VarString vs = VarString.New(calculateEstimatedCharCount(stringTable.rows().size()));
-		assembleString(vs, stringTable);
+		assembleString(vs, stringTable, configuration);
 		
 		return vs.toString();
 	}
@@ -295,8 +305,8 @@ public final class XCSV
 	}
 	
 	public static final VarString assembleString(
-		final VarString        vs              ,
-		final StringTable      st              ,
+		final VarString         vs              ,
+		final StringTable       st              ,
 		final XCsvConfiguration csvConfiguration
 	)
 	{
@@ -312,16 +322,25 @@ public final class XCSV
 		final XCsvConfiguration effConfig      = ensureCsvConfiguration(csvConfiguration);
 		final char              valueSeparator = effConfig.valueSeparator();
 		final char              lineSeparator  = effConfig.lineSeparator();
-
-		// assemble column names
-		assemble(vs, valueSeparator, st.columnNames());
-
-		// assemble column types if present
-		if(!st.columnTypes().isEmpty())
+		final int               vsLength       = vs.length();
+		
+		if(X.isTrue(effConfig.hasControlCharacterDefinitionHeader()))
 		{
-			vs.add(lineSeparator).add(effConfig.headerStarter());
+			vs.add(effConfig.buildControlCharactersDefinition(';')).add(lineSeparator);
+		}
+		
+		// assemble column names if not suppressed
+		if(X.isNotFalse(effConfig.hasColumnNamesHeader()))
+		{
+			assemble(vs, valueSeparator, st.columnNames()).add(lineSeparator);
+		}
+		
+		// assemble column types if present (and not suppressed)
+		if(X.isNotFalse(effConfig.hasColumnTypesHeader()) && !st.columnTypes().isEmpty())
+		{
+			vs.add(effConfig.headerStarter());
 			assemble(vs, valueSeparator, st.columnTypes());
-			vs.add(effConfig.headerTerminator());
+			vs.add(effConfig.headerTerminator()).add(lineSeparator);
 		}
 
 		// assemble data rows if present
@@ -329,8 +348,15 @@ public final class XCSV
 		{
 			for(final String[] row : st.rows())
 			{
-				assemble(vs.add(lineSeparator), valueSeparator, row);
+				assemble(vs, valueSeparator, row);
+				vs.add(lineSeparator);
 			}
+		}
+		
+		// any of the 4 elements adds a trailing lineSeparator at the end which must be deleted
+		if(vs.length() != vsLength)
+		{
+			vs.deleteLast();
 		}
 
 		return vs;
@@ -350,7 +376,7 @@ public final class XCSV
 		vs.deleteLast();
 	}
 	
-	private static void assemble(
+	private static VarString assemble(
 		final VarString                  vs       ,
 		final char                       separator,
 		final XGettingCollection<String> elements
@@ -358,7 +384,7 @@ public final class XCSV
 	{
 		if(elements.isEmpty())
 		{
-			return;
+			return vs;
 		}
 		
 		for(final String s : elements)
@@ -366,6 +392,8 @@ public final class XCSV
 			vs.add(s).add(separator);
 		}
 		vs.deleteLast();
+		
+		return vs;
 	}
 	
 	// (08.05.2017 TM)NOTE: centralized method to guarantee parser and assembler behave consistently
