@@ -22,7 +22,14 @@ public class RouteAllRoutes extends RouteBase<RoutesManager>
 	public Object handle(final Request request, final Response response)
 	{
 		response.type("application/json");
-		return this.apiAdapter.getAllRoutes(request.host());
+
+		String host = request.host();
+		if(request.contextPath() != null)
+		{
+			host += request.contextPath();
+		}
+
+		return this.apiAdapter.getAllRoutes(host);
 	}
 
 }
