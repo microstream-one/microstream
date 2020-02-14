@@ -23,7 +23,10 @@
                         }
                     }
                 }
-            }
+            },
+			"options": {
+				"description": "get detailed informations"
+			}
         },
         
         "storage.restservice.sparkjava.RouteGetObject": {
