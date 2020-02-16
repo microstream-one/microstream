@@ -60,6 +60,25 @@ public final class EmbeddedStorage
 		);
 	}
 	
+	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
+		final StorageConfiguration     configuration           ,
+		final PersistenceTypeEvaluator typeEvaluatorPersistable
+	)
+	{
+		final StorageBackupSetup backupSetup = configuration.backupSetup();
+		final PersistenceTypeDictionaryIoHandler btdih = backupSetup != null
+			? backupSetup.backupFileProvider().provideTypeDictionaryIoHandler()
+			: null
+		;
+
+		final StorageFileProvider fileProvider = configuration.fileProvider();
+		final PersistenceTypeDictionaryIoHandler tdih = fileProvider.provideTypeDictionaryIoHandler(btdih);
+		
+		return ConnectionFoundation(tdih, typeEvaluatorPersistable);
+	}
+	
+	
+	
 	@Deprecated
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final File directory
@@ -114,8 +133,8 @@ public final class EmbeddedStorage
 	)
 	{
 		return EmbeddedStorageConnectionFoundation.New()
-			.setTypeDictionaryIoHandler    (typeDictionaryIoHandler)
-			.setTypeEvaluatorPersistable   (typeEvaluatorPersistable)
+			.setTypeDictionaryIoHandler (typeDictionaryIoHandler)
+			.setTypeEvaluatorPersistable(typeEvaluatorPersistable)
 		;
 	}
 	
@@ -208,19 +227,9 @@ public final class EmbeddedStorage
 		final StorageConfiguration configuration
 	)
 	{
-		final StorageBackupSetup backupSetup = configuration.backupSetup();
-		final PersistenceTypeDictionaryIoHandler btdih = backupSetup != null
-			? backupSetup.backupFileProvider().provideTypeDictionaryIoHandler()
-			: null
+		return createFoundation()
+			.setConfiguration(configuration)
 		;
-
-		final StorageFileProvider fileProvider = configuration.fileProvider();
-		final PersistenceTypeDictionaryIoHandler tdih = fileProvider.provideTypeDictionaryIoHandler(btdih);
-		
-		return Foundation(
-			configuration,
-			ConnectionFoundation(tdih)
-		);
 	}
 		
 	/**
@@ -268,8 +277,7 @@ public final class EmbeddedStorage
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation
 	)
 	{
-		return createFoundation()
-			.setConfiguration(configuration)
+		return Foundation(configuration)
 			.setConnectionFoundation(connectionFoundation)
 		;
 	}
