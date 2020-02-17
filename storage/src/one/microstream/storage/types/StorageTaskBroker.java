@@ -483,7 +483,7 @@ public interface StorageTaskBroker
 					storageSystem.operationController(),
 					storageSystem.configuration().dataFileEvaluator(),
 					storageSystem.objectIdRangeEvaluator(),
-					storageSystem.channelCountProvider().get()
+					storageSystem.channelCountProvider().getChannelCount()
 				);
 			}
 
