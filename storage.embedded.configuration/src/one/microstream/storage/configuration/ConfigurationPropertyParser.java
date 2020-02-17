@@ -44,7 +44,7 @@ public interface ConfigurationPropertyParser
 		private final DurationParser durationParser;
 		private final FileSizeParser fileSizeParser;
 		
-		protected Default(
+		Default(
 			final DurationParser durationParser,
 			final FileSizeParser fileSizeParser
 		)
@@ -55,6 +55,7 @@ public interface ConfigurationPropertyParser
 			this.fileSizeParser = notNull(fileSizeParser);
 		}
 		
+		@SuppressWarnings("deprecation") // keeps parsing deprecated properties
 		@Override
 		public void parseProperty(
 			final String name                ,
@@ -161,16 +162,18 @@ public interface ConfigurationPropertyParser
 					break;
 				
 					case HOUSEKEEPING_INTERVAL:
+					case HOUSEKEEPING_INTERVAL_MS:
 					{
-						configuration.setHouseKeepingInterval(
+						configuration.setHousekeepingIntervalMs(
 							this.durationParser.parse(value).toMillis()
 						);
 					}
 					break;
 				
 					case HOUSEKEEPING_NANO_TIME_BUDGET:
+					case HOUSEKEEPING_TIME_BUDGET_NS:
 					{
-						configuration.setHouseKeepingNanoTimeBudget(
+						configuration.setHousekeepingTimeBudgetNs(
 							this.durationParser.parse(value).toNanos()
 						);
 					}
@@ -185,33 +188,45 @@ public interface ConfigurationPropertyParser
 					break;
 				
 					case ENTITY_CACHE_TIMEOUT:
+					case ENTITY_CACHE_TIMEOUT_MS:
 					{
-						configuration.setEntityCacheTimeout(
+						configuration.setEntityCacheTimeoutMs(
 							this.durationParser.parse(value).toMillis()
 						);
 					}
 					break;
 				
 					case DATA_FILE_MIN_SIZE:
+					case DATA_FILE_MINIMUM_SIZE:
 					{
-						configuration.setDataFileMinSize(
+						configuration.setDataFileMinimumSize(
 							this.parseFileSize_int(value)
 						);
 					}
 					break;
 				
 					case DATA_FILE_MAX_SIZE:
+					case DATA_FILE_MAXIMUM_SIZE:
 					{
-						configuration.setDataFileMaxSize(
+						configuration.setDataFileMaximumSize(
 							this.parseFileSize_int(value)
 						);
 					}
 					break;
 				
 					case DATA_FILE_DISSOLVE_RATIO:
+					case DATA_FILE_MINIMUM_USE_RATIO:
 					{
-						configuration.setDataFileDissolveRatio(
+						configuration.setDataFileMinimumUseRatio(
 							Double.parseDouble(value)
+						);
+					}
+					break;
+					
+					case DATA_FILE_CLEANUP_HEAD_FILE:
+					{
+						configuration.setDataFileCleanupHeadFile(
+							Boolean.parseBoolean(value)
 						);
 					}
 					break;
@@ -254,5 +269,7 @@ public interface ConfigurationPropertyParser
 			
 			return (int)fileSize;
 		}
+		
 	}
+	
 }

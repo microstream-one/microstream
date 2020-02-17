@@ -23,14 +23,16 @@ public interface EmbeddedStorageFoundationCreator
 {
 	public EmbeddedStorageFoundation<?> createFoundation(Configuration configuration);
 	
+	
 	public static EmbeddedStorageFoundationCreator New()
 	{
 		return new Default();
 	}
 	
+	
 	public static class Default implements EmbeddedStorageFoundationCreator
 	{
-		protected Default()
+		Default()
 		{
 			super();
 		}
@@ -60,15 +62,11 @@ public interface EmbeddedStorageFoundationCreator
 			
 			final EmbeddedStorageFoundation<?> storageFoundation = EmbeddedStorage.Foundation(configBuilder.createConfiguration());
 
-			final String typeDictionaryFilename = configuration.getTypeDictionaryFilename();
-			if(typeDictionaryFilename != null)
-			{
-				storageFoundation.getConnectionFoundation().setTypeDictionaryIoHandler(
-					PersistenceTypeDictionaryFileHandler.New(
-						XIO.Path(baseDirectory, typeDictionaryFilename)
-					)
-				);
-			}
+			storageFoundation.getConnectionFoundation().setTypeDictionaryIoHandler(
+				PersistenceTypeDictionaryFileHandler.New(
+					XIO.Path(baseDirectory, configuration.getTypeDictionaryFilename())
+				)
+			);
 			
 			return storageFoundation;
 		}
@@ -93,30 +91,33 @@ public interface EmbeddedStorageFoundationCreator
 		
 		protected StorageChannelCountProvider createChannelCountProvider(final Configuration configuration)
 		{
-			return Storage.ChannelCountProvider(configuration.getChannelCount());
+			return Storage.ChannelCountProvider(
+				configuration.getChannelCount()
+			);
 		}
 		
 		protected StorageHousekeepingController createHousekeepingController(final Configuration configuration)
 		{
 			return Storage.HousekeepingController(
-				configuration.getHouseKeepingInterval      (),
-				configuration.getHouseKeepingNanoTimeBudget()
+				configuration.getHousekeepingIntervalMs  (),
+				configuration.getHousekeepingTimeBudgetNs()
 			);
 		}
 		
 		protected StorageDataFileEvaluator createDataFileEvaluator(final Configuration configuration)
 		{
 			return Storage.DataFileEvaluator(
-				configuration.getDataFileMinSize      (),
-				configuration.getDataFileMaxSize      (),
-				configuration.getDataFileDissolveRatio()
+				configuration.getDataFileMinimumSize    (),
+				configuration.getDataFileMaximumSize    (),
+				configuration.getDataFileMinimumUseRatio(),
+				configuration.getDataFileCleanupHeadFile()
 			);
 		}
 		
 		protected StorageEntityCacheEvaluator createEntityCacheEvaluator(final Configuration configuration)
 		{
 			return Storage.EntityCacheEvaluator(
-				configuration.getEntityCacheTimeout  (),
+				configuration.getEntityCacheTimeoutMs(),
 				configuration.getEntityCacheThreshold()
 			);
 		}
@@ -126,12 +127,11 @@ public interface EmbeddedStorageFoundationCreator
 			final Path          baseDirectory
 		)
 		{
-			final String typeDictionaryFilename = configuration.getTypeDictionaryFilename();
-			return typeDictionaryFilename == null
-				? null
-				: PersistenceTypeDictionaryFileHandler.New(
-					XIO.Path(baseDirectory, typeDictionaryFilename)
-				);
+			return PersistenceTypeDictionaryFileHandler.New(
+				XIO.Path(baseDirectory, configuration.getTypeDictionaryFilename())
+			);
 		}
+		
 	}
+	
 }
