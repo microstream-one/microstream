@@ -35,14 +35,54 @@ public interface StorageConnection extends Persister
 	/**
 	 * Issues a full garbage collection to be executed. Depending on the size of the database,
 	 * the available cache, used hardware, etc., this can take any amount of time.
+	 * <p>
+	 * Garbage collection marks all persisted objects/records that are reachable from the root (mark phase)
+	 * and once that is completed, all non-marked records are determined to be effectively unreachable
+	 * and are thus deleted. This common mechanism in graph-organised data completely removes the need
+	 * for any explicit deleting.
+	 * <p>
+	 * Note that the garbage collection on the storage level has nothing to do with the JVM's Garbage Collector
+	 * on the heap level. While the technical principle is the same, both GCs are separate from each other and
+	 * do not have anything to do with each other.
+	 * 
+	 * @see #issueGarbageCollection(long)
 	 */
 	public default void issueFullGarbageCollection()
 	{
 		this.issueGarbageCollection(Long.MAX_VALUE);
 	}
 
+	/**
+	 * Issues garbage collection to be executed, limited to the time budget in nanoseconds specified
+	 * by the passed {@code nanoTimeBudget}.<br>
+	 * Then the time budget is used up, the garbage collector will keep the current progress and continue there
+	 * at the next opportunity. The same progress marker is used by the implicit housekeeping, so both mechanisms
+	 * will continue on the same progress.<br>
+	 * If no store has occured since the last completed garbage sweep, this method will have no effect and return
+	 * immediately.
+	 * 
+	 * @param nanoTimeBudget the time budget in nanoseconds to be used to perform garbage collection.
+	 * 
+	 * @return whether the returned call has completed garbage collection.
+	 * 
+	 * @see #issueFullGarbageCollection()
+	 */
 	public boolean issueGarbageCollection(long nanoTimeBudget);
 
+	/**
+	 * Issues a full storage file check to be executed. Depending on the size of the database,
+	 * the available cache, used hardware, etc., this can take any amount of time.
+	 * <p>
+	 * File checking evaluates every storage data file about being either too small, too big
+	 * or having too many logical "gaps" in it (created by storing newer versions of an object
+	 * or by garbage collection). If one of those checks applies, the remaining live data in
+	 * the file is moved to the current head file and once that is done, the source file
+	 * (now consisting of 100% logical "gaps", making it effectively superfluous) is then deleted.
+	 * <p>
+	 * The exact logic is defined by {@link StorageConfiguration#dataFileEvaluator()}
+	 * 
+	 * @see #issueFileCheck(long)
+	 */
 	public default void issueFullFileCheck()
 	{
 		this.issueFileCheck(Long.MAX_VALUE);
