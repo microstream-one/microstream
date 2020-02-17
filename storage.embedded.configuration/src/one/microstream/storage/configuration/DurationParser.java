@@ -48,7 +48,7 @@ public interface DurationParser
 	{
 		private final Pattern pattern = Pattern.compile("([\\d]+)\\s*(\\w+)",Pattern.CASE_INSENSITIVE);
 		
-		protected SuffixBasedParser()
+		SuffixBasedParser()
 		{
 			super();
 		}
@@ -86,5 +86,7 @@ public interface DurationParser
 			
 			throw new StorageExceptionInvalidConfiguration("Invalid Duration: "+text);
 		}
+		
 	}
+	
 }

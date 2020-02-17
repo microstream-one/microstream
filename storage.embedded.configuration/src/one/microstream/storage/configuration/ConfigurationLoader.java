@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import one.microstream.chars.XChars;
 import one.microstream.storage.exceptions.StorageExceptionIo;
@@ -19,6 +21,23 @@ import one.microstream.storage.exceptions.StorageExceptionIo;
 public interface ConfigurationLoader
 {
 	public String loadConfiguration();
+	
+	public static String loadFromPath(final Path path)
+	{
+		return loadFromPath(path, Defaults.defaultCharset());
+	}
+	
+	public static String loadFromPath(final Path path, final Charset charset)
+	{
+		try(InputStream in = Files.newInputStream(path))
+		{
+			return FromInputStream(in, charset).loadConfiguration();
+		}
+		catch(final IOException e)
+		{
+			throw new StorageExceptionIo(e);
+		}
+	}
 	
 	public static String loadFromFile(final File file)
 	{
@@ -64,6 +83,7 @@ public interface ConfigurationLoader
 		return new InputStreamConfigurationLoader(inputStream, charset);
 	}
 	
+	
 	public interface Defaults
 	{
 		public static Charset defaultCharset()
@@ -72,12 +92,13 @@ public interface ConfigurationLoader
 		}
 	}
 	
+	
 	public static class InputStreamConfigurationLoader implements ConfigurationLoader
 	{
 		private final InputStream inputStream;
 		private final Charset     charset;
 		
-		protected InputStreamConfigurationLoader(final InputStream inputStream, final Charset charset)
+		InputStreamConfigurationLoader(final InputStream inputStream, final Charset charset)
 		{
 			super();
 			
@@ -97,5 +118,7 @@ public interface ConfigurationLoader
 				throw new StorageExceptionIo(e);
 			}
 		}
+		
 	}
+	
 }

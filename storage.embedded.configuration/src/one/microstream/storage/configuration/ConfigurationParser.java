@@ -29,6 +29,7 @@ public interface ConfigurationParser
 		return this.parse(Configuration.Default(), data);
 	}
 	
+	
 	public Configuration parse(Configuration configuration, String data);
 	
 	
@@ -57,7 +58,7 @@ public interface ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
 		
-		protected IniConfigurationParser(final ConfigurationPropertyParser propertyParser)
+		IniConfigurationParser(final ConfigurationPropertyParser propertyParser)
 		{
 			super();
 			this.propertyParser = notNull(propertyParser);
@@ -108,7 +109,7 @@ public interface ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
 		
-		protected XmlConfigurationParser(final ConfigurationPropertyParser propertyParser)
+		XmlConfigurationParser(final ConfigurationPropertyParser propertyParser)
 		{
 			super();
 			this.propertyParser = notNull(propertyParser);
