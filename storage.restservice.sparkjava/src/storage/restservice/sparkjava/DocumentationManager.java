@@ -17,7 +17,7 @@ import spark.Service;
 import spark.route.HttpMethod;
 
 
-public class RoutesManager
+public class DocumentationManager
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -41,7 +41,7 @@ public class RoutesManager
 	// constructors //
 	/////////////////
 
-	public RoutesManager(final Service sparkService)
+	public DocumentationManager(final Service sparkService)
 	{
 		super();
 		this.sparkService = sparkService;

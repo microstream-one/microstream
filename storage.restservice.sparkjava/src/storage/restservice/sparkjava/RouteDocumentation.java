@@ -3,13 +3,13 @@ package storage.restservice.sparkjava;
 import spark.Request;
 import spark.Response;
 
-public class RouteDocumentation extends RouteBase<RoutesManager>
+public class RouteDocumentation extends RouteBase<DocumentationManager>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public RouteDocumentation(final RoutesManager apiAdapter)
+	public RouteDocumentation(final DocumentationManager apiAdapter)
 	{
 		super(apiAdapter);
 	}
