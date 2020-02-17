@@ -2733,6 +2733,91 @@ public final class XChars
 		
 		return counter.yield();
 	}
+	
+	
+	public static String mathRangeIncInc(final long minimum, final long maximum)
+	{
+		return mathRangeIncInc(
+			Long.toString(minimum),
+			Long.toString(maximum)
+		);
+	}
+	
+	public static String mathRangeIncExc(final long minimum, final long upperBound)
+	{
+		return mathRangeIncExc(
+			Long.toString(minimum),
+			Long.toString(upperBound)
+		);
+	}
+	
+	public static String mathRangeExcInc(final long lowerBound, final long maximum)
+	{
+		return mathRangeExcInc(
+			Long.toString(lowerBound),
+			Long.toString(maximum)
+		);
+	}
+	
+	public static String mathRangeExcExc(final long lowerBound, final long upperBound)
+	{
+		return mathRangeExcExc(
+			Long.toString(lowerBound),
+			Long.toString(upperBound)
+		);
+	}
+	
+	public static String mathRangeIncInc(final double minimum, final double maximum)
+	{
+		return mathRangeIncInc(
+			Double.toString(minimum),
+			Double.toString(maximum)
+		);
+	}
+	
+	public static String mathRangeIncExc(final double minimum, final double upperBound)
+	{
+		return mathRangeIncExc(
+			Double.toString(minimum),
+			Double.toString(upperBound)
+		);
+	}
+	
+	public static String mathRangeExcInc(final double lowerBound, final double maximum)
+	{
+		return mathRangeExcInc(
+			Double.toString(lowerBound),
+			Double.toString(maximum)
+		);
+	}
+	
+	public static String mathRangeExcExc(final double lowerBound, final double upperBound)
+	{
+		return mathRangeExcExc(
+			Double.toString(lowerBound),
+			Double.toString(upperBound)
+		);
+	}
+	
+	public static String mathRangeIncInc(final String minimum, final String maximum)
+	{
+		return "[" + minimum + "; " + maximum + "]";
+	}
+	
+	public static String mathRangeIncExc(final String minimum, final String upperBound)
+	{
+		return "[" + minimum + "; " + upperBound + "[";
+	}
+	
+	public static String mathRangeExcInc(final String lowerBound, final String maximum)
+	{
+		return "]" + lowerBound + "; " + maximum + "]";
+	}
+	
+	public static String mathRangeExcExc(final String lowerBound, final String upperBound)
+	{
+		return "]" + lowerBound + "; " + upperBound + "[";
+	}
 		
 
 	
