@@ -40,7 +40,7 @@ public interface ConfigurationParser
 	
 	public static ConfigurationParser Ini(final ConfigurationPropertyParser propertyParser)
 	{
-		return new IniConfigurationParser(propertyParser);
+		return new IniConfigurationParser(notNull(propertyParser));
 	}
 	
 	public static ConfigurationParser Xml()
@@ -50,7 +50,7 @@ public interface ConfigurationParser
 	
 	public static ConfigurationParser Xml(final ConfigurationPropertyParser propertyParser)
 	{
-		return new XmlConfigurationParser(propertyParser);
+		return new XmlConfigurationParser(notNull(propertyParser));
 	}
 	
 	
@@ -61,17 +61,12 @@ public interface ConfigurationParser
 		IniConfigurationParser(final ConfigurationPropertyParser propertyParser)
 		{
 			super();
-			this.propertyParser = notNull(propertyParser);
+			this.propertyParser = propertyParser;
 		}
 		
 		@Override
-		public Configuration parse(Configuration configuration, final String data)
+		public Configuration parse(final Configuration configuration, final String data)
 		{
-			if(configuration == null)
-			{
-				configuration = Configuration.Default();
-			}
-			
 			nextLine:
 			for(String line : data.split("\\r?\\n"))
 			{
@@ -112,17 +107,12 @@ public interface ConfigurationParser
 		XmlConfigurationParser(final ConfigurationPropertyParser propertyParser)
 		{
 			super();
-			this.propertyParser = notNull(propertyParser);
+			this.propertyParser = propertyParser;
 		}
 		
 		@Override
-		public Configuration parse(Configuration configuration, final String data)
+		public Configuration parse(final Configuration configuration, final String data)
 		{
-			if(configuration == null)
-			{
-				configuration = Configuration.Default();
-			}
-			
 			try
 			{
 				final DocumentBuilder builder  = DocumentBuilderFactory.newInstance().newDocumentBuilder();

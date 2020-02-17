@@ -561,7 +561,7 @@ public interface Configuration
 	
 	public static Configuration Default()
 	{
-		return new Default();
+		return new Configuration.Default();
 	}
 	
 	

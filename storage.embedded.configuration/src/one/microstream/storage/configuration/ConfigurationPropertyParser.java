@@ -21,7 +21,7 @@ public interface ConfigurationPropertyParser
 	
 	public static ConfigurationPropertyParser New()
 	{
-		return new Default(
+		return new ConfigurationPropertyParser.Default(
 			DurationParser.Default(),
 			FileSizeParser.Default()
 		);
@@ -32,9 +32,9 @@ public interface ConfigurationPropertyParser
 		final FileSizeParser fileSizeParser
 	)
 	{
-		return new Default(
-			durationParser,
-			fileSizeParser
+		return new ConfigurationPropertyParser.Default(
+			notNull(durationParser),
+			notNull(fileSizeParser)
 		);
 	}
 	
@@ -51,8 +51,8 @@ public interface ConfigurationPropertyParser
 		{
 			super();
 			
-			this.durationParser = notNull(durationParser);
-			this.fileSizeParser = notNull(fileSizeParser);
+			this.durationParser = durationParser;
+			this.fileSizeParser = fileSizeParser;
 		}
 		
 		@SuppressWarnings("deprecation") // keeps parsing deprecated properties

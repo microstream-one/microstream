@@ -80,7 +80,10 @@ public interface ConfigurationLoader
 	
 	public static ConfigurationLoader FromInputStream(final InputStream inputStream, final Charset charset)
 	{
-		return new InputStreamConfigurationLoader(inputStream, charset);
+		return new InputStreamConfigurationLoader(
+			notNull(inputStream),
+			notNull(charset)
+		);
 	}
 	
 	
@@ -102,8 +105,8 @@ public interface ConfigurationLoader
 		{
 			super();
 			
-			this.inputStream = notNull(inputStream);
-			this.charset     = notNull(charset);
+			this.inputStream = inputStream;
+			this.charset     = charset;
 		}
 		
 		@Override
