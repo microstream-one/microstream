@@ -24,7 +24,17 @@ public class RoutesManager
 	////////////////////
 
 	private final Service sparkService;
+
+	/*
+	 * Holds the handler for a httpMethod and path
+	 * Hashtable<RouteURI, <Hashtable<HttpMethod, HandlerClassName>>
+	 */
 	private final Hashtable<String, Hashtable<String, String>> registeredRoutes;
+
+	/*
+	 * Hold the documentation for a handler's route and http method
+	 * Hashtable<HandlerClassName, <Hashtable<HttpMethod, JsonDocuPart>>
+	 */
 	private final Hashtable<String, Hashtable<String, JsonElement>> documentations;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -38,7 +48,7 @@ public class RoutesManager
 		this.registeredRoutes = new Hashtable<>();
 		this.documentations = new Hashtable<>();
 
-		this.buildLiveDocumentation();
+		this.buildLiveDocumentation("/resources/onlineDocu.json");
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -50,21 +60,32 @@ public class RoutesManager
 		return this.registeredRoutes;
 	}
 
-	public void registerRoutes(final HttpMethod httpMethod, final String path, final RouteBase<?> route)
+	/**
+	 * Register a route / httpMethod and automatically create and register an options route
+	 * to get help on this route
+	 */
+	public void registeRoutesWithOptions(final HttpMethod httpMethod, final String uri, final RouteBase<?> route)
 	{
-		Hashtable<String, String> methods = this.registeredRoutes.get(path);
+		Hashtable<String, String> methods = this.registeredRoutes.get(uri);
 		if(methods == null)
 		{
 			methods = new Hashtable<>();
-			this.registeredRoutes.put(path, methods);
+			this.registeredRoutes.put(uri, methods);
 		}
 		methods.put(httpMethod.toString().toLowerCase(), route.getClass().getName());
-		this.sparkService.addRoute(httpMethod, RouteImpl.create(path, route));
+		this.sparkService.addRoute(httpMethod, RouteImpl.create(uri, route));
 
 		methods.put(HttpMethod.options.toString().toLowerCase(), route.getClass().getName());
-		this.sparkService.addRoute(HttpMethod.options, RouteImpl.create(path, new RouteDocumentation(this)));
+		this.sparkService.addRoute(HttpMethod.options, RouteImpl.create(uri, new RouteDocumentation(this)));
 	}
 
+	/**
+	 * get a Json Array containing all registered roots and there httpMethods
+	 *
+	 * @param host: the host url and context path
+	 *
+	 * @return JsonArray
+	 */
 	public Object getAllRoutes(final String host)
 	{
 		final JsonArray routesJson = new JsonArray(this.registeredRoutes.size());
@@ -87,6 +108,13 @@ public class RoutesManager
 		return routesJson;
 	}
 
+	/**
+	 * Get the documentation snippet for a http method for a registered uri
+	 *
+	 * @param uri
+	 * @param httpMethod
+	 * @return JsonObject
+	 */
 	public Object getDocumentation(final String uri, final String httpMethod)
 	{
 		try {
@@ -99,22 +127,35 @@ public class RoutesManager
 		}
 	}
 
+	/**
+	 * Get the documentation snippet of all http methods for a registered uri
+	 *
+	 * @param uri
+	 * @param httpMethod
+	 * @return JsonObject
+	 */
 	public Object getDocumentation(final String uri)
 	{
 		final Hashtable<String, String> UriMethods = this.registeredRoutes.get(uri);
 
 		final JsonObject docu = new JsonObject();
 
-		UriMethods.forEach((a,b) -> {
-			docu.add(a, this.documentations.get(b).get(a));
+		UriMethods.forEach((httpMethod, handlerName) -> {
+			docu.add(httpMethod, this.documentations.get(handlerName).get(httpMethod));
 		});
 
 		return docu;
 	}
 
-	private String getResourceFileContentAsString(final String path)
+	/**
+	 * Get a file resource content as String
+	 *
+	 * @param uri
+	 * @return content as String
+	 */
+	private String getResourceFileContentAsString(final String uri)
 	{
-		try(final InputStream in = this.getClass().getResourceAsStream(path);
+		try(final InputStream in = this.getClass().getResourceAsStream(uri);
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(in));)
 		{
 			final StringBuilder builder = new StringBuilder(in.available()*2);
@@ -133,9 +174,13 @@ public class RoutesManager
 		}
 	}
 
-	private void buildLiveDocumentation()
+	/**
+	 * Build the documentation from an provided embedded json resource file
+	 *
+	 */
+	private void buildLiveDocumentation(final String FileURI)
 	{
-		final String doc = this.getResourceFileContentAsString("/resources/onlineDocu.json");
+		final String doc = this.getResourceFileContentAsString(FileURI);
 
 		final JsonObject docu = new Gson().fromJson(doc, JsonObject.class);
 		final JsonObject handlers = docu.getAsJsonObject("handler");

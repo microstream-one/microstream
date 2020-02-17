@@ -51,19 +51,19 @@ public class StorageRestServiceDefault implements StorageRestService
 	{
 		this.routesManager = new RoutesManager(this.sparkService);
 
-		this.routesManager.registerRoutes(HttpMethod.get, "/",
+		this.routesManager.registeRoutesWithOptions(HttpMethod.get, "/",
 			new RouteAllRoutes(this.routesManager));
 
-		this.routesManager.registerRoutes(HttpMethod.get, "/" + this.storageName + "/root",
+		this.routesManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/root",
 			new RouteGetRoot(this.storageRestAdapter));
 
-		this.routesManager.registerRoutes(HttpMethod.get, "/" + this.storageName + "/dictionary",
+		this.routesManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/dictionary",
 			new RouteTypeDictionary(this.storageRestAdapter));
 
-		this.routesManager.registerRoutes(HttpMethod.get, "/" + this.storageName + "/object/:oid",
+		this.routesManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/object/:oid",
 			new RouteGetObject(this.storageRestAdapter));
 
-		this.routesManager.registerRoutes(HttpMethod.get, "/" + this.storageName + "/maintenance/filesStatistics",
+		this.routesManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/maintenance/filesStatistics",
 			new RouteStorageFilesStatistics(this.storageRestAdapter));
 
 		this.sparkService.exception(InvalidRouteParametersException.class, (e, request, response) ->
