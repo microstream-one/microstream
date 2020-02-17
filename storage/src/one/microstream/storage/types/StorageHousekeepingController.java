@@ -1,7 +1,6 @@
 package one.microstream.storage.types;
 
 import one.microstream.chars.VarString;
-import one.microstream.math.XMath;
 
 public interface StorageHousekeepingController
 {
@@ -30,6 +29,48 @@ public interface StorageHousekeepingController
 	 */
 	public long fileCheckTimeBudgetNs();
 
+	
+	
+	public interface Validation
+	{
+		public static long minimumHousekeepingIntervalMs()
+		{
+			return 1;
+		}
+		
+		public static long minimumHousekeepingTimeBudgetNs()
+		{
+			return 0;
+		}
+		
+		public static void validateParameters(
+			final long housekeepingIntervalMs  ,
+			final long housekeepingTimeBudgetNs
+		)
+			throws IllegalArgumentException
+		{
+			if(housekeepingIntervalMs < minimumHousekeepingIntervalMs())
+			{
+				// (17.02.2020 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified housekeeping millisecond interval of "
+					+ housekeepingIntervalMs
+					+ " is lower than the minimum value "
+					+ minimumHousekeepingIntervalMs()+ "."
+				);
+			}
+			if(housekeepingTimeBudgetNs < minimumHousekeepingTimeBudgetNs())
+			{
+				// (17.02.2020 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified housekeeping nanosecond time budget of "
+					+ housekeepingTimeBudgetNs
+					+ " is lower than the minimum value "
+					+ minimumHousekeepingTimeBudgetNs()+ "."
+				);
+			}
+		}
+	}
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageHousekeepingController} instance
@@ -90,9 +131,11 @@ public interface StorageHousekeepingController
 		final long housekeepingTimeBudgetNs
 	)
 	{
+		Validation.validateParameters(housekeepingIntervalMs, housekeepingTimeBudgetNs);
+		
 		return new StorageHousekeepingController.Default(
-			XMath.positive(housekeepingIntervalMs)  ,
-			XMath.positive(housekeepingTimeBudgetNs)
+			housekeepingIntervalMs  ,
+			housekeepingTimeBudgetNs
 		);
 	}
 	
