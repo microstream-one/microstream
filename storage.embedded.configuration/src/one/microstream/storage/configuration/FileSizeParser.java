@@ -25,7 +25,10 @@ public interface FileSizeParser
 	
 	public static class SuffixBasedParser implements FileSizeParser
 	{
-		private final Pattern pattern = Pattern.compile("([\\d.,]+)\\s*(\\w+)",Pattern.CASE_INSENSITIVE);
+		private final Pattern pattern = Pattern.compile(
+			"([\\d.,]+)\\s*(\\w+)",
+			Pattern.CASE_INSENSITIVE
+		);
 		
 		SuffixBasedParser()
 		{
@@ -55,6 +58,17 @@ public interface FileSizeParser
 				if(byteMultiple != null)
 				{
 					return byteMultiple.toBytes(amount);
+				}
+			}
+			else // missing suffix is interpreted as size in bytes
+			{
+				try
+				{
+					return Long.parseLong(text);
+				}
+				catch(final NumberFormatException nfe)
+				{
+					throw new StorageExceptionInvalidConfiguration("Invalid file size: " + text, nfe);
 				}
 			}
 			
