@@ -69,9 +69,9 @@ public interface StorageChannelsCreator
 			final int  loadingBufferSize        =  XMemory.defaultBufferSize();
 			final int  readingDefaultBufferSize =  XMemory.defaultBufferSize();
 
-			final StorageChannel.Default[]     channels = new StorageChannel.Default[channelCount];
+			final StorageChannel.Default[] channels = new StorageChannel.Default[channelCount];
 
-			final StorageObjectIdMarkQueue[]    markQueues = new StorageObjectIdMarkQueue[channels.length];
+			final StorageObjectIdMarkQueue[] markQueues = new StorageObjectIdMarkQueue[channels.length];
 			for(int i = 0; i < markQueues.length; i++)
 			{
 				markQueues[i] = oidMarkQueueCreator.createOidMarkQueue(markBufferLength);

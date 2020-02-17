@@ -123,9 +123,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		private long housekeepingIntervalBudgetNs;
 		
 		private boolean active;
-
-
-
+		
 
 
 		///////////////////////////////////////////////////////////////////////////

@@ -2,13 +2,15 @@ package one.microstream.storage.types;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
-import one.microstream.reference._intReference;
+import one.microstream.math.XMath;
+import one.microstream.persistence.binary.types.BinaryChannelCountProvider;
 
 
-public interface StorageChannelCountProvider extends _intReference
+@FunctionalInterface
+public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 {
 	@Override
-	public int get();
+	public int getChannelCount();
 
 	
 	
@@ -52,10 +54,19 @@ public interface StorageChannelCountProvider extends _intReference
 		}
 		
 		
-		public static boolean isValidChannelCount(final int channelCount)
+		public static boolean isValidChannelCountRange(final int channelCount)
 		{
 			// breakpoint-friendly statement
 			return channelCount >= minimumChannelCount() && channelCount <= maximumChannelCount()
+				? true
+				: false
+			;
+		}
+		
+		public static boolean isValidChannelCountPow2Value(final int channelCount)
+		{
+			// breakpoint-friendly statement
+			return XMath.isPow2(channelCount)
 				? true
 				: false
 			;
@@ -66,20 +77,36 @@ public interface StorageChannelCountProvider extends _intReference
 		)
 			throws IllegalArgumentException
 		{
-			if(isValidChannelCount(channelCount))
+			if(!isValidChannelCountRange(channelCount))
 			{
-				return;
+				// (26.03.2019 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified channel count " + channelCount
+					+ " is not in the range of valid channel counts: "
+					+ XChars.mathRangeIncInc(minimumChannelCount(), maximumChannelCount())
+					+ "."
+				);
 			}
 			
-			// (26.03.2019 TM)EXCP: proper exception
-			throw new IllegalArgumentException(
-				"Specified channel count " + channelCount
-				+ " is not in the range of valid channel counts: "
-				+ XChars.mathRangeIncInc(minimumChannelCount(), maximumChannelCount())
-				+ "."
-			);
+			if(!isValidChannelCountPow2Value(channelCount))
+			{
+				// (26.03.2019 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified channel count " + channelCount
+					+ " is not a power-of-2 int value "
+					+ "(i.e. channelCount = 2^n for any n in [0;30], e.g. 1, 2, 4, 8, 16, ...)."
+				);
+			}
 		}
 	}
+	
+	public static int validateChannelCount(final int channelCount) throws IllegalArgumentException
+	{
+		Validation.validateParameters(channelCount);
+		
+		return channelCount;
+	}
+	
 
 	
 	
@@ -162,7 +189,7 @@ public interface StorageChannelCountProvider extends _intReference
 		////////////
 
 		@Override
-		public final int get()
+		public final int getChannelCount()
 		{
 			return this.channelCount;
 		}
