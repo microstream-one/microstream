@@ -15,7 +15,7 @@ public class StorageRestServiceDefault implements StorageRestService
 	private StorageRestAdapter storageRestAdapter;
 	private Service sparkService;
 	private String storageName ="microstream";
-	private RoutesManager routesManager;
+	private DocumentationManager documentationManager;
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -49,21 +49,21 @@ public class StorageRestServiceDefault implements StorageRestService
 
 	public void setupRoutes()
 	{
-		this.routesManager = new RoutesManager(this.sparkService);
+		this.documentationManager = new DocumentationManager(this.sparkService);
 
-		this.routesManager.registeRoutesWithOptions(HttpMethod.get, "/",
-			new RouteAllRoutes(this.routesManager));
+		this.documentationManager.registeRoutesWithOptions(HttpMethod.get, "/",
+			new RouteAllRoutes(this.documentationManager));
 
-		this.routesManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/root",
+		this.documentationManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/root",
 			new RouteGetRoot(this.storageRestAdapter));
 
-		this.routesManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/dictionary",
+		this.documentationManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/dictionary",
 			new RouteTypeDictionary(this.storageRestAdapter));
 
-		this.routesManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/object/:oid",
+		this.documentationManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/object/:oid",
 			new RouteGetObject(this.storageRestAdapter));
 
-		this.routesManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/maintenance/filesStatistics",
+		this.documentationManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/maintenance/filesStatistics",
 			new RouteStorageFilesStatistics(this.storageRestAdapter));
 
 		this.sparkService.exception(InvalidRouteParametersException.class, (e, request, response) ->
