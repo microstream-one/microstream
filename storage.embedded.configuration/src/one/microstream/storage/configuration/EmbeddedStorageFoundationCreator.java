@@ -26,7 +26,7 @@ public interface EmbeddedStorageFoundationCreator
 	
 	public static EmbeddedStorageFoundationCreator New()
 	{
-		return new Default();
+		return new EmbeddedStorageFoundationCreator.Default();
 	}
 	
 	

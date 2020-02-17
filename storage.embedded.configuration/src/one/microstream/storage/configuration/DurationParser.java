@@ -23,7 +23,7 @@ public interface DurationParser
 	}
 	
 	/**
-	 * Case insensitive suffix based parser, supported units:
+	 * Case insensitive, suffix based parser, supported units:
 	 * <ul>
 	 * <li>ns</li>
 	 * <li>ms</li>
@@ -33,22 +33,17 @@ public interface DurationParser
 	 * <li>d</li>
 	 * </ul>
 	 */
-	public static DurationParser SuffixBasedParser()
-	{
-		return new SuffixBasedParser();
-	}
-	
 	public static DurationParser Default()
 	{
-		return SuffixBasedParser();
+		return new DurationParser.Default();
 	}
 	
 	
-	public static class SuffixBasedParser implements DurationParser
+	public static class Default implements DurationParser
 	{
 		private final Pattern pattern = Pattern.compile("([\\d]+)\\s*(\\w+)",Pattern.CASE_INSENSITIVE);
 		
-		SuffixBasedParser()
+		Default()
 		{
 			super();
 		}
@@ -69,7 +64,10 @@ public interface DurationParser
 				}
 				catch(final NumberFormatException nfe)
 				{
-					throw new StorageExceptionInvalidConfiguration("Invalid Duration: " + text, nfe);
+					throw new StorageExceptionInvalidConfiguration(
+						"Invalid Duration: " + text,
+						nfe
+					);
 				}
 				
 				switch(unitGroup.toLowerCase())
@@ -84,7 +82,10 @@ public interface DurationParser
 				}
 			}
 			
-			throw new StorageExceptionInvalidConfiguration("Invalid Duration: "+text);
+			throw new StorageExceptionInvalidConfiguration(
+				"Invalid Duration: " +
+				text
+			);
 		}
 		
 	}
