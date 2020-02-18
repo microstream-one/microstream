@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import one.microstream.meta.XDebug;
 import one.microstream.reference.Lazy.Check;
 import one.microstream.reference.Lazy.Checker;
+import one.microstream.time.XTime;
 
 public interface LazyReferenceManager
 {
@@ -290,19 +291,8 @@ public interface LazyReferenceManager
 
 
 		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
-		
-		private long calculateNanoTimeBudgetBound(final long nanoTimeBudget)
-		{
-			final long timeBudgetBound = System.nanoTime() + nanoTimeBudget;
-
-			// giving a very high or MAX_VALUE (unlimited) time budget will cause negative values
-			return timeBudgetBound >= 0
-				? timeBudgetBound
-				: Long.MAX_VALUE
-			;
-		}
+		// methods //
+		////////////
 		
 		public void DEBUG_printLoadCount(final String label)
 		{
@@ -336,7 +326,7 @@ public interface LazyReferenceManager
 			 * So the age old note might still be relevant.
 			 */
 			
-			final long timeBudgetBound = this.calculateNanoTimeBudgetBound(nanoTimeBudget);
+			final long timeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 
 			final Entry currentTail;
 

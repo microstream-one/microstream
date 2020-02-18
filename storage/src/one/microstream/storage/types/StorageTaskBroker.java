@@ -122,8 +122,8 @@ public interface StorageTaskBroker
 		////////////
 
 		private StorageRequestTaskGarbageCollection enqueueTaskPrependingFullGc(
-			final StorageTask task               ,
-			final long        nanoTimeBudgetBound
+			final StorageTask task          ,
+			final long        nanoTimeBudget
 		)
 			throws InterruptedException
 		{
@@ -132,7 +132,7 @@ public interface StorageTaskBroker
 				gcTask = new StorageRequestTaskGarbageCollection.Default(
 					task.timestamp() - 1,
 					this.channelCount   ,
-					nanoTimeBudgetBound ,
+					nanoTimeBudget      ,
 					task
 				),
 				task
@@ -214,7 +214,7 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageRequestTaskGarbageCollection issueGarbageCollection(
-			final long nanoTimeBudgetBound
+			final long nanoTimeBudget
 		)
 			throws InterruptedException
 		{
@@ -222,21 +222,21 @@ public interface StorageTaskBroker
 				new StorageChannelSynchronizingTask.AbstractCompletingTask.Dummy(this.channelCount)
 			;
 			final StorageRequestTaskGarbageCollection gcTask =
-				this.enqueueTaskPrependingFullGc(dummy, nanoTimeBudgetBound)
+				this.enqueueTaskPrependingFullGc(dummy, nanoTimeBudget)
 			;
 			return gcTask;
 		}
 
 		@Override
 		public final synchronized StorageRequestTaskCacheCheck issueCacheCheck(
-			final long                        nanoTimeBudgetBound ,
+			final long                        nanoTimeBudget ,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 			throws InterruptedException
 		{
 			final StorageRequestTaskCacheCheck task = this.taskCreator.createFullCacheCheckTask(
 				this.channelCount,
-				nanoTimeBudgetBound,
+				nanoTimeBudget,
 				entityEvaluator
 			);
 			this.enqueueTaskAndNotifyAll(task);
@@ -245,13 +245,13 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageRequestTaskFileCheck issueFileCheck(
-			final long nanoTimeBudgetBound
+			final long nanoTimeBudget
 		)
 			throws InterruptedException
 		{
 			final StorageRequestTaskFileCheck task = this.taskCreator.createFullFileCheckTask(
 				this.channelCount,
-				nanoTimeBudgetBound
+				nanoTimeBudget
 			);
 			this.enqueueTaskAndNotifyAll(task);
 			return task;
