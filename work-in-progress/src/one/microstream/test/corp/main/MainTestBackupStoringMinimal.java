@@ -3,6 +3,7 @@ package one.microstream.test.corp.main;
 import one.microstream.X;
 import one.microstream.concurrency.XThreads;
 import one.microstream.io.XIO;
+import one.microstream.meta.XDebug;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.Storage;
@@ -15,6 +16,7 @@ public class MainTestBackupStoringMinimal
 	static
 	{
 		Test.clearDefaultStorageDirectory();
+		XDebug.deleteAllFiles(XIO.Path("storageBackup"));
 	}
 		
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
@@ -26,14 +28,7 @@ public class MainTestBackupStoringMinimal
 			)
 			.setBackupSetup(
 				// the only necessary part to activate and configure backupping.
-				StorageBackupSetup.New(
-					XIO.Path("backup")
-//					Storage
-//					.FileProviderBuilder()
-//					.setBaseDirectory("storageBackup")
-//					.setFileHandlerCreator(PersistenceTypeDictionaryFileHandlerArchiving::New)
-//					.createFileProvider()
-				)
+				StorageBackupSetup.New(XIO.Path("storageBackup"))
 			)
 		)
 		.start()
@@ -46,20 +41,22 @@ public class MainTestBackupStoringMinimal
 
 	public static void main(final String[] args)
 	{
-//		printTransactionsFiles();
 		final Object[] array = createArray(100);
 		STORAGE.setRoot(array);
-		Test.print("STORAGE: storing ...");
+		Test.print("STORAGE: storing root ...");
 		STORAGE.storeRoot();
 		
-		for(int i = 0; i < 10; i++)
+		for(int i = 1; i <= 10; i++)
 		{
-			XThreads.sleep(500);
+			XThreads.sleep(300);
+			Test.print("STORAGE: storing array run #" + i + " / " + 10);
 			STORAGE.store(array);
 		}
+
+		XThreads.sleep(500);
 		STORAGE.issueFullFileCheck();
-		XThreads.sleep(1000);
-		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
+		XThreads.sleep(500);
+		System.exit(0);
 	}
 	
 }
