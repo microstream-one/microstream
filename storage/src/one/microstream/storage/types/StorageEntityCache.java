@@ -26,7 +26,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 	public StorageEntityType<I> lookupType(long typeId);
 
-	public boolean incrementalLiveCheck(long timeBudgetBound);
+	public boolean incrementalLiveCheck(long nanoTimeBudgetBound);
 
 	public boolean incrementalGarbageCollection(long nanoTimeBudgetBound, StorageChannel channel);
 
@@ -856,9 +856,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * Returns {@code true} if there are no more oids to mark and {@code false} if time ran out.
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 *
-		 * @param timeBudgetBound
+		 * @param nanoTimeBudgetBound
 		 */
-		private boolean incrementalMark(final long timeBudgetBound)
+		private boolean incrementalMark(final long nanoTimeBudgetBound)
 		{
 			final long                     evalTime        = System.currentTimeMillis();
 			final StorageReferenceMarker   referenceMarker = this.referenceMarker      ;
@@ -925,7 +925,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				// the entry has been fully processed (either has no references or got all its references gray-enqueued), so mark black.
 				entry.markBlack();
 			}
-			while(System.nanoTime() < timeBudgetBound);
+			while(System.nanoTime() < nanoTimeBudgetBound);
 
 			// important: if time ran out, the last batch of processed oids has to be accounted for in the gray queue
 			if(oidsMarkIndex > 0)
@@ -1066,7 +1066,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			
 			final long currentUsedCacheSize = this.usedCacheSize;
 			
-			this.internalLiveCheck(Long.MAX_VALUE, (s, t, e) -> true);
+			this.internalCacheCheck(Long.MAX_VALUE, (s, t, e) -> true);
 			
 			return currentUsedCacheSize;
 		}
@@ -1147,9 +1147,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		@Override
-		public final boolean incrementalLiveCheck(final long timeBudgetBound)
+		public final boolean incrementalLiveCheck(final long nanoTimeBudgetBound)
 		{
-			return this.internalLiveCheck(timeBudgetBound, this.entityCacheEvaluator);
+			return this.internalCacheCheck(nanoTimeBudgetBound, this.entityCacheEvaluator);
 		}
 				
 		private static StorageEntity.Default getFirstReachableEntity(
@@ -1170,18 +1170,18 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return null;
 		}
 
-		private boolean internalLiveCheck(final long nanoTimeBudget, final StorageEntityCacheEvaluator evaluator)
+		private boolean internalCacheCheck(
+			final long                        nanoTimeBudgetBound,
+			final StorageEntityCacheEvaluator evaluator
+		)
 		{
 			// quick check before setting up the local stuff.
 			if(this.usedCacheSize == 0)
 			{
 				return true;
 			}
-			
-			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 
-			final long evalTime = System.currentTimeMillis();
-
+			final long evaluationTime = System.currentTimeMillis();
 			final StorageEntity.Default   cursor;
 			      StorageEntity.Default   tail  ;
 			      StorageEntity.Default   entity;
@@ -1224,7 +1224,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				}
 
 				// check for clearing the current entity's cache
-				if(this.entityRequiresCacheClearing(entity, evaluator, evalTime))
+				if(this.entityRequiresCacheClearing(entity, evaluator, evaluationTime))
 				{
 					// entity has cached data but was deemed as having to be cleared, so clear it
 					// use ensure method for that for the purpose of uniformity / simplicity
@@ -1300,10 +1300,15 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// CHECKSTYLE.ON: FinalParameters
 
 		@Override
-		public boolean issuedCacheCheck(final long nanoTimeBudget, final StorageEntityCacheEvaluator entityEvaluator)
+		public boolean issuedCacheCheck(
+			final long                        nanoTimeBudget ,
+			final StorageEntityCacheEvaluator entityEvaluator
+		)
 		{
-			return this.internalLiveCheck(
-				nanoTimeBudget,
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
+			
+			return this.internalCacheCheck(
+				nanoTimeBudgetBound,
 				X.coalesce(entityEvaluator, this.entityCacheEvaluator)
 			);
 		}
@@ -1313,7 +1318,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 */
 		@Override
-		public final boolean issuedGarbageCollection(final long nanoTimeBudget, final StorageChannel channel)
+		public final boolean issuedGarbageCollection(
+			final long           nanoTimeBudget,
+			final StorageChannel channel
+		)
 		{
 			if(!DEBUG_GC_ENABLED)
 			{
@@ -1432,7 +1440,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		private final boolean internalIncrementalGarbageCollection(
-			final long           timeBudgetBound,
+			final long           nanoTimeBudgetBound,
 			final StorageChannel channel
 		)
 		{
@@ -1454,14 +1462,14 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				}
 
 				// check if there is still time to proceed with the next (second) marking right away
-				if(System.nanoTime() >= timeBudgetBound)
+				if(System.nanoTime() >= nanoTimeBudgetBound)
 				{
 					return false;
 				}
 			}
 
 			// otherwise, mark incrementally until work or time runs out
-			if(this.incrementalMark(timeBudgetBound))
+			if(this.incrementalMark(nanoTimeBudgetBound))
 			{
 				/* note:
 				 * if the markingOidBuffer length is too low, this return is done countless times per millisecond.

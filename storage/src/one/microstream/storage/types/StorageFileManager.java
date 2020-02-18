@@ -67,7 +67,7 @@ public interface StorageFileManager
 
 	public boolean incrementalFileCleanupCheck(long nanoTimeBudgetBound);
 
-	public boolean issuedFileCleanupCheck(long nanoTimeBudgetBound);
+	public boolean issuedFileCleanupCheck(long nanoTimeBudget);
 
 	public void exportData(StorageIoHandler fileHandler);
 
@@ -1244,6 +1244,8 @@ public interface StorageFileManager
 //			DEBUGStorage.println(this.channelIndex + " processing issued file cleanup check, time budget = "
 //				+ nanoTimeBudget
 //			);
+			
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 
 			/*
 			 * An explicitly issues file cleanup check has to reset the cursor (start from beginning) and no matter
@@ -1263,7 +1265,7 @@ public interface StorageFileManager
 			this.resetFileCleanupCursor();
 			try
 			{
-				return this.internalCheckForCleanup(nanoTimeBudget, this.dataFileEvaluator);
+				return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 			}
 			finally
 			{
@@ -1289,7 +1291,7 @@ public interface StorageFileManager
 		}
 
 		private boolean internalCheckForCleanup(
-			final long                               nanoTimeBudget,
+			final long                               nanoTimeBudgetBound,
 			final StorageDataFileDissolvingEvaluator fileDissolver
 		)
 		{
@@ -1307,9 +1309,7 @@ public interface StorageFileManager
 //			DEBUGStorage.println(this.channelIndex + " cleanupcheck with budget of " + (nanoTimeBudget));
 
 //			DEBUGStorage.println(this.channelIndex + " checks for file cleanup with budget " + (nanoTimeBudget));
-			
-			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
-			
+						
 			StorageDataFile.Default cycleAnchorFile = this.fileCleanupCursor;
 
 			// intentionally no minimum first loop execution as cleanup is not important if the system has heavy load
@@ -1443,7 +1443,7 @@ public interface StorageFileManager
 
 		private boolean incrementalTransferEntities(
 			final StorageDataFile.Default file               ,
-			final long                           nanoTimeBudgetBound
+			final long                    nanoTimeBudgetBound
 		)
 		{
 			// check for new head file in any case
