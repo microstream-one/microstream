@@ -16,13 +16,20 @@ import one.microstream.storage.restadapter.ViewerObjectDescription;
 import one.microstream.storage.restadapter.ViewerRootDescription;
 import one.microstream.storage.restadapter.ViewerStorageFileStatistics;
 
+// TODO externalize routes
 public class StorageRestClientJersey implements StorageRestClient
 {
+	public static StorageRestClientJersey New(final String baseUrl)
+	{
+		return new StorageRestClientJersey(baseUrl);
+	}
+	
+	
 	private final String baseUrl;
 	private Client       client;
 	private WebTarget    storageRestService;
 	
-	public StorageRestClientJersey(final String baseUrl)
+	StorageRestClientJersey(final String baseUrl)
 	{
 		this.baseUrl = baseUrl;
 	}

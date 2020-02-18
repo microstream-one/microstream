@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 
@@ -76,9 +77,13 @@ public class GsonReader<T> implements MessageBodyReader<T>
 	)
 		throws IOException, WebApplicationException
 	{
-		try(final InputStreamReader reader = new InputStreamReader(entityStream, "UTF-8"))
+		try(final InputStreamReader reader = new InputStreamReader(
+			entityStream,
+			StandardCharsets.UTF_8)
+		)
 		{
 			return this.gson().fromJson(reader, type);
 		}
 	}
+	
 }

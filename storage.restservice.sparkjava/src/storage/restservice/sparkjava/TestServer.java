@@ -23,8 +23,6 @@ public class TestServer
 		final EmbeddedStorageManager storage = EmbeddedStorage.start(new Root(), new File("c:/data/rest-data").toPath());
 		storage.storeRoot();
 		
-		final Object root = storage.root();
-		
 		final StorageRestService service    = RestServiceResolver.getFirst(
 			storage
 		);

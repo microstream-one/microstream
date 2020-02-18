@@ -8,13 +8,28 @@
 		<version>02.02.01-MS-GA-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>storage.restclient</artifactId>
+	<artifactId>storage.restclient.jersey</artifactId>
 
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
-			<artifactId>storage.restservice</artifactId>
+			<artifactId>storage.restclient</artifactId>
 			<version>02.02.01-MS-GA-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>2.30</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.inject</groupId>
+			<artifactId>jersey-hk2</artifactId>
+			<version>2.30</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.8.6</version>
 		</dependency>
 	</dependencies>
 
