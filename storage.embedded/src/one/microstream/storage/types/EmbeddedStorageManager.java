@@ -427,9 +427,9 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 
 		@Override
-		public final boolean issueFileCheck(final long nanoTimeBudgetBound)
+		public final boolean issueFileCheck(final long nanoTimeBudget)
 		{
-			return this.singletonConnection().issueFileCheck(nanoTimeBudgetBound);
+			return this.singletonConnection().issueFileCheck(nanoTimeBudget);
 		}
 
 		@Override
@@ -445,18 +445,18 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 
 		@Override
-		public final boolean issueCacheCheck(final long nanoTimeBudgetBound)
+		public final boolean issueCacheCheck(final long nanoTimeBudget)
 		{
-			return this.singletonConnection().issueCacheCheck(nanoTimeBudgetBound);
+			return this.singletonConnection().issueCacheCheck(nanoTimeBudget);
 		}
 
 		@Override
 		public final boolean issueCacheCheck(
-			final long                        nanoTimeBudgetBound,
+			final long                        nanoTimeBudget,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 		{
-			return this.singletonConnection().issueCacheCheck(nanoTimeBudgetBound, entityEvaluator);
+			return this.singletonConnection().issueCacheCheck(nanoTimeBudget, entityEvaluator);
 		}
 
 		@Override

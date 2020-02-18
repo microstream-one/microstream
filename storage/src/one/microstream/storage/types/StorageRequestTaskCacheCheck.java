@@ -15,9 +15,9 @@ public interface StorageRequestTaskCacheCheck extends StorageRequestTask
 		// instance fields //
 		////////////////////
 
-		final StorageEntityCacheEvaluator entityEvaluator    ;
-		final long                        nanoTimeBudgetBound;
-		      boolean                     completed          ;
+		final StorageEntityCacheEvaluator entityEvaluator;
+		final long                        nanoTimeBudget ;
+		      boolean                     completed      ;
 
 
 
@@ -26,15 +26,15 @@ public interface StorageRequestTaskCacheCheck extends StorageRequestTask
 		/////////////////
 
 		Default(
-			final long                        timestamp          ,
-			final int                         channelCount       ,
-			final long                        nanoTimeBudgetBound,
+			final long                        timestamp      ,
+			final int                         channelCount   ,
+			final long                        nanoTimeBudget ,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 		{
 			super(timestamp, channelCount);
-			this.entityEvaluator     = entityEvaluator; // may be null
-			this.nanoTimeBudgetBound = nanoTimeBudgetBound;
+			this.entityEvaluator = entityEvaluator; // may be null
+			this.nanoTimeBudget  = nanoTimeBudget;
 		}
 
 
@@ -46,7 +46,7 @@ public interface StorageRequestTaskCacheCheck extends StorageRequestTask
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)
 		{
-			this.completed = channel.issuedCacheCheck(this.nanoTimeBudgetBound, this.entityEvaluator);
+			this.completed = channel.issuedCacheCheck(this.nanoTimeBudget, this.entityEvaluator);
 			return null;
 		}
 
