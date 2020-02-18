@@ -106,7 +106,6 @@ public interface StorageConnection extends Persister
 	 * 
 	 * In any case, this method hardly makes sense.
 	 */
-
 //	public default void issueFullFileCheck(final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
 //	{
 //		 this.issueFileCheck(Long.MAX_VALUE, fileDissolvingEvaluator);
