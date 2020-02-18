@@ -17,6 +17,7 @@ import one.microstream.persistence.binary.types.ChunksBuffer;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageException;
+import one.microstream.time.XTime;
 
 
 public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
@@ -27,7 +28,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 	public boolean incrementalLiveCheck(long timeBudgetBound);
 
-	public boolean incrementalGarbageCollection(long timeBudgetBound, StorageChannel channel);
+	public boolean incrementalGarbageCollection(long nanoTimeBudgetBound, StorageChannel channel);
 
 	public boolean issuedGarbageCollection(long nanoTimeBudget, StorageChannel channel);
 
@@ -1169,13 +1170,15 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			return null;
 		}
 
-		private boolean internalLiveCheck(final long timeBudgetBound, final StorageEntityCacheEvaluator evaluator)
+		private boolean internalLiveCheck(final long nanoTimeBudget, final StorageEntityCacheEvaluator evaluator)
 		{
 			// quick check before setting up the local stuff.
 			if(this.usedCacheSize == 0)
 			{
 				return true;
 			}
+			
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 
 			final long evalTime = System.currentTimeMillis();
 
@@ -1236,7 +1239,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				
 				entity = entity.fileNext;
 			}
-			while(entity != cursor && System.nanoTime() < timeBudgetBound);
+			while(entity != cursor && System.nanoTime() < nanoTimeBudgetBound);
 			// abort conditions for one housekeeping cycle: cursor is encountered again (full loop) or time is up.
 
 			return this.quitLiveCheck(entity);
@@ -1310,12 +1313,14 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 */
 		@Override
-		public final boolean issuedGarbageCollection(final long nanoTimeBudgetBound, final StorageChannel channel)
+		public final boolean issuedGarbageCollection(final long nanoTimeBudget, final StorageChannel channel)
 		{
 			if(!DEBUG_GC_ENABLED)
 			{
 				return true;
 			}
+
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 
 			// check time budget first for explicitly issued calls.
 			performGC:
@@ -1393,7 +1398,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 */
 		@Override
 		public final boolean incrementalGarbageCollection(
-			final long           timeBudgetBound,
+			final long           nanoTimeBudgetBound,
 			final StorageChannel channel
 		)
 		{
@@ -1404,7 +1409,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			try
 			{
-				return this.internalIncrementalGarbageCollection(timeBudgetBound, channel);
+				return this.internalIncrementalGarbageCollection(nanoTimeBudgetBound, channel);
 			}
 			catch(final Exception e)
 			{

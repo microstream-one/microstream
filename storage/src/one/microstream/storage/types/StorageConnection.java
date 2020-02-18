@@ -88,7 +88,14 @@ public interface StorageConnection extends Persister
 		this.issueFileCheck(Long.MAX_VALUE);
 	}
 
-	public boolean issueFileCheck(long nanoTimeBudgetBound);
+	/**
+	 * Issues a storage file check to be executed, limited to the time budget in nanoseconds specified
+	 * by the passed {@code nanoTimeBudget}.<br>
+	 * 
+	 * @param nanoTimeBudget
+	 * @return
+	 */
+	public boolean issueFileCheck(long nanoTimeBudget);
 	
 	/* (06.02.2020 TM)NOTE: As shown by HG, allowing one-time custom evaluators can cause conflicts.
 	 * E.g. infinite loops:
@@ -111,7 +118,7 @@ public interface StorageConnection extends Persister
 //		 this.issueFileCheck(Long.MAX_VALUE, fileDissolvingEvaluator);
 //	}
 
-//	public boolean issueFileCheck(long nanoTimeBudgetBound, StorageDataFileDissolvingEvaluator fileDissolvingEvaluator);
+//	public boolean issueFileCheck(long nanoTimeBudget, StorageDataFileDissolvingEvaluator fileDissolvingEvaluator);
 
 	public default void issueFullCacheCheck()
 	{
@@ -123,12 +130,12 @@ public interface StorageConnection extends Persister
 		this.issueCacheCheck(Long.MAX_VALUE, entityEvaluator);
 	}
 
-	public default boolean issueCacheCheck(final long nanoTimeBudgetBound)
+	public default boolean issueCacheCheck(final long nanoTimeBudget)
 	{
-		return this.issueCacheCheck(nanoTimeBudgetBound, null);
+		return this.issueCacheCheck(nanoTimeBudget, null);
 	}
 
-	public boolean issueCacheCheck(long nanoTimeBudgetBound, StorageEntityCacheEvaluator entityEvaluator);
+	public boolean issueCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
 
 	public StorageRawFileStatistics createStorageStatistics();
 
@@ -376,12 +383,12 @@ public interface StorageConnection extends Persister
 		}
 
 		@Override
-		public final boolean issueGarbageCollection(final long nanoTimeBudgetBound)
+		public final boolean issueGarbageCollection(final long nanoTimeBudget)
 		{
 			try
 			{
 				// a time budget <= 0 will effectively be a cheap query for the completion state.
-				return this.connectionRequestAcceptor.issueGarbageCollection(nanoTimeBudgetBound);
+				return this.connectionRequestAcceptor.issueGarbageCollection(nanoTimeBudget);
 			}
 			catch(final InterruptedException e)
 			{
@@ -391,12 +398,12 @@ public interface StorageConnection extends Persister
 		}
 
 		@Override
-		public final boolean issueFileCheck(final long nanoTimeBudgetBound)
+		public final boolean issueFileCheck(final long nanoTimeBudget)
 		{
 			try
 			{
 				// a time budget <= 0 will effectively be a cheap query for the completion state.
-				return this.connectionRequestAcceptor.issueFileCheck(nanoTimeBudgetBound);
+				return this.connectionRequestAcceptor.issueFileCheck(nanoTimeBudget);
 			}
 			catch(final InterruptedException e)
 			{
@@ -407,14 +414,14 @@ public interface StorageConnection extends Persister
 
 		@Override
 		public final boolean issueCacheCheck(
-			final long                        nanoTimeBudgetBound,
+			final long                        nanoTimeBudget,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 		{
 			try
 			{
 				// a time budget <= 0 will effectively be a cheap query for the completion state.
-				return this.connectionRequestAcceptor.issueCacheCheck(nanoTimeBudgetBound, entityEvaluator);
+				return this.connectionRequestAcceptor.issueCacheCheck(nanoTimeBudget, entityEvaluator);
 			}
 			catch(final InterruptedException e)
 			{

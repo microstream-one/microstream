@@ -50,11 +50,11 @@ public interface StorageRequestAcceptor
 
 	public Binary recallRoots() throws StorageExceptionRequest, InterruptedException;
 
-	public boolean issueGarbageCollection(long nanoTimeBudgetBound) throws InterruptedException;
+	public boolean issueGarbageCollection(long nanoTimeBudget) throws InterruptedException;
 
-	public boolean issueFileCheck(long nanoTimeBudgetBound) throws InterruptedException;
+	public boolean issueFileCheck(long nanoTimeBudget) throws InterruptedException;
 
-	public boolean issueCacheCheck(long nanoTimeBudgetBound, StorageEntityCacheEvaluator entityEvaluator)
+	public boolean issueCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator)
 		throws InterruptedException;
 
 	// exporting //
@@ -182,26 +182,26 @@ public interface StorageRequestAcceptor
 		}
 
 		@Override
-		public boolean issueGarbageCollection(final long nanoTimeBudgetBound) throws InterruptedException
+		public boolean issueGarbageCollection(final long nanoTimeBudget) throws InterruptedException
 		{
-			return waitOnTask(this.taskBroker.issueGarbageCollection(nanoTimeBudgetBound)).result();
+			return waitOnTask(this.taskBroker.issueGarbageCollection(nanoTimeBudget)).result();
 		}
 
 		@Override
 		public boolean issueCacheCheck(
-			final long                        nanoTimeBudgetBound,
+			final long                        nanoTimeBudget,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 			throws InterruptedException
 		{
-			return waitOnTask(this.taskBroker.issueCacheCheck(nanoTimeBudgetBound, entityEvaluator)).result();
+			return waitOnTask(this.taskBroker.issueCacheCheck(nanoTimeBudget, entityEvaluator)).result();
 		}
 
 		@Override
-		public boolean issueFileCheck(final long nanoTimeBudgetBound)
+		public boolean issueFileCheck(final long nanoTimeBudget)
 			throws InterruptedException
 		{
-			return waitOnTask(this.taskBroker.issueFileCheck(nanoTimeBudgetBound)).result();
+			return waitOnTask(this.taskBroker.issueFileCheck(nanoTimeBudget)).result();
 		}
 
 		@Override
