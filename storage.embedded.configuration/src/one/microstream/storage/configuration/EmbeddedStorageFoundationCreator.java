@@ -40,19 +40,17 @@ public interface EmbeddedStorageFoundationCreator
 		@Override
 		public EmbeddedStorageFoundation<?> createFoundation(final Configuration configuration)
 		{
-			final Path                          baseDirectory          = XIO.unchecked.ensureDirectory(XIO.Path(configuration.getBaseDirectory()));
-			final StorageFileProvider           fileProvider           = this.createFileProvider(configuration, baseDirectory);
-			final StorageChannelCountProvider   channelCountProvider   = this.createChannelCountProvider(configuration);
-			final StorageHousekeepingController housekeepingController = this.createHousekeepingController(configuration);
-			final StorageDataFileEvaluator      dataFileEvaluator      = this.createDataFileEvaluator(configuration);
-			final StorageEntityCacheEvaluator   entityCacheEvaluator   = this.createEntityCacheEvaluator(configuration);
-			
+			final Path baseDirectory = XIO.unchecked.ensureDirectory(
+				XIO.Path(configuration.getBaseDirectory())
+			);
+
 			final StorageConfiguration.Builder<?> configBuilder = Storage.ConfigurationBuilder()
-				.setStorageFileProvider   (fileProvider          )
-				.setChannelCountProvider  (channelCountProvider  )
-				.setHousekeepingController(housekeepingController)
-				.setDataFileEvaluator     (dataFileEvaluator     )
-				.setEntityCacheEvaluator  (entityCacheEvaluator  );
+				.setStorageFileProvider   (this.createFileProvider(configuration, baseDirectory))
+				.setChannelCountProvider  (this.createChannelCountProvider(configuration)       )
+				.setHousekeepingController(this.createHousekeepingController(configuration)     )
+				.setDataFileEvaluator     (this.createDataFileEvaluator(configuration)          )
+				.setEntityCacheEvaluator  (this.createEntityCacheEvaluator(configuration)       )
+			;
 			
 			String backupDirectory;
 			if(!isEmpty(backupDirectory = configuration.getBackupDirectory()))
@@ -60,15 +58,14 @@ public interface EmbeddedStorageFoundationCreator
 				configBuilder.setBackupSetup(Storage.BackupSetup(backupDirectory));
 			}
 			
-			final EmbeddedStorageFoundation<?> storageFoundation = EmbeddedStorage.Foundation(configBuilder.createConfiguration());
-
-			storageFoundation.getConnectionFoundation().setTypeDictionaryIoHandler(
-				PersistenceTypeDictionaryFileHandler.New(
-					XIO.Path(baseDirectory, configuration.getTypeDictionaryFilename())
+			return EmbeddedStorage.Foundation(
+				configBuilder.createConfiguration()
+			)
+			.onConnectionFoundation(cf ->
+				cf.setTypeDictionaryIoHandler(
+					this.createTypeDictionaryHandler(configuration, baseDirectory)
 				)
 			);
-			
-			return storageFoundation;
 		}
 		
 		protected StorageFileProvider createFileProvider(
@@ -122,9 +119,9 @@ public interface EmbeddedStorageFoundationCreator
 			);
 		}
 
-		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryFileHandler(
+		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryHandler(
 			final Configuration configuration,
-			final Path          baseDirectory
+			final Path baseDirectory
 		)
 		{
 			return PersistenceTypeDictionaryFileHandler.New(
