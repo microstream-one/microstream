@@ -63,14 +63,14 @@ public interface StorageTaskBroker
 	public StorageChannelTaskShutdown issueChannelShutdown(StorageOperationController operationController)
 		throws InterruptedException;
 
-	public StorageRequestTaskGarbageCollection issueGarbageCollection(long nanoTimeBudgetBound)
+	public StorageRequestTaskGarbageCollection issueGarbageCollection(long nanoTimeBudget)
 		throws InterruptedException;
 
-	public StorageRequestTaskFileCheck issueFileCheck(long nanoTimeBudgetBound	)
+	public StorageRequestTaskFileCheck issueFileCheck(long nanoTimeBudget)
 		throws InterruptedException;
 
 	public StorageRequestTaskCacheCheck issueCacheCheck(
-		long                        nanoTimeBudgetBound,
+		long                        nanoTimeBudget ,
 		StorageEntityCacheEvaluator entityEvaluator
 	)
 		throws InterruptedException;
