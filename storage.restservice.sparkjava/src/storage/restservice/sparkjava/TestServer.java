@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import one.microstream.X;
+import one.microstream.collections.types.XList;
 import one.microstream.storage.restservice.RestServiceResolver;
 import one.microstream.storage.restservice.StorageRestService;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -20,8 +22,12 @@ public class TestServer
 		final String[] args
 	)
 	{
-		final EmbeddedStorageManager storage = EmbeddedStorage.start(new Root(), new File("c:/data/rest-data").toPath());
-		storage.storeRoot();
+		final EmbeddedStorageManager storage = EmbeddedStorage.start(new File("c:/data/rest-data").toPath());
+		if(storage.root() == null)
+		{
+			storage.setRoot(new Root());
+			storage.storeRoot();
+		}
 		
 		final StorageRestService service    = RestServiceResolver.getFirst(
 			storage
@@ -32,7 +38,9 @@ public class TestServer
 	
 	static class Root
 	{
+		XList<String> stringXList = X.List("a","b",null,"d");
 		int[] ints = new int[] {1,2,3,4,5};
+		int[][] ints2 = new int[][] {{1,2,3,4,5},{10,20,30,40,50}};
 		String[] strings = new String[] {"a","b","c"};
 		int aint = 1;
 		LocalDateTime now = LocalDateTime.now();
@@ -51,10 +59,18 @@ public class TestServer
 		List<Double> hugeList = new ArrayList<>();
 		{
 			final Random random = new Random();
-			for(int i=0; i<12345; i++)
+			for(int i=0; i<1234567; i++)
 			{
 				this.hugeList.add(random.nextDouble());
 			}
 		}
+		String nullString = null;
+		Color color = Color.RED;
+		Color[] colors = Color.values();
+	}
+	
+	static enum Color
+	{
+		RED, GREEN, BLUE
 	}
 }

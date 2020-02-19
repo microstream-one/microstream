@@ -1,15 +1,13 @@
 
 package one.microstream.storage.restclient;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 
 
 public interface StorageViewElement
 {
-	public StorageViewElement parent();
+	public StorageView view();
 	
 	public String name();
 	
@@ -20,53 +18,38 @@ public interface StorageViewElement
 	public List<StorageViewElement> members(boolean forceRefresh);
 	
 	
-	public static class Default implements StorageViewElement
+	public static abstract class Abstract implements StorageViewElement
 	{
-		private final StorageViewElement parent;
-		private final String                                                 name;
-		private final String                                                 value;
-		private final Function<StorageViewElement, List<StorageViewElement>> membersSupplier;
-		private List<StorageViewElement>                                     members;
+		private final StorageView        view;
+		private final String             name;
+		private final String             value;
 		
-		Default(
-			final StorageViewElement parent,
+		Abstract(
+			final StorageView view,
 			final String name,
 			final String value
 		)
 		{
-			this(parent, name, value, null);
+			this(view, name, value, null);
 		}
 		
-		Default(
-			final StorageViewElement parent,
+		Abstract(
+			final StorageView view,
 			final String name,
 			final String value,
-			final Function<StorageViewElement, List<StorageViewElement>> membersSupplier
-		)
-		{
-			super();
-			this.parent = parent;
-			this.name  = name;
-			this.value = value;
-			this.membersSupplier = membersSupplier;
-		}
-		
-		Default(
-			final StorageViewElement parent,
-			final String name,
-			final String value,
-			final Function<StorageViewElement, List<StorageViewElement>> membersSupplier,
 			final List<StorageViewElement> members
 		)
 		{
-			this(parent, name, value, membersSupplier);
-			this.members = members;
+			super();
+			this.view = view;
+			this.name  = name;
+			this.value = value;
 		}
 		
 		@Override
-		public StorageViewElement parent()
+		public StorageView view()
 		{
-			return this.parent;
+			return this.view;
 		}
 		
 		@Override
@@ -82,23 +65,17 @@ public interface StorageViewElement
 		}
 		
 		@Override
-		public boolean hasMembers()
+		public String toString()
 		{
-			return this.membersSupplier != null;
-		}
-		
-		@Override
-		public List<StorageViewElement> members(final boolean forceRefresh)
-		{
-			if(this.membersSupplier == null)
+			if(this.name != null && this.name.length() > 0)
 			{
-				return Collections.emptyList();
+				return this.value != null && this.value.length() > 0
+					? this.name + " = " + this.value
+					: this.name
+				;
 			}
-			if(this.members == null || forceRefresh)
-			{
-				this.members = this.membersSupplier.apply(this);
-			}
-			return this.members;
+			
+			return super.toString();
 		}
 		
 	}
