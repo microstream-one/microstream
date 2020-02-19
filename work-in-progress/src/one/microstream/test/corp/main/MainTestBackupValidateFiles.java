@@ -45,7 +45,7 @@ public class MainTestBackupValidateFiles
 			throw new RuntimeException("No backup defined");
 		}
 		
-		final int channelCount = foundation.getConfiguration().channelCountProvider().get();
+		final int channelCount = foundation.getConfiguration().channelCountProvider().getChannelCount();
 		for(int i = 0; i < channelCount; i++)
 		{
 			validateChannelFiles(foundation.getConfiguration().fileProvider(), backupSetup, i);

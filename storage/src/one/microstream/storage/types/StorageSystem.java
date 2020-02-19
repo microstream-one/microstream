@@ -132,12 +132,16 @@ public interface StorageSystem extends StorageController
 			super();
 
 			final StorageChannelCountProvider ccp = storageConfiguration.channelCountProvider();
+			
+			// validate here, too, in case the StorageChannelCountProvider implementation has been customized.
+			final int channelCount = ccp.getChannelCount();
+			StorageChannelCountProvider.validateChannelCount(channelCount);
 
-			this.channelKeepers                 = new ChannelKeeper[ccp.get()]                 ;
+			this.channelKeepers                 = new ChannelKeeper[channelCount]              ;
 			this.configuration                  = notNull(storageConfiguration)                ;
 			this.operationController            = notNull(ocCreator.createOperationController(ccp, this));
 			this.initialDataFileNumberProvider  = notNull(initialDataFileNumberProvider)       ;
-			this.fileDissolver                  = storageConfiguration.dataFileEvaluator()         ;
+			this.fileDissolver                  = storageConfiguration.dataFileEvaluator()     ;
 			this.fileProvider                   = storageConfiguration.fileProvider()          ;
 			this.entityCacheEvaluator           = storageConfiguration.entityCacheEvaluator()  ;
 			this.housekeepingController         = storageConfiguration.housekeepingController();

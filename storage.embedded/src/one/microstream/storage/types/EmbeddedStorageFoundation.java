@@ -13,6 +13,7 @@ import one.microstream.persistence.types.PersistenceRootResolver;
 import one.microstream.persistence.types.PersistenceRootResolverProvider;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
+import one.microstream.persistence.types.PersistenceTypeEvaluator;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
@@ -86,6 +87,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * @return the {@link PersistenceRootResolverProvider} instance to be used.
 	 */
 	public PersistenceRootResolverProvider getRootResolverProvider();
+		
+	public PersistenceTypeEvaluator getTypeEvaluatorPersistable();
 	
 	/**
 	 * Executes the passed {@literal logic} on the {@link EmbeddedStorageConnectionFoundation} instance provided
@@ -303,6 +306,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * 
 	 */
 	public F setRootResolverProvider(PersistenceRootResolverProvider rootResolverProvider);
+		
+	public F setTypeEvaluatorPersistable(PersistenceTypeEvaluator typeEvaluatorPersistable);
 	
 	/**
 	 * Sets the passed {@link PersistenceRefactoringMappingProvider} instance to the
@@ -352,9 +357,10 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		// instance fields //
 		////////////////////
 
-		private EmbeddedStorageConnectionFoundation<?> connectionFoundation;
-		private Databases                              databases           ;
-		private String                                 dataBaseName        ;
+		private EmbeddedStorageConnectionFoundation<?> connectionFoundation    ;
+		private PersistenceTypeEvaluator               typeEvaluatorPersistable;
+		private Databases                              databases               ;
+		private String                                 dataBaseName            ;
 		
 		
 		
@@ -419,8 +425,10 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		
 		protected EmbeddedStorageConnectionFoundation<?> ensureConnectionFoundation()
 		{
-			throw new MissingFoundationPartException(EmbeddedStorageConnectionFoundation.class);
-//			return new EmbeddedStorageConnectionFoundation.Default();
+			final StorageConfiguration     configuration = this.getConfiguration();
+			final PersistenceTypeEvaluator typeEvaluator = this.getTypeEvaluatorPersistable();
+			
+			return EmbeddedStorage.ConnectionFoundation(configuration, typeEvaluator);
 		}
 		
 		protected Databases ensureDatabases()
@@ -457,7 +465,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		{
 			if(this.connectionFoundation == null)
 			{
-				this.connectionFoundation = this.dispatch(this.ensureConnectionFoundation());
+				// tricky callback-creation special case. See comment in #setConnectionFoundation
+				this.setConnectionFoundation(this.dispatch(this.ensureConnectionFoundation()));
 			}
 			
 			return this.connectionFoundation;
@@ -489,6 +498,17 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		public PersistenceRootResolverProvider getRootResolverProvider()
 		{
 			return this.getConnectionFoundation().getRootResolverProvider();
+		}
+		
+		@Override
+		public PersistenceTypeEvaluator getTypeEvaluatorPersistable()
+		{
+			if(this.typeEvaluatorPersistable == null)
+			{
+				this.typeEvaluatorPersistable = this.dispatch(this.ensureTypeEvaluatorPersistable());
+			}
+			
+			return this.typeEvaluatorPersistable;
 		}
 
 		/* (02.03.2014 TM)TODO: Storage Configuration more dynamic
@@ -619,10 +639,18 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			super.setTimestampProvider(timestampProvider);
 			return this.$();
 		}
+		
+		@Override
+		public F setTypeEvaluatorPersistable(final PersistenceTypeEvaluator typeEvaluatorPersistable)
+		{
+			this.typeEvaluatorPersistable = typeEvaluatorPersistable;
+			
+			return this.$();
+		}
 
 		private void initializeEmbeddedStorageRootTypeIdProvider(
 			final StorageRootTypeIdProvider rootTypeIdProvider,
-			final PersistenceTypeManager        typeIdLookup
+			final PersistenceTypeManager    typeIdLookup
 		)
 		{
 			// a little hacky instanceof here, maybe refactor to cleaner structure in the future
@@ -675,6 +703,11 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			final Database  database     = databases.ensureStoragelessDatabase(databaseName);
 			
 			return database;
+		}
+		
+		protected PersistenceTypeEvaluator ensureTypeEvaluatorPersistable()
+		{
+			return Persistence::isPersistable;
 		}
 								
 		@Override

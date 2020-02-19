@@ -243,14 +243,17 @@ public final class XMath
 
 	/**
 	 * Determines if the passed value is a power-of-2 value.
-	 * @param value
-	 * @return {@code true} for any n in [1;30] that fulfills {@code value = 2^n}
+	 * 
+	 * @param value the value to be tested.
+	 * 
+	 * @return {@code true} for any n in [0;30] that satisfies {@code value = 2^n}.
 	 */
 	public static final boolean isPow2(final int value)
 	{
-		// lookup-switch should be faster than binary search with 4-5 ifs (i hope)
+		// lookup-switch should be faster than binary search with 4-5 ifs (I hope).
 		switch(value)
 		{
+			case          1: return true;
 			case          2: return true;
 			case          4: return true;
 			case          8: return true;
@@ -281,7 +284,7 @@ public final class XMath
 			case  268435456: return true;
 			case  536870912: return true;
 			case 1073741824: return true;
-			default: return false;
+			default        : return false;
 		}
 	}
 

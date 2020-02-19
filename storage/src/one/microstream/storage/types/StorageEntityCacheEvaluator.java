@@ -1,7 +1,5 @@
 package one.microstream.storage.types;
 
-import static one.microstream.math.XMath.positive;
-
 import one.microstream.chars.VarString;
 import one.microstream.exceptions.NumberRangeException;
 
@@ -44,6 +42,46 @@ public interface StorageEntityCacheEvaluator
 		{
 			// 1 day default timeout
 			return 86_400_000;
+		}
+	}
+	
+	public interface Validation
+	{
+		public static long minimumTimeoutMs()
+		{
+			return 1;
+		}
+		public static long minimumThreshold()
+		{
+			return 1;
+		}
+
+		public static void validateParameters(
+			final long timeoutMs,
+			final long threshold
+		)
+			throws IllegalArgumentException
+		{
+			if(timeoutMs < minimumTimeoutMs())
+			{
+				// (17.02.2020 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified millisecond timeout of "
+					+ timeoutMs
+					+ " is lower than the minimum value "
+					+ minimumTimeoutMs()+ "."
+				);
+			}
+			if(threshold < minimumThreshold())
+			{
+				// (17.02.2020 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified threshold of "
+					+ threshold
+					+ " is lower than the minimum value "
+					+ minimumThreshold()+ "."
+				);
+			}
 		}
 	}
 	
@@ -90,7 +128,7 @@ public interface StorageEntityCacheEvaluator
 	public static StorageEntityCacheEvaluator New(final long timeoutMs)
 	{
 		return New(
-			positive(timeoutMs)             ,
+			timeoutMs                       ,
 			Defaults.defaultCacheThreshold()
 		);
 	}
@@ -134,10 +172,9 @@ public interface StorageEntityCacheEvaluator
 		final long threshold
 	)
 	{
-		return new StorageEntityCacheEvaluator.Default(
-			positive(timeoutMs),
-			positive(threshold)
-		);
+		Validation.validateParameters(timeoutMs, threshold);
+		
+		return new StorageEntityCacheEvaluator.Default(timeoutMs, threshold);
 	}
 
 	public final class Default implements StorageEntityCacheEvaluator

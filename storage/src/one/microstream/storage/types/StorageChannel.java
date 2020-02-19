@@ -41,11 +41,11 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 
 	public StorageInventory readStorage();
 
-	public boolean issuedGarbageCollection(long nanoTimeBudgetBound);
+	public boolean issuedGarbageCollection(long nanoTimeBudget);
 
-	public boolean issuedFileCheck(long nanoTimeBudgetBound);
+	public boolean issuedFileCheck(long nanoTimeBudget);
 
-	public boolean issuedCacheCheck(long nanoTimeBudgetBound, StorageEntityCacheEvaluator entityEvaluator);
+	public boolean issuedCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
 
 	public void exportData(StorageIoHandler fileHandler);
 
@@ -123,9 +123,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		private long housekeepingIntervalBudgetNs;
 		
 		private boolean active;
-
-
-
+		
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -475,24 +473,24 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		}
 
 		@Override
-		public final boolean issuedGarbageCollection(final long nanoTimeBudgetBound)
+		public final boolean issuedGarbageCollection(final long nanoTimeBudget)
 		{
-			return this.entityCache.issuedGarbageCollection(nanoTimeBudgetBound, this);
+			return this.entityCache.issuedGarbageCollection(nanoTimeBudget, this);
 		}
 
 		@Override
-		public boolean issuedFileCheck(final long nanoTimeBudgetBound)
+		public boolean issuedFileCheck(final long nanoTimeBudget)
 		{
-			return this.fileManager.issuedFileCleanupCheck(nanoTimeBudgetBound);
+			return this.fileManager.issuedFileCleanupCheck(nanoTimeBudget);
 		}
 
 		@Override
 		public boolean issuedCacheCheck(
-			final long                        nanoTimeBudgetBound,
+			final long                        nanoTimeBudget,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 		{
-			return this.entityCache.issuedCacheCheck(nanoTimeBudgetBound, entityEvaluator);
+			return this.entityCache.issuedCacheCheck(nanoTimeBudget, entityEvaluator);
 		}
 
 		@Override

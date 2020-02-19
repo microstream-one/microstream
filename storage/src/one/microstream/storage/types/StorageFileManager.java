@@ -22,6 +22,7 @@ import one.microstream.storage.exceptions.StorageExceptionIoReading;
 import one.microstream.storage.exceptions.StorageExceptionIoWritingChunk;
 import one.microstream.storage.types.StorageRawFileStatistics.FileStatistics;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis.EntryAggregator;
+import one.microstream.time.XTime;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BufferSizeProvider;
 
@@ -1238,10 +1239,10 @@ public interface StorageFileManager
 		}
 
 		@Override
-		public final boolean issuedFileCleanupCheck(final long nanoTimeBudgetBound)
+		public final boolean issuedFileCleanupCheck(final long nanoTimeBudget)
 		{
-//			DEBUGStorage.println(this.channelIndex + " processing issued file cleanup check, time bound = "
-//				+ nanoTimeBudgetBound
+//			DEBUGStorage.println(this.channelIndex + " processing issued file cleanup check, time budget = "
+//				+ nanoTimeBudget
 //			);
 
 			/*
@@ -1262,7 +1263,7 @@ public interface StorageFileManager
 			this.resetFileCleanupCursor();
 			try
 			{
-				return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
+				return this.internalCheckForCleanup(nanoTimeBudget, this.dataFileEvaluator);
 			}
 			finally
 			{
@@ -1288,7 +1289,7 @@ public interface StorageFileManager
 		}
 
 		private boolean internalCheckForCleanup(
-			final long                               nanoTimeBudgetBound,
+			final long                               nanoTimeBudget,
 			final StorageDataFileDissolvingEvaluator fileDissolver
 		)
 		{
@@ -1303,9 +1304,11 @@ public interface StorageFileManager
 				return true;
 			}
 
-//			DEBUGStorage.println(this.channelIndex + " cleanupcheck with budget of " + (nanoTimeBudgetBound - System.nanoTime()));
+//			DEBUGStorage.println(this.channelIndex + " cleanupcheck with budget of " + (nanoTimeBudget));
 
-//			DEBUGStorage.println(this.channelIndex + " checks for file cleanup with budget " + (nanoTimeBudgetBound - System.nanoTime()));
+//			DEBUGStorage.println(this.channelIndex + " checks for file cleanup with budget " + (nanoTimeBudget));
+			
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 			
 			StorageDataFile.Default cycleAnchorFile = this.fileCleanupCursor;
 

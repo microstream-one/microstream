@@ -114,7 +114,7 @@ public interface StorageBackupSetup
 			final StorageDataFileValidator   validator
 		)
 		{
-			final int channelCount = operationController.channelCountProvider().get();
+			final int channelCount = operationController.channelCountProvider().getChannelCount();
 			return StorageBackupHandler.New(
 				this               ,
 				channelCount       ,
