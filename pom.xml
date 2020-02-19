@@ -6,7 +6,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>02.02.01-MS-GA-SNAPSHOT</version>
+	<version>02.03.00-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -75,7 +75,7 @@
 	<distributionManagement>
 		<repository>
 			<id>microstream-repo</id>
-			<url>https://repo.microstream.one/repository/maven-release/</url>
+			<url>https://repo.microstream.one/repository/maven-releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>microstream-repo</id>

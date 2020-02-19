@@ -744,7 +744,7 @@ public final class XReflect
 	 * 
 	 * @throws ClassNotFoundException if none of the passed {@literal typeNames} could have been resolved.
 	 * 
-	 * @see Class#forName(String)
+	 * @see #tryIterativeResolveType(String)
 	 */
 	public static final Class<?> iterativeResolveType(final String... typeNames)
 		throws ClassNotFoundException
@@ -761,7 +761,7 @@ public final class XReflect
 	
 	/**
 	 * This methods attempts to resolve the passed {@literal typeNames} to {@link Class} instances using
-	 * {@link Class#forName(String)} one by one.
+	 * {@link #resolveType(String)} one by one.
 	 * The {@link Class} instance of the first successful attempt is returned.
 	 * If none of the passed {@literal typeNames} can be resolved, {@literal null} is returned.
 	 * See {@link #iterativeResolveType(String...)} for an exception-throwing version.
@@ -782,7 +782,7 @@ public final class XReflect
 	 * 
 	 * @return the first successfully resolved {@link Class} instance or {@literal null}
 	 * 
-	 * @see Class#forName(String)
+	 * @see #resolveType(String)
 	 */
 	public static final Class<?> tryIterativeResolveType(final String... typeNames)
 	{
@@ -794,7 +794,7 @@ public final class XReflect
 			try
 			{
 				// just a debug hook
-				final Class<?> type = Class.forName(typeName);
+				final Class<?> type = resolveType(typeName);
 				return type;
 			}
 			catch(final ClassNotFoundException e)
