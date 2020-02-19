@@ -15,7 +15,7 @@ public class StorageRestServiceDefault implements StorageRestService
 	private StorageRestAdapter storageRestAdapter;
 	private Service sparkService;
 	private String storageName ="microstream";
-	private DocumentationManager documentationManager;
+	private RouteManager routeManager;
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -49,21 +49,21 @@ public class StorageRestServiceDefault implements StorageRestService
 
 	public void setupRoutes()
 	{
-		this.documentationManager = new DocumentationManager(this.sparkService);
+		this.routeManager = new DocumentationManager(this.sparkService);
 
-		this.documentationManager.registeRoutesWithOptions(HttpMethod.get, "/",
-			new RouteAllRoutes(this.documentationManager));
+		this.routeManager.registerRoute(HttpMethod.get, "/",
+			new RouteAllRoutes((DocumentationManager) this.routeManager));
 
-		this.documentationManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/root",
+		this.routeManager.registerRoute(HttpMethod.get, "/" + this.storageName + "/root",
 			new RouteGetRoot(this.storageRestAdapter));
 
-		this.documentationManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/dictionary",
+		this.routeManager.registerRoute(HttpMethod.get, "/" + this.storageName + "/dictionary",
 			new RouteTypeDictionary(this.storageRestAdapter));
 
-		this.documentationManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/object/:oid",
+		this.routeManager.registerRoute(HttpMethod.get, "/" + this.storageName + "/object/:oid",
 			new RouteGetObject(this.storageRestAdapter));
 
-		this.documentationManager.registeRoutesWithOptions(HttpMethod.get, "/" + this.storageName + "/maintenance/filesStatistics",
+		this.routeManager.registerRoute(HttpMethod.get, "/" + this.storageName + "/maintenance/filesStatistics",
 			new RouteStorageFilesStatistics(this.storageRestAdapter));
 
 		this.sparkService.exception(InvalidRouteParametersException.class, (e, request, response) ->
