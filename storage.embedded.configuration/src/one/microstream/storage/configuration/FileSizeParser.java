@@ -10,24 +10,22 @@ import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
 public interface FileSizeParser
 {
 	public long parseFileSize(String text);
-	
-	
-	public static FileSizeParser SuffixBasedParser()
-	{
-		return new SuffixBasedParser();
-	}
+
 	
 	public static FileSizeParser Default()
 	{
-		return SuffixBasedParser();
+		return new FileSizeParser.Default();
 	}
 	
 	
-	public static class SuffixBasedParser implements FileSizeParser
+	public static class Default implements FileSizeParser
 	{
-		private final Pattern pattern = Pattern.compile("([\\d.,]+)\\s*(\\w+)",Pattern.CASE_INSENSITIVE);
+		private final Pattern pattern = Pattern.compile(
+			"([\\d.,]+)\\s*(\\w+)",
+			Pattern.CASE_INSENSITIVE
+		);
 		
-		protected SuffixBasedParser()
+		Default()
 		{
 			super();
 		}
@@ -38,27 +36,56 @@ public interface FileSizeParser
 			final Matcher matcher = this.pattern.matcher(text);
 			if(matcher.find())
 			{
-				final String amountGroup = matcher.group(1);
-				final String unitGroup   = matcher.group(2);
-				
-				double amount;
-				try
-				{
-					amount = Double.parseDouble(amountGroup);
-				}
-				catch(final NumberFormatException nfe)
-				{
-					throw new StorageExceptionInvalidConfiguration("Invalid file size: " + text, nfe);
-				}
-				
-				final ByteMultiple byteMultiple = ByteMultiple.ofName(unitGroup);
-				if(byteMultiple != null)
-				{
-					return byteMultiple.toBytes(amount);
-				}
+				return this.parseFileSizeWithUnit(
+					matcher.group(1),
+					matcher.group(2)
+				);
 			}
 			
-			throw new StorageExceptionInvalidConfiguration("Invalid file size: " + text);
+			// missing unit is interpreted as size in bytes
+			try
+			{
+				return Long.parseLong(text);
+			}
+			catch(final NumberFormatException nfe)
+			{
+				throw new StorageExceptionInvalidConfiguration(
+					"Invalid file size: " + text,
+					nfe
+				);
+			}
 		}
+
+		private long parseFileSizeWithUnit(
+			final String amountText,
+			final String unitText
+		)
+		{
+			double amount;
+			try
+			{
+				amount = Double.parseDouble(amountText);
+			}
+			catch(final NumberFormatException nfe)
+			{
+				throw new StorageExceptionInvalidConfiguration(
+					"Invalid file size: " + amountText + unitText,
+					nfe
+				);
+			}
+			
+			final ByteMultiple byteMultiple = ByteMultiple.ofName(unitText);
+			if(byteMultiple == null)
+			{
+				throw new StorageExceptionInvalidConfiguration(
+					"Invalid file size: " + amountText + unitText +
+					", unknown unit: " + unitText
+				);
+			}
+			
+			return byteMultiple.toBytes(amount);
+		}
+		
 	}
+	
 }

@@ -35,20 +35,67 @@ public interface StorageConnection extends Persister
 	/**
 	 * Issues a full garbage collection to be executed. Depending on the size of the database,
 	 * the available cache, used hardware, etc., this can take any amount of time.
+	 * <p>
+	 * Garbage collection marks all persisted objects/records that are reachable from the root (mark phase)
+	 * and once that is completed, all non-marked records are determined to be effectively unreachable
+	 * and are thus deleted. This common mechanism in graph-organised data completely removes the need
+	 * for any explicit deleting.
+	 * <p>
+	 * Note that the garbage collection on the storage level has nothing to do with the JVM's Garbage Collector
+	 * on the heap level. While the technical principle is the same, both GCs are separate from each other and
+	 * do not have anything to do with each other.
+	 * 
+	 * @see #issueGarbageCollection(long)
 	 */
 	public default void issueFullGarbageCollection()
 	{
 		this.issueGarbageCollection(Long.MAX_VALUE);
 	}
 
+	/**
+	 * Issues garbage collection to be executed, limited to the time budget in nanoseconds specified
+	 * by the passed {@code nanoTimeBudget}.<br>
+	 * Then the time budget is used up, the garbage collector will keep the current progress and continue there
+	 * at the next opportunity. The same progress marker is used by the implicit housekeeping, so both mechanisms
+	 * will continue on the same progress.<br>
+	 * If no store has occured since the last completed garbage sweep, this method will have no effect and return
+	 * immediately.
+	 * 
+	 * @param nanoTimeBudget the time budget in nanoseconds to be used to perform garbage collection.
+	 * 
+	 * @return whether the returned call has completed garbage collection.
+	 * 
+	 * @see #issueFullGarbageCollection()
+	 */
 	public boolean issueGarbageCollection(long nanoTimeBudget);
 
+	/**
+	 * Issues a full storage file check to be executed. Depending on the size of the database,
+	 * the available cache, used hardware, etc., this can take any amount of time.
+	 * <p>
+	 * File checking evaluates every storage data file about being either too small, too big
+	 * or having too many logical "gaps" in it (created by storing newer versions of an object
+	 * or by garbage collection). If one of those checks applies, the remaining live data in
+	 * the file is moved to the current head file and once that is done, the source file
+	 * (now consisting of 100% logical "gaps", making it effectively superfluous) is then deleted.
+	 * <p>
+	 * The exact logic is defined by {@link StorageConfiguration#dataFileEvaluator()}
+	 * 
+	 * @see #issueFileCheck(long)
+	 */
 	public default void issueFullFileCheck()
 	{
 		this.issueFileCheck(Long.MAX_VALUE);
 	}
 
-	public boolean issueFileCheck(long nanoTimeBudgetBound);
+	/**
+	 * Issues a storage file check to be executed, limited to the time budget in nanoseconds specified
+	 * by the passed {@code nanoTimeBudget}.<br>
+	 * 
+	 * @param nanoTimeBudget
+	 * @return
+	 */
+	public boolean issueFileCheck(long nanoTimeBudget);
 	
 	/* (06.02.2020 TM)NOTE: As shown by HG, allowing one-time custom evaluators can cause conflicts.
 	 * E.g. infinite loops:
@@ -66,13 +113,12 @@ public interface StorageConnection extends Persister
 	 * 
 	 * In any case, this method hardly makes sense.
 	 */
-
 //	public default void issueFullFileCheck(final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
 //	{
 //		 this.issueFileCheck(Long.MAX_VALUE, fileDissolvingEvaluator);
 //	}
 
-//	public boolean issueFileCheck(long nanoTimeBudgetBound, StorageDataFileDissolvingEvaluator fileDissolvingEvaluator);
+//	public boolean issueFileCheck(long nanoTimeBudget, StorageDataFileDissolvingEvaluator fileDissolvingEvaluator);
 
 	public default void issueFullCacheCheck()
 	{
@@ -84,12 +130,12 @@ public interface StorageConnection extends Persister
 		this.issueCacheCheck(Long.MAX_VALUE, entityEvaluator);
 	}
 
-	public default boolean issueCacheCheck(final long nanoTimeBudgetBound)
+	public default boolean issueCacheCheck(final long nanoTimeBudget)
 	{
-		return this.issueCacheCheck(nanoTimeBudgetBound, null);
+		return this.issueCacheCheck(nanoTimeBudget, null);
 	}
 
-	public boolean issueCacheCheck(long nanoTimeBudgetBound, StorageEntityCacheEvaluator entityEvaluator);
+	public boolean issueCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
 
 	public StorageRawFileStatistics createStorageStatistics();
 
@@ -337,12 +383,12 @@ public interface StorageConnection extends Persister
 		}
 
 		@Override
-		public final boolean issueGarbageCollection(final long nanoTimeBudgetBound)
+		public final boolean issueGarbageCollection(final long nanoTimeBudget)
 		{
 			try
 			{
 				// a time budget <= 0 will effectively be a cheap query for the completion state.
-				return this.connectionRequestAcceptor.issueGarbageCollection(nanoTimeBudgetBound);
+				return this.connectionRequestAcceptor.issueGarbageCollection(nanoTimeBudget);
 			}
 			catch(final InterruptedException e)
 			{
@@ -352,12 +398,12 @@ public interface StorageConnection extends Persister
 		}
 
 		@Override
-		public final boolean issueFileCheck(final long nanoTimeBudgetBound)
+		public final boolean issueFileCheck(final long nanoTimeBudget)
 		{
 			try
 			{
 				// a time budget <= 0 will effectively be a cheap query for the completion state.
-				return this.connectionRequestAcceptor.issueFileCheck(nanoTimeBudgetBound);
+				return this.connectionRequestAcceptor.issueFileCheck(nanoTimeBudget);
 			}
 			catch(final InterruptedException e)
 			{
@@ -368,14 +414,14 @@ public interface StorageConnection extends Persister
 
 		@Override
 		public final boolean issueCacheCheck(
-			final long                        nanoTimeBudgetBound,
+			final long                        nanoTimeBudget,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 		{
 			try
 			{
 				// a time budget <= 0 will effectively be a cheap query for the completion state.
-				return this.connectionRequestAcceptor.issueCacheCheck(nanoTimeBudgetBound, entityEvaluator);
+				return this.connectionRequestAcceptor.issueCacheCheck(nanoTimeBudget, entityEvaluator);
 			}
 			catch(final InterruptedException e)
 			{

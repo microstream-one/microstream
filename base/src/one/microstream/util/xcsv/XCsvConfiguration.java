@@ -1,7 +1,5 @@
 package one.microstream.util.xcsv;
 
-import static one.microstream.X.notNull;
-
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.VarString;
 import one.microstream.typing.Immutable;
@@ -62,16 +60,23 @@ public interface XCsvConfiguration
 	{
 		return this.commentFullTerminator().toCharArray();
 	}
+	
+	public Boolean hasColumnNamesHeader();
+	
+	public Boolean hasColumnTypesHeader();
+	
+	public Boolean hasControlCharacterDefinitionHeader();
 
+	
 	
 	public static XCsvConfiguration New()
 	{
-		return Builder().createConfiguration();
+		return Builder().buildConfiguration();
 	}
 	
 	public static XCsvConfiguration New(final char valueSeparator)
 	{
-		return Builder(valueSeparator).createConfiguration();
+		return Builder(valueSeparator).buildConfiguration();
 	}
 
 
@@ -97,11 +102,13 @@ public interface XCsvConfiguration
 		private final int           skipLineCount          ;
 		private final int           skipLineCountPostHeader;
 		private final int           trailingLineCount      ;
+		private final Boolean       hasColumnNamesHeader   ;
+		private final Boolean       hasColumnTypesHeader   ;
+		private final Boolean       hasMetaCharDefHeader   ;
 		private final EscapeHandler contentEscapeHandler   ;
 		private final EscapeHandler valueEscapeHandler     ;
-//		private final boolean       parseHeader            ;
-
-		private transient char[]    commentFullTerminatorArray;
+		
+		private transient char[] commentFullTerminatorArray;
 
 
 
@@ -113,7 +120,7 @@ public interface XCsvConfiguration
 			final char          lineSeparator          ,
 			final char          terminator             ,
 			final char          valueSeparator         ,
-			final char          valueDelimiter         ,
+			final char          literalDelimiter         ,
 			final char          valueEscaper           ,
 			final char          segmentStarter         ,
 			final char          segmentTerminator      ,
@@ -126,6 +133,9 @@ public interface XCsvConfiguration
 			final int           skipLineCount          ,
 			final int           skipLineCountPostHeader,
 			final int           trailingLineCount      ,
+			final Boolean       hasColumnNamesHeader   ,
+			final Boolean       hasColumnTypesHeader   ,
+			final Boolean       hasMetaCharDefHeader   ,
 			final EscapeHandler contentEscapeHandler
 		)
 		{
@@ -133,7 +143,7 @@ public interface XCsvConfiguration
 			this.lineSeparator           = lineSeparator          ;
 			this.terminator              = terminator             ;
 			this.valueSeparator          = valueSeparator         ;
-			this.literalDelimiter          = valueDelimiter         ;
+			this.literalDelimiter        = literalDelimiter       ;
 			this.valueEscaper            = valueEscaper           ;
 			this.segmentStarter          = segmentStarter         ;
 			this.segmentTerminator       = segmentTerminator      ;
@@ -147,8 +157,11 @@ public interface XCsvConfiguration
 			this.skipLineCountPostHeader = skipLineCountPostHeader;
 			this.trailingLineCount       = trailingLineCount      ;
 			this.contentEscapeHandler    = contentEscapeHandler   ;
-			this.valueEscapeHandler      = new ValueEscapeHandler(contentEscapeHandler, valueDelimiter, valueEscaper);
-//			this.parseHeader             = parseHeader            ;
+			this.hasColumnNamesHeader    = hasColumnNamesHeader   ;
+			this.hasColumnTypesHeader    = hasColumnTypesHeader   ;
+			this.hasMetaCharDefHeader    = hasMetaCharDefHeader   ;
+			
+			this.valueEscapeHandler      = new ValueEscapeHandler(contentEscapeHandler, literalDelimiter, valueEscaper);
 		}
 
 
@@ -274,11 +287,23 @@ public interface XCsvConfiguration
 			return this.valueEscapeHandler;
 		}
 
-//		@Override
-//		public final boolean parseHeader()
-//		{
-//			return this.parseHeader;
-//		}
+		@Override
+		public final Boolean hasColumnNamesHeader()
+		{
+			return this.hasColumnNamesHeader;
+		}
+		
+		@Override
+		public final Boolean hasColumnTypesHeader()
+		{
+			return this.hasColumnTypesHeader;
+		}
+		
+		@Override
+		public final Boolean hasControlCharacterDefinitionHeader()
+		{
+			return this.hasMetaCharDefHeader;
+		}
 
 		@Override
 		public final String valueSeparator(final String prefix, final String suffix)
@@ -466,6 +491,12 @@ public interface XCsvConfiguration
 		public int getSkipLineCountPostHeader();
 
 		public int getTrailingLineCount();
+		
+		public Boolean hasColumnNamesHeader();
+		
+		public Boolean hasColumnTypesHeader();
+		
+		public Boolean hasControlCharacterDefinitionHeader();
 
 		public EscapeHandler getEscapeHandler();
 
@@ -502,12 +533,18 @@ public interface XCsvConfiguration
 		public Builder setPostColumnHeaderSkipLineCount(int skipLineCountPostHeader);
 
 		public Builder setTrailingLineCount(int skipLineCountTrailing);
+		
+		public Builder setHasColumnNamesHeader(Boolean hasColumnNamesHeader);
+		
+		public Builder setHasColumnTypesHeader(Boolean hasColumnTypesHeader);
+		
+		public Builder setHasControlCharacterDefinitionHeader(Boolean hasControlCharacterDefinitionHeader);
 
 		public Builder setEscapeHandler(EscapeHandler escapeHandler);
 
 		public Builder copyFrom(XCsvConfiguration configuration);
 
-		public XCsvConfiguration createConfiguration();
+		public XCsvConfiguration buildConfiguration();
 
 
 
@@ -533,6 +570,9 @@ public interface XCsvConfiguration
 			private int           skipLineCount           = XCSV.DEFAULT_SKIP_LINE_COUNT            ;
 			private int           skipLineCountPostHeader = XCSV.DEFAULT_SKIP_LINE_COUNT_POST_HEADER;
 			private int           trailingLineCount       = XCSV.DEFAULT_TRAILING_LINE_COUNT        ;
+			private Boolean       hasColumnNamesHeader    = XCSV.DEFAULT_HAS_COLUMN_NAMES_HEADER    ;
+			private Boolean       hasColumnTypesHeader    = XCSV.DEFAULT_HAS_COLUMN_TYPES_HEADER    ;
+			private Boolean       hasCtrlCharDefHeader    = XCSV.DEFAULT_HAS_CTRLCHAR_DEF_HEADER    ;
 			private EscapeHandler escapeHandler           = XCSV.DEFAULT_ESCAPE_HANDLER             ;
 			
 			
@@ -546,99 +586,8 @@ public interface XCsvConfiguration
 				super();
 			}
 
-
-
-			///////////////////////////////////////////////////////////////////////////
-			// declared methods //
-			/////////////////////
-
-			protected final void internalSetLineSeparator(final char lineSeparator)
-			{
-				this.lineSeparator = lineSeparator;
-			}
-
-			protected final void internalSetTerminator(final char terminator)
-			{
-				this.terminator = terminator;
-			}
-
-			protected final void internalSetValueSeparator(final char valueSeparator)
-			{
-				this.valueSeparator = valueSeparator;
-			}
-
-			protected final void internalSetValueDelimiter(final char valueDelimiter)
-			{
-				this.valueDelimiter = valueDelimiter;
-			}
-
-			protected final void internalSetValueEscaper(final char valueEscaper)
-			{
-				this.valueEscaper = valueEscaper;
-			}
-
-			protected final void internalSetSegmentStarter(final char segmentStarter)
-			{
-				this.segmentStarter = segmentStarter;
-			}
-
-			protected final void internalSetSegmentTerminator(final char segmentTerminator)
-			{
-				this.segmentTerminator = segmentTerminator;
-			}
-
-			protected final void internalSetHeaderStarter(final char headerStarter)
-			{
-				this.headerStarter = headerStarter;
-			}
-
-			protected final void internalSetHeaderTerminator(final char headerTerminator)
-			{
-				this.headerTerminator = headerTerminator;
-			}
-
-			protected final void internalSetCommentSignal(final char commentSignal)
-			{
-				this.commentSignal = commentSignal;
-			}
-
-			protected final void internalSetCommentSimpleStarter(final char commentSimpleStarter)
-			{
-				this.commentSimpleStarter = commentSimpleStarter;
-			}
-
-			protected final void internalSetCommentFullStarter(final char commentFullStarter)
-			{
-				this.commentFullStarter = commentFullStarter;
-			}
-
-			protected final void internalSetCommentFullTerminator(final String commentFullTerminator)
-			{
-				this.commentFullTerminator = notNull(commentFullTerminator);
-			}
-
-			protected final void internalSetSkipLineCount(final int skipLineCount)
-			{
-				this.skipLineCount = skipLineCount;
-			}
-
-			protected final void internalSetSkipLineCountPostHeader(final int skipLineCountPostHeader)
-			{
-				this.skipLineCountPostHeader = skipLineCountPostHeader;
-			}
-
-			protected final void internalSetTrailingLineCount(final int trailingLineCount)
-			{
-				this.trailingLineCount = trailingLineCount;
-			}
-
-			protected final void internalSetEscapeHandler(final EscapeHandler escapeHandler)
-			{
-				this.escapeHandler = escapeHandler;
-			}
-
-
-
+			
+			
 			///////////////////////////////////////////////////////////////////////////
 			// getters //
 			////////////
@@ -740,6 +689,24 @@ public interface XCsvConfiguration
 			}
 
 			@Override
+			public final Boolean hasColumnNamesHeader()
+			{
+				return this.hasColumnNamesHeader;
+			}
+			
+			@Override
+			public final Boolean hasColumnTypesHeader()
+			{
+				return this.hasColumnTypesHeader;
+			}
+			
+			@Override
+			public final Boolean hasControlCharacterDefinitionHeader()
+			{
+				return this.hasCtrlCharDefHeader;
+			}
+
+			@Override
 			public EscapeHandler getEscapeHandler()
 			{
 				return this.escapeHandler;
@@ -754,14 +721,14 @@ public interface XCsvConfiguration
 			@Override
 			public Builder.Default setLineSeparator(final char lineSeparator)
 			{
-				this.internalSetLineSeparator(lineSeparator);
+				this.lineSeparator = lineSeparator;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setTerminator(final char terminator)
 			{
-				this.internalSetTerminator(terminator);
+				this.terminator = terminator;
 				return this;
 			}
 
@@ -769,105 +736,126 @@ public interface XCsvConfiguration
 			public Builder.Default setValueSeparator(final char valueSeparator)
 			{
 				XCSV.validateValueSeparator(valueSeparator);
-				this.internalSetValueSeparator(valueSeparator);
+				this.valueSeparator = valueSeparator;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setLiteralDelimiter(final char valueDelimiter)
 			{
-				this.internalSetValueDelimiter(valueDelimiter);
+				this.valueDelimiter = valueDelimiter;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setEscaper(final char valueEscaper)
 			{
-				this.internalSetValueEscaper(valueEscaper);
+				this.valueEscaper = valueEscaper;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setSegmentStarter(final char segmentStarter)
 			{
-				this.internalSetSegmentStarter(segmentStarter);
+				this.segmentStarter = segmentStarter;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setSegmentTerminator(final char segmentTerminator)
 			{
-				this.internalSetSegmentTerminator(segmentTerminator);
+				this.segmentTerminator = segmentTerminator;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setHeaderStarter(final char headerStarter)
 			{
-				this.internalSetHeaderStarter(headerStarter);
+				this.headerStarter = headerStarter;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setHeaderTerminator(final char headerTerminator)
 			{
-				this.internalSetHeaderTerminator(headerTerminator);
+				this.headerTerminator = headerTerminator;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setCommentSignal(final char commentSignal)
 			{
-				this.internalSetCommentSignal(commentSignal);
+				this.commentSignal = commentSignal;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setCommentSimpleStarter(final char commentSimpleStarter)
 			{
-				this.internalSetCommentSimpleStarter(commentSimpleStarter);
+				this.commentSimpleStarter = commentSimpleStarter;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setCommentFullStarter(final char commentFullStarter)
 			{
-				this.internalSetCommentFullStarter(commentFullStarter);
+				this.commentFullStarter = commentFullStarter;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setCommentFullTerminator(final String commentFullTerminator)
 			{
-				this.internalSetCommentFullTerminator(commentFullTerminator);
+				this.commentFullTerminator = commentFullTerminator;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setSkipLineCount(final int skipLineCount)
 			{
-				this.internalSetSkipLineCount(skipLineCount);
+				this.skipLineCount = skipLineCount;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setPostColumnHeaderSkipLineCount(final int skipLineCountPostHeader)
 			{
-				this.internalSetSkipLineCountPostHeader(skipLineCountPostHeader);
+				this.skipLineCountPostHeader = skipLineCountPostHeader;
 				return this;
 			}
 
 			@Override
-			public Builder setTrailingLineCount(final int skipLineCountTrailing)
+			public Builder setTrailingLineCount(final int trailingLineCount)
 			{
-				this.internalSetTrailingLineCount(skipLineCountTrailing);
+				this.trailingLineCount = trailingLineCount;
+				return this;
+			}
+			
+			@Override
+			public Builder setHasColumnNamesHeader(final Boolean hasColumnNamesHeader)
+			{
+				this.hasColumnNamesHeader = hasColumnNamesHeader;
+				return this;
+			}
+			
+			@Override
+			public Builder setHasColumnTypesHeader(final Boolean hasColumnTypesHeader)
+			{
+				this.hasColumnTypesHeader = hasColumnTypesHeader;
+				return this;
+			}
+			
+			@Override
+			public Builder setHasControlCharacterDefinitionHeader(final Boolean hasControlCharacterDefinitionHeader)
+			{
+				this.hasCtrlCharDefHeader = hasControlCharacterDefinitionHeader;
 				return this;
 			}
 
 			@Override
 			public Builder.Default setEscapeHandler(final EscapeHandler escapeHandler)
 			{
-				this.internalSetEscapeHandler(escapeHandler);
+				this.escapeHandler = escapeHandler;
 				return this;
 			}
 
@@ -897,7 +885,7 @@ public interface XCsvConfiguration
 			}
 
 			@Override
-			public XCsvConfiguration createConfiguration()
+			public XCsvConfiguration buildConfiguration()
 			{
 				/* (01.07.2013 TM)FIXME: CsvConfiguration: meta symbol consistency validation
 				 * i.e. delimiter not same as separator, etc.
@@ -919,6 +907,9 @@ public interface XCsvConfiguration
 					this.getSkipLineCount(),
 					this.getSkipLineCountPostHeader(),
 					this.getTrailingLineCount(),
+					this.hasColumnNamesHeader(),
+					this.hasColumnTypesHeader(),
+					this.hasControlCharacterDefinitionHeader(),
 					this.getEscapeHandler()
 				);
 			}

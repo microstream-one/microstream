@@ -539,17 +539,17 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	
 	/**
 	 * 
-	 * @param baseDirectory
-	 * @param deletionDirectory
-	 * @param truncationDirectory
-	 * @param channelDirectoryPrefix
-	 * @param storageFilePrefix
-	 * @param storageFileSuffix
-	 * @param transactionsFilePrefix
-	 * @param transactionsFileSuffix
-	 * @param typeDictionaryFileName
-	 * @param lockFileName
-	 * @param fileHandlerCreator
+	 * @param baseDirectory may <b>not</b> be null.
+	 * @param channelDirectoryPrefix may <b>not</b> be null.
+	 * @param storageFilePrefix may <b>not</b> be null.
+	 * @param storageFileSuffix may <b>not</b> be null.
+	 * @param transactionsFilePrefix may <b>not</b> be null.
+	 * @param transactionsFileSuffix may <b>not</b> be null.
+	 * @param typeDictionaryFileName may <b>not</b> be null.
+	 * @param lockFileName may <b>not</b> be null.
+	 * @param fileHandlerCreator may <b>not</b> be null.
+	 * @param deletionDirectory may be null.
+	 * @param truncationDirectory may be null.
 	 */
 	public static StorageFileProvider.Default New(
 		final String                                       baseDirectory         ,
@@ -566,9 +566,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	)
 	{
 		return new StorageFileProvider.Default(
-			notNull(baseDirectory)         , // base directory must at least a relative directory name.
-			mayNull(deletionDirectory)     , // null (no directory) means actually delete files
-			mayNull(truncationDirectory)   , // null (no directory) means actually delete files
+			notNull(baseDirectory)         , // base directory must at least be a relative directory name.
 			notNull(channelDirectoryPrefix),
 			notNull(storageFilePrefix)     ,
 			notNull(storageFileSuffix)     ,
@@ -576,7 +574,9 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			notNull(transactionsFileSuffix),
 			notNull(typeDictionaryFileName),
 			notNull(lockFileName)          ,
-			notNull(fileHandlerCreator)
+			notNull(fileHandlerCreator)    ,
+			mayNull(deletionDirectory)     , // null (no directory) means actually delete retired files
+			mayNull(truncationDirectory)     // null (no directory) means actually delete truncated files
 		);
 	}
 
@@ -611,8 +611,6 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 		Default(
 			final String                                       baseDirectory         ,
-			final String                                       deletionDirectory     ,
-			final String                                       truncationDirectory   ,
 			final String                                       channelDirectoryPrefix,
 			final String                                       storageFilePrefix     ,
 			final String                                       storageFileSuffix     ,
@@ -620,13 +618,13 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final String                                       transactionsFileSuffix,
 			final String                                       typeDictionaryFileName,
 			final String                                       lockFileName          ,
-			final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator
+			final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator    ,
+			final String                                       deletionDirectory     ,
+			final String                                       truncationDirectory
 		)
 		{
 			super();
 			this.baseDirectory          = baseDirectory         ;
-			this.deletionDirectory      = deletionDirectory     ;
-			this.truncationDirectory    = truncationDirectory   ;
 			this.channelDirectoryPrefix = channelDirectoryPrefix;
 			this.storageFilePrefix      = storageFilePrefix     ;
 			this.storageFileSuffix      = storageFileSuffix     ;
@@ -634,7 +632,9 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			this.transactionsFileSuffix = transactionsFileSuffix;
 			this.typeDictionaryFileName = typeDictionaryFileName;
 			this.lockFileName           = lockFileName          ;
-			this.fileHandlerCreator     = fileHandlerCreator;
+			this.fileHandlerCreator     = fileHandlerCreator    ;
+			this.deletionDirectory      = deletionDirectory     ;
+			this.truncationDirectory    = truncationDirectory   ;
 		}
 		
 
