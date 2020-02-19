@@ -16,6 +16,7 @@ import one.microstream.persistence.binary.types.ChunksBufferByteReversing;
 import one.microstream.persistence.types.PersistenceIdSet;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageException;
+import one.microstream.time.XTime;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.BufferSizeProviderIncremental;
 
@@ -228,10 +229,12 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 //			DEBUGStorage.println(this.channelIndex + " ending housekeeping, total time (ns) = " + duration + " of " + budget + "(" + ratio + "%)");
 		}
 
-		private long calculateSpecificHousekeepingTimeBudgetBound(final long specificBudget)
+		private long calculateSpecificHousekeepingTimeBudgetBound(final long nanoTimeBudget)
 		{
 //			DEBUGStorage.println(this.channelIndex + " spec budget = " + specificBudget + ", gen budget = " + this.housekeepingIntervalBudgetNs);
-			return System.nanoTime() + Math.min(specificBudget, this.housekeepingIntervalBudgetNs);
+			return XTime.calculateNanoTimeBudgetBound(
+				Math.min(nanoTimeBudget, this.housekeepingIntervalBudgetNs)
+			);
 		}
 
 		final boolean houseKeepingCheckFileCleanup()
