@@ -1,7 +1,6 @@
 package one.microstream.storage.restclient;
 
 import java.util.List;
-import java.util.function.Function;
 
 public interface StorageViewRange extends StorageViewElement
 {
@@ -10,23 +9,25 @@ public interface StorageViewRange extends StorageViewElement
 	public long length();
 	
 	
-	public static class Default extends StorageViewElement.Default implements StorageViewRange
+	public static class Default extends StorageViewElement.Abstract implements StorageViewRange
 	{
-		private final long offset;
-		private final long length;
+		private final long               objectId;
+		private final long               offset;
+		private final long               length;
+		private List<StorageViewElement> members;
 		
 		Default(
-			final StorageViewElement parent,
+			final StorageView view,
 			final String name,
-			final int offset,
-			final int length,
-			final Function<StorageViewElement, List<StorageViewElement>> membersSupplier
+			final long objectId,
+			final long offset,
+			final long length
 		)
 		{
-			super(parent, name, null, membersSupplier);
-			
-			this.offset = offset;
-			this.length = length;
+			super(view, name, null);
+			this.objectId = objectId;
+			this.offset   = offset;
+			this.length   = length;
 		}
 
 		@Override
@@ -39,6 +40,22 @@ public interface StorageViewRange extends StorageViewElement
 		public long length()
 		{
 			return this.length;
+		}
+		
+		@Override
+		public boolean hasMembers()
+		{
+			return true;
+		}
+		
+		@Override
+		public List<StorageViewElement> members(final boolean forceRefresh)
+		{
+			if(this.members == null || forceRefresh)
+			{
+				this.members = this.view().members(this.objectId, this.offset, this.length);
+			}
+			return this.members;
 		}
 		
 	}

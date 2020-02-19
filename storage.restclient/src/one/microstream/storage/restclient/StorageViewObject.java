@@ -2,12 +2,11 @@
 package one.microstream.storage.restclient;
 
 import java.util.List;
-import java.util.function.Function;
 
 import one.microstream.persistence.types.PersistenceTypeDescription;
 
 
-public interface StorageObject extends StorageViewElement
+public interface StorageViewObject extends StorageViewElement
 {
 	public long objectId();
 	
@@ -18,40 +17,26 @@ public interface StorageObject extends StorageViewElement
 	public String qualifiedTypeName();
 	
 	
-		
-	
-	public static class Default extends StorageViewElement.Default implements StorageObject
+	public static class Default extends StorageViewElement.Abstract implements StorageViewObject
 	{
-		private final long                                         objectId;
-		private final PersistenceTypeDescription                   typeDescription;
+		private final long                       objectId;
+		private final PersistenceTypeDescription typeDescription;
+		private final long                       length;
+		private List<StorageViewElement>         members;
 		
 		Default(
-			final StorageViewElement parent,
+			final StorageView view,
 			final String name,
 			final String value,
 			final long objectId,
 			final PersistenceTypeDescription typeDescription,
-			final Function<StorageViewElement, List<StorageViewElement>> membersSupplier
+			final long length
 		)
 		{
-			super(parent, name, value, membersSupplier);
+			super(view, name, value);
 			this.objectId        = objectId;
 			this.typeDescription = typeDescription;
-		}
-		
-		Default(
-			final StorageViewElement parent,
-			final String name,
-			final String value,
-			final long objectId,
-			final PersistenceTypeDescription typeDescription,
-			final Function<StorageViewElement, List<StorageViewElement>> membersSupplier,
-			final List<StorageViewElement> members
-		)
-		{
-			super(parent, name, value, membersSupplier, members);
-			this.objectId        = objectId;
-			this.typeDescription = typeDescription;
+			this.length          = length;
 		}
 
 		@Override
@@ -78,6 +63,30 @@ public interface StorageObject extends StorageViewElement
 		{
 			// TODO see https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 			return this.typeDescription.typeName();
+		}
+		
+		@Override
+		public boolean hasMembers()
+		{
+			return this.typeDescription.allMembers().size() > 0;
+		}
+		
+		@Override
+		public List<StorageViewElement> members(
+			final boolean forceRefresh
+		)
+		{
+			if(this.members == null || forceRefresh)
+			{
+				this.members = this.view().members(this.objectId, 0, this.length);
+			}
+			return this.members;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return super.toString() + " [" + this.objectId + "]";
 		}
 		
 	}

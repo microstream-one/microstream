@@ -3,7 +3,7 @@ package one.microstream.storage.restclient;
 
 public interface StorageViewConfiguration
 {
-	public int elementRangeMaximumLength();
+	public long elementRangeMaximumLength();
 	
 	
 	public static StorageViewConfiguration Default()
@@ -14,10 +14,10 @@ public interface StorageViewConfiguration
 	
 	public static class Default implements StorageViewConfiguration
 	{
-		private final int elementRangeMaximumLength;
+		private final long elementRangeMaximumLength;
 
 		Default(
-			final int elementRangeMaximumLength
+			final long elementRangeMaximumLength
 		)
 		{
 			super();
@@ -25,7 +25,7 @@ public interface StorageViewConfiguration
 		}
 		
 		@Override
-		public int elementRangeMaximumLength()
+		public long elementRangeMaximumLength()
 		{
 			return this.elementRangeMaximumLength;
 		}
