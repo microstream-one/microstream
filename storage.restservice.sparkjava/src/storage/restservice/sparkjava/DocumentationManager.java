@@ -17,19 +17,11 @@ import spark.Service;
 import spark.route.HttpMethod;
 
 
-public class DocumentationManager
+public class DocumentationManager extends RouteManager
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
-
-	private final Service sparkService;
-
-	/*
-	 * Holds the handler for a httpMethod and path
-	 * Hashtable<RouteURI, <Hashtable<HttpMethod, HandlerClassName>>
-	 */
-	private final Hashtable<String, Hashtable<String, String>> registeredRoutes;
 
 	/*
 	 * Hold the documentation for a handler's route and http method
@@ -43,9 +35,7 @@ public class DocumentationManager
 
 	public DocumentationManager(final Service sparkService)
 	{
-		super();
-		this.sparkService = sparkService;
-		this.registeredRoutes = new Hashtable<>();
+		super(sparkService);
 		this.documentations = new Hashtable<>();
 
 		this.buildLiveDocumentation("/resources/onlineDocu.json");
@@ -55,28 +45,18 @@ public class DocumentationManager
 	// methods //
 	////////////
 
-	public Hashtable<String, Hashtable<String, String>> getRegisteredRoutes()
-	{
-		return this.registeredRoutes;
-	}
-
 	/**
 	 * Register a route / httpMethod and automatically create and register an options route
 	 * to get help on this route
 	 */
-	public void registeRoutesWithOptions(final HttpMethod httpMethod, final String uri, final RouteBase<?> route)
+	@Override
+	public void registerRoute(final HttpMethod httpMethod, final String uri, final RouteBase<?> route)
 	{
-		Hashtable<String, String> methods = this.registeredRoutes.get(uri);
-		if(methods == null)
-		{
-			methods = new Hashtable<>();
-			this.registeredRoutes.put(uri, methods);
-		}
-		methods.put(httpMethod.toString().toLowerCase(), route.getClass().getName());
-		this.sparkService.addRoute(httpMethod, RouteImpl.create(uri, route));
+		super.registerRoute(httpMethod, uri, route);
 
+		final Hashtable<String, String> methods = this.getRegisteredRoutes().get(uri);
 		methods.put(HttpMethod.options.toString().toLowerCase(), route.getClass().getName());
-		this.sparkService.addRoute(HttpMethod.options, RouteImpl.create(uri, new RouteDocumentation(this)));
+        this.sparkService.addRoute(HttpMethod.options, RouteImpl.create(uri, new RouteDocumentation(this)));
 	}
 
 	/**
@@ -88,9 +68,9 @@ public class DocumentationManager
 	 */
 	public Object getAllRoutes(final String host)
 	{
-		final JsonArray routesJson = new JsonArray(this.registeredRoutes.size());
+		final JsonArray routesJson = new JsonArray(this.getRegisteredRoutes().size());
 
-		this.registeredRoutes.forEach( (path,  methods ) -> {
+		this.getRegisteredRoutes().forEach( (path,  methods ) -> {
 
 			final JsonObject route = new JsonObject();
 			route.addProperty("URL", host +  path);
@@ -118,7 +98,7 @@ public class DocumentationManager
 	public Object getDocumentation(final String uri, final String httpMethod)
 	{
 		try {
-			final String handler = this.registeredRoutes.get(uri).get(httpMethod);
+			final String handler = this.getRegisteredRoutes().get(uri).get(httpMethod);
 			return this.documentations.get(handler).get(httpMethod);
 		}
 		catch(final Exception e)
@@ -136,7 +116,7 @@ public class DocumentationManager
 	 */
 	public Object getDocumentation(final String uri)
 	{
-		final Hashtable<String, String> UriMethods = this.registeredRoutes.get(uri);
+		final Hashtable<String, String> UriMethods = this.getRegisteredRoutes().get(uri);
 
 		final JsonObject docu = new JsonObject();
 
