@@ -180,7 +180,7 @@ public interface StorageFileWriter
 		);
 		if(truncationTargetFile != null)
 		{
-			craeteFileFullCopy(file, truncationTargetFile);
+			createFileFullCopy(file, truncationTargetFile);
 		}
 
 		try
@@ -222,7 +222,7 @@ public interface StorageFileWriter
 	}
 	
 
-	public static void craeteFileFullCopy(
+	public static void createFileFullCopy(
 		final StorageNumberedFile sourceFile,
 		final StorageNumberedFile targetFile
 	)
