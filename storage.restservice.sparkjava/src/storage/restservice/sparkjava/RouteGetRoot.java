@@ -4,17 +4,16 @@ import one.microstream.storage.restadapter.StorageRestAdapterRoot;
 import one.microstream.storage.restadapter.ViewerRootDescription;
 import spark.Request;
 import spark.Response;
-import spark.Route;
 
-public class RouteGetRoot extends RouteBase<StorageRestAdapterRoot> implements Route
+public class RouteGetRoot extends RouteBaseConvertable<StorageRestAdapterRoot>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public RouteGetRoot(final StorageRestAdapterRoot storageRestAdapter)
+	public RouteGetRoot(final StorageRestAdapterRoot apiAdapter)
 	{
-		super(storageRestAdapter);
+		super(apiAdapter);
 	}
 
 
@@ -26,7 +25,7 @@ public class RouteGetRoot extends RouteBase<StorageRestAdapterRoot> implements R
 	public String handle(final Request request, final Response response)
 	{
 		final String requestedFormat = this.getStringParameter(request, "format");
-		final ViewerRootDescription rootDescription = this.storageRestAdapter.getUserRoot();
+		final ViewerRootDescription rootDescription = this.apiAdapter.getUserRoot();
 
 		return this.toRequestedFormat(rootDescription, requestedFormat, response);
 	}
