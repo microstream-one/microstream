@@ -28,7 +28,9 @@ public class RouteGetObject extends RouteBaseConvertable<StorageRestAdapterObjec
         final long dataLength = this.getLongParameter(request, "dataLength", this.apiAdapter.getDefaultDataLength());
 		final long referenceOffset = this.getLongParameter(request, "referenceOffset", 0);
 		final long referenceLength = this.getLongParameter(request, "referenceLength", Long.MAX_VALUE);
-		final boolean resolveReverences = this.getBooleanParameter(request, "references", false);
+		final long valueOffset = this.getLongParameter(request, "valueOffset", 0);
+		final long valueLength = this.getLongParameter(request, "valueLength", Long.MAX_VALUE);
+		final boolean resolveReferences = this.getBooleanParameter(request, "references", false);
 		final String requestedFormat = this.getStringParameter(request, "format");
 
 		final long objectId = this.validateObjectId(request);
@@ -36,7 +38,9 @@ public class RouteGetObject extends RouteBaseConvertable<StorageRestAdapterObjec
 			objectId,
 			dataOffset,
 			dataLength,
-			resolveReverences,
+			valueOffset,
+			valueLength,
+			resolveReferences,
 			referenceOffset,
 			referenceLength);
 
