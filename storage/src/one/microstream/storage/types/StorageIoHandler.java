@@ -62,6 +62,12 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		////////////
 		
 		@Override
+		public String getStorageLocationIdentifier()
+		{
+			return this.fileProvider.getStorageLocationIdentifier();
+		}
+		
+		@Override
 		public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler(
 			final PersistenceTypeDictionaryStorer writeListener
 		)

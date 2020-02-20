@@ -33,8 +33,8 @@ public class MainCollectFiles
 
 	static final void collect(final Path sourceDirectory, final String fileType) throws IOException
 	{
-		final String fileSuffix = '.'+fileType.toLowerCase();
-		final Path targetDir = XIO.Path(targetDirectory, fileType.toUpperCase());
+		final String fileSuffix = XIO.fileSuffixSeparator() + fileType.toLowerCase();
+		final Path   targetDir  = XIO.Path(targetDirectory, fileType.toUpperCase());
 
 		processFiles(
 			sourceDirectory,

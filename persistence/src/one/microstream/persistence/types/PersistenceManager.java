@@ -112,6 +112,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 		private final PersistenceLoader.Creator<D>     loaderCreator     ;
 		private final BufferSizeProviderIncremental    bufferSizeProvider;
 		
+		// callback linking components //
 		private final Persister persister;
 
 		// source and target //
@@ -197,7 +198,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 			return this.storerCreator.createLazyStorer(
 				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
-				this,
+				this.getEffectivePersister(),
 				this.target,
 				this.bufferSizeProvider
 			);
@@ -209,7 +210,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 			return this.storerCreator.createStorer(
 				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
-				this,
+				this.getEffectivePersister(),
 				this.target,
 				this.bufferSizeProvider
 			);
@@ -221,7 +222,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 			return this.storerCreator.createEagerStorer(
 				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
-				this,
+				this.getEffectivePersister(),
 				this.target,
 				this.bufferSizeProvider
 			);
@@ -233,7 +234,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 			return storerCreator.createStorer(
 				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
-				this,
+				this.getEffectivePersister(),
 				this.target,
 				this.bufferSizeProvider
 			);

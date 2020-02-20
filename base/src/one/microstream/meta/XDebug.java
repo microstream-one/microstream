@@ -459,6 +459,11 @@ public final class XDebug
 		copyFile(source, source, target);
 	}
 	
+	public static final void deleteAllFiles(final Path directory)
+	{
+		deleteAllFiles(directory, true);
+	}
+	
 	public static final void deleteAllFiles(final Path directory, final boolean output)
 	{
 		if(!XIO.unchecked.exists(directory))

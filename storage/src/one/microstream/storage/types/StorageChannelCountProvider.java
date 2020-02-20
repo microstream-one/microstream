@@ -1,13 +1,16 @@
 package one.microstream.storage.types;
 
 import one.microstream.chars.VarString;
-import one.microstream.reference._intReference;
+import one.microstream.chars.XChars;
+import one.microstream.math.XMath;
+import one.microstream.persistence.binary.types.BinaryChannelCountProvider;
 
 
-public interface StorageChannelCountProvider extends _intReference
+@FunctionalInterface
+public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 {
 	@Override
-	public int get();
+	public int getChannelCount();
 
 	
 	
@@ -18,7 +21,10 @@ public interface StorageChannelCountProvider extends _intReference
 			// single-threaded by default.
 			return 1;
 		}
-		
+	}
+	
+	public interface Validation
+	{
 		/**
 		 * What was that: <i>'640 KB ought to be enough RAM for anybody'</i>?<br>
 		 * Nevertheless, I'll stick with that bound for now.<br>
@@ -26,42 +32,82 @@ public interface StorageChannelCountProvider extends _intReference
 		 * <p>
 		 * On a more serious note:<br>
 		 * This check has no actual technical background, it is just a safety net against
-		 * oversight mistakes to prevent creation of hundreds of threads and files.<br>
+		 * oversight mistakes to prevent creation of thousands of threads and files.<br>
 		 * Can be altered or removed anytime.
 		 * 
-		 * @return the default highest sane channel count value of {@literal 64}.
+		 * @return the maximum channel count value of {@literal 1024}.
 		 */
-		public static int defaultHighestSaneChannelCount()
+		public static int maximumChannelCount()
 		{
-			return 64;
-		}
-	}
-	
-	
-	public static boolean isValidChannelCount(final int channelCount)
-	{
-		if(channelCount > Defaults.defaultHighestSaneChannelCount())
-		{
-			return false;
+			return 1024;
 		}
 		
-		/*
+		/**
 		 * This is NOT necessarily the default channel count.
-		 * If that changes to 2, the lowest valid count will still be 1!
+		 * If the default changes to 2, the lowest valid count will still be 1!
+		 * 
+		 * @return the minimum channel count value of {@literal 1}.
 		 */
-		return channelCount >= 1;
+		public static int minimumChannelCount()
+		{
+			return 1;
+		}
+		
+		
+		public static boolean isValidChannelCountRange(final int channelCount)
+		{
+			// breakpoint-friendly statement
+			return channelCount >= minimumChannelCount() && channelCount <= maximumChannelCount()
+				? true
+				: false
+			;
+		}
+		
+		public static boolean isValidChannelCountPow2Value(final int channelCount)
+		{
+			// breakpoint-friendly statement
+			return XMath.isPow2(channelCount)
+				? true
+				: false
+			;
+		}
+		
+		public static void validateParameters(
+			final int channelCount
+		)
+			throws IllegalArgumentException
+		{
+			if(!isValidChannelCountRange(channelCount))
+			{
+				// (26.03.2019 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified channel count " + channelCount
+					+ " is not in the range of valid channel counts: "
+					+ XChars.mathRangeIncInc(minimumChannelCount(), maximumChannelCount())
+					+ "."
+				);
+			}
+			
+			if(!isValidChannelCountPow2Value(channelCount))
+			{
+				// (26.03.2019 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified channel count " + channelCount
+					+ " is not a power-of-2 int value "
+					+ "(i.e. channelCount = 2^n for any n in [0;30], e.g. 1, 2, 4, 8, 16, ...)."
+				);
+			}
+		}
 	}
 	
 	public static int validateChannelCount(final int channelCount) throws IllegalArgumentException
 	{
-		if(isValidChannelCount(channelCount))
-		{
-			return channelCount;
-		}
+		Validation.validateParameters(channelCount);
 		
-		// (26.03.2019 TM)EXCP: proper exception
-		throw new IllegalArgumentException("Not a sane channel count: " + channelCount);
+		return channelCount;
 	}
+	
+
 	
 	
 	/**
@@ -104,16 +150,16 @@ public interface StorageChannelCountProvider extends _intReference
 	 * @return a new {@link StorageChannelCountProvider} instance.
 	 * 
 	 * @throws IllegalArgumentException if the passed value is higher than the value returned by
-	 *         {@link StorageChannelCountProvider.Defaults#defaultHighestSaneChannelCount()}
+	 *         {@link StorageChannelCountProvider.Defaults#maximumChannelCount()}
 	 * 
 	 * @see StorageChannelCountProvider#New()
 	 * @see StorageChannelCountProvider.Defaults
 	 */
 	public static StorageChannelCountProvider New(final int channelCount)
 	{
-		return new StorageChannelCountProvider.Default(
-			validateChannelCount(channelCount)
-		);
+		Validation.validateParameters(channelCount);
+		
+		return new StorageChannelCountProvider.Default(channelCount);
 	}
 
 	public final class Default implements StorageChannelCountProvider
@@ -143,7 +189,7 @@ public interface StorageChannelCountProvider extends _intReference
 		////////////
 
 		@Override
-		public final int get()
+		public final int getChannelCount()
 		{
 			return this.channelCount;
 		}
