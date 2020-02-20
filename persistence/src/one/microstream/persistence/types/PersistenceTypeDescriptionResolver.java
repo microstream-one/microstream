@@ -132,6 +132,12 @@ public interface PersistenceTypeDescriptionResolver extends PersistenceTypeResol
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public ClassLoader getTypeResolvingClassLoader(final String typeName)
+		{
+			return this.typeResolver.getTypeResolvingClassLoader(typeName);
+		}
 				
 		@Override
 		public String resolveRuntimeTypeName(final PersistenceTypeDescription typeDescription)

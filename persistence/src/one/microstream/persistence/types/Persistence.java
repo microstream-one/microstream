@@ -833,8 +833,9 @@ public class Persistence
 
 	@SuppressWarnings({ "unchecked", "rawtypes" }) // type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> resolveEnumeratedClassIdentifierSeparatedType(
-		final String typeName,
-		final String substituteClassIdentifierSeparator
+		final String      typeName   ,
+		final ClassLoader classLoader,
+		final String      substituteClassIdentifierSeparator
 	)
 	{
 		// there can only be one at the most, so a simple indexOf is sufficient.
@@ -845,7 +846,7 @@ public class Persistence
 		}
 		
 		final String properTypeName = typeName.substring(0, sepIndex);
-		final Class<?> type = resolveType(properTypeName, substituteClassIdentifierSeparator);
+		final Class<?> type = resolveType(properTypeName, classLoader, substituteClassIdentifierSeparator);
 		
 		if(!XReflect.isDeclaredEnum(type))
 		{
@@ -861,18 +862,23 @@ public class Persistence
 	}
 	
 	// type safety guaranteed by the passed typename. The typename String "is" the T.
-	public static <T> Class<T> resolveType(final String typeName)
+	public static <T> Class<T> resolveType(final String typeName, final ClassLoader classLoader)
 	{
-		return resolveType(typeName, substituteClassIdentifierSeparator());
+		return resolveType(typeName, classLoader, substituteClassIdentifierSeparator());
 	}
 
 	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> resolveType(
-		final String typeName,
-		final String substituteClassIdentifierSeparator
+		final String      typeName   ,
+		final ClassLoader classLoader,
+		final String      substituteClassIdentifierSeparator
 	)
 	{
-		final Class<?> c = resolveEnumeratedClassIdentifierSeparatedType(typeName, substituteClassIdentifierSeparator);
+		final Class<?> c = resolveEnumeratedClassIdentifierSeparatedType(
+			typeName,
+			classLoader,
+			substituteClassIdentifierSeparator
+		);
 		if(c != null)
 		{
 			return (Class<T>)c;
@@ -880,7 +886,7 @@ public class Persistence
 		
 		try
 		{
-			return (Class<T>)XReflect.resolveType(typeName);
+			return (Class<T>)XReflect.resolveType(typeName, classLoader);
 		}
 		catch(final ClassNotFoundException e)
 		{
@@ -888,11 +894,11 @@ public class Persistence
 		}
 	}
 	
-	public static <T> Class<T> tryResolveType(final String typeName)
+	public static <T> Class<T> tryResolveType(final String typeName, final ClassLoader classLoader)
 	{
 		try
 		{
-			return Persistence.resolveType(typeName);
+			return Persistence.resolveType(typeName, classLoader);
 		}
 		catch(final PersistenceExceptionTypeConsistencyDefinitionResolveTypeName e)
 		{

@@ -10,7 +10,7 @@ public class MainTestStorageExample
 {
 	static
 	{
-		Test.clearDefaultStorageDirectory();
+//		Test.clearDefaultStorageDirectory();
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.

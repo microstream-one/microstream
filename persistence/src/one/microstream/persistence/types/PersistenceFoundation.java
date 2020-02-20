@@ -13,6 +13,7 @@ import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import one.microstream.reference.ObjectSwizzling;
 import one.microstream.reference.Reference;
+import one.microstream.reflect.ClassLoaderProvider;
 import one.microstream.typing.LambdaTypeRecognizer;
 import one.microstream.typing.TypeMapping;
 import one.microstream.typing.XTypes;
@@ -138,6 +139,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	
 	public PersistenceTypeResolver getTypeResolver();
 	
+	public ClassLoaderProvider getClassLoaderProvider();
+	
 	public PersistenceTypeMismatchValidator<D> getTypeMismatchValidator();
 	
 	public PersistenceTypeDefinitionCreator getTypeDefinitionCreator();
@@ -223,6 +226,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public F setTypeAnalyzer(PersistenceTypeAnalyzer typeAnalyzer);
 	
 	public F setTypeResolver(PersistenceTypeResolver typeResolver);
+	
+	public F setClassLoaderProvider(ClassLoaderProvider classLoaderProvider);
 
 	public F setTypeHandlerRegistry(PersistenceTypeHandlerRegistry<D> typeHandlerRegistry);
 
@@ -460,6 +465,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		private PersistenceTypeHandlerCreator<D>               typeHandlerCreator              ;
 		private PersistenceTypeAnalyzer                        typeAnalyzer                    ;
 		private PersistenceTypeResolver                        typeResolver                    ;
+		private ClassLoaderProvider                            classLoaderProvider             ;
 		private PersistenceTypeMismatchValidator<D>            typeMismatchValidator           ;
 		private PersistenceTypeDefinitionCreator               typeDefinitionCreator           ;
 		private PersistenceTypeEvaluator                       typeEvaluatorPersistable        ;
@@ -998,6 +1004,17 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		}
 		
 		@Override
+		public ClassLoaderProvider getClassLoaderProvider()
+		{
+			if(this.classLoaderProvider == null)
+			{
+				this.classLoaderProvider = this.dispatch(this.ensureClassLoaderProvider());
+			}
+			
+			return this.classLoaderProvider;
+		}
+		
+		@Override
 		public PersistenceTypeMismatchValidator<D> getTypeMismatchValidator()
 		{
 			if(this.typeMismatchValidator == null)
@@ -1418,6 +1435,13 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		public F setTypeResolver(final PersistenceTypeResolver typeResolver)
 		{
 			this.typeResolver = typeResolver;
+			return this.$();
+		}
+		
+		@Override
+		public F setClassLoaderProvider(final ClassLoaderProvider classLoaderProvider)
+		{
+			this.classLoaderProvider = classLoaderProvider;
 			return this.$();
 		}
 
@@ -2118,7 +2142,14 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		
 		protected PersistenceTypeResolver ensureTypeResolver()
 		{
-			return PersistenceTypeResolver.Default();
+			return PersistenceTypeResolver.New(
+				this.getClassLoaderProvider()
+			);
+		}
+		
+		protected ClassLoaderProvider ensureClassLoaderProvider()
+		{
+			return ClassLoaderProvider.New();
 		}
 
 		protected PersistenceTypeHandlerEnsurer<D> ensureTypeHandlerEnsurer()

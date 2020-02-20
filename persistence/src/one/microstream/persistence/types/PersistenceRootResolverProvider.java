@@ -88,11 +88,11 @@ public interface PersistenceRootResolverProvider
 	public PersistenceRootResolver provideRootResolver();
 	
 	
-	
-	public static PersistenceRootResolverProvider New(final PersistenceRootReference rootReference)
-	{
-		return New(rootReference, PersistenceTypeResolver.Default());
-	}
+	// (20.02.2020 TM)NOTE: too dangerous with the newly required ClassLoaderProvider pattern.
+//	public static PersistenceRootResolverProvider New(final PersistenceRootReference rootReference)
+//	{
+//		return New(rootReference, PersistenceTypeResolver.Default());
+//	}
 	
 	public static <D> PersistenceRootResolverProvider New(
 		final PersistenceRootReference rootReference,
