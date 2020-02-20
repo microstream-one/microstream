@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>02.02.01-MS-GA-SNAPSHOT</version>
+		<version>02.03.00-MS-GA-SNAPSHOT</version>
 	</parent>
 	<artifactId>storage.restclient.ui.vaadin</artifactId>
 	<properties>
@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage.restclient</artifactId>
-			<version>02.02.01-MS-GA-SNAPSHOT</version>
+			<version>02.03.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
