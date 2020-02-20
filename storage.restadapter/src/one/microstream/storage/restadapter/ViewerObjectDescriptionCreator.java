@@ -24,9 +24,16 @@ public class ViewerObjectDescriptionCreator
 	 * @param description
 	 * @param dataOffset
 	 * @param dataLength
+	 * @param valueLength
+	 * @param valueOffset
 	 * @return ViewerObjectDescription
 	 */
-	public static ViewerObjectDescription create(final ObjectDescription description, final long dataOffset, final long dataLength)
+	public static ViewerObjectDescription create(
+		final ObjectDescription description,
+		final long dataOffset,
+		final long dataLength,
+		final long valueOffset,
+		final long valueLength)
 	{
 		final ViewerObjectDescription objDesc = new ViewerObjectDescription();
 
@@ -34,14 +41,14 @@ public class ViewerObjectDescriptionCreator
 
 		if(description.hasPrimitiveObjectInstance())
 		{
-			setPrimitiveValue(description, objDesc, dataOffset, dataLength);
+			setPrimitiveValue(description, objDesc, valueOffset, valueLength);
 		}
 		else
 		{
 			objDesc.setData(simplifyObjectArray(description.getValues(), dataOffset, dataLength));
 		}
 
-		ViewerObjectDescriptionCreator.setReferences(description, objDesc, dataOffset, dataLength);
+		ViewerObjectDescriptionCreator.setReferences(description, objDesc, dataOffset, dataLength, valueOffset, valueLength);
 		return objDesc;
 	}
 
@@ -52,11 +59,11 @@ public class ViewerObjectDescriptionCreator
 	private static void setPrimitiveValue(
 		final ObjectDescription description,
 		final ViewerObjectDescription objDesc,
-		final long dataOffset,
-		final long dataLength)
+		final long valueOffset,
+		final long valueLength)
 	{
 		final String stringValue = description.getPrimitiveInstance().toString();
-		final String subString = limitsPrimitiveType(stringValue, dataOffset, dataLength);
+		final String subString = limitsPrimitiveType(stringValue, valueOffset, valueLength);
 		objDesc.setData(new String[] { subString } );
 	}
 
@@ -67,10 +74,10 @@ public class ViewerObjectDescriptionCreator
 		objDesc.setLength(Long.toString(description.getLength()));
 	}
 
-	private static String limitsPrimitiveType(final String data, final long dataOffset, final long dataLength)
+	private static String limitsPrimitiveType(final String data, final long valueOffset, final long valueLength)
 	{
-		final int startIndex = (int) Math.min(dataOffset, data.length());
-		final int realLength = (int) Math.max(Math.min(data.length() - startIndex, dataLength), 0);
+		final int startIndex = (int) Math.min(valueOffset, data.length());
+		final int realLength = (int) Math.max(Math.min(data.length() - startIndex, valueLength), 0);
 		final int endIndex = startIndex + realLength;
 
 		return data.substring(startIndex, endIndex);
@@ -80,7 +87,9 @@ public class ViewerObjectDescriptionCreator
 		final ObjectDescription description,
 		final ViewerObjectDescription objDesc,
 		final long dataOffset,
-		final long dataLength)
+		final long dataLength,
+		final long valueOffset,
+		final long valueLength)
 	{
 		final ObjectDescription refs[] = description.getReferences();
 		if(refs != null)
@@ -91,7 +100,7 @@ public class ViewerObjectDescriptionCreator
 			{
 				if(desc != null)
 				{
-					refList.add(create(desc, dataOffset, dataLength));
+					refList.add(create(desc, dataOffset, dataLength, valueOffset, valueLength));
 				}
 				else
 				{
