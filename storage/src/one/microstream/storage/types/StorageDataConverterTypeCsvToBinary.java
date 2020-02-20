@@ -1083,10 +1083,12 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			 */
 			final char[] input = XIO.unchecked(()->
 				XIO.readString(
-					XIO.Path(this.sourceFile.identifier()),
+					this.sourceFile.fileChannel(),
 					XChars.utf8()
 				)
 			).toCharArray();
+			
+			
 						
 			final XCsvParserCharArray parser = XCsvParserCharArray.New();
 			parser.parseCsvData(this.configuration.csvConfiguration(), _charArrayRange.New(input), this, this);

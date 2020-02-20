@@ -615,12 +615,38 @@ public final class XIO
 		return XChars.String(bytes, charSet);
 	}
 	
+	public static String readString(final FileChannel fileChannel)
+		throws IOException
+	{
+		return readString(fileChannel, XChars.standardCharset());
+	}
+	
+	public static String readString(final FileChannel fileChannel, final Charset charSet)
+		throws IOException
+	{
+		final byte[] bytes = read_bytes(fileChannel);
+		
+		return XChars.String(bytes, charSet);
+	}
+	
+	
 	public static byte[] read_bytes(final Path file)
 		throws IOException
 	{
 		final ByteBuffer content = read(file);
 		final byte[]     bytes   = XMemory.toArray(content);
 		XMemory.deallocateDirectByteBuffer(content);
+		
+		return bytes;
+	}
+	
+	public static byte[] read_bytes(final FileChannel fileChannel)
+		throws IOException
+	{
+		final ByteBuffer bb = XIO.read(fileChannel);
+		
+		final byte[] bytes = XMemory.toArray(bb);
+		XMemory.deallocateDirectByteBuffer(bb);
 		
 		return bytes;
 	}
