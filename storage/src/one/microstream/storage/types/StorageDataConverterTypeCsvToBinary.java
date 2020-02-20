@@ -1705,6 +1705,14 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.flushCloseClear();
 		}
 		
+		static final long getTypeIdFromFileName(final StorageFile file)
+		{
+			final String fileName = getSuffixlessFileName(file);
+			final long   typeId   = StorageEntityTypeExportFileProvider.getTypeIdFromUniqueTypeFileName(fileName);
+			
+			return typeId;
+		}
+		
 		static final String getSuffixlessFileName(final StorageFile file)
 		{
 			final String filename = file.name();
@@ -1719,14 +1727,20 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final XGettingList<String>     columnTypes
 		)
 		{
-			final String typeName = tableName != null
-				? tableName
-				: getSuffixlessFileName(this.sourceFile)
-			;
-			if((this.currentType = this.typeDictionary.lookupTypeByName(typeName)) == null)
+			// (20.02.2020 TM)NOTE: with the typeId being added to the file name, it must be parsed away, now
+			final long typeId = getTypeIdFromFileName(this.sourceFile);
+			
+			// (20.02.2020 TM)NOTE: previous (now insufficient) version
+//			final String typeName = tableName != null
+//				? tableName
+//				: getSuffixlessFileName(this.sourceFile)
+//			;
+			
+			// (20.02.2020 TM)NOTE: lookup by typeId instead of by type name.
+			if((this.currentType = this.typeDictionary.lookupTypeById(typeId)) == null)
 			{
 				// (01.10.2014 TM)EXCP: proper exception
-				throw new StorageException("Type not found: " + typeName);
+				throw new StorageException("Type not found: " + getSuffixlessFileName(this.sourceFile));
 			}
 
 			final String firstColumnName = columnNames.first();
