@@ -3,7 +3,6 @@ package storage.restservice.sparkjava;
 import one.microstream.storage.restadapter.StorageRestAdapter;
 import one.microstream.storage.restadapter.ViewerException;
 import one.microstream.storage.restservice.StorageRestService;
-import spark.RouteImpl;
 import spark.Service;
 import spark.route.HttpMethod;
 
@@ -16,6 +15,7 @@ public class StorageRestServiceDefault implements StorageRestService
 	private StorageRestAdapter storageRestAdapter;
 	private Service sparkService;
 	private String storageName ="microstream";
+	private RouteManager routeManager;
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -49,17 +49,22 @@ public class StorageRestServiceDefault implements StorageRestService
 
 	public void setupRoutes()
 	{
-		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName  + "/object/:oid",
-			new RouteGetObject(this.storageRestAdapter)));
+		this.routeManager = new DocumentationManager(this.sparkService);
 
-		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/root",
-			new RouteGetRoot(this.storageRestAdapter)));
+		this.routeManager.registerRoute(HttpMethod.get, "/",
+			new RouteAllRoutes((DocumentationManager) this.routeManager));
 
-		this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/dictionary",
-			new RouteTypeDictionary(this.storageRestAdapter)));
+		this.routeManager.registerRoute(HttpMethod.get, "/" + this.storageName + "/root",
+			new RouteGetRoot(this.storageRestAdapter));
 
-        this.sparkService.addRoute(HttpMethod.get, RouteImpl.create("/" + this.storageName + "/maintenance/filesStatistics",
-            new RouteStorageFilesStatistics(this.storageRestAdapter)));
+		this.routeManager.registerRoute(HttpMethod.get, "/" + this.storageName + "/dictionary",
+			new RouteTypeDictionary(this.storageRestAdapter));
+
+		this.routeManager.registerRoute(HttpMethod.get, "/" + this.storageName + "/object/:oid",
+			new RouteGetObject(this.storageRestAdapter));
+
+		this.routeManager.registerRoute(HttpMethod.get, "/" + this.storageName + "/maintenance/filesStatistics",
+			new RouteStorageFilesStatistics(this.storageRestAdapter));
 
 		this.sparkService.exception(InvalidRouteParametersException.class, (e, request, response) ->
 			{

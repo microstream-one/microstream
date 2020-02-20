@@ -3,17 +3,16 @@ package storage.restservice.sparkjava;
 import one.microstream.storage.restadapter.StorageRestAdapterStorageInfo;
 import spark.Request;
 import spark.Response;
-import spark.Route;
 
-public class RouteStorageFilesStatistics extends RouteBase<StorageRestAdapterStorageInfo> implements Route
+public class RouteStorageFilesStatistics extends RouteBaseConvertable<StorageRestAdapterStorageInfo>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public RouteStorageFilesStatistics(final StorageRestAdapterStorageInfo storageRestAdapter)
+	public RouteStorageFilesStatistics(final StorageRestAdapterStorageInfo apiAdapter)
 	{
-		super(storageRestAdapter);
+		super(apiAdapter);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -25,7 +24,7 @@ public class RouteStorageFilesStatistics extends RouteBase<StorageRestAdapterSto
 	{
 		final String requestedFormat = this.getStringParameter(request, "format");
 
-		return this.toRequestedFormat(this.storageRestAdapter.getStorageFilesStatistics(),
+		return this.toRequestedFormat(this.apiAdapter.getStorageFilesStatistics(),
 			requestedFormat,
 			response);
 	}
