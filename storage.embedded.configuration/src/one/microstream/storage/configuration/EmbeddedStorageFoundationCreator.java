@@ -23,14 +23,16 @@ public interface EmbeddedStorageFoundationCreator
 {
 	public EmbeddedStorageFoundation<?> createFoundation(Configuration configuration);
 	
+	
 	public static EmbeddedStorageFoundationCreator New()
 	{
-		return new Default();
+		return new EmbeddedStorageFoundationCreator.Default();
 	}
+	
 	
 	public static class Default implements EmbeddedStorageFoundationCreator
 	{
-		protected Default()
+		Default()
 		{
 			super();
 		}
@@ -38,19 +40,17 @@ public interface EmbeddedStorageFoundationCreator
 		@Override
 		public EmbeddedStorageFoundation<?> createFoundation(final Configuration configuration)
 		{
-			final Path                          baseDirectory          = XIO.unchecked.ensureDirectory(XIO.Path(configuration.getBaseDirectory()));
-			final StorageFileProvider           fileProvider           = this.createFileProvider(configuration, baseDirectory);
-			final StorageChannelCountProvider   channelCountProvider   = this.createChannelCountProvider(configuration);
-			final StorageHousekeepingController housekeepingController = this.createHousekeepingController(configuration);
-			final StorageDataFileEvaluator      dataFileEvaluator      = this.createDataFileEvaluator(configuration);
-			final StorageEntityCacheEvaluator   entityCacheEvaluator   = this.createEntityCacheEvaluator(configuration);
-			
+			final Path baseDirectory = XIO.unchecked.ensureDirectory(
+				XIO.Path(configuration.getBaseDirectory())
+			);
+
 			final StorageConfiguration.Builder<?> configBuilder = Storage.ConfigurationBuilder()
-				.setStorageFileProvider   (fileProvider          )
-				.setChannelCountProvider  (channelCountProvider  )
-				.setHousekeepingController(housekeepingController)
-				.setDataFileEvaluator     (dataFileEvaluator     )
-				.setEntityCacheEvaluator  (entityCacheEvaluator  );
+				.setStorageFileProvider   (this.createFileProvider(configuration, baseDirectory))
+				.setChannelCountProvider  (this.createChannelCountProvider(configuration)       )
+				.setHousekeepingController(this.createHousekeepingController(configuration)     )
+				.setDataFileEvaluator     (this.createDataFileEvaluator(configuration)          )
+				.setEntityCacheEvaluator  (this.createEntityCacheEvaluator(configuration)       )
+			;
 			
 			String backupDirectory;
 			if(!isEmpty(backupDirectory = configuration.getBackupDirectory()))
@@ -58,19 +58,14 @@ public interface EmbeddedStorageFoundationCreator
 				configBuilder.setBackupSetup(Storage.BackupSetup(backupDirectory));
 			}
 			
-			final EmbeddedStorageFoundation<?> storageFoundation = EmbeddedStorage.Foundation(configBuilder.createConfiguration());
-
-			final String typeDictionaryFilename = configuration.getTypeDictionaryFilename();
-			if(typeDictionaryFilename != null)
-			{
-				storageFoundation.getConnectionFoundation().setTypeDictionaryIoHandler(
-					PersistenceTypeDictionaryFileHandler.New(
-						XIO.Path(baseDirectory, typeDictionaryFilename)
-					)
-				);
-			}
-			
-			return storageFoundation;
+			return EmbeddedStorage.Foundation(
+				configBuilder.createConfiguration()
+			)
+			.onConnectionFoundation(cf ->
+				cf.setTypeDictionaryIoHandler(
+					this.createTypeDictionaryHandler(configuration, baseDirectory)
+				)
+			);
 		}
 		
 		protected StorageFileProvider createFileProvider(
@@ -93,45 +88,47 @@ public interface EmbeddedStorageFoundationCreator
 		
 		protected StorageChannelCountProvider createChannelCountProvider(final Configuration configuration)
 		{
-			return Storage.ChannelCountProvider(configuration.getChannelCount());
+			return Storage.ChannelCountProvider(
+				configuration.getChannelCount()
+			);
 		}
 		
 		protected StorageHousekeepingController createHousekeepingController(final Configuration configuration)
 		{
 			return Storage.HousekeepingController(
-				configuration.getHouseKeepingInterval      (),
-				configuration.getHouseKeepingNanoTimeBudget()
+				configuration.getHousekeepingIntervalMs  (),
+				configuration.getHousekeepingTimeBudgetNs()
 			);
 		}
 		
 		protected StorageDataFileEvaluator createDataFileEvaluator(final Configuration configuration)
 		{
 			return Storage.DataFileEvaluator(
-				configuration.getDataFileMinSize      (),
-				configuration.getDataFileMaxSize      (),
-				configuration.getDataFileDissolveRatio()
+				configuration.getDataFileMinimumSize    (),
+				configuration.getDataFileMaximumSize    (),
+				configuration.getDataFileMinimumUseRatio(),
+				configuration.getDataFileCleanupHeadFile()
 			);
 		}
 		
 		protected StorageEntityCacheEvaluator createEntityCacheEvaluator(final Configuration configuration)
 		{
 			return Storage.EntityCacheEvaluator(
-				configuration.getEntityCacheTimeout  (),
+				configuration.getEntityCacheTimeoutMs(),
 				configuration.getEntityCacheThreshold()
 			);
 		}
 
-		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryFileHandler(
+		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryHandler(
 			final Configuration configuration,
-			final Path          baseDirectory
+			final Path baseDirectory
 		)
 		{
-			final String typeDictionaryFilename = configuration.getTypeDictionaryFilename();
-			return typeDictionaryFilename == null
-				? null
-				: PersistenceTypeDictionaryFileHandler.New(
-					XIO.Path(baseDirectory, typeDictionaryFilename)
-				);
+			return PersistenceTypeDictionaryFileHandler.New(
+				XIO.Path(baseDirectory, configuration.getTypeDictionaryFilename())
+			);
 		}
+		
 	}
+	
 }

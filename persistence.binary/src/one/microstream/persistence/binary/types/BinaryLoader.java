@@ -22,7 +22,6 @@ import one.microstream.persistence.types.PersistenceSourceSupplier;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerLookup;
 import one.microstream.persistence.types.Persister;
-import one.microstream.reference._intReference;
 
 public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 {
@@ -577,7 +576,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		private boolean isUnrequiredReferenceLazy(final long objectId)
 		{
 			// spare pointless null reference roundtrips
-			if(isUnrequiredReferenceEager(objectId))
+			if(this.isUnrequiredReferenceEager(objectId))
 			{
 				return true;
 			}
@@ -920,9 +919,9 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		@Override
 		public BinaryLoader createLoader(
-			final PersistenceTypeHandlerLookup<Binary> typeLookup,
-			final PersistenceObjectRegistry            registry  ,
-			final Persister                            persister ,
+			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
+			final PersistenceObjectRegistry            registry       ,
+			final Persister                            persister      ,
 			final PersistenceSourceSupplier<Binary>    source
 		)
 		{
@@ -946,8 +945,8 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		// instance fields //
 		////////////////////
 
-		private final boolean       switchByteOrder     ;
-		private final _intReference channelCountProvider;
+		private final boolean                    switchByteOrder     ;
+		private final BinaryChannelCountProvider channelCountProvider;
 
 
 
@@ -956,8 +955,8 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		/////////////////
 
 		public CreatorChannelHashing(
-			final _intReference channelCountProvider,
-			final boolean       switchByteOrder
+			final BinaryChannelCountProvider channelCountProvider,
+			final boolean                    switchByteOrder
 		)
 		{
 			super();
@@ -973,9 +972,9 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		@Override
 		public BinaryLoader createLoader(
-			final PersistenceTypeHandlerLookup<Binary> typeLookup    ,
-			final PersistenceObjectRegistry            registry      ,
-			final Persister                            persister     ,
+			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
+			final PersistenceObjectRegistry            registry       ,
+			final Persister                            persister      ,
 			final PersistenceSourceSupplier<Binary>    sourceSupplier
 		)
 		{
@@ -984,7 +983,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 				registry,
 				persister,
 				sourceSupplier,
-				new LoadItemsChain.ChannelHashing(this.channelCountProvider.get()),
+				new LoadItemsChain.ChannelHashing(this.channelCountProvider.getChannelCount()),
 				this.switchByteOrder
 			);
 		}

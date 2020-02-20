@@ -32,12 +32,14 @@ public interface EmbeddedStorageManager extends StorageManager
 	
 	
 	public static EmbeddedStorageManager.Default New(
+		final Database                               database            ,
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
 		final PersistenceRootsProvider<?>            rootsProvider
 	)
 	{
 		return new EmbeddedStorageManager.Default(
+			notNull(database)            ,
 			notNull(configuration)       ,
 			notNull(connectionFoundation),
 			notNull(rootsProvider)
@@ -51,6 +53,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		// instance fields //
 		////////////////////
 
+		private final Database                               database            ;
 		private final StorageConfiguration                   configuration       ;
 		private final StorageSystem                          storageSystem       ;
 		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
@@ -65,16 +68,18 @@ public interface EmbeddedStorageManager extends StorageManager
 		/////////////////
 
 		Default(
+			final Database                               database            ,
 			final StorageConfiguration                   configuration       ,
 			final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
 			final PersistenceRootsProvider<?>            rootsProvider
 		)
 		{
 			super();
-			this.configuration        = configuration                           ;
+			this.database             = database                               ;
+			this.configuration        = configuration                          ;
 			this.storageSystem        = connectionFoundation.getStorageSystem(); // to ensure consistency
-			this.connectionFoundation = connectionFoundation                    ;
-			this.rootsProvider        = rootsProvider                           ;
+			this.connectionFoundation = connectionFoundation                   ;
+			this.rootsProvider        = rootsProvider                          ;
 		}
 
 
@@ -92,6 +97,12 @@ public interface EmbeddedStorageManager extends StorageManager
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final Database database()
+		{
+			return this.database;
+		}
 
 		@Override
 		public final Object root()
@@ -416,9 +427,9 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 
 		@Override
-		public final boolean issueFileCheck(final long nanoTimeBudgetBound)
+		public final boolean issueFileCheck(final long nanoTimeBudget)
 		{
-			return this.singletonConnection().issueFileCheck(nanoTimeBudgetBound);
+			return this.singletonConnection().issueFileCheck(nanoTimeBudget);
 		}
 
 		@Override
@@ -434,18 +445,18 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 
 		@Override
-		public final boolean issueCacheCheck(final long nanoTimeBudgetBound)
+		public final boolean issueCacheCheck(final long nanoTimeBudget)
 		{
-			return this.singletonConnection().issueCacheCheck(nanoTimeBudgetBound);
+			return this.singletonConnection().issueCacheCheck(nanoTimeBudget);
 		}
 
 		@Override
 		public final boolean issueCacheCheck(
-			final long                        nanoTimeBudgetBound,
+			final long                        nanoTimeBudget,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 		{
-			return this.singletonConnection().issueCacheCheck(nanoTimeBudgetBound, entityEvaluator);
+			return this.singletonConnection().issueCacheCheck(nanoTimeBudget, entityEvaluator);
 		}
 
 		@Override

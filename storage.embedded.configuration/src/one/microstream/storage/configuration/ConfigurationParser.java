@@ -6,10 +6,6 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
-import java.util.Properties;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,7 +29,9 @@ public interface ConfigurationParser
 		return this.parse(Configuration.Default(), data);
 	}
 	
+	
 	public Configuration parse(Configuration configuration, String data);
+	
 	
 	public static ConfigurationParser Ini()
 	{
@@ -42,7 +40,7 @@ public interface ConfigurationParser
 	
 	public static ConfigurationParser Ini(final ConfigurationPropertyParser propertyParser)
 	{
-		return new IniConfigurationParser(propertyParser);
+		return new IniConfigurationParser(notNull(propertyParser));
 	}
 	
 	public static ConfigurationParser Xml()
@@ -52,79 +50,69 @@ public interface ConfigurationParser
 	
 	public static ConfigurationParser Xml(final ConfigurationPropertyParser propertyParser)
 	{
-		return new XmlConfigurationParser(propertyParser);
+		return new XmlConfigurationParser(notNull(propertyParser));
 	}
+	
 	
 	public static class IniConfigurationParser implements ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
 		
-		protected IniConfigurationParser(final ConfigurationPropertyParser propertyParser)
+		IniConfigurationParser(final ConfigurationPropertyParser propertyParser)
 		{
 			super();
-			this.propertyParser = notNull(propertyParser);
+			this.propertyParser = propertyParser;
 		}
 		
 		@Override
-		public Configuration parse(Configuration configuration, final String data)
+		public Configuration parse(final Configuration configuration, final String data)
 		{
-			if(configuration == null)
+			nextLine:
+			for(String line : data.split("\\r?\\n"))
 			{
-				configuration = Configuration.Default();
-			}
-			
-			final Properties properties = new Properties();
-			try
-			{
-				properties.load(new StringReader(data));
-			}
-			catch(final IOException e)
-			{
-				throw new StorageExceptionIo(e);
-			}
-			this.removeSections(properties);
-			
-			for(final Object key : properties.keySet())
-			{
-				final String name  = (String)key;
-				final String value = properties.getProperty(name);
+				line = line.trim();
+				if(line.isEmpty())
+				{
+					continue nextLine;
+				}
+				
+				switch(line.charAt(0))
+				{
+					case '#': // comment
+					case ';': // comment
+					case '[': // section
+						continue nextLine;
+				}
+				
+				final int separatorIndex = line.indexOf('=');
+				if(separatorIndex == -1)
+				{
+					continue nextLine; // no key=value pair, ignore
+				}
+				
+				final String name  = line.substring(0, separatorIndex).trim();
+				final String value = line.substring(separatorIndex + 1).trim();
 				this.propertyParser.parseProperty(name, value, configuration);
 			}
 			
 			return configuration;
 		}
 		
-		/**
-		 * Removes ini [section]s from properties, java.util.Properties doesn't parse them properly.
-		 */
-		protected void removeSections(final Properties properties)
-		{
-			final Pattern      sectionPattern = Pattern.compile("(?ms)^\\[[^]\\r\\n]+](?:(?!^\\[[^]\\r\\n]+]).)*");
-			final List<Object> sectionKeys    = properties.keySet().stream()
-				.filter(key -> sectionPattern.matcher((String)key).matches())
-				.collect(Collectors.toList());
-			sectionKeys.forEach(properties::remove);
-		}
 	}
 	
 	public static class XmlConfigurationParser implements ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
 		
-		protected XmlConfigurationParser(final ConfigurationPropertyParser propertyParser)
+		XmlConfigurationParser(final ConfigurationPropertyParser propertyParser)
 		{
 			super();
-			this.propertyParser = notNull(propertyParser);
+			this.propertyParser = propertyParser;
 		}
 		
 		@Override
-		public Configuration parse(Configuration configuration, final String data)
+		public Configuration parse(final Configuration configuration, final String data)
 		{
-			if(configuration == null)
-			{
-				configuration = Configuration.Default();
-			}
-			
 			try
 			{
 				final DocumentBuilder builder  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -136,8 +124,8 @@ public interface ConfigurationParser
 					for(int i = 0, c = propertyNodes.getLength(); i < c; i++)
 					{
 						final Element propertyElement = (Element)propertyNodes.item(i);
-						final String  name            = notEmpty(propertyElement.getAttribute("name"));
-						final String  value           = notEmpty(propertyElement.getAttribute("value"));
+						final String  name            = notEmpty(propertyElement.getAttribute("name").trim());
+						final String  value           = notEmpty(propertyElement.getAttribute("value").trim());
 						this.propertyParser.parseProperty(name, value, configuration);
 					}
 				}
@@ -153,5 +141,7 @@ public interface ConfigurationParser
 			
 			return configuration;
 		}
+		
 	}
+	
 }

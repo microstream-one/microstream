@@ -38,7 +38,7 @@ public interface StorageEntityTypeConversionFileProvider
 			this.fileSuffix       = fileSuffix        ;
 			this.cachedFileSuffix = fileSuffix == null
 				? ""
-				: '.' + fileSuffix
+				: XIO.fileSuffixSeparator() + fileSuffix
 			;
 		}
 

@@ -10,12 +10,12 @@ import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.KeyValue;
-import one.microstream.util.csv.CSV;
-import one.microstream.util.csv.CsvConfiguration;
+import one.microstream.util.xcsv.XCSV;
+import one.microstream.util.xcsv.XCsvConfiguration;
 
 public interface StorageDataConverterCsvConfiguration
 {
-	public CsvConfiguration csvConfiguration();
+	public XCsvConfiguration csvConfiguration();
 
 	public XGettingMap<String, String> typeNameToCsvTypeNameMapping();
 
@@ -102,7 +102,7 @@ public interface StorageDataConverterCsvConfiguration
 
 
 	public static StorageDataConverterCsvConfiguration New(
-		final CsvConfiguration            csvConfiguration            ,
+		final XCsvConfiguration           csvConfiguration            ,
 		final XGettingMap<String, String> typeNameToCsvTypeNameMapping,
 		final XGettingMap<String, String> csvTypeNameToTypeNameMapping,
 		final String                      literalBooleanTrue          ,
@@ -140,7 +140,7 @@ public interface StorageDataConverterCsvConfiguration
 		// instance fields //
 		////////////////////
 
-		final CsvConfiguration            csvConfiguration            ;
+		final XCsvConfiguration            csvConfiguration            ;
 		final XGettingMap<String, String> typeNameToCsvTypeNameMapping;
 		final XGettingMap<String, String> csvTypeNameToTypeNameMapping;
 		final String                      literalBooleanTrue          ;
@@ -160,7 +160,7 @@ public interface StorageDataConverterCsvConfiguration
 		/////////////////
 
 		public Default(
-			final CsvConfiguration            csvConfiguration            ,
+			final XCsvConfiguration           csvConfiguration            ,
 			final XGettingMap<String, String> typeNameToCsvTypeNameMapping,
 			final XGettingMap<String, String> csvTypeNameToTypeNameMapping,
 			final String                      literalBooleanTrue          ,
@@ -196,7 +196,7 @@ public interface StorageDataConverterCsvConfiguration
 		////////////
 
 		@Override
-		public final CsvConfiguration csvConfiguration()
+		public final XCsvConfiguration csvConfiguration()
 		{
 			return this.csvConfiguration;
 		}
@@ -317,9 +317,9 @@ public interface StorageDataConverterCsvConfiguration
 
 
 		@Override
-		public final CsvConfiguration csvConfiguration()
+		public final XCsvConfiguration csvConfiguration()
 		{
-			return CSV.configurationDefault();
+			return XCSV.configurationDefault();
 		}
 
 		@Override
@@ -393,7 +393,7 @@ public interface StorageDataConverterCsvConfiguration
 
 	public interface Builder
 	{
-		public CsvConfiguration csvConfiguration();
+		public XCsvConfiguration csvConfiguration();
 
 		public XGettingMap<String, String> typeNameToCsvTypeNameMapping();
 
@@ -417,7 +417,7 @@ public interface StorageDataConverterCsvConfiguration
 
 		public char literalListSeparator();
 
-		public Builder csvConfiguration(CsvConfiguration csvConfiguration);
+		public Builder csvConfiguration(XCsvConfiguration csvConfiguration);
 
 		public Builder typeNameToCsvTypeNameMapping(XGettingMap<String, String> typeNameToCsvTypeNameMapping);
 
@@ -453,7 +453,7 @@ public interface StorageDataConverterCsvConfiguration
 			// instance fields //
 			////////////////////
 
-			CsvConfiguration            csvConfiguration            ;
+			XCsvConfiguration           csvConfiguration            ;
 			XGettingMap<String, String> typeNameToCsvTypeNameMapping;
 			XGettingMap<String, String> csvTypeNameToTypeNameMapping;
 			String                      literalBooleanTrue          ;
@@ -514,7 +514,7 @@ public interface StorageDataConverterCsvConfiguration
 			}
 
 			@Override
-			public final CsvConfiguration csvConfiguration()
+			public final XCsvConfiguration csvConfiguration()
 			{
 				return this.csvConfiguration;
 			}
@@ -586,7 +586,7 @@ public interface StorageDataConverterCsvConfiguration
 			}
 
 			@Override
-			public final Builder csvConfiguration(final CsvConfiguration csvConfiguration)
+			public final Builder csvConfiguration(final XCsvConfiguration csvConfiguration)
 			{
 				this.csvConfiguration = csvConfiguration;
 				return this;

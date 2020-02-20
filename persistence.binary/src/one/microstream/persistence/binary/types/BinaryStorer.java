@@ -15,7 +15,6 @@ import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.reference.ObjectSwizzling;
-import one.microstream.reference._intReference;
 import one.microstream.util.BufferSizeProviderIncremental;
 
 
@@ -104,7 +103,7 @@ public interface BinaryStorer extends PersistenceStorer
 
 		protected Default(
 			final PersistenceObjectManager              objectManager     ,
-			final ObjectSwizzling            objectRetriever   ,
+			final ObjectSwizzling                       objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -622,8 +621,8 @@ public interface BinaryStorer extends PersistenceStorer
 	}
 		
 	public static BinaryStorer.Creator Creator(
-		final _intReference channelCountProvider,
-		final boolean       switchByteOrder
+		final BinaryChannelCountProvider channelCountProvider,
+		final boolean                    switchByteOrder
 	)
 	{
 		return new BinaryStorer.Creator.Default(
@@ -638,7 +637,7 @@ public interface BinaryStorer extends PersistenceStorer
 		public BinaryStorer createLazyStorer(
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceObjectManager              objectManager     ,
-			ObjectSwizzling            objectRetriever   ,
+			ObjectSwizzling                       objectRetriever   ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
 		);
@@ -673,8 +672,8 @@ public interface BinaryStorer extends PersistenceStorer
 			////////////////////
 
 
-			private final _intReference channelCountProvider;
-			private final boolean       switchByteOrder     ;
+			private final BinaryChannelCountProvider channelCountProvider;
+			private final boolean                    switchByteOrder     ;
 
 
 
@@ -683,8 +682,8 @@ public interface BinaryStorer extends PersistenceStorer
 			/////////////////
 
 			protected Abstract(
-				final _intReference channelCountProvider,
-				final boolean       switchByteOrder
+				final BinaryChannelCountProvider channelCountProvider,
+				final boolean                    switchByteOrder
 			)
 			{
 				super();
@@ -700,7 +699,7 @@ public interface BinaryStorer extends PersistenceStorer
 			
 			protected int channelCount()
 			{
-				return this.channelCountProvider.get();
+				return this.channelCountProvider.getChannelCount();
 			}
 			
 			protected boolean switchByteOrder()
@@ -713,8 +712,8 @@ public interface BinaryStorer extends PersistenceStorer
 		public final class Default extends Abstract
 		{
 			Default(
-				final _intReference channelCountProvider,
-				final boolean       switchByteOrder
+				final BinaryChannelCountProvider channelCountProvider,
+				final boolean                    switchByteOrder
 			)
 			{
 				super(channelCountProvider, switchByteOrder);
@@ -724,7 +723,7 @@ public interface BinaryStorer extends PersistenceStorer
 			public final BinaryStorer createLazyStorer(
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceObjectManager              objectManager     ,
-				final ObjectSwizzling            objectRetriever   ,
+				final ObjectSwizzling                       objectRetriever   ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)

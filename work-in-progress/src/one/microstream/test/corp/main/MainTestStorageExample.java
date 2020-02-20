@@ -30,6 +30,10 @@ public class MainTestStorageExample
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
 			Test.print("Storing completed.");
+			
+			Test.print("Exporting data ...");
+			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
+			Test.print("Data export completed.");
 		}
 		else
 		{
@@ -48,7 +52,7 @@ public class MainTestStorageExample
 		STORAGE.shutdown();
 		
 		// no shutdown required, the storage concept is inherently crash-safe
-//		System.exit(0);
+		System.exit(0);
 	}
 		
 }
