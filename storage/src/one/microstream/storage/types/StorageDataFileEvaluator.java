@@ -202,11 +202,11 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			}
 			
 			// can technically never happen for now, but the max value might change
-			if(fileMaximumSize >= maximumFileSize())
+			if(fileMaximumSize > maximumFileSize())
 			{
 				 // (17.02.2020 TM)EXCP: proper exception
 				throw new IllegalArgumentException(
-					"Specified file maximum size of " + fileMinimumSize
+					"Specified file maximum size of " + fileMaximumSize
 					+ " is not in the valid range of ["
 					+ minimumFileSize() + ", " + maximumFileSize() + "]."
 				);
