@@ -44,7 +44,7 @@ public class StorageRestServiceDefault implements StorageRestService
 
 	public void setDefaultDataLength(final long defaultDataLength)
 	{
-		this.storageRestAdapter.setDefaultDataLength(defaultDataLength);
+		this.storageRestAdapter.setDefaultValueLength(defaultDataLength);
 	}
 
 	public void setupRoutes()

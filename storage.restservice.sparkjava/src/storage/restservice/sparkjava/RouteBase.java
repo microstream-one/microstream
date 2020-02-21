@@ -72,9 +72,11 @@ public class RouteBase<T extends StorageRestAdapterConverter>
 			return defaultValue;
 		}
 
-		if(param.toLowerCase().contentEquals("true"))
+		if(param.toLowerCase().contentEquals("true")
+			|| param.toLowerCase().contentEquals("false")
+			)
 		{
-			return true;
+			return Boolean.parseBoolean(param);
 		}
 		throw new InvalidRouteParametersException("invalid url parameter " + name);
 
