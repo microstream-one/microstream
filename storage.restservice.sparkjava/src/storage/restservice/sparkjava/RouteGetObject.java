@@ -25,21 +25,27 @@ public class RouteGetObject extends RouteBase<StorageRestAdapterObject> implemen
 	@Override
 	public String handle(final Request request, final Response response)
 	{
-		final long dataOffset = this.getLongParameter(request, "dataOffset", 0);
-        final long dataLength = this.getLongParameter(request, "dataLength", this.storageRestAdapter.getDefaultDataLength());
+		final long fixedOffset = this.getLongParameter(request, "fixedOffset", 0);
+        final long fixedLength = this.getLongParameter(request, "fixedLength", Long.MAX_VALUE);
+        final long variableOffset = this.getLongParameter(request, "variableOffset", 0);
+        final long variableLength = this.getLongParameter(request, "variableLength", Long.MAX_VALUE);
 		final long referenceOffset = this.getLongParameter(request, "referenceOffset", 0);
 		final long referenceLength = this.getLongParameter(request, "referenceLength", Long.MAX_VALUE);
-		final boolean resolveReverences = this.getBooleanParameter(request, "references", false);
+		final long valueLength = this.getLongParameter(request, "valueLength", this.storageRestAdapter.getDefaultValueLength());
+		final boolean resolveReferences = this.getBooleanParameter(request, "references", false);
 		final String requestedFormat = this.getStringParameter(request, "format");
 
 		final long objectId = this.validateObjectId(request);
 		final ViewerObjectDescription storageObject = this.storageRestAdapter.getObject(
 			objectId,
-			dataOffset,
-			dataLength,
-			resolveReverences,
+			fixedOffset,
+			fixedLength,
+			variableOffset,
+			variableLength,
 			referenceOffset,
-			referenceLength);
+			referenceLength,
+			valueLength,
+			resolveReferences);
 
 		return this.toRequestedFormat(storageObject, requestedFormat, response);
 	}

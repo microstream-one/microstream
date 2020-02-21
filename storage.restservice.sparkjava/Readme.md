@@ -91,7 +91,7 @@ Get an objects description and values by the object’s storage id
 the default InstanceName is "microstream"
 
 ```
-http://localhost:4567/microstream/object/1000000000000000028?dataLength=3&dataOffset=2&references=true&referenceOffset=2&referenceLength=4
+http://localhost:4567/microstream/object/1000000000000000028?valueLength=3&references=true&referenceOffset=2&referenceLength=4
 ```
 
 #### Parameter:
@@ -100,23 +100,37 @@ optional parameter, if not denoted json is default\
 Explicitly specify the requested response content format.\
 Currently only json is supported.
 
-##### dataOffset: long number
-optional, default is 0
+##### valueLength: long number
+optional, default is java.lang.Long.MAX_VALUE\
+limit size of returned value elements to this value
+e.g. limit the size of String values
 
-##### dataLength: long number
-optional, default is unlimited data length\
-limit the number of returned data fields and limit the size of contained value elements to this value
+##### fixedOffset: long number
+optional, default is 0 \
+returned fixed sized member start at this index
+
+##### fixedLength: long number
+optional, default is java.lang.Long.MAX_VALUE \
+limit the number of returned fixed sized members
+
+##### variableOffset: long number
+optional, default is 0 \
+returnd variable sized members start at this index
+
+##### variableLength: long number
+optional, default is default is java.lang.Long.MAX_VALUE \
+limit the number of returned variable sized members (e.g. list members)
 
 ##### references: text
 optional, either “true” or “false \
 if true the returned data set will contain resolved top level references of the requested object
 
 ##### referenceOffset: long number
-optional, default is 0\
+optional, default is 0 \
 if supplied together with “references=true” the returned data set will contain resolved references starting from this offset
 
 ##### referenceLength: long number
-optional, default is unlimited\
+optional, default is default is java.lang.Long.MAX_VALUE \
 limit the number of returned resolved references to supplied count.\
 requires “references=true”
 

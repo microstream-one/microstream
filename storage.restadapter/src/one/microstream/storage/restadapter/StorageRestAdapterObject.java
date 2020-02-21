@@ -2,10 +2,11 @@ package one.microstream.storage.restadapter;
 
 public interface StorageRestAdapterObject extends StorageRestAdapterConverter
 {
-	public ViewerObjectDescription getObject(long objectId, long dataOffset, long dataLength, boolean resolveReferences,
-			long referenceOffset, long referenceLength);
+	public long getDefaultValueLength();
 
-	public long getDefaultDataLength();
+	public void setDefaultValueLength(long defaultValueLength);
 
-	public void setDefaultDataLength(long defaultDataLength);
+	public ViewerObjectDescription getObject(long objectId, long fixedOffset, long fixedLength, long variableOffset,
+			long variableLength, long referenceOffset, long referenceLength, long valueLength,
+			boolean resolveReferences);
 }

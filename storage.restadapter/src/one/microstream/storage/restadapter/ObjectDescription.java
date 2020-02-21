@@ -22,6 +22,7 @@ public class ObjectDescription
 	private PersistenceTypeDefinition persistenceTypeDefinition;
 	private long length;
 	private ObjectDescription[] references;
+	private Long[] variableLength;
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -70,6 +71,16 @@ public class ObjectDescription
 	public void setLength(final long variableSize)
 	{
 		this.length = variableSize;
+	}
+
+	public void setVariableLength(final Long[] objects)
+	{
+		this.variableLength = objects;
+	}
+
+	public Long[] getVariableLength()
+	{
+		return this.variableLength;
 	}
 
 	public ObjectDescription[] getReferences()
@@ -124,14 +135,22 @@ public class ObjectDescription
 
 		final List<ObjectDescription> resolvedReferences = new ArrayList<>();
 
-		for(int i = 0; i < this.values.length; i++)
+		Object[] toBeResolved = this.values;
+
+		//If there is only one "value" that is an Object array resolve all references inside that array
+		if(toBeResolved.length == 1 && toBeResolved[0] instanceof Object[])
 		{
-			if(this.values[i] instanceof ObjectReferenceWrapper)
+				toBeResolved = (Object[]) toBeResolved[0];
+		}
+
+		for(int i = 0; i < toBeResolved.length; i++)
+		{
+			if(toBeResolved[i] instanceof ObjectReferenceWrapper)
 			{
 				if(referenceIndex++ < referenceOffset) continue;
 				if(referenceCount++ >= referenceLength) break;
 
-				final long oid = ((ObjectReferenceWrapper) this.values[i]).getObjectId();
+				final long oid = ((ObjectReferenceWrapper) toBeResolved[i]).getObjectId();
 				if(oid > 0)
 				{
 					resolvedReferences.add(storageRestAdapter.getStorageObject(oid));
@@ -145,4 +164,5 @@ public class ObjectDescription
 
 		this.references = resolvedReferences.toArray(new ObjectDescription[0]);
 	}
+
 }
