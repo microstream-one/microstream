@@ -28,7 +28,7 @@ import one.microstream.util.BufferSizeProvider;
 
 
 // note that the name channel refers to the entity hash channel, not an nio channel
-public interface StorageFileManager
+public interface StorageFileManager extends StorageChannelResetablePart
 {
 	/* (17.09.2014 TM)TODO: Much more loose coupling
 	 * Make all storage stuff much more loosely coupled with more interface methods and
@@ -45,8 +45,12 @@ public interface StorageFileManager
 	 * specifically loggable.
 	 */
 
+	@Override
 	public int channelIndex();
 
+	@Override
+	public void reset();
+	
 	public long[] storeChunks(long timestamp, ByteBuffer[] dataBuffers) throws StorageExceptionIoWritingChunk;
 
 	public void rollbackWrite();
@@ -58,7 +62,8 @@ public interface StorageFileManager
 	public StorageIdAnalysis initializeStorage(
 		long             taskTimestamp           ,
 		long             consistentStoreTimestamp,
-		StorageInventory storageInventory
+		StorageInventory storageInventory        ,
+		StorageChannel   parent
 	);
 
 	public StorageDataFile<?> currentStorageFile();
@@ -113,6 +118,8 @@ public interface StorageFileManager
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+		
+		// state 1: immutable or stateless
 
 		private final int                                  channelIndex                 ;
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider;
@@ -123,7 +130,15 @@ public interface StorageFileManager
 		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
 		private final StorageBackupHandler                 backupHandler                ;
+		
+		// to avoid permanent lambda instantiation
+		private final Consumer<? super StorageDataFile.Default> deleter        = this::deleteFile       ;
+		private final Consumer<? super StorageDataFile.Default> pendingDeleter = this::deletePendingFile;
+		
+		
+		// state 2: entry buffers. Don't need to be resetted. See comment in reset().
 
+		// all ".clear()" calls on these buffers are only for flushing them out. Filling them happens only via address.
 		private final ByteBuffer[]
 			entryBufferFileCreation   = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
 			entryBufferStore          = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthStore())}         ,
@@ -140,6 +155,7 @@ public interface StorageFileManager
 			entryBufferFileTruncationAddress = XMemory.getDirectByteBufferAddress(this.entryBufferFileTruncation[0])
 		;
 
+		// Entry Buffers have their "effectively immutable" first parts initialized once and never changed again.
 		{
 			StorageTransactionsFileAnalysis.Logic.initializeEntryFileCreation  (this.entryBufferFileCreationAddress  );
 			StorageTransactionsFileAnalysis.Logic.initializeEntryStore         (this.entryBufferStoreAddress         );
@@ -147,22 +163,27 @@ public interface StorageFileManager
 			StorageTransactionsFileAnalysis.Logic.initializeEntryFileDeletion  (this.entryBufferFileDeletionAddress  );
 			StorageTransactionsFileAnalysis.Logic.initializeEntryFileTruncation(this.entryBufferFileTruncationAddress);
 		}
-
-		private StorageInventoryFile fileTransactions;
+		
+		
+		// state 3: final references to mutable instances, i.e. content must be cleared on reset
 
 		private final ByteBuffer standardByteBuffer;
-
-		private StorageDataFile.Default fileCleanupCursor, headFile;
 		
-		// to avoid permanent lambda instantiation
-		private final Consumer<? super StorageDataFile.Default> deleter = this::deleteFile;
-		private final Consumer<? super StorageDataFile.Default> pendingDeleter = this::deletePendingFile;
+		
+		// state 4: mutable fields. Must be cleared on reset.
+		
+		private StorageInventoryFile fileTransactions;
+		
+		private StorageDataFile.Default fileCleanupCursor;
 
 		private long uncommittedDataLength;
 
 		private int  pendingFileDeletes;
+		
+		
+		// state 5: variable length content
 
-//		private transient boolean hasUnflushedWrites = false;
+		private StorageDataFile.Default headFile;
 
 
 
@@ -194,13 +215,8 @@ public interface StorageFileManager
 			this.writer                        =     notNull(writer)                       ;
 			this.backupHandler                 =     mayNull(backupHandler)                ;
 			
-			/*
-			 * Of course a low-level byte buffer can only have a int capacity. Why should it be able to take a long?
-			 * There is absolutely no reason whatsoever to not unnecessary shackle and borderline-ruin the JDK
-			 * tools for working with memory. Right?
-			 */
-			this.standardByteBuffer = XMemory.allocateDirectNative
-				(standardBufferSizeProvider.provideBufferSize()
+			this.standardByteBuffer = XMemory.allocateDirectNative(
+				standardBufferSizeProvider.provideBufferSize()
 			);
 		}
 
@@ -781,7 +797,8 @@ public interface StorageFileManager
 		public StorageIdAnalysis initializeStorage(
 			final long             taskTimestamp           ,
 			final long             consistentStoreTimestamp,
-			final StorageInventory storageInventory
+			final StorageInventory storageInventory        ,
+			final StorageChannel   parent
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " init for consistent timestamp " + consistentStoreTimestamp);
@@ -829,7 +846,7 @@ public interface StorageFileManager
 			catch(final RuntimeException e)
 			{
 				// on any exception, reset (clear) the internal state
-				this.clearState();
+				parent.reset();
 				throw e;
 			}
 			finally
@@ -1142,10 +1159,15 @@ public interface StorageFileManager
 			transactionsFile.registerUsage(this);
 		}
 
-		final void clearState()
+		@Override
+		public final void reset()
 		{
+			/*
+			 * Reset plan:
+			 * - all final fields don't have to (can't) be resetted. Obviously.
+			 * - entryBuffers don't have to be resetted since they get filled anew for every write.
+			 */
 			this.clearRegisteredFiles();
-			this.entityCache.clearState();
 		}
 
 		final void handleLastFile(
