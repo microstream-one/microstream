@@ -20,7 +20,7 @@ import one.microstream.storage.exceptions.StorageException;
 import one.microstream.time.XTime;
 
 
-public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
+public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageChannelResetablePart
 {
 	public StorageTypeDictionary typeDictionary();
 
@@ -39,6 +39,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 	public long cacheSize();
 	
 	public long clearCache();
+	
+	@Override
+	public void reset();
 
 
 
@@ -232,8 +235,11 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.rootType       = this.getType(this.rootTypeId);
 		}
 
-		final void clearState()
+		@Override
+		public final void reset()
 		{
+			// (21.02.2020 TM)FIXME: priv#230: must thoroughly check and comment ALL resettable state. EG. mark monitor!
+			
 			this.clearCache();
 			
 			// must lock independently of gcPhaseMonitor to avoid deadlock!
@@ -1059,6 +1065,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		@Override
 		public final long clearCache()
 		{
+			// (21.02.2020 TM)FIXME: priv#230: must be robust to being called BEFORE having iteration state being properly initialized
+			
 			if(this.usedCacheSize == 0)
 			{
 				return 0;
@@ -1100,6 +1108,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		final void clearPendingStoreUpdate()
 		{
+			// (21.02.2020 TM)NOTE: this potentially gets called after reset(), so it must be accordingly robust.
+			
 			this.hasUpdatePendingSweep = false;
 			this.markMonitor.clearPendingStoreUpdate(this);
 		}
