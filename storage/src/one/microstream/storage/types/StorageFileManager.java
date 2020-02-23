@@ -167,15 +167,19 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		
 		// state 3: final references to mutable instances, i.e. content must be cleared on reset
 
+		// cleared by clearStandardByteBuffer() / reset().
 		private final ByteBuffer standardByteBuffer;
 		
 		
 		// state 4: mutable fields. Must be cleared on reset.
 		
+		// cleared and nulled by clearTransactionsFile()
 		private StorageInventoryFile fileTransactions;
 		
+		// cleared and nulled by clearRegisteredFiles() / reset()
 		private StorageDataFile.Default fileCleanupCursor;
 
+		// (23.02.2020 TM)FIXME: priv#230: check and reset
 		private long uncommittedDataLength;
 
 		private int  pendingFileDeletes;
@@ -183,6 +187,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		
 		// state 5: variable length content
 
+		// cleared and nulled by clearRegisteredFiles() / reset()
 		private StorageDataFile.Default headFile;
 
 
@@ -261,8 +266,18 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			}
 			catch(final Exception e)
 			{
+				// (23.02.2020 TM)FIXME: priv#230: only clearRegisteredFiles? What about the rest of the state?
 				this.clearRegisteredFiles();
 				throw e;
+			}
+		}
+		
+		final void clearTransactionsFile()
+		{
+			if(this.fileTransactions != null)
+			{
+				this.fileTransactions.unregisterUsageClosing(this, null);
+				this.fileTransactions = null;
 			}
 		}
 
@@ -273,7 +288,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			 * Or better enhance StorageFileProvider to a StorageFileHandler
 			 * that handles both creation and closing.
 			 */
-			this.fileTransactions.unregisterUsageClosing(this, null);
+			this.clearTransactionsFile();
 
 			if(this.headFile == null)
 			{
@@ -1158,10 +1173,18 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			
 			transactionsFile.registerUsage(this);
 		}
+		
+		final void clearStandardByteBuffer()
+		{
+			this.standardByteBuffer.clear();
+		}
 
 		@Override
 		public final void reset()
 		{
+			// standard buffer must be cleared
+			this.clearStandardByteBuffer();
+			
 			/*
 			 * Reset plan:
 			 * - all final fields don't have to (can't) be resetted. Obviously.
