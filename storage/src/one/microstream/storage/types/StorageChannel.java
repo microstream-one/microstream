@@ -636,7 +636,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final void signalGarbageCollectionSweepCompleted()
 		{
-			this.fileManager.resetFileCleanupCursor();
+			this.fileManager.restartFileCleanupCursor();
 		}
 
 		@Override

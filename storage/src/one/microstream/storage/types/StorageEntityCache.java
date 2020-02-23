@@ -972,7 +972,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.sweepGeneration++;
 
 			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
-			this.fileManager.resetFileCleanupCursor();
+			this.fileManager.restartFileCleanupCursor();
 
 			// signal mark monitor that the sweep is complete and provide this channel's valid rootOid
 			final long channelRootOid = this.queryRootObjectId();
