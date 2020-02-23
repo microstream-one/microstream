@@ -78,7 +78,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 	public StorageRawFileStatistics.ChannelStatistics createRawFileStatistics();
 
-	public void resetFileCleanupCursor();
+	// this is not "reset" in terms of "set to initial state", more like a "go back to the start of the chain".
+	public void restartFileCleanupCursor();
 
 
 
@@ -173,16 +174,17 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		
 		// state 4: mutable fields. Must be cleared on reset.
 		
-		// cleared and nulled by clearTransactionsFile()
+		// cleared and nulled by clearTransactionsFile() / clearRegisteredFiles() / reset()
 		private StorageInventoryFile fileTransactions;
 		
 		// cleared and nulled by clearRegisteredFiles() / reset()
 		private StorageDataFile.Default fileCleanupCursor;
 
-		// (23.02.2020 TM)FIXME: priv#230: check and reset
+		// cleared by clearUncommittedDataLength() / reset()
 		private long uncommittedDataLength;
 
-		private int  pendingFileDeletes;
+		// cleared in reset() directly, but kind of irrelevant.
+		private int pendingFileDeletes;
 		
 		
 		// state 5: variable length content
@@ -258,18 +260,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 		private void addFirstFile()
 		{
-			try
-			{
-				this.createNewStorageFile(
-					this.initialDataFileNumberProvider.provideInitialDataFileNumber(this.channelIndex())
-				);
-			}
-			catch(final Exception e)
-			{
-				// (23.02.2020 TM)FIXME: priv#230: only clearRegisteredFiles? What about the rest of the state?
-				this.clearRegisteredFiles();
-				throw e;
-			}
+			// no need for a resetting catch since this method is called in a resetting context already
+			this.createNewStorageFile(
+				this.initialDataFileNumberProvider.provideInitialDataFileNumber(this.channelIndex())
+			);
 		}
 		
 		final void clearTransactionsFile()
@@ -580,7 +574,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.writeTransactionsEntryStore(this.headFile, oldTotalLength, writeCount, timestamp, newTotalLength);
 //			DEBUGStorage.println(this.channelIndex + " wrote " + this.uncommittedDataLength + " bytes");
 
-			this.resetFileCleanupCursor();
+			this.restartFileCleanupCursor();
 //			DEBUGStorage.println("Channel " + this.channelIndex + " wrote data for " + timestamp);
 			
 			return storagePositions;
@@ -606,6 +600,11 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.headFile.increaseContentLength(this.uncommittedDataLength);
 
 			// reset the length change helper field
+			this.clearUncommittedDataLength();
+		}
+		
+		final void clearUncommittedDataLength()
+		{
 			this.uncommittedDataLength = 0;
 		}
 
@@ -849,17 +848,24 @@ public interface StorageFileManager extends StorageChannelResetablePart
 						unregisteredEmptyLastFileNumber
 					);
 					
+					// (23.02.2020 TM)FIXME: /!\ DEBUG priv#230: see catch block task
+//					if(System.currentTimeMillis() > 0)
+//					{
+//						throw new RuntimeException();
+//					}
+					
 					// initialization plus synchronization with existing files.
 					this.initializeBackupHandler(storageInventory);
 				}
 
-				this.resetFileCleanupCursor();
+				this.restartFileCleanupCursor();
 				
 //				DEBUGStorage.println(this.channelIndex + " initialization complete, maxOid = " + maxOid);
 				return idAnalysis;
 			}
 			catch(final RuntimeException e)
 			{
+				// (23.02.2020 TM)FIXME: priv#230: debug-wise provoke exception to check NPE in #reset
 				// on any exception, reset (clear) the internal state
 				parent.reset();
 				throw e;
@@ -1182,15 +1188,21 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		@Override
 		public final void reset()
 		{
-			// standard buffer must be cleared
+			/* Note:
+			 * (see field declarations)
+             * 1.) all final fields don't have to (can't) be resetted. Obviously.
+             * 2.) entryBuffers don't have to be resetted since they get filled anew for every write.
+			 */
+			
+			// 3.) final references to mutable instances
 			this.clearStandardByteBuffer();
 			
-			/*
-			 * Reset plan:
-			 * - all final fields don't have to (can't) be resetted. Obviously.
-			 * - entryBuffers don't have to be resetted since they get filled anew for every write.
-			 */
+			// 4. & 5.) mutable fields and variable length content
+			this.clearUncommittedDataLength();
 			this.clearRegisteredFiles();
+			
+			// at this point, it is either 0 already or it won't matter since everything has been cleared.
+			this.pendingFileDeletes = 0;
 		}
 
 		final void handleLastFile(
@@ -1277,7 +1289,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		@Override
-		public final void resetFileCleanupCursor()
+		public final void restartFileCleanupCursor()
 		{
 			this.fileCleanupCursor = this.headFile.next;
 //			DEBUGStorage.println(this.channelIndex + " resetted housekeeping to first file " + this.housekeepingFile.number() + " for head file " + this.headFile.number());
@@ -1307,14 +1319,14 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			 * for the same passed evaluator on multiple calls) is extremely quick and the cleanup checking
 			 * will quickly get to the next file that actually required cleanup or complete quickly.
 			 */
-			this.resetFileCleanupCursor();
+			this.restartFileCleanupCursor();
 			try
 			{
 				return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 			}
 			finally
 			{
-				this.resetFileCleanupCursor();
+				this.restartFileCleanupCursor();
 			}
 		}
 
