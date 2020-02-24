@@ -120,7 +120,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		// instance fields //
 		////////////////////
 		
-		// state 1: immutable or stateless
+		// state 1.0: immutable or stateless (as far as this implementation is concerned)
 
 		private final int                                  channelIndex                 ;
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider;
@@ -137,7 +137,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		private final Consumer<? super StorageDataFile.Default> pendingDeleter = this::deletePendingFile;
 		
 		
-		// state 2: entry buffers. Don't need to be resetted. See comment in reset().
+		// state 1.1: entry buffers. Don't need to be resetted. See comment in reset().
 
 		// all ".clear()" calls on these buffers are only for flushing them out. Filling them happens only via address.
 		private final ByteBuffer[]
@@ -166,13 +166,13 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 		
 		
-		// state 3: final references to mutable instances, i.e. content must be cleared on reset
+		// state 2.0: final references to mutable instances, i.e. content must be cleared on reset
 
 		// cleared by clearStandardByteBuffer() / reset().
 		private final ByteBuffer standardByteBuffer;
 		
 		
-		// state 4: mutable fields. Must be cleared on reset.
+		// state 3.0: mutable fields. Must be cleared on reset.
 		
 		// cleared and nulled by clearTransactionsFile() / clearRegisteredFiles() / reset()
 		private StorageInventoryFile fileTransactions;
@@ -187,7 +187,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		private int pendingFileDeletes;
 		
 		
-		// state 5: variable length content
+		// state 3.1: variable length content
 
 		// cleared and nulled by clearRegisteredFiles() / reset()
 		private StorageDataFile.Default headFile;
@@ -1190,14 +1190,14 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 			/* Note:
 			 * (see field declarations)
-             * 1.) all final fields don't have to (can't) be resetted. Obviously.
-             * 2.) entryBuffers don't have to be resetted since they get filled anew for every write.
+             * 1.0) all final fields don't have to (can't) be resetted. Obviously.
+             * 1.1) entryBuffers don't have to be resetted since they get filled anew for every write.
 			 */
 			
-			// 3.) final references to mutable instances
+			// 2.0) final references to mutable instances
 			this.clearStandardByteBuffer();
 			
-			// 4. & 5.) mutable fields and variable length content
+			// 3.X) mutable fields and variable length content
 			this.clearUncommittedDataLength();
 			this.clearRegisteredFiles();
 			
