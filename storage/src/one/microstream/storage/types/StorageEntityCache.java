@@ -44,7 +44,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 	public void reset();
 
 
-
+	
 	public final class Default
 	implements StorageEntityCache<StorageEntity.Default>, Unpersistable
 	{
@@ -61,46 +61,54 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// instance fields //
 		////////////////////
 
-		private final int                                channelIndex      ;
-		private final int                                channelHashModulo ;
-		private final int                                channelHashShift  ;
-		private final long                               rootTypeId        ;
-		private final long                               markingWaitTimeMs ;
+		// state 1.0: immutable or stateless (as far as this implementation is concerned)
+
+		private final int                                channelIndex        ;
+		private final int                                channelHashModulo   ;
+		private final int                                channelHashShift    ;
+		private final long                               rootTypeId          ;
+		private final long                               markingWaitTimeMs   ;
 		        final StorageEntityCacheEvaluator        entityCacheEvaluator;
-		private final StorageTypeDictionary              typeDictionary    ;
-		private final StorageEntityMarkMonitor           markMonitor       ;
-		private final StorageReferenceMarker             referenceMarker   ;
-		private final StorageObjectIdMarkQueue           oidMarkQueue      ;
-		private final long[]                             markingOidBuffer  ;
-		private final StorageGCZombieOidHandler          zombieOidHandler  ;
-		private final StorageRootOidSelector             rootOidSelector   ;
-		private final RootEntityRootOidSelectionIterator rootEntityIterator;
-		private final StorageEventLogger                 eventLogger       ;
+		private final StorageTypeDictionary              typeDictionary      ;
+		private final long[]                             markingOidBuffer    ;
+		private final StorageGCZombieOidHandler          zombieOidHandler    ;
+		private final StorageRootOidSelector             rootOidSelector     ;
+		private final RootEntityRootOidSelectionIterator rootEntityIterator  ;
+		private final StorageEventLogger                 eventLogger         ;
+		private       StorageFileManager.Default         fileManager         ; // pseudo-final
+		
+		
+		// state 2.0: final references to mutable instances, i.e. content must be cleared on reset
+		
+		private final StorageEntityMarkMonitor  markMonitor    ;
+		private final StorageObjectIdMarkQueue  oidMarkQueue   ; // resetting handled by markMonitor
+		private final StorageReferenceMarker    referenceMarker; // resetting must be handled here.
 
-		// currently only used for entity iteration
-		private       StorageFileManager.Default         fileManager       ; // pseudo-final
-
-		private       StorageEntity.Default[]            oidHashTable      ;
-		private       int                                oidModulo         ; // long modulo makes not difference
-		private       long                               oidSize           ;
-
-		private       StorageEntityType.Default[]        tidHashTable      ;
-		private       int                                tidModulo         ;
-		private       int                                tidSize           ;
-
-		private final StorageEntityType.Default          typeHead          ;
-		private       StorageEntityType.Default          typeTail          ;
-		private       StorageEntityType.Default          rootType          ;
-
-		private       StorageEntity.Default              liveCursor        ;
-
-		private       long                               usedCacheSize     ;
-		private       boolean                            hasUpdatePendingSweep;
-
+		
+		// state 3.0: mutable fields. Must be cleared on reset.
+		
+		private StorageEntity.Default liveCursor;
+                                            
+		private long    usedCacheSize;
+		private boolean hasUpdatePendingSweep;
+                                                  
 		// Statistics for debugging / monitoring / checking to compare with other channels and with the markmonitor
-		private       long                               sweepGeneration   ;
-		private       long                               lastSweepStart    ;
-		private       long                               lastSweepEnd      ;
+		private long sweepGeneration, lastSweepStart, lastSweepEnd;
+		
+
+		// state 3.1: variable length content
+        
+		private       StorageEntity.Default[]     oidHashTable ;
+		private       int                         oidModulo    ; // long modulo makes not difference
+		private       long                        oidSize      ;
+                                                  
+		private       StorageEntityType.Default[] tidHashTable ;
+		private       int                         tidModulo    ;
+		private       int                         tidSize      ;
+                                                  
+		private final StorageEntityType.Default   typeHead     ; // effective immutable, so no reset
+		private       StorageEntityType.Default   typeTail     ;
+		private       StorageEntityType.Default   rootType     ;
 
 
 
@@ -108,7 +116,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// constructors //
 		/////////////////
 
-		public Default(
+		Default(
 			final int                         channelIndex       ,
 			final int                         channelCount       ,
 			final StorageEntityCacheEvaluator cacheEvaluator     ,
@@ -119,28 +127,35 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final long                        rootTypeId         ,
 			final StorageObjectIdMarkQueue    oidMarkQueue       ,
 			final StorageEventLogger          eventLogger        ,
-			final int                         markingBufferLength,
-			final long                        markingWaitTimeMs
+			final long                        markingWaitTimeMs  ,
+			final int                         markingBufferLength
 		)
 		{
 			super();
-			this.channelIndex         = notNegative(channelIndex)    ;
-			this.rootTypeId           =             rootTypeId       ;
-			this.entityCacheEvaluator = notNull    (cacheEvaluator)  ;
-			this.typeDictionary       = notNull    (typeDictionary)  ;
-			this.markMonitor          = notNull    (markMonitor)     ;
-			this.zombieOidHandler     = notNull    (zombieOidHandler);
-			this.rootOidSelector      = notNull    (rootOidSelector) ;
-			this.channelHashModulo    =             channelCount - 1 ;
-			this.channelHashShift     = log2pow2   (channelCount)    ;
-			this.oidMarkQueue         = notNull    (oidMarkQueue)    ;
-			this.markingWaitTimeMs    = positive  (markingWaitTimeMs);
-			this.markingOidBuffer     = new long[markingBufferLength];
-			this.rootEntityIterator   = new RootEntityRootOidSelectionIterator(rootOidSelector);
-			this.typeHead             = new StorageEntityType.Default(this.channelIndex);
-			this.eventLogger          = eventLogger;
-			this.initializeState();
-			this.referenceMarker      = markMonitor.provideReferenceMarker(this);
+			this.channelIndex         = notNegative(channelIndex)     ;
+			this.channelHashShift     = log2pow2   (channelCount)     ;
+			this.entityCacheEvaluator = notNull    (cacheEvaluator)   ;
+			this.typeDictionary       = notNull    (typeDictionary)   ;
+			this.markMonitor          = notNull    (markMonitor)      ;
+			this.zombieOidHandler     = notNull    (zombieOidHandler) ;
+			this.rootOidSelector      = notNull    (rootOidSelector)  ;
+			this.rootTypeId           =             rootTypeId        ;
+			this.oidMarkQueue         = notNull    (oidMarkQueue)     ;
+			this.eventLogger          =             eventLogger       ;
+			this.markingWaitTimeMs    = positive   (markingWaitTimeMs);
+			
+			// derived values
+			
+			this.channelHashModulo  = channelCount - 1;
+			this.markingOidBuffer   = new long[markingBufferLength];
+			this.rootEntityIterator = new RootEntityRootOidSelectionIterator(rootOidSelector);
+			this.typeHead           = new StorageEntityType.Default(this.channelIndex);
+			
+			// initializing mutable (operational) state.
+			this.reset();
+			
+			// create reference marker at the very end to have all state properly initialized beforehand.
+			this.referenceMarker = markMonitor.provideReferenceMarker(this);
 		}
 
 
@@ -207,14 +222,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //			DEBUGStorage.println(vs.toString());
 //		}
 
-		final void initializeState()
+		@Override
+		public final synchronized void reset()
 		{
-			// reset state without ruining gcPhaseMonitor initial state
-			this.resetState();
-		}
-
-		final synchronized void resetState()
-		{
+			this.clearCache();
+			
+			this.markMonitor.reset();
+			
 			this.oidHashTable   = new StorageEntity.Default[1];
 			this.oidModulo      = this.oidHashTable.length - 1;
 			this.oidSize        = 0;
@@ -225,25 +239,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			(this.typeTail      = this.typeHead).next = null;
 
-//			this.liveCursorType = this.typeHead;
-//			this.liveCursor     = this.typeHead.head;
 			this.resetLiveCursor();
 
 			this.usedCacheSize  = 0L;
 
 			// create a new root type instance on every clear. Everything else is not worth the reset&register-hassle.
 			this.rootType       = this.getType(this.rootTypeId);
-		}
 
-		@Override
-		public final void reset()
-		{
-			// (21.02.2020 TM)FIXME: priv#230: must thoroughly check and comment ALL resettable state. EG. mark monitor!
-			
-			this.clearCache();
-			
-			// must lock independently of gcPhaseMonitor to avoid deadlock!
-			this.resetState();
 		}
 
 		private void resetLiveCursor()
@@ -456,8 +458,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				this.markMonitor.resetCompletion();
 			}
 		}
-
-
 
 		final long queryRootObjectId()
 		{
@@ -1199,6 +1199,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			if(this.liveCursor == null || !this.liveCursor.isProper() || this.liveCursor.isDeleted())
 			{
+				// (24.02.2020 TM)FIXME: priv#230: maybe #currentStorageFile can be null here. Investigate!
 				// cursor special cases: not set, yet or a head/tail instance or meanwhile deleted (= unreachable)
 				cursor = getFirstReachableEntity(this.fileManager.currentStorageFile().next);
 				
