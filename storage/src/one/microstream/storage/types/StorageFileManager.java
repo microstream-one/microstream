@@ -28,7 +28,7 @@ import one.microstream.util.BufferSizeProvider;
 
 
 // note that the name channel refers to the entity hash channel, not an nio channel
-public interface StorageFileManager
+public interface StorageFileManager extends StorageChannelResetablePart
 {
 	/* (17.09.2014 TM)TODO: Much more loose coupling
 	 * Make all storage stuff much more loosely coupled with more interface methods and
@@ -45,8 +45,12 @@ public interface StorageFileManager
 	 * specifically loggable.
 	 */
 
+	@Override
 	public int channelIndex();
 
+	@Override
+	public void reset();
+	
 	public long[] storeChunks(long timestamp, ByteBuffer[] dataBuffers) throws StorageExceptionIoWritingChunk;
 
 	public void rollbackWrite();
@@ -58,7 +62,8 @@ public interface StorageFileManager
 	public StorageIdAnalysis initializeStorage(
 		long             taskTimestamp           ,
 		long             consistentStoreTimestamp,
-		StorageInventory storageInventory
+		StorageInventory storageInventory        ,
+		StorageChannel   parent
 	);
 
 	public StorageDataFile<?> currentStorageFile();
@@ -73,7 +78,8 @@ public interface StorageFileManager
 
 	public StorageRawFileStatistics.ChannelStatistics createRawFileStatistics();
 
-	public void resetFileCleanupCursor();
+	// this is not "reset" in terms of "set to initial state", more like a "go back to the start of the chain".
+	public void restartFileCleanupCursor();
 
 
 
@@ -113,6 +119,8 @@ public interface StorageFileManager
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+		
+		// state 1.0: immutable or stateless (as far as this implementation is concerned)
 
 		private final int                                  channelIndex                 ;
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider;
@@ -123,7 +131,15 @@ public interface StorageFileManager
 		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
 		private final StorageBackupHandler                 backupHandler                ;
+		
+		// to avoid permanent lambda instantiation
+		private final Consumer<? super StorageDataFile.Default> deleter        = this::deleteFile       ;
+		private final Consumer<? super StorageDataFile.Default> pendingDeleter = this::deletePendingFile;
+		
+		
+		// state 1.1: entry buffers. Don't need to be resetted. See comment in reset().
 
+		// all ".clear()" calls on these buffers are only for flushing them out. Filling them happens only via address.
 		private final ByteBuffer[]
 			entryBufferFileCreation   = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
 			entryBufferStore          = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthStore())}         ,
@@ -140,6 +156,7 @@ public interface StorageFileManager
 			entryBufferFileTruncationAddress = XMemory.getDirectByteBufferAddress(this.entryBufferFileTruncation[0])
 		;
 
+		// Entry Buffers have their "effectively immutable" first parts initialized once and never changed again.
 		{
 			StorageTransactionsFileAnalysis.Logic.initializeEntryFileCreation  (this.entryBufferFileCreationAddress  );
 			StorageTransactionsFileAnalysis.Logic.initializeEntryStore         (this.entryBufferStoreAddress         );
@@ -147,22 +164,33 @@ public interface StorageFileManager
 			StorageTransactionsFileAnalysis.Logic.initializeEntryFileDeletion  (this.entryBufferFileDeletionAddress  );
 			StorageTransactionsFileAnalysis.Logic.initializeEntryFileTruncation(this.entryBufferFileTruncationAddress);
 		}
-
-		private StorageInventoryFile fileTransactions;
-
-		private final ByteBuffer standardByteBuffer;
-
-		private StorageDataFile.Default fileCleanupCursor, headFile;
 		
-		// to avoid permanent lambda instantiation
-		private final Consumer<? super StorageDataFile.Default> deleter = this::deleteFile;
-		private final Consumer<? super StorageDataFile.Default> pendingDeleter = this::deletePendingFile;
+		
+		// state 2.0: final references to mutable instances, i.e. content must be cleared on reset
 
+		// cleared by clearStandardByteBuffer() / reset().
+		private final ByteBuffer standardByteBuffer;
+		
+		
+		// state 3.0: mutable fields. Must be cleared on reset.
+		
+		// cleared and nulled by clearTransactionsFile() / clearRegisteredFiles() / reset()
+		private StorageInventoryFile fileTransactions;
+		
+		// cleared and nulled by clearRegisteredFiles() / reset()
+		private StorageDataFile.Default fileCleanupCursor;
+
+		// cleared by clearUncommittedDataLength() / reset()
 		private long uncommittedDataLength;
 
-		private int  pendingFileDeletes;
+		// cleared in reset() directly, but kind of irrelevant.
+		private int pendingFileDeletes;
+		
+		
+		// state 3.1: variable length content
 
-//		private transient boolean hasUnflushedWrites = false;
+		// cleared and nulled by clearRegisteredFiles() / reset()
+		private StorageDataFile.Default headFile;
 
 
 
@@ -194,13 +222,8 @@ public interface StorageFileManager
 			this.writer                        =     notNull(writer)                       ;
 			this.backupHandler                 =     mayNull(backupHandler)                ;
 			
-			/*
-			 * Of course a low-level byte buffer can only have a int capacity. Why should it be able to take a long?
-			 * There is absolutely no reason whatsoever to not unnecessary shackle and borderline-ruin the JDK
-			 * tools for working with memory. Right?
-			 */
-			this.standardByteBuffer = XMemory.allocateDirectNative
-				(standardBufferSizeProvider.provideBufferSize()
+			this.standardByteBuffer = XMemory.allocateDirectNative(
+				standardBufferSizeProvider.provideBufferSize()
 			);
 		}
 
@@ -237,16 +260,18 @@ public interface StorageFileManager
 
 		private void addFirstFile()
 		{
-			try
+			// no need for a resetting catch since this method is called in a resetting context already
+			this.createNewStorageFile(
+				this.initialDataFileNumberProvider.provideInitialDataFileNumber(this.channelIndex())
+			);
+		}
+		
+		final void clearTransactionsFile()
+		{
+			if(this.fileTransactions != null)
 			{
-				this.createNewStorageFile(
-					this.initialDataFileNumberProvider.provideInitialDataFileNumber(this.channelIndex())
-				);
-			}
-			catch(final Exception e)
-			{
-				this.clearRegisteredFiles();
-				throw e;
+				this.fileTransactions.unregisterUsageClosing(this, null);
+				this.fileTransactions = null;
 			}
 		}
 
@@ -257,7 +282,7 @@ public interface StorageFileManager
 			 * Or better enhance StorageFileProvider to a StorageFileHandler
 			 * that handles both creation and closing.
 			 */
-			this.fileTransactions.unregisterUsageClosing(this, null);
+			this.clearTransactionsFile();
 
 			if(this.headFile == null)
 			{
@@ -549,7 +574,7 @@ public interface StorageFileManager
 			this.writeTransactionsEntryStore(this.headFile, oldTotalLength, writeCount, timestamp, newTotalLength);
 //			DEBUGStorage.println(this.channelIndex + " wrote " + this.uncommittedDataLength + " bytes");
 
-			this.resetFileCleanupCursor();
+			this.restartFileCleanupCursor();
 //			DEBUGStorage.println("Channel " + this.channelIndex + " wrote data for " + timestamp);
 			
 			return storagePositions;
@@ -575,6 +600,11 @@ public interface StorageFileManager
 			this.headFile.increaseContentLength(this.uncommittedDataLength);
 
 			// reset the length change helper field
+			this.clearUncommittedDataLength();
+		}
+		
+		final void clearUncommittedDataLength()
+		{
 			this.uncommittedDataLength = 0;
 		}
 
@@ -781,7 +811,8 @@ public interface StorageFileManager
 		public StorageIdAnalysis initializeStorage(
 			final long             taskTimestamp           ,
 			final long             consistentStoreTimestamp,
-			final StorageInventory storageInventory
+			final StorageInventory storageInventory        ,
+			final StorageChannel   parent
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " init for consistent timestamp " + consistentStoreTimestamp);
@@ -821,7 +852,7 @@ public interface StorageFileManager
 					this.initializeBackupHandler(storageInventory);
 				}
 
-				this.resetFileCleanupCursor();
+				this.restartFileCleanupCursor();
 				
 //				DEBUGStorage.println(this.channelIndex + " initialization complete, maxOid = " + maxOid);
 				return idAnalysis;
@@ -829,7 +860,7 @@ public interface StorageFileManager
 			catch(final RuntimeException e)
 			{
 				// on any exception, reset (clear) the internal state
-				this.clearState();
+				parent.reset();
 				throw e;
 			}
 			finally
@@ -1141,11 +1172,30 @@ public interface StorageFileManager
 			
 			transactionsFile.registerUsage(this);
 		}
-
-		final void clearState()
+		
+		final void clearStandardByteBuffer()
 		{
+			this.standardByteBuffer.clear();
+		}
+
+		@Override
+		public final void reset()
+		{
+			/* Note:
+			 * (see field declarations)
+             * 1.0) all final fields don't have to (can't) be resetted. Obviously.
+             * 1.1) entryBuffers don't have to be resetted since they get filled anew for every write.
+			 */
+			
+			// 2.0) final references to mutable instances
+			this.clearStandardByteBuffer();
+			
+			// 3.X) mutable fields and variable length content
+			this.clearUncommittedDataLength();
 			this.clearRegisteredFiles();
-			this.entityCache.clearState();
+			
+			// at this point, it is either 0 already or it won't matter since everything has been cleared.
+			this.pendingFileDeletes = 0;
 		}
 
 		final void handleLastFile(
@@ -1232,7 +1282,7 @@ public interface StorageFileManager
 		}
 
 		@Override
-		public final void resetFileCleanupCursor()
+		public final void restartFileCleanupCursor()
 		{
 			this.fileCleanupCursor = this.headFile.next;
 //			DEBUGStorage.println(this.channelIndex + " resetted housekeeping to first file " + this.housekeepingFile.number() + " for head file " + this.headFile.number());
@@ -1262,14 +1312,14 @@ public interface StorageFileManager
 			 * for the same passed evaluator on multiple calls) is extremely quick and the cleanup checking
 			 * will quickly get to the next file that actually required cleanup or complete quickly.
 			 */
-			this.resetFileCleanupCursor();
+			this.restartFileCleanupCursor();
 			try
 			{
 				return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 			}
 			finally
 			{
-				this.resetFileCleanupCursor();
+				this.restartFileCleanupCursor();
 			}
 		}
 
@@ -1462,7 +1512,32 @@ public interface StorageFileManager
 			// if entity migration was completed before time ran out, the file has no more content.
 			return !file.hasContent();
 		}
-
+		
+		final StorageEntity.Default getFirstEntity()
+		{
+			final StorageDataFile.Default currentFile = this.currentStorageFile();
+			if(currentFile == null)
+			{
+				// can occur when an exception causes a reset call during initialization
+				return null;
+			}
+			
+			final StorageDataFile.Default startingFile = currentFile.next;
+			StorageDataFile.Default file = startingFile;
+			do
+			{
+				if(file.head.fileNext != startingFile.tail)
+				{
+					return file.head.fileNext;
+				}
+			}
+			while((file = file.next) != startingFile);
+			
+			// no file contains any (proper) entity. So return null.
+			return null;
+		}
+		
+		
 
 		ImportHelper importHelper;
 

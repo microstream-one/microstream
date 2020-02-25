@@ -21,7 +21,7 @@ import one.microstream.typing.KeyValue;
 import one.microstream.util.BufferSizeProviderIncremental;
 
 
-public interface StorageChannel extends Runnable, StorageHashChannelPart, StorageActivePart
+public interface StorageChannel extends Runnable, StorageChannelResetablePart, StorageActivePart
 {
 	public StorageTypeDictionary typeDictionary();
 
@@ -76,8 +76,6 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		StorageInventory storageInventory
 	);
 
-	public void clear();
-
 	public void signalGarbageCollectionSweepCompleted();
 
 //	public void truncateData();
@@ -85,6 +83,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 	public void cleanupStore();
 
 
+	
 
 	public final class Default implements StorageChannel, Unpersistable
 	{
@@ -371,7 +370,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 			{
 				try
 				{
-					this.clear();
+					this.reset();
 				}
 				catch(final Throwable t1)
 				{
@@ -619,26 +618,25 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 			return this.fileManager.initializeStorage(
 				taskTimestamp           ,
 				consistentStoreTimestamp,
-				storageInventory
+				storageInventory        ,
+				this
 			);
 		}
-		
-		final void closeAllResources()
-		{
-			this.fileManager.clearRegisteredFiles();
-		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
-		public final void clear()
+		public final void reset()
 		{
-			this.entityCache.clearState();
-			this.closeAllResources();
+			this.entityCache.reset();
+			this.fileManager.reset();
 		}
 
 		@Override
 		public final void signalGarbageCollectionSweepCompleted()
 		{
-			this.fileManager.resetFileCleanupCursor();
+			this.fileManager.restartFileCleanupCursor();
 		}
 
 		@Override
