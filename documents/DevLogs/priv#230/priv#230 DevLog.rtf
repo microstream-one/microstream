@@ -1,6 +1,5 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
-\pard\sl276\slmult1\f0\fs28\lang7 StorageEntityCache#clearState throws an NPE\par
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\lang7\f0\fs28 StorageEntityCache#clearState throws an NPE\par
 priv#230\par
 \par
 \par
@@ -130,5 +129,26 @@ Dann wieder Recherche und Kommentar zum eigentlichen NPE. Evtl. ist das FileMana
 Von der Reset-Logik her sollte nun alles fertig sein. Muss ich nochmal durchschauen und testen, zusammen mit den anderen gemachten Tasks.\par
 Dann ist das fertig.\par
 \par
+\par
+23:15\par
+Ich bau jetzt die "getFirstReachableEntity" Methode einfach gleich so um, dass kein NPE mehr passieren kann.\par
+Und gleich verschoben in den FileManager, wo sie hingeh\'f6rt.\par
+\par
+Jetzt testen.\par
+Ups, NPE, weil nat\'fcrlich zur Initialisierungszeit die ReferenceMarker noch nicht da sind.\par
+Dann trenn ich das jetzt doch auf in initialize() und reset(). Aber den null-check bei den ReferenceMarkern brauch ich trotzdem.\par
+\par
+Jetzt also testen mit der erzwungenen Exception.\par
+Hm, kein NPE (mehr?)\par
+\par
+Mal die Exception an ein paar verschiedenen Stellen innerhalb von #initializeForExistingFiles setzen.\par
+Ne, wieder nix.\par
+Also damit w\'fcrd ich dieses Issue mal als erledigt bezeichnen.\par
+Resetting der Kern-Teile ist jetzt sauber und vollst\'e4ndig.\par
+NPE ist nicht (mehr?) reproduzierbar.\par
+Fertig.\par
+\par
+01:30\par
+Ups. Commit vergessen. Schnell noch machen ...\par
 }
  

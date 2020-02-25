@@ -1065,8 +1065,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		@Override
 		public final long clearCache()
 		{
-			// (21.02.2020 TM)FIXME: priv#230: must be robust to being called BEFORE having iteration state being properly initialized
-			
 			if(this.usedCacheSize == 0)
 			{
 				return 0;
@@ -1161,24 +1159,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			return this.internalCacheCheck(nanoTimeBudgetBound, this.entityCacheEvaluator);
 		}
-				
-		private static StorageEntity.Default getFirstReachableEntity(
-			final StorageDataFile.Default startingFile
-		)
-		{
-			StorageDataFile.Default file = startingFile;
-			do
-			{
-				if(file.head.fileNext != startingFile.tail)
-				{
-					return file.head.fileNext;
-				}
-			}
-			while((file = file.next) != startingFile);
-			
-			// no file contains any reachable (proper) entity. So return null.
-			return null;
-		}
 
 		private boolean internalCacheCheck(
 			final long                        nanoTimeBudgetBound,
@@ -1199,9 +1179,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			if(this.liveCursor == null || !this.liveCursor.isProper() || this.liveCursor.isDeleted())
 			{
-				// (24.02.2020 TM)FIXME: priv#230: maybe #currentStorageFile can be null here. Investigate!
 				// cursor special cases: not set, yet or a head/tail instance or meanwhile deleted (= unreachable)
-				cursor = getFirstReachableEntity(this.fileManager.currentStorageFile().next);
+				cursor = this.fileManager.getFirstEntity();
 				
 				// special special case: all files are (effectively) empty. Nothing to check. Prevent inifinite loop.
 				if(cursor == null)

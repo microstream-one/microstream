@@ -848,12 +848,6 @@ public interface StorageFileManager extends StorageChannelResetablePart
 						unregisteredEmptyLastFileNumber
 					);
 					
-					// (23.02.2020 TM)FIXME: /!\ DEBUG priv#230: see catch block task
-//					if(System.currentTimeMillis() > 0)
-//					{
-//						throw new RuntimeException();
-//					}
-					
 					// initialization plus synchronization with existing files.
 					this.initializeBackupHandler(storageInventory);
 				}
@@ -865,7 +859,6 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			}
 			catch(final RuntimeException e)
 			{
-				// (23.02.2020 TM)FIXME: priv#230: debug-wise provoke exception to check NPE in #reset
 				// on any exception, reset (clear) the internal state
 				parent.reset();
 				throw e;
@@ -1519,7 +1512,32 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			// if entity migration was completed before time ran out, the file has no more content.
 			return !file.hasContent();
 		}
-
+		
+		final StorageEntity.Default getFirstEntity()
+		{
+			final StorageDataFile.Default currentFile = this.currentStorageFile();
+			if(currentFile == null)
+			{
+				// can occur when an exception causes a reset call during initialization
+				return null;
+			}
+			
+			final StorageDataFile.Default startingFile = currentFile.next;
+			StorageDataFile.Default file = startingFile;
+			do
+			{
+				if(file.head.fileNext != startingFile.tail)
+				{
+					return file.head.fileNext;
+				}
+			}
+			while((file = file.next) != startingFile);
+			
+			// no file contains any (proper) entity. So return null.
+			return null;
+		}
+		
+		
 
 		ImportHelper importHelper;
 
