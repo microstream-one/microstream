@@ -1297,30 +1297,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 
-			/*
-			 * An explicitly issues file cleanup check has to reset the cursor (start from beginning) and no matter
-			 * if it completes or not, the cursor has to be reset again at the end.
-			 * Rationale:
-			 * 1.)
-			 * different dissolving evaluators judge files differently and therefore must check all the files
-			 * by themselves and also not just leave their last checked file for another evaluator to continue,
-			 * potentially skipping files before that that other evaluator would have judged differently,
-			 * but let the other (e.g. internal) evaluator evaluate all files again, i.e. reset.
-			 *
-			 * 2.)
-			 * Having to re-check already checked files (either for the internal evaluator due to resetting or
-			 * for the same passed evaluator on multiple calls) is extremely quick and the cleanup checking
-			 * will quickly get to the next file that actually required cleanup or complete quickly.
-			 */
-			this.restartFileCleanupCursor();
-			try
-			{
-				return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
-			}
-			finally
-			{
-				this.restartFileCleanupCursor();
-			}
+			return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 		}
 
 		private void deletePendingFile(final StorageDataFile.Default file)

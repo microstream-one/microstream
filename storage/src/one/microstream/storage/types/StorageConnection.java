@@ -16,6 +16,9 @@ import one.microstream.persistence.types.Unpersistable;
 /**
  * Ultra-thin delegatig type that connects a {@link PersistenceManager} instance (potentially exclusively created)
  * to a storage instance.
+ * <p>
+ * Note that this is a rather "internal" type that users usually do not have to use or care about.
+ * Since {@link StorageManager} implements this interface, is is normally sufficient to use just that.
  *
  * @author TM
  */
@@ -55,7 +58,7 @@ public interface StorageConnection extends Persister
 	/**
 	 * Issues garbage collection to be executed, limited to the time budget in nanoseconds specified
 	 * by the passed {@code nanoTimeBudget}.<br>
-	 * Then the time budget is used up, the garbage collector will keep the current progress and continue there
+	 * When the time budget is used up, the garbage collector will keep the current progress and continue there
 	 * at the next opportunity. The same progress marker is used by the implicit housekeeping, so both mechanisms
 	 * will continue on the same progress.<br>
 	 * If no store has occured since the last completed garbage sweep, this method will have no effect and return
@@ -91,9 +94,15 @@ public interface StorageConnection extends Persister
 	/**
 	 * Issues a storage file check to be executed, limited to the time budget in nanoseconds specified
 	 * by the passed {@code nanoTimeBudget}.<br>
+	 * When the time budget is used up, the checking logic will keep the current progress and continue there
+	 * at the next opportunity. The same progress marker is used by the implicit housekeeping, so both mechanisms
+	 * will continue on the same progress.<br>
+	 * If no store has occured since the last completed check, this method will have no effect and return
+	 * immediately.
 	 * 
-	 * @param nanoTimeBudget
-	 * @return
+	 * @param nanoTimeBudget the time budget in nanoseconds to be used to perform file checking.
+	 * 
+	 * @return whether the returned call has completed file checking.
 	 */
 	public boolean issueFileCheck(long nanoTimeBudget);
 	
