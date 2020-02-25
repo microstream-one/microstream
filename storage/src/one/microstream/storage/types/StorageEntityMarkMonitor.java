@@ -233,7 +233,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			this.referenceMarkers = new StorageReferenceMarker[this.channelCount];
 			
 			// mostly redundant for instance initialization, but consistency is important.
-			this.reset();
+			this.initialize();
 		}
 		
 		
@@ -298,15 +298,8 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			this.lastGcColdCompletion = 0;
 		}
 		
-		@Override
-		public final synchronized void reset()
+		private final void initialize()
 		{
-			/* Note:
-			 * The methods for "resetting" mark queues and completion state refer to
-			 * the operating state and are not applicable here.
-			 * The actual resetting is not different from (re)initializing everything.
-			 */
-
 			// this first block basically just sets everything to 0.
 			this.initializeMarkQueues();
 			this.initializeChannelRootIds();
@@ -318,6 +311,17 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			
 			// sets completion state to true, not false!
 			this.initializeCompletionState();
+		}
+		
+		@Override
+		public final synchronized void reset()
+		{
+			/* Note:
+			 * The methods for "resetting" mark queues and completion state refer to
+			 * the operating state and are not applicable here.
+			 * The actual resetting is not different from (re)initializing everything.
+			 */
+			this.initialize();
 			
 			// this is the only actually exclusive resetting method
 			this.synchResetReferenceMarkers();
@@ -327,6 +331,10 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		{
 			for(int i = 0; i < this.referenceMarkers.length; i++)
 			{
+				if(this.referenceMarkers[i] == null)
+				{
+					continue;
+				}
 				this.referenceMarkers[i].reset();
 			}
 		}
