@@ -1,21 +1,21 @@
-package one.microstream.java.math;
+package one.microstream.java.net;
 
-import java.math.BigDecimal;
+import java.net.URI;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomValueVariableLength<BigDecimal>
+public final class BinaryHandlerURI extends AbstractBinaryHandlerCustomValueVariableLength<URI>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static BinaryHandlerBigDecimal New()
+	public static BinaryHandlerURI New()
 	{
-		return new BinaryHandlerBigDecimal();
+		return new BinaryHandlerURI();
 	}
 	
 	
@@ -24,12 +24,12 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	// constructors //
 	/////////////////
 
-	BinaryHandlerBigDecimal()
+	BinaryHandlerURI()
 	{
 		super(
-			BigDecimal.class,
+			URI.class,
 			CustomFields(
-				chars("value")
+				chars("address")
 			)
 		);
 	}
@@ -40,7 +40,7 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	// methods //
 	////////////
 	
-	private static String instanceState(final BigDecimal instance)
+	private static String instanceState(final URI instance)
 	{
 		return instance.toString();
 	}
@@ -51,27 +51,29 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	}
 
 	@Override
-	public void store(
+	public final void store(
 		final Binary                  data    ,
-		final BigDecimal              instance,
+		final URI                     instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		// there's a char[] constructor but no char[] utility method, so there's no other option than this
 		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
-	public BigDecimal create(final Binary data, final PersistenceLoadHandler handler)
+	public URI create(
+		final Binary                 data   ,
+		final PersistenceLoadHandler handler
+	)
 	{
-		return new BigDecimal(binaryState(data));
+		return URI.create(binaryState(data));
 	}
 	
 	@Override
 	public void validateState(
 		final Binary                 data    ,
-		final BigDecimal             instance,
+		final URI                    instance,
 		final PersistenceLoadHandler handler
 	)
 	{
