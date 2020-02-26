@@ -65,34 +65,41 @@ public class ViewerObjectDescriptionCreator
 		{
 			final Object[] members = this.description.getValues();
 			final List<Object> data = new ArrayList<>();
-
-			final int upperLimit = getClampedArrayIndex(this.description.getLength(), this.fixedOffset, this.fixedLength);
-
-			for(int i = this.fixedOffset; i < upperLimit; i++)
-			{
-				final Object member = members[i];
-				if(member instanceof ObjectReferenceWrapper)
-				{
-					data.add(Long.toString(((ObjectReferenceWrapper) member).getObjectId()));
-				}
-				else
-				{
-					data.add(limitsPrimitiveType(member.toString(), this.valueLength));
-				}
-			}
-
-			if(this.description.getVariableLength() != null)
-			{
-				for(int i = 0; i < this.description.getVariableLength().length; i++)
-				{
-					final Object member = members[(int) (i + this.description.getLength())];
-					if(member.getClass().isArray())
-					{
-						data.add(this.variableLengthValues((Object[]) member));
-					}
-				}
-			}
+			this.appendFixedSizeValues(members, data);
+			this.appendVariableSizeValues(members, data);
 			this.objDesc.setData(data.toArray());
+		}
+	}
+
+	private void appendFixedSizeValues(final Object[] members, final List<Object> data)
+	{
+		final int upperLimit = getClampedArrayIndex(this.description.getLength(), this.fixedOffset, this.fixedLength);
+		for(int i = this.fixedOffset; i < upperLimit; i++)
+		{
+			final Object member = members[i];
+			if(member instanceof ObjectReferenceWrapper)
+			{
+				data.add(Long.toString(((ObjectReferenceWrapper) member).getObjectId()));
+			}
+			else
+			{
+				data.add(limitsPrimitiveType(member.toString(), this.valueLength));
+			}
+		}
+	}
+
+	private void appendVariableSizeValues(final Object[] members, final List<Object> data)
+	{
+		if(this.description.getVariableLength() != null)
+		{
+			for(int i = 0; i < this.description.getVariableLength().length; i++)
+			{
+				final Object member = members[(int) (i + this.description.getLength())];
+				if(member.getClass().isArray())
+				{
+					data.add(this.variableLengthValues((Object[]) member));
+				}
+			}
 		}
 	}
 
