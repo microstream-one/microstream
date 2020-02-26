@@ -70,37 +70,37 @@ public class ViewerObjectDescriptionCreator
 
 			for(int i = this.fixedOffset; i < upperLimit; i++)
 			{
-				if(members[i] instanceof ObjectReferenceWrapper)
+				final Object member = members[i];
+				if(member instanceof ObjectReferenceWrapper)
 				{
-					data.add(Long.toString(((ObjectReferenceWrapper) members[i]).getObjectId()));
+					data.add(Long.toString(((ObjectReferenceWrapper) member).getObjectId()));
 				}
 				else
 				{
-					data.add(limitsPrimitiveType(members[i].toString(), this.valueLength));
-
+					data.add(limitsPrimitiveType(member.toString(), this.valueLength));
 				}
 			}
-
 
 			if(this.description.getVariableLength() != null)
 			{
 				for(int i = 0; i < this.description.getVariableLength().length; i++)
 				{
-					final Object obj = this.description.getValues()[(int) (i + this.description.getLength())];
-					if(obj.getClass().isArray())
-					data.add(this.variableLengthValues((Object[]) obj));
+					final Object member = members[(int) (i + this.description.getLength())];
+					if(member.getClass().isArray())
+					{
+						data.add(this.variableLengthValues((Object[]) member));
+					}
 				}
 			}
 			this.objDesc.setData(data.toArray());
 		}
 	}
 
-	private Object[] variableLengthValues(final Object[] obj)
+	private Object[] variableLengthValues(final Object[] values)
 	{
-		final int upperLimit = getClampedArrayIndex(obj.length, this.variableOffset, this.variableLength);
-		return this.traverseValues(obj, this.variableOffset, upperLimit);
+		final int upperLimit = getClampedArrayIndex(values.length, this.variableOffset, this.variableLength);
+		return this.traverseValues(values, this.variableOffset, upperLimit);
 	}
-
 
 	private Object[] traverseValues(final Object[] values, final int startIndex, final int endIndex)
 	{
@@ -108,17 +108,18 @@ public class ViewerObjectDescriptionCreator
 
 		for(int i = startIndex; i < endIndex; i++)
 		{
-			if(values[i] instanceof ObjectReferenceWrapper)
+			final Object value = values[i];
+			if(value instanceof ObjectReferenceWrapper)
 			{
-				data.add(Long.toString(((ObjectReferenceWrapper) values[i]).getObjectId()));
+				data.add(Long.toString(((ObjectReferenceWrapper) value).getObjectId()));
 			}
-			else if(values[i].getClass().isArray())
+			else if(value.getClass().isArray())
 			{
-				data.add(this.traverseValues((Object[])values[i], 0, ((Object[])values[i]).length));
+				data.add(this.traverseValues((Object[])value, 0, ((Object[])value).length));
 			}
 			else
 			{
-				data.add(limitsPrimitiveType(values[i].toString(), this.valueLength));
+				data.add(limitsPrimitiveType(value.toString(), this.valueLength));
 			}
 		}
 
