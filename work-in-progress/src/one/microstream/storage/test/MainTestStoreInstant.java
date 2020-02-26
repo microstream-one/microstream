@@ -2,6 +2,7 @@ package one.microstream.storage.test;
 
 import java.time.Instant;
 
+import one.microstream.chars.XChars;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
@@ -44,7 +45,8 @@ public class MainTestStoreInstant
 			Test.printInitializationTime(STORAGE);
 			Test.printOperationModeTime(STORAGE);
 			Test.print("Model data loaded.");
-			Test.print("Root instance: " + STORAGE.root());
+			final Object loadedRoot = STORAGE.root();
+			Test.print("Root instance: " + XChars.systemString(loadedRoot)+ " = " + loadedRoot);
 			
 			Test.print("Exporting data ...");
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));

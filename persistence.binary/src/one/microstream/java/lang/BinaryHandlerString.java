@@ -46,7 +46,7 @@ public final class BinaryHandlerString extends AbstractBinaryHandlerCustomValueV
 		final PersistenceStoreHandler handler
 	)
 	{
-		data.storeStringValue(this.typeId(), objectId, instance);
+		data.storeStringSingleValue(this.typeId(), objectId, instance);
 	}
 
 	@Override
