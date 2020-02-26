@@ -1239,6 +1239,16 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				backupDatFile.close();
 			});
 		}
+		
+		private static FileStatistics.Default createFileStatistics(final StorageDataFile.Default file)
+		{
+			return new FileStatistics.Default(
+				file.number()    ,
+				file.identifier(),
+				file.dataLength(),
+				file.totalLength()
+			);
+		}
 
 		@Override
 		public final StorageRawFileStatistics.ChannelStatistics createRawFileStatistics()
@@ -1255,14 +1265,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				file = file.next;
 				liveDataLength  += file.dataLength();
 				totalDataLength += file.totalLength();
-				fileStatistics.add(
-					new FileStatistics.Default(
-						file.number()    ,
-						file.identifier(),
-						file.dataLength(),
-						file.totalLength()
-					)
-				);
+				
+				final FileStatistics.Default fileStats = createFileStatistics(file);
+				fileStatistics.add(fileStats);
 			}
 			while(file != currentFile);
 
