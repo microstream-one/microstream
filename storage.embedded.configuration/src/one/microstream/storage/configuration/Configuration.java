@@ -814,7 +814,7 @@ public interface Configuration
 		{
 			StorageDataFileEvaluator.Validation.validateParameters(
 				dataFileMinimumSize,
-				dataFileMinimumSize + 1,
+				StorageDataFileEvaluator.Validation.maximumFileSize(),
 				StorageDataFileEvaluator.Defaults.defaultMinimumUseRatio()
 			);
 			this.dataFileMinimumSize = dataFileMinimumSize;
@@ -831,7 +831,7 @@ public interface Configuration
 		public Configuration setDataFileMaximumSize(final int dataFileMaximumSize)
 		{
 			StorageDataFileEvaluator.Validation.validateParameters(
-				dataFileMaximumSize - 1,
+				StorageDataFileEvaluator.Validation.minimumFileSize(),
 				dataFileMaximumSize,
 				StorageDataFileEvaluator.Defaults.defaultMinimumUseRatio()
 			);

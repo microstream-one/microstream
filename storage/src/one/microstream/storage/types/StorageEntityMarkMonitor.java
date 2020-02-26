@@ -47,6 +47,11 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 	public void enqueue(StorageObjectIdMarkQueue objectIdMarkQueue, long objectId);
 
 //	public String DEBUG_state();
+	
+	/**
+	 * Reset to a clean initial state, ready to be used.
+	 */
+	public void reset();
 
 
 	public static StorageEntityMarkMonitor.Creator Creator()
@@ -59,6 +64,13 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		return new StorageEntityMarkMonitor.Creator.Default(
 			XMath.positive(referenceCacheLength)
 		);
+	}
+	
+	public interface ObjectIds
+	{
+		public long[] objectIds();
+		
+		public int size();
 	}
 
 	public interface Creator
@@ -144,22 +156,30 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-
-		private final StorageObjectIdMarkQueue[] oidMarkQueues;
-		private final StorageEventLogger         eventLogger  ;
 		
-		private final int       channelCount           ;
-		private final int       channelHash            ;
+		// state 1.0: immutable or stateless (as far as this implementation is concerned)
+
+		private final StorageEventLogger eventLogger         ;
+		private final int                channelCount        ;
+		private final int                channelHash         ;
+		private final int                referenceCacheLength;
+		
+		
+		// state 2.0: final references to mutable instances, i.e. content must be cleared on reset
+		
+		private final StorageObjectIdMarkQueue[] oidMarkQueues   ;
+		private final long[]                     channelRootOids ;
+		private final StorageReferenceMarker[]   referenceMarkers;
+
+		
+		// state 3.0: mutable fields. Must be cleared on reset.
+		
 		private       long      pendingMarksCount      ;
 		private final boolean[] pendingStoreUpdates    ;
 		private       int       pendingStoreUpdateCount;
                                 
 		private final boolean[] needsSweep             ;
 		private       int       sweepingChannelCount   ;
-                                
-		private final long[]    channelRootOids        ;
-		
-		private final int       referenceCacheLength   ;
 
 		private long sweepGeneration     ;
 		private long lastSweepStart      ;
@@ -177,7 +197,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		 * last store.
 		 * This flag can be seen as "no new data level 1".
 		 */
-		private boolean gcHotPhaseComplete = true; // GC is initially completed because there is no data at all
+		private boolean gcHotPhaseComplete;
 
 		/*
 		 * Indicates that not only no new data has been received since the last sweep, but also that a second sweep
@@ -186,7 +206,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		 * This flag can be seen as "no new data level 2".
 		 * It will shut off all GC activity until the next store resets the flags.
 		 */
-		private boolean gcColdPhaseComplete = true; // GC is initially completed because there is no data at all
+		private boolean gcColdPhaseComplete;
 
 
 
@@ -201,14 +221,122 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		)
 		{
 			super();
-			this.oidMarkQueues        = oidMarkQueues                 ;
 			this.eventLogger          = eventLogger                   ;
+			this.oidMarkQueues        = oidMarkQueues                 ;
 			this.referenceCacheLength = referenceCacheLength          ;
 			this.channelCount         = oidMarkQueues.length          ;
 			this.channelHash          = this.channelCount - 1         ;
 			this.pendingStoreUpdates  = new boolean[this.channelCount];
 			this.needsSweep           = new boolean[this.channelCount];
 			this.channelRootOids      = new long   [this.channelCount];
+			
+			this.referenceMarkers = new StorageReferenceMarker[this.channelCount];
+			
+			// mostly redundant for instance initialization, but consistency is important.
+			this.initialize();
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		private void initializeMarkQueues()
+		{
+			// this differs from resetMarkQueues() in that here are no consistency checks
+			for(int i = 0; i < this.oidMarkQueues.length; i++)
+			{
+				this.oidMarkQueues[i].reset();
+			}
+		}
+		
+		private void initializeChannelRootIds()
+		{
+			for(int i = 0; i < this.channelRootOids.length; i++)
+			{
+				this.channelRootOids[i] = Persistence.nullId();
+			}
+		}
+		
+		private void initializePendingStoreUpdates()
+		{
+			for(int i = 0; i < this.pendingStoreUpdates.length; i++)
+			{
+				this.pendingStoreUpdates[i] = false;
+			}
+			
+			this.pendingMarksCount = 0;
+			this.pendingStoreUpdateCount = 0;
+		}
+		
+		private void initializeSweepingState()
+		{
+			for(int i = 0; i < this.needsSweep.length; i++)
+			{
+				this.needsSweep[i] = false;
+			}
+			
+			this.sweepingChannelCount = 0;
+		}
+		
+		private void initializeCompletionState()
+		{
+			// GC is initially completed because there is no data at all. Initialization and stores will flip them.
+			this.gcHotPhaseComplete  = true;
+			this.gcColdPhaseComplete = true;
+		}
+		
+		private void initializeGenerationalState()
+		{
+			this.sweepGeneration      = 0;
+			this.lastSweepStart       = 0;
+			this.lastSweepEnd         = 0;
+			this.gcHotGeneration      = 0;
+			this.gcColdGeneration     = 0;
+			this.lastGcHotCompletion  = 0;
+			this.lastGcColdCompletion = 0;
+		}
+		
+		private final void initialize()
+		{
+			// this first block basically just sets everything to 0.
+			this.initializeMarkQueues();
+			this.initializeChannelRootIds();
+			this.initializePendingStoreUpdates();
+			this.initializeSweepingState();
+			this.initializeGenerationalState();
+			
+			// referenceMarkers may NOT be cleared! They are initialized once with a linking instance that must be kept!
+			
+			// sets completion state to true, not false!
+			this.initializeCompletionState();
+		}
+		
+		@Override
+		public final synchronized void reset()
+		{
+			/* Note:
+			 * The methods for "resetting" mark queues and completion state refer to
+			 * the operating state and are not applicable here.
+			 * The actual resetting is not different from (re)initializing everything.
+			 */
+			this.initialize();
+			
+			// this is the only actually exclusive resetting method
+			this.synchResetReferenceMarkers();
+		}
+		
+		private void synchResetReferenceMarkers()
+		{
+			for(int i = 0; i < this.referenceMarkers.length; i++)
+			{
+				if(this.referenceMarkers[i] == null)
+				{
+					continue;
+				}
+				this.referenceMarkers[i].reset();
+			}
 		}
 
 		private synchronized void incrementPendingMarksCount()
@@ -336,7 +464,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 			return true;
 		}
-
+		
 		@Override
 		public final synchronized boolean needsSweep(final StorageEntityCache<?> channel)
 		{
@@ -393,10 +521,8 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 		final synchronized void resetChannelRootIds()
 		{
-			for(int i = 0; i < this.channelRootOids.length; i++)
-			{
-				this.channelRootOids[i] = Persistence.nullId();
-			}
+			// no difference to reinitializing
+			this.initializeChannelRootIds();
 		}
 
 		final synchronized void resetMarkQueues()
@@ -485,15 +611,31 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		@Override
 		public final StorageReferenceMarker provideReferenceMarker(final StorageEntityCache<?> channel)
 		{
-			return new CachingReferenceMarker(this, this.channelCount, this.referenceCacheLength);
+			if(this.referenceMarkers[channel.channelIndex()] != null)
+			{
+				// (24.02.2020 TM)EXCP: proper exception
+				throw new StorageException(
+					StorageReferenceMarker.class.getSimpleName()
+					+ " for channel #" + channel.channelIndex()
+					+ " already exists."
+				);
+			}
+			
+			return this.referenceMarkers[channel.channelIndex()] =
+				new CachingReferenceMarker(this, this.channelCount, this.referenceCacheLength)
+			;
 		}
 
-		final void enqueueBulk(final long[][] oidsPerChannel, final int[] sizes)
+		final void enqueueBulk(final ObjectIds[] oidsPerChannel)
 		{
 			long totalSize = 0;
-			for(final int size : sizes)
+			
+			/* (24.02.2020 TM)FIXME: priv#72: how is this size-adding loop concurrency-safe? Research and comment!
+			 * The size might get concurrently modified by other channel threads while the loop runs.
+			 */
+			for(final ObjectIds e : oidsPerChannel)
 			{
-				totalSize += size;
+				totalSize += e.size();
 			}
 
 			synchronized(this)
@@ -506,12 +648,12 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			// lock for every queue is only acquired once and all oids are enqueued efficiently
 			for(int i = 0; i < oidsPerChannel.length; i++)
 			{
-				if(sizes[i] == 0)
+				if(oidsPerChannel[i].size() == 0)
 				{
 					// avoid unnecessary locking and execution overhead
 					continue;
 				}
-				oidMarkQueues[i].enqueueBulk(oidsPerChannel[i], sizes[i]);
+				oidMarkQueues[i].enqueueBulk(oidsPerChannel[i].objectIds(), oidsPerChannel[i].size());
 			}
 		}
 
@@ -540,30 +682,99 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 		static final class CachingReferenceMarker implements StorageReferenceMarker
 		{
-			private final StorageEntityMarkMonitor.Default markMonitor        ;
-			private final long[][]                         oidsPerChannel     ;
-			private final int[]                            oidsPerChannelSizes;
-			private final int                              channelHash        ;
-			private final int                              bufferLength       ;
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			// state 1.0: immutable or stateless (as far as this implementation is concerned)
+			
+			private final StorageEntityMarkMonitor.Default markMonitor   ;
+			private final int                              channelHash   ;
+			private final int                              bufferLength  ;
+			
+
+			// state 2.0: final references to mutable instances, i.e. content must be cleared on reset
+			
+			private final ChannelItem[] oidsPerChannel;
+			
+					
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
 
 			CachingReferenceMarker(
 				final StorageEntityMarkMonitor.Default markMonitor ,
-				final int                                     channelCount,
-				final int                                     bufferLength
+				final int                              channelCount,
+				final int                              bufferLength
 			)
 			{
 				super();
-				this.markMonitor         = markMonitor             ;
-				this.bufferLength        = bufferLength            ;
-				this.channelHash         = channelCount - 1        ;
-				this.oidsPerChannel      = new long[channelCount][];
-				this.oidsPerChannelSizes = new int[channelCount]   ;
-
+				this.markMonitor  = markMonitor     ;
+				this.bufferLength = bufferLength    ;
+				this.channelHash  = channelCount - 1;
+				
+				this.oidsPerChannel = new ChannelItem[channelCount];
 				for(int i = 0; i < channelCount; i++)
 				{
-					this.oidsPerChannel[i] = new long[bufferLength];
+					this.oidsPerChannel[i] = new ChannelItem(bufferLength);
 				}
 			}
+			
+			static final class ChannelItem implements ObjectIds
+			{
+				final long[] oids;
+				      int    size;
+				
+				ChannelItem(final int capacity)
+				{
+					super();
+					this.oids = new long[capacity];
+				}
+				
+				/**
+				 * Add the passed oid and returns the resulting size.
+				 * 
+				 * @param oid
+				 * @return
+				 */
+				final int add(final long oid)
+				{
+					this.oids[this.size] = oid;
+					
+					return ++this.size;
+				}
+				
+				final boolean isEmpty()
+				{
+					return this.size == 0;
+				}
+				
+				final void reset()
+				{
+					// this is sufficient. Old oid data in the array is irrelevant.
+					this.size = 0;
+				}
+
+				@Override
+				public final long[] objectIds()
+				{
+					return this.oids;
+				}
+
+				@Override
+				public final int size()
+				{
+					return this.size;
+				}
+				
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
 
 			@Override
 			public final void acceptObjectId(final long objectId)
@@ -576,29 +787,33 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 				final int i = (int)(objectId & this.channelHash);
 
-				this.oidsPerChannel[i][this.oidsPerChannelSizes[i]] = objectId;
-				if((this.oidsPerChannelSizes[i] = this.oidsPerChannelSizes[i] + 1) == this.bufferLength)
+				if(this.oidsPerChannel[i].add(objectId) == this.bufferLength)
 				{
 					this.flush();
 				}
 			}
 
+			// (24.02.2020 TM)FIXME: how are the calls to this method concurrency-safe?
 			final void flush()
 			{
-				this.markMonitor.enqueueBulk(this.oidsPerChannel, this.oidsPerChannelSizes);
-
-				for(int i = 0; i < this.oidsPerChannelSizes.length; i++)
+				this.markMonitor.enqueueBulk(this.oidsPerChannel);
+				this.resetOidsPerChannel();
+			}
+			
+			final void resetOidsPerChannel()
+			{
+				for(int i = 0; i < this.oidsPerChannel.length; i++)
 				{
-					this.oidsPerChannelSizes[i] = 0;
+					this.oidsPerChannel[i].reset();
 				}
 			}
 
 			@Override
 			public final boolean tryFlush()
 			{
-				for(int i = 0; i < this.oidsPerChannelSizes.length; i++)
+				for(int i = 0; i < this.oidsPerChannel.length; i++)
 				{
-					if(this.oidsPerChannelSizes[i] != 0)
+					if(!this.oidsPerChannel[i].isEmpty())
 					{
 						this.flush();
 						return true;
@@ -606,6 +821,12 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				}
 
 				return false;
+			}
+			
+			@Override
+			public final void reset()
+			{
+				this.resetOidsPerChannel();
 			}
 		}
 
