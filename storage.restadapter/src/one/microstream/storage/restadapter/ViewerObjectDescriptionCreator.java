@@ -49,13 +49,13 @@ public class ViewerObjectDescriptionCreator
 	{
 		this.objDesc = new ViewerObjectDescription();
 		this.setObjectHeader();
-		this.setMemberValues();
+		this.gatherMemberValues();
 		this.setReferences();
 
 		return this.objDesc;
 	}
 
-	private void setMemberValues()
+	private void gatherMemberValues()
 	{
 		if(this.description.hasPrimitiveObjectInstance())
 		{
@@ -160,7 +160,7 @@ public class ViewerObjectDescriptionCreator
 			{
 				if(desc != null)
 				{
-					final ViewerObjectDescriptionCreator c = new ViewerObjectDescriptionCreator(
+					final ViewerObjectDescriptionCreator descriptionCreator = new ViewerObjectDescriptionCreator(
 							desc,
 							this.fixedOffset,
 							this.fixedLength,
@@ -168,7 +168,7 @@ public class ViewerObjectDescriptionCreator
 							this.variableLength,
 							this.valueLength);
 
-					final ViewerObjectDescription resolvedReferences = c.create();
+					final ViewerObjectDescription resolvedReferences = descriptionCreator.create();
 					referencesList.add(resolvedReferences);
 				}
 				else
