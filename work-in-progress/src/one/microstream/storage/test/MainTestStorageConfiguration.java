@@ -1,20 +1,27 @@
-package one.microstream.test.corp.main;
+package one.microstream.storage.test;
 
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.Storage;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
 
-public class MainTestStorageExample
+public class MainTestStorageConfiguration
 {
 	static
 	{
-//		Test.clearDefaultStorageDirectory();
+		Test.clearDefaultStorageDirectory();
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
-	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
+	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
+		.Foundation(
+			Storage.ConfigurationBuilder()
+			.setDataFileEvaluator(Storage.DataFileEvaluator(2000, 2100))
+		)
+		.start()
+	;
 
 	public static void main(final String[] args)
 	{
@@ -48,10 +55,8 @@ public class MainTestStorageExample
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
 			Test.print("Data export completed.");
 		}
-
-		// no shutdown required, the storage concept is inherently crash-safe
-//		STORAGE.shutdown();
 		
+		STORAGE.shutdown();
 		System.exit(0);
 	}
 		

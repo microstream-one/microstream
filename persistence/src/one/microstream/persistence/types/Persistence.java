@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.Reference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -601,7 +602,10 @@ public class Persistence
 		new CopyOnWriteArrayList<>().subList(0, 0).getClass(), // java.util.concurrent.CopyOnWriteArrayList$COWSubList
 		
 		Enumeration.class,
-		Iterator.class
+		Iterator.class,
+		
+		// it makes no sense to support/allow these "magical" volatile references in a persistent context.
+		Reference.class
 		
 		// note: lambdas don't have a super class as such. See usages of "LambdaTypeRecognizer" instead
 	);
