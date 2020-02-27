@@ -8,7 +8,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerPattern extends AbstractBinaryHandlerCustomValueVariableLength<Pattern>
+public final class BinaryHandlerPattern extends AbstractBinaryHandlerCustomValueVariableLength<Pattern, String>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -25,6 +25,8 @@ public final class BinaryHandlerPattern extends AbstractBinaryHandlerCustomValue
 		// flags int requires one int of binary space.
 		return Integer.BYTES;
 	}
+	
+	
 	
 	public static BinaryHandlerPattern New()
 	{
@@ -53,24 +55,6 @@ public final class BinaryHandlerPattern extends AbstractBinaryHandlerCustomValue
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-	
-	private static String stateString(final String pattern, final int flags)
-	{
-		return "pattern = " + pattern + ", flags = " + flags;
-	}
-	
-	private static String instanceState(final Pattern instance)
-	{
-		return stateString(instance.pattern(), instance.flags());
-	}
-	
-	private static String binaryState(final Binary data)
-	{
-		return stateString(
-			data.buildString(binaryOffsetPatternString()),
-			data.read_int(binaryOffsetFlags())
-		);
-	}
 
 	@Override
 	public final void store(
@@ -104,14 +88,30 @@ public final class BinaryHandlerPattern extends AbstractBinaryHandlerCustomValue
 		return Pattern.compile(pattern, flags);
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
 	@Override
-	public void validateState(
-		final Binary                 data    ,
-		final Pattern                instance,
-		final PersistenceLoadHandler handler
-	)
+	public String getValidationStateFromInstance(final Pattern instance)
 	{
-		compareSimpleState(instance, instanceState(instance), binaryState(data));
+		return stateString(instance.pattern(), instance.flags());
+	}
+	
+	@Override
+	public String getValidationStateFromBinary(final Binary data)
+	{
+		return stateString(
+			data.buildString(binaryOffsetPatternString()),
+			data.read_int(binaryOffsetFlags())
+		);
+	}
+	
+	private static String stateString(final String pattern, final int flags)
+	{
+		return "pattern = " + pattern + ", flags = " + flags;
 	}
 
 }

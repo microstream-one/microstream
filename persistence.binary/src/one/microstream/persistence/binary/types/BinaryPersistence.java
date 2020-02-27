@@ -50,6 +50,7 @@ import one.microstream.java.lang.BinaryHandlerStringBuilder;
 import one.microstream.java.lang.BinaryHandlerVoid;
 import one.microstream.java.math.BinaryHandlerBigDecimal;
 import one.microstream.java.math.BinaryHandlerBigInteger;
+import one.microstream.java.net.BinaryHandlerInetSocketAddress;
 import one.microstream.java.net.BinaryHandlerURI;
 import one.microstream.java.net.BinaryHandlerURL;
 import one.microstream.java.sql.BinaryHandlerSqlDate;
@@ -215,6 +216,8 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerPattern.New()   ,
 			BinaryHandlerURI.New()       ,
 			BinaryHandlerURL.New()       ,
+			
+			BinaryHandlerInetSocketAddress.New(),
 
 			// non-sensical handlers required for confused developers
 			BinaryHandlerSqlDate.New()     ,

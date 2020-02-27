@@ -1,9 +1,9 @@
 package one.microstream.java.sql;
 
-import java.sql.Date;
+import java.sql.Time;
 
 import one.microstream.java.util.BinaryHandlerDate;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomNonReferentialFixedLength;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
@@ -13,7 +13,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  * 
  * @author TM
  */
-public final class BinaryHandlerSqlTime extends AbstractBinaryHandlerCustomValueFixedLength<Date>
+public final class BinaryHandlerSqlTime extends AbstractBinaryHandlerCustomNonReferentialFixedLength<Time>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -33,7 +33,7 @@ public final class BinaryHandlerSqlTime extends AbstractBinaryHandlerCustomValue
 	BinaryHandlerSqlTime()
 	{
 		super(
-			Date.class,
+			Time.class,
 			CustomFields(
 				CustomField(long.class, "timestamp")
 			)
@@ -46,7 +46,7 @@ public final class BinaryHandlerSqlTime extends AbstractBinaryHandlerCustomValue
 	// methods //
 	////////////
 	
-	private static long instanceState(final Date instance)
+	private static long instanceState(final Time instance)
 	{
 		return instance.getTime();
 	}
@@ -59,7 +59,7 @@ public final class BinaryHandlerSqlTime extends AbstractBinaryHandlerCustomValue
 	@Override
 	public final void store(
 		final Binary                  data    ,
-		final Date                    instance,
+		final Time                    instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
@@ -71,39 +71,15 @@ public final class BinaryHandlerSqlTime extends AbstractBinaryHandlerCustomValue
 	}
 
 	@Override
-	public final Date create(final Binary data, final PersistenceLoadHandler handler)
+	public final Time create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return new Date(binaryState(data));
-	}
-	
-	@Override
-	public final void initializeState(final Binary data, final Date instance, final PersistenceLoadHandler handler)
-	{
-		this.updateState(data, instance, handler);
+		return new Time(binaryState(data));
 	}
 
 	@Override
-	public final void updateState(final Binary data, final Date instance, final PersistenceLoadHandler handler)
+	public final void updateState(final Binary data, final Time instance, final PersistenceLoadHandler handler)
 	{
 		instance.setTime(binaryState(data));
-	}
-	
-	@Override
-	public final void validateState(
-		final Binary                 data    ,
-		final Date                   instance,
-		final PersistenceLoadHandler handler
-	)
-	{
-		final long instanceState = instanceState(instance);
-		final long binaryState   = binaryState(data);
-		
-		if(instanceState == binaryState)
-		{
-			return;
-		}
-		
-		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

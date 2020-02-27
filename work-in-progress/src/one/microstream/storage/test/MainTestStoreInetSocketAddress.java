@@ -1,6 +1,5 @@
 package one.microstream.storage.test;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
@@ -15,7 +14,7 @@ public class MainTestStoreInetSocketAddress
 {
 	static
 	{
-		Test.clearDefaultStorageDirectory();
+//		Test.clearDefaultStorageDirectory();
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
@@ -23,8 +22,10 @@ public class MainTestStoreInetSocketAddress
 
 	public static void main(final String[] args) throws UnknownHostException
 	{
-		final InetAddress inetAddress = InetAddress.getByName("127.0.0.1");
-		final InetSocketAddress isa = new InetSocketAddress(inetAddress, 8080);
+//		final InetAddress inetAddress = InetAddress.getByName("127.0.0.1");
+//		final InetAddress inetAddress = InetAddress.getByName("localhost");
+//		final InetSocketAddress isa = new InetSocketAddress(inetAddress, 8080);
+		final InetSocketAddress isa = new InetSocketAddress("localhost", 8080);
 		
 		
 		// object graph with root either loaded on startup from an existing DB or required to be generated.

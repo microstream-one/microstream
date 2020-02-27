@@ -1231,8 +1231,190 @@ public final class XReflect
 		}
 		return length;
 	}
+	
+	public static <T, S extends T> S copyFields(
+		final T source,
+		final S target
+	)
+	{
+		return copyFields(source, target, XFunc.all(), CopyPredicate::all);
+	}
+	
+	public static <T, S extends T> S copyFields(
+		final T                        source       ,
+		final S                        target       ,
+		final Predicate<? super Field> fieldSelector
+	)
+	{
+		return copyFields(source, target, fieldSelector, CopyPredicate::all);
+	}
 		
 
+	public static <T, S extends T> S copyFields(
+		final T                        source       ,
+		final S                        target       ,
+		final Predicate<? super Field> fieldSelector,
+		final CopyPredicate            copySelector
+	)
+	{
+		validateFamiliarClass(source, target);
+		final Field[] copyFields = collectInstanceFields(source.getClass(), fieldSelector);
+		
+		for(final Field field : copyFields)
+		{
+			try
+			{
+				copyFieldValue(source, target, field, copySelector);
+			}
+			catch(final Exception e)
+			{
+				// (27.02.2020 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Cannot copy value of field " + field
+					+ " from source instance " + XChars.systemString(source)
+					+ " to target instance "   + XChars.systemString(target) + ".",
+					e
+				);
+			}
+		}
+		
+		return target;
+	}
+	
+	final static <T, S extends T> S copyFields(
+		final T             source       ,
+		final S             target       ,
+		final Field[]       copyFields,
+		final CopyPredicate copySelector
+	)
+	{
+		validateFamiliarClass(source, target);
+		for(final Field field : copyFields)
+		{
+			try
+			{
+				copyFieldValue(source, target, field, copySelector);
+			}
+			catch(final Exception e)
+			{
+				// (27.02.2020 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Cannot copy value of field " + field
+					+ " from source instance " + XChars.systemString(source)
+					+ " to target instance "   + XChars.systemString(target) + ".",
+					e
+				);
+			}
+		}
+		
+		return target;
+	}
+	
+	private static <T, S extends T> void copyFieldValue(
+		final T             source      ,
+		final S             target      ,
+		final Field         field       ,
+		final CopyPredicate copySelector
+	)
+		throws IllegalArgumentException, IllegalAccessException
+	{
+		XReflect.setAccessible(field);
+		
+		if(field.getType().isPrimitive())
+		{
+			copyPrimitiveFieldValue(source, target, field, copySelector);
+			return;
+		}
+
+		final Object value = field.get(source);
+		if(!copySelector.test(source, target, field, value))
+		{
+			return;
+		}
+		
+		field.set(target, value);
+	}
+	
+	private static <T, S extends T>void copyPrimitiveFieldValue(
+		final T             source        ,
+		final S             target        ,
+		final Field         primitiveField,
+		final CopyPredicate copySelector
+	)
+		throws IllegalArgumentException, IllegalAccessException
+	{
+		if(!copySelector.test(source, target, primitiveField, null))
+		{
+			return;
+		}
+		
+		final Class<?> primitiveType = primitiveField.getType();
+		if(primitiveType == int.class)
+		{
+			primitiveField.setInt(target, primitiveField.getInt(source));
+		}
+		else if(primitiveType == double.class)
+		{
+			primitiveField.setDouble(target, primitiveField.getDouble(source));
+		}
+		else if(primitiveType == long.class)
+		{
+			primitiveField.setLong(target, primitiveField.getLong(source));
+		}
+		else if(primitiveType == boolean.class)
+		{
+			primitiveField.setBoolean(target, primitiveField.getBoolean(source));
+		}
+		else if(primitiveType == float.class)
+		{
+			primitiveField.setFloat(target, primitiveField.getFloat(source));
+		}
+		else if(primitiveType == char.class)
+		{
+			primitiveField.setChar(target, primitiveField.getChar(source));
+		}
+		else if(primitiveType == short.class)
+		{
+			primitiveField.setShort(target, primitiveField.getShort(source));
+		}
+		else if(primitiveType == byte.class)
+		{
+			primitiveField.setByte(target, primitiveField.getByte(source));
+		}
+		else
+		{
+			// (27.02.2020 TM)EXCP: proper exception
+			// e.g. void.class, maybe value types in the future or whatever.
+			throw new RuntimeException("Field with unhandled primitive type: " + primitiveField);
+		}
+	}
+	
+	/**
+	 * Checks if {@code superClassInstance.getClass().isAssignableFrom(sameOrSubClassInstance.getClass())}
+	 * 
+	 * @param <T>
+	 * @param <S>
+	 * @param superClassInstance
+	 * @param sameOrSubClassInstance
+	 */
+	public static <T, S extends T> void validateFamiliarClass(
+		final T superClassInstance    ,
+		final S sameOrSubClassInstance
+	)
+	{
+		if(superClassInstance.getClass().isAssignableFrom(sameOrSubClassInstance.getClass()))
+		{
+			return;
+		}
+		
+		 // (27.02.2020 TM)EXCP: proper exception
+		throw new RuntimeException(
+			XChars.systemString(sameOrSubClassInstance)
+			+ " is not of the same class or a sub class of "
+			+ XChars.systemString(superClassInstance)
+		);
+	}
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
