@@ -117,6 +117,10 @@ public class DocumentationManager extends RouteManager
 	public Object getDocumentation(final String uri)
 	{
 		final Hashtable<String, String> UriMethods = this.getRegisteredRoutes().get(uri);
+		if(UriMethods == null)
+		{
+			throw new ViewerException("No documentation found");
+		}
 
 		final JsonObject docu = new JsonObject();
 
