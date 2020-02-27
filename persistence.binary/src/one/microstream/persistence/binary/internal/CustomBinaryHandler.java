@@ -295,12 +295,15 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 	
 	// having no setting members effectively means the type is an immutable value type
 	private boolean hasSettingMembers;
+	private boolean hasNonSettingMembers;
 	private boolean hasPersistedReferences;
 
 	private BinaryField<? super T>[] storingFields      ;
+	private BinaryField<? super T>[] nonSettingFields   ;
 	private BinaryField<? super T>[] allReferenceFields ;
 	private BinaryField<? super T>[] settingRefrncFields;
 	private BinaryField<? super T>[] settingNonRefFields;
+	
 	
 	// may be null if no such field is present
 	private BinaryField<? super T> trailingVariableLengthField;
@@ -436,6 +439,37 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 		return instance;
 	}
 	
+	@Override
+	public void initializeState(final Binary data, final T instance, final PersistenceLoadHandler handler)
+	{
+		// non-reference values were already set in #create
+		this.setReferenceValues(instance, data, handler);
+	}
+
+	@Override
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
+	{
+		if(this.hasNonSettingMembers)
+		{
+			// read-only fields must be validated instead of updated. Of course BEFORE updating anything
+			this.validateReadOnlyFields(instance, data, handler);
+		}
+		if(this.hasSettingMembers)
+		{
+			// update has to set both types of values
+			this.setNonReferenceValues(instance, data, handler);
+			this.setReferenceValues(instance, data, handler);
+		}
+	}
+	
+	protected void validateReadOnlyFields(final T instance, final Binary data, final PersistenceLoadHandler handler)
+	{
+		for(final BinaryField<? super T> nonSettingFieldField : this.nonSettingFields)
+		{
+			nonSettingFieldField.validateState(instance, data, handler);
+		}
+	}
+	
 	private void setNonReferenceValues(final T instance, final Binary data, final PersistenceLoadHandler handler)
 	{
 		for(final BinaryField<? super T> settingNonRefField : this.settingNonRefFields)
@@ -449,37 +483,6 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 		for(final BinaryField<? super T> settingRefrncField : this.settingRefrncFields)
 		{
 			settingRefrncField.setToInstance(instance, data, handler);
-		}
-	}
-	
-	private void validateState(final T instance, final Binary data, final PersistenceLoadHandler handler)
-	{
-		for(final BinaryField<? super T> settingNonRefField : this.storingFields)
-		{
-			settingNonRefField.setToInstance(instance, data, handler);
-		}
-	}
-	
-	@Override
-	public void initializeState(final Binary data, final T instance, final PersistenceLoadHandler handler)
-	{
-		// non-reference values were already set in #create
-		this.setReferenceValues(instance, data, handler);
-	}
-
-	@Override
-	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
-	{
-		if(this.hasSettingMembers)
-		{
-			// update has to set both types of values
-			this.setNonReferenceValues(instance, data, handler);
-			this.setReferenceValues(instance, data, handler);
-		}
-		else
-		{
-			// immutable value types are validated, instead of updated. See native handlers (String etc.)
-			this.validateState(instance, data, handler);
 		}
 	}
 
@@ -648,6 +651,7 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 		final BulkList<BinaryField<? super T>> allReferenceFields  = BulkList.New();
 		final BulkList<BinaryField<? super T>> settingNonRefFields = BulkList.New();
 		final BulkList<BinaryField<? super T>> settingRefrncFields = BulkList.New();
+		final BulkList<BinaryField<? super T>> nonSettingFields    = BulkList.New();
 						
 		int offset = 0;
 		for(final BinaryField.Initializable<? super T> binaryField : binaryFields.values())
@@ -668,6 +672,7 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 			
 			if(!binaryField.canSet())
 			{
+				nonSettingFields.add(binaryField);
 				continue;
 			}
 			
@@ -686,6 +691,7 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 		}
 		
 		this.storingFields       = storingFields      .toArray(this.binaryFieldClass());
+		this.nonSettingFields    = nonSettingFields   .toArray(this.binaryFieldClass());
 		this.allReferenceFields  = allReferenceFields .toArray(this.binaryFieldClass());
 		this.settingRefrncFields = settingRefrncFields.toArray(this.binaryFieldClass());
 		this.settingNonRefFields = settingNonRefFields.toArray(this.binaryFieldClass());
@@ -693,6 +699,7 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 		this.trailingVariableLengthField = varLengthField;
 		this.hasPersistedReferences      = !allReferenceFields.isEmpty();
 		this.hasSettingMembers           = !settingRefrncFields.isEmpty() || !settingNonRefFields.isEmpty();
+		this.hasNonSettingMembers        = !nonSettingFields.isEmpty();
 		this.fixedLengthBinaryContent    = offset;
 	}
 	
