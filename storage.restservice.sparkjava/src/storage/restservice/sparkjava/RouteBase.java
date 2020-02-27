@@ -1,68 +1,30 @@
 package storage.restservice.sparkjava;
 
-import one.microstream.storage.restadapter.StorageRestAdapterConverter;
-import one.microstream.storage.restadapter.StorageViewDataConverter;
 import spark.Request;
-import spark.Response;
+import spark.Route;
 
-public class RouteBase<T extends StorageRestAdapterConverter>
+public abstract class RouteBase<T> implements Route
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 
-	protected final T storageRestAdapter;
+	protected final T apiAdapter;
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public RouteBase(final T storageRestAdapter)
+	public RouteBase(final T apiAdapter)
 	{
 		super();
-		this.storageRestAdapter = storageRestAdapter;
+		this.apiAdapter = apiAdapter;
 	}
-
 
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
-	public String toRequestedFormat(final Object object, final String requestedFormat, final Response response)
-	{
-		if(requestedFormat != null)
-		{
-			final StorageViewDataConverter converter = this.storageRestAdapter.getConverter(requestedFormat);
-			if(converter != null)
-			{
-				final String responseContentType = converter.getHtmlResponseContentType();
-
-				if(responseContentType != null)
-				{
-					response.type(responseContentType);
-				}
-
-				return converter.convert(object);
-			}
-			throw new InvalidRouteParametersException("format invalid");
-		}
-
-		response.type("application/json");
-		return this.storageRestAdapter.getConverter("application/json").convert(object);
-	}
-
-	protected long validateObjectId(final Request request)
-	{
-		try
-		{
-			return Long.parseLong(request.params(":oid"));
-		}
-		catch(final NumberFormatException e )
-		{
-			throw new InvalidRouteParametersException("ObjectId invalid");
-		}
-	}
 
 	protected boolean getBooleanParameter(final Request request, final String name, final boolean defaultValue)
 	{
@@ -72,11 +34,9 @@ public class RouteBase<T extends StorageRestAdapterConverter>
 			return defaultValue;
 		}
 
-		if(param.toLowerCase().contentEquals("true")
-			|| param.toLowerCase().contentEquals("false")
-			)
+		if(param.toLowerCase().contentEquals("true"))
 		{
-			return Boolean.parseBoolean(param);
+			return true;
 		}
 		throw new InvalidRouteParametersException("invalid url parameter " + name);
 
@@ -106,4 +66,53 @@ public class RouteBase<T extends StorageRestAdapterConverter>
 		return request.queryParams(name);
 	}
 
+	protected long validateObjectId(final Request request)
+	{
+		try
+		{
+			return Long.parseLong(request.params(":oid"));
+		}
+		catch(final NumberFormatException e )
+		{
+			throw new InvalidRouteParametersException("ObjectId invalid");
+		}
+	}
+
+	protected double getDoubleParameter(final Request request, final String name, final double defaultValue)
+	{
+		final String param = request.queryParams(name);
+
+		if(param == null)
+		{
+			return defaultValue;
+		}
+
+		try
+		{
+			return Double.parseDouble(param);
+		}
+		catch(final NumberFormatException e)
+		{
+			throw new InvalidRouteParametersException("invalid url parameter " + name);
+		}
+	}
+
+	protected int getIntParameter(final Request request, final String name, final int defaultValue)
+	{
+		final String param = request.queryParams(name);
+
+		if(param == null)
+		{
+			return defaultValue;
+		}
+
+		try
+		{
+			return Integer.parseInt(param);
+		}
+		catch(final NumberFormatException e)
+		{
+			throw new InvalidRouteParametersException("invalid url parameter " + name);
+		}
+	}
 }

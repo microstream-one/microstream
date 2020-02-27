@@ -4,9 +4,8 @@ import one.microstream.storage.restadapter.StorageRestAdapterObject;
 import one.microstream.storage.restadapter.ViewerObjectDescription;
 import spark.Request;
 import spark.Response;
-import spark.Route;
 
-public class RouteGetObject extends RouteBase<StorageRestAdapterObject> implements Route
+public class RouteGetObject extends RouteBaseConvertable<StorageRestAdapterObject>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -31,12 +30,12 @@ public class RouteGetObject extends RouteBase<StorageRestAdapterObject> implemen
         final long variableLength = this.getLongParameter(request, "variableLength", Long.MAX_VALUE);
 		final long referenceOffset = this.getLongParameter(request, "referenceOffset", 0);
 		final long referenceLength = this.getLongParameter(request, "referenceLength", Long.MAX_VALUE);
-		final long valueLength = this.getLongParameter(request, "valueLength", this.storageRestAdapter.getDefaultValueLength());
+		final long valueLength = this.getLongParameter(request, "valueLength", this.apiAdapter.getDefaultValueLength());
 		final boolean resolveReferences = this.getBooleanParameter(request, "references", false);
 		final String requestedFormat = this.getStringParameter(request, "format");
 
 		final long objectId = this.validateObjectId(request);
-		final ViewerObjectDescription storageObject = this.storageRestAdapter.getObject(
+		final ViewerObjectDescription storageObject = this.apiAdapter.getObject(
 			objectId,
 			fixedOffset,
 			fixedLength,
