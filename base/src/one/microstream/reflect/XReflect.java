@@ -1318,27 +1318,32 @@ public final class XReflect
 	)
 		throws IllegalArgumentException, IllegalAccessException
 	{
-		XReflect.setAccessible(field);
+		// must circumvent reflection access by low-level access due to warnings about JDK-internal reflection access.
+		final long fieldOffset = XMemory.objectFieldOffset(field);
+//		XReflect.setAccessible(field);
 		
 		if(field.getType().isPrimitive())
 		{
-			copyPrimitiveFieldValue(source, target, field, copySelector);
+			copyPrimitiveFieldValue(source, target, field, fieldOffset, copySelector);
 			return;
 		}
 
-		final Object value = field.get(source);
+		final Object value = XMemory.getObject(source, fieldOffset);
+//		final Object value = field.get(source);
 		if(!copySelector.test(source, target, field, value))
 		{
 			return;
 		}
 		
-		field.set(target, value);
+		XMemory.setObject(target, fieldOffset, value);
+//		field.set(target, value);
 	}
 	
 	private static <T, S extends T>void copyPrimitiveFieldValue(
 		final T             source        ,
 		final S             target        ,
 		final Field         primitiveField,
+		final long          fieldOffset   ,
 		final CopyPredicate copySelector
 	)
 		throws IllegalArgumentException, IllegalAccessException
@@ -1347,39 +1352,48 @@ public final class XReflect
 		{
 			return;
 		}
-		
+
+		// must circumvent reflection access by low-level access due to warnings about JDK-internal reflection access.
 		final Class<?> primitiveType = primitiveField.getType();
 		if(primitiveType == int.class)
 		{
-			primitiveField.setInt(target, primitiveField.getInt(source));
+			XMemory.set_int(target, fieldOffset, XMemory.get_int(source, fieldOffset));
+//			primitiveField.setInt(target, primitiveField.getInt(source));
 		}
 		else if(primitiveType == double.class)
 		{
-			primitiveField.setDouble(target, primitiveField.getDouble(source));
+			XMemory.set_double(target, fieldOffset, XMemory.get_double(source, fieldOffset));
+//			primitiveField.setDouble(target, primitiveField.getDouble(source));
 		}
 		else if(primitiveType == long.class)
 		{
-			primitiveField.setLong(target, primitiveField.getLong(source));
+			XMemory.set_long(target, fieldOffset, XMemory.get_long(source, fieldOffset));
+//			primitiveField.setLong(target, primitiveField.getLong(source));
 		}
 		else if(primitiveType == boolean.class)
 		{
-			primitiveField.setBoolean(target, primitiveField.getBoolean(source));
+			XMemory.set_boolean(target, fieldOffset, XMemory.get_boolean(source, fieldOffset));
+//			primitiveField.setBoolean(target, primitiveField.getBoolean(source));
 		}
 		else if(primitiveType == float.class)
 		{
-			primitiveField.setFloat(target, primitiveField.getFloat(source));
+			XMemory.set_float(target, fieldOffset, XMemory.get_float(source, fieldOffset));
+//			primitiveField.setFloat(target, primitiveField.getFloat(source));
 		}
 		else if(primitiveType == char.class)
 		{
-			primitiveField.setChar(target, primitiveField.getChar(source));
+			XMemory.set_char(target, fieldOffset, XMemory.get_char(source, fieldOffset));
+//			primitiveField.setChar(target, primitiveField.getChar(source));
 		}
 		else if(primitiveType == short.class)
 		{
-			primitiveField.setShort(target, primitiveField.getShort(source));
+			XMemory.set_short(target, fieldOffset, XMemory.get_short(source, fieldOffset));
+//			primitiveField.setShort(target, primitiveField.getShort(source));
 		}
 		else if(primitiveType == byte.class)
 		{
-			primitiveField.setByte(target, primitiveField.getByte(source));
+			XMemory.set_byte(target, fieldOffset, XMemory.get_byte(source, fieldOffset));
+//			primitiveField.setByte(target, primitiveField.getByte(source));
 		}
 		else
 		{
