@@ -36,7 +36,7 @@ public abstract class RouteBaseConvertable<T extends StorageRestAdapterConverter
 
 				return converter.convert(object);
 			}
-			throw new InvalidRouteParametersException("format invalid");
+			throw new InvalidRouteParametersException("format");
 		}
 
 		response.type("application/json");
