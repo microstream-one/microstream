@@ -34,11 +34,13 @@ public abstract class RouteBase<T> implements Route
 			return defaultValue;
 		}
 
-		if(param.toLowerCase().contentEquals("true"))
-		{
-			return true;
+        if(param.toLowerCase().contentEquals("true")
+        	|| param.toLowerCase().contentEquals("false"))
+        {
+            return Boolean.parseBoolean(param);
 		}
-		throw new InvalidRouteParametersException("invalid url parameter " + name);
+
+		throw new InvalidRouteParametersException(name);
 
 	}
 
@@ -57,7 +59,7 @@ public abstract class RouteBase<T> implements Route
 		}
 		catch(final NumberFormatException e)
 		{
-			throw new InvalidRouteParametersException("invalid url parameter " + name);
+			throw new InvalidRouteParametersException(name);
 		}
 	}
 
@@ -74,7 +76,7 @@ public abstract class RouteBase<T> implements Route
 		}
 		catch(final NumberFormatException e )
 		{
-			throw new InvalidRouteParametersException("ObjectId invalid");
+			throw new InvalidRouteParametersException("ObjectId");
 		}
 	}
 
@@ -93,7 +95,7 @@ public abstract class RouteBase<T> implements Route
 		}
 		catch(final NumberFormatException e)
 		{
-			throw new InvalidRouteParametersException("invalid url parameter " + name);
+			throw new InvalidRouteParametersException(name);
 		}
 	}
 
@@ -112,7 +114,7 @@ public abstract class RouteBase<T> implements Route
 		}
 		catch(final NumberFormatException e)
 		{
-			throw new InvalidRouteParametersException("invalid url parameter " + name);
+			throw new InvalidRouteParametersException(name);
 		}
 	}
 }
