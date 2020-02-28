@@ -5,6 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ *
+ *	Create a ViewerObjectDescription from the complex ObjectDescription type
+ *
+ *
+ */
 public class ViewerObjectDescriptionCreator
 {
 	private final ObjectDescription description;
@@ -55,6 +61,11 @@ public class ViewerObjectDescriptionCreator
 		return this.objDesc;
 	}
 
+	/**
+	 *
+	 * Collect all MemberValues and add them to the new ViewerObjectDescription
+	 *
+	 */
 	private void gatherMemberValues()
 	{
 		if(this.description.hasPrimitiveObjectInstance())
@@ -71,6 +82,12 @@ public class ViewerObjectDescriptionCreator
 		}
 	}
 
+	/**
+	 * Collect and add all "fixed sized" elements
+	 *
+	 * @param members input ObjectDescription values
+	 * @param data append collected elements to this list
+	 */
 	private void appendFixedSizeValues(final Object[] members, final List<Object> data)
 	{
 		final int upperLimit = getClampedArrayIndex(this.description.getLength(), this.fixedOffset, this.fixedLength);
@@ -88,6 +105,12 @@ public class ViewerObjectDescriptionCreator
 		}
 	}
 
+	/**
+	 *	Collect and append "variable size" elements
+	 *
+	 * @param members input ObjectDescription values
+	 * @param data append collected elements to this list
+	 */
 	private void appendVariableSizeValues(final Object[] members, final List<Object> data)
 	{
 		if(this.description.getVariableLength() != null)
@@ -103,12 +126,27 @@ public class ViewerObjectDescriptionCreator
 		}
 	}
 
+	/**
+	 * Collect "variable sized" elements
+	 *
+	 * @param values ObjectDescription values
+	 * @return
+	 */
 	private Object[] variableLengthValues(final Object[] values)
 	{
 		final int upperLimit = getClampedArrayIndex(values.length, this.variableOffset, this.variableLength);
 		return this.traverseValues(values, this.variableOffset, upperLimit);
 	}
 
+	/**
+	 * traverse input ObjectDescription values and collect them
+	 * only elements within [startIndex and endIndex[ are taken into account
+	 *
+	 * @param values input ObjectDescription values
+	 * @param startIndex
+	 * @param endIndex
+	 * @return
+	 */
 	private Object[] traverseValues(final Object[] values, final int startIndex, final int endIndex)
 	{
 		final List<Object> data = new ArrayList<>();
@@ -133,6 +171,9 @@ public class ViewerObjectDescriptionCreator
 		return data.toArray();
 	}
 
+	/**
+	 * Set the header values for the new ViewerObjectDescription
+	 */
 	private void setObjectHeader()
 	{
 		this.objDesc.setObjectId(Long.toString(this.description.getObjectId()));
@@ -149,6 +190,10 @@ public class ViewerObjectDescriptionCreator
 		}
 	}
 
+	/**
+	 * Collect and create Reference entries for the ViewerObjectDescription object to be crated
+	 *
+	 */
 	private void setReferences()
 	{
 		final ObjectDescription references[] = this.description.getReferences();
@@ -185,6 +230,13 @@ public class ViewerObjectDescriptionCreator
 	// private static methods //
 	///////////////////////////
 
+	/**
+	 * Set the primitive value of the new ViewerObjectDescription object
+	 *
+	 * @param description
+	 * @param objDesc
+	 * @param valueLength
+	 */
 	private static void setPrimitiveValue(
 		final ObjectDescription description,
 		final ViewerObjectDescription objDesc,
@@ -195,6 +247,15 @@ public class ViewerObjectDescriptionCreator
 		objDesc.setData(new String[] { subString } );
 	}
 
+	/**
+	 * calculate an valid end index for an array of "arrayLength" length
+	 * considering a start index and element count
+	 *
+	 * @param arrayLength length of the array
+	 * @param startIndex index to start
+	 * @param count number of desired elements
+	 * @return
+	 */
 	private static int getClampedArrayIndex(final long arrayLength, final long startIndex, final long count)
 	{
 		final long realLength = Math.max(Math.min(arrayLength - startIndex, count), 0);
@@ -202,6 +263,15 @@ public class ViewerObjectDescriptionCreator
 		return (int) endIndex;
 	}
 
+	/**
+	 * return a substring starting at index 0 with a max length of "valueLength"
+	 * if valueLength exceeds the strings length it will be limited to the strings length,
+	 * no exceptions are thrown.
+	 *
+	 * @param data
+	 * @param valueLength
+	 * @return
+	 */
 	private static String limitsPrimitiveType(final String data, final long valueLength)
 	{
 		final int endIndex = getClampedArrayIndex(data.length(), 0, valueLength);
