@@ -1,6 +1,8 @@
 package one.microstream.storage.test;
 
-import java.util.UUID;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 import one.microstream.chars.XChars;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -9,28 +11,29 @@ import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
 
-public class MainTestStoreUUID
+public class MainTestStoreInetSocketAddress
 {
 	static
 	{
-//		Test.clearDefausltStorageDirectory();
+		Test.clearDefaultStorageDirectory();
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 
-	public static void main(final String[] args)
+	public static void main(final String[] args) throws UnknownHostException
 	{
+		final InetAddress inetAddress = InetAddress.getByName("127.0.0.1");
+		final InetSocketAddress isa = new InetSocketAddress(inetAddress, 8080);
+		
 		
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
 		if(STORAGE.root() == null)
 		{
 			// first execution enters here (database creation)
-			
-			final UUID uuid = UUID.randomUUID();
 
 			Test.print("Model data required.");
-			STORAGE.setRoot(uuid);
+			STORAGE.setRoot(isa);
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();

@@ -1,6 +1,6 @@
 package one.microstream.storage.test;
 
-import java.util.UUID;
+import java.util.regex.Pattern;
 
 import one.microstream.chars.XChars;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -9,11 +9,11 @@ import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
 
-public class MainTestStoreUUID
+public class MainTestStoreRegExPattern
 {
 	static
 	{
-//		Test.clearDefausltStorageDirectory();
+//		Test.clearDefaultStorageDirectory();
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
@@ -21,16 +21,18 @@ public class MainTestStoreUUID
 
 	public static void main(final String[] args)
 	{
+		final String  patternString = "\\d.+[0-3]*";
+		final int     flags         = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE;
+		final Pattern pattern       = Pattern.compile(patternString, flags);
+		
 		
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
 		if(STORAGE.root() == null)
 		{
 			// first execution enters here (database creation)
-			
-			final UUID uuid = UUID.randomUUID();
 
 			Test.print("Model data required.");
-			STORAGE.setRoot(uuid);
+			STORAGE.setRoot(pattern);
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();

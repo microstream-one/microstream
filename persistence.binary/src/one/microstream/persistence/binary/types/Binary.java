@@ -1040,26 +1040,26 @@ public abstract class Binary implements Chunk
 		this.storeEntityHeader(0L, typeId, objectId); // so funny :D
 	}
 	
-	public final void storeStringValue(
+	public final void storeStringSingleValue(
 		final long   typeId  ,
 		final long   objectId,
 		final String string
 	)
 	{
 		// since Java 9, there is no sane way to store the string's internal data directly
-		this.storeStringValue(typeId, objectId, XChars.readChars(string));
+		this.storeStringSingleValue(typeId, objectId, XChars.readChars(string));
 	}
 	
-	public final void storeStringValue(
+	public final void storeStringSingleValue(
 		final long   typeId  ,
 		final long   objectId,
 		final char[] chars
 	)
 	{
-		this.storeStringValue(typeId, objectId, chars, 0, chars.length);
+		this.storeStringSingleValue(typeId, objectId, chars, 0, chars.length);
 	}
 
-	public final void storeStringValue(
+	public final void storeStringSingleValue(
 		final long   typeId  ,
 		final long   objectId,
 		final char[] chars   ,
@@ -1074,6 +1074,33 @@ public abstract class Binary implements Chunk
 		);
 		this.storeCharsAsList(0, chars, offset, length);
 	}
+	
+	public final void storeStringValue(
+		final long   binaryOffset,
+		final String string
+	)
+	{
+		this.storeStringValue(binaryOffset, XChars.readChars(string));
+	}
+	
+	public final void storeStringValue(
+		final long   binaryOffset,
+		final char[] chars
+	)
+	{
+		this.storeCharsAsList(binaryOffset, chars, 0, chars.length);
+	}
+	
+	public final void storeStringValue(
+		final long   binaryOffset,
+		final char[] chars       ,
+		final int    offset      ,
+		final int    length
+	)
+	{
+		this.storeCharsAsList(binaryOffset, chars, offset, length);
+	}
+	
 	
 	public final void storeReferences(
 		final long                    typeId      ,
@@ -1298,8 +1325,13 @@ public abstract class Binary implements Chunk
 				
 	public final String buildString()
 	{
+		return this.buildString(0);
+	}
+	
+	public final String buildString(final long offset)
+	{
 		// since Java 9, there is no sane way to build a string without copying the loaded data multiple times.
-		return String.valueOf(this.build_chars());
+		return String.valueOf(this.build_chars(offset));
 	}
 
 	

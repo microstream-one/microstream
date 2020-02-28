@@ -50,6 +50,8 @@ import one.microstream.java.lang.BinaryHandlerStringBuilder;
 import one.microstream.java.lang.BinaryHandlerVoid;
 import one.microstream.java.math.BinaryHandlerBigDecimal;
 import one.microstream.java.math.BinaryHandlerBigInteger;
+import one.microstream.java.net.BinaryHandlerURI;
+import one.microstream.java.net.BinaryHandlerURL;
 import one.microstream.java.sql.BinaryHandlerSqlDate;
 import one.microstream.java.sql.BinaryHandlerSqlTime;
 import one.microstream.java.sql.BinaryHandlerSqlTimestamp;
@@ -81,6 +83,7 @@ import one.microstream.java.util.concurrent.BinaryHandlerConcurrentLinkedDeque;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentLinkedQueue;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListMap;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListSet;
+import one.microstream.java.util.regex.BinaryHandlerPattern;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.binary.internal.BinaryHandlerSingletonStatelessEnum;
@@ -209,6 +212,9 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerDate.New()      ,
 			BinaryHandlerLocale.New()    ,
 			BinaryHandlerCurrency.New()  ,
+			BinaryHandlerPattern.New()   ,
+			BinaryHandlerURI.New()       ,
+			BinaryHandlerURL.New()       ,
 
 			// non-sensical handlers required for confused developers
 			BinaryHandlerSqlDate.New()     ,
