@@ -1,21 +1,23 @@
-package one.microstream.java.math;
+package one.microstream.java.net;
 
-import java.math.BigDecimal;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomValueVariableLength<BigDecimal>
+public final class BinaryHandlerURL extends AbstractBinaryHandlerCustomValueVariableLength<URL>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static BinaryHandlerBigDecimal New()
+	public static BinaryHandlerURL New()
 	{
-		return new BinaryHandlerBigDecimal();
+		return new BinaryHandlerURL();
 	}
 	
 	
@@ -24,12 +26,12 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	// constructors //
 	/////////////////
 
-	BinaryHandlerBigDecimal()
+	BinaryHandlerURL()
 	{
 		super(
-			BigDecimal.class,
+			URL.class,
 			CustomFields(
-				chars("value")
+				chars("address")
 			)
 		);
 	}
@@ -40,9 +42,9 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	// methods //
 	////////////
 	
-	private static String instanceState(final BigDecimal instance)
+	private static String instanceState(final URL instance)
 	{
-		return instance.toString();
+		return instance.toExternalForm();
 	}
 	
 	private static String binaryState(final Binary data)
@@ -51,27 +53,42 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	}
 
 	@Override
-	public void store(
+	public final void store(
 		final Binary                  data    ,
-		final BigDecimal              instance,
+		final URL                     instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		// there's a char[] constructor but no char[] utility method, so there's no other option than this
 		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
-	public BigDecimal create(final Binary data, final PersistenceLoadHandler handler)
+	public URL create(
+		final Binary                 data   ,
+		final PersistenceLoadHandler handler
+	)
 	{
-		return new BigDecimal(binaryState(data));
+		try
+		{
+			return new URL(binaryState(data));
+		}
+		catch(final MalformedURLException e)
+		{
+			throw new PersistenceException(
+				"Invalid data for " + this.toTypeIdentifier()
+				+ ", ObjectId " + data.getBuildItemObjectId()
+				+ ". Register a custom handler based on "
+				+ this.getClass() + " to investigate / compensate.",
+				e
+			);
+		}
 	}
 	
 	@Override
 	public void validateState(
 		final Binary                 data    ,
-		final BigDecimal             instance,
+		final URL                    instance,
 		final PersistenceLoadHandler handler
 	)
 	{

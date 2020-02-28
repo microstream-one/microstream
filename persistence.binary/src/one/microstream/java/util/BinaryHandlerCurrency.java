@@ -58,8 +58,7 @@ public final class BinaryHandlerCurrency extends AbstractBinaryHandlerCustomValu
 		final PersistenceStoreHandler handler
 	)
 	{
-		// for once, they managed to do a kind of proper de/serialization logic. Amazing.
-		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
+		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override

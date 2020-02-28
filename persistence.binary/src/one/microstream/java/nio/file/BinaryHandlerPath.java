@@ -67,7 +67,7 @@ public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVar
 	)
 	{
 		// uri starts with a schema specification that basically defines the type/implementation of the path.
-		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
+		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override

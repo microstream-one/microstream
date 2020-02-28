@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -588,6 +589,7 @@ public class Persistence
 		OutputStream.class,
 		FileChannel.class,
 		Socket.class,
+		ServerSocket.class,
 
 		// unshared composition types (those are internal helper class instances, not entities)
 		Composition.class,
@@ -605,7 +607,10 @@ public class Persistence
 		Iterator.class,
 		
 		// it makes no sense to support/allow these "magical" volatile references in a persistent context.
-		Reference.class
+		Reference.class,
+		
+		// for now, not supported because of JVM-managed fields etc.
+		Throwable.class
 		
 		// note: lambdas don't have a super class as such. See usages of "LambdaTypeRecognizer" instead
 	);
