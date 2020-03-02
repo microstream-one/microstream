@@ -23,11 +23,12 @@ public class MainTestStoreInetAddress
 
 	public static void main(final String[] args) throws UnknownHostException
 	{
-		final InetAddress iaByAddress1 = InetAddress.getByAddress("localhost", X.toBytes(0xFF_80_80_01));
+		final InetAddress iaByAddress1 = InetAddress.getByAddress(X.toBytes(0xFF_80_80_01));
 		final InetAddress iaByAddress2 = InetAddress.getByAddress("localhost", X.toBytes(0xFF_80_80_02));
 		final InetAddress iaByName1    = InetAddress.getByName("localhost");
 		final InetAddress iaByName2    = InetAddress.getByName("127.0.0.1");
-		
+	
+		// (02.03.2020 TM)FIXME: priv#117: test InetAddres v4 and v6.
 		
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
 		if(STORAGE.root() == null)
