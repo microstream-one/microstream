@@ -37,7 +37,7 @@ public class BinaryHandlerInet6Address extends AbstractBinaryHandlerInetAddress<
 	@Override
 	protected Inet6Address createInstance(final String hostNamePart, final String addressPart)
 	{
-		final byte[] address = parseIpV4Address(addressPart);
+		final byte[] address = parseIpV6Address(addressPart);
 				
 		// sadly, the morons did not provide a method that _just_ creates an unresolved instance.
 		try

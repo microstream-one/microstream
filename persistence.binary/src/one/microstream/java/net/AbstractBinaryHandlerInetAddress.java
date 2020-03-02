@@ -66,7 +66,7 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 			final byte[] address = new byte[parts.length];
 			for(int i = 0; i < parts.length; i++)
 			{
-				address[i] = Byte.parseByte(parts[i]);
+				address[i] = (byte)(Integer.parseInt(parts[i]) & 0xFF);
 			}
 			return address;
 		}
