@@ -1,19 +1,20 @@
 package one.microstream.java.net;
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import one.microstream.persistence.exceptions.PersistenceException;
 
-public class BinaryHandlerInetAddress extends AbstractBinaryHandlerInetAddress<InetAddress>
+public class BinaryHandlerInet6Address extends AbstractBinaryHandlerInetAddress<Inet6Address>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static BinaryHandlerInetAddress New()
+	public static BinaryHandlerInet6Address New()
 	{
-		return new BinaryHandlerInetAddress();
+		return new BinaryHandlerInet6Address();
 	}
 	
 	
@@ -22,9 +23,9 @@ public class BinaryHandlerInetAddress extends AbstractBinaryHandlerInetAddress<I
 	// constructors //
 	/////////////////
 
-	BinaryHandlerInetAddress()
+	BinaryHandlerInet6Address()
 	{
-		super(InetAddress.class);
+		super(Inet6Address.class);
 	}
 
 
@@ -34,14 +35,15 @@ public class BinaryHandlerInetAddress extends AbstractBinaryHandlerInetAddress<I
 	////////////
 		
 	@Override
-	protected InetAddress createInstance(final String hostNamePart, final String addressPart)
+	protected Inet6Address createInstance(final String hostNamePart, final String addressPart)
 	{
-		final byte[] address = parseIpAddress(addressPart);
+		final byte[] address = parseIpV4Address(addressPart);
 				
 		// sadly, the morons did not provide a method that _just_ creates an unresolved instance.
 		try
 		{
-			return InetAddress.getByAddress(hostNamePart, address);
+			// they never got how to design stuff so that no dangerous casts are necessary. Idiots.
+			return (Inet6Address)InetAddress.getByAddress(hostNamePart, address);
 		}
 		catch(final UnknownHostException e)
 		{

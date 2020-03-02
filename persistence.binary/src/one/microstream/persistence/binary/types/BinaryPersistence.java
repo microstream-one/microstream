@@ -50,6 +50,9 @@ import one.microstream.java.lang.BinaryHandlerStringBuilder;
 import one.microstream.java.lang.BinaryHandlerVoid;
 import one.microstream.java.math.BinaryHandlerBigDecimal;
 import one.microstream.java.math.BinaryHandlerBigInteger;
+import one.microstream.java.net.BinaryHandlerInet4Address;
+import one.microstream.java.net.BinaryHandlerInet6Address;
+import one.microstream.java.net.BinaryHandlerInetAddress;
 import one.microstream.java.net.BinaryHandlerInetSocketAddress;
 import one.microstream.java.net.BinaryHandlerURI;
 import one.microstream.java.net.BinaryHandlerURL;
@@ -209,15 +212,21 @@ public final class BinaryPersistence extends Persistence
 			
 			BinaryHandlerBigInteger.New(),
 			BinaryHandlerBigDecimal.New(),
-			BinaryHandlerFile.New()      ,
-			BinaryHandlerDate.New()      ,
-			BinaryHandlerLocale.New()    ,
-			BinaryHandlerCurrency.New()  ,
-			BinaryHandlerPattern.New()   ,
-			BinaryHandlerURI.New()       ,
-			BinaryHandlerURL.New()       ,
+			
+			BinaryHandlerFile.New()    ,
+			BinaryHandlerDate.New()    ,
+			BinaryHandlerLocale.New()  ,
+			BinaryHandlerCurrency.New(),
+			BinaryHandlerPattern.New() ,
+			
+			BinaryHandlerInetAddress.New() ,
+			BinaryHandlerInet4Address.New(),
+			BinaryHandlerInet6Address.New(),
 			
 			BinaryHandlerInetSocketAddress.New(),
+			
+			BinaryHandlerURI.New(),
+			BinaryHandlerURL.New(),
 
 			// non-sensical handlers required for confused developers
 			BinaryHandlerSqlDate.New()     ,
