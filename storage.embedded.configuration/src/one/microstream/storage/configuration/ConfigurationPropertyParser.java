@@ -6,6 +6,7 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.util.function.Consumer;
 
+import one.microstream.bytes.ByteMultiple;
 import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
 
 
@@ -165,7 +166,7 @@ public interface ConfigurationPropertyParser
 					case HOUSEKEEPING_INTERVAL_MS:
 					{
 						configuration.setHousekeepingIntervalMs(
-							this.durationParser.parse(value).toMillis()
+							this.durationParser.parse(value, DurationUnit.MS).toMillis()
 						);
 					}
 					break;
@@ -174,7 +175,7 @@ public interface ConfigurationPropertyParser
 					case HOUSEKEEPING_TIME_BUDGET_NS:
 					{
 						configuration.setHousekeepingTimeBudgetNs(
-							this.durationParser.parse(value).toNanos()
+							this.durationParser.parse(value, DurationUnit.NS).toNanos()
 						);
 					}
 					break;
@@ -182,7 +183,7 @@ public interface ConfigurationPropertyParser
 					case ENTITY_CACHE_THRESHOLD:
 					{
 						configuration.setEntityCacheThreshold(
-							this.fileSizeParser.parseFileSize(value)
+							this.fileSizeParser.parseFileSize(value, ByteMultiple.B)
 						);
 					}
 					break;
@@ -191,7 +192,7 @@ public interface ConfigurationPropertyParser
 					case ENTITY_CACHE_TIMEOUT_MS:
 					{
 						configuration.setEntityCacheTimeoutMs(
-							this.durationParser.parse(value).toMillis()
+							this.durationParser.parse(value, DurationUnit.MS).toMillis()
 						);
 					}
 					break;
@@ -200,7 +201,7 @@ public interface ConfigurationPropertyParser
 					case DATA_FILE_MINIMUM_SIZE:
 					{
 						configuration.setDataFileMinimumSize(
-							this.parseFileSize_int(value)
+							this.parseFileSize_int(value, ByteMultiple.B)
 						);
 					}
 					break;
@@ -209,7 +210,7 @@ public interface ConfigurationPropertyParser
 					case DATA_FILE_MAXIMUM_SIZE:
 					{
 						configuration.setDataFileMaximumSize(
-							this.parseFileSize_int(value)
+							this.parseFileSize_int(value, ByteMultiple.B)
 						);
 					}
 					break;
@@ -259,9 +260,9 @@ public interface ConfigurationPropertyParser
 			}
 		}
 
-		protected int parseFileSize_int(final String value)
+		protected int parseFileSize_int(final String value, final ByteMultiple defaultByteMultiple)
 		{
-			final long fileSize = this.fileSizeParser.parseFileSize(value);
+			final long fileSize = this.fileSizeParser.parseFileSize(value, defaultByteMultiple);
 			if(fileSize > Integer.MAX_VALUE)
 			{
 				throw new StorageExceptionInvalidConfiguration("Invalid file size: " + value);
