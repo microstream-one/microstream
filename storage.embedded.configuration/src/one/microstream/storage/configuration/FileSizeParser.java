@@ -9,7 +9,7 @@ import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
 @FunctionalInterface
 public interface FileSizeParser
 {
-	public long parseFileSize(String text);
+	public long parseFileSize(String text, ByteMultiple defaultByteMultiple);
 
 	
 	public static FileSizeParser Default()
@@ -21,7 +21,7 @@ public interface FileSizeParser
 	public static class Default implements FileSizeParser
 	{
 		private final Pattern pattern = Pattern.compile(
-			"([\\d.,]+)\\s*(\\w+)",
+			"(?<amount>[0-9]*\\.?[0-9]*([eE][-+]?[0-9]+)?)(?:\\s*)(?<unit>[a-z]+)",
 			Pattern.CASE_INSENSITIVE
 		);
 		
@@ -31,21 +31,20 @@ public interface FileSizeParser
 		}
 		
 		@Override
-		public long parseFileSize(final String text)
+		public long parseFileSize(final String text, final ByteMultiple defaultByteMultiple)
 		{
 			final Matcher matcher = this.pattern.matcher(text);
 			if(matcher.find())
 			{
 				return this.parseFileSizeWithUnit(
-					matcher.group(1),
-					matcher.group(2)
+					matcher.group("amount"),
+					matcher.group("unit")
 				);
 			}
 			
-			// missing unit is interpreted as size in bytes
 			try
 			{
-				return Long.parseLong(text);
+				return defaultByteMultiple.toBytes(Double.parseDouble(text));
 			}
 			catch(final NumberFormatException nfe)
 			{
