@@ -4,6 +4,7 @@ import one.microstream.X;
 import one.microstream.concurrency.XThreads;
 import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
+import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.Storage;
@@ -30,6 +31,12 @@ public class MainTestBackupStoringMinimal
 				// the only necessary part to activate and configure backupping.
 				StorageBackupSetup.New(XIO.Path("storageBackup"))
 			)
+		)
+		// priv#227 testing
+		.onConnectionFoundation(cf ->
+			cf.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.New(
+				XIO.Path("storage", "ExplicitTypeDictionary.ptd")
+			))
 		)
 		.start()
 	;
