@@ -966,13 +966,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final long lastIndexOf(final KeyValue<K, V> entry)
 	{
-		return ConstHashTable.this.chain.rngIndexOf(ConstHashTable.this.size - 1, -ConstHashTable.this.size, entry);
+		return ConstHashTable.this.chain.lastIndexOf(entry);
 	}
 
 	@Override
 	public final long lastIndexBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return ConstHashTable.this.chain.rngIndexOf(ConstHashTable.this.size - 1, -ConstHashTable.this.size, predicate);
+		return ConstHashTable.this.chain.lastIndexBy(predicate);
 	}
 
 	@Override

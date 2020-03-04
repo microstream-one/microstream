@@ -1185,12 +1185,6 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	public void reverse();
 
 	@Override
-	public void rngReverse(long offset, long length);
-
-	@Override
 	public void shuffle();
-
-	@Override
-	public void rngShuffle(long offset, long length);
 
 }

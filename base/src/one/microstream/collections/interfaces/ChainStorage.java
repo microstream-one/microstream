@@ -73,43 +73,17 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 	// containing //
 	///////////////
 
-	// containing - null //
-
 	public boolean containsNull();
 
-	public boolean rngContainsNull(final long offset, long length);
-
-	// containing - identity //
-
 	public boolean containsId(E element);
-
-	public boolean rngContainsId(long offset, long length, E element);
-
-	// containing - logical //
 
 	public boolean contains(E element);
 
 	public boolean contains(E sample, Equalator<? super E> equalator);
 
-	public boolean rngContains(long offset, long length, E element);
-
-	// containing - all array //
-
 	public boolean containsAll(E[] elements, int elementsOffset, int elementsLength);
 
-	public boolean rngContainsAll(
-		long offset,
-		long length,
-		E[] elements,
-		int elementsOffset,
-		int elementsLength
-	);
-
-	// containing - all collection //
-
 	public boolean containsAll(XGettingCollection<? extends E> elements);
-
-	public boolean rngContainsAll(long offset, long length, XGettingCollection<? extends E> elements);
 
 
 
@@ -117,17 +91,9 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 	// applying //
 	/////////////
 
-	// applying - single //
-
 	public boolean containsSearched(Predicate<? super E> predicate);
 
-	public boolean rngContainsSearched(long offset, long length, Predicate<? super E> predicate);
-
-	// applying - all //
-
 	public boolean appliesAll(Predicate<? super E> predicate);
-
-	public boolean rngAppliesAll(long offset, long length, Predicate<? super E> predicate);
 
 
 
@@ -135,19 +101,11 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 	// counting //
 	/////////////
 
-	// counting - element //
-
 	public long count(E element);
 
 	public long count(E sample, Equalator<? super E> equalator);
 
-	public long rngCount(long offset, long length, E element);
-
-	// counting - predicate //
-
 	public long count(Predicate<? super E> predicate);
-
-	public long rngCount(long offset, long length, Predicate<? super E> predicate);
 
 
 
@@ -175,60 +133,21 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 		C target
 	);
 
-	public <C extends Consumer<? super E>> C rngIntersect(
-		long offset,
-		long length,
-		XGettingCollection<? extends E> samples,
-		Equalator<? super E> equalator,
-		C target
-	);
-
-	public <C extends Consumer<? super E>> C rngExcept(
-		long offset,
-		long length,
-		XGettingCollection<? extends E> samples,
-		Equalator<? super E> equalator,
-		C target
-	);
-
-	public <C extends Consumer<? super E>> C rngUnion(
-		long offset,
-		long length,
-		XGettingCollection<? extends E> samples,
-		Equalator<? super E> equalator,
-		C target
-	);
-
 	// data - copying //
 
 	public <C extends Consumer<? super E>> C copyTo(C target);
-
-	public <C extends Consumer<? super E>> C rngCopyTo(long offset, long length, C target);
 
 	public <C extends Consumer<? super E>> C copySelection(C target, long[] indices);
 
 	public int copyToArray(long offset, int length, Object[] target, int targetOffset);
 
-	// data - conditional copying //
-
 	public <C extends Consumer<? super E>> C copyTo(C target, Predicate<? super E> predicate);
-
-	public <C extends Consumer<? super E>> C rngCopyTo(
-		long offset,
-		long length,
-		C target,
-		Predicate<? super E> predicate
-	);
 
 	// data - array transformation //
 
 	public Object[] toArray();
 
 	public      E[] toArray(Class<E> type);
-
-	public Object[] rngToArray(long offset, int length);
-
-	public      E[] rngToArray(long offset, int length, Class<E> type);
 
 
 
@@ -258,17 +177,11 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public E search(Predicate<? super E> predicate);
 
-	public E rngSearch(long offset, long length, Predicate<? super E> predicate);
-
 	// searching - min max //
 
 	public E min(Comparator<? super E> comparator);
 
 	public E max(Comparator<? super E> comparator);
-
-	public E rngMin(long offset, long length, Comparator<? super E> comparator);
-
-	public E rngMax(long offset, long length, Comparator<? super E> comparator);
 
 
 
@@ -282,13 +195,9 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public <A> void join(BiConsumer<? super E, A> joiner, A aggregate);
 
-	public void rngIterate(long offset, long length, Consumer<? super E> procedure);
-
 	// executing - indexed procedure //
 
 	public void iterateIndexed(IndexedAcceptor<? super E> procedure);
-
-	public void rngIterateIndexed(long offset, long length, IndexedAcceptor<? super E> procedure);
 
 	// executing - conditional //
 
@@ -311,15 +220,13 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public long indexOf(E sample, Equalator<? super E> equalator);
 
-	public long rngIndexOf(long offset, long length, E element);
-
-	public long rngIndexOf(long offset, long length, E sample, Equalator<? super E> equalator);
-
-	// indexing - predicate //
-
 	public long indexOf(Predicate<? super E> predicate);
 
-	public long rngIndexOf(long offset, long length, Predicate<? super E> predicate);
+	public long lastIndexOf(E element);
+
+	public long lastIndexOf(E sample, Equalator<? super E> equalator);
+
+	public long lastIndexBy(Predicate<? super E> predicate);
 
 	// indexing - min max //
 
@@ -327,15 +234,9 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public long maxIndex(Comparator<? super E> comparator);
 
-	public long rngMinIndex(long offset, long length, Comparator<? super E> comparator);
-
-	public long rngMaxIndex(long offset, long length, Comparator<? super E> comparator);
-
 	// indexing - scan //
 
 	public long scan(Predicate<? super E> predicate);
-
-	public long rngScan(long offset, long length, Predicate<? super E> predicate);
 
 
 
@@ -355,8 +256,10 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public <C extends Consumer<? super E>> C distinct(C target, Equalator<? super E> equalator);
 
+	// (04.03.2020 TM)FIXME: priv#239 remove
 	public <C extends Consumer<? super E>> C rngDistinct(long offset, long length, C target);
 
+	// (04.03.2020 TM)FIXME: priv#239 remove
 	public <C extends Consumer<? super E>> C rngDistinct(
 		long offset,
 		long length,
@@ -381,18 +284,6 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 	public VarString appendTo(VarString vc, BiConsumer<VarString, ? super E> appender, char separator);
 
 	public VarString appendTo(VarString vc, BiConsumer<VarString, ? super E> appender, String separator);
-
-	public VarString rngAppendTo(long offset, long length, VarString vc);
-
-	public VarString rngAppendTo(long offset, long length, VarString vc, char separator);
-
-	public VarString rngAppendTo(long offset, long length, VarString vc, String separator);
-
-	public VarString rngAppendTo(long offset, long length, VarString vc, BiConsumer<VarString, ? super E> appender);
-
-	public VarString rngAppendTo(long offset, long length, VarString vc, BiConsumer<VarString, ? super E> appender, char separator);
-
-	public VarString rngAppendTo(long offset, long length, VarString vc, BiConsumer<VarString, ? super E> appender, String separator);
 
 	@Override
 	public String toString();
@@ -426,8 +317,6 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public long removeNull();
 
-	public long rngRemoveNull(long offset, long length);
-
 	// removing - one single //
 
 	public E retrieve(E element);
@@ -435,10 +324,6 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 	public E retrieve(E sample, Equalator<? super E> equalator);
 
 	public E retrieve(Predicate<? super E> predicate);
-
-	public E rngRetrieve(long offset, long length, E element);
-
-	public E rngRetrieve(long offset, long length, E sample, Equalator<? super E> equalator);
 
 	public boolean removeOne(E element);
 
@@ -448,20 +333,23 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public long remove(E element);
 
-	public long remove(E sample, Equalator<? super E> equalator);
-
+	// (04.03.2020 TM)FIXME: priv#239 remove
 	public long rngRemove(long offset, long length, E element);
+
+	public long remove(E sample, Equalator<? super E> equalator);
 
 	// removing - multiple all array //
 
 	public long removeAll(E[] elements, int elementsOffset, int elementsLength);
 
+	// (04.03.2020 TM)FIXME: priv#239 remove
 	public long rngRemoveAll(long offset, long length, E[] elements, int elementsOffset, int elementsLength);
 
 	// removing - multiple all collection //
 
 	public long removeAll(XGettingCollection<? extends E> elements);
 
+	// (04.03.2020 TM)FIXME: priv#239 remove
 	public long rngRemoveAll(long offset, long length, XGettingCollection<? extends E> elements);
 
 	// removing - duplicates //
@@ -470,21 +358,13 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public long removeDuplicates(Equalator<? super E> equalator);
 
-	public long rngRemoveDuplicates(long offset, long length);
-
-	public long rngRemoveDuplicates(long offset, long length, Equalator<? super E> equalator);
-
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// reducing //
 	/////////////
 
-	// reducing - predicate //
-
 	public long reduce(Predicate<? super E> predicate);
-
-	public long rngReduce(long offset, long length, Predicate<? super E> predicate);
 
 
 
@@ -496,15 +376,9 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public long retainAll(E[] elements, int elementsOffset, int elementsLength);
 
-	public long rngRetainAll(long offset, long length, E[] elements, int elementsOffset, int elementsLength);
-
-	// retaining - collection //
-
 	public long retainAll(XGettingCollection<? extends E> elements);
 
 	public long retainAll(XGettingCollection<? extends E> samples, Equalator<? super E> equalator);
-
-	public long rngRetainAll(long offset, long length, XGettingCollection<? extends E> elements);
 
 
 
@@ -513,8 +387,6 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 	///////////////
 
 	public long process(Consumer<? super E> procedure);
-
-	public long rngProcess(long offset, long length, Consumer<? super E> procedure);
 
 
 
@@ -526,11 +398,7 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public long moveSelection(Consumer<? super E> target, long... indices);
 
-	// moving - conditional //
-
 	public long moveTo(Consumer<? super E> target, Predicate<? super E> predicate);
-
-	public long rngMoveTo(long offset, long length, Consumer<? super E> target, Predicate<? super E> predicate);
 
 
 
@@ -552,8 +420,6 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public void reverse();
 
-	public void rngReverse(long offset, long length);
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -562,15 +428,9 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public void sort(Comparator<? super E> comparator);
 
-	public void rngSort(long offset, long length, Comparator<? super E> comparator);
-
 	public boolean isSorted(Comparator<? super E> comparator);
 
-	public boolean rngIsSorted(long offset, long length, Comparator<? super E> comparator);
-
 	public void shuffle();
-
-	public void rngShuffle(long offset, long length);
 
 
 
@@ -594,54 +454,35 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public long replaceOne(E element, E replacement);
 
-	public long rngReplaceOne(long offset, long length, E element, E replacement);
-
 	// replacing - multiple single //
 
 	public long replace(E element, E replacement);
 
+	// (04.03.2020 TM)FIXME: priv#239 remove
 	public long rngReplace(long offset, long length, E element, E replacement);
-
-	public long rngReplace(long offset, long length, E sample, Equalator<? super E> equalator, E replacement);
 
 	// replacing - multiple all array //
 
 	public long replaceAll(E[] elements, int elementsOffset, int elementsLength, E replacement);
 
+	// (04.03.2020 TM)FIXME: priv#239 remove
 	public long rngReplaceAll(long offset, long length, E[] elements, int elementsOffset, int elementsLength, E replacement);
 
 	// replacing - multiple all collection //
 
 	public long replaceAll(XGettingCollection<? extends E> elements, E replacement);
 
+	// (04.03.2020 TM)FIXME: priv#239 remove
 	public long rngReplaceAll(long offset, long length, XGettingCollection<? extends E> elements, E replacement);
 
+	public long replaceOneBy(Predicate<? super E> predicate, E substitute);
+
+	public long replaceBy(Predicate<? super E> predicate, E substitute);
+	
 	// replacing - mapped //
 
 	public long substitute(Function<E, E> mapper);
 
 	public long substitute(Predicate<? super E> predicate, Function<E, E> mapper);
-
-	public long rngSubstitute(long offset, long length, Function<E, E> mapper);
-
-	public long rngSubstitute(long offset, long length, Predicate<? super E> predicate, Function<E, E> mapper);
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// substituting //
-	/////////////////
-
-	// substituting - one //
-
-	public long replaceOneBy(Predicate<? super E> predicate, E substitute);
-
-	public long rngReplaceOneBy(long offset, long length, Predicate<? super E> predicate, E substitute);
-
-	// substituting - multiple //
-
-	public long replaceBy(Predicate<? super E> predicate, E substitute);
-
-	public long rngReplaceOne(long offset, long length, Predicate<? super E> predicate, E substitute);
 
 }

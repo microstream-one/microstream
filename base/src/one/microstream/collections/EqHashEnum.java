@@ -1285,13 +1285,13 @@ implements XEnum<E>, HashCollection<E>, Composition
 	@Override
 	public final long lastIndexOf(final E element)
 	{
-		return this.chain.rngIndexOf(this.size - 1, -this.size, element, this.hashEqualator);
+		return this.chain.lastIndexOf(element, this.hashEqualator);
 	}
 
 	@Override
 	public final long lastIndexBy(final Predicate<? super E> predicate)
 	{
-		return this.chain.rngIndexOf(this.size - 1, -this.size, predicate);
+		return this.chain.lastIndexBy(predicate);
 	}
 
 	@Override

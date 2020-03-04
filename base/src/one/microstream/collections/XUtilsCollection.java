@@ -122,7 +122,6 @@ public final class XUtilsCollection
 	}
 
 
-	@SuppressWarnings("unchecked")
 	public static <E> void shuffle(final XSortableSequence<E> collection)
 	{
 		if(collection instanceof AbstractSimpleArrayCollection<?>)
@@ -131,10 +130,11 @@ public final class XUtilsCollection
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), XTypes.to_int(collection.size())
 			);
 		}
-		else if(collection instanceof AbstractChainCollection<?, ?, ?, ?>)
-		{
-			((AbstractChainCollection<E, ?, ?, ?>)collection).getInternalStorageChain().shuffle();
-		}
+		// (04.03.2020 TM)NOTE: Chain shuffle has not been implemented correctly so far.
+//		else if(collection instanceof AbstractChainCollection<?, ?, ?, ?>)
+//		{
+//			((AbstractChainCollection<E, ?, ?, ?>)collection).getInternalStorageChain().shuffle();
+//		}
 		else
 		{
 			final FastRandom random = new FastRandom();
@@ -145,7 +145,6 @@ public final class XUtilsCollection
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <E> void rngShuffle(final XSortableSequence<E> collection, final long offset, final long length)
 	{
 		if(collection instanceof AbstractSimpleArrayCollection<?>)
@@ -156,10 +155,6 @@ public final class XUtilsCollection
 				XTypes.to_int(offset),
 				XTypes.to_int(length)
 			);
-		}
-		else if(collection instanceof AbstractChainCollection<?, ?, ?, ?>)
-		{
-			((AbstractChainCollection<E, ?, ?, ?>)collection).getInternalStorageChain().rngShuffle(offset, length);
 		}
 		else
 		{
@@ -1811,11 +1806,6 @@ public final class XUtilsCollection
 				procedure,
 				(E)MARKER
 			);
-			return sequence;
-		}
-		if(sequence instanceof AbstractChainCollection<?, ?, ?, ?>)
-		{
-			((AbstractChainCollection<E, ?, ?, ?>)sequence).getInternalStorageChain().rngProcess(offset, length, procedure);
 			return sequence;
 		}
 

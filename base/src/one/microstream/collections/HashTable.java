@@ -1744,13 +1744,13 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	@Override
 	public final long lastIndexOf(final KeyValue<K, V> entry)
 	{
-		return HashTable.this.chain.rngIndexOf(HashTable.this.size - 1, -HashTable.this.size, entry);
+		return this.chain.lastIndexOf(entry);
 	}
 
 	@Override
 	public final long lastIndexBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return HashTable.this.chain.rngIndexOf(HashTable.this.size - 1, -HashTable.this.size, predicate);
+		return this.chain.lastIndexBy(predicate);
 	}
 
 	@Override
