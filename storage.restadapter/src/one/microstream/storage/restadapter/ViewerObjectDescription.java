@@ -9,6 +9,7 @@ public class ViewerObjectDescription
 	private String objectId;
 	private String typeId;
 	private String length;
+	private String[] variableLength;
 	private Object[] data;
 	private ViewerObjectDescription[] references;
 
@@ -75,6 +76,16 @@ public class ViewerObjectDescription
 	public void setReferences(final ViewerObjectDescription[] references)
 	{
 		this.references = references;
+	}
+
+	public String[] getVariableLength()
+	{
+		return this.variableLength ;
+	}
+
+	public void setVariableLength(final String[] variableLength)
+	{
+		this.variableLength = variableLength;
 	}
 
 

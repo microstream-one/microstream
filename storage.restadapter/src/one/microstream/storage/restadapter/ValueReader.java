@@ -1,5 +1,8 @@
 package one.microstream.storage.restadapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -141,17 +144,23 @@ public interface ValueReader
 	{
 		final Object[] objectValues = new Object[valueReaders.length];
 
-		long variableLength = -1;
+		final List<Long> variableLength = new ArrayList<>();
 		long offset = 0;
 		for(int i = 0; i < objectValues.length; i++)
 		{
 			objectValues[i] = valueReaders[i].readValue(binary, offset);
 			final long size = valueReaders[i].getBinarySize(binary, offset);
-			variableLength = valueReaders[i].getVariableLength(binary, offset);
+			final long variableSize = valueReaders[i].getVariableLength(binary, offset);
 			offset += size;
+
+			if(variableSize > -1)
+			{
+				variableLength.add(variableSize);
+			}
 		}
 
-		objectDescription.setLength( variableLength > -1 ? variableLength : objectValues.length);
+		objectDescription.setLength(objectValues.length - variableLength.size());
+		objectDescription.setVariableLength(variableLength.size() > 0 ? variableLength.toArray(new Long[0]) : null);
 
 
 		objectDescription.setValues(objectValues);

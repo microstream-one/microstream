@@ -1,21 +1,21 @@
-package one.microstream.java.math;
+package one.microstream.java.util;
 
-import java.math.BigDecimal;
+import java.util.Currency;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueVariableLength;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomValueVariableLength<BigDecimal>
+public final class BinaryHandlerCurrency extends AbstractBinaryHandlerCustomValueVariableLength<Currency>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static BinaryHandlerBigDecimal New()
+	public static BinaryHandlerCurrency New()
 	{
-		return new BinaryHandlerBigDecimal();
+		return new BinaryHandlerCurrency();
 	}
 	
 	
@@ -24,12 +24,12 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	// constructors //
 	/////////////////
 
-	BinaryHandlerBigDecimal()
+	BinaryHandlerCurrency()
 	{
 		super(
-			BigDecimal.class,
+			Currency.class,
 			CustomFields(
-				chars("value")
+				chars("currencyCode")
 			)
 		);
 	}
@@ -40,9 +40,9 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	// methods //
 	////////////
 	
-	private static String instanceState(final BigDecimal instance)
+	private static String instanceState(final Currency instance)
 	{
-		return instance.toString();
+		return instance.getCurrencyCode();
 	}
 	
 	private static String binaryState(final Binary data)
@@ -51,27 +51,29 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	}
 
 	@Override
-	public void store(
+	public final void store(
 		final Binary                  data    ,
-		final BigDecimal              instance,
+		final Currency                instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		// there's a char[] constructor but no char[] utility method, so there's no other option than this
 		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
-	public BigDecimal create(final Binary data, final PersistenceLoadHandler handler)
+	public Currency create(
+		final Binary                 data   ,
+		final PersistenceLoadHandler handler
+	)
 	{
-		return new BigDecimal(binaryState(data));
+		return Currency.getInstance(binaryState(data));
 	}
 	
 	@Override
 	public void validateState(
 		final Binary                 data    ,
-		final BigDecimal             instance,
+		final Currency                 instance,
 		final PersistenceLoadHandler handler
 	)
 	{

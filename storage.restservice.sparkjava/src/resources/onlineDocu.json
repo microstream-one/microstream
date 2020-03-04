@@ -47,9 +47,9 @@
                             "format": "int64"
                         }
                     },
-                    {
-                        "name": "dataOffset",
-                        "description": "index of the first element to fetch",
+					{
+                        "name": "valueLength",
+                        "description": "limit size of returned value elements to this value",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -58,8 +58,38 @@
                         }
                     },
                     {
-                        "name": "dataLength",
-                        "description": "number of elements to be fetched",
+                        "name": "fixedOffset",
+                        "description": "index of the first fix sized element to fetch",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "fixedLength",
+                        "description": "number of fix sized elements to be fetched",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+					{
+                        "name": "variableOffset",
+                        "description": "index of the first element in variable sized collections to be fetched",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "variableLength",
+                        "description": "number of elements to be fetched from variable sized collections",
                         "in": "query",
                         "required": false,
                         "schema": {

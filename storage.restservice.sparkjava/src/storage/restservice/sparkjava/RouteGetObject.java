@@ -11,9 +11,9 @@ public class RouteGetObject extends RouteBaseConvertable<StorageRestAdapterObjec
 	// constructors //
 	/////////////////
 
-	public RouteGetObject(final StorageRestAdapterObject apiAdapter)
+	public RouteGetObject(final StorageRestAdapterObject storageRestAdapter)
 	{
-		super(apiAdapter);
+		super(storageRestAdapter);
 	}
 
 
@@ -24,26 +24,31 @@ public class RouteGetObject extends RouteBaseConvertable<StorageRestAdapterObjec
 	@Override
 	public String handle(final Request request, final Response response)
 	{
-		final long dataOffset = this.getLongParameter(request, "dataOffset", 0);
-        final long dataLength = this.getLongParameter(request, "dataLength", this.apiAdapter.getDefaultDataLength());
+		final long fixedOffset = this.getLongParameter(request, "fixedOffset", 0);
+        final long fixedLength = this.getLongParameter(request, "fixedLength", Long.MAX_VALUE);
+        final long variableOffset = this.getLongParameter(request, "variableOffset", 0);
+        final long variableLength = this.getLongParameter(request, "variableLength", Long.MAX_VALUE);
 		final long referenceOffset = this.getLongParameter(request, "referenceOffset", 0);
 		final long referenceLength = this.getLongParameter(request, "referenceLength", Long.MAX_VALUE);
-		final long valueOffset = this.getLongParameter(request, "valueOffset", 0);
-		final long valueLength = this.getLongParameter(request, "valueLength", Long.MAX_VALUE);
+		final long valueLength = this.getLongParameter(request, "valueLength", this.apiAdapter.getDefaultValueLength());
 		final boolean resolveReferences = this.getBooleanParameter(request, "references", false);
 		final String requestedFormat = this.getStringParameter(request, "format");
 
 		final long objectId = this.validateObjectId(request);
 		final ViewerObjectDescription storageObject = this.apiAdapter.getObject(
 			objectId,
-			dataOffset,
-			dataLength,
-			valueOffset,
-			valueLength,
-			resolveReferences,
+			fixedOffset,
+			fixedLength,
+			variableOffset,
+			variableLength,
 			referenceOffset,
-			referenceLength);
+			referenceLength,
+			valueLength,
+			resolveReferences);
 
 		return this.toRequestedFormat(storageObject, requestedFormat, response);
 	}
+
+
+
 }

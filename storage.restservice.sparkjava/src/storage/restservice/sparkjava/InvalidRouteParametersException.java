@@ -3,9 +3,11 @@ package storage.restservice.sparkjava;
 @SuppressWarnings("serial")
 public class InvalidRouteParametersException extends RuntimeException
 {
-	public InvalidRouteParametersException(final String message)
+	private static final String EXCEPTION_TEXT = "invalid url parameter ";
+
+	public InvalidRouteParametersException(final String parameterName)
 	{
-		super(message);
+		super(EXCEPTION_TEXT + parameterName);
 	}
 
 }

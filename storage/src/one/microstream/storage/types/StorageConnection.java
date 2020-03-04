@@ -16,6 +16,9 @@ import one.microstream.persistence.types.Unpersistable;
 /**
  * Ultra-thin delegatig type that connects a {@link PersistenceManager} instance (potentially exclusively created)
  * to a storage instance.
+ * <p>
+ * Note that this is a rather "internal" type that users usually do not have to use or care about.
+ * Since {@link StorageManager} implements this interface, is is normally sufficient to use just that.
  *
  * @author TM
  */
@@ -55,7 +58,7 @@ public interface StorageConnection extends Persister
 	/**
 	 * Issues garbage collection to be executed, limited to the time budget in nanoseconds specified
 	 * by the passed {@code nanoTimeBudget}.<br>
-	 * Then the time budget is used up, the garbage collector will keep the current progress and continue there
+	 * When the time budget is used up, the garbage collector will keep the current progress and continue there
 	 * at the next opportunity. The same progress marker is used by the implicit housekeeping, so both mechanisms
 	 * will continue on the same progress.<br>
 	 * If no store has occured since the last completed garbage sweep, this method will have no effect and return
@@ -91,9 +94,15 @@ public interface StorageConnection extends Persister
 	/**
 	 * Issues a storage file check to be executed, limited to the time budget in nanoseconds specified
 	 * by the passed {@code nanoTimeBudget}.<br>
+	 * When the time budget is used up, the checking logic will keep the current progress and continue there
+	 * at the next opportunity. The same progress marker is used by the implicit housekeeping, so both mechanisms
+	 * will continue on the same progress.<br>
+	 * If no store has occured since the last completed check, this method will have no effect and return
+	 * immediately.
 	 * 
-	 * @param nanoTimeBudget
-	 * @return
+	 * @param nanoTimeBudget the time budget in nanoseconds to be used to perform file checking.
+	 * 
+	 * @return whether the returned call has completed file checking.
 	 */
 	public boolean issueFileCheck(long nanoTimeBudget);
 	
@@ -120,23 +129,78 @@ public interface StorageConnection extends Persister
 
 //	public boolean issueFileCheck(long nanoTimeBudget, StorageDataFileDissolvingEvaluator fileDissolvingEvaluator);
 
+	/**
+	 * Issues a full storage cache check to be executed. Depending on the size of the database,
+	 * the available cache, used hardware, etc., this can take any amount of time.
+	 * <p>
+	 * Cache checking evaluates every cache entity data about being worth to be kept in cache according to
+	 * the configured {@link StorageEntityCacheEvaluator} logic. If deemed unworthy, its data will be cleared
+	 * from the cache and has to be loaded from the persistent form on the next reading access.<br>
+	 * The check will run until the used cache size is 0 or every entity is checked at least once.
+	 * 
+	 * @see #issueFullCacheCheck(StorageEntityCacheEvaluator)
+	 * @see #issueCacheCheck(long)
+	 * @see #issueCacheCheck(long, StorageEntityCacheEvaluator)
+	 */
 	public default void issueFullCacheCheck()
 	{
 		this.issueFullCacheCheck(null); // providing no explicit evaluator means to use the internal one
 	}
 
+	/**
+	 * Same as {@link #issueFullCacheCheck()}, but with using the passed {@link StorageEntityCacheEvaluator}
+	 * logic instead of the configured one.
+	 * 
+	 * @param entityEvaluator the entity cache evaluation logic to be used for the call.
+	 * 
+	 * @see #issueFullCacheCheck()
+	 * @see #issueCacheCheck(long)
+	 * @see #issueCacheCheck(long, StorageEntityCacheEvaluator)
+	 */
 	public default void issueFullCacheCheck(final StorageEntityCacheEvaluator entityEvaluator)
 	{
 		this.issueCacheCheck(Long.MAX_VALUE, entityEvaluator);
 	}
 
+	/**
+	 * Issues a storage cache check to be executed, limited to the time budget in nanoseconds specified
+	 * by the passed {@code nanoTimeBudget}.<br>
+	 * When the time budget is used up, the checking logic will keep the current progress and continue there
+	 * at the next opportunity. The same progress marker is used by the implicit housekeeping, so both mechanisms
+	 * will continue on the same progress.<br>
+	 * If the used cache size is 0, this method will have no effect and return immediately.
+	 * 
+	 * @param nanoTimeBudget the time budget in nanoseconds to be used to perform cache checking.
+	 * 
+	 * @return whether the used cache size is 0 or became 0 via the performed check.
+	 * 
+	 * @see #issueFullCacheCheck()
+	 * @see #issueFullCacheCheck(StorageEntityCacheEvaluator)
+	 * @see #issueCacheCheck(long, StorageEntityCacheEvaluator)
+	 */
 	public default boolean issueCacheCheck(final long nanoTimeBudget)
 	{
 		return this.issueCacheCheck(nanoTimeBudget, null);
 	}
 
+	/**
+	 * Same as {@link #issueCacheCheck(long)}, but with using the passed {@link StorageEntityCacheEvaluator}
+	 * logic instead of the configured one.
+	 * 
+	 * @param entityEvaluator the entity cache evaluation logic to be used for the call.
+	 * 
+	 * @see #issueFullCacheCheck()
+	 * @see #issueFullCacheCheck(StorageEntityCacheEvaluator)
+	 * @see #issueCacheCheck(long)
+	 */
 	public boolean issueCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
 
+	/**
+	 * Creates a {@link StorageRawFileStatistics} instance, (obviously) containing raw file statistics about
+	 * every channel in the storage.
+	 * 
+	 * @return a {@link StorageRawFileStatistics} instance based on the current state.
+	 */
 	public StorageRawFileStatistics createStorageStatistics();
 
 	/* (28.06.2013 TM)TODO: post-sweep-task queue?
@@ -146,26 +210,78 @@ public interface StorageConnection extends Persister
 	 * without having to actively poll (trial-and-error) for it.
 	 * Should not be to complicated as the phase check already is a task
 	 */
-	public void exportChannels(StorageIoHandler fileHandler, boolean performGarbageCollection);
+	
+	/**
+	 * Exports the data of all channels in the storage by using the passed {@link StorageIoHandler} instance.<br>
+	 * This is basically a simple file copy applied to all files in the storage, however with the guaranteed safety
+	 * of no other task / access to the storage's files intervening with the ongoing process. This is useful to
+	 * safely create a complete copy of the storage, e.g. a full backup.
+	 * 
+	 * @param ioHandler the {@link StorageIoHandler} logic to be used for the export.
+	 * @param performGarbageCollection whether a {@link #issueFullGarbageCollection()} shall be issued before
+	 *        performing the export.
+	 */
+	public void exportChannels(StorageIoHandler ioHandler, boolean performGarbageCollection);
 
-	public default void exportChannels(final StorageIoHandler fileHandler)
+	/**
+	 * Alias for {@code this.exportChannels(fileHandler, true);}.
+	 * 
+	 * @param ioHandler the {@link StorageIoHandler} logic to be used for the export.
+	 * 
+	 * @see #exportChannels(StorageIoHandler, boolean)
+	 */
+	public default void exportChannels(final StorageIoHandler ioHandler)
 	{
-		this.exportChannels(fileHandler, true);
+		this.exportChannels(ioHandler, true);
 	}
+	
+	/**
+	 * Exports the entity data of all selected types of all channels into one file per type.<br>
+	 * The data will be in the native binary format used internally by the storage. Converters can be used
+	 * to transform the data into a different, for example human readable, form like CSV.
+	 * <p>
+	 * This is useful to extract the data contained in the storage in a structured way, for example to migrate it
+	 * into another storage system or to analyze it, like converting it into human readable form.
+	 * 
+	 * @param exportFileProvider the {@link StorageEntityTypeExportFileProvider} logic to be used.
+	 * 
+	 * @param isExportType a {@link Predicate} selecting which type's entity data to be exported.
+	 * 
+	 * @return a {@link StorageEntityTypeExportStatistics} information instance about the completed export.
+	 * 
+	 * @see #exportTypes(StorageEntityTypeExportFileProvider)
+	 */
+	public StorageEntityTypeExportStatistics exportTypes(
+		StorageEntityTypeExportFileProvider         exportFileProvider,
+		Predicate<? super StorageEntityTypeHandler> isExportType
+	);
 
+	/**
+	 * Alias for {@code this.exportTypes(exportFileProvider, null);}, meaning all types are exported.
+	 * 
+	 * @param exportFileProvider the {@link StorageEntityTypeExportFileProvider} logic to be used.
+	 * 
+	 * @return a {@link StorageEntityTypeExportStatistics} information instance about the completed export.
+	 * 
+	 * @see #exportTypes(StorageEntityTypeExportFileProvider, Predicate)
+	 */
 	public default StorageEntityTypeExportStatistics exportTypes(
 		final StorageEntityTypeExportFileProvider exportFileProvider
 	)
 	{
 		return this.exportTypes(exportFileProvider, null);
 	}
-	
-	public StorageEntityTypeExportStatistics exportTypes(
-		StorageEntityTypeExportFileProvider         exportFileProvider,
-		Predicate<? super StorageEntityTypeHandler> isExportType
-	);
-	
 
+	/**
+	 * Imports all files specified by the passed Enum (ordered set) of {@link Path} in order.<br>
+	 * The files are assumed to be in the native binary format used internally by the storage.<br>
+	 * All entities contained in the specified files will be imported. If they already exist in the storage
+	 * (identified by their ObjectId), their current data will be replaced by the imported data.<br>
+	 * Note that importing data that is not reachable from any root entity will have no effect and will
+	 * eventually be deleted by the garbage collector.
+	 * 
+	 * @param importFiles the files whose native binary content shall be imported.
+	 */
 	public void importFiles(XGettingEnum<Path> importFiles);
 
 	/* (13.07.2015 TM)TODO: load by type somehow
@@ -176,45 +292,68 @@ public interface StorageConnection extends Persister
 
 //	public XGettingTable<Class<?>, ? extends XGettingEnum<?>> loadAllByTypes(XGettingEnum<Class<?>> types);
 
-
+	/**
+	 * @return the {@link PersistenceManager} used by this {@link StorageConnection}.
+	 */
 	public PersistenceManager<Binary> persistenceManager();
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public default long store(final Object instance)
 	{
 		return this.persistenceManager().store(instance);
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public default long[] storeAll(final Object... instances)
 	{
 		return this.persistenceManager().storeAll(instances);
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public default void storeAll(final Iterable<?> instances)
 	{
 		this.persistenceManager().storeAll(instances);
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public default Storer createLazyStorer()
 	{
 		return this.persistenceManager().createLazyStorer();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public default Storer createStorer()
 	{
 		return this.persistenceManager().createStorer();
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public default Storer createEagerStorer()
 	{
 		return this.persistenceManager().createEagerStorer();
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public default Object getObject(final long objectId)
 	{

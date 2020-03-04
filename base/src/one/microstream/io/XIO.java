@@ -615,12 +615,38 @@ public final class XIO
 		return XChars.String(bytes, charSet);
 	}
 	
+	public static String readString(final FileChannel fileChannel)
+		throws IOException
+	{
+		return readString(fileChannel, XChars.standardCharset());
+	}
+	
+	public static String readString(final FileChannel fileChannel, final Charset charSet)
+		throws IOException
+	{
+		final byte[] bytes = read_bytes(fileChannel);
+		
+		return XChars.String(bytes, charSet);
+	}
+	
+	
 	public static byte[] read_bytes(final Path file)
 		throws IOException
 	{
 		final ByteBuffer content = read(file);
 		final byte[]     bytes   = XMemory.toArray(content);
 		XMemory.deallocateDirectByteBuffer(content);
+		
+		return bytes;
+	}
+	
+	public static byte[] read_bytes(final FileChannel fileChannel)
+		throws IOException
+	{
+		final ByteBuffer bb = XIO.read(fileChannel);
+		
+		final byte[] bytes = XMemory.toArray(bb);
+		XMemory.deallocateDirectByteBuffer(bb);
 		
 		return bytes;
 	}
@@ -1033,6 +1059,84 @@ public final class XIO
 
 		return readCount;
 	}
+	
+	
+	/**
+	 * Uses {@link #openFileChannelReading(Path)}, {@link #openFileChannelWriting(Path, OpenOption...)}
+	 * and {@link #copyFile(FileChannel, FileChannel)} to copy the contents of the specified {@code sourceFile}
+	 * to the specified {@code targetFile}.<br>
+	 * {@link #ensureDirectoryAndFile(Path)} is intentionally <b>NOT</b> called in order to not swallow problems
+	 * in the calling context's logic.<p>
+	 * <b>Important note</b>:<br>
+	 * This method is a fix for the bugged JDK method {@link Files#copy(Path, Path, java.nio.file.CopyOption...)},
+	 * which throws an incorrect exception about another process having locked "the file" (without specifying
+	 * which one it means) if the process owns a lock on the source file. Since this means the process locks
+	 * itself out of using the source file if it has secured the source file for its exclusive use, this is nothing
+	 * but a bug. As a consequence, the JDK method cannot be used if a file is locked and should generally not be
+	 * trusted. Once again, one has to write a proper solution by oneself since the quality in the JDK code is just
+	 * too low.
+	 * <p>
+	 * For any special needs like copying from and/or to a position and/or only a part of the file and/or using
+	 * custom OpenOptions and/or modifying file timestamps and or performing pre- or post-actions, it is strongly
+	 * suggested to write a custom tailored version of a copying method. Covering all conceivable cases would result
+	 * in an overly complicated one-size-fits-all attempt and we all know how well those work in practice.	 *
+	 * 
+	 * @param sourceFile the source file whose content shall be copied.
+	 * @param targetFile the target file that shall receive the copied content. Must already exist!
+	 * @param targetChannelOpenOptions the {@link OpenOption}s (see {@link StandardOpenOption}) to be passed to
+	 *        {@link #openFileChannelWriting(Path, OpenOption...)}. May be null / empty.
+	 * 
+	 * @return the number of bytes written by {@link FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)}.
+	 * 
+	 * @throws IOException
+	 * 
+	 * @see #ensureFile(Path)
+	 * @see #ensureDirectoryAndFile(Path)
+	 * @see StandardOpenOption
+	 * @see #openFileChannelReading(Path)
+	 * @see #openFileChannelWriting(Path)
+	 * @see #copyFile(FileChannel, FileChannel)
+	 * @see FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)
+	 */
+	public static long copyFile(
+		final Path          sourceFile              ,
+		final Path          targetFile              ,
+		final OpenOption... targetChannelOpenOptions
+	)
+		throws IOException
+	{
+		try(
+			final FileChannel sourceChannel = openFileChannelReading(sourceFile);
+			final FileChannel targetChannel = openFileChannelWriting(targetFile, targetChannelOpenOptions);
+		)
+		{
+			return copyFile(sourceChannel, targetChannel);
+		}
+	}
+	
+	/**
+	 * Alias for {@code targetChannel.transferFrom(sourceChannel, 0, sourceChannel.size())}.<br>
+	 * (Once again a method that is missing in the JDK.)
+	 * 
+	 * @param sourceChannel an open and readable channel to the source file whose content shall be copied.
+	 * @param targetChannel an open and writeable channel to the target file that shall receive the copied content.
+	 * 
+	 * @return The number of bytes, possibly zero, that were actually transferred.
+	 * 
+	 * @throws IOException as specified by {@link FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)}
+	 * 
+	 * @see FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)
+	 * @see #copyFile(Path, Path)
+	 */
+	public static long copyFile(final FileChannel sourceChannel, final FileChannel targetChannel)
+		throws IOException
+	{
+		return targetChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+	}
+	
+	
+	
+	
 	
 	// breaks naming conventions intentionally to indicate a modification of called methods instead of a type
 	public static final class unchecked

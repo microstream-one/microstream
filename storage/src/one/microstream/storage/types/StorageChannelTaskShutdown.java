@@ -58,7 +58,7 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 			this.operationController.deactivate();
 
 			// can / may never throw an exception
-			channel.clear();
+			channel.reset();
 		}
 
 		@Override
