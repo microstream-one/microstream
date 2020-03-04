@@ -5,10 +5,12 @@ import static one.microstream.X.notNull;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.Reference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -587,6 +589,7 @@ public class Persistence
 		OutputStream.class,
 		FileChannel.class,
 		Socket.class,
+		ServerSocket.class,
 
 		// unshared composition types (those are internal helper class instances, not entities)
 		Composition.class,
@@ -601,7 +604,13 @@ public class Persistence
 		new CopyOnWriteArrayList<>().subList(0, 0).getClass(), // java.util.concurrent.CopyOnWriteArrayList$COWSubList
 		
 		Enumeration.class,
-		Iterator.class
+		Iterator.class,
+		
+		// it makes no sense to support/allow these "magical" volatile references in a persistent context.
+		Reference.class,
+		
+		// for now, not supported because of JVM-managed fields etc.
+		Throwable.class
 		
 		// note: lambdas don't have a super class as such. See usages of "LambdaTypeRecognizer" instead
 	);
@@ -833,8 +842,9 @@ public class Persistence
 
 	@SuppressWarnings({ "unchecked", "rawtypes" }) // type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> resolveEnumeratedClassIdentifierSeparatedType(
-		final String typeName,
-		final String substituteClassIdentifierSeparator
+		final String      typeName   ,
+		final ClassLoader classLoader,
+		final String      substituteClassIdentifierSeparator
 	)
 	{
 		// there can only be one at the most, so a simple indexOf is sufficient.
@@ -845,7 +855,7 @@ public class Persistence
 		}
 		
 		final String properTypeName = typeName.substring(0, sepIndex);
-		final Class<?> type = resolveType(properTypeName, substituteClassIdentifierSeparator);
+		final Class<?> type = resolveType(properTypeName, classLoader, substituteClassIdentifierSeparator);
 		
 		if(!XReflect.isDeclaredEnum(type))
 		{
@@ -861,18 +871,23 @@ public class Persistence
 	}
 	
 	// type safety guaranteed by the passed typename. The typename String "is" the T.
-	public static <T> Class<T> resolveType(final String typeName)
+	public static <T> Class<T> resolveType(final String typeName, final ClassLoader classLoader)
 	{
-		return resolveType(typeName, substituteClassIdentifierSeparator());
+		return resolveType(typeName, classLoader, substituteClassIdentifierSeparator());
 	}
 
 	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> resolveType(
-		final String typeName,
-		final String substituteClassIdentifierSeparator
+		final String      typeName   ,
+		final ClassLoader classLoader,
+		final String      substituteClassIdentifierSeparator
 	)
 	{
-		final Class<?> c = resolveEnumeratedClassIdentifierSeparatedType(typeName, substituteClassIdentifierSeparator);
+		final Class<?> c = resolveEnumeratedClassIdentifierSeparatedType(
+			typeName,
+			classLoader,
+			substituteClassIdentifierSeparator
+		);
 		if(c != null)
 		{
 			return (Class<T>)c;
@@ -880,7 +895,7 @@ public class Persistence
 		
 		try
 		{
-			return (Class<T>)XReflect.resolveType(typeName);
+			return (Class<T>)XReflect.resolveType(typeName, classLoader);
 		}
 		catch(final ClassNotFoundException e)
 		{
@@ -888,11 +903,11 @@ public class Persistence
 		}
 	}
 	
-	public static <T> Class<T> tryResolveType(final String typeName)
+	public static <T> Class<T> tryResolveType(final String typeName, final ClassLoader classLoader)
 	{
 		try
 		{
-			return Persistence.resolveType(typeName);
+			return Persistence.resolveType(typeName, classLoader);
 		}
 		catch(final PersistenceExceptionTypeConsistencyDefinitionResolveTypeName e)
 		{

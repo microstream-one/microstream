@@ -98,8 +98,8 @@ public interface StorageChannelsCreator
 					rootTypeId                                       ,
 					markQueues[i]                                    ,
 					eventLogger                                      ,
-					markBufferLength                                 ,
-					markingWaitTimeMs
+					markingWaitTimeMs                                ,
+					markBufferLength
 				);
 
 				// file manager to handle "file" IO (whatever "file" might be, might be a RDBMS binary table as well)

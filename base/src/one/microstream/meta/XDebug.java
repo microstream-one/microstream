@@ -7,7 +7,7 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -522,18 +522,15 @@ public final class XDebug
 		}
 	}
 
-	public static void copyActualFile(final Path sourceRoot, final Path subject, final Path targetRoot) throws IOException
+	public static void copyActualFile(final Path sourceRoot, final Path subject, final Path targetRoot)
+		throws IOException
 	{
 		final String sourceRootPath = sourceRoot.toAbsolutePath().normalize().toString();
 		final String subjectPath    = subject.toAbsolutePath().normalize().toString();
+		final Path   sourceFile     = subject;
 		final Path   targetFile     = XIO.Path(targetRoot, subjectPath.substring(sourceRootPath.length()));
 
-		XIO.ensureDirectoryAndFile(targetFile);
-
-		final Path sourcePath      = subject;
-		final Path destinationPath = targetFile;
-
-		Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+		XIO.copyFile(sourceFile, targetFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	}
 	
 	

@@ -121,7 +121,7 @@ public class MainTestStoreEnum
 	static void printMappedName(final Class<?> type)
 	{
 		final String persistentTypeName = Persistence.derivePersistentTypeName(type);
-		final Class<?> reresolvedClass  = Persistence.resolveType(persistentTypeName);
+		final Class<?> reresolvedClass  = Persistence.resolveType(persistentTypeName, ClassLoader.getSystemClassLoader());
 		System.out.println(type.getName() + " -> " + persistentTypeName + " -> " + reresolvedClass.getName());
 	}
 	
