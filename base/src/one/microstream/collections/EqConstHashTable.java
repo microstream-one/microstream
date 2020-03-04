@@ -682,7 +682,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public one.microstream.collections.types.XImmutableTable.Bridge<K, V> oldMap()
+	public XImmutableTable.Bridge<K, V> oldMap()
 	{
 		return new OldVarMap();
 	}
@@ -1132,13 +1132,15 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final long lastIndexOf(final KeyValue<K, V> entry)
 	{
-		return EqConstHashTable.this.chain.rngIndexOf(EqConstHashTable.this.size - 1, -EqConstHashTable.this.size, entry);
+		return this.chain.lastIndexBy(kv ->
+			this.hashEqualator.equal(kv.key(), entry.key())
+		);
 	}
 
 	@Override
 	public final long lastIndexBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return EqConstHashTable.this.chain.rngIndexOf(EqConstHashTable.this.size - 1, -EqConstHashTable.this.size, predicate);
+		return EqConstHashTable.this.chain.lastIndexBy(predicate);
 	}
 
 	@Override

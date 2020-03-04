@@ -1899,13 +1899,15 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final long lastIndexOf(final KeyValue<K, V> entry)
 	{
-		return EqHashTable.this.chain.rngIndexOf(EqHashTable.this.size - 1, -EqHashTable.this.size, entry);
+		return EqHashTable.this.chain.lastIndexBy(kv ->
+			this.hashEqualator.equal(kv.key(), entry.key())
+		);
 	}
 
 	@Override
 	public final long lastIndexBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return EqHashTable.this.chain.rngIndexOf(EqHashTable.this.size - 1, -EqHashTable.this.size, predicate);
+		return EqHashTable.this.chain.lastIndexBy(predicate);
 	}
 
 	@Override
