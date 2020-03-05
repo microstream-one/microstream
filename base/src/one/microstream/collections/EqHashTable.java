@@ -3775,7 +3775,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long indexBy(final Predicate<? super V> predicate)
 		{
-			return EqHashTable.this.chain.valuesIndexOf(predicate);
+			return EqHashTable.this.chain.valuesIndexBy(predicate);
 		}
 
 		@Override
@@ -3787,13 +3787,13 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long lastIndexOf(final V value)
 		{
-			return EqHashTable.this.chain.valuesRngIndexOf(EqHashTable.this.size - 1, EqHashTable.this.size, value);
+			return EqHashTable.this.chain.valuesLastIndexOf(value);
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super V> predicate)
 		{
-			return EqHashTable.this.chain.valuesRngIndexOf(EqHashTable.this.size - 1, EqHashTable.this.size, predicate);
+			return EqHashTable.this.chain.valuesLastIndexBy(predicate);
 		}
 
 		@Override
