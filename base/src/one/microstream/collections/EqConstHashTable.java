@@ -2092,7 +2092,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long indexBy(final Predicate<? super V> predicate)
 		{
-			return EqConstHashTable.this.chain.valuesIndexOf(predicate);
+			return EqConstHashTable.this.chain.valuesIndexBy(predicate);
 		}
 
 		@Override
@@ -2104,13 +2104,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long lastIndexOf(final V value)
 		{
-			return EqConstHashTable.this.chain.valuesRngIndexOf(EqConstHashTable.this.size - 1, EqConstHashTable.this.size, value);
+			return EqConstHashTable.this.chain.valuesLastIndexOf(value);
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super V> predicate)
 		{
-			return EqConstHashTable.this.chain.valuesRngIndexOf(EqConstHashTable.this.size - 1, EqConstHashTable.this.size, predicate);
+			return EqConstHashTable.this.chain.valuesLastIndexBy(predicate);
 		}
 
 		@Override
