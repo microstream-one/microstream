@@ -2,8 +2,6 @@ package one.microstream.collections;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static one.microstream.collections.AbstractChainEntry.HOP_NEXT;
-import static one.microstream.collections.AbstractChainEntry.HOP_PREV;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -411,7 +409,8 @@ extends AbstractChainStorage<E, K, V, EN>
 	@Override
 	public final void retainRange(final long offset, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainStrongStrongStorage#retainRange()
+		// FIXME ChainStrongStrongStorage#retainRange()
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	/**
@@ -1606,41 +1605,11 @@ extends AbstractChainStorage<E, K, V, EN>
 	@Override
 	public final <C extends Consumer<? super E>> C distinct(final C target)
 	{
-		return this.rngDistinct(XTypes.to_int(this.parent.size()) - 1, XTypes.to_int(this.parent.size()), target);
-	}
-
-	@Override
-	public final <C extends Consumer<? super E>> C distinct(final C target, final Equalator<? super E> equalator)
-	{
-		return this.rngDistinct(XTypes.to_int(this.parent.size()) - 1, XTypes.to_int(this.parent.size()), target, equalator);
-	}
-
-	@Override
-	public final <C extends Consumer<? super E>> C rngDistinct(final long offset, long length, final C target)
-	{
-		if(length == 0)
-		{
-			return target; // required for correctness of direction reversion
-		}
-
-		EN e;
-		if((e = this.getRangeChainEntry(offset + length - (length > 0 ? 1 : -1), -length)) == null)
-		{
-			return target;
-		}
-
-		// hopping direction (reversed for algorighm!)
-		final AbstractChainEntry.Hopper ch = length < 0 ? HOP_NEXT : HOP_PREV;
-		if(length < 0)
-		{
-			length = -length;
-		}
-
 		mainLoop: // find last distinct element in reverse order: means put first distinct element to target
-		for(; length > 0; e = ch.hop(e), length--)
+		for(EN e = this.head.next; e != null; e = e.next)
 		{
 			final E element = e.element();
-			for(EN lookAhead = ch.hop(e); lookAhead != null; lookAhead = ch.hop(lookAhead))
+			for(EN lookAhead = e.next; lookAhead != null; lookAhead = lookAhead.next)
 			{
 				if(element == lookAhead.element())
 				{
@@ -1654,36 +1623,13 @@ extends AbstractChainStorage<E, K, V, EN>
 	}
 
 	@Override
-	public final <C extends Consumer<? super E>> C rngDistinct(
-		final long offset,
-		      long length,
-		final C target,
-		final Equalator<? super E> equalator
-	)
+	public final <C extends Consumer<? super E>> C distinct(final C target, final Equalator<? super E> equalator)
 	{
-		if(length == 0)
-		{
-			return target; // required for correctness of direction reversion
-		}
-
-		EN e;
-		if((e = this.getRangeChainEntry(offset + length - (length > 0 ? 1 : -1), -length)) == null)
-		{
-			return target;
-		}
-
-		// hopping direction (reversed for algorighm!)
-		final AbstractChainEntry.Hopper ch = length < 0 ? HOP_NEXT : HOP_PREV;
-		if(length < 0)
-		{
-			length = -length;
-		}
-
 		mainLoop: // find last distinct element in reverse order: means put first distinct element to target
-		for(; length > 0; e = ch.hop(e), length--)
+		for(EN e = this.head.next; e != null; e = e.next)
 		{
 			final E element = e.element();
-			for(EN lookAhead = ch.hop(e); lookAhead != null; lookAhead = ch.hop(lookAhead))
+			for(EN lookAhead = e.next; lookAhead != null; lookAhead = lookAhead.next)
 			{
 				if(equalator.equal(element, lookAhead.element()))
 				{
@@ -1700,7 +1646,7 @@ extends AbstractChainStorage<E, K, V, EN>
 
 	///////////////////////////////////////////////////////////////////////////
 	// VarString appending //
-	//////////////////////
+	////////////////////////
 
 	@Override
 	public final VarString appendTo(final VarString vc)
@@ -1961,42 +1907,6 @@ extends AbstractChainStorage<E, K, V, EN>
 		return oldSize - XTypes.to_int(this.parent.size());
 	}
 
-	@Override
-	public final long rngRemove(long offset, final long length, final E element)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-		int removeCount = 0;
-		final long bound = offset + length;
-		final AbstractChainCollection<E, K, V, EN> parent = this.parent;
-		if(length > 0)
-		{
-			for(; offset != bound; e = e.next, offset++)
-			{
-				if(e.element() == element)
-				{
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		else
-		{
-			for(; offset != bound; e = e.prev, offset--)
-			{
-				if(e.element() == element)
-				{
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		return removeCount;
-	}
-
 	// removing - multiple all array //
 
 	@Override
@@ -2027,63 +1937,6 @@ extends AbstractChainStorage<E, K, V, EN>
 		return removeCount;
 	}
 
-	@Override
-	public final long rngRemoveAll(
-		      long offset,
-		final long length,
-		final E[] elements,
-		final int elementsOffset,
-		final int elementsLength
-	)
-	{
-		final int d;
-		if((d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
-		{
-			return 0;
-		}
-		final EN first;
-		if((first = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		final int elementsBound = elementsOffset + elementsLength;
-		final long bound = offset + length;
-		int removeCount = 0;
-		final AbstractChainCollection<E, K, V, EN> parent = this.parent;
-		if(length > 0)
-		{
-			for(EN e = first; offset != bound; e = e.next, offset++)
-			{
-				for(int i = elementsOffset; i != elementsBound; i += d)
-				{
-					if(e.element() == elements[i])
-					{
-						e.removeFrom(parent);
-						removeCount++;
-						break;
-					}
-				}
-			}
-		}
-		else
-		{
-			for(EN e = first; offset != bound; e = e.prev, offset++)
-			{
-				for(int i = elementsOffset; i != elementsBound; i += d)
-				{
-					if(e.element() == elements[i])
-					{
-						e.removeFrom(parent);
-						removeCount++;
-						break;
-					}
-				}
-			}
-		}
-		return removeCount;
-	}
-
 	// removing - multiple all collection //
 
 	@Override
@@ -2091,9 +1944,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	{
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return this.rngRemoveAll(
-				0,
-				XTypes.to_int(this.parent.size()),
+			return this.removeAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
 				XTypes.to_int(elements.size())
@@ -2108,33 +1959,6 @@ extends AbstractChainStorage<E, K, V, EN>
 			public void accept(final E e)
 			{
 				this.removeCount += ChainStorageStrong.this.remove(e);
-			}
-
-		}).removeCount;
-	}
-
-	@Override
-	public final long rngRemoveAll(final long offset, final long length, final XGettingCollection<? extends E> elements)
-	{
-		if(elements instanceof AbstractSimpleArrayCollection<?>)
-		{
-			return this.rngRemoveAll(
-				offset,
-				length,
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
-				0,
-				XTypes.to_int(elements.size())
-			);
-		}
-
-		return elements.iterate(new Consumer<E>()
-		{
-			int removeCount;
-
-			@Override
-			public void accept(final E e)
-			{
-				this.removeCount += ChainStorageStrong.this.rngRemove(offset, length, e);
 			}
 
 		}).removeCount;
@@ -2498,7 +2322,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final void shuffle()
 	{
 		// (04.04.2016 TM)NOTE: chain storage shuffling is currently not correct (and has never been used/tested/needed)
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainStorageStrong#rngShuffle()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainStorageStrong#shuffle()
 //		EN entry;
 //		EN entry = this.head;
 //		int length = XTypes.to_int(this.parent.size());
@@ -2610,41 +2434,6 @@ extends AbstractChainStorage<E, K, V, EN>
 		return replaceCount;
 	}
 
-	@Override
-	public final long rngReplace(final long offset, long length, final E element, final E replacement)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int replaceCount = 0;
-		if(length > 0)
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(e.element() == element)
-				{
-					e.setElement0(replacement);
-					replaceCount++;
-				}
-			}
-		}
-		else
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(e.element() == element)
-				{
-					e.setElement0(replacement);
-					replaceCount++;
-				}
-			}
-		}
-		return replaceCount;
-	}
-
 	// replacing - multiple all array //
 
 	@Override
@@ -2674,63 +2463,6 @@ extends AbstractChainStorage<E, K, V, EN>
 		return replaceCount;
 	}
 
-	@Override
-	public final long rngReplaceAll(
-		      long offset,
-		final long length,
-		final E[] elements,
-		final int elementsOffset,
-		final int elementsLength,
-		final E replacement
-	)
-	{
-		final int d;
-		if((d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
-		{
-			return 0;
-		}
-		final EN first;
-		if((first = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		final int elementsBound = elementsOffset + elementsLength;
-		final long bound = offset + length;
-		int replaceCount = 0;
-		if(length > 0)
-		{
-			for(EN e = first; offset != bound; e = e.next, offset++)
-			{
-				for(int i = elementsOffset; i != elementsBound; i += d)
-				{
-					if(e.element() == elements[i])
-					{
-						e.setElement0(replacement);
-						replaceCount++;
-						break;
-					}
-				}
-			}
-		}
-		else
-		{
-			for(EN e = first; offset != bound; e = e.prev, offset++)
-			{
-				for(int i = elementsOffset; i != elementsBound; i += d)
-				{
-					if(e.element() == elements[i])
-					{
-						e.setElement0(replacement);
-						replaceCount++;
-						break;
-					}
-				}
-			}
-		}
-		return replaceCount;
-	}
-
 	// replacing - multiple all collection //
 
 	@Override
@@ -2738,9 +2470,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	{
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return this.rngReplaceAll(
-				0,
-				XTypes.to_int(this.parent.size()),
+			return this.replaceAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
 				XTypes.to_int(elements.size()),
@@ -2758,37 +2488,6 @@ extends AbstractChainStorage<E, K, V, EN>
 				this.replaceCount += ChainStorageStrong.this.replace(e, replacement);
 			}
 
-		}).replaceCount;
-	}
-
-	@Override
-	public final long rngReplaceAll(
-		final long                             offset     ,
-		final long                             length     ,
-		final XGettingCollection<? extends E> elements   ,
-		final E                               replacement
-	)
-	{
-		if(elements instanceof AbstractSimpleArrayCollection<?>)
-		{
-			return this.rngReplaceAll(
-				offset,
-				length,
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
-				0,
-				XTypes.to_int(elements.size()),
-				replacement
-			);
-		}
-
-		return elements.iterate(new Consumer<E>()
-		{
-			int replaceCount;
-			@Override
-			public void accept(final E e)
-			{
-				this.replaceCount += ChainStorageStrong.this.rngReplace(offset, length, e, replacement);
-			}
 		}).replaceCount;
 	}
 

@@ -18,6 +18,7 @@ implements ChainStorage.Entry<E, K, V, EN>, KeyValue<K, V>, java.util.Map.Entry<
 	//////////////
 
 	// (13.04.2016)TODO: test and delete or comment if that hopping is really faster than a tiny if-check
+	// (05.03.2020 TM)FIXME: priv#239: remove after cleanup
 	public static final Hopper HOP_NEXT = new Hopper()
 	{
 		@Override
