@@ -6,7 +6,9 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import one.microstream.X;
 import one.microstream.collections.EqHashTable;
+import one.microstream.functional.Aggregator;
 import one.microstream.typing.KeyValue;
 
 
@@ -119,7 +121,70 @@ public interface CacheTable
 			final Comparator<? super KeyValue<Object, CachedValue>> comparator
 		)
 		{
-			return this.table.rangeMin(offset, length, comparator);
+			return this.table.iterate(new RangeMin<>(offset, length, comparator)).yield();
+		}
+		
+		
+		static class RangeMin<E> implements Aggregator<E, E>
+		{
+			private final long                  offset, length;
+			private final Comparator<? super E> order;
+			private long                        iterationOffset, iterationLength;
+			private E                           iterationElement;
+			
+			RangeMin(final long offset, final long length, final Comparator<? super E> order)
+			{
+				super();
+				
+				this.offset = offset;
+				this.length = length;
+				this.order  = order ;
+				
+				this.reset();
+			}
+			
+			@Override
+			public final RangeMin<E> reset()
+			{
+				this.iterationElement = null;
+				this.iterationOffset  = this.offset;
+				this.iterationLength  = this.length;
+				
+				return this;
+			}
+
+			@Override
+			public final void accept(final E element)
+			{
+				if(this.iterationOffset > 0)
+				{
+					this.iterationOffset--;
+					return;
+				}
+				
+				if(this.iterationLength <= 0)
+				{
+					throw X.BREAK();
+				}
+				
+				if(this.iterationLength-- == this.length)
+				{
+					this.iterationElement = element;
+					return;
+				}
+						
+				if(this.order.compare(element, this.iterationElement) < 0)
+				{
+					this.iterationElement = element;
+				}
+			}
+			
+			@Override
+			public final E yield()
+			{
+				return this.iterationElement;
+			}
+			
 		}
 		
 	}

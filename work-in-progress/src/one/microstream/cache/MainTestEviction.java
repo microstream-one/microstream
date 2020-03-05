@@ -7,7 +7,9 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.Random;
 
+import one.microstream.X;
 import one.microstream.collections.EqHashTable;
+import one.microstream.functional.Aggregator;
 import one.microstream.math.XMath;
 import one.microstream.typing.KeyValue;
 
@@ -74,7 +76,7 @@ public class MainTestEviction
 					? maxSampleSize
 					: optSampleSize;
 			final int offset        = RANDOM.nextInt(cacheSize - sampleSize - 1);
-			smallestEntry = cache.rangeMin(offset, sampleSize, COMPARATOR).value();
+			smallestEntry = cache.iterate(new RangeMin<>(offset, sampleSize, COMPARATOR)).yield().value();
 		}
 		
 		final double approximation =
@@ -98,6 +100,68 @@ public class MainTestEviction
 			
 			this.timestamp = timestamp;
 			this.value     = value;
+		}
+		
+	}
+	
+	static class RangeMin<E> implements Aggregator<E, E>
+	{
+		private final long                  offset, length;
+		private final Comparator<? super E> order;
+		private long                        iterationOffset, iterationLength;
+		private E                           iterationElement;
+		
+		RangeMin(final long offset, final long length, final Comparator<? super E> order)
+		{
+			super();
+			
+			this.offset = offset;
+			this.length = length;
+			this.order  = order ;
+			
+			this.reset();
+		}
+		
+		@Override
+		public final RangeMin<E> reset()
+		{
+			this.iterationElement = null;
+			this.iterationOffset  = this.offset;
+			this.iterationLength  = this.length;
+			
+			return this;
+		}
+
+		@Override
+		public final void accept(final E element)
+		{
+			if(this.iterationOffset > 0)
+			{
+				this.iterationOffset--;
+				return;
+			}
+			
+			if(this.iterationLength <= 0)
+			{
+				throw X.BREAK();
+			}
+			
+			if(this.iterationLength-- == this.length)
+			{
+				this.iterationElement = element;
+				return;
+			}
+					
+			if(this.order.compare(element, this.iterationElement) < 0)
+			{
+				this.iterationElement = element;
+			}
+		}
+		
+		@Override
+		public final E yield()
+		{
+			return this.iterationElement;
 		}
 		
 	}
