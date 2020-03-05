@@ -209,7 +209,13 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int keyIndexOf(K sample, Equalator<? super K> equalator);
 
-	public int keyIndexOf(Predicate<? super K> predicate);
+	public int keyIndexBy(Predicate<? super K> predicate);
+
+	public int keyLastIndexOf(K element);
+
+	public int keyLastIndexOf(K sample, Equalator<? super K> equalator);
+
+	public int keyLastIndexBy(Predicate<? super K> predicate);
 
 	public int keyMinIndex(Comparator<? super K> keyComparator);
 

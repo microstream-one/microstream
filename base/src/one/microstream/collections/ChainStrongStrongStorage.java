@@ -1106,8 +1106,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	// indexing //
 	/////////////
 
-	// indexing - single //
-
 	@Override
 	public final int keyIndexOf(final K element)
 	{
@@ -1136,15 +1134,62 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return -1;
 	}
 
-	// indexing - predicate //
-
 	@Override
-	public final int keyIndexOf(final Predicate<? super K> predicate)
+	public final int keyIndexBy(final Predicate<? super K> predicate)
 	{
 		int i = 0;
 		try
 		{
 			for(EN e = this.head.next; e != null; e = e.next, i++)
+			{
+				if(predicate.test(e.key()))
+				{
+					return i;
+				}
+			}
+		}
+		catch(final ThrowBreak b)
+		{
+			// abort iteration
+		}
+		return -1;
+	}
+
+	@Override
+	public final int keyLastIndexOf(final K element)
+	{
+		int i = 0;
+		for(EN e = this.head.prev; e != this.head; e = e.prev, i++)
+		{
+			if(e.key() == element)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	@Override
+	public final int keyLastIndexOf(final K sample, final Equalator<? super K> equalator)
+	{
+		int i = 0;
+		for(EN e = this.head.prev; e != this.head; e = e.prev, i++)
+		{
+			if(equalator.equal(e.key(), sample))
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	@Override
+	public final int keyLastIndexBy(final Predicate<? super K> predicate)
+	{
+		int i = 0;
+		try
+		{
+			for(EN e = this.head.prev; e != this.head; e = e.prev, i++)
 			{
 				if(predicate.test(e.key()))
 				{
