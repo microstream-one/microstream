@@ -77,57 +77,32 @@ public class StorageRestClientJersey implements StorageRestClient
 	
 	@Override
 	public ViewerObjectDescription requestObject(
-		final long oid
-	)
-	{
-		return this.requestObject(oid, false, -1, -1);
-	}
-	
-	@Override
-	public ViewerObjectDescription requestObjectWithReferences(
-		final long oid
-	)
-	{
-		return this.requestObject(oid, true, -1, -1);
-	}
-	
-	@Override
-	public ViewerObjectDescription requestObjectWithReferences(
-		final long oid,
-		final long referenceOffset,
-		final long referenceLength
-	)
-	{
-		return this.requestObject(oid, true, referenceOffset, referenceLength);
-	}
-
-	private ViewerObjectDescription requestObject(
-		final long oid,
-		final boolean references,
-		final long referenceOffset,
-		final long referenceLength
+		final ObjectRequest objectRequest
 	)
 	{
 		WebTarget target = this.storageRestService()
 			.path("object")
-			.path(Long.toString(oid));
+			.path(Long.toString(objectRequest.objectId()));
 		
-		if(references)
-		{
-			target = target.queryParam("references", "true");
-			if(referenceOffset >= 0)
-			{
-				target = target.queryParam("referenceOffset", referenceOffset);
-			}
-			if(referenceLength >= 0)
-			{
-				target = target.queryParam("referenceLength", referenceLength);
-			}
-		}
+		target = this.optAddParam(target, "valueLength",     objectRequest.valueLength    ());
+		target = this.optAddParam(target, "fixedOffset",     objectRequest.fixedOffset    ());
+		target = this.optAddParam(target, "fixedLength",     objectRequest.fixedLength    ());
+		target = this.optAddParam(target, "variableOffset",  objectRequest.variableOffset ());
+		target = this.optAddParam(target, "variableLength",  objectRequest.variableLength ());
+		target = this.optAddParam(target, "references",      objectRequest.references     ());
+		target = this.optAddParam(target, "referenceOffset", objectRequest.referenceOffset());
+		target = this.optAddParam(target, "referenceLength", objectRequest.referenceLength());
 						
 		return target
 			.request(MediaType.APPLICATION_JSON)
 			.get(ViewerObjectDescription.class);
+	}
+	
+	private WebTarget optAddParam(final WebTarget target, final String name, final Object value)
+	{
+		return value != null
+			? target.queryParam(name, value)
+			: target;
 	}
 
 	@Override
@@ -138,7 +113,6 @@ public class StorageRestClientJersey implements StorageRestClient
 			.request(MediaType.APPLICATION_JSON)
 			.get(ViewerStorageFileStatistics.class);
 	}
-
 
 	@Override
 	public void close()
