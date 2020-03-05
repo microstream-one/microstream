@@ -27,6 +27,8 @@ public interface CachedValue
 	
 	public CachedValue value(Object value, long accessTime);
 	
+	public long byteSizeEstimate();
+	
 	public static CachedValue New(final Object value, final long creationTime, final long expiryTime)
 	{
 		return new Default(value, creationTime, expiryTime);
@@ -133,6 +135,14 @@ public interface CachedValue
 			this.value            = value;
 			this.modificationCount++;
 			return this;
+		}
+		
+		@Override
+		public long byteSizeEstimate()
+		{
+			return this.value instanceof ByteSized
+				? ((ByteSized)this.value).byteSize()
+				: -1;
 		}
 		
 	}

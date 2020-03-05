@@ -6,7 +6,7 @@ import static one.microstream.X.notNull;
 import one.microstream.persistence.binary.types.Binary;
 
 
-public interface SerializedObject
+public interface SerializedObject extends ByteSized
 {
 	public Binary serializedData();
 	
@@ -32,6 +32,12 @@ public interface SerializedObject
 		public Binary serializedData()
 		{
 			return this.serializedData;
+		}
+		
+		@Override
+		public long byteSize()
+		{
+			return this.serializedData.totalLength();
 		}
 		
 		@Override
