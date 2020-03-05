@@ -16,17 +16,7 @@ public interface StorageRestClient extends AutoCloseable
 	public ViewerRootDescription requestRoot();
 	
 	public ViewerObjectDescription requestObject(
-		long oid
-	);
-	
-	public ViewerObjectDescription requestObjectWithReferences(
-		long oid
-	);
-	
-	public ViewerObjectDescription requestObjectWithReferences(
-		long oid,
-		long referenceOffset,
-		long referenceLength
+		ObjectRequest objectRequest
 	);
 	
 	public ViewerStorageFileStatistics requestFileStatistics();
